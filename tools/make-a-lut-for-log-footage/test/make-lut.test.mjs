@@ -3,10 +3,11 @@
 // that proves the same mechanism reads another curve. Checks the .cube shape, a rising grey ramp, each setting, the
 // profile's own settings and the flags that override them, and refusals that say what to change.
 // Needs python3 with numpy; without them these tests skip and say why.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,7 +16,7 @@ const folder = fileURLToPath(new URL('..', import.meta.url));
 const script = join(folder, 'do-work', 'make_lut.py');
 const fixture = join(folder, 'test', 'fixture');
 const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records[0].payload;
-const work = mkdtempSync(join(tmpdir(), 'make-lut-'));
+const work = tempFolder(join(tmpdir(), 'make-lut-'));
 const python = (...argv) => spawnSync('python3', ['-I', ...argv], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 const numpy = python('-c', 'import numpy');
 const skip = numpy.status === 0 ? false : 'needs python3 with numpy; run the row\'s get_it commands';

@@ -1,8 +1,9 @@
 // Real owner scripts with synthetic compiler processes: no Rust/WASM compilation.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, readlinkSync, rmSync, statSync, utimesSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, readlinkSync, rmSync, statSync, utimesSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -24,7 +25,7 @@ const files = {
 };
 
 function setup() {
-  const home = mkdtempSync(join(tmpdir(), 'compiled-build-owner-'));
+  const home = tempFolder(join(tmpdir(), 'compiled-build-owner-'));
   const built = join(home, TOOL, 'built-stored-bytes');
   mkdirSync(join(home, BUILD), { recursive: true });
   for (const name of ['shared-cargo-target.mjs', 'build-crate-for-a-web-host.mjs', 'compiled-modules.mjs', 'build-compiled-modules.mjs']) {

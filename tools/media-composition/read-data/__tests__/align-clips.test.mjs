@@ -11,10 +11,11 @@
  * whereas the RAW clips' events differ by ~0.5s. Fabricated data could not make a real render's transients
  * coincide. PLUS determinism.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -34,7 +35,7 @@ function clickClip(file, at) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'align-'));
+  const dir = tempFolder(join(tmpdir(), 'align-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -42,7 +43,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'align-render-'));
+  work = tempFolder(join(tmpdir(), 'align-render-'));
   clipA = join(work, 'a.mp4'); clickClip(clipA, 0.8);
   clipB = join(work, 'b.mp4'); clickClip(clipB, 1.3);
 });

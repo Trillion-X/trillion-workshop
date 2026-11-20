@@ -2,10 +2,11 @@
 // a plain executable. Checks the arguments and exit code pass through, Node runs a JavaScript entry, a program runs as
 // itself, and a missing app or entry is refused with what to pass instead. Needs sh and node (both are here when node
 // runs this test).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,7 +17,7 @@ const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).rec
 const skip = process.platform === 'win32' ? 'needs a POSIX sh' : false;
 
 // A made-up app: Zorblet.app with its command line deep inside, as an installed app keeps it.
-const app = join(mkdtempSync(join(tmpdir(), 'run-installed-cli-')), 'Zorblet.app');
+const app = join(tempFolder(join(tmpdir(), 'run-installed-cli-')), 'Zorblet.app');
 const inside = 'Contents/Resources/app.asar.unpacked/node_modules/zorblet/bin';
 mkdirSync(join(app, inside), { recursive: true });
 writeFileSync(join(app, inside, 'zorblet.mjs'), 'console.log(JSON.stringify({ argv: process.argv.slice(2) }));\nprocess.exit(Number(process.env.ZORBLET_EXIT ?? 0));\n');

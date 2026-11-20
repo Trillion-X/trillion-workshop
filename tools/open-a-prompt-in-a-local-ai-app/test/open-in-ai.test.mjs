@@ -1,13 +1,14 @@
 // tool:open-in-ai (read-data/open-in-ai.mjs): a prompt opened in an allowlisted local AI app, through argv lists only.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, realpathSync } from 'node:fs';
+import { mkdirSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { EventEmitter } from 'node:events';
 import { openInAi, launchOf } from '../read-data/open-in-ai.mjs';
 
-const home = mkdtempSync(join(tmpdir(), 'open-in-ai-'));
+const home = tempFolder(join(tmpdir(), 'open-in-ai-'));
 mkdirSync(join(home, 'Applications/Claude.app'), { recursive: true });
 const spawned = [];
 const pretend = (command, args, options) => {

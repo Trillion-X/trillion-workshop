@@ -4,9 +4,10 @@
 // decide-a-source-message) on their own example attempts, run from each recipe's prove step text. Each attempt runs on
 // PGlite and on a JSON folder: the look step reads the store, the planner (do-work/process-scripts/decide-source-message.py)
 // decides, and the keep step writes its batch only when every row is still absent.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
@@ -52,7 +53,7 @@ async function pgliteStore(seed) {
 }
 
 async function folderStore(seed) {
-  const dir = mkdtempSync(join(tmpdir(), 'source-message-folder-'));
+  const dir = tempFolder(join(tmpdir(), 'source-message-folder-'));
   const file = address => join(dir, `${encodeURIComponent(address)}.json`);
   for (const [address, payload] of Object.entries(seed)) writeFileSync(file(address), JSON.stringify(payload));
   return {
@@ -72,7 +73,7 @@ async function folderStore(seed) {
 const backends = [['PGlite', pgliteStore], ['JSON folder', folderStore]];
 
 function plan(request) {
-  const work = mkdtempSync(join(tmpdir(), 'source-message-plan-'));
+  const work = tempFolder(join(tmpdir(), 'source-message-plan-'));
   const input = join(work, 'request.json');
   const output = join(work, 'plan.json');
   writeFileSync(input, JSON.stringify(request));

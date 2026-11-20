@@ -1,8 +1,9 @@
 // The commands around the readers, with the network and yt-dlp stood in for. Every fixture is made up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readAFeed } from '../do-work/read-a-feed.mjs';
@@ -12,7 +13,7 @@ import { channelVideos, main, Refusal, savedList, videoCaptions } from '../do-wo
 import { writeAProfileRequest } from '../do-work/write-a-profile-request.mjs';
 
 const answering = (body, status = 200, headers = {}) => async () => new Response(body, { status, headers });
-const folder = () => mkdtempSync(join(tmpdir(), 'research-test-'));
+const folder = () => tempFolder(join(tmpdir(), 'research-test-'));
 
 test('a feed is fetched and read, newest first, cut at the limit', async () => {
   const entries = Array.from({ length: 5 }, (_, i) => `<entry><id>e${i}</id><title>Post ${i}</title><link href="https://news.example/${i}"/></entry>`).join('');

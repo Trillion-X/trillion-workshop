@@ -3,9 +3,10 @@
 // The sealed local log (computer/sealed-log.mjs): only the holder of the reader's private key can read what a Mac wrote;
 // every flushed batch is its own chunk; a changed header or a wrong key fails to open; a torn tail is cut off on the
 // next open; deflate is used when it helps; the file is private. Real files, real X25519/HKDF/AES-GCM.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { appendFileSync, mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { appendFileSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createSealedLog, generateReaderKeys, openAll, scanChunks, sealChunk, sealedSettings } from '../sealed-log.mjs';
@@ -13,7 +14,7 @@ import { createSealedLog, generateReaderKeys, openAll, scanChunks, sealChunk, se
 const settings = sealedSettings();
 const readers = generateReaderKeys();
 const keyId = Buffer.from('reader01');
-const file = () => join(mkdtempSync(join(tmpdir(), 'sealed-')), 'logs', 'a.sealed');
+const file = () => join(tempFolder(join(tmpdir(), 'sealed-')), 'logs', 'a.sealed');
 
 test('a log opens with the reader key into exactly what was written, one chunk per flush, and the file holds no plaintext', () => {
   const path = file();

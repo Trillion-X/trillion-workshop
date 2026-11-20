@@ -5,10 +5,11 @@
  * flow through the fold + materialize onto the EDL (clip loudnorm + edl.master_loudnorm); the render
  * runs ffmpeg loudnorm. The measured-LUFS shift is proven by the offline suite.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,7 +18,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 let composeTimeline, materializeExportEdl;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'loud-'));
+  const dir = tempFolder(join(tmpdir(), 'loud-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });

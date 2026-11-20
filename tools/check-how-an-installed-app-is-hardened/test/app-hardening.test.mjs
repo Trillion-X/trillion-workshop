@@ -4,9 +4,10 @@
 // the Electron fuse block is found by its sentinel and read per wire version; weak fuses, forbidden entitlements, a missing
 // hardened runtime and a recorded integrity hash that nothing enforces are findings in words. The last test reads a REAL
 // installed Electron app on this Mac when one is present.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { auditApp, hardeningSettings, readFuses, signingFacts } from '../read-data/app-hardening.mjs';
@@ -17,7 +18,7 @@ const block = (states, version = 1) => Buffer.concat([Buffer.from('xx'), Buffer.
 const DEFAULTS = block(['1', '0', '1', '1', '0', '0', '0', '1']);
 const HARD = block(['0', '1', '0', '0', '1', '1', '0', 'r']);
 function bundle({ fuses, plist = '<plist/>' }) {
-  const app = join(mkdtempSync(join(tmpdir(), 'hard-')), 'Sample.app');
+  const app = join(tempFolder(join(tmpdir(), 'hard-')), 'Sample.app');
   mkdirSync(join(app, 'Contents/Frameworks/Electron Framework.framework/Versions/A'), { recursive: true });
   if (fuses) writeFileSync(join(app, settings.framework_path), fuses);
   writeFileSync(join(app, 'Contents/Info.plist'), plist);

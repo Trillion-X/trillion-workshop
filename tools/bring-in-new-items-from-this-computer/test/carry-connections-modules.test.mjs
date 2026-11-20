@@ -1,7 +1,8 @@
 // The message modules the helper on a person's computer carries (computer/connections/*), with fake outside effects.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { appleTime, imessage, textFromAttributedBody } from '../computer/connections/imessage.mjs';
@@ -108,7 +109,7 @@ test('WhatsApp voice notes keep their original audio in Files and expose its ide
 });
 
 test('the connected WhatsApp reader imports an incoming voice note and returns its file identity', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'trillion-whatsapp-proof-'));
+  const folder = tempFolder(join(tmpdir(), 'trillion-whatsapp-proof-'));
   const session = join(folder, 'session');
   mkdirSync(session, { recursive: true });
   writeFileSync(join(session, 'creds.json'), JSON.stringify({ registered: true }));
@@ -168,7 +169,7 @@ test('the connected WhatsApp reader imports an incoming voice note and returns i
 });
 
 test('the WhatsApp helper starts a phone pairing on request and returns the one-time code without logging it', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'trillion-whatsapp-pairing-'));
+  const folder = tempFolder(join(tmpdir(), 'trillion-whatsapp-pairing-'));
   const events = new Map();
   const logs = [];
   const socket = {
@@ -201,7 +202,7 @@ test('the WhatsApp helper starts a phone pairing on request and returns the one-
 });
 
 test('an expired WhatsApp pairing code starts a fresh pairing window', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'trillion-whatsapp-expired-pairing-'));
+  const folder = tempFolder(join(tmpdir(), 'trillion-whatsapp-expired-pairing-'));
   const sockets = [];
   let clock = 10_000;
   let codeNumber = 0;

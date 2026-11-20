@@ -1,14 +1,15 @@
 // A chat's turn at the drain always makes its first attempt, however late the turn began (a busy computer reached the
 // test "a refused message does not spin on an execution-only page" after its 100 ms had run out, and nothing was tried).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { settings, drainTranscript } from '../harness/record-every-message.mjs';
 
 test('a turn that begins after its time ran out still tries once', async t => {
-  const root = mkdtempSync(join(tmpdir(), 'app-first-pass-'));
+  const root = tempFolder(join(tmpdir(), 'app-first-pass-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const path = join(root, 'chat.jsonl');
   writeFileSync(path, [{ type: 'session_meta', payload: { id: 'first-pass-session', source: 'vscode' } },

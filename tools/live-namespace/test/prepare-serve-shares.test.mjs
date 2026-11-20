@@ -1,9 +1,10 @@
 // The share route's prepare step (on-a-computer/prepare-serve-shares.mjs): the page folder becomes the unit's files under the path its
 // settings name, a person's own folder replaces the shipped one, and a folder that is not there, a page path that is not absolute,
 // or a folder outside the Workshop is refused in words. Synthetic units only.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { prepare } from '../on-a-computer/prepare-serve-shares.mjs';
@@ -20,7 +21,7 @@ test('the shipped page folder becomes the unit files under the settings page pat
 });
 
 test('a person\'s own page folder replaces the shipped one, a binary file kept as base64', async () => {
-  const own = mkdtempSync(join(tmpdir(), 'own-page-'));
+  const own = tempFolder(join(tmpdir(), 'own-page-'));
   writeFileSync(join(own, 'page.html'), '<p>{{title}}</p>');
   writeFileSync(join(own, 'items.json'), '{"": "{{name}}"}');
   mkdirSync(join(own, 'assets'));
@@ -36,7 +37,7 @@ test('what cannot be a page is refused in words', async () => {
   await assert.rejects(prepare(unit({ settings: { share_bytes: { page: 'relative' } } })), /absolute path/);
   await assert.rejects(prepare(unit({ share_page: '../../../etc' })), /leaves the Workshop/);
   await assert.rejects(prepare(unit({ share_page: '/no/such/folder' })), /is not a folder/);
-  const empty = mkdtempSync(join(tmpdir(), 'empty-page-'));
+  const empty = tempFolder(join(tmpdir(), 'empty-page-'));
   await assert.rejects(prepare(unit({ share_page: empty })), /no page.html and items.json/);
   assert.deepEqual(await prepare({ unit: 'y' }), { unit: { unit: 'y' } }, 'a unit with no page is left as it is');
 });

@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { observationVerdict, checkedRules } from '../read-data/observation-rules.mjs';
@@ -31,6 +32,6 @@ test('the screen reader refuses a blocked app before reading anything, in the DA
   const settings = { ...structuredClone(open), observation: rules({ applications: [{ app: 'test.probe', mode: 'block' }] }) };
     const probe = { name: 'Probe', bundle_id: 'test.probe', pid: 1 };
   const program = async request => { return { readiness: { ax_trusted: true, screen_capture: true }, displays: [{ main: true, x: 0, y: 0, width: 10, height: 10 }], frontmost: probe, app: probe, elements: [] }; };
-  const driver = makeScreenDriver({ settings, home: mkdtempSync(join(tmpdir(), 'obs-')), program, capture: async () => Buffer.alloc(0), ocr: async () => ({ lines: [] }), wait: async () => {} });
+  const driver = makeScreenDriver({ settings, home: tempFolder(join(tmpdir(), 'obs-')), program, capture: async () => Buffer.alloc(0), ocr: async () => ({ lines: [] }), wait: async () => {} });
   await assert.rejects(driver.look(), error => { console.log('READBACK', error.status, error.reaction, error.message); return error.status === 403 && error.reaction === 'ask_user'; });
 });

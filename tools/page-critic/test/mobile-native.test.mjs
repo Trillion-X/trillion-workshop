@@ -2,11 +2,12 @@
 // of read-data/page-craft-rules.json. input_zoom: a field whose text is under 16px makes a phone zoom the page when it
 // is tapped. sticky_hover: a :hover look outside @media (hover: hover) sticks after a tap. The critic runs end to end
 // against a planted local page in Playwright's Chromium.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -44,7 +45,7 @@ test('the phone rules are rows: input_zoom at 16px and sticky_hover with its poi
 test('the critic finds the small field and the unguarded hover, and passes the rest', { timeout: 120000 }, async () => {
   const server = createServer((request, response) => { response.writeHead(200, { 'content-type': 'text/html' }); response.end(PAGE); });
   await new Promise(done => server.listen(0, '127.0.0.1', done));
-  const out = mkdtempSync(join(tmpdir(), 'page-craft-mobile-native-'));
+  const out = tempFolder(join(tmpdir(), 'page-craft-mobile-native-'));
   try {
     const stdout = await new Promise((resolve, reject) => {
       const child = spawn(process.execPath, [fileURLToPath(new URL('../do-work/critique-a-page.mjs', import.meta.url)), '--url', `http://127.0.0.1:${server.address().port}/`, '--out', out], { env: { ...process.env, BROWSER_EXECUTABLE: chromium.executablePath() }, stdio: ['ignore', 'pipe', 'pipe'] });

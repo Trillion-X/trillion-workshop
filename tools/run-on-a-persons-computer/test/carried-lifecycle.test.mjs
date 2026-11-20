@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, readdirSync, existsSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync, rmSync, readdirSync, existsSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import { READERS, readNewItems } from '../../bring-in-new-items-from-this-computer/computer/read-new-items.mjs';
 import { tmpdir } from 'node:os';
@@ -14,7 +15,7 @@ const settings = JSON.parse(readFileSync(new URL('../carry-connections.json', im
 const row = settings.connections.find(item => item.vendor === 'whatsapp');
 
 async function world(t, { linked = true, saveCreds = () => {}, query = request => { request.attrs.id = 'query-1'; return { tag: 'iq', attrs: { id: 'query-1', type: 'result' } }; } } = {}) {
-  const folder = mkdtempSync(join(tmpdir(), 'trillion-carried-controls-'));
+  const folder = tempFolder(join(tmpdir(), 'trillion-carried-controls-'));
   t.after(() => rmSync(folder, { recursive: true, force: true }));
   mkdirSync(join(folder, 'session'));
   const setLinked = value => writeFileSync(join(folder, 'session', 'creds.json'), JSON.stringify({ registered: value }));

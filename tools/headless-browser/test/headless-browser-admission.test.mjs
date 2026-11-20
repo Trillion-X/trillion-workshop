@@ -1,19 +1,20 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { existsSync, writeFileSync } from 'node:fs';
-import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import { createBrowserAdmissionQueue, legacyHeadlessRoots, parseLegacyHeadlessRoots } from '../admission.mjs';
 
 async function queueFixture() {
-  const root = await mkdtemp(join(tmpdir(), 'trillion-browser-admission-'));
+  const root = tempFolder(join(tmpdir(), 'trillion-browser-admission-'));
   return { root, queue: createBrowserAdmissionQueue(root), close: () => rm(root, { recursive: true, force: true }) };
 }
 
 test('a live owner is inspected outside the guard without probing queued tickets', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'trillion-browser-owner-probe-'));
+  const root = tempFolder(join(tmpdir(), 'trillion-browser-owner-probe-'));
   const probes = [];
   try {
     await mkdir(join(root, 'tickets'), { recursive: true });
@@ -34,7 +35,7 @@ test('a live owner is inspected outside the guard without probing queued tickets
 });
 
 test('an old process observation cannot retire a replacement browser owner', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'trillion-browser-replaced-owner-'));
+  const root = tempFolder(join(tmpdir(), 'trillion-browser-replaced-owner-'));
   const ownerPath = join(root, 'owner.json');
   const replacement = { pid: 813, process_started: 'replacement process', token: 'new owner' };
   try {
@@ -51,7 +52,7 @@ test('an old process observation cannot retire a replacement browser owner', asy
 });
 
 test('cancellation during owner inspection cannot retire its lease or admit a browser', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'trillion-browser-owner-cancel-'));
+  const root = tempFolder(join(tmpdir(), 'trillion-browser-owner-cancel-'));
   const controller = new AbortController();
   const owner = { pid: 812, process_started: 'old process', token: 'held' };
   try {
@@ -68,7 +69,7 @@ test('cancellation during owner inspection cannot retire its lease or admit a br
 });
 
 test('dead-ticket and legacy-browser inspection never holds the state guard', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'trillion-browser-ticket-probe-'));
+  const root = tempFolder(join(tmpdir(), 'trillion-browser-ticket-probe-'));
   try {
     await mkdir(join(root, 'tickets'));
     await writeFile(join(root, 'tickets', 'dead.json'), JSON.stringify({ id: 'dead', pid: 812, process_started: 'old', priority: 100, created_at: 0 }));
@@ -83,7 +84,7 @@ test('dead-ticket and legacy-browser inspection never holds the state guard', as
 });
 
 test('a dead-ticket observation keeps a replacement ticket and its priority', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'trillion-browser-ticket-replace-'));
+  const root = tempFolder(join(tmpdir(), 'trillion-browser-ticket-replace-'));
   const replacement = { id: 'changed', pid: 813, process_started: 'replacement', priority: 100, created_at: 0 };
   try {
     await mkdir(join(root, 'tickets'));
@@ -101,7 +102,7 @@ test('a dead-ticket observation keeps a replacement ticket and its priority', as
 });
 
 test('cancellation while inspecting a ticket does not delete it or admit a browser', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'trillion-browser-ticket-cancel-'));
+  const root = tempFolder(join(tmpdir(), 'trillion-browser-ticket-cancel-'));
   const controller = new AbortController();
   const ticket = { id: 'kept', pid: 812, process_started: 'old', priority: 100, created_at: 0 };
   try {
@@ -140,7 +141,7 @@ test('high-priority customer admission runs before queued normal browser work', 
 });
 
 test('parallel processes can release and reacquire the shared state guard', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'trillion-browser-guard-race-'));
+  const root = tempFolder(join(tmpdir(), 'trillion-browser-guard-race-'));
   const moduleUrl = new URL(import.meta.resolve('../admission.mjs')).href;
   const child = `import { createBrowserAdmissionQueue } from ${JSON.stringify(moduleUrl)}; const queue = createBrowserAdmissionQueue(process.argv[1]); for (let i = 0; i < 8; i++) { const release = await queue.acquire({ priority: 1, timeoutMs: 12000 }); await release(); }`;
   const run = () => new Promise((resolve, reject) => execFile(process.execPath, ['--input-type=module', '-e', child, root], { timeout: 20000 }, (error, stdout, stderr) => {
@@ -179,7 +180,7 @@ test('a lease from a dead exact PID is reclaimed', async () => {
 });
 
 test('the admission blocker admits an empty legacy-root set and waits for a real root', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'trillion-browser-blocker-'));
+  const root = tempFolder(join(tmpdir(), 'trillion-browser-blocker-'));
   let legacyRoots = [];
   const queue = createBrowserAdmissionQueue(root, { isBlocked: () => legacyRoots.length > 0, inspectProcess: () => 'this process' });
   try {
@@ -230,7 +231,7 @@ test('failed process inspection keeps browser admission closed', () => {
 });
 
 test('an unavailable identity probe never reclaims a live browser lease', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'trillion-browser-live-identity-'));
+  const root = tempFolder(join(tmpdir(), 'trillion-browser-live-identity-'));
   const owner = { pid: 812, process_started: 'existing process', token: 'kept-live-owner' };
   try {
     await writeFile(join(root, 'owner.json'), JSON.stringify(owner));
@@ -242,7 +243,7 @@ test('an unavailable identity probe never reclaims a live browser lease', async 
 });
 
 test('a lease recorded while its process probe was unavailable is kept while its PID is alive', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'trillion-browser-unverified-'));
+  const root = tempFolder(join(tmpdir(), 'trillion-browser-unverified-'));
   try {
     await mkdir(join(root, 'tickets'), { recursive: true });
     await writeFile(join(root, 'owner.json'), JSON.stringify({ pid: process.pid, process_started: 'unverified-live-process', token: 'held' }));
@@ -252,7 +253,7 @@ test('a lease recorded while its process probe was unavailable is kept while its
 });
 
 test('admission proceeds when the process probe is unavailable for this process', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'trillion-browser-probe-'));
+  const root = tempFolder(join(tmpdir(), 'trillion-browser-probe-'));
   try {
     const queue = createBrowserAdmissionQueue(root, { inspectProcess: () => 'unverified-live-process' });
     const release = await queue.acquire({ timeoutMs: 1000 });

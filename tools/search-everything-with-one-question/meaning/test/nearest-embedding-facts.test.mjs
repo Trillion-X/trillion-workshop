@@ -1,7 +1,8 @@
 // Synthetic source outputs captured before the iterable refactor; no account data.
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,7 +14,7 @@ const baseline = JSON.parse(readFileSync(new URL('./fixtures/nearest-facts-basel
 const script = fileURLToPath(new URL('../do-work/process-scripts/nearest-embedding-facts.mjs', import.meta.url));
 
 test('nearest CLI retains old source bytes, stdout, qualification, floor and tie order', () => {
-  const work = mkdtempSync(join(tmpdir(), 'nearest-cli-parity-'));
+  const work = tempFolder(join(tmpdir(), 'nearest-cli-parity-'));
   for (const [at, one] of baseline.cases.entries()) {
     const args = [];
     for (const name of ['embedding', 'input', 'descriptor', 'facts']) {

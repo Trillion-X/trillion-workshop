@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
-import { chmodSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { chmodSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -9,7 +10,7 @@ import { identityOf, UNKNOWN_LIVE } from './process-admission.mjs';
 
 // A ps that takes 3 seconds, the way ps answers on a busy Mac. It stands in front of the real ps on PATH.
 function withSlowPs(run) {
-  const dir = mkdtempSync(join(tmpdir(), 'slow-ps-'));
+  const dir = tempFolder(join(tmpdir(), 'slow-ps-'));
   writeFileSync(join(dir, 'ps'), '#!/bin/sh\nsleep 3\nexec /bin/ps "$@"\n');
   chmodSync(join(dir, 'ps'), 0o755);
   const before = process.env.PATH;

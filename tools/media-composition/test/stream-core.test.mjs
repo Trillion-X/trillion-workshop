@@ -2,10 +2,11 @@
 //
 // The stream detector (do-work/stream-core.mjs, its encoder do-work/stream-features.mjs, its detector row in
 // read-data/detect-events.json): state carried explicitly, heads as rows, and the whole path through detect-events on a real clip.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { newState, run, step } from '../do-work/stream-core.mjs';
@@ -60,7 +61,7 @@ test('a detector that is not kept, a stream that is not kept and a job row with 
 });
 
 test('through the detector row and a real clip: loud bursts are found by the adaptive stream, and the command answers them as JSON', { skip: !hasFfmpeg, timeout: 170_000 }, async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'stream-'));
+  const folder = tempFolder(join(tmpdir(), 'stream-'));
   const file = join(folder, 'match.mp4');
   const gate = [8, 15, 21].map(t => `between(t,${t},${t + 0.15})`).join('+');
   execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', 'testsrc=size=320x180:rate=15:duration=26', '-f', 'lavfi', '-i', 'sine=frequency=900:sample_rate=22050:duration=26',

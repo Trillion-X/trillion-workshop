@@ -1,12 +1,13 @@
 // test/versioned-document.test.mjs: a versioned document keeps its evidence, migrates with a backup, and refuses a newer or damaged file untouched (F-0870). Its one-primary session half lives in tools/media-composition/test/session-pairing.test.mjs.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { openDocument } from '../versioned-document.mjs';
 
-const folder = () => mkdtempSync(join(tmpdir(), 'doc-'));
+const folder = () => tempFolder(join(tmpdir(), 'doc-'));
 
 test('a document stores entries with their evidence, migrates with a backup, and refuses a newer or damaged file untouched', () => {
   const file = join(folder(), 'profile.json');

@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -60,7 +61,7 @@ function writeSolidPng(path, width, height, rgba = [17, 34, 51, 255]) {
 }
 
 function fixture(overrides = {}) {
-  const dir = mkdtempSync(join(tmpdir(), 'reference-adaptation-'));
+  const dir = tempFolder(join(tmpdir(), 'reference-adaptation-'));
   const sourcePath = join(dir, 'source.tsx');
   const targetPath = join(dir, 'target.tsx');
   const source = Array.from({ length: 20 }, (_, i) => `export const preservedMechanism${i} = () => ${i}; // meaningful source line`).join('\n');

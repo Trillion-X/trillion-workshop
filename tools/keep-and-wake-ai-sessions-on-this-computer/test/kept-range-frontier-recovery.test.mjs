@@ -2,9 +2,10 @@
 // deleted by Trillion-X/trillion #243. kept-runs is this tool's tools/record-log/do-work/kept-runs.mjs; the old
 // in-memory module loader (test/import-source-for-tests.mjs) is a scratch-folder copy of the instrumented text. Every
 // assertion is the old one.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -21,7 +22,7 @@ test('a rejected successor preserves the real cursor frontier when a later seek 
   // The instrumented copy is a module of its own in a scratch folder (old test/import-source-for-tests.mjs importSource),
   // its one relative import named by its full address.
   const own = new URL('tools/record-log/do-work/kept-runs.mjs', import.meta.url);
-  const folder = mkdtempSync(join(tmpdir(), 'kept-range-frontier-'));
+  const folder = tempFolder(join(tmpdir(), 'kept-range-frontier-'));
   const file = join(folder, 'kept-runs.mjs');
   writeFileSync(file, instrumented.replace(/from '(\.\.?\/[^']+)'/g, (_, relative) => `from '${new URL(relative, own).href}'`));
   const owner = await import(pathToFileURL(file).href).finally(() => rmSync(folder, { recursive: true, force: true }));

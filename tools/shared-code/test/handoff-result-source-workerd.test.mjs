@@ -7,11 +7,12 @@
 // Changed harness: the old bundle also installed the compiled Namespace identity module (src/namespace-identity-module.mjs
 // through test/compiled-namespace-identity-fixture.mjs, whose built bytes this repository does not hold); without it
 // identityOf answers with the JavaScript BLAKE3, the same identity (record-identity.mjs says so). Every assertion is the old one.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { build } from 'esbuild';
 import { Miniflare } from 'miniflare';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 const root = new URL('../..', import.meta.url).pathname;
@@ -80,7 +81,7 @@ export class Probe extends DurableObject {
  }
 }
 export default {fetch(request,env){return env.PROBE.get(env.PROBE.idFromName('fixture')).fetch(request);}};`;
-  const persistence=mkdtempSync(join(tmpdir(),'trillion-result-owner-witness-'));
+  const persistence=tempFolder(join(tmpdir(),'trillion-result-owner-witness-'));
   const options={ resourcePersistencePath:persistence, telemetry: { enabled: false }, inspectorPort: 0, workers: [{ config: {
     name: 'result-source-witness', compatibilityDate: '2026-09-01',
     manifest: { mainModule: 'worker.mjs', modules: { 'worker.mjs': { type: 'esm', contents: worker }, 'bundle.mjs': { type: 'esm', contents: bundled.outputFiles[0].text } } },

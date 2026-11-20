@@ -2,10 +2,11 @@
 // moment out of a multi-moment answer, and checks what the tool promises: moments cut by silence, buckets and relevance written
 // back into each transcript, the vocabulary growing, a moment the model skipped asked about again alone, work not repeated,
 // and the counts. Needs python3 only; the inputs are made here from synthetic words.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,7 +23,7 @@ const tool = (...argv) => run(script, ...argv, '--ollama-url', url);
 const asked = () => (existsSync(requestLog) ? lines(requestLog) : []);
 
 before(async () => {
-  work = mkdtempSync(join(tmpdir(), 'bucket-moments-'));
+  work = tempFolder(join(tmpdir(), 'bucket-moments-'));
   requestLog = join(work, 'requests.jsonl');
   transcripts = join(work, 'transcripts');
   assert.equal(run(join(folder, 'test', 'write_fixtures.py'), work).status, 0, 'the synthetic inputs are written');

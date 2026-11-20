@@ -1,12 +1,13 @@
 // The public projection tests are moved from old trillion test/device-distribution.test.mjs (the account-side
 // management, install-way and refresh tests stay with the engine's owner of device distribution). The read tool and
 // the held-key client are new tests: old trillion had none for computer/app-distribution.mjs.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { generateKeyPairSync, createPublicKey, verify } from 'node:crypto';
 import settings from '../read-data/distribution.json' with { type: 'json' };
 import { distributionObservation, distributionSource } from '../read-data/distribution.mjs';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { makeAppDistributionTools } from '../read-data/app-distribution.mjs';
@@ -70,7 +71,7 @@ test('the read refuses an unconfigured source, tester input, a missing app and p
   assert.equal(connected, 0);
   // A run handed no key reads an empty pipe. A test process's own descriptor 4 belongs to the test runner and never
   // ends, so an empty file stands in for the pipe.
-  const empty = join(mkdtempSync(join(tmpdir(), 'no-key-')), 'held');
+  const empty = join(tempFolder(join(tmpdir(), 'no-key-')), 'held');
   writeFileSync(empty, '');
   assert.throws(() => readHeldKey(empty), /No App Store Connect team key/);
 });

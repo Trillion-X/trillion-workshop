@@ -1,6 +1,7 @@
 // The tool's own settings are the floor: a computer's rendered settings file names only what is its own, laid over them.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -13,7 +14,7 @@ test('a key the computer names wins, objects are laid key by key, a list is repl
 
 test('readSettings lays the rendered file over the shipped settings, so the row carries only its own keys', () => {
   const shipped = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
-  const file = join(mkdtempSync(join(tmpdir(), 'sign-in-settings-')), 'settings.json');
+  const file = join(tempFolder(join(tmpdir(), 'sign-in-settings-')), 'settings.json');
   writeFileSync(file, JSON.stringify({ site: { name: 'Example Co', storage_prefix: 'example' }, issuer: 'https://sign-in.example.com' }));
   const before = process.env.BETTER_AUTH_SETTINGS;
   process.env.BETTER_AUTH_SETTINGS = file;
@@ -30,7 +31,7 @@ test('readSettings lays the rendered file over the shipped settings, so the row 
 });
 
 test('a settings file that cannot be read or holds no JSON object stops the server and names the file', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'sign-in-settings-'));
+  const folder = tempFolder(join(tmpdir(), 'sign-in-settings-'));
   const before = process.env.BETTER_AUTH_SETTINGS;
   try {
     for (const [name, text] of [['broken.json', '{"site": '], ['list.json', '[1]'], ['missing.json', null]]) {

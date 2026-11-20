@@ -1,10 +1,11 @@
 // tools/check-bundle-package-boundaries: the row is the shape the engine runs on the person's computer, and the command,
 // run the way the engine runs it (the granted folder in argv, the input on standard input, the answer on the last line),
 // judges a made-up bundle report and made-up packages inside a made-up folder.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -23,7 +24,7 @@ function command(granted, input) {
 }
 
 function made(t, imports) {
-  const root = mkdtempSync(join(tmpdir(), 'check-my-bundle-'));
+  const root = tempFolder(join(tmpdir(), 'check-my-bundle-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   mkdirSync(join(root, 'packages', 'ledger'), { recursive: true });
   writeFileSync(join(root, 'packages', 'ledger', declaration.file), JSON.stringify({ things: [{ payload: { kind: 'public-source', source_path: 'show' } }] }));

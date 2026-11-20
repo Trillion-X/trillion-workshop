@@ -1,8 +1,9 @@
 // tools/workflows/read-data/host-actions.mjs: a run's nested tool runs (host.run), its files operations (host.files) and the
 // whole-file reads and writes they make, through a fake native side on the descriptor route.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { openHostActions, resultOfRun } from '../read-data/host-actions.mjs';
@@ -10,7 +11,7 @@ import { writeWholeFile, LARGE_FILE } from '../read-data/whole-file.mjs';
 
 const noWait = async () => {};
 function descriptorWith(extra = {}) {
-  const descriptor = join(mkdtempSync(join(tmpdir(), 'host-run-')), 'descriptor.json');
+  const descriptor = join(tempFolder(join(tmpdir(), 'host-run-')), 'descriptor.json');
   writeFileSync(descriptor, JSON.stringify({ url: 'http://127.0.0.1:1/mcp', capability: 'synthetic-private-bearer', ...extra }));
   return descriptor;
 }

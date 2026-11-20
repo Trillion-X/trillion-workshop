@@ -15,10 +15,11 @@
 // - a woken session's CLI event stream normalised to text / thinking / tool_start / tool_done / reply, kept as the
 //   progress file report-progress shows, and the workspace allow-list passed as the CLI's own flag
 //   (harness/session-runs.mjs, harness/wake-handlers/wake-named-session.mjs).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -34,7 +35,7 @@ import { reportOf } from '../../run-on-a-persons-computer/report-progress.mjs';
 // The Trillion address these tests talk to is the one the caller gives; no address is built in.
 process.env.TRILLION_ORIGIN ??= 'https://app.example.com';
 
-const tempHome = t => { const dir = realpathSync(mkdtempSync(join(tmpdir(), 'trillion-harness-'))); t.after(() => rmSync(dir, { recursive: true, force: true })); return dir; };
+const tempHome = t => { const dir = realpathSync(tempFolder(join(tmpdir(), 'trillion-harness-'))); t.after(() => rmSync(dir, { recursive: true, force: true })); return dir; };
 // ---- F-0578 MCP registration --------------------------------------------------------------------------------------
 const URL_ = 'https://app.example.com/mcp';
 test('every registration row is an AI app the connect catalogue knows, and the setup answer offers the four commands', () => {

@@ -4,9 +4,10 @@
 // its sound is heard on the computer, and a link that yields no words always fails with why, never an empty answer.
 // Moved from the product repo's test/hear-a-link.test.mjs with its assertions.
 // The link reader here is node itself, standing in for yt-dlp through the same fetcher row shape.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdtempSync, readFileSync, symlinkSync } from 'node:fs';
+import { readFileSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { captionWords, hearALink, linkSettings, refusedThisCopy } from '../read-data/hear-here.mjs';
@@ -80,7 +81,7 @@ test('the existing eligibility owner skips an unavailable first reader and uses 
 });
 
 test('an explicit link_reader is checked by the existing owner and the chosen executable is used', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'reader-choice-'));
+  const folder = tempFolder(join(tmpdir(), 'reader-choice-'));
   const chosen = join(folder, 'chosen-reader');
   symlinkSync(process.execPath, chosen);
   const first = namedReader('synthetic-template-reader', 'template');
@@ -91,7 +92,7 @@ test('an explicit link_reader is checked by the existing owner and the chosen ex
 });
 
 test('an explicit executable path never substitutes a different installation from PATH', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'reader-choice-'));
+  const folder = tempFolder(join(tmpdir(), 'reader-choice-'));
   const exact = join(folder, basename(process.execPath));
   await assert.rejects(hearALink({ url: 'https://video.example/watch', link_reader: exact }, {}, { settings: settingsWithRows([nodeReader('other installation')]) }), /no program that reads video links/);
 });

@@ -2,8 +2,9 @@
 //
 // A `example op` or `example call` whose every try (retry.count more than the first, each under the same key) times out names the request key it sent, and `--request-key` sends that same key
 // again: the engine answers the call it already has under that key, so a retry after a timeout is never a second run.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -15,7 +16,7 @@ speakFor({ cli: 'example', site_name: 'Example' });
 
 const ORIGIN = 'http://127.0.0.1:8788';
 const KEY = `nm_${'ab'.repeat(16)}`;
-const home = () => mkdtempSync(join(tmpdir(), 'example-op-key-'));
+const home = () => tempFolder(join(tmpdir(), 'example-op-key-'));
 const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, forget: () => {} };
 const WRITE = ['op', 'wake:switch', '{"tool":"tool:x","id":"daily","on":true}'];
 const committed = { structuredContent: { committed: true, write_count: 1 }, content: [] };

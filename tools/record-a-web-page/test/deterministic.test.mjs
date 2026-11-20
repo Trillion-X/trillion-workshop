@@ -3,11 +3,12 @@
 // The page recorder in deterministic mode (tools/record-a-web-page, tools/headless-browser/virtual-clock.mjs): the page's own clock
 // moves one frame at a time, so every frame sits on its grid second, two runs of the same steps give the same timeline, the page's
 // timers and Date.now() move by exactly the virtual time, and the demo is still drawn. Needs Chromium, python3 with Pillow and ffmpeg.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -43,7 +44,7 @@ async function record(url, out) {
 }
 
 test('two deterministic recordings of the same steps give the same demo: same length, same frames, same step times, same picture', { timeout: 300000 }, async () => {
-  const folders = [mkdtempSync(join(tmpdir(), 'det-a-')), mkdtempSync(join(tmpdir(), 'det-b-'))];
+  const folders = [tempFolder(join(tmpdir(), 'det-a-')), tempFolder(join(tmpdir(), 'det-b-'))];
   try {
     const [a, b] = await withServer(menu, async (url) => [await record(url, folders[0]), await record(url, folders[1])]);
     assert.deepEqual(a.result, b.result, 'seconds, frames and each step\'s time are identical');

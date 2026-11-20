@@ -1,9 +1,10 @@
 // The judge's contract reads come back byte-identical whether each blob is read by its own git process or batched through
 // one `git cat-file --batch` process, and a path git cannot find reads as null both ways.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { gitReaders } from '../do-work/read-from-repositories.mjs';
@@ -11,7 +12,7 @@ import { gitReaders } from '../do-work/read-from-repositories.mjs';
 const git = (root, ...args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
 
 function repository(count) {
-  const root = mkdtempSync(join(tmpdir(), 'batch-read-'));
+  const root = tempFolder(join(tmpdir(), 'batch-read-'));
   git(root, 'init', '-q', '-b', 'main');
   mkdirSync(join(root, 'ports'), { recursive: true });
   for (let index = 0; index < count; index += 1) {

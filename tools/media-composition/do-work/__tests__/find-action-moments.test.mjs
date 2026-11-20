@@ -5,10 +5,11 @@
  * ranks first, an equally sharp sound in a still picture keeps three quarters of its strength and ranks second, and a
  * soft sound during large motion (someone walking past the lens) never outranks a clearly sharper sound.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { findActionMoments } from '../find-action-moments.mjs';
@@ -19,7 +20,7 @@ const hasFfmpeg = (() => { try { execFileSync('ffmpeg', ['-version'], { stdio: '
 const click = (at, amplitude) => `if(between(t,${at},${(at + 0.02).toFixed(2)}),${amplitude}*sin(2*PI*1500*t)*exp(-(t-${at})*200),0)`;
 
 test('sound leads the ranking; motion only breaks near-ties', { skip: !hasFfmpeg && 'ffmpeg is not installed' }, () => {
-  const video = join(mkdtempSync(join(tmpdir(), 'action-moments-')), 'made-up.mp4');
+  const video = join(tempFolder(join(tmpdir(), 'action-moments-')), 'made-up.mp4');
   // Still picture except a white box that sweeps across during [3.7, 4.3] (with the 4.0 s click) and [4.7, 5.5]
   // (with the soft 5.1 s click).
   const moving = "between(t,3.7,4.3)+between(t,4.7,5.5)";

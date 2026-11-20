@@ -12,10 +12,11 @@
  * Proof: DATA resolution, materialize shape, AND a REAL offline render whose pixels actually split
  * (left half red, right half blue). The pixels are the proof, not the receipt (L155).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -40,7 +41,7 @@ function avgColor(file, x, y, w = 16, h = 16) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'split-'));
+  const dir = tempFolder(join(tmpdir(), 'split-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -48,7 +49,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'split-render-'));
+  work = tempFolder(join(tmpdir(), 'split-render-'));
   red = join(work, 'red.mp4');
   blue = join(work, 'blue.mp4');
   ffmpeg(['-f', 'lavfi', '-i', 'color=red:s=320x180:r=24:d=2', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', red]);

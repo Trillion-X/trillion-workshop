@@ -1,6 +1,7 @@
 // A native messaging host follows its extension: written where a browser holds it, withdrawn where it no longer does (computer/follow-presence.mjs).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -8,7 +9,7 @@ import { followPresence, followSettings } from '../follow-presence.mjs';
 
 const settings = { ...followSettings(), hosts: [{ id: 'bridge', name: 'ai.example.bridge', extension_id: 'abcdefghijklmnopabcdefghijklmnop', path: '/opt/example/bridge', description: 'Bridge' }] };
 const set = () => {
-  const home = mkdtempSync(path.join(os.tmpdir(), 'follow-'));
+  const home = tempFolder(path.join(os.tmpdir(), 'follow-'));
   mkdirSync(path.join(home, 'Applications'), { recursive: true });
   const app = settings.browsers[0].app;
   const fake = { ...settings, browsers: [{ ...settings.browsers[0], app: path.join(home, 'Chrome.app'), profiles: path.join(home, 'Chrome') }] };

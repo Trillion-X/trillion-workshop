@@ -1,7 +1,8 @@
 // The shared test-environment export must carry its actual DATA/probe and runtime import closure.
+import { tempFolder } from '../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -29,7 +30,7 @@ if (process.argv[2] === 'profile-readback') {
   });
 
   test('the real package export loads from an isolated pack with its declared helper files', () => {
-    const folder = mkdtempSync(join(tmpdir(), 'python-environment-export-'));
+    const folder = tempFolder(join(tmpdir(), 'python-environment-export-'));
     try {
       const metadata = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
       assert.equal(metadata.exports['./test-helpers/python-environment.mjs'], './test-helpers/python-environment.mjs');

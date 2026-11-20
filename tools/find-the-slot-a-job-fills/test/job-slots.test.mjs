@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync,rmSync} from 'node:fs';
+import { rmSync } from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {sqliteHost} from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
@@ -89,7 +90,7 @@ test('a selected physical page stays bounded as unrelated job rows grow fourfold
 });
 
 test('cold owner reconstruction replays the same physical cursor and complete distinct output',t=>{
- const directory=mkdtempSync(join(tmpdir(),'trillion-job-tools-')),file=join(directory,'jobs.sqlite');let host=sqliteHost(file);
+ const directory=tempFolder(join(tmpdir(),'trillion-job-tools-')),file=join(directory,'jobs.sqlite');let host=sqliteHost(file);
  t.after(()=>{host.db.close();rmSync(directory,{recursive:true,force:true});});let index=jobToolsIndex(host.sql);
  for(let n=0;n<620;n++){const held=`install:${String(n).padStart(4,'0')}`;index.installed(held,{context:'private',components:[{kind:'tool',id:'tool:a'}]});index.read('tool:a',held,['encode']);}
  index.saved({id:'tool:z',serves:['encode']});const first=index.servingPage('encode'),next=index.servingPage('encode',{after:first.next_after});
@@ -125,7 +126,7 @@ test('unread physical continuation reaches later tools behind nulls and excludes
 });
 
 test('the original unread boundary and physical continuation survive disk owner reconstruction', t => {
-  const directory = mkdtempSync(join(tmpdir(), 'trillion-unread-')), file = join(directory, 'jobs.sqlite');
+  const directory = tempFolder(join(tmpdir(), 'trillion-unread-')), file = join(directory, 'jobs.sqlite');
   let host = sqliteHost(file); t.after(() => { host.db.close(); rmSync(directory, { recursive: true, force: true }); });
   let index = jobToolsIndex(host.sql);
   index.installed('install:a', { context: 'private', components: Array.from({ length: 70 }, (_, n) => ({ kind: 'tool', id: `tool:${String(n).padStart(3, '0')}` })) });

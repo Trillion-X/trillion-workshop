@@ -2,10 +2,11 @@
 // one to one; the two that ran through the old Drive keep their assertions, with the Drive's peer server replaced by
 // a stand-in server here that holds one file and answers with the module's own verify. Every address is loopback or a
 // documentation range; every key and computer id is made up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createServer } from 'node:http';
-import { mkdtempSync, readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import dgram, { createSocket } from 'node:dgram';
@@ -39,7 +40,7 @@ test('a computer of the same account fills a file from a peer that holds it whol
   const identity = identityOf(body);
   const files = new Map([[identity, body]]);
   const holder = await holderServing({ secret: 'k', selfId: 'mac-a', files });
-  const dir = mkdtempSync(path.join(tmpdir(), 'sync-peer-'));
+  const dir = tempFolder(path.join(tmpdir(), 'sync-peer-'));
   try {
     const config = { ...settingsOf().peers, known: [holder.url] };
     const good = createPeers({ config, secret: 'k', selfId: 'mac-b' });

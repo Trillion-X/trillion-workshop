@@ -4,9 +4,10 @@
 // politely (ending one only when the polite way is refused), never closes an always-open app, turns Focus on through
 // its shortcut, ends by itself at its time (Focus off with it), is capped so it can never keep the person out, and is
 // picked up again after the helper restarts. A hold naming `only` closes every app but those and the always-open ones. A Mac without the Focus shortcut gets it signed and opened to add.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -63,7 +64,7 @@ test('always-open apps are never closed, whatever a hold names', () => {
 });
 
 test('a hold turns Focus on, closes named open apps politely, and ends by itself with Focus off', async () => {
-  const home = await mkdtemp(join(tmpdir(), 'trillion-hold-'));
+  const home = tempFolder(join(tmpdir(), 'trillion-hold-'));
   let clock = Date.parse('2026-10-05T12:00:00Z');
   const mac = pretendMac({ refuseQuit: ['Slack'] });
   const holds = makeHolds({ settings, home, exec: mac.exec, now: () => clock, timers: mac.timers });
@@ -85,7 +86,7 @@ test('a hold turns Focus on, closes named open apps politely, and ends by itself
 });
 
 test('release ends a hold now and a restart picks up a hold that still lasts', async () => {
-  const home = await mkdtemp(join(tmpdir(), 'trillion-hold-'));
+  const home = tempFolder(join(tmpdir(), 'trillion-hold-'));
   const clock = Date.parse('2026-10-05T12:00:00Z');
   const mac = pretendMac();
   const first = makeHolds({ settings, home, exec: mac.exec, now: () => clock, timers: mac.timers });
@@ -105,7 +106,7 @@ test('release ends a hold now and a restart picks up a hold that still lasts', a
 });
 
 test('a Mac without the Focus shortcut gets it signed and opened, and the answer says the one press', async () => {
-  const home = await mkdtemp(join(tmpdir(), 'trillion-hold-'));
+  const home = tempFolder(join(tmpdir(), 'trillion-hold-'));
   const mac = pretendMac({ shortcuts: [] });
   const holds = makeHolds({ settings, home, exec: mac.exec, now: () => Date.parse('2026-10-05T12:00:00Z'), timers: mac.timers });
   const answer = await holds.focus({ on: true });
@@ -118,7 +119,7 @@ test('a Mac without the Focus shortcut gets it signed and opened, and the answer
 });
 
 test('a hold naming only closes every other app, never the kept or always-open ones', async () => {
-  const home = await mkdtemp(join(tmpdir(), 'trillion-hold-'));
+  const home = tempFolder(join(tmpdir(), 'trillion-hold-'));
   const mac = pretendMac();
   const holds = makeHolds({ settings, home, exec: mac.exec, now: () => Date.parse('2026-10-05T12:00:00Z'), timers: mac.timers });
   const held = await holds.hold({ id: 'one-thing', only: ['Slack'], minutes: 30, focus: false });
@@ -160,7 +161,7 @@ test('no hold ever closes the apps the AIs run in (found by kind), and a live ca
   for (const id of ['/applications/chatgpt.app', 'super.engineering', 'superconductor', 'com.example.superconductor', '/applications/arc.app', 'cursor', 'claude', 'terminal']) assert.ok(kept.has(id), id);
   assert.deepEqual([...pidsUsing(ASSERTIONS, settings.spare_while_using)], [1105]);
   assert.deepEqual([...appsUsing(runningApps(AGENT_MAC), new Set([1105]), PS)], [1005]);
-  const home = await mkdtemp(join(tmpdir(), 'trillion-hold-'));
+  const home = tempFolder(join(tmpdir(), 'trillion-hold-'));
   const calls = [];
   let assertions = ASSERTIONS;
   const exec = async (file, args) => {

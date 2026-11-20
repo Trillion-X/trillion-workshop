@@ -10,11 +10,12 @@
  * moderate stop value keeps the bar off the 255 ceiling so the gain is measurable (not clip-masked). PLUS a
  * byte-identical determinism proof. L155.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,7 +38,7 @@ function grayRow(file, ss, y) {
 const mean = (row, lo, hi) => { let s = 0, n = 0; for (let x = lo; x < hi; x++) { s += row[x]; n++; } return Math.round(s / n); };
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'exp-'));
+  const dir = tempFolder(join(tmpdir(), 'exp-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -45,7 +46,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'exp-render-'));
+  work = tempFolder(join(tmpdir(), 'exp-render-'));
   bar = join(work, 'bar.mp4'); // a mid-DARK gray bar (value 70) on darker gray (40), well below the 255 ceiling.
   ffmpeg(['-f', 'lavfi', '-i', `color=black:s=320x240:d=2:r=${FPS}`, '-vf', "geq=r='if(between(X,120,200),70,40)':g='if(between(X,120,200),70,40)':b='if(between(X,120,200),70,40)'", '-pix_fmt', 'yuv420p', bar]);
 });

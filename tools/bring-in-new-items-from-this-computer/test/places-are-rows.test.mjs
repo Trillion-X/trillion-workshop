@@ -5,6 +5,7 @@
 // pictures. The account is a stand-in that keeps each arrival as one of its own rows, which the test reads back; nothing
 // reaches a real account. Each new item arrives once; an item the account turns away waits alone while the others
 // still arrive; a recording whose file is not on this computer waits until it is; the past is read newest first.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -87,7 +88,7 @@ function standInAccount({turnAway = () => null} = {}) {
 }
 
 test('new notes, recordings and pictures each arrive once, from their rows, as the account\'s own rows', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'places-are-rows-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'places-are-rows-'));
   const notes = notesStore(dir), recordings = recordingsStore(dir);
   const pictures = path.join(dir, 'Pictures');
   fs.mkdirSync(pictures);
@@ -148,7 +149,7 @@ test('new notes, recordings and pictures each arrive once, from their rows, as t
 });
 
 test('an item the account turns away waits alone: the other items and places still arrive, and it is asked again only when it changes', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'places-are-rows-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'places-are-rows-'));
   const notes = notesStore(dir), recordings = recordingsStore(dir);
   const door = standInAccount({turnAway: body => (body.source_id === 'too-much' && body.text.includes('every word') ? 'This note is more than the account takes in one item.' : null)});
   const start = Date.now() - 3 * 3_600_000;
@@ -176,7 +177,7 @@ test('an item the account turns away waits alone: the other items and places sti
 });
 
 test('a place with backfill reads its past newest first, in batches, and stops at its oldest item', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'places-are-rows-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'places-are-rows-'));
   const file = path.join(dir, 'library.sqlite');
   const db = new DatabaseSync(file);
   db.exec('CREATE TABLE pictures (id TEXT, at INTEGER, title TEXT)');

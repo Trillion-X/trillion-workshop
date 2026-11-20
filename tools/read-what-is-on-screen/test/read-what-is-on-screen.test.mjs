@@ -3,10 +3,11 @@
 // The command around the reader, run with a stand-in reader (a small program that answers like the real one), and the
 // real reader's secret scrubbing, run for real with its real rules on text typed here (it reads no window). The
 // reader's reading of a live window needs the Accessibility grant and the person's own windows, so no test does that.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { chmodSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { BOUNDS, READER, RULES, SWIFT, answerOf, read, readerArguments } from '../do-work/read-what-is-on-screen.mjs';
@@ -16,7 +17,7 @@ const aSwift = process.platform === 'darwin' && spawnSync(SWIFT, ['--version']).
 
 // A stand-in for the swift command: a shell script that runs `body`.
 function standIn(body) {
-  const folder = mkdtempSync(join(tmpdir(), 'reader-test-'));
+  const folder = tempFolder(join(tmpdir(), 'reader-test-'));
   const program = join(folder, 'swift');
   writeFileSync(program, `#!/bin/sh\n${body}\n`);
   chmodSync(program, 0o755);
@@ -104,7 +105,7 @@ test('the real reader removes keys, tokens, card numbers and password values fro
 });
 
 test('the real reader stops, in words, on a secret pattern that does not compile and on a missing rules file', { skip: !aSwift }, () => {
-  const folder = mkdtempSync(join(tmpdir(), 'reader-rules-'));
+  const folder = tempFolder(join(tmpdir(), 'reader-rules-'));
   try {
     const broken = join(folder, 'rules.json');
     writeFileSync(broken, JSON.stringify({ ...rules, secret_patterns: ['(unclosed'] }));
@@ -121,7 +122,7 @@ test('the real reader stops, in words, on a secret pattern that does not compile
 });
 
 test('the reader type-checks as Swift', { skip: !aSwift }, () => {
-  const folder = mkdtempSync(join(tmpdir(), 'reader-typecheck-'));
+  const folder = tempFolder(join(tmpdir(), 'reader-typecheck-'));
   try {
     execFileSync('/usr/bin/swiftc', ['-typecheck', READER], { stdio: 'pipe', cwd: folder });
   } finally { rmSync(folder, { recursive: true, force: true }); }

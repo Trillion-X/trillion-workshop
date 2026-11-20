@@ -1,5 +1,6 @@
 // What the Trillion app finds on a computer by itself (computer-sources.mjs): each row's place checked by whether it is
 // there and may be opened, only the services a browser uses leaving the computer, and the account told once per change.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -10,7 +11,7 @@ import {execFileSync} from 'node:child_process';
 import {computerSources, lookHere, lookInChild, SITE_READERS} from '../computer/computer-sources.mjs';
 
 function home() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'computer-sources-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'computer-sources-'));
   const put = (relative, text = 'x') => { fs.mkdirSync(path.dirname(path.join(dir, relative)), {recursive: true}); fs.writeFileSync(path.join(dir, relative), text); };
   put('Notes/store.sqlite');
   put('Locked/inside/store.db');
@@ -65,7 +66,7 @@ test('the look also runs in a fresh child process', async () => {
 });
 
 test('Safari keeps its sites in its own format and only their host names are read', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'safari-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'safari-'));
   // One page, one cookie whose domain string sits at offset 56 from the cookie's start.
   const cookie = Buffer.alloc(80);
   cookie.writeUInt32LE(80, 0); cookie.writeUInt32LE(56, 16); cookie.write('.stripe.com\0', 56);
@@ -112,7 +113,7 @@ test('an account that cannot be reached is said, and nothing is marked as told',
 });
 
 test('a check deadline is unknown access without a switch, and a later normal check can find the open place', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'held-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'held-'));
   execFileSync('/usr/bin/mkfifo', [path.join(dir, 'held')]);
   fs.writeFileSync(path.join(dir, 'open'), 'x');
   const started = Date.now();
@@ -155,7 +156,7 @@ function appAt(dir, name, version) {
 }
 
 test('an app found is asked what it is, and the first rule that holds says what it allows and what this computer carries', {skip: process.platform !== 'darwin' && 'plutil is macOS'}, () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'computer-apps-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'computer-apps-'));
   const look = () => lookHere({rows: [appRow], home: dir}).sources[0];
   assert.equal(look(), undefined, 'not installed: not reported');
   appAt(dir, 'Editor', '21.1.1');
@@ -169,7 +170,7 @@ test('an app found is asked what it is, and the first rule that holds says what 
 });
 
 test('a computer that carries an app\'s service publishes one card naming it, renewed every look, and empties it once when it stops', {skip: process.platform !== 'darwin' && 'plutil is macOS'}, async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'computer-carries-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'computer-carries-'));
   appAt(dir, 'Editor Pro', '22.0');
   const published = [], reports = [];
   const account = async (route, {method = 'GET', body} = {}) => {

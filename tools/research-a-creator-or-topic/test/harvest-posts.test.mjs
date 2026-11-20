@@ -2,9 +2,10 @@
 //
 // tool:keep-public-posts-by-link against a stand-in mirror (a function standing for fetch); the rows it builds
 // over come in as held and go back as keep. Every user, post and word here is made up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { keepPublicPostsByLink as keep, readPostLink, readRequest } from '../do-work/harvest-posts.mjs';
@@ -43,7 +44,7 @@ const plan = {
   [`${MIRROR}/baker_one/status/1003`]: { body: post('1003', 'Scoring the loaf') },
 };
 const lines = out => readFileSync(join(out, 'posts.jsonl'), 'utf8').split('\n').filter(Boolean).map(text => JSON.parse(text));
-const fresh = () => join(mkdtempSync(join(tmpdir(), 'posts-')), 'out');
+const fresh = () => join(tempFolder(join(tmpdir(), 'posts-')), 'out');
 
 test('each link is asked of the mirror once, politely, and kept with only the fields the settings name', async () => {
   const { fetchPage, calls } = mirror(plan);

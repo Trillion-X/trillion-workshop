@@ -1,9 +1,10 @@
 // The unlabeled diagnostic builder on a made-up frozen document: only blocks the criterion applies to become rows,
 // each with its verified byte span and two blocks of reader context; the rest are counted; a changed source is refused.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
+import { writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,7 +16,7 @@ const criterion = { id: 'wording-and-connections', primitive: 'one-of', question
   reference_context: 'A made-up reference.', applies_to: ['paragraph', 'list', 'quote', 'mixed'] };
 
 function lay() {
-  const folder = mkdtempSync(join(tmpdir(), 'voice-unlabeled-'));
+  const folder = tempFolder(join(tmpdir(), 'voice-unlabeled-'));
   writeFileSync(join(folder, 'guide.md'), document);
   writeFileSync(join(folder, 'adoption.json'), '{"adopted":true}\n');
   const freeze = { schema: 'private-book-source-freeze-v1', status: 'frozen', sources: [{ name: 'Guide', source: join(folder, 'guide.md'), source_blake3: blake3Hex(document),

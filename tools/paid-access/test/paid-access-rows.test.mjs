@@ -3,11 +3,12 @@
 // sealed with a key handed on a private pipe and the paid-file row is answered (nothing is kept), a buyer whose
 // payment events and offers (handed in by the caller) give them the access gets a link and opens it, anyone else
 // does not, a refund closes it on the next open, and the key is never in an answer. Every value here is made up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdtempSync, openSync, readFileSync, writeFileSync } from 'node:fs';
+import { openSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -34,7 +35,7 @@ const refund = { event_id: 'evt_2', event_kind: 'payment.refunded', occurred_at:
 // Runs the seal row's argv the way the container does: the key (when given) on the row's credential descriptor, and
 // --out in a scratch folder instead of /opt.
 async function runSeal(input, { key } = {}) {
-  const scratch = mkdtempSync(join(tmpdir(), 'seal-a-paid-file-'));
+  const scratch = tempFolder(join(tmpdir(), 'seal-a-paid-file-'));
   // descriptor 4 carries the key, or nothing when none is handed; descriptor 3 (where a records door would be) is empty
   writeFileSync(join(scratch, 'key'), key ?? '');
   const stdio = ['pipe', 'pipe', 'pipe', 'ignore'];

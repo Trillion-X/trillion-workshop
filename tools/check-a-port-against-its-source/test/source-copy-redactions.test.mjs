@@ -1,7 +1,8 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -12,7 +13,7 @@ const hash = bytes => makeHashCodeHexFromBytes(Buffer.from(bytes));
 const environment = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')));
 
 function fixture(t, source, redactions, expected) {
-  const home = mkdtempSync(join(tmpdir(), 'source-copy-redactions-'));
+  const home = tempFolder(join(tmpdir(), 'source-copy-redactions-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const old = join(home, 'original-owner'), root = join(home, 'receiving-owner');
   const git = (folder, ...args) => execFileSync('git', ['--no-replace-objects', '-C', folder, ...args],

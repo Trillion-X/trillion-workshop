@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -9,7 +10,7 @@ import { resolveItem } from '../read-data/citation-resolvers.mjs';
 
 // A made-up repository, so the tool is tested with no name of ours in it.
 function madeUpRepo() {
-  const folder = join(mkdtempSync(join(tmpdir(), 'citation-test-')), 'made-up-repo');
+  const folder = join(tempFolder(join(tmpdir(), 'citation-test-')), 'made-up-repo');
   mkdirSync(join(folder, 'src'), { recursive: true });
   writeFileSync(join(folder, 'src', 'thing.txt'), 'first line\nsecond line holds the words\nthird line\n');
   const git = (...args) => execFileSync('git', ['-C', folder, ...args], { encoding: 'utf8' }).trim();

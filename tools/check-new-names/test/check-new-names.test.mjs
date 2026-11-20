@@ -1,7 +1,8 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -24,7 +25,7 @@ const RULES = {
 };
 
 function repository(origin = 'git@example.test:example-owner/example-engine.git') {
-  const root = mkdtempSync(join(tmpdir(), 'check-new-names-'));
+  const root = tempFolder(join(tmpdir(), 'check-new-names-'));
   const run = (...args) => execFileSync('git', ['-C', root, ...args], { stdio: 'pipe' });
   run('init', '-q', '-b', 'main');
   run('config', 'user.email', 'test@example.test');

@@ -1,14 +1,15 @@
 // The export runner's keep path: a row with no `database` answers its keep list as every row does, and a `database` given
 // to a row that declares its keep table is written there (the mount is missing here, so it is refused and nothing is written).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, openSync, writeFileSync } from 'node:fs';
+import { openSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const RUNNER = new URL('../do-work/run-an-export.mjs', import.meta.url).pathname;
-const dir = mkdtempSync(join(tmpdir(), 'keep-runner-'));
+const dir = tempFolder(join(tmpdir(), 'keep-runner-'));
 const moduleFile = join(dir, 'tool.mjs');
 writeFileSync(moduleFile, `export function decide(input) {
   return { case_id: 'source:x', keep: [{ id: 'source:x', type: 'decision', value: { status: 'needs_outcome' }, expected: null }] };

@@ -1,17 +1,18 @@
 // The session-runs cases of Trillion-X/trillion test/harness-guidance-mcp-and-runs.test.mjs, moved with the module.
 // The progress case's last step (computer/report-progress.mjs showing the file as a card) stays with that Mac
 // program; the progress file's own assertions are kept. One case is added for this folder's command line.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, realpathSync, rmSync } from 'node:fs';
+import { realpathSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { clearWorkspaceTools, eventsOfLine, lineSplitter, progressKeeper, progressPath, runArgv, setWorkspaceTools, workspaceTools } from '../do-work/session-runs.mjs';
 import wakeRules from '../read-data/ai-command-lines.json' with { type: 'json' };
 
-const tempHome = t => { const dir = realpathSync(mkdtempSync(join(tmpdir(), 'trillion-harness-'))); t.after(() => rmSync(dir, { recursive: true, force: true })); return dir; };
+const tempHome = t => { const dir = realpathSync(tempFolder(join(tmpdir(), 'trillion-harness-'))); t.after(() => rmSync(dir, { recursive: true, force: true })); return dir; };
 const claudeStream = wakeRules.harnesses['claude-code'].stream;
 const codexStream = wakeRules.harnesses.codex.stream;
 

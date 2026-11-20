@@ -4,9 +4,10 @@
 // microphone turns are tools/run-on-a-persons-computer/listen.mjs over tools/bring-in-new-items-from-this-computer's
 // computer-sources.json (old computer/), its state in a scratch folder removed afterwards rather than under ~/.trillion
 // and the Mac's trash. Every assertion is the old one.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { compareHybridTimestamps, hybridTimestampKey, receiveHybridClock, tickHybridClock } from '../src/hybrid-clock.mjs';
@@ -75,7 +76,7 @@ test('the HLC key sorts numeric wall and logical values before device tie breaks
 });
 
 test('microphone turns persist one device clock across calls and clock skew', async () => {
-  const state = mkdtempSync(path.join(os.tmpdir(), 'hybrid-clock-test-'));
+  const state = tempFolder(path.join(os.tmpdir(), 'hybrid-clock-test-'));
   try {
     const waiting = path.join(state, 'waiting.json');
     const posted = [];

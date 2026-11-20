@@ -13,11 +13,12 @@
  * never produce, and A dominates the first half while B dominates the second (the crossfade direction). PLUS
  * byte-determinism, and the custom-`expr` renderer proven the same way.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -47,7 +48,7 @@ function tone(file, F, { half } = {}) {
 }
 
 before(() => {
-  work = mkdtempSync(join(tmpdir(), 'trxfade-'));
+  work = tempFolder(join(tmpdir(), 'trxfade-'));
   clipA = join(work, 'a.mp4'); // 440 Hz tone (the outgoing clip's tail)
   clipB = join(work, 'b.mp4'); // 880 Hz tone (the incoming clip's head)
   ffmpeg(['-f', 'lavfi', '-i', `color=navy:s=${W}x${H}:d=${DUR}:r=${FPS}`, '-f', 'lavfi', '-i', `sine=frequency=440:d=${DUR}`,

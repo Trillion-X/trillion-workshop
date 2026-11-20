@@ -2,10 +2,11 @@
 // lives in one repository; a second repository adds feature files. A file with no contract, a rewrite, a second live
 // copy past its date and a claim of no prior owner that the search contradicts are refused; a byte copy that was then
 // adapted, and a claim whose every near file is named, pass.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -47,7 +48,7 @@ function commit(root, files, message = 'change') {
 }
 
 function checkouts(t) {
-  const base = mkdtempSync(join(tmpdir(), 'port-contracts-'));
+  const base = tempFolder(join(tmpdir(), 'port-contracts-'));
   t.after(() => rmSync(base, { recursive: true, force: true }));
   const old = join(base, 'old-owner');
   const tools = join(base, 'tools-repo');

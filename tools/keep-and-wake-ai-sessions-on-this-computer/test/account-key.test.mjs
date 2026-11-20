@@ -2,9 +2,10 @@
 // the file home and a Keychain that answers as macOS does. The run against a real throwaway Keychain sits in
 // Trillion-X/trillion-apps beside scripts/macos-keychain-state.mjs, which makes that Keychain without touching the
 // person's own.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, chmodSync, rmSync } from 'node:fs';
+import { writeFileSync, chmodSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { readAccountKey, accountKeyOrNull, requireAccountKey } from '../harness/account-key.mjs';
@@ -12,7 +13,7 @@ import { readAccountKey, accountKeyOrNull, requireAccountKey } from '../harness/
 const SECRET = 'nm_fictional_test_key_0001';
 
 test('on another system the key file is read only when no one but its owner can read it', t => {
-  const root = mkdtempSync(join(tmpdir(), 'trillion-account-key-'));
+  const root = tempFolder(join(tmpdir(), 'trillion-account-key-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const file = join(root, 'key');
   assert.deepEqual(readAccountKey({ platform: 'linux', file }), { state: 'absent' });

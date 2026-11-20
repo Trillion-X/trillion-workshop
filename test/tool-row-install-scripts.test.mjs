@@ -4,10 +4,11 @@
 // or a packages item of its package_files): the owner chose it by declaring it. A package the row only imports is refused, and
 // the refusal is listed by refusedModules (the generator prints it), never dropped silently. The fixture is a throwaway
 // repository holding the walker, the lockfile and one row whose program imports one scripted package.
+import { tempFolder } from '../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { packageFilesByRow, refusedModules } from '../test-helpers/tool-row-imports.mjs';
@@ -17,7 +18,7 @@ const KEY = 'node_modules/fake-scripted';
 const REFUSAL = 'tool:app fake-scripted: node_modules/fake-scripted runs an install script, and nothing the engine fetches runs one';
 
 function fixture({ declared }) {
-  const root = mkdtempSync(join(tmpdir(), 'tool-row-install-scripts-'));
+  const root = tempFolder(join(tmpdir(), 'tool-row-install-scripts-'));
   cpSync(join(repo, 'test-helpers'), join(root, 'test-helpers'), { recursive: true });
   cpSync(join(repo, 'tools', 'content-identity'), join(root, 'tools', 'content-identity'), { recursive: true });
   mkdirSync(join(root, 'tools', 'app', 'do-work'), { recursive: true });
@@ -56,7 +57,7 @@ test('a package with an install script that the row declares by name is laid out
 });
 
 test('a package the row lays out under its own name is not laid out again by a module tree that needs it', () => {
-  const root = mkdtempSync(join(tmpdir(), 'tool-row-placed-once-'));
+  const root = tempFolder(join(tmpdir(), 'tool-row-placed-once-'));
   cpSync(join(repo, 'test-helpers'), join(root, 'test-helpers'), { recursive: true });
   cpSync(join(repo, 'tools', 'content-identity'), join(root, 'tools', 'content-identity'), { recursive: true });
   mkdirSync(join(root, 'tools', 'app', 'do-work'), { recursive: true });

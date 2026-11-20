@@ -1,10 +1,11 @@
 // A receiver holding many unfinished events replays them one at a time, and settles work that belongs to another chat
 // for good. On 2026-10-03 one receiver kept 341 events for other chats pending and replayed them all at once every five
 // minutes, about a hundred reads in the same second, and the person's store answered "overloaded" to every caller.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
@@ -15,7 +16,7 @@ const listen = server => new Promise(resolve => server.listen(0, '127.0.0.1', ()
 const close = server => new Promise(resolve => server.close(resolve));
 
 test('unfinished events replay one at a time and work for another chat is never read again', async () => {
-  const home = mkdtempSync(join(tmpdir(), 'trillion-agent-receiver-replay-'));
+  const home = tempFolder(join(tmpdir(), 'trillion-agent-receiver-replay-'));
   const inbox = join(home, '.trillion', 'agent-receiver', 'replay-receiver');
   mkdirSync(inbox, { recursive: true });
   const count = 40;

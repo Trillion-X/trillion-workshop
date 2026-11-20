@@ -1,5 +1,6 @@
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -13,7 +14,7 @@ const digest = `127.0.0.1:5000/bitfield-local-whisper@sha256:${'5'.repeat(64)}`;
 const layers = [`sha256:${'6'.repeat(64)}`, `sha256:${'7'.repeat(64)}`];
 
 function prepare(inspect, expected = imageId) {
-  const root = mkdtempSync(join(tmpdir(), 'local-whisper-admission-'));
+  const root = tempFolder(join(tmpdir(), 'local-whisper-admission-'));
   const inspectPath = join(root, 'inspect.json');
   const sourcePath = join(root, 'source-role.json');
   const selectionPath = join(root, 'selection.json');

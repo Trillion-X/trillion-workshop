@@ -8,10 +8,11 @@
  * AND a real offline render on a moving source (testsrc2) where frames WITHIN one strobe hold are
  * identical while frames ACROSS holds differ, and a no-strobe render changes continuously (L155 temporal).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -34,7 +35,7 @@ function diffPx(a, b) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'strb-'));
+  const dir = tempFolder(join(tmpdir(), 'strb-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -42,7 +43,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'strb-render-'));
+  work = tempFolder(join(tmpdir(), 'strb-render-'));
   motion = join(work, 'motion.mp4'); // testsrc2 changes every frame
   ffmpeg(['-f', 'lavfi', '-i', 'testsrc2=s=320x240:r=24:d=2', '-pix_fmt', 'yuv420p', motion]);
 });

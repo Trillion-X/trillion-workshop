@@ -1,8 +1,9 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { activityRow } from '../../shared-code/src/activity.mjs';
@@ -48,7 +49,7 @@ function hostFixture(operation) {
 }
 
 async function observedInspector(t) {
-  const directory = mkdtempSync(join(tmpdir(), 'setup-proof-'));
+  const directory = tempFolder(join(tmpdir(), 'setup-proof-'));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
   const home = join(directory, 'home'), payload = join(directory, 'harness');
   mkdirSync(home); mkdirSync(payload);

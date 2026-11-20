@@ -1,10 +1,11 @@
 // tools/check-a-port-against-its-source: the row is the shape the engine runs on the person's computer, and the command,
 // run the way the engine runs it (the granted folder in argv, the input on standard input, the answer on the last line),
 // reads a contract and the files it names relative to a made-up folder.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -19,7 +20,7 @@ function run(granted, input) {
 
 // A made-up source and its exact copy, with a contract that names them by path inside the folder.
 function port(t) {
-  const root = mkdtempSync(join(tmpdir(), 'check-my-reference-contract-'));
+  const root = tempFolder(join(tmpdir(), 'check-my-reference-contract-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const source = Array.from({ length: 20 }, (_, i) => `export const keptMechanism${i} = () => ${i}; // meaningful source line`).join('\n');
   writeFileSync(join(root, 'source.mjs'), source);

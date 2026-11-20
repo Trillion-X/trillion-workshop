@@ -1,19 +1,20 @@
 // tools/workflows/do-work/run-a-function.mjs: the door-free entry of a tool that keeps no rows.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { closeSync, mkdtempSync, openSync, writeFileSync } from 'node:fs';
+import { closeSync, openSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const entry = new URL('../do-work/run-a-function.mjs', import.meta.url).pathname;
-const module = join(mkdtempSync(join(tmpdir(), 'run-a-function-')), 'double.mjs');
+const module = join(tempFolder(join(tmpdir(), 'run-a-function-')), 'double.mjs');
 writeFileSync(module, 'export const double = ({ n }) => ({ n: n * 2 });\nexport const names = (...given) => ({ given: given.length, host: Object.keys(given[1] ?? {}) });\nexport const defaults = (input, { env = process.env, fetchImpl = fetch } = {}) => ({ key: env.RUN_A_FUNCTION_TEST_KEY ?? null, fetch_is_global: fetchImpl === fetch });\nexport const wake = () => ({ shown: 1, wake_effects: [{ kind: "x" }] });\nexport const boom = () => { throw new Error("it broke"); };\nexport const unsent = () => { throw Object.assign(new Error("not sent"), { not_sent: true, code: "held", result: 1, at: () => 1, cause: new Error("inner") }); };\nexport const leaky = () => { throw Object.assign(new Error("leaky"), { host: { parentActions: 1 }, bytes: Buffer.from("secret file"), code: "kept" }); };\nexport const read = async (input, host) => {\n  try { return { file: await host.readWholeFile("notes.txt") }; } catch (error) { return { code: error.code, outcome: error.outcome }; }\n};\nexport const trash = async (input, host) => {\n  try { return { moved: await host.parentActions.trashSource(input) }; } catch (error) { return { code: error.code, outcome: error.outcome }; }\n};\n');
 const run = (args, input, stdio) => {
   const done = spawnSync(process.execPath, [entry, module, ...args], { input: JSON.stringify(input), encoding: 'utf8', ...(stdio ? { stdio: ['pipe', 'pipe', 'pipe', stdio] } : {}) });
   return { code: done.status, last: JSON.parse(done.stdout.trim().split('\n').at(-1)) };
 };
-const routeFile = route => { const file = join(mkdtempSync(join(tmpdir(), 'run-a-function-route-')), 'route.json'); writeFileSync(file, JSON.stringify(route)); return file; };
+const routeFile = route => { const file = join(tempFolder(join(tmpdir(), 'run-a-function-route-')), 'route.json'); writeFileSync(file, JSON.stringify(route)); return file; };
 
 test('the function is called with the input and its answer is the result', () => {
   assert.deepEqual(run(['double'], { n: 21 }), { code: 0, last: { result: { n: 42 } } });
@@ -74,7 +75,7 @@ test('an error line never carries the host actions or a binary file content', ()
 
 test('a row that packed only the runner starts it: the host actions load only when a function uses one', async () => {
   const { cpSync, mkdirSync } = await import('node:fs');
-  const packed = mkdtempSync(join(tmpdir(), 'run-a-function-packed-'));
+  const packed = tempFolder(join(tmpdir(), 'run-a-function-packed-'));
   mkdirSync(join(packed, 'workflows/do-work'), { recursive: true });
   const alone = join(packed, 'workflows/do-work/run-a-function.mjs');
   cpSync(entry, alone);

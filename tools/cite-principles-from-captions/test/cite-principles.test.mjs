@@ -2,10 +2,11 @@
 // tool promises: a corpus that says how each video did against its channel's usual, the passages worth reading, an exact-quote
 // check that tells a wrong quote from a missing caption file, and a registry whose evidence is counted by independent channel.
 // Needs python3 only.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test, { before } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -21,7 +22,7 @@ const lines = path => readFileSync(path, 'utf8').trim().split('\n').map(line => 
 
 let work, corpus;
 before(() => {
-  work = mkdtempSync(join(tmpdir(), 'cite-principles-'));
+  work = tempFolder(join(tmpdir(), 'cite-principles-'));
   corpus = join(work, 'corpus.jsonl');
   assert.equal(run(join(folder, 'test', 'make_fixture.py'), work).status, 0, 'the synthetic inputs are written');
 });

@@ -1,7 +1,8 @@
 // The public documents owner used by list document-types and plain-file consumers.
 // Synthetic files only: preserve unrelated sidecar metadata and refuse stale conditional writes.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -16,7 +17,7 @@ test('a list selects only its declared documents source and retains missing-list
 });
 
 test('sidecar reads and conditional type writes preserve other owners metadata and reject a stale identity', async t => {
-  const root = await mkdtemp(join(tmpdir(), 'document-types-consumers-'));
+  const root = tempFolder(join(tmpdir(), 'document-types-consumers-'));
   t.after(() => rm(root, { recursive: true, force: true }));
   const files = await folderFiles(root);
   assert.equal(await readSidecar(files, '/'), null);
@@ -36,7 +37,7 @@ test('sidecar reads and conditional type writes preserve other owners metadata a
 });
 
 test('the permissive metadata read never turns malformed types into a successful types read', async t => {
-  const root = await mkdtemp(join(tmpdir(), 'document-types-malformed-'));
+  const root = tempFolder(join(tmpdir(), 'document-types-malformed-'));
   t.after(() => rm(root, { recursive: true, force: true }));
   const files = await folderFiles(root);
   await writeFile(join(root, 'property-types.json'), '{broken');

@@ -4,9 +4,10 @@
 // spent by its uses (F-0593), the screen marked when it holds a password field (F-0597), what a session has read recorded
 // so an action that could send it on is refused (F-0595), and the notice that screen text is data (F-0449). Every guard
 // is off in the shipped data; nothing here is a default.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { grantTools, makeScreenDriver, readGrants, screenSettings } from '../read-data/drive-the-screen.mjs';
@@ -29,7 +30,7 @@ function pretend({ secure = false } = {}) {
   };
   return { acts, program };
 }
-const driverOf = (mac, settings, home = mkdtempSync(join(tmpdir(), 'guards-home-')), now = () => Date.now()) =>
+const driverOf = (mac, settings, home = tempFolder(join(tmpdir(), 'guards-home-')), now = () => Date.now()) =>
   ({ home, now, driver: makeScreenDriver({ settings, home, now, program: mac.program, capture: async () => Buffer.from('x'), ocr: async () => ({ width: 2000, height: 1000, lines: [] }), wait: async () => {} }) });
 const withGuards = (patch, base = open) => { const copy = structuredClone(base); for (const [path, value] of Object.entries(patch)) { const keys = path.split('.'); const last = keys.pop(); keys.reduce((node, key) => node[key], copy)[last] = value; } return copy; };
 const refusedBy = async (promise, words) => assert.rejects(promise, error => { assert.equal(error.status, 403); assert.equal(error.retry, false); assert.match(error.message, words); return true; });

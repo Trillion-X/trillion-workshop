@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { listRunningPrograms, readPrograms, readProcessTable } from '../read-data/running-programs.mjs';
@@ -53,7 +54,7 @@ test('refuses a bad bound and says what to grant when the reader could not list'
 });
 
 test('a process table folder is read without starting a program, memory in bytes, a vanished program left out', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'process-table-'));
+  const folder = tempFolder(join(tmpdir(), 'process-table-'));
   const program = (pid, name, status) => { mkdirSync(join(folder, pid)); writeFileSync(join(folder, pid, 'comm'), `${name}\n`); if (status !== null) writeFileSync(join(folder, pid, 'status'), status); };
   program('21', 'sample-editor', 'Name:\tsample-editor\nVmRSS:\t     400 kB\nRssAnon:\t     300 kB\nVmSwap:\t      10 kB\n');
   program('22', 'kernel-helper', 'Name:\tkernel-helper\n');
@@ -72,7 +73,7 @@ test('a process table folder is read without starting a program, memory in bytes
 });
 
 test('a process table folder gives each program its parent, session, start, processor time and, asked, its command', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'process-table-'));
+  const folder = tempFolder(join(tmpdir(), 'process-table-'));
   writeFileSync(join(folder, 'stat'), 'cpu  1 2 3\nbtime 1700000000\n');
   mkdirSync(join(folder, '31'));
   writeFileSync(join(folder, '31', 'comm'), 'sample loop\n');

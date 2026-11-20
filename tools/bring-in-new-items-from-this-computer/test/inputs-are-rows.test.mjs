@@ -7,6 +7,7 @@
 // unread; a row removed stays removed; an unreachable account leaves the last rows being read; and a connected service
 // the code has never heard of is one more row (reader `tool`, a Workshop tool and where its list of new things is) and
 // its new things arrive, once each, with no code change.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -17,7 +18,7 @@ import {readNewItems} from '../computer/read-new-items.mjs';
 import {inputsDefinition, liveInputs, readable, readersWith, serviceReader, startersOf} from '../computer/inputs.mjs';
 
 const rows = JSON.parse(fs.readFileSync(new URL('../computer/computer-sources.json', import.meta.url), 'utf8'));
-const dir = () => fs.mkdtempSync(path.join(os.tmpdir(), 'inputs-are-rows-'));
+const dir = () => tempFolder(path.join(os.tmpdir(), 'inputs-are-rows-'));
 const MADE_UP = {
   label: 'Madeup Notes', category: 'Notes', connection: 'service_connection:madeup-notes', look: {paths: []},
   read: {route: 'Madeup Notes', reader: 'tool', tool: 'tool:madeup-notes-list-changed', input: {connection: {connection_id: 'service_connection:madeup-notes'}, changed_since: '{since}'},

@@ -9,11 +9,12 @@
  * EXPANSION: a low-contrast gradient (tones bunched in a narrow band) has its min pulled down and max pushed
  * up, so the used tonal range grows substantially. PLUS a byte-identical determinism proof. L155.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -40,7 +41,7 @@ function range(raw) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'heq-'));
+  const dir = tempFolder(join(tmpdir(), 'heq-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -48,7 +49,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'heq-render-'));
+  work = tempFolder(join(tmpdir(), 'heq-render-'));
   lc = join(work, 'lc.mp4'); // a LOW-CONTRAST horizontal gradient bunched in ~90..138 (a flat, hazy shot).
   ffmpeg(['-f', 'lavfi', '-i', `color=black:s=320x240:d=2:r=${FPS}`, '-vf', "geq=r='90+0.15*X':g='90+0.15*X':b='90+0.15*X'", '-pix_fmt', 'yuv420p', lc]);
 });

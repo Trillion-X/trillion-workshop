@@ -5,10 +5,11 @@
 // The remaster, clone and read-back stages need DeepFilterNet, a cloning model, pyannote and whisper weights and are run by hand;
 // their row, their arguments and their refusals are checked here without the models.
 // Needs python3 with numpy, scipy and soundfile, and ffmpeg; without them these tests skip and say why.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test, { before } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -30,7 +31,7 @@ assert.equal(environment.ok, true, skip || 'declared audio test environment is r
 let work, grades, run;
 before(() => {
   if (skip) return;
-  work = mkdtempSync(join(tmpdir(), 'grade-speech-'));
+  work = tempFolder(join(tmpdir(), 'grade-speech-'));
   assert.equal(python(join(here, 'build_fixture.py'), work).status, 0, 'the fixture builds');
   run = python(join(doWork, 'grade_and_repair_speech.py'), 'grade', '--spans', join(work, 'spans.json'), '--settings', settingsFile, '--out', join(work, 'out'));
   if (run.status === 0) grades = JSON.parse(readFileSync(join(work, 'out', 'grades.json'), 'utf8'));

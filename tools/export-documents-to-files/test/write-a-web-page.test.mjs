@@ -1,9 +1,10 @@
 // tools/export-documents-to-files: the web-page writer (tool:write-a-web-page-from-a-record), over records this test
 // makes up itself. The file exporter's own tests are in export-to-file.test.mjs.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -149,7 +150,7 @@ test('structured data is built from the descriptor nodes, empty fills are droppe
 });
 
 test('the command writes the page to a file and prints the facts without the bytes', () => {
-  const directory = mkdtempSync(join(tmpdir(), 'edf-'));
+  const directory = tempFolder(join(tmpdir(), 'edf-'));
   const input = join(directory, 'envelope.json');
   const output = join(directory, 'page.html');
   writeFileSync(input, JSON.stringify(envelope()));

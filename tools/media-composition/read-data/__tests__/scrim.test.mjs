@@ -8,10 +8,11 @@
  * offline renders where the scrim EDGE is darkened while the OPPOSITE edge is unchanged, and a color scrim
  * tints toward that color.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -35,7 +36,7 @@ function meanRGB(file, { x, y, w, h }) {
 const lumOf = (c) => (c.r + c.g + c.b) / 3;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'scrim-'));
+  const dir = tempFolder(join(tmpdir(), 'scrim-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -43,7 +44,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'scrim-render-'));
+  work = tempFolder(join(tmpdir(), 'scrim-render-'));
   src = join(work, 'gray.mp4');
   ffmpeg(['-f', 'lavfi', '-i', 'color=gray:s=320x240:d=1:r=12', '-pix_fmt', 'yuv420p', src]);
 });

@@ -1,13 +1,14 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readSettingsFile, writeSettingsFile, ParkedWrite } from '../read-data/settings-file.mjs';
 import { grantTools, screenSettings } from '../read-data/drive-the-screen.mjs';
 
 test('missing is not degraded; unreadable shapes are, and a write to them is parked', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'sf-'));
+  const dir = tempFolder(join(tmpdir(), 'sf-'));
   const file = join(dir, 'a.json');
   assert.equal(readSettingsFile(file).state, 'missing');
   writeSettingsFile(file, { grants: [] });
@@ -22,7 +23,7 @@ test('missing is not degraded; unreadable shapes are, and a write to them is par
 
 test('the screen grant tools never replace a broken permissions file with an empty one', () => {
   const settings = screenSettings();
-  const home = mkdtempSync(join(tmpdir(), 'sg-'));
+  const home = tempFolder(join(tmpdir(), 'sg-'));
   const file = join(home, settings.consent.file);
   mkdirSync(join(file, '..'), { recursive: true });
   writeFileSync(file, '{"grants": [ broken', { mode: 0o600 });

@@ -1,7 +1,8 @@
 // test/offer-in-browsers.test.mjs: extension/native-host/offer-in-browsers.mjs over a made-up home folder.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { offerInBrowsers } from '../native-host/offer-in-browsers.mjs';
@@ -16,7 +17,7 @@ const settings = {
 };
 
 test('offers each extension once in each installed browser that does not hold it', () => {
-  const home = mkdtempSync(join(tmpdir(), 'offer-in-browsers-'));
+  const home = tempFolder(join(tmpdir(), 'offer-in-browsers-'));
   try {
     mkdirSync(join(home, 'Apps/One.app'), { recursive: true });
     mkdirSync(join(home, 'Apps/Two.app'), { recursive: true });
@@ -40,7 +41,7 @@ test('offers each extension once in each installed browser that does not hold it
 
 test('every offer file is in the install ledger, withdrawing removes exactly those, and a changed file is left', async () => {
   const { withdrawOffers } = await import('../native-host/offer-in-browsers.mjs');
-  const home = mkdtempSync(join(tmpdir(), 'offer-ledger-'));
+  const home = tempFolder(join(tmpdir(), 'offer-ledger-'));
   try {
     mkdirSync(join(home, 'Apps/One.app'), { recursive: true });
     mkdirSync(join(home, 'Apps/Two.app'), { recursive: true });
@@ -67,7 +68,7 @@ test('every offer file is in the install ledger, withdrawing removes exactly tho
 
 test('relative native-host launcher paths resolve inside each account home', async () => {
   const { placeNativeHosts } = await import('../native-host/offer-in-browsers.mjs');
-  const root = mkdtempSync(join(tmpdir(), 'native-host-home-'));
+  const root = tempFolder(join(tmpdir(), 'native-host-home-'));
   const home = join(root, 'account-home');
   const otherHome = join(root, 'other-account-home');
   try {

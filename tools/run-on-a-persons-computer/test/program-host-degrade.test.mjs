@@ -3,6 +3,7 @@
 // degraded (computer/program-host.mjs, program_host.quick_failures_before_degrade in computer/mac-tools.json); a run
 // that lasts resets the count; the next look at the account that the account answered gives it a fresh start; a
 // program with no limit in its recipe or in program_host is restarted without end, as before.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
@@ -26,7 +27,7 @@ function rig(limit) {
   const started = [], logs = [], pending = [];
   let clock = 0;
   const spawn = () => { const child = new EventEmitter(); child.stdin = { on() {}, end() {} }; child.kill = () => true; started.push(child); return child; };
-  const home = fs.mkdtempSync(path.join(process.env.TMPDIR || tmpdir(), 'program-degrade-'));
+  const home = tempFolder(path.join(process.env.TMPDIR || tmpdir(), 'program-degrade-'));
   const host = makeProgramHost({ settings, key: 'k', file: path.join(home, 'installed.json'), spawn,
     call: async () => ({ installations: [follow(['tool:carry-connections'])] }),
     timers: { setTimeout: run => { pending.push(run); return pending.length; }, clearTimeout() {} }, now: () => clock, log: row => logs.push(row) });

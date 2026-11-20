@@ -1,9 +1,10 @@
 // The original confined-run link-reader integration, now at the repository QA owner because it joins two tools.
 // Keep every original assertion: actual Seatbelt writes are allowed inside the workspace and refused outside it,
 // while the explicit disabled switch preserves the unconfined call. No source under test executes on import.
+import { tempFolder } from '../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdir, readFile, rm } from 'node:fs/promises';
 import { existsSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -13,7 +14,7 @@ import { runConfined } from '../tools/run-on-a-persons-computer/confined-run.mjs
 const mac = { skip: process.platform !== 'darwin' || !existsSync('/usr/bin/sandbox-exec') };
 
 test('the link reader runs confined when the DATA switch is on, and as before when it is off', mac, async t => {
-  const base = realpathSync(await mkdtemp(join(tmpdir(), 'confined-link-reader-')));
+  const base = realpathSync(tempFolder(join(tmpdir(), 'confined-link-reader-')));
   t.after(() => rm(base, { recursive: true, force: true }));
   const workspace = join(base, 'work'), outside = join(base, 'outside');
   await mkdir(workspace); await mkdir(outside);

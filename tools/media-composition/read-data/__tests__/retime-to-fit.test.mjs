@@ -7,11 +7,12 @@
  * requests (flagging achievable:false). (2) OFFLINE RENDER: fit to 2s (speed 1.5) and to 4s (speed 0.75) and
  * the rendered output DURATION equals the target, byte-deterministic.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,7 +28,7 @@ const hashFile = (file) => '1f:' + Buffer.from(blake3(new Uint8Array(readFileSyn
 const durOf = (file) => Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', file], { encoding: 'utf8' }).trim());
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'fit-'));
+  const dir = tempFolder(join(tmpdir(), 'fit-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -35,7 +36,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'fit-render-'));
+  work = tempFolder(join(tmpdir(), 'fit-render-'));
   clip = join(work, 'clip.mp4'); // exactly 3s of video + audio
   ffmpeg(['-f', 'lavfi', '-i', `testsrc=s=${W}x${H}:d=3:r=${FPS}`, '-f', 'lavfi', '-i', 'sine=frequency=440:d=3',
     '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-shortest', clip]);

@@ -4,14 +4,15 @@
 // adminUserIds). A signed-in person the settings do not name is refused and the user stays; once the settings name them, the
 // same person removes that user (Better Auth's removeUser) and every other user stays. The second start reads the new settings
 // into a fresh copy of auth.mjs over the same database, as a computer restarted from its changed computer row does.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { startStore } from '../test-fixtures/embedded-store.mjs';
 
-const dir = mkdtempSync(join(tmpdir(), 'admin-remove-user-'));
+const dir = tempFolder(join(tmpdir(), 'admin-remove-user-'));
 const shipped = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
 const settings = { ...shipped, email_password: { require_verification: false }, disabled_paths: [] };
 const settingsFile = join(dir, 'settings.json');

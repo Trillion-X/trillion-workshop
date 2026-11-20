@@ -1,8 +1,9 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
 import {spawn} from 'node:child_process';
-import {mkdtempSync,readFileSync,rmSync} from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -171,7 +172,7 @@ test('the public critic reads named top-frame and empty same-origin iframe contr
   else res.end('<!doctype html><button aria-label="Inner frame control"></button><button class="frame-empty"></button>');
  });
  await new Promise(done=>server.listen(0,'127.0.0.1',done));
- const out=mkdtempSync(join(tmpdir(),'page-craft-control-name-'));
+ const out=tempFolder(join(tmpdir(),'page-craft-control-name-'));
  try{
   const stdout=await new Promise((resolve,reject)=>{
    const child=spawn(process.execPath,[fileURLToPath(new URL(import.meta.resolve('../do-work/critique-a-page.mjs'))),'--url',`http://127.0.0.1:${server.address().port}/frame-host`,'--out',out],{env:{...process.env,BROWSER_EXECUTABLE:chromium.executablePath()},stdio:['ignore','pipe','pipe']});

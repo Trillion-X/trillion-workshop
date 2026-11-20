@@ -1,10 +1,11 @@
 // tools/export-documents-to-files: the file exporter (tool:export-a-document-to-a-file), run the way the tool container
 // runs it, over made-up documents. Word, Excel and PDF files are opened again with `unzip` and `pdftotext` when this
 // computer has them; the test says which it skipped.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile, spawnSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
@@ -37,7 +38,7 @@ const out = (document, format, more = {}) => runVerb('export', { document, forma
 const textOf = (document, format, more) => out(document, format, more).text;
 const unzipList = async file => (await exec('unzip', ['-Z1', file])).stdout.split('\n').filter(Boolean);
 const unzipRead = async (file, part) => (await exec('unzip', ['-p', file, part], { maxBuffer: 1 << 26 })).stdout;
-const save = (result, name) => { const file = join(mkdtempSync(join(tmpdir(), 'export-')), name); writeFileSync(file, Buffer.from(result.base64, 'base64')); return file; };
+const save = (result, name) => { const file = join(tempFolder(join(tmpdir(), 'export-')), name); writeFileSync(file, Buffer.from(result.base64, 'base64')); return file; };
 
 test('every format row is complete, unique, and writes every kind it says it takes', () => {
   assert.equal(new Set(formats.formats.map(format => format.id)).size, formats.formats.length);

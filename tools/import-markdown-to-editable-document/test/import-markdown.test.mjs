@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, stat, writeFile, rm } from 'node:fs/promises';
+import { readFile, stat, writeFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { importMarkdown } from '../do-work/import-markdown.mjs';
@@ -43,7 +44,7 @@ test('refuses documents that exceed the bounded response size', () => {
 });
 
 test('file adapter writes a private exclusive artifact and returns only a summary', async () => {
-  const folder = await mkdtemp(path.join(os.tmpdir(), 'markdown-import-'));
+  const folder = tempFolder(path.join(os.tmpdir(), 'markdown-import-'));
   try {
     const source = path.join(folder, 'source.md');
     const output = path.join(folder, 'editable.json');

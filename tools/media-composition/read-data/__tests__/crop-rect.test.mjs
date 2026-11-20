@@ -8,10 +8,11 @@
  * AND real offline renders where cropping to a chosen quadrant of a 4-color frame fills the WHOLE output
  * with that quadrant's color (crop is a zoom).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,7 +38,7 @@ function meanRGB(file) {
 const dominant = (c) => (c.r > c.g && c.r > c.b ? 'red' : c.g > c.r && c.g > c.b ? 'green' : c.b > c.r && c.b > c.g ? 'blue' : 'gray');
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'crop-'));
+  const dir = tempFolder(join(tmpdir(), 'crop-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -45,7 +46,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'crop-render-'));
+  work = tempFolder(join(tmpdir(), 'crop-render-'));
   quad = join(work, 'quad.mp4');
   // A 200x200 frame split into 4 solid quadrants: red TL, green TR, blue BL, white BR. Cropping to a
   // quadrant then fills the whole output with that color, so the dominant channel identifies the crop.

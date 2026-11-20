@@ -1,8 +1,9 @@
 // A store opened over a short uncovered log tail replays it in the opening call (the host's openReplayRows) instead of asking the
 // host's upkeep, so the first call after an eviction is not answered "catching up"; a longer tail is still left to the upkeep.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { sqliteHost } from '../src/local-store.mjs';
@@ -12,7 +13,7 @@ const runs = { page_bytes: 1024, memtable_bytes: 1 << 24, big_bytes: 8192, cache
 const row = n => ({ id: 'note:' + String(n).padStart(5, '0'), type: 'note', value: { words: 'w' + n } });
 
 function opened(transactions, openReplayRows) {
-  const host = sqliteHost(join(mkdtempSync(join(tmpdir(), 'open-tail-')), 'a.db'));
+  const host = sqliteHost(join(tempFolder(join(tmpdir(), 'open-tail-')), 'a.db'));
   const first = recordLogStore(host.sql, { transaction: host.transaction, runs });
   for (let t = 0; t < transactions; t += 1) first.write([row(t)]);
   const asked = [];

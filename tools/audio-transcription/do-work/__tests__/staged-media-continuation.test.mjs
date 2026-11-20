@@ -1,5 +1,6 @@
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -301,7 +302,7 @@ test('the continuation check is declared by its package', () => {
 });
 
 test('the result owner preserves relation identity without inventing a completion time', () => {
-  const scratch = mkdtempSync(join(tmpdir(), 'audio-transcription-result-'));
+  const scratch = tempFolder(join(tmpdir(), 'audio-transcription-result-'));
   try {
     const requestPath = join(scratch, 'request.json');
     const commandPath = join(scratch, 'command.json');

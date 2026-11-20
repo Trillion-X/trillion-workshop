@@ -8,10 +8,11 @@
  * to), materialize pass-through, AND a real offline render on a gray clip that is WARM early (R>B) and
  * COOL late (B>R), crossing neutral in the middle (L155 temporal).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,7 +34,7 @@ function meanRGB(file, ss) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'warm-'));
+  const dir = tempFolder(join(tmpdir(), 'warm-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -41,7 +42,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'warm-render-'));
+  work = tempFolder(join(tmpdir(), 'warm-render-'));
   gray = join(work, 'gray.mp4');
   ffmpeg(['-f', 'lavfi', '-i', 'color=0x808080:s=320x240:d=2:r=24', '-pix_fmt', 'yuv420p', gray]);
 });

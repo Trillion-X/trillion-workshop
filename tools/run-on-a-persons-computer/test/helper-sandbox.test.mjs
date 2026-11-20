@@ -1,9 +1,10 @@
 // A native helper that reads content it did not make runs under a deny-default Seatbelt profile (computer/helper-sandbox.mjs).
 // The macOS tests run the REAL helper and probe what the profile holds; they are skipped where there is no sandbox-exec.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { deflateSync } from 'node:zlib';
@@ -44,7 +45,7 @@ test('the real image-text helper still reads text out of a picture under its pro
 test('under that profile the person\'s files cannot be read, nothing can be written to their folder, and no connection can be made', { skip: !live }, () => {
   const profile = profileOf('image-text');
   const under = (...command) => spawnSync(settings.program, ['-p', profile, ...command], { encoding: 'utf8' });
-  const secret = mkdtempSync(join(homedir(), '.trillion-sandbox-probe-'));
+  const secret = tempFolder(join(homedir(), '.trillion-sandbox-probe-'));
   try {
     writeFileSync(join(secret, 'secret.txt'), 'hunter2');
     assert.equal(execFileSync('/bin/cat', [join(secret, 'secret.txt')], { encoding: 'utf8' }), 'hunter2', 'readable without the profile');

@@ -2,10 +2,11 @@
 // the last turn end goes to Trillion word for word with its original time, from Claude Code and Codex transcripts read by
 // shape; injected reminders, tool calls and tool results are never messages; the cursor moves only past what was kept,
 // so a failed or slow send is retried at the next turn end and a long history arrives over several.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
-import { appendFileSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { acceptedBatch, batchAt, drainTranscript, holdLock, messagesOf, personSpeaksIn, recordNew, recordSubmittedPrompt, recordSubmittedPromptWhenTranscriptArrives, sendToTrillion, sessionOfTranscript, settings, harnessOf, transcriptsBehind, wordsOf } from 'trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/harness/record-every-message.mjs';
@@ -18,7 +19,7 @@ process.env.TRILLION_ORIGIN ??= 'https://app.example.com';
 // The suite can itself run inside a background job; the hook's own environment must not decide these cases.
 delete process.env.CLAUDE_CODE_SESSION_ATTENDED;
 
-const folder = () => mkdtempSync(join(tmpdir(), 'record-every-message-'));
+const folder = () => tempFolder(join(tmpdir(), 'record-every-message-'));
 const lines = rows => rows.map(row => `${JSON.stringify(row)}\n`).join('');
 const rulesIn = dir => ({ ...settings, executions_path: null, cursor_folder: join(dir, 'cursors') });
 

@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { registerMcp } from '../harness/mcp-registration.mjs';
@@ -17,7 +18,7 @@ for (const row of remoteRules.mcp_registration.clients.filter(item => ['claude-c
   row.same_when = 'url';
 }
 const tempHome = (t, client = 'codex') => {
-  const root = mkdtempSync(join(tmpdir(), 'trillion-mcp-registration-loopback-'));
+  const root = tempFolder(join(tmpdir(), 'trillion-mcp-registration-loopback-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const home = join(root, 'home');
   const configHome = join(home, client === 'claude-code' ? '.claude' : '.codex');

@@ -1,8 +1,9 @@
 // test/local-socket.test.mjs
 // The opt-in local road: AI programs on this Mac run the host's tools over a Unix socket, answers are signed (F-0194).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdtemp, stat } from 'node:fs/promises';
+import { stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { callLocal, localSocketSettings, secretOf, startLocalSocket } from '../local-socket.mjs';
@@ -15,7 +16,7 @@ test('switched off by default: nothing listens', async () => {
 });
 
 test('a call runs through the host runner and comes back signed; folder and socket are the person\'s alone', async () => {
-  const home = (await mkdtemp(join(tmpdir(), 'lsock-')));
+  const home = (tempFolder(join(tmpdir(), 'lsock-')));
   const settings = on({ path: join(home, 's/tools.sock'), secret_file: join(home, 's/secret') });
   const seen = [];
   const road = await startLocalSocket({ settings, home, run: async request => { seen.push(request); return { echoed: request.input }; } });
@@ -32,7 +33,7 @@ test('a call runs through the host runner and comes back signed; folder and sock
 });
 
 test('allowed_tools narrows the road and a malformed line is answered', async () => {
-  const home = (await mkdtemp(join(tmpdir(), 'lsock-')));
+  const home = (tempFolder(join(tmpdir(), 'lsock-')));
   const settings = on({ path: join(home, 's/tools.sock'), secret_file: join(home, 's/secret'), allowed_tools: ['tool:ok'] });
   const road = await startLocalSocket({ settings, home, run: async () => ({ fine: true }) });
   try {

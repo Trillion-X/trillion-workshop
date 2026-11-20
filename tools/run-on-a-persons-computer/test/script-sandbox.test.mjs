@@ -2,9 +2,10 @@
 //
 // A person's script runs in a worker thread and a null-prototype vm context with no authority but what the host hands it
 // (computer/script-sandbox.mjs: F-0516, F-0806). Real worker threads, real files, a real symlink.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { makeHostCalls, runScript, sandboxSettings } from '../script-sandbox.mjs';
@@ -36,8 +37,8 @@ test('a script that does not stop is stopped at its wall clock, and a thrown err
 });
 
 test('files are read only below the one folder given: .., absolute paths and a symlink out are refused, and absent means no files at all', async () => {
-  const root = mkdtempSync(join(tmpdir(), 'sandbox-'));
-  const outside = mkdtempSync(join(tmpdir(), 'sandbox-outside-'));
+  const root = tempFolder(join(tmpdir(), 'sandbox-'));
+  const outside = tempFolder(join(tmpdir(), 'sandbox-outside-'));
   mkdirSync(join(root, 'work'));
   writeFileSync(join(root, 'work', 'ok.txt'), 'inside');
   writeFileSync(join(outside, 'secret.txt'), 'outside');

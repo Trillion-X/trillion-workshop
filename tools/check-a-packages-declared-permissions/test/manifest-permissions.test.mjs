@@ -2,8 +2,9 @@
 // rows, entries confined to their folder, host API gated per call. Moved from old trillion
 // test/manifest-permissions.test.mjs with its assertions unchanged; the test of the old Mac host's tool loader
 // (computer/mac-tools.mjs) stays with that host.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { readFileSync, mkdirSync, mkdtempSync, symlinkSync, writeFileSync } from 'node:fs';
+import { readFileSync, mkdirSync, symlinkSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -19,8 +20,8 @@ test('a manifest may only name permissions that have a row', () => {
 });
 
 test('an entry outside its package folder is refused, by path or by symlink', () => {
-  const root = mkdtempSync(path.join(os.tmpdir(), 'perm-'));
-  const other = mkdtempSync(path.join(os.tmpdir(), 'perm-other-'));
+  const root = tempFolder(path.join(os.tmpdir(), 'perm-'));
+  const other = tempFolder(path.join(os.tmpdir(), 'perm-other-'));
   mkdirSync(path.join(root, 'sub')); writeFileSync(path.join(other, 'evil.mjs'), 'export default 1');
   symlinkSync(path.join(other, 'evil.mjs'), path.join(root, 'link.mjs'));
   assert.equal(confinedEntry(root, './sub/ok.mjs'), path.join(root, 'sub', 'ok.mjs'));

@@ -1,13 +1,14 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { completeSourceReturnCandidate, hasPendingSourceReturns, pendingSourceReturnCandidates, queueSourceReturnCandidates } from '../harness/source-return-pending.mjs';
 import { startSourceReturnCheck } from '../harness/record-every-message.mjs';
 
 test('an exact final-answer check survives a failed send and is removed after replay', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'source-return-'));
+  const folder = tempFolder(join(tmpdir(), 'source-return-'));
   try {
     const item = { handoff_id: 'h_123', source_id: 'codex:01a0cee9-02df-76e2-a6ea-6f202cbd0668', transcript_message_id: 'msg_abc', text: 'The checked result' };
     assert.equal(queueSourceReturnCandidates([item], folder), 1);
@@ -31,7 +32,7 @@ test('an exact final-answer check survives a failed send and is removed after re
 });
 
 test('Stop persists the final answer before a detached child can fail to start', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'source-return-'));
+  const folder = tempFolder(join(tmpdir(), 'source-return-'));
   try {
     const item = { handoff_id: 'h_123', source_id: 'codex:01a0cee9-02df-76e2-a6ea-6f202cbd0668', transcript_message_id: 'msg_crash', text: 'The checked result' };
     assert.equal(startSourceReturnCheck([item], {
@@ -46,7 +47,7 @@ test('Stop persists the final answer before a detached child can fail to start',
 
 test('a check that cannot be sent yet waits longer each time and is dropped after its last check', async () => {
   const { deferSourceReturnCandidate } = await import('../harness/source-return-pending.mjs');
-  const folder = mkdtempSync(join(tmpdir(), 'source-return-'));
+  const folder = tempFolder(join(tmpdir(), 'source-return-'));
   try {
     const item = { handoff_id: 'h_456', source_id: 'codex:01a0cee9-02df-76e2-a6ea-6f202cbd0668', transcript_message_id: 'msg_wait', text: 'Not finished yet' };
     queueSourceReturnCandidates([item], folder);

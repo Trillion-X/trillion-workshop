@@ -1,10 +1,11 @@
 // Proof of workflow:keep-tasks-handed-between-anyone (tools/workflows/recipes): the keep writes of the task rows applied to
 // a store, on PGlite and on a folder of JSON files, give the same answers. Made-up people, AIs and tasks only. The recipe's
 // prove step runs these same attempts.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PGlite } from '@electric-sql/pglite';
-import { mkdtempSync, readdirSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
@@ -153,7 +154,7 @@ const expected = {
 
 test('the keep writes of the task rows give the same answers on PGlite and on a folder of JSON files', async () => {
   const pg = new PGlite();
-  const dir = mkdtempSync(join(tmpdir(), 'keep-tasks-proof-'));
+  const dir = tempFolder(join(tmpdir(), 'keep-tasks-proof-'));
   const results = { PGlite: await attempts(pgStore(pg)), 'JSON folder': await attempts(folderStore(dir)) };
   await pg.close();
   for (const [name, got] of Object.entries(results)) {

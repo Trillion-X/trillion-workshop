@@ -2,6 +2,7 @@
 //
 // A 409 naming the account's own quota is the account's trouble of the moment: the item waits on the short doubling wait of
 // item_trouble and is sent again, while a final refusal still waits its hour (read-new-items.test.mjs).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -10,7 +11,7 @@ import path from 'node:path';
 import {readNewItems} from '../computer/read-new-items.mjs';
 
 test('an item answered with a quota 409 is asked again after the short wait and then lands once', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'quota-retry-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'quota-retry-'));
   const stateFile = path.join(dir, 'state.json');
   const item = {source_id: 'photo', title: 'Photo', text: 'a photo', at: '2026-10-21T10:00:00.000Z'};
   let clock = '2026-10-21T11:00:00Z';

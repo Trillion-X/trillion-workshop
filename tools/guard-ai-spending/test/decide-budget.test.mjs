@@ -1,5 +1,6 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
@@ -9,7 +10,7 @@ import { describe, it } from 'node:test';
 const script = fileURLToPath(new URL('../do-work/decide-budget.mjs', import.meta.url));
 
 function decide(request, state = { status: 'pending_setup', enabled: false, daily_limit: 0, threshold: 0, spent_today: 0 }) {
-  const root = mkdtempSync(join(tmpdir(), 'agent-wallet-budget-'));
+  const root = tempFolder(join(tmpdir(), 'agent-wallet-budget-'));
   const output = join(root, 'decision.json');
   try {
     execFileSync(process.execPath, [

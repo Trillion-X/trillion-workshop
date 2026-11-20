@@ -2,10 +2,11 @@
 // The package this came from had no test; this one proves the request's four edit kinds, the refusal of a slide_order
 // that drops or doubles a slide, the match counts (a rule that matches nothing reports 0) and the readback, without a
 // real presentation runtime. The deck, its text and its notes are made up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -55,7 +56,7 @@ export const PresentationFile = {
 `;
 
 function setUp(slides) {
-  const work = mkdtempSync(join(tmpdir(), 'office-files-'));
+  const work = tempFolder(join(tmpdir(), 'office-files-'));
   writeFileSync(join(work, 'runtime.mjs'), STAND_IN_RUNTIME);
   writeFileSync(join(work, 'in.pptx'), JSON.stringify({ slides }));
   return work;

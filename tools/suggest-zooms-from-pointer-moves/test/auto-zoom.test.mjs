@@ -1,7 +1,8 @@
 // Zoom suggestions from pointer telemetry (tools/suggest-zooms-from-pointer-moves/read-data/auto-zoom.mjs, thresholds in auto-zoom.json; moved from Trillion test/auto-zoom.test.mjs; F-0555).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { exportFlags, suggest, suggestZooms, zoomSettings, zoomTools } from '../read-data/auto-zoom.mjs';
@@ -39,7 +40,7 @@ test('telemetry that does not say its space is refused, a long stay is split at 
 
 // Moved from Trillion test/capture-session.test.mjs (its zoom half; the capture session itself was deleted with it).
 test('a pointer note beside a recording gives zoom suggestions through the tool', async () => {
-  const dir = mkdtempSync(path.join(os.tmpdir(), 'zoom-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'zoom-'));
   const recording = path.join(dir, 'recording.mov');
   const samples = Array.from({ length: 60 }, (_, i) => ({ t: i * 20, type: 'move', x: 0.5, y: 0.5 }));
   writeFileSync(`${recording}.pointer.json`, JSON.stringify({ space: 'normalized-source', samples }));

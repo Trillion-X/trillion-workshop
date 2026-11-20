@@ -2,11 +2,12 @@
 // A door it cannot read is said on every call and refuses nothing; a row that applies runs, and its refusal refuses
 // the call in its own words (exit 2, the reason on standard error, as the dispatcher answers); a row for another
 // tool, another scope or an unmatched command does not run; a row marked Off still runs and the mark is said.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 
@@ -50,7 +51,7 @@ async function door(t, { status = 200, key = 'made-up-key', records = ROWS } = {
 }
 
 function settings(t, url, door = { url }) {
-  const folder = mkdtempSync(join(tmpdir(), 'check-every-tool-call-'));
+  const folder = tempFolder(join(tmpdir(), 'check-every-tool-call-'));
   t.after(() => rmSync(folder, { recursive: true, force: true }));
   const file = join(folder, 'check-list.json');
   writeFileSync(file, JSON.stringify({
@@ -146,7 +147,7 @@ const PORT_ROW = row('feature-code-has-a-port-contract', {
 });
 
 function repository(t) {
-  const root = mkdtempSync(join(tmpdir(), 'check-every-tool-call-repository-'));
+  const root = tempFolder(join(tmpdir(), 'check-every-tool-call-repository-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const git = (...args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }).trim();
   const write = (path, text) => { mkdirSync(dirname(join(root, path)), { recursive: true }); writeFileSync(join(root, path), text); };
@@ -166,7 +167,7 @@ test('the port-contract row refuses a commit of a feature file no contract claim
   const where = settings(t, await door(t, { records: [PORT_ROW] }));
   const { root, git, write } = repository(t);
   // Started through a link to this tool, as a computer's hooks reach the Workshop's export: {tools} is still found.
-  const linked = mkdtempSync(join(tmpdir(), 'check-every-tool-call-link-'));
+  const linked = tempFolder(join(tmpdir(), 'check-every-tool-call-link-'));
   t.after(() => rmSync(linked, { recursive: true, force: true }));
   symlinkSync(resolve(import.meta.dirname, '..'), join(linked, 'check-every-tool-call'));
   const runner = join(linked, 'check-every-tool-call', 'do-work', 'check_switches.py');

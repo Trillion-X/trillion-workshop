@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync,rmSync} from 'node:fs';
+import { rmSync } from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {sqliteHost} from '../src/local-store.mjs';
@@ -37,7 +38,7 @@ test('an unsupported sparse format refuses a normal writable open before any con
  assert.deepEqual(snapshot(host),before);
 });
 test('ordinary compatible writes actually fold sparse inputs to dense output after rollback and disk reopen',t=>{
- const directory=mkdtempSync(join(tmpdir(),'sparse-reader-baseline-')),file=join(directory,'state.sqlite');let host=null;
+ const directory=tempFolder(join(tmpdir(),'sparse-reader-baseline-')),file=join(directory,'state.sqlite');let host=null;
  const close=()=>{if(host){host.db.close();host=null;}};const open=()=>{host=sqliteHost(file);host.claimExclusive();return keptRuns(host.sql,options(host));};
  t.after(()=>{try{close();}finally{rmSync(directory,{recursive:true,force:true});}});
  host=sqliteHost(file);host.claimExclusive();load(host);close();let reader=open();assert.deepEqual(reader.range('','z'),expected);

@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, realpathSync, writeFileSync, rmSync } from 'node:fs';
+import { realpathSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,7 +12,7 @@ const library = new URL(import.meta.resolve('../do-work/derive-tool-rows-from-so
 const cli = fileURLToPath(new URL(import.meta.resolve('../do-work/derive-tool-rows-from-sources-cli.mjs')));
 
 test('the reusable catalog stays inert in another bundled Node entry with socket/path arguments', async () => {
-  const folder = realpathSync(mkdtempSync(join(tmpdir(), 'catalog-import-boundary-')));
+  const folder = realpathSync(tempFolder(join(tmpdir(), 'catalog-import-boundary-')));
   try {
     const entry = join(folder, 'issuer.mjs');
     const output = join(folder, 'issuer-bundle.mjs');
@@ -29,7 +30,7 @@ test('the reusable catalog stays inert in another bundled Node entry with socket
 });
 
 test('the explicit catalog CLI still reports derived rows from a records file', () => {
-  const folder = realpathSync(mkdtempSync(join(tmpdir(), 'catalog-cli-')));
+  const folder = realpathSync(tempFolder(join(tmpdir(), 'catalog-cli-')));
   try {
     const input = join(folder, 'records.json');
     const entries = [{ id: 'read-one', label: 'Read one', job: 'Read a synthetic value' }];

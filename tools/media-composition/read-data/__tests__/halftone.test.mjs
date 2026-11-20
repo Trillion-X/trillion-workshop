@@ -9,10 +9,11 @@
  * materialize pass-through, AND a real offline render on a gradient where the output is ~1-bit (only black
  * and white) and the white-fraction rises from the dark end to the bright end (L155).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,7 +38,7 @@ function whiteFrac(raw, x0, x1, y0 = 60, y1 = 180) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'ht-'));
+  const dir = tempFolder(join(tmpdir(), 'ht-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -45,7 +46,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'ht-render-'));
+  work = tempFolder(join(tmpdir(), 'ht-render-'));
   grad = join(work, 'grad.mp4'); // smooth black->white gradient
   // An EXACT ramp, the source convention the rest of this suite folder already uses. `gradients`
   // is a RANDOM-gradient generator and draws a different pattern per run, so a pixel assertion

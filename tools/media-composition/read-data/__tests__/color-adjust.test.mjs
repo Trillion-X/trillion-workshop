@@ -8,10 +8,11 @@
  * offline renders where brightness raises mean luma, saturation 0 collapses chroma, and contrast widens
  * the dark-vs-bright gap.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -35,7 +36,7 @@ function planeMean(file, plane, { x, y, w, h }) {
 const FULL = { x: 0, y: 0, w: 200, h: 200 };
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'coladj-'));
+  const dir = tempFolder(join(tmpdir(), 'coladj-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -43,7 +44,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'coladj-render-'));
+  work = tempFolder(join(tmpdir(), 'coladj-render-'));
   gray = join(work, 'gray.mp4');
   bars = join(work, 'bars.mp4');
   twoTone = join(work, 'twotone.mp4');

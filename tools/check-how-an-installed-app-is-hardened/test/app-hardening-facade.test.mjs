@@ -1,3 +1,4 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as facade from '../read-data/app-hardening.mjs';
@@ -8,7 +9,7 @@ test('the public app-hardening path preserves every core export by identity', ()
   for (const name of Object.keys(core)) assert.strictEqual(facade[name], core[name], `${name} keeps its core identity`);
 });
 
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -18,7 +19,7 @@ import { fileURLToPath } from 'node:url';
 test('the packaged descriptor executes the historical public entry with its relative DATA', t => {
   const repository = fileURLToPath(new URL('../../..', import.meta.url));
   const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url))).records[0].payload;
-  const sandbox = mkdtempSync(join(tmpdir(), 'public-facade-package-'));
+  const sandbox = tempFolder(join(tmpdir(), 'public-facade-package-'));
   t.after(() => rmSync(sandbox, { recursive: true, force: true }));
   const placed = path => path.startsWith('/opt/') ? join(sandbox, path.slice(1)) : path;
   for (const spec of [row.invoke.files.package_files].flat()) {

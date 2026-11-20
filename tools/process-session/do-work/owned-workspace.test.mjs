@@ -1,13 +1,14 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import { createOwnedWorkspace, retireDeadOwnedWorkspaces } from './owned-workspace.mjs';
 
-const root = () => mkdtempSync(join(tmpdir(), 'owned-workspace-test-'));
+const root = () => tempFolder(join(tmpdir(), 'owned-workspace-test-'));
 
 test('release removes only the workspace created by this owner', () => {
   const ownerRoot = root();

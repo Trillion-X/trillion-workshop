@@ -1,9 +1,10 @@
 // tools/save-what-you-watch-and-read/test/save-x-posts.test.mjs: tool:save-x-bookmarks and tool:save-x-likes keep the
 // person's saved X posts as one saved-links file, and answer how many are new and the newest key. The X reader is stubbed
 // with a page of made-up posts; the folder is a temporary one that the test removes.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync, existsSync } from 'node:fs';
+import { readFileSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { saveXPosts } from '../do-work/save-x-posts.mjs';
@@ -12,7 +13,7 @@ const post = key => ({ key, url: `https://x.example/${key}`, title: `post ${key}
 const page = keys => async (request, collected) => { collected.onPage(keys.map(post)); return 1; };
 
 test('the bookmarks are kept as one file, newest first, and the answer names the newest key', async () => {
-  const out = mkdtempSync(join(tmpdir(), 'save-x-'));
+  const out = tempFolder(join(tmpdir(), 'save-x-'));
   try {
     const answer = await saveXPosts({ which: 'bookmarks', account: 'service_connection:x' }, { out, way: page(['9', '5', '2']) });
     assert.equal(answer.newest, '9');
@@ -27,7 +28,7 @@ test('the bookmarks are kept as one file, newest first, and the answer names the
 });
 
 test('the likes go to their own file, and a since the list already holds counts nothing as new', async () => {
-  const out = mkdtempSync(join(tmpdir(), 'save-x-'));
+  const out = tempFolder(join(tmpdir(), 'save-x-'));
   try {
     const answer = await saveXPosts({ which: 'likes', account: 'service_connection:x', since: '5' }, { out, way: page(['9', '5', '2']) });
     assert.equal(answer.file, 'saved-x-likes.json');
@@ -39,7 +40,7 @@ test('the likes go to their own file, and a since the list already holds counts 
 });
 
 test('a list other than bookmarks or likes is refused and writes no file', async () => {
-  const out = mkdtempSync(join(tmpdir(), 'save-x-'));
+  const out = tempFolder(join(tmpdir(), 'save-x-'));
   try {
     await assert.rejects(saveXPosts({ which: 'followers', account: 'service_connection:x' }, { out, way: page([]) }), /which must be bookmarks or likes/);
     assert.equal(existsSync(join(out, 'saved-x-followers.json')), false);
@@ -49,7 +50,7 @@ test('a list other than bookmarks or likes is refused and writes no file', async
 });
 
 test('a second run keeps the first run\'s posts: fresh posts go first, kept ones are not dropped', async () => {
-  const out = mkdtempSync(join(tmpdir(), 'save-x-'));
+  const out = tempFolder(join(tmpdir(), 'save-x-'));
   try {
     await saveXPosts({ which: 'bookmarks', account: 'service_connection:x' }, { out, way: page(['9', '5']) });
     const second = await saveXPosts({ which: 'bookmarks', account: 'service_connection:x', since: '9' }, { out, way: page(['12', '11']) });
@@ -62,7 +63,7 @@ test('a second run keeps the first run\'s posts: fresh posts go first, kept ones
 });
 
 test('a run with no file in its folder keeps the posts the caller passes in', async () => {
-  const out = mkdtempSync(join(tmpdir(), 'save-x-'));
+  const out = tempFolder(join(tmpdir(), 'save-x-'));
   try {
     const answer = await saveXPosts({ which: 'likes', account: 'service_connection:x', kept: [post('5')] }, { out, way: page(['9']) });
     assert.equal(answer.total, 2);
@@ -73,7 +74,7 @@ test('a run with no file in its folder keeps the posts the caller passes in', as
 });
 
 test('the bookmarks come through the person\'s Composio X account, one file in the folder, with the cursor', async () => {
-  const out = mkdtempSync(join(tmpdir(), 'save-x-'));
+  const out = tempFolder(join(tmpdir(), 'save-x-'));
   const calls = [];
   const execute = async (tool, account) => {
     calls.push({ tool, account });

@@ -5,15 +5,16 @@
 // (/sign-in/add-passkey), and when the person is signed in the same request, without its signature parts, goes back to
 // authorize, which asks consent at /consent; Allow and Deny answer with the AI's own redirect. A device's user code (RFC 8628)
 // is claimed by the person who opens it, who sees its client and scopes, and approves or denies it.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash, randomBytes } from 'node:crypto';
 import { startStore } from '../test-fixtures/embedded-store.mjs';
 
-const dir = mkdtempSync(join(tmpdir(), 'connect-flow-'));
+const dir = tempFolder(join(tmpdir(), 'connect-flow-'));
 const settings = { ...JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8')), email_password: { require_verification: false }, disabled_paths: [] };
 writeFileSync(join(dir, 'settings.json'), JSON.stringify(settings));
 process.env.BETTER_AUTH_SETTINGS = join(dir, 'settings.json');

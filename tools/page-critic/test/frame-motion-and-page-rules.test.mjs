@@ -1,11 +1,12 @@
 // tools/page-critic: the rendered frame (F-1117), the reduced-motion second pass (F-1119) and the one-line rules for the Tab
 // order, the heading order and the page's metadata (F-1149; accessible names are control_name). The critic runs end to end
 // in Playwright's Chromium against two planted local pages: one that breaks every rule, one that keeps them all.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -66,7 +67,7 @@ const LOCAL_ONLY = Object.fromEntries(Object.entries(process.env).filter(([name]
 async function critique(path) {
   const server = createServer((request, response) => { response.writeHead(200, { 'content-type': 'text/html' }); response.end(request.url === '/kept' ? KEPT : BROKEN); });
   await new Promise(done => server.listen(0, '127.0.0.1', done));
-  const out = mkdtempSync(join(tmpdir(), 'page-craft-frame-'));
+  const out = tempFolder(join(tmpdir(), 'page-craft-frame-'));
   try {
     const stdout = await new Promise((resolve, reject) => {
       const child = spawn(process.execPath, [fileURLToPath(new URL('../do-work/critique-a-page.mjs', import.meta.url)), '--url', `http://127.0.0.1:${server.address().port}${path}`, '--out', out], { env: { ...LOCAL_ONLY, BROWSER_EXECUTABLE: chromium.executablePath() }, stdio: ['ignore', 'pipe', 'pipe'] });

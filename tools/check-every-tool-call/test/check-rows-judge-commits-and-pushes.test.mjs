@@ -3,11 +3,12 @@
 // that answers records:list by type and `where`, as the person's door does. A row's fixtures are its tests: each pass
 // fixture passes the row alone and each refuse fixture is refused, and a call that writes a row whose fixtures do not
 // hold is refused. Every row, file and value here is made up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
@@ -106,7 +107,7 @@ const record = row => ({ id: `record:check:${row.id}`, type: 'record:check', val
 
 // This tool's own settings, with the made-up door and key.
 function settings(t, url) {
-  const folder = mkdtempSync(join(tmpdir(), 'check-rows-'));
+  const folder = tempFolder(join(tmpdir(), 'check-rows-'));
   t.after(() => rmSync(folder, { recursive: true, force: true }));
   const file = join(folder, 'settings.json');
   writeFileSync(file, JSON.stringify({ ...SETTINGS, door: { ...SETTINGS.door, url, url_from: undefined, key_from: { env: 'MADE_UP_CHECK_LIST_KEY' } } }));
@@ -114,7 +115,7 @@ function settings(t, url) {
 }
 
 function repository(t) {
-  const root = mkdtempSync(join(tmpdir(), 'check-rows-repository-'));
+  const root = tempFolder(join(tmpdir(), 'check-rows-repository-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const git = (...args) => execFileSync('git', ['-C', root, '-c', 'user.name=t', '-c', 'user.email=t@example.test', ...args], { encoding: 'utf8' }).trim();
   const write = (path, text) => { mkdirSync(dirname(join(root, path)), { recursive: true }); writeFileSync(join(root, path), text); };

@@ -1,12 +1,13 @@
 // test/own-writes.test.mjs
 // A file Trillion's own work writes into a read folder is not read back as new (F-0317).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdtemp, writeFile, readFile } from 'node:fs/promises';
+import { writeFile, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const home = await mkdtemp(join(tmpdir(), 'own-writes-home-'));
+const home = tempFolder(join(tmpdir(), 'own-writes-home-'));
 process.env.HOME = home;
 const { noteOwnWrite, isOwnWrite } = await import('../computer/own-writes.mjs');
 const { READERS } = await import('../computer/read-new-items.mjs');
@@ -22,7 +23,7 @@ test('a noted path is suppressed until its time ends, then read as new again', (
 });
 
 test('the folder read passes over what Trillion wrote and still sends what the person added', async () => {
-  const folder = await mkdtemp(join(tmpdir(), 'own-writes-folder-'));
+  const folder = tempFolder(join(tmpdir(), 'own-writes-folder-'));
   await writeFile(join(folder, 'person.txt'), 'by the person');
   await writeFile(join(folder, 'ai.txt'), 'by an AI');
   noteOwnWrite(join(folder, 'ai.txt'), { home });

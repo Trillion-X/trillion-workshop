@@ -1,8 +1,9 @@
 // The stdio MCP door asks for later byte pages with the request key of the first call, as the records door does:
 // the engine serves later pages only to the key that made the answer.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,7 +12,7 @@ import { openStdioRecordsDoor } from '../read-data/stdio-mcp-door.mjs';
 const fixture = fileURLToPath(new URL('./stdio-byte-pages-fixture.mjs', import.meta.url));
 
 test('every byte page of a stdio records:read is asked for with the first call\'s request key', async () => {
-  const keysFile = join(mkdtempSync(join(tmpdir(), 'stdio-door-page-key-')), 'keys.jsonl');
+  const keysFile = join(tempFolder(join(tmpdir(), 'stdio-door-page-key-')), 'keys.jsonl');
   const door = openStdioRecordsDoor({ argv: [process.execPath, fixture, keysFile], timeout_ms: 5000 });
   let record;
   try { record = await door.readRecord('note', 'note:big'); }

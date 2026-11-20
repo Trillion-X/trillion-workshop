@@ -1,10 +1,11 @@
 // tools/save-what-you-watch-and-read: the three rows are the shape the engine runs, and each command, run the way the
 // engine runs it (the granted folder in argv, the input on standard input, the answer on the last line, /opt/<folder>
 // laid on the tool folders), answers over made-up files in a made-up folder. Needs python3 (standard library only).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -24,7 +25,7 @@ function run(item, granted, input) {
 }
 
 function madeUpFolder(t) {
-  const root = mkdtempSync(join(tmpdir(), 'save-what-you-read-'));
+  const root = tempFolder(join(tmpdir(), 'save-what-you-read-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   mkdirSync(join(root, 'saved'), { recursive: true });
   writeFileSync(join(root, 'saved', 'bookmarks.json'), JSON.stringify({

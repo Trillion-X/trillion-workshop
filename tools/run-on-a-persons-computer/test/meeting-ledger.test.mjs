@@ -1,6 +1,7 @@
 // What the listener says about a listening (computer/meeting-ledger.mjs), read through the listen tool of computer/listen.mjs.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -10,7 +11,7 @@ import { isFalseText, jobState, livenessOf } from '../meeting-ledger.mjs';
 const rows = JSON.parse(readFileSync(new URL(import.meta.resolve('../../bring-in-new-items-from-this-computer/computer/computer-sources.json')), 'utf8'));
 const shipped = rowOf(rows).listen;
 const withHome = async work => {
-  const home = mkdtempSync(path.join(os.tmpdir(), 'ledger-'));
+  const home = tempFolder(path.join(os.tmpdir(), 'ledger-'));
   const before = process.env.HOME;
   process.env.HOME = home;
   try { return await work(home, { ...shipped, state: path.join(home, '.trillion', 'listening') }); } finally { process.env.HOME = before; }
@@ -56,7 +57,7 @@ test('the notes job tells its state while it works, proposes the action items it
 
 test('a cut whose file went up but whose words did not is not uploaded again: its identity is saved the moment the upload is confirmed', async () => {
   const { sendCuts, soundKeeper } = await import('../listen.mjs');
-  const state = mkdtempSync(path.join(os.tmpdir(), 'cuts-'));
+  const state = tempFolder(path.join(os.tmpdir(), 'cuts-'));
   const folder = path.join(state, 'sound');
   const keeper = soundKeeper({ keep: { ...shipped.keep_sound, margin_seconds: 0 }, route: 'Listening', join: 2, state, device: 'Mac', encoder: null, words: shipped.words, send: async () => {}, sendMany: cuts => sendCuts(cuts, { upload, keepResults, save: cut => writeFileSync(`${cut.file}.json`, JSON.stringify(cut)) }) });
   const file = path.join(folder, 'm1.opus');

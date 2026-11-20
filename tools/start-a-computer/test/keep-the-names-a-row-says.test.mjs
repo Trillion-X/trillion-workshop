@@ -2,16 +2,17 @@
 // description: a missing name is made, a name already right is left alone, a record nobody marked is refused unless the row
 // adopts it, differences reports a name that answers elsewhere, and a name whose provider key is not handed is refused before
 // any request. A made-up DNS provider answers from memory (the door tool's test description); no network, no real domain.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { keepTheNames, namesOf } from '../do-work/start-a-computer.mjs';
 import { DNS } from '../../move-the-public-door/test/door-world.mjs';
 
 const TOKEN = 'PRIVATE_TEST_CANARY_TOKEN_12345', zone = 'a1b2c3d4', account = 'acc00001';
-const folder = mkdtempSync(join(tmpdir(), 'names-'));
+const folder = tempFolder(join(tmpdir(), 'names-'));
 const providerFile = join(folder, 'dns.json');
 writeFileSync(providerFile, JSON.stringify({ ...DNS, vault_key: 'dns-key' }));
 const held = { 'dns-key': TOKEN };

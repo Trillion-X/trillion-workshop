@@ -4,6 +4,7 @@
 // A video in Photos on this Mac reaches the person's files as the whole original movie (the `photos` row's
 // `file.video`), so its sound can be heard and transcribed where it arrives; it is never sent to picture reading; and a
 // video whose original is only in iCloud keeps its still and says so (computer/read-new-items.mjs fileOf).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -24,7 +25,7 @@ const T0 = '2026-10-08T12:00:00Z';
 const later = (iso, minutes) => new Date(Date.parse(iso) + minutes * 60_000).toISOString();
 
 function setup(assets, {held = null} = {}) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'photos-video-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'photos-video-'));
   if (held) fs.writeFileSync(path.join(dir, 'state.json'), JSON.stringify(held));
   const root = path.join(dir, 'Photos Library.photoslibrary');
   fs.mkdirSync(path.join(root, 'database'), {recursive: true});

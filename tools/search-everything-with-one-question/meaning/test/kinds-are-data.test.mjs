@@ -1,9 +1,10 @@
 // A reader's record kind comes from read-data/meaning-search.json (`kinds`), never from a literal in code.
 // Proof: rename the kinds in a copy of the package, feed the prepare reader rows under the new names (accepted),
 // and the old literal names (refused); and the two readers hold no kind literal.
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cpSync, mkdtempSync, readFileSync, writeFileSync, mkdirSync, symlinkSync } from 'node:fs';
+import { cpSync, readFileSync, writeFileSync, mkdirSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -16,7 +17,7 @@ const KIND_LITERALS = ['semantic-index-descriptor', 'capability-index-source-des
 
 function copyPackage(renamed) {
   // The same relative layout as the Workshop: process-scripts imports ../../read-data and the content-identity tool.
-  const root = mkdtempSync(join(tmpdir(), 'kinds-data-'));
+  const root = tempFolder(join(tmpdir(), 'kinds-data-'));
   const tools = join(root, 'tools');
   const copy = join(tools, 'search-everything-with-one-question', 'meaning');
   mkdirSync(copy, { recursive: true });

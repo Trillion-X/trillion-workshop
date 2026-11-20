@@ -1,16 +1,17 @@
 // harness/decide-before-building.mjs: a change to a file in a repository, or a commit, is refused until the turn has a
 // terminal Trillion decision; Claude Code and Codex transcripts read the same way; free folders,
 // files outside repositories and plain reads are never refused; merely naming a deciding tool decides nothing.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { join, resolve } from 'node:path';
 import { homedir, tmpdir } from 'node:os';
-import { appendFileSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { casesToConfirm, confirmDecided, currentTurn, decisionServerState, eventsOf, judge as judgeActual, lastingChange, settings, trillionDown, turnForDecisionFallback, turnRanLocalMethod, turnWithAskFromFile, turnDecided } from '../harness/decide-before-building.mjs';
 
 // A lasting file is one inside a git repository, and a landing checks an export that has no .git of its own, so the
 // fixture makes its own repository (a folder holding a .git folder) rather than relying on the tree the test runs in.
-const repository = mkdtempSync(join(realpathSync(tmpdir()), 'decide-before-building-repository-'));
+const repository = tempFolder(join(realpathSync(tmpdir()), 'decide-before-building-repository-'));
 mkdirSync(join(repository, '.git'));
 process.on('exit', () => rmSync(repository, { recursive: true, force: true }));
 const repoFile = join(repository, 'src', 'inbound.mjs');
@@ -37,7 +38,7 @@ const edit = transcript => judge({ tool_name: 'Edit', tool_input: { file_path: r
 const terminal = JSON.stringify({ id: 'source:bm8tYnVpbGRpbmctd2l0aG91dA', status: 'needs_outcome', decided_at: '2026-09-29T14:00:00Z', decision: { option_id: 'fix', reason: 'The guard must require a choice.', next_action: 'Repair the hook.', success_measure: 'A pending case is refused.' } });
 
 test('a recent attested decision proves its turn without parsing older history, while a newer request cancels it', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'trillion-decision-tail-'));
+  const folder = tempFolder(join(tmpdir(), 'trillion-decision-tail-'));
   const path = join(folder, 'session.jsonl');
   const decision = [call('t1', 'mcp__trillion__decide', {}), answer('t1', terminal)];
   try {
@@ -330,7 +331,7 @@ test('when the decisions server cannot keep a decision, a turn that ran the meth
 });
 
 test('a long JSONL session reads only the newest complete turn and ignores an unfinished trailing row', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'trillion-decision-hook-'));
+  const folder = tempFolder(join(tmpdir(), 'trillion-decision-hook-'));
   const path = join(folder, 'session.jsonl');
   const event = { tool_name: 'Edit', tool_input: { file_path: repoFile }, transcript_path: path };
   try {
@@ -346,7 +347,7 @@ test('a long JSONL session reads only the newest complete turn and ignores an un
 });
 
 test('local-method fallback recovers an attested completion after unreadable old history and obeys newer user boundaries', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'trillion-decision-fallback-'));
+  const folder = tempFolder(join(tmpdir(), 'trillion-decision-fallback-'));
   const path = join(folder, 'session.jsonl');
   const command = code => ({ type: 'event_msg', payload: { type: 'item_completed', item: {
     type: 'CommandExecution', id: `method-${code}`, status: 'completed', exit_code: code,

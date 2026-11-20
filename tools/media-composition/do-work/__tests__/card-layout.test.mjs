@@ -9,10 +9,11 @@
  *       output dims + duration, proving a hook/CTA card works from DATA alone.
  */
 
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,7 +21,7 @@ import { buildCardLayout } from '../card-layout.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const SCRIPT = join(here, '..', 'video-compose.mjs');
-const work = mkdtempSync(join(tmpdir(), 'card-layout-'));
+const work = tempFolder(join(tmpdir(), 'card-layout-'));
 
 function probe(file, entries) {
   return execFileSync('ffprobe', ['-v', 'error', '-show_entries', entries, '-of', 'csv=p=0', file], { encoding: 'utf8' }).trim();

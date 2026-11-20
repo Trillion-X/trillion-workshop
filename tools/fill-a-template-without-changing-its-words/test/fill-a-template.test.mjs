@@ -1,10 +1,11 @@
 // Runs the tool's Python tests (each test_*.py file is its own unittest program) and then the four commands end to end
 // on a small written example: make a template from a word-timed transcript, fill its one slot, check the fill for drift,
 // and re-time an event tied to a phrase after the words move. Needs python3 (standard library only).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -24,7 +25,7 @@ for (const file of readdirSync(here).filter(name => /^test_.*\.py$/.test(name)))
 }
 
 test('make, fill, drift and re-time work together on a written example', { skip }, () => {
-  const work = mkdtempSync(join(tmpdir(), 'fill-a-template-'));
+  const work = tempFolder(join(tmpdir(), 'fill-a-template-'));
   const words = 'we shipped three features on launch day and everyone cheered'.split(' ');
   const timed = (list, step = 0.3) => ({
     language: 'en',
@@ -63,7 +64,7 @@ test('make, fill, drift and re-time work together on a written example', { skip 
 test('a person\'s own dimensions come in with --registry and nothing of the kind ships in the repository', { skip }, () => {
   const shipped = JSON.parse(readFileSync(join(folder, 'read-data', 'dimensions.json'), 'utf8'));
   assert.ok(!shipped.dimensions.some(row => row.id === 'sample.roast'), 'the shipped registry has no tasting dimension');
-  const work = mkdtempSync(join(tmpdir(), 'fill-a-template-registry-'));
+  const work = tempFolder(join(tmpdir(), 'fill-a-template-registry-'));
   const registry = join(work, 'registry.json');
   writeFileSync(registry, JSON.stringify({
     ...shipped,

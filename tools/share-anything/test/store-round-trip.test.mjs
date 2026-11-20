@@ -4,9 +4,10 @@
 // and a link, a person stopped, a run share given and ended by its rule) run on a Map, on PGlite (a real Postgres-compatible
 // database, in memory) and on a JSON folder in a new temporary directory. Each store must answer the same and hold no key.
 // Every name and time is made up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
@@ -54,7 +55,7 @@ test('the same scenario answers the same on a Map, PGlite and a JSON folder, and
     const db = new PGlite();
     try { return await scenario(await pgliteStore(db, seed)); } finally { await db.close(); }
   });
-  const folder = join(mkdtempSync(join(tmpdir(), 'share-anything-proof-')), 'store');
+  const folder = join(tempFolder(join(tmpdir(), 'share-anything-proof-')), 'store');
   const fromFolder = await onEach('json-folder', () => scenario(jsonFolderStore(folder, seed)));
   assert.deepEqual(fromPglite, fromMemory, 'PGlite answers what the Map answers');
   assert.deepEqual(fromFolder, fromMemory, 'the JSON folder answers what the Map answers');

@@ -2,10 +2,11 @@
 //
 // tool:keep-forum-posts-from-a-public-archive (do-work/fetch_forum_posts.py) against a made-up archive: test/stand-in/
 // forum_archive.py stands in for urllib's urlopen and runs the script as the row does. Every forum and post is made up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -19,7 +20,7 @@ const at = (forum, before) => `${API}?subreddit=${forum}&limit=100&sort=desc${be
 const post = (id, created) => ({ id, permalink: `/r/baking/comments/${id}/`, title: `Why does my dough ${id} rise?`, selftext: '', score: 5, num_comments: 2, created_utc: created, author: 'dropped' });
 
 function run(request, plan) {
-  const work = mkdtempSync(join(tmpdir(), 'forum-posts-'));
+  const work = tempFolder(join(tmpdir(), 'forum-posts-'));
   writeFileSync(join(work, 'plan.json'), JSON.stringify(plan));
   const out = spawnSync('python3', [runner, join(work, 'plan.json'), join(work, 'calls.jsonl')], {
     cwd: work, input: JSON.stringify(request), encoding: 'utf8', env: { ...process.env, FORUM_POSTS_WAIT_SECONDS: '0' },

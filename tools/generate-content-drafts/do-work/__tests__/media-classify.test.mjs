@@ -7,6 +7,7 @@
  * audio-only → second style).
  */
 
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -51,9 +52,9 @@ test('the classifier code contains zero style names (rules carry them)', () => {
 });
 
 test('adding a rule is one DATA row — a synthetic rules file changes selection with zero code', async () => {
-  const { writeFileSync, mkdtempSync } = await import('node:fs');
+  const { writeFileSync } = await import('node:fs');
   const { tmpdir } = await import('node:os');
-  const dir = mkdtempSync(join(tmpdir(), 'classify-'));
+  const dir = tempFolder(join(tmpdir(), 'classify-'));
   const rulesFile = join(dir, 'rules.json');
   const liveExecution = JSON.parse(readFileSync(join(here, '../../test/fixtures/classify-rules.json'), 'utf8')).execution;
   writeFileSync(rulesFile, JSON.stringify({

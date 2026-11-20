@@ -1,8 +1,9 @@
 // test/observation-categories.test.mjs
 // Domain categories as DATA kept current by cursor-paged diffs with tombstones, feeding the observation rules (F-0141).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdtemp, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { applyCategoryDiff, loadCategoryTable, syncCategories, withCategories } from '../read-data/observation-categories.mjs';
@@ -32,7 +33,7 @@ test('a category mode blocks every domain in it (subdomains too), and block beat
 });
 
 test('sync follows the cursor across pages, keeps the table on disk and resumes from it', async () => {
-  const home = await mkdtemp(join(tmpdir(), 'categories-'));
+  const home = tempFolder(join(tmpdir(), 'categories-'));
   const settings = { table: { cursor: null, rows: [] }, modes: [], sync: { source: 'https://example.invalid/diff', most_pages: 2, most_rows: 100, state_file: 'observation-categories.json' } };
   const pages = { null: { rows: [{ domain: 'a.example', category: 'x' }], next_cursor: 'p2', has_more: true }, p2: { rows: [{ domain: 'b.example', category: 'x' }], tombstones: ['a.example'], next_cursor: 'p3', has_more: true },
     p3: { rows: [{ domain: 'c.example', category: 'y' }], next_cursor: 'p4', has_more: false } };

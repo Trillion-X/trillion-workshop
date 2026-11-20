@@ -3,10 +3,11 @@
 // The extension builds from this tool and the Workshop's shared parts into a folder a Chromium browser loads: its
 // manifest, every page it declares, a script per page under the weight budgets.json allows, the one stylesheet and the
 // icons. The packages the shared parts import (react, lucide-react, tailwind) are the Workshop's own dependencies.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,7 +16,7 @@ const tool = fileURLToPath(new URL('..', import.meta.url));
 const PAGES = ['popup', 'signed-in', 'reply', 'markup', 'attach', 'allow-microphone', 'recorder'];
 
 test('the build writes the manifest, every page, a script for each under budget, the look and the icons', () => {
-  const out = mkdtempSync(join(tmpdir(), 'send-to-trillion-extension-'));
+  const out = tempFolder(join(tmpdir(), 'send-to-trillion-extension-'));
   execFileSync('node', [join(tool, 'scripts/build-extension.mjs')], { env: { ...process.env, EXTENSION_OUT: out }, stdio: 'pipe' });
   const manifest = JSON.parse(readFileSync(join(out, 'manifest.json'), 'utf8'));
   assert.equal(manifest.manifest_version, 3);

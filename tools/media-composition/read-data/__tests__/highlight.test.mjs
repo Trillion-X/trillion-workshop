@@ -4,10 +4,11 @@
  * authored last-first, and (3) those decisions fold through composeTimeline to leave ONLY the
  * highlight window on the timeline (the long recording trimmed down to the short).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,7 +17,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 let composeTimeline, scoreHighlightWindows, highlightDecisions;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'hl-'));
+  const dir = tempFolder(join(tmpdir(), 'hl-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const hs = join(dir, 'hs.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });

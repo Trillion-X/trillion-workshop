@@ -2,10 +2,11 @@
 //
 // The consumer of the video-pipeline, event-detection, kept-range, confidence-filter, session-pairing and frame-calibration engines:
 // the command trillion-workshop tools/media-composition/do-work/cut-the-action.mjs, run as a person's tool would run it, on a real generated clip.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -27,8 +28,8 @@ const run = args => {
 const duration = file => Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', file]).toString());
 
 test('the command finds the loud moments, keeps ranges around them, renders exactly that length and leaves a report', { skip: !hasFfmpeg, timeout: 180_000 }, () => {
-  const folder = mkdtempSync(join(tmpdir(), 'cut-action-'));
-  const video = clip(folder), output = join(folder, 'cut.mp4'), runs = mkdtempSync(join(tmpdir(), 'cut-runs-'));
+  const folder = tempFolder(join(tmpdir(), 'cut-action-'));
+  const video = clip(folder), output = join(folder, 'cut.mp4'), runs = tempFolder(join(tmpdir(), 'cut-runs-'));
   const { status, report, error } = run(['--video', video, '--output', output, '--runs', runs]);
   assert.equal(status, 0, error);
   assert.equal(report.state, 'done');
@@ -45,8 +46,8 @@ test('the command finds the loud moments, keeps ranges around them, renders exac
 });
 
 test('a stop in the middle of the render is finished by --resume without finding the moments again', { skip: !hasFfmpeg, timeout: 180_000 }, () => {
-  const folder = mkdtempSync(join(tmpdir(), 'cut-action-'));
-  const video = clip(folder), output = join(folder, 'cut.mp4'), runs = mkdtempSync(join(tmpdir(), 'cut-runs-'));
+  const folder = tempFolder(join(tmpdir(), 'cut-action-'));
+  const video = clip(folder), output = join(folder, 'cut.mp4'), runs = tempFolder(join(tmpdir(), 'cut-runs-'));
   const first = run(['--video', video, '--output', output, '--runs', runs]).report;
   const file = join(runs, '.trillion/video-runs', `${first.id}.json`);
   const stopped = JSON.parse(readFileSync(file, 'utf8'));
@@ -62,8 +63,8 @@ test('a stop in the middle of the render is finished by --resume without finding
 });
 
 test('a model detector, a session of devices and a calibrated frame decide which events are kept; uncertain ones are asked, not cut', { skip: !hasFfmpeg, timeout: 180_000 }, () => {
-  const folder = mkdtempSync(join(tmpdir(), 'cut-action-'));
-  const video = clip(folder), output = join(folder, 'cut.mp4'), runs = mkdtempSync(join(tmpdir(), 'cut-runs-'));
+  const folder = tempFolder(join(tmpdir(), 'cut-action-'));
+  const video = clip(folder), output = join(folder, 'cut.mp4'), runs = tempFolder(join(tmpdir(), 'cut-runs-'));
   // The model program answers four events: a stroke from the joined camera, a stroke from a camera that never joined, a serve
   // outside the court corners, and an unsure stroke.
   const model = join(folder, 'model.mjs');
@@ -89,21 +90,21 @@ test('a model detector, a session of devices and a calibrated frame decide which
 });
 
 test('a model detector with no way to ask the model refuses in words and keeps its report', { skip: !hasFfmpeg, timeout: 120_000 }, () => {
-  const folder = mkdtempSync(join(tmpdir(), 'cut-action-'));
-  const { status, report } = run(['--video', clip(folder), '--output', join(folder, 'x.mp4'), '--runs', mkdtempSync(join(tmpdir(), 'cut-runs-')), '--detector', 'local-model']);
+  const folder = tempFolder(join(tmpdir(), 'cut-action-'));
+  const { status, report } = run(['--video', clip(folder), '--output', join(folder, 'x.mp4'), '--runs', tempFolder(join(tmpdir(), 'cut-runs-')), '--detector', 'local-model']);
   assert.equal(status, 1);
   assert.equal(report.state, 'failed');
   assert.match(report.stages.detect.error, /needs a model job and none can be asked/);
 });
 
 test('a second-stage model row for an event kind can silence that kind, and the command then says nothing was kept instead of rendering', { skip: !hasFfmpeg, timeout: 120_000 }, () => {
-  const folder = mkdtempSync(join(tmpdir(), 'cut-action-'));
+  const folder = tempFolder(join(tmpdir(), 'cut-action-'));
   const wrapper = join(folder, 'ask.sh');
   writeFileSync(wrapper, `#!/bin/sh\ncat >/dev/null\necho '{"events":[{"kind":"stroke","time":4,"confidence":0.9},{"kind":"stroke","time":9,"confidence":0.9}]}'\n`);
   execFileSync('chmod', ['+x', wrapper]);
   const models = join(folder, 'models.json');
   writeFileSync(models, JSON.stringify([{ context: 'stroke', bias: -8, weights: { gap_after: 0.01 }, keep_above: 0.5 }]));
-  const { status, report } = run(['--video', clip(folder), '--output', join(folder, 'x.mp4'), '--runs', mkdtempSync(join(tmpdir(), 'cut-runs-')), '--detector', 'local-model', '--ask-model-command', wrapper, '--models', models]);
+  const { status, report } = run(['--video', clip(folder), '--output', join(folder, 'x.mp4'), '--runs', tempFolder(join(tmpdir(), 'cut-runs-')), '--detector', 'local-model', '--ask-model-command', wrapper, '--models', models]);
   assert.equal(status, 1);
   assert.deepEqual(report.stages.cut.result.dropped.map(row => row.reason), ['second_stage', 'second_stage']);
   assert.match(report.stages.render.error, /No event was kept/);
@@ -111,8 +112,8 @@ test('a second-stage model row for an event kind can silence that kind, and the 
 });
 
 test('a render that needs pieces not yet ready waits, saying which time is missing, and writes no file', { skip: !hasFfmpeg, timeout: 170_000 }, () => {
-  const folder = mkdtempSync(join(tmpdir(), 'cut-action-'));
-  const video = clip(folder), runs = mkdtempSync(join(tmpdir(), 'cut-runs-'));
+  const folder = tempFolder(join(tmpdir(), 'cut-action-'));
+  const video = clip(folder), runs = tempFolder(join(tmpdir(), 'cut-runs-'));
   const segments = join(folder, 'segments.json');
   writeFileSync(segments, JSON.stringify({ ready: ['ready'], segments: [{ start: 0, end: 3, state: 'ready' }, { start: 3, end: 30, state: 'working' }] }));
   const waiting = run(['--video', video, '--output', join(folder, 'late.mp4'), '--runs', runs, '--segments', segments]);
@@ -122,12 +123,12 @@ test('a render that needs pieces not yet ready waits, saying which time is missi
 });
 
 test('a transcript is cut by auto-edit\'s removal proposals: the filler words go, everything else is kept and rendered at exactly that length', { skip: !hasFfmpeg, timeout: 170_000 }, () => {
-  const folder = mkdtempSync(join(tmpdir(), 'cut-action-'));
+  const folder = tempFolder(join(tmpdir(), 'cut-action-'));
   const transcript = join(folder, 'words.json');
   const words = [['so', 0.5, 0.9], ['um', 5, 5.5], ['we', 6, 6.3], ['uh', 10, 10.4], ['go', 11, 11.5]].map(([text, start, end]) => ({ text, start, end }));
   writeFileSync(transcript, JSON.stringify({ words }));
   const output = join(folder, 'speech.mp4');
-  const { status, report, error } = run(['--video', clip(folder), '--output', output, '--runs', mkdtempSync(join(tmpdir(), 'cut-runs-')), '--transcript', transcript]);
+  const { status, report, error } = run(['--video', clip(folder), '--output', output, '--runs', tempFolder(join(tmpdir(), 'cut-runs-')), '--transcript', transcript]);
   assert.equal(status, 0, error);
   assert.equal(report.state, 'done');
   const kept = report.stages.cut.result.kept;
@@ -141,13 +142,13 @@ test('a transcript is cut by auto-edit\'s removal proposals: the filler words go
 });
 
 test('with an upload command the video goes in numbered parts: a failed part is sent again alone, and the file is freed only after every part is confirmed', { skip: !hasFfmpeg, timeout: 170_000 }, () => {
-  const folder = mkdtempSync(join(tmpdir(), 'cut-action-'));
+  const folder = tempFolder(join(tmpdir(), 'cut-action-'));
   const log = join(folder, 'sent.log'), marker = join(folder, 'failed-once');
   const upload = join(folder, 'send.sh');
   writeFileSync(upload, `#!/bin/sh\necho "$1" >> ${log}\nif [ "$1" = "2" ] && [ ! -f ${marker} ]; then touch ${marker}; exit 1; fi\nexit 0\n`);
   execFileSync('chmod', ['+x', upload]);
   const output = join(folder, 'cut.mp4');
-  const { status, report, error } = run(['--video', clip(folder), '--output', output, '--runs', mkdtempSync(join(tmpdir(), 'cut-runs-')), '--upload-command', upload, '--part-size', '20000']);
+  const { status, report, error } = run(['--video', clip(folder), '--output', output, '--runs', tempFolder(join(tmpdir(), 'cut-runs-')), '--upload-command', upload, '--part-size', '20000']);
   assert.equal(status, 0, error);
   assert.equal(report.state, 'done');
   const sent = readFileSync(log, 'utf8').trim().split('\n').map(Number);

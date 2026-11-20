@@ -1,13 +1,14 @@
 // The drive work tools over pretend drives in a temporary folder: what Finder hides is never a drive, every row names a
 // function run-a-function can call with the capabilities the engine's sandbox gives it, and a copy is checked and named.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
 // drives.mjs keeps a run's transfers under the run's home folder from the moment it loads, so the home is a temporary one first.
-const home = await mkdtemp(path.join(os.tmpdir(), 'work-on-drives-home-'));
+const home = tempFolder(path.join(os.tmpdir(), 'work-on-drives-home-'));
 process.env.HOME = home;
 const drives = await import('../read-data/drives.mjs');
 const { hiddenIn } = await import('../../connected-drives/read-data/drives.mjs');
@@ -54,7 +55,7 @@ test('no row asks a records door for anything: only the file-places row reads th
 });
 
 test('a copy is checked and named, and a second copy to the same folder gets the next free name', async t => {
-  const root = await mkdtemp(path.join(os.tmpdir(), 'work-on-drives-copy-'));
+  const root = tempFolder(path.join(os.tmpdir(), 'work-on-drives-copy-'));
   t.after(() => rm(root, { recursive: true, force: true }));
   const from = path.join(root, 'Card'), to = path.join(root, 'Backup');
   await mkdir(from); await mkdir(to);
@@ -73,7 +74,7 @@ test('a copy is checked and named, and a second copy to the same folder gets the
 });
 
 test('a same-drive move notes the final path after its rename', async t => {
-  const root = await mkdtemp(path.join(os.tmpdir(), 'work-on-drives-rename-'));
+  const root = tempFolder(path.join(os.tmpdir(), 'work-on-drives-rename-'));
   t.after(() => rm(root, { recursive: true, force: true }));
   const from = path.join(root, 'Card'), to = path.join(root, 'Backup'), source = path.join(from, 'clip.mov');
   await mkdir(from); await mkdir(to);

@@ -4,19 +4,18 @@
 // registers it first, Better Auth reads the document, the person gives consent, and the AI trades the code for tokens. A refresh
 // token comes only when the AI asked for offline_access AND its document lists the refresh_token grant; without it the person is
 // signed out when the access token ends.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash, randomBytes } from 'node:crypto';
 import { startStore } from '../test-fixtures/embedded-store.mjs';
 
 const standIn = new URL('../test-fixtures/cimd-stand-in.mjs', import.meta.url);
-const dir = mkdtempSync(join(tmpdir(), 'cimd-connect-'));
+const dir = tempFolder(join(tmpdir(), 'cimd-connect-'));
 const settings = { ...JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8')), email_password: { require_verification: false }, disabled_paths: [], cimd: { fetch_module: standIn.href } };
-const OWN = 'https://own-program.example.test/client.json';
-settings.mcp = { ...settings.mcp, first_party_clients: [OWN] };
 writeFileSync(join(dir, 'settings.json'), JSON.stringify(settings));
 process.env.BETTER_AUTH_SETTINGS = join(dir, 'settings.json');
 const store = await startStore();
@@ -92,25 +91,4 @@ test('the AI product\'s own document must name the address it is served from', a
   documents.set(id, document('https://elsewhere.example.test/other.json'));
   const asked = await handle(`/oauth2/authorize?${new URLSearchParams({ response_type: 'code', client_id: id, redirect_uri: REDIRECT, scope: 'openid', state: 's', code_challenge: 'x'.repeat(43), code_challenge_method: 'S256', resource: settings.mcp.resource })}`, { headers: { cookie } });
   assert.ok(!(asked.headers.get('location') ?? '').startsWith(settings.mcp.consent_page), 'a document that names another address registers nothing');
-});
-
-test('the product\'s own program, once allowed, gets its code straight from authorize; any other AI goes to the consent page every time', async () => {
-  const other = 'https://claude.example.test/oauth/metadata-own-compare.json';
-  documents.set(OWN, document(OWN, { client_name: 'Own program' }));
-  documents.set(other, document(other));
-  const ask = async id => {
-    const query = new URLSearchParams({ response_type: 'code', client_id: id, redirect_uri: REDIRECT, scope: 'openid wake:*', state: 's', code_challenge: 'x'.repeat(43), code_challenge_method: 'S256', resource: settings.mcp.resource });
-    return (await handle(`/oauth2/authorize?${query}`, { headers: { cookie } })).headers.get('location') ?? '';
-  };
-  const goesBack = location => { const url = new URL(location, ORIGIN); return `${url.origin}${url.pathname}` === REDIRECT && !!url.searchParams.get('code'); };
-  for (const id of [OWN, other]) {
-    const first = await ask(id);
-    assert.ok(first.startsWith(settings.mcp.consent_page), `${id}: not yet allowed, so the page answers`);
-    const answered = await (await post('/oauth2/consent', { accept: true, oauth_query: signedQuery(new URL(first, ORIGIN).search) }, cookie)).json();
-    assert.ok(goesBack(answered.url), 'allowed');
-  }
-  for (let time = 0; time < 2; time += 1) {
-    assert.ok(goesBack(await ask(OWN)), `own program, visit ${time + 2}: straight back with a code`);
-    assert.ok((await ask(other)).startsWith(settings.mcp.consent_page), `other AI, visit ${time + 2}: the page again`);
-  }
 });

@@ -1,5 +1,6 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -16,7 +17,7 @@ const site = stateOf().site();
 const answering = site !== null && await fetch(new URL(settings.protected_resource_path, `${site}/mcp`)).then(answer => answer.ok).catch(() => false);
 
 /** A state folder whose site file names `origin`, as an install line from that site writes it. */
-const installedFrom = origin => { const state = stateOf({ home: mkdtempSync(join(tmpdir(), 'example-login-live-')) }); state.keepSite(origin); return state; };
+const installedFrom = origin => { const state = stateOf({ home: tempFolder(join(tmpdir(), 'example-login-live-')) }); state.keepSite(origin); return state; };
 
 test('bare example login reaches the browser step against the sign-in site\'s engine and its real issuer', { skip: !answering && 'the sign-in site is not declared or not answering' }, async () => {
   let opened = null;

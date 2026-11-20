@@ -1,3 +1,4 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { spawn } from 'node:child_process';
@@ -5,7 +6,7 @@ import { PassThrough, Readable } from 'node:stream';
 import { existsSync } from 'node:fs';
 import fs from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
-import { mkdtemp, readFile, readdir, realpath, rm, writeFile } from 'node:fs/promises';
+import { readFile, readdir, realpath, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { setTimeout as pause } from 'node:timers/promises';
@@ -28,7 +29,7 @@ async function reportStages(work, trace) {
 
 const moduleUrl = new URL(import.meta.resolve('../do-work/heavy-work.mjs')).href;
 async function fixture() {
-  const root = await mkdtemp(join(tmpdir(), 'trillion-heavy-work-'));
+  const root = tempFolder(join(tmpdir(), 'trillion-heavy-work-'));
   return { root, queue: createProcessAdmissionQueue(root, { ownerIsLive: heavyWorkOwnerIsLive }), owner: createHeavyWorkOwner(root), close: () => rm(root, { recursive: true, force: true }) };
 }
 
@@ -279,7 +280,7 @@ test('a waiting job leaves the current owner state lock available for process re
 
 for (const [label, window, expectedFirst] of [['aged waiters',0,'older'],['fresh waiters',300000,'urgent']]) {
   test(`priority overtaking respects ${label} without changing existing tickets or the live owner`, { timeout: 12000 }, async t => {
-    const root = await mkdtemp(join(tmpdir(), 'trillion-admission-priority-'));
+    const root = tempFolder(join(tmpdir(), 'trillion-admission-priority-'));
     const queue = createProcessAdmissionQueue(root, { maxPriorityOvertakeMs: window });
     const abort = new AbortController(), pending = [], releases = [];
     try {

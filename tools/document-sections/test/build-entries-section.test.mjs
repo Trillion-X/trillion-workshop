@@ -6,9 +6,10 @@
 // and a fenced block. If any of that comes out different, the document is a
 // paraphrase wearing a record's clothes.
 
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import {test} from 'node:test'
 import assert from 'node:assert/strict'
-import {mkdtemp, writeFile, readFile, rm} from 'node:fs/promises'
+import { writeFile, readFile, rm } from 'node:fs/promises'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
 import {renderSection, entriesOf, run, EntriesRefused} from '../do-work/build-entries-section.mjs'
@@ -16,7 +17,7 @@ import {renderSection, entriesOf, run, EntriesRefused} from '../do-work/build-en
 const FIELDS = {at: 'messages', text: 'content', label: 'ordinal', stamp: 'timestamp', group: 'session_id'}
 
 const withFiles = async (documents, body) => {
-  const directory = await mkdtemp(join(tmpdir(), 'entries-section-'))
+  const directory = tempFolder(join(tmpdir(), 'entries-section-'))
   const paths = []
   for (const [index, document] of documents.entries()) {
     const path = join(directory, `source-${index}.json`)

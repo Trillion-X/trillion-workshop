@@ -10,10 +10,11 @@
  * fine vertical-stripe source where the CENTER band stays high-frequency (sharp) while the TOP is smeared
  * into low-frequency (blurred) (L155).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -43,7 +44,7 @@ function sharpness(raw, y0, y1, x0 = 40, x1 = 280) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'tsx-'));
+  const dir = tempFolder(join(tmpdir(), 'tsx-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -51,7 +52,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'tsx-render-'));
+  work = tempFolder(join(tmpdir(), 'tsx-render-'));
   stripes = join(work, 'stripes.mp4'); // fine vertical black/white stripes: 4px period => strong high freq
   ffmpeg(['-f', 'lavfi', '-i', "color=black:s=320x240:d=2:r=24", '-vf',
     "geq=lum='if(lt(mod(X\\,4)\\,2)\\,255\\,0)':cb=128:cr=128", '-pix_fmt', 'yuv420p', stripes]);

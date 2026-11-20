@@ -4,8 +4,9 @@
 // file at its served path, a manifest with each file's BLAKE3 identity, writes nothing again when nothing changed,
 // removes every file of a link that ended and names them in the manifest, refuses a file a row names that was not given,
 // and asks to be woken at a link's expiry. Every name and address here is made up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, stat } from 'node:fs/promises';
+import { readFile, rm, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -33,7 +34,7 @@ const grantOf = extra => ({ share_id: 's1', code: CODE, scope: { kind: 'public' 
 const exists = path => stat(path).then(() => true, () => false);
 
 test('writes every public file at its served path with a BLAKE3 manifest, rewrites nothing unchanged, and removes an ended link\'s files', async t => {
-  const folder = await mkdtemp(join(tmpdir(), 'share-files-'));
+  const folder = tempFolder(join(tmpdir(), 'share-files-'));
   t.after(() => rm(folder, { recursive: true, force: true }));
   const base = { origin: 'https://share.example', row_kind: 'record:dish' };
   const input = { input: { ...base, records: recordsOf({ grant: grantOf({ expires_at: '2026-11-01T00:00:00Z' }) }), stored: stored() }, folder };
@@ -70,7 +71,7 @@ test('writes every public file at its served path with a BLAKE3 manifest, rewrit
 });
 
 test('a file a shown row names that was not handed in is not published, and its row never points at it', async t => {
-  const folder = await mkdtemp(join(tmpdir(), 'share-files-'));
+  const folder = tempFolder(join(tmpdir(), 'share-files-'));
   t.after(() => rm(folder, { recursive: true, force: true }));
   const out = await writeShareFiles({ input: { origin: 'https://share.example', row_kind: 'record:dish', records: recordsOf({ grant: grantOf() }) }, folder }, { now: NOW });
   assert.deepEqual(out.published, [{ code: CODE, name: 'menu', listed: true }]);
@@ -80,7 +81,7 @@ test('a file a shown row names that was not handed in is not published, and its 
 });
 
 test('a link for named people writes no share files and none of the given files', async t => {
-  const folder = await mkdtemp(join(tmpdir(), 'share-files-'));
+  const folder = tempFolder(join(tmpdir(), 'share-files-'));
   t.after(() => rm(folder, { recursive: true, force: true }));
   const out = await writeShareFiles({ input: { origin: 'https://share.example', row_kind: 'record:dish', records: recordsOf({ grant: grantOf({ scope: { kind: 'email', value: 'user-23ef710c@example.com' } }) }), stored: stored() }, folder }, { now: NOW });
   assert.deepEqual(out.published, []);
@@ -92,7 +93,7 @@ test('the folder is named, and nothing is written outside it', async () => {
 });
 
 test('a List whose rows are a kind this run was not granted is left out and none of its files are written', async t => {
-  const folder = await mkdtemp(join(tmpdir(), 'share-files-'));
+  const folder = tempFolder(join(tmpdir(), 'share-files-'));
   t.after(() => rm(folder, { recursive: true, force: true }));
   const out = await writeShareFiles({ input: { origin: 'https://share.example', row_kind: 'record:other', records: recordsOf({ grant: grantOf() }), stored: stored() }, folder }, { now: NOW });
   assert.deepEqual(out.published, []);
@@ -102,7 +103,7 @@ test('a List whose rows are a kind this run was not granted is left out and none
 });
 
 test('the sharing rows are the consent: leaving them out is refused, while an empty list given on purpose publishes nothing', async t => {
-  const folder = await mkdtemp(join(tmpdir(), 'share-files-'));
+  const folder = tempFolder(join(tmpdir(), 'share-files-'));
   t.after(() => rm(folder, { recursive: true, force: true }));
   await assert.rejects(writeShareFiles({ input: { origin: 'https://share.example', row_kind: 'record:dish', stored: stored() }, folder }, { now: NOW }), /records are required/);
   assert.equal(await exists(join(folder, 'manifest.json')), false, 'a refused run changes nothing');

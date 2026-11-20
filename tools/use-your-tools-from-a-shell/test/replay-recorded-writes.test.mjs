@@ -1,5 +1,6 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, utimesSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -13,7 +14,7 @@ import {
 speakFor({ cli: 'example', site_name: 'Example' });
 
 const host = { parseArgs, expand, settings: cli, programs: new Set(['example', 'command.mjs']) };
-const folder = () => mkdtempSync(join(tmpdir(), 'replay-writes-test-'));
+const folder = () => tempFolder(join(tmpdir(), 'replay-writes-test-'));
 const T = minutes => new Date(Date.UTC(2026, 0, 28, 12, minutes)).toISOString();
 const since = Date.UTC(2026, 0, 25);
 

@@ -1,8 +1,9 @@
 // The administration SSH arguments: the caller's host, port and user, the one pinned key, and refusals that say what to
 // fix. Every host here is synthetic (192.0.2.x, example.com).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { administrationArguments, checkedHost, heldKeyFile, knownHostsLine, proxied } from '../do-work/administration-arguments.mjs';
@@ -48,7 +49,7 @@ test('a run\'s proxy is reached through its CONNECT tunnel with a keepalive, and
 });
 
 test('a held key file gets back the last newline ssh needs, once, in place', t => {
-  const folder = mkdtempSync(join(tmpdir(), 'held-key-')); t.after(() => rmSync(folder, { recursive: true, force: true }));
+  const folder = tempFolder(join(tmpdir(), 'held-key-')); t.after(() => rmSync(folder, { recursive: true, force: true }));
   const file = join(folder, 'key');
   writeFileSync(file, 'synthetic key');
   assert.equal(heldKeyFile(file), file);

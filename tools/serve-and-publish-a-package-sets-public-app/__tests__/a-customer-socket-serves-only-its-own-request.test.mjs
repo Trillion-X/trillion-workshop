@@ -1,7 +1,8 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import net from 'node:net';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -19,7 +20,7 @@ async function close(server) {
 }
 
 test('one front door can proxy two customer sockets without mixing their answers', async () => {
-  const root = mkdtempSync(join(tmpdir(), 'bitfield-customer-sockets-'));
+  const root = tempFolder(join(tmpdir(), 'bitfield-customer-sockets-'));
   const adaSocket = join(root, 'ada.sock');
   const boSocket = join(root, 'bo.sock');
   const ada = http.createServer((req, res) => res.end(`ada:${req.url}`));
@@ -48,7 +49,7 @@ test('one front door can proxy two customer sockets without mixing their answers
 });
 
 test('a live-feed upgrade reaches the selected customer socket', async () => {
-  const root = mkdtempSync(join(tmpdir(), 'bitfield-customer-upgrade-'));
+  const root = tempFolder(join(tmpdir(), 'bitfield-customer-upgrade-'));
   const socketPath = join(root, 'customer.sock');
   const backend = net.createServer((socket) => {
     socket.once('data', (request) => {

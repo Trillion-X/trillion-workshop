@@ -2,10 +2,11 @@
 // result (makes_all), the person's settings for this computer are laid over the row's, a list input becomes one
 // argument per item, the recording is handed on when no frames are cut, and the Python maker programs run against
 // stand-in model modules (test/test_local_sound_makers.py).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -40,7 +41,7 @@ test('every local sound style runs on the person\'s computer through a maker tha
 });
 
 test('the forge maker gets each confusion and each reference as its own argument, and the person\'s settings over the row\'s', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'forge-'));
+  const dir = tempFolder(join(tmpdir(), 'forge-'));
   try {
     const seen = [];
     const result = await makeStyle({
@@ -68,7 +69,7 @@ test('the forge maker gets each confusion and each reference as its own argument
 });
 
 test('a model maker keeps what each result says about itself, and says when it made fewer than asked', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'sa3-'));
+  const dir = tempFolder(join(tmpdir(), 'sa3-'));
   try {
     const seen = [];
     const result = await makeStyle({
@@ -88,7 +89,7 @@ test('a model maker keeps what each result says about itself, and says when it m
 });
 
 test('a setting the person has not given stops the run by name, before anything runs', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'moss-'));
+  const dir = tempFolder(join(tmpdir(), 'moss-'));
   try {
     const seen = [];
     const result = await makeStyle({
@@ -104,7 +105,7 @@ test('a setting the person has not given stops the run by name, before anything 
 });
 
 test('the video maker is handed the video itself and one --at per section start', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'foley-'));
+  const dir = tempFolder(join(tmpdir(), 'foley-'));
   try {
     const seen = [];
     await assert.rejects(makeStyle({ rows, styleId: 'sound-effects-for-a-video-from-hunyuan-foley-on-my-computer', outDir: join(dir, 'm'), workDir: join(dir, 'w'), input: { sounds: 'soft clicks' } }), /Choose the video/);
@@ -125,7 +126,7 @@ test('the video maker is handed the video itself and one --at per section start'
 });
 
 test('the command line takes the person\'s settings file', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'cli-'));
+  const dir = tempFolder(join(tmpdir(), 'cli-'));
   try {
     writeFileSync(join(dir, 'settings.json'), '[1]');
     const run = spawnSync(process.execPath, [join(folder, 'do-work/make-pictures-and-sounds.mjs'), '--style', 'sound-effect-from-moss-on-my-computer', '--settings', join(dir, 'settings.json')], { input: '{"sound":"a tick","seconds":1}', encoding: 'utf8' });

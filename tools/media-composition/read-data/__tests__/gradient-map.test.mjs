@@ -12,11 +12,12 @@
  * R >> B), while the unfiltered gradient is neutral at both ends (a base-vs-filtered + within-frame proof
  * that the luma->ramp mapping actually happened, not a pass-through or a uniform tint). L155.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -45,7 +46,7 @@ function px(raw, x, y) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'gm-'));
+  const dir = tempFolder(join(tmpdir(), 'gm-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -53,7 +54,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'gm-render-'));
+  work = tempFolder(join(tmpdir(), 'gm-render-'));
   grad = join(work, 'grad.mp4'); // static horizontal black->white luma gradient (left dark, right bright)
   // An EXACT ramp, the source convention the rest of this suite folder already uses. `gradients`
   // is a RANDOM-gradient generator and draws a different pattern per run, so a pixel assertion

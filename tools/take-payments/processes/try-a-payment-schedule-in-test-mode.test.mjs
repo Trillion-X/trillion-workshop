@@ -3,9 +3,10 @@
 // would create real prices, a real customer and a real schedule while
 // everybody believed they were looking at a rehearsal.
 
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -16,7 +17,7 @@ import {
 } from './try-a-payment-schedule-in-test-mode.mjs';
 
 function configHolding(text) {
-  const path = join(mkdtempSync(join(tmpdir(), 'stripe-config-')), 'config.toml');
+  const path = join(tempFolder(join(tmpdir(), 'stripe-config-')), 'config.toml');
   writeFileSync(path, text);
   return path;
 }

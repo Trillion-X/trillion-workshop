@@ -1,9 +1,10 @@
 // Immutable quotation/source evidence does not certify current targets, retirement or port admission.
 // The prospective-copy shape follows the maintained contract-quotation-evidence.test.py regression.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -42,7 +43,7 @@ function commit(root, message) {
 }
 
 function fixture(t, { sameRepository = false, sourceText = SOURCE } = {}) {
-  const home = mkdtempSync(join(tmpdir(), 'immutable-contract-evidence-'));
+  const home = tempFolder(join(tmpdir(), 'immutable-contract-evidence-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const root = join(home, 'receiving-owner'), old = sameRepository ? root : join(home, 'original-owner');
   initialize(old);

@@ -8,9 +8,10 @@
 // there is reported, a repeat adds nothing twice (no message and no file written again), a name the person gave is
 // read by that name, and with no folder searched none is walked.
 // Every person, file and chat here is made up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdirSync, mkdtempSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -32,7 +33,7 @@ const chat = { id: 'conv-kiln', title: 'Glaze test tiles', create_time: 1_790_00
 } };
 
 function homeWith(exportAt, files) {
-  const home = mkdtempSync(join(tmpdir(), 'native-chat-import-'));
+  const home = tempFolder(join(tmpdir(), 'native-chat-import-'));
   const put = (path, text) => { mkdirSync(dirname(join(home, path)), { recursive: true }); writeFileSync(join(home, path), text); };
   put(exportAt, JSON.stringify([chat]));
   for (const [path, text] of Object.entries(files)) put(path, text);

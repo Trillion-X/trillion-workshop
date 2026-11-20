@@ -2,6 +2,7 @@
 //
 // A 409 the account calls retryable waits on item_trouble's short doubling wait, and a 409 that is a final refusal waits the hour
 // (turned_away.ask_again_minutes), so a retryable answer is not parked behind a refusal's hour.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -10,7 +11,7 @@ import path from 'node:path';
 import {readNewItems} from '../computer/read-new-items.mjs';
 
 const run = async body => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'retryable-409-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'retryable-409-'));
   const stateFile = path.join(dir, 'state.json');
   let clock = '2026-10-21T11:00:00Z';
   const asked = [];

@@ -9,10 +9,11 @@
  * well-exposed. bestPosterTime must land in the sharp-bright window (t >= 2), since a blurry dark frame cannot
  * out-score a crisp well-exposed one. scoreFrames orders the windows accordingly, and the pick is deterministic.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { scoreFrames, bestPosterTime } from '../../do-work/pick-poster-frame.mjs';
@@ -22,7 +23,7 @@ let work, clip;
 function ffmpeg(args) { execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', ...args], { encoding: 'utf8' }); }
 
 before(() => {
-  work = mkdtempSync(join(tmpdir(), 'poster-'));
+  work = tempFolder(join(tmpdir(), 'poster-'));
   const bad = join(work, 'bad.mp4'), good = join(work, 'good.mp4');
   ffmpeg(['-f', 'lavfi', '-i', `color=gray:s=${W}x${H}:d=2:r=${FPS}`, '-vf', 'eq=brightness=-0.3,boxblur=6:2', '-pix_fmt', 'yuv420p', bad]); // 2s blurry + dark
   ffmpeg(['-f', 'lavfi', '-i', `testsrc=s=${W}x${H}:d=1:r=${FPS}`, '-pix_fmt', 'yuv420p', good]);                                          // 1s sharp + exposed

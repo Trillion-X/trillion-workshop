@@ -4,9 +4,10 @@
 // even when its source turn failed there; a wake that fails twice is answered failed (a dead letter); a stream socket pulls what waited; and a
 // run of a tool that lives on this computer is run from the tool's own files and answered on the run's road.
 
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { tarGz } from '../src/tar-gz.mjs';
@@ -24,7 +25,7 @@ test('work addressed to the computer taker reaches its event handler', async () 
 });
 
 function world() {
-  const folder = mkdtempSync(join(tmpdir(), 'wake-sessions-'));
+  const folder = tempFolder(join(tmpdir(), 'wake-sessions-'));
   const rules = { ...settings, folder, reconnect_seconds: [0.01] };
   const calls = [];
   const answers = {};

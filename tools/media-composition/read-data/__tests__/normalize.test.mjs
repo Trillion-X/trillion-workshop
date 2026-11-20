@@ -11,11 +11,12 @@
  * stretched to full range, so the per-channel span grows AND the big B-minus-R cast gap collapses toward
  * neutral. PLUS a byte-identical determinism proof. L155.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -43,7 +44,7 @@ function chan(raw, off) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'nrm-'));
+  const dir = tempFolder(join(tmpdir(), 'nrm-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -51,7 +52,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'nrm-render-'));
+  work = tempFolder(join(tmpdir(), 'nrm-render-'));
   cast = join(work, 'cast.mp4'); // a BLUE-cast, low-contrast source: R low+narrow, B high+narrow.
   ffmpeg(['-f', 'lavfi', '-i', `color=black:s=320x240:d=2:r=${FPS}`, '-vf', "geq=r='60+0.09*X':g='100+0.06*X':b='150+0.12*X'", '-pix_fmt', 'yuv420p', cast]);
 });

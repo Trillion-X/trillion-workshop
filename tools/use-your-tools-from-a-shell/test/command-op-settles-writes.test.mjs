@@ -4,8 +4,9 @@
 // pending is asked again under its own request key until the writer settles it. A commit prints; a refusal is thrown (the
 // command exits non-zero and says why); a write still pending past the settle window is thrown as write_pending. The wait
 // is the one settled-write.mjs owns.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -16,7 +17,7 @@ speakFor({ cli: 'example', site_name: 'Example' });
 
 const ORIGIN = 'http://127.0.0.1:8788';
 const KEY = `nm_${'ab'.repeat(16)}`;
-const home = () => mkdtempSync(join(tmpdir(), 'example-op-settle-'));
+const home = () => tempFolder(join(tmpdir(), 'example-op-settle-'));
 const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, forget: () => {} };
 const WRITE = ['op', 'wake:switch', '{"tool":"tool:x","id":"daily","on":true}'];
 

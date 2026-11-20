@@ -5,14 +5,15 @@
 // that must not offer it), POST /delete-user answers 404 and the user stays. The business's own module (delete_user.before_delete_module)
 // runs before anything is deleted and a throw there keeps the account; the person's API keys go once the account is gone. The second start
 // reads the new settings into a fresh copy of auth.mjs over the same database, as a computer restarted from its changed computer row does.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { startStore } from '../test-fixtures/embedded-store.mjs';
 
-const dir = mkdtempSync(join(tmpdir(), 'delete-user-'));
+const dir = tempFolder(join(tmpdir(), 'delete-user-'));
 const shipped = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
 const hookFile = join(dir, 'own-rows.mjs');
 writeFileSync(hookFile, `

@@ -1,8 +1,9 @@
 // The gateway's pass: read from descriptor 4 within a bound, no pass refused, a bad pass and a good pass at the port
 // (do-work/gateway-pass.mjs, do-work/serve.mjs).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { rmSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -32,7 +33,7 @@ test('a pipe that never ends gives up at the bound, with no pass', async () => {
 });
 
 test('serve.mjs with nothing on descriptor 4 refuses to start, with a plain message and a nonzero code', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'gateway-pass-serve-'));
+  const dir = tempFolder(join(tmpdir(), 'gateway-pass-serve-'));
   const config = join(dir, 'config.json');
   writeFileSync(config, JSON.stringify({ apps: { one: { cli: '/bin/cat', args: [] } }, port: 0 }));
   const child = spawn(process.execPath, [SERVE, config], { stdio: ['ignore', 'pipe', 'pipe'] });
@@ -60,7 +61,7 @@ test('only the exact bearer pass is allowed', () => {
 });
 
 test('at the port, a request without the pass gets 401 and reaches no app; the good pass gets the gateway', async () => {
-  const workRoot = mkdtempSync(join(tmpdir(), 'gateway-pass-test-'));
+  const workRoot = tempFolder(join(tmpdir(), 'gateway-pass-test-'));
   const gateway = createGateway({ apps, workRoot });
   const server = createServer(guarded(gateway, gatewayPass(PASS)));
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));

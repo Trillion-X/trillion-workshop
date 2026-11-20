@@ -11,10 +11,11 @@
  * so the caption does not collide with the subject. The mirror clip (subject in the BOTTOM third) places the
  * caption at the TOP. Fabricated DATA could not make a real render avoid a real subject block.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { captionPlacement, placeCaptionsForVideo } from '../../do-work/place-captions.mjs';
@@ -59,7 +60,7 @@ function renderWithPlacement(clip, placement, name) {
   return out;
 }
 
-before(() => { work = mkdtempSync(join(tmpdir(), 'placecap-')); });
+before(() => { work = tempFolder(join(tmpdir(), 'placecap-')); });
 
 test('PURE: captionPlacement puts captions opposite the subject (top subject -> bottom caption, and vice versa)', () => {
   const hi = captionPlacement([{ y: 0.12 }, { y: 0.18 }, { y: 0.15 }], { frameHeight: 1920, marginFrac: 0.08 });

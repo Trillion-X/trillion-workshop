@@ -1,8 +1,9 @@
 // Queued turns drain on a timer with no new speech, at the pace in DATA (sending.pass); a pass that never finishes is ended
 // and recorded, and the next one goes (6,323 turns waited, one queued turn unsent, 2026-10-22).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { send, turnOutbox } from '../listen.mjs';
@@ -12,7 +13,7 @@ const listening = Object.values(rows).flat().find?.(row => row?.id === 'listenin
 const listen = listening?.listen;
 const waitingTurn = n => ({ source_id: `m${n}#1`, conversation_id: `c${n}`, from: 'me', text: `turn ${n}`, verdict: 'context' });
 const answers = taken => async (route, { body }) => ({ status: 200, body: { items: body.items.map(item => { taken.push(item.source_id); return { message_id: `message:${item.source_id}` }; }) } });
-const folder = () => mkdtempSync(path.join(os.tmpdir(), 'listen-pass-'));
+const folder = () => tempFolder(path.join(os.tmpdir(), 'listen-pass-'));
 const read = file => JSON.parse(readFileSync(file, 'utf8'));
 const until = async (done, ms = 3000) => { const stop = Date.now() + ms; while (!done() && Date.now() < stop) await new Promise(r => setTimeout(r, 10)); };
 

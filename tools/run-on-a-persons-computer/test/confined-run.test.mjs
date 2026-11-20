@@ -2,10 +2,11 @@
 // A program runs under a generated Seatbelt profile (F-0310, F-0237): it writes only in its tier's roots, cannot read the
 // credential folders, has no network unless the tier allows it, and a pinned program that does not match is not started.
 // These tests run sandbox-exec on this Mac.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import http from 'node:http';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -15,7 +16,7 @@ const mac = { skip: process.platform !== 'darwin' || !existsSync('/usr/bin/sandb
 const sh = script => ['/bin/sh', ['-c', script]];
 
 async function places() {
-  const base = realpathSync(await mkdtemp(join(tmpdir(), 'confined-')));
+  const base = realpathSync(tempFolder(join(tmpdir(), 'confined-')));
   const workspace = join(base, 'work'), outside = join(base, 'outside'), home = join(base, 'home');
   await mkdir(workspace); await mkdir(outside); await mkdir(join(home, '.ssh'), { recursive: true });
   await writeFile(join(home, '.ssh', 'id'), 'secret key bytes');

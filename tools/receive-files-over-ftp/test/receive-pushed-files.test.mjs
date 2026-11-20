@@ -13,11 +13,12 @@
 //   active mode is refused, so the receiver never dials out
 //   no sender is built in: settings with none do not start
 
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from "node:assert/strict";
 import test from "node:test";
 import { connect } from "node:net";
 import { execFile, execFileSync } from "node:child_process";
-import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { readFile, rm, stat, writeFile } from "node:fs/promises";
 import { closeSync, openSync, unlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -97,7 +98,7 @@ async function login(control) {
 }
 
 async function withReceiver(body, options = {}) {
-  const root = await mkdtemp(path.join(tmpdir(), "receive-pushed-files-test."));
+  const root = tempFolder(path.join(tmpdir(), "receive-pushed-files-test."));
   const controller = new AbortController();
   try {
     const receiver = await runReceiver({ settings: settingsFor(), root, signal: controller.signal, log: () => {}, ...options });
@@ -159,7 +160,7 @@ test("pure: settings have no sender built in, listen on loopback unless told oth
 });
 
 test("the identity of a file is the BLAKE3 identity of its bytes, however long the file is", async () => {
-  const folder = await mkdtemp(path.join(tmpdir(), "receive-identity-test."));
+  const folder = tempFolder(path.join(tmpdir(), "receive-identity-test."));
   try {
     const small = path.join(folder, "abc.bin");
     await writeFile(small, "abc");
@@ -242,7 +243,7 @@ test("live: a wrong password yields no session and nothing can be stored", async
 });
 
 test("live: the private key for secure sessions can be handed on a descriptor, with no file left holding it", async () => {
-  const folder = await mkdtemp(path.join(tmpdir(), "receive-pushed-files-key."));
+  const folder = tempFolder(path.join(tmpdir(), "receive-pushed-files-key."));
   const keyFile = path.join(folder, "k.pem");
   execFileSync("openssl", ["req", "-x509", "-newkey", "ec", "-pkeyopt", "ec_paramgen_curve:prime256v1", "-nodes", "-keyout", keyFile, "-out", path.join(folder, "c.pem"), "-days", "1", "-subj", "/CN=127.0.0.1"], { stdio: "ignore" });
   const descriptor = openSync(keyFile, "r");
@@ -288,7 +289,7 @@ test("live: a sender may delete a file that has no note yet, and only that", asy
 });
 
 test("the command starts from a settings file, prints where it listens, and stops on a signal; with no sender it refuses to start", async () => {
-  const folder = await mkdtemp(path.join(tmpdir(), "receive-cli-test."));
+  const folder = tempFolder(path.join(tmpdir(), "receive-cli-test."));
   try {
     const settingsFile = path.join(folder, "settings.json");
     const inbox = path.join(folder, "inbox");

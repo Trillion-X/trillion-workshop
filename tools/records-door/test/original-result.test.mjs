@@ -1,8 +1,9 @@
 // Consumer controls for protected original-result recovery. Synthetic transport only;
 // these do not claim that a native launch or an account-files effect supports recovery.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { openRecordsDoor, recordsDoorFromCall, RecordsDoorError } from '../read-data/records-door.mjs';
@@ -11,7 +12,7 @@ const reply = result => new Response(JSON.stringify({ result }), { headers: { 'c
 const unknown = () => reply({ isError: true, structuredContent: { code: 'original_command_unknown', outcome: 'unknown' } });
 
 async function withDoor(fetchImpl, check) {
-  const folder = mkdtempSync(join(tmpdir(), 'original-result-door-'));
+  const folder = tempFolder(join(tmpdir(), 'original-result-door-'));
   const descriptor = join(folder, 'descriptor.json');
   writeFileSync(descriptor, JSON.stringify({ url: 'http://127.0.0.1:1/mcp', resource: '@synthetic-records',
     files_resource: '@synthetic-files', capability: 'synthetic-private-capability' }));

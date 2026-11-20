@@ -1,9 +1,10 @@
 // The immutable carried algorithm against its original SQL contract, with synthetic data.
 // This is an origin baseline, not proof of the current account-files owner or its door.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { DatabaseSync } from 'node:sqlite';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { namespaceStore } from '../namespace-store.mjs';
@@ -27,7 +28,7 @@ function originalAt(path, now) {
 const first = `1f:${'a'.repeat(64)}`, second = `1f:${'b'.repeat(64)}`;
 
 test('the original survives a cold reopen and refuses an occupied restore name without losing the archive', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'archive-original-'));
+  const folder = tempFolder(join(tmpdir(), 'archive-original-'));
   let opened;
   try {
     const path = join(folder, 'original.sqlite');

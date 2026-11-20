@@ -3,10 +3,11 @@
 // rules are made-up rows of a made-up branch of their one Checks list, handed in as the records a run is given. Ported from
 // the launch-video copy gate's tests (tests/check.test.mjs, decider-kinds.test.mjs, place-reports.test.mjs), which ran
 // on the person's own rules: here every rule and line is made up, and each test names the old one it carries.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs';
+import { readFileSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { checkAFilmsCopy, filmUnits, knowledgeOf, readingUnits, readSourceBytes } from '../do-work/check-a-films-copy.mjs';
@@ -299,7 +300,7 @@ test('unit-context reads a line\'s neighbours within its own line, and an on-scr
 
 // ---- The computer run (old CLI tests: exit codes, no-model, readback, links and FIFOs) --------------------------------
 function computer(files, extra = [], held = records()) {
-  const dir = mkdtempSync(join(tmpdir(), 'film-copy-'));
+  const dir = tempFolder(join(tmpdir(), 'film-copy-'));
   const paths = files.map(([name, text]) => { const path = join(dir, name); writeFileSync(path, text); return path; });
   const recordsFile = join(dir, 'records.json'), report = join(dir, 'report.json');
   writeFileSync(recordsFile, JSON.stringify(held));
@@ -325,7 +326,7 @@ test('the computer run: exit 0 when every line passes, 1 when a rule fails, 2 on
 test('the computer run hands every question to the decider\'s answer command and judges with its answers; --no-model never calls it', () => {
   const { reader_knowledge: _, ...plain } = SETTINGS;
   const held = records({ settings: plain, checks: [...CHECKS, ASK] });
-  const dir = mkdtempSync(join(tmpdir(), 'decider-'));
+  const dir = tempFolder(join(tmpdir(), 'decider-'));
   const layer = join(dir, 'decider_layer.py'), seen = join(dir, 'seen.json');
   writeFileSync(layer, `import json, sys\nasks = json.load(sys.stdin)\nassert sys.argv[1:] == ["answer", "--mode", "live"], sys.argv\nopen(${JSON.stringify(seen)}, "w").write(json.dumps(asks))\nprint(json.dumps([{"yes": 0.95, "no": 0.05} for _ in asks]))\n`);
   const python = spawnSync('which', ['python3'], { encoding: 'utf8' }).stdout.trim();
@@ -340,7 +341,7 @@ test('the computer run hands every question to the decider\'s answer command and
 });
 
 test('the computer run refuses a link or a FIFO as a source, and reads a regular file', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'film-descriptor-'));
+  const dir = tempFolder(join(tmpdir(), 'film-descriptor-'));
   const file = join(dir, 'words.txt'), link = join(dir, 'link.txt'), fifo = join(dir, 'pipe.txt');
   writeFileSync(file, 'A made-up line.');
   symlinkSync(file, link);

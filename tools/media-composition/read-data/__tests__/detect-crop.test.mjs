@@ -10,11 +10,12 @@
  *      bottom rows become content (red) instead of black - while the uncropped render still has black bars.
  *      Plus byte-determinism.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,7 +37,7 @@ function bandMeanR(file, y0, h) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'crop-'));
+  const dir = tempFolder(join(tmpdir(), 'crop-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -44,7 +45,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'crop-render-'));
+  work = tempFolder(join(tmpdir(), 'crop-render-'));
   // letterboxed: red content band [y 60..180] on a black frame (top+bottom black bars).
   barred = join(work, 'barred.mp4');
   ffmpeg(['-f', 'lavfi', '-i', `color=black:s=${W}x${H}:d=1:r=${FPS}`,

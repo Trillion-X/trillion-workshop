@@ -1,6 +1,7 @@
 // The hear step of hearing-sources, on an injected hearer: each source's recording is heard once with the hearing options, the words come back in time order labelled by source, and the session record names the hearer. The default hearer is audio-transcription's hearFile; running it needs a local model, so that path is not run here.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -20,7 +21,7 @@ const fakeHearer = calls => async (recording, hearing) => {
 
 test('each source recording is heard once with the hearing options, and the words come back in time order labelled by source', async () => {
   const calls = [];
-  const file = path.join(mkdtempSync(path.join(os.tmpdir(), 'hear-method-')), 'sessions.json');
+  const file = path.join(tempFolder(path.join(os.tmpdir(), 'hear-method-')), 'sessions.json');
   const { words, session } = await hearSourcesOfACall(
     { sources: [{ source: 'system-audio', path: '/sys.wav' }, { source: 'microphone', path: '/mic.wav' }] },
     { settings, at: 1000, hear: fakeHearer(calls), hearing: { modelPath: '/m.bin', produced_by: 'whisper-test', rows: [ROW] }, picking: runnable, file },
@@ -49,7 +50,7 @@ test('a computer with no hearing program that runs is refused before any recordi
 
 test('the first hearing program that runs here is picked and named in the session record', async () => {
   const calls = [];
-  const file = path.join(mkdtempSync(path.join(os.tmpdir(), 'hear-method-')), 'sessions.json');
+  const file = path.join(tempFolder(path.join(os.tmpdir(), 'hear-method-')), 'sessions.json');
   const missing = { id: 'not-installed', label: 'not installed', check: ['nope-cli'] };
   const { session } = await hearSourcesOfACall(
     { sources: [{ source: 'microphone', path: '/mic.wav' }] },
@@ -60,7 +61,7 @@ test('the first hearing program that runs here is picked and named in the sessio
 });
 
 test('the picked hearing row is what runs: its program, model and ffmpeg reach the seam, not the request options', async () => {
-  const dir = mkdtempSync(path.join(os.tmpdir(), 'hear-method-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'hear-method-'));
   const fakeSeam = path.join(dir, 'fake-seam.mjs');
   writeFileSync(fakeSeam, [
     "import { writeFileSync } from 'node:fs';",

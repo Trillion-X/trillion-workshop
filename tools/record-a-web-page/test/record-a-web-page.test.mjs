@@ -3,10 +3,11 @@
 // video's size and length, that a click ripple in the accent colour is drawn where the pointer clicked, that every
 // output the row names exists, and that a step whose target is missing stops the run with a message naming it.
 // Needs Chromium (Playwright's, from devDependencies), python3 with Pillow, and ffmpeg, as the container has.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -52,7 +53,7 @@ test('every flag the row passes is one the script reads', () => {
 });
 
 test('a recording has the asked size, a ripple where the pointer clicked, and every output the row names', { timeout: 300000 }, async () => {
-  const out = mkdtempSync(join(tmpdir(), 'record-a-web-page-test-'));
+  const out = tempFolder(join(tmpdir(), 'record-a-web-page-test-'));
   try {
     const { ran, button } = await withPage(async url => {
       const browser = await launchChromium();
@@ -108,7 +109,7 @@ test('a recording has the asked size, a ripple where the pointer clicked, and ev
 });
 
 test('a step whose target is not on the page stops the run with a message naming the step', { timeout: 120000 }, async () => {
-  const out = mkdtempSync(join(tmpdir(), 'record-a-web-page-test-'));
+  const out = tempFolder(join(tmpdir(), 'record-a-web-page-test-'));
   try {
     const ran = await withPage(url => runTool({ url, steps: [{ do: 'wait', seconds: 0.2 }, { do: 'click', target: { text: 'Nowhere on this page' } }], fps: 15 }, out));
     assert.equal(ran.status, 1);

@@ -1,14 +1,15 @@
 // Reading the instructions and skills kept for other AIs, in place and labelled (read-data/other-ai-files.mjs).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, symlinkSync, writeFileSync, realpathSync } from 'node:fs';
+import { mkdirSync, symlinkSync, writeFileSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { otherAiFiles, otherAiFilesInGrantedFolder } from '../read-data/other-ai-files.mjs';
 import rules from '../read-data/other-ai-files.json' with { type: 'json' };
 import toolRows from '../tool-rows.json' with { type: 'json' };
 
-const home = realpathSync(mkdtempSync(join(tmpdir(), 'other-ai-')));
+const home = realpathSync(tempFolder(join(tmpdir(), 'other-ai-')));
 mkdirSync(join(home, '.claude/skills/jab-hook'), { recursive: true });
 mkdirSync(join(home, '.claude/commands'), { recursive: true });
 mkdirSync(join(home, '.cursor/rules'), { recursive: true });

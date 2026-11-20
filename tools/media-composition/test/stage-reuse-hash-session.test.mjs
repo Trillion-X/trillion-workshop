@@ -1,9 +1,10 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
 import { Worker } from 'node:worker_threads';
-import { mkdtempSync, renameSync, statSync, unlinkSync, utimesSync, writeFileSync } from 'node:fs';
+import { renameSync, statSync, unlinkSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -21,7 +22,7 @@ function renderInWorker(args) {
 }
 
 test('a render hash session preserves the exact stage identity and reuses only an unchanged file digest', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'stage-hash-session-'));
+  const dir = tempFolder(join(tmpdir(), 'stage-hash-session-'));
   const input = join(dir, 'source.bin'), out = join(dir, 'stage.mp4');
   writeFileSync(input, 'alpha bytes');
   const args = ['-i', input, '-c', 'copy', out];
@@ -34,7 +35,7 @@ test('a render hash session preserves the exact stage identity and reuses only a
 });
 
 test('replacement, same-size mutation with restored mtime, and deletion invalidate a cached digest', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'stage-hash-version-'));
+  const dir = tempFolder(join(tmpdir(), 'stage-hash-version-'));
   const input = join(dir, 'source.bin'), parked = join(dir, 'parked.bin'), replacement = join(dir, 'replacement.bin');
   writeFileSync(input, 'alpha');
   const session = createStageHashSession();
@@ -71,7 +72,7 @@ test('replacement, same-size mutation with restored mtime, and deletion invalida
 });
 
 test('a mutation during the read is rejected and its mixed digest is never cached', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'stage-hash-mutation-'));
+  const dir = tempFolder(join(tmpdir(), 'stage-hash-mutation-'));
   const input = join(dir, 'source.bin');
   writeFileSync(input, 'alpha');
   const session = createStageHashSession();
@@ -100,7 +101,7 @@ test('a mutation during the read is rejected and its mixed digest is never cache
 });
 
 test('a read error leaves no digest cached for the next successful attempt', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'stage-hash-read-error-'));
+  const dir = tempFolder(join(tmpdir(), 'stage-hash-read-error-'));
   const input = join(dir, 'source.bin');
   writeFileSync(input, 'alpha');
   const session = createStageHashSession();
@@ -129,7 +130,7 @@ test('a read error leaves no digest cached for the next successful attempt', () 
 });
 
 test('the digest cache has a fixed entry bound', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'stage-hash-bound-'));
+  const dir = tempFolder(join(tmpdir(), 'stage-hash-bound-'));
   const firstPath = join(dir, 'first.bin'), secondPath = join(dir, 'second.bin');
   writeFileSync(firstPath, 'first'); writeFileSync(secondPath, 'second');
   const session = createStageHashSession({ maxEntries: 1 });
@@ -139,7 +140,7 @@ test('the digest cache has a fixed entry bound', () => {
 });
 
 test('independent worker renders can hash the same source concurrently without sharing cache state', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'stage-hash-workers-'));
+  const dir = tempFolder(join(tmpdir(), 'stage-hash-workers-'));
   const input = join(dir, 'source.bin'), out = join(dir, 'stage.mp4');
   writeFileSync(input, Buffer.alloc(2 * 1024 * 1024, 17));
   const args = ['-i', input, '-c', 'copy', out];

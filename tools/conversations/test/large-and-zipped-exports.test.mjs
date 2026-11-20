@@ -4,9 +4,10 @@
 // a ChatGPT conversations.json read one conversation at a time (read-data/json-array-stream.mjs), its cursor keeping
 // the byte the next conversation starts after so a stopped run starts there; a zipped ChatGPT export whose files are
 // found and copied from inside the zip; and a Grok message of only an image, with no words, kept with its file.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { zipSync } from 'fflate';
@@ -23,7 +24,7 @@ const JPEG = Buffer.concat([Buffer.from('ffd8ffe0', 'hex'), Buffer.alloc(2_000, 
 const id = bytes => makeHashCodeHexFromBytes(bytes);
 
 function put(home, path, bytes) { mkdirSync(dirname(join(home, path)), { recursive: true }); writeFileSync(join(home, path), bytes); }
-const home = t => { const path = mkdtempSync(join(tmpdir(), 'conversations-large-')); t.after(() => rmSync(path, { recursive: true, force: true })); return path; };
+const home = t => { const path = tempFolder(join(tmpdir(), 'conversations-large-')); t.after(() => rmSync(path, { recursive: true, force: true })); return path; };
 
 // The person's store, played by the test: each run is handed what it asks for and its writes are kept there.
 async function storeFor(t) {

@@ -1,7 +1,8 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
-import {mkdtempSync,writeFileSync,readFileSync,statSync,rmSync} from 'node:fs';
+import { writeFileSync, readFileSync, statSync, rmSync } from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -57,7 +58,7 @@ test('heading scope follows downstream bare-CR lines and comment-wrapped ATX lin
  }
 });
 test('actual CLI distinguishes a rejected heading from the same words in prose',()=>{
- const dir=mkdtempSync(join(tmpdir(),'writing-heading-cli-'));try{
+ const dir=tempFolder(join(tmpdir(),'writing-heading-cli-'));try{
   const tool=fileURLToPath(new URL('../do-work/verify-writing-profile.mjs',import.meta.url));
   for(const [name,suffix,status] of [['prose','\nKnown rejected phrase in ordinary prose.\n',0],['heading','\n### Known *rejected* phrase!\n',1],['bare-cr','\r### Known rejected phrase\rMore prose.',1],['comment-atx','\n<!--\n### Known rejected phrase\n-->\n',1]]){
    const t=text+suffix,p=profile();p.rejections[0].scope='heading';
@@ -110,7 +111,7 @@ test('uncovered named method component cannot be hidden by full prose review',()
  const p=profile();p.required_components=['private-method-component'];const d=verifyWritingProfile(Buffer.from(text),p,reviews(text));assert.equal(d.status,'review_required');assert.equal(d.reviewed_source_components,0);
 });
 test('literal source/destination method evidence is required, with precise assurance limits',()=>{
- const dir=mkdtempSync(join(tmpdir(),'writing-component-'));try {
+ const dir=tempFolder(join(tmpdir(),'writing-component-'));try {
   const sp=join(dir,'source.txt'),dp=join(dir,'current.md'),st='Original method stage.';writeFileSync(sp,st);writeFileSync(dp,text);
   const p=profile();p.required_components=['c'];p.original_sources=[{blake3:hash(st),authority:'author_text'}];const r=reviews(text);r.source_bindings={schema:'synthetic-d245bc86d584',sources:[{id:'s',path:sp,blake3:hash(st)},{id:'d',path:dp,blake3:hash(text)}],quotes:[{id:'sq',source_id:'s',text:st,byte_start:0,byte_end:Buffer.byteLength(st)},{id:'dq',source_id:'d',text:'An ordinary explanation.',byte_start:Buffer.byteLength(text.slice(0,text.indexOf('An ordinary'))),byte_end:Buffer.byteLength(text.slice(0,text.indexOf('An ordinary')))+Buffer.byteLength('An ordinary explanation.')} ]};r.components=[{component_id:'c',source_quote_index:0,destination_quote_index:1,source_authority:'author_text',relationship_review:'Fixture claims correspondence; checker does not judge this.',reviewer_role:'root'}];
   const d=verifyWritingProfile(Buffer.from(text),p,r);assert.equal(d.status,'checks_satisfied');assert.match(d.component_assurance,/reviewer assertion/);
@@ -118,7 +119,7 @@ test('literal source/destination method evidence is required, with precise assur
  }finally{rmSync(dir,{recursive:true,force:true});}
 });
 test('explicit component disposition rejects partial or absent coverage while retaining reviewer limits',()=>{
- const dir=mkdtempSync(join(tmpdir(),'writing-component-disposition-'));try {
+ const dir=tempFolder(join(tmpdir(),'writing-component-disposition-'));try {
   const sp=join(dir,'source.txt'),dp=join(dir,'current.md'),st='Outcomes vary under specified conditions; choose a valued target band and test whether joint conditions shift the chance of landing inside it.';
   const partial='Two conditions can restrict each other, and use a range when evidence supports only that.';
   const direct='The target band is 80–90. Under the current setup, the predicted outcome distribution gives a 60% chance of landing inside it; changing the feed and rest conditions may shift that chance, so test the combined setup before claiming improved reliability.';
@@ -139,7 +140,7 @@ test('explicit component disposition rejects partial or absent coverage while re
  }finally{rmSync(dir,{recursive:true,force:true});}
 });
 test('two current-document quotes cannot pretend to be original-source coverage',()=>{
- const dir=mkdtempSync(join(tmpdir(),'writing-self-cite-'));try{
+ const dir=tempFolder(join(tmpdir(),'writing-self-cite-'));try{
   const dp=join(dir,'doc.md');writeFileSync(dp,text);const p=profile();p.required_components=['c'];p.original_sources=[{blake3:hash(text),authority:'author_text'}];const r=reviews(text);const q={source_id:'d',text:'You exist: here and now.',byte_start:text.indexOf('You exist'),byte_end:text.indexOf('You exist')+Buffer.byteLength('You exist: here and now.')};r.source_bindings={schema:'synthetic-d245bc86d584',sources:[{id:'d',path:dp,blake3:hash(text)}],quotes:[{id:'q1',...q},{id:'q2',...q}]};r.components=[{component_id:'c',source_quote_index:0,destination_quote_index:1,source_authority:'author_text',relationship_review:'Trying to self-cite.',reviewer_role:'model'}];assert.equal(verifyWritingProfile(Buffer.from(text),p,r).status,'invalid');
  }finally{rmSync(dir,{recursive:true,force:true});}
 });
@@ -172,7 +173,7 @@ test('an invalid original-source row is named by its position and field and neve
  assert.deepEqual(verifyWritingProfile(Buffer.from(text),p,reviews(text)).findings,[{kind:'invalid_original_source_allowlist',source_index:1,field:'blake3'}]);
 });
 test('a source whose allowlist label is not an author label cannot back a component',()=>{
- const dir=mkdtempSync(join(tmpdir(),'writing-label-'));try{
+ const dir=tempFolder(join(tmpdir(),'writing-label-'));try{
   const doc='# Heading\n\nQuartz lantern steps.\n\nPlain closing remark.\n',src='Quartz lantern steps.';
   const sp=join(dir,'source.txt'),dp=join(dir,'current.md');writeFileSync(sp,src);writeFileSync(dp,doc);
   const at=doc.indexOf('Plain closing remark.'),quote=(id,source_id,s,start)=>({id,source_id,text:s,byte_start:start,byte_end:start+Buffer.byteLength(s)});
@@ -188,7 +189,7 @@ test('reports omit private bodies and caller-controlled names',()=>{
  const p=profile();p.rejections[0].id='SECRET-CALLER-ID';const t=text+'\nKnown rejected phrase';const r=reviews(t);r.blocks[0].reviewer='SECRET-REVIEWER';const result=JSON.stringify(verifyWritingProfile(Buffer.from(t),p,r));for(const secret of ['SECRET-CALLER-ID','SECRET-REVIEWER','Known rejected phrase','You exist:'])assert.ok(!result.includes(secret));
 });
 test('CLI creates private report and refuses to replace an existing report',()=>{
- const dir=mkdtempSync(join(tmpdir(),'writing-cli-'));try{
+ const dir=tempFolder(join(tmpdir(),'writing-cli-'));try{
   const doc=join(dir,'doc.md'),p=join(dir,'profile.json'),r=join(dir,'review.json'),out=join(dir,'result.json');writeFileSync(doc,text);writeFileSync(p,JSON.stringify(profile()));writeFileSync(r,JSON.stringify(reviews(text)));const tool=fileURLToPath(new URL('../do-work/verify-writing-profile.mjs',import.meta.url));const args=[tool,'--document',doc,'--profile',p,'--reviews',r,'--out',out];assert.equal(spawnSync(process.execPath,args).status,0);assert.equal(statSync(out).mode&0o777,0o600);const before=readFileSync(out);assert.equal(spawnSync(process.execPath,args).status,2);assert.deepEqual(readFileSync(out),before);
  }finally{rmSync(dir,{recursive:true,force:true});}
 });

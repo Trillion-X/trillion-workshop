@@ -1,7 +1,8 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -67,7 +68,7 @@ function run(directory, plan, options = {}) {
 }
 
 test('a compiled plan stages without pretending it is authorized', () => {
-  const session = run(mkdtempSync(join(tmpdir(), 'record-video-stage-')), presentationPlan());
+  const session = run(tempFolder(join(tmpdir(), 'record-video-stage-')), presentationPlan());
   assert.equal(session.kind, 'record-video.recording-session');
   assert.equal(session.auto_start, false);
   assert.equal(session.readiness_state, 'awaiting_setup');
@@ -81,7 +82,7 @@ test('a compiled plan stages without pretending it is authorized', () => {
 });
 
 test('fresh readiness plus a matching unexpired grant is required for auto-start', () => {
-  const directory = mkdtempSync(join(tmpdir(), 'record-video-authorize-'));
+  const directory = tempFolder(join(tmpdir(), 'record-video-authorize-'));
   const plan = presentationPlan();
   const session = run(directory, plan, {
     nowMs: 1_000_000,
@@ -101,7 +102,7 @@ test('fresh readiness plus a matching unexpired grant is required for auto-start
 });
 
 test('an explicit denied grant and the workflow null fallback both stage without authorization', () => {
-  const directory = mkdtempSync(join(tmpdir(), 'record-video-no-grant-'));
+  const directory = tempFolder(join(tmpdir(), 'record-video-no-grant-'));
   const plan = presentationPlan();
   for (const authorization of [{ authorized: false }, {}]) {
     const session = run(directory, plan, {
@@ -118,7 +119,7 @@ test('an explicit denied grant and the workflow null fallback both stage without
 });
 
 test('expired authorization cannot authorize a session', () => {
-  const directory = mkdtempSync(join(tmpdir(), 'record-video-expired-'));
+  const directory = tempFolder(join(tmpdir(), 'record-video-expired-'));
   const plan = presentationPlan();
   assert.throws(
     () => run(directory, plan, {
@@ -141,7 +142,7 @@ test('a format that gathers answers cannot be flattened into a teleprompter scri
   const plan = presentationPlan();
   plan.acquisitions = [{ id: 'answer', prompt: 'Ask somebody' }];
   assert.throws(
-    () => run(mkdtempSync(join(tmpdir(), 'record-video-acquisition-')), plan),
+    () => run(tempFolder(join(tmpdir(), 'record-video-acquisition-')), plan),
     /open acquisitions/,
   );
 });

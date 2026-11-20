@@ -1,6 +1,7 @@
 // test/read-this-computer-places.test.mjs
 // The reader's places are the rows of the person's `inputs` list handed in by the program that starts it, kept for a
 // restart without them; a place read with a tool runs that tool on the account (tools:run), never through a door.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -8,7 +9,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { placesOf, startReading, toolRunOver } from '../read-this-computer.mjs';
 
-const folder = () => fs.mkdtempSync(path.join(os.tmpdir(), 'read-this-computer-places-'));
+const folder = () => tempFolder(path.join(os.tmpdir(), 'read-this-computer-places-'));
 const starters = { sources: [{ id: 'starter', label: 'Starter', read: { route: 'Starter', reader: 'folder' } }], every_seconds: 600, read_every_seconds: 30, files_folder: '/Files' };
 const service = { id: 'made-up', values: { label: 'Made-up service', category: 'Notes', look: { paths: [] }, read: { route: 'Made-up service', reader: 'tool', tool: 'tool:made-up-list', items: 'things', fields: { source_id: 'id', text: 'words' }, settle_seconds: 0 } } };
 

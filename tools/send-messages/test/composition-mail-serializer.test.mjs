@@ -3,9 +3,10 @@
 // Runs the document-to-message-body tests (test_composition_mail_serializer.py: its own cases from the package, each
 // a test_ function in one program) and then the command as the row runs it, on a small written document. Needs
 // python3 (standard library only).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,7 +23,7 @@ test('test_composition_mail_serializer.py passes', { skip }, () => {
 });
 
 test('the command turns a request file into a result file', { skip }, () => {
-  const work = mkdtempSync(join(tmpdir(), 'serializer-'));
+  const work = tempFolder(join(tmpdir(), 'serializer-'));
   const request = join(work, 'request.json');
   const output = join(work, 'out.json');
   writeFileSync(request, JSON.stringify({ document_nodes: [

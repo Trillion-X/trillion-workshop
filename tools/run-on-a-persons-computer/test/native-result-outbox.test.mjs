@@ -1,13 +1,14 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
+import { readdir, readFile, rm } from 'node:fs/promises';
 import { existsSync, mkdirSync, readFileSync, renameSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { nativeResultOutbox } from '../native-result-outbox.mjs';
 
 test('native result outbox survives reload and removes only accepted handoffs for its authenticated account', async () => {
-  const folder = await mkdtemp(path.join(tmpdir(), 'trillion-native-results-'));
+  const folder = tempFolder(path.join(tmpdir(), 'trillion-native-results-'));
   const file = path.join(folder, 'results');
   const accountId = 'account-alpha';
   const origin = 'https://example.test';
@@ -29,7 +30,7 @@ test('native result outbox survives reload and removes only accepted handoffs fo
 
 
 async function outputFixture(t, count = 2) {
-  const folder = await mkdtemp(path.join(tmpdir(), 'native-app-outputs-'));
+  const folder = tempFolder(path.join(tmpdir(), 'native-app-outputs-'));
   t.after(() => rm(folder, { recursive: true, force: true }));
   const options = { file: path.join(folder, 'results'), accountId: 'account-alpha', origin: 'https://example.test' };
   let outbox = nativeResultOutbox(options);

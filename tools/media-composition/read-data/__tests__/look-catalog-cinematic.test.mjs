@@ -8,10 +8,11 @@
  * vignette; flat-region variance for grain; per-channel edge separation for chromatic aberration),
  * plus EVERY catalog look renders without error and changes pixels vs the ungraded clip.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -70,7 +71,7 @@ function meanAbsDiff(a, b) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'look-'));
+  const dir = tempFolder(join(tmpdir(), 'look-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -78,7 +79,7 @@ before(async () => {
   ({ composeTimeline, LOOK_CATALOG } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'look-render-'));
+  work = tempFolder(join(tmpdir(), 'look-render-'));
   flatGray = join(work, 'flat.mp4');
   whiteBar = join(work, 'bar.mp4');
   colorBars = join(work, 'bars.mp4');

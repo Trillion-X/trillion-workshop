@@ -1,10 +1,11 @@
 // The hold list: the longest hold first with the second it starts, the same still level and longest hold as the check, a
 // still and a moving video, the seconds and still level asked for, and the command's refusals. Videos are made here with ffmpeg; those tests skip,
 // saying why, without it. Every number is made up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -14,7 +15,7 @@ const folder = fileURLToPath(new URL('..', import.meta.url));
 const command = join(folder, 'do-work', 'list-holds.mjs');
 const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload)
   .find(payload => payload.id === 'tool:list-the-longest-still-holds-of-my-video');
-const work = mkdtempSync(join(tmpdir(), 'list-holds-'));
+const work = tempFolder(join(tmpdir(), 'list-holds-'));
 const run = (...argv) => spawnSync('node', [command, ...argv], { encoding: 'utf8' });
 const lastLine = ran => JSON.parse(ran.stdout.trim().split('\n').pop());
 const ffmpegThere = spawnSync('ffmpeg', ['-version']).status === 0 && spawnSync('ffprobe', ['-version']).status === 0;

@@ -10,10 +10,11 @@
  * leans left (the subject), and usable=true. (3) RENDER: applyPlanToSegment + video-compose yields a clip trimmed
  * to ~the action length and in 9:16 aspect, proving the plan drives the real render.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -29,7 +30,7 @@ const durOf = (f) => Number(execFileSync('ffprobe', ['-v', 'error', '-show_entri
 const dimsOf = (f) => execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'csv=p=0:s=x', f], { encoding: 'utf8' }).trim().split('x').map(Number);
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'plan-'));
+  const dir = tempFolder(join(tmpdir(), 'plan-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -37,7 +38,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'plan-render-'));
+  work = tempFolder(join(tmpdir(), 'plan-render-'));
   // flat gray 16:9 (encodes with ~0 inter-frame noise, so motion is CLEAN) with a bright white box on the LEFT
   // third: the box is STATIC for 2s, then MOVES for 1s (the action). Flat gray is intentionally low-detail; the
   // `usable` gate is proven separately on a genuinely sharp clip below.

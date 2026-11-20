@@ -1,8 +1,9 @@
 // The narration producer is the first speech program the computer has, never one picked by the computer's kind.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,7 +12,7 @@ const NARRATE = fileURLToPath(new URL('../do-work/tts-narrate.mjs', import.meta.
 
 // A pretend computer: a folder of stand-in programs and nothing else on PATH.
 function computerWith(programs) {
-  const folder = mkdtempSync(join(tmpdir(), 'tts-computer-'));
+  const folder = tempFolder(join(tmpdir(), 'tts-computer-'));
   const write = (name, body) => { writeFileSync(join(folder, name), `#!/bin/sh\n${body}\n`); chmodSync(join(folder, name), 0o755); };
   if (programs.includes('espeak-ng')) write('espeak-ng', 'while [ "$1" != "-w" ]; do shift; done; printf voice > "$2"');
   write('ffmpeg', 'for last; do :; done; printf wav > "$last"');

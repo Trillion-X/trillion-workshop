@@ -2,9 +2,10 @@
 // and keep-conversation-summaries.json) are proven here: the operations of each recipe's prove step run through the store's
 // own objects on PGlite and on a JSON folder, every answer must be the one its `expect` names, and both stores must answer
 // alike. Everything here is made up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
@@ -32,7 +33,7 @@ async function pgStore() {
 }
 
 function folderStore() {
-  const dir = mkdtempSync(join(tmpdir(), 'keep-recipe-proof-'));
+  const dir = tempFolder(join(tmpdir(), 'keep-recipe-proof-'));
   const fileOf = address => join(dir, `${encodeURIComponent(address)}.json`);
   const load = address => { try { return JSON.parse(readFileSync(fileOf(address), 'utf8')); } catch { return null; } };
   return {

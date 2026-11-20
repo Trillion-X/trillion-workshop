@@ -4,10 +4,11 @@
 // readable key file. Its unit loads the sealed file and starts the engine through a shell that opens the credential on descriptor
 // 4; an existing plain key is sealed as it is and removed only once the unit has started from the sealed one; a unit that names
 // only key_file renders and applies as before. The machine is a stand-in that answers each command from a set of files.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { applyWhatItRuns, runsDifferences } from '../do-work/start-a-computer.mjs';
@@ -55,7 +56,7 @@ test('a unit with a sealed key loads it with LoadCredentialEncrypted and starts 
 });
 
 test('the starter hands the credential to the engine on descriptor 4, and a missing credential stops it before the engine runs', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'key-starter-'));
+  const dir = tempFolder(join(tmpdir(), 'key-starter-'));
   const text = renderWhatItRuns(runsOf([unit()])).find(({ path }) => path.endsWith('.service')).text;
   const exec = text.match(/^ExecStart=\/bin\/sh -c ('.*') \S+ serve \S+$/m)[1].replaceAll('$$', '$').replace('%d', dir);
   const engine = 'read -r key <&4; echo "engine read $key"';

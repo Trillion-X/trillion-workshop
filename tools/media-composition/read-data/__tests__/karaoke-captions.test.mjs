@@ -4,10 +4,11 @@
  *  - 'word' = one word at a time, each gated to its own [start,end] in `active_color`.
  * Same timed text-overlay render (drawtext + enable=between), just different DATA windows (L090).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,7 +17,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 let composeTimeline, groupWordsIntoCaptionLines;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'karaoke-'));
+  const dir = tempFolder(join(tmpdir(), 'karaoke-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const cl = join(dir, 'cl.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });

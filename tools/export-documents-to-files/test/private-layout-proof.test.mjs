@@ -1,7 +1,8 @@
 // Synthetic controls through the ordinary book-settings caller (the settings row comes in the request).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { chmodSync, existsSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -75,7 +76,7 @@ test('an unavailable original is explicitly deferred with no source-retention me
   assert.equal(answer.status, contract.status);
 });
 function fixture(t) {
-  const root = realpathSync(mkdtempSync(join(tmpdir(), 'private-layout-proof-test-')));
+  const root = realpathSync(tempFolder(join(tmpdir(), 'private-layout-proof-test-')));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   chmodSync(root, 0o700);
   const save = (name, data) => {

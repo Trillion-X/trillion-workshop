@@ -5,10 +5,11 @@
 // The engine lays a row out with the files package-files.json names for it (test-helpers/write-package-files.mjs), so a file
 // a module reads that the row's laid-out files do not hold makes the row crash on start (a read of a missing file, exit 1).
 // This test checks the laid-out files (packageFilesByRow), not only the files the row declares.
+import { tempFolder } from '../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { toolRowFindings } from '../test-helpers/tool-row-imports.mjs';
@@ -20,7 +21,7 @@ const STARTS_NEED = ['missing-relative-import', 'read-file-not-packed'];
 // test/every-tool-row-imports.test.mjs.
 function judgedTree() {
   if (existsSync(join(repo, '.git'))) return { env: {}, ref: 'HEAD' };
-  const gitDir = mkdtempSync(join(tmpdir(), 'tool-row-start-git-'));
+  const gitDir = tempFolder(join(tmpdir(), 'tool-row-start-git-'));
   const env = { GIT_DIR: gitDir, GIT_WORK_TREE: repo, GIT_INDEX_FILE: join(gitDir, 'index'), GIT_AUTHOR_NAME: 'check', GIT_AUTHOR_EMAIL: 'check@example.test', GIT_COMMITTER_NAME: 'check', GIT_COMMITTER_EMAIL: 'check@example.test' };
   const git = args => execFileSync('git', args, { env: { ...process.env, ...env }, maxBuffer: 2 ** 30 }).toString().trim();
   git(['init', '-q']);

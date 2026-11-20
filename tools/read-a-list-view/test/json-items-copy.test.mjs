@@ -1,9 +1,10 @@
 // A list-original row source over one JSON file of items (json-items): every item becomes a row with its keys as fields,
 // a second sync changes nothing, a list edit reaches the file and keeps the rest of it, a rule an AI writes under its own
 // id becomes an item of the file, and an item removed from the list leaves the file. A made-up kitchen, on a real file.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { syncStore } from './support/sync-store.mjs';
@@ -19,7 +20,7 @@ const RULES = {
 };
 
 async function kitchen() {
-  const root = await mkdtemp(join(tmpdir(), 'json-items-copy-'));
+  const root = tempFolder(join(tmpdir(), 'json-items-copy-'));
   await writeFile(join(root, 'kitchen-rules.json'), `${JSON.stringify(RULES, null, 2)}\n`);
   const source = { id: 'rules', source: 'json-items', root, file: 'kitchen-rules.json', at: 'rules', key: 'id', indent: 2, of: '/',
     original: 'list', adopt_own_rows: true, copy_name: '{id}', content: { list_only: ['on'] } };

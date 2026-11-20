@@ -4,9 +4,10 @@
 // sources cannot be read there. Such a Workshop admits the committed modules by their own bytes: each file's BLAKE3 must
 // be the one fingerprint.json records, also when a folder of the engine's name beside it is not its repository. A file whose
 // bytes differ is refused, and nothing tries to build it again.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -16,7 +17,7 @@ const recorded = JSON.parse(readFileSync(join(BUILT_CRATES_FOLDER, 'fingerprint.
 
 test('a Workshop with no sibling crates admits the committed modules by their recorded BLAKE3, and refuses a changed byte',
   { skip: !recorded.files && 'fingerprint.json records no file identities yet (build-compiled-modules.mjs writes them)' }, async () => {
-    const root = mkdtempSync(join(tmpdir(), 'workshop-alone-'));
+    const root = tempFolder(join(tmpdir(), 'workshop-alone-'));
     try {
       // A Workshop holding only this tool and what its build folder imports, with nothing beside it.
       const workshop = join(root, 'workshop');

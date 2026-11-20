@@ -1,9 +1,10 @@
 // The byte hashing the span and writing checks bind to (one BLAKE3 owner, tools/content-identity), checked against an
 // independent BLAKE3 where one is installed, and the usage refusals of the two commands. Made-up bytes only.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -57,7 +58,7 @@ test('literalPieces gives byte positions, not character positions, in a source w
 });
 
 test('the span command binds its report to the manifest bytes it read', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'span-manifest-'));
+  const folder = tempFolder(join(tmpdir(), 'span-manifest-'));
   try {
     const source = join(folder, 'source.txt'), input = join(folder, 'bindings.json'), out = join(folder, 'readback.json');
     writeFileSync(source, 'plum kettle orbit');

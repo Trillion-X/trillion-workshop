@@ -4,17 +4,18 @@
 // findings F-0447, F-0448, F-0600, F-0601): a kernel rule that starts only the programs the run's rows allow, a
 // description of the run built from those same rows, and argument rules checked before the command starts. Both are
 // off by default (exec.mode "open", every argument rule disabled).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdtempSync, writeFileSync, chmodSync, realpathSync } from 'node:fs';
+import { writeFileSync, chmodSync, realpathSync } from 'node:fs';
 import { join } from 'node:path';
 import settings from '../harness/wake-handlers/tool-reach.json' with { type: 'json' };
 import { argumentRefusal, declaredReach, describeRun, sandboxProfile, sandboxed } from '../harness/wake-handlers/tool-reach.mjs';
 
 const onMac = process.platform === 'darwin';
 const allowlist = { ...structuredClone(settings), exec: { mode: 'allowlist', allow: [{ path: '/bin/echo', match: 'literal' }] } };
-const home = mkdtempSync('/tmp/fence-home-');
+const home = tempFolder('/tmp/fence-home-');
 const running = argv => new Promise(done => execFile(argv[0], argv.slice(1), (error, stdout, stderr) => done({ code: error ? (error.code ?? 1) : 0, stdout, stderr })));
 
 test('shipped data is open: no exec limit and every argument rule off', () => {
@@ -50,7 +51,7 @@ test('the description of a run is built from the same rows that build the fence'
 });
 
 test('the kernel starts the allowed program and refuses another', { skip: !onMac }, async () => {
-  const folder = mkdtempSync('/tmp/fence-run-');
+  const folder = tempFolder('/tmp/fence-run-');
   const profile = sandboxProfile({ folder, reach: [], home, rules: allowlist, program: '/bin/echo' });
   const allowed = await running(sandboxed(['/bin/echo', 'hello'], { folder, profile }));
   assert.equal(allowed.code, 0, allowed.stderr);

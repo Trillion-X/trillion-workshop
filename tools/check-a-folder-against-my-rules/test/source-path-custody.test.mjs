@@ -1,17 +1,11 @@
 // Git supplies repository-relative names, but the working tree can redirect those names through
 // symlinks or special files. These fixtures exercise the runner's filesystem boundary, not the
 // pure rule engine.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { execFileSync, spawnSync } from 'node:child_process';
-import {
-  lstatSync,
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  symlinkSync,
-  writeFileSync,
-} from 'node:fs';
+import { lstatSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -52,8 +46,8 @@ function put(repo, relativePath, contents) {
 }
 
 function fixture(t) {
-  const repo = mkdtempSync(path.join(tmpdir(), 'source-path-custody-repo-'));
-  const outside = mkdtempSync(path.join(tmpdir(), 'source-path-custody-outside-'));
+  const repo = tempFolder(path.join(tmpdir(), 'source-path-custody-repo-'));
+  const outside = tempFolder(path.join(tmpdir(), 'source-path-custody-outside-'));
   const rulesPath = path.join(outside, 'rules.json');
   writeFileSync(rulesPath, JSON.stringify(RULES));
 

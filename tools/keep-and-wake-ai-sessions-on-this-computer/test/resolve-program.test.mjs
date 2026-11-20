@@ -5,6 +5,7 @@
 // null as a wall, not a crash: no job is claimed for that AI, its card says "<program> is not installed where Trillion
 // looks (<folders tried>)", and the next of the person's AIs runs instead. The wake-sessions run() answers the same way.
 // Temporary folders are made under the work folder's .test-tmp (never /tmp); the fake login shells are small scripts there.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -20,7 +21,7 @@ const workFolder = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '.
 const scratchRoot = path.join(workFolder, '.test-tmp');
 fs.mkdirSync(scratchRoot, { recursive: true });
 const scratch = (t, name) => {
-  const folder = fs.mkdtempSync(path.join(scratchRoot, `resolve-${name}-`));
+  const folder = tempFolder(path.join(scratchRoot, `resolve-${name}-`));
   t.after(() => fs.rmSync(folder, { recursive: true, force: true }));
   return folder;
 };

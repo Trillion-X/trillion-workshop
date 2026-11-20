@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { sqliteHost } from '../src/local-store.mjs';
@@ -10,7 +11,7 @@ const record = (id, name) => ({ id, type: 'customer-database', value: { name,
   created_at: '2026-10-14T00:00:00.000Z' } });
 
 test('watched record prefix revision survives cold open and ignores unrelated writes', () => {
-  const directory = mkdtempSync(join(tmpdir(), 'trillion-record-frontier-'));
+  const directory = tempFolder(join(tmpdir(), 'trillion-record-frontier-'));
   let host;
   try {
     const path = join(directory, 'owner.sqlite');

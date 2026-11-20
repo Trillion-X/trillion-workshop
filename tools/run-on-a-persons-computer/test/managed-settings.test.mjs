@@ -1,15 +1,16 @@
 // Managed preferences (computer/managed-settings.mjs): a company's configuration profile is read as DATA-listed keys,
 // typed, with their source; no profile changes nothing; a profile turning local_models off stops the Mac answering.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { managedSettingsData, readManagedSettings, turnedOff } from '../managed-settings.mjs';
 
 const homeWith = files => {
-  const home = mkdtempSync(join(tmpdir(), 'managed-'));
+  const home = tempFolder(join(tmpdir(), 'managed-'));
   for (const [name, body] of Object.entries(files)) { mkdirSync(join(home, name, '..'), { recursive: true }); writeFileSync(join(home, name), body); }
   return home;
 };

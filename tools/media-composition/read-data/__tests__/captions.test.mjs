@@ -6,10 +6,11 @@
  *    sharing a `style`; materialize emits them as text_overlays that the render burns.
  * The actual burned caption at the right time is proven by the offline render.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,7 +19,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 let composeTimeline, materializeExportEdl, groupWordsIntoCaptionLines;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'captions-'));
+  const dir = tempFolder(join(tmpdir(), 'captions-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs'); const cl = join(dir, 'cl.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });

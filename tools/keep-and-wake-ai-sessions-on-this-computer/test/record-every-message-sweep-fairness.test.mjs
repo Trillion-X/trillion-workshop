@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, rmSync, statSync, writeFileSync, readFileSync } from 'node:fs';
+import { mkdirSync, rmSync, statSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { sendToTrillion, settings, sweepTranscriptQueue, transcriptSweepKey, transcriptsBehind } from '../harness/record-every-message.mjs';
@@ -9,7 +10,7 @@ import { sendToTrillion, settings, sweepTranscriptQueue, transcriptSweepKey, tra
 process.env.TRILLION_ORIGIN ??= 'https://app.example.com';
 
 test('sweep queue uses stable opaque transcript keys', async t => {
-  const root = mkdtempSync(join(tmpdir(), 'recorder-sweep-fairness-'));
+  const root = tempFolder(join(tmpdir(), 'recorder-sweep-fairness-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const project = join(root, 'projects', 'p');
   mkdirSync(project, { recursive: true });
@@ -38,7 +39,7 @@ test('sweep queue uses stable opaque transcript keys', async t => {
 });
 
 test('timeboxed sweeps serve an owed small chat and revisit a large backlog while new chats keep arriving', async t => {
-  const root = mkdtempSync(join(tmpdir(), 'recorder-sweep-queue-'));
+  const root = tempFolder(join(tmpdir(), 'recorder-sweep-queue-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const project = join(root, 'projects', 'p'), cursors = join(root, 'cursors');
   mkdirSync(project, { recursive: true });

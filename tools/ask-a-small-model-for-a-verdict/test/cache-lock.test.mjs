@@ -1,7 +1,8 @@
 // The cache lock names its holder, and a lock left by a writer that died never blocks writes.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import {test} from 'node:test'
 import assert from 'node:assert/strict'
-import {mkdtempSync, writeFileSync, readFileSync, utimesSync, existsSync} from 'node:fs'
+import { writeFileSync, readFileSync, utimesSync, existsSync } from 'node:fs'
 import {tmpdir, hostname} from 'node:os'
 import {join, dirname} from 'node:path'
 import {spawn, spawnSync} from 'node:child_process'
@@ -12,7 +13,7 @@ const HELD = 'trillion.judge-cache-held-lock/v1\n'
 // Each way is tested where the computer reports it: a kernel open lock, or a lock held by its name.
 const kernel = kernelOpenLocksIn(tmpdir())
 
-function cachePath() { return join(mkdtempSync(join(tmpdir(), 'cache-lock-')), 'remembered.json') }
+function cachePath() { return join(tempFolder(join(tmpdir(), 'cache-lock-')), 'remembered.json') }
 
 function holderOf(path) {
   const text = readFileSync(`${path}.lock`, 'utf8')

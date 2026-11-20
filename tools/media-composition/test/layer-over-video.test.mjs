@@ -1,9 +1,10 @@
 // Sound and picture layers: the one translation (read-data/layers-to-edit.mjs) the two layering tools share, and a
 // real render of layers over a video.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { layerProblems, layersToEdit, layerSourcesAreFiles, soundFromMusicBed } from '../read-data/layers-to-edit.mjs';
@@ -44,7 +45,7 @@ test('a saved single music bed reads back as the sound layer that plays the same
 });
 
 test('the layering job renders sounds and pictures over a real video', { timeout: 120_000 }, () => {
-  const work = mkdtempSync(join(tmpdir(), 'layers-'));
+  const work = tempFolder(join(tmpdir(), 'layers-'));
   try {
     const at = name => join(work, name);
     const ff = (...args) => execFileSync('ffmpeg', ['-v', 'error', '-y', ...args]);

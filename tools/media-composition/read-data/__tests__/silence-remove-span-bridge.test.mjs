@@ -13,11 +13,12 @@
  * duration collapses by exactly the removed length, and (b) a REAL offline render is that much shorter and
  * byte-deterministic.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -35,7 +36,7 @@ const durOf = (file) => Number(execFileSync('ffprobe', ['-v', 'error', '-show_en
 const removeSpan = (s) => ({ action: 'remove-span', parameters: { start: s.start, end: s.end }, span: {}, source_ref: { source_id: 's1' }, created_at: '2026-08-12T00:00:00.000Z', label: 'remove-span' });
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'brg-'));
+  const dir = tempFolder(join(tmpdir(), 'brg-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs'); const ac = join(dir, 'ac.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -45,7 +46,7 @@ before(async () => {
   ({ materializeExportEdl } = await import(me));
   ({ cleanupSpansInAuthorOrder } = await import(ac));
 
-  work = mkdtempSync(join(tmpdir(), 'brg-render-'));
+  work = tempFolder(join(tmpdir(), 'brg-render-'));
   // loud(0.5) + SIL(0.6) + loud(0.5) + SIL(0.6) + loud(0.5) = 2.7s, two silent gaps to exercise the ordering.
   clip = join(work, 'clip.mp4');
   ffmpeg(['-f', 'lavfi', '-i', `color=navy:s=${W}x${H}:d=2.7:r=${FPS}`,

@@ -10,10 +10,11 @@
  * target exposure and penalizes black/blown-out. rankTakes puts the sharp, well-exposed take first. PLUS
  * determinism.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { measureQuality, scoreQuality, rankTakes, pickBestTakes } from '../../do-work/detect-quality.mjs';
@@ -22,7 +23,7 @@ let work, sharp, blur, bright, dark;
 function ffmpeg(args) { execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', ...args], { encoding: 'utf8' }); }
 
 before(() => {
-  work = mkdtempSync(join(tmpdir(), 'quality-'));
+  work = tempFolder(join(tmpdir(), 'quality-'));
   sharp = join(work, 'sharp.mp4'); ffmpeg(['-f', 'lavfi', '-i', 'testsrc=s=320x240:d=2:r=24', '-pix_fmt', 'yuv420p', sharp]);
   blur = join(work, 'blur.mp4'); ffmpeg(['-i', sharp, '-vf', 'boxblur=8:2', '-pix_fmt', 'yuv420p', blur]);   // same content, softened
   bright = join(work, 'bright.mp4'); ffmpeg(['-f', 'lavfi', '-i', 'color=gray:s=320x240:d=2:r=24', '-vf', 'eq=brightness=0.4', '-pix_fmt', 'yuv420p', bright]);

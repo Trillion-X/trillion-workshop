@@ -2,10 +2,11 @@
 // with stand-ins for sentence-transformers and torch (test/stand-in) so no model files are needed, the person's settings
 // given as a list:settings row read through tools/settings, and tool:check-copy run for real on made-up rules. Needs
 // python3; the model steps also need numpy, and skip, saying why, without it. Every name and word here is made up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test, { before } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -45,7 +46,7 @@ const SETTINGS = {
 let settings;
 
 before(() => {
-  root = mkdtempSync(join(tmpdir(), 'viewer-questions-'));
+  root = tempFolder(join(tmpdir(), 'viewer-questions-'));
   log = join(root, 'models.log');
   mkdirSync(join(root, 'raw', 'moments'), { recursive: true });
   mkdirSync(join(root, 'youtube-comments'));

@@ -14,10 +14,11 @@
  *     IDENTICAL beats, proving one shared picker with two entry points (L030 canonical-single-source).
  *  3. determinism: two runs of the same file are byte-identical DATA.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -35,7 +36,7 @@ const median = (xs) => { const s = [...xs].sort((a, b) => a - b); return s[Math.
 const gaps = (b) => b.slice(1).map((t, i) => t - b[i]);
 
 before(async () => {
-  work = mkdtempSync(join(tmpdir(), 'beats-'));
+  work = tempFolder(join(tmpdir(), 'beats-'));
   click120 = join(work, 'c120.m4a'); clickTrack(click120, 0.5);      // 120 BPM
   click90 = join(work, 'c90.m4a'); clickTrack(click90, 0.6667);      // 90 BPM
   silence = join(work, 'silence.m4a');                               // zero energy => zero flux => zero beats

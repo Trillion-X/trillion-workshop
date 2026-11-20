@@ -3,9 +3,10 @@
 // The installed `example` runs the Workshop copy the engine keeps current (command.json install.follow), so a Workshop update
 // reaches every computer's command with no `example setup`: ~/.example/cli/program fell behind Workshop main (no --request-key)
 // on 2026-11-13 because only `setup` copied the program. A copy run from anywhere else runs itself.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -21,7 +22,7 @@ const STUB = "export class CommandError extends Error {}\nexport const main = as
 /** A fake computer: the installed command folder (a copy of this program), and optionally an engine config whose persons
  *  folder holds one person (or `people` of them) whose current Workshop install holds `stub`. */
 function computer({ stub = STUB, people = 1 } = {}) {
-  const home = mkdtempSync(join(tmpdir(), 'example-follow-'));
+  const home = tempFolder(join(tmpdir(), 'example-follow-'));
   const installed = join(home, '.example/cli/program');
   mkdirSync(join(home, '.example/cli'), { recursive: true });
   cpSync(DO_WORK, installed, { recursive: true });

@@ -10,10 +10,11 @@
  * hard red|blue vertical edge where the near-edge pixels are corrupted AT the beat but clean far from
  * it (L155 temporal), while a no-pulse render stays clean at the same spot (regression).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,7 +37,7 @@ function meanRGB(file, ss, { x, y, w, h }) {
 const chanDist = (a, b) => Math.abs(a.r - b.r) + Math.abs(a.g - b.g) + Math.abs(a.b - b.b);
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'glch-'));
+  const dir = tempFolder(join(tmpdir(), 'glch-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -44,7 +45,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'glch-render-'));
+  work = tempFolder(join(tmpdir(), 'glch-render-'));
   edge = join(work, 'edge.mp4'); // left half red, right half blue: a hard vertical edge at x=160
   ffmpeg(['-f', 'lavfi', '-i', 'color=red:s=160x240:d=2:r=24', '-f', 'lavfi', '-i', 'color=blue:s=160x240:d=2:r=24',
     '-filter_complex', '[0][1]hstack=2', '-pix_fmt', 'yuv420p', edge]);

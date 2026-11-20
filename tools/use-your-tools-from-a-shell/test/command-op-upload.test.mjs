@@ -4,8 +4,9 @@
 // a file (trillion-rust src/mcp/upload.rs): the file's bytes are the body, sent as an octet stream, and the JSON-RPC message rides in
 // the X-Call header as base64url. A call without the flag is the plain JSON body it always was. A file larger than one body may carry,
 // a missing file and a flag with no file are refused before anything is sent. Synthetic data only.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -16,7 +17,7 @@ speakFor({ cli: 'example', site_name: 'Example' });
 
 const ORIGIN = 'http://127.0.0.1:8788';
 const KEY = `nm_${'ab'.repeat(16)}`;
-const home = () => mkdtempSync(join(tmpdir(), 'example-op-upload-'));
+const home = () => tempFolder(join(tmpdir(), 'example-op-upload-'));
 const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, forget: () => {} };
 const answered = { structuredContent: { version: 1 }, content: [] };
 
@@ -41,7 +42,7 @@ const run = (argv, door) => main([...argv, '--origin', ORIGIN], {
 const PIECE = '{"tool":"tool:files","call":{"name":"write_file_piece","arguments":{"upload_id":"u1","offset":0}}}';
 
 test('op --upload sends the file as the body and the call in X-Call; without it the call is the JSON body', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'example-upload-file-'));
+  const folder = tempFolder(join(tmpdir(), 'example-upload-file-'));
   const file = join(folder, 'piece.bin');
   const bytes = Buffer.from(Array.from({ length: 70_000 }, (_, at) => at % 251));
   writeFileSync(file, bytes);
@@ -66,7 +67,7 @@ test('op --upload sends the file as the body and the call in X-Call; without it 
 });
 
 test('a file too large for one body, a missing file and a flag with no file are refused before anything is sent', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'example-upload-refused-'));
+  const folder = tempFolder(join(tmpdir(), 'example-upload-refused-'));
   const large = join(folder, 'large.bin');
   writeFileSync(large, Buffer.alloc(16));
   const small = { ...settings, direct_calls: { ...settings.direct_calls, upload_most_bytes: 8 } };

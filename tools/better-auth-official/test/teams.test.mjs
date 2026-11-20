@@ -4,15 +4,16 @@
 // organization and a team in it, invites another person, who accepts, and puts them in the team; the pass that person signs
 // (an AI's access token and the session's JWT) then carries the ids of their teams as the claim settings.teams names, and the pass signed
 // after they are taken out of the team no longer does. A person in no team carries the claim empty.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash, randomBytes } from 'node:crypto';
 import { startStore } from '../test-fixtures/embedded-store.mjs';
 
-const dir = mkdtempSync(join(tmpdir(), 'teams-'));
+const dir = tempFolder(join(tmpdir(), 'teams-'));
 const settings = { ...JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8')), email_password: { require_verification: false }, disabled_paths: [], email: { sender: null, from: null } };
 writeFileSync(join(dir, 'settings.json'), JSON.stringify(settings));
 process.env.BETTER_AUTH_SETTINGS = join(dir, 'settings.json');

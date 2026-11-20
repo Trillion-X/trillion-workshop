@@ -10,11 +10,12 @@
  * gradient has (blue - red) ~ 0 in both bands, so only a real cross-process grade produces the split. PLUS:
  * output differs from plain, two renders are byte-identical (deterministic), and a catalog-DATA unit assert.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,7 +37,7 @@ function meanRGB(file, ss, cropExpr) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'xproc-'));
+  const dir = tempFolder(join(tmpdir(), 'xproc-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -44,7 +45,7 @@ before(async () => {
   ({ composeTimeline, LOOK_CATALOG } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'xproc-render-'));
+  work = tempFolder(join(tmpdir(), 'xproc-render-'));
   // NEUTRAL vertical grayscale gradient: top dark, bottom bright, zero chroma (cb=cr=128 => R=G=B at each row).
   // A cross-process grade must ADD a shadow-vs-highlight color split that a neutral ramp does not have.
   grad = join(work, 'grad.mp4');

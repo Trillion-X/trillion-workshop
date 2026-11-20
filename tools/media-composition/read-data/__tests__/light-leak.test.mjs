@@ -9,10 +9,11 @@
  * render on a dark-gray source where the leak corner is lightened toward the color while the far corner is
  * unchanged, and the color is real DATA (a warm leak raises R, a cool leak raises B) (L155).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -35,7 +36,7 @@ function px(file, x, y) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'll-'));
+  const dir = tempFolder(join(tmpdir(), 'll-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -43,7 +44,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'll-render-'));
+  work = tempFolder(join(tmpdir(), 'll-render-'));
   gray = join(work, 'gray.mp4'); // dark gray so a lightening leak is unambiguous
   ffmpeg(['-f', 'lavfi', '-i', 'color=0x404040:s=320x240:d=2:r=12', '-pix_fmt', 'yuv420p', gray]);
 });

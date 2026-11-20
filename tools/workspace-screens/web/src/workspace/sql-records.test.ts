@@ -3,8 +3,9 @@
 // (embedded-postgres in a temp folder). Nothing saved reads as
 // nothing held, the first write makes the table, a write is read back with the identity the engine computes, a stale or
 // already-taken expectation changes nothing and answers the value held, and the source's outbox confirms through it.
+import { tempFolder } from '../../../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+
 import net from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -25,7 +26,7 @@ const freePort = () => new Promise<number>(resolve => { const probe = net.create
 
 before(async () => {
   const port = await freePort();
-  server = new EmbeddedPostgres({ databaseDir: mkdtempSync(join(tmpdir(), 'sql-records-')), user: 'postgres', password: 'made-up-pw', port, persistent: false, onLog: () => {}, onError: () => {} });
+  server = new EmbeddedPostgres({ databaseDir: tempFolder(join(tmpdir(), 'sql-records-')), user: 'postgres', password: 'made-up-pw', port, persistent: false, onLog: () => {}, onError: () => {} });
   await server.initialise();
   await server.start();
   client = new pg.Client({ host: '127.0.0.1', port, user: 'postgres', password: 'made-up-pw', database: 'postgres' });

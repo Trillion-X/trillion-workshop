@@ -12,10 +12,11 @@
  *  3. FULL CHAIN: a real 120 BPM click track, detect-beats, those beats as cuts, montage; the color still cycles
  *     per interval, proving the beat producer drives the montage end to end.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { montageSegments, authorBeatMontage } from '../../do-work/author-beat-montage.mjs';
@@ -43,7 +44,7 @@ function render(edl, name) {
 }
 
 before(() => {
-  work = mkdtempSync(join(tmpdir(), 'montage-'));
+  work = tempFolder(join(tmpdir(), 'montage-'));
   red = join(work, 'red.mp4'); colorClip(red, 'red');
   green = join(work, 'green.mp4'); colorClip(green, 'green');
   blue = join(work, 'blue.mp4'); colorClip(blue, 'blue');

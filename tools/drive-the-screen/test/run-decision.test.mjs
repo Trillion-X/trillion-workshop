@@ -1,16 +1,17 @@
 // The Mac screen driver's one decision table (read-data/run-decision.mjs): nothing is on by default; the person's deny
 // beats their allow beats an organisation's deny beats its allow; strict refuses what no allow rule admits; reading is
 // an action too; controls keep the last record fetched; proposals come from approvals already given.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync, mkdirSync, chmodSync, existsSync, utimesSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, chmodSync, existsSync, utimesSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { decide, decisionSettings, readLists, refreshControls, requireAllowed, ruleHolds, ruleTools } from '../read-data/run-decision.mjs';
 import { grantTools, makeScreenDriver, screenSettings } from '../read-data/drive-the-screen.mjs';
 
 const settings = decisionSettings();
-const home = () => mkdtempSync(join(tmpdir(), 'decision-home-'));
+const home = () => tempFolder(join(tmpdir(), 'decision-home-'));
 const subject = (action, app = 'Safari') => ({ action, app: [app, `com.example.${app.toLowerCase()}`] });
 
 test('with no files at all every action is allowed, and the table says nothing is on by default', () => {

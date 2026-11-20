@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { execFileSync } from 'node:child_process';
 import { createHash, getHashes } from 'node:crypto';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
 import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
@@ -42,7 +43,7 @@ function askExpectingRefusal(path: string, algorithm?: string) {
 }
 
 describe('ask-local-file-content-digest says what a file IS, and refuses rather than guessing', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'ask-local-file-content-digest-'));
+  const folder = tempFolder(join(tmpdir(), 'ask-local-file-content-digest-'));
   const file = join(folder, 'directive-quote.txt');
   const bytes = Buffer.from('bind a contract to an artifact, never to a remembered quote\n', 'utf8');
   writeFileSync(file, bytes);

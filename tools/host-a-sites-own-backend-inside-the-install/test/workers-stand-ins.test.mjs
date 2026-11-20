@@ -1,7 +1,8 @@
 // tools/host-a-sites-own-backend-inside-the-install/read-data/workers-stand-ins.mjs: the Workers APIs a site's bundle reads, on a plain computer.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { HTMLRewriter, cachesDefault, d1, emailBy, kv, numbered, workerSecrets } from '../read-data/workers-stand-ins.mjs';
@@ -81,7 +82,7 @@ test('caches.default keeps an answer only for its own max-age', async () => {
 });
 
 test('each credential file but the two the host reads is a Worker secret named in capitals', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'held-'));
+  const folder = tempFolder(join(tmpdir(), 'held-'));
   for (const [name, value] of [['site-database', 'postgres://x'], ['email-key', 't'], ['mail-link-key', 'k'.repeat(40) + '\n'], ['job-run-key', 'j']]) writeFileSync(join(folder, name), value);
   assert.deepEqual(workerSecrets(folder, { readdirSync, readFileSync }), { JOB_RUN_KEY: 'j', MAIL_LINK_KEY: 'k'.repeat(40) });
   assert.deepEqual(workerSecrets(undefined, { readdirSync, readFileSync }), {});

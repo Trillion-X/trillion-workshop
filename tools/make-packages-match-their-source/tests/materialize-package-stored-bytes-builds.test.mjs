@@ -1,12 +1,13 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import { materializePackageStoredBytesBuilds } from '../do-work/materialize-package-stored-bytes-builds.mjs';
 
-const root = await mkdtemp(path.join(tmpdir(), 'materialize-stored-bytes-test.'));
+const root = tempFolder(path.join(tmpdir(), 'materialize-stored-bytes-test.'));
 try {
   const packageRoot = path.join(root, 'packages', 'example');
   await mkdir(path.join(packageRoot, 'source'), { recursive: true });

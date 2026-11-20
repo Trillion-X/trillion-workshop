@@ -2,11 +2,12 @@
 // action on the command line, { result } or { error } on the last line. The
 // "model server" is a small in-process stand-in that speaks the chat endpoint;
 // the data is a made-up bakery.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {execFile} from 'node:child_process'
 import {createServer} from 'node:http'
-import {mkdtempSync, readFileSync, writeFileSync} from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import {join} from 'node:path'
 import {tmpdir} from 'node:os'
 
@@ -46,7 +47,7 @@ function run(action, request) {
   })
 }
 
-const scratch = () => mkdtempSync(join(tmpdir(), 'small-model-'))
+const scratch = () => tempFolder(join(tmpdir(), 'small-model-'))
 
 // A provider row always names where the server is and how long a request may take.
 const local = (endpoint, more = {}) => ({via: 'locally-served', endpoint, timeout_seconds: 30, protocol: 'ollama', ...more})

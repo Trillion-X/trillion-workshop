@@ -1,12 +1,13 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { collectAndRefresh } from '../read-data/collect.mjs';
 
 async function fixture(t) {
-  const dir = await mkdtemp(path.join(os.tmpdir(), 'coverage-collector-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'coverage-collector-'));
   t.after(() => rm(dir, { recursive: true, force: true }));
   const source = path.join(dir, 'src'); const receipts = path.join(dir, 'receipts');
   await mkdir(source); await mkdir(receipts);

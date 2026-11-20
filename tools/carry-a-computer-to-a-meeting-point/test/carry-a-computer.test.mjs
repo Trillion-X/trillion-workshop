@@ -1,8 +1,9 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
 import { PassThrough } from 'node:stream';
-import { chmodSync, existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { spawn, spawnSync } from 'node:child_process';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
@@ -13,7 +14,7 @@ import { WAYS, copyCarrier, ensureProgram, keptKey, makeKey, installCarrier, pic
 
 const relayHost = { id: 'relay-example', hostname: 'relay.example.test', params: { control_port: 2333, ssh_port: 22, host_key: 'ssh-ed25519 AAAAEXAMPLE' } };
 const way = id => WAYS.find(row => row.id === id);
-const folder = t => { const dir = mkdtempSync(join(tmpdir(), 'carrier-')); t.after(() => rmSync(dir, { recursive: true, force: true })); return dir; };
+const folder = t => { const dir = tempFolder(join(tmpdir(), 'carrier-')); t.after(() => rmSync(dir, { recursive: true, force: true })); return dir; };
 
 test('the meeting-point port is a stable hash of the computer id into the configured range', () => {
   const range = { min: 20000, max: 59999 };
@@ -294,7 +295,7 @@ test('a way that makes its own key makes one in a private folder that is gone af
 });
 
 test('a carrier copy made again replaces an earlier copy whose files and folders are read-only', () => {
-  const state = mkdtempSync(join(tmpdir(), 'carrier-copy-'));
+  const state = tempFolder(join(tmpdir(), 'carrier-copy-'));
   try {
     const entry = copyCarrier(state);
     const lock = path => spawnSync('chmod', ['-R', 'a-w', path]);

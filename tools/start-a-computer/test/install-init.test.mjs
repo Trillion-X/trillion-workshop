@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync, existsSync } from 'node:fs';
+import { readFileSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { INIT_ROWS, installInit, removeInit, renderInit, selectInit } from '../do-work/install-init.mjs';
@@ -40,7 +41,7 @@ test('a row that needs a value the request lacks, or a command that is not an ar
 });
 
 test('a synthetic init row works with no code change: file written, old unloaded, waited on, new loaded', t => {
-  const dir = mkdtempSync(join(tmpdir(), 'init-row-')); t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const dir = tempFolder(join(tmpdir(), 'init-row-')); t.after(() => rmSync(dir, { recursive: true, force: true }));
   const row = { id: 'synthetic-init', scope: 'user', match: { platform: 'made-up' }, text: 'run={command} as {label}\n', file: `${dir}/{label}.conf`, mode: '0600', unload: [['stop-it', '{label}']], absent: 'nothing runs', gone: ['is-it-there', '{label}'], gone_within_ms: 1000, load: [['start-it', '{file}']] };
   const calls = []; let there = 2;
   const run = (command, args) => {

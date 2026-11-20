@@ -9,10 +9,11 @@
  * through, AND a real offline render where a point on the RIGHT of the box is un-highlighted early and
  * highlighted late (the wipe passes it, L155 temporal), while the LEFT is highlighted from the start.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,7 +38,7 @@ const isYellow = (c) => c.r > 150 && c.g > 150 && c.b < 110;
 const isGray = (c) => Math.abs(c.r - c.g) < 30 && Math.abs(c.g - c.b) < 30 && c.b > 90;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'hlsw-'));
+  const dir = tempFolder(join(tmpdir(), 'hlsw-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -45,7 +46,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'hlsw-render-'));
+  work = tempFolder(join(tmpdir(), 'hlsw-render-'));
   src = join(work, 'gray.mp4');
   ffmpeg(['-f', 'lavfi', '-i', 'color=gray:s=320x240:d=2:r=24', '-pix_fmt', 'yuv420p', src]);
 });

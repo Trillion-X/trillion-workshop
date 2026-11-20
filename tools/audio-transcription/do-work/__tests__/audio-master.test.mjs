@@ -7,17 +7,18 @@
  * Golden comparisons are METRICS (LUFS/TP via loudnorm json), never bytes.
  */
 
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const SCRIPT = join(here, '..', 'audio-master.mjs');
-const work = mkdtempSync(join(tmpdir(), 'audio-master-'));
+const work = tempFolder(join(tmpdir(), 'audio-master-'));
 
 function makeFixture(name, volume) {
   const file = join(work, name);

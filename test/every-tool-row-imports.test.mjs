@@ -1,10 +1,11 @@
 // Every tool row packs the files its entry program reaches through relative imports (test-helpers/tool-row-imports.mjs).
 // A gap is a file the engine would start without: ERR_MODULE_NOT_FOUND on the installed snapshot. Read from HEAD, so the
 // check judges the tree under test.
+import { tempFolder } from '../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { packageFilesByRow, toolRowFindings } from '../test-helpers/tool-row-imports.mjs';
@@ -43,7 +44,7 @@ test('every package a tool row\'s package_files names is one the Workshop\'s pin
 });
 
 test('a folder that is not the top of a git repository is refused, not judged by the repository around it', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'tool-row-imports-'));
+  const folder = tempFolder(join(tmpdir(), 'tool-row-imports-'));
   assert.throws(() => toolRowFindings({ repo: folder, ref: 'HEAD' }), /is not the top of a git repository/);
 });
 
@@ -68,7 +69,7 @@ test('type-only imports are not followed, because they are erased before the pro
 
 // A tree of two tools committed into a throwaway repository: `user` reaches `shared` through a .ts program and a relative import.
 function fixtureFindings(sharedEntry) {
-  const folder = mkdtempSync(join(tmpdir(), 'tool-row-imports-fixture-'));
+  const folder = tempFolder(join(tmpdir(), 'tool-row-imports-fixture-'));
   const write = (file, text) => { mkdirSync(dirname(join(folder, file)), { recursive: true }); writeFileSync(join(folder, file), text); };
   const row = { kind: 'ai-tool-descriptor', id: 'tool:user', status: 'live', invoke: { argv: ['node', '/opt/user/do-work/run.mjs'], files: { package_files: [{ package: 'user', paths: ['do-work'], at: '/opt/user' }, sharedEntry] } } };
   write('tools/user/tool-rows.json', JSON.stringify({ records: [{ payload: row }] }));
@@ -129,7 +130,7 @@ test('every package a tool row pins in invoke.packages is laid at /opt/node_modu
 
 test('a bare import of a package the row pins counts as declared only where the row lays it', () => {
   const findings = laid => {
-    const folder = mkdtempSync(join(tmpdir(), 'tool-row-imports-pinned-'));
+    const folder = tempFolder(join(tmpdir(), 'tool-row-imports-pinned-'));
     const write = (file, text) => { mkdirSync(dirname(join(folder, file)), { recursive: true }); writeFileSync(join(folder, file), text); };
     const files = [{ package: 'user', paths: ['do-work'], at: '/opt/user' }, ...(laid ? [{ packages: ['pg'], at: '/opt/node_modules/pg' }] : [])];
     const row = { kind: 'ai-tool-descriptor', id: 'tool:user', status: 'live', invoke: { argv: ['node', '/opt/user/do-work/run.mjs'], packages: { pg: { version: '8.23.1' } }, files: { package_files: files } } };

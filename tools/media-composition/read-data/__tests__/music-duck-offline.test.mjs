@@ -10,10 +10,11 @@
  * window vs a silent gap window. With ducking the music band is far quieter under speech than in the gap; the
  * no-duck control stays flat. Fabricated DATA cannot make one real render duck and another not.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -49,7 +50,7 @@ function render(duck, name) {
 }
 
 before(() => {
-  work = mkdtempSync(join(tmpdir(), 'duck-'));
+  work = tempFolder(join(tmpdir(), 'duck-'));
   music = join(work, 'music.m4a');
   ffmpeg(['-f', 'lavfi', '-i', 'sine=frequency=1000:duration=4:sample_rate=48000', '-c:a', 'aac', music]);
   // gray video + a 350 Hz speech tone present ONLY in [1.5,2.5], silence elsewhere (the ducking key).

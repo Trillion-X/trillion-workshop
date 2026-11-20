@@ -4,8 +4,9 @@
 // against a fake door that pages any operation, every page is asked under the one request key of the call with
 // after_byte beside the input, the pages are joined and checked against their BLAKE3, and the whole answer is printed.
 // A BLAKE3 that does not match, or pages that do not hold together, are refused. The BLAKE3 is the content-identity owner's.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -18,7 +19,7 @@ speakFor({ cli: 'example', site_name: 'Example' });
 
 const ORIGIN = 'http://127.0.0.1:8788';
 const KEY = `nm_${'ab'.repeat(16)}`;
-const home = () => mkdtempSync(join(tmpdir(), 'example-paged-'));
+const home = () => tempFolder(join(tmpdir(), 'example-paged-'));
 const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, forget: () => {} };
 
 /** An answer the size of the one measured on Workshop b5a1a01c (50,454 bytes): an engine answer too big for one reply. */

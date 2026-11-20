@@ -1,17 +1,18 @@
 // The MCP registration cases of Trillion-X/trillion test/harness-guidance-mcp-and-runs.test.mjs, moved with
 // harness/mcp-registration.mjs. Its first case also checked the old repository's connect catalogue (src/ai-clients.json)
 // and setup answer (src/setup-installs.mjs), which stay there; that case keeps the row checks this folder owns.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MCP_ACTIONS, lineDiff, registerMcp, tomlTable } from '../do-work/mcp-registration.mjs';
 import { settings as setupRules } from '../do-work/register-in-ai-apps.mjs';
 
-const tempHome = t => { const dir = realpathSync(mkdtempSync(join(tmpdir(), 'trillion-harness-'))); t.after(() => rmSync(dir, { recursive: true, force: true })); return dir; };
+const tempHome = t => { const dir = realpathSync(tempFolder(join(tmpdir(), 'trillion-harness-'))); t.after(() => rmSync(dir, { recursive: true, force: true })); return dir; };
 const URL_ = 'https://app.example.com/mcp';
 test('every registration row has its own id, a known format and a sign-in, and the setup command offers the four actions', () => {
   const ids = setupRules.mcp_registration.clients.map(row => row.id);

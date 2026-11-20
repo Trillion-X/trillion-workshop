@@ -1,8 +1,9 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,7 +38,7 @@ const RULES = {
 };
 
 function world(t) {
-  const base = mkdtempSync(join(tmpdir(), 'check-where-work-is-kept-'));
+  const base = tempFolder(join(tmpdir(), 'check-where-work-is-kept-'));
   t.after(() => rmSync(base, { recursive: true, force: true }));
   const home = join(base, 'home');
   const root = join(home, 'code', 'example-tools');

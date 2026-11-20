@@ -3,8 +3,9 @@
 // `{cli} call TOOL JSON` sends the tool's `need` in the tools:run envelope. An engine older than trillion-rust 9133c735e
 // refuses that envelope with engine.need_refusal and nothing else: the command sends the same call once more without
 // `need`. A new engine gets `need` on the first try, and every other refusal is passed through with no retry.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -16,7 +17,7 @@ speakFor({ cli: 'example', site_name: 'Example' });
 
 const ORIGIN = 'http://127.0.0.1:8788';
 const KEY = `nm_${'cd'.repeat(16)}`;
-const home = () => mkdtempSync(join(tmpdir(), 'example-call-need-fallback-'));
+const home = () => tempFolder(join(tmpdir(), 'example-call-need-fallback-'));
 const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, forget: () => {} };
 const NEED = { local_doors: [{ name: 'gpu', required: true }], when_offline: 'queue' };
 const refusal = settings.engine.need_refusal;

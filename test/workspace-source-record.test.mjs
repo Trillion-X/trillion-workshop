@@ -1,8 +1,9 @@
 // scripts/workspace-source-record.mjs: the web client's record of which inputs the commit it names holds byte for byte, and the refusal that
 // keeps a client built from anything else out of the Mac app. Real repositories and real `git cat-file`.
+import { tempFolder } from '../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from 'node:fs';
+import { mkdirSync, realpathSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
 import test from 'node:test';
@@ -14,7 +15,7 @@ env.GIT_CEILING_DIRECTORIES = realpathSync(tmpdir());
 
 /** A committed repository holding the inputs a build read, and a way to write more files. */
 function repository(files) {
-  const root = realpathSync(mkdtempSync(join(tmpdir(), 'source-record-')));
+  const root = realpathSync(tempFolder(join(tmpdir(), 'source-record-')));
   const git = (...args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8', env }).trim();
   const put = (path, text) => { mkdirSync(dirname(join(root, path)), { recursive: true }); writeFileSync(join(root, path), text); };
   git('init', '-q');
@@ -42,7 +43,7 @@ test('an edited input, an uncommitted input and a deleted input are each named; 
 
 test('an export with no repository and no named commit records no commit; a commit named from outside is judged in the repository named', () => {
   const { root: repo, commit } = repository(FILES);
-  const exportRoot = realpathSync(mkdtempSync(join(tmpdir(), 'source-export-')));
+  const exportRoot = realpathSync(tempFolder(join(tmpdir(), 'source-export-')));
   for (const [path, text] of Object.entries(FILES)) { mkdirSync(dirname(join(exportRoot, path)), { recursive: true }); writeFileSync(join(exportRoot, path), text); }
   assert.equal(buildCommit(exportRoot, {}), null);
   assert.deepEqual(sourceRecord({ root: exportRoot, inputs: INPUTS, commit: null, repo: exportRoot }), { version: 'workspace-source/v1', commit: null, differing: null });
@@ -71,13 +72,13 @@ test('a client built inside an installed Workshop asks the commit at each input\
   put('tools/ui/b.css', 'edited\n');
   assert.deepEqual(sourceRecord({ root, inputs, commit, repo, treeRoot: repo }).differing, ['tools/ui/b.css']);
   // A file outside the Workshop that is not a dependency is not held by any commit of it.
-  const stranger = join(realpathSync(mkdtempSync(join(tmpdir(), 'source-outside-'))), 'x.txt');
+  const stranger = join(realpathSync(tempFolder(join(tmpdir(), 'source-outside-'))), 'x.txt');
   writeFileSync(stranger, 'x\n');
   assert.deepEqual(sourceRecord({ root, inputs: [inputs[0], relative(root, stranger)], commit, repo, treeRoot: repo }).differing, [relative(root, stranger)]);
 });
 
 test('the app takes a client only when its record names a commit and lists no differing input', () => {
-  const built = realpathSync(mkdtempSync(join(tmpdir(), 'source-built-')));
+  const built = realpathSync(tempFolder(join(tmpdir(), 'source-built-')));
   const write = record => writeFileSync(join(built, SOURCE_RECORD_FILE), JSON.stringify(record));
   const commit = 'a'.repeat(40);
   assert.throws(() => refuseUnrecordedSource(built), /has no workspace\.source\.json, so what it was built from is unknown/);
@@ -92,7 +93,7 @@ test('the app takes a client only when its record names a commit and lists no di
 });
 
 test('a repository made with no commit yet (visual-check\'s Linux copy runs git init) records no commit', () => {
-  const root = realpathSync(mkdtempSync(join(tmpdir(), 'source-no-commit-')));
+  const root = realpathSync(tempFolder(join(tmpdir(), 'source-no-commit-')));
   execFileSync('git', ['-C', root, 'init', '-q']);
   assert.equal(buildCommit(root, {}), null);
   assert.equal(buildCommit(root, { WORKSPACE_SOURCE_COMMIT: 'a'.repeat(40) }), 'a'.repeat(40));

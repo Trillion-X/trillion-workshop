@@ -1,10 +1,11 @@
 // Making pictures and sounds: every style row becomes its own Workshop tool, each tool names only the connection its
 // makers use, and the one runner turns a style into new files from a real clip (frames cut with ffmpeg, a service
 // answered by a stand-in, a program run for real), never writing the recording and never leaking the key.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { payloadsIn, toolRowsFromSources } from '../../ai-tool-catalog/do-work/derive-tool-rows-from-sources.mjs';
@@ -90,7 +91,7 @@ function standIn(bytes, mediaType, sent) {
 }
 
 test('the runner makes new files from a real clip and never writes the recording', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'make-pictures-'));
+  const folder = tempFolder(join(tmpdir(), 'make-pictures-'));
   try {
     const clip = join(folder, 'clip.mp4');
     execFileSync('ffmpeg', ['-v', 'error', '-f', 'lavfi', '-i', 'testsrc=duration=8:size=320x240:rate=25', '-f', 'lavfi', '-i', 'sine=duration=8', '-shortest', clip]);
@@ -134,7 +135,7 @@ test('the runner makes new files from a real clip and never writes the recording
 });
 
 test('a refusal is reported in the service\'s words without the key, and nothing half-made is kept', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'make-sounds-'));
+  const folder = tempFolder(join(tmpdir(), 'make-sounds-'));
   try {
     const refusing = async () => new Response(JSON.stringify({ error: { message: `API key ${KEY} is not valid` } }), { status: 400 });
     const result = await makeStyle({ rows, styleId: 'music', input: { mood: 'calm' }, outDir: join(folder, 'made'), workDir: join(folder, 'work'), deps: { readKey: () => KEY, fetchImpl: refusing } });
@@ -153,7 +154,7 @@ test('a refusal is reported in the service\'s words without the key, and nothing
 });
 
 test('with no connected account, a maker Trillion can pay for sends the same request through the run\'s relay', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'make-relayed-'));
+  const folder = tempFolder(join(tmpdir(), 'make-relayed-'));
   try {
     const relayFile = join(folder, 'relay.json');
     const RELAY_KEY = 'relay-key-that-must-never-show';
@@ -190,7 +191,7 @@ test('with no connected account, a maker Trillion can pay for sends the same req
 test('a style may not be made from itself', async () => {
   const looped = { styles: new Map(rows.styles), makers: rows.makers };
   looped.styles.set('loop', { ...rows.styles.get('cut-out-on-a-new-background'), made_from: [{ name: 'again', style: 'loop' }] });
-  const folder = mkdtempSync(join(tmpdir(), 'make-loop-'));
+  const folder = tempFolder(join(tmpdir(), 'make-loop-'));
   try {
     writeFileSync(join(folder, 'clip.mp4'), '');
     await assert.rejects(makeStyle({ rows: looped, styleId: 'loop', input: { video: join(folder, 'clip.mp4'), topic: 'x' }, outDir: join(folder, 'made'), workDir: join(folder, 'work') }), /depends on itself/);

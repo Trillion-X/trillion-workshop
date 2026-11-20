@@ -1,12 +1,13 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import { receiverInbox } from '../harness/receiver-inbox.mjs';
 
 test('a signed event kept before 202 survives restart and is not replayed after completion', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'trillion-receiver-inbox-'));
+  const folder = tempFolder(join(tmpdir(), 'trillion-receiver-inbox-'));
   try {
     receiverInbox(folder).accept('ev_retry_1', { type: 'handoff.created', subject_id: 'h_1' });
     const afterRestart = receiverInbox(folder);

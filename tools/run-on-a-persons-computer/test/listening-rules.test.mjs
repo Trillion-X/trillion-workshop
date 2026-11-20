@@ -1,6 +1,7 @@
 // The person's own recording rules, facts, rights and private mode, kept in their files and honoured by the listener's decision (computer/listening-rules.mjs).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -10,7 +11,7 @@ import { available } from '../../listen-for-a-while/read-data/private-mode.mjs';
 import { evaluate } from '../../listen-for-a-while/read-data/recording-rules.mjs';
 
 const shipped = rowOf(JSON.parse(readFileSync(new URL(import.meta.resolve('../../bring-in-new-items-from-this-computer/computer/computer-sources.json')), 'utf8'))).listen;
-const mine = () => ({ ...shipped, state: mkdtempSync(path.join(os.tmpdir(), 'rules-')) });
+const mine = () => ({ ...shipped, state: tempFolder(path.join(os.tmpdir(), 'rules-')) });
 const verdict = listen => evaluate(rulesIn(listen), factsIn(listen, 'mac'));
 const keep = (listen, name, value) => writeFileSync(filesOf(listen)[name], JSON.stringify(value));
 

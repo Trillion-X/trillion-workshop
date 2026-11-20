@@ -1,8 +1,9 @@
 // A recording is seen on the computer that captured it: its still first, then its strip of frames and its waveform,
 // in the browser preview maker's shape (computer/see-a-recording.mjs).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -52,7 +53,7 @@ test('a sound has a waveform and no still; a file with nothing to see answers nu
 // With the program this computer has (the folders the row names, then the place's own PATH), a real clip is seen end to end.
 const found = programIn(rows.seeing[0].search_path, rows.seeing[0].check[0]);
 test('a real clip is seen by the program on this computer', { skip: !found && 'no seeing program here' }, async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'seen-'));
+  const folder = tempFolder(join(tmpdir(), 'seen-'));
   const clip = join(folder, 'clip.mp4');
   execFileSync(found, ['-v', 'error', '-f', 'lavfi', '-i', 'testsrc=size=640x360:rate=25:duration=4', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=4', '-shortest', '-pix_fmt', 'yuv420p', clip]);
   const made = await seeWith({ ...rows.seeing[0], program: found, env: process.env }, clip);

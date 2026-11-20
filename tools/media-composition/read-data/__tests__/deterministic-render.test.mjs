@@ -11,11 +11,12 @@
  * flag ON producing BYTE-IDENTICAL mp4s (sha256), while the effect still visibly renders (not an empty
  * frame) so the identity is of real content, not of nothing (L155).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -40,7 +41,7 @@ function brightCols(file, ss) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'det-'));
+  const dir = tempFolder(join(tmpdir(), 'det-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -48,7 +49,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'det-render-'));
+  work = tempFolder(join(tmpdir(), 'det-render-'));
   gray = join(work, 'gray.mp4'); // flat mid-gray so effect content is unambiguous
   ffmpeg(['-f', 'lavfi', '-i', `color=0x555555:s=320x240:d=2:r=${FPS}`, '-pix_fmt', 'yuv420p', gray]);
 });

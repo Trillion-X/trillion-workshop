@@ -9,11 +9,12 @@
  *  (3) OFFLINE RENDER: feed the keep spans as trimmed segments, render, and the output DURATION collapses from
  *      2.0s to the keep total (~1.2s), the middle 0.8s of silence is gone, and two renders are byte-identical.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -29,7 +30,7 @@ const hashFile = (file) => '1f:' + Buffer.from(blake3(new Uint8Array(readFileSyn
 const dur = (file) => Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', file], { encoding: 'utf8' }).trim());
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'sil-'));
+  const dir = tempFolder(join(tmpdir(), 'sil-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -37,7 +38,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'sil-render-'));
+  work = tempFolder(join(tmpdir(), 'sil-render-'));
   // LOUD (0.6s tone) + SILENCE (0.8s) + LOUD (0.6s tone) = 2.0s. The middle silence is what jump-cut removes.
   clip = join(work, 'clip.mp4');
   ffmpeg(['-f', 'lavfi', '-i', `color=navy:s=${W}x${H}:d=2:r=${FPS}`,

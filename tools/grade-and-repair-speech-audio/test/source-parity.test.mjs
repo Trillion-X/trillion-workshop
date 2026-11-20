@@ -1,9 +1,10 @@
 // Compare the actual immutable source algorithms with their ports on one synthetic take.
 // Private source addresses stay in the contracts; no recording, model or provider is used.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test, { before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -52,7 +53,7 @@ function pinnedOriginal(name) {
 
 before(() => {
   if (skip) return;
-  work = mkdtempSync(join(tmpdir(), 'speech-source-parity-'));
+  work = tempFolder(join(tmpdir(), 'speech-source-parity-'));
   original = join(work, 'original'); current = join(work, 'current'); take = join(work, 'input');
   for (const path of [original, current]) mkdirSync(path);
   run(join(here, 'voice_take_fixture.py'), [take], 'synthetic take fixture');

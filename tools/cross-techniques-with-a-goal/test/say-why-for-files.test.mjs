@@ -1,9 +1,10 @@
 // tools/cross-techniques-with-a-goal: a library whose source files are JSON lines, and a writer behind a server that
 // batches only unseeded requests and wraps its JSON in a thinking block and a code fence.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,7 +12,7 @@ import { writer } from '../do-work/meaning.mjs';
 import { hashOf, rowsOfFile, sayWhyForFiles, sidecarOf } from '../do-work/say-why-for-files.mjs';
 
 test('a .jsonl source holds one row per line, and its sidecar is named without the .jsonl', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'say-why-files-'));
+  const folder = tempFolder(join(tmpdir(), 'say-why-files-'));
   const file = join(folder, 'made-up-rows.jsonl');
   writeFileSync(file, `${JSON.stringify({ id: 'r1', statement: 'Plant one bed first.' })}\n\n${JSON.stringify({ id: 'r2', statement: 'Water at dawn.' })}\n`);
   assert.deepEqual(rowsOfFile(file).map(row => row.id), ['r1', 'r2']);
@@ -22,7 +23,7 @@ test('a .jsonl source holds one row per line, and its sidecar is named without t
 });
 
 test('edited source content cannot expose or settle crossing fields from an older source hash', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'stale-crossing-'));
+  const folder = tempFolder(join(tmpdir(), 'stale-crossing-'));
   const file = join(folder, 'source.jsonl');
   const original = { id: 'r', statement: 'An earlier claim' };
   const proposed = { mechanism: [], operates_on: [], needs: [], produces: [], from_medium: 'fixture' };
@@ -35,7 +36,7 @@ test('edited source content cannot expose or settle crossing fields from an olde
 });
 
 test('reviewed exclusions hide only the exact source version and remove its stale inference on checkpoint', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'excluded-crossing-'));
+  const folder = tempFolder(join(tmpdir(), 'excluded-crossing-'));
   const file = join(folder, 'source.jsonl');
   const original = { id: 'r', statement: 'Unsupported earlier claim' };
   const kept = { id: 'keep', statement: 'Independent supported row' };
@@ -56,7 +57,7 @@ test('reviewed exclusions hide only the exact source version and remove its stal
 });
 
 test('a subset fold preserves unselected proposals without admitting their terms', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'subset-crossing-'));
+  const folder = tempFolder(join(tmpdir(), 'subset-crossing-'));
   const file = join(folder, 'source.jsonl');
   const source = [{ id: 'selected' }, { id: 'held' }];
   writeFileSync(file, source.map(row => JSON.stringify(row)).join('\n'));
@@ -124,7 +125,7 @@ test('a settle that stops keeps every part it finished, and the next settle fold
   });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   try {
-    const folder = mkdtempSync(join(tmpdir(), 'settle-parts-'));
+    const folder = tempFolder(join(tmpdir(), 'settle-parts-'));
     const file = join(folder, 'made-up-rows.jsonl');
     const rows = ['plant', 'water', 'weed'].map(word => ({ id: word, statement: `Made-up ${word} rule.` }));
     writeFileSync(file, rows.map(row => JSON.stringify(row)).join('\n'));

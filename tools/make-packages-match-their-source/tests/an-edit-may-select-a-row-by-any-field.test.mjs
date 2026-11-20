@@ -6,6 +6,7 @@
 // `match: { field, equals }`; absent, it is the address. These tests pin that
 // the default selects exactly what it always did, that a row can be selected by
 // any field, and that a selector matching nothing refuses before any write.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
@@ -17,7 +18,7 @@ import { fileURLToPath } from "node:url";
 const EDITOR = fileURLToPath(new URL("../do-work/apply-declared-manifest-record-edits.mjs", import.meta.url));
 
 function fixture(things) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "manifest-editor-"));
+  const dir = tempFolder(path.join(os.tmpdir(), "manifest-editor-"));
   const manifest = path.join(dir, "things-to-store-and-run.json");
   fs.writeFileSync(manifest, JSON.stringify({ package: "fixture", things }));
   return { dir, manifest };

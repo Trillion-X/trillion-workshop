@@ -2,9 +2,10 @@
 // binding tests keep their assertions; the old Drive under them is replaced by a stand-in keeper here with the same
 // three operations the module asks for (entryOf, keepFile with its compare-and-set gate, writeRefusal). The test of
 // the Drive's loopback HTTP routes for bindings went with that Drive. Every folder is a fresh temporary folder.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { lstatSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { lstatSync, mkdirSync, readFileSync, readlinkSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -36,14 +37,14 @@ function keeper() {
 }
 function mounted({ redirect = {} } = {}) {
   const k = keeper();
-  const home = mkdtempSync(path.join(tmpdir(), 'sync-home-'));
+  const home = tempFolder(path.join(tmpdir(), 'sync-home-'));
   const config = { ...settings().folder_bindings, redirect: { ...settings().folder_bindings.redirect, ...redirect } };
   const folderBindings = createFolderBindings({ ops: k.ops, config, file: path.join(home, 'state', 'bindings.json'), stateDir: path.join(home, 'state'), home,
     ignored: name => IGNORED.some(start => path.posix.basename(name).startsWith(start)) });
   return { ...k, folderBindings };
 }
 const folderWith = files => {
-  const root = mkdtempSync(path.join(tmpdir(), 'trillion-bound-'));
+  const root = tempFolder(path.join(tmpdir(), 'trillion-bound-'));
   for (const [name, content] of Object.entries(files)) { mkdirSync(path.dirname(path.join(root, name)), { recursive: true }); writeFileSync(path.join(root, name), content); }
   return root;
 };
@@ -91,11 +92,11 @@ test('a folder binding is refused unless its constraints hold, and a run sends o
 });
 
 test('redirect is off until turned on, moves nothing unless every file is proven stored, keeps the folder whole, and restore puts it back', async () => {
-  const local = path.join(mkdtempSync(path.join(tmpdir(), 'trillion-known-')), 'Documents');
+  const local = path.join(tempFolder(path.join(tmpdir(), 'trillion-known-')), 'Documents');
   mkdirSync(local);
   writeFileSync(path.join(local, 'plan.txt'), 'the plan');
   writeFileSync(path.join(local, 'empty.txt'), '');
-  const linkRoot = mkdtempSync(path.join(tmpdir(), 'trillion-link-'));
+  const linkRoot = tempFolder(path.join(tmpdir(), 'trillion-link-'));
   const off = mounted();
   const offBinding = await off.folderBindings.add({ local, target: '/Known/Documents' });
   await assert.rejects(off.folderBindings.redirect(offBinding.id), error => error.code === 'redirect_off');

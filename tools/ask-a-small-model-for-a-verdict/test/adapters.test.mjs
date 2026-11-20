@@ -1,8 +1,9 @@
 // The provider adapters read where to reach a model, and the key, only from the
 // provider row the person gave. Nothing comes from the environment or a default.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {mkdtempSync, writeFileSync} from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import {join} from 'node:path'
 import {tmpdir} from 'node:os'
 import {spawn} from 'node:child_process'
@@ -12,7 +13,7 @@ import {VerdictRefused} from '../do-work/ask-for-a-verdict.mjs'
 import {candidates as localCandidates, ask as askLocal} from '../do-work/ask-a-locally-served-model.mjs'
 
 const keyFile = contents => {
-  const path = join(mkdtempSync(join(tmpdir(), 'key-')), 'key.txt')
+  const path = join(tempFolder(join(tmpdir(), 'key-')), 'key.txt')
   writeFileSync(path, contents)
   return path
 }

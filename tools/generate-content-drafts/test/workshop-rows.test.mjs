@@ -1,7 +1,8 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -29,7 +30,7 @@ function runRow(row, input, root = repository) {
 }
 
 function packaged(row, run) {
-  const root = mkdtempSync(join(tmpdir(), 'content-rows-'));
+  const root = tempFolder(join(tmpdir(), 'content-rows-'));
   try {
     for (const spec of row.invoke.files.package_files) {
       const from = spec.package ? join(repository, 'tools', spec.package) : join(repository, 'node_modules', spec.module);
@@ -133,7 +134,7 @@ test('rows require caller DATA and never recover an absent document from old pre
 });
 
 test('the authorized local classifier accepts one complete definition and rejects ambiguous text', () => {
-  const root = mkdtempSync(join(tmpdir(), 'content-local-ai-'));
+  const root = tempFolder(join(tmpdir(), 'content-local-ai-'));
   try {
     const rules = join(root, 'rules.json');
     const command = join(owner, 'do-work/media-classify.mjs');

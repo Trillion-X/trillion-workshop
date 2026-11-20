@@ -1,8 +1,9 @@
 // Two arms scored from their recorded calls over one battery: a missing run is a 0 that stays in the denominator.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { batteryProblems, compareArms, scoreArm } from '../src/behavior-compare.mjs';
@@ -33,7 +34,7 @@ test('a self-reported success scores nothing, and a battery naming an unknown sc
 });
 
 test('the script prints the comparison for two trace files', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'arms-'));
+  const dir = tempFolder(join(tmpdir(), 'arms-'));
   writeFileSync(join(dir, 'a.json'), JSON.stringify(careful));
   writeFileSync(join(dir, 'b.json'), JSON.stringify(wasteful));
   const out = JSON.parse(execFileSync(process.execPath, [new URL('../scripts/compare-arms.mjs', import.meta.url).pathname, join(dir, 'a.json'), join(dir, 'b.json')], { encoding: 'utf8' }));

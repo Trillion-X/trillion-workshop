@@ -1,8 +1,9 @@
 // pick_gate.py against a throwaway film, the rows read from a made-up store (--stored) and a stand-in filmcraft-cli:
 // it refuses without the person's own pick, applies with one, and logs what it did. Made-up films, options and words.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -30,7 +31,7 @@ const stand = (option, stance, extra = {}) => {
 const optionId = option => stanceRecordId('film-option', artifactRef({ text: option }, foldWith(FOLD)));
 
 function world(records = []) {
-  const film = join(mkdtempSync(join(tmpdir(), 'pick-gate-')), 'film-one');
+  const film = join(tempFolder(join(tmpdir(), 'pick-gate-')), 'film-one');
   mkdirSync(join(film, 'filmcraft', 'options'), { recursive: true });
   writeFileSync(join(film, 'filmcraft', 'cut.fcproj'), '{}');
   writeFileSync(join(film, 'filmcraft', 'options', 'try.fcproj'), '{}');
@@ -114,7 +115,7 @@ test('--print shows the exact command and runs nothing', () => {
 
 test('an ops file outside the film is refused', () => {
   const { film, run } = world([stand('a', 'agree')]);
-  const elsewhere = join(mkdtempSync(join(tmpdir(), 'pick-gate-out-')), 'ops.jsonl');
+  const elsewhere = join(tempFolder(join(tmpdir(), 'pick-gate-out-')), 'ops.jsonl');
   writeFileSync(elsewhere, '{}\n');
   const result = run('apply', 'a', '--project', join(film, 'filmcraft', 'cut.fcproj'), '--ops', elsewhere);
   assert.equal(result.status, 1);

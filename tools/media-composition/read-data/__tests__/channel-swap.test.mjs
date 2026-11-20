@@ -12,11 +12,12 @@
  * is a CHANNEL CROSSOVER: a source with a pure RED bar (high R, low B) becomes a pure BLUE bar (low R, high B)
  * after an 'rb' swap. PLUS a byte-identical determinism proof. L155.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -43,7 +44,7 @@ function chan(raw, y, off, x0, x1) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'csw-'));
+  const dir = tempFolder(join(tmpdir(), 'csw-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -51,7 +52,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'csw-render-'));
+  work = tempFolder(join(tmpdir(), 'csw-render-'));
   red = join(work, 'red.mp4'); // a pure RED bar (r=240,g=20,b=20) on gray (110).
   ffmpeg(['-f', 'lavfi', '-i', `color=black:s=320x240:d=2:r=${FPS}`, '-vf', "geq=r='if(between(X,120,200),240,110)':g='if(between(X,120,200),20,110)':b='if(between(X,120,200),20,110)'", '-pix_fmt', 'yuv420p', red]);
 });

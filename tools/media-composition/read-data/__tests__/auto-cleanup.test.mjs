@@ -3,10 +3,11 @@
  * words, and the resulting remove-span decisions (authored right-to-left) shorten the
  * composition by exactly the removed total through composeTimeline.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,7 +16,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 let detectCleanupSpans, cleanupSpansInAuthorOrder, composeTimeline;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'cleanup-'));
+  const dir = tempFolder(join(tmpdir(), 'cleanup-'));
   const acOut = join(dir, 'ac.mjs');
   const ctOut = join(dir, 'ct.mjs');
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');

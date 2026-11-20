@@ -1,9 +1,10 @@
 // A long follow track (a 70 s reel tracked every 0.125 s) must render: ffmpeg refuses an expression nested past
 // about 100 levels, which the old if-chain hit at about 13 seconds of track ("The edit could not be rendered").
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -23,7 +24,7 @@ test('picks the same piece as the chain for every value, at log2 depth', () => {
 });
 
 test('a 70 s follow crop renders through video-compose', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'follow-'));
+  const dir = tempFolder(join(tmpdir(), 'follow-'));
   try {
     const source = join(dir, 'wide.mp4');
     execFileSync('ffmpeg', ['-v', 'error', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=8:duration=70', '-pix_fmt', 'yuv420p', source]);

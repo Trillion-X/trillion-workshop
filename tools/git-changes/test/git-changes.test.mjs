@@ -1,9 +1,10 @@
 // tools/git-changes: the command templates, the reading of `git status --porcelain --branch`, and the five tools run
 // against a real git in a throwaway folder (synthetic files and a made-up author), plus the rows that name them.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import * as tools from '../read-data/git-changes.mjs';
@@ -23,7 +24,7 @@ Object.assign(process.env, {
 });
 
 function pretendProject() {
-  const folder = realpathSync(mkdtempSync(join(tmpdir(), 'git-changes-')));
+  const folder = realpathSync(tempFolder(join(tmpdir(), 'git-changes-')));
   execFileSync('git', ['-C', folder, 'init', '-q', '-b', 'main']);
   writeFileSync(join(folder, 'notes.txt'), 'first line\n');
   execFileSync('git', ['-C', folder, 'add', '--', 'notes.txt']);
@@ -103,7 +104,7 @@ test('every refusal says what to give, and git\'s own words come back when git r
   await assert.rejects(tools.unstageChanges({ folder, paths: ['ok.txt', 7] }), /Give paths/);
   await assert.rejects(tools.commitChanges({ folder, message: '' }), /Give message/);
   await assert.rejects(tools.commitChanges({ folder, message: 'Nothing staged' }), /nothing to commit|nothing added to commit|no changes added/);
-  const notAProject = realpathSync(mkdtempSync(join(tmpdir(), 'git-changes-none-')));
+  const notAProject = realpathSync(tempFolder(join(tmpdir(), 'git-changes-none-')));
   await assert.rejects(tools.seeChangesInAProject({ folder: notAProject }), /not a git repository/);
 });
 

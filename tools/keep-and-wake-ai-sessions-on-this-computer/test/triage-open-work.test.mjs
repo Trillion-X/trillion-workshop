@@ -1,9 +1,10 @@
 // The step before a full AI run (harness/triage-open-work.mjs): a cheap model sorts each job this computer may take,
 // with what its chat said after it arrived; what is handled is closed, information gathered into one digest, and only
 // real work is left for the full run.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { candidates, laterMessages, modelCommand, runModels, runTriage, unread, verdictOf } from '../harness/triage-open-work.mjs';
@@ -107,7 +108,7 @@ test('only work this computer may take now is sorted: not named, not held, and p
 });
 
 test('what the chat said after the job arrived is read from its transcript, and nothing from before', () => {
-  const root = mkdtempSync(join(tmpdir(), 'triage-'));
+  const root = tempFolder(join(tmpdir(), 'triage-'));
   mkdirSync(join(root, 'p'), { recursive: true });
   writeFileSync(join(root, 'p', 's1.jsonl'), [
     { timestamp: '2026-09-30T08:00:00.000Z', type: 'user', message: { content: 'before' } },
@@ -121,7 +122,7 @@ test('what the chat said after the job arrived is read from its transcript, and 
 });
 
 test('a pass closes what is handled, gathers information into one digest, and leaves only real work for the full run', async () => {
-  const state = mkdtempSync(join(tmpdir(), 'triage-state-'));
+  const state = tempFolder(join(tmpdir(), 'triage-state-'));
   const settings = { ...base, state_folder: state };
   const agents = makeAgents({ store: agentStoreForTests(), now: () => new Date(NOW) });
   const ids = ['done already', 'just a status', 'please build it'].map((job, index) => agents.handOff({ job, request_key: `k${index}` }).handoff.handoff_id);
@@ -149,7 +150,7 @@ test('a pass closes what is handled, gathers information into one digest, and le
 });
 
 test('a model that answers nothing sorts nothing: no verdict is kept, and the pass stops asking it', async () => {
-  const state = mkdtempSync(join(tmpdir(), 'triage-silent-'));
+  const state = tempFolder(join(tmpdir(), 'triage-silent-'));
   const settings = { ...base, state_folder: state };
   const agents = makeAgents({ store: agentStoreForTests(), now: () => new Date(NOW) });
   for (let i = 0; i < 12; i += 1) agents.handOff({ job: `job ${i}`, request_key: `k${i}` });
@@ -163,7 +164,7 @@ test('a model that answers nothing sorts nothing: no verdict is kept, and the pa
 });
 
 test('a failed exact job read keeps sorting retryable', async () => {
-  const state = mkdtempSync(join(tmpdir(), 'triage-read-failed-'));
+  const state = tempFolder(join(tmpdir(), 'triage-read-failed-'));
   const settings = { ...base, state_folder: state };
   const agents = makeAgents({ store: agentStoreForTests(), now: () => new Date(NOW) });
   const id = agents.handOff({ job: 'Calculate 7 times 8', request_key: 'read-failed' }).handoff.handoff_id;
@@ -187,7 +188,7 @@ test('a model row that keeps answering nothing gives way to the next row for the
 });
 
 test('a job is sorted by the file it points at, and a job sorted to the full run before that is sorted once more', async () => {
-  const state = mkdtempSync(join(tmpdir(), 'triage-attached-'));
+  const state = tempFolder(join(tmpdir(), 'triage-attached-'));
   const settings = { ...base, state_folder: state };
   const agents = makeAgents({ store: agentStoreForTests(), now: () => new Date(NOW) });
   // Two jobs with the same standing words, told apart only by the words in the file each points at.
@@ -218,7 +219,7 @@ test('a job is sorted by the file it points at, and a job sorted to the full run
 });
 
 test('a job is sorted by the person\'s own words it shows, and one sorted to the full run without them is sorted once more', async () => {
-  const state = mkdtempSync(join(tmpdir(), 'triage-said-'));
+  const state = tempFolder(join(tmpdir(), 'triage-said-'));
   const settings = { ...base, state_folder: state };
   const agents = makeAgents({ store: agentStoreForTests(), now: () => new Date(NOW) });
   // Two jobs with the same standing words, told apart only by what the person wrote.
@@ -247,7 +248,7 @@ test('a job is sorted by the person\'s own words it shows, and one sorted to the
 });
 
 test('a pass that stops for want of an answer logs why each model row gave none', async () => {
-  const state = mkdtempSync(join(tmpdir(), 'triage-why-'));
+  const state = tempFolder(join(tmpdir(), 'triage-why-'));
   const settings = { ...base, state_folder: state, triage: { ...base.triage, models: [{ id: 'first', ai: 'claude' }, { id: 'second', ai: 'claude' }] } };
   const agents = makeAgents({ store: agentStoreForTests(), now: () => new Date(NOW) });
   agents.handOff({ job: 'please build it', request_key: 'k-why' });

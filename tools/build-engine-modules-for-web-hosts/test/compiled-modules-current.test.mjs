@@ -6,10 +6,11 @@
 // build/build-formula-evaluator.mjs rebuilds the Workshop's formula engine glue byte for byte from its crate.
 // The fingerprint and the rebuild need the engine's crates beside this checkout (../trillion-rust) and cargo; without
 // them those two tests say so and stop.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { BUILD_TOOL, BUILT_CRATES_FOLDER, TOOLS, WORKSHOP, committedModulesCurrent, missingCrateInput } from '../build/compiled-modules.mjs';
@@ -29,7 +30,7 @@ test('the committed crate modules match their crates\' sources', { skip: !exists
 });
 
 test('a partial sibling checkout names the crate input it lacks', () => {
-  const root = mkdtempSync(join(tmpdir(), 'partial-sibling-'));
+  const root = tempFolder(join(tmpdir(), 'partial-sibling-'));
   try {
     const base = join(root, 'workshop', 'tools');
     const dir = '../../trillion-rust/crates/content-crypto';
@@ -56,7 +57,7 @@ test('the composition engine slot takes its two host calls from the env import m
 
 test('build-formula-evaluator.mjs rebuilds the Workshop formula engine: the same glue, its module answers a rule it compiles, and its component answers the same request',
   { skip: (!existsSync(engineCrates) || !hasCargo) ? 'needs cargo and ../trillion-rust' : missingSkip(), timeout: 900_000 }, async () => {
-    const into = mkdtempSync(join(tmpdir(), 'formula-engine-'));
+    const into = tempFolder(join(tmpdir(), 'formula-engine-'));
     try {
       execFileSync(process.execPath, [join(BUILD_TOOL, 'build/build-formula-evaluator.mjs'), '--into', into], { stdio: ['ignore', 'ignore', 'inherit'] });
       const engine = path => join(TOOLS, 'formula-engine', path);

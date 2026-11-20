@@ -9,10 +9,11 @@
  * AND a real offline render where the pad on the shadow-offset side is darker than the opposite side and
  * the card center stays the source color.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -35,7 +36,7 @@ function meanRGB(file, { x, y, w, h }) {
 const lum = (p) => 0.299 * p.r + 0.587 * p.g + 0.114 * p.b;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'ds-'));
+  const dir = tempFolder(join(tmpdir(), 'ds-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -43,7 +44,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'ds-render-'));
+  work = tempFolder(join(tmpdir(), 'ds-render-'));
   src = join(work, 'green.mp4');
   ffmpeg(['-f', 'lavfi', '-i', 'color=c=green:s=320x240:d=1:r=24', '-pix_fmt', 'yuv420p', src]);
 });

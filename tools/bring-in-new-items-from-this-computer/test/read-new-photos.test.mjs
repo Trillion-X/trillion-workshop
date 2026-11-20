@@ -6,6 +6,7 @@
 // history that hands nothing on (computer/read-new-items.mjs, the `photos` row of computer/computer-sources.json).
 // A fixture Photos.sqlite stands in for the real library; the words in the fixture picture are read by Apple Vision
 // for real.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -55,7 +56,7 @@ function library(dir, assets) {
 }
 
 function setup(assets, {row = {}, clock = T0, see = null, keepSeen = null, copy = null, spent = null, held = null} = {}) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'photos-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'photos-'));
   if (held) fs.writeFileSync(path.join(dir, 'state.json'), JSON.stringify(held));
   const {root, store} = library(dir, assets);
   const state = {clock, sent: [], kept: [], seen: []};

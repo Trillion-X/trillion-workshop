@@ -8,10 +8,11 @@
  * aliases), materialize pass-through, AND a real offline render where luminance SPIKES at each beat time and
  * sits at baseline between them (L155 temporal), with a no-pulses regression that stays flat.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,7 +34,7 @@ function lum(file, ss) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'pulse-'));
+  const dir = tempFolder(join(tmpdir(), 'pulse-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -41,7 +42,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'pulse-render-'));
+  work = tempFolder(join(tmpdir(), 'pulse-render-'));
   src = join(work, 'gray.mp4');
   // a mid-gray source (lum ~64) so a positive brightness flash is unambiguous.
   ffmpeg(['-f', 'lavfi', '-i', 'color=0x404040:s=320x240:d=2:r=24', '-pix_fmt', 'yuv420p', src]);

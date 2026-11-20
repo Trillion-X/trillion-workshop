@@ -5,10 +5,11 @@
  * point at an already-produced matte. Person-segmentation is one DATA-selected matte producer.
  * The actual segmentation + composite is proven by the offline render (rembg u2net).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,7 +18,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 let composeTimeline, materializeExportEdl;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'matte-'));
+  const dir = tempFolder(join(tmpdir(), 'matte-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });

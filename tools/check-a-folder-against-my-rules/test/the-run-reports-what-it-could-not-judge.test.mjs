@@ -9,10 +9,11 @@
 // So this test builds a repository holding one of each of the three kinds and asserts the run
 // separates them. It uses a real `git init` rather than a stub, because the whole subject is what
 // git reports, and a stubbed git would let both counters be hardcoded to zero forever.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -48,7 +49,7 @@ function git(cwd, ...args) {
 }
 
 test('the run judges untracked source and counts deleted tracked paths separately', () => {
-  const repo = mkdtempSync(path.join(tmpdir(), 'declared-source-rules-'));
+  const repo = tempFolder(path.join(tmpdir(), 'declared-source-rules-'));
   try {
     git(repo, 'init', '--quiet');
     git(repo, 'config', 'user.email', 'test@example.invalid');
@@ -89,7 +90,7 @@ test('the run judges untracked source and counts deleted tracked paths separatel
 });
 
 test('a repository with nothing missing reports zero for both, so the counters can fail', () => {
-  const repo = mkdtempSync(path.join(tmpdir(), 'declared-source-rules-clean-'));
+  const repo = tempFolder(path.join(tmpdir(), 'declared-source-rules-clean-'));
   try {
     git(repo, 'init', '--quiet');
     git(repo, 'config', 'user.email', 'test@example.invalid');
@@ -121,7 +122,7 @@ test('a repository with nothing missing reports zero for both, so the counters c
 });
 
 test('rules given in a file outside the folder reject untracked source in it', () => {
-  const repo = mkdtempSync(path.join(tmpdir(), 'declared-source-rules-untracked-manifest-'));
+  const repo = tempFolder(path.join(tmpdir(), 'declared-source-rules-untracked-manifest-'));
   try {
     git(repo, 'init', '--quiet');
     git(repo, 'config', 'user.email', 'test@example.invalid');

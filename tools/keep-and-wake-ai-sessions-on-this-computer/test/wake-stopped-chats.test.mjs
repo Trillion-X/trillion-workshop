@@ -5,9 +5,10 @@
 // alone; a stopped lane is its own job unless a newer transcript of the same lane carried it on; a refused hand-out
 // is tried again on the next check and an accepted one never twice.
 
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { check, findStops, handOffOf, readRules } from '../harness/wake-handlers/wake-stopped-chats.mjs';
@@ -22,7 +23,7 @@ const testRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '.test-tmp'
 
 function world() {
   mkdirSync(testRoot, { recursive: true });
-  const root = mkdtempSync(join(testRoot, 'wake-stopped-'));
+  const root = tempFolder(join(testRoot, 'wake-stopped-'));
   const base = readRules();
   const rules = {
     ...base,

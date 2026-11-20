@@ -1,12 +1,13 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { judgeWaiting } from '../do-work/say-why-for-files.mjs';
 
 const fixture = () => {
-  const dir = mkdtempSync(join(tmpdir(), 'judge-waiting-'));
+  const dir = tempFolder(join(tmpdir(), 'judge-waiting-'));
   const request = { waiting_file: join(dir, 'waiting.json'), judgments_file: join(dir, 'judgments.json'), batch_size: 1, models: { writing: { model: 'test-judge' } } };
   writeFileSync(request.waiting_file, JSON.stringify(['first', 'second'].map(term => ({ vocabulary: 'property', term, says: term,
     candidates: [{ term: `${term}-candidate`, says: 'candidate meaning' }] }))));

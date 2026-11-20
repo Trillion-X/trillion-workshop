@@ -1,6 +1,7 @@
 // The person's redaction, and the same redaction on what the AI reads off the screen (read-data/ask-payload.mjs).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -8,7 +9,7 @@ import { askSettings, redactText } from '../read-data/ask-payload.mjs';
 import { makeScreenDriver, screenSettings } from '../read-data/drive-the-screen.mjs';
 
 const settings = askSettings();
-const homeOf = () => { const home = mkdtempSync(join(tmpdir(), 'ask-home-')); mkdirSync(`${home}/.trillion/capture`, { recursive: true }); return home; };
+const homeOf = () => { const home = tempFolder(join(tmpdir(), 'ask-home-')); mkdirSync(`${home}/.trillion/capture`, { recursive: true }); return home; };
 const redactOn = home => writeFileSync(`${home}/.trillion/capture/ask-prefs.json`, JSON.stringify({ redact: true }));
 
 test('the patterns replace card numbers, emails, secret keys and id numbers, and count each replacement', () => {

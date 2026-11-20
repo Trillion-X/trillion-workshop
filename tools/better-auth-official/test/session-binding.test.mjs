@@ -2,15 +2,16 @@
 //
 // Better Auth issue #11461 (a pass bound to its session): what a renewal gives after the browser session it began in has ended, on a
 // made-up account of a scratch store. Measured here, not assumed: the answer and whether our engine's standing check admits the pass.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash, randomBytes } from 'node:crypto';
 import { startStore } from '../test-fixtures/embedded-store.mjs';
 
-const dir = mkdtempSync(join(tmpdir(), 'session-binding-'));
+const dir = tempFolder(join(tmpdir(), 'session-binding-'));
 const settings = { ...JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8')), email_password: { require_verification: false }, disabled_paths: [] };
 writeFileSync(join(dir, 'settings.json'), JSON.stringify(settings));
 process.env.BETTER_AUTH_SETTINGS = join(dir, 'settings.json');

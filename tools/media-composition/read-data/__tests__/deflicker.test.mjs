@@ -9,11 +9,12 @@
  * frames COLLAPSES after deflicker (the rolling average cancels the oscillation), while a no-effect render keeps
  * the full swing. PLUS output changes vs no effect, two runs are byte-identical, and a fragment/clamp unit.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -43,7 +44,7 @@ function frameMeans(file) {
 const stddev = (a) => { const m = a.reduce((x, y) => x + y, 0) / a.length; return Math.sqrt(a.reduce((x, y) => x + (y - m) ** 2, 0) / a.length); };
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'dfl-'));
+  const dir = tempFolder(join(tmpdir(), 'dfl-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -51,7 +52,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'dfl-render-'));
+  work = tempFolder(join(tmpdir(), 'dfl-render-'));
   // whole-frame brightness HARD-FLICKERS per frame: N even => 228, N odd => 28 (uniform per frame).
   flicker = join(work, 'flicker.mp4');
   ffmpeg(['-f', 'lavfi', '-i', `color=black:s=${W}x${H}:d=0.6:r=${FPS}`,

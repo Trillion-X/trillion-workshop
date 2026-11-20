@@ -4,10 +4,11 @@
  * forwards them to the EDL clip; video-compose runs the vidstab two-pass. The actual jitter
  * reduction is proven by the offline render (inter-frame motion drops).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,7 +17,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 let composeTimeline, materializeExportEdl;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'stab-'));
+  const dir = tempFolder(join(tmpdir(), 'stab-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });

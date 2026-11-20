@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import rows from '../tool-rows.json' with { type: 'json' };
@@ -8,7 +9,7 @@ import { answerOf } from '../../../test-helpers/run-a-row.mjs';
 import { collectAndRefresh } from '../read-data/collect.mjs';
 
 test('direct wake consumer answers its rows through the actual shared process row without creating a task', async t => {
-  const root = await mkdtemp(path.join(tmpdir(), 'direct-measurement-wake-'));
+  const root = tempFolder(path.join(tmpdir(), 'direct-measurement-wake-'));
   t.after(() => rm(root, { recursive: true, force: true }));
   const source = path.join(root, 'source'), receipts = path.join(root, 'receipts');
   await mkdir(source); await mkdir(receipts);

@@ -11,10 +11,11 @@
  * render still rise across the block (a base-vs-filtered + within-frame proof that the blocking actually
  * happened), and adjacent blocks differ (so it is not a global flat fill). L155.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -41,7 +42,7 @@ function meanR(raw, x, y) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'pix-'));
+  const dir = tempFolder(join(tmpdir(), 'pix-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -49,7 +50,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'pix-render-'));
+  work = tempFolder(join(tmpdir(), 'pix-render-'));
   grad = join(work, 'grad.mp4'); // exact horizontal black->white luma ramp (left dark, right bright)
   // Computed per pixel by `geq`, which has no random input. This was a `gradients` source, a
   // RANDOM-gradient generator whose pattern is unpinned between runs; the sibling split-tone suite

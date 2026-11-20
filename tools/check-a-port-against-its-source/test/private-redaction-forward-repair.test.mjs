@@ -1,9 +1,10 @@
 // Real synthetic Git histories keep source chronology separate from privacy and current repair.
 // These controls grant no public admission and do not adopt a forward-repair schema.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -40,7 +41,7 @@ function commit(root, files, message) {
 function fixture(t, { priorAdaptation = false, rawRevert = false, archiveOnly = false,
   changedCapture = false, freshOwner = false, adoption = 'live', sourceText = SOURCE,
   copiedText = sourceText, redactions, requiredMechanism = 'function preserveRows3', retainedAdapter = false } = {}) {
-  const home = mkdtempSync(join(tmpdir(), 'private-redaction-forward-'));
+  const home = tempFolder(join(tmpdir(), 'private-redaction-forward-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const old = join(home, 'original-owner'), root = join(home, 'receiving-owner');
   for (const folder of [old, root]) {

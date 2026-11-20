@@ -1,5 +1,6 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync, readdirSync, readFileSync, existsSync } from "node:fs";
+import { writeFileSync, readdirSync, readFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -34,7 +35,7 @@ test("package DATA never persists private app forwarding transport", () => {
 });
 
 test("the current shell-ready owner publishes a socket path and that exact transport is read", () => {
-  const home = mkdtempSync(path.join(tmpdir(), "running-app-owner-"));
+  const home = tempFolder(path.join(tmpdir(), "running-app-owner-"));
   const statusFile = path.join(home, "this-bitfield-shell-is-ready.json");
   writeFileSync(statusFile, JSON.stringify({
     schema: "bitfield.this_bitfield_shell_is_ready",
@@ -45,7 +46,7 @@ test("the current shell-ready owner publishes a socket path and that exact trans
 });
 
 test("a legacy owner status remains readable without overriding the current attachment field", () => {
-  const home = mkdtempSync(path.join(tmpdir(), "running-app-owner-"));
+  const home = tempFolder(path.join(tmpdir(), "running-app-owner-"));
   const legacyStatusFile = path.join(home, "legacy-status.json");
   writeFileSync(legacyStatusFile, JSON.stringify({
     shell_attachments: { forwarding_socket: "/tmp/legacy-app/shell.sock" },
@@ -67,21 +68,21 @@ test("a legacy owner status remains readable without overriding the current atta
 });
 
 test("a deployment that declared a TCP listen address is reached by the URL it published", () => {
-  const home = mkdtempSync(path.join(tmpdir(), "running-app-owner-"));
+  const home = tempFolder(path.join(tmpdir(), "running-app-owner-"));
   const statusFile = path.join(home, "runtime-app-authority-status.json");
   writeFileSync(statusFile, JSON.stringify({ shell_attachments: { http_url: "http://store.example:8080" } }));
   assert.deepEqual(findRunningAppTransport({ statusFile }), { url: "http://store.example:8080", statusFile });
 });
 
 test("an owner that has published no transport is an app that has not opened, never a guess", () => {
-  const home = mkdtempSync(path.join(tmpdir(), "running-app-owner-"));
+  const home = tempFolder(path.join(tmpdir(), "running-app-owner-"));
   const statusFile = path.join(home, "runtime-app-authority-status.json");
   writeFileSync(statusFile, JSON.stringify({ shell_attachments: {} }));
   assert.throws(() => findRunningAppTransport({ statusFile }), /publishes no shell transport/);
 });
 
 test("a stopped current shell-ready owner is refused before its stale socket can be dialled", () => {
-  const home = mkdtempSync(path.join(tmpdir(), "running-app-owner-"));
+  const home = tempFolder(path.join(tmpdir(), "running-app-owner-"));
   const statusFile = path.join(home, "this-bitfield-shell-is-ready.json");
   writeFileSync(statusFile, JSON.stringify({
     runner_state: "stopped",
@@ -104,7 +105,7 @@ test("the status file path is a pure function of the app id and carries no addre
 });
 
 test("a session over a Unix socket boots and sends targets with no network address anywhere", async () => {
-  const home = mkdtempSync(path.join(tmpdir(), "running-app-socket-"));
+  const home = tempFolder(path.join(tmpdir(), "running-app-socket-"));
   const socketPath = path.join(home, "shell.sock");
   const seen = [];
   const server = http.createServer((request, reply) => {
@@ -147,7 +148,7 @@ test("a session over a Unix socket boots and sends targets with no network addre
 });
 
 test("an exact status file cannot be confused with another installation sharing the same app id", async () => {
-  const home = mkdtempSync(path.join(tmpdir(), "same-id-installations-"));
+  const home = tempFolder(path.join(tmpdir(), "same-id-installations-"));
   const installations = [];
   for (const name of ["canonical", "blank-customer-proof"]) {
     const socketPath = path.join(home, `${name}.sock`);
@@ -185,7 +186,7 @@ test("an exact status file cannot be confused with another installation sharing 
 });
 
 test("retained concurrent consumers follow repeated authority turnover and refuse unavailable status", async () => {
-  const home = mkdtempSync(path.join(tmpdir(), "authority-turnover-"));
+  const home = tempFolder(path.join(tmpdir(), "authority-turnover-"));
   const statusFile = path.join(home, "status.json");
   const servers = [];
   const publish = (generation, lifecycle_state = "running") => writeFileSync(statusFile, JSON.stringify({
@@ -534,7 +535,7 @@ function response(status, value) {
  * surfacing three time zones downstream as "your basis is missing."
  */
 test("fetchOverUnixSocket forwards headers from all three fetch API shapes", async () => {
-  const home = mkdtempSync(path.join(tmpdir(), "socket-header-shapes-"));
+  const home = tempFolder(path.join(tmpdir(), "socket-header-shapes-"));
   const socketPath = path.join(home, "shell.sock");
   const seenPerRequest = [];
   const server = http.createServer((request, response) => {

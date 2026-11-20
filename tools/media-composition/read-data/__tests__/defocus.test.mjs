@@ -9,11 +9,12 @@
  * (near-zero intermediate tones) becomes a SPREAD ramp full of mid-tone columns, while flat regions far from
  * the edge keep their tone, PLUS a byte-identical determinism proof (gblur is reproducible). L155.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -45,7 +46,7 @@ function midToneCols(raw, x0, x1, y) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'def-'));
+  const dir = tempFolder(join(tmpdir(), 'def-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -53,7 +54,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'def-render-'));
+  work = tempFolder(join(tmpdir(), 'def-render-'));
   edge = join(work, 'edge.mp4'); // hard vertical edge: left 40, right 220, at x=160
   ffmpeg(['-f', 'lavfi', '-i', `color=black:s=320x240:d=2:r=${FPS}`, '-vf', "geq=lum='if(lt(X,160),40,220)':cb=128:cr=128", '-pix_fmt', 'yuv420p', edge]);
 });

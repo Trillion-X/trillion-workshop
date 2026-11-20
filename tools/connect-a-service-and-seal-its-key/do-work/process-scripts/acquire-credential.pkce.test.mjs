@@ -19,10 +19,11 @@
 // Register with the active harness so both the package-wide Vitest command and
 // the documented standalone Node command execute this real-process proof.
 const { test } = process.env.VITEST ? await import('vitest') : await import('node:test');
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import crypto from 'node:crypto';
-import { mkdtemp, writeFile, readFile, rm } from 'node:fs/promises';
+import { writeFile, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
@@ -88,7 +89,7 @@ function startProvider({ seen, tokenError = null }) {
 async function runAcquire({ descriptor, client, tokenError = null }) {
   const seen = {};
   const { server, port } = await startProvider({ seen, tokenError });
-  const work = await mkdtemp(path.join(tmpdir(), 'acq-test-'));
+  const work = tempFolder(path.join(tmpdir(), 'acq-test-'));
   try {
     descriptor = {
       ...descriptor,

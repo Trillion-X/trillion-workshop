@@ -7,10 +7,11 @@
  * adds none. A PURE test proves the title rides a textfile (never text=, so a `:`/`'` in the title cannot break the
  * graph) and that a malformed color is sanitized to a safe token.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { burnCoverText, coverTextDrawFilter, safeColor } from '../../do-work/author-cover-text.mjs';
@@ -32,7 +33,7 @@ print(n)`;
 }
 
 before(() => {
-  work = mkdtempSync(join(tmpdir(), 'cover-t-'));
+  work = tempFolder(join(tmpdir(), 'cover-t-'));
   poster = join(work, 'poster.png');
   ffmpeg(['-f', 'lavfi', '-i', 'color=c=0x102040:s=640x360', '-frames:v', '1', poster]);   // solid dark blue, no bright pixels
 });

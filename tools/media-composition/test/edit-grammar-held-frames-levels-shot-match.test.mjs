@@ -1,11 +1,12 @@
 // The edit grammar a frame-exact cut needs, rendered through video-compose on made-up sources (ffmpeg lavfi):
 // a held still frame, an exact frame count, a narration placement brought to a loudness, a two-pass linear master,
 // and the shot match that writes one LUT per measured clip.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile, execFileSync, spawnSync } from 'node:child_process';
 import { promisify } from 'node:util';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,7 +14,7 @@ import { measureLoudness } from '../do-work/measure-loudness.mjs';
 import { cubeText, lab, matchShots, rgbOf } from '../do-work/match-shots.mjs';
 
 const root = resolve(fileURLToPath(new URL('../', import.meta.url)));
-const made = mkdtempSync(join(tmpdir(), 'edit-grammar-'));
+const made = tempFolder(join(tmpdir(), 'edit-grammar-'));
 const ENCODE = { width: 64, height: 36, fps: '24/1', crf: 4, preset: 'ultrafast' };
 
 function lavfi(name, graph, extra = []) {
@@ -26,7 +27,7 @@ const run = promisify(execFile);
 
 async function render(name, edl) {
   const out = join(made, `${name}.mp4`);
-  const work = mkdtempSync(join(made, `${name}-work-`));
+  const work = tempFolder(join(made, `${name}-work-`));
   const edlFile = join(made, `${name}.edl.json`);
   writeFileSync(edlFile, JSON.stringify(edl));
   await run(process.execPath, [join(root, 'do-work/video-compose.mjs'), '--edl', edlFile, '--out', out, '--workdir', work], { encoding: 'utf8', timeout: 240000 });

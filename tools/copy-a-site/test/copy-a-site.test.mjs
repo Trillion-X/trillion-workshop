@@ -5,10 +5,11 @@
 // proves that the copier's own fetches and its browser both go through that proxy. Checks that a page keeps what its
 // script drew and loses the script, a linked page is kept as a folder index, a picture a style sheet uses is kept,
 // every address points at the copy, and another site stays linked. Needs Chromium (Playwright's, from devDependencies).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import { createServer, request as httpRequest } from 'node:http';
 import { connect } from 'node:net';
 import { tmpdir } from 'node:os';
@@ -93,7 +94,7 @@ test('page and asset addresses become files the host serves', () => {
 });
 
 test('a live site copies through the proxy: drawn words kept, scripts gone, links and pictures point at the copy', { timeout: 120000 }, async () => {
-  const out = mkdtempSync(join(tmpdir(), 'copy-a-site-test-'));
+  const out = tempFolder(join(tmpdir(), 'copy-a-site-test-'));
   try {
     await withProxy(async (proxy, asked) => {
       const origin = `http://${HOST}`;
@@ -126,7 +127,7 @@ test('a live site copies through the proxy: drawn words kept, scripts gone, link
 });
 
 test('a start address that is not a web address is refused before anything is asked', async () => {
-  const out = mkdtempSync(join(tmpdir(), 'copy-a-site-test-'));
+  const out = tempFolder(join(tmpdir(), 'copy-a-site-test-'));
   try {
     for (const url of ['file:///etc/passwd', 'https://user:pass@example.com/', 'not an address']) {
       const { status, stderr } = await runTool({ url }, out, 'http://127.0.0.1:9');

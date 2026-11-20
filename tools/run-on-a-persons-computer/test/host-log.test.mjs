@@ -3,9 +3,10 @@
 // What the Mac host does with the lines it logs (computer/host-log.mjs, started by computer/mac-tools.mjs start): the original
 // log always gets the line, a sealed local file keeps it for the holder of the reader's private key only when a reader key is
 // set, and a failure line becomes a sampled, scrubbed report only when a sink exists.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { hostLog } from '../host-log.mjs';
@@ -14,7 +15,7 @@ import { generateReaderKeys, openAll } from '../sealed-log.mjs';
 
 test('nothing is sealed or reported until the DATA rows are filled: the shipped host only passes lines on', () => {
   const seen = [];
-  const home = mkdtempSync(join(tmpdir(), 'hostlog-'));
+  const home = tempFolder(join(tmpdir(), 'hostlog-'));
   const log = hostLog({ settings: settingsOf(), log: line => seen.push(line), home });
   log({ mac_tools_start_failed: 'x' });
   log.close();
@@ -24,7 +25,7 @@ test('nothing is sealed or reported until the DATA rows are filled: the shipped 
 
 test('started by the host, a failure line is passed on, sealed for the reader, and reported once if the launch is sampled', async () => {
   const readers = generateReaderKeys();
-  const home = mkdtempSync(join(tmpdir(), 'hostlog-'));
+  const home = tempFolder(join(tmpdir(), 'hostlog-'));
   const shipped = settingsOf();
   const settings = { ...shipped, host_log: { ...shipped.host_log, sealed: { ...shipped.host_log.sealed, reader_public_key: readers.publicKey.toString('base64') } } };
   const seen = [], reported = [];

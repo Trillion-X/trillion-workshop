@@ -1,9 +1,10 @@
 // Readiness must prove actual packages in the admitted dependency projection; a missing program, empty answer,
 // wrong package version, missing import or module from another prefix cannot turn into a ready environment.
+import { tempFolder } from '../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { configuration, pythonForTests, pythonProfile, pythonRuntime, verifyPythonEnvironment } from '../test-helpers/python-environment.mjs';
@@ -49,7 +50,7 @@ test('only a declared profile selects dependencies and an isolated runtime', () 
 });
 
 test('wrong versions, absent modules and imports outside the dependency prefix refuse readiness', t => {
-  const folder = mkdtempSync(join(tmpdir(), 'python-readiness-test-'));
+  const folder = tempFolder(join(tmpdir(), 'python-readiness-test-'));
   t.after(() => rmSync(folder, { recursive: true, force: true }));
   const path = join(folder, 'configuration.json');
   const python = pythonForTests();

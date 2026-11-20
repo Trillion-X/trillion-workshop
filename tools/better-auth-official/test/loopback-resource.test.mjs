@@ -3,16 +3,17 @@
 // A person's own engine names itself as the resource an AI asks for (its loopback address, a port, /mcp), one per computer, so no list of them
 // can be configured: such a resource is accepted when it is exactly a host of settings.mcp.loopback_resources over http at a port with the
 // path, and every other resource is refused as before (the sign-in tool's own door stays configured).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash, randomBytes } from 'node:crypto';
 import { startStore } from '../test-fixtures/embedded-store.mjs';
 import { loopbackResource } from '../loopback-resource.mjs';
 
-const dir = mkdtempSync(join(tmpdir(), 'loopback-resource-'));
+const dir = tempFolder(join(tmpdir(), 'loopback-resource-'));
 const settings = { ...JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8')), email_password: { require_verification: false }, disabled_paths: [], email: { sender: null, from: null } };
 writeFileSync(join(dir, 'settings.json'), JSON.stringify(settings));
 process.env.BETTER_AUTH_SETTINGS = join(dir, 'settings.json');

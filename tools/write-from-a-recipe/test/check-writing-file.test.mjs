@@ -1,7 +1,8 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, symlinkSync, rmSync } from 'node:fs';
+import { writeFileSync, symlinkSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,7 +11,7 @@ import { checkWritingFile } from '../do-work/check-writing-file.mjs';
 const command = fileURLToPath(new URL('../do-work/check-writing-file.mjs', import.meta.url));
 
 test('a granted file reaches the ordinary gate and returns only the gate result', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'writing-file-'));
+  const folder = tempFolder(join(tmpdir(), 'writing-file-'));
   try {
     writeFileSync(join(folder, 'input.json'), JSON.stringify({ recipe: {}, writing: { draft_text: 'Private draft.' }, private_source: 'must not be returned' }));
     const result = checkWritingFile({ file: 'input.json' }, { folder, maxBytes: 4096 });
@@ -20,7 +21,7 @@ test('a granted file reaches the ordinary gate and returns only the gate result'
 });
 
 test('caller recipe override is applied before the shared gate runs', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'writing-file-'));
+  const folder = tempFolder(join(tmpdir(), 'writing-file-'));
   try {
     writeFileSync(join(folder, 'input.json'), JSON.stringify({ recipe: {}, writing: { draft_text: 'Private draft.' } }));
     assert.throws(() => checkWritingFile({ file: 'input.json', recipe_id: 'missing-recipe' }, { folder }), /No writing recipe is named missing-recipe/);
@@ -29,7 +30,7 @@ test('caller recipe override is applied before the shared gate runs', () => {
 });
 
 test('the command reports a malformed file with a code, never its source excerpt', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'writing-file-'));
+  const folder = tempFolder(join(tmpdir(), 'writing-file-'));
   const privateText = 'private source excerpt that must not leak';
   try {
     writeFileSync(join(folder, 'bad.json'), privateText);
@@ -42,8 +43,8 @@ test('the command reports a malformed file with a code, never its source excerpt
 });
 
 test('outside links, traversal, oversized and malformed inputs cannot reach the gate', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'writing-file-'));
-  const outside = mkdtempSync(join(tmpdir(), 'writing-outside-'));
+  const folder = tempFolder(join(tmpdir(), 'writing-file-'));
+  const outside = tempFolder(join(tmpdir(), 'writing-outside-'));
   try {
     writeFileSync(join(outside, 'source.json'), '{}');
     symlinkSync(join(outside, 'source.json'), join(folder, 'link.json'));

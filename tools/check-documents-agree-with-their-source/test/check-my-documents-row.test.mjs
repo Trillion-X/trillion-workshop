@@ -1,10 +1,11 @@
 // tools/check-documents-agree-with-their-source: the row is the shape the engine runs on the person's computer, and the
 // command, run the way the engine runs it (the granted folder in argv, the input on standard input, the answer on the
 // last line), answers over a made-up folder.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -17,7 +18,7 @@ function run(granted, input) {
 }
 
 function guides(t, files) {
-  const root = mkdtempSync(join(tmpdir(), 'check-my-documents-'));
+  const root = tempFolder(join(tmpdir(), 'check-my-documents-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   for (const [name, text] of Object.entries(files)) writeFileSync(join(root, name), text);
   return root;

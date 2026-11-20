@@ -4,9 +4,10 @@
 // message that did not go says so, a code's life and tries are what the pages say, an address nobody proved cannot be taken
 // with a password, a person who signed in without a password can add one, a one-time link adds a passkey on another device and
 // lives a day, and a person changes their address.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pageAnswer } from '../pages.mjs';
@@ -27,7 +28,7 @@ let caller = 0; // each request comes from its own address, because the rate lim
 
 // A scratch Better Auth on the shipped settings and what a test changes, sending its mail to the stand-in sender.
 async function scratch(overrides = {}) {
-  const dir = mkdtempSync(join(tmpdir(), 'sign-in-edge-'));
+  const dir = tempFolder(join(tmpdir(), 'sign-in-edge-'));
   const settings = { ...shipped, disabled_paths: [], email: sender.email, ...overrides };
   writeFileSync(join(dir, 'settings.json'), JSON.stringify(settings));
   process.env.BETTER_AUTH_SETTINGS = join(dir, 'settings.json');

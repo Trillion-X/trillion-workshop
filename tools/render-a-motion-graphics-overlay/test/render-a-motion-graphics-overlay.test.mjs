@@ -1,10 +1,11 @@
 // tools/render-a-motion-graphics-overlay: the row's command takes the look row (as main's makeRecord writes it, settings as
 // JSON text) and the piece's spec in the request, with no records door, and renders; the Python tests run beside it. Needs python3 with Pillow,
 // numpy and OpenCV, and ffmpeg; without them the render tests are skipped with the reason.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Readable, Writable } from 'node:stream';
@@ -50,7 +51,7 @@ test('the row holds no records door and does not accept a row id', () => {
 });
 
 test('the command renders a piece from the film\'s look row and the piece\'s spec', { skip: missing, timeout: 300_000 }, async () => {
-  const out = mkdtempSync(join(tmpdir(), 'overlay-'));
+  const out = tempFolder(join(tmpdir(), 'overlay-'));
   try {
     let printed = '';
     const sink = new Writable({ write(chunk, _e, done) { printed += chunk; done(); } });

@@ -1,14 +1,15 @@
 // tools/workflows/read-data/host-actions.mjs: the run's host actions, through a fake native side on the descriptor route.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { openHostActions } from '../read-data/host-actions.mjs';
 
 const noWait = async () => {};
 function descriptorWith(extra = {}) {
-  const descriptor = join(mkdtempSync(join(tmpdir(), 'host-actions-')), 'descriptor.json');
+  const descriptor = join(tempFolder(join(tmpdir(), 'host-actions-')), 'descriptor.json');
   writeFileSync(descriptor, JSON.stringify({ url: 'http://127.0.0.1:1/mcp', resource: '@own-records',
     capability: 'synthetic-private-bearer', computer_actions: { resource: '@synthetic-parent', trash_source: 'synthetic:trash' }, ...extra }));
   return descriptor;

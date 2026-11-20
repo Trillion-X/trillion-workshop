@@ -1,17 +1,18 @@
 // The pin of a commit is the engine's manifest identity of exactly the files `git archive` holds: long and non-ASCII names
 // read whole, links left out, keys in byte order (a name that looks like a number is not moved first), and only a full
 // commit at an https address is pinned.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync } from 'node:fs';
+import { mkdirSync, writeFileSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { duplicateLayouts, layoutProblems, layoutReport, pinOf, tarFiles } from '../do-work/pin-a-commit-by-its-files.mjs';
 
 test('a commit is pinned by exactly its archived files, in the engine\'s identity', () => {
-  const repository = mkdtempSync(join(tmpdir(), 'pin-a-commit-'));
+  const repository = tempFolder(join(tmpdir(), 'pin-a-commit-'));
   const git = (...args) => execFileSync('git', ['-C', repository, ...args], { encoding: 'utf8' }).trim();
   git('init', '-q');
   const long = `${'a-folder-with-a-long-name/'.repeat(5)}a-file.json`;
@@ -36,7 +37,7 @@ test('a commit is pinned by exactly its archived files, in the engine\'s identit
 });
 
 test('a commit whose layout would stop runs is not pinned: a laid-out file it lacks, or a package folder placed twice', () => {
-  const repository = mkdtempSync(join(tmpdir(), 'pin-a-layout-'));
+  const repository = tempFolder(join(tmpdir(), 'pin-a-layout-'));
   const git = (...args) => execFileSync('git', ['-C', repository, ...args], { encoding: 'utf8' }).trim();
   git('init', '-q');
   const commitWith = (layout, extra = {}) => {
@@ -71,7 +72,7 @@ test('a row that lays one place twice is found by duplicateLayouts: a packages e
 });
 
 test('a commit that lays a path inside a folder it lays whole is not pinned', () => {
-  const repository = mkdtempSync(join(tmpdir(), 'pin-a-inside-'));
+  const repository = tempFolder(join(tmpdir(), 'pin-a-inside-'));
   const git = (...args) => execFileSync('git', ['-C', repository, ...args], { encoding: 'utf8' }).trim();
   git('init', '-q');
   const files = { 'tools/kit/read-data/one.mjs': 'export {}', 'package-files.json': JSON.stringify({ 'tool:a': [
@@ -85,7 +86,7 @@ test('a commit that lays a path inside a folder it lays whole is not pinned', ()
 });
 
 test('a commit whose paths entry lays one path twice is not pinned', () => {
-  const repository = mkdtempSync(join(tmpdir(), 'pin-a-twice-'));
+  const repository = tempFolder(join(tmpdir(), 'pin-a-twice-'));
   const git = (...args) => execFileSync('git', ['-C', repository, ...args], { encoding: 'utf8' }).trim();
   git('init', '-q');
   const files = { 'tools/kit/do-work/run.mjs': 'export {}', 'package-files.json': JSON.stringify({ 'tool:a': [
@@ -105,7 +106,7 @@ test('a container tool row that names package files needs its key in package-fil
     invoke: { kind: 'container', files: packageFiles === undefined ? {} : { package_files: packageFiles } } } }] });
   const laid = [{ package: 'kit', paths: ['do-work/run.mjs'], at: '/opt/kit' }];
   const commitOf = (name, files) => {
-    const repository = mkdtempSync(join(tmpdir(), `pin-a-container-${name}-`));
+    const repository = tempFolder(join(tmpdir(), `pin-a-container-${name}-`));
     const git = (...args) => execFileSync('git', ['-C', repository, ...args], { encoding: 'utf8' }).trim();
     git('init', '-q');
     for (const [path, text] of Object.entries(files)) { mkdirSync(join(repository, path, '..'), { recursive: true }); writeFileSync(join(repository, path), text); }
@@ -127,7 +128,7 @@ test('a container tool row that names package files needs its key in package-fil
 });
 
 test('a landing is judged by the problems its commit adds against its parent: an origin problem is existing, a new keyless row is added', () => {
-  const repository = mkdtempSync(join(tmpdir(), 'pin-a-report-'));
+  const repository = tempFolder(join(tmpdir(), 'pin-a-report-'));
   const git = (...args) => execFileSync('git', ['-C', repository, ...args], { encoding: 'utf8' }).trim();
   git('init', '-q');
   const container = id => JSON.stringify({ records: [{ payload: { kind: 'ai-tool-descriptor', id,

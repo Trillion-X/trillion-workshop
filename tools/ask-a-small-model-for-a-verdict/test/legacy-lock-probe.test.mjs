@@ -1,8 +1,9 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import {test, mock} from 'node:test'
 import assert from 'node:assert/strict'
 import childProcess from 'node:child_process'
 import {syncBuiltinESMExports} from 'node:module'
-import {mkdtempSync, writeFileSync, utimesSync, readFileSync} from 'node:fs'
+import { writeFileSync, utimesSync, readFileSync } from 'node:fs'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
 import {holdCacheLock, releaseCacheLock, kernelOpenLocksIn} from '../do-work/ask-for-a-verdict.mjs'
@@ -21,7 +22,7 @@ test('legacy recovery keeps the complete holder scan and five-second bound; unkn
     {status: 0, stdout: 'not a PID\n', stderr: ''},
   ]
   for (const answer of cases) {
-    const path = join(mkdtempSync(join(tmpdir(), 'legacy-lock-probe-')), 'cache.json')
+    const path = join(tempFolder(join(tmpdir(), 'legacy-lock-probe-')), 'cache.json')
     writeFileSync(`${path}.lock`, '', {mode: 0o600})
     const old = new Date(Date.now() - 60 * 60 * 1000)
     utimesSync(`${path}.lock`, old, old)

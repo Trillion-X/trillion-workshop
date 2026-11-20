@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync, writeFileSync, readFileSync, rmSync, statSync} from 'node:fs';
+import { writeFileSync, readFileSync, rmSync, statSync } from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {spawnSync} from 'node:child_process';
@@ -9,7 +10,7 @@ import {hashBuffers, literalPieces, verifySourceSpans} from '../do-work/verify-s
 const hash = bytes => hashBuffers([Buffer.from(bytes)])[0];
 
 test('literal byte spans preserve Unicode, case and explicit positions', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'source-spans-'));
+  const folder = tempFolder(join(tmpdir(), 'source-spans-'));
   try {
     const path = join(folder, 'source.txt'), text = 'é THESE → source. THESE';
     writeFileSync(path, text);
@@ -43,7 +44,7 @@ test('literal byte spans preserve Unicode, case and explicit positions', () => {
 });
 
 test('readable source snapshots are hashed together while unreadable rows keep their indexed failure', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'source-spans-partial-'));
+  const folder = tempFolder(join(tmpdir(), 'source-spans-partial-'));
   try {
     const path = join(folder, 'source.txt'), text = '\uFEFFreadable bytes';
     writeFileSync(path, text);
@@ -63,7 +64,7 @@ test('readable source snapshots are hashed together while unreadable rows keep t
 });
 
 test('real CLI preserves failed evidence, emits no quote bodies and never overwrites reports', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'source-spans-cli-'));
+  const folder = tempFolder(join(tmpdir(), 'source-spans-cli-'));
   try {
     const source = join(folder, 'source.txt'), input = join(folder, 'input.json'), output = join(folder, 'output.json');
     const body = 'PRIVATE BODY must not appear in diagnostics.';

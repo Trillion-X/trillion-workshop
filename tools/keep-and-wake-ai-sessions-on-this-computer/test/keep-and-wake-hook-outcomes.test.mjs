@@ -3,11 +3,12 @@
 //   - a session that starts is registered with its harness under its own agent id (old tests.rs 537);
 //   - a new harness is a row, read without a code change (old tests.rs 576);
 //   - the hook writes only under the folder its settings list (old tests.rs 609).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -21,7 +22,7 @@ const SESSION = '8c5a4d75-c324-4633-aa0a-986edabfc1d5';
 // The home folder is read at call time, so each test points it at a fresh folder and restores it after.
 async function withHome(run) {
   const saved = process.env.HOME;
-  const home = mkdtempSync(join(tmpdir(), 'keep-and-wake-home-'));
+  const home = tempFolder(join(tmpdir(), 'keep-and-wake-home-'));
   process.env.HOME = home;
   try { return await run(home); } finally { process.env.HOME = saved; }
 }
@@ -57,7 +58,7 @@ test('a new harness is a row: it is recognized from its row alone, with no code 
 });
 
 function runHook(home, event) {
-  const keyFile = join(mkdtempSync(join(tmpdir(), 'keep-and-wake-key-')), 'key');
+  const keyFile = join(tempFolder(join(tmpdir(), 'keep-and-wake-key-')), 'key');
   writeFileSync(keyFile, 'test-key\n');
   const requests = [];
   const server = createServer((request, response) => {
@@ -85,7 +86,7 @@ function filesUnder(folder) {
 }
 
 test('the hook writes only under the folder its settings list', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'keep-and-wake-transcript-'));
+  const dir = tempFolder(join(tmpdir(), 'keep-and-wake-transcript-'));
   const transcript = join(dir, `${SESSION}.jsonl`);
   writeFileSync(transcript, `${JSON.stringify({ isSidechain: false, userType: 'external', entrypoint: 'cli', sessionId: SESSION,
     origin: { kind: 'human' }, type: 'user', timestamp: '2026-09-27T18:19:20.677Z', message: { role: 'user', content: [{ type: 'text', text: 'Keep this one message.' }] } })}\n`);

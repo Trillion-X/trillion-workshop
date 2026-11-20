@@ -1,9 +1,10 @@
 // The four Workshop functions take the run's input and nothing else: tools/workflows/do-work/run-a-function.mjs calls each
 // with the input, and no door or context reaches them. Every row runs that runner on one of these exports, and a call that
 // leaves out what it needs is refused in words, never run on nothing.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,7 +17,7 @@ const exports = { lookAtTheScreen, findOnTheScreen, screenActions, driveTheScree
 
 // The person is away from this Mac, so a drive reaches its own refusals instead of waiting for them to leave it.
 const awayFor = ns => argv => ({ code: 0, stdout: Buffer.from(argv[0] === 'ioreg' ? `"HIDIdleTime" = ${ns}` : ''), stderr: '' });
-const placesAway = () => makePlaces({ home: mkdtempSync(join(tmpdir(), 'input-only-places-')), exec: async argv => awayFor(60e9)(argv) });
+const placesAway = () => makePlaces({ home: tempFolder(join(tmpdir(), 'input-only-places-')), exec: async argv => awayFor(60e9)(argv) });
 const drive = input => makeScreenTools({ places: placesAway }).drive(input);
 
 test('every row runs the workflows runner on one of these functions, which takes only the input, and mounts no records door', () => {

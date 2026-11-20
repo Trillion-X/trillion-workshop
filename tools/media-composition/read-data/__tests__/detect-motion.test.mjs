@@ -11,10 +11,11 @@
  * window (start >= 2s) as the highlight, proving the visual producer drives the existing auto-shorts machinery.
  * An all-static clip yields all-zero energy.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,12 +28,12 @@ let work, clip, staticClip, scoreHighlightWindows;
 function ffmpeg(args) { execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', ...args], { encoding: 'utf8' }); }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'motion-'));
+  const dir = tempFolder(join(tmpdir(), 'motion-'));
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', '--alias:@=' + join(here, '..', '..', '..', '..'),
     join(here, '..', 'highlight-scorer.ts'), `--outfile=${join(dir, 'hs.mjs')}`], { encoding: 'utf8' });
   ({ scoreHighlightWindows } = await import(join(dir, 'hs.mjs')));
 
-  work = mkdtempSync(join(tmpdir(), 'motion-render-'));
+  work = tempFolder(join(tmpdir(), 'motion-render-'));
   const s = join(work, 's.mp4'), m = join(work, 'm.mp4');
   ffmpeg(['-f', 'lavfi', '-i', `color=gray:s=${W}x${H}:d=2:r=${FPS}`, '-pix_fmt', 'yuv420p', s]);   // static 2s
   ffmpeg(['-f', 'lavfi', '-i', `testsrc=s=${W}x${H}:d=1:r=${FPS}`, '-pix_fmt', 'yuv420p', m]);        // moving 1s

@@ -1,9 +1,10 @@
 // The row runs as the container runs it: its command with its sample input on standard input, from a folder holding only
 // the files the row packs, and the answer must hold the sample's text and the output schema's required keys.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { cp, mkdtemp } from 'node:fs/promises';
+import { cp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,7 +18,7 @@ const select = (value, selector) => selector.replace(/^\$\.?/, '').split(/\.|\[(
   .reduce((at, key) => at?.[key], value);
 
 async function packed(row) {
-  const folder = await mkdtemp(join(tmpdir(), 'match-picks-row-'));
+  const folder = tempFolder(join(tmpdir(), 'match-picks-row-'));
   for (const path of row.invoke.files.package_files.paths) await cp(join(tool, path), join(folder, path), { recursive: true });
   return folder;
 }

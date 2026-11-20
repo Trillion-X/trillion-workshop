@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync, rmSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,7 +13,7 @@ import { rentAMachine, startAComputer, readRequest } from '../do-work/start-a-co
 
 const canary = 'provider-credential-canary-0123456789';
 const publicKey = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample0 someone@example.com';
-const folder = () => mkdtempSync(join(tmpdir(), 'start-a-computer-'));
+const folder = () => tempFolder(join(tmpdir(), 'start-a-computer-'));
 
 // Made-up provider descriptions (example.test answers nothing); the tool holds none, the person supplies one as a file.
 const providerFile = name => fileURLToPath(new URL(`../made-up-providers/${name}.json`, import.meta.url));
@@ -51,7 +52,7 @@ const COMPUTER_ROW = { address: '192.0.2.41', name: 'example-computer', runs: {
 
 test('a status asks the public health row at the computer\'s name', async () => {
   const { computerStatus } = await import('../do-work/start-a-computer.mjs');
-  const dir = mkdtempSync(join(tmpdir(), 'status-of-a-computer-'));
+  const dir = tempFolder(join(tmpdir(), 'status-of-a-computer-'));
   const leaseFile = join(dir, 'lease.json');
   writeFileSync(leaseFile, JSON.stringify({ schema: 'machine-lease/1', provider: 'adopted-machine', providerFile: ADOPTED, name: 'arm1', address: '192.0.2.9', adopted: true, hostName: 'place.example.com' }));
   const asked = [];
@@ -69,7 +70,7 @@ test('a unit is an alert when it is not active or has restarted past the budget,
   assert.equal(unitVerdict({ Id: 'place.service', ActiveState: 'activating', SubState: 'auto-restart', NRestarts: '1' }, 5).alert, true, 'a unit not active is an alert');
   assert.equal(unitVerdict({ Id: 'place.service', ActiveState: 'active', SubState: 'running', NRestarts: '8849' }, 5).alert, true, 'past the budget');
   assert.throws(() => unitVerdict({ Id: 'place.service', ActiveState: 'active', NRestarts: 'many' }, 5), /restart count/);
-  const dir = mkdtempSync(join(tmpdir(), 'unit-status-'));
+  const dir = tempFolder(join(tmpdir(), 'unit-status-'));
   const leaseFile = join(dir, 'lease.json');
   writeFileSync(leaseFile, JSON.stringify({ schema: 'machine-lease/1', provider: 'adopted-machine', providerFile: ADOPTED, name: 'arm1', address: '192.0.2.9', adopted: true, hostName: 'place.example.com' }));
   const commands = [];

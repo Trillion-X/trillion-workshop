@@ -1,8 +1,9 @@
 // A made-up brand's rows: the selected family's variant for each tone, nothing from another family, no unsafe address.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { assetForBrand, presentationFromBrand } from '../read-data/brand-assets.mjs';
@@ -40,7 +41,7 @@ test('an address with credentials or without HTTPS is never used', () => {
 });
 
 test('the command names a local copy when one is there, and refuses rows without a selection', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'brand-kit-'));
+  const dir = tempFolder(join(tmpdir(), 'brand-kit-'));
   mkdirSync(join(dir, 'copies'));
   writeFileSync(join(dir, 'copies', 'original-wordmark-black.svg'), '<svg xmlns="http://www.w3.org/2000/svg"/>');
   writeFileSync(join(dir, 'request.json'), JSON.stringify({ rows, tone: 'light', files_at: 'copies' }));

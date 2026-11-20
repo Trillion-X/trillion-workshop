@@ -7,10 +7,11 @@
  * AND a real offline render where a tick column at a marker X is markerColor while the fill between markers is
  * the bar color.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -35,7 +36,7 @@ const isRed = (c) => c.r > 150 && c.r > c.g + 60 && c.r > c.b + 60;
 const isBlack = (c) => c.r < 60 && c.g < 60 && c.b < 60;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'pbm-'));
+  const dir = tempFolder(join(tmpdir(), 'pbm-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -43,7 +44,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'pbm-render-'));
+  work = tempFolder(join(tmpdir(), 'pbm-render-'));
   src = join(work, 'gray.mp4');
   ffmpeg(['-f', 'lavfi', '-i', 'color=c=gray:s=320x240:d=2:r=24', '-pix_fmt', 'yuv420p', src]);
 });

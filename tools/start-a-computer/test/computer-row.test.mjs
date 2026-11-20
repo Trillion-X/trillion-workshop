@@ -2,9 +2,10 @@
 //
 // A computer runs what its own row says (request.computer_row, a record:computer with `runs`, handed in with the request):
 // this tool reads no store for it, and applying or comparing uses that row.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { applyAComputerRow, runsOf, computerRowDifferences, readRequest } from '../do-work/start-a-computer.mjs';
@@ -27,7 +28,7 @@ test('a request gets what the computer row it hands in runs, as it is', () => {
 });
 
 test('a request may name the computer row as a file beside it: the row is that file\'s JSON', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'computer-row-'));
+  const folder = tempFolder(join(tmpdir(), 'computer-row-'));
   writeFileSync(join(folder, 'computer.json'), JSON.stringify(row));
   writeFileSync(join(folder, 'request.json'), JSON.stringify({ machine: request.machine, ssh: request.ssh, computer_row_file: 'computer.json' }));
   const read = readRequest(join(folder, 'request.json'));
@@ -63,10 +64,10 @@ test('applying and comparing a computer use its row: a computer that runs it has
 // A pages folder may hold a link to a folder kept elsewhere (a site's own repository): its files are read through the link,
 // named by where they sit in the pages folder, never copied there first.
 test('the pages folder follows a link to a folder kept elsewhere', async () => {
-  const { mkdtempSync, mkdirSync, writeFileSync, symlinkSync } = await import('node:fs');
+  const { mkdirSync, writeFileSync, symlinkSync } = await import('node:fs');
   const { tmpdir } = await import('node:os');
   const { readPages } = await import('../do-work/start-a-computer.mjs');
-  const kept = mkdtempSync(`${tmpdir()}/kept-`), pages = mkdtempSync(`${tmpdir()}/pages-`);
+  const kept = tempFolder(`${tmpdir()}/kept-`), pages = tempFolder(`${tmpdir()}/pages-`);
   mkdirSync(`${kept}/assets`);
   writeFileSync(`${kept}/index.html`, '<p>home</p>');
   writeFileSync(`${kept}/assets/site.css`, 'body{}');

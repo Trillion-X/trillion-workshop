@@ -3,8 +3,9 @@
 // The socket is the WhatsApp connection's own (bring-in-new-items-from-this-computer/computer/connections/whatsapp.mjs), here
 // over a fake Baileys module, so these tests cover the one socket owner and its observe hook, not a copy. Numbers are the
 // reserved fiction ranges (555-01xx).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import http from 'node:http';
 import net from 'node:net';
 import { tmpdir } from 'node:os';
@@ -159,7 +160,7 @@ async function until(check, what) {
 }
 
 function waiter(t, { registered = true, settings = {}, refuse = () => false, state = null } = {}) {
-  const folder = mkdtempSync(path.join(tmpdir(), 'whatsapp-waiter-'));
+  const folder = tempFolder(path.join(tmpdir(), 'whatsapp-waiter-'));
   t.after(() => rmSync(folder, { recursive: true, force: true }));
   if (registered) { mkdirSync(path.join(folder, 'session')); writeFileSync(path.join(folder, 'session', 'creds.json'), JSON.stringify({ registered: true })); }
   const baileys = fakeBaileys({ registered });
@@ -232,7 +233,7 @@ test('not linked: each pairing window tells its code, and linking is told when t
 
 test('a waiter with no folder, or not linked with no phone, cannot wait and says why', async () => {
   await assert.rejects(watchForTransitions({}, { onTransition: async () => true }), /folder of its own/);
-  const folder = mkdtempSync(path.join(tmpdir(), 'whatsapp-waiter-'));
+  const folder = tempFolder(path.join(tmpdir(), 'whatsapp-waiter-'));
   try {
     await assert.rejects(watchForTransitions({}, { folder, proxy: null, look_ms: 5, load: async () => fakeBaileys({ registered: false }).module, onTransition: async () => true }), /names no phone/);
   } finally { rmSync(folder, { recursive: true, force: true }); }
@@ -266,7 +267,7 @@ test('the sender rides in after as from, for a group participant, a friend and a
 
 test('linked is told once when the socket opens after WhatsApp restarts it (515), even after the code ran out', async t => {
   let clock = AT * 1000;
-  const folder = mkdtempSync(path.join(tmpdir(), 'whatsapp-waiter-'));
+  const folder = tempFolder(path.join(tmpdir(), 'whatsapp-waiter-'));
   t.after(() => rmSync(folder, { recursive: true, force: true }));
   const baileys = fakeBaileys({ registered: false });
   const facts = [];

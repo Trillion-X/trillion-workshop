@@ -8,10 +8,11 @@
  * materialize pass-through, AND a real offline render on a gray clip where row brightness OSCILLATES with Y
  * (dark line vs bright gap) and, with roll, a FIXED row's brightness changes over time (L155 temporal).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -35,7 +36,7 @@ function rowLum(raw, y) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'scan-'));
+  const dir = tempFolder(join(tmpdir(), 'scan-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -43,7 +44,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'scan-render-'));
+  work = tempFolder(join(tmpdir(), 'scan-render-'));
   gray = join(work, 'gray.mp4');
   ffmpeg(['-f', 'lavfi', '-i', 'color=0x808080:s=320x240:d=2:r=24', '-pix_fmt', 'yuv420p', gray]);
 });

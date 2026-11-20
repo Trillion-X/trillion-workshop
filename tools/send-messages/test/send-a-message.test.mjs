@@ -10,9 +10,10 @@
 //     no first-match fallback, the command is built from DATA, the denial match ignores case.
 // New at the seam: the provider rows agree with the tool rows, the keys come on private descriptors and appear
 // nowhere else, a list is answered per recipient, and the Amazon SES signature matches the published AWS test vector.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtempSync, openSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { openSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -26,7 +27,7 @@ import { mountsFor, mountsOf } from './mounts-for.test.mjs';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const stub = fileURLToPath(new URL('./stub-fetch.mjs', import.meta.url));
-const work = mkdtempSync(join(tmpdir(), 'send-messages-test-'));
+const work = tempFolder(join(tmpdir(), 'send-messages-test-'));
 after(() => rmSync(work, { recursive: true, force: true }));
 
 let counter = 0;

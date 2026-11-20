@@ -1,7 +1,8 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,7 +19,7 @@ function unknownDurationWebm(directory) {
 }
 
 test('an unknown-duration WebM chooses a readable scene after its black opening', { skip: !available }, () => {
-  const directory = mkdtempSync(join(tmpdir(), 'cover-frame-'));
+  const directory = tempFolder(join(tmpdir(), 'cover-frame-'));
   try {
     const fixture = unknownDurationWebm(directory);
     const duration = execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', fixture], { encoding: 'utf8' }).trim();

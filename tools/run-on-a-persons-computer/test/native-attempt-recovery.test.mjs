@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { macTools, MacToolsHttpError } from '../mac-tools.mjs';
@@ -12,7 +13,7 @@ const identity = '1f:' + 'a'.repeat(64);
 const job = { handoff: { handoff_id: 'h_attempt', input: { tool_id: 'synthetic-tool', input: { private: 'private-input' } } }, generation: 4 };
 
 async function withOutbox(work) {
-  const folder = await mkdtemp(join(tmpdir(), 'native-attempt-'));
+  const folder = tempFolder(join(tmpdir(), 'native-attempt-'));
   const open = (accountId = 'synthetic-account', origin = 'https://example.test') => nativeResultOutbox({ file: join(folder, 'attempt'), accountId, origin });
   try { await work(open); } finally { await rm(folder, { recursive: true, force: true }); }
 }

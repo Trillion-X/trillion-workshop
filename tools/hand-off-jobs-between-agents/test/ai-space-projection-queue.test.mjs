@@ -6,9 +6,10 @@
 // and its outer transaction): no running code arms a store alarm from this queue (searched the three repos for
 // aiSpaceProjectionWakePending, aiSpaceProjections and ai_space_projection: only this queue and a table name in
 // trillion-rust src/storage/record_store_resources.json). The other seven tests are the old ones.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { aiSpaceProjectionQueue, initAiSpaceProjectionQueue } from '../src/ai-space-projection.mjs';
@@ -81,7 +82,7 @@ test('empty projection planning stays SQL-free and new or rolled-back AI writes 
 });
 
 test('outbox survives a cold owner reopen and retries a failed space withdrawal before deleting the relation', async t => {
-  const dir = mkdtempSync(join(tmpdir(), 'trillion-ai-space-'));
+  const dir = tempFolder(join(tmpdir(), 'trillion-ai-space-'));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
   const file = join(dir, 'person.sqlite');
   let now = 1_000;

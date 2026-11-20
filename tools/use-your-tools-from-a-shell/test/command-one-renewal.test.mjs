@@ -1,9 +1,10 @@
 // Many `example` runs at once renew the sign-in once. The server rotates the refresh token on every renewal and ends the whole sign-in when a
 // token it already rotated comes again (Better Auth's reuse rule); this test issuer does the same, so one unlocked second renewal fails it.
 // Test issuer only: nothing here touches a real sign-in.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -39,7 +40,7 @@ const endingGrant = origin => ({ access_token: 'access-0', refresh_token: 'refre
 test('50 runs at once renew the sign-in once, and every one carries the renewed pass', async () => {
   const server = await issuer();
   try {
-    const home = mkdtempSync(join(tmpdir(), 'one-renewal-'));
+    const home = tempFolder(join(tmpdir(), 'one-renewal-'));
     const file = join(home, 'grant.json');
     writeFileSync(file, JSON.stringify(endingGrant(server.origin)));
     const child = new URL('../test-fixtures/one-renewal-child.mjs', import.meta.url).pathname;
@@ -54,7 +55,7 @@ test('50 runs at once renew the sign-in once, and every one carries the renewed 
 test('a refused renewal is read against the store again before the sign-in is called ended', async () => {
   const server = await issuer();
   try {
-    const home = mkdtempSync(join(tmpdir(), 'one-renewal-'));
+    const home = tempFolder(join(tmpdir(), 'one-renewal-'));
     let stored = endingGrant(server.origin);
     let reads = 0;
     // The first read finds the old sign-in; another process renews between our read and our refusal, so the next read has the new one.
@@ -75,7 +76,7 @@ test('a refused renewal is read against the store again before the sign-in is ca
 test('a lock a dead process left is taken over', async () => {
   const server = await issuer();
   try {
-    const home = mkdtempSync(join(tmpdir(), 'one-renewal-'));
+    const home = tempFolder(join(tmpdir(), 'one-renewal-'));
     const { mkdirSync, utimesSync } = await import('node:fs');
     const lock = join(home, settings.grant.lock);
     mkdirSync(lock);
@@ -93,7 +94,7 @@ test('a busy sign-in server is said to be busy, never called an ended sign-in', 
   await new Promise(resolve => busy.listen(0, '127.0.0.1', resolve));
   try {
     const origin = `http://127.0.0.1:${busy.address().port}`;
-    const home = mkdtempSync(join(tmpdir(), 'one-renewal-'));
+    const home = tempFolder(join(tmpdir(), 'one-renewal-'));
     const grants = { where: 'g', read: () => endingGrant(origin), write() {}, forget() {} };
     await assert.rejects(credentialFor({ env: {}, store: { read: () => null }, grants, rules: { ...settings, state_folder: home }, home }), error => error.status === 4 && error.message === settings.words.sign_in_busy && /429/.test(error.detail));
   } finally { busy.close(); }
@@ -105,7 +106,7 @@ test('after one refused renewal every later run says ended without asking the se
   await new Promise(resolve => dead.listen(0, '127.0.0.1', resolve));
   try {
     const origin = `http://127.0.0.1:${dead.address().port}`;
-    const home = mkdtempSync(join(tmpdir(), 'one-renewal-'));
+    const home = tempFolder(join(tmpdir(), 'one-renewal-'));
     const file = join(home, 'grant.json');
     writeFileSync(file, JSON.stringify(endingGrant(origin)));
     const grants = { where: file, read: () => JSON.parse(readFileSync(file, 'utf8')), write: grant => writeFileSync(file, JSON.stringify(grant)), forget() {} };

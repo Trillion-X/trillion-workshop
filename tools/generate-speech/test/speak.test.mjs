@@ -7,8 +7,9 @@
 // with the place's speed. No records door is handed to any run: the tools read and write no records. The speech model
 // itself stands in as a stub `ask`. Moved from the product repo's test/speak.test.mjs with its assertions; its notice
 // and account-placement tests stay with the product repo's Mac app and src/account-speech.mjs.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -16,7 +17,7 @@ import { say, sayHere, speakSettings, voiceOrder, voices, personFromRows } from 
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import toolRows from '../tool-rows.json' with { type: 'json' };
 
-const folder = mkdtempSync(path.join(os.tmpdir(), 'speak-test-'));
+const folder = tempFolder(path.join(os.tmpdir(), 'speak-test-'));
 test.after(() => rmSync(folder, { recursive: true, force: true }));
 const settings = speakSettings();
 const referenceFile = path.join(folder, 'own-1.wav');

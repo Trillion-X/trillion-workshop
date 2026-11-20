@@ -1,6 +1,7 @@
 // The local store's safety nets (src/local-store-safety.mjs): rolling snapshots, a copy before a change, restore with a copy first.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -12,7 +13,7 @@ const config = { snapshots_kept: 2, min_interval_hours: 24, before_change_kept: 
 const rowsOf = file => { const db = new DatabaseSync(file, { readOnly: true }); try { return db.prepare('SELECT v FROM t ORDER BY v').all().map(row => row.v); } finally { db.close(); } };
 
 test('snapshots are due daily, keep only the newest few, and a restore copies what it replaces first', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'local-safety-'));
+  const folder = tempFolder(join(tmpdir(), 'local-safety-'));
   const file = join(folder, 'store.sqlite');
   const db = new DatabaseSync(file);
   db.exec('PRAGMA journal_mode = WAL; CREATE TABLE t (v TEXT); INSERT INTO t VALUES (\'one\')');
@@ -43,7 +44,7 @@ test('snapshots are due daily, keep only the newest few, and a restore copies wh
 });
 
 test('opening the store on a computer takes a due snapshot beside it', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'local-safety-open-'));
+  const folder = tempFolder(join(tmpdir(), 'local-safety-open-'));
   const file = join(folder, 'decisions.sqlite');
   localStore(file);
   assert.equal(readdirSync(`${file}.snapshots`).length, 1);
@@ -52,7 +53,7 @@ test('opening the store on a computer takes a due snapshot beside it', () => {
 });
 
 test('opening a store whose kept shape is not this code\'s copies it first, once, and records the new shape', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'local-safety-shape-'));
+  const folder = tempFolder(join(tmpdir(), 'local-safety-shape-'));
   const file = join(folder, 'decisions.sqlite');
   const first = localStore(file);
   assert.equal(existsSync(`${file}.before`), false, 'a new store has nothing to copy');

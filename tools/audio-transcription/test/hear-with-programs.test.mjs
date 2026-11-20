@@ -1,14 +1,15 @@
 // The node hearing path (read-data/hear-with-programs.mjs) with fake ffmpeg and whisper-cli programs: ffmpeg is run to make the WAV,
 // whisper-cli is run with the package's arguments and -ng, and the words come from its JSON. No Python runs.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { chmodSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { hearWithPrograms, wordRows } from '../read-data/hear-with-programs.mjs';
 import { hearSourcesTool, sourcesSettings } from '../../listen-for-a-while/read-data/hearing-sources.mjs';
 
-const folder = mkdtempSync(path.join(os.tmpdir(), 'hear-with-programs-test-'));
+const folder = tempFolder(path.join(os.tmpdir(), 'hear-with-programs-test-'));
 const fakeFfmpeg = path.join(folder, 'ffmpeg');
 const fakeWhisper = path.join(folder, 'whisper-cli');
 const recording = path.join(folder, 'call.m4a');

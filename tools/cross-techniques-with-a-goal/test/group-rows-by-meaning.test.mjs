@@ -1,9 +1,10 @@
 // tools/cross-techniques-with-a-goal: rows that say the same thing share one group, by the vocabulary's admission
 // rule, with hand-made vectors; rows in the uncertain band are linked as related, never merged.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -44,7 +45,7 @@ test('pairs come from different sources only, sorted into closeness bands', () =
 });
 
 test('a library row\'s words are its named fields joined; a row with none is left out', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'group-rows-'));
+  const folder = tempFolder(join(tmpdir(), 'group-rows-'));
   const file = join(folder, 'made-up.jsonl');
   writeFileSync(file, `${JSON.stringify({ id: 1, statement: 'Plant early.', note: 'In spring.' })}\n${JSON.stringify({ id: 2, kind: 'tactic' })}\n`);
   assert.deepEqual(libraryRows([{ file, text: ['statement', 'note'], label: 'made up' }]), [{ id: '1', source: 'made up', text: 'Plant early. | In spring.' }]);
@@ -68,7 +69,7 @@ test('the groups file keys each row by its id, so a list builder can look it up'
   });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   try {
-    const folder = mkdtempSync(join(tmpdir(), 'group-file-'));
+    const folder = tempFolder(join(tmpdir(), 'group-file-'));
     const file = join(folder, 'made-up.jsonl');
     writeFileSync(file, ['Water the soil first.', 'Soak the bed first.', 'Pull weeds early.'].map((statement, index) => JSON.stringify({ id: `r${index}`, statement })).join('\n'));
     const groupsFile = join(folder, 'groups.json');

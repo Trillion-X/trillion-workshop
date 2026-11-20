@@ -1,10 +1,11 @@
 // Proof that the keep writes of the task rows give the same answers on two stores: PGlite (one table, one transaction per
 // apply) and a folder of JSON files (one file per record). Made-up people, AIs and tasks only. The attempts are the send,
 // a resend, a same-key send with other words, a race for one task, a loser who decides again, a withdraw and the busy count.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PGlite } from '@electric-sql/pglite';
-import { mkdtempSync, readdirSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
@@ -117,7 +118,7 @@ const expected = {
 
 test('the keep writes of the tasks give the same answers on PGlite and on a folder of JSON files', async () => {
   const pg = new PGlite();
-  const dir = mkdtempSync(join(tmpdir(), 'task-moves-proof-'));
+  const dir = tempFolder(join(tmpdir(), 'task-moves-proof-'));
   const results = { PGlite: await attempts(pgStore(pg)), 'JSON folder': await attempts(folderStore(dir)) };
   await pg.close();
   for (const [name, got] of Object.entries(results)) {

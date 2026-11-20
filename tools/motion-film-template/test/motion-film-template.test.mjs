@@ -1,5 +1,6 @@
 // tools/motion-film-template: the icon
 // writer (a made-up icons folder in lucide's module shape), the rows, and the soundtrack premix's Python tests.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -11,7 +12,7 @@ import { iconsFile, iconShapes } from '../do-work/write-icon-shapes.mjs';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 test('icon shapes are read from lucide modules, the React key dropped, and a missing icon is refused', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'icons-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'icons-'));
   try {
     fs.writeFileSync(path.join(dir, 'check.mjs'), 'import x from "../x.mjs";\n\nconst __iconNode = [["path", { d: "M20 6 9 17l-5-5", key: "abc" }]];\nconst Check = x("check", __iconNode);\n');
     fs.writeFileSync(path.join(dir, 'dot.mjs'), 'const __iconNode = [\n  ["circle", { cx: "12", cy: "12", r: "1", key: "q" }],\n  ["path", { d: "M1 1", key: "z" }]\n];\n');

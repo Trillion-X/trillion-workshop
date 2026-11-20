@@ -1,6 +1,7 @@
 // The stdio→streamable-HTTP gateway (tools/serve-command-line-mcp-servers-on-the-web), against a fake stdio server.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readdirSync, rmSync } from 'node:fs';
+import { readdirSync, rmSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -11,7 +12,7 @@ const FAKE = new URL('./fixtures/fake-stdio-mcp.mjs', import.meta.url).pathname;
 const apps = { one: { cli: process.execPath, args: [FAKE, 'one'] }, two: { cli: process.execPath, args: [FAKE, 'two'] }, broken: { cli: '/nonexistent/binary', args: [] } };
 
 async function serving(options = {}) {
-  const workRoot = mkdtempSync(join(tmpdir(), 'gateway-test-'));
+  const workRoot = tempFolder(join(tmpdir(), 'gateway-test-'));
   const gateway = createGateway({ apps, workRoot, ...options });
   const server = createServer((request, response) => { void gateway.handle(request, response); });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));

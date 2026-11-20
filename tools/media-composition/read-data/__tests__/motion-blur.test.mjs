@@ -7,10 +7,11 @@
  * Proof: DATA resolution, materialize snake_case pass-through, AND a real offline render where a fast
  * white box gets smeared, so the count of near-full-bright pixels collapses vs the sharp render (L155).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,7 +37,7 @@ function brightCount(file, seek = 1) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'mblur-'));
+  const dir = tempFolder(join(tmpdir(), 'mblur-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -44,7 +45,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'mblur-render-'));
+  work = tempFolder(join(tmpdir(), 'mblur-render-'));
   movebox = join(work, 'movebox.mp4');
   // A 40x40 white box sweeping fast (480 px/s) across a black frame via overlay (whose x supports a
   // per-frame `t` expression, unlike drawbox on a color source), so consecutive frames are far apart

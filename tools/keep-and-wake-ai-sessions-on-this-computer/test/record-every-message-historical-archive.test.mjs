@@ -1,8 +1,9 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { settings, sendToTrillion, historicalRules, recordNew } from '../harness/record-every-message.mjs';
 
-import { mkdtempSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
+import { writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -49,7 +50,7 @@ test('a missing attachment acknowledgement never advances historical acceptance'
 });
 
 test('full historical recording starts independently of an acknowledged live position', async t => {
-  const folder = mkdtempSync(join(tmpdir(), 'trillion-independent-history-'));
+  const folder = tempFolder(join(tmpdir(), 'trillion-independent-history-'));
   t.after(() => rmSync(folder, { recursive: true, force: true }));
   const session = 'original-history-session';
   const transcript = join(folder, 'original.jsonl');

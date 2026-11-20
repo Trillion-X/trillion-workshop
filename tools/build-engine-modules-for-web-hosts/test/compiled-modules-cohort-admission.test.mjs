@@ -1,9 +1,10 @@
 // Opposing-process checks use the actual builder and ordinary module consumers,
 // with synthetic compiler executables so no Rust or WASM toolchain is run.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { cpSync, existsSync, linkSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, linkSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,7 +23,7 @@ const wasm = Buffer.from([0, 97, 115, 109, 1, 0, 0, 0]);
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 function fixture() {
-  const sandbox = realpathSync(mkdtempSync(join(tmpdir(), 'compiled-modules-cohort-')));
+  const sandbox = realpathSync(tempFolder(join(tmpdir(), 'compiled-modules-cohort-')));
   const home = join(sandbox, 'app');
   mkdirSync(home);
   const built = join(home, TOOL, 'built-stored-bytes');

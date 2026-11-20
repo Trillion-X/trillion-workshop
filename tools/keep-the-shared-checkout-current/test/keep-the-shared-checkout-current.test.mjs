@@ -1,8 +1,9 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, utimesSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, readFileSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { keepCurrent } from '../do-work/keep-the-shared-checkout-current.mjs';
@@ -14,7 +15,7 @@ const LATER = () => new Date(Date.now() + 10 * 60_000);
 
 // A bare origin, a publisher that pushes to it, and the shared checkout that follows it.
 function setup() {
-  const base = mkdtempSync(join(tmpdir(), 'keep-current-'));
+  const base = tempFolder(join(tmpdir(), 'keep-current-'));
   const origin = join(base, 'origin.git');
   const publisher = join(base, 'publisher');
   const shared = join(base, 'shared');

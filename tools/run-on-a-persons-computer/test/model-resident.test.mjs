@@ -1,5 +1,6 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { rmSync } from 'node:fs';
 import net from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -7,7 +8,7 @@ import test from 'node:test';
 import { askResident } from '../keep-drive-files.mjs';
 
 async function resident(t, reply) {
-  const folder = mkdtempSync(join(tmpdir(), 'mr-'));
+  const folder = tempFolder(join(tmpdir(), 'mr-'));
   const socket = join(folder, 's');
   const sockets = new Set();
   const server = net.createServer(connection => {

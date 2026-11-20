@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { authorVoiceScript as produceVoiceScript, translateSourceComposition } from '../author-voice-script.mjs';
@@ -17,7 +18,7 @@ const base = () => ({ title: 'A complete recording', description: 'An assembled 
   source: { text: 'Unspoken source metadata stays outside narration.' } });
 
 async function fixture(data = base()) {
-  const temp = await mkdtemp(join(tmpdir(), 'source-compositions-producer-'));
+  const temp = tempFolder(join(tmpdir(), 'source-compositions-producer-'));
   const folder = join(temp, 'fixture'); await mkdir(folder);
   const input = join(folder, 'copy-input.json');
   await writeFile(input, JSON.stringify(data));

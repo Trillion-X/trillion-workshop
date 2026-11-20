@@ -1,8 +1,8 @@
 // Calibration is done once, away from the question, and kept; a question only
 // reads what was kept. Synthetic judges, no server.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {mkdtempSync} from 'node:fs'
 import {join} from 'node:path'
 import {tmpdir} from 'node:os'
 import {chooseCandidate, checkRubric, NotCalibratedYet, VerdictRefused, rememberedIn, calibrationKey} from '../do-work/ask-for-a-verdict.mjs'
@@ -15,7 +15,7 @@ const rubric = checkRubric({
   calibration: [{content: 'done, trust me', expect: true}, {content: 'ran it: 3 pass', expect: false}],
 })
 const judges = [{name: 'right'}, {name: 'wrong'}]
-const scratch = () => rememberedIn(join(mkdtempSync(join(tmpdir(), 'judges-')), 'kept.json'))
+const scratch = () => rememberedIn(join(tempFolder(join(tmpdir(), 'judges-')), 'kept.json'))
 const truthful = async ({candidate, content}) => ({answer: candidate.name === 'right' ? content.includes('trust') : true})
 
 test('a question that only reads calibration, with nothing kept, refuses at once and asks nobody', async () => {

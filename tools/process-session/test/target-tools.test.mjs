@@ -1,13 +1,14 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, readFileSync, readlinkSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, readlinkSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { findGnuMove, linkGnuMove } from './target-tools.mjs';
 
 test('discovers a genuine GNU move under either installed name and performs Linux symlink replacement', t => {
-  const root = mkdtempSync(join(tmpdir(), 'target-tools-'));
+  const root = tempFolder(join(tmpdir(), 'target-tools-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const executable = findGnuMove(), originalPath = process.env.PATH;
   for (const name of ['mv', 'gmv']) {
@@ -32,7 +33,7 @@ test('discovers a genuine GNU move under either installed name and performs Linu
 });
 
 test('fails clearly without a genuine target utility and preserves an existing fixture command', t => {
-  const root = mkdtempSync(join(tmpdir(), 'target-tools-refusal-'));
+  const root = tempFolder(join(tmpdir(), 'target-tools-refusal-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   assert.throws(() => findGnuMove({ path: root, extraDirectories: [] }), /require genuine GNU coreutils mv/);
   symlinkSync(process.execPath, join(root, 'mv'));

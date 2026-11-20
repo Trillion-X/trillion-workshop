@@ -1,9 +1,10 @@
 // tools/edit-text-and-code: the one-piece replace, in the module and run the way the engine runs the row
 // (granted folder in argv, { file, find, replace } on standard input, the answer on the last line), on made-up files.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { chmodSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { replaceExactlyOnce, Refusal } from '../do-work/replace-exact-text.mjs';
@@ -17,7 +18,7 @@ function run(granted, input) {
 }
 
 function bakery(t) {
-  const root = mkdtempSync(join(tmpdir(), 'edit-text-'));
+  const root = tempFolder(join(tmpdir(), 'edit-text-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   mkdirSync(join(root, 'menu'), { recursive: true });
   writeFileSync(join(root, 'menu', 'prices.txt'), 'bagel 3\nloaf 5\ncroissant 4\nbagel 3 extra\n');
@@ -83,7 +84,7 @@ test('the file keeps its permission bits', t => {
 
 test('a path that leaves the folder, a link, a folder, a missing file or binary bytes is refused', t => {
   const root = bakery(t);
-  const outside = mkdtempSync(join(tmpdir(), 'edit-text-outside-'));
+  const outside = tempFolder(join(tmpdir(), 'edit-text-outside-'));
   t.after(() => rmSync(outside, { recursive: true, force: true }));
   writeFileSync(join(outside, 'secret.txt'), 'outside\n');
   symlinkSync(join(outside, 'secret.txt'), join(root, 'link.txt'));
@@ -114,7 +115,7 @@ function runFile(granted, editsFile) {
 
 test('several edits from a JSON file apply in order, across files, and a later edit sees an earlier one', t => {
   const root = bakery(t);
-  const edits = join(mkdtempSync(join(tmpdir(), 'edit-text-list-')), 'edits.json');
+  const edits = join(tempFolder(join(tmpdir(), 'edit-text-list-')), 'edits.json');
   writeFileSync(edits, JSON.stringify({ edits: [
     { file: 'menu/prices.txt', find: 'loaf 5', replace: 'loaf 6' },
     { file: 'notes.md', find: 'first', replace: '1st' },

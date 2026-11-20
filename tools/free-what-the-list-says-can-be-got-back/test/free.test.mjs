@@ -1,12 +1,13 @@
 // tools/free-what-the-list-says-can-be-got-back: every rule, on made-up folders and a made-up git repository with an
 // upstream, a stand-in source, and the command run the way the engine runs it (the workflows run-a-function runner, the
 // granted folder and the request on stdin, the parent action descriptor on fd 3).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import childProcess from 'node:child_process';
 import { syncBuiltinESMExports } from 'node:module';
-import { chmodSync, closeSync, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, realpathSync, renameSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
+import { chmodSync, closeSync, existsSync, mkdirSync, openSync, readFileSync, realpathSync, renameSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createServer } from 'node:http';
@@ -45,7 +46,7 @@ async function keptOnRealRun(work, candidate, reason, deps = {}) {
 
 /** A bakery folder that is a git repository with an upstream: a recipe file (pushed), big scratch files and a kept loaf. */
 function bakery(t) {
-  const root = realpathSync(mkdtempSync(join(tmpdir(), 'free-')));
+  const root = realpathSync(tempFolder(join(tmpdir(), 'free-')));
   // Retain this small synthetic fixture for normal host temp retention; tests never invoke real Trash.
   const remote = join(root, 'remote.git');
   const work = join(root, 'work');

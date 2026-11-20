@@ -1,7 +1,8 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { makeHashCodeHexFromBytes as hash } from '../../content-identity/read-data/identity.mjs';
@@ -24,7 +25,7 @@ const commit = (root, files) => {
 };
 
 function fixture(t, { mode = 'SOURCE_FIRST_PORT', code = SOURCE, data = '{}\n', legacyArchive = false, extraTarget, artifactUnderFeature = false } = {}) {
-  const base = mkdtempSync(join(tmpdir(), 'target-data-retention-'));
+  const base = tempFolder(join(tmpdir(), 'target-data-retention-'));
   t.after(() => rmSync(base, { recursive: true, force: true }));
   const old = join(base, 'old-owner'), root = join(base, 'tools-repo');
   for (const dir of [old, root]) { mkdirSync(dir); git(dir, 'init', '-q', '-b', 'main'); }
@@ -115,7 +116,7 @@ test('current DATA admission never permits a repository traversal target', t => 
 // separate historical artifact. That role cannot exclude the first's live code.
 for (const adaptInPlace of [false, true]) {
   test(`a historical baseline path remains valid active code (${adaptInPlace ? 'adapted' : 'unchanged'} in place)`, t => {
-    const base = mkdtempSync(join(tmpdir(), 'historical-active-baseline-'));
+    const base = tempFolder(join(tmpdir(), 'historical-active-baseline-'));
     t.after(() => rmSync(base, { recursive: true, force: true }));
     const root = join(base, 'tools-repo');
     mkdirSync(root);

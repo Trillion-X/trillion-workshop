@@ -1,7 +1,8 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -70,7 +71,7 @@ function proxyTunnel(socket) {
 }
 
 async function setUp() {
-  root = mkdtempSync(join(tmpdir(), 'notifications-http2-'));
+  root = tempFolder(join(tmpdir(), 'notifications-http2-'));
   const key = join(root, 'test-key.pem');
   certificate = join(root, 'test-certificate.pem');
   execFileSync('/usr/bin/openssl', [

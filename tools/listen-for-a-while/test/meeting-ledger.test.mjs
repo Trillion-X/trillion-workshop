@@ -1,8 +1,9 @@
 // What the listener says about a listening (read-data/meeting-ledger.mjs), and the listening loop leaving out text a
 // hearing model makes up out of silence. Moved from the product repo's test/meeting-ledger.test.mjs: its pure assertions
 // one to one; the parts that drove the Mac listener's own `listen` tool and notes job stay with that listener.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -21,7 +22,7 @@ test('the notes job tells its state in words', () => {
 });
 
 test('the listening loop leaves out a stretch that is only made-up text before it is named or written', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'ledger-'));
+  const folder = tempFolder(join(tmpdir(), 'ledger-'));
   const file = join(folder, '0.wav');
   writeFileSync(file, 'x');
   let named = null;

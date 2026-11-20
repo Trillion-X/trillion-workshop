@@ -2,9 +2,10 @@
 //
 // Working in the background on this Mac (read-data/drive-the-screen.mjs, read-data/screen-driver.swift) on a pretend Mac:
 // a background drive posts input to the process and never brings it forward; a foreground drive is unchanged.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { makeScreenDriver, screenSettings } from '../read-data/drive-the-screen.mjs';
@@ -28,7 +29,7 @@ function pretendMac() {
   return { state, program };
 }
 
-const driver = mac => makeScreenDriver({ settings, home: mkdtempSync(join(tmpdir(), 'background-drive-')), program: mac.program,
+const driver = mac => makeScreenDriver({ settings, home: tempFolder(join(tmpdir(), 'background-drive-')), program: mac.program,
   capture: async () => Buffer.from(''), ocr: async () => ({ width: 2000, height: 1000, lines: [] }), wait: async () => {} });
 
 test('a background drive posts to the process and leaves out bringing the app forward', async () => {

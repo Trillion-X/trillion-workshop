@@ -1,7 +1,8 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
@@ -16,7 +17,7 @@ const listen = server => new Promise(resolve => server.listen(0, '127.0.0.1', ()
 const close = server => new Promise(resolve => server.close(resolve));
 
 test('signed wake queues the exact chat once without receiver claim or finish', async () => {
-  const home = mkdtempSync(join(tmpdir(), 'trillion-agent-wake-'));
+  const home = tempFolder(join(tmpdir(), 'trillion-agent-wake-'));
   const source = 'codex:01a0cee9-02df-76e2-a6ea-6f202cbd0668';
   let claim = null;
   let finished = false;

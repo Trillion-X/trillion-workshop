@@ -1,8 +1,9 @@
 // Selected source bytes remain pinned independently of copy transformation and active history.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -26,7 +27,7 @@ function git(root, ...args) {
 function write(root, path, bytes) { mkdirSync(dirname(join(root, path)), { recursive: true }); writeFileSync(join(root, path), bytes); }
 function commit(root, message) { git(root, 'add', '-A'); git(root, 'commit', '-qm', message); return git(root, 'rev-parse', 'HEAD'); }
 function fixture(t, { original = source, copy = transformed, redactions = structuredClone(changes), prior = false, baselineCopy = copy, adapter = false } = {}) {
-  const home = mkdtempSync(join(tmpdir(), 'selected-byte-redactions-'));
+  const home = tempFolder(join(tmpdir(), 'selected-byte-redactions-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const old = join(home, 'original-owner'), root = join(home, 'receiving-owner');
   for (const folder of [old, root]) {

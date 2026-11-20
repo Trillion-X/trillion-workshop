@@ -7,9 +7,10 @@
 // with an image pasted into it. It checks where each file is kept and under which name, that a message names its files
 // by identity, that a message of only files is kept once its file is, that a rerun copies nothing again, and that a
 // run not handed a file it looks for asks for it and writes nothing.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { heldStore, runKept } from './support/held-store.mjs';
@@ -29,7 +30,7 @@ function put(home, path, bytes) { mkdirSync(dirname(join(home, path)), { recursi
 const lines = list => list.map(row => JSON.stringify(row) + '\n').join('');
 
 function makeHome() {
-  const home = mkdtempSync(join(tmpdir(), 'conversations-files-'));
+  const home = tempFolder(join(tmpdir(), 'conversations-files-'));
   const node = (id, parent, role, parts, extra = {}, time = 1735700000) => [id, { id, parent, message: { author: { role }, create_time: time, content: { content_type: 'multimodal_text', parts }, metadata: extra } }];
   put(home, 'Downloads/chatgpt/conversations.json', JSON.stringify([{
     id: 'cg-f', title: 'A photo of the crumb', create_time: 1735700000, current_node: 'f-4',
@@ -147,8 +148,8 @@ test('an export\'s files are found by the id their name starts with or the folde
 
 test('a granted folder may use a symlink while an export or attachment outside it stays unread', t => {
   const { home } = makeHome();
-  const aliases = mkdtempSync(join(tmpdir(), 'conversations-granted-'));
-  const outside = mkdtempSync(join(tmpdir(), 'conversations-outside-'));
+  const aliases = tempFolder(join(tmpdir(), 'conversations-granted-'));
+  const outside = tempFolder(join(tmpdir(), 'conversations-outside-'));
   t.after(() => { for (const folder of [home, aliases, outside]) rmSync(folder, { recursive: true, force: true }); });
   const granted = join(aliases, 'home');
   symlinkSync(home, granted);

@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -17,7 +18,7 @@ const routes = [
 ];
 
 test('all protected route modules compile and pass only route-derived publication/ref inputs into shared authority', async () => {
-  const dir = mkdtempSync(path.join(tmpdir(), 'hpa-protected-routes-'));
+  const dir = tempFolder(path.join(tmpdir(), 'hpa-protected-routes-'));
   writeFileSync(path.join(dir, 'authority.ts'), `
 const calls=globalThis.__hpaCalls ??= []; export async function resolveHostedExperienceAuthority(...v){calls.push(['resolve',...v]);return {ok:true}}
 export function safeAuthorityError(){return Response.json({ok:false},{status:404})}

@@ -1,9 +1,10 @@
 // A long uncovered log tail is rebuilt in slices (record-log-store replay, the host's replaySliceRows): each slice stops after a whole
 // transaction and checkpoints once, the projection stays stale until a slice reaches the log's end, and the result is the one a full
 // replay makes, sums and checksums included.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { copyFileSync, mkdtempSync } from 'node:fs';
+import { copyFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { sqliteHost } from '../src/local-store.mjs';
@@ -14,7 +15,7 @@ const row = (n, g) => ({ id: 'note:' + String(n).padStart(5, '0'), type: 'note',
 
 // Two databases holding one and the same log (the file is copied), so a sliced rebuild and a whole one are compared on identical rows.
 function tailed(transactions) {
-  const folder = mkdtempSync(join(tmpdir(), 'sliced-replay-'));
+  const folder = tempFolder(join(tmpdir(), 'sliced-replay-'));
   const host = sqliteHost(join(folder, 'a.db'));
   const first = recordLogStore(host.sql, { transaction: host.transaction, runs });
   for (let t = 0; t < transactions; t += 1) first.write([row(t % 40, t), row(1000 + t, t)]);

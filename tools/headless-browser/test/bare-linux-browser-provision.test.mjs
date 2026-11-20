@@ -1,12 +1,13 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } from 'node:fs';
+import { mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, basename } from 'node:path';
 import { browserForBareLinux } from '../bare-linux.mjs';
 
 function fixture({ omitFull = false } = {}) {
-  const root = mkdtempSync(join(tmpdir(), 'trillion-browser-provision-'));
+  const root = tempFolder(join(tmpdir(), 'trillion-browser-provision-'));
   const cache = join(root, 'browser-cache');
   const shell = join(cache, 'chromium_headless_shell-1243', 'chrome-headless-shell-linux64', 'chrome-headless-shell');
   const full = join(cache, 'chromium-1243', 'chrome-linux64', 'chrome');

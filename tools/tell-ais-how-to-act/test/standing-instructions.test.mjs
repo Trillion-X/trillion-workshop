@@ -1,9 +1,10 @@
 // do-work/standing-instructions.mjs (moved from Trillion-X/trillion harness/standing-instructions.mjs, which had no
 // test of its own there) and its entry, on a pretend home.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,7 +14,7 @@ import { runOnAgent } from 'trillion-workshop/tools/hand-off-jobs-between-agents
 import { selectDeclaredValue } from 'trillion-workshop/tools/ui/read-data/declared-selector.ts';
 import macTools from 'trillion-workshop/tools/run-on-a-persons-computer/mac-tools.json' with { type: 'json' };
 
-const tempHome = t => { const dir = realpathSync(mkdtempSync(join(tmpdir(), 'standing-'))); t.after(() => rmSync(dir, { recursive: true, force: true })); return dir; };
+const tempHome = t => { const dir = realpathSync(tempFolder(join(tmpdir(), 'standing-'))); t.after(() => rmSync(dir, { recursive: true, force: true })); return dir; };
 const env = {};
 
 test('apply writes one block after the person\'s own text, twice changes nothing, remove gives the file back byte for byte', t => {

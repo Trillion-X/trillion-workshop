@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { whatsapp } from '../computer/connections/whatsapp.mjs';
@@ -13,7 +14,7 @@ const turn = () => new Promise(resolve => setImmediate(resolve));
 const message = (id, extra = {}) => ({ key: { id, remoteJid: 'user-08f6b4fd@example.com', participant: '15555550101@s.whatsapp.net' }, messageTimestamp: 1_791_360_000, pushName: 'Sender', message: { conversation: `Original words ${id}` }, ...extra });
 
 function fixture(t) {
-  const folder = mkdtempSync(join(tmpdir(), 'trillion-whatsapp-incoming-'));
+  const folder = tempFolder(join(tmpdir(), 'trillion-whatsapp-incoming-'));
   t.after(() => rmSync(folder, { recursive: true, force: true }));
   mkdirSync(join(folder, 'session'));
   writeFileSync(join(folder, 'session', 'creds.json'), JSON.stringify({ registered: true }));

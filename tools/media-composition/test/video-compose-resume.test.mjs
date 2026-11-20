@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { markStage, reusable, stageIdentity } from '../do-work/stage-reuse.mjs';
@@ -8,7 +9,7 @@ import { markStage, reusable, stageIdentity } from '../do-work/stage-reuse.mjs';
 const scratch = tmpdir();
 
 test('a resumed stage is reused only when its sidecar matches the exact args and input files it was made from', () => {
-  const dir = mkdtempSync(join(scratch, 'resume-'));
+  const dir = tempFolder(join(scratch, 'resume-'));
   const input = join(dir, 'in.txt');
   const out = join(dir, 'stage.bin');
   writeFileSync(input, 'alpha');
@@ -34,7 +35,7 @@ test('a resumed stage is reused only when its sidecar matches the exact args and
 });
 
 test('a concat stage binds the bytes it names, so a rebuilt clip invalidates downstream resume', () => {
-  const dir = mkdtempSync(join(scratch, 'resume-concat-'));
+  const dir = tempFolder(join(scratch, 'resume-concat-'));
   const clip = join(dir, 'changed clip.mp4'), list = join(dir, 'list.txt'), out = join(dir, 'spine.mp4');
   writeFileSync(clip, 'AAAA'); writeFileSync(out, 'old spine');
   writeFileSync(list, "file 'changed clip.mp4'\n");

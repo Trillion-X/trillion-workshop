@@ -1,9 +1,10 @@
 // A complete original snapshot can precede adaptation even when a port selects two ranges from it.
 // These repositories and functions are synthetic; the real Git history supplies the byte-copy evidence.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -40,7 +41,7 @@ function commit(root, files, message) {
 function fixture(t, { excerpt = false, corruptSnapshot = false, mixedOrigins = false,
   mixedCommit = false, mixedRepository = false, fullRedactions = false,
   priorAdaptation = false, archiveOnly = false, sourceDrift = false, unreadableSource = false } = {}) {
-  const home = mkdtempSync(join(tmpdir(), 'full-source-ranges-'));
+  const home = tempFolder(join(tmpdir(), 'full-source-ranges-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const old = join(home, 'old-owner'), tools = join(home, 'tools-repo');
   for (const root of [old, tools]) {

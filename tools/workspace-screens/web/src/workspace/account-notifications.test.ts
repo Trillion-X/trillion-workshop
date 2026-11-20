@@ -1,8 +1,9 @@
 // The bell's two routes over a real PostgreSQL, each statement run as tool:run-sql-in-my-database runs it, with the
 // notices table made by the statement the notice workflows give: no table is no notices; the newest come first with their
 // read state; a mark changes only the named notices; an id that is not a notice's is refused before any statement.
+import { tempFolder } from '../../../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+
 import { createRequire } from 'node:module';
 import net from 'node:net';
 import { tmpdir } from 'node:os';
@@ -20,7 +21,7 @@ const freePort = () => new Promise<number>(resolve => { const probe = net.create
 
 before(async () => {
   const port = await freePort();
-  server = new EmbeddedPostgres({ databaseDir: mkdtempSync(join(tmpdir(), 'notices-')), user: 'postgres', password: 'made-up-pw', port, persistent: false, onLog: () => {}, onError: () => {} });
+  server = new EmbeddedPostgres({ databaseDir: tempFolder(join(tmpdir(), 'notices-')), user: 'postgres', password: 'made-up-pw', port, persistent: false, onLog: () => {}, onError: () => {} });
   await server.initialise();
   await server.start();
   connection = `postgresql://postgres:made-up-pw@127.0.0.1:${port}/postgres`;

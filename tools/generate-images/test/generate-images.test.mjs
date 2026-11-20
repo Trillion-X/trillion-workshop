@@ -1,9 +1,10 @@
 // generate_images.py on synthetic requests: the placeholder provider makes a real PNG, and every way a provider can
 // fail or answer with nothing is an honest error, never a made-up image.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -13,7 +14,7 @@ const placeholder = join(here, '..', 'do-work', 'placeholder_image_provider.py')
 const python = spawnSync('python3', ['--version']);
 
 function run(request, env = {}) {
-  const dir = mkdtempSync(join(tmpdir(), 'generate-images-'));
+  const dir = tempFolder(join(tmpdir(), 'generate-images-'));
   const requestFile = join(dir, 'request.json');
   writeFileSync(requestFile, JSON.stringify(request));
   const out = join(dir, 'images');
@@ -70,7 +71,7 @@ test('no provider is the honest answer: exit 2, nothing written', () => {
 });
 
 test('a provider that answers without an image is an error that lists what it answered', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'provider-'));
+  const dir = tempFolder(join(tmpdir(), 'provider-'));
   const script = providerScript(dir, "json.dump({'provider_ref': 'x'}, open(sys.argv[2], 'w'))");
   const { status, result } = run({ request_id: 'r', prompt: 'p', provider: { argv: ['python3', script, '{request}', '{output}'] } });
   assert.equal(status, 2);
@@ -79,7 +80,7 @@ test('a provider that answers without an image is an error that lists what it an
 });
 
 test('a provider that fails says how: exit code and what it printed', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'provider-'));
+  const dir = tempFolder(join(tmpdir(), 'provider-'));
   const script = providerScript(dir, "sys.stderr.write('no account'); sys.exit(3)");
   const { status, result } = run({ request_id: 'r', prompt: 'p', provider: { argv: ['python3', script, '{request}', '{output}'] } });
   assert.equal(status, 2);
@@ -95,7 +96,7 @@ test('a provider program that is not there is named', () => {
 });
 
 test('a hosted answer by url is kept as the url, with no file made', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'provider-'));
+  const dir = tempFolder(join(tmpdir(), 'provider-'));
   const script = providerScript(dir, "json.dump({'output_artifact_refs': [{'url': 'https://images.example.test/a.png', 'media_type': 'image/png'}], 'format': 'image/png'}, open(sys.argv[2], 'w'))");
   const { status, result, out } = run({ request_id: 'r', prompt: 'p', provider: { argv: ['python3', script, '{request}', '{output}'] } });
   assert.equal(status, 0);
@@ -104,7 +105,7 @@ test('a hosted answer by url is kept as the url, with no file made', () => {
 });
 
 test('the provider sees only the variables the request names', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'provider-'));
+  const dir = tempFolder(join(tmpdir(), 'provider-'));
   const script = providerScript(dir, "import os\njson.dump({'output_artifact_refs': [{'url': 'u'}], 'provider_ref': (os.environ.get('NAMED_ONE') or '-') + '/' + (os.environ.get('NOT_NAMED') or '-')}, open(sys.argv[2], 'w'))");
   const { result } = run(
     { request_id: 'r', prompt: 'p', provider: { argv: ['python3', script, '{request}', '{output}'], env_names: ['NAMED_ONE'] } },

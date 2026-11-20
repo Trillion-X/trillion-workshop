@@ -8,10 +8,11 @@
  * array pass-through, AND a real offline render where the censored rectangle sits at EACH waypoint at ITS time
  * (a 3-waypoint out-and-back), while a waypoint position is uncensored at the times the censor is elsewhere.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -32,7 +33,7 @@ function meanGray(file, ss, { x, y, w, h }) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'rp-'));
+  const dir = tempFolder(join(tmpdir(), 'rp-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -40,7 +41,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'rp-render-'));
+  work = tempFolder(join(tmpdir(), 'rp-render-'));
   src = join(work, 'detail.mp4');
   ffmpeg(['-f', 'lavfi', '-i', 'testsrc2=s=320x240:d=2:r=24', '-pix_fmt', 'yuv420p', src]);
 });

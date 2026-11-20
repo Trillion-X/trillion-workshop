@@ -3,10 +3,11 @@
 // A crate outside the Workshop (the engine's crates beside it) is fingerprinted at the commit the fingerprint records, read
 // from git. Uncommitted edits in that checkout, which other sessions may hold, must not change the result, and a fingerprint
 // with no recorded commit for such a crate is refused.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -15,7 +16,7 @@ import { BUILD_TOOL } from '../build/compiled-modules.mjs';
 const git = (cwd, args) => execFileSync('git', ['-C', cwd, '-c', 'user.name=test', '-c', 'user.email=test@example.invalid', ...args], { encoding: 'utf8' }).trim();
 
 test('uncommitted edits beside the Workshop do not change a sibling crate\'s fingerprint', async () => {
-  const root = mkdtempSync(join(tmpdir(), 'sibling-crate-commit-'));
+  const root = tempFolder(join(tmpdir(), 'sibling-crate-commit-'));
   try {
     // A sibling checkout whose crates/ folder is the top of its own repository, as the writer requires.
     const crates = join(root, 'sibling', 'crates');

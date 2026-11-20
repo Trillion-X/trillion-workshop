@@ -1,10 +1,11 @@
 // The bar's rows and the verdict, the still level, the command's refusals, and the real measure on small videos made here
 // with ffmpeg (a moving test pattern, a still grey picture, and a pattern that moves then holds). The measure needs ffmpeg and
 // ffprobe; the tests that use them skip, saying why, without. The script holds no bar: every test passes made-up rows.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -14,7 +15,7 @@ import { measureMotion, stillLevelOf } from '../read-data/measure-motion.mjs';
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const command = join(folder, 'do-work', 'check-motion.mjs');
 const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records[0].payload;
-const work = mkdtempSync(join(tmpdir(), 'check-motion-'));
+const work = tempFolder(join(tmpdir(), 'check-motion-'));
 const node = (...argv) => spawnSync('node', [command, ...argv], { encoding: 'utf8' });
 const lastLine = run => JSON.parse(run.stdout.trim().split('\n').pop());
 

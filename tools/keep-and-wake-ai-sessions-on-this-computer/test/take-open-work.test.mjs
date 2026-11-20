@@ -1,9 +1,10 @@
 // The helper part that gets open work done by the person's own AI (harness/take-open-work.mjs): the pure planner picks
 // what to start now from the account's open work, the local started records keep a job from ever starting twice, and
 // a chat's work goes back only to that chat when it is idle.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, statSync, utimesSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { accountCaller, chatOf, eachLine, findChats, limitResetAt, listOpenWork, readPage, plan, releaseHeld, resultFileOf, restUntil, runPass, startedRecords, tailOf, takerCard, withComputerArgs, withWorkMcp } from '../harness/take-open-work.mjs';
@@ -114,7 +115,7 @@ test('an open handoff named for its source chat resumes that exact idle chat', (
 
 test('a chat file is read a block at a time, never whole: lines across blocks stay whole, and reading stops once found', () => {
   // A long session's file passes the largest string Node can make (512 MB); reading it whole stopped every pass.
-  const root = mkdtempSync(join(tmpdir(), 'take-open-work-'));
+  const root = tempFolder(join(tmpdir(), 'take-open-work-'));
   const file = join(root, 'long.jsonl');
   const long = 'x'.repeat((1 << 20) + 17);
   writeFileSync(file, `${JSON.stringify({ type: 'meta', pad: long })}\n${JSON.stringify({ cwd: '/work/sample/proj' })}\n${'{"more":1}\n'.repeat(300000)}`);
@@ -129,7 +130,7 @@ test('a chat file is read a block at a time, never whole: lines across blocks st
 });
 
 test('chat rows find the session file and its working folder, and say whether the chat is idle', () => {
-  const root = mkdtempSync(join(tmpdir(), 'take-open-work-'));
+  const root = tempFolder(join(tmpdir(), 'take-open-work-'));
   mkdirSync(join(root, 'p', 'proj'), { recursive: true });
   const file = join(root, 'p', 'proj', 'aaaa.jsonl');
   writeFileSync(file, `${JSON.stringify({ type: 'meta' })}\n${JSON.stringify({ cwd: '/work/sample/proj' })}\n`);
@@ -144,7 +145,7 @@ test('chat rows find the session file and its working folder, and say whether th
 });
 
 test('a started record is created once: a second claim of the same handoff is refused', () => {
-  const records = startedRecords(mkdtempSync(join(tmpdir(), 'take-open-work-')));
+  const records = startedRecords(tempFolder(join(tmpdir(), 'take-open-work-')));
   assert.equal(records.claim({ handoff_id: 'h1', started_at: NOW }), true);
   assert.equal(records.claim({ handoff_id: 'h1', started_at: NOW }), false);
   records.update('h1', { pid: 42 });
@@ -156,7 +157,7 @@ test('a started record is created once: a second claim of the same handoff is re
 });
 
 test('a pass claims by id, starts the AI once, and a second pass starts nothing for the same job', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'take-open-work-'));
+  const folder = tempFolder(join(tmpdir(), 'take-open-work-'));
   const calls = [];
   let finished = false;
   const call = async (path, body) => {
@@ -189,7 +190,7 @@ test('a pass claims by id, starts the AI once, and a second pass starts nothing 
 });
 
 test('a run that ends without finishing its claimed job releases it immediately with the reason', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'take-open-work-'));
+  const folder = tempFolder(join(tmpdir(), 'take-open-work-'));
   const calls = [];
   const call = async (path, body) => {
     calls.push([path, body]);
@@ -208,7 +209,7 @@ test('a run that ends without finishing its claimed job releases it immediately 
 });
 
 test('the work AI receives a keychain-backed Trillion MCP config without the account key', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'take-open-work-mcp-'));
+  const folder = tempFolder(join(tmpdir(), 'take-open-work-mcp-'));
   mkdirSync(join(folder, 'runs'));
   const production = { ...settingsFile, state_folder: folder };
   const claude = production.ais.find(row => row.id === 'claude');
@@ -225,7 +226,7 @@ test('the work AI receives a keychain-backed Trillion MCP config without the acc
 });
 
 test('a failed Trillion MCP preflight leaves the job unclaimed and records the runnable AI trouble', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'take-open-work-preflight-'));
+  const folder = tempFolder(join(tmpdir(), 'take-open-work-preflight-'));
   const calls = [];
   const call = async (path, body) => {
     calls.push([path, body]);
@@ -241,7 +242,7 @@ test('a failed Trillion MCP preflight leaves the job unclaimed and records the r
 });
 
 test('a timed out AI releases its claim and gives the next chosen AI a turn', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'take-open-work-timeout-'));
+  const folder = tempFolder(join(tmpdir(), 'take-open-work-timeout-'));
   const calls = [];
   const call = async (path, body) => {
     calls.push([path, body]);
@@ -265,7 +266,7 @@ test('a timed out AI releases its claim and gives the next chosen AI a turn', as
 });
 
 test('a timeout whose words say the usage limit was reached rests the AI until the reset they name, and the card says so', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'take-open-work-timeout-limit-'));
+  const folder = tempFolder(join(tmpdir(), 'take-open-work-timeout-limit-'));
   const calls = [];
   const lines = [];
   const call = async (path, body) => {
@@ -303,7 +304,7 @@ test('when every chosen AI rests, the card says so and the first is not silently
 });
 
 test('a program that cannot start gives the job back, does not rest its AI, and is shown on the card', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'take-open-work-nostart-'));
+  const folder = tempFolder(join(tmpdir(), 'take-open-work-nostart-'));
   const calls = [];
   const call = async (path, body) => {
     calls.push([path, body]);
@@ -353,7 +354,7 @@ test('a Claude settings file kept on this computer is added right after claude i
 });
 
 test('a job the account will not hand over is recorded and not run', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'take-open-work-'));
+  const folder = tempFolder(join(tmpdir(), 'take-open-work-'));
   const call = async path => (path === '/handoffs/open-page' ? { work: [job('h1')], agents: [], next_after: null } : path === '/handoffs/take' ? { handoff: null, note: 'h1 is not waiting' } : {});
   let spawned = 0;
   const pass = await runPass({ locate: located, settings: { ...settings, state_folder: folder }, call, computer: 'Mac', spawnRun: () => { spawned += 1; }, now: () => new Date(NOW) });
@@ -468,7 +469,7 @@ test('the helper runs one full pass over waiting work at a time, and one more wh
 });
 
 test('one full pass reads the open work once for sorting and taking, a page at a time', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'take-open-work-'));
+  const folder = tempFolder(join(tmpdir(), 'take-open-work-'));
   const pages = [];
   const call = async (path, body) => {
     if (path === '/handoffs/open-page') { pages.push(body.after); return body.after ? { work: [job('h2')], agents: [{ agent_id: 'second', source_id: 'codex:two', takes_work: true }, { agent_id: 'shared', source_id: 'codex:latest', takes_work: true }], next_after: null } : { work: [job('h1', { to_agent: 'first', input: { arrived: { source_id: 'codex:one' } } })], agents: [{ agent_id: 'first', source_id: 'codex:one', takes_work: true }, { agent_id: 'shared', source_id: 'codex:earlier', takes_work: true }], next_after: 'h1' }; }
@@ -494,7 +495,7 @@ test('one full pass reads the open work once for sorting and taking, a page at a
 });
 
 test('one announced job is read by its id, never by listing every open job, even when it came from a chat', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'take-open-work-'));
+  const folder = tempFolder(join(tmpdir(), 'take-open-work-'));
   const calls = [];
   const fromChat = job('h7', { input: { arrived: { source_id: 'codex:abc' } } });
   const call = async (path, body) => {
@@ -515,7 +516,7 @@ test('one announced job is read by its id, never by listing every open job, even
 });
 
 test('the event pass takes a priority-6 job it read by id as the person\'s own work, not "waits for triage"', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'take-open-work-'));
+  const folder = tempFolder(join(tmpdir(), 'take-open-work-'));
   const call = async (path, body) => (path === '/handoffs/read' ? { handoff: job(body.handoff_id, { priority: 6 }) } : {});
   const triaged = { ...settings, max_concurrent: 1, triage: settingsFile.triage, state_folder: folder };
   const pass = await runPass({ locate: located, settings: triaged, call, computer: 'Mac', spawnRun: () => {}, now: () => new Date(NOW), onlyHandoffId: 'h4' });
@@ -620,7 +621,7 @@ async function jobFixture() {
     throw new Error(`Unexpected ${address} ${method}`);
   };
   const task = () => held.get(ID).value;
-  const configured = { ...settingsFile, use_ai: 'claude', max_concurrent: 1, state_folder: mkdtempSync(join(tmpdir(), 'synthetic-worker-')), working_folder: tmpdir(), triage: undefined, work_mcp: undefined, retry_unfinished_minutes: [0, 0], tasks: { ...settingsFile.tasks, recovery_after_seconds: 0 } };
+  const configured = { ...settingsFile, use_ai: 'claude', max_concurrent: 1, state_folder: tempFolder(join(tmpdir(), 'synthetic-worker-')), working_folder: tmpdir(), triage: undefined, work_mcp: undefined, retry_unfinished_minutes: [0, 0], tasks: { ...settingsFile.tasks, recovery_after_seconds: 0 } };
   const raw = Object.assign(async () => { throw new Error('Legacy HTTP is forbidden in this fixture'); }, { resource });
   const wrap = () => taskCaller(raw, configured, { now: () => time, computer: 'Fixture' });
   const call = wrap();
@@ -738,7 +739,7 @@ test('task watcher stops an old executor after same-AI claim replacement and pre
 test('two task workers racing the same record start one process total', async () => {
   const f = await jobFixture(); let starts = 0;
   const spawn = () => { starts += 1; return f.child(() => f.finish()); };
-  const passes = await Promise.all([f.pass(spawn), f.pass(spawn, { settings: { ...f.configured, state_folder: mkdtempSync(join(tmpdir(), 'synthetic-racing-worker-')) } })]);
+  const passes = await Promise.all([f.pass(spawn), f.pass(spawn, { settings: { ...f.configured, state_folder: tempFolder(join(tmpdir(), 'synthetic-racing-worker-')) } })]);
   await Promise.all(passes.flatMap(pass => pass.runs)); assert.equal(starts, 1);
 });
 
@@ -843,7 +844,7 @@ test('task asynchronous tool claims are read to completion before the child star
 
 
 test('task local receipts keep distinct colon and underscore ids distinct', () => {
-  const records = startedRecords(mkdtempSync(join(tmpdir(), 'synthetic-distinct-ids-')));
+  const records = startedRecords(tempFolder(join(tmpdir(), 'synthetic-distinct-ids-')));
   assert.equal(records.claim({ handoff_id: 'calendar-task:sample:one', started_at: NOW }), true);
   assert.equal(records.claim({ handoff_id: 'calendar-task:sample_one', started_at: NOW }), true);
   assert.equal(records.all().size, 2);

@@ -10,11 +10,12 @@
  * between), and the black/white split column moves with the cutoff (cutoff 0.25 splits near x=W/4, cutoff
  * 0.75 near x=3W/4). Convention-agnostic, PLUS a byte-identical determinism proof. L155.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -41,7 +42,7 @@ const splitCol = (row) => { for (let x = 0; x < row.length; x++) if (row[x] > 12
 const midtoneCount = (row) => row.filter((v) => v > 40 && v < 215).length;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'bin-'));
+  const dir = tempFolder(join(tmpdir(), 'bin-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -49,7 +50,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'bin-render-'));
+  work = tempFolder(join(tmpdir(), 'bin-render-'));
   ramp = join(work, 'ramp.mp4'); // a horizontal luma ramp: 0 at the left edge, 255 at the right edge.
   ffmpeg(['-f', 'lavfi', '-i', `color=black:s=320x240:d=2:r=${FPS}`, '-vf', `geq=r='255*X/${W - 1}':g='255*X/${W - 1}':b='255*X/${W - 1}'`, '-pix_fmt', 'yuv420p', ramp]);
 });

@@ -12,11 +12,12 @@
  * clamped ends of `threshold` render differently (the param drives ffmpeg), and two runs are byte-identical.
  * PLUS a pure fragment/clamp unit proof (numeric-only, injection-safe).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -44,7 +45,7 @@ function columnDistinct(file, ss, x) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'deband-'));
+  const dir = tempFolder(join(tmpdir(), 'deband-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -52,7 +53,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'deband-render-'));
+  work = tempFolder(join(tmpdir(), 'deband-render-'));
   // a 16-step gray vertical gradient: floor(Y/15)*16 gives 16 hard bands 0..240 down the height (visible
   // stripes). cb=cr=128 keeps it neutral gray. This is the classic banding deband is built to smooth.
   banded = join(work, 'banded.mp4');

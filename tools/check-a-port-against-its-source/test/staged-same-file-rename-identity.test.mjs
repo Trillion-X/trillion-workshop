@@ -1,8 +1,9 @@
 // The staged index and a normal commit of its exact bytes obey the same source-lineage rules.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -45,7 +46,7 @@ function initialize(root) {
 }
 
 function fixture(t) {
-  const home = mkdtempSync(join(tmpdir(), 'staged-same-file-lineage-'));
+  const home = tempFolder(join(tmpdir(), 'staged-same-file-lineage-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const root = join(home, 'receiving-owner');
   initialize(root);

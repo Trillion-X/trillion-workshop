@@ -2,8 +2,9 @@
 //
 // `{cli} call TOOL JSON` reads the tool's run template (tools:list with `tool`) and sends its `need` in the engine
 // envelope of the tools:run call, passed through untouched. A tool whose row needs nothing sends no `need`.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -14,7 +15,7 @@ speakFor({ cli: 'example', site_name: 'Example' });
 
 const ORIGIN = 'http://127.0.0.1:8788';
 const KEY = `nm_${'ab'.repeat(16)}`;
-const home = () => mkdtempSync(join(tmpdir(), 'example-call-need-'));
+const home = () => tempFolder(join(tmpdir(), 'example-call-need-'));
 const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, forget: () => {} };
 
 /** A fake door that answers tools:list with `runs[tool]` as the row's run template, and tools:run with `{ran: true}`.

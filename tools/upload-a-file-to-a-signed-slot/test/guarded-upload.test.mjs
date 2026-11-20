@@ -4,9 +4,10 @@
 // checked whole before any byte leaves; the page learns a size, not the file; the held file is used once and expires.
 // Moved from Trillion-X/trillion test/guarded-upload.test.mjs (dc79bb0a87^) with its import repointed; the last tests are
 // the Workshop entry, which reads the file from the folder the person granted.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { checkSlot, makeGuardedUploads, uploadFromFolder, uploadSettings } from '../read-data/guarded-upload.mjs';
@@ -92,7 +93,7 @@ test('a checked slot cannot redirect the held file to another address', async ()
 
 // A granted folder with one file in it, a folder beside it the tool was not granted, and a link out of the granted one.
 function aGrantedFolder(t) {
-  const place = mkdtempSync(join(tmpdir(), 'guarded-upload-'));
+  const place = tempFolder(join(tmpdir(), 'guarded-upload-'));
   t.after(() => rmSync(place, { recursive: true, force: true }));
   const folder = join(place, 'granted');
   mkdirSync(join(folder, 'inner'), { recursive: true });

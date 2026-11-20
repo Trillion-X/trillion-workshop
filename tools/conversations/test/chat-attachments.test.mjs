@@ -10,9 +10,10 @@
 // message kept again gains only the links it did not have. The two space tests (a file item members read from the
 // importer's store until withdrawn or the importer leaves) stay behind: the Worker's space owner did not move here.
 // Every person, file and chat here is made up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdirSync, mkdtempSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -49,7 +50,7 @@ test('each message names the files it carried, once each, by bare id; a message 
 
 // The on-computer import: the export in a folder of the granted home, its files beside it.
 function homeWith(files) {
-  const home = mkdtempSync(join(tmpdir(), 'chat-attachments-'));
+  const home = tempFolder(join(tmpdir(), 'chat-attachments-'));
   const put = (path, bytes) => { mkdirSync(dirname(join(home, path)), { recursive: true }); writeFileSync(join(home, path), bytes); };
   put('Downloads/kiln/conversations.json', JSON.stringify([chat]));
   for (const [path, text] of Object.entries(files)) put(path, text);

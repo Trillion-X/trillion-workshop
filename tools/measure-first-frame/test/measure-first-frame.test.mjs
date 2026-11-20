@@ -1,7 +1,8 @@
 // A loopback server that serves a generated video by Range, a real Chromium measuring it, and the result shaping on made-up numbers.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -70,7 +71,7 @@ const browser = (() => { try { return findBrowser(); } catch { return null; } })
 const haveFfmpeg = spawnSync('ffmpeg', ['-version']).status === 0;
 
 test('a real Chromium measures a video served by Range, fresh and returning', { skip: !browser ? 'no Chromium on this computer' : !haveFfmpeg ? 'ffmpeg is not installed to generate the video' : false, timeout: 120000 }, async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'measure-first-frame-'));
+  const folder = tempFolder(join(tmpdir(), 'measure-first-frame-'));
   const file = join(folder, 'v.webm');
   execFileSync('ffmpeg', ['-v', 'error', '-f', 'lavfi', '-i', 'testsrc=size=160x120:rate=25:duration=4', '-c:v', 'libvpx', '-b:v', '200k', '-g', '25', '-y', file]);
   assert.ok(existsSync(file));

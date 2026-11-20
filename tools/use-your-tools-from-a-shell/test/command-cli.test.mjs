@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { lstatSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
+import { lstatSync, mkdirSync, readFileSync, readlinkSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { PassThrough } from 'node:stream';
 import { tmpdir } from 'node:os';
@@ -20,7 +21,7 @@ const KEY = `nm_${'ab'.repeat(32)}`;
 const ACCOUNT = 'f'.repeat(64);
 const me = { agent_id: 'claude-code-on-mac', ai_id: 'ai:claude-code-on-mac', held_as: [], harness: 'Claude Code', app: 'Claude Code', model: null, provider: 'Anthropic', computer: 'Mac' };
 const place = () => ({ repository: 'example', branch: 'main' });
-const home = () => mkdtempSync(join(tmpdir(), 'example-cli-test-'));
+const home = () => tempFolder(join(tmpdir(), 'example-cli-test-'));
 const task = 'record:calendar-task:1';
 const quick = { ...settings, retry: { ...settings.retry, count: 3, first_seconds: 0, most_seconds: 0 } };
 const noWait = async () => {};
@@ -67,7 +68,7 @@ async function fakeDoor({ ops = {}, oauth = null, sse = false, bearers = [KEY], 
   });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   // The engine's own unix socket answers the same requests, as the real engine answers /persons/add only there.
-  const socket = join(mkdtempSync(join(tmpdir(), 'td-')), 's');
+  const socket = join(tempFolder(join(tmpdir(), 'td-')), 's');
   const onSocket = createServer(server.listeners('request')[0]);
   await new Promise(resolve => onSocket.listen(socket, resolve));
   const origin = `http://127.0.0.1:${server.address().port}`;
@@ -909,13 +910,13 @@ test('a local door is the app\'s loopback address, a sign-in of the origin it se
     assert.deepEqual(fake.added, [`Bearer ${KEY}`], 'the pass is sent to the engine\'s own socket, as the bearer');
   } finally { await fake.close(); }
   const refusing = createServer((request, response) => response.writeHead(403, { 'content-type': 'application/json' }).end('{"error":"persons_are_added_at_this_computer"}'));
-  const refusingSocket = join(mkdtempSync(join(tmpdir(), 'td-')), 's');
+  const refusingSocket = join(tempFolder(join(tmpdir(), 'td-')), 's');
   await new Promise(resolve => refusing.listen(refusingSocket, resolve));
   try {
     await assert.rejects(addPersonHere({ socket: refusingSocket, bearer: KEY }), error => error.message === settings.words.not_taken_in && error.detail.endsWith('answered 403 persons_are_added_at_this_computer.'));
   } finally { refusing.close(); }
   const without = createServer((request, response) => response.writeHead(404).end());
-  const withoutSocket = join(mkdtempSync(join(tmpdir(), 'td-')), 's');
+  const withoutSocket = join(tempFolder(join(tmpdir(), 'td-')), 's');
   await new Promise(resolve => without.listen(withoutSocket, resolve));
   try {
     await assert.rejects(addPersonHere({ socket: withoutSocket, bearer: KEY }), error => error.message === settings.words.not_taken_in && error.notTaken === true, 'an engine with no add route has not taken the person in: there is no skip');
@@ -1031,7 +1032,7 @@ test('login with a kept key the engine will not hold signs in at the browser ins
   const pass = passFor('person@example.com');
   const fake = await fakeDoor({ bearers: [pass, KEY], holdsAddedOnly: true, oauth: signInServer(pass) });
   const refusing = createServer((request, response) => response.writeHead(503, { 'content-type': 'application/json' }).end('{"error":"sign_in_unavailable"}'));
-  const refusingSocket = join(mkdtempSync(join(tmpdir(), 'td-')), 's');
+  const refusingSocket = join(tempFolder(join(tmpdir(), 'td-')), 's');
   await new Promise(resolve => refusing.listen(refusingSocket, resolve));
   try {
     const opened = [];
@@ -1046,7 +1047,7 @@ test('whoami with no sign-in and a kept key the engine will not read says not si
   let asked = 0;
   const server = createServer((request, response) => { asked += 1; response.writeHead(503, { 'content-type': 'application/json' }).end('{"error":"keys_unavailable"}'); });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-  const socket = join(mkdtempSync(join(tmpdir(), 'td-')), 's');
+  const socket = join(tempFolder(join(tmpdir(), 'td-')), 's');
   const engine = createServer((request, response) => response.writeHead(503, { 'content-type': 'application/json' }).end('{"error":"sign_in_unavailable"}'));
   await new Promise(resolve => engine.listen(socket, resolve));
   try {

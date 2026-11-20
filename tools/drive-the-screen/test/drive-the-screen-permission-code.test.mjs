@@ -1,8 +1,9 @@
 // A missing Mac permission is a typed refusal (read-data/drive-the-screen.mjs ready): status 409, code and permission from
 // read-data/drive-the-screen.json (computer/mac-tools.mjs runHere passes both on to the caller beside the words).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { makeScreenDriver, screenSettings } from '../read-data/drive-the-screen.mjs';
@@ -11,7 +12,7 @@ const settings = screenSettings();
 const DISPLAY = { index: 0, main: true, x: 0, y: 0, width: 1000, height: 500, scale: 2 };
 const APP = { name: 'Probe', bundle_id: 'test.probe', pid: 4242 };
 const macWith = readiness => async request => ({ readiness, displays: [DISPLAY], frontmost: APP, app: APP, truncated: false, elements: request.max_nodes === 0 ? [] : [] });
-const driverOn = readiness => makeScreenDriver({ settings, home: mkdtempSync(join(tmpdir(), 'perm-home-')), program: macWith(readiness), capture: async () => Buffer.from('p'), ocr: async () => ({ width: 2000, height: 1000, lines: [] }), wait: async () => {} });
+const driverOn = readiness => makeScreenDriver({ settings, home: tempFolder(join(tmpdir(), 'perm-home-')), program: macWith(readiness), capture: async () => Buffer.from('p'), ocr: async () => ({ width: 2000, height: 1000, lines: [] }), wait: async () => {} });
 
 test('a missing Mac permission carries the code and the permission name from DATA, with the words and status kept', async () => {
   for (const [missing, words] of [['ax_trusted', /Accessibility/], ['screen_capture', /Screen Recording/]]) {

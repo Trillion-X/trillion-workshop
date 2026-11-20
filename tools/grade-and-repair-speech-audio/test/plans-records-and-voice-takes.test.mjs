@@ -9,10 +9,11 @@
 //   moves the starts to the voice and keeps the script's spelling, and the two earshot scripts run on a stand-in earshot.
 // Needs python3 with numpy, scipy and soundfile, and ffmpeg (librosa too for the two pitch checks); without them the
 // tests fail with the missing dependency named.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test, { before } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -31,7 +32,7 @@ const earshot = { PYTHONPATH: join(here, 'stand-in-earshot') };
 
 let work, spans;
 before(() => {
-  work = mkdtempSync(join(tmpdir(), 'plans-records-takes-'));
+  work = tempFolder(join(tmpdir(), 'plans-records-takes-'));
   assert.equal(python([join(here, 'build_fixture.py'), join(work, 'media')]).status, 0, 'the fixture builds');
   spans = JSON.parse(readFileSync(join(work, 'media', 'spans.json'), 'utf8')).spans;
   for (const name of ['plans', 'transcripts', 'wordtimes']) mkdirSync(join(work, name));

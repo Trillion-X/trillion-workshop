@@ -3,10 +3,11 @@
 // a made-up mask, so the test needs no model download: the call is the one the old film script made (one session, only_mask,
 // no post-process) and the mask lands beside the picture as <picture>.mask-<model>.png. Needs python3 with Pillow, numpy
 // and OpenCV (segment-person-matte.py imports cv2); without them it is skipped with the reason.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, rmSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -29,7 +30,7 @@ def remove(im, session=None, only_mask=False, post_process_mask=True):
 `;
 
 test('--still masks each picture with one session of the named model and writes <picture>.mask-<model>.png', { skip: missing }, () => {
-  const dir = mkdtempSync(join(tmpdir(), 'still-mask-'));
+  const dir = tempFolder(join(tmpdir(), 'still-mask-'));
   try {
     mkdirSync(join(dir, 'stand-in', 'rembg'), { recursive: true });
     writeFileSync(join(dir, 'stand-in', 'rembg', '__init__.py'), STAND_IN);

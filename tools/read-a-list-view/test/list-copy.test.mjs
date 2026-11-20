@@ -2,9 +2,10 @@
 // folder: a folder never read reaches the list, a list edit reaches the file, a file edit reaches the list, a change on both
 // sides keeps both (the later one wins), a removal on either side reaches the other, a restore never becomes a removal,
 // an AI's row becomes a file, a dry run writes nothing, and a sync not handed its history refuses to judge.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { syncStore } from './support/sync-store.mjs';
@@ -14,7 +15,7 @@ const recordOf = name => `${TYPE}:notes~${encodeURIComponent(`/${name}`)}`;
 const NOTE = (name, description, body = `${description}\n`) => `---\nname: ${name}\ndescription: ${description}\n---\n${body}`;
 
 async function bakery(files = {}) {
-  const root = await mkdtemp(join(tmpdir(), 'list-copy-'));
+  const root = tempFolder(join(tmpdir(), 'list-copy-'));
   for (const [name, text] of Object.entries(files)) await writeFile(join(root, name), text);
   const source = { id: 'notes', source: 'documents', of: '/', root, original: 'list', adopt_own_rows: true, copy_name: '{note.name}.md',
     content: { field: 'document.text', part_bytes: 4000 } };

@@ -1,12 +1,13 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync,writeFileSync,rmSync,realpathSync} from 'node:fs';
+import { writeFileSync, rmSync, realpathSync } from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {readNarrationCaptions} from '../do-work/read-narration-captions.mjs';
 
 test('caption binding uses the declared sidecar and refuses stale words, bad time, missing source and mismatched count',()=>{
-  const voiceDir=mkdtempSync(join(tmpdir(),'narration-captions-'));
+  const voiceDir=tempFolder(join(tmpdir(),'narration-captions-'));
   const timeline={duration:4,captions:{srt:'vo.srt',cues:2},lines:[{text:'The ball reaches the racket.'},{text:'The next ball passes it.'}]};
   const current='1\n00:00:00,100 --> 00:00:01,900\nThe ball reaches\nthe racket.\n\n2\n00:00:02,000 --> 00:00:03,800\nThe next ball passes it.\n';
   try {
@@ -33,7 +34,7 @@ const declaredLines=()=>[
 ];
 const spanSrt=(firstEnd='03,000',secondStart='03,000',secondEnd='05,800')=>`1\n00:00:00,000 --> 00:00:${firstEnd}\nOne part changes another.\n\n2\n00:00:${secondStart} --> 00:00:${secondEnd}\nThe result still needs checking.\n`;
 function spanFixture(run){
-  const voiceDir=mkdtempSync(join(tmpdir(),'narration-caption-spans-'));
+  const voiceDir=tempFolder(join(tmpdir(),'narration-caption-spans-'));
   const timeline={duration:6,captions:{srt:'captions.srt',cues:2},lines:declaredLines()};
   const read=(text=spanSrt(),value=timeline)=>{writeFileSync(join(voiceDir,'captions.srt'),text);return readNarrationCaptions({voiceDir,timeline:value});};
   try{run({read,timeline});}finally{rmSync(voiceDir,{recursive:true,force:true});}

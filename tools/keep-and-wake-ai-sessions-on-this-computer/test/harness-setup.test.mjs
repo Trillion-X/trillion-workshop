@@ -1,7 +1,8 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,7 +13,7 @@ const SELF = join(ROOT, 'harness', 'setup.mjs');
 const okay = { status: 0, stdout: '', stderr: '' };
 
 function fixture(t) {
-  const root = mkdtempSync(join(tmpdir(), 'trillion-setup-'));
+  const root = tempFolder(join(tmpdir(), 'trillion-setup-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const home = join(root, "account's $work");
   const payload = join(root, 'checkout', 'harness');

@@ -11,11 +11,12 @@
  * channel bleed across on each side (G rises inside the red region, R rises inside the green region) while
  * the far-from-seam luma stays crisp. PLUS a byte-identical determinism proof. L155.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -41,7 +42,7 @@ function px(raw, x) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'cbl-'));
+  const dir = tempFolder(join(tmpdir(), 'cbl-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -49,7 +50,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'cbl-render-'));
+  work = tempFolder(join(tmpdir(), 'cbl-render-'));
   seam = join(work, 'seam.mp4'); // sharp vertical seam: left half pure red, right half pure green, at x=160.
   ffmpeg(['-f', 'lavfi', '-i', `color=black:s=320x240:d=2:r=${FPS}`,
     '-vf', "geq=r='if(lt(X,160),240,20)':g='if(lt(X,160),20,240)':b='20'", '-pix_fmt', 'yuv420p', seam]);

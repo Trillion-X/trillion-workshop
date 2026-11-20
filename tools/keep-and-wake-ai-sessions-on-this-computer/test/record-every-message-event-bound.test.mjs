@@ -1,10 +1,11 @@
 // harness/record-every-message.mjs: a hook event over max_event_bytes is drained and ignored, so it keeps nothing, prints
 // nothing and exits 0; the same transcript under a small event is kept. The turn is caught up from the cursor later.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -23,7 +24,7 @@ const transcriptIn = dir => {
 
 // Runs the entry point as the Stop hook does, with the event on stdin, against a loopback origin that counts requests.
 async function runHook(event) {
-  const home = mkdtempSync(join(tmpdir(), 'record-every-message-home-'));
+  const home = tempFolder(join(tmpdir(), 'record-every-message-home-'));
   const keyFile = join(home, 'key');
   writeFileSync(keyFile, 'test-key\n');
   const requests = [];
@@ -53,7 +54,7 @@ async function runHook(event) {
 }
 
 test('an event over max_event_bytes keeps nothing, prints nothing and exits 0', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'record-every-message-big-'));
+  const dir = tempFolder(join(tmpdir(), 'record-every-message-big-'));
   const event = { session_id: SESSION, transcript_path: transcriptIn(dir), pad: 'x'.repeat(MAX) };
   const result = await runHook(event);
   assert.equal(result.code, 0);
@@ -62,7 +63,7 @@ test('an event over max_event_bytes keeps nothing, prints nothing and exits 0', 
 });
 
 test('the same transcript under an event within max_event_bytes is kept', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'record-every-message-small-'));
+  const dir = tempFolder(join(tmpdir(), 'record-every-message-small-'));
   const result = await runHook({ session_id: SESSION, transcript_path: transcriptIn(dir) });
   assert.equal(result.code, 0);
   assert.ok(result.requests.some(url => url === '/mcp/api/inbound'), `expected the person's message to be sent, saw ${result.requests}`);

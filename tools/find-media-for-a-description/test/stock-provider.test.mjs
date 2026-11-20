@@ -1,16 +1,17 @@
 // The stock provider on a made-up library served from this computer: the library is a row of data, a key goes to the
 // library it belongs to on the search request only, a source without a key is skipped, and the next source answers.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pickUrl, searchUrl, valueAt } from '../read-data/stock-pick.mjs';
 
 const provider = join(import.meta.dirname, '..', 'do-work', 'stock-provider.mjs');
-const work = mkdtempSync(join(tmpdir(), 'stock-provider-'));
+const work = tempFolder(join(tmpdir(), 'stock-provider-'));
 const seen = [];
 let server;
 let base;

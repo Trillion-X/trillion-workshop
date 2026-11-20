@@ -9,11 +9,12 @@
  * stays bright; a far corner stays black (the halo is localized to highlights, not a full-frame wash). PLUS a
  * fragment/clamp unit and byte-determinism.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -38,7 +39,7 @@ function pixel(file, x, y) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'hal-'));
+  const dir = tempFolder(join(tmpdir(), 'hal-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -46,7 +47,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'hal-render-'));
+  work = tempFolder(join(tmpdir(), 'hal-render-'));
   boxClip = join(work, 'box.mp4');   // a bright white box on black
   ffmpeg(['-f', 'lavfi', '-i', `color=black:s=${W}x${H}:d=0.4:r=${FPS}`, '-vf', 'drawbox=x=80:y=80:w=40:h=40:color=white:t=fill', '-pix_fmt', 'yuv420p', boxClip]);
 });

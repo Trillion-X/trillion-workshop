@@ -4,8 +4,9 @@
 // each try waits `retry.attempt_seconds` (`--timeout SECONDS` sets that wait for one command), then is asked again under the
 // SAME request key, so the door answers it with the first run's recorded result. Gaps double up to `most_seconds` and are cut
 // down by `jitter`. A door that never answers is given up on only after every try, and the message says how many.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -17,7 +18,7 @@ speakFor({ cli: 'example', site_name: 'Example' });
 
 const KEY = `nm_${'ab'.repeat(16)}`;
 const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, forget: () => {} };
-const home = () => mkdtempSync(join(tmpdir(), 'example-timeout-'));
+const home = () => tempFolder(join(tmpdir(), 'example-timeout-'));
 const credential = { kind: 'key', bearer: KEY, where: 'test' };
 const door = { name: 'test door', mcp: 'http://127.0.0.1:8788/mcp', local: false };
 

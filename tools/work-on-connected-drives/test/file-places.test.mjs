@@ -1,5 +1,6 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, realpath, rm, writeFile } from 'node:fs/promises';
+import { mkdir, realpath, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -10,7 +11,7 @@ import { createFilePlaces } from '../read-data/file-places.mjs';
 const identityOf = async file => `test:${await import('node:fs/promises').then(fs => fs.readFile(file, 'utf8'))}`;
 
 test('finds byte-identical drive paths and the names held by the Trillion space', async t => {
-  const root = await realpath(await mkdtemp(path.join(os.tmpdir(), 'file-places-')));
+  const root = await realpath(tempFolder(path.join(os.tmpdir(), 'file-places-')));
   t.after(() => rm(root, { recursive: true, force: true }));
   const first = path.join(root, 'First'), second = path.join(root, 'Second');
   await mkdir(first); await mkdir(second);
@@ -33,7 +34,7 @@ test('finds byte-identical drive paths and the names held by the Trillion space'
 });
 
 test('refuses paths outside connected drives and folders', async t => {
-  const root = await mkdtemp(path.join(os.tmpdir(), 'file-places-'));
+  const root = tempFolder(path.join(os.tmpdir(), 'file-places-'));
   t.after(() => rm(root, { recursive: true, force: true }));
   const drive = path.join(root, 'Drive'); await mkdir(drive);
   const places = createFilePlaces({ devices: async () => [{ mount: drive, name: 'Drive' }], identityOf, candidates: async () => ({ paths: [], unreadable: [] }), lookup: async () => null });
@@ -42,7 +43,7 @@ test('refuses paths outside connected drives and folders', async t => {
 });
 
 test('reports an incomplete read instead of claiming every place was checked', async t => {
-  const root = await mkdtemp(path.join(os.tmpdir(), 'file-places-'));
+  const root = tempFolder(path.join(os.tmpdir(), 'file-places-'));
   t.after(() => rm(root, { recursive: true, force: true }));
   const source = path.join(root, 'clip.mov'); await writeFile(source, 'same bytes');
   const places = createFilePlaces({
@@ -56,7 +57,7 @@ test('reports an incomplete read instead of claiming every place was checked', a
 });
 
 test('the person\'s own files are the ones handed in: a name holding the same bytes is a place, others are not', async t => {
-  const root = await realpath(await mkdtemp(path.join(os.tmpdir(), 'file-places-')));
+  const root = await realpath(tempFolder(path.join(os.tmpdir(), 'file-places-')));
   t.after(() => rm(root, { recursive: true, force: true }));
   const source = path.join(root, 'clip.mov'); await writeFile(source, 'same bytes');
   const identity = makeHashCodeHexFromBytes(Buffer.from('same bytes'));
@@ -76,7 +77,7 @@ test('the person\'s own files are the ones handed in: a name holding the same by
 });
 
 test('a run handed no files says so and is not complete, never that the person\'s files hold no copy', async t => {
-  const root = await realpath(await mkdtemp(path.join(os.tmpdir(), 'file-places-')));
+  const root = await realpath(tempFolder(path.join(os.tmpdir(), 'file-places-')));
   t.after(() => rm(root, { recursive: true, force: true }));
   const source = path.join(root, 'clip.mov'); await writeFile(source, 'same bytes');
   const places = createFilePlaces({ devices: async () => [{ mount: root, name: 'Drive' }], identityOf, candidates: async () => ({ paths: [], unreadable: [] }) });

@@ -10,10 +10,11 @@
  *   - unknown lane_role scopes the cut,
  *   - a zero/negative span is a no-op (never throws).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,7 +23,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 let composeTimeline;
 
 before(async () => {
-  const out = join(mkdtempSync(join(tmpdir(), 'rmspan-')), 'c.mjs');
+  const out = join(tempFolder(join(tmpdir(), 'rmspan-')), 'c.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm',
     '--alias:@=' + join(here, '..', '..', '..', '..'),
     join(here, '..', 'compose-timeline.ts'), `--outfile=${out}`], { encoding: 'utf8' });

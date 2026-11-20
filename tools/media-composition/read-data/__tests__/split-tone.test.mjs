@@ -8,10 +8,11 @@
  * real offline render on a static luma ramp where the dark end gains the shadow tint (blue up) and the bright
  * end gains the highlight tint (blue down / warm). Static source + frame-0 sampling (deterministic).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,7 +37,7 @@ const DARK = { x: 0, y: 80, w: 20, h: 40 };
 const BRIGHT = { x: 180, y: 80, w: 20, h: 40 };
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'st-'));
+  const dir = tempFolder(join(tmpdir(), 'st-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -44,7 +45,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'st-render-'));
+  work = tempFolder(join(tmpdir(), 'st-render-'));
   ramp = join(work, 'ramp.mp4');
   // An EXACT black->white luma ramp, computed per pixel. This used to come from `gradients`, which
   // is a random-gradient generator: `speed=0` freezes its ANIMATION, not its PATTERN, so the source

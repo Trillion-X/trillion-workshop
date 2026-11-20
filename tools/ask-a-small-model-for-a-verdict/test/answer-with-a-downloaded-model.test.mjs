@@ -2,10 +2,11 @@
 // calibrating a person's ask rows on lines they ruled on (do-work/answer_with_a_downloaded_model.py and its rows in
 // do-work/answer-with-a-downloaded-model.mjs). No model runs here: every answer comes from a stand-in in the ask or from a
 // made-up answer cache, and every setting, row, line and path is made up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,7 +17,7 @@ import { makeRecord } from '../../settings/read-data/settings.mjs';
 const here = dirname(fileURLToPath(import.meta.url));
 const ANSWERER = join(here, '..', 'do-work', 'answer_with_a_downloaded_model.py');
 const PROBE = join(here, 'answer_with_a_downloaded_model_probe.py');
-const empty = () => mkdtempSync(join(tmpdir(), 'answerer-'));
+const empty = () => tempFolder(join(tmpdir(), 'answerer-'));
 
 const FIT = { fail_good_share_at_most: 0.05, pass_bad_share_at_most: 0.1, usable_when: { auc_at_least: 0.75, bad_lines_at_least: 2, recall_at_least: 0.25, good_failed_or_uncertain_at_most: 0.35 } };
 const SETTINGS = { frame: 'A line of copy:\n"{text}"', good_sets: ['kept'], example_good_sources: ['owner-ruling'], fit: FIT, batch: 4, consult_batch: 2, consult_bytes: 10 };

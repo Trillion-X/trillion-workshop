@@ -3,10 +3,11 @@
  * changed nothing (an overlay_kind it does not draw, an action no fold knows) in `unapplied`, and leaves it out when
  * every decision applied.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,7 +16,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 let composeTimeline;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'unapplied-'));
+  const dir = tempFolder(join(tmpdir(), 'unapplied-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });

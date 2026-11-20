@@ -1,10 +1,11 @@
 // The mover on two made-up code trees in throwaway git repositories: a plan places each file once, apply moves the bytes
 // and deletes the originals, the files that stay import the moved ones from the destination package, rows follow their
 // files, provider calls are swapped or hold their group, and check proves the move and catches a changed byte.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { moveCode } from '../do-work/move-code.mjs';
@@ -15,7 +16,7 @@ const git = (folder, ...args) => execFileSync('git', ['-C', folder, ...args], { 
 const json = value => `${JSON.stringify(value, null, 2)}\n`;
 
 function repository(files) {
-  const folder = mkdtempSync(join(tmpdir(), 'move-code-'));
+  const folder = tempFolder(join(tmpdir(), 'move-code-'));
   git(folder, 'init', '-q', '-b', 'main');
   git(folder, 'config', 'user.email', 'maker@example.invalid');
   git(folder, 'config', 'user.name', 'Maker');

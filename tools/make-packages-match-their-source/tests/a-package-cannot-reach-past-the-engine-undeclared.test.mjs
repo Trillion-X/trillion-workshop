@@ -16,6 +16,7 @@
 //   - a declaration naming a class the DATA file does not define is refused, so a typo cannot
 //     silently license nothing
 //   - a set with no reach-classes file does not build, so "no rules" cannot look like "clean"
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
@@ -106,11 +107,11 @@ test('an English word in JSX text is prose, and a reach is a call or a construct
 });
 
 test('a class row with a bare-token use is refused when the DATA file is read', async () => {
-  const { mkdtemp, writeFile } = await import('node:fs/promises');
+  const { writeFile } = await import('node:fs/promises');
   const { tmpdir } = await import('node:os');
   const path = await import('node:path');
   const { readReachClasses, reachClassesFileName } = await import('../do-work/package-entry-reach-past-the-engine.mjs');
-  const root = await mkdtemp(path.join(tmpdir(), 'reach-classes-'));
+  const root = tempFolder(path.join(tmpdir(), 'reach-classes-'));
   const bare = { ...classes, reach_classes: [{ reach_class: 'network', module_specifiers: [], globals: [{ identifier: 'fetch', uses: ['{token}'] }] }] };
   await writeFile(path.join(root, reachClassesFileName), JSON.stringify(bare));
   await assert.rejects(() => readReachClasses(root), /bare "fetch"/);

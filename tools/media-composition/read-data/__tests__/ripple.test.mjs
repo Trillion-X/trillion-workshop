@@ -8,10 +8,11 @@
  * These are pure timeline structure, so a composeTimeline boundary check is the proof
  * (no render change is involved).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,7 +21,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 let composeTimeline;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'ripple-'));
+  const dir = tempFolder(join(tmpdir(), 'ripple-'));
   const ctOut = join(dir, 'ct.mjs');
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ctOut}`], { encoding: 'utf8' });

@@ -1,6 +1,7 @@
 // Hearing the sources of a call separately (computer/hearing-sources.mjs, DATA in hearing-sources.json).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, statSync } from 'node:fs';
+import { readFileSync, statSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -24,7 +25,7 @@ test('an unknown source and an empty request are refused with their own words', 
 });
 
 test('the session record names the program and flags with a content id, refuses secret-looking flags and keeps a bounded list', () => {
-  const file = path.join(mkdtempSync(path.join(os.tmpdir(), 'hs-')), 'sessions.json');
+  const file = path.join(tempFolder(path.join(os.tmpdir(), 'hs-')), 'sessions.json');
   const record = recordSession({ program: 'mlx-whisper', flags: { relay: false, no_training: true }, sources: ['microphone'], at: 5 }, { settings: { ...settings, most_sessions: 2 }, file });
   assert.match(record.id, /^[0-9a-f]{16}$/);
   assert.throws(() => recordSession({ program: 'p', flags: { api_token: 'x' }, sources: [] }, { settings, file }), /looks like a secret/);

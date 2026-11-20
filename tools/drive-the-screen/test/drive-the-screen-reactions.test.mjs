@@ -3,10 +3,11 @@
 // What a refusal from the Mac's screen driver tells the AI to do (read-data/drive-the-screen.json `reactions`): retry,
 // ask the person, look again, or stop; an action that stopped part-way says it may have run; the off-limits classes are
 // a policy that is off until switched on; and two AIs never drive the same screen at once.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { makeScreenDriver, makeScreenTools, offLimitsClass, screenSettings } from '../read-data/drive-the-screen.mjs';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { makePlaces } from '../read-data/work-places.mjs';
@@ -35,7 +36,7 @@ const driverOn = (mac, settings = screenSettings()) => makeScreenDriver({ settin
 // The host holds this Mac's desktop while the person is typing on it (read-data/work-places.json person_input); the test
 // is about the reaction a refusal carries, so the person has been away for a minute, whoever is using the machine that runs it.
 const awayFor = ns => argv => ({ code: 0, stdout: Buffer.from(argv[0] === 'ioreg' ? `"HIDIdleTime" = ${ns}` : ''), stderr: '' });
-const placesAway = () => makePlaces({ home: mkdtempSync(join(tmpdir(), 'drive-reactions-')), exec: async argv => awayFor(60e9)(argv) });
+const placesAway = () => makePlaces({ home: tempFolder(join(tmpdir(), 'drive-reactions-')), exec: async argv => awayFor(60e9)(argv) });
 
 test('a refusal carries the reaction the AI owes it, and the host passes it on', async () => {
   const driver = driverOn(pretendMac());

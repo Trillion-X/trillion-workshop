@@ -1,8 +1,9 @@
 // Real pinned Git sources keep the same meaning when their repository name is private.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -36,7 +37,7 @@ function commit(root, message) {
   return git(root, 'rev-parse', 'HEAD');
 }
 function fixture(t, { self = false, ranges = false, other = false } = {}) {
-  const home = mkdtempSync(join(tmpdir(), 'typed-source-repositories-'));
+  const home = tempFolder(join(tmpdir(), 'typed-source-repositories-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const root = join(home, 'receiving-owner'), owner = self ? root : join(home, 'source owner');
   initialize(owner); write(owner, ORIGINAL, SOURCE);

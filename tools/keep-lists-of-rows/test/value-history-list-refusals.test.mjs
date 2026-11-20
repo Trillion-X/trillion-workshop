@@ -1,7 +1,8 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { cpSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -12,7 +13,7 @@ test('the declared history rows refuse with one refusal class through their real
   const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url))).records.map(record => record.payload);
   const row = rows.find(row => row.invoke.argv.at(-1) === 'historyFieldValues');
   assert.ok(row, 'the history consumer retains its actual descriptor');
-  const sandbox = mkdtempSync(join(tmpdir(), 'list-refusal-package-'));
+  const sandbox = tempFolder(join(tmpdir(), 'list-refusal-package-'));
   t.after(() => rmSync(sandbox, { recursive: true, force: true }));
   const placed = path => path.startsWith('/opt/') ? join(sandbox, path.slice(1)) : path;
   for (const spec of [row.invoke.files.package_files].flat()) {

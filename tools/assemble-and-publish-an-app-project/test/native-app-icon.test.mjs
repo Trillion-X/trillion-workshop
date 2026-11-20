@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, readFile } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import sharp from 'sharp';
@@ -50,7 +51,7 @@ test('a referenced icon uses only the bytes in the current publication', async (
 test('generated iPhone and Mac catalogs use the published art or a Studioform name mark', async () => {
   const builds = join(homedir(), 'Library', 'Developer', 'Fixture', 'AppProjectBuilds');
   await mkdir(builds, { recursive: true });
-  const root = await mkdtemp(join(builds, 'icon-test-'));
+  const root = tempFolder(join(builds, 'icon-test-'));
   const fallback = await writeNativeAppIcons(root, 'Studioform');
   assert.deepEqual(fallback, { source: 'name', initial: 'S' });
   const phone = join(root, 'App', 'Assets.xcassets', 'AppIcon.appiconset', 'AppIcon.png');

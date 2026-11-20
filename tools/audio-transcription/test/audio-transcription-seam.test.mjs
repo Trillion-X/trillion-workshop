@@ -2,10 +2,11 @@
 // ffmpeg and a stand-in for whisper-cli that loops the way Whisper does. Checks what the seam adds: the package's result with
 // the recording's length, nothing left beside the recording, the loops found, and only the looped window heard again (context off)
 // and spliced in at the right seconds. The package's own tests run unchanged in do-work/__tests__. Needs python3, ffmpeg, ffprobe.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test, { before } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,7 +28,7 @@ const calls = () => (existsSync(log) ? readFileSync(log, 'utf8').trim().split('\
 
 before(() => {
   if (skip) return;
-  work = mkdtempSync(join(tmpdir(), 'audio-transcription-'));
+  work = tempFolder(join(tmpdir(), 'audio-transcription-'));
   recordings = join(work, 'recordings');
   mkdirSync(recordings);
   audio = join(recordings, 'take-one.wav');

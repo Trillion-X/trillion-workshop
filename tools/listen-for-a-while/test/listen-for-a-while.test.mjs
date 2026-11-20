@@ -2,10 +2,11 @@
 // turns come back in the answer, piece by piece as they finish, that a piece is deleted once heard, that an empty piece
 // adds nothing, that the end time and piece length are checked, that the recorder is asked for exactly the time left, and
 // that a recorder that stops early is an error but one that reaches the end time is not.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { PassThrough } from 'node:stream';
@@ -50,7 +51,7 @@ test('rows: one per turn, id from the listening and start, empty text dropped, u
 });
 
 test('the turns come back in the answer, piece by piece, pieces are deleted, an empty piece adds nothing, and no door is touched', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'listen-'));
+  const folder = tempFolder(join(tmpdir(), 'listen-'));
   const files = [0, 1, 2].map(n => join(folder, `${n}.wav`));
   files.forEach(file => writeFileSync(file, 'x'));
   const seen = [];
@@ -97,7 +98,7 @@ function fakeRecorder(lines, code) {
 }
 
 test('the recorder yields pieces as lines arrive, tolerates a line split across chunks, and ends at the end time', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'listen-'));
+  const folder = tempFolder(join(tmpdir(), 'listen-'));
   const child = fakeRecorder(['0.wav,0.0,30.0\n1.wa', 'v,30.0,60.0\n'], 0);
   const pieces = [];
   for await (const piece of recordPieces({ device: 'default', seconds: 30, folder, end: 100_000, now: () => 10_000, start: () => child })) pieces.push(piece);
@@ -105,7 +106,7 @@ test('the recorder yields pieces as lines arrive, tolerates a line split across 
 });
 
 test('a recorder that stops before the end time is an error; one stopped at the end time is not', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'listen-'));
+  const folder = tempFolder(join(tmpdir(), 'listen-'));
   await assert.rejects(async () => { for await (const _ of recordPieces({ device: 'default', seconds: 30, folder, end: 100_000, now: () => 10_000, start: () => fakeRecorder([], 1) })); }, /stopped before the end time/);
   let clock = 10_000;
   const child = fakeRecorder(['0.wav,0.0,30.0\n'], 0);
@@ -128,7 +129,7 @@ const piecesAt = (folder, starts) => starts.map((startMs, n) => { const file = j
 const nameAll = async request => ({ speakers: request.segments.map(segment => turn(segment.start, segment.end, 'Someone (voice-1)', segment.text)), records: [] });
 
 test('pause is real: words after the pause are dropped, a later piece is let go unheard, and listening ends', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'listen-'));
+  const folder = tempFolder(join(tmpdir(), 'listen-'));
   const pieces = piecesAt(folder, [1_000_000, 1_030_000, 1_060_000]);
   // Turned off 10 seconds into the second piece.
   const listening_switch = { on: false, since: new Date(1_040_000).toISOString() };
@@ -157,7 +158,7 @@ test('pausedAt reads the switch, beforePause keeps only what was said before it'
 });
 
 test('recording rules are asked for every piece: a blocked piece is let go unheard, and a rule that allows lets it through', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'listen-'));
+  const folder = tempFolder(join(tmpdir(), 'listen-'));
   const pieces = piecesAt(folder, [1_000_000, 1_030_000]);
   const rule = { id: 'notice-first', effect: 'require', when: { kind: 'listening' }, facts: ['notice_given'] };
   const heard = [];
@@ -187,7 +188,7 @@ test('every answer says what leaves this computer and what stays, from the DATA 
 });
 
 test('a listener that stops early closes the microphone', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'listen-'));
+  const folder = tempFolder(join(tmpdir(), 'listen-'));
   const child = fakeRecorder(['0.wav,0.0,30.0\n'], 0);
   let killed = null;
   child.kill = signal => { killed = signal; };

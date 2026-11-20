@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { REQUEST_POLICY, TYPED_REQUEST_POLICY, SERVING_IDENTITY_POLICY, aggregateSectionChunkResults, classifyWritingBlock, expectedDecision, reportCriteria, requestPlan, requestPolicyFor, validateInput, validateReport } from '../read-data/evaluation-integrity.mjs';
@@ -180,7 +181,7 @@ test('changed challenge text, context, criterion, or label scope cannot reuse pr
     const changed = deepCopy(baselineData);
     change(changed);
     const serialized = JSON.stringify(changed, null, 2) + '\n';
-    const dir = mkdtempSync(join(tmpdir(), 'book-decider-data-'));
+    const dir = tempFolder(join(tmpdir(), 'book-decider-data-'));
     try {
       const path = join(dir, 'challenge.json');
       writeFileSync(path, serialized);

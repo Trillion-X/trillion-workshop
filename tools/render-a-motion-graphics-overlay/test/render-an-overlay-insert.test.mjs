@@ -3,10 +3,11 @@
 // command renders a made-up shot's stills from them; the Python tests (every output, quick, audio_only, a batch under the
 // lock, the claim-check refusal) run beside it. Needs python3 with Pillow, numpy and OpenCV, and ffmpeg with prores_ks and
 // libx264; without them those tests are skipped with the reason.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, existsSync } from 'node:fs';
+import { readFileSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Readable, Writable } from 'node:stream';
@@ -59,7 +60,7 @@ test('the row holds no records door and takes the rows themselves', () => {
 });
 
 test('the command renders a batch of shots from the corrections look row', { skip: missing, timeout: 300_000 }, async () => {
-  const out = mkdtempSync(join(tmpdir(), 'insert-'));
+  const out = tempFolder(join(tmpdir(), 'insert-'));
   try {
     let printed = '';
     const sink = new Writable({ write(chunk, _e, done) { printed += chunk; done(); } });

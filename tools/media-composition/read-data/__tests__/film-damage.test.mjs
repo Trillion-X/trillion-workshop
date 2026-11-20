@@ -10,10 +10,11 @@
  * a flat mid-gray source and JUMP to different x positions across frames (temporal), while the plain source
  * has none (L155).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,7 +38,7 @@ function brightCols(file, ss) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'fd-'));
+  const dir = tempFolder(join(tmpdir(), 'fd-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -45,7 +46,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'fd-render-'));
+  work = tempFolder(join(tmpdir(), 'fd-render-'));
   gray = join(work, 'gray.mp4'); // flat mid-gray so scratches/dust are unambiguous
   ffmpeg(['-f', 'lavfi', '-i', `color=0x555555:s=320x240:d=2:r=${FPS}`, '-pix_fmt', 'yuv420p', gray]);
 });

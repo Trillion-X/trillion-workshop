@@ -13,11 +13,12 @@
  * patch goes DARK under the red filter, and every output pixel is monochrome (R=G=B). PLUS a byte-identical
  * determinism proof. L155.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -43,7 +44,7 @@ function px(raw, x) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'mmx-'));
+  const dir = tempFolder(join(tmpdir(), 'mmx-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -51,7 +52,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'mmx-render-'));
+  work = tempFolder(join(tmpdir(), 'mmx-render-'));
   // left half a saturated red (240,20,20), right half a saturated blue (20,20,240): under equal-weight gray
   // both are (280/3)~93; under a red filter red goes bright and blue goes dark.
   patches = join(work, 'patches.mp4');

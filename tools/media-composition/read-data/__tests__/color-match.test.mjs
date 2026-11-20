@@ -9,11 +9,12 @@
  * channel means moves substantially TOWARD the reference's mean (so the blue/warm split reverses), plus a pure
  * unit on the transfer math and byte-determinism.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -34,7 +35,7 @@ function meanRGB(file) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'cm-'));
+  const dir = tempFolder(join(tmpdir(), 'cm-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -42,7 +43,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'cm-render-'));
+  work = tempFolder(join(tmpdir(), 'cm-render-'));
   // Same neutral gradient content (gives per-channel spatial variance = non-zero std), two DIFFERENT casts:
   // source is cool/blue, reference is warm/orange. Matching src->ref must reverse the cast.
   srcClip = join(work, 'src.mp4');

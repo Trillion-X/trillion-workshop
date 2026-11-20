@@ -8,10 +8,11 @@
  * rounds), materialize pass-through, AND a real offline render on a smooth gradient where the number of
  * distinct color values collapses to about `levels` while the original has many (L155).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -35,7 +36,7 @@ function distinctR(raw, y) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'post-'));
+  const dir = tempFolder(join(tmpdir(), 'post-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -43,7 +44,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'post-render-'));
+  work = tempFolder(join(tmpdir(), 'post-render-'));
   grad = join(work, 'grad.mp4'); // smooth horizontal black->white gradient (many distinct values)
   // An EXACT ramp, computed per pixel, which is the source convention the rest of this suite
   // folder already uses. `gradients` is a RANDOM-gradient generator: it draws a different pattern

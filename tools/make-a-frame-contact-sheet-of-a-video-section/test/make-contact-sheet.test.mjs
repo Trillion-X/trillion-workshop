@@ -2,10 +2,11 @@
 // and, when this computer has ffmpeg, once for real on a made-up test video. Checks the promises: separate argv items, the
 // section and 360p limit asked of yt-dlp, a clip already there used again, a local file read from start to end, every failure
 // reported with the log's last lines, and a bad request refused with what to fix.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test, { before } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,7 +21,7 @@ const run = (env, ...argv) => spawnSync('python3', [script, ...argv], {
   encoding: 'utf8', env: { ...process.env, PATH: `${standIns}:${process.env.PATH}`, ...env } });
 
 before(() => {
-  work = mkdtempSync(join(tmpdir(), 'contact-sheet-'));
+  work = tempFolder(join(tmpdir(), 'contact-sheet-'));
   standIns = join(work, 'bin');
   calls = join(work, 'calls.log');
   mkdirSync(standIns);

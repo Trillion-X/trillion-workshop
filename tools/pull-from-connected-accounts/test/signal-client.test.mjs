@@ -2,9 +2,10 @@
 // output) folded into the `signal` pull's contract and answered through that pull (nothing is kept in the person's
 // records), with signal-cli answered by a stand-in.
 // Everyone and every id here is made up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { envelopesToConversations, readEnvelopeLines } from '../read-data/signal-envelopes.mjs';
@@ -24,7 +25,7 @@ const MESSAGE_FIELDS = new Set(['id', 'timestamp', 'from', 'body', 'editedTimest
 
 /** A client folder signal-cli has linked (its data/accounts.json naming the account), or an empty one. */
 function clientFolder({ linked = true } = {}) {
-  const folder = mkdtempSync(join(tmpdir(), 'signal-client-'));
+  const folder = tempFolder(join(tmpdir(), 'signal-client-'));
   if (linked) {
     mkdirSync(join(folder, 'data'));
     writeFileSync(join(folder, 'data', 'accounts.json'), JSON.stringify({ accounts: [{ path: 'sample', environment: 'LIVE', uuid: SELF }], version: 2 }));

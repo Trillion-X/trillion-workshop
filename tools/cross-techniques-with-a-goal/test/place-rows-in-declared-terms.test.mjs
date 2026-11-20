@@ -1,9 +1,10 @@
 // tools/cross-techniques-with-a-goal: rows get one term from a short declared list, read from where the person keeps
 // it, by the same words or closeness at the line, else none; a stand-in embedding server gives hand-made vectors.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,7 +19,7 @@ test('a path step { key: value } finds the list element whose key holds the valu
 });
 
 test('declared terms come from the request or from the file the person keeps them in, never both', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'declared-'));
+  const folder = tempFolder(join(tmpdir(), 'declared-'));
   const file = join(folder, 'lists.json');
   writeFileSync(file, JSON.stringify(definitions));
   const path = ['lists', { id: 'garden' }, 'value', 'fields', { id: 'area' }, 'choices'];
@@ -54,7 +55,7 @@ async function withServer(run) {
 }
 
 test('each row takes the term of its first word that places: same words, then closeness at the measured line; else none', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'place-'));
+  const folder = tempFolder(join(tmpdir(), 'place-'));
   const file = join(folder, 'rows.jsonl');
   writeFileSync(file, [{ id: 'a', tags: ['weather', 'compost'] }, { id: 'b', tags: ['Water'] }, { id: 'c', tags: ['weather'] }].map(row => JSON.stringify(row)).join('\n'));
   const out = join(folder, 'placed.json');

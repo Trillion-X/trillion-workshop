@@ -10,10 +10,11 @@
  *       proving the tennis you-vs-Federer side-by-side works from DATA alone.
  */
 
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -21,7 +22,7 @@ import { buildSplitLayout } from '../split-layout.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const SCRIPT = join(here, '..', 'video-compose.mjs');
-const work = mkdtempSync(join(tmpdir(), 'split-layout-'));
+const work = tempFolder(join(tmpdir(), 'split-layout-'));
 
 function ffmpeg(args) {
   execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', ...args], { encoding: 'utf8' });

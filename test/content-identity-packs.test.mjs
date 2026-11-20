@@ -1,7 +1,8 @@
 // The actual caller file-list packs must include the identity API's private compressor dependency.
+import { tempFolder } from '../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, mkdirSync, cpSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, cpSync, rmSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -36,7 +37,7 @@ process.stdout.write('packed-identity-ok');
 `;
 
 for (const caller of callers) test(`${caller.id} packs the complete identity library at ${caller.identity.at}`, () => {
-  const folder = mkdtempSync(join(tmpdir(), 'packed-content-identity-'));
+  const folder = tempFolder(join(tmpdir(), 'packed-content-identity-'));
   try {
     for (const spec of [caller.identity, ...caller.dependencies]) {
       const source = spec.module ? join(root, 'node_modules', spec.module) : join(tools, spec.package);

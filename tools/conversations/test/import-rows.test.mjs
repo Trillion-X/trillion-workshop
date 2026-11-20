@@ -6,10 +6,11 @@
 // person's store holds. The store is played by the test (test/support/held-store.mjs): each run is handed what it asks
 // for, and what it writes is kept there. A made-up Grok export and a Hermes session, laid in the granted folder, stand in
 // for the person's files.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
@@ -29,7 +30,7 @@ const HOME = [
 ];
 
 function homeWith(t) {
-  const home = mkdtempSync(join(tmpdir(), 'conversations-rows-'));
+  const home = tempFolder(join(tmpdir(), 'conversations-rows-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   for (const file of HOME) { mkdirSync(dirname(join(home, file.path)), { recursive: true }); writeFileSync(join(home, file.path), file.text); }
   return home;

@@ -6,10 +6,11 @@
  *    materialize bridge forwards it so video-compose clones the head/tail frame via tpad.
  * The actual reversed frames / extended duration are proven by the offline render.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,7 +19,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 let composeTimeline, materializeExportEdl;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'revfz-'));
+  const dir = tempFolder(join(tmpdir(), 'revfz-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ctOut = join(dir, 'ct.mjs');
   const meOut = join(dir, 'me.mjs');

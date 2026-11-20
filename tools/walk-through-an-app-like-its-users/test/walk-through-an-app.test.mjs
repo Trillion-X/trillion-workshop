@@ -1,8 +1,9 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { generateKeyPairSync, randomBytes } from 'node:crypto';
-import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -117,7 +118,7 @@ try { findBrowser(conventions.browser, process.env.WALK_BROWSER); } catch (error
 
 test('a broken shop fails with evidence and a fix handoff; after the fix, a re-run reports it fixed', { skip: browserProblem ?? false, timeout: 180000 }, async () => {
   const shop = await startShop({ broken: true });
-  const evidence = mkdtempSync(join(tmpdir(), 'walk-test-'));
+  const evidence = tempFolder(join(tmpdir(), 'walk-test-'));
   try {
     const journeys = [
       {
@@ -171,7 +172,7 @@ test('a broken shop fails with evidence and a fix handoff; after the fix, a re-r
 
 test('a journey signs in with the passkeys the request gives, under a name the request\'s switches send to this computer', { skip: browserProblem ?? false, timeout: 120000 }, async () => {
   const shop = await startShop({ broken: false });
-  const evidence = mkdtempSync(join(tmpdir(), 'walk-passkey-'));
+  const evidence = tempFolder(join(tmpdir(), 'walk-passkey-'));
   try {
     // A made-up passkey for the shop's own name: a P-256 key, as a person's authenticator would hold it.
     const { privateKey } = generateKeyPairSync('ec', { namedCurve: 'P-256' });
@@ -198,7 +199,7 @@ test('a journey signs in with the passkeys the request gives, under a name the r
 
 test('the map lists each same-origin screen with its controls', { skip: browserProblem ?? false, timeout: 120000 }, async () => {
   const shop = await startShop({ broken: false });
-  const evidence = mkdtempSync(join(tmpdir(), 'walk-map-'));
+  const evidence = tempFolder(join(tmpdir(), 'walk-map-'));
   try {
     const map = (await run('map', { app_url: shop.url, evidence_folder: evidence })).answer.result;
     assert.deepEqual(map.screens.map(screen => new URL(screen.url).pathname).sort(), ['/', '/about', '/cart']);

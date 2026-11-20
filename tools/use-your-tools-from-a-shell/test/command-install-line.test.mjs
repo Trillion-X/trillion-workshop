@@ -1,8 +1,9 @@
 // The install line a site gives, run for real with sh against a stand-in site serving write-site-pages.mjs's pages:
 // the command lands on PATH, the site file names that site, and `example login` then needs no address.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readlinkSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -50,12 +51,12 @@ test('the site pages name only their own site, and carry every file the program 
 });
 
 test('the install line puts the site\'s command on PATH and names its site; run again it changes nothing it should not', async () => {
-  const pages = mkdtempSync(join(tmpdir(), 'example-site-'));
+  const pages = tempFolder(join(tmpdir(), 'example-site-'));
   const server = await serve(pages);
   const origin = `http://127.0.0.1:${server.address().port}`;
   try {
     writeSitePages(origin, SITE, pages);
-    const home = mkdtempSync(join(tmpdir(), 'example-home-'));
+    const home = tempFolder(join(tmpdir(), 'example-home-'));
     const bin = join(home, '.local/bin');
     mkdirSync(bin, { recursive: true });
     const other = join(home, 'another-programs-bin');
@@ -74,7 +75,7 @@ test('the install line puts the site\'s command on PATH and names its site; run 
     assert.ok(!/example/i.test(help.stdout), 'the installed command speaks only for its site');
     assert.equal((await install(origin, home, path)).status, 0, 'a second install replaces the first');
     // Another site whose site chose the same command word: it would take this one's link and state, so nothing changes.
-    const otherPages = mkdtempSync(join(tmpdir(), 'other-site-'));
+    const otherPages = tempFolder(join(tmpdir(), 'other-site-'));
     const otherServer = await serve(otherPages);
     try {
       const otherOrigin = `http://127.0.0.1:${otherServer.address().port}`;
@@ -88,12 +89,12 @@ test('the install line puts the site\'s command on PATH and names its site; run 
 });
 
 test('with no folder of its own on PATH it adds ~/.local/bin to the shell\'s start file once and says to open a new terminal; a file it did not make is left alone', async () => {
-  const pages = mkdtempSync(join(tmpdir(), 'example-site-'));
+  const pages = tempFolder(join(tmpdir(), 'example-site-'));
   const server = await serve(pages);
   const origin = `http://127.0.0.1:${server.address().port}`;
   try {
     writeSitePages(origin, SITE, pages);
-    const home = mkdtempSync(join(tmpdir(), 'example-home-'));
+    const home = tempFolder(join(tmpdir(), 'example-home-'));
     const path = `/usr/bin:/bin:${join(process.execPath, '..')}`;
     const said = await install(origin, home, path);
     assert.equal(said.status, 0, said.stderr);
@@ -101,7 +102,7 @@ test('with no folder of its own on PATH it adds ~/.local/bin to the shell\'s sta
     assert.ok(existsSync(join(home, '.local/bin/acmeco')));
     await install(origin, home, path);
     assert.equal(readFileSync(join(home, '.zshrc'), 'utf8').match(/\.local\/bin/g).length, 1, 'the start file gains the line once');
-    const other = mkdtempSync(join(tmpdir(), 'example-home-'));
+    const other = tempFolder(join(tmpdir(), 'example-home-'));
     mkdirSync(join(other, '.local/bin'), { recursive: true });
     writeFileSync(join(other, '.local/bin/acmeco'), 'someone else\'s');
     const refused = await install(origin, other, path);
@@ -111,8 +112,8 @@ test('with no folder of its own on PATH it adds ~/.local/bin to the shell\'s sta
 });
 
 test('with no Node.js 22 the install line says where to get it and changes nothing', () => {
-  const home = mkdtempSync(join(tmpdir(), 'example-home-'));
-  const fakeBin = mkdtempSync(join(tmpdir(), 'old-node-'));
+  const home = tempFolder(join(tmpdir(), 'example-home-'));
+  const fakeBin = tempFolder(join(tmpdir(), 'old-node-'));
   writeFileSync(join(fakeBin, 'node'), '#!/bin/sh\necho 18\n', { mode: 0o755 });
   const script = sitePages('https://acme.test', SITE).find(row => row.page === 'cli/install').bytes.toString('utf8');
   const said = spawnSync('sh', ['-c', script], { env: { HOME: home, PATH: `${fakeBin}:/usr/bin:/bin` }, encoding: 'utf8' });

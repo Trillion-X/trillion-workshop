@@ -1,9 +1,10 @@
 // Actual Git histories prove shared work stays bounded without losing paths, branch ancestry or source bytes.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import childProcess, { execFileSync } from 'node:child_process';
 import { syncBuiltinESMExports } from 'node:module';
-import { chmodSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { gitReaders } from '../do-work/read-from-repositories.mjs';
@@ -26,7 +27,7 @@ function commit(root, files = {}) {
   return git(root, 'rev-parse', 'HEAD');
 }
 function fixture(t) {
-  const base = mkdtempSync(join(tmpdir(), 'shared-port-history-'));
+  const base = tempFolder(join(tmpdir(), 'shared-port-history-'));
   t.after(() => rmSync(base, { recursive: true, force: true }));
   const root = join(base, 'tools-repo'); mkdirSync(root); git(root, 'init', '-q', '-b', 'main');
   const initial = commit(root, { 'README.md': 'Synthetic source history.\n' });

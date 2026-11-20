@@ -2,6 +2,7 @@
 // One runner reads a computer for the person's Trillion (computer/read-this-computer.mjs): only one program on the
 // computer reads at a time, every program reports under the computer's one id, and the helper starts it beside its
 // connection as one of its handlers (wake-sessions.json `handlers`).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -16,7 +17,7 @@ import { readersWith, serviceReader } from '../../bring-in-new-items-from-this-c
 // The Trillion address these tests talk to is the one the caller gives; no address is built in.
 process.env.TRILLION_ORIGIN ??= 'https://app.example.com';
 
-const folder = () => fs.mkdtempSync(path.join(os.tmpdir(), 'read-this-computer-'));
+const folder = () => tempFolder(path.join(os.tmpdir(), 'read-this-computer-'));
 
 // A failed startup assertion must not leave a perpetual reader holding the test
 // runner open. Normal lifetime checks still stop it through SIGTERM below.

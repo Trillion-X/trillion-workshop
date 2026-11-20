@@ -9,10 +9,11 @@
 // edits source is that it edits source. Both are asserted: a rewrite that cannot be reversed exactly
 // is refused, and a rewrite whose result does not parse is refused with the file untouched.
 
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from "node:assert/strict";
 import test from "node:test";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -27,7 +28,7 @@ import {
 } from "../do-work/write-control-bytes-as-escapes.mjs";
 
 const NUL = String.fromCodePoint(0);
-const somewhere = () => mkdtempSync(join(tmpdir(), "control-bytes-"));
+const somewhere = () => tempFolder(join(tmpdir(), "control-bytes-"));
 
 test("the structure of a text file is left alone, so this does not rewrite every file there is", () => {
   const ordinary = "a\tb\nc\r\nd";

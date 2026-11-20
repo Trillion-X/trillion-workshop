@@ -1,9 +1,10 @@
 // A move inside the judged repository can retire its old owner in the same candidate or index.
 // An external owner's published main remains authoritative until that separate repository retires it.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -41,7 +42,7 @@ function repository(root) {
 }
 
 function fixture(t, { external = false, wholeFile = false } = {}) {
-  const base = mkdtempSync(join(tmpdir(), 'judged-source-retirement-'));
+  const base = tempFolder(join(tmpdir(), 'judged-source-retirement-'));
   t.after(() => rmSync(base, { recursive: true, force: true }));
   const root = join(base, 'candidate-repo');
   const owner = external ? join(base, 'external-owner') : root;

@@ -1,3 +1,4 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -9,7 +10,7 @@ import { findFilesInAnIndex, findFilesInAnIndexForARun } from '../read-data/find
 const script = new URL('../read-data/find-files-in-an-index.mjs', import.meta.url).pathname;
 
 function indexWith(rows, fileName = 'assets.jsonl') {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'find-files-in-an-index-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'find-files-in-an-index-'));
   fs.writeFileSync(path.join(dir, fileName), rows.map((r) => JSON.stringify(r)).join('\n') + '\n');
   fs.writeFileSync(path.join(dir, 'content-types.json'), JSON.stringify({ stop_words: ['my', 'the'], type_keywords: { video: ['video', 'videos', 'clip'] } }));
   return dir;

@@ -1,8 +1,9 @@
 // Later byte pages of an answer are asked for with the request key of the first call: the engine serves later pages
 // only to the key that made the answer (trillion-rust src/runtime/workshop.rs), and a new key can run the operation again.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { openRecordsDoor } from '../read-data/records-door.mjs';
@@ -15,7 +16,7 @@ test('every byte page of a records:read is asked for with the first call\'s requ
   const size = Math.ceil(whole.length / 3);
   const starts = [0, size, 2 * size];
 
-  const dir = mkdtempSync(join(tmpdir(), 'records-door-page-key-'));
+  const dir = tempFolder(join(tmpdir(), 'records-door-page-key-'));
   const descriptor = join(dir, 'door.json');
   writeFileSync(descriptor, JSON.stringify({ url: 'http://127.0.0.1:1/mcp', resource: 'records:test', capability: 'cap-secret' }));
 

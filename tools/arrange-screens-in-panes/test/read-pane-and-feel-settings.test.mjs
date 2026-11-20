@@ -4,8 +4,9 @@
 // screen drew these sections from its own rows (tool:look, sections panes and feel); no old test asserted them, so
 // these assertions are the new home's own: the defaults and rows are read, every moment's feel is defined, and a
 // broken DATA file is refused.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -36,7 +37,7 @@ test('the feel comes from tools/feel: its outputs, its feels and its moments, an
 });
 
 test('a moment that names a feel the DATA does not define is refused, never drawn', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'panes-feel-'));
+  const dir = tempFolder(join(tmpdir(), 'panes-feel-'));
   try {
     const broken = join(dir, 'feel-moments.json');
     const file = JSON.parse(readFileSync(FEEL_ROWS_PATH, 'utf8'));

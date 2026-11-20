@@ -4,8 +4,9 @@
 // go beside method, request_key and input in the one call tool's arguments (the engine reads them as the call's route). A
 // --pin is checked against the engine's rule (command.json engine.pins) before anything is sent, and a call with no --pin is
 // sent exactly as before.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -25,7 +26,7 @@ const SWITCH = ['schedule', 'on', 'tool:x', 'daily'];
 const run = argv => {
   const asked = [];
   const result = main([...argv, '--origin', 'http://127.0.0.1:8788'], {
-    env: { EXAMPLE_KEY: KEY }, store: { read: () => KEY, where: 'test key' }, grants: noGrants, state: stateOf({ home: mkdtempSync(join(tmpdir(), 'example-pin-route-')) }),
+    env: { EXAMPLE_KEY: KEY }, store: { read: () => KEY, where: 'test key' }, grants: noGrants, state: stateOf({ home: tempFolder(join(tmpdir(), 'example-pin-route-')) }),
     fetchImpl: async (url, init) => {
       asked.push(init.body);
       const body = JSON.parse(init.body);

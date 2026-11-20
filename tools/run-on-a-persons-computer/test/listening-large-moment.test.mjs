@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { send } from '../listen.mjs';
@@ -10,7 +11,7 @@ const input = count => Array.from({ length: count }, (_, index) => ({ index, mom
   turn: { text: `Kept speech fixture ${index}`, start_ms: Date.parse('2026-10-10T02:00:00Z') + index * 1000, end_ms: Date.parse('2026-10-10T02:00:00Z') + index * 1000 + 500, who: { name: 'Fixture speaker', me: false }, score: 1 } }));
 
 test('the existing listening sender splits a large moment without changing source identity or order', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'listening-batch-'));
+  const dir = tempFolder(join(tmpdir(), 'listening-batch-'));
   try {
     const sizes = [], ids = [];
     const status = { sent: 0, left_out: 0, waiting: 0 };
@@ -30,7 +31,7 @@ test('the existing listening sender splits a large moment without changing sourc
 });
 
 test('a busy second chunk keeps its exact original queue and clock for the retry', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'listening-batch-'));
+  const dir = tempFolder(join(tmpdir(), 'listening-batch-'));
   try {
     const waiting = join(dir, 'waiting.json');
     const status = { sent: 0, left_out: 0, waiting: 0 };

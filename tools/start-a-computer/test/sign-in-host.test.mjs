@@ -3,11 +3,12 @@
 // What a computer needs before its row's sign-in unit can start: the packages and the node release the set-up data names
 // (settings.json `machine`), installed by set-up-the-machine.sh with stand-in programs, and the unit's secret, handed by
 // vault name and sealed on the computer with systemd-creds, never written in a unit, a command line or an answer.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { applyWhatItRuns, readRequest } from '../do-work/start-a-computer.mjs';
@@ -38,7 +39,7 @@ test('the set-up data names git and curl, and no node release: a computer row gi
 // A machine made of stand-in programs under `root`: apt-get, useradd, id, install, ufw and uname record what they are asked;
 // curl hands back the tarball the test made; tar, mkdir and jq are the real ones.
 function standInMachine({ tarball, arch = 'x86_64' }) {
-  const root = mkdtempSync(join(tmpdir(), 'set-up-machine-'));
+  const root = tempFolder(join(tmpdir(), 'set-up-machine-'));
   const bin = join(root, 'stand-in-bin'), log = join(root, 'calls.log');
   mkdirSync(bin);
   const program = (name, body) => { writeFileSync(join(bin, name), `#!/bin/sh\n${body}\n`); chmodSync(join(bin, name), 0o755); };
@@ -52,7 +53,7 @@ function standInMachine({ tarball, arch = 'x86_64' }) {
 }
 
 function fakeNodeTarball() {
-  const at = mkdtempSync(join(tmpdir(), 'fake-node-'));
+  const at = tempFolder(join(tmpdir(), 'fake-node-'));
   const top = join(at, 'node-v0-linux-x64', 'bin');
   mkdirSync(top, { recursive: true });
   writeFileSync(join(top, 'node'), '#!/bin/sh\necho v24.0.0-stand-in\n');
@@ -184,7 +185,7 @@ test('a computer whose sign-in unit\'s node is missing is set up again even when
 // A machine can also need files written, package sources and programs fetched before its units run; every address, path and
 // pinned digest is the row's own data.
 test('set-up writes the files and package sources the data names and installs a pinned program only when it is not there', () => {
-  const at = mkdtempSync(join(tmpdir(), 'fake-program-'));
+  const at = tempFolder(join(tmpdir(), 'fake-program-'));
   mkdirSync(join(at, 'pack'));
   writeFileSync(join(at, 'pack', 'tool-x'), '#!/bin/sh\necho tool\n');
   const tarball = join(at, 'tool.tar.gz');
@@ -228,7 +229,7 @@ if [ -n "$make" ]; then mkdir -p "$@"; elif [ "$1" = /dev/stdin ]; then cat > "$
 });
 
 test('a unit\'s parts put a file the person keeps into its settings, read relative to the computer row\'s file', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'settings-parts-'));
+  const dir = tempFolder(join(tmpdir(), 'settings-parts-'));
   mkdirSync(join(dir, 'rows', 'providers'), { recursive: true });
   const sender = { name: 'Example sender', vault_key: 'example-sender-key', request: { url: 'https://mail.example.test/send', method: 'POST' } };
   writeFileSync(join(dir, 'rows', 'providers', 'example-sender.json'), JSON.stringify(sender));
@@ -243,7 +244,7 @@ test('a unit\'s parts put a file the person keeps into its settings, read relati
 });
 
 test('a settings part puts any value of any file at any place in the settings, each by a JSON Pointer, and names no field itself', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'settings-parts-pointers-'));
+  const dir = tempFolder(join(tmpdir(), 'settings-parts-pointers-'));
   mkdirSync(join(dir, 'rows', 'mine'), { recursive: true });
   writeFileSync(join(dir, 'rows', 'mine', 'what-we-are.json'), JSON.stringify({ called: 'Acme', 'a/b': { '~x': 'escaped' }, look: { css: 'x'.repeat(50000) } }));
   const parts = { '/settings/doors/0/server_name': { file: 'mine/what-we-are.json', pointer: '/called' }, '/settings/doors/0/odd': { file: 'mine/what-we-are.json', pointer: '/a~1b/~0x' } };

@@ -1,8 +1,9 @@
 // harness/ask-the-account-first.mjs: a turn that the person began is refused at its end until the AI has called a Trillion
 // read tool; the harness row decides whether and how; the check never reads what the AI wrote; it refuses once.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { homedir } from 'node:os';
@@ -133,7 +134,7 @@ test('a harness whose row names another road is never refused, and its own read 
 });
 
 test('consultsFor reads the harness row, falls back to the default row, then to the settings shape', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'ask-first-'));
+  const folder = tempFolder(join(tmpdir(), 'ask-first-'));
   try {
     const rows = join(folder, 'harnesses.json');
     assert.deepEqual(consultsFor('muse', settings, folder), settings.until_the_row_carries_it);

@@ -9,11 +9,12 @@
  * region loses variance (its stddev drops), so the noise is softened. Convention-agnostic (it measures that
  * the flat-region variance actually fell), PLUS a byte-identical determinism proof. L155.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -40,7 +41,7 @@ function bandStddev(file, { x, y, w, h }) {
 const FLAT_BAND = { x: 40, y: 40, w: 120, h: 120 };
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'smooth-'));
+  const dir = tempFolder(join(tmpdir(), 'smooth-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -48,7 +49,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'smooth-render-'));
+  work = tempFolder(join(tmpdir(), 'smooth-render-'));
   noisy = join(work, 'noisy.mp4'); // flat mid-gray with baked static noise (seeded, so renders are stable).
   ffmpeg(['-f', 'lavfi', '-i', `color=gray:s=200x200:d=1:r=${FPS}`, '-vf', 'noise=alls=30:allf=t+u:all_seed=8675309', '-pix_fmt', 'yuv420p', noisy]);
 });

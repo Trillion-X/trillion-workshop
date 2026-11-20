@@ -8,10 +8,11 @@
  * offline render proving POSITIONING: a spotlight at (0.2,0.2) darkens the FAR corner more than the NEAR
  * corner while the focus center stays brightest (a fixed centered vignette could not show that asymmetry).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,7 +37,7 @@ const BR = { x: 166, y: 166, w: 30, h: 30 };
 const CENTER = { x: 85, y: 85, w: 30, h: 30 };
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'spot-'));
+  const dir = tempFolder(join(tmpdir(), 'spot-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -44,7 +45,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'spot-render-'));
+  work = tempFolder(join(tmpdir(), 'spot-render-'));
   gray = join(work, 'gray.mp4');
   // A flat mid-gray 200x200 frame so the ONLY luma variation in the output is the spotlight falloff.
   ffmpeg(['-f', 'lavfi', '-i', 'color=0xA0A0A0:s=200x200:r=24:d=1', '-pix_fmt', 'yuv420p', gray]);

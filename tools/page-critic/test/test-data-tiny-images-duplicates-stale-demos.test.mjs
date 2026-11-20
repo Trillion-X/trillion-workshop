@@ -12,10 +12,11 @@
 //   - stale demo: a demo frame that cannot be reached, answers 404, says "Your choice was not saved", or stays empty,
 //     and a looping clip that does not load.
 // Needs Chromium (Playwright's, from devDependencies).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -139,7 +140,7 @@ test('each new rule is a data row with its own thresholds, words and patterns', 
 });
 
 test('a page with planted defects is flagged by every new rule, each saying what and where', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'page-critic-planted-'));
+  const folder = tempFolder(join(tmpdir(), 'page-critic-planted-'));
   const site = await serve();
   try {
     const report = await critique(`${site.base}/planted`, folder);
@@ -193,7 +194,7 @@ test('a page with planted defects is flagged by every new rule, each saying what
 });
 
 test('a clean page of the same shape stays quiet under all four rules', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'page-critic-clean-'));
+  const folder = tempFolder(join(tmpdir(), 'page-critic-clean-'));
   const site = await serve();
   try {
     const report = await critique(`${site.base}/clean`, folder);

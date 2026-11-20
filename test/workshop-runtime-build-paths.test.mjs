@@ -1,5 +1,6 @@
+import { tempFolder } from '../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import test from 'node:test';
@@ -7,7 +8,7 @@ import { build } from 'esbuild';
 import { workshopShellImportsPlugin } from 'trillion-workshop/tools/workspace-pieces/scripts/workshop-shell-imports.mjs';
 
 function fixture(t, extra = {}) {
-  const base = realpathSync(mkdtempSync(join(tmpdir(), 'runtime-build-paths-')));
+  const base = realpathSync(tempFolder(join(tmpdir(), 'runtime-build-paths-')));
   t.after(() => rmSync(base, { recursive: true, force: true }));
   const put = (file, text) => { mkdirSync(dirname(join(base, file)), { recursive: true }); writeFileSync(join(base, file), text); };
   const files = {

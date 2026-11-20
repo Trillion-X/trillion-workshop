@@ -1,10 +1,11 @@
 // Pointing a person's editor projects at clips' new places runs on their own computer
 // (do-work/relink-editor-projects.mjs, tool:point-editor-projects-at-new-places). Proven on real
 // gzipped Premiere project files in a folder of this test's own, run the way the tool's invoke runs it.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import zlib from 'node:zlib';
@@ -16,7 +17,7 @@ const SCRIPT = new URL('../do-work/relink-editor-projects.mjs', import.meta.url)
 const project = (paths) => `<?xml version="1.0"?><PremiereData Version="3"><Media ObjectUID="m1"><FilePath>${paths.absolute}</FilePath><ActualMediaFilePath>${paths.absolute}</ActualMediaFilePath><RelativePath>${paths.relative}</RelativePath><Title>A &amp; B</Title></Media><Media ObjectUID="m2"><FilePath>/work/sample/Other/keep.mp4</FilePath></Media></PremiereData>`;
 
 test('a Premiere project names the clip\'s new place, the original is kept beside it, and other clips stay', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'relink-'));
+  const folder = tempFolder(join(tmpdir(), 'relink-'));
   const file = join(folder, 'Edit.prproj');
   const before = project({ absolute: '/work/sample/Card/CLIP/A &amp; B.MP4', relative: relative(folder, '/work/sample/Card/CLIP/A &amp; B.MP4') });
   writeFileSync(file, zlib.gzipSync(Buffer.from(before)));
@@ -39,7 +40,7 @@ test('a Premiere project names the clip\'s new place, the original is kept besid
 });
 
 test('an open project is left alone and reported as waiting; an unrelated project is not written', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'relink-open-'));
+  const folder = tempFolder(join(tmpdir(), 'relink-open-'));
   const open = join(folder, 'Open.prproj'), other = join(folder, 'Other.prproj');
   writeFileSync(open, zlib.gzipSync(Buffer.from(project({ absolute: '/work/sample/Card/a.mp4', relative: 'a.mp4' }))));
   writeFileSync(other, zlib.gzipSync(Buffer.from(project({ absolute: '/work/sample/Else/b.mp4', relative: 'b.mp4' }))));

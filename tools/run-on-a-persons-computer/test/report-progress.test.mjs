@@ -1,9 +1,10 @@
 // A program's progress file becomes one report per job (computer/report-progress.mjs): its rows say where the files
 // are and how to read them, a file is reported only when it changed, a program that died reports failed, and old
 // finished work is never announced again.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdtempSync, readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { applyAction, filesOf, reportOf, settingsOf, startReporting } from '../report-progress.mjs';
@@ -91,7 +92,7 @@ test('a report offers the actions its state allows, answered by this computer, a
   assert.deepEqual(paused.actions.map(action => action.id), ['resume', 'stop']);
   assert.match(paused.body, /^Paused/);
   assert.equal(reportOf(row, file(), { computer: 'Mac', isAlive: () => true, now }).actions, undefined, 'no agent, no actions');
-  const folder = mkdtempSync(join(tmpdir(), 'report-progress-'));
+  const folder = tempFolder(join(tmpdir(), 'report-progress-'));
   const progressPath = join(folder, 'progress.json');
   const pause = row.actions.find(action => action.id === 'pause');
   applyAction(pause, progressPath, new Date('2026-10-02T09:00:00Z'));

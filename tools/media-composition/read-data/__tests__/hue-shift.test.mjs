@@ -9,10 +9,11 @@
  * pass-through, AND a real OFFLINE render (deterministic mode #170) on a SOLID RED source where a 120deg
  * hue rotation moves red -> green (the green channel overtakes red), while the plain render stays red (L155).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,7 +37,7 @@ function meanRGB(file, ss) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'hue-'));
+  const dir = tempFolder(join(tmpdir(), 'hue-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -44,7 +45,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'hue-render-'));
+  work = tempFolder(join(tmpdir(), 'hue-render-'));
   red = join(work, 'red.mp4'); // solid pure red so a hue rotation is unambiguous
   ffmpeg(['-f', 'lavfi', '-i', `color=0xff0000:s=320x240:d=2:r=${FPS}`, '-pix_fmt', 'yuv420p', red]);
 });

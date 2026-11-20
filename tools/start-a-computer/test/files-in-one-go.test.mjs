@@ -3,10 +3,11 @@
 // A folder a unit owns whole is read and written in one command each way: the archive unpacks with a real tar to exactly the
 // files given (a long path, a binary file, a nested folder), each 0644, and the one read tells a file that matches, one that
 // differs and one that is absent, through a real shell.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readAll, tarOf, writeAll } from '../do-work/files-in-one-go.mjs';
@@ -22,7 +23,7 @@ test('the archive unpacks to exactly the files given, each 0644, with every tar 
   ];
   assert.ok(tars.length, 'a tar to unpack with');
   for (const tar of tars) {
-    const root = mkdtempSync(join(tmpdir(), `one-go-${tar}-`));
+    const root = tempFolder(join(tmpdir(), `one-go-${tar}-`));
     execFileSync(tar, ['-x', '-f', '-', '-C', root], { input: tarOf(files) });
     assert.equal(readFileSync(join(root, 'pages/index.html'), 'utf8'), '<p>hello</p>\n', tar);
     assert.equal(readFileSync(join(root, long), 'utf8'), 'export const x = 1;\n', `${tar}: a path over 100 bytes`);
@@ -33,7 +34,7 @@ test('the archive unpacks to exactly the files given, each 0644, with every tar 
 });
 
 test('one read tells each file: the same bytes, other bytes, or absent', async () => {
-  const root = mkdtempSync(join(tmpdir(), 'one-go-read-'));
+  const root = tempFolder(join(tmpdir(), 'one-go-read-'));
   mkdirSync(join(root, 'p'));
   writeFileSync(join(root, 'p/same.html'), 'same\n');
   writeFileSync(join(root, 'p/changed.html'), 'old\n');

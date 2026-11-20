@@ -1,7 +1,8 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
@@ -16,7 +17,7 @@ const listen = server => new Promise(resolve => server.listen(0, '127.0.0.1', ()
 const close = server => new Promise(resolve => server.close(resolve));
 
 test('a failed agent command stays unfinished and the signed event recovers after restart', async () => {
-  const home = mkdtempSync(join(tmpdir(), 'trillion-agent-receiver-'));
+  const home = tempFolder(join(tmpdir(), 'trillion-agent-receiver-'));
   let finishCount = 0;
   let takeCount = 0;
   const requests = [];

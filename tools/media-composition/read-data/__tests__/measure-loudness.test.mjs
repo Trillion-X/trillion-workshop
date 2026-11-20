@@ -9,10 +9,11 @@
  * (a value that could not be faked). The louder file reads louder. The pure gate flags too-loud / too-quiet /
  * clipping / unmeasured. A file normalized to the -14 target passes the gate end to end.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { measureLoudness, measureLoudnessAsync, loudnessGate, checkPublishLoudness } from '../../do-work/measure-loudness.mjs';
@@ -21,7 +22,7 @@ let work, loud, quiet, atTarget;
 function ffmpeg(args) { execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', ...args], { encoding: 'utf8' }); }
 
 before(() => {
-  work = mkdtempSync(join(tmpdir(), 'loud-'));
+  work = tempFolder(join(tmpdir(), 'loud-'));
   loud = join(work, 'loud.m4a'); ffmpeg(['-f', 'lavfi', '-i', 'sine=frequency=300:d=3', '-c:a', 'aac', loud]);
   quiet = join(work, 'quiet.m4a'); ffmpeg(['-i', loud, '-af', 'volume=-20dB', '-c:a', 'aac', quiet]);   // exactly -20 dB down
   atTarget = join(work, 'target.m4a'); ffmpeg(['-i', loud, '-af', 'loudnorm=I=-14:TP=-1.5:LRA=11', '-c:a', 'aac', atTarget]); // normalized to -14 LUFS

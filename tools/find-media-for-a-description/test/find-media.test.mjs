@@ -1,15 +1,16 @@
 // find_media.mjs: table dispatch with zero provider branches, the bank provider end to end on a made-up bank, argv
 // template filling, constraint enforcement from provider data, and one-row provider extensibility.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const root = join(import.meta.dirname, '..');
 const resolver = join(root, 'do-work', 'find_media.mjs');
-const work = mkdtempSync(join(tmpdir(), 'find-media-'));
+const work = tempFolder(join(tmpdir(), 'find-media-'));
 
 function find(request, providersFile) {
   const extra = providersFile ? ['--providers', providersFile] : [];
@@ -20,7 +21,7 @@ function find(request, providersFile) {
 
 let bank;
 before(() => {
-  bank = mkdtempSync(join(tmpdir(), 'bank-'));
+  bank = tempFolder(join(tmpdir(), 'bank-'));
   writeFileSync(join(bank, 'harbour-sunrise.mp4'), 'clipbytes');
   writeFileSync(join(bank, 'harbour-sunrise.mp4.tags.json'), JSON.stringify({ tags: ['harbour', 'boats', 'sunrise'] }));
   writeFileSync(join(bank, 'forest-path.mp4'), 'clipbytes2');

@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { closeSync, mkdirSync, mkdtempSync, openSync, readFileSync, writeFileSync } from 'node:fs';
+import { closeSync, mkdirSync, openSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -26,7 +27,7 @@ const HOME = {
  * user home whose app settings name a state folder holding the selected account's owner id.
  */
 function withStandIn(run, home = HOME) {
-  const folder = mkdtempSync(join(tmpdir(), 'vault-reader-'));
+  const folder = tempFolder(join(tmpdir(), 'vault-reader-'));
   writeFileSync(join(folder, 'credential-home.json'), JSON.stringify(home));
   const user = join(folder, 'user');
   const state = join(folder, 'state');

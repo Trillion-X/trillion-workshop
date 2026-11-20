@@ -11,11 +11,12 @@
  * (4) a mixed compute + template + keyframe list renders, and (5) the whole path is byte-identical across two
  * runs (determinism carries through the emergent path).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -32,7 +33,7 @@ function ffmpeg(args) {
 const hashFile = (file) => '1f:' + Buffer.from(blake3(new Uint8Array(readFileSync(file)))).toString('hex');
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'fxstack-'));
+  const dir = tempFolder(join(tmpdir(), 'fxstack-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -40,7 +41,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'fxstack-render-'));
+  work = tempFolder(join(tmpdir(), 'fxstack-render-'));
   clip = join(work, 'clip.mp4'); // colorful content so effects visibly change the frame
   ffmpeg(['-f', 'lavfi', '-i', `testsrc2=s=320x240:r=${FPS}:d=2`, '-pix_fmt', 'yuv420p', clip]);
 });

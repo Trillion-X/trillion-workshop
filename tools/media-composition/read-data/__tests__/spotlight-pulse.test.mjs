@@ -13,10 +13,11 @@
  * spotlight makes the whole-frame darkening BREATHE, the frame mean at the sine peak (t=0.25) differs from
  * the trough (t=0.75), a genuine cross-frame pixel diff, while a non-pulsed spotlight holds steady (L155).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -38,7 +39,7 @@ function frameMean(file, ss) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'spot-'));
+  const dir = tempFolder(join(tmpdir(), 'spot-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -46,7 +47,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'spot-render-'));
+  work = tempFolder(join(tmpdir(), 'spot-render-'));
   gray24 = join(work, 'gray24.mp4'); // flat mid-gray @24fps so the breathing modulation is unambiguous
   ffmpeg(['-f', 'lavfi', '-i', 'color=0x808080:s=320x240:d=2:r=24', '-pix_fmt', 'yuv420p', gray24]);
 });

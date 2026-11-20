@@ -1,9 +1,10 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { run } from './fixtures.mjs';
 // A call's fields are checked against its tool row's input_schema: a field the call does not declare is refused by name, and
 // a field a free-form object holds that the call declares at its top level (decision.usage) is refused where it belongs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync } from 'node:fs';
+import { cpSync, mkdirSync, readFileSync, rmSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -56,7 +57,7 @@ test('the input schemas the code reads are the tool rows\' input schemas', async
 });
 
 test('the installed copy, without tool-rows.json, runs make-the-decision', async () => {
-  const installed = mkdtempSync(join(tmpdir(), 'dwam-installed-'));
+  const installed = tempFolder(join(tmpdir(), 'dwam-installed-'));
   try {
     const tools = new URL('../../', import.meta.url);
     const opt = join(installed, 'opt');

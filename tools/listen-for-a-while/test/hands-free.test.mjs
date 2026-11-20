@@ -3,9 +3,10 @@
 // The hands-free voice loop (read-data/hands-free.mjs): sound is cut into utterances by loudness, an idle loop hears only to
 // find the wake phrase, a session answers and is ended by a spoken dismissal or silence, the loop never answers its own voice,
 // and the loop never answers its own voice. The old REAL test (realParts and startCapture on a Mac) stays with those parts, which are not moved.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, existsSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { handsFreeSettings, makeHandsFree, makeVad, wavOf } from '../read-data/hands-free.mjs';
@@ -27,7 +28,7 @@ function pretend({ words, answers = ['It is Paris.'], now = () => Date.now(), sp
   const session = makeVoiceSession({ now, ...(voice ? { settings: voice } : {}) });
   const asked = [];
   const loop = makeHandsFree({
-    settings, session, now, folder: mkdtempSync(join(tmpdir(), 'hands-free-')),
+    settings, session, now, folder: tempFolder(join(tmpdir(), 'hands-free-')),
     hear: async file => { assert.ok(existsSync(file)); heardAt.push(file); return { text: queue.shift() ?? '' }; },
     think: async messages => { asked.push(messages); return answers.shift() ?? 'Okay.'; },
     say: async text => { spoken.push(text); return null; },
@@ -80,7 +81,7 @@ test('the loop lets go of sound while it is speaking and for the tail after, so 
   const spoken = [];
   const session = makeVoiceSession({ now: () => clock });
   const heard = [];
-  const loop = makeHandsFree({ settings, session, now: () => clock, folder: mkdtempSync(join(tmpdir(), 'hands-free-')),
+  const loop = makeHandsFree({ settings, session, now: () => clock, folder: tempFolder(join(tmpdir(), 'hands-free-')),
     hear: async () => { heard.push(1); return { text: 'hey trillion say hello' }; }, think: async () => 'Hello.',
     say: async text => { spoken.push(text); return join(tmpdir(), 'nothing.wav'); },
     play: async () => { for (const chunk of chunks(Buffer.concat([tone(800), silence(1200)]))) loop.feed(chunk); } });
@@ -99,7 +100,7 @@ test('the loop lets go of sound while it is speaking and for the tail after, so 
 test('a model that does not answer, or a voice that cannot be made, is told in words and the text answer is kept', async () => {
   const none = pretend({ words: ['hey trillion hello'], answers: [''] });
   assert.equal((await feedAll(none.loop, Buffer.concat([tone(800), silence(1200)])))[0].error, settings.words.no_answer);
-  const loop = makeHandsFree({ settings, folder: mkdtempSync(join(tmpdir(), 'hands-free-')), hear: async () => ({ text: 'hey trillion hello' }),
+  const loop = makeHandsFree({ settings, folder: tempFolder(join(tmpdir(), 'hands-free-')), hear: async () => ({ text: 'hey trillion hello' }),
     think: async () => 'Hi.', say: async () => { throw new Error('no voice'); }, play: async () => {} });
   const [row] = await feedAll(loop, Buffer.concat([tone(800), silence(1200)]));
   assert.equal(row.answer, 'Hi.');

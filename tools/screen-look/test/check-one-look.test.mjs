@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -99,7 +100,7 @@ test('CLI refuses missing roots, escaped paths and unsupported input instead of 
 });
 
 test('explicit scan root includes all source files and stale kept values remain findings', () => {
-  const fixture = mkdtempSync(join(tmpdir(), 'one-look-data-fixture-'));
+  const fixture = tempFolder(join(tmpdir(), 'one-look-data-fixture-'));
   try {
     const content = {
       'tools/future/show/probe.css': 'blockquote{font-family:Georgia}',

@@ -4,17 +4,18 @@
 // POST <verify_path> {key} with Better Auth's own verifyApiKey, as {valid, key: {id, userId, permissions}}. The public
 // listener (the one Caddy reaches) never answers it. New keys start with settings.api_key.prefix, whatever the request asked
 // for; a key's user is the person it signs in.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { startStore } from '../test-fixtures/embedded-store.mjs';
 
 const freePort = () => new Promise(done => { const s = createServer().listen(0, '127.0.0.1', () => { const { port } = s.address(); s.close(() => done(port)); }); });
-const dir = mkdtempSync(join(tmpdir(), 'internal-verify-'));
+const dir = tempFolder(join(tmpdir(), 'internal-verify-'));
 const [port, internal] = [await freePort(), await freePort()];
 const base = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
 const settings = { ...base, port, base_url: `http://localhost:${port}`, issuer: `http://localhost:${port}`, audience: `http://localhost:${port}`, trusted_origins: [`http://localhost:${port}`], email_password: { require_verification: false }, rate_limit: { enabled: false }, internal: { ...base.internal, port: internal }, api_key: { ...base.api_key, default_permissions: { example: ['wake:*', 'tools:*'] } } };

@@ -7,10 +7,11 @@
  * render where sharpening a two-tone edge adds overshoot/undershoot (ringing), so the stddev of a band
  * crossing the edge rises and stronger sharpen rings more.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -38,7 +39,7 @@ function bandStddev(file, { x, y, w, h }) {
 const EDGE_BAND = { x: 70, y: 0, w: 60, h: 200 };
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'sharp-'));
+  const dir = tempFolder(join(tmpdir(), 'sharp-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -46,7 +47,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'sharp-render-'));
+  work = tempFolder(join(tmpdir(), 'sharp-render-'));
   edge = join(work, 'edge.mp4');
   // A crisp vertical edge: left half gray 96, right half gray 176. unsharp adds ringing at x=100.
   ffmpeg(['-f', 'lavfi', '-i', 'color=black:s=200x200:r=24:d=1',

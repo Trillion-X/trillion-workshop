@@ -8,10 +8,11 @@
  * clamp 0..1), materialize pass-through, AND a real offline render where sharp off-center detail is smeared
  * (edge softness rises a lot) while the exact center stays sharp (L155).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,7 +38,7 @@ function smearFrac(raw, x0, x1, y0, y1) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'zb-'));
+  const dir = tempFolder(join(tmpdir(), 'zb-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -45,7 +46,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'zb-render-'));
+  work = tempFolder(join(tmpdir(), 'zb-render-'));
   // white text near the top-left corner (far from center) + a small centered mark: radial blur smears the
   // corner text but leaves the center sharp.
   dots = join(work, 'dots.mp4');

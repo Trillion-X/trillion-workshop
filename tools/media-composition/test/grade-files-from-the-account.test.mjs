@@ -1,9 +1,10 @@
 // The colour grade files are supplied by the account and are not in this repository. A look that needs one stops
 // with words that say so, never a stack trace; a look that needs none still renders.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,7 +14,7 @@ const luts = fileURLToPath(new URL('../read-data/luts', import.meta.url));
 const available = ['ffprobe', 'ffmpeg'].every(name => spawnSync(name, ['-version']).status === 0);
 
 test('a look whose grade file the account has not supplied stops with a clear message', { skip: !available || existsSync(luts) }, () => {
-  const work = mkdtempSync(join(tmpdir(), 'grade-'));
+  const work = tempFolder(join(tmpdir(), 'grade-'));
   try {
     const video = join(work, 'clip.mp4');
     execFileSync('ffmpeg', ['-v', 'error', '-f', 'lavfi', '-i', 'testsrc2=size=160x90:rate=10:duration=1', '-pix_fmt', 'yuv420p', video]);

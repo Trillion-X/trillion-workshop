@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import settings from '../do-work/command.json' with { type: 'json' };
@@ -10,7 +11,7 @@ import { CommandError, argumentsFor, schedules, validateAcceptance, validateChec
 speakFor({ cli: 'example', site_name: 'Example' });
 
 const me = { agent_id: 'lane-a', ai_id: 'ai:lane-a', held_as: [] };
-const folder = mkdtempSync(join(tmpdir(), 'example-job-commands-'));
+const folder = tempFolder(join(tmpdir(), 'example-job-commands-'));
 const file = (name, value) => { const path = join(folder, name); writeFileSync(path, JSON.stringify(value)); return path; };
 const call = (command, words, flags = {}) => argumentsFor(command, { words, flags }, { me, requestKey: 'key-1' });
 const continuation = { owner: 'ai:lane-b', action: 'Read the consumer record', after: '2026-11-17T09:00:00-06:00', reason: 'Waiting on the sender' };

@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,7 +18,7 @@ function execute(args) {
 }
 
 test('the shared search retains float32 source order, timed spread, readable names and spoken-word output', async () => {
-  const work = mkdtempSync(join(tmpdir(), 'kept-vector-cli-'));
+  const work = tempFolder(join(tmpdir(), 'kept-vector-cli-'));
   const places = execute([fixture, 'make', work]);
   const output = join(work, 'sets');
   const converted = execute([converter, '--out', output, '--asset-index', places.ASSET_INDEX, '--ssd-index', places.SSD_INDEX,

@@ -9,10 +9,11 @@
  * pass-through, AND a real offline render on a solid clip where the corners become the background color
  * while the center and the edge-midpoints stay the source color (the dx=0/dy=0 bands are inside).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -34,7 +35,7 @@ function meanRGB(file, { x, y, w, h }) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'rc-'));
+  const dir = tempFolder(join(tmpdir(), 'rc-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -42,7 +43,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'rc-render-'));
+  work = tempFolder(join(tmpdir(), 'rc-render-'));
   src = join(work, 'green.mp4');
   ffmpeg(['-f', 'lavfi', '-i', 'color=c=green:s=200x200:d=1:r=24', '-pix_fmt', 'yuv420p', src]);
 });

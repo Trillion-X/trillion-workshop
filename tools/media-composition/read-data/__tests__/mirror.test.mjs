@@ -9,11 +9,12 @@
  * equals its mirror W-1-X) and gains a second bar (the reflection). We measure the left-right asymmetry (sum
  * of |px[X]-px[W-1-X]|): large on the base, near-zero after mirror. PLUS a byte-identical determinism proof. L155.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,7 +38,7 @@ const lrAsymmetry = (row) => { let s = 0; for (let x = 0; x < W / 2; x++) s += M
 const brightCount = (row) => row.filter((v) => v > 120).length;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'mir-'));
+  const dir = tempFolder(join(tmpdir(), 'mir-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -45,7 +46,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'mir-render-'));
+  work = tempFolder(join(tmpdir(), 'mir-render-'));
   bar = join(work, 'bar.mp4'); // a bright bar ONLY in the left half (x=80..90), so the frame is asymmetric.
   ffmpeg(['-f', 'lavfi', '-i', `color=black:s=320x240:d=2:r=${FPS}`, '-vf', "geq=r='if(between(X,80,90),240,20)':g='if(between(X,80,90),240,20)':b='if(between(X,80,90),240,20)'", '-pix_fmt', 'yuv420p', bar]);
 });

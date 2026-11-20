@@ -6,10 +6,11 @@
  * fold. The TS module is bundled on the fly with esbuild (node:test runner —
  * the package has no TS test harness).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,7 +18,7 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 let materializeExportEdl;
 before(async () => {
-  const out = join(mkdtempSync(join(tmpdir(), 'medl-')), 'materialize-edl.mjs');
+  const out = join(tempFolder(join(tmpdir(), 'medl-')), 'materialize-edl.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', join(here, '..', 'materialize-edl.ts'), `--outfile=${out}`], { encoding: 'utf8' });
   ({ materializeExportEdl } = await import(out));
 });

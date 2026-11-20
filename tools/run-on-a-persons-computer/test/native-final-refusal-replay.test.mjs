@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { macTools, MacToolsHttpError, callerOf } from '../mac-tools.mjs';
@@ -11,7 +12,7 @@ const saved = { handoff_id: 'h_recovery', generation: 1, finish: { handoff_id: '
 const connect = () => ({ addEventListener() {} });
 
 async function withOutbox(work) {
-  const folder = await mkdtemp(join(tmpdir(), 'native-refusal-'));
+  const folder = tempFolder(join(tmpdir(), 'native-refusal-'));
   const open = () => nativeResultOutbox({ file: join(folder, 'result'), accountId: 'synthetic-account', origin: 'https://example.test' });
   try { await work(open); } finally { await rm(folder, { recursive: true, force: true }); }
 }

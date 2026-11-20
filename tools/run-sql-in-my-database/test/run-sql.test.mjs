@@ -1,8 +1,9 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test, { before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import net from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -27,7 +28,7 @@ const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url
 let server;
 
 before(async () => {
-  server = new EmbeddedPostgres({ databaseDir: mkdtempSync(join(tmpdir(), 'run-sql-')), user: ADMIN.user, password: ADMIN.password, port: PORT, persistent: false, onLog: () => {}, onError: () => {} });
+  server = new EmbeddedPostgres({ databaseDir: tempFolder(join(tmpdir(), 'run-sql-')), user: ADMIN.user, password: ADMIN.password, port: PORT, persistent: false, onLog: () => {}, onError: () => {} });
   await server.initialise();
   await server.start();
   const admin = new pg.Client({ ...ADMIN, database: 'postgres' });

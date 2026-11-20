@@ -1,11 +1,12 @@
 // documents-as-list-rows on made-up chores and house rules: frontmatter read and write, a folder read a page at a time
 // with no cap, a field changed only while the document is the one read, links and backlinks, nothing read outside the
 // granted folder, and long documents split into one document per item. Needs node only.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { watch } from 'node:fs';
-import { mkdir, mkdtemp, readFile, readdir, rename, rm, symlink, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, rename, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,7 +17,7 @@ import { splitDocuments } from '../read-data/split.mjs';
 import { contentRows } from '../read-data/content-rows.mjs';
 
 const command = fileURLToPath(new URL('../do-work/documents.mjs', import.meta.url));
-const scratch = () => mkdtemp(join(tmpdir(), 'documents-as-list-rows-'));
+const scratch = () => tempFolder(join(tmpdir(), 'documents-as-list-rows-'));
 
 test('a missing intermediate parent never turns an outside or dangling symlink into a write path', async t => {
   const parent = await scratch();

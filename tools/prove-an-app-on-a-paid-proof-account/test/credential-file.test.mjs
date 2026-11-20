@@ -1,12 +1,13 @@
 // scripts/credential-file.mjs: a credential is read from its own mode-600 file, never a file others can read.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, chmodSync, rmSync, readFileSync, symlinkSync, lstatSync, statSync, openSync, closeSync } from 'node:fs';
+import { mkdirSync, writeFileSync, chmodSync, rmSync, readFileSync, symlinkSync, lstatSync, statSync, openSync, closeSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 test('a credential file is read only when it is the owner\'s alone, and is named by its file name only', async t => {
-  const home = mkdtempSync(join(tmpdir(), 'credential-file-'));
+  const home = tempFolder(join(tmpdir(), 'credential-file-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const previous = process.env.HOME;
   process.env.HOME = home;
@@ -27,7 +28,7 @@ test('a credential file is read only when it is the owner\'s alone, and is named
 });
 
 test('replacing a credential replaces a symlink without writing through it', async t => {
-  const dir = mkdtempSync(join(tmpdir(), 'credential-replace-'));
+  const dir = tempFolder(join(tmpdir(), 'credential-replace-'));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
   const { writeCredentialFile, readCredentialFile } = await import('../scripts/credential-file.mjs');
   const target = join(dir, 'unrelated-file');
@@ -42,7 +43,7 @@ test('replacing a credential replaces a symlink without writing through it', asy
 });
 
 test('an existing reader of a permissive file never receives its replacement credential', async t => {
-  const dir = mkdtempSync(join(tmpdir(), 'credential-open-reader-'));
+  const dir = tempFolder(join(tmpdir(), 'credential-open-reader-'));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
   const file = join(dir, 'fixture-key');
   writeFileSync(file, 'old non-secret contents', { mode: 0o644 });

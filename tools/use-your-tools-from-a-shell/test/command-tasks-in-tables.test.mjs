@@ -1,9 +1,10 @@
 // The task commands over a database whose tables keep the tasks (command.json `tasks.store`): `--store NAME` names the held
 // connection once and is kept for the next command, every read and write is one run of the SQL tool with that name, and
 // give, take, hand-on to a person, that person's take and who-can-take answer from the table rows.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -49,7 +50,7 @@ test('--store names the database once; give, take, hand-on, the person\'s take a
     insert into users (id, name, kind, can) values ('person:someone', 'Someone', 'person', '["any"]');`);
   const door = await tableDoor(db);
   try {
-    const folder = mkdtempSync(join(tmpdir(), 'example-cli-tables-'));
+    const folder = tempFolder(join(tmpdir(), 'example-cli-tables-'));
     const seams = () => ({ store: { read: () => KEY, where: 'test key' }, grants: { where: 'none', read: () => null, write: () => {}, forget: () => {} }, state: stateOf({ home: folder }),
       env: { CLAUDECODE: '1' }, place: () => ({ repository: 'example', branch: 'main' }), localDoor: () => door.mcp, agentSocket: () => null, computerName: 'Mac', model: null, wait: async () => {} });
     assert.match(await main(['give', 'Fix', 'the', 'build', '--key', 'k1', '--store', 'tasks-db-connection'], seams()), /^Gave record:calendar-task:k1\./);

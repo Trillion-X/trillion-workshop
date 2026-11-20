@@ -1,9 +1,10 @@
 // The look resolver answers concrete values and a stylesheet that carries only the faces the look names, from a made-up
 // look and made-up face bytes (no one person's look or font is in the repository).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { lookDocumentCss, lookFontFacesCss, lookVariablesCss } from '../read-data/look-document-css.js';
@@ -23,7 +24,7 @@ const look = {
 };
 
 test('a look resolves to concrete values, and a face the look does not name is left out', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'screen-looks-'));
+  const dir = tempFolder(join(tmpdir(), 'screen-looks-'));
   writeFileSync(join(dir, 'tidewater.woff2'), Buffer.from('made-up face bytes'));
   writeFileSync(join(dir, 'unused.woff2'), Buffer.from('another face'));
   writeFileSync(join(dir, 'request.json'), JSON.stringify({
@@ -57,7 +58,7 @@ test('a face with an unsafe family or data is refused', () => {
 });
 
 test('a request without look tokens says what to send', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'screen-looks-'));
+  const dir = tempFolder(join(tmpdir(), 'screen-looks-'));
   writeFileSync(join(dir, 'request.json'), JSON.stringify({ look: {} }));
   assert.throws(() => execFileSync(process.execPath, [command, join(dir, 'request.json')], { stdio: 'pipe' }), /look\.tokens/);
 });

@@ -1,8 +1,9 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
 import {spawn,execFileSync} from 'node:child_process';
-import {mkdtemp,writeFile,readFile,rm} from 'node:fs/promises';
+import { writeFile, readFile, rm } from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {once} from 'node:events';
@@ -13,7 +14,7 @@ import {blake3Hex} from '../do-work/evaluate-voice.mjs';
 // Exercise the real CLI and shared adapter, including its busy-response retry
 // branch. A source-string check would miss an omitted askMany option.
 test('real CLI preserves categorical labels and single-attempt busy failures', {timeout:30000}, async () => {
-  const folder=await mkdtemp(join(tmpdir(),'book-eval-attempt-'));
+  const folder=tempFolder(join(tmpdir(),'book-eval-attempt-'));
   const seen=[];let active=0,peak=0;
   const server=createServer(async(req,res)=>{
     if(req.url==='/health'){res.setHeader('content-type','application/json');res.end(JSON.stringify({serving:'fixture-process',device:'fixture'}));return;}
@@ -104,7 +105,7 @@ test('v3 criteria require pinned reference context and explicit valid block appl
 });
 
 test('real CLI evaluates every source-bound section chunk and derives pass or late contradiction', {timeout:30000}, async()=>{
-  const folder=await mkdtemp(join(tmpdir(),'book-eval-section-chunks-'));
+  const folder=tempFolder(join(tmpdir(),'book-eval-section-chunks-'));
   const seen=[]; const model='decider-v10', serving='fixture-process';
   const server=createServer(async(req,res)=>{
     res.setHeader('content-type','application/json');
@@ -180,7 +181,7 @@ test('real CLI evaluates every source-bound section chunk and derives pass or la
 });
 
 test('CLI binds accepted responses to observed health identity and gates model requests on health', {timeout:30000}, async () => {
-  const folder=await mkdtemp(join(tmpdir(),'book-eval-identity-'));
+  const folder=tempFolder(join(tmpdir(),'book-eval-identity-'));
   let healthServing='health-process';let requests=0;
   const server=createServer(async(req,res)=>{
     if(req.url==='/health'){

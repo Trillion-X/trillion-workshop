@@ -1,9 +1,10 @@
 // What is done with heard turns once they are handed in, with no records door at all: a voice named once it is
 // enrolled, captions (F-0792), the transcriber role (F-0793) and the transcript cursor (F-0297). Every tool answers
 // from its request and keeps nothing: the answer holds the result, and what the caller hands in is never changed.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { listenForAWhile } from '../read-data/listen-for-a-while.mjs';
@@ -64,7 +65,7 @@ test('F-0793: one device holds the transcriber role until its time runs out; a p
   assert.equal(roleHolder(held, now + 181_000), null, 'a role run out is free');
   assert.ok(mayTranscribe(held, 'laptop', now) && !mayTranscribe(held, 'phone', now) && mayTranscribe(null, 'phone', now));
 
-  const folder = mkdtempSync(join(tmpdir(), 'role-'));
+  const folder = tempFolder(join(tmpdir(), 'role-'));
   async function* record() { yield { file: pieceIn(folder), startMs: now, endMs: now + 30_000 }; }
   const tally = await listenForAWhile({ until: now + 3_600_000, listening: 'l1', device: 'phone', model_path: 'm', transcriber: held }, noDoor,
     { record, now: () => now + 5000, hear: async () => { throw new Error('a piece the laptop covers is not heard here'); }, name: named('x') });

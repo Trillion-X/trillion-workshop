@@ -5,9 +5,10 @@
 // indistinguishable from one that never looked, so the first thing proven here
 // is what it turns away.
 
+import { tempFolder } from '../../../../../test-helpers/temp-folder.mjs';
 import {test} from 'node:test'
 import assert from 'node:assert/strict'
-import {mkdtemp, writeFile, readFile, rm} from 'node:fs/promises'
+import { writeFile, readFile, rm } from 'node:fs/promises'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
 import {
@@ -20,7 +21,7 @@ import {
 } from '../do-work/roll-up-work-completion.mjs'
 
 const withTree = async (document, body) => {
-  const directory = await mkdtemp(join(tmpdir(), 'work-breakdown-'))
+  const directory = tempFolder(join(tmpdir(), 'work-breakdown-'))
   const path = join(directory, 'tree.json')
   await writeFile(path, JSON.stringify(document), 'utf8')
   try {
@@ -210,7 +211,7 @@ test('the checklist can be written out with its heading, ready for a section pla
       ],
     },
     async path => {
-      const directory = await mkdtemp(join(tmpdir(), 'work-breakdown-out-'))
+      const directory = tempFolder(join(tmpdir(), 'work-breakdown-out-'))
       const out = join(directory, 'section.md')
       try {
         const result = await run(['--tree', path, '--as', 'checklist', '--out', out, '--heading', '## Where this stands'])
@@ -237,7 +238,7 @@ test('the written summary names the claims and the walls, not only the share', a
       ],
     },
     async path => {
-      const directory = await mkdtemp(join(tmpdir(), 'work-breakdown-out-'))
+      const directory = tempFolder(join(tmpdir(), 'work-breakdown-out-'))
       const out = join(directory, 'section.md')
       try {
         const result = await run(['--tree', path, '--as', 'checklist', '--out', out])

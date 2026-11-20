@@ -3,18 +3,19 @@
 // Before a person's account is deleted, the business's own clean-up can be reached by a local address (settings.delete_user.before_delete_url):
 // this tool POSTs {user_id, email} to it, signed with the secret the unit holds. A 2xx answer deletes the account; any other answer, a refused
 // connection or a timeout keeps it, and the person is told. An address that is not on this computer is refused when the server starts.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
 import { createServer } from 'node:http';
-import { mkdirSync, mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { startStore } from '../test-fixtures/embedded-store.mjs';
 
 const KEY = 'scratch-clean-up-key-0123456789';
-const dir = mkdtempSync(join(tmpdir(), 'delete-hook-url-'));
+const dir = tempFolder(join(tmpdir(), 'delete-hook-url-'));
 const credentials = join(dir, 'credentials');
 mkdirSync(credentials);
 writeFileSync(join(credentials, 'before-delete-secret'), `${KEY}\n`);

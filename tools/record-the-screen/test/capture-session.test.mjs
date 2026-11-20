@@ -1,7 +1,8 @@
 // Screen recording as a helper process: the source, the capturer ladder, the verbs, the leave-out list, the pointer sidecar, the save, and the tool row a person's AI reaches it through (tools/record-the-screen/do-work/capture-session.mjs).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -33,7 +34,7 @@ function machine({ programs = ['/usr/bin/swift', '/usr/sbin/screencapture'], fai
 }
 // A pretend home outside the system folders recordings are never saved into (a Mac's own temp folder is under /var, so
 // there it is /private/tmp; elsewhere the machine's temp folder is outside every refused root).
-const homeOf = () => mkdtempSync(existsSync('/private/tmp') ? '/private/tmp/capture-home-' : path.join(os.tmpdir(), 'capture-home-'));
+const homeOf = () => tempFolder(existsSync('/private/tmp') ? '/private/tmp/capture-home-' : path.join(os.tmpdir(), 'capture-home-'));
 
 test('a recording needs a source that exists; the first capturer that can records it and its command carries the JSON config', async () => {
   const { world, session } = machine();

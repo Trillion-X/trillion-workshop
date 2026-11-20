@@ -1,12 +1,13 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync, rmSync, mkdirSync } from 'node:fs';
+import { writeFileSync, readFileSync, rmSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { settings, rowsFrom, recordNew, drainTranscript } from '../harness/record-every-message.mjs';
 
 function fixture(t, oversized = false) {
-  const root = mkdtempSync(join(tmpdir(), 'trillion-history-reader-'));
+  const root = tempFolder(join(tmpdir(), 'trillion-history-reader-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const session = 'bounded-history-session';
   const path = join(root, 'session.jsonl');

@@ -8,10 +8,11 @@
  * pass-through, AND a real offline render where the timer region (a) has bright text pixels (it is drawn) and
  * (b) CHANGES between two timestamps (the digits tick) -- a value-change proxy is not enough, we diff frames.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,7 +34,7 @@ const brightCount = (buf) => { let n = 0; for (let i = 0; i < buf.length; i++) i
 function changedCount(a, b) { const n = Math.min(a.length, b.length); let c = 0; for (let i = 0; i < n; i++) if (Math.abs(a[i] - b[i]) > 60) c++; return c; }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'tm-'));
+  const dir = tempFolder(join(tmpdir(), 'tm-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -41,7 +42,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'tm-render-'));
+  work = tempFolder(join(tmpdir(), 'tm-render-'));
   src = join(work, 'black.mp4');
   // black 2s source so the white timer text is the only bright thing in the strip.
   ffmpeg(['-f', 'lavfi', '-i', 'color=c=black:s=320x240:d=2:r=24', '-pix_fmt', 'yuv420p', src]);

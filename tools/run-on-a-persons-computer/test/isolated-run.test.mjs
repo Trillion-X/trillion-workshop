@@ -3,16 +3,17 @@
 // A Mac tool row with `isolate` runs each call in a worker of its own (computer/isolated-run.mjs): a hang, a leak or a
 // crash ends only that run; a second start with a live run id is refused; stopping asks first and terminates after the
 // grace; a refusal's status and retry cross intact. The module under test is a tool written for the test.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { liveRuns, runIsolated, stopAll } from '../isolated-run.mjs';
 import { settingsOf } from '../mac-tools.mjs';
 
-const folder = mkdtempSync(join(tmpdir(), 'isolated-'));
+const folder = tempFolder(join(tmpdir(), 'isolated-'));
 const file = join(folder, 'tools.mjs');
 writeFileSync(file, `
 export const tools = {

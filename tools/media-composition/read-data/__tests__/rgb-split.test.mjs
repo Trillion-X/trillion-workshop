@@ -12,11 +12,12 @@
  * left of the bar (R shifted left, so red pokes out where the picture is still black) and a blue fringe on
  * the right, while the base bar has neither. PLUS a byte-identical determinism proof. L155.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -42,7 +43,7 @@ function px(raw, x) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'rsp-'));
+  const dir = tempFolder(join(tmpdir(), 'rsp-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -50,7 +51,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'rsp-render-'));
+  work = tempFolder(join(tmpdir(), 'rsp-render-'));
   bar = join(work, 'bar.mp4'); // white vertical bar (x 150..170) on a black field.
   ffmpeg(['-f', 'lavfi', '-i', `color=black:s=320x240:d=2:r=${FPS}`,
     '-vf', 'drawbox=x=150:y=0:w=20:h=240:color=white:t=fill', '-pix_fmt', 'yuv420p', bar]);

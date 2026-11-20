@@ -1,7 +1,8 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -56,7 +57,7 @@ function evaluate(directory, planPath, capabilities, observations, nowMs = 1_000
 }
 
 test("a missing physical capability blocks readiness even if every checkbox is checked", () => {
-  const directory = mkdtempSync(join(tmpdir(), "presentation-readiness-"));
+  const directory = tempFolder(join(tmpdir(), "presentation-readiness-"));
   const planPath = makePlan(directory);
   const result = evaluate(directory, planPath, [], {});
   assert.equal(result.state, "awaiting_setup");
@@ -64,7 +65,7 @@ test("a missing physical capability blocks readiness even if every checkbox is c
 });
 
 test("operator evidence cannot satisfy a sensor-only requirement", () => {
-  const directory = mkdtempSync(join(tmpdir(), "presentation-readiness-"));
+  const directory = tempFolder(join(tmpdir(), "presentation-readiness-"));
   const plan = JSON.parse(readFileSync(makePlan(directory), "utf8"));
   const observations = Object.fromEntries(plan.requirements.map((requirement) => [
     requirement.key,
@@ -82,7 +83,7 @@ test("operator evidence cannot satisfy a sensor-only requirement", () => {
 });
 
 test("fresh accepted evidence reaches authorization, not automatic execution", () => {
-  const directory = mkdtempSync(join(tmpdir(), "presentation-readiness-"));
+  const directory = tempFolder(join(tmpdir(), "presentation-readiness-"));
   const plan = JSON.parse(readFileSync(makePlan(directory), "utf8"));
   const observations = Object.fromEntries(plan.requirements.map((requirement) => [
     requirement.key,
@@ -102,7 +103,7 @@ test("fresh accepted evidence reaches authorization, not automatic execution", (
 });
 
 test("a stale observation must be rechecked", () => {
-  const directory = mkdtempSync(join(tmpdir(), "presentation-readiness-"));
+  const directory = tempFolder(join(tmpdir(), "presentation-readiness-"));
   const plan = JSON.parse(readFileSync(makePlan(directory), "utf8"));
   const observations = Object.fromEntries(plan.requirements.map((requirement) => [
     requirement.key,

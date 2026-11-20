@@ -1,7 +1,8 @@
 // Reconstructed harness rows using the shipped transcript contracts, not captured private transcript bytes.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { casesToConfirm, judge, turnWithAsk, turnWithAskFromFile } from '../harness/decide-before-building.mjs';
@@ -35,7 +36,7 @@ test('Claude compact-summary metadata does not replace the person or expire thei
 });
 
 test('the bounded file reader crosses both compaction forms but stops at a real new person message', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'trillion-hook-continuity-')), path = join(folder, 'session.jsonl');
+  const folder = tempFolder(join(tmpdir(), 'trillion-hook-continuity-')), path = join(folder, 'session.jsonl');
   try {
     writeFileSync(path, `${lines([...decided, compacted, claudeSummary]).join('\n')}\n`);
     assert.equal(judge(protectedCall(path)), null);

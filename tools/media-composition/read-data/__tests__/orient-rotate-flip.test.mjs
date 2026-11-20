@@ -8,10 +8,11 @@
  * Proof (L155): DATA resolution + quarter-turn snapping, materialize snake_case pass-through, AND real
  * offline renders where a bright top-left quadrant lands in the expected corner after each transform.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -40,7 +41,7 @@ function brightCorner(file) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'orient-'));
+  const dir = tempFolder(join(tmpdir(), 'orient-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -48,7 +49,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'orient-render-'));
+  work = tempFolder(join(tmpdir(), 'orient-render-'));
   quadrant = join(work, 'quad.mp4');
   // A square 200x200 clip, black with a WHITE 100x100 square in the TOP-LEFT. Square dims keep every
   // quarter-turn square (no letterbox), so the bright corner maps cleanly through rotate/flip.

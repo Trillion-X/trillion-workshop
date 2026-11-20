@@ -8,10 +8,11 @@
  * materialize pass-through, AND a real offline render where a white block at a CORNER gets a strong color
  * fringe (|R-B|) at its edge while an identical block at the CENTER stays near-clean (radius-dependent, L155).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,7 +37,7 @@ function fringe(raw, x0, x1, y) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'lf-'));
+  const dir = tempFolder(join(tmpdir(), 'lf-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -44,7 +45,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'lf-render-'));
+  work = tempFolder(join(tmpdir(), 'lf-render-'));
   src = join(work, 'blocks.mp4'); // white block at top-left corner (10..50) AND at center (140..180,100..140)
   ffmpeg(['-f', 'lavfi', '-i', 'color=black:s=320x240:d=2:r=24',
     '-vf', 'drawbox=x=10:y=10:w=40:h=40:color=white:t=fill,drawbox=x=140:y=100:w=40:h=40:color=white:t=fill,format=yuv420p', src]);

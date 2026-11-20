@@ -9,11 +9,12 @@
  * pan-right the LEFT output channel has no tone (measured by a Goertzel at 440 Hz on each extracted channel).
  * PLUS a catalog-DATA unit and byte-determinism.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -41,7 +42,7 @@ function chanTone(file, chExpr) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'pan-'));
+  const dir = tempFolder(join(tmpdir(), 'pan-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -49,7 +50,7 @@ before(async () => {
   ({ composeTimeline, AUDIO_FX_CATALOG } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'pan-render-'));
+  work = tempFolder(join(tmpdir(), 'pan-render-'));
   // STEREO: left = 440 Hz, right = 880 Hz, so each channel is independently identifiable.
   clip = join(work, 'clip.mp4');
   ffmpeg(['-f', 'lavfi', '-i', `color=navy:s=${W}x${H}:d=1:r=${FPS}`,

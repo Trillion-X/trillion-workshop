@@ -1,5 +1,6 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { chmodSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -7,7 +8,7 @@ import { BrowserProblem, browserExecutable } from '../devtools.mjs';
 
 // A made-up home with a runnable file where the cache place names it.
 function homeWith(...versions) {
-  const home = mkdtempSync(join(tmpdir(), 'browser-home-'));
+  const home = tempFolder(join(tmpdir(), 'browser-home-'));
   for (const version of versions) {
     const folder = join(home, 'Library/Caches/ms-playwright', `chromium-${version}`, 'chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS');
     mkdirSync(folder, { recursive: true });
@@ -29,7 +30,7 @@ test('a path is used as given and a bare name is looked for on the computer', ()
 });
 
 test('no browser found says what to do', () => {
-  const empty = mkdtempSync(join(tmpdir(), 'browser-home-'));
+  const empty = tempFolder(join(tmpdir(), 'browser-home-'));
   let found;
   try { found = browserExecutable('chromium', empty); } catch (error) { assert.ok(error instanceof BrowserProblem); assert.match(error.message, /Install Chrome|name one with --browser/); return; }
   assert.ok(found.startsWith('/'), 'this computer has an installed browser: ' + found);

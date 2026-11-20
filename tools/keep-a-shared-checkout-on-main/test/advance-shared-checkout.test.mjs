@@ -1,9 +1,10 @@
 // scripts/advance-shared-checkout.mjs in real repositories with a real origin and the reference-transaction hook
 // installed: HEAD moves to origin/main by compare-and-swap, files equal to HEAD get main's bytes, and every local
 // version (edited, staged, untracked in main's way) is kept, listed and saved under refs/rescue/advance-*.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { chmodSync, copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { chmodSync, copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -26,7 +27,7 @@ const write = (dir, files) => {
 
 /** An origin whose main moves from `before` to `after`, and a shared checkout cloned at `before` carrying the hook. */
 function repos(before, after) {
-  const root = mkdtempSync(join(tmpdir(), 'advance-shared-checkout-'));
+  const root = tempFolder(join(tmpdir(), 'advance-shared-checkout-'));
   const origin = join(root, 'origin.git'), work = join(root, 'work'), other = join(root, 'other');
   execFileSync('git', ['init', '-q', '--bare', '-b', 'main', origin]);
   execFileSync('git', ['clone', '-q', origin, other]);

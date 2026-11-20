@@ -1,8 +1,9 @@
 // Whole pinned bytes, copy identity and raw retention stay separate from a privacy declaration.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -27,7 +28,7 @@ function initialize(root) {
 }
 function commit(root) { git(root, 'add', '-A'); git(root, 'commit', '-qm', 'synthetic committed source'); return git(root, 'rev-parse', 'HEAD'); }
 function fixture(t, { source = SOURCE, copy = COPY, changes = structuredClone(CHANGES) } = {}) {
-  const home = mkdtempSync(join(tmpdir(), 'immutable-byte-redactions-'));
+  const home = tempFolder(join(tmpdir(), 'immutable-byte-redactions-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const old = join(home, 'original-owner'), root = join(home, 'receiving-owner');
   initialize(old); write(old, OLD, source); const original = commit(old);

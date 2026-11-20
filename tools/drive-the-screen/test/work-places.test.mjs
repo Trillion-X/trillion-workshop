@@ -4,9 +4,10 @@
 // over (AIs refused with when it ends), the take-over ends by itself, only the key given at take over hands it back, and
 // the next AI action is told once; the person's own input holds a shared place; the host's `place` seam
 // (read-data/drive-the-screen.mjs makeScreenTools; on the Mac host computer/mac-tools.mjs runHere) refuses a drive of this Mac's screen while the person has it.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { makePlaces, placeSettings } from '../read-data/work-places.mjs';
@@ -20,7 +21,7 @@ const ok = (stdout = '') => ({ code: 0, stdout: Buffer.from(stdout), stderr: '' 
 
 /** A pretend computer: `answer(argv)` decides each program's result. */
 async function pretend({ answer = () => ok(), settings = placeSettings(), clock = Date.parse('2026-10-21T09:00:00Z') } = {}) {
-  const home = await mkdtemp(join(tmpdir(), 'work-places-'));
+  const home = tempFolder(join(tmpdir(), 'work-places-'));
   let time = clock;
   const places = makePlaces({ settings, home, now: () => time, exec: async argv => answer(argv), key: () => 'the-persons-key' });
   const file = join(home, settings.file.replace(/^~\//, ''));

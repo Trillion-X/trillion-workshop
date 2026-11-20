@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { appJob, runAppJob } from '../app-job.mjs';
@@ -10,7 +11,7 @@ import { settingsOf, toolFor } from '../mac-tools.mjs';
 const identity = `1f:${'a'.repeat(64)}`;
 
 function setup() {
-  const home = mkdtempSync(join(tmpdir(), 'app-job-test-'));
+  const home = tempFolder(join(tmpdir(), 'app-job-test-'));
   const appPath = join(home, 'Editor.app');
   mkdirSync(appPath);
   const apps = { apps: [{ id: 'editor', label: 'Editor' }] };

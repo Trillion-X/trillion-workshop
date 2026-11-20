@@ -1,12 +1,13 @@
 // The drive icon cache, the walk's progress file and its lock. Temp folders and fake draws and walks; no real drive is touched.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createIconCache, createDriveWalks, iconSize, volumeKey } from '../read-data/drive-cache.mjs';
 
-const folder = () => mkdtempSync(join(tmpdir(), 'drive-cache-'));
+const folder = () => tempFolder(join(tmpdir(), 'drive-cache-'));
 
 test('an icon is drawn once per exact volume and size, then read back from the cache', async () => {
   const dir = folder();

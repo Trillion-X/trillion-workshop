@@ -1,8 +1,9 @@
 // A malformed nested collection is a refused declaration, including when a caller selects its target.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -10,7 +11,7 @@ import { gitReaders } from '../do-work/read-from-repositories.mjs';
 import { validateReferenceAdaptationContract, validateReferenceAdaptationEvidence } from '../do-work/validate-reference-adaptation-contract.mjs';
 
 test('malformed targets with a selected target return structured errors from evidence and full admission', t => {
-  const home = mkdtempSync(join(tmpdir(), 'immutable-evidence-shape-review-'));
+  const home = tempFolder(join(tmpdir(), 'immutable-evidence-shape-review-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const root = join(home, 'evidence-owner');
   mkdirSync(root);

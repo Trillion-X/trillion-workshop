@@ -1,10 +1,11 @@
 // tools/check-a-folder-against-my-rules: the two rows are the shape the engine runs on the person's computer, and
 // each command, run the way the engine runs it (the granted folder in argv, the input on standard input, the answer
 // on the last line), answers over a made-up folder that is not a git repository.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -18,7 +19,7 @@ function run(command, granted, input) {
 }
 
 function project(t) {
-  const root = mkdtempSync(join(tmpdir(), 'check-my-folder-'));
+  const root = tempFolder(join(tmpdir(), 'check-my-folder-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   mkdirSync(join(root, 'src'), { recursive: true });
   writeFileSync(join(root, 'src', 'old-copy.txt'), 'kept\n');

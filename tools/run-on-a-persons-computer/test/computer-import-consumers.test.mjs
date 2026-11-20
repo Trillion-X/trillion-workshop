@@ -2,9 +2,10 @@
 // network, browser or native app is contacted; the actual imported owners and file cleanup remain exercised.
 const toolsFolder = import.meta.dirname.split('/test')[0].replace(/[^/]+$/, '');
 const runtime = { moduleURL: specifier => `file://${toolsFolder}${specifier.slice('tools/'.length)}` };
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 const runtimeImport1 = await import(runtime.moduleURL("tools/run-on-a-persons-computer/send-opened-files.mjs"));
@@ -17,7 +18,7 @@ const runtimeImport4 = await import(runtime.moduleURL("tools/browse-and-upload-m
 const { loadChunking } = runtimeImport4;
 
 function folder(t) {
-  const home = mkdtempSync(join(tmpdir(), 'computer-import-consumers-'));
+  const home = tempFolder(join(tmpdir(), 'computer-import-consumers-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   return home;
 }

@@ -11,11 +11,12 @@
  * vertical edge has no Y variation). That axis-dependence is the directional signature a symmetric blur can
  * never show. PLUS a byte-identical determinism proof. L155.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -43,7 +44,7 @@ function hTransitionWidth(raw) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'dirb-'));
+  const dir = tempFolder(join(tmpdir(), 'dirb-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -51,7 +52,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'dirb-render-'));
+  work = tempFolder(join(tmpdir(), 'dirb-render-'));
   edge = join(work, 'edge.mp4'); // a crisp VERTICAL edge: DARK left of center, BRIGHT right of center.
   ffmpeg(['-f', 'lavfi', '-i', `color=black:s=320x240:d=2:r=${FPS}`, '-vf', `geq=r='if(lt(X,160),${DARK},${BRIGHT})':g='if(lt(X,160),${DARK},${BRIGHT})':b='if(lt(X,160),${DARK},${BRIGHT})'`, '-pix_fmt', 'yuv420p', edge]);
 });

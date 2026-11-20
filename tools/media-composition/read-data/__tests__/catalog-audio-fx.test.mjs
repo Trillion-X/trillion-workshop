@@ -6,10 +6,11 @@
  * and a new audio preset auto-advertises. This test is the exact call the studio's TS agent-catalog surface
  * makes (buildEffectCatalog with the real AUDIO_FX_CATALOG), proving the surfacing end-to-end.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,7 +23,7 @@ const CE = createComputeEffects({ round3, W: 1920, H: 1080, safeColor: (c, d) =>
 const REG = {}; // keyframe effects not needed for this catalog-surfacing assertion
 
 before(async () => {
-  const out = join(mkdtempSync(join(tmpdir(), 'audcat-')), 'ct.mjs');
+  const out = join(tempFolder(join(tmpdir(), 'audcat-')), 'ct.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', '--alias:@=' + join(here, '..', '..', '..', '..'),
     join(here, '..', 'compose-timeline.ts'), `--outfile=${out}`], { encoding: 'utf8' });
   ({ AUDIO_FX_CATALOG } = await import(out));

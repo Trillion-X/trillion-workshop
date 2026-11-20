@@ -2,15 +2,16 @@
 // changed since it was last kept goes to Trillion under the folder's destination, with a header naming its source and
 // change time and any secret taken out; files left out, too old or already kept are not sent again, and the state
 // moves only past files Trillion accepted, so a failed send is retried at the next turn end.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, utimesSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { dueFiles, keepNew, keptText, settings } from '../harness/keep-written-files.mjs';
 
 function setUp() {
-  const dir = mkdtempSync(join(tmpdir(), 'keep-written-files-'));
+  const dir = tempFolder(join(tmpdir(), 'keep-written-files-'));
   const root = join(dir, 'projects');
   const put = (path, text, when) => {
     mkdirSync(join(root, path, '..'), { recursive: true });

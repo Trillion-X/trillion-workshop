@@ -1,12 +1,13 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { closeSync, mkdtempSync, openSync, readFileSync, writeFileSync, writeSync } from 'node:fs';
+import { closeSync, openSync, readFileSync, writeFileSync, writeSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { stageInputChunks } from '../do-work/stage-reuse.mjs';
 
 test('stage input reads stay bounded and read a later mutation after the first chunk', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'stream-')), path = join(dir, 'large-input.bin');
+  const dir = tempFolder(join(tmpdir(), 'stream-')), path = join(dir, 'large-input.bin');
   const bytes = Buffer.alloc(2 * 1024 * 1024 + 17, 7);
   writeFileSync(path, bytes);
   let count = 0, largest = 0;

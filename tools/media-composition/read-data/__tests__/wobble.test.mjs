@@ -8,10 +8,11 @@
  * materialize pass-through, AND a real offline render on a hard red|blue vertical edge where the edge
  * x-position VARIES BY ROW at a fixed time (wavy) and MOVES over time at a fixed row (animated), L155.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,7 +37,7 @@ function edgeX(raw, y) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'wob-'));
+  const dir = tempFolder(join(tmpdir(), 'wob-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -44,7 +45,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'wob-render-'));
+  work = tempFolder(join(tmpdir(), 'wob-render-'));
   edge = join(work, 'edge.mp4'); // left half red, right half blue: hard vertical edge at x=160
   ffmpeg(['-f', 'lavfi', '-i', 'color=red:s=160x240:d=2:r=24', '-f', 'lavfi', '-i', 'color=blue:s=160x240:d=2:r=24',
     '-filter_complex', '[0][1]hstack=2', '-pix_fmt', 'yuv420p', edge]);

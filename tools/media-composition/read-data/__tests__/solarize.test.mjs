@@ -10,10 +10,11 @@
  * BRIGHT end (above the threshold) inverts to DARK while the DARK end (below the threshold) passes through
  * unchanged (a base-vs-filtered + within-frame proof that the highlight reflection actually happened). L155.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -39,7 +40,7 @@ function meanR(raw, x, y) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'sol-'));
+  const dir = tempFolder(join(tmpdir(), 'sol-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -47,7 +48,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'sol-render-'));
+  work = tempFolder(join(tmpdir(), 'sol-render-'));
   grad = join(work, 'grad.mp4'); // static horizontal black->white luma gradient (left dark, right bright)
   // An EXACT ramp, the source convention the rest of this suite folder already uses. `gradients`
   // is a RANDOM-gradient generator and draws a different pattern per run, so a pixel assertion

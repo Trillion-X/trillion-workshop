@@ -10,10 +10,11 @@
  * AND real offline renders where the arc sweeps clockwise over time (L155 temporal: a point at ~7 o'clock is
  * OFF early and ON late in fill mode, and the inverse in deplete mode; the center is never touched).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -38,7 +39,7 @@ const isRed = (c) => c.r > 150 && c.r > c.g + 60 && c.r > c.b + 60;
 const isGray = (c) => Math.abs(c.r - c.g) < 30 && Math.abs(c.g - c.b) < 30 && c.r < 180;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'ring-'));
+  const dir = tempFolder(join(tmpdir(), 'ring-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -46,7 +47,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'ring-render-'));
+  work = tempFolder(join(tmpdir(), 'ring-render-'));
   src = join(work, 'gray.mp4');
   ffmpeg(['-f', 'lavfi', '-i', 'color=gray:s=320x240:d=2:r=24', '-pix_fmt', 'yuv420p', src]);
 });

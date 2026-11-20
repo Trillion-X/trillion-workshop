@@ -1,6 +1,7 @@
 // tools/know-the-projects-on-this-computer/test/scan-project-folders.test.mjs
 // The scan port (verify-every-port L14, C1 and C2): markers, roots one level deep, BLAKE3 ids, the preview descriptor,
 // and the one-path add check. Every fixture is a mkdtemp folder, removed after the run.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -19,7 +20,7 @@ import {
 
 function fixture() {
   // realpath: on macOS the temp folder sits behind a symlink, and the scan reports resolved paths.
-  const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'known-projects-scan-')));
+  const root = fs.realpathSync(tempFolder(path.join(os.tmpdir(), 'known-projects-scan-')));
   const write = (rel, text = '') => {
     const file = path.join(root, rel);
     fs.mkdirSync(path.dirname(file), { recursive: true });

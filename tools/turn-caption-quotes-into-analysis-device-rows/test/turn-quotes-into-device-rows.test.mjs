@@ -1,10 +1,11 @@
 // Runs the command for real on made-up rows and made-up caption files, and checks what the tool promises: nothing is written
 // while a quote fails, every file is written when all hold, the index gets the family once, and a bad request is refused with
 // what to fix. Needs python3 only.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test, { before } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,7 +34,7 @@ const record = (values, { scopeId = values.family, tool = 'tool:turn-caption-quo
 
 let work, captions;
 before(() => {
-  work = mkdtempSync(join(tmpdir(), 'device-rows-'));
+  work = tempFolder(join(tmpdir(), 'device-rows-'));
   mkdirSync(join(work, 'captions'));
   writeFileSync(join(work, 'captions', 'vidA.en.json3'), JSON.stringify({ events: [
     { tStartMs: 0, segs: [{ utf8: 'hello' }] }, { tStartMs: 65400, segs: [{ utf8: 'Water the roots, not the leaves' }] }] }));

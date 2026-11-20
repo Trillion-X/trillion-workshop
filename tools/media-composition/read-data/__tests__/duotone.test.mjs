@@ -8,10 +8,11 @@
  * pass-through, AND a real offline render on a black->white ramp where the dark end becomes the shadow
  * color and the bright end becomes the highlight color.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -39,7 +40,7 @@ const DARK = { x: 0, y: 80, w: 20, h: 40 };    // left = luma ~0
 const BRIGHT = { x: 180, y: 80, w: 20, h: 40 }; // right = luma ~255
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'duo-'));
+  const dir = tempFolder(join(tmpdir(), 'duo-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -47,7 +48,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'duo-render-'));
+  work = tempFolder(join(tmpdir(), 'duo-render-'));
   ramp = join(work, 'ramp.mp4');
   // A horizontal black->white luma ramp (gradients source), so the left is dark tones (=> shadow color)
   // and the right is bright tones (=> highlight color) after the duotone map. speed=0 FREEZES the gradient:

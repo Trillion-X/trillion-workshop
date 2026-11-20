@@ -6,9 +6,10 @@
 // tests "the sent email uses the worn dark look ..." and "an email whose brand cannot be read is not sent ..." are run
 // here with the look coming from the person's own records. The last test runs an email row's own command with a
 // sign-in code request exactly as the engine sends it.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtempSync, openSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { openSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -21,7 +22,7 @@ import { resolveScreenLookPalette } from '../../screen-looks/read-data/resolve-s
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const stub = fileURLToPath(new URL('./stub-fetch.mjs', import.meta.url));
-const work = mkdtempSync(join(tmpdir(), 'worn-email-look-test-'));
+const work = tempFolder(join(tmpdir(), 'worn-email-look-test-'));
 after(() => rmSync(work, { recursive: true, force: true }));
 
 const settingsWith = () => ({ ...structuredClone(SHIPPED), from: { email: 'hello@example.com', name: 'Example' }, owner: 'owner@example.com' });

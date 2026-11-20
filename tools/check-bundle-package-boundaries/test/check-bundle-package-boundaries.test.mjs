@@ -1,7 +1,8 @@
 // A bundle's real import graph is judged against each package's declared public files. Packages here are made up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { checkBundlePackageBoundaries, checkDeclaration, describeFinding, publicPathsOf } from '../do-work/check-bundle-package-boundaries.mjs';
@@ -9,7 +10,7 @@ import { checkBundlePackageBoundaries, checkDeclaration, describeFinding, public
 const declaration = { file: 'public-files.json', entries_at: 'things', kind_at: 'payload.kind', kind: 'public-source', path_at: 'payload.source_path' };
 
 async function workspace() {
-  const root = await mkdtemp(join(tmpdir(), 'bundle-boundaries-'));
+  const root = tempFolder(join(tmpdir(), 'bundle-boundaries-'));
   const packagesRoot = join(root, 'packages');
   const declare = async (name, publicPaths) => {
     await mkdir(join(packagesRoot, name), { recursive: true });

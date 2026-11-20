@@ -1,7 +1,8 @@
 // A bundle's real import graph is judged against each part's declared public files (scripts/check-bundle-part-boundaries.mjs).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import { checkBundlePartBoundaries } from '../scripts/check-bundle-part-boundaries.mjs';
@@ -10,7 +11,7 @@ const scratch = fileURLToPath(new URL('../.state/', import.meta.url));
 
 async function workspace() {
   await mkdir(scratch, { recursive: true });
-  const root = await mkdtemp(join(scratch, 'bundle-boundaries-'));
+  const root = tempFolder(join(scratch, 'bundle-boundaries-'));
   const partsRoot = join(root, 'parts');
   const declare = async (name, publicPaths) => {
     await mkdir(join(partsRoot, name), { recursive: true });

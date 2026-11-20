@@ -3,9 +3,10 @@
 // A tool call may name a file instead of carrying its bytes (computer/file-arguments.mjs, DATA in
 // computer/file-arguments.json): the Mac reads it at the tool boundary, within the folders the data allows, never a
 // protected file, never through a link out, and never past the byte cap.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expandFileArguments, fileArgumentSettings } from '../file-arguments.mjs';
@@ -13,8 +14,8 @@ import { runHere, settingsOf } from '../mac-tools.mjs';
 
 const settings = fileArgumentSettings();
 function mac() {
-  const home = mkdtempSync(join(tmpdir(), 'file-args-home-'));
-  const outside = mkdtempSync(join(tmpdir(), 'file-args-outside-'));
+  const home = tempFolder(join(tmpdir(), 'file-args-home-'));
+  const outside = tempFolder(join(tmpdir(), 'file-args-outside-'));
   mkdirSync(join(home, 'Documents'));
   mkdirSync(join(home, '.ssh'));
   writeFileSync(join(home, 'Documents', 'notes.txt'), 'hello from the file');

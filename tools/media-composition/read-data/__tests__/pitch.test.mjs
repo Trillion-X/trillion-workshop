@@ -9,10 +9,11 @@
  * while the clip DURATION is preserved (pitch-only, not tempo). PLUS determinism (two pitch renders match), and
  * a pure catalog-DATA unit proof.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,7 +37,7 @@ function duration(file) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'pitch-'));
+  const dir = tempFolder(join(tmpdir(), 'pitch-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -44,7 +45,7 @@ before(async () => {
   ({ composeTimeline, AUDIO_FX_CATALOG } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'pitch-render-'));
+  work = tempFolder(join(tmpdir(), 'pitch-render-'));
   clip = join(work, 'clip.mp4'); // video + a pure 440 Hz sine audio track (the pitch oracle's carrier)
   ffmpeg(['-f', 'lavfi', '-i', `color=navy:s=${W}x${H}:d=2:r=${FPS}`, '-f', 'lavfi', '-i', 'sine=frequency=440:d=2',
     '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-shortest', clip]);

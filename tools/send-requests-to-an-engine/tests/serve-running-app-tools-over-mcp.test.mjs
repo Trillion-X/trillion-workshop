@@ -1,9 +1,10 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import test from "node:test";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import http from "node:http";
 import readline from "node:readline";
@@ -98,7 +99,7 @@ function send(child, message) {
 }
 
 test("a long-lived MCP process follows the owner's replacement socket", { timeout: 10000 }, async (t) => {
-  const dir = mkdtempSync(path.join(tmpdir(), "mcp-move-"));
+  const dir = tempFolder(path.join(tmpdir(), "mcp-move-"));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
   const statusFile = path.join(dir, "status.json");
   const servers = [];

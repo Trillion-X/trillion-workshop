@@ -1,9 +1,10 @@
 // pin-files-by-content on a made-up app's settings folder: a check says which pins are stale, missing or left over;
 // a write brings them up to the files and keeps the pin file's other keys and order; a folder outside the root is refused.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,7 +13,7 @@ import { pinFiles } from '../read-data/pins.mjs';
 const command = fileURLToPath(new URL('../do-work/pin-files.mjs', import.meta.url));
 
 async function app() {
-  const root = await mkdtemp(join(tmpdir(), 'pin-files-by-content-'));
+  const root = tempFolder(join(tmpdir(), 'pin-files-by-content-'));
   await mkdir(join(root, 'settings', 'themes'), { recursive: true });
   await writeFile(join(root, 'settings', 'colors.json'), '{"sky":"blue"}\n');
   await writeFile(join(root, 'settings', 'themes', 'night.json'), '{"sky":"black"}\n');

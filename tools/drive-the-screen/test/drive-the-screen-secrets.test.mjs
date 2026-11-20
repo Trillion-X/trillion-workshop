@@ -1,9 +1,10 @@
 // A saved login's value typed into the screen without the AI ever seeing it (read-data/drive-the-screen.mjs invariant 7):
 // the call carries a reference, the Mac reads the value from the account at the moment of action, types it, and every
 // answer and error of the call has it replaced by the DATA's mask. A rehearsal reads nothing.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { checkedReference, makeScreenDriver, masked, screenSettings } from '../read-data/drive-the-screen.mjs';
@@ -31,7 +32,7 @@ function pretendMac({ failAct = false } = {}) {
   };
   return { state, program };
 }
-const driverOn = (mac, readSecret) => makeScreenDriver({ settings, home: mkdtempSync(join(tmpdir(), 'secret-home-')), program: mac.program,
+const driverOn = (mac, readSecret) => makeScreenDriver({ settings, home: tempFolder(join(tmpdir(), 'secret-home-')), program: mac.program,
   capture: async () => Buffer.from('pixels'), ocr: async () => ({ width: 2000, height: 1000, lines: [] }), wait: async () => {}, readSecret });
 
 const reader = (reads, { values = [{ label: 'Password', value: PASSWORD }], user_name = 'sam@example.com' } = {}) => async (tool, args, account) => {

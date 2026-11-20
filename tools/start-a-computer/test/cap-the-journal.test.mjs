@@ -3,10 +3,11 @@
 // The journal is restarted only when the cap drop-in's words change: the first run writes it and restarts once, a second run
 // with the same cap restarts nothing and leaves the file as it was, a new cap writes and restarts again. Run through a real
 // shell on a made-up root, with systemctl and journalctl stood in for on PATH so each call is counted.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { chmodSync, mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { chmodSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -14,8 +15,8 @@ import { fileURLToPath } from 'node:url';
 const SCRIPT = fileURLToPath(new URL('../do-work/cap-the-journal.sh', import.meta.url));
 
 test('the journal is restarted only when the cap changes', () => {
-  const root = mkdtempSync(join(tmpdir(), 'cap-journal-'));
-  const bin = mkdtempSync(join(tmpdir(), 'cap-journal-bin-'));
+  const root = tempFolder(join(tmpdir(), 'cap-journal-'));
+  const bin = tempFolder(join(tmpdir(), 'cap-journal-bin-'));
   const calls = join(root, 'calls');
   for (const name of ['systemctl', 'journalctl']) {
     writeFileSync(join(bin, name), `#!/bin/sh\necho "${name} $*" >> "${calls}"\n`);

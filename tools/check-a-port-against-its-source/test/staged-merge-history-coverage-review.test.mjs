@@ -1,8 +1,9 @@
 // A real pending merge has two parents; its staged history proof must cover both before the exact merge commit.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -35,7 +36,7 @@ function commit(root, files, message) {
 }
 
 function fixture(t, { parallelAdaptation = false, extraParent = false, pendingRename = false } = {}) {
-  const home = mkdtempSync(join(tmpdir(), 'staged-merge-history-review-'));
+  const home = tempFolder(join(tmpdir(), 'staged-merge-history-review-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const root = join(home, 'merge-owner');
   mkdirSync(root);

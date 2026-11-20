@@ -1,8 +1,9 @@
 // Real Git history controls; these do not establish native reader-context admission.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
-import {mkdirSync, mkdtempSync, rmSync, writeFileSync} from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import {tmpdir} from 'node:os';
 import {basename, dirname, join} from 'node:path';
 import {registerHooks} from 'node:module';
@@ -16,7 +17,7 @@ export function readVerifiedGitContext() {
 }
 
 function fixture(t) {
-  const root = mkdtempSync(join(tmpdir(), 'reader-context-history-'));
+  const root = tempFolder(join(tmpdir(), 'reader-context-history-'));
   t.after(() => rmSync(root, {recursive: true, force: true}));
   const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')));
   const git = (...args) => execFileSync('git', ['--no-replace-objects', '-C', root, ...args],

@@ -1,13 +1,14 @@
 // The old app had no test of computer/durable-job.mjs; these check its four invariants as they were written.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { createJobs, job, jobSettings } from '../read-data/durable-job.mjs';
 
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
-const place = () => path.join(mkdtempSync(path.join(os.tmpdir(), 'jobs-')), 'jobs.json');
+const place = () => path.join(tempFolder(path.join(os.tmpdir(), 'jobs-')), 'jobs.json');
 
 test('the row runs on the person\'s computer with only the granted folder', () => {
   const [row] = rows;

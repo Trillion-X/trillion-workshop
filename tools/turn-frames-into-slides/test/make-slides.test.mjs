@@ -1,10 +1,11 @@
 // make-slides on a made-up board: slides in story order at the frame's size, look variables read from the look,
 // an asset carried as its bytes, filled words in place of the template's, and the words kept as inert records.
 // With a Chromium and tools/headless-browser beside this folder, it also prints the PDF and a picture of each page.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -22,7 +23,7 @@ const board = [
 const values = { '--paper': '#f5f1ea', '--ink': '#202020', '--font-display': 'Tidewater Serif, serif', '--font-primary': 'Quay Sans, sans-serif' };
 
 function setUp(extra = {}) {
-  const dir = mkdtempSync(join(tmpdir(), 'make-slides-'));
+  const dir = tempFolder(join(tmpdir(), 'make-slides-'));
   writeFileSync(join(dir, 'board.json'), JSON.stringify({ items: board }));
   writeFileSync(join(dir, 'values.json'), JSON.stringify({ palette: values }));
   writeFileSync(join(dir, 'look.css'), "@font-face{font-family:'Tidewater Serif';src:url(data:font/woff2;base64,AAAA) format('woff2')}:root{--paper:#f5f1ea}");

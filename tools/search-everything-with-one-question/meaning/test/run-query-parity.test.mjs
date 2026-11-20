@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,7 +10,7 @@ import { spawnSync } from 'node:child_process';
 const driver = fileURLToPath(new URL('./run-query-parity.mjs', import.meta.url));
 
 function fixture(settings = {}) {
-  const work = mkdtempSync(join(tmpdir(), 'query-parity-'));
+  const work = tempFolder(join(tmpdir(), 'query-parity-'));
   const owner = join(work, 'workshop', 'tools', 'search-everything-with-one-question', 'meaning', 'read-data');
   mkdirSync(owner, { recursive: true });
   // A stand-in search owner observes the invocation and reads the values it is handed.

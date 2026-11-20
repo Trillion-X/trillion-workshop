@@ -4,10 +4,11 @@
  * path, and (3) an add-overlay decision carrying a `track` folds through composeTimeline and
  * materializes onto the EDL overlay as `track` (which video-compose binds x/y to, follow-proven live).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,7 +17,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 let composeTimeline, materializeExportEdl, centroidFromLumaGrid, trackFromFrameGrids;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'trk-'));
+  const dir = tempFolder(join(tmpdir(), 'trk-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs'); const tb = join(dir, 'tb.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });

@@ -1,10 +1,11 @@
 // Real, synthetic Git histories distinguish independent exact copies from adaptation before a baseline.
 // Existing check-a-repository-for-port-contracts.test.mjs supplies the symlink, rename, future-baseline,
 // deleted/reintroduced and shallow/grafted-history floor; shared-history-cache.test.mjs supplies tip isolation.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -46,7 +47,7 @@ function repository(path, initialFiles = {}) {
 }
 
 function fixture(t, { receivingRootContents } = {}) {
-  const home = mkdtempSync(join(tmpdir(), 'parallel-source-baseline-'));
+  const home = tempFolder(join(tmpdir(), 'parallel-source-baseline-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const root = join(home, 'receiving-owner'), old = join(home, 'original-owner');
   const since = repository(root, receivingRootContents === undefined ? {} : { [ACTIVE]: receivingRootContents });

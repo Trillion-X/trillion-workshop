@@ -3,10 +3,11 @@
 // harness/codex-runs.mjs starts a fresh Codex run, reads its output window and state, and cancels it. Every test puts a
 // fake `codex` first on PATH (a mkdtemp folder, removed after) and keeps runs in its own mkdtemp root, so no test
 // contacts a real account and nothing is written under the person's home folder.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test, { before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { cancelCodexRun, readCodexRun, startCodexRun } from '../harness/codex-runs.mjs';
@@ -28,7 +29,7 @@ let root;
 let folder;
 
 before(() => {
-  sandbox = mkdtempSync(join(tmpdir(), 'codex-runs-test-'));
+  sandbox = tempFolder(join(tmpdir(), 'codex-runs-test-'));
   const bin = join(sandbox, 'bin');
   mkdirSync(bin);
   writeFileSync(join(bin, 'codex'), FAKE_CODEX, { mode: 0o755 });

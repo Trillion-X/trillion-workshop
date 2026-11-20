@@ -1,9 +1,10 @@
 // The caller reads the Service connections rows from the person's own store and hands them in as `connections`.
 // Proved on two stores made here with made-up rows: a JSON file and a PostgreSQL database (PGlite, in memory). Each
 // store answers the same rows, and the tool answers the same where-the-door-runs from either.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
@@ -17,7 +18,7 @@ const expected = {
 const summary = answer => [answer.current.hosting_provider, answer.hosting_providers.map(r => [r.id, r.move_ready])];
 
 test('a JSON store holding the rows answers where the door runs, read by the caller and handed in', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'see-door-json-'));
+  const dir = tempFolder(join(tmpdir(), 'see-door-json-'));
   const file = join(dir, 'service-connections.json');
   writeFileSync(file, JSON.stringify(Object.entries(ROWS).map(([name, value]) => ({ id: `record:service-connection:${name}`, type: 'record:service-connection', value }))));
   const connections = JSON.parse(readFileSync(file, 'utf8')).filter(r => r.type === 'record:service-connection').map(r => r.value);

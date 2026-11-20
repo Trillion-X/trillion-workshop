@@ -11,11 +11,12 @@
  * PLUS: output differs from plain, two renders are byte-identical (deterministic), and the look_stack
  * resolves to the expected ordered node array (catalog-DATA unit, zero engine code).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -38,7 +39,7 @@ function meanRGB(file, ss, cropExpr) {
 const luma = ({ r, g, b }) => 0.299 * r + 0.587 * g + 0.114 * b;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'golden-'));
+  const dir = tempFolder(join(tmpdir(), 'golden-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -46,7 +47,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'golden-render-'));
+  work = tempFolder(join(tmpdir(), 'golden-render-'));
   // NEUTRAL mid-gray frame with a bright white center square: gray => red==blue (warmth measurable),
   // white square => highlights for the bloom, corners stay gray (vignette darkening measurable).
   src = join(work, 'src.mp4');

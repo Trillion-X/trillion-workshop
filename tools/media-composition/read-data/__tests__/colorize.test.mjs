@@ -11,11 +11,12 @@
  * a RED cast at hue 0 (R >> B), proving both the wash and that the hue is DATA-selected. PLUS a byte-identical
  * determinism proof. L155.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,7 +38,7 @@ function rgbAt(file, ss, x, y) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'clz-'));
+  const dir = tempFolder(join(tmpdir(), 'clz-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -45,7 +46,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'clz-render-'));
+  work = tempFolder(join(tmpdir(), 'clz-render-'));
   gray = join(work, 'gray.mp4'); // a neutral mid-gray field (R==G==B) so any tint shows up cleanly.
   ffmpeg(['-f', 'lavfi', '-i', `color=0x808080:s=320x240:d=2:r=${FPS}`, '-pix_fmt', 'yuv420p', gray]);
 });

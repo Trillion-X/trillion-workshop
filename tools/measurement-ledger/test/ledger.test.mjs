@@ -1,8 +1,9 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { aggregate, billingRecord, forecastRecord } from '../read-data/ledger.mjs';
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, realpathSync } from 'node:fs';
+import { cpSync, mkdirSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { importAttemptRows, importUsageEvents, prepareAuditImport } from '../read-data/import-audit.mjs';
@@ -68,7 +69,7 @@ const ledgerRow = () => rows.records.find(r => r.payload.id === 'tool:cost-measu
 
 // The row run as the engine runs it: the files it packs laid under a folder that stands for `/`, its argv run there with the request on standard input.
 function answerOf(row, input) {
-  const there = mkdtempSync(join(realpathSync(tmpdir()), 'measurement-ledger-row-'));
+  const there = tempFolder(join(realpathSync(tmpdir()), 'measurement-ledger-row-'));
   for (const spec of row.invoke.files.package_files) {
     for (const path of spec.paths) {
       mkdirSync(join(there, spec.at), { recursive: true });

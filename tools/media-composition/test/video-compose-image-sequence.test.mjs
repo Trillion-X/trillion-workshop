@@ -1,13 +1,14 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {execFileSync,spawnSync} from 'node:child_process';
-import {linkSync,mkdirSync,mkdtempSync,writeFileSync} from 'node:fs';
+import { linkSync, mkdirSync, writeFileSync } from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const root=resolve(fileURLToPath(new URL('../',import.meta.url)));
-const epoch=mkdtempSync(join(tmpdir(),'frames-'));
+const epoch=tempFolder(join(tmpdir(),'frames-'));
 const colors=join(epoch,'colors');mkdirSync(colors);
 // Three genuinely different source pictures make a lost tail observable; frame
 // count alone would accept padding that merely repeats the preceding picture.

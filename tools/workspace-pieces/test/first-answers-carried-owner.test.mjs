@@ -1,5 +1,6 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, renameSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, realpathSync, renameSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,7 +18,7 @@ const current = JSON.stringify({ paths: { initial_setup: '/work/api/screens/get-
 
 function fixture(t) {
   // No .git or neighbouring checkout: candidate/export reads must use their own declarations.
-  const base = realpathSync(mkdtempSync(join(tmpdir(), 'first-answers-owner-')));
+  const base = realpathSync(tempFolder(join(tmpdir(), 'first-answers-owner-')));
   t.after(() => rmSync(base, { recursive: true, force: true }));
   const put = (name, text) => { mkdirSync(dirname(join(base, name)), { recursive: true }); writeFileSync(join(base, name), text); };
   put(homes, JSON.stringify({ rows: [{ workshop, shell: relative, why: 'Synthetic web DATA the web shell holds a newer copy of' }] }));

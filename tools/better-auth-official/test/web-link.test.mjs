@@ -4,16 +4,17 @@
 // person, once. A used, expired or made-up link goes to the sign-in page and signs nobody in; the address it goes to is checked when the link
 // is made. These are the assertions of old trillion-rust src/account/sign_in/sessions.rs (web_link_... test, 2b8b821a4 lines 454-482) and
 // routes.rs (a_web_link_opened_on_the_sign_in_page..., 2107-2125), in the Better Auth tool's own shape.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex, randomBytes } from '@noble/hashes/utils.js';
 import { startStore } from '../test-fixtures/embedded-store.mjs';
 
-const dir = mkdtempSync(join(tmpdir(), 'web-link-'));
+const dir = tempFolder(join(tmpdir(), 'web-link-'));
 const shipped = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
 const settings = { ...shipped, email_password: { require_verification: false }, disabled_paths: [], rate_limit: { ...shipped.rate_limit, enabled: false } };
 writeFileSync(join(dir, 'settings.json'), JSON.stringify(settings));

@@ -1,10 +1,11 @@
 // tools/export-documents-to-files: the book exporter moved from the launch-video private-book-reader. Runs its Python
 // tests (the exporter, the writing gate, the PDF verifier), then the entry over a made-up book, a made-up checks
 // branch handed in as records and a made-up settings row.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { existsSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -47,7 +48,7 @@ test('the book\'s checks run the branch and every branch above it on the exact b
 });
 
 test('current prose whose checks fail is blocked before any DOCX is written', async () => {
-  const work = mkdtempSync(join(tmpdir(), 'export-a-book-test-'));
+  const work = tempFolder(join(tmpdir(), 'export-a-book-test-'));
   const manuscript = join(work, 'book.md');
   writeFileSync(manuscript, book('Some glitter here.'));
   const answer = await exportABook({ book_id: 'made-up-book', manuscript, output: join(work, 'book.docx'),
@@ -65,7 +66,7 @@ test('current prose whose checks fail is blocked before any DOCX is written', as
 });
 
 test('a comparison copy bound by its bytes exports and reads back', { skip: noLibraries }, async () => {
-  const work = mkdtempSync(join(tmpdir(), 'export-a-book-test-'));
+  const work = tempFolder(join(tmpdir(), 'export-a-book-test-'));
   const manuscript = join(work, 'book.md');
   const bytes = book('A made-up comparison passage.\n\n| Field | Value |\n|---|---|\n| one | two |');
   writeFileSync(manuscript, bytes);

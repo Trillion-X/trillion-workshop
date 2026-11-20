@@ -1,9 +1,10 @@
 // make-shelf-tiles.mjs against a made-up icons folder in lucide-react's file shape and made-up items: icons drawn from
 // their shape rows, an alias followed, a missing icon drawn as its kind's, machine titles left out, the job cut, the
 // page file written, and an icon file read as data, never run.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -13,7 +14,7 @@ const TOOL = fileURLToPath(new URL('../do-work/make-shelf-tiles.mjs', import.met
 const iconFile = (rows, name) => `/**\n * made-up icon\n */\n\nimport createIcon from '../createIcon.mjs';\n\nconst __iconNode = [\n${rows.map(row => `  ${row}`).join(',\n')}\n];\nconst Icon = createIcon("${name}", __iconNode);\n\nexport { __iconNode, Icon as default };\n`;
 
 function world() {
-  const root = mkdtempSync(join(tmpdir(), 'shelf-tiles-'));
+  const root = tempFolder(join(tmpdir(), 'shelf-tiles-'));
   const icons = join(root, 'icons');
   mkdirSync(icons);
   writeFileSync(join(icons, 'wrench.mjs'), iconFile(['["path", { d: "M1 1h2", key: "a1" }]'], 'wrench'));

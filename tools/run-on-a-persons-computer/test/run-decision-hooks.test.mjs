@@ -1,14 +1,15 @@
 // The person's hooks and typed refusal reasons in the Mac screen driver's decision table (computer/run-decision.mjs invariants 6-7).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { chmodSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { decisionSettings, requireAllowed, requireHooks } from 'trillion-workshop/tools/drive-the-screen/read-data/run-decision.mjs';
 
 const settings = decisionSettings();
 const homeWith = rules => {
-  const home = mkdtempSync(join(tmpdir(), 'hooks-'));
+  const home = tempFolder(join(tmpdir(), 'hooks-'));
   const file = join(home, settings.rules_file);
   mkdirSync(join(file, '..'), { recursive: true });
   if (rules) { writeFileSync(file, JSON.stringify(rules)); chmodSync(file, 0o600); }

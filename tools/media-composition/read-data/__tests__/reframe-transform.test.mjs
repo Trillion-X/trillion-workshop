@@ -4,10 +4,11 @@
  * clip's `reframe` (aspect + follow track) onto the EDL clip row, which video-compose compiles
  * to an animated subject-follow crop. The full DATA -> mp4 path is proven by the offline render.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,7 +17,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 let composeTimeline, materializeExportEdl;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'reframe-'));
+  const dir = tempFolder(join(tmpdir(), 'reframe-'));
   const ctOut = join(dir, 'ct.mjs');
   const meOut = join(dir, 'me.mjs');
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');

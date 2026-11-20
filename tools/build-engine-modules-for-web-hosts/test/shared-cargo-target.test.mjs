@@ -1,16 +1,17 @@
 // The one cargo target folder every build shares (build/shared-cargo-target.mjs): one build holds it at a time, a lock
 // left by a process that ended is taken over, it is cleared past its ceiling, and a workspace whose sources differ from
 // the last one built gets fresh file times so cargo builds it again instead of reusing another copy's output.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CARGO_TARGET_CEILING, cargoEnv, sharedCargoTargetFolder, withSharedCargoTarget } from '../build/shared-cargo-target.mjs';
 
 function setUp() {
-  const home = mkdtempSync(join(tmpdir(), 'trillion-cargo-target-'));
+  const home = tempFolder(join(tmpdir(), 'trillion-cargo-target-'));
   const folder = join(home, 'cache', 'cargo-target');
   const workspace = join(home, 'crates');
   mkdirSync(join(workspace, 'one', 'src'), { recursive: true });

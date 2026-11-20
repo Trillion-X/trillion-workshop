@@ -2,9 +2,10 @@
 //
 // tool:keep-channels-latest-videos-and-captions against a stand-in yt-dlp (test/stand-in/yt-dlp) that answers a
 // made-up site from a plan file; the rows it builds over come in as held and go back as keep. Every channel, video and word here is made up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -51,7 +52,7 @@ function site(changes = {}) {
     [`${WATCH}vid-eee`]: video('vid-eee', 'Plum jam', { captions: { 'en-orig.vtt': 'WEBVTT\n\n00:01.500 --> 00:03.000\nStir the plums\n' } }),
     ...changes,
   };
-  const folder = mkdtempSync(join(tmpdir(), 'harvest-'));
+  const folder = tempFolder(join(tmpdir(), 'harvest-'));
   process.env.STAND_IN_PLAN = join(folder, 'plan.json');
   process.env.STAND_IN_LOG = join(folder, 'calls.jsonl');
   writeFileSync(process.env.STAND_IN_PLAN, JSON.stringify(plan));

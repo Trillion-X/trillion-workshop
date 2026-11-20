@@ -3,10 +3,11 @@
 // Every input is made up. Each row takes what it works on in its request and returns its result in its answer; no run
 // is handed no door. The parts that need mlx, tokenizers or blake3 skip and say why; agreement with the
 // decider's own PyTorch code (agree_with_reference.py) and the 303 x 132 wall time (benchmark.py) are run by hand on a Mac.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -25,7 +26,7 @@ const skipPython = python.status === 0 ? false : 'needs python3';
 // ---- made-up request
 
 let modelFolder;
-test.before(() => { modelFolder = mkdtempSync(join(tmpdir(), 'made-up-model-')); });
+test.before(() => { modelFolder = tempFolder(join(tmpdir(), 'made-up-model-')); });
 test.after(() => rmSync(modelFolder, { recursive: true, force: true }));
 
 const request = (count = 7, settings = {}) => ({
@@ -170,7 +171,7 @@ test('the Python tests of answer-questions-about-many-states pass', { skip: skip
 test('the start row, run as the engine runs it, answers a made-up model\'s states in its answer',
   { skip: process.env.WORKSHOP_TEST_PYTHON ? false : 'needs the declared classifier profile consumer', timeout: 900000 }, async () => {
     const classifierPython = process.env.WORKSHOP_TEST_PYTHON;
-    const model = mkdtempSync(join(tmpdir(), 'made-up-decider-'));
+    const model = tempFolder(join(tmpdir(), 'made-up-decider-'));
     try {
       const made = spawnSync(classifierPython, ['-I', '-B', '-c', `import sys; sys.path[:0] = [${JSON.stringify(here)}, ${JSON.stringify(join(folder, 'do-work'))}]; import test_end_to_end as t; t.made_up_folder(${JSON.stringify(model)})`], { encoding: 'utf8' });
       assert.equal(made.status, 0, made.stderr);

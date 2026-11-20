@@ -1,13 +1,14 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { messageIdOf } from '../src/messages.mjs';
 
 test('the source receiver can identify a later final answer in the exact Codex transcript', () => {
-  const root = mkdtempSync(join(tmpdir(), 'trillion-source-return-'));
+  const root = tempFolder(join(tmpdir(), 'trillion-source-return-'));
   const folder = join(root, 'sessions', '2026', '09', '30');
   mkdirSync(folder, { recursive: true });
   const thread = '01a0cee9-02df-76e2-a6ea-6f202cbd0668';
@@ -33,7 +34,7 @@ test('the source receiver can identify a later final answer in the exact Codex t
 });
 
 test('the same receiver script checks an answer in the exact Claude Code transcript, chosen by the row', () => {
-  const home = mkdtempSync(join(tmpdir(), 'trillion-source-return-claude-'));
+  const home = tempFolder(join(tmpdir(), 'trillion-source-return-claude-'));
   const folder = join(home, '.claude', 'projects', 'proof');
   mkdirSync(folder, { recursive: true });
   const session = '11a0cee9-02df-76e2-a6ea-6f202cbd0668';

@@ -1,7 +1,8 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -48,7 +49,7 @@ test('a task phrase ranks the matching pattern first and returns at most eight',
 });
 
 test('a reference whose numbers have a gap is refused, not searched', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'arch-patterns-'));
+  const dir = tempFolder(join(tmpdir(), 'arch-patterns-'));
   try {
     const gapped = join(dir, 'reference.md');
     writeFileSync(gapped, [

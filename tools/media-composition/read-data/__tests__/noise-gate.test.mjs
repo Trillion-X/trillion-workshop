@@ -12,11 +12,12 @@
  * -based pitch oracle survives the render but an amplitude oracle does not.) PLUS: output differs from plain,
  * two renders are byte-identical (deterministic), and a catalog-DATA unit assert.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -48,7 +49,7 @@ function tone(file) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'gate-'));
+  const dir = tempFolder(join(tmpdir(), 'gate-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -56,7 +57,7 @@ before(async () => {
   ({ composeTimeline, AUDIO_FX_CATALOG } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'gate-render-'));
+  work = tempFolder(join(tmpdir(), 'gate-render-'));
   // 440 Hz sine, LOUD (full) for the first second then QUIET (0.02) for the second: two separate sines
   // concatenated so the split is clean (loud well above the gate threshold, quiet well below). This is exactly
   // speech-then-room-tone: the loud part must pass, the quiet part's tone must be gated out.

@@ -1,8 +1,9 @@
 // A model server another of the person's computers offers is tried after this computer's own, but only at a host the
 // person allowed, and the answer says which road served it (computer/offered-endpoints.mjs, computer/local-models.mjs).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -18,7 +19,7 @@ const serve = answer => new Promise(resolve => {
   });
   server.listen(0, '127.0.0.1', () => resolve(server));
 });
-const folder = () => mkdtempSync(join(tmpdir(), 'offered-'));
+const folder = () => tempFolder(join(tmpdir(), 'offered-'));
 
 test('only addresses at a host the person allowed are accepted, each refusal with its reason, and the default allows only this computer', () => {
   const text = ['# the mini', 'http://127.0.0.1:11434/v1/chat/completions', 'http://mini.local:11434/v1/chat/completions', 'ftp://127.0.0.1/x', 'not an address', 'https://evil.example/v1'].join('\n');

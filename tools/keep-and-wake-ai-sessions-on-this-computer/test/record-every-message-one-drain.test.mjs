@@ -1,9 +1,10 @@
 // The recorder hook reads a bounded slice of a transcript each pass, and at most one backlog drain (--drain) runs on a
 // computer: twenty started at once while one is running all end at once and leave the running one alone (harness/
 // record-every-message.mjs; 138 GB of Trillion.app memory, 2026-10-21).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync, mkdirSync, openSync, writeSync, closeSync } from 'node:fs';
+import { writeFileSync, readFileSync, existsSync, rmSync, mkdirSync, openSync, writeSync, closeSync } from 'node:fs';
 import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -30,7 +31,7 @@ function drainOnItsOwn(args, env, mostMs) {
 }
 
 test('a live read takes a bounded slice of a large transcript and says more is left', t => {
-  const root = mkdtempSync(join(tmpdir(), 'live-now-read-'));
+  const root = tempFolder(join(tmpdir(), 'live-now-read-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const path = join(root, 'big.jsonl');
   const line = JSON.stringify({ type: 'event_msg', payload: { detail: 'x'.repeat(1000) } }) + '\n';
@@ -42,7 +43,7 @@ test('a live read takes a bounded slice of a large transcript and says more is l
 });
 
 test('twenty drains started while one runs all end at once, and the running one keeps its lock', async t => {
-  const home = mkdtempSync(join(tmpdir(), 'trillion-drain-home-'));
+  const home = tempFolder(join(tmpdir(), 'trillion-drain-home-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const folder = join(home, '.trillion', 'record-every-message');
   mkdirSync(folder, { recursive: true });
@@ -63,7 +64,7 @@ test('twenty drains started while one runs all end at once, and the running one 
 });
 
 test('a pass over a 200 MB transcript holds memory to the read window', t => {
-  const root = mkdtempSync(join(tmpdir(), 'live-now-memory-'));
+  const root = tempFolder(join(tmpdir(), 'live-now-memory-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const path = join(root, 'huge.jsonl');
   const block = (JSON.stringify({ type: 'event_msg', payload: { detail: 'x'.repeat(1000) } }) + '\n').repeat(1000);
@@ -79,7 +80,7 @@ test('a pass over a 200 MB transcript holds memory to the read window', t => {
 });
 
 test('a drain over a 520 MB transcript stays under 100 MB of memory and ends within its turn', async t => {
-  const home = mkdtempSync(join(tmpdir(), 'trillion-drain-big-'));
+  const home = tempFolder(join(tmpdir(), 'trillion-drain-big-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const path = join(home, 'huge.jsonl');
   const handle = openSync(path, 'w');
@@ -96,7 +97,7 @@ test('a drain over a 520 MB transcript stays under 100 MB of memory and ends wit
 });
 
 test('one chat takes only its turn at the drain, and says it has more', async t => {
-  const root = mkdtempSync(join(tmpdir(), 'trillion-drain-turn-'));
+  const root = tempFolder(join(tmpdir(), 'trillion-drain-turn-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const path = join(root, 'chat.jsonl');
   writeFileSync(path, [{ type: 'session_meta', payload: { id: 'turn-session-1', source: 'vscode' } },
@@ -138,7 +139,7 @@ const reply = (text, minute) => JSON.stringify({ type: 'response_item', timestam
 const meta = id => JSON.stringify({ type: 'session_meta', payload: { id, source: 'vscode' } }) + '\n';
 
 test('a drain over a 520 MB transcript against a server that answers 507 stays under 100 MB and ends by its turn', async t => {
-  const home = mkdtempSync(join(tmpdir(), 'trillion-drain-507-'));
+  const home = tempFolder(join(tmpdir(), 'trillion-drain-507-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const server = await fakeTrillion(t, (_request, response) => { response.statusCode = 507; response.end('{"error":"This store is full and is freeing space; send this again shortly."}'); });
   const keyFile = join(home, 'key');
@@ -161,7 +162,7 @@ test('a drain over a 520 MB transcript against a server that answers 507 stays u
 });
 
 test('a sweep gives a small chat its turn behind a huge one', async t => {
-  const home = mkdtempSync(join(tmpdir(), 'trillion-sweep-turns-'));
+  const home = tempFolder(join(tmpdir(), 'trillion-sweep-turns-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const server = await fakeTrillion(t, acceptAll);
   const keyFile = join(home, 'key');

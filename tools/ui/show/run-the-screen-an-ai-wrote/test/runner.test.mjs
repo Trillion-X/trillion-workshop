@@ -1,17 +1,18 @@
 // The runner in a real browser, inside a stand-in AI app that speaks MCP Apps the way Claude and ChatGPT do: the page
 // in an opaque-origin frame (sandbox="allow-scripts"), the AI's arguments sent while typed and then whole, the tool's
 // result, and the page's tools/call answered by a stand-in door.
+import { tempFolder } from '../../../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const folder = mkdtempSync(join(tmpdir(), 'screen-runner-'));
+const folder = tempFolder(join(tmpdir(), 'screen-runner-'));
 const wordsFile = join(folder, 'words.json');
 const pageFile = join(folder, 'screen.html');
 

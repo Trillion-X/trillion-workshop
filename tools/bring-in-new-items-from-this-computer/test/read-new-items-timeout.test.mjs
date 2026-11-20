@@ -1,4 +1,5 @@
 // A child-read deadline must not claim macOS refused access or open Privacy settings.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -7,7 +8,7 @@ import path from 'node:path';
 import {CHILD_READERS, readNewItems} from '../computer/read-new-items.mjs';
 
 test('a timed-out child read keeps its cursor, retries and never asks for access', async t => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'source-read-timeout-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'source-read-timeout-'));
   t.after(() => fs.rmSync(dir, {recursive: true, force: true}));
   const stateFile = path.join(dir, 'state.json');
   const since = '2026-10-12T10:00:00.000Z';
@@ -39,7 +40,7 @@ test('a timed-out child read keeps its cursor, retries and never asks for access
 });
 
 test('a real access denial still asks for access only once', async t => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'source-read-denied-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'source-read-denied-'));
   t.after(() => fs.rmSync(dir, {recursive: true, force: true}));
   let opened = 0;
   const reading = readNewItems({

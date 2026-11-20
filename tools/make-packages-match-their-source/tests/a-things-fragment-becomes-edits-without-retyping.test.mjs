@@ -4,6 +4,7 @@
 // the converter turns every row into one selectable upsert, that dropped keys are
 // removed at every depth and reported, that a row with no identity refuses before
 // any file is written, and that the produced edits apply cleanly through the editor.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
@@ -16,7 +17,7 @@ const CONVERTER = fileURLToPath(new URL("../do-work/edits-from-a-things-fragment
 const EDITOR = fileURLToPath(new URL("../do-work/apply-declared-manifest-record-edits.mjs", import.meta.url));
 
 function tmp() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), "things-fragment-"));
+  return tempFolder(path.join(os.tmpdir(), "things-fragment-"));
 }
 
 function run(file, args) {

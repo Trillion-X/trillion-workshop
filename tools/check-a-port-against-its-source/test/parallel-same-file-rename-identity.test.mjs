@@ -1,8 +1,9 @@
 // Independent actual renames of one captured source converge to one target at a normal merge.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -31,7 +32,7 @@ function commit(root, files, message) {
 }
 
 function fixture(t, { otherOriginal = false } = {}) {
-  const home = mkdtempSync(join(tmpdir(), 'parallel-same-file-rename-'));
+  const home = tempFolder(join(tmpdir(), 'parallel-same-file-rename-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const root = join(home, 'same-file-owner');
   mkdirSync(root);

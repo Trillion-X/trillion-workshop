@@ -11,10 +11,11 @@
  * with caption lines places the caption at the BOTTOM (clear of the subject) and authors karaoke; applyPlanToEdl
  * wires it onto the EDL; the rendered reel shows the RED karaoke caption in the bottom half, away from the subject.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { authorReelPlan, applyPlanToEdl } from '../../do-work/author-reel-plan.mjs';
@@ -42,7 +43,7 @@ print(tp,bt)`;
 const LINES = [{ start: 0, end: 2, words: [{ text: 'HELLOHELLO', start: 0.2, end: 1.2 }, { text: 'WORLDWORLD', start: 1.2, end: 2.0 }] }];
 
 before(() => {
-  work = mkdtempSync(join(tmpdir(), 'reelcap-'));
+  work = tempFolder(join(tmpdir(), 'reelcap-'));
   clip = join(work, 'clip.mp4');
   // subject = white block in the TOP third; the reel-plan should place the caption at the BOTTOM.
   // real (non-silent) audio so the plan's master_loudnorm has signal to normalize (loudnorm NaNs on pure silence).

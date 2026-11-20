@@ -1,9 +1,10 @@
 // The Rust crate on synthetic films: the unit and gauntlet tests pass, and the three commands turn a made-up
 // two-cell film into bytes that are the same every time. Skips, saying why, when cargo is missing.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -34,7 +35,7 @@ const script = {
 };
 
 function inTemp(name, body) {
-  const dir = mkdtempSync(join(tmpdir(), 'pointillist-film-'));
+  const dir = tempFolder(join(tmpdir(), 'pointillist-film-'));
   const file = join(dir, name);
   writeFileSync(file, JSON.stringify(body));
   return { dir, file };

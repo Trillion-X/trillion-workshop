@@ -10,9 +10,10 @@
 // record sources', and no running constructor keeps a deferred-DDL ledger for this clock.
 // Persistent source-clock recovery. Synthetic rows only; actual local PersonStore boot, no external call.
 // These cases use the actual SQLite owners and execute no copied search/schema implementation.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync} from 'node:fs';
+
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {blake3} from '@noble/hashes/blake3.js';
@@ -42,7 +43,7 @@ const table=(sql,name)=>sql.exec("SELECT name FROM sqlite_master WHERE type='tab
 const columns=sql=>sql.exec('PRAGMA table_info(search_feed_source_clock)').toArray().map(row=>row.name);
 const clock=sql=>({...sql.exec('SELECT revision,watch_files FROM search_feed_source_clock WHERE singleton=1').one()});
 function persistent(t){
- const directory=mkdtempSync(join(tmpdir(),'trillion-source-clock-')),file=join(directory,'store.sqlite');let current=null;
+ const directory=tempFolder(join(tmpdir(),'trillion-source-clock-')),file=join(directory,'store.sqlite');let current=null;
  const close=()=>{if(current){current.host.db.close();current=null;}};
  const open=()=>{
   assert.equal(current,null,'close the old database and its prepared/counted owners before reopening');

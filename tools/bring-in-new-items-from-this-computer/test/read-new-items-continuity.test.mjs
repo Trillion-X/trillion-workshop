@@ -1,3 +1,4 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -6,7 +7,7 @@ import path from 'node:path';
 import { readNewItems } from '../computer/read-new-items.mjs';
 
 for (const kind of ['refused', 'failed']) test(`a moving cursor retains a ${kind} item past its reread window and a restart`, async t => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'trillion-continuity-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'trillion-continuity-'));
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   const stateFile = path.join(dir, 'state.json');
   let clock = Date.parse('2026-10-07T10:00:00Z'), broken = true;

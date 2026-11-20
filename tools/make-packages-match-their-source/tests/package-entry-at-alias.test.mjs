@@ -1,5 +1,6 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -7,7 +8,7 @@ import esbuild from 'esbuild';
 import { createPackageEntryAtAliasPlugin } from '../do-work/package-entry-at-alias.mjs';
 
 test('package-set imports win while vendored source imports resolve locally', async () => {
-  const root = mkdtempSync(path.join(tmpdir(), 'bitfield-at-alias-'));
+  const root = tempFolder(path.join(tmpdir(), 'bitfield-at-alias-'));
   try {
     const source = path.join(root, 'packages', 'ui', 'show', 'vendor', 'source');
     mkdirSync(path.join(source, 'lib'), { recursive: true });
@@ -32,8 +33,8 @@ test('package-set imports win while vendored source imports resolve locally', as
 });
 
 test('a source-local alias cannot follow a symlink outside the selected set', async () => {
-  const root = mkdtempSync(path.join(tmpdir(), 'bitfield-at-alias-root-'));
-  const outside = mkdtempSync(path.join(tmpdir(), 'bitfield-at-alias-outside-'));
+  const root = tempFolder(path.join(tmpdir(), 'bitfield-at-alias-root-'));
+  const outside = tempFolder(path.join(tmpdir(), 'bitfield-at-alias-outside-'));
   try {
     const source = path.join(root, 'packages', 'ui', 'show', 'vendor', 'source');
     mkdirSync(source, { recursive: true });

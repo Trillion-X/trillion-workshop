@@ -1,7 +1,8 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { executionsOf, recordNew, sendExecutionToTrillion, settings } from '../harness/record-every-message.mjs';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -38,7 +39,7 @@ test('automatic observations use the current hook door, then exact readback; cre
 });
 
 for (const failure of ['refused', 'wrong_call', 'unverified_readback', 'missing_readback', 'lost_reference']) test(`ingestion ${failure} retains the exact occurrence for retry`, async t => {
-  const folder = mkdtempSync(join(tmpdir(), 'execution-ingestion-'));
+  const folder = tempFolder(join(tmpdir(), 'execution-ingestion-'));
   const path = join(folder, 'fixture.jsonl'), rules = { ...settings, cursor_folder: join(folder, 'cursors') };
   writeFileSync(path, bytes);
   let fail = true, attempts = [];

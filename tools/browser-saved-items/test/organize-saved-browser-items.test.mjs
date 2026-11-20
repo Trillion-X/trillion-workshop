@@ -1,9 +1,10 @@
 // tools/browser-saved-items: the organizer run the way the engine runs the row (granted folder in argv, the request
 // on standard input, the answer on the last line), on a made-up sidebar file for a bakery's saved tabs.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -64,7 +65,7 @@ const RULES = {
 };
 
 function home(t, document = sidebar()) {
-  const root = mkdtempSync(join(tmpdir(), 'saved-items-'));
+  const root = tempFolder(join(tmpdir(), 'saved-items-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   writeFileSync(join(root, FILE), JSON.stringify(document));
   return root;
@@ -181,7 +182,7 @@ test('something in the root folder that is not a folder, tab or split view stops
 
 test('file names are plain names of regular files inside the granted folder', t => {
   const root = home(t);
-  const outside = mkdtempSync(join(tmpdir(), 'saved-items-outside-'));
+  const outside = tempFolder(join(tmpdir(), 'saved-items-outside-'));
   t.after(() => rmSync(outside, { recursive: true, force: true }));
   writeFileSync(join(outside, FILE), JSON.stringify(sidebar()));
   symlinkSync(join(outside, FILE), join(root, 'linked.json'));

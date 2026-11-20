@@ -1,14 +1,15 @@
 // tools/headless-browser: removing the throwaway profile never fails the caller's run. A folder that cannot be removed
 // yet (a helper process of the killed browser still writing it: ENOTEMPTY) is removed again a moment later.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { existsSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import { removeProfile } from '../devtools.mjs';
 
 test('a profile that can be removed is removed at once', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'profile-cleanup-'));
+  const folder = tempFolder(join(tmpdir(), 'profile-cleanup-'));
   writeFileSync(join(folder, 'Cookies'), 'x');
   removeProfile(folder);
   assert.equal(existsSync(folder), false);

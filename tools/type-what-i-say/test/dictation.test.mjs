@@ -1,8 +1,9 @@
 // Dictation on this Mac (read-data/dictation.mjs, DATA in read-data/dictation.json): the cleaning pipeline in DATA order,
 // dictionary and snippets as the person's own rows with the full row lifecycle, learning from an edit, the clipboard
 // transaction that always restores, and the key table that stops a lost key-up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -10,7 +11,7 @@ import { biasPrompt, clean, dictationSettings, dictationTools, insertText, keyMa
 
 const base = dictationSettings();
 const withState = () => {
-  const state = mkdtempSync(path.join(os.tmpdir(), 'dictation-'));
+  const state = tempFolder(path.join(os.tmpdir(), 'dictation-'));
   return { settings: { ...base, state }, state };
 };
 

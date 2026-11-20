@@ -8,10 +8,11 @@
  * real offline renders: a WIDE target (2.39) yields black TOP/BOTTOM bars with a gray middle, and a TALL
  * target (1.0 on a 4:3 frame) yields black LEFT/RIGHT bars with a gray middle.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,7 +34,7 @@ function lum(file, { x, y, w, h }) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'lb-'));
+  const dir = tempFolder(join(tmpdir(), 'lb-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -41,7 +42,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'lb-render-'));
+  work = tempFolder(join(tmpdir(), 'lb-render-'));
   src = join(work, 'gray.mp4');
   ffmpeg(['-f', 'lavfi', '-i', 'color=gray:s=320x240:d=1:r=12', '-pix_fmt', 'yuv420p', src]);
 });

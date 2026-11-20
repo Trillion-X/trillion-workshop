@@ -1,10 +1,11 @@
 // The Workshop seam of meaning-search on synthetic vector sets: the values handed in are one descriptor record and the
 // set's files, and the package's own scripts index and rank them. Nothing here is anyone's data.
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -116,7 +117,7 @@ test('bounded indexing keeps one ANN state and candidate order across plan batch
 });
 
 test('ANN batch application is byte-identical to one ordered plan', () => {
-  const work = mkdtempSync(join(tmpdir(), 'meaning-search-batch-parity-'));
+  const work = tempFolder(join(tmpdir(), 'meaning-search-batch-parity-'));
   const script = fileURLToPath(new URL('../do-work/process-scripts/ann-index.mjs', import.meta.url));
   const put = (name, value) => { const path = join(work, name); writeFileSync(path, JSON.stringify(value)); return path; };
   const hash = mintCanonicalMultihashOfText('synthetic mutation');
@@ -350,7 +351,7 @@ const canBuild = spawnSync('ffmpeg', ['-version']).status === 0 && spawnSync('py
 const buildSkip = canBuild ? false : 'needs ffmpeg and python3 with numpy';
 
 test('make_picture_vector_set keeps one frame every two seconds with its time, goes on where it stopped, and decodes a proxy when there is one', { skip: buildSkip }, () => {
-  const work = mkdtempSync(join(tmpdir(), 'picture-set-'));
+  const work = tempFolder(join(tmpdir(), 'picture-set-'));
   const videos = join(work, 'card', 'CLIP');
   assert.equal(helper('videos', videos, 'red-take.mp4:red:6', 'blue-take.mp4:blue:4').status, 0);
   assert.equal(helper('videos', join(work, 'card', 'PROXY'), 'blue-take-small.mp4:green:4').status, 0);
@@ -374,7 +375,7 @@ test('make_picture_vector_set keeps one frame every two seconds with its time, g
 });
 
 test('a set the builder made is searched by the seam as it is, and a spread gives each red take once', { skip: buildSkip }, async () => {
-  const work = mkdtempSync(join(tmpdir(), 'picture-set-'));
+  const work = tempFolder(join(tmpdir(), 'picture-set-'));
   assert.equal(helper('videos', join(work, 'v'), 'red-one.mp4:red:6', 'red-two.mp4:red:4', 'blue-one.mp4:blue:4').status, 0);
   assert.equal(helper('build', join(work, 'v'), join(work, 'set')).status, 0);
   const { vector_set: set } = JSON.parse(readFileSync(join(work, 'set', 'vector-set.json'), 'utf8'));

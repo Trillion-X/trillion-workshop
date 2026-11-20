@@ -1,8 +1,9 @@
 // Carrying this computer after login (command.json `carry`): only a computer that runs its own engine and came from a site
 // is carried; its key is made once and kept; the carrier asks the site's meeting point with this program, never with an address
 // kept here.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -12,7 +13,7 @@ import settings from '../do-work/command.json' with { type: 'json' };
 speakFor({ cli: 'example', site_name: 'Example' });
 
 const homeWith = engine => {
-  const home = mkdtempSync(join(tmpdir(), 'carry-home-'));
+  const home = tempFolder(join(tmpdir(), 'carry-home-'));
   if (engine) {
     const file = join(home, '.config/example/computer/computer.json');
     mkdirSync(join(file, '..'), { recursive: true });

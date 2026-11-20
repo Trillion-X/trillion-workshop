@@ -5,9 +5,10 @@
 // 54 GB single file in the measured Expansion corpus, and a resumed publish that must address the
 // same row it stopped on.
 
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync } from "node:fs";
+import { mkdirSync, writeFileSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -18,7 +19,7 @@ import {
 } from "./names-and-content-identities-from-a-folder-tree.mjs";
 
 function treeWith(files) {
-  const root = mkdtempSync(path.join(tmpdir(), "folder-tree-"));
+  const root = tempFolder(path.join(tmpdir(), "folder-tree-"));
   for (const [relative, contents] of Object.entries(files)) {
     const absolute = path.join(root, relative);
     mkdirSync(path.dirname(absolute), { recursive: true });

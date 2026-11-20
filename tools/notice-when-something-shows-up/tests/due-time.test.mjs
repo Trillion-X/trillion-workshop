@@ -6,8 +6,9 @@
 // rows, plus what only timed-action has: its clock-change rule per schedule, one run on waking for a schedule that
 // repeats within the day, one-off actions. The clock is a script: each wait jumps to the next time it names, and the
 // watch ends after the last.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -125,7 +126,7 @@ test('timed-action refuses a schedule it cannot read, and says so once', async (
 });
 
 test('the engine carrier names a fact by its event key and keeps the waiter state in its kept folder across runs', async () => {
-  const keep = mkdtempSync(path.join(tmpdir(), 'noticer-kept-'));
+  const keep = tempFolder(path.join(tmpdir(), 'noticer-kept-'));
   const sent = [];
   const fetchImpl = async (url, { body }) => {
     sent.push(JSON.parse(body).params.arguments.input);

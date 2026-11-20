@@ -3,15 +3,16 @@
 // The old tool:manage-helpers assertions (computer/test/computer-host-tools.test.mjs, the manage-helpers block, deleted by
 // dc79bb0a87 and held at held-for-a-mac-host-change/test/computer-host-tools.test.mjs.held), run against the moved function
 // on a pretend home. No network: the helper that is fetched is turned off before any fetch is tried.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { makeHelperRuntimes } from '../helper-runtimes.mjs';
 import { manageHelpers } from '../manage-helpers.mjs';
 
-const home = mkdtempSync(join(tmpdir(), 'manage-helpers-'));
+const home = tempFolder(join(tmpdir(), 'manage-helpers-'));
 test.after(() => rmSync(home, { recursive: true, force: true }));
 const runtimes = makeHelperRuntimes({ home });
 const tool = input => manageHelpers(input, runtimes);

@@ -1,7 +1,8 @@
 // Every tool row declares the other tools its folder's files use (`uses_tools`), as test-helpers/write-pinned-files.mjs writes them.
+import { tempFolder } from '../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { rowsWithUses, toolClosures, usesProblems } from '../test-helpers/tool-closures.mjs';
@@ -14,7 +15,7 @@ test('every tool row declares the tools its folder\'s imports reach (run node te
 });
 
 test('a relative path, a package path and a package_files item each name a folder, and the need is transitive', () => {
-  const root = mkdtempSync(join(tmpdir(), 'closures-'));
+  const root = tempFolder(join(tmpdir(), 'closures-'));
   const put = (path, text) => {
     mkdirSync(join(root, path, '..'), { recursive: true });
     writeFileSync(join(root, path), text);
@@ -30,7 +31,7 @@ test('a relative path, a package path and a package_files item each name a folde
 });
 
 test('a test folder or test file names no need, while a code file beside it still does; the test names are read from the tree\'s test-helpers/test-names.json', () => {
-  const root = mkdtempSync(join(tmpdir(), 'closures-tests-'));
+  const root = tempFolder(join(tmpdir(), 'closures-tests-'));
   const put = (path, text) => {
     mkdirSync(join(root, path, '..'), { recursive: true });
     writeFileSync(join(root, path), text);

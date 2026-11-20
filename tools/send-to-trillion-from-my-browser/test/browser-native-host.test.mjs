@@ -2,10 +2,11 @@
 // (extension/native-host/offer-in-browsers.mjs places it, extension/native-host/browser-native-host.mjs answers), over a made-up home folder:
 // manifests pinned to exact extension ids, placed idempotently in each installed browser, read back, removed so they
 // stay removed, placed again; and the real launcher started as a browser starts it, answering a framed message.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { nativeHostManifest, nativeHosts, offerInBrowsers, placeNativeHosts, removeNativeHosts, restoreNativeHosts } from '../native-host/offer-in-browsers.mjs';
@@ -34,7 +35,7 @@ test('a manifest names only the extensions its row names, by exact id', () => {
 });
 
 test('placing is idempotent and per installed browser; removing stays removed through the reader pass until placed again', () => {
-  const home = mkdtempSync(join(tmpdir(), 'native-host-'));
+  const home = tempFolder(join(tmpdir(), 'native-host-'));
   try {
     mkdirSync(join(home, 'Apps/One.app'), { recursive: true });
     const stateFile = join(home, 'state/offered.json');
@@ -81,7 +82,7 @@ test('only a pinned extension is answered, and only the actions its row lists', 
 });
 
 test('the real launcher, started as a browser starts it, answers a framed message', async () => {
-  const home = mkdtempSync(join(tmpdir(), 'native-host-live-'));
+  const home = tempFolder(join(tmpdir(), 'native-host-live-'));
   try {
     mkdirSync(join(home, 'Apps/One.app'), { recursive: true });
     const live = { ...settings, native_hosts: [{ ...settings.native_hosts[0], name: 'ai.gettrillion.computer' }],
@@ -143,7 +144,7 @@ const fakeDoor = async answer => {
   return { seen, port: server.address().port, close: () => new Promise(done => server.close(done)) };
 };
 const doorHome = port => {
-  const home = mkdtempSync(join(tmpdir(), 'native-host-door-'));
+  const home = tempFolder(join(tmpdir(), 'native-host-door-'));
   if (port) { mkdirSync(join(home, 'Support/Trillion'), { recursive: true }); writeFileSync(join(home, 'Support/Trillion/local-runtime.json'), JSON.stringify({ port })); }
   return home;
 };

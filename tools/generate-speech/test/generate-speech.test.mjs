@@ -1,10 +1,11 @@
 // generate_speech.py on synthetic requests: the local voice provider (with stand-in voice programs, so no real
 // voice is needed) makes a real WAV file, and every way a provider can fail or answer with nothing is an honest
 // error, never made-up audio.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, join } from 'node:path';
 
@@ -31,7 +32,7 @@ with wave.open(path, 'wb') as audio:
 }
 
 function run(request, env = {}) {
-  const dir = mkdtempSync(join(tmpdir(), 'generate-speech-'));
+  const dir = tempFolder(join(tmpdir(), 'generate-speech-'));
   const requestFile = join(dir, 'request.json');
   writeFileSync(requestFile, JSON.stringify(request));
   const out = join(dir, 'speech');
@@ -56,7 +57,7 @@ const withLocalVoice = (options = {}) => ({
 });
 
 function withStandIns(names) {
-  const dir = mkdtempSync(join(tmpdir(), 'voices-'));
+  const dir = tempFolder(join(tmpdir(), 'voices-'));
   for (const name of names) standIn(dir, name);
   return { dir, env: { PATH: dir + delimiter + process.env.PATH } };
 }
@@ -114,7 +115,7 @@ test('no provider is the honest answer: exit 2, nothing written', { skip }, () =
 });
 
 test('a provider that answers without audio is an error that lists what it answered', { skip }, () => {
-  const dir = mkdtempSync(join(tmpdir(), 'provider-'));
+  const dir = tempFolder(join(tmpdir(), 'provider-'));
   const script = providerScript(dir, "json.dump({'provider_ref': 'x'}, open(sys.argv[2], 'w'))");
   const { status, result } = run({ request_id: 'r', text: 'hello', provider: { argv: ['python3', script, '{request}', '{output}'] } });
   assert.equal(status, 2);
@@ -123,7 +124,7 @@ test('a provider that answers without audio is an error that lists what it answe
 });
 
 test('a provider that fails says how: exit code and what it printed', { skip }, () => {
-  const dir = mkdtempSync(join(tmpdir(), 'provider-'));
+  const dir = tempFolder(join(tmpdir(), 'provider-'));
   const script = providerScript(dir, "sys.stderr.write('no account'); sys.exit(3)");
   const { status, result } = run({ request_id: 'r', text: 'hello', provider: { argv: ['python3', script, '{request}', '{output}'] } });
   assert.equal(status, 2);
@@ -140,7 +141,7 @@ test('a provider program that is not there is named', { skip }, () => {
 });
 
 test('an answer that is not JSON is named', { skip }, () => {
-  const dir = mkdtempSync(join(tmpdir(), 'provider-'));
+  const dir = tempFolder(join(tmpdir(), 'provider-'));
   const script = providerScript(dir, "open(sys.argv[2], 'w').write('not json')");
   const { status, result } = run({ request_id: 'r', text: 'hello', provider: { argv: ['python3', script, '{request}', '{output}'] } });
   assert.equal(status, 2);
@@ -148,7 +149,7 @@ test('an answer that is not JSON is named', { skip }, () => {
 });
 
 test('a hosted answer by url is kept as the url, with no file made', { skip }, () => {
-  const dir = mkdtempSync(join(tmpdir(), 'provider-'));
+  const dir = tempFolder(join(tmpdir(), 'provider-'));
   const script = providerScript(dir, "json.dump({'output_artifact_refs': [{'url': 'https://voices.example.test/a.mp3', 'media_type': 'audio/mpeg'}], 'format': 'audio/mpeg', 'duration_ms': 1200}, open(sys.argv[2], 'w'))");
   const { status, result, out } = run({ request_id: 'r', text: 'hello', provider: { argv: ['python3', script, '{request}', '{output}'] } });
   assert.equal(status, 0);
@@ -158,7 +159,7 @@ test('a hosted answer by url is kept as the url, with no file made', { skip }, (
 });
 
 test('the provider sees only the variables the request names, and never the provider command itself', { skip }, () => {
-  const dir = mkdtempSync(join(tmpdir(), 'provider-'));
+  const dir = tempFolder(join(tmpdir(), 'provider-'));
   const script = providerScript(dir, "import os\njson.dump({'output_artifact_refs': [{'url': 'u'}], 'provider_ref': (os.environ.get('NAMED_ONE') or '-') + '/' + (os.environ.get('NOT_NAMED') or '-') + '/' + str('provider' in request)}, open(sys.argv[2], 'w'))");
   const { result } = run(
     { request_id: 'r', text: 'hello', provider: { argv: ['python3', script, '{request}', '{output}'], env_names: ['NAMED_ONE'] } },

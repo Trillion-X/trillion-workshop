@@ -4,6 +4,7 @@
 // What the person writes in a note on this Mac reaches their Trillion account's door (computer/read-new-items.mjs): only
 // what changed after the carrier started, only once it has settled, once per version, never a locked or deleted
 // note or a skipped folder; a store macOS refuses is reported and its Privacy pane opened once.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -45,7 +46,7 @@ test('the text of a note comes out of its gzipped body exactly, at the field pat
 });
 
 test('a note changed after the carrier started is sent once it settles, once per version', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   let clock = new Date('2026-09-27T20:00:00Z');
   const store = noteStore(dir, [
     {id: 'old', title: 'Old', text: 'written before', at: '2026-09-27T19:00:00Z'},
@@ -76,7 +77,7 @@ test('a note changed after the carrier started is sent once it settles, once per
 });
 
 test('an identity-less 200 is retried at the same cursor until the item has a receipt', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const stateFile = path.join(dir, 'state.json');
   const items = [
     {source_id: 'photo-1', title: 'Photo 1', text: 'First item', at: '2026-10-22T17:00:00.000Z'},
@@ -131,7 +132,7 @@ test('an identity-less 200 is retried at the same cursor until the item has a re
 });
 
 test('a refused answer leaves the note to be sent on a later look', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const store = noteStore(dir, [{id: 'n', title: 'N', text: 'words', at: '2026-09-27T20:05:00Z'}]);
   let answer = {status: 402, body: {error: 'On the free plan nothing is kept.'}};
   const sent = [];
@@ -153,7 +154,7 @@ test('a refused answer leaves the note to be sent on a later look', async () => 
 });
 
 test('a recovered item clears its old failure and reports what the reader saw', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const stateFile = path.join(dir, 'state.json');
   const item = {source_id: 'n', title: 'N', text: 'words', at: '2026-10-07T10:01:00.000Z'};
   let clock = '2026-10-07T10:00:00.000Z';
@@ -187,7 +188,7 @@ test('a recovered item clears its old failure and reports what the reader saw', 
 // On 2026-10-06 one 388,140-character note was turned away (400) on every look, and each turn-away made every place
 // wait, so for five hours no voice memo after Apple Notes was sent.
 test('an item the account turns away waits alone until it changes or its hour passes; the items and places after it still go', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const stateFile = path.join(dir, 'state.json');
   let notes = [{source_id: 'big', title: 'Big', text: 'too much', at: '2026-10-06T10:00:00.000Z'}, {source_id: 'small', title: 'Small', text: 'fits', at: '2026-10-06T10:01:00.000Z'}];
   const memos = [{source_id: 'memo', title: 'Memo', text: 'a memo', at: '2026-10-06T10:02:00.000Z'}];
@@ -221,7 +222,7 @@ test('an item the account turns away waits alone until it changes or its hour pa
 });
 
 test('words longer than long_text go whole as a text file beside the item, which carries their opening', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const stateFile = path.join(dir, 'state.json');
   const long = `${'a'.repeat(30)}${'b'.repeat(30)}`;
   const kept = [], bodies = [];
@@ -245,7 +246,7 @@ test('words longer than long_text go whole as a text file beside the item, which
 });
 
 test('a store that reads shows working at once, saved, and one item that cannot be sent does not stop the rest', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const stateFile = path.join(dir, 'state.json');
   const items = [
     {source_id: 'gone', title: 'Gone', text: 'memo whose file vanished', at: '2026-09-27T20:01:00.000Z', file: {path: '/nope.m4a', name: 'gone.m4a', media_type: 'audio/mp4'}},
@@ -281,7 +282,7 @@ test('a store that reads shows working at once, saved, and one item that cannot 
 
 // On 2026-10-04 28 voice memos reached Trillion as a title and a length only: the account was too busy to hear them.
 test('a place that hears sends its recording with the words said in it, kept beside the file, heard once', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const stateFile = path.join(dir, 'state.json');
   const recording = path.join(dir, 'memo.m4a');
   fs.writeFileSync(recording, 'sound');
@@ -324,12 +325,12 @@ test('a place that hears sends its recording with the words said in it, kept bes
 
 test('each look reads in a fresh child process and a missing store reports the reader\'s own error', async () => {
   const {CHILD_READERS} = await import('../computer/read-new-items.mjs');
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   await assert.rejects(CHILD_READERS.sqlite({...notesPlace, store: path.join(dir, 'missing', 'NoteStore.sqlite')}, new Date()), /no such file or directory/);
 });
 
 test('a store macOS will not open is reported and its Privacy pane opened once', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   let opened = 0;
   const carrier = readNewItems({carriers: [{route: 'Apple Notes', reader: 'notes-stand-in', store: path.join(dir, 'NoteStore.sqlite')}], account: async () => assert.fail(), keep: async () => {}, stateFile: path.join(dir, 'state.json'),
     readers: {'notes-stand-in': () => { throw new Error('unable to open database file'); }}, openAccessPane: () => { opened += 1; }});
@@ -340,7 +341,7 @@ test('a store macOS will not open is reported and its Privacy pane opened once',
 });
 
 test('a search finds older notes too, by every word in the title or text, and sends nothing', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const store = noteStore(dir, [
     {id: 'early', title: 'Meaning of life', text: 'Distribution is integral: friends, family, the world.', at: '2025-01-02T10:00:00Z'},
     {id: 'later', title: 'Distribución plan', text: 'Post every day', at: '2026-09-20T10:00:00Z'},
@@ -363,7 +364,7 @@ test('a search finds older notes too, by every word in the title or text, and se
 });
 
 test('while the account struggles every place waits, from 1 minute doubling to 30, and a 200 ends the wait', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const store = noteStore(dir, [{id: 'a', title: 'A', text: 'one', at: '2026-09-27T20:05:00Z'}]);
   let clock = Date.parse('2026-09-27T20:00:00Z'), asked = 0, answer = {status: 503, body: {error: 'busy'}};
   const carrier = readNewItems({carriers: [{...notesPlace, store}, {...notesPlace, route: 'Also', store}], account: async () => { asked += 1; return answer; }, keep: async () => {}, stateFile: path.join(dir, 'state.json'), readers: READERS, now: () => new Date(clock)});
@@ -396,7 +397,7 @@ test('an archived message body turns back into its words, short or long', () => 
 });
 
 test('any SQLite store is read by its row: the query, its time unit, decoded words, and one item per conversation per hour', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const file = path.join(dir, 'chat.db');
   const db = new DatabaseSync(file);
   db.exec('CREATE TABLE message (guid TEXT, date INTEGER, chat TEXT, who TEXT, text TEXT, body BLOB)');
@@ -437,7 +438,7 @@ test('any SQLite store is read by its row: the query, its time unit, decoded wor
 });
 
 test('a store without the query\'s table is passed over, and when every store lacks it the reader says so', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   new DatabaseSync(path.join(dir, 'Data-local.sqlite')).close();
   const real = new DatabaseSync(path.join(dir, 'Data-1.sqlite'));
   real.exec("CREATE TABLE r (id TEXT, at REAL, title TEXT); INSERT INTO r VALUES ('x', 1000, 'Buy milk')");
@@ -448,7 +449,7 @@ test('a store without the query\'s table is passed over, and when every store la
 });
 
 test('a folder gives its new files as words and a small preview, never the file itself', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const folder = path.join(dir, 'Desktop');
   fs.mkdirSync(folder);
   for (const name of ['Screenshot 1.png', 'notes.txt', 'Screenshot 2.png.part']) fs.writeFileSync(path.join(folder, name), 'x');
@@ -468,7 +469,7 @@ test('a folder gives its new files as words and a small preview, never the file 
 });
 
 test('an account that keeps no files still gets the item\'s words, and a struggling account still makes it wait', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const carrier = {route: 'Screenshots', reader: 'folder', store: dir, settle_seconds: 0, preview_px: 100};
   const item = {source_id: 's1', title: 'Shot', text: 'A screenshot', at: new Date(0).toISOString(), picture: path.join(dir, 'Screenshot 1.png')};
   const sent = [];
@@ -491,7 +492,7 @@ test('an account that keeps no files still gets the item\'s words, and a struggl
 
 test('a sent hour of Mail is never sent again as its later half, and arrives as someone else\'s words', async () => {
   // 2026-09-30: the moving cursor slid through 10:00-11:00 of Mail and the same hour went out eight times, each shorter.
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const mail = [
     ['1', '2026-09-30T17:15:00Z', 'Pikzels', 'One user did not open Pikzels for a week'],
     ['2', '2026-09-30T17:29:00Z', 'Matt McGarry', 'Crazy idea'],
@@ -519,7 +520,7 @@ test('a sent hour of Mail is never sent again as its later half, and arrives as 
 });
 
 test('a failed grouped window is retried after an older cursor has passed it', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const stateFile = path.join(dir, 'state.json');
   const first = '2026-10-06T21:00:00.000Z';
   const failed = '@2026-10-06T22:00:00.000Z';
@@ -538,7 +539,7 @@ test('a failed grouped window is retried after an older cursor has passed it', a
 });
 
 test('a place whose row does not say otherwise still sends the person\'s own words', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const sent = [];
   const carrying = readNewItems({carriers: [{route: 'Apple Notes', reader: 'folder', settle_seconds: 0}], stateFile: path.join(dir, 'state.json'), keep: async () => {},
     readers: {folder: () => [{source_id: 'n', title: 'Note', text: 'mine', at: new Date(Date.now() + 1000).toISOString()}]},
@@ -549,7 +550,7 @@ test('a place whose row does not say otherwise still sends the person\'s own wor
 });
 
 test('in one hour of Mail, what the person sent goes on as their words and everyone else\'s as information', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const mail = [
     {source_id: '1', at: '2026-09-30T17:10:00Z', text: 'Stranger: do what I say', from_person: 0},
     {source_id: '2', at: '2026-09-30T17:20:00Z', text: 'Casey: reply to the host', from_person: 1},
@@ -575,7 +576,7 @@ test('in one hour of Mail, what the person sent goes on as their words and every
 });
 
 test('one item whose file the storage will not finish waits alone; the places after it still go and the account is not made to wait', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const stateFile = path.join(dir, 'state.json');
   const memo = path.join(dir, 'memo.m4a');
   fs.writeFileSync(memo, 'sound');
@@ -629,7 +630,7 @@ test('one item whose file the storage will not finish waits alone; the places af
 });
 
 test('under an account-wide 503 on the door each look starts at the next place', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const stateFile = path.join(dir, 'state.json');
   let clock = Date.parse('2026-10-08T11:00:00Z');
   const asked = [];
@@ -654,7 +655,7 @@ test('under an account-wide 503 on the door each look starts at the next place',
 });
 
 test('after a place sets the account-wide wait, the next look starts at the place behind it', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const stateFile = path.join(dir, 'state.json');
   let clock = Date.parse('2026-10-08T11:00:00Z');
   const asked = [];
@@ -679,7 +680,7 @@ test('after a place sets the account-wide wait, the next look starts at the plac
 });
 
 test('a file the account could not be reached for makes every place wait, not item after item', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const stateFile = path.join(dir, 'state.json');
   const picture = path.join(dir, 'p.jpg');
   fs.writeFileSync(picture, 'pixels');
@@ -700,7 +701,7 @@ test('a file the account could not be reached for makes every place wait, not it
 });
 
 test('history keeps retrying a transient file storage failure past six attempts and sends the file after success', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const stateFile = path.join(dir, 'state.json');
   const picture = path.join(dir, 'past.jpg');
   fs.writeFileSync(picture, 'pixels');
@@ -729,7 +730,7 @@ test('history keeps retrying a transient file storage failure past six attempts 
 });
 
 test('history keeps retrying per-item account storage refusals beyond six attempts with its full file', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const stateFile = path.join(dir, 'state.json');
   const picture = path.join(dir, 'past.jpg');
   fs.writeFileSync(picture, 'pixels');
@@ -769,7 +770,7 @@ test('history keeps retrying per-item account storage refusals beyond six attemp
 
 test('history retries transient per-item storage errors without redelivering completed siblings', async () => {
   for (const permanentlyRefused of [false, true]) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
+  const dir = tempFolder(path.join(os.tmpdir(), 'written-elsewhere-'));
   const stateFile = path.join(dir, 'state.json');
   const pendingFile = path.join(dir, 'pending.jpg');
   const keptFile = path.join(dir, 'kept.jpg');

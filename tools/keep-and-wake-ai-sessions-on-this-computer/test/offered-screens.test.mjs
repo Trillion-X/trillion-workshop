@@ -1,7 +1,8 @@
 // A tool that offers a screen in its own part.json appears in the workspace's screens with no other change, and a tool that
 // offers a screen drawn from its inputs is refused. Synthetic Workshop folders only.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -9,7 +10,7 @@ import { offeredRows, offeredScreens } from '../src/workspace/offered-screens.mj
 
 const row = (id, kind = 'module') => ({ id, label: 'Synthetic', screen: { kind, icon: 'Box', module: { package: 'synthetic', entry: 'show.tsx' }, surface: { id, surface_id: id, kind: 'placeable-surface', sidebar_collection: 'synthetic-group', order: 5, route_paths: ['/synthetic'] } } });
 const workshop = (t, tools) => {
-  const root = mkdtempSync(join(tmpdir(), 'offered-screens-'));
+  const root = tempFolder(join(tmpdir(), 'offered-screens-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   for (const [name, part] of Object.entries(tools)) { mkdirSync(join(root, 'tools', name), { recursive: true }); writeFileSync(join(root, 'tools', name, 'part.json'), JSON.stringify(part)); }
   return root;

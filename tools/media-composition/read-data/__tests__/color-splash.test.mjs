@@ -9,11 +9,12 @@
  * split where keeping red leaves the red half SATURATED while the blue half collapses to GRAY (a
  * per-region saturation proof), PLUS a byte-identical determinism proof. L155.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -42,7 +43,7 @@ function meanSat(raw, x0, y0, w, h) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'splash-'));
+  const dir = tempFolder(join(tmpdir(), 'splash-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -50,7 +51,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'splash-render-'));
+  work = tempFolder(join(tmpdir(), 'splash-render-'));
   split = join(work, 'split.mp4'); // left half vivid red, right half vivid blue
   ffmpeg(['-f', 'lavfi', '-i', `color=black:s=320x240:d=2:r=${FPS}`, '-vf', "geq=r='if(lt(X,160),220,20)':g='20':b='if(lt(X,160),20,220)'", '-pix_fmt', 'yuv420p', split]);
 });

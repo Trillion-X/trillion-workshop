@@ -1,7 +1,8 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -132,7 +133,7 @@ test('a door with no lease road refuses a large file with its reason, and sends 
 
 test('keepLocalFile sends a large file from disk over the lease road', async () => {
   const engine = await startFakeEngine();
-  const dir = mkdtempSync(join(tmpdir(), 'lf-disk-'));
+  const dir = tempFolder(join(tmpdir(), 'lf-disk-'));
   try {
     const big = bytesOf(LARGE_FILE.threshold_bytes + 77);
     const path = join(dir, 'big.bin');
@@ -148,7 +149,7 @@ test('keepLocalFile sends a large file from disk over the lease road', async () 
 
 test('a records door built from its descriptor carries the lease road at its own origin', async () => {
   const engine = await startFakeEngine();
-  const dir = mkdtempSync(join(tmpdir(), 'lf-door-'));
+  const dir = tempFolder(join(tmpdir(), 'lf-door-'));
   try {
     const descriptor = join(dir, 'fd3.json');
     writeFileSync(descriptor, JSON.stringify({ url: `${engine.origin}/mcp`, resource: '@own-records', capability: CAPABILITY, files_resource: '@own-files' }));
@@ -163,7 +164,7 @@ test('a records door built from its descriptor carries the lease road at its own
 });
 
 test('a file source reads any range exactly', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'lf-src-'));
+  const dir = tempFolder(join(tmpdir(), 'lf-src-'));
   const path = join(dir, 'x.bin');
   const bytes = bytesOf(10_000);
   writeFileSync(path, bytes);

@@ -8,10 +8,11 @@
  * render where the RING of black pixels around a bright square lights up (the bloom halo) and stronger
  * glow lights it more.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,7 +38,7 @@ const RING = { x: 40, y: 40, w: 20, h: 20 };   // was black in the source
 const CORE = { x: 90, y: 90, w: 20, h: 20 };    // the bright square center
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'glow-'));
+  const dir = tempFolder(join(tmpdir(), 'glow-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -45,7 +46,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'glow-render-'));
+  work = tempFolder(join(tmpdir(), 'glow-render-'));
   spot = join(work, 'spot.mp4');
   // A small bright white 80x80 square centered on a 200x200 black frame. Glow must bleed the white into
   // the surrounding black (the ring at x40,y40 is well outside the square, which spans 60..140).

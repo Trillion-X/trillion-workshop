@@ -6,10 +6,11 @@
  * object pass-through, AND a real offline render where the edge band becomes the border color while the
  * center stays the source color.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,7 +34,7 @@ const dominant = (c) => (c.r > c.g && c.r > c.b ? 'red' : c.g > c.r && c.g > c.b
 const isWhite = (c) => c.r > 200 && c.g > 200 && c.b > 200;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'border-'));
+  const dir = tempFolder(join(tmpdir(), 'border-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -41,7 +42,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'border-render-'));
+  work = tempFolder(join(tmpdir(), 'border-render-'));
   blue = join(work, 'blue.mp4');
   // A solid blue 200x200 frame: a border must recolor the edges while the center stays blue.
   ffmpeg(['-f', 'lavfi', '-i', 'color=0x0000E0:s=200x200:r=24:d=1', '-pix_fmt', 'yuv420p', blue]);

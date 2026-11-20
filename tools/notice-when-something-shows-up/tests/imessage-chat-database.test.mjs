@@ -3,8 +3,9 @@
 // The database is a real SQLite file with the Messages tables the leaf reads (message, handle, chat, chat_message_join,
 // attachment, message_attachment_join), so these tests cover the real read, the words decoding the iMessage connection
 // owns, and the dates as nanosecond text past 2^53. Numbers are the reserved fiction ranges (555-01xx).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
@@ -22,7 +23,7 @@ const nanos = (iso) => appleNanos(iso);
 const plus = (seconds) => new Date(Date.parse(BASE) + seconds * 1000).toISOString();
 
 function database(t) {
-  const folder = mkdtempSync(path.join(tmpdir(), 'imessage-waiter-'));
+  const folder = tempFolder(path.join(tmpdir(), 'imessage-waiter-'));
   t.after(() => rmSync(folder, { recursive: true, force: true }));
   const file = path.join(folder, 'chat.db');
   const db = new DatabaseSync(file);

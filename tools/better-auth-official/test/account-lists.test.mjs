@@ -4,14 +4,15 @@
 // off. These run the same Better Auth endpoints the page calls, on the embedded Postgres store: two real sign-ins make two sessions, one is
 // revoked from the other, and the list reads back without it (and the revoked token no longer signs anyone in). A key is made, listed, turned
 // off and listed again. A passkey cannot be made without a browser authenticator, so its removal is only checked for a made-up id.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { startStore } from '../test-fixtures/embedded-store.mjs';
 
-const dir = mkdtempSync(join(tmpdir(), 'account-lists-'));
+const dir = tempFolder(join(tmpdir(), 'account-lists-'));
 const shipped = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
 const settings = { ...shipped, email_password: { require_verification: false }, disabled_paths: [], rate_limit: { ...shipped.rate_limit, enabled: false } };
 writeFileSync(join(dir, 'settings.json'), JSON.stringify(settings));

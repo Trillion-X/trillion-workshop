@@ -3,17 +3,18 @@
 // The sign-in pages are this tool's own files, answered with the content security policy pages/routes.json gives: every
 // script a page runs is allowed by it (an inline script by its sha256, the tool's own script by 'self'), nothing else is,
 // and no page names anything outside this tool.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // The pages draw the site block they are given: this run's has a mark, so the pages that name it can be checked.
 const given = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
-const scratchDir = mkdtempSync(join(tmpdir(), 'pages-test-'));
+const scratchDir = tempFolder(join(tmpdir(), 'pages-test-'));
 writeFileSync(join(scratchDir, 'settings.json'), JSON.stringify({ ...given, site: { ...given.site, mark_svg: '<svg xmlns="http://www.w3.org/2000/svg"/>' } }));
 process.env.BETTER_AUTH_SETTINGS = join(scratchDir, 'settings.json');
 const { pageAnswer, table } = await import('../pages.mjs');

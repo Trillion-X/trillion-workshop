@@ -11,10 +11,11 @@
  * once (the flashes fall at different output times), so its min-of-halves peak is far lower. Fabricated DATA
  * could not make two real renders flash together.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { authorAlignedSplit } from '../../do-work/author-aligned-split.mjs';
@@ -52,7 +53,7 @@ function renderAndPeakBoth(seg, name) {
 }
 
 before(() => {
-  work = mkdtempSync(join(tmpdir(), 'abs-'));
+  work = tempFolder(join(tmpdir(), 'abs-'));
   clipA = join(work, 'A.mp4'); flashClip(clipA, 0.8);
   clipB = join(work, 'B.mp4'); flashClip(clipB, 1.3);
 });

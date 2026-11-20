@@ -3,8 +3,9 @@
 // `example op` and `example call` refuse a flag they do not know (command.json direct_calls.flags), so a flag that means
 // nothing to them (the `--dry-run` that removed a row on 2026-11-13) is never silently dropped. `op --dry-run` sends nothing:
 // it prints the request it would have sent, for a write as for a read.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -23,7 +24,7 @@ const READ = ['op', 'wake:list', '{"kind":"due-time"}'];
 const run = argv => {
   const asked = [];
   const result = main([...argv, '--origin', 'http://127.0.0.1:8788'], {
-    env: { EXAMPLE_KEY: KEY }, store: { read: () => KEY, where: 'test key' }, grants: noGrants, state: stateOf({ home: mkdtempSync(join(tmpdir(), 'example-op-flags-')) }),
+    env: { EXAMPLE_KEY: KEY }, store: { read: () => KEY, where: 'test key' }, grants: noGrants, state: stateOf({ home: tempFolder(join(tmpdir(), 'example-op-flags-')) }),
     fetchImpl: async (url, init) => {
       asked.push(init.body);
       const body = JSON.parse(init.body);

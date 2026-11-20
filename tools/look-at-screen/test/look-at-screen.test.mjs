@@ -4,9 +4,10 @@
 // every display comes back, the main one first, with its size; the long edge is capped by the rules; the pointer is
 // asked for only when the request says so; the folder the pictures are made in is always removed; and missing Screen
 // Recording access is said in words, whether the system's preflight or the capture itself refuses.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { look, lookAtScreen, rules, systemCommands } from '../do-work/look-at-screen.mjs';
@@ -27,7 +28,7 @@ function standIn({ displays = 2, allowed = true, captureError, sizes = [{ width:
   };
 }
 
-const scratch = () => mkdtempSync(join(tmpdir(), 'look-test-'));
+const scratch = () => tempFolder(join(tmpdir(), 'look-test-'));
 const leftIn = folder => readdirSync(folder);
 
 test('every display comes back, the main one first, with its exact pixel size and its picture', () => {

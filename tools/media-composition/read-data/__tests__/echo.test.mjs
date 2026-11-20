@@ -12,10 +12,11 @@
  * audible (wet), a domain-matched audio measurement, not a pixel check (L155: proof matches the claim's
  * domain).
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -38,7 +39,7 @@ function rms(file, ss, dur) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'echo-'));
+  const dir = tempFolder(join(tmpdir(), 'echo-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -46,7 +47,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'echo-render-'));
+  work = tempFolder(join(tmpdir(), 'echo-render-'));
   src = join(work, 'burst.mp4'); // black video + audio = a 0.1s 440Hz tone then SILENCE (so a tail = echo)
   ffmpeg(['-f', 'lavfi', '-i', 'color=black:s=64x64:d=2:r=12',
     '-f', 'lavfi', '-i', "aevalsrc='sin(2*PI*440*t)*lt(t,0.1)':d=2:s=48000",

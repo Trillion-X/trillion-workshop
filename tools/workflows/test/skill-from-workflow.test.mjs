@@ -1,8 +1,9 @@
 // tools/workflows: a skill made from a workflow's rows holds every step and its checks, and the
 // same rows always make the same bytes. Every recipe here is made up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -40,7 +41,7 @@ test('the same rows make the same bytes, and a changed row changes the skill', (
 });
 
 test('the command writes the skill, and --check refuses a hand edit and a missing file', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'skill-from-workflow-'));
+  const dir = tempFolder(join(tmpdir(), 'skill-from-workflow-'));
   writeFileSync(join(dir, 'recipe.json'), JSON.stringify(recipeRow));
   writeFileSync(join(dir, 'steps.json'), JSON.stringify({ records: stepRows }));
   const run = (...rest) => spawnSync('node', [CLI, '--recipe', join(dir, 'recipe.json'), '--steps', join(dir, 'steps.json'), ...rest], { encoding: 'utf8' });

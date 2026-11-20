@@ -1,8 +1,9 @@
 // Exercises the real source-first crawl with a deterministic Playwright boundary, without starting another browser.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -42,7 +43,7 @@ export async function launchChromium(options) {
 }
 `;
 function run(url, pages = {}) {
-  const dir = mkdtempSync(join(tmpdir(), 'site-media-test-'));
+  const dir = tempFolder(join(tmpdir(), 'site-media-test-'));
   try {
     const mock = join(dir, 'launcher.mjs');
     const loader = join(dir, 'loader.mjs');

@@ -9,11 +9,12 @@
  * CHROMA GAIN: a source with a MUTED color bar (small max-min per pixel) gains chroma after a positive vibrance
  * (the muted color pops). PLUS a byte-identical determinism proof. L155.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -44,7 +45,7 @@ function chroma(raw, y, x0, x1) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'vib-'));
+  const dir = tempFolder(join(tmpdir(), 'vib-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -52,7 +53,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'vib-render-'));
+  work = tempFolder(join(tmpdir(), 'vib-render-'));
   muted = join(work, 'muted.mp4'); // a MUTED cyan-ish bar (r=90,g=150,b=150) on neutral gray (110).
   ffmpeg(['-f', 'lavfi', '-i', `color=black:s=320x240:d=2:r=${FPS}`, '-vf', "geq=r='if(between(X,120,200),90,110)':g='if(between(X,120,200),150,110)':b='if(between(X,120,200),150,110)'", '-pix_fmt', 'yuv420p', muted]);
 });

@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
-import { mkdtemp, writeFile } from 'node:fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -26,7 +27,7 @@ async function bundleModule(entryUrl, outfile) {
   return import(pathToFileURL(outfile));
 }
 
-const tempDir = await mkdtemp(join(tmpdir(), 'record-video-backend-proof-'));
+const tempDir = tempFolder(join(tmpdir(), 'record-video-backend-proof-'));
 const requestModule = await bundleModule(requestSource, join(tempDir, 'requests.mjs'));
 const artifactModule = await bundleModule(artifactSource, join(tempDir, 'artifact.mjs'));
 const sessionModule = await bundleModule(sessionSource, join(tempDir, 'session.mjs'));

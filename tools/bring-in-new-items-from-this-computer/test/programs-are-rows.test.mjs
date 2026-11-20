@@ -1,6 +1,7 @@
 // Every program a look or a read starts on this computer is a row of computer/computer-sources.json `programs`, by the
 // job it does; the code names none. Stand-in programs (small shell scripts in a temporary folder) answer the rows here,
 // so what runs is exactly what the rows say, on any computer.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -40,7 +41,7 @@ test('the first try whose program is here runs, with its holes filled; no try he
 });
 
 test('a preview and a copy are made by the programs their rows name, the copy shrunk only when a side is longer than its edge', async () => {
-  const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'programs-are-rows-'));
+  const folder = tempFolder(path.join(os.tmpdir(), 'programs-are-rows-'));
   try {
     const asked = [];
     const write = standIn(folder, 'write-out', 'for last; do :; done; printf jpg > "$last"');

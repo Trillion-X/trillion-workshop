@@ -1,5 +1,6 @@
 // tool:look-for-the-places-on-this-computer: one look, run the way the local door runs a row (test-helpers/run-a-row.mjs),
 // over made-up files in the granted folder; and the look itself, which never looks outside that folder.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -26,7 +27,7 @@ test('the row\'s sample run finds the made-up store and folder, leaves out what 
 });
 
 test('a row\'s places outside the folder are never looked at; a row with some inside is looked at there only', () => {
-  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'look-at-this-computer-'));
+  const home = tempFolder(path.join(os.tmpdir(), 'look-at-this-computer-'));
   try {
     fs.mkdirSync(path.join(home, '.made-up-app'));
     const rows = {sources: [

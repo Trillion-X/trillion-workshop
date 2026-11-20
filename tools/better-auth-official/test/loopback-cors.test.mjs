@@ -4,16 +4,17 @@
 // loopback origin, never with credentials, and names no other origin or path; the metadata document that names that endpoint does the
 // same for GET. Against the real Better Auth, a code exchange sent from such
 // a page (its loopback Origin, no cookie) is answered with a token.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash, randomBytes } from 'node:crypto';
 import { startStore } from '../test-fixtures/embedded-store.mjs';
 import { loopbackCorsHeaders, loopbackOrigin } from '../loopback-cors.mjs';
 
-const dir = mkdtempSync(join(tmpdir(), 'loopback-cors-'));
+const dir = tempFolder(join(tmpdir(), 'loopback-cors-'));
 const settings = { ...JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8')), email_password: { require_verification: false }, disabled_paths: [] };
 const rule = settings.mcp.loopback_resources;
 const TOKEN = `${settings.base_path}/oauth2/token`;

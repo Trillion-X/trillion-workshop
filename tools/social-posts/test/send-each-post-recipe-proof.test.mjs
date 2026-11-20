@@ -1,9 +1,10 @@
 // The recipe that replaced tool:send-each-post-at-its-time (tools/workflows/recipes/send-each-post-at-its-time.json) is proven
 // here: the SQL of its steps runs on PGlite and the same attempts run on a JSON folder, every answer must be the one its
 // `expect` names, and both stores must answer alike. Everything here is made up.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
@@ -34,7 +35,7 @@ async function pgStore() {
 }
 
 function folderStore() {
-  const dir = mkdtempSync(join(tmpdir(), 'send-each-recipe-proof-'));
+  const dir = tempFolder(join(tmpdir(), 'send-each-recipe-proof-'));
   const fileOf = address => join(dir, `${encodeURIComponent(address)}.json`);
   const load = address => { try { return JSON.parse(readFileSync(fileOf(address), 'utf8')); } catch { return null; } };
   const all = () => readdirSync(dir).map(name => JSON.parse(readFileSync(join(dir, name), 'utf8')).address);

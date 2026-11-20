@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
 import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
@@ -17,7 +18,7 @@ function scriptOnDisk() {
 }
 
 const SCRIPT = scriptOnDisk();
-const folder = mkdtempSync(join(tmpdir(), 'verify-selected-addressed-evidence-'));
+const folder = tempFolder(join(tmpdir(), 'verify-selected-addressed-evidence-'));
 const bytes = Buffer.from('staged evidence bytes\n', 'utf8');
 
 let caseNumber = 0;

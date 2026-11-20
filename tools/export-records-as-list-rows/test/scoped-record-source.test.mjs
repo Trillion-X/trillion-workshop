@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawn } from 'node:child_process';
@@ -73,7 +74,7 @@ const sharedRecords = [
 ];
 
 test('the builder maps only the records handed in that match a source\'s type and prefix, and reads no account', async () => {
-  const root = mkdtempSync(join(tmpdir(), 'scoped-record-source-'));
+  const root = tempFolder(join(tmpdir(), 'scoped-record-source-'));
   try {
     mappingAt(root);
     const result = await runBuilder(root, sharedRecords);
@@ -90,7 +91,7 @@ test('the builder maps only the records handed in that match a source\'s type an
 });
 
 test('a mapping that reads records but is given none stops, and no store is consulted', async () => {
-  const root = mkdtempSync(join(tmpdir(), 'scoped-record-source-refused-'));
+  const root = tempFolder(join(tmpdir(), 'scoped-record-source-refused-'));
   try {
     mappingAt(root, 'secret', 'secret:');
     const result = await runBuilder(root);
@@ -103,7 +104,7 @@ test('a mapping that reads records but is given none stops, and no store is cons
 });
 
 test('the Workshop COMPUTER row returns its payload from the records handed in, with no records door', async () => {
-  const root = mkdtempSync(join(tmpdir(), 'scoped-record-source-row-'));
+  const root = tempFolder(join(tmpdir(), 'scoped-record-source-row-'));
   try {
     mappingAt(root);
     const toolRows = JSON.parse(readFileSync(join(tool, 'tool-rows.json'), 'utf8'));
@@ -152,7 +153,7 @@ function writeCommands(store, commands) {
 }
 
 test('a synthetic wake run plans the builder records for each kind, the caller writes each plan, and a readback matches', async () => {
-  const root = mkdtempSync(join(tmpdir(), 'scoped-record-source-two-kinds-'));
+  const root = tempFolder(join(tmpdir(), 'scoped-record-source-two-kinds-'));
   try {
     twoScopeMappingAt(root);
     const toolRows = JSON.parse(readFileSync(join(tool, 'tool-rows.json'), 'utf8'));
@@ -219,7 +220,7 @@ test('a synthetic wake run plans the builder records for each kind, the caller w
 
 
 test('a records source with no matching record builds no row, and a missing folder path fails before anything is built', async () => {
-  const root = mkdtempSync(join(tmpdir(), 'scoped-record-source-denied-kind-'));
+  const root = tempFolder(join(tmpdir(), 'scoped-record-source-denied-kind-'));
   try {
     twoScopeMappingAt(root, { includeDenied: true });
     const toolRows = JSON.parse(readFileSync(join(tool, 'tool-rows.json'), 'utf8'));

@@ -1,15 +1,16 @@
 // A hook row may name a step: before_tool_run can refuse a tool this Mac was handed, after_tool_run is told how it ended,
 // and a row is run only at its own step (computer/run-decision.mjs requireHooks, computer/mac-tools.mjs runHere).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, chmodSync, readFileSync, existsSync } from 'node:fs';
+import { mkdirSync, writeFileSync, chmodSync, readFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { decisionSettings, requireHooks } from 'trillion-workshop/tools/drive-the-screen/read-data/run-decision.mjs';
 
 const settings = decisionSettings();
 function home(hooks) {
-  const dir = mkdtempSync(join(tmpdir(), 'hook-steps-'));
+  const dir = tempFolder(join(tmpdir(), 'hook-steps-'));
   const file = join(dir, settings.rules_file);
   mkdirSync(join(file, '..'), { recursive: true });
   writeFileSync(file, JSON.stringify({ hooks }));

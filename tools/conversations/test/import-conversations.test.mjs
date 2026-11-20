@@ -7,9 +7,10 @@
 // Mode, and the sessions of Claude Code, Codex (archived too), Gemini CLI and Hermes. It checks what each source keeps,
 // that a second run adds nothing, that a run not handed what it needs writes nothing and asks for it, that answers given
 // in rounds keep each record once, and the counts read back per app.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, appendFileSync, utimesSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync, appendFileSync, utimesSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import * as chat from '../read-data/chat-import.mjs';
@@ -24,7 +25,7 @@ function put(home, path, text) { mkdirSync(dirname(join(home, path)), { recursiv
 
 // One synthetic export or session folder for each source the import knows.
 function makeHome() {
-  const home = mkdtempSync(join(tmpdir(), 'conversations-home-'));
+  const home = tempFolder(join(tmpdir(), 'conversations-home-'));
   const tree = (id, title, turns, start) => ({ id, title, create_time: start, current_node: `${id}-${turns.length}`,
     mapping: Object.fromEntries(turns.map(([role, text], index) => [`${id}-${index + 1}`, { id: `${id}-${index + 1}`, parent: index ? `${id}-${index}` : null,
       message: { author: { role }, create_time: start + index * 10, content: { parts: [text] }, metadata: { model_slug: role === 'assistant' ? 'gpt-4o' : undefined } } }])) });

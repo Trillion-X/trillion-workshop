@@ -3,8 +3,9 @@
 // read-data/hear-here.mjs (tool:hear-a-recording): a recording is read by name through the run's host (host.readWholeFile),
 // heard in the run's own folder and removed; the seam's transcript answers as { text, segments, language }; a request
 // without a file or a model is refused before anything is read, and a file above the size the run reads is refused.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import test from 'node:test';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -41,7 +42,7 @@ test('a recording above the size one run reads is refused with why', async () =>
 });
 
 test("the seam's transcript is answered as text, segments and language", async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'seam-'));
+  const folder = tempFolder(join(tmpdir(), 'seam-'));
   const script = join(folder, 'seam.py');
   writeFileSync(script, `import json, sys\nargs = sys.argv\nout = args[args.index('--out') + 1]\nassert args[args.index('--whisper-cli') + 1] == '/granted/whisper-cli'\njson.dump({"segments": [{"start": 0, "end": 2, "text": " hello ", "words": []}], "full_text": "hello", "language": "en"}, open(out, "w"))\n`);
   const audio = join(folder, 'a.wav');

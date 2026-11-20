@@ -1,7 +1,8 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
-import { closeSync, mkdtempSync, openSync, writeFileSync } from 'node:fs';
+import { closeSync, openSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,7 +17,7 @@ const ALL = ['records:read', 'records:list', 'records:write'];
 const noWait = async () => {};
 
 function parentDescriptor(extra = {}) {
-  const descriptor = join(mkdtempSync(join(tmpdir(), 'parent-action-')), 'descriptor.json');
+  const descriptor = join(tempFolder(join(tmpdir(), 'parent-action-')), 'descriptor.json');
   writeFileSync(descriptor, JSON.stringify({ url: 'http://127.0.0.1:1/mcp', resource: '@own-records',
     capability: 'synthetic-private-bearer', computer_actions: { resource: '@synthetic-parent', trash_source: 'synthetic:trash' }, ...extra }));
   return descriptor;
@@ -669,13 +670,13 @@ test('run-an-export prints a woken function\'s wake_effects beside its result, w
 });
 
 test('a run with no door is told so', () => {
-  const empty = join(mkdtempSync(join(tmpdir(), 'no-door-')), 'descriptor.json');
+  const empty = join(tempFolder(join(tmpdir(), 'no-door-')), 'descriptor.json');
   writeFileSync(empty, '{}');
   assert.throws(() => openRecordsDoor({ descriptor: empty }), error => error instanceof RecordsDoorError && error.code === 'no_door');
 });
 
 test('files operations go to the files resource the run was handed, and a run with none is refused before sending', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'records-door-files-'));
+  const folder = tempFolder(join(tmpdir(), 'records-door-files-'));
   const sent = [];
   const fetchImpl = async (_url, { body }) => {
     sent.push(JSON.parse(body).params.arguments);
@@ -793,7 +794,7 @@ test('a request key over the engine\'s 255-byte bound is sent as its BLAKE3 iden
 
 // A busy records account, asked again the door's own number of times, is a retryable refusal; any other refusal is final.
 const busyDescriptorFor = () => {
-  const file = join(mkdtempSync(join(tmpdir(), 'records-door-busy-')), 'descriptor.json');
+  const file = join(tempFolder(join(tmpdir(), 'records-door-busy-')), 'descriptor.json');
   writeFileSync(file, JSON.stringify({ url: 'http://127.0.0.1:1/mcp', resource: '@own-records', capability: 'capability-x' }));
   return file;
 };

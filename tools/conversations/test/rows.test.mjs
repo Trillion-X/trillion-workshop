@@ -1,10 +1,11 @@
 // tools/conversations: the two rows are the shape the engine runs, and each command, run the way the engine runs it
 // (the granted folder in argv, the input on standard input, the answer on the last line, /opt/conversations laid on
 // this folder), answers over a made-up export in a made-up folder. Needs python3 (standard library only).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -21,7 +22,7 @@ function run(item, granted, input) {
 }
 
 function exportFolder(t) {
-  const root = mkdtempSync(join(tmpdir(), 'conversations-'));
+  const root = tempFolder(join(tmpdir(), 'conversations-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   mkdirSync(join(root, 'saved'), { recursive: true });
   writeFileSync(join(root, 'saved', 'orders.json'), JSON.stringify({

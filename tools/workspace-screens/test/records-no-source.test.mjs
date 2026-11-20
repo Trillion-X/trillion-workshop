@@ -2,9 +2,10 @@
 // anywhere: the engine assumes no store, so a page whose entry forgot its source cannot quietly talk to a retired one. The
 // page is built from a fixture entry that imports only the engine and is served from a local server; any request that
 // leaves the page is recorded and refused.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { existsSync, mkdtempSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { extname, join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,7 +17,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.wasm': 'application/wasm', '.webm': 'video/webm', '.woff2': 'font/woff2' };
 
 test('with no source mounted, a records read fails in plain words and nothing leaves the page', async () => {
-  const out = mkdtempSync(join(tmpdir(), 'records-default-'));
+  const out = tempFolder(join(tmpdir(), 'records-default-'));
   await buildPage({ entry: resolve(here, 'fixtures/records-default-entry.ts'), out });
   const server = createServer((request, response) => {
     const file = join(out, request.url === '/' ? 'index.html' : decodeURIComponent(request.url.split('?')[0]));

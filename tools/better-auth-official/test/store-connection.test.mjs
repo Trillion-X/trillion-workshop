@@ -4,10 +4,11 @@
 // store.credential names; with none, the tool refuses to start and says which credential is missing, and never reads a vault. The
 // driver is the one settings.json store names, so another store is a settings change: the same server signs a person up into a
 // node:sqlite file with no code changed.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -32,7 +33,7 @@ test('the driver is the one the settings name, made with the connection from the
 });
 
 test('another store is a settings change: the server signs a person up into a node:sqlite file', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'sqlite-store-'));
+  const dir = tempFolder(join(tmpdir(), 'sqlite-store-'));
   const file = join(dir, 'sign-in.db');
   const [home, port, internal] = [await freePort(), await freePort(), await freePort()];
   const sender = await startStandInSender();

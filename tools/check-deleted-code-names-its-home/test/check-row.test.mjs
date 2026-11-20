@@ -4,11 +4,12 @@
 // checkout beside it (by path, or by the identity of a private path), a receipt staged in the same commit, a
 // retirement row that quotes a decision, a rename inside the tree, and a deleted document all pass. A retirement row
 // with no decision does not.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { globCovers, isJudged, judgeDeletions, pathIdentity } from '../do-work/check-deleted-code-names-its-home.mjs';
@@ -33,7 +34,7 @@ async function door(t, records) {
 }
 
 function settings(t, url) {
-  const folder = mkdtempSync(join(tmpdir(), 'deleted-code-settings-'));
+  const folder = tempFolder(join(tmpdir(), 'deleted-code-settings-'));
   t.after(() => rmSync(folder, { recursive: true, force: true }));
   const file = join(folder, 'check-list.json');
   writeFileSync(file, JSON.stringify({
@@ -62,7 +63,7 @@ async function call(where, root, command) {
 
 // Made-up checkouts beside each other in one folder, named as the rules name them.
 function checkouts(t) {
-  const parent = mkdtempSync(join(tmpdir(), 'deleted-code-checkouts-'));
+  const parent = tempFolder(join(tmpdir(), 'deleted-code-checkouts-'));
   t.after(() => rmSync(parent, { recursive: true, force: true }));
   const make = (name) => {
     const root = join(parent, name);

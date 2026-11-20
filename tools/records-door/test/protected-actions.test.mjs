@@ -1,13 +1,14 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { openProtectedActions } from '../read-data/records-door.mjs';
 
 const reply = result => new Response(JSON.stringify({ result }), { headers: { 'content-type': 'application/json' } });
 async function descriptor(protectedActions, fetchImpl, run) {
-  const root = mkdtempSync(join(tmpdir(), 'protected-native-door-'));
+  const root = tempFolder(join(tmpdir(), 'protected-native-door-'));
   const path = join(root, 'descriptor.json');
   writeFileSync(path, JSON.stringify({ url:'http://127.0.0.1:1/mcp',resource:'@synthetic-records',capability:'synthetic-native-capability',protected_actions:protectedActions }));
   try { return await run(() => openProtectedActions({ descriptor:path,fetchImpl,wait:async()=>{} })); }

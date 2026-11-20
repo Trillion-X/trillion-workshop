@@ -2,11 +2,12 @@
 // a repository's hook starts it, against a made-up door: a Write to /tmp is refused in the judge's words (exit 2),
 // a Write to the repository's source and an ordinary command pass in silence, and a judge that cannot run refuses
 // nothing (failure_policy is not "deny").
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -24,7 +25,7 @@ async function door(t, records) {
 }
 
 function settings(t, url) {
-  const folder = mkdtempSync(join(tmpdir(), 'check-where-work-is-kept-settings-'));
+  const folder = tempFolder(join(tmpdir(), 'check-where-work-is-kept-settings-'));
   t.after(() => rmSync(folder, { recursive: true, force: true }));
   const file = join(folder, 'check-list.json');
   writeFileSync(file, JSON.stringify({
@@ -67,7 +68,7 @@ test('the hook-guard row given to the lead: a Write to /tmp is refused naming th
   assert.equal(ROW.type, 'record:hook-guard');
   assert.deepEqual(definition.on, [{ harness: 'claude', event: 'PreToolUse', tools: 'Write|Edit|Bash', scope: 'every-repository' }]);
   assert.notEqual(definition.failure_policy, 'deny');
-  const home = mkdtempSync(join(tmpdir(), 'check-where-work-is-kept-home-'));
+  const home = tempFolder(join(tmpdir(), 'check-where-work-is-kept-home-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const root = checkout(t, home);
   const where = settings(t, await door(t, [ROW]));

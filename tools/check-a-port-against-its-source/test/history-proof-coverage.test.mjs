@@ -1,8 +1,9 @@
 // Real Git proofs exercise reader/validator compatibility, empty-history qualification and the same-file boundary.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -38,7 +39,7 @@ function event(root, parents, contents, message) {
 }
 
 function fixture(t, { unborn = false } = {}) {
-  const home = mkdtempSync(join(tmpdir(), 'history-proof-coverage-'));
+  const home = tempFolder(join(tmpdir(), 'history-proof-coverage-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const root = join(home, 'receiving-owner'), old = join(home, 'original-owner');
   for (const folder of [root, old]) {

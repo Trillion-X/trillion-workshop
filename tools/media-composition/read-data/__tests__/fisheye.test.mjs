@@ -9,11 +9,12 @@
  * OUTWARD under a negative strength (bulge) and INWARD under a positive strength (pinch), while the base bar
  * stays put - a directional geometric-displacement proof, PLUS a byte-identical determinism proof. L155.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -40,7 +41,7 @@ function barCentroid(raw, y) {
 }
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'fish-'));
+  const dir = tempFolder(join(tmpdir(), 'fish-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -48,7 +49,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'fish-render-'));
+  work = tempFolder(join(tmpdir(), 'fish-render-'));
   bar = join(work, 'bar.mp4'); // a thin bright vertical bar at x=236..244 (off-center; center is 160)
   ffmpeg(['-f', 'lavfi', '-i', `color=black:s=320x240:d=2:r=${FPS}`, '-vf', "geq=lum='if(between(X,236,244),240,20)':cb=128:cr=128", '-pix_fmt', 'yuv420p', bar]);
 });

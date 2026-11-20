@@ -11,10 +11,11 @@
  * swept into the second word) the red on the RIGHT is far greater than it was early. The highlight moving with the
  * spoken word IS karaoke; a fabricated DATA string could not make a real libass render sweep on the timeline.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { karaokeAss } from '../../do-work/author-karaoke-captions.mjs';
@@ -42,7 +43,7 @@ print(l,r)`;
 }
 
 before(() => {
-  work = mkdtempSync(join(tmpdir(), 'karaoke-'));
+  work = tempFolder(join(tmpdir(), 'karaoke-'));
   clip = join(work, 'clip.mp4');
   ffmpeg(['-f', 'lavfi', '-i', `color=black:s=${W}x${H}:d=3:r=${FPS}`, '-f', 'lavfi', '-i', 'anullsrc=r=48000:cl=stereo',
     '-t', '3', '-map', '0:v', '-map', '1:a', '-pix_fmt', 'yuv420p', '-c:a', 'aac', clip]);

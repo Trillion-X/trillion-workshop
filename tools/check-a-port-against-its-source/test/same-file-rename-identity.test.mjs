@@ -1,8 +1,9 @@
 // Git's actual rename edges, rather than equal file bytes, establish same-file source continuity.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -39,7 +40,7 @@ function commit(root, files = {}, message = 'synthetic identity event') {
 }
 
 function fixture(t, { reusedCurrent = false, sourceAfterPolicy = false } = {}) {
-  const home = mkdtempSync(join(tmpdir(), 'same-file-rename-identity-'));
+  const home = tempFolder(join(tmpdir(), 'same-file-rename-identity-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const root = join(home, 'same-file-owner');
   mkdirSync(root);

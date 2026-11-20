@@ -1,13 +1,14 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { git, workingState } from '../do-work/git-in-a-declared-folder.mjs';
 
 function repo() {
-  const root = mkdtempSync(join(tmpdir(), 'git-declared-'));
+  const root = tempFolder(join(tmpdir(), 'git-declared-'));
   execFileSync('git', ['init', '-q', root]);
   writeFileSync(join(root, 'a.txt'), 'a\n');
   writeFileSync(join(root, 'b.txt'), 'b\n');

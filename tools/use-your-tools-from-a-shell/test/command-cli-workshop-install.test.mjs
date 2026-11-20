@@ -3,8 +3,9 @@
 // The installed example command (~/.example/cli/program) follows the Workshop copy the engine keeps current (install.follow),
 // and `example setup` from a newer Workshop program refreshes every installed file that changed, the fallback when no Workshop
 // copy is found. `example update` says so. Nothing else writes that copy.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -14,7 +15,7 @@ import settings from '../do-work/command.json' with { type: 'json' };
 // These tests speak for one site, as an install from that site's site makes the command do.
 speakFor({ cli: 'example', site_name: 'Example' });
 
-const home = () => mkdtempSync(join(tmpdir(), 'trillion-workshop-install-'));
+const home = () => tempFolder(join(tmpdir(), 'trillion-workshop-install-'));
 const programOf = folder => join(folder, '.example/cli/program');
 
 test('a Workshop install updates the installed command when its program changed', () => {

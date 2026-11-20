@@ -4,9 +4,10 @@
 // the retired MCP handler (src/tools.mjs handleMcpMessage) and the test that replayed native receipts through the
 // retired Spaces route (src/person-spaces.mjs handleSpacesRequest): neither handler runs anywhere now (searched the three
 // repos for handleMcpMessage and handleSpacesRequest: only held copies). The other six tests are the old ones.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { localStore, sqliteHost } from '../src/local-store.mjs';

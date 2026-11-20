@@ -2,9 +2,10 @@
 //
 // The tool is blind to whose sign-in it is: no source file names a product, and the site block (settings.site) is the one place a
 // computer says so. The pages and every email wear the block they are given; with another block, nothing of the stand-in is left.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync, statSync, writeFileSync, mkdtempSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -28,7 +29,7 @@ test('pages and emails wear the site block they are given', () => {
   settings.site = { ...settings.site, name: 'Acme Cloud', cli: 'acme', storage_prefix: 'acme', look_css: ':root{--bg-primary:#123456}',
     theme: { data_theme: 'acme-theme', scheme: 'dark', theme_color: '#123456' }, mark_svg: '<svg xmlns="http://www.w3.org/2000/svg"/>', wordmark_png: Buffer.from('png').toString('base64'),
     share: { title: 'Acme Cloud sign-in', description: 'Sign in to Acme.' }, links: [{ rel: 'manifest', href: '/acme.webmanifest' }] };
-  const dir = mkdtempSync(join(tmpdir(), 'site-blind-'));
+  const dir = tempFolder(join(tmpdir(), 'site-blind-'));
   const file = join(dir, 'settings.json');
   writeFileSync(file, JSON.stringify(settings));
   const script = `

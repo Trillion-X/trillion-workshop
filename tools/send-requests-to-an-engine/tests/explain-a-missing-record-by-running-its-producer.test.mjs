@@ -8,10 +8,11 @@
 // producer against a live app. A speculative run, or a run against a row it was not asked about, is
 // a side effect nobody requested, and that is worse than a missing diagnosis.
 
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -28,7 +29,7 @@ const run = (args) => {
 
 /// A producers document written per test, so no case depends on what another package ships today.
 function producersDocument(rows, key = 'required_current_records') {
-  const folder = mkdtempSync(join(tmpdir(), 'producers-'));
+  const folder = tempFolder(join(tmpdir(), 'producers-'));
   const path = join(folder, 'producers.json');
   writeFileSync(path, JSON.stringify({ [key]: rows }, null, 2));
   return path;
@@ -37,7 +38,7 @@ function producersDocument(rows, key = 'required_current_records') {
 /// The missing addresses arrive as the verifier's own verdict document, so these cases feed the tool
 /// the same shape the proof feeds it rather than a convenience encoding invented for the test.
 function verdictDocument(missingRecords) {
-  const folder = mkdtempSync(join(tmpdir(), 'verdict-'));
+  const folder = tempFolder(join(tmpdir(), 'verdict-'));
   const path = join(folder, 'required-records.json');
   writeFileSync(path, JSON.stringify({ present: false, missingRecords }, null, 2));
   return path;

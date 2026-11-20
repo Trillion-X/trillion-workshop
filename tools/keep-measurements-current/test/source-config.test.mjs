@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { run } from '../do-work/keep-measurements-current.mjs';
@@ -8,7 +9,7 @@ import { validateSourceConfig } from '../read-data/source-config.mjs';
 import { collectAndRefresh } from '../read-data/collect.mjs';
 
 async function fixture(t) {
-  const base = await mkdtemp(path.join(os.tmpdir(), 'measurement-source-config-'));
+  const base = tempFolder(path.join(os.tmpdir(), 'measurement-source-config-'));
   t.after(() => rm(base, { recursive: true, force: true }));
   const source = path.join(base, 'source');
   const receipts = path.join(base, 'receipts');

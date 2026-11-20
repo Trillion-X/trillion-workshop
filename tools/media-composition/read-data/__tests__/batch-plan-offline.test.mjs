@@ -10,10 +10,11 @@
  * renders the whole clip (~3s); the --plan batch trims to the action window (~1s). Comparing the two rendered
  * reels' durations proves the capstone's action-trim actually drove the batch render, end to end.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -32,7 +33,7 @@ function runBatch(outDir, extra) {
 }
 
 before(() => {
-  work = mkdtempSync(join(tmpdir(), 'batchplan-'));
+  work = tempFolder(join(tmpdir(), 'batchplan-'));
   clip = join(work, 'clip.mp4');
   // static black for [0,2] (no motion) concatenated with high-motion testsrc2 for [2,3] (the action window),
   // both with a real tone for the plan's loudnorm. detect-motion then reports the action in [2,3].

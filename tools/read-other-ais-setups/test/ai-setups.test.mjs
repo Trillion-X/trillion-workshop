@@ -2,9 +2,10 @@
 // Read-only listing of the instruction files other AIs keep on this Mac (F-0267, F-0316). Moved from Trillion-X/trillion
 // test/ai-setups-import.test.mjs; its second test, the add-only import into saved instructions, is now
 // tools/shared-code/test/agents-add-instructions.test.mjs beside the agents owner (src/agents.mjs).
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdir, mkdtemp, symlink, writeFile } from 'node:fs/promises';
+import { mkdir, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { realpathSync } from 'node:fs';
@@ -14,7 +15,7 @@ import { readAiSetups, aiSetupSettings } from '../read-data/ai-setups.mjs';
 const CLAUDE = '.claude';
 
 async function home() {
-  const base = realpathSync(await mkdtemp(join(tmpdir(), 'ai-setups-')));
+  const base = realpathSync(tempFolder(join(tmpdir(), 'ai-setups-')));
   await mkdir(join(base, CLAUDE, 'commands'), { recursive: true });
   await mkdir(join(base, CLAUDE, 'skills', 'triage'), { recursive: true });
   await mkdir(join(base, '.cursor', 'rules'), { recursive: true });
@@ -27,7 +28,7 @@ async function home() {
 
 test('the listing reads each place read only, cuts long text and names a file the scope refuses', async () => {
   const base = await home();
-  const outside = realpathSync(await mkdtemp(join(tmpdir(), 'ai-setups-outside-')));
+  const outside = realpathSync(tempFolder(join(tmpdir(), 'ai-setups-outside-')));
   await writeFile(join(outside, 'secret.md'), 'not for this');
   await symlink(join(outside, 'secret.md'), join(base, CLAUDE, 'commands', 'linked.md'));
   const scope = { ...JSON.parse(JSON.stringify((await import('../read-data/file-arguments.mjs')).fileArgumentSettings())), roots: [base] };

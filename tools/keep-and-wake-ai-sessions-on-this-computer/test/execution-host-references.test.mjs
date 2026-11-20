@@ -1,8 +1,9 @@
 const toolsFolder = import.meta.dirname.split('/test')[0].replace(/[^/]+$/, '');
 const runtime = { moduleURL: specifier => `file://${toolsFolder}${specifier.slice('tools/'.length)}` };
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { appendFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 const runtimeImport1 = await import(runtime.moduleURL("tools/keep-and-wake-ai-sessions-on-this-computer/harness/record-every-message.mjs"));
@@ -201,7 +202,7 @@ test('host reference collection and merged receipts reject excessive work before
 });
 
 test('metadata refusal retains the existing native cursor and does not read a key or send a receipt', async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'host-reference-fixture-'));
+  const folder = tempFolder(join(tmpdir(), 'host-reference-fixture-'));
   try {
     const path = join(folder, 'session.jsonl'), rules = { ...settings, cursor_folder: join(folder, 'cursors') };
     writeFileSync(path, JSON.stringify(nativeRows('claude-code', {}, {}, 'first')[0]) + '\n');

@@ -1,9 +1,10 @@
 // The paste action (read-data/drive-the-screen.json `paste`, event run by read-data/screen-driver.swift): the text goes through a
 // promised clipboard item, so the answer says whether the app really read it; a secret reference works as for type.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { mkdtempSync } from 'node:fs';
+
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { makeScreenDriver, screenSettings } from '../read-data/drive-the-screen.mjs';
@@ -22,7 +23,7 @@ const mac = (landed) => {
     return { events: done, completed: done.every(row => row.ok) };
   } };
 };
-const driver = pretend => makeScreenDriver({ settings, home: mkdtempSync(join(tmpdir(), 'paste-')), program: pretend.program, capture: async () => Buffer.from('p'),
+const driver = pretend => makeScreenDriver({ settings, home: tempFolder(join(tmpdir(), 'paste-')), program: pretend.program, capture: async () => Buffer.from('p'),
   ocr: async () => ({ width: 2000, height: 1000, lines: [] }), wait: async () => {}, readSecret: async () => ({ values: [{ label: 'Password', value: 'hunter2-long' }] }) });
 
 test('paste is a DATA action whose last step is the paste event, and the answer carries what the app did', async () => {

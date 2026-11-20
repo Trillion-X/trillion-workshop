@@ -1,6 +1,7 @@
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile, symlink, mkdir } from 'node:fs/promises';
+import { writeFile, symlink, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { keepALocalFile } from '../do-work/keep-a-local-file.mjs';
@@ -25,7 +26,7 @@ function fakeDoor() {
 }
 
 test('keeps a regular file in pieces and answers the door finish', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'keep-local-'));
+  const dir = tempFolder(join(tmpdir(), 'keep-local-'));
   const path = join(dir, 'clip.mp4');
   await writeFile(path, Buffer.alloc(100_000, 7));
   const door = fakeDoor();
@@ -38,7 +39,7 @@ test('keeps a regular file in pieces and answers the door finish', async () => {
 });
 
 test('a file above the whole-file threshold goes over the lease road, not in pieces', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'keep-local-'));
+  const dir = tempFolder(join(tmpdir(), 'keep-local-'));
   const path = join(dir, 'big.mov');
   await writeFile(path, Buffer.alloc(LARGE_FILE.threshold_bytes + 5, 1));
   const door = fakeDoor();
@@ -49,7 +50,7 @@ test('a file above the whole-file threshold goes over the lease road, not in pie
 });
 
 test('a list keeps each file in order and names each refusal, and one refusal does not stop the others', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'keep-local-'));
+  const dir = tempFolder(join(tmpdir(), 'keep-local-'));
   const real = join(dir, 'real.txt');
   await writeFile(real, 'x');
   const link = join(dir, 'link.txt');

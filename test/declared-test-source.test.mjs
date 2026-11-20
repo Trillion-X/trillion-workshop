@@ -1,6 +1,7 @@
+import { tempFolder } from '../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -10,7 +11,7 @@ import { gitReaders } from '../tools/check-a-port-against-its-source/do-work/rea
 import { makeHashCodeHexFromBytes, makeHashCodeHexFromJson } from '../tools/content-identity/read-data/identity.mjs';
 
 function fixture(t) {
-  const folder = realpathSync(mkdtempSync(join(tmpdir(), 'declared-test-source-')));
+  const folder = realpathSync(tempFolder(join(tmpdir(), 'declared-test-source-')));
   t.after(() => rmSync(folder, { recursive: true, force: true }));
   const repo = join(folder, 'fixture-source');
   mkdirSync(join(repo, 'client'), { recursive: true });

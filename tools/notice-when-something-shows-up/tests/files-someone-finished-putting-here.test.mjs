@@ -12,9 +12,10 @@
 //   a note that is not JSON is a refused fact, never silence
 //   the leaf's declared identity matches the waiter row in the manifest
 
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from "node:assert/strict";
 import test from "node:test";
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdir, rm, writeFile } from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -136,7 +137,7 @@ test("pure: the note's fields travel verbatim, disk length wins, and disagreemen
 });
 
 test("R5 on disk: a unit with no note is invisible; the note makes exactly one fact", async () => {
-  const place = await mkdtemp(path.join(tmpdir(), "handover-mechanism-test."));
+  const place = tempFolder(path.join(tmpdir(), "handover-mechanism-test."));
   try {
     await mkdir(path.join(place, "CLIP"), { recursive: true });
     await writeFile(path.join(place, "CLIP", "C0001.MP4"), Buffer.alloc(10, 7));

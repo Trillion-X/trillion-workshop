@@ -1,10 +1,11 @@
 // The renderers moved from Trillion-X/trillion scripts/device-bridge-models.mjs. The old repository kept the
 // TypeScript output it wrote (src/device-bridge-models.d.ts, copied to fixtures/models.d.ts): rendering the same rows
 // here must give the same file, line for line after the header that names the generator.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -41,7 +42,7 @@ test('outputs answers one file per target', () => {
 });
 
 test('--write writes every target under --root, --check then passes, and a changed row makes --check fail', () => {
-  const root = mkdtempSync(join(tmpdir(), 'message-models-'));
+  const root = tempFolder(join(tmpdir(), 'message-models-'));
   const models = join(root, 'models.json');
   writeFileSync(models, JSON.stringify(spec));
   assert.match(execFileSync('node', [script, '--models', models, '--root', root, '--write'], { encoding: 'utf8' }), /^Wrote /);

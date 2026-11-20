@@ -3,10 +3,11 @@
 // The Mac fetches a native helper on first use only as the bytes its manifest row pins (computer/helper-runtimes.mjs):
 // BLAKE3 and a size cap, checked again on every use, one fetch for concurrent asks, atomic install, withdrawal honoured
 // without an app release, staging of a gone process reaped, and the tool answers carry whether a retry can help.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { hashOf, helperSettings, makeHelperRuntimes } from '../helper-runtimes.mjs';
@@ -14,7 +15,7 @@ import { hashOf, helperSettings, makeHelperRuntimes } from '../helper-runtimes.m
 const BYTES = new TextEncoder().encode('#!/bin/sh\necho helper\n');
 const row = (extra = {}) => ({ id: 'encoder', what: 'An encoder.', version: '1', url: 'https://example.invalid/encoder', blake3: hashOf(BYTES), size: 1000, file: 'encoder', executable: true, ...extra });
 const mac = (helpers, fetchBytes) => {
-  const home = mkdtempSync(join(tmpdir(), 'helpers-'));
+  const home = tempFolder(join(tmpdir(), 'helpers-'));
   const settings = { ...helperSettings(), helpers };
   return { home, settings, manager: makeHelperRuntimes({ settings, home, fetchBytes, pid: process.pid }) };
 };
@@ -26,7 +27,7 @@ test('the shipped manifest fetches nothing on trust: it is data, and its words a
   const settings = helperSettings();
   assert.deepEqual(settings.helpers.map(row => row.id), ['model-server']);
   assert.equal(settings.helpers[0].unpinned, true);
-  const listed = makeHelperRuntimes({ settings: { ...settings, helpers: settings.helpers.map(row => ({ ...row, adopt: [] })) }, home: mkdtempSync(join(tmpdir(), 'helpers-')) }).list().helpers;
+  const listed = makeHelperRuntimes({ settings: { ...settings, helpers: settings.helpers.map(row => ({ ...row, adopt: [] })) }, home: tempFolder(join(tmpdir(), 'helpers-')) }).list().helpers;
   assert.deepEqual(listed.map(row => [row.id, row.installed, row.pinned]), [['model-server', false, false]], 'nothing is installed until it is asked for');
 });
 
@@ -87,7 +88,7 @@ test('a row that is unpinned, insecure, for another chip or unknown is refused i
 
 test('withdrawal is a data change: the next ask is refused and the installed copy is deleted', async () => {
   let clock = Date.parse('2026-10-19T00:00:00Z');
-  const home = mkdtempSync(join(tmpdir(), 'helpers-'));
+  const home = tempFolder(join(tmpdir(), 'helpers-'));
   const helpers = [row({ withdrawn_at: '2026-10-20T00:00:00Z' })];
   const manager = makeHelperRuntimes({ settings: { ...helperSettings(), helpers }, home, now: () => clock, fetchBytes: async () => ({ bytes: BYTES }) });
   const { path } = await manager.ensure({ id: 'encoder' });
@@ -116,7 +117,7 @@ test('remove deletes the copy and keeps the row; staging left by a process that 
 test('the network fetch itself refuses a body above the pinned size, by header and by length, and takes the pinned bytes', async () => {
   const real = globalThis.fetch;
   try {
-    const home = mkdtempSync(join(tmpdir(), 'helpers-'));
+    const home = tempFolder(join(tmpdir(), 'helpers-'));
     const manager = makeHelperRuntimes({ settings: { ...helperSettings(), helpers: [row({ size: BYTES.length })] }, home });
     globalThis.fetch = async () => new Response(BYTES, { headers: { 'content-length': String(BYTES.length + 5) } });
     await refusedWith(manager.ensure({ id: 'encoder' }), 403, false, /larger than/);
@@ -130,7 +131,7 @@ test('the network fetch itself refuses a body above the pinned size, by header a
 });
 
 test('an install keeps a receipt; blocked content is turned off with its reason by recheck and restored to what it was when unblocked', async () => {
-  const home = mkdtempSync(join(tmpdir(), 'helpers-'));
+  const home = tempFolder(join(tmpdir(), 'helpers-'));
   const settings = { ...helperSettings(), helpers: [row({ signer: 'Example Maker (ABCDE12345)' }), row({ id: 'second', file: 'second', blake3: hashOf(new TextEncoder().encode('other')), url: 'https://example.invalid/second' })] };
   const bytes = { encoder: BYTES, second: new TextEncoder().encode('other') };
   const manager = makeHelperRuntimes({ settings, home, now: () => Date.parse('2026-10-19T09:00:00Z'), fetchBytes: async url => ({ bytes: url.endsWith('second') ? bytes.second : BYTES }) });
@@ -164,7 +165,7 @@ test('a published helper list is used only when a trusted key signed it, and onl
   const signed = text => sign(null, Buffer.from(text), privateKey).toString('base64');
   const published = { text: listOf([entry('2')]) };
   const follow = { url: 'https://list.invalid/helpers.json', signature_url: 'https://list.invalid/helpers.sig', channel: 'stable' };
-  const home = mkdtempSync(join(tmpdir(), 'helpers-'));
+  const home = tempFolder(join(tmpdir(), 'helpers-'));
   const make = (extra = {}) => makeHelperRuntimes({ settings: { ...helperSettings(), helpers: [row({ version: '1' })], manifest: follow }, home, manifestRules: rules,
     fetchText: async url => (url.endsWith('.sig') ? (extra.signature ?? signed(published.text)) : published.text), fetchBytes: async () => ({ bytes: BYTES }), ...extra });
   assert.match((await make().refresh()).said, /Took 1 newer helper/);
@@ -200,7 +201,7 @@ test('the switches are one versioned document: each says what produced it, a lay
 // real codesign, and a bundle changed after it was signed leaves the install folder as it was. Real ditto and codesign (macOS).
 const macOnly = { skip: process.platform !== 'darwin' && 'needs ditto and codesign' };
 function signedZip(tamper) {
-  const dir = mkdtempSync(join(tmpdir(), 'bundle-'));
+  const dir = tempFolder(join(tmpdir(), 'bundle-'));
   const app = join(dir, 'Tool.app');
   mkdirSync(join(app, 'Contents', 'MacOS'), { recursive: true });
   writeFileSync(join(app, 'Contents', 'Info.plist'), '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><dict><key>CFBundleExecutable</key><string>tool</string><key>CFBundleIdentifier</key><string>test.tool</string><key>CFBundlePackageType</key><string>APPL</string></dict></plist>');

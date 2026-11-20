@@ -10,10 +10,11 @@
  * (L155 temporal corollary: a pixel-diff across frames, never a value-change proxy) plus a no-shake
  * regression where the frame is stable.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -39,7 +40,7 @@ const isRed = (c) => c.r > 150 && c.r > c.b + 60;
 const isBlue = (c) => c.b > 150 && c.b > c.r + 60;
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'shk-'));
+  const dir = tempFolder(join(tmpdir(), 'shk-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -47,7 +48,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'shk-render-'));
+  work = tempFolder(join(tmpdir(), 'shk-render-'));
   // a sharp vertical edge: left half red, right half blue. Camera shake sweeps this edge horizontally,
   // so a fixed column near the center flips color across frames = the motion is visible in pixels.
   src = join(work, 'split.mp4');

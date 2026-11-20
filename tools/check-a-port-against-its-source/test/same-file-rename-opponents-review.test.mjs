@@ -1,8 +1,9 @@
 // Independent source-continuity opponents for mixed branch witnesses and a reused original spelling.
+import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -35,7 +36,7 @@ function commit(root, files, message) {
 }
 
 function fixture(t) {
-  const home = mkdtempSync(join(tmpdir(), 'same-file-witness-opponents-'));
+  const home = tempFolder(join(tmpdir(), 'same-file-witness-opponents-'));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const root = join(home, 'same-file-owner');
   mkdirSync(root);

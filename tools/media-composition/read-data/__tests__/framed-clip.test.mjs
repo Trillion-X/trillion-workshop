@@ -8,10 +8,11 @@
  * offline renders where a solid-color frame makes the outer corner that color while the center stays the
  * source, a 'blur' frame makes the outer corner non-black, and a hostile color falls back to black.
  */
+import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,7 +38,7 @@ const CORNER = { x: 2, y: 2, w: 16, h: 16 };
 const CENTER = { x: 90, y: 90, w: 20, h: 20 };
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'frame-'));
+  const dir = tempFolder(join(tmpdir(), 'frame-'));
   const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
   const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
   execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
@@ -45,7 +46,7 @@ before(async () => {
   ({ composeTimeline } = await import(ct));
   ({ materializeExportEdl } = await import(me));
 
-  work = mkdtempSync(join(tmpdir(), 'frame-render-'));
+  work = tempFolder(join(tmpdir(), 'frame-render-'));
   red = join(work, 'red.mp4');
   // A solid RED 200x200 frame: after framing at scale<1, the center stays red and the outer padding
   // becomes the background (black/white = its color; blur = a red-ish blurred copy, still reddish).
