@@ -25,6 +25,29 @@ const publicText = (value, label) => {
   return text;
 };
 
+// Questions and answers a page shows as expandable items (the old FAQ of the public document site): each pair needs a
+// question and an answer, public text only, and at most 30 pairs.
+const FAQ_PAIRS_MAX = 30;
+function faqPairsOf(value, ref) {
+  if (value === undefined || value === null) return [];
+  if (!Array.isArray(value) || value.length > FAQ_PAIRS_MAX) throw new TypeError(`Document ${ref} faqPairs must be a list of at most ${FAQ_PAIRS_MAX} pairs.`);
+  return value.map((pair, index) => {
+    if (!isObject(pair)) throw new TypeError(`Document ${ref} faqPairs ${index + 1} must be an object with question and answer.`);
+    return { question: publicText(pair.question, `document ${ref} faq question ${index + 1}`), answer: publicText(pair.answer, `document ${ref} faq answer ${index + 1}`) };
+  });
+}
+
+const escapeHtmlText = value => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+// The questions go before the page's article close (or the body close), each answer folded behind its question.
+function withFaq(html, pairs) {
+  if (!pairs.length) return html;
+  const close = html.includes('</article>') ? '</article>' : '</body>';
+  if (!html.includes(close)) throw new TypeError('The served page has no place to show its questions.');
+  const block = `<section class="faq"><h2>Questions</h2>${pairs.map(pair => `<details><summary>${escapeHtmlText(pair.question)}</summary><p>${escapeHtmlText(pair.answer)}</p></details>`).join('')}</section>`;
+  return html.replace(close, () => `${block}${close}`);
+}
+
 function visibleSchemaProperty(key, value) {
   const display = item => {
     if (typeof item === 'string') return item;
@@ -220,6 +243,7 @@ export function prepareContentForDiscovery(input) {
     const schemaProperties = safeSchemaProperties(sourceDoc.schemaProperties);
     if (schemaProperties.datePublished) schemaProperties.datePublished = new Date(schemaProperties.datePublished).toISOString();
     const bodySections = safeSections(sourceDoc.sections ?? sectionsFromMarkdown(sourceDoc.bodyMarkdown));
+    const faqPairs = faqPairsOf(sourceDoc.faqPairs, ref);
     const citations = sourceDoc.citations.map(citation => {
       if (!isObject(citation)) throw new TypeError(`Document ${ref} citations must be objects.`);
       const label = publicText(citation.label, 'citation.label');
@@ -254,12 +278,13 @@ export function prepareContentForDiscovery(input) {
       const level = headingLevels[headingIndex++] ?? 2;
       return `${LT}h${level}${attrs}${GT}${body}${LT}/h${level}${GT}`;
     });
+    html = withFaq(html, faqPairs);
     const bodyMarkdown = [
       sectionsToMarkdown([...bodySections.semantic, ...schemaLines.map(text => ({ kind: 'paragraph', text }))]),
       ...(citations.length ? [`## Sources\n\n${citations.map(citation => `- [${markdownEscape(citation.label)}](${markdownCitationUrl(citation.url)})`).join('\n')}`] : []),
     ].filter(Boolean).join('\n\n');
     const markdown = `# ${markdownEscape(title)}\n\n${markdownEscape(description)}${bodyMarkdown ? `\n\n${bodyMarkdown}` : ''}\n`;
-    documents.push({ updatedAt: new Date(sourceDoc.updatedAt).toISOString(), canonicalUrl, path, title, description, openGraphType: sourceDoc.openGraphType, schemaProperties, sections: semanticSections, citations, bodyMarkdown, html, markdown, jsonLd, identity: { html: digest(html), markdown: digest(markdown), jsonLd: digest(JSON.stringify(jsonLd)) } });
+    documents.push({ updatedAt: new Date(sourceDoc.updatedAt).toISOString(), canonicalUrl, path, title, faqPairs, description, openGraphType: sourceDoc.openGraphType, schemaProperties, sections: semanticSections, citations, bodyMarkdown, html, markdown, jsonLd, identity: { html: digest(html), markdown: digest(markdown), jsonLd: digest(JSON.stringify(jsonLd)) } });
   }
   const sitemap = { kind: 'urlset-page', complete: normalized.complete, nextCursor: normalized.nextCursor, urls: documents.map(doc => ({ loc: doc.canonicalUrl, lastmod: doc.updatedAt })) };
   const rss = { kind: 'rss-channel-page', title: normalized.site.name, link: normalized.origin, complete: normalized.complete, nextCursor: normalized.nextCursor, items: documents.map(doc => ({ title: doc.title, link: doc.canonicalUrl, guid: doc.canonicalUrl, description: doc.description, pubDate: new Date(doc.updatedAt).toUTCString(), sources: doc.citations })) };
