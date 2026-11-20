@@ -17,6 +17,12 @@ The words-to-picture-vector tool (`words-as-picture-vector`) turns words into a 
 | `do-work/meaning_index.py` | The command. One JSON request per line on standard input, one reply per line on standard output, a last line `{"result": {"answered", "failed"}}`. Holds the CLIP loader (`load_clip`, `embed_text`), the two lanes (`Lane`), the query encoders (`QueryEncoders`) and the operations. |
 | `test/test_meaning_index.py` | The lanes, `add`, the sampling and the line protocol on synthetic vectors (numpy only), then the real CLIP and sentence models from the local cache: saved query encoders answer without the full models, a picture and a transcript are found by a phrase. The model tests are skipped, saying why, when the models are not cached. |
 | `test/meaning-index.test.mjs` | Runs that file. Skips, saying why, when python3 or numpy is missing. |
+| `do-work/embed-video-frames-clip.py` | One-shot keyframe sampler: shot detection and hybrid keyframes (long shots get extra samples), near-duplicate removal, CLIP image embedding, and `build_preview_sheet` (frames as one JPEG). Ported from the package's `process-scripts/` (`5e6db3ec11`); the CLIP and video libraries load only when called. |
+| `do-work/make-media-analysis-records-from-command-output.py` | Command output to claim, embedding, chapter, thumbnail and error records, with content addresses and the process-output hash map. Ported from the package (`5e6db3ec11`). |
+| `test/process-scripts.test.mjs` | Runs the three test files below. |
+| `test/test_embed_video_frames_clip.py` | The package's six sampler tests (interval, long shots, dedup, opaque refs, contract shape, missing video), repointed to `do-work/`. |
+| `test/test_build_preview_sheet.py` | The package's five preview-sheet checks, repointed to `do-work/`. |
+| `test/test_make_media_analysis_records.py` | The package's five records checks (hash map, preview refs with no inline bytes, content address, no region, unresolved hash), repointed to `do-work/`. |
 
 ## The requests
 
