@@ -27,7 +27,7 @@
             },
             "project_id": {
               "type": "string",
-              "description": "The Composio project the person's own key lives in (a key that starts uak_ reaches only its project)"
+              "description": "The Composio project the person's own key lives in; when absent, a key that starts uak_ is sent to its organization's own project, which Composio answers from the key"
             }
           }
         },
@@ -235,7 +235,7 @@
             },
             "project_id": {
               "type": "string",
-              "description": "The project the connection lives in (pr_...), needed when the vault holds a person's own user key"
+              "description": "The project the connection lives in (pr_...); when absent, a person's own user key is sent to its organization's own project, which Composio answers from the key"
             }
           }
         },

@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Find the account's connection id and owning user id with tool:list-my-connected-accounts.",
-    "2. Call tool:run-a-composio-action with {account_id, user_id, project_id when the vault holds a user key, and either action + arguments or proxy {endpoint, method, body}}.",
+    "2. Call tool:run-a-composio-action with {account_id, user_id, project_id only when the connection lives outside the key's own organization project, and either action + arguments or proxy {endpoint, method, body}}.",
     "3. Read data (and status for a proxy request). An action that publishes or sends does so: put your checks before this step."
   ],
   "worked_examples": [

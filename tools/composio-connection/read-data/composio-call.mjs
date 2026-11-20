@@ -32,9 +32,39 @@ export function keyHeaders(key, projectId) {
   return { 'x-user-api-key': key, 'x-project-id': projectId };
 }
 
+const SESSION = `https://${HOST}/api/v3.1/auth/session/info`;
+const CONSUMER = `https://${HOST}/api/v3.1/org/consumer/project/resolve`;
+
+/** `headersOf(key, projectId)`: keyHeaders, except that a user key with no project named goes to the person's own consumer project,
+ *  which Composio answers from the key itself: the key's organization (session info), then that organization's consumer project
+ *  (resolve), sent as x-org-id with x-project-id. Nothing is stored that could drift; it is asked once per run. */
+export function makeKeyHeaders(send = fetch) {
+  let scope = null;
+  const asked = async (url, method, headers, what) => {
+    const reply = await send(new URL(url), { method, redirect: 'manual', headers: { ...headers, Accept: 'application/json', 'Content-Type': 'application/json' }, ...(method === 'POST' ? { body: '{}' } : {}) });
+    const text = await reply.text();
+    if (!reply.ok) throw new Refused(`Composio refused ${what} (${reply.status}): ${text.replace(/\s+/g, ' ').trim().slice(0, SAID)}`);
+    try { return JSON.parse(text); } catch { throw new Refused(`Composio answered ${what} with no JSON.`); }
+  };
+  const consumerScope = async key => {
+    const session = await asked(SESSION, 'GET', { 'x-user-api-key': key }, "the key's organization");
+    const org = session?.project?.org?.id ?? session?.org?.id;
+    if (typeof org !== 'string' || !/^ok_[A-Za-z0-9_-]+$/.test(org)) throw new Refused("Composio did not name the key's organization, so its connections' project is not known: give project_id (pr_...).");
+    const project = (await asked(CONSUMER, 'POST', { 'x-user-api-key': key, 'x-org-id': org }, "the organization's own project"))?.project_nano_id;
+    if (typeof project !== 'string' || !/^pr_[A-Za-z0-9_-]+$/.test(project)) throw new Refused("Composio did not name the organization's own project: give project_id (pr_...).");
+    return { 'x-user-api-key': key, 'x-org-id': org, 'x-project-id': project };
+  };
+  return async function headersOf(key, projectId) {
+    if (!key.startsWith('uak_') || (projectId !== undefined && projectId !== null)) return keyHeaders(key, projectId);
+    scope ??= consumerScope(key);
+    return scope;
+  };
+}
+
 /** `execute(tool, accountId, args, userId)`: one Composio tool run for one connected account, as the person; resolves to the tool's
  *  data. Composio needs the user id that owns the account (its entity) with a connected account, so a run passes it when given. */
 export function makeComposioCall({ read = descriptor => readFileSync(descriptor, 'utf8'), send = fetch } = {}) {
+  const headersOf = makeKeyHeaders(send);
   let key = null;
   const held = () => {
     if (key === null) key = String(read(HELD_DESCRIPTOR)).trim();
@@ -49,7 +79,7 @@ export function makeComposioCall({ read = descriptor => readFileSync(descriptor,
     const reply = await send(url, {
       method: 'POST',
       redirect: 'manual',
-      headers: { ...keyHeaders(held(), projectId), Accept: 'application/json', 'Content-Type': 'application/json' },
+      headers: { ...await headersOf(held(), projectId), Accept: 'application/json', 'Content-Type': 'application/json' },
       body: JSON.stringify({ connected_account_id: accountId, ...(userId ? { user_id: userId } : {}), arguments: args }),
     });
     const text = await reply.text();
@@ -67,6 +97,7 @@ const PROXY = `https://${HOST}/api/v3/tools/execute/proxy`;
  *  account's held sign-in, for a field Composio's named tools do not carry (for example a post's trial settings). The endpoint is
  *  the app's own path or address; Composio adds the account's credentials. Resolves to the app's answer. */
 export function makeComposioProxy({ read = descriptor => readFileSync(descriptor, 'utf8'), send = fetch } = {}) {
+  const headersOf = makeKeyHeaders(send);
   let key = null;
   const held = () => {
     if (key === null) key = String(read(HELD_DESCRIPTOR)).trim();
@@ -82,7 +113,7 @@ export function makeComposioProxy({ read = descriptor => readFileSync(descriptor
     const reply = await send(new URL(PROXY), {
       method: 'POST',
       redirect: 'manual',
-      headers: { ...keyHeaders(held(), projectId), Accept: 'application/json', 'Content-Type': 'application/json' },
+      headers: { ...await headersOf(held(), projectId), Accept: 'application/json', 'Content-Type': 'application/json' },
       body: JSON.stringify({ endpoint, method, connected_account_id: accountId, ...(userId ? { user_id: userId } : {}), ...(body !== undefined ? { body } : {}), ...(parameters ? { parameters } : {}) }),
     });
     const text = await reply.text();

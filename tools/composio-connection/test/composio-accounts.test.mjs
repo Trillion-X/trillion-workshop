@@ -59,3 +59,36 @@ test('a person\'s own key is sent as the user key header with the project id, an
   assert.equal(sent[0].headers['x-project-id'], 'pr_stand_in_not_real');
   assert.equal(sent[0].headers['x-api-key'], undefined);
 });
+
+test('a person\'s own key with no project named is sent to their organization\'s own project, which Composio answers from the key', async () => {
+  const sent = [];
+  const send = async (url, init) => {
+    sent.push({ url: url.toString(), init });
+    if (url.pathname.endsWith('/auth/session/info')) return reply(200, { project: { org: { id: 'ok_stand_in' } } });
+    if (url.pathname.endsWith('/org/consumer/project/resolve')) return reply(200, { project_nano_id: 'pr_stand_in_own', project_type: 'CONSUMER' });
+    return reply(200, { items: [] });
+  };
+  const listAccounts = makeComposioAccounts({ read: () => 'uak_stand-in-not-real', send });
+  await listAccounts({});
+  await listAccounts({ toolkit: 'twitter' });
+  assert.deepEqual(sent.map(s => `${s.init.method} ${new URL(s.url).pathname}`), ['GET /api/v3.1/auth/session/info', 'POST /api/v3.1/org/consumer/project/resolve', 'GET /api/v3/connected_accounts', 'GET /api/v3/connected_accounts']);
+  assert.equal(sent[1].init.headers['x-org-id'], 'ok_stand_in');
+  for (const list of sent.slice(2)) {
+    assert.equal(list.init.headers['x-project-id'], 'pr_stand_in_own');
+    assert.equal(list.init.headers['x-org-id'], 'ok_stand_in');
+    assert.equal(list.init.redirect, 'manual');
+  }
+});
+
+test('when Composio names no organization or no own project, the list is refused with the way out, never sent unscoped', async () => {
+  const lists = [];
+  const answering = session => async (url, init) => {
+    if (url.pathname.endsWith('/auth/session/info')) return reply(200, session);
+    if (url.pathname.endsWith('/resolve')) return reply(200, { project_type: 'CONSUMER' });
+    lists.push(init); return reply(200, { items: [] });
+  };
+  await assert.rejects(makeComposioAccounts({ read: () => 'uak_stand-in-not-real', send: answering({}) })({}), /organization.*project_id/);
+  await assert.rejects(makeComposioAccounts({ read: () => 'uak_stand-in-not-real', send: answering({ project: { org: { id: 'ok_x' } } }) })({}), /own project.*project_id/);
+  await assert.rejects(makeComposioAccounts({ read: () => 'uak_stand-in-not-real', send: async () => reply(401, 'bad key') })({}), /Composio refused the key's organization \(401\)/);
+  assert.equal(lists.length, 0);
+});

@@ -50,7 +50,7 @@ test('a refusal or an unsuccessful answer is the refuser\'s own words, never an 
   await assert.rejects(runAComposioAction({ account_id: 'ca_1', action: 'GMAIL_SEND_EMAIL' }, { execute: unsuccessful }), /could not run GMAIL_SEND_EMAIL: no such account/);
 });
 
-test('a user key goes as x-user-api-key with the project its connections live in, and is refused without one', async () => {
+test('a user key goes as x-user-api-key with the project its connections live in', async () => {
   const USER_KEY = 'uak_stand-in-not-real';
   const s = stub(reply(200, { successful: true, status: 200, data: { username: 'someone' } }));
   const answer = await runAComposioAction(
@@ -61,6 +61,5 @@ test('a user key goes as x-user-api-key with the project its connections live in
   assert.equal(s.sent[0].init.headers['x-api-key'], undefined);
   assert.equal(s.sent[0].body.user_id, 'consumer-1');
   assert.deepEqual(answer.data, { username: 'someone' });
-  await assert.rejects(runAComposioAction({ account_id: 'ca_1', action: 'GMAIL_SEND_EMAIL' }, { execute: makeComposioCall({ read: () => USER_KEY, send: s.send }) }), /project_id/);
   assert.equal(s.sent.length, 1);
 });
