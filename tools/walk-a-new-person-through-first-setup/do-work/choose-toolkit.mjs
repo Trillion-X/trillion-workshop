@@ -11,6 +11,8 @@
 //                   swap?: { slot: [pointer, ...] } }   any part swapped: each named slot takes these pointers instead (a slot
 //                   the toolkit lacks is added); checked as a stack is (toolkit-stack.mjs), and no slot name is known here
 //   default       the one offered row marked `default: true` is the cart of a person who picks nothing (fillCart)
+//   every_account a row marked `every_account: true` is in every cart: its tools follow the picked toolkit's, whichever
+//                 is picked, and it is never picked itself (what every account starts with)
 //   known_tools   optional: every tool id the caller can install; an added id outside it is refused
 
 import { readStack, readToolkitStack } from './toolkit-stack.mjs';
@@ -65,9 +67,12 @@ export function offeredToolkits(rows) {
     const { title, description, tools } = row.value;
     const stack = readToolkitStack(row.value, `toolkits[${at}].value`);
     if (row.value.default !== undefined && row.value.default !== true) throw new Error(`toolkits[${at}].value.default is true or left out.`);
+    if (row.value.every_account !== undefined && row.value.every_account !== true) throw new Error(`toolkits[${at}].value.every_account is true or left out.`);
+    if (row.value.every_account === true && row.value.default === true) throw new Error(`toolkits[${at}] is in every cart, so it is not the default one.`);
     return {
       id: row.id,
       ...(row.value.default === true ? { default: true } : {}),
+      ...(row.value.every_account === true ? { every_account: true } : {}),
       ...(stack ? { stack } : {}),
       ...(typeof title === 'string' ? { title } : {}),
       ...(typeof description === 'string' ? { description } : {}),
@@ -79,7 +84,8 @@ export function offeredToolkits(rows) {
   return offered;
 }
 
-/** What first setup installs for the person's choice: the toolkit's tool ids without the dropped ones, then the added ones.
+/** What first setup installs for the person's choice: the toolkit's tool ids without the dropped ones, then the added ones,
+ *  then the tools of every row marked every_account that are not already there (every_account: those ids).
  *  Refuses a toolkit that is not offered, a drop of an id the toolkit does not list, an id both dropped and added, and
  *  (when known_tools is handed in) an added id that is not installable. */
 export function chooseToolkit({ toolkits, choice, knownTools = null }) {
@@ -89,6 +95,7 @@ export function chooseToolkit({ toolkits, choice, knownTools = null }) {
   }
   const toolkit = offered.find(row => row.id === choice.toolkit);
   if (!toolkit) throw new Error(`toolkit ${choice.toolkit} is not offered; the offered toolkits are ${offered.map(row => row.id).join(', ') || 'none'}.`);
+  if (toolkit.every_account) throw new Error(`${toolkit.id} is in every cart already; pick another toolkit.`);
   const drop = idList(choice.drop, 'drop');
   const add = idList(choice.add, 'add');
   const notListed = drop.filter(id => !toolkit.tools.includes(id));
@@ -106,7 +113,9 @@ export function chooseToolkit({ toolkits, choice, knownTools = null }) {
   const swap = choice.swap === undefined ? {} : readStack(choice.swap, 'swap');
   const swapped = Object.keys(swap);
   const stack = toolkit.stack || swapped.length ? readStack({ ...(toolkit.stack ?? {}), ...swap }, `${toolkit.id} with its swaps`) : null;
-  return { toolkit: toolkit.id, tools: [...kept, ...added], dropped: drop, added, ...(swapped.length ? { swapped } : {}), ...(stack ? { stack } : {}) };
+  const chosen = [...kept, ...added];
+  const always = [...new Set(offered.filter(row => row.every_account).flatMap(row => row.tools))].filter(id => !chosen.includes(id));
+  return { toolkit: toolkit.id, tools: [...chosen, ...always], dropped: drop, added, ...(always.length ? { every_account: always } : {}), ...(swapped.length ? { swapped } : {}), ...(stack ? { stack } : {}) };
 }
 
 /** The cart first setup fills for a new account: the person's choice when they made one, else the one toolkit marked default,

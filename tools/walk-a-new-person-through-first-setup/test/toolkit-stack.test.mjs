@@ -68,3 +68,17 @@ test('first setup carries the cart in the plan; with no row marked default and n
   const plain = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, toolkits: [row('toolkit:a', { tools: ['tool:sample-cut'] })] });
   assert.equal(plain.toolkits.cart, undefined);
 });
+
+test('a row marked every_account is in every cart, after the picked toolkit\'s tools, and is never picked or the default', () => {
+  const always = row('toolkit:always', { tools: ['tool:sample-cut', 'tool:sample-keep'], every_account: true });
+  const toolkits = [row('toolkit:a', { tools: ['tool:sample-draft', 'tool:sample-cut'], default: true }), row('toolkit:b', { tools: ['tool:sample-edit'] }), always];
+  const standing = fillCart({ toolkits });
+  assert.deepEqual(standing.tools, ['tool:sample-draft', 'tool:sample-cut', 'tool:sample-keep']);
+  assert.deepEqual(standing.every_account, ['tool:sample-keep']);
+  const picked = fillCart({ toolkits, choice: { toolkit: 'toolkit:b', drop: ['tool:sample-edit'] } });
+  assert.deepEqual(picked.tools, ['tool:sample-cut', 'tool:sample-keep']);
+  assert.deepEqual(offeredToolkits(toolkits).filter(toolkit => toolkit.every_account).map(toolkit => toolkit.id), ['toolkit:always']);
+  assert.throws(() => fillCart({ toolkits, choice: { toolkit: 'toolkit:always' } }), /in every cart already/);
+  assert.throws(() => offeredToolkits([row('toolkit:x', { tools: [], every_account: true, default: true })]), /not the default one/);
+  assert.throws(() => offeredToolkits([row('toolkit:x', { tools: [], every_account: 'yes' })]), /every_account is true or left out/);
+});

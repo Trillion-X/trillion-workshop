@@ -11,7 +11,8 @@
       "to": "tools/starting-set/records.json",
       "source_identity": "1f:efbe43271b6b47938bf7d753ca9609953af72b82af9be07fb55e57d3ea170e01",
       "identity": "1f:168822a5173b20f7ff6bf0c8b507c48b283b4212a54af8c2f81e52306ce4c4d7",
-      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has.",
+      "retired": "Nov 19 2026: no code read it. Its live items are rows of the toolkits table in the database of whoever runs the site: the tool ids a Workshop tool row still offers, one row per configuration that holds any (toolkit:files-and-media, toolkit:publishing, toolkit:work, toolkit:your-computer) and the core and pinned ones in toolkit:what-every-account-starts-with (every_account: true, in every cart). Its workflows are rows of workflow_recipes, its rules are starting-rules.json, its event rule templates are tools/start-a-new-account-with-the-rules-and-catalog-items/event-sources.json. Ids no Workshop row offers were not carried."
     },
     {
       "from": "records/starting-set-groups.json",
@@ -19,7 +20,8 @@
       "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
       "to": "tools/starting-set/groups.json",
       "source_identity": "1f:0c974db6c28c9c1ad1fc50cf289353dd26249f1502bb35bfa853ad3275b07927",
-      "identity": "1f:0c974db6c28c9c1ad1fc50cf289353dd26249f1502bb35bfa853ad3275b07927"
+      "identity": "1f:0c974db6c28c9c1ad1fc50cf289353dd26249f1502bb35bfa853ad3275b07927",
+      "retired": "Nov 19 2026: no code read it. Its live items are rows of the toolkits table in the database of whoever runs the site: the tool ids a Workshop tool row still offers, one row per configuration that holds any (toolkit:files-and-media, toolkit:publishing, toolkit:work, toolkit:your-computer) and the core and pinned ones in toolkit:what-every-account-starts-with (every_account: true, in every cart). Its workflows are rows of workflow_recipes, its rules are starting-rules.json, its event rule templates are tools/start-a-new-account-with-the-rules-and-catalog-items/event-sources.json. Ids no Workshop row offers were not carried."
     },
     {
       "from": "records/starting-rules.json",
