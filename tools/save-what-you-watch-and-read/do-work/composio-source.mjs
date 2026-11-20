@@ -43,7 +43,7 @@ export async function readFromComposio(request, collected, { execute }) {
   let after;
   let pages = 0;
   while (pages < kind.max_pages) {
-    const answer = await execute(conventions.composio.bookmarks, request.account, argumentsFor(kind, after), request.user_id);
+    const answer = await execute(conventions.composio.bookmarks, request.account, argumentsFor(kind, after), request.user_id ?? conventions.composio.user_id);
     pages += 1;
     const page = pageIn(answer);
     collected.onPage(apiPostsIn(page));

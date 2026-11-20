@@ -29,6 +29,9 @@ test('each page asks for the person\'s own bookmarks with the fields the parser 
   assert.equal(pages, 2);
   assert.deepEqual(calls.map(call => call.tool), ['TWITTER_BOOKMARKS_BY_USER', 'TWITTER_BOOKMARKS_BY_USER']);
   assert.ok(calls.every(call => call.account === 'twitter_terma-weedy' && call.userId === 'me-user'));
+  const defaulted = [];
+  await readFromComposio({ which: 'bookmarks', account: 'twitter_terma-weedy' }, collector([]), { execute: async (tool, account, args, userId) => { defaulted.push(userId); return { data: { data: [], includes: {}, meta: {} } }; } });
+  assert.deepEqual(defaulted, ['default'], 'with no user_id given, the Composio entity is the default one');
   assert.equal(calls[0].args.id, 'me');
   assert.equal(calls[0].args.max_results, 100);
   assert.equal(calls[0].args.pagination_token, undefined);
