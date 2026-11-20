@@ -1466,6 +1466,556 @@
           "source": "Moved from a film repository's wordtime.py helper; ports/wordtime.json names its exact source and byte-copy baseline."
         }
       }
+    },
+{
+      "id": "package::audio-transcription::tool::transcribe-file",
+      "address": "package::audio-transcription::tool::transcribe-file",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "id": "tool:transcribe-file",
+        "listed_on": "2026-11-20T11:00:00Z",
+        "label": "Transcribe an audio or video file (MLX Whisper, on this computer)",
+        "job": "Transcribe an audio or video file in this person's files into timed words, for captions, search and picking a stretch by what is said",
+        "description": "Hears one recording from the person's files (`file`, its name or identity) on this computer with the MLX Whisper model, and answers its text, timed segments and every word with its own start and end in seconds. The copy heard is removed once heard; the person's file is never changed. It keeps nothing: tool:keep-transcript keeps the answer beside the recording through the record writer. Needs the computer run to start Python with mlx_whisper and the model in the Hugging Face cache.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "file"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "file": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400,
+              "description": "The recording's name or identity in the person's files",
+              "x-free-text-because": "A file name in the person's files."
+            },
+            "language": {
+              "type": "string",
+              "maxLength": 12,
+              "description": "The language spoken, when known (for example en)"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "text",
+            "segments",
+            "heard_whole"
+          ],
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "segments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "start": {
+                    "type": "number"
+                  },
+                  "end": {
+                    "type": "number"
+                  },
+                  "text": {
+                    "type": "string"
+                  },
+                  "words": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "word": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "number"
+                        },
+                        "end": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "language": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "heard_whole": {
+              "type": "boolean"
+            },
+            "produced_by": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "start-a-program"
+          ],
+          "workdir": "/opt/audio-transcription",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/audio-transcription/read-data/transcribe-a-file.mjs",
+            "transcribeAFile"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "run-on-a-persons-computer",
+                "paths": [
+                  "confined-run.mjs",
+                  "confined-run.json"
+                ],
+                "at": "/opt/run-on-a-persons-computer"
+              },
+              {
+                "package": "audio-transcription",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/audio-transcription"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs",
+                  "read-data/host-actions.mjs"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "computer-programs",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/computer-programs"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "result_selector": "$.result"
+        },
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": false,
+          "gpu": true,
+          "max_input_bytes": 536870912
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:audio-transcription",
+        "provenance": {
+          "source": "tools/audio-transcription/read-data/transcribe-a-file.mjs (replaces the account-action tool:transcribe-file of keep-and-wake-ai-sessions records/workshop-account-tool-records.json:222)"
+        }
+      }
+    },
+{
+      "id": "package::audio-transcription::tool::keep-transcript",
+      "address": "package::audio-transcription::tool::keep-transcript",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "id": "tool:keep-transcript",
+        "listed_on": "2026-11-20T11:00:00Z",
+        "label": "Keep a transcript beside its recording",
+        "job": "Keep the transcript tool:transcribe-file answered, so the next ask finds the words without hearing again",
+        "description": "Takes the recording's identity and the transcript tool:transcribe-file answered, and writes it as one row of the table file_transcripts in the database named by `database`, through the connection mounted on the row (one transaction, the export runner's keep list). Refuses a transcript already kept under the same identity. Without `database` it keeps nothing beyond the answer.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "identity",
+            "transcript"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "identity": {
+              "type": "string",
+              "pattern": "^1f:[0-9a-f]{64}$",
+              "description": "The recording's identity, as tool:transcribe-file was given it"
+            },
+            "transcript": {
+              "type": "object",
+              "description": "The answer tool:transcribe-file gave (text, segments, language, produced_by)"
+            },
+            "database": {
+              "type": "string",
+              "maxLength": 80,
+              "description": "The person's database name, to keep the transcript in (the run's connection is mounted on the row)",
+              "x-free-text-because": "A database name."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "kept_in": {
+              "type": "string"
+            },
+            "kept": {
+              "type": "integer"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/listen-for-a-while",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/audio-transcription/read-data/keep-transcript.mjs",
+            "keepTranscript",
+            "--keep-into",
+            "file_transcripts",
+            "--keep-fd",
+            "4"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "audio-transcription",
+                "paths": [
+                  "read-data/keep-transcript.mjs"
+                ],
+                "at": "/opt/audio-transcription"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "run-sql-in-my-database",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/run-sql-in-my-database"
+              },
+              {
+                "packages": [
+                  "pg"
+                ],
+                "at": "/opt/node_modules/pg"
+              },
+              {
+                "packages": [
+                  "pg-connection-string"
+                ],
+                "at": "/opt/node_modules/pg-connection-string"
+              },
+              {
+                "packages": [
+                  "pg-pool"
+                ],
+                "at": "/opt/node_modules/pg-pool"
+              },
+              {
+                "packages": [
+                  "pg-protocol"
+                ],
+                "at": "/opt/node_modules/pg-protocol"
+              },
+              {
+                "packages": [
+                  "pg-types"
+                ],
+                "at": "/opt/node_modules/pg-types"
+              },
+              {
+                "packages": [
+                  "pg-int8"
+                ],
+                "at": "/opt/node_modules/pg-int8"
+              },
+              {
+                "packages": [
+                  "postgres-array"
+                ],
+                "at": "/opt/node_modules/postgres-array"
+              },
+              {
+                "packages": [
+                  "postgres-bytea"
+                ],
+                "at": "/opt/node_modules/postgres-bytea"
+              },
+              {
+                "packages": [
+                  "postgres-date"
+                ],
+                "at": "/opt/node_modules/postgres-date"
+              },
+              {
+                "packages": [
+                  "postgres-interval"
+                ],
+                "at": "/opt/node_modules/postgres-interval"
+              },
+              {
+                "packages": [
+                  "xtend"
+                ],
+                "at": "/opt/node_modules/xtend"
+              },
+              {
+                "packages": [
+                  "pgpass"
+                ],
+                "at": "/opt/node_modules/pgpass"
+              },
+              {
+                "packages": [
+                  "split2"
+                ],
+                "at": "/opt/node_modules/split2"
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name_from_database": "database",
+              "fd": 4,
+              "only_when": {
+                "input": "database",
+                "present": true
+              }
+            }
+          ],
+          "packages": {
+            "pg": {
+              "version": "8.23.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+                  "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+                  "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+                }
+              }
+            },
+            "pg-connection-string": {
+              "version": "2.14.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+                  "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+                  "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+                }
+              }
+            },
+            "pg-pool": {
+              "version": "3.14.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+                  "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+                  "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+                }
+              }
+            },
+            "pg-protocol": {
+              "version": "1.16.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+                  "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+                  "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+                }
+              }
+            },
+            "pg-types": {
+              "version": "2.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+                  "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+                  "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+                }
+              }
+            },
+            "pg-int8": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+                  "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+                  "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+                }
+              }
+            },
+            "postgres-array": {
+              "version": "2.0.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+                  "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+                  "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+                }
+              }
+            },
+            "postgres-bytea": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+                  "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+                  "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+                }
+              }
+            },
+            "postgres-date": {
+              "version": "1.0.7",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+                  "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+                  "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+                }
+              }
+            },
+            "postgres-interval": {
+              "version": "1.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+                  "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+                  "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+                }
+              }
+            },
+            "xtend": {
+              "version": "4.0.2",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+                  "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+                  "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+                }
+              }
+            },
+            "pgpass": {
+              "version": "1.0.5",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+                  "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+                  "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+                }
+              }
+            },
+            "split2": {
+              "version": "4.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+                  "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+                  "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+                }
+              }
+            }
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:audio-transcription",
+        "provenance": {
+          "source": "tools/audio-transcription/read-data/transcribe-a-file.mjs (replaces the account-action tool:transcribe-file of keep-and-wake-ai-sessions records/workshop-account-tool-records.json:222)"
+        }
+      }
     }
   ]
 }

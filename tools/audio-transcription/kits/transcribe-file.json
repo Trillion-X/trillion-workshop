@@ -1,0 +1,38 @@
+{
+  "drafted_from": "tool:transcribe-file (tools/audio-transcription/tool-rows.json) and transcribeAFile in read-data/transcribe-a-file.mjs; it replaces the account-action of keep-and-wake-ai-sessions records/workshop-account-tool-records.json:222",
+  "start_here": "Say to your AI: \"Transcribe the recording clip.m4a from my files, in English.\" It runs tool:transcribe-file on it and gives back the timed words.",
+  "lists": [],
+  "no_lists_because": "It keeps nothing: the recording comes from the person's files and the transcript comes back in the answer (tool:keep-transcript keeps it when asked).",
+  "workflows": [],
+  "tools": [
+    "tool:transcribe-file",
+    "tool:keep-transcript"
+  ],
+  "instructions": [
+    "1. Give the recording's name or identity in the person's files, and its language when known.",
+    "2. Call tool:transcribe-file with them; it hears the recording on this computer with the MLX Whisper model.",
+    "3. Read the answer: text is the whole transcript, segments hold each passage's start and end, and each word has its own start and end in seconds."
+  ],
+  "worked_examples": [
+    {
+      "title": "A recording in my files is transcribed into timed words",
+      "ask": "Transcribe clip.m4a from my files, in English.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:transcribe-file",
+            "input": {
+              "file": "clip.m4a",
+              "language": "en"
+            }
+          }
+        }
+      },
+      "given": "A recording named clip.m4a in the person's files, spoken in English.",
+      "hands_back": "text, segments with their words, language en, heard_whole true, produced_by mlx_whisper. Nothing is written; the person's file is unchanged."
+    }
+  ]
+}

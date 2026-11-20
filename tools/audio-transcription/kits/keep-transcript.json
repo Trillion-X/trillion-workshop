@@ -1,0 +1,63 @@
+{
+  "drafted_from": "tool:keep-transcript (tools/audio-transcription/tool-rows.json) and keepTranscript in read-data/keep-transcript.mjs",
+  "start_here": "Say to your AI: \"Keep the transcript of clip.m4a in my database.\" It runs tool:keep-transcript with the transcript tool:transcribe-file answered for that recording.",
+  "lists": [],
+  "no_lists_because": "It writes the transcript as one row of the table file_transcripts in the database named in its input, and nothing else.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-transcript",
+    "tool:transcribe-file"
+  ],
+  "instructions": [
+    "1. Run tool:transcribe-file first and keep its answer and the recording's identity.",
+    "2. Call tool:keep-transcript with identity, transcript and database (the person's database name).",
+    "3. Read the answer: kept_in is the table and kept is the number of rows written (0 when this recording already has one kept)."
+  ],
+  "worked_examples": [
+    {
+      "title": "A transcript is kept beside its recording's identity",
+      "ask": "Keep the transcript of clip.m4a in my database.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-transcript",
+            "input": {
+              "identity": "1f:abababababababababababababababababababababababababababababababab",
+              "database": "my_database",
+              "transcript": {
+                "text": "Hello there",
+                "segments": [
+                  {
+                    "start": 0.0,
+                    "end": 1.2,
+                    "text": "Hello there",
+                    "words": [
+                      {
+                        "word": "Hello",
+                        "start": 0.0,
+                        "end": 0.5
+                      },
+                      {
+                        "word": "there",
+                        "start": 0.6,
+                        "end": 1.2
+                      }
+                    ]
+                  }
+                ],
+                "language": "en",
+                "heard_whole": true,
+                "produced_by": "mlx_whisper"
+              }
+            }
+          }
+        }
+      },
+      "given": "The recording's identity and the transcript tool:transcribe-file answered for it.",
+      "hands_back": "kept_in file_transcripts and kept 1; the row's id is the recording's identity."
+    }
+  ]
+}
