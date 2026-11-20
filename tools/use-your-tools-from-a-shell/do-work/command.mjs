@@ -141,7 +141,7 @@ export const aiIdOf = (id, rules = settings) => (/^[^:\s]+:\S+$/.test(String(id)
 
 // ── Command line ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-const VALUE_FLAGS = new Set(['address', 'description', 'title', 'source-file', 'obligations-file', 'continuation-file', 'request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'can', 'from', 'taken-by', 'assignee', 'ag-ui', 'since', 'list', 'check-file', 'acceptance-file', 'input', 'store', 'pin']);
+const VALUE_FLAGS = new Set(['address', 'description', 'title', 'source-file', 'obligations-file', 'continuation-file', 'request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'can', 'from', 'taken-by', 'assignee', 'ag-ui', 'since', 'list', 'check-file', 'acceptance-file', 'input', 'store', 'pin', 'upload']);
 // A flag given more than once keeps every value, in order (`--to A --to B`); the others keep the last.
 const MULTI_FLAGS = new Set(['to', 'can', 'pin']);
 
@@ -685,6 +685,33 @@ export function engineConfigHere({ rules = settings, home = homedir() } = {}) {
   return null;
 }
 
+/** Where a raw upload is sent on this computer: the door's own address at this computer's engine, when that engine listens on a
+ *  loopback address and answers for the door's host (its config's `listen` and a door whose `accepts_hosts` names it). Only the
+ *  computer that holds the person spools the bytes (a door that passes calls on to it answers `uploads_not_taken_here`), and the
+ *  bytes then never leave this computer. Answers { url, host }, or null when this computer runs no such engine. */
+export function uploadDoorHere(door, { config = engineConfigHere() } = {}) {
+  if (!config || door.local) return null;
+  const at = new URL(door.mcp);
+  const listen = typeof config.listen === 'string' ? config.listen : '';
+  if (!/^127\.0\.0\.1:\d{2,5}$/.test(listen)) return null;
+  const answers = (config.doors ?? []).some(row => Array.isArray(row?.accepts_hosts) && row.accepts_hosts.includes(at.host));
+  return answers ? { url: `http://${listen}${at.pathname}`, host: at.host } : null;
+}
+
+/** One POST to `url` naming `host` as its Host (fetch cannot), answered as a fetch Response. */
+export function postNamingHost(url, host, { headers, body, signal }) {
+  return new Promise((resolve, reject) => {
+    const request = httpRequest(url, { method: 'POST', headers: { ...headers, host }, signal }, response => {
+      const chunks = [];
+      response.on('data', chunk => chunks.push(chunk));
+      response.on('end', () => resolve(new Response(Buffer.concat(chunks), { status: response.statusCode, headers: { 'content-type': response.headers['content-type'] ?? 'application/json' } })));
+      response.on('error', reject);
+    });
+    request.on('error', reject);
+    request.end(body);
+  });
+}
+
 /** Where this computer keeps the carrier's key (command.json `carry`): the Keychain item `carry.keychain_item`, holding
  *  { private, public } as one base64url word written through `security -i` on standard input, else the 0600 file
  *  `carry.key_file` in the state folder. */
@@ -829,7 +856,7 @@ export function retryGap(retry, attempt, asked = null, random = Math.random) {
  * with one request_key, reused on every retry) and `whoami()` (MCP initialize: the account in result._meta). A refusal
  * names the door: 401 is the door refusing this credential, 404 is a route the door does not serve.
  */
-export function engineClient({ door, credential, fetchImpl = fetch, rules = settings, wait = pause, random = Math.random, timeoutSeconds = rules.retry.attempt_seconds, renew = null } = {}) {
+export function engineClient({ door, credential, fetchImpl = fetch, rules = settings, wait = pause, random = Math.random, timeoutSeconds = rules.retry.attempt_seconds, renew = null, uploadAt = null, postAt = postNamingHost } = {}) {
   if (!credential?.bearer) throw new CommandError(rules.words.no_credential, { status: 3 });
   const headers = { 'content-type': 'application/json', accept: 'application/json, text/event-stream', authorization: `Bearer ${credential.bearer}`, 'user-agent': `${cliName()}-cli` };
   let next = 0, renewed = false;
@@ -840,10 +867,14 @@ export function engineClient({ door, credential, fetchImpl = fetch, rules = sett
     ? new CommandError(rules.words.not_covered, { status: 3, detail: fill(rules.words.details.not_covered, { mcp: door.mcp }) })
     : new CommandError(credential.kind === 'key' && !door.local && door.localMcp !== door.mcp && (door.public || door.localMcp)
     ? rules.words.refused_key_at_door : rules.words.refused, { status: 3, detail: fill(rules.words.details.refused, { mcp: door.mcp, kind: credential.kind, where: credential.where }) });
-  async function send(body, { idempotent, once = false }) {
+  // `also` (a raw upload's own headers) is laid over a copy; every other request sends the one `headers` a renewed sign-in updates.
+  async function send(body, { idempotent, once = false, also = null }) {
     for (let attempt = 0; ; attempt += 1) {
       let response = null, failure = null;
-      try { response = await fetchImpl(door.mcp, { method: 'POST', headers, body, signal: signal() }); } catch (error) { failure = error; }
+      // A raw upload goes to the computer that holds the person when this is it (`uploadAt`, uploadDoorHere), else to the door.
+      const post = also && uploadAt ? () => postAt(uploadAt.url, uploadAt.host, { headers: { ...headers, ...also }, body, signal: signal() })
+        : () => fetchImpl(door.mcp, { method: 'POST', headers: also ? { ...headers, ...also } : headers, body, signal: signal() });
+      try { response = await post(); } catch (error) { failure = error; }
       const passing = failure || response.status === 429 || response.status >= 500;
       // Every try carries the same request_key, so a try after a lost or slow answer is answered as the first was.
       if (passing && !once && attempt < rules.retry.count) { await wait(gap(attempt) * 1000); continue; }
@@ -867,9 +898,15 @@ export function engineClient({ door, credential, fetchImpl = fetch, rules = sett
       return response;
     }
   }
-  async function rpc(method, params, { idempotent = true, once = false } = {}) {
+  // A call that carries a file (`upload`, its bytes) is one raw upload: the file is the body, sent as an octet stream, and the
+  // JSON-RPC message rides in the `X-Call` header as base64url (the engine's src/mcp/upload.rs); the door spools the body and
+  // hands it to the session call as its row's `byte_argument`. Every other call is the message as a JSON body.
+  async function rpc(method, params, { idempotent = true, once = false, upload = null } = {}) {
     const id = (next += 1);
-    const response = await send(JSON.stringify({ jsonrpc: '2.0', id, method, params }), { idempotent, once });
+    const message = JSON.stringify({ jsonrpc: '2.0', id, method, params });
+    const response = upload
+      ? await send(upload, { idempotent, once, also: { 'content-type': 'application/octet-stream', 'x-call': Buffer.from(message).toString('base64url') } })
+      : await send(message, { idempotent, once });
     const text = await response.text();
     let reply;
     try { reply = repliesOf(text).find(item => item?.id === id); } catch { reply = null; }
@@ -882,9 +919,9 @@ export function engineClient({ door, credential, fetchImpl = fetch, rules = sett
   // refusal is thrown as it was.
   const refusesNeed = (error, sent) => Object.hasOwn(sent, 'need') && error?.answer?.code === rules.engine.need_refusal.code
     && error.answer.message === rules.engine.need_refusal.message;
-  async function tool(name, args, { idempotent = false } = {}) {
+  async function tool(name, args, { idempotent = false, upload = null } = {}) {
     let sent = args;
-    const send = () => rpc('tools/call', { name, arguments: sent }, { idempotent });
+    const send = () => rpc('tools/call', { name, arguments: sent }, { idempotent, upload });
     for (let attempt = 0; ; attempt += 1) {
       const result = await send().catch(error => {
         if (!refusesNeed(error, sent)) throw error;
@@ -910,8 +947,8 @@ export function engineClient({ door, credential, fetchImpl = fetch, rules = sett
   // A call names its method; the engine finds the owner by it. An address is sent only when one is given: to pass a method
   // on to a computer whose own owner answers it (a meeting point's announce). A route (`need`, `pins`: see routeOf) is sent
   // only when given, so every other call's envelope is unchanged.
-  const op = (address, method, input = {}, { idempotent = false, requestKey = randomUUID(), route = {} } = {}) =>
-    tool(rules.engine.tool, { ...(address ? { address } : {}), method, request_key: requestKeyForEngine(requestKey), input, ...route }, { idempotent });
+  const op = (address, method, input = {}, { idempotent = false, requestKey = randomUUID(), route = {}, upload = null } = {}) =>
+    tool(rules.engine.tool, { ...(address ? { address } : {}), method, request_key: requestKeyForEngine(requestKey), input, ...route }, { idempotent, upload });
   async function whoami() {
     const result = await rpc('initialize', { protocolVersion: rules.engine.protocol_version, capabilities: {}, clientInfo: { name: rules.client_name, version: rules.client_version } }, { once: true });
     // Whose account answered: the engine names it under `<its site, reversed>/account`, or `account` when it names no
@@ -987,11 +1024,22 @@ async function wholeAnswer(client, address, method, input, first, { requestKey, 
   try { return JSON.parse(text); } catch { return text; }
 }
 
+/** The bytes of the file `--upload` names, sent as the call's raw body (one piece: the engine takes at most
+ *  `direct_calls.upload_most_bytes` in one body, so a larger file is sent as pieces, each its own call); null without the flag. */
+export function uploadOf(path, rules = settings) {
+  if (path === undefined) return null;
+  if (typeof path !== 'string' || !path) throw new CommandError(rules.words.upload_needs_a_file, { status: 2 });
+  let bytes;
+  try { bytes = readFileSync(path); } catch (error) { throw new CommandError(fill(rules.words.upload_unreadable, { path, why: error.code ?? error.message }), { status: 2 }); }
+  if (bytes.length > rules.direct_calls.upload_most_bytes) throw new CommandError(fill(rules.words.upload_too_large, { path, bytes: bytes.length, most: rules.direct_calls.upload_most_bytes }), { status: 2 });
+  return bytes;
+}
+
 /** One operation answered whole: `op` under one request key for the call and every page of its answer, and when the
  *  answer is a byte page, every page after it (wholeAnswer). */
-export async function opWhole(client, address, method, input, { requestKey = randomUUID(), rules = settings, route = {} } = {}) {
+export async function opWhole(client, address, method, input, { requestKey = randomUUID(), rules = settings, route = {}, upload = null } = {}) {
   try {
-    return await opWholeOnce(client, address, method, input, { requestKey, rules, route });
+    return await opWholeOnce(client, address, method, input, { requestKey, rules, route, upload });
   } catch (error) {
     // Every refusal names the key it was sent under, so a caller can quote it. A call that times out may still have landed under
     // this key: the same key answers it, so the way to ask again is the key.
@@ -1004,10 +1052,10 @@ export async function opWhole(client, address, method, input, { requestKey = ran
   }
 }
 
-async function opWholeOnce(client, address, method, input, { requestKey, rules, route }) {
+async function opWholeOnce(client, address, method, input, { requestKey, rules, route, upload }) {
   // A write the engine keeps answers accepted and pending until its writer settles it: the same key then answers the outcome, or the
   // writer's refusal, which the call throws. The wait is settled-write.mjs, so no write is reported as kept while pending.
-  const first = await settledWrite(answerKey => client.op(address, method, input, { requestKey: answerKey, route }), requestKey, {
+  const first = await settledWrite(answerKey => client.op(address, method, input, { requestKey: answerKey, route, upload }), requestKey, {
     sleep: client.wait,
     pending: answer => answer?.accepted === true && answer?.pending === true,
     expired: () => new CommandError(rules.words.write_pending, { status: 4 }),
@@ -1450,6 +1498,7 @@ const HELP = `{cli}: see your AIs and their tasks, and run your {site_name}'s to
   {cli} connect ADDRESS                               sign in to a remote tool server (an MCP server's https address); then any AI calls its tools by that address
   {cli} op METHOD JSON|- [--pin ID]...                 any engine operation by its method (do_one_thing_in_my_account); op --dry-run shows the request and sends nothing
   --pin ID  meet the op or schedule call at this computer first, then the next --pin in order (repeat it, or give IDs separated by commas; at most ${settings.engine.pins.most})
+  --upload FILE      (op, call) send FILE's bytes as the call's raw body (at most ${settings.direct_calls.upload_most_bytes} bytes): a session tool takes it as the file argument its row names (byte_argument)
   --timeout SECONDS  wait this long for one try of a call (default ${settings.retry.attempt_seconds}); a try with no answer is asked again, up to ${settings.retry.count} more times, under the same request key
   {cli} schedule list | on TOOL WAKE_ID | off TOOL WAKE_ID | cancel RUN_KEY [--pin ID]...   the wakes your tool rows declare: list, switch, or cancel one admitted run (a wake is made, changed or removed in its row's wakes list)
   {cli} update                                        who updates this command (it never updates itself)
@@ -1540,7 +1589,8 @@ async function signedInClient(context) {
   if (credential.kind === 'key' && credential.where !== settings.env.key && !door.local && !door.public) throw new CommandError(settings.words.kept_key_elsewhere, { status: 3 });
   const timeoutSeconds = context.flags.timeout === undefined ? undefined : timeoutOf(context.flags.timeout);
   const renew = credential.kind === 'sign-in' ? () => credentialFor({ env: context.env, store: context.store, grants: context.grants, fetchImpl: context.fetchImpl }) : null;
-  return engineClient({ door, credential, renew, fetchImpl: context.fetchImpl, wait: context.wait, ...(timeoutSeconds === undefined ? {} : { timeoutSeconds }) });
+  const uploadAt = context.flags.upload === undefined ? null : context.uploadDoor(door);
+  return engineClient({ door, credential, renew, fetchImpl: context.fetchImpl, wait: context.wait, uploadAt, ...(timeoutSeconds === undefined ? {} : { timeoutSeconds }) });
 }
 
 /** This AI's own `ai` record (aiRecordOf) as one `keep` row for the person's own store, conditioned on `held`: the value
@@ -1842,6 +1892,7 @@ export async function main(argv, seams = {}) {
   const context = { asked, declared: env[settings.env.origin]?.replace(/\/$/, '') || null, flags, env, rest: parsed.rest, transcriptHome: seams.transcriptHome, fetchImpl: seams.fetchImpl ?? (seams.state ? fetch : keptConnection()), wait: seams.wait ?? pause,
     store: seams.store ?? keyStore(), grants: seams.grants ?? grantStore(), state: seams.state ?? stateOf(), open: seams.open ?? null,
     localMcp: seams.localDoor ?? (() => findLocalDoor()), agentSocket: seams.agentSocket ?? (() => findAgentSocket()),
+    uploadDoor: seams.uploadDoor ?? (seams.state ? () => null : door => uploadDoorHere(door)),
     me: agentOf({ as: flags.as ?? null, env, computerName: seams.computerName ?? computerNameOf(), ...(seams.model !== undefined ? { model: seams.model } : {}) }),
     placeImpl: seams.place ?? (() => placeOf()) };
   // A run given its state (a test) carries this computer only through the carry it is given.
@@ -1925,9 +1976,9 @@ export async function main(argv, seams = {}) {
     if (command === 'call') {
       const tool = need(words[0], `Name the tool: ${cliName()} call TOOL JSON, with an id from ${cliName()} tools.`);
       const input = await readJson(words[1], '{"text": "..."}');
-      return whole(await opWhole(client, null, engine.tools_run, { tool, input }, { requestKey: flags['request-key'], route: await routeOf(client, tool) }));
+      return whole(await opWhole(client, null, engine.tools_run, { tool, input }, { requestKey: flags['request-key'], route: await routeOf(client, tool), upload: uploadOf(flags.upload) }));
     }
-    return whole(await opWhole(client, flags.address ?? null, opMethod(words[0]), await readJson(words[1], '{"id": "..."}'), { requestKey: flags['request-key'], route: pinned }));
+    return whole(await opWhole(client, flags.address ?? null, opMethod(words[0]), await readJson(words[1], '{"id": "..."}'), { requestKey: flags['request-key'], route: pinned, upload: uploadOf(flags.upload) }));
   }
   if (command === 'who') {
     const now = Date.now();
