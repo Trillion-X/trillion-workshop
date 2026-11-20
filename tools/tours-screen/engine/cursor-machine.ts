@@ -8,7 +8,7 @@
 // History is kept so retreat is exact even across branches. The machine is blind
 // to step content/placement/triggers — it reads only ids + branch maps (M8).
 
-import { resolveBranch, type StepShape, type WalkthroughShape } from './branch-resolver';
+import { resolveBranch, type StepShape, type WalkthroughShape } from './branch-resolver.ts';
 
 export interface WalkthroughCursor {
   /** The step currently shown. */

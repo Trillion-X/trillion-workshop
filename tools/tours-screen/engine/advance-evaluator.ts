@@ -12,7 +12,7 @@
 //
 // All thresholds (`min_ratio`, `ms`) are DATA in `args`, never engine constants.
 
-import { createBlindRegistry, type BlindRegistry } from '../../ui/show/blind-registry/blind-registry';
+import { createBlindRegistry, type BlindRegistry } from '../../ui/show/blind-registry/blind-registry.ts';
 
 /** A declarative advance predicate as it appears in step DATA. */
 export interface AdvanceCondition {

@@ -125,3 +125,21 @@ Each file below is the package's own, byte for byte; `from-bitfield-packages/mov
 - 1 file: a real business's first-run tour (its name, its screens and its copy); a public tree holds made-up data only
 
 The receipt's `not_carried` names each path.
+
+### Tests that run (verify-every-port, Nov 19 2026)
+
+Held tests whose outcomes still hold became real tests beside the file they test; each says in its header what changed from the package's version. The held copies stay as they were.
+
+| File | Outcomes |
+|---|---|
+| `engine/advance-evaluator.test.ts` | Built-in ops, `all-of` / `any-of`, a new op beside the built-ins, `owner-readback` (answer values, non-empty, values present, states, every ref), and no owner named in the evaluator. |
+| `engine/cursor-machine.test.ts` | Branch resolution, linear and branching moves, retreat, jump, and starting again (`startWalkthrough` is the package's `restart`). |
+| `engine/trigger-intake.test.ts` | Event matching, once keys and their scoping fields, selection, `suppressionKeyForEvent` (the package's `suppressionKeyToConsume`), a repeatable start event, and the Workshop's own `requires` / `consumed_before` and `match_all`. |
+| `read-data/walkthrough-eeaf.test.ts` | Folding tours (opaque presentation, JSON strings, tombstones, later wins, malformed skipped, sorted) and the one progress record (keys unioned, cursors kept, a foreign record ignored), and which tour an event starts. |
+| `read-data/application-walkthrough-contribution.test.ts` | The contribution's upsert, retraction and address collisions. |
+| `do-work/walkthrough-progress.test.ts` | The live move `applyProgressTransition`: replay answered once, a stale or wrong-step move refused, skip kept as a finished run with its key and time, a new run with its own cursor, keys consumed together, the 32 recent moves. |
+| `test/walkthrough-presentation-and-registry.test.mjs` | The spotlight and targeting DATA, the geometry kept inside the viewport, and the open presentation registry (built with esbuild in memory, as the web client reads it). |
+| `test/tours-hold-made-up-names-only.test.mjs` | The package's five name calls as outcomes: none of the five real forms is in this tool or in guided-overlay. |
+
+Not run here: the nine held JSX tests and `show/target-resolution.test.ts.held` need a DOM test runtime the Workshop does not have (its root `test` script runs only `.test.mjs` and `.test.ts`). The research row `verify-every-port/tours-screen` lists them.
+
