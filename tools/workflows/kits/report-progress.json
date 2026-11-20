@@ -1,0 +1,50 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:report-progress with database <the name of my own account database>, key <a name for the work>, title <what it says> and state running.\"",
+  "lists": [],
+  "no_lists_because": "Work still going on is a row of the person's own database; this workflow keeps it there and names no list of its own.",
+  "workflows": [
+    "workflow:report-progress",
+    "workflow:tell-the-person"
+  ],
+  "tools": [
+    "tool:run-sql-in-my-database"
+  ],
+  "instructions": [
+    "1. Name the database your account keeps its rows in.",
+    "2. Say \"Run workflow:report-progress\" with database, key and title each time the work moves; add done and total counts, a unit, a body and a source when there are any, and state done or failed when it ends.",
+    "3. Reporting again under the same key changes the same card; the end is told once as a notice your devices read.",
+    "4. Each run answers the work cards too; a card not reported for ten minutes (or quiet_minutes) reads as stopped."
+  ],
+  "worked_examples": [
+    {
+      "title": "Show a drive copy and tell me when it ends",
+      "ask": "Show me that the drive copy is at 60 of 100.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:report-progress",
+              "database": "<my account database>",
+              "key": "copy:1",
+              "title": "Copying a drive",
+              "kind": "transfer",
+              "state": "running",
+              "done": 60,
+              "total": 100,
+              "unit": "bytes"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:report-progress",
+      "step": "report",
+      "given": "The progress table holds no row under copy:1, or one at 10 of 100.",
+      "hands_back": "key copy:1, state running, told false. The same call with state done and done 100 hands back state done, told true; sent again, told false."
+    }
+  ],
+  "drafted_from": "workflow:report-progress steps render, report, cards"
+}

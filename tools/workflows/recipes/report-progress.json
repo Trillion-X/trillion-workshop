@@ -1,0 +1,207 @@
+{
+  "about": "tools/workflows/recipes: work that is still going on is one row of the progress table of the person's own database, changed in place by each report, and its end is one notice of the notices table every notice workflow renders. Replaces tool:report-progress, which kept no tool row; a step that reports work still going on runs this.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:report-progress",
+        "label": "Report work that is still going on",
+        "job": "Show the person work that is still going on as one card, changed in place each time it is reported, and tell them once when it ends: keep one row per piece of work in the progress table of the person's own database (a key naming the work, never one start of the program doing it, so a program started again changes the same card), and when the work ends (done or failed) keep one notice of it in the notices table their devices read, once however often the end is reported. A card not reported for the quiet minutes reads as stopped.",
+        "produces": "One progress row for the key, changed in place; and, the first time the work is reported done or failed, one notice told:<id>.",
+        "source": {
+          "from": "tool:report-progress and src/tell-the-person.mjs report/recent (the retired engine, read at tools/tell-one-person-something-through-every-way-they/read-data/tell-the-person.mjs and its test, read on trillion-workshop origin/main)",
+          "note": "The old report kept one notice per key changed in place, shown only on the person's own page while its state was running (work_states running, done, failed), told once through the kind's other channels at the end, with done and total counts (done no more than total), an outside address replaced by the default address, and a running notice not reported for running_quiet_minutes (10) read as stopped. Here the card is a progress row and the end is one notice row, so the devices' own workflows (send-each-new-notice-to-my-devices) send the end once and never the running card. Not carried: the Pause and Stop actions a card offered to the agent that reported it, and the Live Activity board; those need a route to the program's computer."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "database",
+            "key",
+            "title"
+          ],
+          "properties": {
+            "database": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The name of the person's own database, the one the notices live in."
+            },
+            "key": {
+              "type": "string",
+              "minLength": 1,
+              "description": "A name for this piece of work, the same on every report of it and on a restart of the program doing it"
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "description": "What the card says in a few plain words; the end notice says it too"
+            },
+            "body": {
+              "type": "string",
+              "description": "The rest, in plain words"
+            },
+            "kind": {
+              "type": "string",
+              "description": "What sort of work it is, in the person's own words for it (working when none)"
+            },
+            "state": {
+              "type": "string",
+              "enum": [
+                "running",
+                "done",
+                "failed"
+              ],
+              "description": "running when none"
+            },
+            "done": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "How much is done, with total"
+            },
+            "total": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "How much there is in all, no less than done"
+            },
+            "unit": {
+              "type": "string",
+              "description": "What done and total count, such as bytes or files"
+            },
+            "url": {
+              "type": "string",
+              "description": "Where the person goes to see it: a path on the site starting with one slash; any other address is left out"
+            },
+            "source": {
+              "type": "string",
+              "description": "Which computer or program is doing the work"
+            },
+            "quiet_minutes": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "How many minutes without a report make a running card read as stopped (10 when none)"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "render",
+            "title": "Make the progress and notice tables if they are absent",
+            "do": "Run the statements of this step's sql, in order, through tool:run-sql-in-my-database with database = input.database. They only create what is missing (the devices and notices tables are the ones workflow:tell-the-person makes), so a run where they exist changes nothing. Submit {rendered: true}.",
+            "sql": [
+              {
+                "name": "devices",
+                "params": [],
+                "text": "CREATE TABLE IF NOT EXISTS devices (id text PRIMARY KEY, platform text NOT NULL CHECK (platform IN ('live', 'web-push', 'apns')), token text, app_build text, registered_at timestamptz NOT NULL DEFAULT now(), last_seen_at timestamptz NOT NULL DEFAULT now())"
+              },
+              {
+                "name": "notices",
+                "params": [],
+                "text": "CREATE TABLE IF NOT EXISTS notices (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, device_id text REFERENCES devices (id), title text NOT NULL DEFAULT '', body text NOT NULL DEFAULT '', url text, made_at timestamptz NOT NULL DEFAULT now(), read_at timestamptz, acted_at timestamptz)"
+              },
+              {
+                "name": "kind-and-key",
+                "params": [],
+                "text": "ALTER TABLE notices ADD COLUMN IF NOT EXISTS kind text, ADD COLUMN IF NOT EXISTS key text"
+              },
+              {
+                "name": "progress",
+                "params": [],
+                "text": "CREATE TABLE IF NOT EXISTS progress (key text PRIMARY KEY, kind text NOT NULL DEFAULT 'working', title text NOT NULL DEFAULT '', body text NOT NULL DEFAULT '', url text, source text, state text NOT NULL CHECK (state IN ('running', 'done', 'failed')), done bigint, total bigint, unit text, started_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now(), CHECK ((done IS NULL AND total IS NULL) OR (done IS NOT NULL AND total IS NOT NULL AND done >= 0 AND done <= total)))"
+              }
+            ],
+            "submit": {
+              "type": "object",
+              "required": [
+                "rendered"
+              ],
+              "properties": {
+                "rendered": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "report",
+            "title": "Keep the card in place; tell the end once",
+            "do": "Run the statement named report of this step's sql through tool:run-sql-in-my-database with database = input.database and params [key, title, body (null when none), kind (null when none), state (null when none), done (null when none), total (null when none), unit (null when none), url (null when none), source (null when none)]. A refusal of the database (a state that is not running, done or failed, a count above its total, a negative count) is the answer: submit nothing and say it. Otherwise answer {key: input.key, state: the returned state, told: true when the returned told_id is not null, else false, said: \"Reported <title>: <state>.\"}. Nothing else is written.",
+            "sql": [
+              {
+                "name": "report",
+                "params": [
+                  "key",
+                  "title",
+                  "body",
+                  "kind",
+                  "state",
+                  "done",
+                  "total",
+                  "unit",
+                  "url",
+                  "source"
+                ],
+                "text": "WITH up AS (INSERT INTO progress AS p (key, kind, title, body, url, source, state, done, total, unit) VALUES ($1::text, coalesce($4::text, 'working'), $2::text, coalesce($3::text, ''), CASE WHEN $9::text ~ '^/[^/]' THEN $9::text ELSE '/notifications' END, $10::text, coalesce($5::text, 'running'), $6::bigint, $7::bigint, $8::text) ON CONFLICT (key) DO UPDATE SET kind = excluded.kind, title = excluded.title, body = excluded.body, url = excluded.url, source = coalesce(excluded.source, p.source), state = excluded.state, done = excluded.done, total = excluded.total, unit = excluded.unit, started_at = CASE WHEN p.state <> 'running' AND excluded.state = 'running' THEN now() ELSE p.started_at END, updated_at = now() RETURNING p.state, p.started_at, p.kind, p.title, p.body, p.url), told AS (INSERT INTO notices (title, body, kind, key, url) SELECT up.title, up.body, up.kind, 'ended:' || $1::text || ':' || extract(epoch from up.started_at)::text, up.url FROM up WHERE up.state IN ('done', 'failed') AND NOT EXISTS (SELECT 1 FROM notices WHERE key = 'ended:' || $1::text || ':' || extract(epoch from up.started_at)::text) RETURNING id) SELECT (SELECT state FROM up) AS state, (SELECT id FROM told) AS told_id"
+              }
+            ],
+            "submit": {
+              "type": "object",
+              "required": [
+                "key",
+                "state",
+                "told",
+                "said"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "state": {
+                  "type": "string",
+                  "enum": [
+                    "running",
+                    "done",
+                    "failed"
+                  ]
+                },
+                "told": {
+                  "type": "boolean"
+                },
+                "said": {
+                  "type": "string"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "cards",
+            "title": "Read the work cards, a quiet one as stopped",
+            "do": "Run the statement named cards through tool:run-sql-in-my-database with database = input.database and params [quiet_minutes (null when none, which is 10), null]. Submit {cards: the rows returned}. A card whose state is stopped was running and has not been reported for the quiet minutes.",
+            "sql": [
+              {
+                "name": "cards",
+                "params": [
+                  "quiet_minutes",
+                  "as_of"
+                ],
+                "text": "SELECT key, kind, title, body, url, source, CASE WHEN state = 'running' AND updated_at < coalesce($2::timestamptz, now()) - make_interval(mins => coalesce($1::int, 10)) THEN 'stopped' ELSE state END AS state, done, total, unit, updated_at FROM progress ORDER BY updated_at DESC, key"
+              }
+            ],
+            "submit": {
+              "type": "object",
+              "required": [
+                "cards"
+              ],
+              "properties": {
+                "cards": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}
