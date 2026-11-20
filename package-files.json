@@ -56366,5 +56366,10 @@
  ],
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:your-files": [],
- "tool:your-files-names": []
+ "tool:your-files-names": [],
+ "tool:make-cut-out": [{"package": "media-composition", "paths": ["do-work", "read-data"], "at": "/opt/media-composition", "exclude": ["__tests__"]}],
+ "tool:make-sound-effect-forged-on-my-computer": [{"package": "media-composition", "paths": ["do-work", "read-data"], "at": "/opt/media-composition", "exclude": ["__tests__"]}],
+ "tool:make-sound-effect-from-stable-audio-3-on-my-computer": [{"package": "media-composition", "paths": ["do-work", "read-data"], "at": "/opt/media-composition", "exclude": ["__tests__"]}],
+ "tool:make-sound-effect-from-moss-on-my-computer": [{"package": "media-composition", "paths": ["do-work", "read-data"], "at": "/opt/media-composition", "exclude": ["__tests__"]}],
+ "tool:make-sound-effects-for-a-video-from-hunyuan-foley-on-my-computer": [{"package": "media-composition", "paths": ["do-work", "read-data"], "at": "/opt/media-composition", "exclude": ["__tests__"]}]
 }
