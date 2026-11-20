@@ -1481,11 +1481,12 @@
         "listed_on": "2026-11-20T11:00:00Z",
         "label": "Transcribe an audio or video file (MLX Whisper, on this computer)",
         "job": "Transcribe an audio or video file in this person's files into timed words, for captions, search and picking a stretch by what is said",
-        "description": "Hears one recording from the person's files (`file`, its name or identity) on this computer with the MLX Whisper model, and answers its text, timed segments and every word with its own start and end in seconds. The copy heard is removed once heard; the person's file is never changed. It keeps nothing: tool:keep-transcript keeps the answer beside the recording through the record writer. Needs the computer run to start Python with mlx_whisper and the model in the Hugging Face cache.",
+        "description": "Hears one recording from the person's files (`file`, its name or identity) on this computer with the MLX Whisper model, and answers its text, timed segments and every word with its own start and end in seconds. The copy heard is removed once heard; the person's file is never changed. It keeps nothing: tool:keep-transcript keeps the answer beside the recording through the record writer. Needs the computer run to start the granted Python (`program`) with mlx_whisper and the model in the Hugging Face cache.",
         "input_schema": {
           "type": "object",
           "required": [
-            "file"
+            "file",
+            "program"
           ],
           "additionalProperties": false,
           "properties": {
@@ -1495,6 +1496,13 @@
               "maxLength": 400,
               "description": "The recording's name or identity in the person's files",
               "x-free-text-because": "A file name in the person's files."
+            },
+            "program": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400,
+              "description": "The Python with mlx_whisper that the person granted to this run (computer.start-a-program, program_kind voice-model), for example its path in the granted folder",
+              "x-free-text-because": "A file path on this computer."
             },
             "language": {
               "type": "string",

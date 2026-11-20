@@ -26,8 +26,6 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const MODEL_REPO = 'mlx-community/whisper-small-mlx';
 /** The seam the MLX engine is called through (argv: transcribe --audio F --out F.json --model-path REPO). */
 export const MLX_SCRIPT = path.join(HERE, '..', 'do-work', 'transcribe_mlx.py');
-/** The Python with mlx_whisper. A computer run finds it on PATH or by the program the person granted. */
-export const PYTHON = 'python3';
 
 // Whisper's own control tokens ([_BEG_], <|en|>) are not words anyone said.
 const SPECIAL = /^(\[_[^\]]*_\]|<\|.*\|>)$/;
@@ -51,7 +49,7 @@ export function transcriptOfHeard(heard, { language = '', produced_by = 'mlx_whi
 }
 
 /** Hears one copied recording with the MLX seam; throws the seam's last line when it cannot hear it. */
-async function hearWithMlx(file, { language = '', python = PYTHON } = {}) {
+export async function hearWithMlx(file, { language = '', python } = {}) {
   const out = `${file}.heard.json`;
   try {
     await run(python, [MLX_SCRIPT, 'transcribe', '--audio', file, '--out', out, '--model-path', MODEL_REPO], { maxBuffer: 16 * 1024 * 1024 });
@@ -64,14 +62,19 @@ async function hearWithMlx(file, { language = '', python = PYTHON } = {}) {
 }
 
 /**
- * tool:transcribe-file: { file, language? } -> { text, segments: [{ start, end, text, words }], language, heard_whole, produced_by }.
- * `file` is the recording's name or identity in the person's files, read by the run's host.
+ * tool:transcribe-file: { file, program, language? } -> { text, segments: [{ start, end, text, words }], language, heard_whole, produced_by }.
+ * `file` is the recording's name or identity in the person's files, read by the run's host. `program` is the path of the
+ * Python with mlx_whisper that the person granted to this run (computer.start-a-program, program_kind voice-model); it is
+ * never a default, so a run without a grant is refused in words.
  */
 export async function transcribeAFile(input, host, { hear = hearWithMlx } = {}) {
   if (!String(input?.file ?? '').trim()) {
     throw Object.assign(new Error('Give `file`: the recording\'s name or identity in the person\'s files.'), { status: 400 });
   }
+  if (!String(input?.program ?? '').trim()) {
+    throw Object.assign(new Error('Give `program`: the Python with mlx_whisper that the person granted to this run.'), { status: 400 });
+  }
   return hearARecording({ file: input.file, model_path: MODEL_REPO, language: input.language ?? '' }, host, {
-    hear: (file, _hearing) => hear(file, { language: input.language ?? '' }),
+    hear: (file, _hearing) => hear(file, { language: input.language ?? '', python: input.program }),
   });
 }

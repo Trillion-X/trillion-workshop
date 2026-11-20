@@ -9,7 +9,7 @@
     "tool:keep-transcript"
   ],
   "instructions": [
-    "1. Give the recording's name or identity in the person's files, and its language when known.",
+    "1. Give the recording's name or identity in the person's files, the language when known, and the granted Python with mlx_whisper (program).",
     "2. Call tool:transcribe-file with them; it hears the recording on this computer with the MLX Whisper model.",
     "3. Read the answer: text is the whole transcript, segments hold each passage's start and end, and each word has its own start and end in seconds."
   ],
@@ -27,7 +27,8 @@
             "input": {
               "file": "clip.m4a",
               "language": "en"
-            }
+            },
+            "program": "/granted/python3"
           }
         }
       },
