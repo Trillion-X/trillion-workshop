@@ -33,17 +33,19 @@ export function argumentsFor(kind, after) {
 }
 
 /**
- * Reads the request's bookmarks page by page through `execute(tool, accountId, args, userId)`, feeding `collected.onPage`,
+ * Reads the request's bookmarks page by page through `execute(tool, accountId, args, userId, projectId)`, feeding `collected.onPage`,
  * until the collector has what it needs, X has no more, or the list's page limit is reached. Answers the number of pages read.
  */
 export async function readFromComposio(request, collected, { execute }) {
   if (request.which !== 'bookmarks') throw new Error('Composio reads the bookmarks only; the likes are read by the X API path.');
   const kind = listFor(request);
-  if (!request.account) throw new Error('Give account: the Composio account id of the person\'s X connection.');
+  const { connection_id: accountId, user_id: userId, project_id: projectId } = request.connection ?? {};
+  if (!accountId) throw new Error('Give connection.connection_id: the Composio account id of the person\'s X connection.');
+  if (!userId) throw new Error('Give connection.user_id: the Composio user id that owns that account (tool:list-my-connected-accounts names it).');
   let after;
   let pages = 0;
   while (pages < kind.max_pages) {
-    const answer = await execute(conventions.composio.bookmarks, request.account, argumentsFor(kind, after), request.user_id ?? conventions.composio.user_id);
+    const answer = await execute(conventions.composio.bookmarks, accountId, argumentsFor(kind, after), userId, projectId);
     pages += 1;
     const page = pageIn(answer);
     collected.onPage(apiPostsIn(page));

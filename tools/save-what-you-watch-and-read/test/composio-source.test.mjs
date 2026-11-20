@@ -19,19 +19,16 @@ test('the answer is unwrapped to X\'s page, whether Composio wraps it in data or
 
 test('each page asks for the person\'s own bookmarks with the fields the parser reads, and the next page passes its token back', async () => {
   const calls = [];
-  const execute = async (tool, account, args, userId) => {
-    calls.push({ tool, account, args, userId });
+  const execute = async (tool, account, args, userId, projectId) => {
+    calls.push({ tool, account, args, userId, projectId });
     if (calls.length === 1) return { data: { data: [xPost('9')], ...users, meta: { next_token: 'tok-2' } } };
     return { data: { data: [xPost('5')], ...users, meta: {} } };
   };
   const collected = collector([]);
-  const pages = await readFromComposio({ which: 'bookmarks', account: 'twitter_terma-weedy', user_id: 'me-user' }, collected, { execute });
+  const pages = await readFromComposio({ which: 'bookmarks', connection: { connection_id: 'twitter_terma-weedy', user_id: 'me-user', project_id: 'pr_test' } }, collected, { execute });
   assert.equal(pages, 2);
   assert.deepEqual(calls.map(call => call.tool), ['TWITTER_BOOKMARKS_BY_USER', 'TWITTER_BOOKMARKS_BY_USER']);
-  assert.ok(calls.every(call => call.account === 'twitter_terma-weedy' && call.userId === 'me-user'));
-  const defaulted = [];
-  await readFromComposio({ which: 'bookmarks', account: 'twitter_terma-weedy' }, collector([]), { execute: async (tool, account, args, userId) => { defaulted.push(userId); return { data: { data: [], includes: {}, meta: {} } }; } });
-  assert.deepEqual(defaulted, ['default'], 'with no user_id given, the Composio entity is the default one');
+  assert.ok(calls.every(call => call.account === 'twitter_terma-weedy' && call.userId === 'me-user' && call.projectId === 'pr_test'));
   assert.equal(calls[0].args.id, 'me');
   assert.equal(calls[0].args.max_results, 100);
   assert.equal(calls[0].args.pagination_token, undefined);
@@ -43,7 +40,8 @@ test('each page asks for the person\'s own bookmarks with the fields the parser 
 test('the likes are not read through Composio, and a missing account is refused before any call', async () => {
   const execute = async () => { throw new Error('no call expected'); };
   await assert.rejects(readFromComposio({ which: 'likes', account: 'x' }, collector([]), { execute }), /bookmarks only/);
-  await assert.rejects(readFromComposio({ which: 'bookmarks' }, collector([]), { execute }), /Give account/);
+  await assert.rejects(readFromComposio({ which: 'bookmarks' }, collector([]), { execute }), /Give connection.connection_id/);
+  await assert.rejects(readFromComposio({ which: 'bookmarks', connection: { connection_id: 'twitter_terma-weedy' } }, collector([]), { execute }), /Give connection.user_id/);
 });
 
 test('the arguments carry the list\'s page size and no token on the first page', () => {

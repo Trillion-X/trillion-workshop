@@ -2128,13 +2128,33 @@
       "input_schema": {
         "type": "object",
         "required": [
-          "account"
+          "connection"
         ],
         "additionalProperties": false,
         "properties": {
-          "account": {
-            "type": "string",
-            "description": "The Composio account id of the person's X connection, as the connection list names it (for example twitter_terma-weedy)."
+          "connection": {
+            "type": "object",
+            "required": [
+              "connection_id",
+              "user_id",
+              "project_id"
+            ],
+            "additionalProperties": false,
+            "description": "The person's X account in Composio: its account id, the user id that owns it, and the project its key lists (tool:list-my-connected-accounts names all three).",
+            "properties": {
+              "connection_id": {
+                "type": "string",
+                "description": "The Composio account id, as the connection list names it (for example ca_...)."
+              },
+              "user_id": {
+                "type": "string",
+                "description": "The Composio user id that owns the account."
+              },
+              "project_id": {
+                "type": "string",
+                "description": "The Composio project (pr_...) the account is in."
+              }
+            }
           },
           "since": {
             "type": [
@@ -2259,7 +2279,11 @@
           "kind": "sample-run",
           "input": {
             "which": "bookmarks",
-            "account": "twitter_terma-weedy"
+            "connection": {
+              "connection_id": "ca_sample",
+              "user_id": "sample-owner",
+              "project_id": "pr_sample"
+            }
           },
           "replies": [
             {

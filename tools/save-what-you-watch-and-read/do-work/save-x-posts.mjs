@@ -24,7 +24,7 @@ export async function saveXPosts(request, { out, way, execute } = {}) {
   // Bookmarks are read through the person's X account that Composio holds; likes still read through the X API token.
   const composio = (req, collected) => readFromComposio(req, collected, { execute: execute ?? makeComposioCall() });
   const source = way ?? (request.which === 'bookmarks' ? composio : undefined);
-  const read = await readSaved({ via: request.which === 'bookmarks' ? 'composio' : 'api', which: request.which, account: request.account, user_id: request.user_id, since: request.since ?? null, already_kept: request.already_kept ?? [], token_fd: 3 }, source);
+  const read = await readSaved({ via: request.which === 'bookmarks' ? 'composio' : 'api', which: request.which, connection: request.connection, since: request.since ?? null, already_kept: request.already_kept ?? [], token_fd: 3 }, source);
   const file = `saved-x-${request.which}.json`;
   const posts = mergePosts(keptPosts(join(out, file), request.kept), read.posts);
   mkdirSync(out, { recursive: true });
