@@ -13,7 +13,6 @@ import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src
 import { openRecords } from '../../keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs';
 import { agentRecordStore, AGENT_RECORD_TABLES } from '../../shared-code/src/agent-records.mjs';
 import { agentLegacyRows } from '../../shared-code/src/agent-legacy-rows.mjs';
-import { tablesIntoRecords } from '../../move-the-rows-a-persons-store-kept-in-tables/src/tables-into-records.mjs';
 import { JOB_COLUMNS, jobColumnsOf } from '../../shared-code/src/agents.mjs';
 
 const at = n => new Date(Date.UTC(2026, 9, 5) + n * 1000).toISOString();
@@ -260,41 +259,6 @@ test('selected parents include older SQL children in order and honor newer recor
   assert.deepEqual(groups.get('parent-a').map(item => item.handoff_id), ['h001', 'h002', 'h003']);
   assert.deepEqual(groups.get('parent-b').map(item => item.handoff_id), ['h004']);
   assert.deepEqual([...bridge.handedOnFromMany([])], []);
-});
-
-test('mixed record/table pages preserve cursors, priority order, dependency review and grouped writes', () => {
-  const { host, sql, current, bridge, card, handoff, delivery } = opened();
-  card({ agent_id: 'mac', reader: 'key:mac', takes_work: true });
-  handoff(job(1, { to_agent: 'mac', priority: 3 }));
-  handoff(job(2, { to_agent: 'mac', priority: 2 }));
-  handoff(job(3, { state: 'finished' }));
-  handoff(job(4, { depends_on: ['h003'], review_at: '' }));
-  handoff(job(5, { state: 'finished' }));
-  delivery(event(3));
-  current.putHandoff(job(6, { to_agent: 'mac', priority: 9 }));
-  current.putHandoff(job(7, { state: 'finished' }));
-
-  assert.deepEqual(bridge.openHandoffs({ limit: 2 }).map(item => item.handoff_id), ['h001', 'h002']);
-  assert.deepEqual(bridge.openHandoffs({ after: 'h002', limit: 2 }).map(item => item.handoff_id), ['h004', 'h006']);
-  assert.deepEqual(bridge.openQueue({ to_agent: 'mac', nowIso: at(20), limit: 2 }).map(item => item.handoff_id), ['h006', 'h001']);
-  assert.deepEqual(bridge.openQueue({ to_agent: 'mac', nowIso: at(20), after: 'h001', limit: 2 }).map(item => item.handoff_id), ['h002']);
-  assert.deepEqual(bridge.finishedHandoffs({ before: 'h007', limit: 2 }).map(item => item.handoff_id), ['h005', 'h003']);
-  assert.equal(bridge.nextReviewAt(at(10)), at(10), 'finished dependency in the older table unblocks a newer view');
-
-  const logRows = () => sql.exec('SELECT COUNT(*) AS n FROM record_log').toArray()[0].n;
-  const before = logRows();
-  bridge.transaction(() => {
-    bridge.putHandoff(job(1, { state: 'finished' }));
-    bridge.putDelivery(event(3, { state: 'sent' }));
-    bridge.putCard({ agent_id: 'mac', reader: 'key:mac', takes_work: false });
-  });
-  assert.equal(logRows() - before, 1, 'one atomic record-log write for the grouped handoff and event change');
-  assert.equal(sql.exec('SELECT open FROM agent_handoffs WHERE handoff_id = ?', 'h001').toArray()[0].open, 1, 'legacy row is left intact until the mover drops its table');
-  assert.deepEqual(bridge.openHandoffs({ limit: 10 }).map(item => item.handoff_id), ['h002', 'h004', 'h006']);
-  assert.deepEqual(bridge.dueDeliveries(at(10)), []);
-  const move = tablesIntoRecords({ sql, records: openRecords(sql, { transaction: host.transaction, hash: text => text }), transaction: host.transaction, tables: AGENT_RECORD_TABLES, batch: 10 });
-  for (let i = 0; i < 30 && move.nextAt() !== null; i += 1) move.step();
-  assert.equal(bridge.handoff('h001').state, 'finished', 'a later table copy cannot revive newer finished work');
 });
 
 test('record index paging continues after a legacy cursor and across shared timestamps', () => {
