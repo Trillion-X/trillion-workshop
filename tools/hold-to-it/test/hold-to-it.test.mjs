@@ -220,3 +220,30 @@ test('ask_time asks for a time with the suggestion it is given, else the cadence
   assert.equal(chosen.suggested_at, '15:00');
   assert.throws(() => holdToIt({ policy, group: 'other-club', operation: 'ask_time', agreement }, { now: at('2026-03-02T08:00:00Z') }), /does not belong to this group/);
 });
+
+test('a daily meeting: the last one that ended and the next one, around now', () => {
+  const now = Date.parse('2026-10-05T20:30:00Z');
+  const { last, next } = aroundNow({ every: 'day', at: '11:00', minutes: 60, time_zone: 'America/Los_Angeles' }, now, policy);
+  assert.equal(new Date(last.starts).toISOString(), '2026-10-05T18:00:00.000Z');
+  assert.equal(new Date(next.starts).toISOString(), '2026-10-06T18:00:00.000Z');
+});
+
+test('marks come from the policy rows: present scores its mark, absent its miss, and a meeting nobody set up is not arranged', () => {
+  const marks = marksFor({ people: ['A', 'B'], present: ['A'], arranged: true }, policy);
+  assert.deepEqual(marks.map(item => [item.person, item.mark.id, item.mark.points]), [['A', 'came', 1], ['B', 'missed', -3]]);
+  assert.deepEqual(marksFor({ people: ['A'], present: ['A'], arranged: false }, policy).map(item => item.mark.id), ['not-arranged']);
+});
+
+test('remind names who to tell and makes no run: the answer carries the sentence and the people, nothing to arm', () => {
+  const { agreement } = hold(daily);
+  const answer = hold({ operation: 'remind', agreement });
+  assert.deepEqual(answer.people, ['Priya Shah', 'Omar Reyes', 'Lin']);
+  assert.deepEqual(Object.keys(answer).sort(), ['people', 'said']);
+});
+
+test('a one-time session is on the calendar however far off it is, with its reminder and its check', () => {
+  const far = hold({ what: 'Quarterly review', agreed_by: ['Sam'], cadence: { every: 'once', date: '2026-11-20', at: '10:30', minutes: 150, time_zone: 'America/Los_Angeles' } }, '2026-10-07T23:40:00Z');
+  assert.equal(far.next.starts_at, '2026-11-20T18:30:00.000Z');
+  assert.equal(far.remind.once_at, '2026-11-20T18:20:00.000Z');
+  assert.equal(far.check.once_at, '2026-11-20T21:30:00.000Z');
+});
