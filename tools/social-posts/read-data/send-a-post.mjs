@@ -39,7 +39,7 @@ import { heldFields, isHeld, wordsOf } from './posts.mjs';
 import { facebookPage } from './publisher-facebook-page.mjs';
 import { requests } from './publisher-requests.mjs';
 import { substack } from './publisher-substack.mjs';
-import { shaped } from './post-shape.mjs';
+import { reachesSomeone, shaped } from './post-shape.mjs';
 import { slugOf } from './place-variants.mjs';
 import { keepRows, recordsIn, valueAt, withKept } from './records-in.mjs';
 
@@ -243,6 +243,7 @@ export async function sendAPost(input = {}, { now = () => new Date(), send = fet
   }
   if (!['approved', 'scheduled', 'partial', 'failed', 'posted'].includes(post.status)) throw new Error(`${post.post_id} is ${post.status}. Only an approved post is sent.`);
   if (!post.approved_at) throw new Error(`${post.post_id} was never approved, so nothing was sent.`);
+  if (reachesSomeone(post) && post.approved_by_person !== true) throw new Error(`${post.post_id} reaches someone and the person never approved it, so nothing was sent.`);
   if (!(post.destinations ?? []).includes(accountId)) throw new Error(`${accountId} is not one of ${post.post_id}'s destinations.`);
   const deliveries = { ...(post.deliveries ?? {}) };
   const earlier = deliveries[accountId] ?? {};

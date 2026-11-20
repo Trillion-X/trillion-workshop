@@ -9,6 +9,12 @@ export const KIND = 'post';
 export const APPROVAL_FIELDS = ['caption', 'media', 'caption_by_platform', 'settings_by_platform', 'destinations', 'link', 'scheduled_for', 'time_zone', 'source', 'format_id', 'reaches'];
 export const approvalValues = post => Object.fromEntries(APPROVAL_FIELDS.map(field => [field, post[field] ?? null]));
 export const contentOf = post => JSON.stringify(APPROVAL_FIELDS.map(field => post[field] ?? null));
+// A post that reaches someone (its reaches list, or an @handle in any place's words) is approved and sent only on the person's
+// own say-so: approval sets approved_by_person from the host, never from a caller's input (src/social-posts.mjs invariant 7).
+export const reachesSomeone = post => {
+  const words = [post.caption, ...Object.values(post.caption_by_platform ?? {})];
+  return (post.reaches ?? []).length > 0 || words.some(word => /@[A-Za-z0-9_.]+/.test(String(word ?? '')));
+};
 
 // A post that can still change: a draft, an approved post, or one set for later that nothing was sent for yet.
 export const changeable = post => ['draft', 'approved'].includes(post.status) || (post.status === 'scheduled' && !post.sent_at && !Object.keys(post.deliveries ?? {}).length);

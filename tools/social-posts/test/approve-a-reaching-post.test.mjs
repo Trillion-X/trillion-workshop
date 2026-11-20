@@ -3,6 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { approveAPost } from '../read-data/posts.mjs';
+import { sendAPost } from '../read-data/send-a-post.mjs';
 import { approvalValues } from '../read-data/post-shape.mjs';
 import settings from '../read-data/posts.json' with { type: 'json' };
 
@@ -33,4 +34,9 @@ test('a by_person field in the caller input never approves a reaching post', asy
 test('a post that reaches nobody is approved as before', async () => {
   const approved = await approveAPost(input(draft()));
   assert.equal(approved.post.status, 'approved');
+});
+
+test('the sender refuses a reaching post that the person never approved, even if approved_at is set', async () => {
+  const post = draft({ caption: 'Hi @sample_person.', approved_at: '2099-01-01T00:00:00.000Z', status: 'approved', approved_by_person: false });
+  await assert.rejects(sendAPost({ post_id: 'post:p1', place: 'x', account_id: 'x-account', records: [{ id: `${settings.record_type}:p1`, type: settings.record_type, value: post }] }), /the person never approved it/);
 });
