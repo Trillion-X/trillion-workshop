@@ -8,7 +8,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { duplicateLayouts, layoutReport, pinOf, tarFiles } from '../do-work/pin-a-commit-by-its-files.mjs';
+import { duplicateLayouts, layoutProblems, layoutReport, pinOf, tarFiles } from '../do-work/pin-a-commit-by-its-files.mjs';
 
 test('a commit is pinned by exactly its archived files, in the engine\'s identity', () => {
   const repository = mkdtempSync(join(tmpdir(), 'pin-a-commit-'));
@@ -156,4 +156,17 @@ test('a landing is judged by the problems its commit adds against its parent: an
   const existingRun = cli(sibling);
   assert.equal(existingRun.status, 0, 'an origin-only problem does not fail the lane check');
   assert.match(existingRun.stderr, /new in this commit: 0; already on origin: 1/);
+});
+
+test('a container row whose invoke.packages names a package that no package_files item of its own lays is reported; a laid one is not', () => {
+  const rowFile = (payload) => Buffer.from(JSON.stringify({ records: [{ payload: { kind: 'ai-tool-descriptor', ...payload } }] }));
+  const declared = (packages, packageFiles) => ({ id: 'tool:needs-pg', invoke: { kind: 'container', packages, files: packageFiles ? { package_files: packageFiles } : {} } });
+  const check = (payload, layout = { 'tool:needs-pg': [] }) => layoutProblems([['tools/kit/tool-rows.json', rowFile(payload)], ['package-files.json', Buffer.from(JSON.stringify(layout))]]);
+  const notLaid = 'tool:needs-pg declares the package pg, and no package_files item of its own lays it';
+  assert.deepEqual(check(declared({ pg: { version: '8.23.1' } })), [notLaid], 'the object form of invoke.packages, nothing lays pg');
+  assert.deepEqual(check(declared(['pg'], [{ package: 'kit', paths: ['do-work'], at: '/opt/kit' }])), [notLaid], 'a package_files item that lays other paths only');
+  const laid = [{ packages: ['pg'], at: '/opt/node_modules/pg' }];
+  assert.deepEqual(check(declared(['pg'], laid), { 'tool:needs-pg': laid }), [], 'a laid package is clean');
+  assert.deepEqual(check(declared(['node_modules/pg'], laid), { 'tool:needs-pg': laid }), [], 'a declared node_modules/ name is the same package as the laid one');
+  assert.deepEqual(check(declared(['pg'], [{ packages: ['node_modules/pg'], at: '/opt/node_modules/pg' }]), { 'tool:needs-pg': [{ packages: ['node_modules/pg'], at: '/opt/node_modules/pg' }] }), [], 'a laid node_modules/ name is the same package as the declared one');
 });

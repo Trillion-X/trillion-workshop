@@ -115,30 +115,44 @@ export function duplicateLayouts(rows) {
   return duplicates;
 }
 
-/** The ids of the container tool rows that name package files (invoke.files.package_files), read from every tools/<tool>/tool-rows.json
- *  of the commit. A row that cannot be read is skipped here, as the tool's own loader reports it. */
-export function toolRowsNeedingPackageFiles(files) {
-  const ids = [];
+/** The container tool rows of the commit, read from every top-level record of each tools/<tool>/tool-rows.json, each as {id,
+ *  packageFiles, packages}: the items of invoke.files.package_files, and the package names of invoke.packages (a list, or the keys
+ *  of an object). A row that cannot be read is skipped here, as the tool's own loader reports it. */
+export function containerRows(files) {
+  const rows = [];
   for (const [path, bytes] of files) {
     if (!/^tools\/[^/]+\/tool-rows\.json$/.test(path)) continue;
     let records;
     try { records = JSON.parse(bytes.toString('utf8')).records ?? []; } catch { continue; }
     for (const { payload } of records) {
-      if (payload?.kind === 'ai-tool-descriptor' && payload.invoke?.kind === 'container' && (payload.invoke.files?.package_files ?? []).length) ids.push(payload.id);
+      if (payload?.kind !== 'ai-tool-descriptor' || payload.invoke?.kind !== 'container') continue;
+      const { invoke } = payload;
+      const packages = Array.isArray(invoke.packages) ? invoke.packages : Object.keys(invoke.packages ?? {});
+      // A package_files written as one object, not a list, is one item.
+      const packageFiles = [invoke.files?.package_files ?? []].flat();
+      rows.push({ id: payload.id, packageFiles, packages });
     }
   }
-  return ids;
+  return rows;
 }
 
+/** A package name as package_files lays it: a node_modules/ prefix is dropped, as folderOf drops it from a folder. */
+const plainPackage = name => String(name).replace(/^node_modules\//, '');
+
 /** What in the commit's package-files.json would stop a run, as readable lines: a container tool row that names package files and
- *  has no key of its own in package-files.json (the Mac then fails its run with Cannot find module), a laid-out path of a package
- *  item that is neither a file of the commit nor a folder holding one, and a place one row lays twice (duplicateLayouts). The same
- *  rules as test/package-files.test.mjs, judged on the commit's own files. */
+ *  has no key of its own in package-files.json (the Mac then fails its run with Cannot find module), a container row whose
+ *  invoke.packages names a package that no package_files item of its own lays (the run dies with Cannot find package), a laid-out
+ *  path of a package item that is neither a file of the commit nor a folder holding one, and a place one row lays twice
+ *  (duplicateLayouts). The same rules as test/package-files.test.mjs, judged on the commit's own files. */
 export function layoutProblems(files) {
   const layout = files.find(([path]) => path === LAYOUT_FILE);
   const rows = layout ? JSON.parse(layout[1].toString('utf8')) : {};
-  const problems = toolRowsNeedingPackageFiles(files).filter(id => !(id in rows))
-    .map(id => `${id} is a container tool that names package files, and package-files.json has no key for it`);
+  const problems = [];
+  for (const tool of containerRows(files)) {
+    if (tool.packageFiles.length && !(tool.id in rows)) problems.push(`${tool.id} is a container tool that names package files, and package-files.json has no key for it`);
+    const laid = new Set(tool.packageFiles.flatMap(item => (item.packages ?? []).map(plainPackage)));
+    for (const name of tool.packages) if (!laid.has(plainPackage(name))) problems.push(`${tool.id} declares the package ${plainPackage(name)}, and no package_files item of its own lays it`);
+  }
   if (!layout) return problems;
   const paths = new Set(files.map(([path]) => path));
   const folders = new Set();
