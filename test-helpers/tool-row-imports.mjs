@@ -486,26 +486,6 @@ for (const row of results) {
 return { results, shapes, byRow };
 }
 
-// The engine places a row's items into its folder and refuses a run when a file is already where an item puts it (container.rs
-// copy_file). So a row may not lay the same thing twice: a packages item lays each named package at its folder, and a paths item
-// lays each path at its place under `at`. The keys below are compared by where they land: the folder with a trailing slash
-// dropped and a node_modules/ prefix dropped (a row that names split2 and one that names node_modules/split2 land in one
-// folder), and the package name with its node_modules/ prefix dropped. Returns the keys that more than one item lays.
-const folderOf = (at) => {
-  const plain = String(at).replace(/\/+$/, '');
-  return plain.startsWith('/opt/node_modules/') ? `/opt/${plain.slice('/opt/node_modules/'.length)}` : plain;
-};
-export const layoutDuplicates = (items) => {
-  const seen = new Set();
-  const again = new Set();
-  for (const item of items) {
-    const keys = item.packages
-      ? item.packages.map(key => `package ${folderOf(item.at)} ${String(key).replace(/^node_modules\//, '')}`)
-      : (item.paths || []).map(path => `path ${folderOf(`${String(item.at).replace(/\/+$/, '')}/${String(path).replace(/\/+$/, '')}`)}`);
-    for (const key of keys) { if (seen.has(key)) again.add(key); seen.add(key); }
-  }
-  return [...again];
-};
 
 export const packageFilesByRow = (args) => toolRowFindings(args).byRow;
 

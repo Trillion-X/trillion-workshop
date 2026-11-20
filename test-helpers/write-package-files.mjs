@@ -16,7 +16,8 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { layoutDuplicates, packageFilesByRow, refusedModules } from './tool-row-imports.mjs';
+import { layoutProblems } from '../tools/workflows/do-work/pin-a-commit-by-its-files.mjs';
+import { packageFilesByRow, refusedModules } from './tool-row-imports.mjs';
 
 export const PACKAGE_FILES = 'package-files.json';
 
@@ -39,11 +40,14 @@ export function olderThanMain({ repo, env = process.env }) {
 
 export function packageFilesText({ repo, ref = 'HEAD' }) {
   const byRow = packageFilesByRow({ repo, ref });
-  // A row that lays the same thing twice is refused: the engine refuses that row's every run (layoutDuplicates).
-  const doubled = Object.entries(byRow).flatMap(([id, items]) => layoutDuplicates(items).map(key => `${id}: ${key}`));
-  if (doubled.length) throw new Error(`a row lays the same thing twice, and the engine refuses every run of it:\n${doubled.join('\n')}`);
   const sorted = Object.fromEntries(Object.keys(byRow).sort().map(id => [id, byRow[id]]));
-  return `${JSON.stringify(sorted, null, 1)}\n`;
+  const made = `${JSON.stringify(sorted, null, 1)}\n`;
+  // The layout rule is the pin tool's (layoutProblems): a file a row lays that the commit does not hold, or one package folder
+  // placed twice, is refused, and the engine refuses every run of such a row. The commit's paths are read as names (git ls-tree).
+  const paths = execFileSync('git', ['-C', repo, 'ls-tree', '-r', '--name-only', ref], { maxBuffer: 2 ** 30 }).toString().split('\n').filter(Boolean);
+  const problems = layoutProblems([...paths.filter(path => path !== PACKAGE_FILES).map(path => [path, Buffer.alloc(0)]), [PACKAGE_FILES, Buffer.from(made)]]);
+  if (problems.length) throw new Error(`the generated ${PACKAGE_FILES} would stop runs; refusing to make it:\n${problems.join('\n')}`);
+  return made;
 }
 
 if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
