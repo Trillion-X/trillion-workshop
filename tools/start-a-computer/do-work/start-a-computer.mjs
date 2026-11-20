@@ -607,15 +607,17 @@ export function engineCallOf(command) {
 }
 
 /** Each name of the row read (apply false: { matches, answers }) or kept (apply true: what changed). A name kept through an engine
- * provider needs the request's `engine_call`, checked for every name before any call is sent; `call` is the engine call (tests give
- * a fake; default: engineCallOf(engine_call)). A name through a held-key provider needs its key under its vault name. */
+ * provider needs an engine call: the request's `engine_call` when it gives one, else the row's own `runs.engine_call` (named once as DATA
+ * on the computer row, so every apply and differences of the row keeps its names with nothing more), checked for every name before any
+ * call is sent; `call` is the engine call (tests give a fake; default: engineCallOf of that command line). A name through a held-key provider needs its key under its vault name. */
 export async function keepTheNames(request, { held = {}, fetchImpl = fetch, apply, call }) {
   const named = namesOf(request);
-  for (const name of named) if (name.provider.transport === 'engine' && !request.engine_call) throw refused(`${name.host_name} is kept through ${name.provider.name} by the engine: the request names its engine_call.`);
+  const engineCall = request.engine_call ?? request.computer_row?.runs?.engine_call;
+  for (const name of named) if (name.provider.transport === 'engine' && !engineCall) throw refused(`${name.host_name} is kept through ${name.provider.name} by the engine: the computer row names its runs.engine_call (or the request its engine_call).`);
   const kept = [];
   for (const name of named) {
     let dns;
-    if (name.provider.transport === 'engine') dns = dnsClient(null, { provider: name.provider, call: call ?? engineCallOf(request.engine_call) });
+    if (name.provider.transport === 'engine') dns = dnsClient(null, { provider: name.provider, call: call ?? engineCallOf(engineCall) });
     else {
       const key = held[name.provider.vault_key];
       if (typeof key !== 'string' || !key) throw refused(`${name.host_name} is kept through ${name.provider.name} with the key held under the vault name ${name.provider.vault_key}: hand it on descriptor 5 as {"${name.provider.vault_key}": value}, read from the person's vault.`);

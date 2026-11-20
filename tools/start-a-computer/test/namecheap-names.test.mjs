@@ -30,8 +30,8 @@ test('a name another address answers is refused and left as it is', async () => 
 test('an engine provider whose request names no engine_call is refused before any call is sent', async () => {
   const w = namecheapWorld([]);
   const unpinned = request(names, { engine_call: undefined });
-  await assert.rejects(keepTheNames(unpinned, { call: w.call, apply: true }), /names its engine_call/);
-  await assert.rejects(keepTheNames(unpinned, { call: w.call, apply: false }), /names its engine_call/);
+  await assert.rejects(keepTheNames(unpinned, { call: w.call, apply: true }), /runs\.engine_call/);
+  await assert.rejects(keepTheNames(unpinned, { call: w.call, apply: false }), /runs\.engine_call/);
   assert.deepEqual(w.state.calls, [], 'nothing was sent to the engine');
 });
 
@@ -40,4 +40,12 @@ test('an engine call is a command line with its program first and exactly one {r
     assert.throws(() => engineCallOf(bad), /engine_call/, JSON.stringify(bad));
   }
   assert.equal(typeof engineCallOf(ENGINE), 'function');
+});
+
+test('the computer row names its engine call once as DATA, so a request with none still keeps its names', async () => {
+  const w = namecheapWorld([]);
+  const fromRow = { computer_row: { name: 'someones-computer', address: ROW, runs: { units: [], names, engine_call: ENGINE } } };
+  assert.equal(namesOf(fromRow)[0].provider.transport, 'engine');
+  const kept = await keepTheNames(fromRow, { call: w.call, apply: true });
+  assert.deepEqual(kept, [{ host_name: 'files.example.org', address: ROW, added: [ROW], removed: [] }]);
 });
