@@ -287,7 +287,7 @@ export async function dispatchCloudSessions([command, folderName, ...rest], { au
     return answer;
   }
   if (command === 'list') {
-    const rows = (await everyPage(account, '/v1/sessions', 100)).map(sessionRow);
+    const rows = (await everyPage(account, '/v1/sessions', 100, { request })).map(sessionRow);
     writeFileSync(rest[0], JSON.stringify(rows));
     console.log(`${folderName}: ${rows.length} sessions`);
     return;
@@ -303,7 +303,7 @@ export async function dispatchCloudSessions([command, folderName, ...rest], { au
     const worker = async () => {
       for (let session = queue.shift(); session; session = queue.shift()) {
         try {
-          const said = whatItSaid(await everyPage(account, `/v1/sessions/${session.id}/events`, 1000));
+          const said = whatItSaid(await everyPage(account, `/v1/sessions/${session.id}/events`, 1000, { request }));
           writeFileSync(join(outFolder, `${session.id}.json`), JSON.stringify({ config_folder: folderName, ...session, ...said }));
           read++;
         } catch (error) {
@@ -323,15 +323,15 @@ export async function dispatchCloudSessions([command, folderName, ...rest], { au
     const text = await resolveBrief(from);
     // One uuid per call, kept across retries, so a retried post is the same message.
     const message = { uuid: randomUUID(), session_id: id, type: 'user', parent_tool_use_id: null, message: { role: 'user', content: text } };
-    await get(account, `/v1/sessions/${id}/events`, { events: [message] });
+    await get(account, `/v1/sessions/${id}/events`, { events: [message] }, { request });
     for (let waited = 0; waited < 90000; waited += 5000) {
       await new Promise(resolve => setTimeout(resolve, 5000));
-      const events = await everyPage(account, `/v1/sessions/${id}/events`, 1000);
+      const events = await everyPage(account, `/v1/sessions/${id}/events`, 1000, { request });
       const sent = events.findIndex(event => event.uuid === message.uuid);
       if (sent < 0) continue;
       const answer = events.slice(sent + 1).find(event => event.type === 'assistant' && textOf(event.message?.content));
       if (answer) {
-        const session = await get(account, `/v1/sessions/${id}`);
+        const session = await get(account, `/v1/sessions/${id}`, undefined, { request });
         print(JSON.stringify({ session: id, sent: message.uuid, status: session.session_status, answered_at: answer.created_at, answer: textOf(answer.message.content).slice(0, 2000) }));
         return;
       }
@@ -346,7 +346,7 @@ export async function dispatchCloudSessions([command, folderName, ...rest], { au
     if (!names.length || !title) throw new Error('usage: start <config-folder> <owner/repo[,owner/repo...]> <title> [<record id> | - | <file>]');
     const text = await resolveBrief(from);
     // A new session runs where this sign-in's latest cloud session ran.
-    const latest = (await get(account, '/v1/sessions?limit=20')).data.find(session => session.environment_kind === 'anthropic_cloud');
+    const latest = (await get(account, '/v1/sessions?limit=20', undefined, { request })).data.find(session => session.environment_kind === 'anthropic_cloud');
     if (!latest) throw new Error(`${folderName}: no earlier cloud session names an environment to start in`);
     const session = await get(account, '/v1/sessions', {
       title,
@@ -357,7 +357,7 @@ export async function dispatchCloudSessions([command, folderName, ...rest], { au
         outcomes: [{ type: 'git_repository', git_info: { type: 'github', repo: names[0], branches: [] } }],
         model: latest.session_context?.model ?? undefined,
       },
-    });
+    }, { request });
     print(JSON.stringify({ session: session.id, status: session.session_status, repositories: names, url: session.session_url ?? null }));
     return;
   }
