@@ -10,6 +10,33 @@
   "offers": [
     {
       "kind": "ai-tool-descriptor",
+      "id": "tool:screen-door-grant",
+      "listed_on": "2026-11-20T12:00:00Z",
+      "label": "Grants to use your tools",
+      "job": "Keep, list and stop the grants that let people or AIs use your tools on one of your computers, in one press.",
+      "description": "Keep, list and stop the grants that let people or AIs use your tools on one of your computers, in one press.",
+      "status": "active",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "door-grant",
+        "icon": "KeyRound",
+        "surface": {
+          "id": "owner.door-grant",
+          "surface_id": "owner.door-grant",
+          "kind": "placeable-surface",
+          "sidebar_collection": "settings",
+          "order": 116.5,
+          "wrap_material": false,
+          "route_paths": [
+            "/grants"
+          ],
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
       "id": "tool:screen-command-palette",
       "listed_on": "2026-10-02T08:10:56Z",
       "label": "Find anything",

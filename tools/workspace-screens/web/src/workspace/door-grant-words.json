@@ -1,0 +1,56 @@
+{
+  "_what": "Words of the door grant screen (door-grant-screen.tsx, door-grant.mjs): the owner keeps, lists and stops a grant that lets people or AIs run some of their tools on one of their own computers. A `{name}` in a text is filled from the values the screen has; nothing here names a product, a tool or a person. Refusals are keyed by the engine's refusal code (`refused.code`), never by its message.",
+  "title": "Grants to use your tools",
+  "loading": "Reading the grants on this computer",
+  "request_heading": "Someone asks to use your tools",
+  "keep": "Keep this grant",
+  "keeping": "Keeping it",
+  "kept": "Kept on this computer. It is listed below.",
+  "not_listed_yet": "It was kept, but it is not listed yet. Try again.",
+  "list_heading": "Kept on this computer",
+  "none_kept": "No grants are kept on this computer.",
+  "stop": "Stop",
+  "stopping": "Stopping it",
+  "stopped": "Stopped. It is no longer kept.",
+  "stop_failed": "It was not stopped. Try again.",
+  "load_failed": "The grants on this computer could not be read.",
+  "label": "Name",
+  "who": "Who",
+  "tools": "Tools",
+  "identity": "Who they are",
+  "journal": "Record of what they send",
+  "ends": "Ends",
+  "never_ends": "Until you stop it",
+  "ends_at": "On {when}",
+  "last_used": "Last used {when}",
+  "never_used": "Never used",
+  "identity_words": {
+    "none": "Nobody is named to you",
+    "self": "Each person is named to you"
+  },
+  "journal_words": {
+    "input": "What they send is recorded",
+    "none": "What they send is not recorded"
+  },
+  "who_words": {
+    "link": "Anyone with the link",
+    "team": "{principal}, {team} at {issuer}",
+    "person": "{principal}"
+  },
+  "problems": {
+    "no_request": "No grant was asked for here.",
+    "invalid": "This grant is not in a form this page can keep. Nothing was kept.",
+    "label": "This grant needs a name of 1 to 400 bytes. Nothing was kept.",
+    "tools": "This grant names no tools. Nothing was kept.",
+    "identity": "This grant does not say who is named to them. Nothing was kept.",
+    "journal": "This grant does not say whether what they send is recorded. Nothing was kept.",
+    "people": "This grant needs one to 64 people, each named by a link or by a person and where they are from. Nothing was kept.",
+    "computer": "This grant names no computer, so it cannot be kept here."
+  },
+  "refused": {
+    "rights": "This page's sign-in does not carry sharing yet, so nothing was kept.",
+    "input": "The computer did not accept this grant as it was written. Nothing was kept.",
+    "vault": "The computer could not open its keys, so nothing was kept. Try again later.",
+    "other": "The computer did not keep it. Try again."
+  }
+}

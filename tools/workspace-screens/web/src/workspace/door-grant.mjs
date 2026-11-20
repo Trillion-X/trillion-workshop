@@ -1,0 +1,115 @@
+// src/workspace/door-grant.mjs
+//
+// PURPOSE
+//   The pure decisions of the door grant screen (door-grant-screen.tsx), runnable in node: decode the grant a person was
+//   sent (`?ask=`, base64url of the exact sharing.keep input), check its shape, build the door call for keep, list and
+//   stop (each pinned to one of the person's computers with `?computer=`), and say what a grant and its last use read as.
+//   The engine is the authority on every rule; this file only refuses a request it can see is malformed before anything
+//   is sent, and it names no tool, person or computer.
+//
+// NON-NEGOTIABLE INVARIANTS
+//   1. The keep input is sent exactly as the request carried it: no field is added, dropped or renamed here.
+//   2. Each call names its computer in the address (`?computer=<id>`), never in the body, so the door sends it as `pins`.
+//   3. Every word is read from door-grant-words.json; a refusal is keyed by the engine's code, never by its message.
+
+import words from './door-grant-words.json' with { type: 'json' };
+
+export const KEEP = 'sharing.keep';
+export const LIST = 'sharing.list';
+export const WITHDRAW = 'sharing.withdraw';
+
+const MAX_LABEL_BYTES = 400;
+const MAX_PEOPLE = 64;
+const PRINCIPAL = /^[A-Za-z0-9_-]{1,128}$/;
+const DIGEST = /^[0-9a-f]{64}$/;
+
+const isObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+const onlyKeys = (value, keys) => Object.keys(value).every(key => keys.includes(key));
+const nonEmpty = value => typeof value === 'string' && value.length > 0;
+const labelFits = value => nonEmpty(value) && new TextEncoder().encode(value).length <= MAX_LABEL_BYTES;
+
+/** The words with `{name}` filled from `values`; a name with no value is left as it is. */
+export const fill = (text, values = {}) => text.replace(/\{(\w+)\}/g, (whole, name) => (name in values ? String(values[name]) : whole));
+
+// One person a grant names: a link holder (key_blake3) or a team member (team and issuer).
+const personOk = person => isObject(person) && PRINCIPAL.test(person.principal)
+  && ((onlyKeys(person, ['principal', 'key_blake3']) && DIGEST.test(person.key_blake3))
+    || (onlyKeys(person, ['principal', 'team', 'issuer']) && nonEmpty(person.team) && nonEmpty(person.issuer)));
+
+/** Why a keep input cannot be sent as it is (a reason key of words.problems), or null when its shape is right. */
+export function problemOf(input) {
+  if (!isObject(input) || !onlyKeys(input, ['label', 'on', 'sharing']) || input.on !== true || !isObject(input.sharing)) return 'invalid';
+  if (!labelFits(input.label)) return 'label';
+  const { sharing } = input;
+  if (!onlyKeys(sharing, ['grant', 'people', 'ends'])) return 'invalid';
+  const { grant, people, ends } = sharing;
+  if (!isObject(grant) || !onlyKeys(grant, ['tools', 'identity', 'journal'])) return 'invalid';
+  if (!Array.isArray(grant.tools) || grant.tools.length === 0 || !grant.tools.every(nonEmpty)) return 'tools';
+  if (grant.identity !== 'none' && grant.identity !== 'self') return 'identity';
+  if (grant.journal !== 'input' && grant.journal !== 'none') return 'journal';
+  if (!Array.isArray(people) || people.length === 0 || people.length > MAX_PEOPLE || !people.every(personOk)) return 'people';
+  if (ends !== undefined && !isObject(ends)) return 'invalid';
+  return null;
+}
+
+const fromBase64url = text => {
+  const standard = text.replace(/-/g, '+').replace(/_/g, '/');
+  const bytes = Uint8Array.from(atob(standard.padEnd(Math.ceil(standard.length / 4) * 4, '=')), char => char.charCodeAt(0));
+  return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+};
+
+/** The grant an address asks to keep: `{ ok: true, input }`, or `{ ok: false, reason }` (a words.problems key). */
+export function requestOf(ask) {
+  if (!ask) return { ok: false, reason: 'no_request' };
+  let input;
+  try {
+    input = JSON.parse(fromBase64url(ask));
+  } catch {
+    return { ok: false, reason: 'invalid' };
+  }
+  const reason = problemOf(input);
+  return reason ? { ok: false, reason } : { ok: true, input };
+}
+
+/** The address of one door method, pinned to a computer when one is named. */
+export const doorPath = (method, computer) => `/work/api/door/${method}${computer ? `?computer=${encodeURIComponent(computer)}` : ''}`;
+
+/** What one call to the door sends: a read for the list, a keyed POST for keep and stop. */
+export function doorRequest(method, input, computer, requestKey) {
+  const path = doorPath(method, computer);
+  if (method === LIST) return { path, init: {} };
+  return { path, init: { method: 'POST', body: JSON.stringify(input), headers: { 'idempotency-key': requestKey } } };
+}
+
+export const withdrawInput = label => ({ label: String(label) });
+
+const dateWords = (iso, options) => {
+  const when = new Date(iso);
+  return Number.isNaN(when.getTime()) ? null : when.toLocaleString(undefined, options);
+};
+
+/** When a grant was last used: its own words, or never used when the engine has no use for it (null). */
+export function lastUsedWords(lastUsed) {
+  const when = lastUsed ? dateWords(lastUsed, { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : null;
+  return when ? fill(words.last_used, { when }) : words.never_used;
+}
+
+/** Until when a grant is kept: its end rule's day, or until stopped. */
+export function endsWords(ends) {
+  const when = ends?.until ? dateWords(ends.until, { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : null;
+  return when ? fill(words.ends_at, { when }) : words.never_ends;
+}
+
+/** Who a person entry names, in words. */
+export function whoWords(person) {
+  if (typeof person?.key_blake3 === 'string') return words.who_words.link;
+  if (typeof person?.team === 'string') return fill(words.who_words.team, { principal: person.principal, team: person.team, issuer: person.issuer });
+  return fill(words.who_words.person, { principal: person?.principal ?? '' });
+}
+
+/** The engine's refusal code as the words the screen shows; an unknown code is the plain refusal. */
+const REFUSED = { current_workspace_rights_refused: 'rights', original_input_refused: 'input', original_workspace_source_unavailable: 'vault' };
+export const refusalWords = code => words.refused[REFUSED[code]] ?? words.refused.other;
+
+/** Whether a list the engine answered has the grant named by its label. */
+export const isKept = (list, label) => Array.isArray(list?.grants) && list.grants.some(grant => grant?.label === label);

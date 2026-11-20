@@ -29,6 +29,8 @@ export const screens: Record<string, WarmMount> = {
   'notifications-preview': lazyScreen(() => import('../../../../ui/show/coss/notification-panel'), module => (element: HTMLElement) => module.mountNotificationPanel(element, { compact: true })),
   // The message box every screen can open (global-composer.tsx): its row floats it over the work in a layer.
   'message-box': lazyScreen(() => import('./global-composer'), module => module.mountMessageBoxScreen),
+  // The grants screen (door-grant-screen.tsx): keeps, lists and stops a grant on one of the person's own computers.
+  'door-grant': lazyScreen(() => import('./door-grant-screen'), module => module.mountDoorGrantScreen),
   // Find anything (command-palette.tsx): its row floats it in the middle in its own layer; Cmd+K opens it.
   'command-palette': lazyScreen(() => import('./command-palette'), module => module.mountCommandPaletteScreen),
   // The screen of tool:screen-looks (records/workshop-account-tool-records.json screen.entry): the card grid of looks.

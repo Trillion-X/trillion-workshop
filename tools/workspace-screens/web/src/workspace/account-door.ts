@@ -16,16 +16,20 @@ import door from './account-door.json' with { type: 'json' };
 import { pass, passRefused } from './account-pass';
 import type { PageAnswer } from './api';
 
-type Call = { method: string; request_key: string; input: unknown };
+type Call = { method: string; request_key: string; input: unknown; pins?: string[] };
 
-function callOf(path: string, init: RequestInit): Call | null {
+export function callOf(path: string, init: RequestInit): Call | null {
   const address = new URL(path, location.origin);
   if (!address.pathname.startsWith(door.form)) return null;
   const given = typeof init.body === 'string' ? init.body : address.searchParams.get('input');
+  // `?computer=<id>` names the one of the person's computers this call is for: the engine's tools/call sends it there only
+  // (`pins`). No computer named, the call is sent as it always was.
+  const computer = address.searchParams.get('computer');
   return {
     method: decodeURIComponent(address.pathname.slice(door.form.length)),
     request_key: new Headers(init.headers).get('idempotency-key') ?? crypto.randomUUID(),
     input: given ? JSON.parse(given) : {},
+    ...(computer ? { pins: [computer] } : {}),
   };
 }
 
@@ -68,6 +72,8 @@ export async function answerAtTheDoor(path: string, init: RequestInit): Promise<
   if (reply.error) return { status: 400, body: { error: reply.error.message } };
   const result = reply.result ?? {};
   // A refusal keeps the door's own fields (its code, cause and detail) beside its words.
-  if (result.isError) return { status: 400, body: { ...result.structuredContent, error: result.structuredContent?.message ?? result.content?.[0]?.text } };
+  // The engine's refusal code is also `refused.code`, where api.ts's readJson hands it to the screen that asked.
+  const code = result.structuredContent?.code;
+  if (result.isError) return { status: 400, body: { ...result.structuredContent, error: result.structuredContent?.message ?? result.content?.[0]?.text, ...(typeof code === 'string' ? { refused: { code } } : {}) } };
   return { status: 200, body: result.structuredContent ?? null };
 }
