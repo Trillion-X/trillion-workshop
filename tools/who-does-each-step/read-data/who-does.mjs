@@ -28,6 +28,7 @@
 //   answer { steps: [{ id, words, who, doers: [{ id, label, tool_id?, purpose?, hand_off?, cost, spends, reaches_others, needs_a_tap }],
 //            uncovered, reason?, said }], counts, said }
 import { readFileSync } from 'node:fs';
+import shipped from '../../shared-code/src/who-does-it.json' with { type: 'json' };
 
 const defaults = JSON.parse(readFileSync(new URL('./words.json', import.meta.url), 'utf8'));
 
@@ -62,7 +63,8 @@ const refuse = words => { throw new Error(words); };
  *  shaped is refused, never guessed. */
 function readData(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) refuse('Send an object.');
-  const { doers, only_a_person: reasons = [] } = input;
+  // A request that names no doers gets the shipped doers and reasons (the DATA the old module read by default); an empty list is refused.
+  const { doers = shipped.doers, only_a_person: reasons = shipped.only_a_person } = input;
   if (!Array.isArray(doers) || !doers.length) refuse('doers is a list of the doers that can do steps: { id, label, does: [words], ... }.');
   for (const doer of doers) {
     if (!doer || typeof doer.id !== 'string' || !doer.id || typeof doer.label !== 'string' || !Array.isArray(doer.does) || doer.does.some(phrase => typeof phrase !== 'string')) refuse('Each doer is { id, label, does: [words], ... }.');

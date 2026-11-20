@@ -100,7 +100,10 @@ test('the list of doers and reasons is told back, and a request that is not plai
   assert.deepEqual(told.doers.map(doer => doer.id), doers.map(doer => doer.id));
   assert.deepEqual(told.doers.find(doer => doer.id === 'print-shop'), { id: 'print-shop', label: 'A print shop', does: ['print at shelf scale', 'print'], cost: { usd: 25, per: 'order' }, spends: true, reaches_others: false });
   assert.equal(told.only_a_person.length, 4);
-  assert.throws(() => whoDoesEachStep({ steps: ['x'] }), /doers is a list/);
+  assert.throws(() => whoDoesEachStep({ steps: ['x'], doers: [] }), /doers is a list/);
+  const shippedAnswer = whoDoesEachStep({ steps: ['print 40 labels for the shelf'] });
+  assert.equal(shippedAnswer.steps.length, 1);
+  assert.ok(shippedAnswer.steps[0].who, 'a request with no doers is answered from the shipped list');
   assert.throws(() => whoDoesEachStep({ steps: ['x'], doers: [{ id: 'a' }] }), /Each doer is/);
   assert.throws(() => whoDoesEachStep({ steps: ['x'], doers, only_a_person: [{ id: 'r' }] }), /only_a_person is a list/);
   assert.throws(() => whoDoesEachStep([]), /Send an object/);
