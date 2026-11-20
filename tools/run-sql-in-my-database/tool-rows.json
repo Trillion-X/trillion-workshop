@@ -38,6 +38,25 @@
               "type": "array",
               "description": "The values of $1, $2 and so on."
             },
+            "use": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "purpose",
+                "surface"
+              ],
+              "description": "The use this statement runs for: a recipe step's declared purpose and surface (config.context.use). The engine sets it on every call a recipe step sends, over any use the step's input carried. A direct caller sends its own use and the tool binds it as given; until the reader role is in place (see README) the database trusts that binding. Bound as run_use.purpose and run_use.surface inside the statement's own transaction, so the database's row policies read it. Absent: no use is bound.",
+              "properties": {
+                "purpose": {
+                  "type": "string",
+                  "description": "The purpose path, such as publish or coach/review."
+                },
+                "surface": {
+                  "type": "string",
+                  "description": "The surface path, such as social/instagram; empty for any surface."
+                }
+              }
+            },
             "role_credential_name": {
               "type": "string",
               "description": "A recipe's standing login: the held name of its connection string, whose role and password the recipe makes or drops."

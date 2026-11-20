@@ -48,6 +48,29 @@ const runOne = async (client, text, values = []) => {
   return { columns: result.fields.map(field => field.name), rows: result.rows, row_count: result.rowCount ?? result.rows.length };
 };
 
+// The use a step declares for its statement ({ purpose, surface }, text): absent means no use is bound.
+const usedOf = use => {
+  if (use === undefined) return undefined;
+  if (use === null || typeof use !== 'object' || Array.isArray(use) || Object.keys(use).length !== 2
+    || typeof use.purpose !== 'string' || typeof use.surface !== 'string') throw new Error('use must be { purpose, surface }, two text values.');
+  return { purpose: use.purpose, surface: use.surface };
+};
+
+// One statement inside a transaction that first binds the use as run_use.purpose and run_use.surface. set_config(..., true)
+// lasts to the end of that transaction only, so the row policies read this statement's use and nothing else.
+const runUnderUse = async (client, shape) => {
+  await runOne(client, 'BEGIN');
+  try {
+    await runOne(client, "SELECT set_config('run_use.purpose', $1, true), set_config('run_use.surface', $2, true)", [shape.use.purpose, shape.use.surface]);
+    const answer = await runOne(client, shape.sql, shape.params);
+    await runOne(client, 'COMMIT');
+    return answer;
+  } catch (error) {
+    await runOne(client, 'ROLLBACK').catch(() => {});
+    throw error;
+  }
+};
+
 // The request's two shapes: { sql, params? } and { recipe }. Anything else is refused with its reason.
 export function shapeOf(input) {
   const asked = input !== null && typeof input === 'object' && !Array.isArray(input) ? input : {};
@@ -89,7 +112,7 @@ export function shapeOf(input) {
   if (hasSql) {
     if (typeof asked.sql !== 'string' || asked.sql.trim() === '') throw new Error('sql must be a statement as text.');
     if (asked.params !== undefined && !Array.isArray(asked.params)) throw new Error('params must be a list of values.');
-    return { kind: 'sql', sql: asked.sql, params: asked.params ?? [] };
+    return { kind: 'sql', sql: asked.sql, params: asked.params ?? [], use: usedOf(asked.use) };
   }
   throw new Error('Give sql (with params), or recipe.');
 }
@@ -176,7 +199,7 @@ export async function runSql({ connection, roleConnection = '', input, connect =
   if (timeout !== undefined && !(Number.isInteger(timeout) && timeout > 0)) throw new Error('statement_timeout_ms must be a whole number of milliseconds above zero.');
   const client = await connect(connection, timeout);
   try {
-    if (shape.kind === 'sql') return await runOne(client, shape.sql, shape.params);
+    if (shape.kind === 'sql') return shape.use ? await runUnderUse(client, shape) : await runOne(client, shape.sql, shape.params);
     return await runRecipe(client, shape, connection, roleConnection);
   } finally {
     await client.end().catch(() => {});

@@ -208,6 +208,9 @@ use crate::domain::types::{
 // STEP EXECUTOR
 // ============================================================================
 
+/// The SQL tool a recipe step names; the step's declared use is bound onto every call it sends.
+const RUN_SQL_TOOL: &str = "tool:run-sql-in-my-database";
+
 /// Stateless single-step executor.
 ///
 /// Executes one `Step` through the full primitive dispatch
@@ -460,6 +463,9 @@ impl StepExecutor {
             &deps.dispatch_partition,
         )
         .await?;
+        if destination_name == RUN_SQL_TOOL {
+            Self::bind_declared_use(step_id, step, &mut resolved_payload)?;
+        }
         const TRUSTED_LOCAL_CONTEXT: &str = "{\"kind\":\"bitfield.trusted-local-dispatch/v1\"}";
         let selected_context = BindingResolver::resolve_value(step.context(), exec_ctx)?;
         let resolved_context = if selected_context.is_null() {
@@ -754,6 +760,42 @@ impl StepExecutor {
             .get("fallback_output")
             .map(|fallback| BindingResolver::resolve_value(fallback, exec_ctx))
             .transpose()
+    }
+
+    /// The SQL tool's use, as the recipe row declares it (config.context.use = {purpose, surface}). The engine sets it on every
+    /// call the step sends, over any use the input or an AI's answer carried. A step that declares none runs as "manage", the
+    /// owner's own work. Only the recipe row can change it.
+    fn bind_declared_use(step_id: &str, step: &Step, payload: &mut Value) -> Result<(), WorkflowError> {
+        let declared = match step.context().get("use") {
+            None | Some(Value::Null) => serde_json::json!({ "purpose": "manage", "surface": "" }),
+            Some(value) => value.clone(),
+        };
+        let well_formed = declared.as_object().is_some_and(|fields| {
+            fields.len() == 2
+                && fields.get("purpose").is_some_and(Value::is_string)
+                && fields.get("surface").is_some_and(Value::is_string)
+        });
+        if !well_formed {
+            return Err(WorkflowError::InvalidStep {
+                step_id: step_id.to_string(),
+                reason: format!("config.context.use must be {{\"purpose\": text, \"surface\": text}}; got {}", declared),
+                hint: "Declare the use in the recipe row as two text values.".to_string(),
+            });
+        }
+        match payload {
+            Value::Object(fields) => {
+                fields.insert("use".to_string(), declared);
+            }
+            Value::Null => *payload = serde_json::json!({ "use": declared }),
+            _ => {
+                return Err(WorkflowError::InvalidStep {
+                    step_id: step_id.to_string(),
+                    reason: format!("{} takes an object input (sql, params)", RUN_SQL_TOOL),
+                    hint: "Give the statement as an object with sql and params.".to_string(),
+                });
+            }
+        }
+        Ok(())
     }
 
     fn ask_output_decode(step_id: &str, step: &Step) -> Result<AskOutputDecode, WorkflowError> {
@@ -2310,6 +2352,86 @@ mod tests {
             reported.contains("number"),
             "message must say what arrived: {reported}"
         );
+    }
+
+    /// A capturing outside-access whose SQL answer is an empty result, for the run-sql tool's steps.
+    fn sql_tool_dispatcher() -> Arc<CapturingOutsideAccess> {
+        Arc::new(CapturingOutsideAccess {
+            last_name: Mutex::new(None),
+            last_input: Mutex::new(None),
+            last_context: Mutex::new(None),
+            ask_response: Mutex::new(Some(
+                json!({"columns": [], "rows": [], "row_count": 0}).to_string().into_bytes(),
+            )),
+            read_response: Mutex::new(None),
+            read_bytes: Mutex::new(None),
+            read_content_hash: Mutex::new(None),
+        })
+    }
+
+    fn sql_tool_deps(dispatcher: Arc<CapturingOutsideAccess>) -> ExecutorDeps {
+        let mut deps = test_deps();
+        deps.outside_access = dispatcher;
+        deps
+    }
+
+    /// The use the recipe row declares (config.context.use) is the one the SQL tool gets, over any use the input carried.
+    #[tokio::test]
+    async fn test_run_sql_step_binds_declared_use_over_input() {
+        let dispatcher = sql_tool_dispatcher();
+        let deps = sql_tool_deps(dispatcher.clone());
+        let mut exec_ctx = test_exec_context();
+        let actor = test_actor();
+        let mut step = Step::ask(
+            "tool:run-sql-in-my-database",
+            json!({"sql": "select 1", "use": {"purpose": "coach/review", "surface": ""}}),
+        );
+        step.config["context"] = json!({"use": {"purpose": "publish", "surface": "social/instagram"}});
+
+        let result =
+            StepExecutor::execute_step(&step, "sql", &mut exec_ctx, &deps, &actor, None).await;
+
+        assert!(result.is_ok(), "sql step should run: {:?}", result.err());
+        let sent = dispatcher.last_input.lock().unwrap().clone().unwrap();
+        assert_eq!(sent["use"], json!({"purpose": "publish", "surface": "social/instagram"}));
+        assert_eq!(sent["sql"], json!("select 1"));
+    }
+
+    /// A step that declares no use runs as "manage", and an AI-supplied use does not survive.
+    #[tokio::test]
+    async fn test_run_sql_step_without_declared_use_runs_as_manage() {
+        let dispatcher = sql_tool_dispatcher();
+        let deps = sql_tool_deps(dispatcher.clone());
+        let mut exec_ctx = test_exec_context();
+        let actor = test_actor();
+        let step = Step::ask(
+            "tool:run-sql-in-my-database",
+            json!({"sql": "select 1", "use": {"purpose": "publish", "surface": "social/instagram"}}),
+        );
+
+        let result =
+            StepExecutor::execute_step(&step, "sql", &mut exec_ctx, &deps, &actor, None).await;
+
+        assert!(result.is_ok(), "sql step should run: {:?}", result.err());
+        let sent = dispatcher.last_input.lock().unwrap().clone().unwrap();
+        assert_eq!(sent["use"], json!({"purpose": "manage", "surface": ""}));
+    }
+
+    /// A declared use that is not {purpose, surface} as text fails the step, and nothing is sent.
+    #[tokio::test]
+    async fn test_run_sql_step_malformed_declared_use_fails_closed() {
+        let dispatcher = sql_tool_dispatcher();
+        let deps = sql_tool_deps(dispatcher.clone());
+        let mut exec_ctx = test_exec_context();
+        let actor = test_actor();
+        let mut step = Step::ask("tool:run-sql-in-my-database", json!({"sql": "select 1"}));
+        step.config["context"] = json!({"use": {"purpose": "publish"}});
+
+        let result =
+            StepExecutor::execute_step(&step, "sql", &mut exec_ctx, &deps, &actor, None).await;
+
+        assert!(result.is_err(), "a malformed use must fail the step");
+        assert!(dispatcher.last_input.lock().unwrap().is_none(), "nothing may be sent");
     }
 
     #[tokio::test]
