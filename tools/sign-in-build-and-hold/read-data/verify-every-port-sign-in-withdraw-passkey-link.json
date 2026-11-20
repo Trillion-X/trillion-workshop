@@ -1,0 +1,18 @@
+{
+  "_what": "The one-time passkey link and the passkey it adds (read-data/verify-every-port-sign-in-withdraw-passkey-link.mjs): how long a link works, the words and statuses of making it, using it and refusing a passkey, and the path it opens. Ported from the earlier code base's account/passkeys/link route, makePasskeyLink, the passkey finish in src/worker.mjs and refusePasskeyStep (b6ae0ebf815f). The earlier code had no route that withdraws a link before it is used or runs out; a link only ends by use or by its time. An unsaved passkey is named back to the device through forget_passkey. The link's storage, its hashing and the random code are the caller's.",
+  "lifetime_seconds": 86400,
+  "path": "/account",
+  "add_passkey_param": "add_passkey",
+  "statuses": {
+    "used_or_expired": 400,
+    "not_saved": 400
+  },
+  "sign_in_again_path": "/account",
+  "words": {
+    "used_or_expired": "This link has already been used or has expired. Ask for a new one.",
+    "not_saved": "Your new passkey was not saved. Press \"Add my passkey\" again to make it.",
+    "reveal_label": "Open this link on the other device within a day. It adds one passkey there, then stops working.",
+    "made": "Send it to yourself, or scan it from the other device's camera app.",
+    "sign_in_again": "For your safety, sign in again first. Opening sign-in…"
+  }
+}

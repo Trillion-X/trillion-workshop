@@ -1,0 +1,12 @@
+{
+  "_what": "The account's signed-in browsers (read-data/verify-every-port-sign-in-sessions-list.mjs): the words and statuses for listing them and for ending one. Ported from the earlier code base's account/sessions/end route in src/account-routes.mjs and the Account & security read in src/screen-reads.mjs (b6ae0ebf815f). The session records themselves, their storage and the guarded-change check for ending another browser are not here.",
+  "statuses": {
+    "gone": 404
+  },
+  "sign_in_again_path": "/account",
+  "words": {
+    "gone": "That sign-in is already gone.",
+    "signed_out": "That browser is signed out.",
+    "sign_in_again": "For your safety, sign in again first. Opening sign-in…"
+  }
+}
