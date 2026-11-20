@@ -7,9 +7,10 @@
     {
       "from": "src/source-project-edit.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/connect-the-original-repository-behind-an-app-edit/from-an-older-version/src/source-project-edit.mjs",
+      "to": "tools/connect-the-original-repository-behind-an-app-edit/src/source-project-edit.mjs",
       "source_identity": "1f:e46006021a53a2b2dc458642035c1bd2acfd38691c7de14209dacfef32f61140",
-      "identity": "1f:e46006021a53a2b2dc458642035c1bd2acfd38691c7de14209dacfef32f61140"
+      "identity": "1f:134cbe7748cfa4171d35c967896bb8c798eb7cf512c120ab60694deb80e374ed",
+      "adapted": "The attribute a site marks its elements with is no longer named in the code: callers pass marker_attribute (resolveSourceSelection) and the locator carries it to applySourceEdit; the placeholder address is source.invalid."
     },
     {
       "from": "src/source-project-host.mjs",
@@ -37,9 +38,10 @@
     {
       "from": "test/source-project-edit.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/connect-the-original-repository-behind-an-app-edit/from-an-older-version/test/source-project-edit.test.mjs",
+      "to": "tools/connect-the-original-repository-behind-an-app-edit/test/source-project-edit.test.mjs",
       "source_identity": "1f:f1125128570e4fe7d9f680db470f08900c4cd3fe616bae1594830affd6a6806b",
-      "identity": "1f:f1125128570e4fe7d9f680db470f08900c4cd3fe616bae1594830affd6a6806b"
+      "identity": "1f:5e7058e9ddf0a9e961c7f1c4fa54aac0fe643aec28bb4f15a487bbeb3aadbdad",
+      "adapted": "Names the marker attribute data-source-marker and passes it as marker_attribute."
     },
     {
       "from": "test/source-project-host.test.mjs",
