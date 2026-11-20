@@ -11,6 +11,9 @@
         "published-record"
       ],
       "payload": {
+        "uses_tools": [
+          "trillion-workshop/run-sql-in-my-database"
+        ],
         "kind": "ai-tool-descriptor",
         "status": "active",
         "licence_class": "licence:maker-own",

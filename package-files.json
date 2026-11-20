@@ -100,6 +100,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -379,6 +386,13 @@
    "at": "/opt/learn-from-everyones-results"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -386,92 +400,6 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
   }
  ],
  "tool:add-reviewed-videos-to-a-packaging-ledger": [],
@@ -627,6 +555,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -757,6 +692,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -1507,6 +1449,13 @@
    "at": "/opt/learn-from-everyones-results"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -2034,6 +1983,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -2041,92 +1997,6 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
   }
  ],
  "tool:answer-the-saved-examples-page": [
@@ -2514,6 +2384,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -2635,6 +2512,13 @@
    "at": "/opt/record-voice-and-meetings"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "screen-arrangement",
    "paths": [
     "read-data/read-projected-rows.ts"
@@ -2723,6 +2607,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -3286,6 +3177,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -3593,6 +3491,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -4076,6 +3981,13 @@
    "at": "/opt/learn-from-everyones-results"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -4231,6 +4143,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -4320,6 +4239,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "take-payments",
    "paths": [
     "things-to-store-and-run.json"
@@ -4404,6 +4330,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -5373,6 +5306,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -6141,6 +6081,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -6210,6 +6157,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -6903,6 +6857,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -7397,6 +7358,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -7469,6 +7437,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -7619,6 +7594,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   }
  ],
  "tool:check-match-evidence": [
@@ -7681,6 +7663,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -7772,6 +7761,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   }
  ],
  "tool:check-personal-data": [
@@ -8314,6 +8310,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -8871,6 +8874,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -9022,6 +9032,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -9361,6 +9378,13 @@
    "at": "/opt/learn-from-everyones-results"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -9368,92 +9392,6 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
   }
  ],
  "tool:correct-when-a-message-was-written": [
@@ -10757,6 +10695,13 @@
    "at": "/opt/learn-from-everyones-results"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -10764,92 +10709,6 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
   }
  ],
  "tool:decide-the-replies": [
@@ -10942,6 +10801,13 @@
     "read-data/snapshot.mjs"
    ],
    "at": "/opt/pull-from-connected-accounts"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -11673,6 +11539,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -11741,6 +11614,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -12251,6 +12131,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "screen-ready-records",
    "paths": [
     "read-data/read-screen-ready-records.ts"
@@ -12393,6 +12280,13 @@
    "at": "/opt/learn-from-everyones-results"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -12400,92 +12294,6 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
   }
  ],
  "tool:end-shares-whose-condition-failed": [
@@ -12614,6 +12422,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -13250,6 +13065,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -13895,6 +13717,13 @@
    "at": "/opt/formula-engine"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -14277,6 +14106,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -14347,6 +14183,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -14499,6 +14342,109 @@
     "read-data"
    ],
    "at": "/opt/get-there"
+  }
+ ],
+ "tool:find-network-people": [
+  {
+   "package": "network-people",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/network-people"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "package": "introduce-two-people",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/introduce-two-people"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
   }
  ],
  "tool:find-new-or-changed-files": [
@@ -15129,6 +15075,13 @@
    "at": "/opt/formula-engine"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -15678,6 +15631,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -15747,6 +15707,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -15820,6 +15787,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -15889,6 +15863,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -16016,6 +15997,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -16124,6 +16112,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -16851,6 +16846,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -16858,6 +16860,94 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  }
+ ],
+ "tool:hand-over-a-space": [
+  {
+   "package": "space-members",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/space-members"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "paid-access",
+   "paths": [
+    "read-data/who-holds-access.mjs",
+    "read-data/payment-effects.mjs",
+    "read-data/effect-lifecycle.mjs",
+    "read-data/read-granted-access-refs.ts",
+    "read-data/take-payments-events.json"
+   ],
+   "at": "/opt/paid-access"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "space-member-types",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/space-member-types"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+   ],
+   "at": "/opt/formula-engine"
   }
  ],
  "tool:hear-a-link": [
@@ -17510,6 +17600,13 @@
    "at": "/opt/formula-engine"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -17578,6 +17675,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -17744,6 +17848,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -17812,6 +17923,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -18231,6 +18349,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -18460,6 +18585,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -18530,6 +18662,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -19080,6 +19219,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -19309,6 +19455,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -19957,6 +20110,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -20068,6 +20228,108 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  }
+ ],
+ "tool:label-a-person": [
+  {
+   "package": "keep-the-labels-people-give-each-other-in-the-network",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/keep-the-labels-people-give-each-other-in-the-network"
+  },
+  {
+   "package": "introduce-two-people",
+   "paths": [
+    "src/network-settings.json"
+   ],
+   "at": "/opt/introduce-two-people"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
   }
  ],
  "tool:label-video-frames-with-small-local-models": [],
@@ -20373,987 +20635,6 @@
    "at": "/opt/formula-engine"
   }
  ],
- "tool:notice-messages-on-this-mac": [
-  {
-   "package": "notice-when-something-shows-up",
-   "paths": [
-    "do-work/tell-the-engine.mjs",
-    "do-work/emit-arrival-fact.mjs",
-    "do-work/mechanisms/imessage-chat-database.mjs"
-   ],
-   "at": "/opt/notice-when-something-shows-up"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "package": "bring-in-new-items-from-this-computer",
-   "paths": [
-    "computer/connections/imessage.mjs"
-   ],
-   "at": "/opt/bring-in-new-items-from-this-computer"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  }
- ],
- "tool:post-in-a-space": [
-  {
-   "package": "space-members",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/space-members"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
-    "do-work/send-a-file-to-a-namespace.mjs",
-    "do-work/send-retry.mjs",
-    "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "paid-access",
-   "paths": [
-    "read-data/who-holds-access.mjs",
-    "read-data/payment-effects.mjs",
-    "read-data/effect-lifecycle.mjs",
-    "read-data/read-granted-access-refs.ts",
-    "read-data/take-payments-events.json"
-   ],
-   "at": "/opt/paid-access"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "rules",
-    "built-stored-bytes/formula-engine"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "package": "space-member-types",
-   "paths": [
-    "src"
-   ],
-   "at": "/opt/space-member-types"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/formula-engine/formula_engine.js",
-    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
-   ],
-   "at": "/opt/formula-engine"
-  }
- ],
- "tool:list-a-spaces-posts": [
-  {
-   "package": "space-members",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/space-members"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
-    "do-work/send-a-file-to-a-namespace.mjs",
-    "do-work/send-retry.mjs",
-    "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "paid-access",
-   "paths": [
-    "read-data/who-holds-access.mjs",
-    "read-data/payment-effects.mjs",
-    "read-data/effect-lifecycle.mjs",
-    "read-data/read-granted-access-refs.ts",
-    "read-data/take-payments-events.json"
-   ],
-   "at": "/opt/paid-access"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "rules",
-    "built-stored-bytes/formula-engine"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "package": "space-member-types",
-   "paths": [
-    "src"
-   ],
-   "at": "/opt/space-member-types"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/formula-engine/formula_engine.js",
-    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
-   ],
-   "at": "/opt/formula-engine"
-  }
- ],
- "tool:list-my-spaces-and-events": [
-  {
-   "package": "space-members",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/space-members"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
-    "do-work/send-a-file-to-a-namespace.mjs",
-    "do-work/send-retry.mjs",
-    "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "paid-access",
-   "paths": [
-    "read-data/who-holds-access.mjs",
-    "read-data/payment-effects.mjs",
-    "read-data/effect-lifecycle.mjs",
-    "read-data/read-granted-access-refs.ts",
-    "read-data/take-payments-events.json"
-   ],
-   "at": "/opt/paid-access"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "rules",
-    "built-stored-bytes/formula-engine"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "package": "space-member-types",
-   "paths": [
-    "src"
-   ],
-   "at": "/opt/space-member-types"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/formula-engine/formula_engine.js",
-    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
-   ],
-   "at": "/opt/formula-engine"
-  }
- ],
- "tool:network-profile": [
-  {
-   "package": "network-people",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/network-people"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "package": "introduce-two-people",
-   "paths": [
-    "src"
-   ],
-   "at": "/opt/introduce-two-people"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
-  }
- ],
- "tool:find-network-people": [
-  {
-   "package": "network-people",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/network-people"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "package": "introduce-two-people",
-   "paths": [
-    "src"
-   ],
-   "at": "/opt/introduce-two-people"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
-  }
- ],
- "tool:on-my-path": [
-  {
-   "package": "network-people",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/network-people"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "package": "introduce-two-people",
-   "paths": [
-    "src"
-   ],
-   "at": "/opt/introduce-two-people"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
-  }
- ],
- "tool:hand-over-a-space": [
-  {
-   "package": "space-members",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/space-members"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
-    "do-work/send-a-file-to-a-namespace.mjs",
-    "do-work/send-retry.mjs",
-    "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "paid-access",
-   "paths": [
-    "read-data/who-holds-access.mjs",
-    "read-data/payment-effects.mjs",
-    "read-data/effect-lifecycle.mjs",
-    "read-data/read-granted-access-refs.ts",
-    "read-data/take-payments-events.json"
-   ],
-   "at": "/opt/paid-access"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "rules",
-    "built-stored-bytes/formula-engine"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "package": "space-member-types",
-   "paths": [
-    "src"
-   ],
-   "at": "/opt/space-member-types"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/formula-engine/formula_engine.js",
-    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
-   ],
-   "at": "/opt/formula-engine"
-  }
- ],
- "tool:run-a-composio-action": [
-  {
-   "package": "composio-connection",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/composio-connection"
-  }
- ],
- "tool:take-over-a-space": [
-  {
-   "package": "space-members",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/space-members"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
-    "do-work/send-a-file-to-a-namespace.mjs",
-    "do-work/send-retry.mjs",
-    "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "paid-access",
-   "paths": [
-    "read-data/who-holds-access.mjs",
-    "read-data/payment-effects.mjs",
-    "read-data/effect-lifecycle.mjs",
-    "read-data/read-granted-access-refs.ts",
-    "read-data/take-payments-events.json"
-   ],
-   "at": "/opt/paid-access"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "rules",
-    "built-stored-bytes/formula-engine"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "package": "space-member-types",
-   "paths": [
-    "src"
-   ],
-   "at": "/opt/space-member-types"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/formula-engine/formula_engine.js",
-    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
-   ],
-   "at": "/opt/formula-engine"
-  }
- ],
- "tool:move-static-items-into-a-space": [
-  {
-   "package": "space-members",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/space-members"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
-    "do-work/send-a-file-to-a-namespace.mjs",
-    "do-work/send-retry.mjs",
-    "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "paid-access",
-   "paths": [
-    "read-data/who-holds-access.mjs",
-    "read-data/payment-effects.mjs",
-    "read-data/effect-lifecycle.mjs",
-    "read-data/read-granted-access-refs.ts",
-    "read-data/take-payments-events.json"
-   ],
-   "at": "/opt/paid-access"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "rules",
-    "built-stored-bytes/formula-engine"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "package": "space-member-types",
-   "paths": [
-    "src"
-   ],
-   "at": "/opt/space-member-types"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/formula-engine/formula_engine.js",
-    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
-   ],
-   "at": "/opt/formula-engine"
-  }
- ],
- "tool:read-a-network-contact": [
-  {
-   "package": "network-people",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/network-people"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "package": "introduce-two-people",
-   "paths": [
-    "src"
-   ],
-   "at": "/opt/introduce-two-people"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
-  }
- ],
  "tool:leave-a-space": [
   {
    "package": "space-members",
@@ -21496,6 +20777,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -21667,6 +20955,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -21756,6 +21051,94 @@
   }
  ],
  "tool:list-a-spaces-members": [
+  {
+   "package": "space-members",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/space-members"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "paid-access",
+   "paths": [
+    "read-data/who-holds-access.mjs",
+    "read-data/payment-effects.mjs",
+    "read-data/effect-lifecycle.mjs",
+    "read-data/read-granted-access-refs.ts",
+    "read-data/take-payments-events.json"
+   ],
+   "at": "/opt/paid-access"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "space-member-types",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/space-member-types"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+   ],
+   "at": "/opt/formula-engine"
+  }
+ ],
+ "tool:list-a-spaces-posts": [
   {
    "package": "space-members",
    "paths": [
@@ -22416,6 +21799,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -22564,6 +21954,13 @@
    "at": "/opt/learn-from-everyones-results"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -22571,6 +21968,94 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  }
+ ],
+ "tool:list-my-spaces-and-events": [
+  {
+   "package": "space-members",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/space-members"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "paid-access",
+   "paths": [
+    "read-data/who-holds-access.mjs",
+    "read-data/payment-effects.mjs",
+    "read-data/effect-lifecycle.mjs",
+    "read-data/read-granted-access-refs.ts",
+    "read-data/take-payments-events.json"
+   ],
+   "at": "/opt/paid-access"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "space-member-types",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/space-member-types"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+   ],
+   "at": "/opt/formula-engine"
   }
  ],
  "tool:list-my-stays": [
@@ -23647,6 +23132,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -24377,6 +23869,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   }
  ],
  "tool:look-up-instruments-at-my-paper-broker": [
@@ -24441,6 +23940,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   }
  ],
  "tool:make-a-calendar-invite": [
@@ -24749,6 +24255,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -25154,6 +24667,13 @@
    "at": "/opt/learn-from-everyones-results"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -25161,92 +24681,6 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
   }
  ],
  "tool:make-tracked-link": [
@@ -25707,6 +25141,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -26884,6 +26325,94 @@
    "at": "/opt/node_modules/@noble/hashes"
   }
  ],
+ "tool:move-static-items-into-a-space": [
+  {
+   "package": "space-members",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/space-members"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "paid-access",
+   "paths": [
+    "read-data/who-holds-access.mjs",
+    "read-data/payment-effects.mjs",
+    "read-data/effect-lifecycle.mjs",
+    "read-data/read-granted-access-refs.ts",
+    "read-data/take-payments-events.json"
+   ],
+   "at": "/opt/paid-access"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "space-member-types",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/space-member-types"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+   ],
+   "at": "/opt/formula-engine"
+  }
+ ],
  "tool:move-word-starts-to-where-the-voice-starts": [],
  "tool:my-browser-push-application-key": [
   {
@@ -27260,6 +26789,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -27744,6 +27280,140 @@
    "at": "/opt/browse-and-upload-my-files"
   }
  ],
+ "tool:network-profile": [
+  {
+   "package": "network-people",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/network-people"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "package": "introduce-two-people",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/introduce-two-people"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  }
+ ],
+ "tool:notice-messages-on-this-mac": [
+  {
+   "package": "notice-when-something-shows-up",
+   "paths": [
+    "do-work/tell-the-engine.mjs",
+    "do-work/emit-arrival-fact.mjs",
+    "do-work/mechanisms/imessage-chat-database.mjs"
+   ],
+   "at": "/opt/notice-when-something-shows-up"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "bring-in-new-items-from-this-computer",
+   "paths": [
+    "computer/connections/imessage.mjs"
+   ],
+   "at": "/opt/bring-in-new-items-from-this-computer"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:notice-what-needs-attention": [
   {
    "package": "notice-what-needs-attention",
@@ -27824,6 +27494,13 @@
     "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -28604,6 +28281,109 @@
    "at": "/opt/node_modules/react"
   }
  ],
+ "tool:on-my-path": [
+  {
+   "package": "network-people",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/network-people"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "package": "introduce-two-people",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/introduce-two-people"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  }
+ ],
  "tool:open-a-paid-file-for-a-buyer": [
   {
    "package": "formula-engine",
@@ -28947,6 +28727,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -29339,6 +29126,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -29698,6 +29492,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -30006,6 +29807,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -30088,6 +29896,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   }
  ],
  "tool:place-paper-orders-from-a-trading-policy": [
@@ -30152,6 +29967,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   }
  ],
  "tool:place-sound-effect-cues-into-an-effects-layer": [],
@@ -30481,6 +30303,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -30550,6 +30379,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -30914,6 +30750,13 @@
    "at": "/opt/require-that-a-workflow-steps-ai-answer-comes"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "run-work-later-or-on-a-repeat",
    "paths": [
     "built-stored-bytes/timed-action/timed_action.js",
@@ -31096,6 +30939,13 @@
    "at": "/opt/receive-files-over-ftp"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -31255,6 +31105,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -31262,6 +31119,94 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  }
+ ],
+ "tool:post-in-a-space": [
+  {
+   "package": "space-members",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/space-members"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "paid-access",
+   "paths": [
+    "read-data/who-holds-access.mjs",
+    "read-data/payment-effects.mjs",
+    "read-data/effect-lifecycle.mjs",
+    "read-data/read-granted-access-refs.ts",
+    "read-data/take-payments-events.json"
+   ],
+   "at": "/opt/paid-access"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "space-member-types",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/space-member-types"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+   ],
+   "at": "/opt/formula-engine"
   }
  ],
  "tool:post-to-slack": [],
@@ -31763,6 +31708,144 @@
    "at": "/opt/node_modules/@opencoredev/social-sdk"
   }
  ],
+ "tool:publish-tool": [
+  {
+   "package": "list-and-run-my-tools-for-any-ai",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/list-and-run-my-tools-for-any-ai"
+  },
+  {
+   "package": "ai-tool-catalog",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/ai-tool-catalog"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "read-data/declared-selector.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/tar-gz.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "read-data/role-recipes.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  }
+ ],
  "tool:publish_site": [
   {
    "package": "publish-a-site-at-its-own-address",
@@ -31927,6 +32010,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -32002,6 +32092,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -32081,6 +32178,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -32156,6 +32260,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -32235,6 +32346,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -32310,6 +32428,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -32389,6 +32514,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -32466,6 +32598,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -32541,6 +32680,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -32747,6 +32893,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -32884,6 +33037,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -33316,6 +33476,13 @@
    "at": "/opt/formula-engine"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -33323,6 +33490,109 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  }
+ ],
+ "tool:read-a-network-contact": [
+  {
+   "package": "network-people",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/network-people"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "package": "introduce-two-people",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/introduce-two-people"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
   }
  ],
  "tool:read-a-page-in-my-browser": [
@@ -33711,6 +33981,13 @@
     "src/workflow-actor-policy.mjs"
    ],
    "at": "/opt/require-that-a-workflow-steps-ai-answer-comes"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "run-work-later-or-on-a-repeat",
@@ -34164,6 +34441,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -34631,6 +34915,13 @@
     "src/workflow-actor-policy.mjs"
    ],
    "at": "/opt/require-that-a-workflow-steps-ai-answer-comes"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "run-work-later-or-on-a-repeat",
@@ -35393,6 +35684,13 @@
    "at": "/opt/require-that-a-workflow-steps-ai-answer-comes"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "run-work-later-or-on-a-repeat",
    "paths": [
     "built-stored-bytes/timed-action/timed_action.js",
@@ -35770,6 +36068,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -35839,6 +36144,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -36075,6 +36387,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -36655,6 +36974,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -36945,6 +37271,13 @@
    "at": "/opt/learn-from-everyones-results"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -37200,6 +37533,13 @@
    "at": "/opt/require-that-a-workflow-steps-ai-answer-comes"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "run-work-later-or-on-a-repeat",
    "paths": [
     "built-stored-bytes/timed-action/timed_action.js",
@@ -37355,6 +37695,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -37615,6 +37962,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -37966,6 +38320,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -38038,6 +38399,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -38428,6 +38796,13 @@
    "at": "/opt/learn-from-everyones-results"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -38435,6 +38810,134 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  }
+ ],
+ "tool:record-a-publishing-step": [
+  {
+   "package": "publish-a-changelog",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/publish-a-changelog"
+  }
+ ],
+ "tool:record-a-spend": [
+  {
+   "package": "guard-ai-spending",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/guard-ai-spending"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
+ "tool:record-a-web-demo": [
+  {
+   "package": "record-a-web-page",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/record-a-web-page",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "package": "headless-browser",
+   "paths": [
+    "quiet-switches.json",
+    "devtools.mjs",
+    "virtual-clock.mjs",
+    "deterministic-switches.json",
+    "browser-places.json"
+   ],
+   "at": "/opt/headless-browser"
+  }
+ ],
+ "tool:record-an-introduction-state": [
+  {
+   "package": "introduce-two-people",
+   "paths": [
+    "do-work",
+    "src"
+   ],
+   "at": "/opt/introduce-two-people"
+  },
+  {
+   "package": "check-consent-to-an-introduction",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/check-consent-to-an-introduction"
   },
   {
    "package": "run-sql-in-my-database",
@@ -38521,41 +39024,46 @@
     "split2"
    ],
    "at": "/opt/node_modules/split2"
-  }
- ],
- "tool:record-a-publishing-step": [
-  {
-   "package": "publish-a-changelog",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/publish-a-changelog"
-  }
- ],
- "tool:record-a-spend": [
-  {
-   "package": "guard-ai-spending",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/guard-ai-spending"
-  },
-  {
-   "package": "records-door",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/records-door"
   },
   {
    "package": "content-identity",
    "paths": [
-    "read-data"
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/content-identity"
+  },
+  {
+   "package": "run-work-later-or-on-a-repeat",
+   "paths": [
+    "do-work/timed-action.mjs",
+    "built-stored-bytes/timed-action"
+   ],
+   "at": "/opt/run-work-later-or-on-a-repeat"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/effect-outcomes.json",
+    "src/failure-codes.json",
+    "src/failure.mjs",
+    "src/platform-failures.json",
+    "src/repo-explorer.mjs",
+    "src/typed-operation-contract.mjs",
+    "src/workflow-authoring-guidance.json",
+    "src/workflow-authoring-guidance.mjs",
+    "src/workflow-step-versions.json",
+    "src/workflow-step-versions.mjs"
+   ],
+   "at": "/opt/shared-code"
   },
   {
    "packages": [
@@ -38574,57 +39082,186 @@
    "at": "/opt/node_modules/@noble/hashes"
   },
   {
-   "package": "browse-and-upload-my-files",
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
-    "do-work/send-a-file-to-a-namespace.mjs",
-    "do-work/send-retry.mjs",
-    "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
-    "send-settings.json"
+    "parts/live-namespace/do-work/blake3.mjs",
+    "parts/live-namespace/do-work/shared-file-reference.mjs",
+    "parts/ui/show/file-chip/file-kinds.json",
+    "parts/ui/show/file-field/file-takes.json",
+    "parts/ui/show/file-field/takes-file.mjs",
+    "parts/ui/show/isolated-module-surface/module-surface-requests.mjs",
+    "parts/ui/show/isolated-module-surface/sandboxed-screen-routes.json",
+    "records/outcome-handling.json",
+    "records/sent-kinds.json",
+    "server.json",
+    "src/check-uses.mjs",
+    "src/claimed-time.json",
+    "src/claimed-time.mjs",
+    "src/configurations.mjs",
+    "src/connecting-without-the-store.json",
+    "src/connecting-without-the-store.mjs",
+    "src/cut-off.mjs",
+    "src/execution-context.mjs",
+    "src/live-tool-sources.mjs",
+    "src/maker-payouts.json",
+    "src/maker-payouts.mjs",
+    "src/meaning-or-words.mjs",
+    "src/model-admission.mjs",
+    "src/model-budgets.json",
+    "src/model-calls.mjs",
+    "src/namespace-preview.mjs",
+    "src/outcome-checks.mjs",
+    "src/outcome-precedence.json",
+    "src/pool-settings.json",
+    "src/public-app-run-permission.mjs",
+    "src/read-bounded-json.mjs",
+    "src/record-model-tools.mjs",
+    "src/record-model.json",
+    "src/record-scope.json",
+    "src/renamed-tools.json",
+    "src/renamed-tools.mjs",
+    "src/save-tool-example.json",
+    "src/scheduler.json",
+    "src/scheduler.mjs",
+    "src/sent.mjs",
+    "src/shared-namespace-file-input.mjs",
+    "src/sold-copies.json",
+    "src/sold-copies.mjs",
+    "src/source-connection.mjs",
+    "src/store-size.mjs",
+    "src/tar-gz.mjs",
+    "src/tool-releases.mjs",
+    "src/work-workshop.mjs",
+    "src/workshop-looks.json",
+    "src/workshop-sample-rules.mjs",
+    "src/workshop.mjs",
+    "src/workspace/file-previews.json",
+    "src/workspace/first-answers.json",
+    "src/workspace/screens.mjs",
+    "src/workspace/surfaces.json",
+    "src/write-only-input.mjs",
+    "src/your-records.mjs"
    ],
-   "at": "/opt/browse-and-upload-my-files"
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
   },
   {
-   "package": "browse-and-upload-my-files",
+   "package": "network-people",
    "paths": [
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+    "read-data/profile-rows.mjs"
    ],
-   "at": "/opt/browse-and-upload-my-files"
+   "at": "/opt/network-people"
   },
   {
-   "package": "workflows",
+   "package": "ai-tool-catalog",
    "paths": [
-    "read-data/host-actions.mjs",
-    "read-data/large-file.json",
-    "read-data/whole-file.mjs"
+    "do-work/derive-tool-rows-from-sources.mjs",
+    "do-work/read-openapi.mjs",
+    "read-data/declared-effects.ts",
+    "read-data/read-ai-tool-catalog.ts"
    ],
-   "at": "/opt/workflows"
-  }
- ],
- "tool:record-a-web-demo": [
-  {
-   "package": "record-a-web-page",
-   "paths": [
-    "do-work"
-   ],
-   "at": "/opt/record-a-web-page",
-   "exclude": [
-    "__tests__"
-   ]
+   "at": "/opt/ai-tool-catalog"
   },
   {
-   "package": "headless-browser",
+   "package": "connect-a-service-and-seal-its-key",
    "paths": [
-    "quiet-switches.json",
-    "devtools.mjs",
-    "virtual-clock.mjs",
-    "deterministic-switches.json",
-    "browser-places.json"
+    "do-work/external-effect-attempt.ts"
    ],
-   "at": "/opt/headless-browser"
+   "at": "/opt/connect-a-service-and-seal-its-key"
+  },
+  {
+   "package": "decide-with-a-method",
+   "paths": [
+    "read-data/decision-outcome.mjs",
+    "read-data/what-helped-words.json"
+   ],
+   "at": "/opt/decide-with-a-method"
+  },
+  {
+   "package": "describe-the-workshop",
+   "paths": [
+    "read-data/workshop-sample-rules.json"
+   ],
+   "at": "/opt/describe-the-workshop"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules/rule-operators.json"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "http-client",
+   "paths": [
+    "do-work/same-origin.mjs"
+   ],
+   "at": "/opt/http-client"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "do-work/fractional-order.ts",
+    "read-data/configuration-aspects.json",
+    "read-data/configuration-values.mjs",
+    "read-data/saved-view-engine.mjs"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "list-tools-for-an-ai",
+   "paths": [
+    "read-data/tool-releases.json"
+   ],
+   "at": "/opt/list-tools-for-an-ai"
+  },
+  {
+   "package": "pick-a-screen-as-you-type",
+   "paths": [
+    "src/word-match.mjs"
+   ],
+   "at": "/opt/pick-a-screen-as-you-type"
+  },
+  {
+   "package": "record-log",
+   "paths": [
+    "do-work/record-model.mjs",
+    "do-work/store-size.json"
+   ],
+   "at": "/opt/record-log"
+  },
+  {
+   "package": "refuse-requests-to-private-addresses",
+   "paths": [
+    "public-address.json",
+    "public-address.mjs"
+   ],
+   "at": "/opt/refuse-requests-to-private-addresses"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "read-data/declared-selector.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "build-a-screen-from-patches",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/build-a-screen-from-patches"
+  },
+  {
+   "packages": [
+    "node_modules/tldts"
+   ],
+   "at": "/opt/node_modules/tldts"
+  },
+  {
+   "packages": [
+    "node_modules/tldts-core"
+   ],
+   "at": "/opt/node_modules/tldts-core"
   }
  ],
  "tool:record-checklist-gate-changes": [
@@ -38747,6 +39384,13 @@
    "at": "/opt/formula-engine"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -38754,92 +39398,6 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
   }
  ],
  "tool:record-the-screen": [
@@ -39440,6 +39998,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -39698,6 +40263,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -40377,6 +40949,13 @@
    "at": "/opt/learn-from-everyones-results"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -40384,92 +40963,6 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
   }
  ],
  "tool:report-on-accrual-or-cash": [
@@ -40532,6 +41025,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -40778,6 +41278,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -40849,6 +41356,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -40860,6 +41374,56 @@
  ],
  "tool:resolve-a-brand": [],
  "tool:resolve-a-look": [],
+ "tool:resolve-citations": [
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs",
+    "read-data/resolve-citations.mjs",
+    "read-data/citation-resolvers.mjs",
+    "citation-resolvers.json"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:restore-a-conversation": [
   {
    "package": "read-and-write-mail",
@@ -41262,6 +41826,16 @@
   }
  ],
  "tool:route-to-the-owner-that-answers": [],
+ "tool:run-a-composio-action": [
+  {
+   "package": "composio-connection",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/composio-connection"
+  }
+ ],
  "tool:run-a-poker-table": [
   {
    "package": "poker",
@@ -42335,6 +42909,144 @@
    "at": "/opt/formula-engine"
   }
  ],
+ "tool:save-tool": [
+  {
+   "package": "list-and-run-my-tools-for-any-ai",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/list-and-run-my-tools-for-any-ai"
+  },
+  {
+   "package": "ai-tool-catalog",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/ai-tool-catalog"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "read-data/declared-selector.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/tar-gz.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "read-data/role-recipes.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  }
+ ],
  "tool:save-voice": [
   {
    "package": "how-someone-does-their-thing",
@@ -42452,6 +43164,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -42678,6 +43397,13 @@
    "at": "/opt/learn-from-everyones-results"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -42685,92 +43411,6 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
   }
  ],
  "tool:say-where-file-sync-stands": [
@@ -44034,6 +44674,13 @@
     "read-data/plain-privacy-pass.json"
    ],
    "at": "/opt/learn-from-everyones-results"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -45343,6 +45990,13 @@
    "at": "/opt/formula-engine"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -45442,6 +46096,13 @@
     "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -46401,6 +47062,13 @@
    "at": "/opt/require-that-a-workflow-steps-ai-answer-comes"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "run-work-later-or-on-a-repeat",
    "paths": [
     "built-stored-bytes/timed-action/timed_action.js",
@@ -46811,6 +47479,13 @@
    "at": "/opt/require-that-a-workflow-steps-ai-answer-comes"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "run-work-later-or-on-a-repeat",
    "paths": [
     "built-stored-bytes/timed-action/timed_action.js",
@@ -47169,6 +47844,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -47513,6 +48195,13 @@
    "at": "/opt/formula-engine"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -47520,92 +48209,6 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
   }
  ],
  "tool:share-a-kept-show-type": [
@@ -48146,6 +48749,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -48524,6 +49134,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -48814,6 +49431,13 @@
    "at": "/opt/learn-from-everyones-results"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -48821,92 +49445,6 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
   }
  ],
  "tool:start-a-stripe-checkout": [
@@ -49859,6 +50397,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -50267,6 +50812,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -50788,6 +51340,94 @@
    "at": "/opt/take-me-there"
   }
  ],
+ "tool:take-over-a-space": [
+  {
+   "package": "space-members",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/space-members"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "paid-access",
+   "paths": [
+    "read-data/who-holds-access.mjs",
+    "read-data/payment-effects.mjs",
+    "read-data/effect-lifecycle.mjs",
+    "read-data/read-granted-access-refs.ts",
+    "read-data/take-payments-events.json"
+   ],
+   "at": "/opt/paid-access"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "space-member-types",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/space-member-types"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+   ],
+   "at": "/opt/formula-engine"
+  }
+ ],
  "tool:take-pictures-out-of-a-zip-archive": [
   {
    "package": "take-pictures-out-of-a-zip-archive",
@@ -50860,6 +51500,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -50942,6 +51589,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -51006,6 +51660,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -51080,6 +51741,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -51283,6 +51951,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -51474,6 +52149,13 @@
    "at": "/opt/paid-access"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -51622,6 +52304,144 @@
    "at": "/opt/node_modules/@noble/hashes"
   }
  ],
+ "tool:unpublish-tool": [
+  {
+   "package": "list-and-run-my-tools-for-any-ai",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/list-and-run-my-tools-for-any-ai"
+  },
+  {
+   "package": "ai-tool-catalog",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/ai-tool-catalog"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "read-data/declared-selector.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/tar-gz.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "read-data/role-recipes.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  }
+ ],
  "tool:unstage-changes": [
   {
    "package": "git-changes",
@@ -51735,6 +52555,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -52400,6 +53227,124 @@
     "node_modules/@noble/hashes"
    ],
    "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
+ "tool:what-would-it-do": [
+  {
+   "package": "what-would-it-do-for-a-pursuit",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/what-would-it-do-for-a-pursuit"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "read-data/role-recipes.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   }
  ],
  "tool:when-to-run-next": [
@@ -53137,6 +54082,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -53340,964 +54292,5 @@
  ],
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:your-files": [],
- "tool:your-files-names": [],
- "tool:save-tool": [
-  {
-   "package": "list-and-run-my-tools-for-any-ai",
-   "paths": [
-    "do-work"
-   ],
-   "at": "/opt/list-and-run-my-tools-for-any-ai"
-  },
-  {
-   "package": "ai-tool-catalog",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/ai-tool-catalog"
-  },
-  {
-   "package": "ui",
-   "paths": [
-    "read-data/declared-selector.ts"
-   ],
-   "at": "/opt/ui"
-  },
-  {
-   "package": "keep-and-wake-ai-sessions-on-this-computer",
-   "paths": [
-    "src/tar-gz.mjs"
-   ],
-   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
-  }
- ],
- "tool:what-would-it-do": [
-  {
-   "package": "what-would-it-do-for-a-pursuit",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/what-would-it-do-for-a-pursuit"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
-  }
- ],
- "tool:publish-tool": [
-  {
-   "package": "list-and-run-my-tools-for-any-ai",
-   "paths": [
-    "do-work"
-   ],
-   "at": "/opt/list-and-run-my-tools-for-any-ai"
-  },
-  {
-   "package": "ai-tool-catalog",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/ai-tool-catalog"
-  },
-  {
-   "package": "ui",
-   "paths": [
-    "read-data/declared-selector.ts"
-   ],
-   "at": "/opt/ui"
-  },
-  {
-   "package": "keep-and-wake-ai-sessions-on-this-computer",
-   "paths": [
-    "src/tar-gz.mjs"
-   ],
-   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
-  }
- ],
- "tool:unpublish-tool": [
-  {
-   "package": "list-and-run-my-tools-for-any-ai",
-   "paths": [
-    "do-work"
-   ],
-   "at": "/opt/list-and-run-my-tools-for-any-ai"
-  },
-  {
-   "package": "ai-tool-catalog",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/ai-tool-catalog"
-  },
-  {
-   "package": "ui",
-   "paths": [
-    "read-data/declared-selector.ts"
-   ],
-   "at": "/opt/ui"
-  },
-  {
-   "package": "keep-and-wake-ai-sessions-on-this-computer",
-   "paths": [
-    "src/tar-gz.mjs"
-   ],
-   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
-  }
- ],
-  "tool:resolve-citations": [
-    {
-      "package": "workflows",
-      "paths": [
-        "do-work/run-a-function.mjs",
-        "read-data/resolve-citations.mjs",
-        "read-data/citation-resolvers.mjs",
-        "citation-resolvers.json"
-      ],
-      "at": "/opt/workflows"
-    }
-  ],
- "tool:label-a-person": [
-  {
-   "package": "keep-the-labels-people-give-each-other-in-the-network",
-   "paths": [
-    "do-work"
-   ],
-   "at": "/opt/keep-the-labels-people-give-each-other-in-the-network"
-  },
-  {
-   "package": "introduce-two-people",
-   "paths": [
-    "src/network-settings.json"
-   ],
-   "at": "/opt/introduce-two-people"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
-  }
- ],
- "tool:record-an-introduction-state": [
-  {
-   "package": "introduce-two-people",
-   "paths": [
-    "do-work",
-    "src"
-   ],
-   "at": "/opt/introduce-two-people"
-  },
-  {
-   "package": "check-consent-to-an-introduction",
-   "paths": [
-    "src"
-   ],
-   "at": "/opt/check-consent-to-an-introduction"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data/blake3.mjs",
-    "read-data/identity.mjs"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data/blake3.mjs",
-    "read-data/identity.mjs"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/content-identity"
-  },
-  {
-   "package": "run-work-later-or-on-a-repeat",
-   "paths": [
-    "do-work/timed-action.mjs",
-    "built-stored-bytes/timed-action"
-   ],
-   "at": "/opt/run-work-later-or-on-a-repeat"
-  },
-  {
-   "package": "shared-code",
-   "paths": [
-    "src/effect-outcomes.json",
-    "src/failure-codes.json",
-    "src/failure.mjs",
-    "src/platform-failures.json",
-    "src/repo-explorer.mjs",
-    "src/typed-operation-contract.mjs",
-    "src/workflow-authoring-guidance.json",
-    "src/workflow-authoring-guidance.mjs",
-    "src/workflow-step-versions.json",
-    "src/workflow-step-versions.mjs"
-   ],
-   "at": "/opt/shared-code"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "package": "keep-and-wake-ai-sessions-on-this-computer",
-   "paths": [
-    "parts/live-namespace/do-work/blake3.mjs",
-    "parts/live-namespace/do-work/shared-file-reference.mjs",
-    "parts/ui/show/file-chip/file-kinds.json",
-    "parts/ui/show/file-field/file-takes.json",
-    "parts/ui/show/file-field/takes-file.mjs",
-    "parts/ui/show/isolated-module-surface/module-surface-requests.mjs",
-    "parts/ui/show/isolated-module-surface/sandboxed-screen-routes.json",
-    "records/outcome-handling.json",
-    "records/sent-kinds.json",
-    "server.json",
-    "src/check-uses.mjs",
-    "src/claimed-time.json",
-    "src/claimed-time.mjs",
-    "src/configurations.mjs",
-    "src/connecting-without-the-store.json",
-    "src/connecting-without-the-store.mjs",
-    "src/cut-off.mjs",
-    "src/execution-context.mjs",
-    "src/live-tool-sources.mjs",
-    "src/maker-payouts.json",
-    "src/maker-payouts.mjs",
-    "src/meaning-or-words.mjs",
-    "src/model-admission.mjs",
-    "src/model-budgets.json",
-    "src/model-calls.mjs",
-    "src/namespace-preview.mjs",
-    "src/outcome-checks.mjs",
-    "src/outcome-precedence.json",
-    "src/pool-settings.json",
-    "src/public-app-run-permission.mjs",
-    "src/read-bounded-json.mjs",
-    "src/record-model-tools.mjs",
-    "src/record-model.json",
-    "src/record-scope.json",
-    "src/renamed-tools.json",
-    "src/renamed-tools.mjs",
-    "src/save-tool-example.json",
-    "src/scheduler.json",
-    "src/scheduler.mjs",
-    "src/sent.mjs",
-    "src/shared-namespace-file-input.mjs",
-    "src/sold-copies.json",
-    "src/sold-copies.mjs",
-    "src/source-connection.mjs",
-    "src/store-size.mjs",
-    "src/tar-gz.mjs",
-    "src/tool-releases.mjs",
-    "src/work-workshop.mjs",
-    "src/workshop-looks.json",
-    "src/workshop-sample-rules.mjs",
-    "src/workshop.mjs",
-    "src/workspace/file-previews.json",
-    "src/workspace/first-answers.json",
-    "src/workspace/screens.mjs",
-    "src/workspace/surfaces.json",
-    "src/write-only-input.mjs",
-    "src/your-records.mjs"
-   ],
-   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
-  },
-  {
-   "package": "network-people",
-   "paths": [
-    "read-data/profile-rows.mjs"
-   ],
-   "at": "/opt/network-people"
-  },
-  {
-   "package": "ai-tool-catalog",
-   "paths": [
-    "do-work/derive-tool-rows-from-sources.mjs",
-    "do-work/read-openapi.mjs",
-    "read-data/declared-effects.ts",
-    "read-data/read-ai-tool-catalog.ts"
-   ],
-   "at": "/opt/ai-tool-catalog"
-  },
-  {
-   "package": "connect-a-service-and-seal-its-key",
-   "paths": [
-    "do-work/external-effect-attempt.ts"
-   ],
-   "at": "/opt/connect-a-service-and-seal-its-key"
-  },
-  {
-   "package": "decide-with-a-method",
-   "paths": [
-    "read-data/decision-outcome.mjs",
-    "read-data/what-helped-words.json"
-   ],
-   "at": "/opt/decide-with-a-method"
-  },
-  {
-   "package": "describe-the-workshop",
-   "paths": [
-    "read-data/workshop-sample-rules.json"
-   ],
-   "at": "/opt/describe-the-workshop"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "rules/rule-operators.json"
-   ],
-   "at": "/opt/formula-engine"
-  },
-  {
-   "package": "http-client",
-   "paths": [
-    "do-work/same-origin.mjs"
-   ],
-   "at": "/opt/http-client"
-  },
-  {
-   "package": "keep-lists-of-rows",
-   "paths": [
-    "do-work/fractional-order.ts",
-    "read-data/configuration-aspects.json",
-    "read-data/configuration-values.mjs",
-    "read-data/saved-view-engine.mjs"
-   ],
-   "at": "/opt/keep-lists-of-rows"
-  },
-  {
-   "package": "list-tools-for-an-ai",
-   "paths": [
-    "read-data/tool-releases.json"
-   ],
-   "at": "/opt/list-tools-for-an-ai"
-  },
-  {
-   "package": "pick-a-screen-as-you-type",
-   "paths": [
-    "src/word-match.mjs"
-   ],
-   "at": "/opt/pick-a-screen-as-you-type"
-  },
-  {
-   "package": "record-log",
-   "paths": [
-    "do-work/record-model.mjs",
-    "do-work/store-size.json"
-   ],
-   "at": "/opt/record-log"
-  },
-  {
-   "package": "refuse-requests-to-private-addresses",
-   "paths": [
-    "public-address.json",
-    "public-address.mjs"
-   ],
-   "at": "/opt/refuse-requests-to-private-addresses"
-  },
-  {
-   "package": "ui",
-   "paths": [
-    "read-data/declared-selector.ts"
-   ],
-   "at": "/opt/ui"
-  },
-  {
-   "package": "build-a-screen-from-patches",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/build-a-screen-from-patches"
-  },
-  {
-   "packages": [
-    "node_modules/tldts"
-   ],
-   "at": "/opt/node_modules/tldts"
-  },
-  {
-   "packages": [
-    "node_modules/tldts-core"
-   ],
-   "at": "/opt/node_modules/tldts-core"
-  }
- ]
+ "tool:your-files-names": []
 }

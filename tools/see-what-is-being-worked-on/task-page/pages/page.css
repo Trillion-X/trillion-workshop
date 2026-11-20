@@ -208,6 +208,20 @@ transition:opacity .15s,transform .15s;-webkit-mask:var(--page-tick) center/cont
 .page-choice-more-line::-webkit-details-marker{display:none}
 .page-choices-send{width:100%;min-height:3.25rem;font-size:1.0625rem}
 @media(prefers-reduced-motion:reduce){.page-section--work .page-item-actions,.page-action,.page-field-input,.page-choice,.page-choice-mark,.page-choice-mark::after{transition:none}.page-action:active{transform:none}}#timeline.page-view{margin:0}
+
+.tl-mark{display:inline-flex;flex:none;align-items:center;justify-content:center;width:20px;height:20px}
+.tl-mark .step-mark{width:20px;height:20px;box-sizing:border-box;corner-shape:round;font-size:11px;border-color:color-mix(in srgb,var(--color-foreground) 30%,transparent);transition:background-color .25s,border-color .25s,color .25s}
+.tl-mark .step-mark svg{width:11px;height:11px}
+.tl-mark .step-mark[data-state=checking]{animation:none;box-shadow:none;border-width:2px;border-color:var(--tl-tone)}
+.tl-mark .step-mark[data-state=unknown]{border-width:2px;border-color:var(--tl-tone)}
+.tl-mark .step-mark[data-state=done]{background:var(--tl-tone,var(--color-success))}
+.tl-ring circle{transition:stroke-dasharray .25s,stroke .25s,fill .25s}
+.tl-row{display:flex;align-items:center;gap:12px;box-sizing:border-box;width:100%;padding-left:0;padding-right:0;border:0;background:none;color:inherit;font-family:inherit;text-align:left;cursor:pointer}
+.tl-row:focus-visible,.tl-control:focus-visible{outline:2px solid var(--color-ring);outline-offset:2px;border-radius:6px}
+.tl-control{border-style:solid;border-width:1px}
+[data-segmented-control]{border-style:solid}
+[data-segmented-control]>button{border:0;font:inherit;cursor:pointer}
+
 /*! tailwindcss v4.2.4 | MIT License | https://tailwindcss.com */
 @layer properties;
 @layer theme {

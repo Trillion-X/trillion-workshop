@@ -85,6 +85,7 @@ if (params.get('client')) sessionStorage.setItem(CLIENT, String(params.get('clie
 const code = params.get('code');
 if (location.pathname.endsWith('/callback.html')) {
   if (code) finishSignIn(code).catch(error => { document.body.textContent = `Sign-in did not finish: ${error.message}`; });
+  else document.body.textContent = `Sign-in did not finish: ${params.get('error_description') ?? params.get('error') ?? 'the sign-in sent no code back'}`;
 } else {
   const dbs = (params.get('dbs') ?? '').split(',').filter(Boolean).map(database => ({ database }));
   const pagesDatabase = params.get('pages') ?? dbs[0]?.database ?? '';

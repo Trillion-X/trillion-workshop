@@ -4,7 +4,9 @@
 // the workspace look, with the island show/served-page.tsx), pages/callback.html (where the sign-in returns), pages/page.js
 // (the island, bundled) and pages/page.css (the page's utility classes and the shell's own styles). The door serves these
 // under a policy that allows no inline style or script, so the shell's <style> is moved into page.css. Built with the
-// Workshop's own esbuild and Tailwind (compiled as tools/workspace-screens/web/scripts/build-workspace.mjs does); run again
+// Workshop's own esbuild and Tailwind (compiled as tools/workspace-screens/web/scripts/build-workspace.mjs does); the marks'
+// styles the page draws in a <style> element (show/task-marks.tsx MARK_CSS), which that policy also refuses, go into
+// page.css too. Run again
 // after a change to the page's show files, and commit the folder.
 //
 //   node tools/see-what-is-being-worked-on/task-page/do-work/build-served-page.mjs
@@ -28,9 +30,10 @@ await build({ entryPoints: [join(PAGE, 'show/served-page.tsx')], bundle: true, m
 // The shell, made by the Workshop's own server-rendered page owner, read by a bundle of its own so its imports resolve here.
 const scratch = mkdtempSync(join(tmpdir(), 'served-page-'));
 await build({ stdin: { contents: `export { pageShellHtml, PAGE_SECTIONS_CSS } from 'trillion-workshop/tools/ui/show/server-rendered-page/page-sections-html.mjs';
-export { PAGE_LOOK } from 'trillion-workshop/tools/workspace-screens/web/src/page-look.mjs';`, resolveDir: ROOT },
+export { PAGE_LOOK } from 'trillion-workshop/tools/workspace-screens/web/src/page-look.mjs';
+export { MARK_CSS } from 'trillion-workshop/tools/see-what-is-being-worked-on/task-page/show/task-marks.tsx';`, resolveDir: ROOT },
   bundle: true, platform: 'node', format: 'esm', outfile: join(scratch, 'shell.mjs'), alias: { 'trillion-workshop': ROOT }, logLevel: 'warning' });
-const { pageShellHtml, PAGE_SECTIONS_CSS, PAGE_LOOK } = await import(join(scratch, 'shell.mjs'));
+const { pageShellHtml, PAGE_SECTIONS_CSS, PAGE_LOOK, MARK_CSS } = await import(join(scratch, 'shell.mjs'));
 const shell = pageShellHtml({ title: TITLE, look: PAGE_LOOK, island: { bundle_url: 'page.js', stylesheet_url: 'page.css', mount_element_id: 'timeline',
   inline_css: `${PAGE_SECTIONS_CSS}#timeline.page-view{margin:0}` } });
 const styles = [...shell.matchAll(/<style>([\s\S]*?)<\/style>/g)].map(match => match[1]).join('\n');
@@ -46,5 +49,5 @@ const words = new Set(sources.flatMap(file => { const text = readFileSync(file, 
 const compiled = await compile('@import "tailwindcss/theme.css" layer(theme);\n@import "tailwindcss/utilities.css" layer(utilities);\n', { base: join(ROOT, 'node_modules/tailwindcss'), onDependency: () => {} });
 const utilities = compiled.build([...words]);
 const marks = ['tools/screen-look/show/step-mark.css', 'tools/screen-look/show/nested-corners.css'].map(file => readFileSync(join(ROOT, file), 'utf8'));
-writeFileSync(join(OUT, 'page.css'), [styles, utilities, ...marks].join('\n'));
+writeFileSync(join(OUT, 'page.css'), [styles, MARK_CSS, utilities, ...marks].join('\n'));
 console.log(`built ${OUT}`);
