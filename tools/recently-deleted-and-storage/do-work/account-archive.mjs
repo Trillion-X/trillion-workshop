@@ -21,13 +21,13 @@ import { isDeepStrictEqual } from 'node:util';
 import { randomUUID } from 'node:crypto';
 import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
 import states from '../namespace-set-aside.json' with { type: 'json' };
+import { DAY, fail, stateOf, daysFor, due, shown } from '../read-data/when-due.mjs';
 import rules from '../durable-archive.json' with { type: 'json' };
 import actionSchema from '../account-archive-actions.json' with { type: 'json' };
 import { admittedNamesFromDoor } from './admitted-names.mjs';
 
 export const inputSchema = actionSchema;
 
-const DAY = 86400000;
 const copy = value => structuredClone(value);
 // Native owns this reserved top-level stamp (run_capability.rs). Caused writes
 // add it and uncaused writes remove it. Compare caller data without inventing a
@@ -38,9 +38,7 @@ function callerValue(value) {
   return data;
 }
 const sameValue = (left, right) => isDeepStrictEqual(callerValue(left), callerValue(right));
-const fail = (code, message) => Object.assign(new Error(message), { code });
 const hash = value => makeHashCodeHexFromJson(value).slice(3);
-const stateOf = id => states.states.find(row => row.id === id) ?? (() => { throw fail('bad_state', 'Choose a declared archive state.'); })();
 const pageId = (id, page) => `${id}:page:${String(page).padStart(12, '0')}`;
 const exactName = name => typeof name === 'string' && name.startsWith('/') && name.length > 1 && !name.endsWith('/') && !name.includes('\0');
 const fileIdentity = value => typeof value === 'string' && /^(1f|12):[0-9a-f]{64}$/.test(value);
@@ -55,16 +53,6 @@ async function supported(names, source) {
   }
 }
 function choice(record) { return record?.value?.value ?? {}; }
-function daysFor(item, keep) { return Object.hasOwn(keep, item.state) ? keep[item.state] : stateOf(item.state).after_days; }
-function due(item, keep) {
-  const days = daysFor(item, keep);
-  return days === null || !Number.isFinite(item.entered_at_ms) ? null : item.entered_at_ms + days * DAY;
-}
-function shown(item, keep, now) {
-  const at = due(item, keep);
-  return { ...item, after_days: daysFor(item, keep), due_at: at === null ? null : new Date(at).toISOString(),
-    days_left: at === null ? null : Math.max(0, Math.ceil((at - now) / DAY)), state_label: stateOf(item.state).label };
-}
 function wake(id, at) { return { wake: { tool: rules.tool, at_ms: at, input: { action: 'tick', id } } }; }
 function itemWake(item, keep, now) {
   if (['restored', 'forgotten', 'refused'].includes(item.status) || item.status === 'partial' && item.workflow.operation === 'forget_set_aside') return [];

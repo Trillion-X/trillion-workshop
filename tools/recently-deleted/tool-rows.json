@@ -287,6 +287,13 @@
         "at": "/opt/records-door"
        },
        {
+         "package": "workflows",
+         "paths": [
+           "read-data"
+         ],
+         "at": "/opt/workflows"
+       },
+       {
         "package": "content-identity",
         "paths": [
          "read-data"

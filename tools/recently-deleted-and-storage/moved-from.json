@@ -42,7 +42,7 @@
     {
       "from": "records/workshop-recently-deleted-tool-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/recently-deleted-and-storage/from-an-older-version/records/workshop-recently-deleted-tool-records.json",
+      "to": "tools/recently-deleted-and-storage/records/old-recently-deleted-tool-descriptors.json",
       "source_identity": "1f:57077abb990a745996ef4d6b39cc2e36e53a26b4b59a6f815d9e806d23fd3a0d",
       "identity": "1f:57077abb990a745996ef4d6b39cc2e36e53a26b4b59a6f815d9e806d23fd3a0d"
     },

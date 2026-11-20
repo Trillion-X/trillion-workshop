@@ -82,7 +82,7 @@
           { "files": "/", "operations": ["name_command_observe", "name_command_set_aside", "name_command_put_back", "name_command_forget_set_aside", "name_command_result"] }
         ] },
         "files": { "package_files": [
-          { "package": "recently-deleted-and-storage", "paths": ["do-work/account-archive.mjs", "do-work/admitted-names.mjs", "account-archive-actions.json", "durable-archive.json", "namespace-set-aside.json"], "at": "/opt/recently-deleted-and-storage" },
+          { "package": "recently-deleted-and-storage", "paths": ["do-work/account-archive.mjs", "do-work/admitted-names.mjs", "account-archive-actions.json", "durable-archive.json", "namespace-set-aside.json", "read-data/when-due.mjs"], "at": "/opt/recently-deleted-and-storage" },
           { "package": "records-door", "paths": ["do-work/run-an-export.mjs", "read-data/records-door.mjs", "read-data/byte-pages.mjs"], "at": "/opt/records-door" },
           { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
           { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }

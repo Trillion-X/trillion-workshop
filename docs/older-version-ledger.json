@@ -7462,7 +7462,7 @@
   {
    "path": "records/workshop-recently-deleted-tool-records.json",
    "verdict": "moved",
-   "home": "trillion-workshop/tools/recently-deleted-and-storage/from-an-older-version/records/workshop-recently-deleted-tool-records.json",
+   "home": "trillion-workshop/tools/recently-deleted-and-storage/records/old-recently-deleted-tool-descriptors.json",
    "group": "records-docs",
    "evidence": "same bytes on main (rescan 2026-11-05)",
    "was": {

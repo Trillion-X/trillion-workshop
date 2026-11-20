@@ -31,7 +31,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 ## The tools
 
 <!-- tool-catalogue:start -->
-Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-catalogue.mjs`; do not edit it by hand. 1462 tools in 316 folders. A tool's job, inputs, outputs and sample run are in its row. `test/tool-catalogue-is-current.test.mjs` fails when this table is stale.
+Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-catalogue.mjs`; do not edit it by hand. 1463 tools in 316 folders. A tool's job, inputs, outputs and sample run are in its row. `test/tool-catalogue-is-current.test.mjs` fails when this table is stale.
 
 | Folder | Tools |
 |---|---|
@@ -243,7 +243,7 @@ Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-c
 | `read-what-is-on-screen` | `tool:parse-snapshot`, `tool:read-what-is-on-screen` |
 | `receive-files-over-ftp` | `tool:receive-files-over-ftp` |
 | `recently-deleted` | `tool:read-deleted-files-keep-for` |
-| `recently-deleted-and-storage` | `tool:delete-archive-and-put-back-my-files` |
+| `recently-deleted-and-storage` | `tool:delete-archive-and-put-back-my-files`, `tool:set-deleted-files-keep-for` |
 | `record-a-job-shown-once` | `tool:record-a-demonstration` |
 | `record-a-web-page` | `tool:record-a-web-demo` |
 | `record-cameras-and-microphones-all-day` | `tool:plan-clock-aligned-recording-pieces` |

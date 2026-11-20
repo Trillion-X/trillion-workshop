@@ -1,0 +1,39 @@
+{
+  "drafted_from": "tool:set-deleted-files-keep-for's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Change how many days this person's Recently Deleted or Archived keep things before they move on\", with {\"after_days\":{\"deleted\":7}}. It runs tool:set-deleted-files-keep-for and answers {\"states\":[{\"id\":\"deleted\",\"label\":\"Recently Deleted\",\"after_days\":7,\"default_after_days\":30,\"when_due\":null,\"due_words\":\"Deleted for good\"},{\"id\":\"archived\",\"label\":\"Archived\",\"after_days\":90,\"default_after_days\":30,\"when_due\":\"deleted\",\"due_words\":\"Moves to Recently Deleted\"}],\"choices\":[1,7,30,90,365,null],\"keep\":[{\"id\":\"setting:keep_for\",\"type\":\"setting\",\"value\":{\"value\":{\"archived\":90 ...",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and the rows of yours it is given (setting), and answers the rows it makes for your AI to keep.",
+  "workflows": [],
+  "tools": [
+    "tool:set-deleted-files-keep-for"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Change how many days this person's Recently Deleted or Archived keep things before they move on\", and give it after_days (Days each state keeps things, { <state id>: whole days 0 to 36500, or null for until put back }).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:set-deleted-files-keep-for and its input (the worked example shows one).",
+    "3. Read what comes back: after_days is { state: days } (a whole number from 0 to 36500, or null to keep until put back).",
+    "4. It is given only these rows of the person's, read by the AI from the person's own store: setting (reads and makes); the rows it makes come back under keep, for the AI to keep there."
+  ],
+  "worked_examples": [
+    {
+      "title": "Change how long deleted files are kept on its own sample",
+      "ask": "Change how many days this person's Recently Deleted or Archived keep things before they move on",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:set-deleted-files-keep-for",
+            "input": {
+              "after_days": {
+                "deleted": 7
+              }
+            }
+          }
+        }
+      },
+      "given": "The input {\"after_days\":{\"deleted\":7}}, with 1 example row (setting) already kept.",
+      "hands_back": "It answered {\"states\":[{\"id\":\"deleted\",\"label\":\"Recently Deleted\",\"after_days\":7,\"default_after_days\":30,\"when_due\":null,\"due_words\":\"Deleted for good\"},{\"id\":\"archived\",\"label\":\"Archived\",\"after_days\":90,\"default_after_days\":30,\"when_due\":\"deleted\",\"due_words\":\"Moves to Recently Deleted\"}],\"choices\":[1,7,30,90,365,null],\"keep\":[{\"id\":\"setting:keep_for\",\"type\":\"setting\",\"value\":{\"value\":{\"archived\":90,\"deleted\":7}}}]}."
+    }
+  ]
+}

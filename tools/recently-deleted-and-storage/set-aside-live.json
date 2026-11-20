@@ -1,0 +1,15 @@
+{
+  "_what": "How do-work/recently-deleted-actions.mjs keeps Recently Deleted and Archived over the person's files (the engine's set_aside, put_back, list_set_aside and forget_set_aside operations at the files door, tools/live-namespace). The engine's set-aside tree holds the names; each item this tool sets aside (and each name another door set aside, such as Finder's Trash) is one account record of item_type, which adds what the tree does not hold: its state (namespace-set-aside.json), when it entered it and by whom. keep_for_* is the person's own days setting. names_per_pass is how many names find_file answers for an identity at most (the engine's NAMES_SHOWN), so an identity is set aside in passes until it has no live name; max_passes bounds those passes. engine_pages bounds one name's set_aside, put_back or forget pages (each page answers next_after until its walk is done). adopt_calls bounds the engine reads one run makes to find names set aside by another door, adopt_page the names one read asks for, adopt_items the names adopted in one run (the rest the next run).",
+  "schema": "set-aside/1",
+  "item_type": "set-aside-item",
+  "item_prefix": "set-aside-item:",
+  "keep_for_type": "setting",
+  "keep_for_id": "setting:keep_for",
+  "names_per_pass": 20,
+  "max_passes": 50,
+  "engine_pages": 500,
+  "adopt_calls": 40,
+  "adopt_page": 200,
+  "adopt_items": 200,
+  "adopted_by": "another door"
+}
