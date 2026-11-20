@@ -1,243 +1,117 @@
 // src/view-as.mjs
 //
 // PURPOSE
-//   Letting someone see your own account's home, read only (DATA: tools/view-as/src/view-as.json). The owner lets one person look for a few
-//   days, by the email their app account uses; that person opens the owner's Home exactly as the owner sees it.
-//   A look is a look-only sign-in of the owner's account (lookSessionAllows: GET and HEAD only, the page and its /work/api
-//   reads, ending at its own time), named for the person looking.
+//   Letting someone see your own Trillion, read only (DATA: tools/view-as/src/view-as.json). The person's share is a grant of
+//   read-only tools to a named person, kept at the sharer's own door by the engine (trillion-rust src/account_rights/share_grant.rs,
+//   `sharing.keep` on `@own-records`), so the person runs exactly those tools with no copy on their own computer.
+//   The old look sign-in (a look-only session of the owner's account, its own cookie and its banner) is RETIRED: every actor is a
+//   user, and a special login for a look is the kind of login that was removed (Nov 20 2026 ruling, relayed by the lead).
 //   Ported from the old app repository's src/view-as.mjs at commit b6ae0ebf815f2f5271eed34e6e023c7e1767ec04 (see moved-from.json and README.md).
-//   This file holds the rules and their words. The runtime that keeps the permissions, the sessions and the owner's notices
-//   is not here yet (see README.md, "Still to port").
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Nobody looks without the owner's permission: a look starts only from a permission the owner gave the person
-//      looking (by their account, found from the email, or the account that opened the owner's look link), still in
-//      its days. Its id is a hash of both accounts, so it names nobody and cannot be guessed into another's.
-//      Permissions live in the owner's policy directory (`policyOf(owner)`, injected by the caller).
-//   2. A look is read only and short: a look-only sign-in (invariant above) lasting at most `look_minutes` and never
-//      past the permission. It is never renewed.
-//   3. Stopping a permission ends every look open under it at once: every request of a look asks the owner's policy
-//      directory whether its permission still stands (acceptsLook), so a look sign-in still held in copies opens nothing.
-//   4. The owner is told every time a look starts (lookedNotice), and the newest `kept_looks` looks are kept for them.
-//   5. The looker's own sign-in is held aside in its own cookie while they look (settings `cookie`); it is never sent to
-//      the owner's account or read by the page.
-//   6. A look link gives leave to whoever opens it first while signed in (never the owner), once, within
-//      `link_open_days`; only its hash is kept, so the stored record cannot be turned back into the link.
-//
+//   1. A share names only the tools it lists and the people it names. Nothing here decides which tools are read only; the caller
+//      passes them (DATA-free), and the engine refuses every tool a grant does not name.
+//   2. A link gives its bearer only through its digest: the bearer is shown once to the person the owner hands it to, and only
+//      BLAKE3(bearer) is kept, as the engine keeps it (share_grant.rs: "the bearer's bytes are never stored, logged or shown").
+//   3. A share's end is the person's own rule (`ends`), kept beside the grant as given. This file builds `ends` from a day count;
+//      the end is run by tools/end-a-grant-whose-condition-failed, which reads `ends` and nothing here.
+//   4. Labels and people are capped the way the engine caps them (share-grant.json `act`): label at most 400 bytes, people at most
+//      64, a principal of A-Z a-z 0-9 _ - from 1 to 128 characters, `identity` none or self, `journal` input or none.
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import settings from '../../view-as/src/view-as.json' with { type: 'json' };
-import { accountsForEmail, normalEmail } from '../../start-from-any-landing-page/src/sign-in-email.mjs';
 
 export const viewAsSettings = settings;
 export const viewAsSaid = (key, values = {}) => settings.words[key].replace(/\{(\w+)\}/g, (whole, name) => String(values[name] ?? whole));
-/** What the owner is told when a look starts (invariant 4): one notice per look, opening their Privacy screen. */
-export const lookedNotice = ({ name, at, until }) => ({
-  key: `someone-looked:${at}`, kind: settings.notice_kind, title: viewAsSaid('notice_title', { name }),
-  body: viewAsSaid('notice_body', { minutes: Math.max(1, Math.round((Date.parse(until) - Date.parse(at)) / 60_000)) }), refs: { open: '/settings/privacy' },
-});
-
-/** The owner's kept looks with one more added (invariant 4): the newest `kept_looks`, oldest first, each name at most 120 characters. */
-export const keepLook = (looks, { name, at, until }) => [...(looks ?? []), { name: String(name).slice(0, 120), at, until }].slice(-settings.kept_looks);
-
-/** Whether a stored look-only session may answer this request: every ordinary session may; a look-only one only GET and HEAD
- *  of its own page or the page's /work/api reads, and only until it ends. */
-export function lookSessionAllows(saved, request, now = Date.now()) {
-  if (!saved?.look_only) return true;
-  if (request.method !== 'GET' && request.method !== 'HEAD') return false;
-  if (!(Date.parse(saved.expires_at) > now)) return false;
-  const path = new URL(request.url).pathname;
-  return path === saved.path || path.startsWith('/work/api/');
-}
-
-const encoder = new TextEncoder();
-const LOOK_CONTEXT = encoder.encode('let-someone-look permission 2026-10-05');
-const lookId = (owner, viewer) => bytesToHex(blake3(encoder.encode(`${owner}\n${viewer}`), { context: LOOK_CONTEXT })).slice(0, 32);
-const pointerKey = id => `view-grant:${id}`;
-const toViewerKey = viewer => `view-grants-to:${viewer}`;
-const inviteKey = code => `view-invite:${bytesToHex(blake3(encoder.encode(code)))}`;
-const DAY = 86_400_000;
-const live = (rows, now) => rows.filter(row => Date.parse(row.until) > now);
-const readList = async (kv, key, now) => live((await kv.get(key, 'json')) ?? [], now);
-const writeList = (kv, key, rows) => (rows.length ? kv.put(key, JSON.stringify(rows)) : kv.delete(key));
-const ttl = (until, now) => Math.max(60, Math.ceil((Date.parse(until) - now) / 1000));
-
-/**
- * The owner's permissions as their policy directory keeps them: rows { who, until, entries: [{ id, viewer }] }, one per person
- * let look (a second leave for the same `who` replaces the first). The policy directory calls these on its own rows, so the one
- * definition of what a permission is lives here and the one copy of the permissions lives there.
- */
-export const permissions = {
-  live: (rows, now = Date.now()) => live(rows ?? [], now),
-  grant: (rows, { who, until, entries }, now = Date.now()) => [...live(rows ?? [], now).filter(row => row.who !== who), { who: String(who), until: String(until), entries: entries.map(({ id, viewer }) => ({ id: String(id), viewer: String(viewer) })) }],
-  stop: (rows, who, now = Date.now()) => {
-    const kept = live(rows ?? [], now);
-    return { row: kept.find(row => row.who === who) ?? null, rows: kept.filter(row => row.who !== who) };
-  },
-  of: (rows, id, now = Date.now()) => {
-    for (const row of live(rows ?? [], now)) {
-      const entry = row.entries.find(item => item.id === id);
-      if (entry) return { viewer: entry.viewer, until: row.until };
-    }
-    return null;
-  },
-};
-
-/** Whether a view-as look still stands (invariant 3), decided from the owner's copy: the account is not retired or being
- *  deleted, not disconnected after the look was issued, still at the browser generation the look was issued under, its
- *  sign-in not ended, and the permission for its viewer still in `let_look` (the owner's permission rows, `permissions`).
- *  Ported from the old app repository's src/account-policy-source.mjs lookStands at b6ae0ebf815f (the same checks, the same shape). */
-export const lookStands = ({ account, sign_in_row, let_look }, look, now = Date.now()) => {
-  const { lifecycle } = account;
-  if (lifecycle.retired_into || lifecycle.deleting_since) return false;
-  if (lifecycle.disconnected_at && !(typeof look.issued_at === 'string' && look.issued_at > lifecycle.disconnected_at)) return false;
-  if (look.browser_generation !== lifecycle.browser_session_generation) return false;
-  if (sign_in_row?.ended_until_ms >= now) return false;
-  return permissions.of(let_look, look.grant, now)?.viewer === look.viewer;
-};
 
 export class ViewAsError extends Error {}
 
-const daysOf = days => {
-  const span = Number(days);
-  if (!settings.days.includes(span) || span > settings.most_days) throw new ViewAsError(viewAsSaid('bad_days'));
-  return span;
+const DAY = 86_400_000;
+const SHARE_RESOURCE = '@own-records';
+const KEEP = 'sharing.keep';
+const WITHDRAW = 'sharing.withdraw';
+const PRINCIPAL = /^[A-Za-z0-9_-]{1,128}$/;
+const encoder = new TextEncoder();
+const BEARER_PREFIX = 'shr_';
+
+const check = (ok, key) => { if (!ok) throw new ViewAsError(viewAsSaid(key)); };
+
+/** The engine's share rules, checked here before a keep is sent so a refusal is said in the owner's words. */
+export function sharingKeepInput({ label, tools, people, identity = 'none', journal = 'input', ends }) {
+  const bytes = encoder.encode(String(label ?? '')).length;
+  check(bytes >= 1 && bytes <= settings.share.most_label_bytes, 'bad_label');
+  check(Array.isArray(tools) && tools.length > 0 && tools.every(tool => typeof tool === 'string' && tool.length > 0), 'bad_tools');
+  check(Array.isArray(people) && people.length >= 1 && people.length <= settings.share.most_people, 'bad_people');
+  check(people.every(person => PRINCIPAL.test(String(person?.principal ?? '')) && /^[0-9a-f]{64}$/.test(String(person?.key_blake3 ?? ''))), 'bad_people');
+  check(identity === 'none' || identity === 'self', 'bad_identity');
+  check(journal === 'input' || journal === 'none', 'bad_journal');
+  return {
+    resource: SHARE_RESOURCE,
+    operation: KEEP,
+    input: { label: String(label), on: true, sharing: { grant: { tools, identity, journal }, people, ...(ends ? { ends } : {}) } },
+  };
+}
+
+/** The engine's withdraw of one shared label: ends its calls at the next call. */
+export const sharingWithdrawInput = label => ({ resource: SHARE_RESOURCE, operation: WITHDRAW, input: { label: String(label) } });
+
+/** The person's end rule from a day count: the share ends that many days from now, read by tools/end-a-grant-whose-condition-failed. */
+export const endsAfterDays = (days, now = Date.now()) => {
+  check(settings.days.includes(Number(days)) && Number(days) <= settings.most_days, 'bad_days');
+  return { until: new Date(now + Number(days) * DAY).toISOString() };
 };
 
-// Gives `viewers` (one person's accounts) leave to look at `owner`'s home until `until`, listed for the owner as `who`:
-// the permission is kept in the owner's policy directory (`policyOf(owner)`), and KV points each id at its owner and lists it
-// for each viewer.
-async function grant({ kv, policyOf, owner, who, viewers, until, ownerName, now }) {
-  const entries = viewers.map(viewer => ({ id: lookId(owner, viewer), viewer }));
-  await policyOf(owner).letLookGrant({ who, until, entries });
-  for (const { id, viewer } of entries) {
-    await kv.put(pointerKey(id), JSON.stringify({ owner, viewer }), { expirationTtl: ttl(until, now) });
-    const toViewer = (await readList(kv, toViewerKey(viewer), now)).filter(row => row.id !== id);
-    await writeList(kv, toViewerKey(viewer), [...toViewer, { id, name: ownerName, until }]);
-  }
-  return { who, until, ids: entries.map(entry => entry.id) };
+const base64url = bytes => {
+  let text = '';
+  for (const byte of bytes) text += String.fromCharCode(byte);
+  return btoa(text).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+};
+
+/**
+ * A link the owner hands to a person: a bearer (`shr_` + 32 random bytes, base64url) and the keep that names only its digest.
+ * `random(n)` returns n random bytes (the caller supplies them). Answers { bearer, keep }: the bearer is shown once.
+ */
+export function shareLinkFor({ label, tools, random, ends, identity = 'none' }) {
+  const bearer = BEARER_PREFIX + base64url(random(32));
+  const key_blake3 = bytesToHex(blake3(encoder.encode(bearer)));
+  const principal = `link-${key_blake3.slice(0, 16)}`;
+  return { bearer, keep: sharingKeepInput({ label, tools, people: [{ principal, key_blake3 }], identity, ends }) };
 }
 
 /**
- * The owner lets the account using `email` look for `days`; `nameOf(userId)` is an account's shown name (the caller
- * reads it), kept on the looker's row. Returns { who, until }.
+ * The Privacy screen's section for sharing: the form (a label, the days, the tools the caller offers), each share with Stop, and
+ * a link. The actions send to the share operations on `@own-records`; nothing here names an old /view-as route.
+ * facts: `shares` (the engine's sharing.list rows: { label, ends? }).
  */
-export async function letLook({ kv, policyOf, owner, email, days, nameOf, now = Date.now() }) {
-  const address = normalEmail(email);
-  if (!address) throw new ViewAsError(viewAsSaid('bad_email'));
-  const span = daysOf(days);
-  const accounts = await accountsForEmail(kv, address);
-  const viewers = accounts.filter(id => id !== owner);
-  if (!viewers.length) throw new ViewAsError(viewAsSaid(accounts.includes(owner) ? 'not_yourself' : 'no_account'));
-  const { who, until } = await grant({ kv, policyOf, owner, who: address, viewers, until: new Date(now + span * DAY).toISOString(), ownerName: await nameOf(owner), now });
-  return { who, until };
-}
-
-/**
- * The owner makes a link that gives leave to look for `days` to whoever opens it first, signed in (for someone whose
- * email the app does not know): one use, open for `link_open_days`. Returns { code }; the caller makes the address.
- */
-export async function makeLookLink({ kv, owner, days, random, now = Date.now() }) {
-  const span = daysOf(days);
-  const code = random();
-  const opens_until = new Date(now + settings.link_open_days * DAY).toISOString();
-  await kv.put(inviteKey(code), JSON.stringify({ owner, days: span, opens_until }), { expirationTtl: ttl(opens_until, now) });
-  return { code, opens_until };
-}
-
-/** The account `viewer` opens a look link: it becomes their leave (the link is used up), answering { id, owner } to
- *  look under, or null for a link used, ended, or their own. */
-export async function takeLookLink({ kv, policyOf, code, viewer, nameOf, now = Date.now() }) {
-  if (typeof code !== 'string' || !/^[0-9a-f]{64}$/.test(code)) return null;
-  const invite = await kv.get(inviteKey(code), 'json');
-  if (!invite || invite.owner === viewer || !(Date.parse(invite.opens_until) > now)) return null;
-  await kv.delete(inviteKey(code));
-  const who = await nameOf(viewer);
-  const granted = await grant({ kv, policyOf, owner: invite.owner, who, viewers: [viewer], until: new Date(now + invite.days * DAY).toISOString(), ownerName: await nameOf(invite.owner), now });
-  return { id: granted.ids[0], owner: invite.owner };
-}
-
-/** The owner stops letting `who` look; every look open under it is refused from now (invariant 3). */
-export async function stopLetting({ kv, policyOf, owner, who, now = Date.now() }) {
-  const row = await policyOf(owner).letLookStop(who);
-  if (!row) return { who, stopped: false };
-  for (const { id, viewer } of row.entries) {
-    await kv.delete(pointerKey(id));
-    await writeList(kv, toViewerKey(viewer), (await readList(kv, toViewerKey(viewer), now)).filter(item => item.id !== id));
-  }
-  return { who, stopped: true };
-}
-
-/** Who the owner lets look ({ who, until }, from their policy directory) and whose homes this account may look at
- *  ({ id, name, until }). */
-export async function looking({ kv, policy, userId, now = Date.now() }) {
-  const [letting, lettingMe] = await Promise.all([policy.letLooking(), readList(kv, toViewerKey(userId), now)]);
-  return { letting, letting_me: lettingMe };
-}
-
-/**
- * Starts a look for `viewer` under permission `id` (of `owner` when the caller knows it, else read from where KV points
- * it): when the owner's policy directory says the permission stands for this viewer now (invariant 1), keeps a look-only sign-in of
- * the owner's account in `kv` (invariant 2), named by `hash` of a `random` token and carrying its permission (`grant`),
- * and answers { token, owner, until }; otherwise null.
- */
-export async function startLook({ kv, policyOf, id, owner = null, viewer, hash, random, now = Date.now() }) {
-  if (typeof id !== 'string' || !/^[0-9a-f]{32}$/.test(id)) return null;
-  const whose = owner ?? (await kv.get(pointerKey(id), 'json'))?.owner;
-  if (!whose) return null;
-  const permission = await policyOf(whose).letLookPermission(id);
-  if (!permission || permission.viewer !== viewer || !(Date.parse(permission.until) > now)) return null;
-  const until = new Date(Math.min(Date.parse(permission.until), now + settings.look_minutes * 60_000)).toISOString();
-  const token = random();
-  await kv.put(`session:${hash(token)}`, JSON.stringify({ userId: whose, created_at: new Date(now).toISOString(), browser_generation: permission.generation, look_only: true, path: '/', viewer, grant: id, expires_at: until }), { expirationTtl: ttl(until, now) });
-  return { token, owner: whose, until };
-}
-
-/** A time as the looking screens say it. */
-export const shortDay = iso => new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'UTC', timeZoneName: 'short' });
-
-/**
- * The Privacy screen's sections for looking: letting someone look (a form and each permission with Stop), the
- * homes this account may look at (each with Look), and who looked lately. facts: looking() plus `looks` (the
- * owner's kept looks, newest last).
- */
-export function lookingSections({ letting = [], letting_me: lettingMe = [], looks = [] }) {
+export function sharingSections({ shares = [] }) {
   const words = settings.words;
   const days = settings.days.map(count => ({ value: String(count), label: count === 1 ? words.day_one : viewAsSaid('day_many', { days: count }) }));
-  return [
-    {
-      id: 'let-someone-look',
-      heading: words.heading,
-      body: words.body,
-      rows: [
-        {
-          id: 'let-look',
-          title: words.let,
-          starts_open: !letting.length,
-          fields: [
-            { name: 'email', label: words.email_label, secret: false, placeholder: words.email_placeholder },
-            { name: 'days', label: words.days_label, kind: 'choice', options: days, value: days[0].value },
-          ],
-          actions: [
-            { label: words.let, tone: 'primary', send: { path: '/work/api/account/looking/let', with_fields: true } },
-            { label: words.link, tone: 'quiet', send: { path: '/work/api/account/looking/link', with_fields: true } },
-          ],
-        },
-        ...letting.map(row => ({
-          id: `letting-${row.who}`,
-          title: viewAsSaid('letting', { who: row.who, until: shortDay(row.until) }),
-          actions: [{ label: words.stop, tone: 'quiet', send: { path: '/work/api/account/looking/stop', body: { who: row.who }, confirm: viewAsSaid('stop_confirm', { who: row.who }) } }],
-        })),
-        ...looks.slice(-5).reverse().map(look => ({ id: `looked-${look.at}`, title: viewAsSaid('looked_row', { name: look.name }), detail: shortDay(look.at) })),
-      ],
-    },
-    ...(lettingMe.length ? [{
-      id: 'homes-i-can-look-at',
-      heading: words.letting_me_heading,
-      rows: lettingMe.map(row => ({
-        id: `look-${row.id}`, title: viewAsSaid('letting_me_row', { name: row.name }), detail: viewAsSaid('letting_me_detail', { until: shortDay(row.until) }),
-        actions: [{ label: words.open, tone: 'primary', href: `/view-as/${row.id}` }],
+  return [{
+    id: 'share-my-tools',
+    heading: words.heading,
+    body: words.body,
+    rows: [
+      {
+        id: 'share-form',
+        title: words.let,
+        starts_open: !shares.length,
+        fields: [
+          { name: 'label', label: words.label_label, secret: false, placeholder: words.label_placeholder },
+          { name: 'days', label: words.days_label, kind: 'choice', options: days, value: days[0].value },
+        ],
+        actions: [
+          { label: words.let, tone: 'primary', send: { resource: SHARE_RESOURCE, operation: KEEP, with_fields: true } },
+          { label: words.link, tone: 'quiet', send: { resource: SHARE_RESOURCE, operation: KEEP, with_fields: true, link: true } },
+        ],
+      },
+      ...shares.map(share => ({
+        id: `shared-${share.label}`,
+        title: viewAsSaid('letting', { who: share.label, until: share.ends?.until ? shortDay(share.ends.until) : words.never }),
+        actions: [{ label: words.stop, tone: 'quiet', send: { ...sharingWithdrawInput(share.label), confirm: viewAsSaid('stop_confirm', { who: share.label }) } }],
       })),
-    }] : []),
-  ];
+    ],
+  }];
 }
+
+/** A time as the sharing screens say it. */
+export const shortDay = iso => new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
