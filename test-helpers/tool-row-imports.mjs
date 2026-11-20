@@ -491,7 +491,9 @@ function checkRow(rowFile, desc) {
   };
   const reachPy = (ws, spec, hit) => {
     const [, pkg, ...rest] = hit.split('/');
-    if (!mountedAt(covers, pkg, rest.join('/'))) {
+    // A file of the importing file's own tool that the row does not declare is packed (below) without a finding: only a file of
+    // another tool is a cross-tool load the row must name.
+    if (!mountedAt(covers, pkg, rest.join('/')) && toolOf(hit) !== toolOf(ws)) {
       const key = `cross|${ws}|${hit}`;
       if (!seen.has(key)) { seen.add(key); findings.push({ kind: 'cross-tool-load-not-declared', from: ws, spec, needs: hit, pkg }); }
     }
@@ -572,7 +574,8 @@ function checkRow(rowFile, desc) {
       }
     }
     // A literal that names another tool's file or folder is a load of it: an absolute /opt path (a folder: its code files), or a
-    // Python file's name that the tree holds (`call`: module("x.py", ...)), which is the file in its own folder, else the one in the tree.
+    // code file's name in a call (`call`: module("x.py", ...), path.join(HERE, '..', 'do-work', 'x.py')), which is the file in its own
+    // folder, else the one the tree holds once.
     for (const { literal, call } of loadsOf(src)) {
       if (literal.startsWith('/opt/')) {
         const w = toWorkshop(literal, covers);
@@ -591,11 +594,16 @@ function checkRow(rowFile, desc) {
           }
           for (const f of inside) readFiles.add(f);
         }
-      } else if (PY.test(ws) && call && /^[\w.-]+\.(py|mjs|js|cjs|ts)$/.test(literal)) {
-        const named = (codeByBase.get(literal) ?? []).filter((f) => f !== ws);
+      } else if (call && /^[\w.-]+\.(py|mjs|js|cjs|ts)$/.test(literal)) {
+        // A Python file names another tool's module by its name (the one file the tree holds); a JavaScript file names its own
+        // tool's file (path.join(HERE, '..', 'do-work', 'x.py')).
+        // A file's own name (argparse's prog="x.py") is not a load of another file.
+        if (literal === path.posix.basename(ws)) continue;
+        const named = (codeByBase.get(literal) ?? []).filter((f) => f !== ws && (PY.test(ws) || toolOf(f) === toolOf(ws)));
         const hit = named.find((f) => path.posix.dirname(f) === path.posix.dirname(ws)) ?? (named.length === 1 ? named[0] : null);
-        if (hit) reachPy(ws, literal, hit);
-        else {
+        if (hit && !PY.test(ws)) { if (!visited.has(hit)) queue.push({ ws: hit, from: ws }); }
+        else if (hit) reachPy(ws, literal, hit);
+        else if (PY.test(ws)) {
           const key = `load|${ws}|${literal}`;
           if (!seen.has(key)) {
             seen.add(key);

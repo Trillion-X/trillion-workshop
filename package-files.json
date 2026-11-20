@@ -266,6 +266,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:add-decision-evidence": [
@@ -276,6 +283,14 @@
     "method-rows"
    ],
    "at": "/opt/decide-with-a-method"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "read-data/stance-facts.mjs",
+    "read-data/stances.json"
+   ],
+   "at": "/opt/where-a-person-stands"
   },
   {
    "package": "formula-engine",
@@ -708,6 +723,12 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "packages": [
+    "blake3"
+   ],
+   "at": "/opt/ask-a-small-model-for-a-verdict/do-work"
   }
  ],
  "tool:answer-in-a-community": [
@@ -2576,7 +2597,8 @@
    "package": "media-composition",
    "paths": [
     "read-data",
-    "do-work/author-karaoke-captions.mjs"
+    "do-work/author-karaoke-captions.mjs",
+    "do-work/karaoke-captions-cli.mjs"
    ],
    "at": "/opt/media-composition"
   },
@@ -2659,11 +2681,14 @@
     "do-work/beat-onset-picker.mjs",
     "do-work/choose-by-threshold.mjs",
     "do-work/color-match.mjs",
+    "do-work/detect-beats-browser.ts",
     "do-work/detect-beats.mjs",
     "do-work/detect-crop.mjs",
     "do-work/detect-motion.mjs",
     "do-work/detect-quality.mjs",
     "do-work/detect-silence.mjs",
+    "do-work/detect-track-browser.ts",
+    "do-work/detect-track.mjs",
     "do-work/edit-op-schemas.ts",
     "do-work/effect-registry.mjs",
     "do-work/keyframe-curve.mjs",
@@ -2671,7 +2696,13 @@
     "do-work/measure-loudness.mjs",
     "do-work/pick-poster-frame.mjs",
     "do-work/place-captions.mjs",
-    "do-work/retime-to-fit.mjs"
+    "do-work/resolve-render-dimensions.mjs",
+    "do-work/retime-to-fit.mjs",
+    "do-work/segment-person-matte.py",
+    "do-work/segment_a_still_picture.py",
+    "do-work/stage-reuse.mjs",
+    "do-work/video-compose.mjs",
+    "do-work/visual-overlay-order.mjs"
    ],
    "at": "/opt/media-composition"
   },
@@ -2717,6 +2748,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:apply-a-view-patch": [
@@ -3247,6 +3285,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:ask-a-command-line-mcp-server-once": [
@@ -3638,6 +3683,7 @@
     "do-work/find-action-moments.mjs",
     "do-work/find-recurring-voices.py",
     "do-work/grade-a-video.mjs",
+    "do-work/karaoke-captions-cli.mjs",
     "do-work/keyframe-curve.mjs",
     "do-work/layer-over-video.mjs",
     "do-work/make-browser-preview.py",
@@ -4408,6 +4454,15 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "check-every-claim-against-its-facts-and-sources",
+   "paths": [
+    "do-work/check_claims.py",
+    "read-data/claim_gate.py",
+    "read-data/world_rows.py"
+   ],
+   "at": "/opt/check-every-claim-against-its-facts-and-sources"
+  },
+  {
    "package": "content-identity",
    "paths": [
     "read-data/blake3.mjs"
@@ -4432,6 +4487,33 @@
     "pillow"
    ],
    "at": "/opt/make-a-contact-sheet-of-pictures-or-video-frames/do-work"
+  },
+  {
+   "packages": [
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work/overlay"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work/overlay/events"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work/overlay/helpers"
   }
  ],
  "tool:build-a-quoted-section-from-entries": [
@@ -4892,6 +4974,12 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "packages": [
+    "blake3"
+   ],
+   "at": "/opt/ask-a-small-model-for-a-verdict/do-work"
   }
  ],
  "tool:call-a-treg-endpoint": [],
@@ -5303,6 +5391,7 @@
     "do-work/find-action-moments.mjs",
     "do-work/find-recurring-voices.py",
     "do-work/grade-a-video.mjs",
+    "do-work/karaoke-captions-cli.mjs",
     "do-work/keyframe-curve.mjs",
     "do-work/layer-over-video.mjs",
     "do-work/make-browser-preview.py",
@@ -6063,6 +6152,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:change-what-holds-me": [
@@ -8531,6 +8627,12 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "blake3"
+   ],
+   "at": "/opt/ask-a-small-model-for-a-verdict/do-work"
   }
  ],
  "tool:check-pick-copy": [
@@ -10006,6 +10108,14 @@
    "at": "/opt/decide-with-a-method"
   },
   {
+   "package": "where-a-person-stands",
+   "paths": [
+    "read-data/stance-facts.mjs",
+    "read-data/stances.json"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
    "package": "formula-engine",
    "paths": [
     "rules",
@@ -10542,6 +10652,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "harness/request-source-return-check.mjs",
+    "harness/retry-source-return-request.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -10555,6 +10673,12 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "blake3"
+   ],
+   "at": "/opt/conversations/read-data"
   }
  ],
  "tool:count-real-rulings": [
@@ -11184,6 +11308,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:decide-a-nudge": [
@@ -11399,6 +11530,14 @@
     "method-rows"
    ],
    "at": "/opt/decide-with-a-method"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "read-data/stance-facts.mjs",
+    "read-data/stances.json"
+   ],
+   "at": "/opt/where-a-person-stands"
   },
   {
    "package": "formula-engine",
@@ -13161,6 +13300,14 @@
    "at": "/opt/decide-with-a-method"
   },
   {
+   "package": "where-a-person-stands",
+   "paths": [
+    "read-data/stance-facts.mjs",
+    "read-data/stances.json"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
    "package": "formula-engine",
    "paths": [
     "rules",
@@ -13733,6 +13880,12 @@
     "utils.js"
    ],
    "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "blake3"
+   ],
+   "at": "/opt/ask-a-small-model-for-a-verdict/do-work"
   }
  ],
  "tool:expand-a-reply-template": [
@@ -13925,6 +14078,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:export-records-as-list-rows": [],
@@ -14077,6 +14237,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:fade-live-ink-marks": [
@@ -14560,6 +14727,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:find-beats": [
@@ -14711,6 +14885,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:find-cold-rows": [
@@ -14956,6 +15137,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:find-faces": [
@@ -15735,6 +15923,14 @@
    "at": "/opt/content-identity"
   },
   {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "harness/request-source-return-check.mjs",
+    "harness/retry-source-return-request.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
    "package": "records-door",
    "paths": [
     "read-data/large-file.json"
@@ -15758,6 +15954,12 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "blake3"
+   ],
+   "at": "/opt/save-what-you-watch-and-read/read-data"
   }
  ],
  "tool:find-on-the-screen": [
@@ -16422,6 +16624,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:find-silence": [
@@ -16573,6 +16782,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:find-the-event-that-starts-one-tour": [
@@ -17970,6 +18186,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:grade-and-repair-speech-audio": [],
@@ -19317,6 +19540,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "harness/request-source-return-check.mjs",
+    "harness/retry-source-return-request.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -19330,6 +19561,12 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "blake3"
+   ],
+   "at": "/opt/conversations/read-data"
   }
  ],
  "tool:import-markdown-as-editable-document": [
@@ -19542,6 +19779,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "harness/request-source-return-check.mjs",
+    "harness/retry-source-return-request.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -19555,6 +19800,12 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "blake3"
+   ],
+   "at": "/opt/conversations/read-data"
   }
  ],
  "tool:insert-frame-holds-into-a-filmcraft-project-copy": [],
@@ -21048,6 +21299,7 @@
     "do-work/find-action-moments.mjs",
     "do-work/find-recurring-voices.py",
     "do-work/grade-a-video.mjs",
+    "do-work/karaoke-captions-cli.mjs",
     "do-work/keyframe-curve.mjs",
     "do-work/layer-over-video.mjs",
     "do-work/make-browser-preview.py",
@@ -21978,6 +22230,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "harness/request-source-return-check.mjs",
+    "harness/retry-source-return-request.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -21991,6 +22251,12 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "blake3"
+   ],
+   "at": "/opt/conversations/read-data"
   }
  ],
  "tool:keep-what-my-devices-report-about-themselves": [
@@ -22484,6 +22750,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:leave-a-shared-pursuit": [
@@ -24641,6 +24914,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "harness/request-source-return-check.mjs",
+    "harness/retry-source-return-request.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -24654,6 +24935,12 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "blake3"
+   ],
+   "at": "/opt/conversations/read-data"
   }
  ],
  "tool:list-the-courses-a-learner-is-on": [
@@ -24785,6 +25072,14 @@
     "read-data/blake3.mjs"
    ],
    "at": "/opt/content-identity"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "harness/request-source-return-check.mjs",
+    "harness/retry-source-return-request.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
   },
   {
    "packages": [
@@ -26023,9 +26318,159 @@
    "at": "/opt/audio-transcription"
   },
   {
+   "package": "check-every-claim-against-its-facts-and-sources",
+   "paths": [
+    "do-work/check_claims.py",
+    "read-data/claim_gate.py",
+    "read-data/world_rows.py"
+   ],
+   "at": "/opt/check-every-claim-against-its-facts-and-sources"
+  },
+  {
    "package": "render-a-motion-graphics-overlay",
    "paths": [
-    "do-work/render-overlay.mjs"
+    "do-work/crumple_a_card.py",
+    "do-work/overlay/__init__.py",
+    "do-work/overlay/build.py",
+    "do-work/overlay/events/__init__.py",
+    "do-work/overlay/events/archive_panels.py",
+    "do-work/overlay/events/arrow.py",
+    "do-work/overlay/events/axis_reframe.py",
+    "do-work/overlay/events/bead_chain.py",
+    "do-work/overlay/events/bfull.py",
+    "do-work/overlay/events/bfull3.py",
+    "do-work/overlay/events/bigword.py",
+    "do-work/overlay/events/bottle_drop.py",
+    "do-work/overlay/events/branch_map.py",
+    "do-work/overlay/events/brush.py",
+    "do-work/overlay/events/callout.py",
+    "do-work/overlay/events/camps_collage.py",
+    "do-work/overlay/events/card.py",
+    "do-work/overlay/events/cause_notes.py",
+    "do-work/overlay/events/ch2_sfx.py",
+    "do-work/overlay/events/ch5_camera.py",
+    "do-work/overlay/events/chart.py",
+    "do-work/overlay/events/chart3.py",
+    "do-work/overlay/events/citation_card.py",
+    "do-work/overlay/events/clear.py",
+    "do-work/overlay/events/collage.py",
+    "do-work/overlay/events/collage3.py",
+    "do-work/overlay/events/count.py",
+    "do-work/overlay/events/count3.py",
+    "do-work/overlay/events/ctick.py",
+    "do-work/overlay/events/ctick3.py",
+    "do-work/overlay/events/cutout.py",
+    "do-work/overlay/events/dial_panel.py",
+    "do-work/overlay/events/dictionary_entry.py",
+    "do-work/overlay/events/document_zoom.py",
+    "do-work/overlay/events/dv_sliver.py",
+    "do-work/overlay/events/energy_budget.py",
+    "do-work/overlay/events/evidence_bubble.py",
+    "do-work/overlay/events/exit.py",
+    "do-work/overlay/events/fact_grid.py",
+    "do-work/overlay/events/figure.py",
+    "do-work/overlay/events/film_strip_timeline.py",
+    "do-work/overlay/events/focus_tapes.py",
+    "do-work/overlay/events/gauge_settle.py",
+    "do-work/overlay/events/glass_fill.py",
+    "do-work/overlay/events/goal_tracks.py",
+    "do-work/overlay/events/graph_paper_map.py",
+    "do-work/overlay/events/haul_lineup.py",
+    "do-work/overlay/events/hold_still.py",
+    "do-work/overlay/events/jelly_pouch.py",
+    "do-work/overlay/events/kinetic_words.py",
+    "do-work/overlay/events/label.py",
+    "do-work/overlay/events/label3.py",
+    "do-work/overlay/events/label_highlight.py",
+    "do-work/overlay/events/label_liftout.py",
+    "do-work/overlay/events/letters.py",
+    "do-work/overlay/events/lit_words.py",
+    "do-work/overlay/events/lower_third.py",
+    "do-work/overlay/events/marker_note.py",
+    "do-work/overlay/events/marker_underline.py",
+    "do-work/overlay/events/marker_word.py",
+    "do-work/overlay/events/molecule_scoop.py",
+    "do-work/overlay/events/name.py",
+    "do-work/overlay/events/narrator_endcard.py",
+    "do-work/overlay/events/narrator_footnote.py",
+    "do-work/overlay/events/narrator_label.py",
+    "do-work/overlay/events/narrator_tag.py",
+    "do-work/overlay/events/note.py",
+    "do-work/overlay/events/nutri_card.py",
+    "do-work/overlay/events/nutrient_label.py",
+    "do-work/overlay/events/object_cutout.py",
+    "do-work/overlay/events/paper_sweep.py",
+    "do-work/overlay/events/particle_assemble.py",
+    "do-work/overlay/events/pause.py",
+    "do-work/overlay/events/pen_page.py",
+    "do-work/overlay/events/peptide_takeover.py",
+    "do-work/overlay/events/photo_proof.py",
+    "do-work/overlay/events/pictogram.py",
+    "do-work/overlay/events/pile.py",
+    "do-work/overlay/events/plate_card.py",
+    "do-work/overlay/events/print.py",
+    "do-work/overlay/events/proglucagon_cut.py",
+    "do-work/overlay/events/proof_page.py",
+    "do-work/overlay/events/pull_quote.py",
+    "do-work/overlay/events/qcard.py",
+    "do-work/overlay/events/qcard3.py",
+    "do-work/overlay/events/qcard_circle.py",
+    "do-work/overlay/events/question_ledger.py",
+    "do-work/overlay/events/ransom.py",
+    "do-work/overlay/events/receipt_unroll.py",
+    "do-work/overlay/events/role.py",
+    "do-work/overlay/events/route_draw.py",
+    "do-work/overlay/events/ruler_bracket.py",
+    "do-work/overlay/events/scatter.py",
+    "do-work/overlay/events/scoop_form.py",
+    "do-work/overlay/events/scrap.py",
+    "do-work/overlay/events/scrap3.py",
+    "do-work/overlay/events/sfname.py",
+    "do-work/overlay/events/slide_card.py",
+    "do-work/overlay/events/slide_out.py",
+    "do-work/overlay/events/soft_backing.py",
+    "do-work/overlay/events/sound.py",
+    "do-work/overlay/events/split_compare.py",
+    "do-work/overlay/events/stamp_steps.py",
+    "do-work/overlay/events/stapled_note.py",
+    "do-work/overlay/events/sticker_slap.py",
+    "do-work/overlay/events/sticky_peel.py",
+    "do-work/overlay/events/still_full.py",
+    "do-work/overlay/events/strata_descent.py",
+    "do-work/overlay/events/strike.py",
+    "do-work/overlay/events/strike_revision.py",
+    "do-work/overlay/events/strip.py",
+    "do-work/overlay/events/sum_board.py",
+    "do-work/overlay/events/tear_exit.py",
+    "do-work/overlay/events/tick.py",
+    "do-work/overlay/events/tracked_circle.py",
+    "do-work/overlay/events/typed_scrap.py",
+    "do-work/overlay/events/typepage.py",
+    "do-work/overlay/events/version_card.py",
+    "do-work/overlay/events/water_glasses.py",
+    "do-work/overlay/events/widening_circle.py",
+    "do-work/overlay/events/word_behind.py",
+    "do-work/overlay/events/word_stack.py",
+    "do-work/overlay/events/wordtext.py",
+    "do-work/overlay/events/workshop.py",
+    "do-work/overlay/helpers/ice_cream_picture.py",
+    "do-work/overlay/helpers/marker_and_slide.py",
+    "do-work/overlay/helpers/motion_smear.py",
+    "do-work/overlay/helpers/paper_pieces.py",
+    "do-work/overlay/helpers/particles_to_picture.py",
+    "do-work/overlay/helpers/peptide_beads.py",
+    "do-work/overlay/helpers/slide_pieces.py",
+    "do-work/overlay/helpers/sound_classes.py",
+    "do-work/overlay/helpers/table_objects.py",
+    "do-work/overlay/helpers/writing_sounds.py",
+    "do-work/overlay/insert.py",
+    "do-work/overlay/kit.py",
+    "do-work/overlay/lock.py",
+    "do-work/overlay/look.py",
+    "do-work/overlay/render.py",
+    "do-work/overlay/stage.py",
+    "do-work/render-overlay.mjs",
+    "do-work/render_a_motion_graphics_overlay.py"
    ],
    "at": "/opt/render-a-motion-graphics-overlay"
   },
@@ -26034,6 +26479,33 @@
     "pillow"
    ],
    "at": "/opt/make-a-contact-sheet-of-pictures-or-video-frames/do-work"
+  },
+  {
+   "packages": [
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work/overlay"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work/overlay/events"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work/overlay/helpers"
   }
  ],
  "tool:make-a-lut-for-log-footage": [],
@@ -26267,6 +26739,15 @@
    "at": "/opt/settings"
   },
   {
+   "package": "check-every-claim-against-its-facts-and-sources",
+   "paths": [
+    "do-work/check_claims.py",
+    "read-data/claim_gate.py",
+    "read-data/world_rows.py"
+   ],
+   "at": "/opt/check-every-claim-against-its-facts-and-sources"
+  },
+  {
    "package": "make-a-contact-sheet-of-pictures-or-video-frames",
    "paths": [
     "do-work/frames_at_times.py"
@@ -26276,7 +26757,148 @@
   {
    "package": "render-a-motion-graphics-overlay",
    "paths": [
-    "do-work/render-overlay.mjs"
+    "do-work/crumple_a_card.py",
+    "do-work/overlay/__init__.py",
+    "do-work/overlay/build.py",
+    "do-work/overlay/events/__init__.py",
+    "do-work/overlay/events/archive_panels.py",
+    "do-work/overlay/events/arrow.py",
+    "do-work/overlay/events/axis_reframe.py",
+    "do-work/overlay/events/bead_chain.py",
+    "do-work/overlay/events/bfull.py",
+    "do-work/overlay/events/bfull3.py",
+    "do-work/overlay/events/bigword.py",
+    "do-work/overlay/events/bottle_drop.py",
+    "do-work/overlay/events/branch_map.py",
+    "do-work/overlay/events/brush.py",
+    "do-work/overlay/events/callout.py",
+    "do-work/overlay/events/camps_collage.py",
+    "do-work/overlay/events/card.py",
+    "do-work/overlay/events/cause_notes.py",
+    "do-work/overlay/events/ch2_sfx.py",
+    "do-work/overlay/events/ch5_camera.py",
+    "do-work/overlay/events/chart.py",
+    "do-work/overlay/events/chart3.py",
+    "do-work/overlay/events/citation_card.py",
+    "do-work/overlay/events/clear.py",
+    "do-work/overlay/events/collage.py",
+    "do-work/overlay/events/collage3.py",
+    "do-work/overlay/events/count.py",
+    "do-work/overlay/events/count3.py",
+    "do-work/overlay/events/ctick.py",
+    "do-work/overlay/events/ctick3.py",
+    "do-work/overlay/events/cutout.py",
+    "do-work/overlay/events/dial_panel.py",
+    "do-work/overlay/events/dictionary_entry.py",
+    "do-work/overlay/events/document_zoom.py",
+    "do-work/overlay/events/dv_sliver.py",
+    "do-work/overlay/events/energy_budget.py",
+    "do-work/overlay/events/evidence_bubble.py",
+    "do-work/overlay/events/exit.py",
+    "do-work/overlay/events/fact_grid.py",
+    "do-work/overlay/events/figure.py",
+    "do-work/overlay/events/film_strip_timeline.py",
+    "do-work/overlay/events/focus_tapes.py",
+    "do-work/overlay/events/gauge_settle.py",
+    "do-work/overlay/events/glass_fill.py",
+    "do-work/overlay/events/goal_tracks.py",
+    "do-work/overlay/events/graph_paper_map.py",
+    "do-work/overlay/events/haul_lineup.py",
+    "do-work/overlay/events/hold_still.py",
+    "do-work/overlay/events/jelly_pouch.py",
+    "do-work/overlay/events/kinetic_words.py",
+    "do-work/overlay/events/label.py",
+    "do-work/overlay/events/label3.py",
+    "do-work/overlay/events/label_highlight.py",
+    "do-work/overlay/events/label_liftout.py",
+    "do-work/overlay/events/letters.py",
+    "do-work/overlay/events/lit_words.py",
+    "do-work/overlay/events/lower_third.py",
+    "do-work/overlay/events/marker_note.py",
+    "do-work/overlay/events/marker_underline.py",
+    "do-work/overlay/events/marker_word.py",
+    "do-work/overlay/events/molecule_scoop.py",
+    "do-work/overlay/events/name.py",
+    "do-work/overlay/events/narrator_endcard.py",
+    "do-work/overlay/events/narrator_footnote.py",
+    "do-work/overlay/events/narrator_label.py",
+    "do-work/overlay/events/narrator_tag.py",
+    "do-work/overlay/events/note.py",
+    "do-work/overlay/events/nutri_card.py",
+    "do-work/overlay/events/nutrient_label.py",
+    "do-work/overlay/events/object_cutout.py",
+    "do-work/overlay/events/paper_sweep.py",
+    "do-work/overlay/events/particle_assemble.py",
+    "do-work/overlay/events/pause.py",
+    "do-work/overlay/events/pen_page.py",
+    "do-work/overlay/events/peptide_takeover.py",
+    "do-work/overlay/events/photo_proof.py",
+    "do-work/overlay/events/pictogram.py",
+    "do-work/overlay/events/pile.py",
+    "do-work/overlay/events/plate_card.py",
+    "do-work/overlay/events/print.py",
+    "do-work/overlay/events/proglucagon_cut.py",
+    "do-work/overlay/events/proof_page.py",
+    "do-work/overlay/events/pull_quote.py",
+    "do-work/overlay/events/qcard.py",
+    "do-work/overlay/events/qcard3.py",
+    "do-work/overlay/events/qcard_circle.py",
+    "do-work/overlay/events/question_ledger.py",
+    "do-work/overlay/events/ransom.py",
+    "do-work/overlay/events/receipt_unroll.py",
+    "do-work/overlay/events/role.py",
+    "do-work/overlay/events/route_draw.py",
+    "do-work/overlay/events/ruler_bracket.py",
+    "do-work/overlay/events/scatter.py",
+    "do-work/overlay/events/scoop_form.py",
+    "do-work/overlay/events/scrap.py",
+    "do-work/overlay/events/scrap3.py",
+    "do-work/overlay/events/sfname.py",
+    "do-work/overlay/events/slide_card.py",
+    "do-work/overlay/events/slide_out.py",
+    "do-work/overlay/events/soft_backing.py",
+    "do-work/overlay/events/sound.py",
+    "do-work/overlay/events/split_compare.py",
+    "do-work/overlay/events/stamp_steps.py",
+    "do-work/overlay/events/stapled_note.py",
+    "do-work/overlay/events/sticker_slap.py",
+    "do-work/overlay/events/sticky_peel.py",
+    "do-work/overlay/events/still_full.py",
+    "do-work/overlay/events/strata_descent.py",
+    "do-work/overlay/events/strike.py",
+    "do-work/overlay/events/strike_revision.py",
+    "do-work/overlay/events/strip.py",
+    "do-work/overlay/events/sum_board.py",
+    "do-work/overlay/events/tear_exit.py",
+    "do-work/overlay/events/tick.py",
+    "do-work/overlay/events/tracked_circle.py",
+    "do-work/overlay/events/typed_scrap.py",
+    "do-work/overlay/events/typepage.py",
+    "do-work/overlay/events/version_card.py",
+    "do-work/overlay/events/water_glasses.py",
+    "do-work/overlay/events/widening_circle.py",
+    "do-work/overlay/events/word_behind.py",
+    "do-work/overlay/events/word_stack.py",
+    "do-work/overlay/events/wordtext.py",
+    "do-work/overlay/events/workshop.py",
+    "do-work/overlay/helpers/ice_cream_picture.py",
+    "do-work/overlay/helpers/marker_and_slide.py",
+    "do-work/overlay/helpers/motion_smear.py",
+    "do-work/overlay/helpers/paper_pieces.py",
+    "do-work/overlay/helpers/particles_to_picture.py",
+    "do-work/overlay/helpers/peptide_beads.py",
+    "do-work/overlay/helpers/slide_pieces.py",
+    "do-work/overlay/helpers/sound_classes.py",
+    "do-work/overlay/helpers/table_objects.py",
+    "do-work/overlay/helpers/writing_sounds.py",
+    "do-work/overlay/insert.py",
+    "do-work/overlay/kit.py",
+    "do-work/overlay/lock.py",
+    "do-work/overlay/look.py",
+    "do-work/overlay/render.py",
+    "do-work/overlay/stage.py",
+    "do-work/render-overlay.mjs",
+    "do-work/render_a_motion_graphics_overlay.py"
    ],
    "at": "/opt/render-a-motion-graphics-overlay"
   },
@@ -26285,6 +26907,33 @@
     "pillow"
    ],
    "at": "/opt/make-a-contact-sheet-of-pictures-or-video-frames/do-work"
+  },
+  {
+   "packages": [
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work/overlay"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work/overlay/events"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work/overlay/helpers"
   }
  ],
  "tool:make-and-measure-every-voice-take-of-a-line": [],
@@ -26428,6 +27077,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:make-examples-from-picks": [
@@ -26822,6 +27478,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:make-sound-effect-from-moss-on-my-computer": [
@@ -26964,6 +27627,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:make-sound-effect-from-stable-audio-3-on-my-computer": [
@@ -27106,6 +27776,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:make-sound-effects-for-a-video-from-hunyuan-foley-on-my-computer": [
@@ -27248,6 +27925,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:make-spoken-line-candidates-one-slot-at-a-time": [],
@@ -27259,6 +27943,14 @@
     "method-rows"
    ],
    "at": "/opt/decide-with-a-method"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "read-data/stance-facts.mjs",
+    "read-data/stances.json"
+   ],
+   "at": "/opt/where-a-person-stands"
   },
   {
    "package": "formula-engine",
@@ -27804,6 +28496,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:match-rows": [
@@ -28312,6 +29011,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:measure-narration-takes": [],
@@ -28980,6 +29686,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:move-a-booking-on-my-calendar": [
@@ -29103,6 +29816,13 @@
     "utils.js"
    ],
    "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "move-code-between-trees",
+   "paths": [
+    "index.js"
+   ],
+   "at": "/opt/move-code-between-trees"
   }
  ],
  "tool:move-static-items-into-a-space": [
@@ -29726,6 +30446,7 @@
     "do-work/find-action-moments.mjs",
     "do-work/find-recurring-voices.py",
     "do-work/grade-a-video.mjs",
+    "do-work/karaoke-captions-cli.mjs",
     "do-work/keyframe-curve.mjs",
     "do-work/layer-over-video.mjs",
     "do-work/make-browser-preview.py",
@@ -30006,6 +30727,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:name-my-next-commitment": [
@@ -31213,6 +31941,14 @@
    "at": "/opt/content-identity"
   },
   {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "harness/request-source-return-check.mjs",
+    "harness/retry-source-return-request.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
    "package": "records-door",
    "paths": [
     "read-data/large-file.json"
@@ -31236,6 +31972,12 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "blake3"
+   ],
+   "at": "/opt/save-what-you-watch-and-read/read-data"
   }
  ],
  "tool:on-my-path": [
@@ -32628,6 +33370,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:pick-fired-rules": [
@@ -34605,6 +35354,15 @@
    "at": "/opt/settings"
   },
   {
+   "package": "check-every-claim-against-its-facts-and-sources",
+   "paths": [
+    "do-work/check_claims.py",
+    "read-data/claim_gate.py",
+    "read-data/world_rows.py"
+   ],
+   "at": "/opt/check-every-claim-against-its-facts-and-sources"
+  },
+  {
    "package": "make-a-contact-sheet-of-pictures-or-video-frames",
    "paths": [
     "do-work/frames_at_times.py"
@@ -34614,7 +35372,148 @@
   {
    "package": "render-a-motion-graphics-overlay",
    "paths": [
-    "do-work/render-overlay.mjs"
+    "do-work/crumple_a_card.py",
+    "do-work/overlay/__init__.py",
+    "do-work/overlay/build.py",
+    "do-work/overlay/events/__init__.py",
+    "do-work/overlay/events/archive_panels.py",
+    "do-work/overlay/events/arrow.py",
+    "do-work/overlay/events/axis_reframe.py",
+    "do-work/overlay/events/bead_chain.py",
+    "do-work/overlay/events/bfull.py",
+    "do-work/overlay/events/bfull3.py",
+    "do-work/overlay/events/bigword.py",
+    "do-work/overlay/events/bottle_drop.py",
+    "do-work/overlay/events/branch_map.py",
+    "do-work/overlay/events/brush.py",
+    "do-work/overlay/events/callout.py",
+    "do-work/overlay/events/camps_collage.py",
+    "do-work/overlay/events/card.py",
+    "do-work/overlay/events/cause_notes.py",
+    "do-work/overlay/events/ch2_sfx.py",
+    "do-work/overlay/events/ch5_camera.py",
+    "do-work/overlay/events/chart.py",
+    "do-work/overlay/events/chart3.py",
+    "do-work/overlay/events/citation_card.py",
+    "do-work/overlay/events/clear.py",
+    "do-work/overlay/events/collage.py",
+    "do-work/overlay/events/collage3.py",
+    "do-work/overlay/events/count.py",
+    "do-work/overlay/events/count3.py",
+    "do-work/overlay/events/ctick.py",
+    "do-work/overlay/events/ctick3.py",
+    "do-work/overlay/events/cutout.py",
+    "do-work/overlay/events/dial_panel.py",
+    "do-work/overlay/events/dictionary_entry.py",
+    "do-work/overlay/events/document_zoom.py",
+    "do-work/overlay/events/dv_sliver.py",
+    "do-work/overlay/events/energy_budget.py",
+    "do-work/overlay/events/evidence_bubble.py",
+    "do-work/overlay/events/exit.py",
+    "do-work/overlay/events/fact_grid.py",
+    "do-work/overlay/events/figure.py",
+    "do-work/overlay/events/film_strip_timeline.py",
+    "do-work/overlay/events/focus_tapes.py",
+    "do-work/overlay/events/gauge_settle.py",
+    "do-work/overlay/events/glass_fill.py",
+    "do-work/overlay/events/goal_tracks.py",
+    "do-work/overlay/events/graph_paper_map.py",
+    "do-work/overlay/events/haul_lineup.py",
+    "do-work/overlay/events/hold_still.py",
+    "do-work/overlay/events/jelly_pouch.py",
+    "do-work/overlay/events/kinetic_words.py",
+    "do-work/overlay/events/label.py",
+    "do-work/overlay/events/label3.py",
+    "do-work/overlay/events/label_highlight.py",
+    "do-work/overlay/events/label_liftout.py",
+    "do-work/overlay/events/letters.py",
+    "do-work/overlay/events/lit_words.py",
+    "do-work/overlay/events/lower_third.py",
+    "do-work/overlay/events/marker_note.py",
+    "do-work/overlay/events/marker_underline.py",
+    "do-work/overlay/events/marker_word.py",
+    "do-work/overlay/events/molecule_scoop.py",
+    "do-work/overlay/events/name.py",
+    "do-work/overlay/events/narrator_endcard.py",
+    "do-work/overlay/events/narrator_footnote.py",
+    "do-work/overlay/events/narrator_label.py",
+    "do-work/overlay/events/narrator_tag.py",
+    "do-work/overlay/events/note.py",
+    "do-work/overlay/events/nutri_card.py",
+    "do-work/overlay/events/nutrient_label.py",
+    "do-work/overlay/events/object_cutout.py",
+    "do-work/overlay/events/paper_sweep.py",
+    "do-work/overlay/events/particle_assemble.py",
+    "do-work/overlay/events/pause.py",
+    "do-work/overlay/events/pen_page.py",
+    "do-work/overlay/events/peptide_takeover.py",
+    "do-work/overlay/events/photo_proof.py",
+    "do-work/overlay/events/pictogram.py",
+    "do-work/overlay/events/pile.py",
+    "do-work/overlay/events/plate_card.py",
+    "do-work/overlay/events/print.py",
+    "do-work/overlay/events/proglucagon_cut.py",
+    "do-work/overlay/events/proof_page.py",
+    "do-work/overlay/events/pull_quote.py",
+    "do-work/overlay/events/qcard.py",
+    "do-work/overlay/events/qcard3.py",
+    "do-work/overlay/events/qcard_circle.py",
+    "do-work/overlay/events/question_ledger.py",
+    "do-work/overlay/events/ransom.py",
+    "do-work/overlay/events/receipt_unroll.py",
+    "do-work/overlay/events/role.py",
+    "do-work/overlay/events/route_draw.py",
+    "do-work/overlay/events/ruler_bracket.py",
+    "do-work/overlay/events/scatter.py",
+    "do-work/overlay/events/scoop_form.py",
+    "do-work/overlay/events/scrap.py",
+    "do-work/overlay/events/scrap3.py",
+    "do-work/overlay/events/sfname.py",
+    "do-work/overlay/events/slide_card.py",
+    "do-work/overlay/events/slide_out.py",
+    "do-work/overlay/events/soft_backing.py",
+    "do-work/overlay/events/sound.py",
+    "do-work/overlay/events/split_compare.py",
+    "do-work/overlay/events/stamp_steps.py",
+    "do-work/overlay/events/stapled_note.py",
+    "do-work/overlay/events/sticker_slap.py",
+    "do-work/overlay/events/sticky_peel.py",
+    "do-work/overlay/events/still_full.py",
+    "do-work/overlay/events/strata_descent.py",
+    "do-work/overlay/events/strike.py",
+    "do-work/overlay/events/strike_revision.py",
+    "do-work/overlay/events/strip.py",
+    "do-work/overlay/events/sum_board.py",
+    "do-work/overlay/events/tear_exit.py",
+    "do-work/overlay/events/tick.py",
+    "do-work/overlay/events/tracked_circle.py",
+    "do-work/overlay/events/typed_scrap.py",
+    "do-work/overlay/events/typepage.py",
+    "do-work/overlay/events/version_card.py",
+    "do-work/overlay/events/water_glasses.py",
+    "do-work/overlay/events/widening_circle.py",
+    "do-work/overlay/events/word_behind.py",
+    "do-work/overlay/events/word_stack.py",
+    "do-work/overlay/events/wordtext.py",
+    "do-work/overlay/events/workshop.py",
+    "do-work/overlay/helpers/ice_cream_picture.py",
+    "do-work/overlay/helpers/marker_and_slide.py",
+    "do-work/overlay/helpers/motion_smear.py",
+    "do-work/overlay/helpers/paper_pieces.py",
+    "do-work/overlay/helpers/particles_to_picture.py",
+    "do-work/overlay/helpers/peptide_beads.py",
+    "do-work/overlay/helpers/slide_pieces.py",
+    "do-work/overlay/helpers/sound_classes.py",
+    "do-work/overlay/helpers/table_objects.py",
+    "do-work/overlay/helpers/writing_sounds.py",
+    "do-work/overlay/insert.py",
+    "do-work/overlay/kit.py",
+    "do-work/overlay/lock.py",
+    "do-work/overlay/look.py",
+    "do-work/overlay/render.py",
+    "do-work/overlay/stage.py",
+    "do-work/render-overlay.mjs",
+    "do-work/render_a_motion_graphics_overlay.py"
    ],
    "at": "/opt/render-a-motion-graphics-overlay"
   },
@@ -34623,6 +35522,33 @@
     "pillow"
    ],
    "at": "/opt/make-a-contact-sheet-of-pictures-or-video-frames/do-work"
+  },
+  {
+   "packages": [
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work/overlay"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work/overlay/events"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work/overlay/helpers"
   }
  ],
  "tool:publish-a-list-view-as-a-file": [],
@@ -37422,6 +38348,14 @@
    "at": "/opt/content-identity"
   },
   {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "harness/request-source-return-check.mjs",
+    "harness/retry-source-return-request.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
    "packages": [
     "node_modules/@noble/hashes"
    ],
@@ -39476,6 +40410,14 @@
    "at": "/opt/content-identity"
   },
   {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "harness/request-source-return-check.mjs",
+    "harness/retry-source-return-request.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
    "package": "records-door",
    "paths": [
     "read-data/large-file.json"
@@ -40540,6 +41482,14 @@
     "method-rows"
    ],
    "at": "/opt/decide-with-a-method"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "read-data/stance-facts.mjs",
+    "read-data/stances.json"
+   ],
+   "at": "/opt/where-a-person-stands"
   },
   {
    "package": "formula-engine",
@@ -42101,6 +43051,14 @@
    "at": "/opt/decide-with-a-method"
   },
   {
+   "package": "where-a-person-stands",
+   "paths": [
+    "read-data/stance-facts.mjs",
+    "read-data/stances.json"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
    "package": "formula-engine",
    "paths": [
     "rules",
@@ -42412,6 +43370,12 @@
     "browser-places.json"
    ],
    "at": "/opt/headless-browser"
+  },
+  {
+   "packages": [
+    "pillow"
+   ],
+   "at": "/opt/record-a-web-page/do-work"
   }
  ],
  "tool:record-an-introduction-state": [
@@ -43202,6 +44166,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:refresh-measurement-history": [
@@ -44167,6 +45138,42 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "check-every-claim-against-its-facts-and-sources",
+   "paths": [
+    "do-work/check_claims.py",
+    "read-data/claim_gate.py",
+    "read-data/world_rows.py"
+   ],
+   "at": "/opt/check-every-claim-against-its-facts-and-sources"
+  },
+  {
+   "packages": [
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work/overlay"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work/overlay/events"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work/overlay/helpers"
   }
  ],
  "tool:render-a-pointillist-frame": [],
@@ -44320,6 +45327,13 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/media-composition/do-work"
   }
  ],
  "tool:render-an-overlay-insert-for-a-cut": [
@@ -44395,6 +45409,33 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "packages": [
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work/overlay"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work/overlay/events"
+  },
+  {
+   "packages": [
+    "numpy",
+    "pillow"
+   ],
+   "at": "/opt/render-a-motion-graphics-overlay/do-work/overlay/helpers"
   }
  ],
  "tool:render-music-note-events-to-a-test-wav": [],
@@ -44509,6 +45550,14 @@
     "method-rows"
    ],
    "at": "/opt/decide-with-a-method"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "read-data/stance-facts.mjs",
+    "read-data/stances.json"
+   ],
+   "at": "/opt/where-a-person-stands"
   },
   {
    "package": "formula-engine",
@@ -45374,6 +46423,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "harness/request-source-return-check.mjs",
+    "harness/retry-source-return-request.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -45387,6 +46444,12 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "blake3"
+   ],
+   "at": "/opt/conversations/read-data"
   }
  ],
  "tool:retire-a-copied-ai-reply": [
@@ -47210,6 +48273,14 @@
     "method-rows"
    ],
    "at": "/opt/decide-with-a-method"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "read-data/stance-facts.mjs",
+    "read-data/stances.json"
+   ],
+   "at": "/opt/where-a-person-stands"
   },
   {
    "package": "formula-engine",
@@ -52126,6 +53197,14 @@
    "at": "/opt/decide-with-a-method"
   },
   {
+   "package": "where-a-person-stands",
+   "paths": [
+    "read-data/stance-facts.mjs",
+    "read-data/stances.json"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
    "package": "formula-engine",
    "paths": [
     "rules",
@@ -52321,6 +53400,12 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "blake3"
+   ],
+   "at": "/opt/ask-a-small-model-for-a-verdict/do-work"
   }
  ],
  "tool:share-a-kept-show-type": [
@@ -52684,6 +53769,14 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "harness/request-source-return-check.mjs",
+    "harness/retry-source-return-request.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -52697,6 +53790,12 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  },
+  {
+   "packages": [
+    "blake3"
+   ],
+   "at": "/opt/conversations/read-data"
   }
  ],
  "tool:show-one-purchase-plan-card-and-receipts": [
@@ -53440,6 +54539,14 @@
     "method-rows"
    ],
    "at": "/opt/decide-with-a-method"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "read-data/stance-facts.mjs",
+    "read-data/stances.json"
+   ],
+   "at": "/opt/where-a-person-stands"
   },
   {
    "package": "formula-engine",
