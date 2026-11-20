@@ -29,6 +29,7 @@
 import { spawnSync } from 'node:child_process';
 import { realpathSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const MAIN = 'refs/remotes/origin/main';
 const FETCH_TIMEOUT_MS = 15_000;
@@ -79,7 +80,7 @@ function referenceTransaction(state, updates) {
   return null;
 }
 
-if (process.argv[1] && real(process.argv[1]) === real(new URL(import.meta.url).pathname)) {
+if (process.argv[1] && real(process.argv[1]) === real(fileURLToPath(new URL(import.meta.url)))) {
   const [mode, state] = process.argv.slice(2);
   let refusal = null;
   if (isSharedCheckout()) {

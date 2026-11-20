@@ -11,9 +11,10 @@ import path from "node:path";
 import http from "node:http";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { fileURLToPath } from "node:url";
 
 const run = promisify(execFile);
-const HERE = path.dirname(new URL(import.meta.url).pathname);
+const HERE = path.dirname(fileURLToPath(new URL(import.meta.url)));
 const PY = path.join(HERE, "embed-text-ollama.py");
 const MJS = path.join(HERE, "embed-text-ollama.mjs");
 

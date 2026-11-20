@@ -28,11 +28,12 @@ import { promisify } from 'node:util';
 import { hearingHere } from '../../computer-programs/read-data/program-here.mjs';
 import { captionWords, refusedThisCopy } from './read-link-captions.mjs';
 import { linkToolsFor } from './hear-link-flow.mjs';
+import { fileURLToPath } from 'node:url';
 
 export { captionWords, refusedThisCopy };
 
 const run = promisify(execFile);
-const HERE = path.dirname(new URL(import.meta.url).pathname);
+const HERE = path.dirname(fileURLToPath(new URL(import.meta.url)));
 export const linkSettings = () => JSON.parse(readFileSync(path.join(HERE, 'hear-a-link.json'), 'utf8'));
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ''));
 /**

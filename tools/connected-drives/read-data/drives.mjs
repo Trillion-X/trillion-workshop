@@ -26,9 +26,10 @@ import { parseDiskIdentity, resolveDriveIdentity } from './drive-identity.mjs';
 import { driveFileHolders } from './drive-processes.mjs';
 import { listFolder } from './drive-folder.mjs';
 import { readMountTableDrives } from './drive-mount-table.mjs';
+import { fileURLToPath } from 'node:url';
 
 const settings = JSON.parse(fs.readFileSync(new URL('./drives.json', import.meta.url), 'utf8'));
-const DRAW_ICON = new URL('./draw-icon.js', import.meta.url).pathname;
+const DRAW_ICON = fileURLToPath(new URL('./draw-icon.js', import.meta.url));
 const fail = message => new Error(message);
 
 const run = (command, args) => new Promise(resolve => execFile(command, args, { timeout: 20_000, maxBuffer: 16 * 1024 * 1024 },

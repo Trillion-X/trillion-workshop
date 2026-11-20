@@ -4,8 +4,9 @@
 // product: the session cookie's name, the passkey's relying party name and the authenticator issuer.
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const SHIPPED = new URL('./settings.json', import.meta.url).pathname;
+const SHIPPED = fileURLToPath(new URL('./settings.json', import.meta.url));
 
 const plain = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 

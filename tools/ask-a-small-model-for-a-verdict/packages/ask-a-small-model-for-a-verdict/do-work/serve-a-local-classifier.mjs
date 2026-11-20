@@ -36,7 +36,7 @@ import {spawn} from 'node:child_process'
 import {readdirSync, existsSync, mkdirSync, openSync, readFileSync, realpathSync } from 'node:fs'
 import {join, dirname} from 'node:path'
 import {homedir} from 'node:os'
-import { pathToFileURL } from 'node:url';
+import { pathToFileURL, fileURLToPath } from 'node:url';
 
 const CACHE = join(homedir(), '.cache', 'huggingface', 'hub')
 
@@ -116,7 +116,7 @@ export async function main(argv) {
     'python3',
     // Our own server rather than the runtime's, because that one hardcodes a
     // CUDA device and dies before it binds a port on a machine without one.
-    [new URL(server, import.meta.url).pathname],
+    [fileURLToPath(new URL(server, import.meta.url))],
     {
       cwd: where,
       // The environment goes through the spawn rather than a shell prefix, so

@@ -8,10 +8,11 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
+import { fileURLToPath } from 'node:url';
 
 const execFileP = promisify(execFile);
-const VIDEO_COMPOSE = new URL('../do-work/video-compose.mjs', import.meta.url).pathname;
-const PUBLIC_DIR = new URL('./public/', import.meta.url).pathname;
+const VIDEO_COMPOSE = fileURLToPath(new URL('../do-work/video-compose.mjs', import.meta.url));
+const PUBLIC_DIR = fileURLToPath(new URL('./public/', import.meta.url));
 
 export function decodePreviewLibrary(value) {
   const rows = Array.isArray(value) ? value : value?.clips;

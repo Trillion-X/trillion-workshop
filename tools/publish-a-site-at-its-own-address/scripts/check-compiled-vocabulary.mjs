@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const root = new URL('..', import.meta.url).pathname;
+const root = fileURLToPath(new URL('..', import.meta.url));
 const checkedRoots = ['src'];
 const optionalBuiltRoots = ['dist', '.bitfield-entry-scope'];
 const bannedInGenericCode = /\b(redeploy|deployment hash|artifact hash|process descriptor|package descriptor|CAS|eeaf|fact|provider_api_key|vercel|netlify|cloudflare)\b/i;

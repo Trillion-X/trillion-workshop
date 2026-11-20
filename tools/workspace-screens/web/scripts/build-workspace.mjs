@@ -41,11 +41,12 @@ import { SOURCE_RECORD_FILE, buildCommit, sourceRecord } from '../../../../tools
 import { writePublicIcons } from './public-icons.mjs';
 import { installedModules, workshopRoot } from './installed-modules.mjs';
 import { lookDocumentCss } from '../../../../tools/screen-look/read-data/look-document-css.js';
+import { fileURLToPath } from 'node:url';
 
 const { whatsNewList } = await import('../src/whats-new-rows.mjs');
 const { devicesFor } = await import('../src/devices.mjs');
 
-const root = resolve(dirname(new URL(import.meta.url).pathname), '..');
+const root = resolve(dirname(fileURLToPath(new URL(import.meta.url))), '..');
 // The Workshop's own folder, and the node_modules that holds the build's other packages (scripts/installed-modules.mjs).
 const workshop = workshopRoot(root);
 const modules = installedModules(root);

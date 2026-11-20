@@ -22,9 +22,10 @@
 import { loadPyodide } from "pyodide";
 import * as ort from "onnxruntime-web";
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 
 ort.env.wasm.numThreads = 1;
-ort.env.wasm.wasmPaths = new URL("./node_modules/onnxruntime-web/dist/", import.meta.url).pathname;
+ort.env.wasm.wasmPaths = fileURLToPath(new URL("./node_modules/onnxruntime-web/dist/", import.meta.url));
 const DIR = process.env.ONNX_DIR;
 
 const session = await ort.InferenceSession.create(readFileSync(`${DIR}/court_detection.onnx`),

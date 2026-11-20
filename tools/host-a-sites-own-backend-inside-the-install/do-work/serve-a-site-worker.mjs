@@ -18,7 +18,7 @@
 import { createServer } from 'node:http';
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { extname, join, normalize, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { pathToFileURL, fileURLToPath } from 'node:url';
 import pg from 'pg';
 import { HTMLRewriter, WorkerEntrypoint, cachesDefault, d1, emailBy, kv, workerSecrets } from '../read-data/workers-stand-ins.mjs';
 
@@ -39,7 +39,7 @@ const runnable = bundle.replace(/\.js$/, '.node.mjs');
 const source = readFileSync(bundle, 'utf8');
 const runtimeImport = 'import { WorkerEntrypoint } from "cloudflare:workers";';
 if (!source.includes(runtimeImport)) throw new Error('The bundle does not import WorkerEntrypoint from cloudflare:workers as expected; rebuild it with this server.');
-writeFileSync(runnable, source.replace(runtimeImport, `import { WorkerEntrypoint } from ${JSON.stringify(pathToFileURL(new URL('../read-data/workers-stand-ins.mjs', import.meta.url).pathname).href)};`));
+writeFileSync(runnable, source.replace(runtimeImport, `import { WorkerEntrypoint } from ${JSON.stringify(pathToFileURL(fileURLToPath(new URL('../read-data/workers-stand-ins.mjs', import.meta.url))).href)};`));
 void WorkerEntrypoint;
 const worker = (await import(pathToFileURL(runnable).href)).default;
 

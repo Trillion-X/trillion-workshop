@@ -36,6 +36,7 @@
 import { build } from 'esbuild';
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 /** Every value given for a repeatable flag, in order. */
 export function argumentValues(argv, flag) {
@@ -97,7 +98,7 @@ export async function bundleOneSourceEntry(request, bundle = build) {
   return { outfile: request.outfile, byte_length: output.contents.length };
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {
+if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(new URL(import.meta.url)))) {
   try {
     const request = bundleRequestFrom(process.argv.slice(2), process.env);
     const written = await bundleOneSourceEntry(request);

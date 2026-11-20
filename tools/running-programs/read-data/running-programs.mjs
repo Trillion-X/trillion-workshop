@@ -22,9 +22,10 @@
 import { execFile } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const settings = JSON.parse(fs.readFileSync(new URL('./running-programs.json', import.meta.url), 'utf8'));
-const READER = new URL('./read-programs.js', import.meta.url).pathname;
+const READER = fileURLToPath(new URL('./read-programs.js', import.meta.url));
 const fail = message => new Error(message);
 
 const run = (command, args) => new Promise(resolve => execFile(command, args, { timeout: 20_000, maxBuffer: 32 * 1024 * 1024 },

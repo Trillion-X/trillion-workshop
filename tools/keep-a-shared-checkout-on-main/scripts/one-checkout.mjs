@@ -38,6 +38,7 @@
 import { spawnSync } from 'node:child_process';
 import { realpathSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 export const GUARD_TREE_PURPOSE = 'pushed-commit-guards';
 const NULL_COMMIT = /^0+$/;
@@ -96,7 +97,7 @@ export function refUpdateRefusal(facts, updates) {
   return refusalFor(facts, 'a move of HEAD or a branch');
 }
 
-if (process.argv[1] && real(process.argv[1]) === real(new URL(import.meta.url).pathname)) {
+if (process.argv[1] && real(process.argv[1]) === real(fileURLToPath(new URL(import.meta.url)))) {
   const [mode, previous] = process.argv.slice(2);
   const facts = checkoutFacts();
   let updates = '';

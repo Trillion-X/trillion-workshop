@@ -17,8 +17,9 @@ import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { holds } from './offer-in-browsers.mjs';
 import { recordWrite, removeWrites } from './install-ledger.mjs';
+import { fileURLToPath } from 'node:url';
 
-const here = dirname(new URL(import.meta.url).pathname);
+const here = dirname(fileURLToPath(new URL(import.meta.url)));
 export const followSettings = () => JSON.parse(readFileSync(join(here, 'follow-presence.json'), 'utf8'));
 const inHome = (path, home) => (path.startsWith('~/') ? join(home, path.slice(2)) : path);
 const fill = (text, values) => text.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));

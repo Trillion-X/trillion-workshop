@@ -31,8 +31,9 @@ import { constants, copyFileSync, createReadStream, existsSync, mkdirSync, mkdte
 import os from 'node:os';
 import path from 'node:path';
 import { makeHashCodeHasher } from '../../content-identity/read-data/identity.mjs';
+import { fileURLToPath } from 'node:url';
 
-const HERE = path.dirname(new URL(import.meta.url).pathname);
+const HERE = path.dirname(fileURLToPath(new URL(import.meta.url)));
 export const speakSettings = () => JSON.parse(readFileSync(path.join(HERE, 'speak.json'), 'utf8'));
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ''));
 const expand = place => String(place).replace(/^~(?=\/|$)/, os.homedir());

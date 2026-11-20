@@ -22,6 +22,7 @@ import http from "node:http";
 import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const WHERE_THIS_MACHINE_KEEPS_ITS_PROVIDER_CONNECTIONS = path.join(
   homedir(),
@@ -138,7 +139,7 @@ export async function imagesHeldByRole(role, named) {
 
 if (
   process.argv[1] &&
-  path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)
+  path.resolve(process.argv[1]) === path.resolve(fileURLToPath(new URL(import.meta.url)))
 ) {
   const role = argumentValue("--role");
   if (!role) {

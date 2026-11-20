@@ -9,7 +9,7 @@
  * not track (detect-track does) and does not render (video-compose does), it only DECIDES.
  */
 import { spawnSync } from 'node:child_process';
-import { pathToFileURL } from 'node:url';
+import { pathToFileURL, fileURLToPath } from 'node:url';
 import { realpathSync } from 'node:fs';
 
 const round = (n) => Math.round(n);
@@ -39,7 +39,7 @@ export function captionPlacement(track, { frameHeight = 1920, marginFrac = 0.08 
 
 /** Run detect-track on a video and decide placement (the composition). Returns the same placement object. */
 export function placeCaptionsForVideo(file, { marginFrac = 0.08, stepMs = 150, grid = 16, threshold = 128 } = {}) {
-  const trackScript = new URL('./detect-track.mjs', import.meta.url).pathname;
+  const trackScript = fileURLToPath(new URL('./detect-track.mjs', import.meta.url));
   const res = spawnSync('node', [trackScript, file, String(stepMs), String(grid), String(threshold)], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
   let track = [], frameHeight = 1920;
   try {

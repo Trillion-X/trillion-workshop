@@ -10,8 +10,9 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
-const HERE = path.dirname(new URL(import.meta.url).pathname);
+const HERE = path.dirname(fileURLToPath(new URL(import.meta.url)));
 const PY = path.join(HERE, "prepare-semantic-index-process-input.py");
 const MJS = path.join(HERE, "prepare-semantic-index-process-input.mjs");
 

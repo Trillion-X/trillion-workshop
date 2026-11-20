@@ -57,6 +57,7 @@ import { closeSync, createWriteStream, openSync, promises as fsp, readFileSync, 
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import path from "node:path";
 import { makeHashCodeHexFromChunks } from "../../content-identity/read-data/identity.mjs";
+import { fileURLToPath } from "node:url";
 
 /** Read the settings from a parsed settings file, with declared fallbacks. Nothing here is a person's: the senders,
  *  addresses and media types all come from the file. Throws, saying what to give, when no sender is declared.
@@ -641,7 +642,7 @@ export async function runReceiver({
   return { address, close };
 }
 
-const invokedDirectly = process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname);
+const invokedDirectly = process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(new URL(import.meta.url)));
 if (invokedDirectly) {
   const named = (flag) => { const at = process.argv.indexOf(flag); return at >= 0 ? process.argv[at + 1] : undefined; };
   const folder = named("--folder");

@@ -25,7 +25,7 @@ import { fileURLToPath } from 'node:url';
 import { recordWrite, removeWrites } from './install-ledger.mjs';
 import { readSettingsFile, writeSettingsFile } from './settings-file.mjs';
 
-const here = dirname(new URL(import.meta.url).pathname);
+const here = dirname(fileURLToPath(new URL(import.meta.url)));
 const settingsOf = () => JSON.parse(readFileSync(join(here, 'offer-in-browsers.json'), 'utf8'));
 // Settings paths are home-relative unless they explicitly name ~/... or an absolute location. In particular, the
 // native-host launcher directory is `.trillion/...`; resolving it against cwd made the reader crash when launched from

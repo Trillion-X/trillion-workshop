@@ -44,6 +44,7 @@ import {
 import { dirname, join, resolve } from 'node:path';
 import { isSharedCheckout } from './commit-on-current-main.mjs';
 import { hooksFromMain } from './hooks-from-main.mjs';
+import { fileURLToPath } from 'node:url';
 
 const MAIN = 'refs/remotes/origin/main';
 const FETCH_TIMEOUT_MS = 15_000;
@@ -322,10 +323,10 @@ export function advanceCheckout(root, { expectHead = null, fetch = true, beforeM
   }
 }
 
-if (process.argv[1] && realpathSync(process.argv[1]) === realpathSync(new URL(import.meta.url).pathname)) {
+if (process.argv[1] && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(new URL(import.meta.url)))) {
   const args = process.argv.slice(2);
   const option = name => { const at = args.indexOf(name); return at < 0 ? null : args[at + 1]; };
-  const root = resolve(option('--checkout') ?? new URL('..', import.meta.url).pathname);
+  const root = resolve(option('--checkout') ?? fileURLToPath(new URL('..', import.meta.url)));
   process.chdir(root);
   if (args.includes('--if-shared') && !isSharedCheckout()) process.exit(0);
   try {

@@ -22,8 +22,9 @@ import { movedFilesPlugin } from './resolve-moved-files.mjs';
 import { partSideEffectsPlugin } from 'trillion-workshop/tools/check-bundle-package-boundaries/scripts/part-side-effects.mjs';
 import { barrelImportsPlugin } from 'trillion-workshop/tools/check-bundle-package-boundaries/scripts/barrel-imports.mjs';
 import { lightThemeCss } from 'trillion-workshop/tools/check-bundle-package-boundaries/scripts/light-theme.mjs';
+import { fileURLToPath } from 'node:url';
 
-const source = resolve(dirname(new URL(import.meta.url).pathname), '..');
+const source = resolve(dirname(fileURLToPath(new URL(import.meta.url))), '..');
 // The shared screens the pages compose are the Workshop's own tools (tools/ui, tools/addressed-marks, tools/feel,
 // tools/screen-look), each a part beside this one; the packages they import are installed in a node_modules.
 const parts = dirname(source);
