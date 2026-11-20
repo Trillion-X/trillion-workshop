@@ -51,11 +51,26 @@
               }
             },
             "budget": {
-              "steps": 2,
-              "wall_ms": 120000
+              "steps": 16,
+              "wall_ms": 1920000
             },
             "input": {
               "start_at": "make-devices"
+            },
+            "retry": {
+              "attempts": 6,
+              "first_ms": 60000,
+              "factor": 2,
+              "most_ms": 900000
+            },
+            "on_failure": {
+              "tool": "tool:run-sql-in-my-database",
+              "input": {
+                "sql": "insert into notices (title, body, kind) values ('The alarm that tells you a wake stopped did not run', 'One of your wakes stopped, and workflow:tell-when-a-wake-stops, which tells you so, failed six times over half an hour. Open your causes screen (wake:list) to see which wake stopped and why.', 'needs-you')"
+              },
+              "from_input": {
+                "credential_name": "store.credential_name"
+              }
             }
           }
         ],
