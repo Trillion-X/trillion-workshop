@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { makeWaitingNudge, waitingLongEnough, openOf } from '../from-an-older-version/src/waiting-nudge.mjs';
+import { makeWaitingNudge, waitingLongEnough, openOf } from '../../hold-one-thing-until-done/read-data/waiting-nudge.mjs';
 import settings from '../../keep-and-wake-ai-sessions-on-this-computer/src/waiting-on-you.json' with { type: 'json' };
 import { whoDoesEachStep } from '../../say-for-each-step-of-a-plan-who-should-do/src/who-does-it.mjs';
 
