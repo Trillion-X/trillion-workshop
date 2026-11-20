@@ -9,6 +9,8 @@ import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import zlib from 'node:zlib';
 import { checkedMoves, relinkEditorProjects, relinkPremiereProjects, rewriteProjectXml, spotlightProjects } from '../do-work/relink-editor-projects.mjs';
+import records from '../records.json' with { type: 'json' };
+import licences from '../../../licence-classes.json' with { type: 'json' };
 
 const SCRIPT = new URL('../do-work/relink-editor-projects.mjs', import.meta.url).pathname;
 const project = (paths) => `<?xml version="1.0"?><PremiereData Version="3"><Media ObjectUID="m1"><FilePath>${paths.absolute}</FilePath><ActualMediaFilePath>${paths.absolute}</ActualMediaFilePath><RelativePath>${paths.relative}</RelativePath><Title>A &amp; B</Title></Media><Media ObjectUID="m2"><FilePath>/work/sample/Other/keep.mp4</FilePath></Media></PremiereData>`;
@@ -64,4 +66,13 @@ test('projects are found by name only where the computer has a name index; anywh
   const report = await relinkEditorProjects({ moves: [{ from: '/a/clip.mp4', to: '/b/clip.mp4' }], projects: [],
     findProjects: () => { throw new Error('not asked when projects are named'); }, resolve: async () => ({ state: 'not-running', relinked: [], failed: [] }) });
   assert.deepEqual(report.projects, []);
+});
+
+test('the relink tool runs on the person\'s own computer and its licence allows that', () => {
+  const row = records.things.map(thing => thing.payload).find(item => item.id === 'tool:point-editor-projects-at-new-places');
+  assert.deepEqual(row.placements, ['placement:caller-sandbox']);
+  assert.equal(row.screen, undefined, 'only AIs run it: no screen of its own');
+  assert.deepEqual(row.invoke.files.package_files.paths, ['do-work/relink-editor-projects.mjs', 'do-work/relink-in-resolve.py']);
+  const licence = licences.records.map(record => record.payload).find(item => item.id === row.licence_class);
+  assert.ok(licence.allowed_placements.includes('placement:caller-sandbox'));
 });
