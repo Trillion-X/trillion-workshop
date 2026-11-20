@@ -30,6 +30,13 @@
    "exclude": [
     "__tests__"
    ]
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:add-a-shared-situation": [
@@ -412,6 +419,13 @@
     "read-data/read-tasks.ts"
    ],
    "at": "/opt/work-breakdown"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:admit-attachments-to-a-message": [
@@ -1016,6 +1030,13 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   }
  ],
  "tool:answer-the-catch-up-here-route": [
@@ -1680,6 +1701,13 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   }
  ],
  "tool:answer-the-needs-you-hold-route": [
@@ -1866,6 +1894,13 @@
     "task-moves.mjs"
    ],
    "at": "/opt/plan-tasks-and-todo-lists"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/workspace"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
   }
  ],
  "tool:answer-the-pursuits-page": [
@@ -3633,6 +3668,13 @@
     "read-data/wall-time.mjs"
    ],
    "at": "/opt/wall-time"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:brief-a-profile": [
@@ -4981,6 +5023,13 @@
     "read-data/large-file.json"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   }
  ],
  "tool:change-cells-or-words-in-an-office-file": [],
@@ -5394,6 +5443,13 @@
     "task-moves.mjs"
    ],
    "at": "/opt/plan-tasks-and-todo-lists"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/workspace"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
   }
  ],
  "tool:check-a-bundle-against-package-boundaries": [
@@ -6514,6 +6570,13 @@
     "read-data/wall-time.mjs"
    ],
    "at": "/opt/wall-time"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:check-community-matching-settings": [
@@ -6766,6 +6829,13 @@
     "read-data/wall-time.mjs"
    ],
    "at": "/opt/wall-time"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:check-declared-places-keep-what-is-written-there": [
@@ -6943,6 +7013,13 @@
     "data"
    ],
    "at": "/opt/parts/ask-questions-sort-answers-follow-up"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:check-given-pages-at-every-width": [
@@ -9441,6 +9518,13 @@
     "read-data/wall-time.mjs"
    ],
    "at": "/opt/wall-time"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:critique-a-public-page": [
@@ -9778,6 +9862,13 @@
     "read-data/wall-time.mjs"
    ],
    "at": "/opt/wall-time"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:decide-a-video-at-ingest": [
@@ -10751,6 +10842,20 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:draft-a-funnel": [
@@ -10761,6 +10866,13 @@
     "read-data"
    ],
    "at": "/opt/parts/funnels-and-offers"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:draft-a-post": [
@@ -14250,6 +14362,13 @@
     "read-data/large-file.json"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   }
  ],
  "tool:finish-what-is-waiting-on-me": [
@@ -15209,6 +15328,13 @@
     "read-data/large-file.json"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   }
  ],
  "tool:give-back-a-computer": [],
@@ -16162,6 +16288,13 @@
     "read-data/wall-time.mjs"
    ],
    "at": "/opt/wall-time"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:hold-to-it": [
@@ -17260,6 +17393,21 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine",
+    "rules"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:keep-a-show-type": [
@@ -17404,6 +17552,21 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine",
+    "rules"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:keep-a-voice-edit": [
@@ -17854,6 +18017,13 @@
     "read-data/wall-time.mjs"
    ],
    "at": "/opt/wall-time"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:keep-my-account-in-your-instructions": [],
@@ -20174,6 +20344,13 @@
     "read-data"
    ],
    "at": "/opt/parts/work-breakdown"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:list-the-conversation-sources-on-this-computer": [
@@ -20664,6 +20841,20 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:list-what-a-character-says": [
@@ -20953,6 +21144,20 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:list-writing-recipes": [
@@ -22183,6 +22388,13 @@
     "data"
    ],
    "at": "/opt/parts/ask-questions-sort-answers-follow-up"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:make-spoken-line-candidates-one-slot-at-a-time": [],
@@ -22894,6 +23106,13 @@
     "read-data/wall-time.mjs"
    ],
    "at": "/opt/wall-time"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:measure-first-frame": [
@@ -23008,6 +23227,13 @@
     "read-data/wall-time.mjs"
    ],
    "at": "/opt/wall-time"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:measure-how-a-show-stages-a-characters-turns": [
@@ -27016,6 +27242,13 @@
     "read-data/wall-time.mjs"
    ],
    "at": "/opt/wall-time"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:pick-the-cleanest-speech-to-clone-from": [],
@@ -28076,6 +28309,13 @@
     "read-data"
    ],
    "at": "/opt/parts/traffic-attribution"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:prepare-public-content-for-discovery": [
@@ -29864,6 +30104,13 @@
     "read-data"
    ],
    "at": "/opt/parts/funnels-and-offers"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:read-a-link": [
@@ -30486,6 +30733,13 @@
    "at": "/opt/workflows"
   },
   {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+  },
+  {
    "packages": [
     "node_modules/@noble/hashes"
    ],
@@ -30966,6 +31220,13 @@
     "read-data/wall-time.mjs"
    ],
    "at": "/opt/wall-time"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:read-form-results": [
@@ -31097,6 +31358,13 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   },
   {
    "packages": [
@@ -31246,6 +31514,13 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   },
   {
    "packages": [
@@ -33332,6 +33607,13 @@
    "exclude": [
     "__tests__"
    ]
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:record-a-demonstration": [
@@ -34206,6 +34488,13 @@
     "read-data/wall-time.mjs"
    ],
    "at": "/opt/wall-time"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:refresh-provider-prices": [
@@ -36137,6 +36426,13 @@
     "read-data/read-tasks.ts"
    ],
    "at": "/opt/work-breakdown"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:route-buttons": [
@@ -36735,6 +37031,13 @@
     "read-data/decision-outcome.mjs"
    ],
    "at": "/opt/decide-with-a-method"
+  },
+  {
+   "package": "build-a-screen-from-patches",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/build-a-screen-from-patches"
   }
  ],
  "tool:sample-shots-and-frames-from-my-format-library": [],
@@ -36867,6 +37170,13 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   },
   {
    "packages": [
@@ -37681,6 +37991,13 @@
     "read-data/wall-time.mjs"
    ],
    "at": "/opt/wall-time"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:score-held-out-lines-with-a-small-model": [],
@@ -37774,6 +38091,13 @@
     "read-data/wall-time.mjs"
    ],
    "at": "/opt/wall-time"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:score-small-model-labels-against-my-labels": [],
@@ -38693,6 +39017,13 @@
     "read-data/large-file.json"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   }
  ],
  "tool:see-the-ink-marks-on-a-space": [
@@ -38888,6 +39219,13 @@
     "task-moves.mjs"
    ],
    "at": "/opt/plan-tasks-and-todo-lists"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/workspace"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
   }
  ],
  "tool:see-what-is-left-to-set-up": [
@@ -39201,6 +39539,21 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine",
+    "rules"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:see-where-each-customer-is": [
@@ -39295,6 +39648,13 @@
     "read-data/wall-time.mjs"
    ],
    "at": "/opt/wall-time"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:see-where-the-public-door-runs": [
@@ -39458,6 +39818,13 @@
     "read-data/large-file.json"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   }
  ],
  "tool:see-who-holds-paid-access": [
@@ -40444,6 +40811,13 @@
    "exclude": [
     "__tests__"
    ]
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:set-a-mail-signature": [
@@ -41389,6 +41763,21 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine",
+    "rules"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:share-anything": [
@@ -42891,6 +43280,13 @@
     "read-data/wall-time.mjs"
    ],
    "at": "/opt/wall-time"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:stop-an-email-course": [
@@ -43186,6 +43582,21 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine",
+    "rules"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:string-my-cuts-into-one-reel": [],
@@ -43319,6 +43730,13 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   },
   {
    "packages": [
@@ -43625,6 +44043,21 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine",
+    "rules"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:tag-a-stripe-subscription": [
@@ -43934,6 +44367,21 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine",
+    "rules"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:take-a-show-type-away": [
@@ -44078,6 +44526,21 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine",
+    "rules"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:take-a-task": [
@@ -44169,6 +44632,13 @@
     "read-data/large-file.json"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
   }
  ],
  "tool:take-back-a-post": [
@@ -44963,6 +45433,13 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "paid-access",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/paid-access"
   }
  ],
  "tool:type-dictated-text": [
@@ -45485,6 +45962,13 @@
     "read-data"
    ],
    "at": "/opt/parts/funnels-and-offers"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:walk-a-new-person-through-first-setup": [
@@ -46395,6 +46879,13 @@
     "read-data/wall-time.mjs"
    ],
    "at": "/opt/wall-time"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:work-out-referral-codes": [

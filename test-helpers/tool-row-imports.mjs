@@ -122,7 +122,7 @@ const readBlobs = (files) => {
     pos += size + 1;
   }
 };
-readBlobs([...toolRowFiles, ...codeFiles, SYSTEM_DATA, LOCKFILE, DOOR_EXCEPTIONS]);
+readBlobs([...toolRowFiles, ...codeFiles, SYSTEM_DATA, LOCKFILE, DOOR_EXCEPTIONS, 'package.json']);
 const text = (f) => (blobs.get(f) ? blobs.get(f).toString('utf8') : null);
 
 // The rows a tools folder offers, read as the engine reads them (trillion-rust src/tool_runs/tools/catalog.rs `parse` and
@@ -175,6 +175,12 @@ const systemNames = new Set(JSON.parse(text(SYSTEM_DATA)).provided_by_the_system
 // Rows the function-level walk over-reports, each with the reason a reader checked it: they need no records descriptor.
 const doorExceptions = new Set(text(DOOR_EXCEPTIONS) === null ? [] : Object.keys(JSON.parse(text(DOOR_EXCEPTIONS)).rows));
 const lockPackages = JSON.parse(text(LOCKFILE)).packages ?? {};
+// The Workshop's own package name (package.json `name`). A bare import of `<name>/tools/<package>/<path>` is a file of this tree
+// that resolves under /opt/node_modules/<name>/tools/<package>: its folder is laid there whole (a module beside it, such as the
+// formula engine's .wasm read through import.meta.resolve, goes with it). Without this, 1b819b955 (Nov 19 2026, 6:07 PM CST)
+// left every row that reaches move-records-through-declared-states without the formula engine, and each run stopped with
+// ERR_MODULE_NOT_FOUND (Cannot find package 'trillion-workshop').
+const selfName = JSON.parse(text('package.json') ?? '{}').name ?? null;
 
 // The Workshop module a bare name resolves to: the lockfile's pinned version and the lockfile keys of its tree. A module the row
 // declares by name may run its install script (the owner chose it by declaring it, so its tree is kept); one the row only
@@ -384,6 +390,7 @@ function checkRow(rowFile, desc) {
   const visited = new Set();
   const readFiles = new Set();
   const needed = new Map();
+  const ownFolders = new Map();
   while (queue.length) {
     const { ws, from } = queue.shift();
     if (visited.has(ws)) continue;
@@ -409,6 +416,18 @@ function checkRow(rowFile, desc) {
         else if (!visited.has(hit)) queue.push({ ws: hit, from: ws });
       } else if (!isBuiltin(spec)) {
         const top = spec.startsWith('@') ? spec.split('/').slice(0, 2).join('/') : spec.split('/')[0];
+        const own = top === selfName ? spec.slice(top.length + 1).match(/^tools\/([^/]+)\/(.+)$/) : null;
+        if (own) {
+          const [, pkg, rel] = own;
+          if (!fileSet.has(`tools/${pkg}/${rel}`)) { findings.push({ kind: 'dangling-in-tree', from: ws, spec, target: `tools/${pkg}/${rel}` }); continue; }
+          const dir = path.posix.dirname(rel);
+          const at = `/opt/${MODULES}${selfName}/tools/${pkg}`;
+          if (!covers.some((c) => c.pkg === pkg && c.at === at && (dir === c.rel || dir.startsWith(c.rel + '/') || c.rel === '.'))) {
+            if (!ownFolders.has(pkg)) ownFolders.set(pkg, new Set());
+            ownFolders.get(pkg).add(dir);
+          }
+          continue;
+        }
         if (systemNames.has(top) || modules.has(top) || modules.has(spec)) continue;
         const key = `bare|${ws}|${top}`;
         const resolves = resolvesToModule(top, declared);
@@ -442,6 +461,7 @@ function checkRow(rowFile, desc) {
     extra.get(pkg).add(rel);
   }
   for (const pkg of [...extra.keys()].sort()) items.push({ package: pkg, paths: [...extra.get(pkg)], at: `/opt/${pkg}` });
+  for (const pkg of [...ownFolders.keys()].sort()) items.push({ package: pkg, paths: [...ownFolders.get(pkg)].sort(), at: `/opt/${MODULES}${selfName}/tools/${pkg}` });
   // Each package of a module's tree is placed once at the folder its lockfile key names: two modules that need one package
   // share its item, and a package a declared item already places is not placed again. Placed is judged by the folder (`at`),
   // never the spelling: a row declares `split2` where the lockfile key is `node_modules/split2`, and laying both at
