@@ -286,15 +286,20 @@ export async function approveAPost(input = {}, { now = () => new Date(), by_pers
   if (post.status !== 'draft') throw new Error(`${post.post_id} is ${post.status}, so there is nothing to approve.`);
   if (!post.destinations?.length) throw nowhere(post);
   // A post that reaches someone is approved on the person's yes: the host's by_person (their page), or their standing answer for
-  // reaching posts set to auto. Otherwise it waits for them. Every approval keeps a decision row: who, when, the post, and the basis.
+  // reaching posts set to auto (approved_how auto-setting). Otherwise it waits for them. Every answer, approved or refused, keeps a
+  // decision row: who, when, the post, the basis and the setting row it read.
   const reaching = reachesSomeone(post);
   const standing = standingAnswerOf(records, REACHING_SCOPE);
-  const basis = byPerson ? 'person' : reaching && standing === 'auto' ? 'setting' : reaching ? null : 'no-reach';
-  if (!basis) throw new Error(`${post.post_id} reaches someone, so only the person can approve it, on their Posts screen. Their approval setting for reaching posts is ask.`);
+  const approvedHow = byPerson ? 'by-person' : reaching && standing === 'auto' ? 'auto-setting' : reaching ? null : 'no-reach';
   const at = now().toISOString();
   const by = text(approvedBy, 100);
-  const approved = keep(kept, { ...post, status: 'approved', approved_at: at, approved_by_person: byPerson === true || basis === 'setting', ...(by ? { approved_by: by } : {}), updated_at: at });
-  keepRows(kept, [{ id: `${DECISION}:${post.post_id}:${at}`, type: DECISION, value: { post_id: post.post_id, at, approved_by: by ?? null, basis, mode: standing, setting_id: basis === 'setting' ? `${SETTING}:${REACHING_SCOPE}` : null } }]);
+  const settingId = `${SETTING}:${REACHING_SCOPE}`;
+  if (!approvedHow) {
+    keepRows(kept, [{ id: `${DECISION}:${post.post_id}:${at}`, type: DECISION, value: { post_id: post.post_id, at, decision: 'refused', approved_how: null, setting_id: settingId, mode: standing, approved_by: by ?? null, reason: 'reaches someone and the person has not approved it' } }]);
+    return withKept({ post_id: post.post_id, status: post.status, said: `${post.post_id} reaches someone, so only the person can approve it, on their Posts screen. Their approval setting for reaching posts is ${standing}, so nothing was approved.` }, kept);
+  }
+  const approved = keep(kept, { ...post, status: 'approved', approved_at: at, approved_how: approvedHow, approved_by_person: byPerson === true || approvedHow === 'auto-setting', ...(by ? { approved_by: by } : {}), updated_at: at });
+  keepRows(kept, [{ id: `${DECISION}:${post.post_id}:${at}`, type: DECISION, value: { post_id: post.post_id, at, decision: 'approved', approved_how: approvedHow, setting_id: approvedHow === 'auto-setting' ? settingId : null, mode: reaching ? standing : null, approved_by: by ?? null, reason: null } }]);
   return withKept({ post: shaped(approved), said: 'Approved. tool:set-a-post-to-go-at-its-time sets it to go at its scheduled time.' }, kept);
 }
 
