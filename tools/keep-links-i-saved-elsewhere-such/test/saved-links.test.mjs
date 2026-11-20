@@ -45,6 +45,14 @@ function arcFile() {
   return { version: 1, sidebar: { containers: [{ global: {} }, { items, spaces, topAppsContainerIDs: [{ default: true }, 'favorites'] }] } };
 }
 
+test('a link with no saved time has no saved_at: a null time is not read as the 2001 epoch', () => {
+  const file = arcFile();
+  const items = file.sidebar.containers[1].items;
+  items[items.indexOf('linear') + 1].createdAt = null;
+  const linear = decodeBrowserFile(file, ARC)[0].links.find(link => link.url === 'https://linear.app');
+  assert.equal(linear.saved_at, undefined);
+});
+
 test('an Arc file becomes one list per space: pinned tabs with their folders, favorites, and never the open tabs', () => {
   const groups = decodeBrowserFile(arcFile(), ARC);
   assert.deepEqual(groups.map(group => group.group), ['Work', 'Space', 'Favorites'], 'a space with no title is named by the DATA');

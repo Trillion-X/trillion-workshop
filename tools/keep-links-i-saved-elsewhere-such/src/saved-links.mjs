@@ -126,8 +126,8 @@ export function decodeBrowserFile(document, shape) {
       const title = firstText(node, shape.title);
       if (at(node, shape.link.when) !== undefined) {
         const url = at(node, shape.link.url);
-        const seconds = epoch === null ? null : Number(at(node, shape.saved_at.path));
-        if (nonempty(url)) add(group, { title: title ?? url, url, folder, ...(Number.isFinite(seconds) ? { saved_at: new Date(epoch + seconds * 1000).toISOString() } : {}) });
+        const stamp = epoch === null ? undefined : at(node, shape.saved_at.path);
+        if (nonempty(url)) add(group, { title: title ?? url, url, folder, ...(typeof stamp === 'number' && Number.isFinite(stamp) ? { saved_at: new Date(epoch + stamp * 1000).toISOString() } : {}) });
       }
       const inner = at(node, shape.folder.when) !== undefined ? [...folder, title ?? ''] : folder;
       for (const child of Array.isArray(at(node, shape.children)) ? at(node, shape.children) : []) walk(child, group, inner);
