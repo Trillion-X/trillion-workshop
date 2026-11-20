@@ -3,7 +3,7 @@
 // once, and an answer that is not kept (not connected) is held for one cadence and never scheduled.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { outsideReadings } from '../from-an-older-version/src/outside-readings.mjs';
+import { outsideReadings } from '../read-data/outside-readings.mjs';
 import spendData from '../../shared-code/src/spend-meter.json' with { type: 'json' };
 
 const MINUTE = 60_000;

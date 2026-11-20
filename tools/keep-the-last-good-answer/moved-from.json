@@ -7,14 +7,14 @@
     {
       "from": "src/outside-readings.mjs",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/keep-the-last-good-answer/from-an-older-version/src/outside-readings.mjs",
+      "to": "tools/keep-the-last-good-answer/read-data/outside-readings.mjs",
       "source_identity": "1f:cf44d7980240bdeb33070efb55f02242b6403db84766d08243751c9bd5e4a2b3",
       "identity": "1f:cf44d7980240bdeb33070efb55f02242b6403db84766d08243751c9bd5e4a2b3"
     },
     {
       "from": "src/outside-readings.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/keep-the-last-good-answer/from-an-older-version/src/outside-readings.mjs",
+      "to": "tools/keep-the-last-good-answer/read-data/outside-readings.mjs",
       "source_identity": "1f:cf44d7980240bdeb33070efb55f02242b6403db84766d08243751c9bd5e4a2b3",
       "identity": "1f:cf44d7980240bdeb33070efb55f02242b6403db84766d08243751c9bd5e4a2b3",
       "reused": true
