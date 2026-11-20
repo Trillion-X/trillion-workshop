@@ -1,9 +1,9 @@
-// src/setup-week.mjs
+// tools/show-each-setup-step-with-the-real-things-found/read-data/setup-week.mjs
 //
-// What Trillion actually did for a person in the last week, read from the records themselves with bounded reads: the
+// What the product actually did for a person in the last week, read from the records themselves with bounded reads: the
 // AIs that finished work handed to them, the AIs whose conversations a hook kept through the carrier door, and what
 // arrived (files, and the person's own words kept by those hooks). The setup evidence shows it beside each step
-// (src/native-setup.mjs).
+// (the setup evidence beside each step).
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Bounded: at most 200 finished jobs (their projected fields only), 500 kept words per hook app, and the files
@@ -11,9 +11,9 @@
 //   2. Each row is { name, domain, count, at }; a row with nothing in it is left out, so an empty list means nothing
 //      happened. A failed read rejects the whole answer, so it reads unknown, never empty.
 
-import setupPolicy from './setup-policy.json' with { type: 'json' };
-import { harnessWithin, transcriptHookApps } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/harnesses.mjs';
-import { messages } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';
+import setupPolicy from '../../set-up-my-account/read-data/setup-policy.json' with { type: 'json' };
+import { harnessWithin, transcriptHookApps } from '../../keep-and-wake-ai-sessions-on-this-computer/src/harnesses.mjs';
+import { messages } from '../../keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';
 
 const DAY_MS = 86_400_000;
 

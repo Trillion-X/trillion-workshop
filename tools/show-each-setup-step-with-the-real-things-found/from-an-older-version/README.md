@@ -6,6 +6,6 @@ Files of old trillion whose job is this tool's (show each setup step with the re
 |---|---|---|
 | `src/setup-capability-evidence.mjs` | `src/setup-capability-evidence.mjs` | runs: its `src/work-results.mjs` import names `tools/see-what-my-ais-did/from-an-older-version/src/work-results.mjs`; read by `tools/set-up-my-account/do-work/setup-runtime.mjs` |
 | `src/setup-known.mjs` | ported: `read-data/setup-known.mjs` (imports set-up-my-account's setup-policy.json); the held bytes are removed | landed; test `test/setup-known.test.mjs` (6 pass) |
-| `src/setup-week.mjs` | `src/setup-week.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/setup-policy.json (at the tag, not moved here yet) |
+| `src/setup-week.mjs` | removed here; bytes at the tag (commit b6ae0ebf81) | ported: `read-data/setup-week.mjs` (setup policy from set-up-my-account; harnesses and messages from keep-and-wake's src/); `test/setup-week.test.mjs` (4 pass) |
 | `test/setup-capability-evidence.test.mjs` | `test/setup-capability-evidence.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/activity.mjs (already gone at the tag), src/work-results.mjs (at the tag, not moved here yet) |
 | `test/setup-known.test.mjs` | ported: `test/setup-known.test.mjs` (expectations moved to the current pursuit shape, `{title, space_id?}`) | landed |

@@ -27,7 +27,8 @@
       "to": "tools/show-each-setup-step-with-the-real-things-found/from-an-older-version/src/setup-week.mjs.held",
       "source_identity": "1f:3a2a35039b7da5d5334b4427bb13eddc66897391b8211839f3e23b8791db6d00",
       "identity": "1f:212fd90da98a014b155578a3d9ed78a12b9a2e193370fd5bcbcd3b45613723ac",
-      "held": true
+      "held": true,
+      "ported_to": "tools/show-each-setup-step-with-the-real-things-found/read-data/setup-week.mjs"
     },
     {
       "from": "test/setup-capability-evidence.test.mjs",
