@@ -1,10 +1,10 @@
 // tools/introduce-two-people/do-work/record-introduction-state.mjs
 //
 // The state tool of the old request_introduction (old descriptor: tools.mjs.held at a476dd597, lines 297-308). It records
-// one introduction's state between two people as the Network's record row (record:network-introduction, the shape
-// tools/network-people reads: id rowId('introduction', a, b) with the two ids sorted, value { between, state }), in the
-// `network_records` table of the person's database. It records states only: it sends nothing to any person and sets no
-// route, wake or notice. Live sending waits for the owner's word.
+// one introduction's state between two people, and records nothing else. The state is kept in this owner's table
+// `introduction_states`, one row per pair: id is the Network record id of the pair (rowId('introduction', a, b), the two ids
+// sorted), status is the state, at is when it moved. Each move also writes `introduction_state_history`. It sends nothing to
+// any person and sets no route, wake or notice. Live sending waits for the owner's word.
 //
 // Non-negotiable invariants:
 //   1. A move must be one the introduction lifecycle allows (src/introduction-states.json; 409 otherwise).
@@ -13,14 +13,13 @@
 //      refused (check-consent-to-an-introduction/src/consent-fingerprint.mjs, 409).
 import { moveIntroduction, introductionView, INTRODUCTION_STATES } from '../src/introduction-states.mjs';
 import { refuseChangedConsent } from '../../check-consent-to-an-introduction/src/consent-fingerprint.mjs';
-import { KINDS, rowId } from '../../network-people/read-data/profile-rows.mjs';
+import { rowId } from '../../network-people/read-data/profile-rows.mjs';
 
 const fail = (message, status) => Object.assign(new Error(message), { status });
 const CONSENTED = new Set(['sent', 'one_yes']);
-// The same DDL runs in SQLite and Postgres, as the label tool's does. `network_records` is the table tools/network-people keeps
-// its record rows in (do-work/network-profile-sql.mjs); the history is this tool's own.
+// The same DDL runs in SQLite and Postgres, as the label tool's does.
 const TABLES = [
-  'CREATE TABLE IF NOT EXISTS network_records(id TEXT PRIMARY KEY,type TEXT NOT NULL,value JSONB NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS introduction_states(id TEXT PRIMARY KEY,status TEXT NOT NULL,at TEXT NOT NULL)',
   'CREATE TABLE IF NOT EXISTS introduction_state_history(id TEXT NOT NULL,from_status TEXT NOT NULL,to_status TEXT NOT NULL,at TEXT NOT NULL,PRIMARY KEY(id,at,to_status))',
 ];
 
@@ -33,18 +32,16 @@ export async function recordIntroductionState({ db, input, now = () => new Date(
     if (typeof consent !== 'string' || !consent || !shown || typeof shown !== 'object') throw fail('Give the consent and the introduction as it was shown.', 400);
     refuseChangedConsent(consent, shown, 'The introduction changed since it was shown. Look at it again, then accept it as it is now.');
   }
-  const between = [a, b].sort();
-  const id = rowId('introduction', ...between);
+  const [first, second] = [a, b].sort();
+  const id = rowId('introduction', first, second);
   for (const sql of TABLES) await db.exec(sql);
-  const stored = await db.exec('SELECT value FROM network_records WHERE id=? AND type=?', id, KINDS.introduction);
-  // Postgres answers a jsonb value as an object; SQLite answers its text.
-  const was = stored.length ? (typeof stored[0].value === 'string' ? JSON.parse(stored[0].value) : stored[0].value).state : 'proposed';
+  const stored = await db.exec('SELECT status FROM introduction_states WHERE id=?', id);
+  const was = stored.length ? stored[0].status : 'proposed';
   if (from !== was) throw fail(`The introduction is ${was}, not ${from}.`, 409);
   moveIntroduction(from, to);
   const at = now();
-  const value = JSON.stringify({ between, state: to });
-  if (stored.length) await db.exec('UPDATE network_records SET value=? WHERE id=? AND type=?', value, id, KINDS.introduction);
-  else await db.exec('INSERT INTO network_records(id,type,value) VALUES(?,?,?)', id, KINDS.introduction, value);
+  if (stored.length) await db.exec('UPDATE introduction_states SET status=?,at=? WHERE id=?', to, at, id);
+  else await db.exec('INSERT INTO introduction_states(id,status,at) VALUES(?,?,?)', id, to, at);
   await db.exec('INSERT INTO introduction_state_history(id,from_status,to_status,at) VALUES(?,?,?,?)', id, from, to, at);
-  return { id, between, ...introductionView(to) };
+  return { id, ...introductionView(to) };
 }

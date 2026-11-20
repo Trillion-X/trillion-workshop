@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import { recordIntroductionState } from '../do-work/record-introduction-state.mjs';
 import { consentOf } from '../../check-consent-to-an-introduction/src/consent-fingerprint.mjs';
-import { rowId, KINDS } from '../../network-people/read-data/profile-rows.mjs';
+import { rowId } from '../../network-people/read-data/profile-rows.mjs';
 
 // A real SQLite database standing in for the mounted connection: a select answers its rows, a write answers none.
 function fixture(t) {
@@ -30,18 +30,18 @@ const ID = rowId('introduction', 'person:gate-test', 'person:gate-test-two');
 // The introduction as it is shown to the people in it; its consent is the parts of this shown now.
 const shown = { text: 'Meet for coffee about the tennis club.', recipients: ['person:gate-test', 'person:gate-test-two'], shared: 'contact', expires_at: '2026-11-27T00:00:00.000Z' };
 
-test('a proposed introduction moves to sent as the Network record row the contact release reads, and its history is kept', async t => {
+test('a proposed introduction moves to sent under the pair\'s record id, and its history is kept', async t => {
   const { db, rows } = fixture(t);
   const answer = await recordIntroductionState({ db, input: { ...pair, from: 'proposed', to: 'sent', consent: consentOf(shown), shown }, now: at });
-  assert.deepEqual(answer, { id: ID, between: ['person:gate-test', 'person:gate-test-two'], status: 'sent', says: 'Asked to meet. No answer yet.' });
-  assert.deepEqual(rows('network_records'), [{ id: ID, type: KINDS.introduction, value: JSON.stringify({ between: ['person:gate-test', 'person:gate-test-two'], state: 'sent' }) }]);
+  assert.deepEqual(answer, { id: ID, status: 'sent', says: 'Asked to meet. No answer yet.' });
+  assert.deepEqual(rows('introduction_states').map(({ id, status }) => ({ id, status })), [{ id: ID, status: 'sent' }]);
   assert.equal(rows('introduction_state_history').length, 1);
 });
 
 test('a move the lifecycle does not allow is refused and nothing changes', async t => {
   const { db, rows } = fixture(t);
   await assert.rejects(recordIntroductionState({ db, input: { ...pair, from: 'proposed', to: 'accepted' } }), error => error.status === 409);
-  assert.equal(rows('network_records').length, 0);
+  assert.equal(rows('introduction_states').length, 0);
 });
 
 test('a move to sent refuses an introduction that changed since it was shown', async t => {
@@ -52,14 +52,14 @@ test('a move to sent refuses an introduction that changed since it was shown', a
     assert.deepEqual(error.changed, ['text']);
     return true;
   });
-  assert.equal(rows('network_records').length, 0);
+  assert.equal(rows('introduction_states').length, 0);
 });
 
 test('the from state must be the state the introduction is in now', async t => {
   const { db, rows } = fixture(t);
   await recordIntroductionState({ db, input: { ...pair, from: 'proposed', to: 'sent', consent: consentOf(shown), shown }, now: at });
   await assert.rejects(recordIntroductionState({ db, input: { ...pair, from: 'proposed', to: 'declined' } }), error => error.status === 409);
-  assert.equal(JSON.parse(rows('network_records')[0].value).state, 'sent');
+  assert.equal(rows('introduction_states')[0].status, 'sent');
   assert.equal(rows('introduction_state_history').length, 1);
 });
 
