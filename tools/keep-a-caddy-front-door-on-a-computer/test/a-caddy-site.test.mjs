@@ -36,7 +36,7 @@ test('the site file is one block per name, with the port, checked by the site\'s
 test('a Host no block names is refused at Caddy with 421, not answered by its empty 200, in the one-block and single-name shapes', async () => {
   const block = await siteFile(names);
   assert.match(block.text, /\nhttps:\/\/ \{\n\trespond 421\n\}\n$/, 'the catch-all is the last block of the one-block site');
-  const single = await siteFile({ site_file: 'single-name-front-door', door_host: 'door.example.test', engine_paths: [], request_max: '4MB', pages_root: '/var/lib/front-door-pages', routes: [], engine_routes: [], grace_period: '150s', pools: {} });
+  const single = await siteFile({ site_file: 'single-name-front-door', door_host: 'door.example.test', engine_paths: [], request_max: '4MB', upload_max: '32MiB', pages_root: '/var/lib/front-door-pages', routes: [], engine_routes: [], grace_period: '150s', pools: {} });
   assert.match(single.text, /^door\.example\.test \{$/m);
   assert.ok(single.text.endsWith(`}\n${REFUSE}\n`), 'the catch-all follows the front door block, so a stranger Host gets 421');
   assert.doesNotMatch(single.text, /\{\{/);
@@ -77,7 +77,7 @@ test('an inner door is a loopback address Caddy holds for programs on this compu
 });
 
 const single = {
-  site_file: 'single-name-front-door', door_host: 'door.example.test', engine_paths: ['/a/*'], request_max: '4MB',
+  site_file: 'single-name-front-door', door_host: 'door.example.test', engine_paths: ['/a/*'], request_max: '4MB', upload_max: '32MiB',
   pages_root: '/var/lib/front-door-pages', routes: ['tools/better-auth-official/on-a-computer/caddy-route-better-auth.caddy', 'tools/better-auth-official/on-a-computer/caddy-route-better-auth-pages.mjs', 'tools/better-auth-official/on-a-computer/caddy-route-better-auth-discovery.caddy', 'tools/better-auth-official/on-a-computer/caddy-route-better-auth-home.caddy'], engine_routes: [ENGINE],
   grace_period: '150s', pools: { auth: { listen: ['127.0.0.1:8792'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s' },
     engine: { listen: ['127.0.0.1:7199', '127.0.0.1:7198'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s', lines: ['header_up Host {door_host}', 'flush_interval -1'] } },

@@ -8,7 +8,14 @@
 }
 
 {{door_host}} {
-	request_body {
+	# A raw upload (application/octet-stream, the engine's X-Call road) may be as long as upload_max; every other body request_max.
+	# Each matcher excludes the other, because two body limits on one request nest and the smaller would win.
+	@upload header Content-Type application/octet-stream
+	@not_upload not header Content-Type application/octet-stream
+	request_body @upload {
+		max_size {{upload_max}}
+	}
+	request_body @not_upload {
 		max_size {{request_max}}
 	}
 	# One line per request in the journal: its method, its address without the query, its status and how long it took; no header,

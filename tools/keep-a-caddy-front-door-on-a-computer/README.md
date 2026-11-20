@@ -31,6 +31,7 @@ A site that names `site_file` gets that whole file from `sites/`, each `{{field}
 - It answers the person's own pages from `pages_root` and every other path with 404.
 - It sends the paths in `engine_paths` to the `engine` pool, but only when `engine_routes` names `engine`.
 - `grace_period` is how long a reload lets calls in flight finish.
+- `request_max` bounds every request body but a raw upload (`Content-Type: application/octet-stream`), which `upload_max` bounds: the engine takes an upload in pieces of up to its `upload_most_bytes` (trillion-rust src/mcp/settings.json, 32 MiB), so `upload_max` is that and `request_max` stays small for JSON.
 - It logs one JSON line per request to the journal: the method, the address without the query, the status and the duration. Every header, client address, cookie and query value is removed, so a sign-in attempt is visible without keeping anything private.
 
 `site_file: "certificate-only"` keeps the certificate of one name or IP address (`door_host`) with the ACME profile `certificate_profile` and serves nothing (every request is 404), for another program on the computer that reads the certificate and key from Caddy's storage, such as a database server's TLS listener (its unit's `files_read_at_start`, restarted by a `watch-a-file` path when Caddy renews). Let's Encrypt issues an IP address only the `shortlived` profile.
