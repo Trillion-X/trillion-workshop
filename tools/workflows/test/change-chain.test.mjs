@@ -96,13 +96,13 @@ test('a database row change with no kinds is chosen too, and the keep step keeps
 });
 
 // The person's own switch input: everything this row names none of.
-const SETTINGS = { history: { credential_name: 'my-history-connection' }, address_scheme: 'email', soon_minutes: 120,
+const SETTINGS = { history: { credential_name: 'my-history-connection' }, address_scheme: 'email', soon_minutes: 120, time_zone: 'America/Chicago',
   notices: { credential_name: 'my-notices-connection', kind: 'needs-you' },
   mail: { provider: 'gmail', connection: { connection_id: 'service_connection:google-account:example' } }, calendar: { provider: 'google-calendar', connection: { connection_id: 'service_connection:google-account:example' }, calendar_id: 'primary' },
   voice: { adapter: '/opt/example-adapter', base_model: '/opt/example-model', criterion: { id: 'x' }, min_paragraph_chars: 40, decider_common_dir: '/opt/example-decider' },
   phrase_rules: [{ id: 'no-filler', words: ['just checking in'] }] };
 const due = (soon, extra = {}) => ({ thing_scheme: 'person', thing_value: 'person:bo', through: 9, meanings: ['booked', 'cancelled'], words: 'moved the call', addresses: address('bo'), address: address('bo.work'),
-  next_call_at: '2026-11-21T13:00:00.000Z', soon, now_at: '2026-11-19T13:00:00Z', calendar_to: '2026-11-22T13:00:00Z', history: '[]', ...extra });
+  next_call_at: '2026-11-21T13:00:00.000Z', next_call_said: 'Sat Nov 21, 7:00 AM America/Chicago', soon, now_at: '2026-11-19T13:00:00Z', calendar_to: '2026-11-22T13:00:00Z', history: '[]', ...extra });
 function tellDoor({ rows, claimed = true, fail = null, answer = {} }) {
   return door((name, input) => {
     if (name in answer) return answer[name];
@@ -156,7 +156,9 @@ test('a next call sooner than soon_minutes is a call to make now, with no draft'
   const d = tellDoor({ rows: [due(true)] });
   assert.equal((await tellRun(d)).status, 'completed');
   assert.deepEqual(asked(d), [...MADE, 'WITH', 'INSERT', 'notice']);
-  assert.match(noticeOf(d.calls.at(-1)).title, /^Call .* now: their call starts at 2026-11-21T13:00:00.000Z$/);
+  assert.match(noticeOf(d.calls.at(-1)).title, /^Call .* now: their call starts at Sat Nov 21, 7:00 AM America\/Chicago$/);
+  const read = d.calls.find((call) => call.name === 'tool:run-sql-in-my-database' && call.input.sql.includes('due_tells'));
+  assert.equal(read.input.params[2], 'America/Chicago', 'the owner\'s time zone from the switch says every time a notice or draft names');
 });
 
 test('changes already told are not told again: the claim refuses and nothing is drafted or told', async () => {

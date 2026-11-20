@@ -23,6 +23,10 @@
               "type": "integer",
               "description": "A next call starting within this many minutes is a call to make now, not an email"
             },
+            "time_zone": {
+              "type": "string",
+              "description": "The owner's time zone (an IANA name such as America/Chicago): every time a notice or draft names is said in it. UTC when left out"
+            },
             "mail": {
               "type": "object",
               "description": "The owner's mail account: provider and connection {connection_id}"
@@ -182,7 +186,7 @@
                       "path": "history.credential_name"
                     }
                   },
-                  "sql": "WITH due AS (SELECT * FROM due_tells()),\nlatest AS (\n  SELECT DISTINCT ON (d.thing_scheme, d.thing_value, s.place, s.key) d.thing_scheme, d.thing_value, s.after\n  FROM due d CROSS JOIN LATERAL history(d.thing_scheme, d.thing_value) h JOIN statements s ON s.id = h.id\n  WHERE h.stands AND s.key IS NOT NULL AND s.after ? 'starts_at'\n  ORDER BY d.thing_scheme, d.thing_value, s.place, s.key, s.at DESC, s.id DESC),\nnext_call AS (\n  SELECT thing_scheme, thing_value, min((after ->> 'starts_at')::timestamptz) AS starts_at FROM latest\n  WHERE coalesce(after ->> 'cancelled_at', '') = '' AND (after ->> 'starts_at')::timestamptz > now() GROUP BY 1, 2)\nSELECT d.thing_scheme, d.thing_value, d.through, d.meanings, d.words,\n  (SELECT string_agg(k.value, ', ' ORDER BY k.value) FROM known_as(d.thing_scheme, d.thing_value) k WHERE k.scheme = $1::text) AS addresses,\n  (SELECT m.value FROM history(d.thing_scheme, d.thing_value) h JOIN mentions m ON m.statement = h.id AND m.scheme = $1::text\n     WHERE h.stands ORDER BY h.at DESC, h.id DESC LIMIT 1) AS address,\n  n.starts_at AS next_call_at,\n  coalesce(n.starts_at < now() + make_interval(mins => $2::int), false) AS soon,\n  to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') AS now_at,\n  to_char((coalesce(n.starts_at, now()) + interval '1 day') AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') AS calendar_to,\n  (SELECT jsonb_agg(jsonb_build_object('at', h.at, 'meaning', h.meaning, 'words', h.words, 'stands', h.stands, 'said_as', h.said_as, 'after', h.after) ORDER BY h.at, h.id)\n     FROM history(d.thing_scheme, d.thing_value) h)::text AS history\nFROM due d LEFT JOIN next_call n ON n.thing_scheme = d.thing_scheme AND n.thing_value = d.thing_value\nORDER BY d.through",
+                  "sql": "WITH due AS (SELECT * FROM due_tells()),\nlatest AS (\n  SELECT DISTINCT ON (d.thing_scheme, d.thing_value, s.place, s.key) d.thing_scheme, d.thing_value, s.after\n  FROM due d CROSS JOIN LATERAL history(d.thing_scheme, d.thing_value) h JOIN statements s ON s.id = h.id\n  WHERE h.stands AND s.key IS NOT NULL AND s.after ? 'starts_at'\n  ORDER BY d.thing_scheme, d.thing_value, s.place, s.key, s.at DESC, s.id DESC),\nnext_call AS (\n  SELECT thing_scheme, thing_value, min((after ->> 'starts_at')::timestamptz) AS starts_at FROM latest\n  WHERE coalesce(after ->> 'cancelled_at', '') = '' AND (after ->> 'starts_at')::timestamptz > now() GROUP BY 1, 2)\nSELECT d.thing_scheme, d.thing_value, d.through, d.meanings, d.words,\n  (SELECT string_agg(k.value, ', ' ORDER BY k.value) FROM known_as(d.thing_scheme, d.thing_value) k WHERE k.scheme = $1::text) AS addresses,\n  (SELECT m.value FROM history(d.thing_scheme, d.thing_value) h JOIN mentions m ON m.statement = h.id AND m.scheme = $1::text\n     WHERE h.stands ORDER BY h.at DESC, h.id DESC LIMIT 1) AS address,\n  n.starts_at AS next_call_at,\n  to_char(n.starts_at AT TIME ZONE $3::text, 'Dy Mon FMDD, FMHH12:MI AM') || ' ' || $3::text AS next_call_said,\n  coalesce(n.starts_at < now() + make_interval(mins => $2::int), false) AS soon,\n  to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') AS now_at,\n  to_char((coalesce(n.starts_at, now()) + interval '1 day') AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') AS calendar_to,\n  (SELECT jsonb_agg(jsonb_build_object('at', h.at, 'meaning', h.meaning, 'words', h.words, 'stands', h.stands, 'said_as', h.said_as, 'after', h.after) ORDER BY h.at, h.id)\n     FROM history(d.thing_scheme, d.thing_value) h)::text AS history\nFROM due d LEFT JOIN next_call n ON n.thing_scheme = d.thing_scheme AND n.thing_value = d.thing_value\nORDER BY d.through",
                   "params": [
                     {
                       "$kind": "binding",
@@ -197,6 +201,24 @@
                         "from": "input",
                         "path": "soon_minutes"
                       }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "time_zone"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.if_null",
+                          "args": {
+                            "value": "UTC"
+                          }
+                        },
+                        {
+                          "op": "op:core.to_string"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -376,7 +398,7 @@
                                     "$kind": "binding",
                                     "select": {
                                       "from": "loop",
-                                      "path": "due.next_call_at"
+                                      "path": "due.next_call_said"
                                     },
                                     "transform": [
                                       {
@@ -644,7 +666,7 @@
                       "messages": [
                         {
                           "role": "system",
-                          "content": "Write the one email the owner would send this person now, in the owner's own words: short, plain, first person, no greeting formula and no sign-off beyond the owner's first name. Read the history oldest first (what they booked, moved or cancelled), the mail already sent to them and the calendar events: say only what these show, repeat nothing already sent, and ask nothing they already answer. Answer as JSON {\"subject\": \"...\", \"text\": \"...\"}."
+                          "content": "Write the one email the owner would send this person now, in the owner's own words: short, plain, first person, no greeting formula and no sign-off beyond the owner's first name. Read the history oldest first (what they booked, moved or cancelled), the mail already sent to them and the calendar events: say only what these show, repeat nothing already sent, and ask nothing they already answer. Name a time only as the Next call line says it: the times in the history are UTC. Answer as JSON {\"subject\": \"...\", \"text\": \"...\"}."
                         },
                         {
                           "role": "user",
@@ -703,7 +725,7 @@
                                       "$kind": "binding",
                                       "select": {
                                         "from": "loop",
-                                        "path": "due.next_call_at"
+                                        "path": "due.next_call_said"
                                       },
                                       "transform": [
                                         {
