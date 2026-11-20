@@ -114,6 +114,17 @@
         "text"
       ]
     },
+    "do-a-task-step": {
+      "models": [
+        "ollama-qwen2.5-14b",
+        "ollama-gemma3-4b"
+      ],
+      "most_tokens": 2000,
+      "timeout_seconds": 180,
+      "response_format": {
+        "type": "json_object"
+      }
+    },
     "meeting-notes": {
       "models": [
         "ollama-gemma3-4b"

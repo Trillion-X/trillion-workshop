@@ -357,6 +357,84 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
    "package": "browse-and-upload-my-files",
    "paths": [
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
@@ -400,85 +478,7 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-   {
-    "packages": [
-     "pg"
-    ],
-    "at": "/opt/node_modules/pg"
-   },
-   {
-    "packages": [
-     "pg-connection-string"
-    ],
-    "at": "/opt/node_modules/pg-connection-string"
-   },
-   {
-    "packages": [
-     "pg-pool"
-    ],
-    "at": "/opt/node_modules/pg-pool"
-   },
-   {
-    "packages": [
-     "pg-protocol"
-    ],
-    "at": "/opt/node_modules/pg-protocol"
-   },
-   {
-    "packages": [
-     "pg-types"
-    ],
-    "at": "/opt/node_modules/pg-types"
-   },
-   {
-    "packages": [
-     "pg-int8"
-    ],
-    "at": "/opt/node_modules/pg-int8"
-   },
-   {
-    "packages": [
-     "postgres-array"
-    ],
-    "at": "/opt/node_modules/postgres-array"
-   },
-   {
-    "packages": [
-     "postgres-bytea"
-    ],
-    "at": "/opt/node_modules/postgres-bytea"
-   },
-   {
-    "packages": [
-     "postgres-date"
-    ],
-    "at": "/opt/node_modules/postgres-date"
-   },
-   {
-    "packages": [
-     "postgres-interval"
-    ],
-    "at": "/opt/node_modules/postgres-interval"
-   },
-   {
-    "packages": [
-     "xtend"
-    ],
-    "at": "/opt/node_modules/xtend"
-   },
-   {
-    "packages": [
-     "pgpass"
-    ],
-    "at": "/opt/node_modules/pgpass"
-   },
-   {
-    "packages": [
-     "split2"
-    ],
-    "at": "/opt/node_modules/split2"
-   }
+  }
  ],
  "tool:add-reviewed-videos-to-a-packaging-ledger": [],
  "tool:add-to-notion": [],
@@ -2054,6 +2054,84 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
    "package": "browse-and-upload-my-files",
    "paths": [
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
@@ -2075,85 +2153,7 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-   {
-    "packages": [
-     "pg"
-    ],
-    "at": "/opt/node_modules/pg"
-   },
-   {
-    "packages": [
-     "pg-connection-string"
-    ],
-    "at": "/opt/node_modules/pg-connection-string"
-   },
-   {
-    "packages": [
-     "pg-pool"
-    ],
-    "at": "/opt/node_modules/pg-pool"
-   },
-   {
-    "packages": [
-     "pg-protocol"
-    ],
-    "at": "/opt/node_modules/pg-protocol"
-   },
-   {
-    "packages": [
-     "pg-types"
-    ],
-    "at": "/opt/node_modules/pg-types"
-   },
-   {
-    "packages": [
-     "pg-int8"
-    ],
-    "at": "/opt/node_modules/pg-int8"
-   },
-   {
-    "packages": [
-     "postgres-array"
-    ],
-    "at": "/opt/node_modules/postgres-array"
-   },
-   {
-    "packages": [
-     "postgres-bytea"
-    ],
-    "at": "/opt/node_modules/postgres-bytea"
-   },
-   {
-    "packages": [
-     "postgres-date"
-    ],
-    "at": "/opt/node_modules/postgres-date"
-   },
-   {
-    "packages": [
-     "postgres-interval"
-    ],
-    "at": "/opt/node_modules/postgres-interval"
-   },
-   {
-    "packages": [
-     "xtend"
-    ],
-    "at": "/opt/node_modules/xtend"
-   },
-   {
-    "packages": [
-     "pgpass"
-    ],
-    "at": "/opt/node_modules/pgpass"
-   },
-   {
-    "packages": [
-     "split2"
-    ],
-    "at": "/opt/node_modules/split2"
-   }
+  }
  ],
  "tool:answer-the-saved-examples-page": [
   {
@@ -9505,6 +9505,84 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
    "package": "browse-and-upload-my-files",
    "paths": [
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
@@ -9548,85 +9626,7 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-   {
-    "packages": [
-     "pg"
-    ],
-    "at": "/opt/node_modules/pg"
-   },
-   {
-    "packages": [
-     "pg-connection-string"
-    ],
-    "at": "/opt/node_modules/pg-connection-string"
-   },
-   {
-    "packages": [
-     "pg-pool"
-    ],
-    "at": "/opt/node_modules/pg-pool"
-   },
-   {
-    "packages": [
-     "pg-protocol"
-    ],
-    "at": "/opt/node_modules/pg-protocol"
-   },
-   {
-    "packages": [
-     "pg-types"
-    ],
-    "at": "/opt/node_modules/pg-types"
-   },
-   {
-    "packages": [
-     "pg-int8"
-    ],
-    "at": "/opt/node_modules/pg-int8"
-   },
-   {
-    "packages": [
-     "postgres-array"
-    ],
-    "at": "/opt/node_modules/postgres-array"
-   },
-   {
-    "packages": [
-     "postgres-bytea"
-    ],
-    "at": "/opt/node_modules/postgres-bytea"
-   },
-   {
-    "packages": [
-     "postgres-date"
-    ],
-    "at": "/opt/node_modules/postgres-date"
-   },
-   {
-    "packages": [
-     "postgres-interval"
-    ],
-    "at": "/opt/node_modules/postgres-interval"
-   },
-   {
-    "packages": [
-     "xtend"
-    ],
-    "at": "/opt/node_modules/xtend"
-   },
-   {
-    "packages": [
-     "pgpass"
-    ],
-    "at": "/opt/node_modules/pgpass"
-   },
-   {
-    "packages": [
-     "split2"
-    ],
-    "at": "/opt/node_modules/split2"
-   }
+  }
  ],
  "tool:correct-when-a-message-was-written": [
   {
@@ -10900,6 +10900,84 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
    "package": "browse-and-upload-my-files",
    "paths": [
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
@@ -10943,85 +11021,7 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-   {
-    "packages": [
-     "pg"
-    ],
-    "at": "/opt/node_modules/pg"
-   },
-   {
-    "packages": [
-     "pg-connection-string"
-    ],
-    "at": "/opt/node_modules/pg-connection-string"
-   },
-   {
-    "packages": [
-     "pg-pool"
-    ],
-    "at": "/opt/node_modules/pg-pool"
-   },
-   {
-    "packages": [
-     "pg-protocol"
-    ],
-    "at": "/opt/node_modules/pg-protocol"
-   },
-   {
-    "packages": [
-     "pg-types"
-    ],
-    "at": "/opt/node_modules/pg-types"
-   },
-   {
-    "packages": [
-     "pg-int8"
-    ],
-    "at": "/opt/node_modules/pg-int8"
-   },
-   {
-    "packages": [
-     "postgres-array"
-    ],
-    "at": "/opt/node_modules/postgres-array"
-   },
-   {
-    "packages": [
-     "postgres-bytea"
-    ],
-    "at": "/opt/node_modules/postgres-bytea"
-   },
-   {
-    "packages": [
-     "postgres-date"
-    ],
-    "at": "/opt/node_modules/postgres-date"
-   },
-   {
-    "packages": [
-     "postgres-interval"
-    ],
-    "at": "/opt/node_modules/postgres-interval"
-   },
-   {
-    "packages": [
-     "xtend"
-    ],
-    "at": "/opt/node_modules/xtend"
-   },
-   {
-    "packages": [
-     "pgpass"
-    ],
-    "at": "/opt/node_modules/pgpass"
-   },
-   {
-    "packages": [
-     "split2"
-    ],
-    "at": "/opt/node_modules/split2"
-   }
+  }
  ],
  "tool:decide-the-replies": [
   {
@@ -11390,6 +11390,7 @@
     "src/connecting-without-the-store.mjs",
     "src/cut-off.mjs",
     "src/execution-context.mjs",
+    "src/input-alias-refusal.mjs",
     "src/live-tool-sources.mjs",
     "src/maker-payouts.json",
     "src/maker-payouts.mjs",
@@ -12474,6 +12475,93 @@
   }
  ],
  "tool:edit-local-image": [],
+ "tool:edit-saved-page": [
+  {
+   "package": "keep-links-i-saved-elsewhere-such",
+   "paths": [
+    "do-work",
+    "src"
+   ],
+   "at": "/opt/keep-links-i-saved-elsewhere-such"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/saved-links.json"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "connect-a-service-and-seal-its-key",
+   "paths": [
+    "records.json"
+   ],
+   "at": "/opt/connect-a-service-and-seal-its-key"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs",
+    "read-data/host-actions.mjs",
+    "read-data/whole-file.mjs",
+    "read-data/large-file.json"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work",
+    "built-stored-bytes",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "read-data/capability-edges.mjs",
+    "read-data/expected-current-from-content-hash.mjs",
+    "read-data/identical-snapshot-ab-plan.mjs",
+    "read-data/namespace-records-from-a-name-and-identity-table.mjs",
+    "read-data/operation-pair-cases.mjs",
+    "read-data/operation-pair-outcome.mjs",
+    "read-data/reconcile-namespace-corpus.mjs",
+    "read-data/residual-read-demand-from-receiver-facts.mjs"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "send-requests-to-an-engine",
+   "paths": [
+    "read-data/find-the-running-app-and-send-requests-to-it.mjs"
+   ],
+   "at": "/opt/send-requests-to-an-engine"
+  }
+ ],
  "tool:end-a-decision": [
   {
    "package": "decide-with-a-method",
@@ -12563,6 +12651,84 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
    "package": "browse-and-upload-my-files",
    "paths": [
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
@@ -12606,85 +12772,7 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-   {
-    "packages": [
-     "pg"
-    ],
-    "at": "/opt/node_modules/pg"
-   },
-   {
-    "packages": [
-     "pg-connection-string"
-    ],
-    "at": "/opt/node_modules/pg-connection-string"
-   },
-   {
-    "packages": [
-     "pg-pool"
-    ],
-    "at": "/opt/node_modules/pg-pool"
-   },
-   {
-    "packages": [
-     "pg-protocol"
-    ],
-    "at": "/opt/node_modules/pg-protocol"
-   },
-   {
-    "packages": [
-     "pg-types"
-    ],
-    "at": "/opt/node_modules/pg-types"
-   },
-   {
-    "packages": [
-     "pg-int8"
-    ],
-    "at": "/opt/node_modules/pg-int8"
-   },
-   {
-    "packages": [
-     "postgres-array"
-    ],
-    "at": "/opt/node_modules/postgres-array"
-   },
-   {
-    "packages": [
-     "postgres-bytea"
-    ],
-    "at": "/opt/node_modules/postgres-bytea"
-   },
-   {
-    "packages": [
-     "postgres-date"
-    ],
-    "at": "/opt/node_modules/postgres-date"
-   },
-   {
-    "packages": [
-     "postgres-interval"
-    ],
-    "at": "/opt/node_modules/postgres-interval"
-   },
-   {
-    "packages": [
-     "xtend"
-    ],
-    "at": "/opt/node_modules/xtend"
-   },
-   {
-    "packages": [
-     "pgpass"
-    ],
-    "at": "/opt/node_modules/pgpass"
-   },
-   {
-    "packages": [
-     "split2"
-    ],
-    "at": "/opt/node_modules/split2"
-   }
+  }
  ],
  "tool:end-shares-whose-condition-failed": [
   {
@@ -14589,6 +14677,93 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  }
+ ],
+ "tool:find-link-provider": [
+  {
+   "package": "keep-links-i-saved-elsewhere-such",
+   "paths": [
+    "do-work",
+    "src"
+   ],
+   "at": "/opt/keep-links-i-saved-elsewhere-such"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/saved-links.json"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "connect-a-service-and-seal-its-key",
+   "paths": [
+    "records.json"
+   ],
+   "at": "/opt/connect-a-service-and-seal-its-key"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs",
+    "read-data/host-actions.mjs",
+    "read-data/whole-file.mjs",
+    "read-data/large-file.json"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work",
+    "built-stored-bytes",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "read-data/capability-edges.mjs",
+    "read-data/expected-current-from-content-hash.mjs",
+    "read-data/identical-snapshot-ab-plan.mjs",
+    "read-data/namespace-records-from-a-name-and-identity-table.mjs",
+    "read-data/operation-pair-cases.mjs",
+    "read-data/operation-pair-outcome.mjs",
+    "read-data/reconcile-namespace-corpus.mjs",
+    "read-data/residual-read-demand-from-receiver-facts.mjs"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "send-requests-to-an-engine",
+   "paths": [
+    "read-data/find-the-running-app-and-send-requests-to-it.mjs"
+   ],
+   "at": "/opt/send-requests-to-an-engine"
   }
  ],
  "tool:find-mail": [
@@ -19635,6 +19810,161 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:keep-an-ai-activity-row": [
+  {
+   "package": "see-what-my-ais-did",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/see-what-my-ais-did"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/activity-marks.json",
+    "src/activity.mjs"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/execution-context.mjs",
+    "src/read-bounded-json.mjs",
+    "src/connecting-without-the-store.mjs",
+    "src/connecting-without-the-store.json",
+    "src/namespace-preview.mjs",
+    "src/record-model-tools.mjs",
+    "src/record-model.json",
+    "src/record-scope.json",
+    "src/workspace/file-previews.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "do-work/fractional-order.ts"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "record-log",
+   "paths": [
+    "do-work/record-model.mjs"
+   ],
+   "at": "/opt/record-log"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "read-data/role-recipes.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  }
+ ],
  "tool:keep-channels-latest-videos-and-captions": [
   {
    "package": "research-a-creator-or-topic",
@@ -19919,6 +20249,61 @@
     "split2"
    ],
    "at": "/opt/node_modules/split2"
+  },
+  {
+   "package": "audio-transcription",
+   "paths": [
+    "read-data/hear-here.mjs",
+    "read-data/hear-link-flow.mjs",
+    "read-data/hear-with-programs.mjs",
+    "read-data/read-link-captions.mjs"
+   ],
+   "at": "/opt/audio-transcription"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "run-on-a-persons-computer",
+   "paths": [
+    "confined-run.mjs"
+   ],
+   "at": "/opt/run-on-a-persons-computer"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "read-data/role-recipes.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
   }
  ],
  "tool:keep-keyed-things-in-a-fixed-memory-budget": [
@@ -22892,6 +23277,57 @@
     "do-work/run-a-function.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "social-posts",
+   "paths": [
+    "records/post-place-records.json"
+   ],
+   "at": "/opt/social-posts"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/@opencoredev/social-sdk"
+   ],
+   "at": "/opt/node_modules/@opencoredev/social-sdk"
   }
  ],
  "tool:list-public-prediction-markets": [
@@ -25065,6 +25501,84 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
    "package": "browse-and-upload-my-files",
    "paths": [
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
@@ -25108,85 +25622,7 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-   {
-    "packages": [
-     "pg"
-    ],
-    "at": "/opt/node_modules/pg"
-   },
-   {
-    "packages": [
-     "pg-connection-string"
-    ],
-    "at": "/opt/node_modules/pg-connection-string"
-   },
-   {
-    "packages": [
-     "pg-pool"
-    ],
-    "at": "/opt/node_modules/pg-pool"
-   },
-   {
-    "packages": [
-     "pg-protocol"
-    ],
-    "at": "/opt/node_modules/pg-protocol"
-   },
-   {
-    "packages": [
-     "pg-types"
-    ],
-    "at": "/opt/node_modules/pg-types"
-   },
-   {
-    "packages": [
-     "pg-int8"
-    ],
-    "at": "/opt/node_modules/pg-int8"
-   },
-   {
-    "packages": [
-     "postgres-array"
-    ],
-    "at": "/opt/node_modules/postgres-array"
-   },
-   {
-    "packages": [
-     "postgres-bytea"
-    ],
-    "at": "/opt/node_modules/postgres-bytea"
-   },
-   {
-    "packages": [
-     "postgres-date"
-    ],
-    "at": "/opt/node_modules/postgres-date"
-   },
-   {
-    "packages": [
-     "postgres-interval"
-    ],
-    "at": "/opt/node_modules/postgres-interval"
-   },
-   {
-    "packages": [
-     "xtend"
-    ],
-    "at": "/opt/node_modules/xtend"
-   },
-   {
-    "packages": [
-     "pgpass"
-    ],
-    "at": "/opt/node_modules/pgpass"
-   },
-   {
-    "packages": [
-     "split2"
-    ],
-    "at": "/opt/node_modules/split2"
-   }
+  }
  ],
  "tool:make-tracked-link": [
   {
@@ -31151,6 +31587,7 @@
     "src/connecting-without-the-store.mjs",
     "src/cut-off.mjs",
     "src/execution-context.mjs",
+    "src/input-alias-refusal.mjs",
     "src/live-tool-sources.mjs",
     "src/maker-payouts.json",
     "src/maker-payouts.mjs",
@@ -34203,6 +34640,161 @@
  "tool:read-a-treg-call": [],
  "tool:read-a-treg-endpoint-and-its-price": [],
  "tool:read-a-videos-captions": [],
+ "tool:read-ai-activity": [
+  {
+   "package": "see-what-my-ais-did",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/see-what-my-ais-did"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/activity-marks.json",
+    "src/activity.mjs"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/execution-context.mjs",
+    "src/read-bounded-json.mjs",
+    "src/connecting-without-the-store.mjs",
+    "src/connecting-without-the-store.json",
+    "src/namespace-preview.mjs",
+    "src/record-model-tools.mjs",
+    "src/record-model.json",
+    "src/record-scope.json",
+    "src/workspace/file-previews.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "do-work/fractional-order.ts"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "record-log",
+   "paths": [
+    "do-work/record-model.mjs"
+   ],
+   "at": "/opt/record-log"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "read-data/role-recipes.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  }
+ ],
  "tool:read-ai-apps": [
   {
    "package": "see-and-limit-what-each-ai-can-reach",
@@ -34398,6 +34990,7 @@
     "src/connecting-without-the-store.mjs",
     "src/cut-off.mjs",
     "src/execution-context.mjs",
+    "src/input-alias-refusal.mjs",
     "src/live-tool-sources.mjs",
     "src/maker-payouts.json",
     "src/maker-payouts.mjs",
@@ -35324,6 +35917,7 @@
     "src/connecting-without-the-store.mjs",
     "src/cut-off.mjs",
     "src/execution-context.mjs",
+    "src/input-alias-refusal.mjs",
     "src/live-tool-sources.mjs",
     "src/maker-payouts.json",
     "src/maker-payouts.mjs",
@@ -36091,6 +36685,7 @@
     "src/connecting-without-the-store.mjs",
     "src/cut-off.mjs",
     "src/execution-context.mjs",
+    "src/input-alias-refusal.mjs",
     "src/live-tool-sources.mjs",
     "src/maker-payouts.json",
     "src/maker-payouts.mjs",
@@ -37512,6 +38107,93 @@
    "at": "/opt/read-rows-from-a-rest-service"
   }
  ],
+ "tool:read-saved-page": [
+  {
+   "package": "keep-links-i-saved-elsewhere-such",
+   "paths": [
+    "do-work",
+    "src"
+   ],
+   "at": "/opt/keep-links-i-saved-elsewhere-such"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/saved-links.json"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "connect-a-service-and-seal-its-key",
+   "paths": [
+    "records.json"
+   ],
+   "at": "/opt/connect-a-service-and-seal-its-key"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs",
+    "read-data/host-actions.mjs",
+    "read-data/whole-file.mjs",
+    "read-data/large-file.json"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work",
+    "built-stored-bytes",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "read-data/capability-edges.mjs",
+    "read-data/expected-current-from-content-hash.mjs",
+    "read-data/identical-snapshot-ab-plan.mjs",
+    "read-data/namespace-records-from-a-name-and-identity-table.mjs",
+    "read-data/operation-pair-cases.mjs",
+    "read-data/operation-pair-outcome.mjs",
+    "read-data/reconcile-namespace-corpus.mjs",
+    "read-data/residual-read-demand-from-receiver-facts.mjs"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "send-requests-to-an-engine",
+   "paths": [
+    "read-data/find-the-running-app-and-send-requests-to-it.mjs"
+   ],
+   "at": "/opt/send-requests-to-an-engine"
+  }
+ ],
  "tool:read-setup": [
   {
    "package": "set-up-my-account",
@@ -37941,6 +38623,7 @@
     "src/connecting-without-the-store.mjs",
     "src/cut-off.mjs",
     "src/execution-context.mjs",
+    "src/input-alias-refusal.mjs",
     "src/live-tool-sources.mjs",
     "src/maker-payouts.json",
     "src/maker-payouts.mjs",
@@ -38169,6 +38852,14 @@
     "src/automation-health.mjs"
    ],
    "at": "/opt/shared-code"
+  },
+  {
+   "package": "connect-a-service-and-seal-its-key",
+   "paths": [
+    "held-sends.json",
+    "held-sends.mjs"
+   ],
+   "at": "/opt/connect-a-service-and-seal-its-key"
   }
  ],
  "tool:read-spend-rails": [
@@ -39303,6 +39994,84 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
    "package": "browse-and-upload-my-files",
    "paths": [
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
@@ -39346,85 +40115,7 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-   {
-    "packages": [
-     "pg"
-    ],
-    "at": "/opt/node_modules/pg"
-   },
-   {
-    "packages": [
-     "pg-connection-string"
-    ],
-    "at": "/opt/node_modules/pg-connection-string"
-   },
-   {
-    "packages": [
-     "pg-pool"
-    ],
-    "at": "/opt/node_modules/pg-pool"
-   },
-   {
-    "packages": [
-     "pg-protocol"
-    ],
-    "at": "/opt/node_modules/pg-protocol"
-   },
-   {
-    "packages": [
-     "pg-types"
-    ],
-    "at": "/opt/node_modules/pg-types"
-   },
-   {
-    "packages": [
-     "pg-int8"
-    ],
-    "at": "/opt/node_modules/pg-int8"
-   },
-   {
-    "packages": [
-     "postgres-array"
-    ],
-    "at": "/opt/node_modules/postgres-array"
-   },
-   {
-    "packages": [
-     "postgres-bytea"
-    ],
-    "at": "/opt/node_modules/postgres-bytea"
-   },
-   {
-    "packages": [
-     "postgres-date"
-    ],
-    "at": "/opt/node_modules/postgres-date"
-   },
-   {
-    "packages": [
-     "postgres-interval"
-    ],
-    "at": "/opt/node_modules/postgres-interval"
-   },
-   {
-    "packages": [
-     "xtend"
-    ],
-    "at": "/opt/node_modules/xtend"
-   },
-   {
-    "packages": [
-     "pgpass"
-    ],
-    "at": "/opt/node_modules/pgpass"
-   },
-   {
-    "packages": [
-     "split2"
-    ],
-    "at": "/opt/node_modules/split2"
-   }
+  }
  ],
  "tool:record-a-publishing-step": [
   {
@@ -39812,6 +40503,13 @@
    "at": "/opt/http-client"
   },
   {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/input-alias-refusal.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
    "package": "keep-lists-of-rows",
    "paths": [
     "do-work/fractional-order.ts",
@@ -39983,6 +40681,84 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
    "package": "browse-and-upload-my-files",
    "paths": [
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
@@ -40012,85 +40788,7 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-   {
-    "packages": [
-     "pg"
-    ],
-    "at": "/opt/node_modules/pg"
-   },
-   {
-    "packages": [
-     "pg-connection-string"
-    ],
-    "at": "/opt/node_modules/pg-connection-string"
-   },
-   {
-    "packages": [
-     "pg-pool"
-    ],
-    "at": "/opt/node_modules/pg-pool"
-   },
-   {
-    "packages": [
-     "pg-protocol"
-    ],
-    "at": "/opt/node_modules/pg-protocol"
-   },
-   {
-    "packages": [
-     "pg-types"
-    ],
-    "at": "/opt/node_modules/pg-types"
-   },
-   {
-    "packages": [
-     "pg-int8"
-    ],
-    "at": "/opt/node_modules/pg-int8"
-   },
-   {
-    "packages": [
-     "postgres-array"
-    ],
-    "at": "/opt/node_modules/postgres-array"
-   },
-   {
-    "packages": [
-     "postgres-bytea"
-    ],
-    "at": "/opt/node_modules/postgres-bytea"
-   },
-   {
-    "packages": [
-     "postgres-date"
-    ],
-    "at": "/opt/node_modules/postgres-date"
-   },
-   {
-    "packages": [
-     "postgres-interval"
-    ],
-    "at": "/opt/node_modules/postgres-interval"
-   },
-   {
-    "packages": [
-     "xtend"
-    ],
-    "at": "/opt/node_modules/xtend"
-   },
-   {
-    "packages": [
-     "pgpass"
-    ],
-    "at": "/opt/node_modules/pgpass"
-   },
-   {
-    "packages": [
-     "split2"
-    ],
-    "at": "/opt/node_modules/split2"
-   }
+  }
  ],
  "tool:record-the-screen": [
   {
@@ -40460,6 +41158,93 @@
     "read-data/provider-prices.mjs"
    ],
    "at": "/opt/keep-measurements-current"
+  }
+ ],
+ "tool:refresh-saved-pages": [
+  {
+   "package": "keep-links-i-saved-elsewhere-such",
+   "paths": [
+    "do-work",
+    "src"
+   ],
+   "at": "/opt/keep-links-i-saved-elsewhere-such"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/saved-links.json"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "connect-a-service-and-seal-its-key",
+   "paths": [
+    "records.json"
+   ],
+   "at": "/opt/connect-a-service-and-seal-its-key"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs",
+    "read-data/host-actions.mjs",
+    "read-data/whole-file.mjs",
+    "read-data/large-file.json"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work",
+    "built-stored-bytes",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "read-data/capability-edges.mjs",
+    "read-data/expected-current-from-content-hash.mjs",
+    "read-data/identical-snapshot-ab-plan.mjs",
+    "read-data/namespace-records-from-a-name-and-identity-table.mjs",
+    "read-data/operation-pair-cases.mjs",
+    "read-data/operation-pair-outcome.mjs",
+    "read-data/reconcile-namespace-corpus.mjs",
+    "read-data/residual-read-demand-from-receiver-facts.mjs"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "send-requests-to-an-engine",
+   "paths": [
+    "read-data/find-the-running-app-and-send-requests-to-it.mjs"
+   ],
+   "at": "/opt/send-requests-to-an-engine"
   }
  ],
  "tool:register-my-account-in-my-ai-apps": [],
@@ -41612,6 +42397,84 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
    "package": "browse-and-upload-my-files",
    "paths": [
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
@@ -41655,85 +42518,7 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-   {
-    "packages": [
-     "pg"
-    ],
-    "at": "/opt/node_modules/pg"
-   },
-   {
-    "packages": [
-     "pg-connection-string"
-    ],
-    "at": "/opt/node_modules/pg-connection-string"
-   },
-   {
-    "packages": [
-     "pg-pool"
-    ],
-    "at": "/opt/node_modules/pg-pool"
-   },
-   {
-    "packages": [
-     "pg-protocol"
-    ],
-    "at": "/opt/node_modules/pg-protocol"
-   },
-   {
-    "packages": [
-     "pg-types"
-    ],
-    "at": "/opt/node_modules/pg-types"
-   },
-   {
-    "packages": [
-     "pg-int8"
-    ],
-    "at": "/opt/node_modules/pg-int8"
-   },
-   {
-    "packages": [
-     "postgres-array"
-    ],
-    "at": "/opt/node_modules/postgres-array"
-   },
-   {
-    "packages": [
-     "postgres-bytea"
-    ],
-    "at": "/opt/node_modules/postgres-bytea"
-   },
-   {
-    "packages": [
-     "postgres-date"
-    ],
-    "at": "/opt/node_modules/postgres-date"
-   },
-   {
-    "packages": [
-     "postgres-interval"
-    ],
-    "at": "/opt/node_modules/postgres-interval"
-   },
-   {
-    "packages": [
-     "xtend"
-    ],
-    "at": "/opt/node_modules/xtend"
-   },
-   {
-    "packages": [
-     "pgpass"
-    ],
-    "at": "/opt/node_modules/pgpass"
-   },
-   {
-    "packages": [
-     "split2"
-    ],
-    "at": "/opt/node_modules/split2"
-   }
+  }
  ],
  "tool:report-on-accrual-or-cash": [
   {
@@ -42148,50 +42933,12 @@
   {
    "package": "workflows",
    "paths": [
-    "do-work/run-a-function.mjs",
+    "do-work/resolve-citations-here.mjs",
     "read-data/resolve-citations.mjs",
     "read-data/citation-resolvers.mjs",
     "citation-resolvers.json"
    ],
    "at": "/opt/workflows"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
-    "do-work/send-a-file-to-a-namespace.mjs",
-    "do-work/send-retry.mjs",
-    "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data/blake3.mjs",
-    "read-data/identity.mjs"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "read-data/host-actions.mjs",
-    "read-data/large-file.json",
-    "read-data/whole-file.mjs"
-   ],
-   "at": "/opt/workflows"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   }
  ],
  "tool:restore-a-conversation": [
@@ -42738,6 +43485,29 @@
     "src"
    ],
    "at": "/opt/run-rules-and-schedules-by-themselves"
+  },
+  {
+   "package": "connect-a-service-and-seal-its-key",
+   "paths": [
+    "held-sends.json",
+    "held-sends.mjs"
+   ],
+   "at": "/opt/connect-a-service-and-seal-its-key"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/automation-health.mjs"
+   ],
+   "at": "/opt/shared-code"
   }
  ],
  "tool:run-better-auth-sign-in": [],
@@ -42838,6 +43608,29 @@
     "src"
    ],
    "at": "/opt/run-rules-and-schedules-by-themselves"
+  },
+  {
+   "package": "connect-a-service-and-seal-its-key",
+   "paths": [
+    "held-sends.json",
+    "held-sends.mjs"
+   ],
+   "at": "/opt/connect-a-service-and-seal-its-key"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/automation-health.mjs"
+   ],
+   "at": "/opt/shared-code"
   }
  ],
  "tool:run-workflow-definition": [
@@ -43203,6 +43996,13 @@
     "read-data/decision-outcome.mjs"
    ],
    "at": "/opt/decide-with-a-method"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/input-alias-refusal.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
   },
   {
    "package": "build-a-screen-from-patches",
@@ -43699,6 +44499,93 @@
    "at": "/opt/formula-engine"
   }
  ],
+ "tool:save-page": [
+  {
+   "package": "keep-links-i-saved-elsewhere-such",
+   "paths": [
+    "do-work",
+    "src"
+   ],
+   "at": "/opt/keep-links-i-saved-elsewhere-such"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/saved-links.json"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "connect-a-service-and-seal-its-key",
+   "paths": [
+    "records.json"
+   ],
+   "at": "/opt/connect-a-service-and-seal-its-key"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs",
+    "read-data/host-actions.mjs",
+    "read-data/whole-file.mjs",
+    "read-data/large-file.json"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work",
+    "built-stored-bytes",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "read-data/capability-edges.mjs",
+    "read-data/expected-current-from-content-hash.mjs",
+    "read-data/identical-snapshot-ab-plan.mjs",
+    "read-data/namespace-records-from-a-name-and-identity-table.mjs",
+    "read-data/operation-pair-cases.mjs",
+    "read-data/operation-pair-outcome.mjs",
+    "read-data/reconcile-namespace-corpus.mjs",
+    "read-data/residual-read-demand-from-receiver-facts.mjs"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "send-requests-to-an-engine",
+   "paths": [
+    "read-data/find-the-running-app-and-send-requests-to-it.mjs"
+   ],
+   "at": "/opt/send-requests-to-an-engine"
+  }
+ ],
  "tool:save-tool": [
   {
    "package": "list-and-run-my-tools-for-any-ai",
@@ -44065,6 +44952,30 @@
     "do-work"
    ],
    "at": "/opt/run-rules-and-schedules-by-themselves"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "run-rules-and-schedules-by-themselves",
+   "paths": [
+    "src/automation-health-looks.json",
+    "src/automation-operations.mjs",
+    "src/remove-automation.mjs"
+   ],
+   "at": "/opt/run-rules-and-schedules-by-themselves"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/automation-health.mjs"
+   ],
+   "at": "/opt/shared-code"
   }
  ],
  "tool:say-what-the-menu-bar-mark-shows": [
@@ -44165,6 +45076,84 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
    "package": "browse-and-upload-my-files",
    "paths": [
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
@@ -44208,85 +45197,7 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-   {
-    "packages": [
-     "pg"
-    ],
-    "at": "/opt/node_modules/pg"
-   },
-   {
-    "packages": [
-     "pg-connection-string"
-    ],
-    "at": "/opt/node_modules/pg-connection-string"
-   },
-   {
-    "packages": [
-     "pg-pool"
-    ],
-    "at": "/opt/node_modules/pg-pool"
-   },
-   {
-    "packages": [
-     "pg-protocol"
-    ],
-    "at": "/opt/node_modules/pg-protocol"
-   },
-   {
-    "packages": [
-     "pg-types"
-    ],
-    "at": "/opt/node_modules/pg-types"
-   },
-   {
-    "packages": [
-     "pg-int8"
-    ],
-    "at": "/opt/node_modules/pg-int8"
-   },
-   {
-    "packages": [
-     "postgres-array"
-    ],
-    "at": "/opt/node_modules/postgres-array"
-   },
-   {
-    "packages": [
-     "postgres-bytea"
-    ],
-    "at": "/opt/node_modules/postgres-bytea"
-   },
-   {
-    "packages": [
-     "postgres-date"
-    ],
-    "at": "/opt/node_modules/postgres-date"
-   },
-   {
-    "packages": [
-     "postgres-interval"
-    ],
-    "at": "/opt/node_modules/postgres-interval"
-   },
-   {
-    "packages": [
-     "xtend"
-    ],
-    "at": "/opt/node_modules/xtend"
-   },
-   {
-    "packages": [
-     "pgpass"
-    ],
-    "at": "/opt/node_modules/pgpass"
-   },
-   {
-    "packages": [
-     "split2"
-    ],
-    "at": "/opt/node_modules/split2"
-   }
+  }
  ],
  "tool:say-where-file-sync-stands": [
   {
@@ -47832,6 +48743,7 @@
     "src/connecting-without-the-store.mjs",
     "src/cut-off.mjs",
     "src/execution-context.mjs",
+    "src/input-alias-refusal.mjs",
     "src/live-tool-sources.mjs",
     "src/maker-payouts.json",
     "src/maker-payouts.mjs",
@@ -48240,6 +49152,7 @@
     "src/connecting-without-the-store.mjs",
     "src/cut-off.mjs",
     "src/execution-context.mjs",
+    "src/input-alias-refusal.mjs",
     "src/live-tool-sources.mjs",
     "src/maker-payouts.json",
     "src/maker-payouts.mjs",
@@ -49048,6 +49961,84 @@
    "at": "/opt/settings"
   },
   {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
    "package": "browse-and-upload-my-files",
    "paths": [
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
@@ -49084,85 +50075,7 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-   {
-    "packages": [
-     "pg"
-    ],
-    "at": "/opt/node_modules/pg"
-   },
-   {
-    "packages": [
-     "pg-connection-string"
-    ],
-    "at": "/opt/node_modules/pg-connection-string"
-   },
-   {
-    "packages": [
-     "pg-pool"
-    ],
-    "at": "/opt/node_modules/pg-pool"
-   },
-   {
-    "packages": [
-     "pg-protocol"
-    ],
-    "at": "/opt/node_modules/pg-protocol"
-   },
-   {
-    "packages": [
-     "pg-types"
-    ],
-    "at": "/opt/node_modules/pg-types"
-   },
-   {
-    "packages": [
-     "pg-int8"
-    ],
-    "at": "/opt/node_modules/pg-int8"
-   },
-   {
-    "packages": [
-     "postgres-array"
-    ],
-    "at": "/opt/node_modules/postgres-array"
-   },
-   {
-    "packages": [
-     "postgres-bytea"
-    ],
-    "at": "/opt/node_modules/postgres-bytea"
-   },
-   {
-    "packages": [
-     "postgres-date"
-    ],
-    "at": "/opt/node_modules/postgres-date"
-   },
-   {
-    "packages": [
-     "postgres-interval"
-    ],
-    "at": "/opt/node_modules/postgres-interval"
-   },
-   {
-    "packages": [
-     "xtend"
-    ],
-    "at": "/opt/node_modules/xtend"
-   },
-   {
-    "packages": [
-     "pgpass"
-    ],
-    "at": "/opt/node_modules/pgpass"
-   },
-   {
-    "packages": [
-     "split2"
-    ],
-    "at": "/opt/node_modules/split2"
-   }
+  }
  ],
  "tool:share-a-kept-show-type": [
   {
@@ -50355,6 +51268,84 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
    "package": "browse-and-upload-my-files",
    "paths": [
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
@@ -50398,85 +51389,7 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  },
-   {
-    "packages": [
-     "pg"
-    ],
-    "at": "/opt/node_modules/pg"
-   },
-   {
-    "packages": [
-     "pg-connection-string"
-    ],
-    "at": "/opt/node_modules/pg-connection-string"
-   },
-   {
-    "packages": [
-     "pg-pool"
-    ],
-    "at": "/opt/node_modules/pg-pool"
-   },
-   {
-    "packages": [
-     "pg-protocol"
-    ],
-    "at": "/opt/node_modules/pg-protocol"
-   },
-   {
-    "packages": [
-     "pg-types"
-    ],
-    "at": "/opt/node_modules/pg-types"
-   },
-   {
-    "packages": [
-     "pg-int8"
-    ],
-    "at": "/opt/node_modules/pg-int8"
-   },
-   {
-    "packages": [
-     "postgres-array"
-    ],
-    "at": "/opt/node_modules/postgres-array"
-   },
-   {
-    "packages": [
-     "postgres-bytea"
-    ],
-    "at": "/opt/node_modules/postgres-bytea"
-   },
-   {
-    "packages": [
-     "postgres-date"
-    ],
-    "at": "/opt/node_modules/postgres-date"
-   },
-   {
-    "packages": [
-     "postgres-interval"
-    ],
-    "at": "/opt/node_modules/postgres-interval"
-   },
-   {
-    "packages": [
-     "xtend"
-    ],
-    "at": "/opt/node_modules/xtend"
-   },
-   {
-    "packages": [
-     "pgpass"
-    ],
-    "at": "/opt/node_modules/pgpass"
-   },
-   {
-    "packages": [
-     "split2"
-    ],
-    "at": "/opt/node_modules/split2"
-   }
+  }
  ],
  "tool:start-a-stripe-checkout": [
   {
@@ -52707,6 +53620,113 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  }
+ ],
+ "tool:tell-the-makers-of-a-product": [
+  {
+   "package": "send-a-report-or-a-note-to-the-people-who-make",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/tell-the-makers-of-a-product"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/tell-the-makers-of-a-product/run-sql"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
+   "packages": [
+    "@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "read-data/role-recipes.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   }
  ],
  "tool:time-a-small-local-decider": [],
@@ -55329,732 +56349,6 @@
   }
  ],
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
- "tool:keep-an-ai-activity-row": [
-  {
-   "package": "see-what-my-ais-did",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/see-what-my-ais-did"
-  },
-  {
-   "package": "shared-code",
-   "paths": [
-    "src/activity-marks.json",
-    "src/activity.mjs"
-   ],
-   "at": "/opt/shared-code"
-  },
-  {
-   "package": "keep-and-wake-ai-sessions-on-this-computer",
-   "paths": [
-    "src/execution-context.mjs",
-    "src/read-bounded-json.mjs",
-    "src/connecting-without-the-store.mjs",
-    "src/connecting-without-the-store.json",
-    "src/namespace-preview.mjs",
-    "src/record-model-tools.mjs",
-    "src/record-model.json",
-    "src/record-scope.json",
-    "src/workspace/file-previews.json"
-   ],
-   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
-  },
-  {
-   "package": "keep-lists-of-rows",
-   "paths": [
-    "do-work/fractional-order.ts"
-   ],
-   "at": "/opt/keep-lists-of-rows"
-  },
-  {
-   "package": "record-log",
-   "paths": [
-    "do-work/record-model.mjs"
-   ],
-   "at": "/opt/record-log"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
-  }
- ],
- "tool:read-ai-activity": [
-  {
-   "package": "see-what-my-ais-did",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/see-what-my-ais-did"
-  },
-  {
-   "package": "shared-code",
-   "paths": [
-    "src/activity-marks.json",
-    "src/activity.mjs"
-   ],
-   "at": "/opt/shared-code"
-  },
-  {
-   "package": "keep-and-wake-ai-sessions-on-this-computer",
-   "paths": [
-    "src/execution-context.mjs",
-    "src/read-bounded-json.mjs",
-    "src/connecting-without-the-store.mjs",
-    "src/connecting-without-the-store.json",
-    "src/namespace-preview.mjs",
-    "src/record-model-tools.mjs",
-    "src/record-model.json",
-    "src/record-scope.json",
-    "src/workspace/file-previews.json"
-   ],
-   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
-  },
-  {
-   "package": "keep-lists-of-rows",
-   "paths": [
-    "do-work/fractional-order.ts"
-   ],
-   "at": "/opt/keep-lists-of-rows"
-  },
-  {
-   "package": "record-log",
-   "paths": [
-    "do-work/record-model.mjs"
-   ],
-   "at": "/opt/record-log"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
-  }
- ],
  "tool:your-files": [],
- "tool:your-files-names": [],
- "tool:save-page": [
-  {
-   "package": "keep-links-i-saved-elsewhere-such",
-   "paths": [
-    "do-work",
-    "src"
-   ],
-   "at": "/opt/keep-links-i-saved-elsewhere-such"
-  },
-  {
-   "package": "shared-code",
-   "paths": [
-    "src/saved-links.json"
-   ],
-   "at": "/opt/shared-code"
-  },
-  {
-   "package": "connect-a-service-and-seal-its-key",
-   "paths": [
-    "records.json"
-   ],
-   "at": "/opt/connect-a-service-and-seal-its-key"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "do-work/run-a-function.mjs",
-    "read-data/host-actions.mjs",
-    "read-data/whole-file.mjs",
-    "read-data/large-file.json"
-   ],
-   "at": "/opt/workflows"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "do-work",
-    "built-stored-bytes",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  }
- ],
- "tool:read-saved-page": [
-  {
-   "package": "keep-links-i-saved-elsewhere-such",
-   "paths": [
-    "do-work",
-    "src"
-   ],
-   "at": "/opt/keep-links-i-saved-elsewhere-such"
-  },
-  {
-   "package": "shared-code",
-   "paths": [
-    "src/saved-links.json"
-   ],
-   "at": "/opt/shared-code"
-  },
-  {
-   "package": "connect-a-service-and-seal-its-key",
-   "paths": [
-    "records.json"
-   ],
-   "at": "/opt/connect-a-service-and-seal-its-key"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "do-work/run-a-function.mjs",
-    "read-data/host-actions.mjs",
-    "read-data/whole-file.mjs",
-    "read-data/large-file.json"
-   ],
-   "at": "/opt/workflows"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "do-work",
-    "built-stored-bytes",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  }
- ],
- "tool:edit-saved-page": [
-  {
-   "package": "keep-links-i-saved-elsewhere-such",
-   "paths": [
-    "do-work",
-    "src"
-   ],
-   "at": "/opt/keep-links-i-saved-elsewhere-such"
-  },
-  {
-   "package": "shared-code",
-   "paths": [
-    "src/saved-links.json"
-   ],
-   "at": "/opt/shared-code"
-  },
-  {
-   "package": "connect-a-service-and-seal-its-key",
-   "paths": [
-    "records.json"
-   ],
-   "at": "/opt/connect-a-service-and-seal-its-key"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "do-work/run-a-function.mjs",
-    "read-data/host-actions.mjs",
-    "read-data/whole-file.mjs",
-    "read-data/large-file.json"
-   ],
-   "at": "/opt/workflows"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "do-work",
-    "built-stored-bytes",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  }
- ],
- "tool:refresh-saved-pages": [
-  {
-   "package": "keep-links-i-saved-elsewhere-such",
-   "paths": [
-    "do-work",
-    "src"
-   ],
-   "at": "/opt/keep-links-i-saved-elsewhere-such"
-  },
-  {
-   "package": "shared-code",
-   "paths": [
-    "src/saved-links.json"
-   ],
-   "at": "/opt/shared-code"
-  },
-  {
-   "package": "connect-a-service-and-seal-its-key",
-   "paths": [
-    "records.json"
-   ],
-   "at": "/opt/connect-a-service-and-seal-its-key"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "do-work/run-a-function.mjs",
-    "read-data/host-actions.mjs",
-    "read-data/whole-file.mjs",
-    "read-data/large-file.json"
-   ],
-   "at": "/opt/workflows"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "do-work",
-    "built-stored-bytes",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  }
- ],
- "tool:find-link-provider": [
-  {
-   "package": "keep-links-i-saved-elsewhere-such",
-   "paths": [
-    "do-work",
-    "src"
-   ],
-   "at": "/opt/keep-links-i-saved-elsewhere-such"
-  },
-  {
-   "package": "shared-code",
-   "paths": [
-    "src/saved-links.json"
-   ],
-   "at": "/opt/shared-code"
-  },
-  {
-   "package": "connect-a-service-and-seal-its-key",
-   "paths": [
-    "records.json"
-   ],
-   "at": "/opt/connect-a-service-and-seal-its-key"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "do-work/run-a-function.mjs",
-    "read-data/host-actions.mjs",
-    "read-data/whole-file.mjs",
-    "read-data/large-file.json"
-   ],
-   "at": "/opt/workflows"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "do-work",
-    "built-stored-bytes",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  }
- ],
-  "tool:tell-the-makers-of-a-product": [
-   {
-    "package": "send-a-report-or-a-note-to-the-people-who-make",
-    "paths": [
-     "do-work"
-    ],
-    "at": "/opt/tell-the-makers-of-a-product"
-   },
-   {
-    "package": "run-sql-in-my-database",
-    "paths": [
-     "do-work"
-    ],
-    "at": "/opt/tell-the-makers-of-a-product/run-sql"
-   },
-   {
-    "packages": [
-     "pg"
-    ],
-    "at": "/opt/node_modules/pg"
-   },
-   {
-    "packages": [
-     "pg-connection-string"
-    ],
-    "at": "/opt/node_modules/pg-connection-string"
-   },
-   {
-    "packages": [
-     "pg-pool"
-    ],
-    "at": "/opt/node_modules/pg-pool"
-   },
-   {
-    "packages": [
-     "pg-protocol"
-    ],
-    "at": "/opt/node_modules/pg-protocol"
-   },
-   {
-    "packages": [
-     "pg-types"
-    ],
-    "at": "/opt/node_modules/pg-types"
-   },
-   {
-    "packages": [
-     "pg-int8"
-    ],
-    "at": "/opt/node_modules/pg-int8"
-   },
-   {
-    "packages": [
-     "postgres-array"
-    ],
-    "at": "/opt/node_modules/postgres-array"
-   },
-   {
-    "packages": [
-     "postgres-bytea"
-    ],
-    "at": "/opt/node_modules/postgres-bytea"
-   },
-   {
-    "packages": [
-     "postgres-date"
-    ],
-    "at": "/opt/node_modules/postgres-date"
-   },
-   {
-    "packages": [
-     "postgres-interval"
-    ],
-    "at": "/opt/node_modules/postgres-interval"
-   },
-   {
-    "packages": [
-     "xtend"
-    ],
-    "at": "/opt/node_modules/xtend"
-   },
-   {
-    "packages": [
-     "pgpass"
-    ],
-    "at": "/opt/node_modules/pgpass"
-   },
-   {
-    "packages": [
-     "split2"
-    ],
-    "at": "/opt/node_modules/split2"
-   },
-   {
-    "packages": [
-     "@noble/hashes"
-    ],
-    "at": "/opt/node_modules/@noble/hashes"
-   }
-  ]
+ "tool:your-files-names": []
 }

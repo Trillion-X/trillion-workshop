@@ -18,6 +18,9 @@
 //   - A kind with no `wrong` binding is refused, by name, never passed.
 //   - withCorrections gives every checked step one correction round: a refused answer becomes a task anyone takes,
 //     checked by the same rules, and later steps read the answer that held (S#answer).
+//   - withModelFirst asks the person's own computer's model first for every ask marked word_only (one handed every value
+//     its words need, naming no tool): its answer is checked by the step's own rules, and anything short of an answer
+//     that holds makes the ask the task it is today.
 import { readFileSync } from 'node:fs';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
@@ -265,6 +268,93 @@ export function withCorrections(definition) {
     done.push(subject);
   }
   return { definition: out, subjects: done };
+}
+
+// The input fields an ask is always handed (its words, answer shape, checks' says and a correction's refusal); any other
+// field is a value bound into it.
+const ASK_WORDS = new Set(['do', 'submit', 'checks', 'refused']);
+const MODEL_TOOL = 'tool:ask-a-model';
+const MODEL_JOB = 'do-a-task-step';
+const ASKED_OF = new Set(['anyone', 'ai']);
+
+/** Whether an ask can be word-only: asked of anyone (or an AI), handed at least one value beyond its words, and its
+ *  words name no tool, read no other step's or the run's values except through what it is handed. Words can still ask
+ *  for work no model does from words (read a file, clip a video, decide as the person), so this alone marks nothing. */
+export function wordOnly(step) {
+  const input = step?.config?.input;
+  if (step?.kind !== 'ask' || !ASKED_OF.has(step.config?.name) || !object(input) || typeof input.do !== 'string') return false;
+  const handed = Object.keys(input).filter(key => !ASK_WORDS.has(key));
+  if (!handed.length || /\btool:/.test(input.do) || /\bsteps\./.test(input.do)) return false;
+  return [...input.do.matchAll(/\binput\.([A-Za-z_][\w]*)/g)].every(([, key]) => handed.includes(key));
+}
+
+/**
+ * The person's own computer's model first, for every ask S of a definition whose context says word_only (the mark of
+ * whoever wrote or judged the ask: its words ask only for words made from what it is handed) and that wordOnly allows
+ * (run after withCorrections):
+ *   - S#model asks tool:ask-a-model (job do-a-task-step: the computer's own models, an answer as one JSON object) with
+ *     S's words, its answer shape and the values S is handed; S's incoming edges now reach S#model.
+ *   - S#parse reads that answer as JSON, and S#parse#checks judges it: each field the shape requires is present, and
+ *     S's own rules hold.
+ *   - When the model does not answer, its answer is not JSON or the checks refuse it, S is asked as it is today (with
+ *     its own checks and correction round); when they hold, S is never asked.
+ *   - S#answer is the answer that held: S#again's, else S's, else S#parse's; made here (and every later reader of S
+ *     made to read it) when S has no correction round.
+ * An ask that already has S#model is left as it is, so this runs again over a stored definition without change.
+ * Answers { definition, subjects }.
+ */
+export function withModelFirst(definition) {
+  const out = structuredClone(definition);
+  const ids = new Set(out.steps.map(step => step.id));
+  const subjects = out.steps.filter(step => !step.id.includes('#') && !ids.has(`${step.id}#model`) && step.config?.context?.word_only === true && wordOnly(step))
+    .map(step => step.id);
+  for (const subject of subjects) {
+    const step = out.steps.find(candidate => candidate.id === subject);
+    const { do: words, submit, checks: _says, refused: _refused, ...handed } = step.config.input;
+    const context = step.config.context;
+    const model = `${subject}#model`;
+    const parse = `${subject}#parse`;
+    const answer = `${subject}#answer`;
+    const own = id => id === subject || id.startsWith(`${subject}#`);
+    // Every value S is handed, as JSON the model reads after its words.
+    const values = Object.entries(handed).flatMap(([key, value], index) => [`${index ? ',' : '{'}${JSON.stringify(key)}:`,
+      { $kind: 'binding', select: { from: 'literal', value: 0 }, resolve_nested_bindings: true, transform: [op('coalesce', { values: [value, null] }), op('stringify', { format: 'json' })] }]);
+    const said = { $kind: 'binding', select: { from: 'literal', value: 0 }, resolve_nested_bindings: true,
+      transform: [op('concat', { values: [`${words}\n\nInput:\n`, ...values, '}'] })] };
+    const ask = { id: model, kind: 'ask', config: { name: MODEL_TOOL, input: { job: MODEL_JOB, messages: [
+      { role: 'system', content: `Do the task. Answer with one JSON object only, matching this JSON schema: ${JSON.stringify(submit ?? { type: 'object' })}` },
+      { role: 'user', content: said },
+    ] }, context: { step_id: model, title: `${context.title ?? subject}: asked of this computer's own model first`, model_first_for: subject } } };
+    const read = { id: parse, kind: 'return', config: { value: binding({ from: 'steps', key: model, path: 'output.choices.0.message.content' }, [op('json_parse')]) } };
+    const required = Array.isArray(submit?.required) ? submit.required : [];
+    const rules = [
+      ...(required.length ? [{ kind: 'fields-present', path: ['this'], fields: required, says: 'The answer has every field its shape requires' }] : []),
+      ...(context.checks ?? []).filter(rule => object(rule) && rule.kind).map(rule => repointStep(rule, subject, parse)),
+    ];
+    const judged = rules.length ? checkSteps(parse, rules) : null;
+    if (!ids.has(answer)) {
+      out.steps = out.steps.map(other => (own(other.id) ? other : repointStep(other, subject, answer)));
+      out.edges = out.edges.map(edge => (own(edge.from) && own(edge.to) ? edge : edge.config ? { ...edge, config: repointStep(edge.config, subject, answer) } : edge));
+      const onwards = out.edges.filter(edge => edge.from === subject && !own(edge.to));
+      out.edges = out.edges.filter(edge => !onwards.includes(edge));
+      out.steps.push({ id: answer, kind: 'return', config: { value: { $kind: 'binding', select: { from: 'literal', value: 0 }, resolve_nested_bindings: true,
+        transform: [op('coalesce', { values: [binding({ from: 'steps', key: subject, path: 'output' })] })] } } });
+      out.edges.push({ from: subject, to: answer, kind: 'always' }, ...onwards.map(edge => ({ ...edge, from: answer })));
+    }
+    const coalesced = out.steps.find(candidate => candidate.id === answer).config.value.transform[0].args.values;
+    coalesced.push(binding({ from: 'steps', key: parse, path: 'output' }));
+    out.edges = out.edges.map(edge => (edge.to === subject && !own(edge.from) ? { ...edge, to: model } : edge));
+    const at = out.steps.findIndex(candidate => candidate.id === subject);
+    out.steps.splice(at, 0, ask, read, ...(judged?.steps ?? []));
+    out.edges.push({ from: model, to: parse, kind: 'always' }, { from: model, to: subject, kind: 'on_failure' }, { from: parse, to: subject, kind: 'on_failure' });
+    if (judged) {
+      out.edges.push(...judged.edges, judged.onwards(answer), { from: `${parse}#refused`, to: subject, kind: 'on_failure' });
+      if (judged.uses.length) out.uses = [...(out.uses ?? []), ...judged.uses.filter(used => !(out.uses ?? []).some(known => known.id === used.id))];
+    } else {
+      out.edges.push({ from: parse, to: answer, kind: 'always' });
+    }
+  }
+  return { definition: out, subjects };
 }
 
 /** The answers a run's checks refused: subject step id → each rule that did not hold, said with the values breaking it.
