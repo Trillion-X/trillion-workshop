@@ -47,7 +47,7 @@ import { runCalendarBatchRemoval } from './calendar-batch-actions.mjs';
 import { recordConfigurationSource } from './record-configurations';
 import { makeConfigurationController } from '../../../../keep-lists-of-rows/read-data/configuration-controller.mjs';
 import taskListData from '../calendar-tasks.json';
-import listData from '../lists.json';
+import listData from '../../../../keep-and-wake-ai-sessions-on-this-computer/src/lists.json';
 import { ArrangedContents } from '../../../../screen-arrangement/show/ArrangedContents';
 import { PlanningSettings } from './planning-settings';
 import { TodoListsSettings } from './todo-lists-settings';
@@ -62,6 +62,7 @@ import { shownChord } from './keymap.mjs';
 import { calendarKeyActions, shortcutOfAction } from './calendar-key-actions';
 import { TASK_KEY, VerbList, VerbPanel, taskVerbs, verbForKey, verbsAsNodeActions, type Verb, type VerbContext } from './task-verbs';
 import { formatElapsed, useElapsedSeconds } from '../../../../organize-the-sidebar/show/use-elapsed';
+import { readCalendar, readCalendarAccounts, readCalendarTasks } from './calendar-owners';
 import { CalendarControls, calendarFormatChoice, calendarZoneGutters, type CalendarAccount, type CalendarControlPreferences, type CalendarSelection } from './calendar-controls';
 import { itemsOf } from '../calendar.mjs';
 import { EmailSurface, type MailMessageFacts } from './email-screen';
@@ -731,7 +732,7 @@ export function mountSharedCalendarScreen(element: HTMLElement, props: { surface
     if (connectionsBusy) return;
     connectionsBusy = true; connectionsError = null; redraw();
     try {
-      const answer = await readJson<{ accounts: CalendarAccount[]; selections: CalendarSelection[] | null }>(`/work/api/calendar/connections?check=${crypto.randomUUID()}`, { method: 'GET' });
+      const answer: { accounts: CalendarAccount[]; selections: CalendarSelection[] | null } = await readCalendarAccounts();
       calendarAccounts = answer.accounts ?? []; calendarSelections = answer.selections ?? null;
     } catch (error) { connectionsError = errorWords(error); }
     finally { connectionsBusy = false; redraw(); }
@@ -786,10 +787,9 @@ export function mountSharedCalendarScreen(element: HTMLElement, props: { surface
   const taskById = new Map<string, Task>();
   async function freshPlan(): Promise<SchedulePlan> {
     const start = dayKey(new Date());
-    const query = `from=${encodeURIComponent(dayStart(start).toISOString())}&to=${encodeURIComponent(dayStart(addDays(start, screenData.planning.days)).toISOString())}&check=${crypto.randomUUID()}`;
     const [calendar, tasks] = await Promise.all([
-      readJson<Calendar>(`/work/api/calendar?${query}&fresh=1`),
-      readJson<{ tasks: Task[]; page: TaskPage; collections: TaskCollection[]; collections_page: TaskPage; day_hours?: DayHours[]; preferences?: { external_display?: string; default_todo_visibility?: string; plan_automatically?: boolean }; capacity?: { default_minutes: number | null; caution_band_minutes: number; weekdays: Record<string, number> } | null }>(`/work/api/calendar/tasks?${query}`),
+      readCalendar(dayStart(start).toISOString(), dayStart(addDays(start, screenData.planning.days)).toISOString()) as Promise<Calendar>,
+      readCalendarTasks() as Promise<{ tasks: Task[]; page: TaskPage; collections: TaskCollection[]; collections_page: TaskPage; day_hours?: DayHours[]; preferences?: { external_display?: string; default_todo_visibility?: string; plan_automatically?: boolean }; capacity?: { default_minutes: number | null; caution_band_minutes: number; weekdays: Record<string, number> } | null }>,
     ]);
     const unread = calendar.sources.filter(source => source.connected !== false && (!source.read || source.complete === false));
     if (tasks.preferences?.plan_automatically === false) throw new Error(trayData.words.plan_off);
@@ -1748,9 +1748,8 @@ export function mountSharedCalendarScreen(element: HTMLElement, props: { surface
       hidden = readWorkspacePreference<string[]>('calendar-hidden-sources') ?? hidden;
       trayDisplay = displayFrom(readWorkspacePreference<unknown>(trayData.display.preference_key));
       const range = visibleRange(shownView(), anchor, preferences.weekStart);
-      const query = `from=${encodeURIComponent(range.from)}&to=${encodeURIComponent(range.to)}${requestedEvent ? '&fresh=1' : ''}`;
-      const activeTaskId = taskEditor && taskEditor !== 'new' ? taskEditor : null;
-      const [calendar, tasks] = await Promise.all([taskOnly ? Promise.resolve({ from: '', to: '', items: [], sources: [] } as Calendar) : readJson<Calendar>(`/work/api/calendar?${query}`), readJson<{ tasks: Task[]; page: TaskPage; ordering?: TaskOrdering; collections: TaskCollection[]; collections_page: TaskPage; preferences?: Record<string, unknown> }>(`/work/api/calendar/tasks?sort=manual${activeTaskId ? `&task_id=${encodeURIComponent(activeTaskId)}` : ''}`)]);
+      // The person's events and timed tasks, read from their own owners (calendar-owners.ts).
+      const [calendar, tasks] = await Promise.all([taskOnly ? Promise.resolve({ from: '', to: '', items: [], sources: [] } as Calendar) : readCalendar(range.from, range.to) as Promise<Calendar>, readCalendarTasks() as Promise<{ tasks: Task[]; page: TaskPage; ordering?: TaskOrdering; collections: TaskCollection[]; collections_page: TaskPage; preferences?: Record<string, unknown> }>]);
       return { ...calendar, tasks: tasks.tasks, tasksPage: tasks.page, taskOrdering: tasks.ordering, collections: tasks.collections, collectionsPage: tasks.collections_page, taskPreferences: tasks.preferences };
     },
     failed: refusal(words.failed),

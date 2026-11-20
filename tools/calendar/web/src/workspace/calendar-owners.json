@@ -1,0 +1,9 @@
+{
+  "_what": "Where the Calendar screen (shared-calendar-screen.tsx, read through calendar-owners.ts) reads the person's calendar now that the Worker's /work/api/calendar routes are retired. Events: every account `accounts_tool` lists for `accounts_toolkit` whose status is `working_status`, each read by `events_tool` with `provider` over the range shown, at most `most_events` per account; an account whose read fails stays listed with its words. Tasks: no owner of a person's own timed tasks is named yet (a shared tool names no person's database), so the task list answers empty. Reading only: nothing here writes.",
+  "accounts_tool": "tool:list-my-connected-accounts",
+  "accounts_toolkit": "googlecalendar",
+  "working_status": "ACTIVE",
+  "events_tool": "tool:read-calendar-events",
+  "provider": "google-calendar-via-composio",
+  "most_events": 250
+}

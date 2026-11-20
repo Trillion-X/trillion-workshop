@@ -12,8 +12,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "shared-calendar",
+        "kind": "module",
+        "module": {
+          "package": "calendar",
+          "entry": "web/src/workspace/shared-calendar-screen-mount.tsx"
+        },
         "icon": "CalendarDays",
         "surface": {
           "id": "trillion.calendar",
@@ -33,62 +36,7 @@
           "route_query": {
             "task_id": "task_id"
           },
-          "actions": [],
-          "surface_input": {
-            "arrangement": {
-              "kind": "split",
-              "dir": "row",
-              "sizes": [
-                1,
-                3
-              ],
-              "children": [
-                {
-                  "kind": "split",
-                  "dir": "column",
-                  "sizes": [
-                    3,
-                    2
-                  ],
-                  "children": [
-                    {
-                      "kind": "pane",
-                      "surfaces": [
-                        {
-                          "id": "trillion.calendar.tasks",
-                          "input": {
-                            "calendar_piece": "tasks"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "pane",
-                      "surfaces": [
-                        {
-                          "id": "trillion.mail",
-                          "input": {
-                            "presentation": "calendar"
-                          }
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "pane",
-                  "surfaces": [
-                    {
-                      "id": "trillion.calendar.grid",
-                      "input": {
-                        "calendar_piece": "grid"
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          }
+          "actions": []
         }
       }
     },
@@ -103,8 +51,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "shared-calendar",
+        "kind": "module",
+        "module": {
+          "package": "calendar",
+          "entry": "web/src/workspace/shared-calendar-screen-mount.tsx"
+        },
         "icon": "CalendarDays",
         "surface": {
           "id": "trillion.calendar.grid",
@@ -138,8 +89,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "shared-calendar",
+        "kind": "module",
+        "module": {
+          "package": "calendar",
+          "entry": "web/src/workspace/shared-calendar-screen-mount.tsx"
+        },
         "icon": "CalendarDays",
         "surface": {
           "id": "trillion.calendar.tasks",
@@ -173,8 +127,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "shared-calendar",
+        "kind": "module",
+        "module": {
+          "package": "calendar",
+          "entry": "web/src/workspace/shared-calendar-screen-mount.tsx"
+        },
         "icon": "CalendarDays",
         "surface": {
           "id": "trillion.calendar.settings",
@@ -212,8 +169,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "email",
+        "kind": "module",
+        "module": {
+          "package": "calendar",
+          "entry": "web/src/workspace/email-screen-mount.tsx"
+        },
         "icon": "Mail",
         "surface": {
           "id": "trillion.mail",

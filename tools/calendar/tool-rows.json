@@ -918,7 +918,7 @@
         "placements": [
           "placement:small-container"
         ],
-        "result_selector": "$",
+        "result_selector": "$.result",
         "provenance": {
           "source": "tools/calendar read-google-calendar-events (Google request and reading), made provider-neutral the way tools/read-and-write-mail is"
         },
