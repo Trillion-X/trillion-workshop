@@ -74,17 +74,17 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/run-on-a-persons-computer/from-an-older-version/README.md",
+      "path": "tools/run-on-a-persons-computer/README.md",
       "why": "This is this tool's existing documentation, DATA, declaration, tests or previous combined entry. Its historical validator and holder remain owned by the source-first core; the current claim covers only the folder input and export-forwarding seam."
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/run-on-a-persons-computer/from-an-older-version/computer/diagnostics.mjs.held",
+      "path": "tools/run-on-a-persons-computer/held-for-a-mac-host-change/diagnostics.mjs.held",
       "why": "The held diagnostics caller reads the one configured sealed log and passes its bytes to the old holder; it is not the general granted-folder tool entry or a module export facade."
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/run-on-a-persons-computer/from-an-older-version/moved-from.json",
+      "path": "tools/run-on-a-persons-computer/moved-from.json",
       "why": "This is this tool's existing documentation, DATA, declaration, tests or previous combined entry. Its historical validator and holder remain owned by the source-first core; the current claim covers only the folder input and export-forwarding seam."
     },
     {

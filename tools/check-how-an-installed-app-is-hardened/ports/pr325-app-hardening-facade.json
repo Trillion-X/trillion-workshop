@@ -57,7 +57,7 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/run-on-a-persons-computer/from-an-older-version/test/computer-host-tools.test.mjs.held",
+      "path": "tools/run-on-a-persons-computer/held-for-a-mac-host-change/test/computer-host-tools.test.mjs.held",
       "why": "This is a held historical test snapshot, not a public module compatibility facade."
     },
     {
