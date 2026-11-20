@@ -106,10 +106,10 @@
                 "do-work",
                 "src"
               ],
-              "at": "/opt/parts/close-a-list-row-when-i-say"
+              "at": "/opt/close-a-list-row-when-i-say"
             }
           },
-          "workdir": "/opt/parts/close-a-list-row-when-i-say",
+          "workdir": "/opt/close-a-list-row-when-i-say",
           "stdout": "json",
           "argv": [
             "node",
@@ -276,10 +276,10 @@
                 "do-work",
                 "src"
               ],
-              "at": "/opt/parts/close-a-list-row-when-i-say"
+              "at": "/opt/close-a-list-row-when-i-say"
             }
           },
-          "workdir": "/opt/parts/close-a-list-row-when-i-say",
+          "workdir": "/opt/close-a-list-row-when-i-say",
           "stdout": "json",
           "argv": [
             "node",

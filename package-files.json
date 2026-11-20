@@ -49877,5 +49877,25 @@
  ],
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:your-files": [],
- "tool:your-files-names": []
+ "tool:your-files-names": [],
+ "tool:name-the-open-rows-a-message-names": [
+  {
+   "package": "close-a-list-row-when-i-say",
+   "paths": [
+    "do-work",
+    "src"
+   ],
+   "at": "/opt/close-a-list-row-when-i-say"
+  }
+ ],
+ "tool:decide-what-a-said-done-answer-means": [
+  {
+   "package": "close-a-list-row-when-i-say",
+   "paths": [
+    "do-work",
+    "src"
+   ],
+   "at": "/opt/close-a-list-row-when-i-say"
+  }
+ ]
 }
