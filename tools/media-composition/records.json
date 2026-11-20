@@ -598,80 +598,87 @@
      }
     },
     "invoke": {
-     "kind": "container",
+     "kind": "computer",
      "files": {
       "package_files": [
-       {
-        "package": "media-composition",
-        "paths": [
-         "do-work",
-         "read-data"
-        ],
-        "at": "/opt/media-composition",
-        "exclude": [
-         "__tests__"
-        ]
-       },
-       {
-        "package": "content-identity",
-        "paths": [
-         "read-data"
-        ],
-        "at": "/opt/content-identity"
-       },
-       {
-        "packages": ["node_modules/@noble/hashes"],
-        "paths": [
-         "LICENSE",
-         "package.json",
-         "blake3.js",
-         "blake2.js",
-         "_blake.js",
-         "_md.js",
-         "_u64.js",
-         "utils.js"
-        ],
-        "at": "/opt/node_modules/@noble/hashes"
-       }
+       {"package": "workflows", "paths": ["do-work/run-a-function.mjs", "read-data/host-actions.mjs"], "at": "/opt/workflows"},
+       {"package": "media-composition", "paths": ["do-work", "read-data"], "at": "/opt/media-composition", "exclude": ["__tests__"]},
+       {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
+       {"packages": ["node_modules/@noble/hashes"], "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
      "stdout": "json",
-     "argv": [
-      "node",
-      "do-work/detect-silence.mjs",
-      {
-       "from": "video"
+     "stdin": {"fill": {"from": "input"}},
+     "programs": {
+      "ffmpeg": {
+       "fetch": {
+        "macos-aarch64": {
+         "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffmpeg.zip",
+         "version": "9.0.2",
+         "archive": "zip",
+         "blake3": "9220d549857e4d4012133fde5f4ddbeb0576e5385e59ad5d917e1f3dfeb79d23",
+         "executable": "ffmpeg",
+         "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffmpeg.zip.sha256"
+        },
+        "macos-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-aarch64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        }
+       },
+       "search": "ffmpeg",
+       "search_path": [
+        "/opt/homebrew/bin",
+        "/usr/local/bin",
+        "/opt/local/bin"
+       ]
       },
-      {
-       "from": "threshold_db",
-       "otherwise": {
-        "const": -30
-       }
-      },
-      {
-       "from": "min_silence_seconds",
-       "otherwise": {
-        "const": 0.5
-       }
-      },
-      {
-       "from": "pad_seconds",
-       "otherwise": {
-        "const": 0.05
-       }
+      "ffprobe": {
+       "fetch": {
+        "macos-aarch64": {
+         "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffprobe.zip",
+         "version": "9.0.2",
+         "archive": "zip",
+         "blake3": "6f4839c66c9bde7e8a02fe19d87059265ccd8dcb49b2ce8c6fd8e827b9e6c1e7",
+         "executable": "ffprobe",
+         "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffprobe.zip.sha256"
+        },
+        "macos-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-aarch64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        }
+       },
+       "search": "ffprobe",
+       "search_path": [
+        "/opt/homebrew/bin",
+        "/usr/local/bin",
+        "/opt/local/bin"
+       ]
       }
-     ]
+     },
+     "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/media-composition/read-data/find-silence-of-a-file.mjs", "findSilenceOfAFile"]
     },
     "needs": {
      "expected_seconds": 120,
      "network_egress": true,
      "memory_mb": 4096
     },
+    "stored": [
+     {"files": "/", "operations": ["read_file"]}
+    ],
     "licence_class": "licence:maker-own",
     "placements": [
-     "placement:deployed-container"
+     "placement:your-computer"
     ],
     "maker": "maker:media-composition",
     "provenance": {
@@ -2205,46 +2212,18 @@
      }
     },
     "invoke": {
-     "kind": "container",
+     "kind": "computer",
      "files": {
       "package_files": [
-       {
-        "package": "media-composition",
-        "paths": [
-         "do-work",
-         "read-data"
-        ],
-        "at": "/opt/media-composition",
-        "exclude": [
-         "__tests__"
-        ]
-       },
-       {
-        "package": "content-identity",
-        "paths": [
-         "read-data"
-        ],
-        "at": "/opt/content-identity"
-       },
-       {
-        "packages": ["node_modules/@noble/hashes"],
-        "paths": [
-         "LICENSE",
-         "package.json",
-         "blake3.js",
-         "blake2.js",
-         "_blake.js",
-         "_md.js",
-         "_u64.js",
-         "utils.js"
-        ],
-        "at": "/opt/node_modules/@noble/hashes"
-       }
+       {"package": "workflows", "paths": ["do-work/run-a-function.mjs", "read-data/host-actions.mjs"], "at": "/opt/workflows"},
+       {"package": "media-composition", "paths": ["do-work", "read-data"], "at": "/opt/media-composition", "exclude": ["__tests__"]},
+       {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
+       {"packages": ["node_modules/@noble/hashes"], "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
      "stdout": "json",
+     "stdin": {"fill": {"from": "input"}},
      "programs": {
       "ffmpeg": {
        "fetch": {
@@ -2301,70 +2280,19 @@
        ]
       }
      },
-     "argv": [
-      "node",
-      "do-work/cut-and-caption.mjs",
-      "--video",
-      {
-       "from": "files.0.identity"
-      },
-      "--from",
-      {
-       "from": "from"
-      },
-      "--to",
-      {
-       "from": "to"
-      },
-      "--transcript",
-      {
-       "from": "transcript",
-       "otherwise": {
-        "const": ""
-       }
-      },
-      "--transcript-from",
-      {
-       "from": "transcript_from",
-       "otherwise": {
-        "const": 0
-       }
-      },
-      "--style",
-      {
-       "from": "style",
-       "otherwise": {
-        "const": {}
-       }
-      },
-      "--output",
-      "/opt/media-composition/clip.mp4"
-     ],
-     "outputs": [
-      {
-       "name": "video",
-       "path": "/opt/media-composition/clip.mp4",
-       "keep_in": "files",
-       "media_type": "video/mp4",
-       "max_bytes": 4000000000,
-       "results": [
-        {
-         "kind": "caption-style",
-         "from": "style",
-         "otherwise": {}
-        }
-       ]
-      }
-     ]
+     "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/media-composition/read-data/cut-and-caption-of-a-file.mjs", "cutAndCaptionOfAFile"]
     },
     "needs": {
      "expected_seconds": 240,
      "network_egress": true,
      "memory_mb": 4096
     },
+    "stored": [
+     {"files": "/", "operations": ["read_file"]}
+    ],
     "licence_class": "licence:maker-own",
     "placements": [
-     "placement:deployed-container"
+     "placement:your-computer"
     ],
     "maker": "maker:media-composition",
     "provenance": {

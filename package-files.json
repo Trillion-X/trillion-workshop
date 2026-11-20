@@ -11481,6 +11481,14 @@
  ],
  "tool:cut-and-caption": [
   {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs",
+    "read-data/host-actions.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
    "package": "media-composition",
    "paths": [
     "do-work",
@@ -11527,6 +11535,16 @@
     "read-data/tab-bar-placement.ts"
    ],
    "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
   },
   {
    "package": "calibrate-a-camera-frame",
@@ -11603,6 +11621,14 @@
    "at": "/opt/record-voice-and-meetings"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "screen-arrangement",
    "paths": [
     "read-data/read-projected-rows.ts"
@@ -11622,6 +11648,14 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
   },
   {
    "packages": [
@@ -17073,6 +17107,14 @@
  ],
  "tool:find-silence": [
   {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs",
+    "read-data/host-actions.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
    "package": "media-composition",
    "paths": [
     "do-work",
@@ -17119,6 +17161,16 @@
     "read-data/tab-bar-placement.ts"
    ],
    "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
   },
   {
    "package": "calibrate-a-camera-frame",
@@ -17195,6 +17247,14 @@
    "at": "/opt/record-voice-and-meetings"
   },
   {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
    "package": "screen-arrangement",
    "paths": [
     "read-data/read-projected-rows.ts"
@@ -17214,6 +17274,14 @@
     "do-work/artifact-ref.mjs"
    ],
    "at": "/opt/where-a-person-stands"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
   },
   {
    "packages": [
