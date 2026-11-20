@@ -9,10 +9,12 @@
 //       command the source names) holds the sign-in; this program holds no key and never sees one.
 //     - { "from": "keychain", "item": NAME, "origin": URL }: the kept account key, read from the Keychain item NAME at each
 //       call and sent only in the Authorization header of an https request to origin/mcp.
+//     - { "from": "vault", "item": NAME, "origin": URL }: the same request with the key read from this computer's vault
+//       value NAME (vault-value.mjs, the command the computer's config names) at each call.
 //   Which of the two the runner acts as is the data owner's decision; this file only carries out what the data names.
 //
 // Non-negotiable invariants
-//   1. A key is read only for the keychain source, only at the call, and is placed only in the Authorization header. It is
+//   1. A key is read only for the keychain or vault source, only at the call, and is placed only in the Authorization header. It is
 //      never put in argv, the environment, a file, an error or a log.
 //   2. An operation with no pin is refused before anything is sent or started.
 //   3. The input goes on standard input for the command (never argv) and in the JSON body for the request.
@@ -21,6 +23,7 @@
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { accountKeyOrNull } from './account-key.mjs';
+import { readVaultValue } from './vault-value.mjs';
 
 export class AccountCallError extends Error {
   constructor(message, { code = null } = {}) {
@@ -130,6 +133,7 @@ export async function runOperation({ account, address, method, input = {}, reque
   const from = account?.credential?.from;
   if (from === 'kept sign-in') return runWithSignIn({ account, env, address, method, input, requestKey, spawnImpl });
   if (from === 'keychain') return runWithKey({ account, address, method, input, requestKey, fetchImpl, readKey });
+  if (from === 'vault') return runWithKey({ account, address, method, input, requestKey, fetchImpl, readKey: item => readVaultValue(account.vault, item) });
   throw new AccountCallError(`The account credential names no known source (${String(from)}).`, { code: 'credential_unknown' });
 }
 

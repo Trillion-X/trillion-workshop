@@ -11,7 +11,6 @@
 //   2. Every call is pinned (account.pins); a call with no address or method is answered as an error and never sent.
 //   3. A call that is refused or fails is answered as an MCP tool error with the engine's words, never silently dropped.
 import { randomUUID } from 'node:crypto';
-import { readFileSync } from 'node:fs';
 import { createInterface } from 'node:readline';
 import { pathToFileURL } from 'node:url';
 import { AccountCallError, runOperation } from './account-call.mjs';
@@ -67,8 +66,8 @@ export async function runBridge({ account, run = runOperation, env = process.env
 }
 
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
-  const { accountOfSettings } = await import('./take-open-work.mjs');
-  const settings = JSON.parse(readFileSync(new URL('./take-open-work.json', import.meta.url), 'utf8'));
+  const { accountOfSettings, readSettings } = await import('./take-open-work.mjs');
+  const settings = readSettings();
   runBridge({ account: accountOfSettings(settings) }).catch(error => {
     process.stderr.write(`${error.message}\n`);
     process.exitCode = 1;

@@ -52,10 +52,11 @@ import { isOwnWork, takingOrder } from '../src/own-work.mjs';
 import { accountWithWord, operationCaller } from './account-call.mjs';
 
 // The account as this computer's settings name it: the command's brand placeholder filled from the marks word the settings keep.
-export const accountOfSettings = settings => accountWithWord(settings.account, settings.trillion_marks_as);
+export const accountOfSettings = settings => ({ ...accountWithWord(settings.account, settings.trillion_marks_as), vault: settings.vault });
 import { runTaskMove, stateOfWord, tasksIn, wordsOfStates } from '../../plan-tasks-and-todo-lists/run-a-task-move.mjs';
 import { requestedOutcome } from '../../plan-tasks-and-todo-lists/task-moves.mjs';
 import { answerIssue, UnsupportedSchema } from './answer-shape.mjs';
+import { acquireAiAuth } from './ai-auth.mjs';
 
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (whole, name) => (Object.hasOwn(values, name) ? String(values[name]) : whole));
 // The receipt field keeps its name (job_contract): a receipt written before this change keeps its attempt count.
@@ -551,6 +552,16 @@ export async function finishFromAnswer(call, settings, { job, read, logPath, at 
 // `listed` (optional) is the open work already read this pass ({ work, agents }, listOpenWork), less what sorting closed.
 // `locate` (optional, default resolveProgram) finds a command's program: an AI whose program it cannot find is not claimed
 // for or run, and its card says so (see the invariant 7 above).
+// Ends one run's use of its login: a refreshed login is written back to the vault first; if that fails the task says so and
+// the login stays locked (it goes stale and is taken back later), so the new token is never lost.
+function endLogin(auth, job, log, records) {
+  try { auth.done(); }
+  catch (error) {
+    records.update(job.handoff_id, { login_write_pending: true });
+    log({ did: 'login not written back', ai: job.ai_id, handoff_id: job.handoff_id, error: String(error?.message ?? error) });
+  }
+}
+
 export async function runPass({ settings, call, computer, log = () => {}, now = () => new Date(), spawnRun = spawn, knownAgents = null, onlyHandoffId = null, alreadyPublished = false, listed = null, locate = resolveProgram, checkConnection = preflightTrillion }) {
   const folder = home(settings.state_folder);
   const records = startedRecords(folder);
@@ -738,6 +749,11 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
     if (attempts.has(job.handoff_id) && records.all().has(job.handoff_id)) {
       try { records.rearm(job.handoff_id); } catch { log({ did: 'already starting here', handoff_id: job.handoff_id }); continue; }
     }
+    // The AI's login (ai_auth) is taken before the claim, so a run that finds every login in use leaves the task untaken.
+    let auth;
+    try { auth = acquireAiAuth(settings.ai_auth?.[job.ai_id], { folder, runId: randomUUID(), vault: settings.vault, staleMs: settings.run_timeout_minutes * 2 * 60000 }); }
+    catch (error) { log({ did: 'AI login unavailable', ai: job.ai_id, handoff_id: job.handoff_id, error: String(error?.message ?? error) }); continue; }
+    if (!auth) { log({ did: 'waiting for a free login', ai: job.ai_id, handoff_id: job.handoff_id }); continue; }
     if (!records.claim({ handoff_id: job.handoff_id, mode: job.mode, source_id: job.source_id ?? null, agent_id: job.agent_id, started_at: nowIso, attempt: attempts.get(job.handoff_id) ?? 1, request_key: randomUUID(), ...(job.job_contract ? { job_contract: job.job_contract } : {}), executor_starts: job.executor_starts, ...(job.own ? { own: true } : {}) })) { log({ did: 'already started here', handoff_id: job.handoff_id }); continue; }
     if (job.mode === 'claim') {
       let taken;
@@ -745,20 +761,22 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
       catch (error) {
         records.update(job.handoff_id, { ended_at: nowIso, refused: error.message, ...(call.tasks && !error.refused ? { claim_pending: true } : {}) });
         log({ did: 'not taken', handoff_id: job.handoff_id, note: error.message });
+        endLogin(auth, job, log, records);
         continue;
       }
-      if (!taken.handoff) { records.update(job.handoff_id, { ended_at: nowIso, refused: taken.note ?? 'not taken' }); log({ did: 'not taken', handoff_id: job.handoff_id, note: taken.note }); continue; }
+      if (!taken.handoff) { records.update(job.handoff_id, { ended_at: nowIso, refused: taken.note ?? 'not taken' }); log({ did: 'not taken', handoff_id: job.handoff_id, note: taken.note }); endLogin(auth, job, log, records); continue; }
       if (call.tasks) { job.taken_at = taken.handoff.taken_at; job.prompt = fill(job.prompt, { taken_at: job.taken_at }); records.update(job.handoff_id, { taken_at: job.taken_at }); }
     }
     const logPath = join(folder, 'runs', `${call.tasks ? encodeURIComponent(job.handoff_id) : job.handoff_id}.log`);
     mkdirSync(join(folder, 'runs'), { recursive: true });
     try { job.command = withWorkMcp(job, job.command, settings, folder); }
-    catch (error) { runs.push(failedToStart(job, error)); continue; }
+    catch (error) { endLogin(auth, job, log, records); runs.push(failedToStart(job, error)); continue; }
     if (call.tasks) { mkdirSync(join(folder, 'results'), { recursive: true }); try { unlinkSync(resultFileOf(settings, job.handoff_id)); } catch { /* none from an earlier run */ } }
     const out = openSync(logPath, 'a');
     let child;
-    try { child = spawnRun(program, job.command.slice(1), { cwd: job.cwd, env: childEnv(), stdio: ['ignore', out, out] }); } catch (error) {
+    try { child = spawnRun(program, job.command.slice(1), { cwd: job.cwd, env: { ...childEnv(), ...auth.env }, stdio: ['ignore', out, out] }); } catch (error) {
       closeSync(out);
+      endLogin(auth, job, log, records);
       runs.push(failedToStart(job, error));
       continue;
     }
@@ -807,6 +825,7 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
     }).then(async code => {
       clearTimeout(deadline);
       clearInterval(watch);
+      endLogin(auth, job, log, records);
       if (startError) return failedToStart(job, startError);
       records.update(job.handoff_id, { ended_at: now().toISOString(), code, ...(stoppedBusy ? { stopped_busy: true } : {}), ...(stoppedTimeout ? { stopped_timeout: true } : {}) });
       let said = '';
@@ -903,9 +922,26 @@ export async function releaseHeld(call, settings, job, because = settings.words.
   } catch { return false; }
 }
 
+// The computer's own config: absent on a computer that runs the shared settings alone (ENOENT is not an error); unreadable is.
+const readOwnConfig = path => { try { return JSON.parse(readFileSync(path, 'utf8')); } catch (error) { if (error.code === 'ENOENT') return {}; throw error; } };
+
+// Overlays one settings object on another: objects merge key by key, every other value (an array too) is replaced.
+export function mergeSettings(base, over) {
+  const out = { ...base };
+  for (const [key, value] of Object.entries(over ?? {})) {
+    const plain = row => row && typeof row === 'object' && !Array.isArray(row);
+    out[key] = plain(value) && plain(base[key]) ? mergeSettings(base[key], value) : value;
+  }
+  return out;
+}
+
 export function readSettings() {
+  const shared = JSON.parse(readFileSync(new URL('./take-open-work.json', import.meta.url), 'utf8'));
+  // This computer's own config (take-open-work.computer.json in its state folder) overrides the shared settings where it
+  // names a value: its vault, its AI logins and its account. A computer without one runs the shared settings unchanged.
+  const own = readOwnConfig(join(home(shared.state_folder), 'take-open-work.computer.json'));
   // This computer's own settings (settings.json) add arguments to commands (computer_args) before anything runs.
-  const settings = withComputerArgs(JSON.parse(readFileSync(new URL('./take-open-work.json', import.meta.url), 'utf8')), computerSettings());
+  const settings = withComputerArgs(mergeSettings(shared, own), computerSettings());
   const kept = name => { try { return JSON.parse(readFileSync(join(home(settings.state_folder), name), 'utf8')); } catch { return {}; } };
   // resting.json holds { id: { until, because } }, or the older { id: until }.
   const rows = Object.entries(kept('resting.json'));
