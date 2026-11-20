@@ -1,0 +1,48 @@
+{
+  "drafted_from": "the tool row in tool-rows.json and do-work/controls-check.mjs; read them before relying on it",
+  "start_here": "Say to your AI: \"Check that everything waiting on me has a working control\", giving the waiting cards. It tells you which have nothing to press, no place to do them and no steps.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes the cards it is given and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:check-that-everything-waiting-on-a-person-reaches-them"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Check that everything waiting on me has a working control\", and give it the cards (each with its id, title and the place or steps it names).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run and tool tool:check-that-everything-waiting-on-a-person-reaches-them with the cards as its input.",
+    "3. Read the count and the broken list: each broken card says why it has no control.",
+    "4. Fix each broken card by giving it a place to do it, a press or its steps, then check again."
+  ],
+  "worked_examples": [
+    {
+      "title": "A card with nothing to press is listed as broken",
+      "ask": "Check that everything waiting on me has a working control.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-that-everything-waiting-on-a-person-reaches-them",
+            "input": {
+              "sections": [
+                {
+                  "id": "work",
+                  "cards": [
+                    {
+                      "id": "a",
+                      "title": "Allow the camera",
+                      "finish": "nothing"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "One card, Allow the camera, with no press, no place and no steps.",
+      "hands_back": "Without a control: 1. It lists \"Allow the camera\" with the reason: nothing to press, no place in the app, no steps."
+    }
+  ]
+}

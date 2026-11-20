@@ -8111,6 +8111,7 @@
   }
  ],
  "tool:check-takes-are-complete-with-a-small-local-model": [],
+ "tool:check-that-everything-waiting-on-a-person-reaches-them": [{"package": "check-that-everything-waiting-on-a-person-reaches-them", "paths": ["do-work"], "at": "/opt/check-that-everything-waiting-on-a-person-reaches-them"}, {"package": "shared-code", "paths": ["src/workspace/screens.mjs", "src/who-does-it.json"], "at": "/opt/shared-code"}, {"package": "keep-and-wake-ai-sessions-on-this-computer", "paths": ["src/workspace/surfaces.json"], "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"}, {"package": "hand-off-jobs-between-agents", "paths": ["src/workspace/addresses.mjs", "src/workspace/view-transition.mjs"], "at": "/opt/hand-off-jobs-between-agents"}, {"package": "hold-one-thing-until-done", "paths": ["read-data/needs-you-hold.mjs"], "at": "/opt/hold-one-thing-until-done"}],
  "tool:check-the-x-connection": [],
  "tool:check-what-a-buyer-paid": [
   {
