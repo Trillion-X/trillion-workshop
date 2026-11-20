@@ -44,18 +44,6 @@
           "address": "/settings/privacy"
         },
         {
-          "id": "billing",
-          "label": "Billing",
-          "icon": "CreditCard",
-          "address": "/billing"
-        },
-        {
-          "id": "plan",
-          "label": "Plans",
-          "icon": "Layers",
-          "address": "/plan"
-        },
-        {
           "id": "invite",
           "label": "Invite friends",
           "icon": "UserPlus",
