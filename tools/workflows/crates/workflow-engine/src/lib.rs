@@ -21,6 +21,7 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 pub mod answer_shape;
+mod approval;
 
 use std::sync::Arc;
 
@@ -79,7 +80,13 @@ struct Access<H: Host>(Arc<H>);
 #[async_trait::async_trait]
 impl<H: Host + 'static> OutsideAccess for Access<H> {
     async fn ask(&self, name: &str, _: &slot_protocol::PartitionKey, payload: bytes::Bytes, context: Option<bytes::Bytes>) -> Result<Arc<[u8]>, String> {
-        let answer = self.0.ask(name, payload.to_vec(), context.as_ref().map(|bytes| bytes.to_vec())).await?;
+        let step_context: Value = context.as_ref().and_then(|bytes| serde_json::from_slice(bytes).ok()).unwrap_or(Value::Null);
+        // An ask of the person that names an approval is settled by the approval check before the person is asked, so no
+        // workflow reaches the person past it. The settled answer is checked against `submit` like any other.
+        let answer = match approval::settle(self.0.as_ref(), name, &step_context).await? {
+            Some(settled) => serde_json::to_vec(&settled).map_err(|error| error.to_string())?,
+            None => self.0.ask(name, payload.to_vec(), context.as_ref().map(|bytes| bytes.to_vec())).await?,
+        };
         // An ask that names the shape of its answer (`submit`) gets only an answer of that shape, from any host.
         let asked: Value = serde_json::from_slice(&payload).unwrap_or(Value::Null);
         if let Some(shape) = asked.get("submit").filter(|shape| shape.is_object()) {

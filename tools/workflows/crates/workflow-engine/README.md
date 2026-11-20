@@ -8,6 +8,7 @@ Runs the workflow engine (`workflow-core`) inside a wasm host or natively, with 
 |------|---------|
 | `Cargo.toml` | The crate: `rlib` for native tests, `cdylib` for the wasm-bindgen `web` module the Worker loads |
 | `src/answer_shape.rs` | `misses(shape, answer)`: every way an answer misses the JSON Schema its step names as `submit`, each as "where: what is wrong"; a keyword it does not know is refused, never skipped |
+| `src/approval.rs` | `settle(host, name, context)`: an ask of the person (`anyone`, `whoever-holds-the-run`) whose context names an `approval` (`scope`, `approver`, `credential_name`) is settled first by one statement through `tool:run-sql-in-my-database`: an `auto` setting (the scope's row, else the `*` row) answers the step and writes one `approval_decision` row; any other mode asks the person |
 | `src/lib.rs` | `Host` (what the engine asks of its host), `run_definition` (native entry), the Worker entry `run`, and tests of asking in order, pausing on an unanswered ask, checks, going on once answered, and an ask its host could not reach saying so as data |
 
 ## Key Types / Functions
