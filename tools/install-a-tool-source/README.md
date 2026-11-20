@@ -11,6 +11,7 @@ The run may install only because its row declares the right `{at: "@tools", id: 
 | File | Purpose |
 |------|---------|
 | `do-work/install-a-tool-source.mjs` | `installToolSource(input, { door })`: checks the input is one source to install or take away, then sends `tools:update` to `door.toolsAddress` under a request key made from the label and the pin, and answers the engine's answer with the label. `problemOf(input)` says why an input is refused. |
+| `do-work/install-a-tool-source.json` | How the keeper waits while the engine is already installing for this account (one install per account at a time): the refusal's code, the first wait, its growth and the most asks. |
 | `tool-rows.json` | `tool:install-a-tool-source`, a container row run by `records-door/do-work/run-an-export.mjs`, with the one install right. |
 | `test/install-a-tool-source.test.mjs` | An install and a removal reach the Workshop's address with their keys; a bad input is refused before the door; the records door sends an operation to the address it names. |
 | `kits/install-a-tool-source.json` | How a person asks for it. |

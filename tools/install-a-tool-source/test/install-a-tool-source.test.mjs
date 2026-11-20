@@ -53,6 +53,26 @@ test('a call that is not one source is refused before the door is called', async
   assert.equal(sent.length, 0, 'nothing was sent');
 });
 
+test('while the engine is installing already, the same call is asked again after a wait, a bounded number of times', async () => {
+  const sent = [], waits = [];
+  let busy = 2;
+  const door = recordsDoorFromCall(async (method, input, key) => {
+    sent.push(key);
+    if (busy-- > 0) throw Object.assign(new Error('busy'), { code: 'tools_run_in_progress' });
+    return { changed: false, files_blake3: PIN };
+  }, { resource: '@own-records' });
+  const tries = { busy_code: 'tools_run_in_progress', first_wait_ms: 5, factor: 2, most_tries: 4 };
+  const input = { source: 'workshop', address: 'https://archive.example.test/w.tar.gz', files_blake3: PIN };
+  const answer = await installToolSource(input, { door, wait: async ms => waits.push(ms), tries });
+  assert.equal(answer.changed, false);
+  assert.deepEqual(waits, [5, 10], 'each wait grows');
+  assert.equal(new Set(sent).size, 1, 'every ask is the same call under the same key');
+  busy = 10;
+  await assert.rejects(installToolSource(input, { door, wait: async () => {}, tries }), /busy/, 'after most_tries the refusal is the answer');
+  const other = recordsDoorFromCall(async () => { throw Object.assign(new Error('refused'), { code: 'tools_update_refused' }); }, { resource: '@own-records' });
+  await assert.rejects(installToolSource(input, { door: other, wait: async () => assert.fail('no wait for another refusal'), tries }), /refused/);
+});
+
 test('a records door operation goes to the address it names, else to its own', async () => {
   const { door, sent } = fakeDoor({});
   await door.operation('wake:arrive', { kind: 'k' });

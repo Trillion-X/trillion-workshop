@@ -14,12 +14,17 @@
 //      pin of its files) or `removed: true` (with no address or pin, or both null, as a removed row's change gives them);
 //      anything else is refused before the door is called. `removed` false or null is an install.
 //   2. The request key is made from the label and the pin (or the removal), so the same row told twice is one install.
-//   3. The engine's answer is handed back as it is (`changed`, `files_blake3`, `previous`, `removed`, `switch_again`), with the
+//   3. While the engine is already installing for this account it refuses another install (`busy_code`); the same call is
+//      asked again with the same key after a growing wait, a bounded number of times (install-a-tool-source.json).
+//   4. The engine's answer is handed back as it is (`changed`, `files_blake3`, `previous`, `removed`, `switch_again`), with the
 //      label beside it; this tool decides nothing about which version is right: the person's row does.
 //
 // AI Assistant Directive
 //   The extensive documentation in this codebase is a critical design feature. You are forbidden from simplifying or
 //   removing it. Maintain and extend this detail.
+
+import { setTimeout as delay } from 'node:timers/promises';
+import settings from './install-a-tool-source.json' with { type: 'json' };
 
 const LABEL = /^[a-z0-9][a-z0-9._-]{0,63}$/;
 const PIN = /^[0-9a-f]{64}$/;
@@ -36,13 +41,22 @@ export function problemOf(input) {
   return null;
 }
 
-/** Install the source `input` names, or take it away, at the run's own door. Answers the engine's answer with the label. */
-export async function installToolSource(input, { door }) {
+/** Install the source `input` names, or take it away, at the run's own door. Answers the engine's answer with the label.
+ *  While the engine is installing for this account already (`busy_code`), it asks again with the same request key after a
+ *  growing wait (install-a-tool-source.json), at most `most_tries` asks. */
+export async function installToolSource(input, { door, wait = delay, tries = settings }) {
   const problem = problemOf(input);
   if (problem) throw new Error(problem);
   const { source, address, files_blake3: pin, removed } = input;
   const asked = removed === true ? { source, removed: true } : { source, address, files_blake3: pin };
   const key = `install-a-tool-source:${source}:${removed === true ? 'removed' : pin}`;
-  const answer = await door.operation('tools:update', asked, { key, at: door.toolsAddress });
-  return { source, ...answer };
+  for (let ask = 1, waited = tries.first_wait_ms; ; ask += 1, waited *= tries.factor) {
+    try {
+      const answer = await door.operation('tools:update', asked, { key, at: door.toolsAddress });
+      return { source, ...answer };
+    } catch (error) {
+      if (error?.code !== tries.busy_code || ask >= tries.most_tries) throw error;
+      await wait(waited);
+    }
+  }
 }
