@@ -892,6 +892,12 @@ export function engineClient({ door, credential, fetchImpl = fetch, rules = sett
       const passing = failure || response.status === 429 || response.status >= 500;
       // Every try carries the same request_key, so a try after a lost or slow answer is answered as the first was.
       if (passing && !once && attempt < rules.retry.count) { await wait(gap(attempt) * 1000); continue; }
+      // A call sent `once` is still sent again, one time after the first retry gap, when its connection ended before any
+      // answer (not a timeout): a front door that reloads closes its idle kept-alive connections, and a call already on one is
+      // lost unread (RFC 9110 9.2.2 lets a client resend an idempotent request then). The gap lets the other kept connections
+      // the reload closed be seen closed, so the resend is not lost on one of them too. The gateway's reload at 9:05:50 AM CST
+      // Nov 20 2026 ended 3 such requests; `whoami` was one call that never tried again.
+      if (failure && failure.name !== 'TimeoutError' && once && idempotent && attempt === 0) { await wait(gap(attempt) * 1000); continue; }
       const maybe = idempotent ? '' : ' It may have happened; read it back before trying again.';
       if (failure?.name === 'TimeoutError') throw new CommandError(fill(rules.words.no_answer, { which: door.name, tries: attempt + 1 }) + maybe, { status: 4, detail: fill(rules.words.details.no_answer, { mcp: door.mcp, seconds: timeoutSeconds, tries: attempt + 1 }) });
       if (failure) {
