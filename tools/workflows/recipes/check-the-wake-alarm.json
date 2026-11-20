@@ -1,5 +1,5 @@
 {
-  "_what": "A check that the wake alarm's second road works on a real failure, switched on only while it is checked. Its wake a-wake-that-fails runs every minute and fails for a real cause (the person's database answers that the table it reads does not exist), so the engine keeps one real wake-failed fact. Its wake an-alarm-that-fails is a copy of workflow:tell-when-a-wake-stops's a-wake-stopped that hears only that fact (match), fails the same real way, is tried again by its retry, and then starts its on_failure: one needs-you notice kept in the person's store. The real alarm also hears the fact and tells it as it tells any wake that stops. Switch both wakes off when the check is read back.",
+  "_what": "A check that the wake alarm's second road works on a real failure, switched on only while it is checked. Its wake a-wake-that-fails runs when the person (a sender) tells the fact check-the-wake-alarm at the door (wake:arrive), and fails for a real cause (the person's database answers that the table it reads does not exist), so the engine keeps one real wake-failed fact. Its wake an-alarm-that-fails is a copy of workflow:tell-when-a-wake-stops's a-wake-stopped that hears only that fact (match), fails the same real way, is tried again by its retry, and then starts its on_failure: one needs-you notice kept in the person's store. The real alarm also hears the fact and tells it as it tells any wake that stops. Switch both wakes off when the check is read back.",
   "records": [
     {
       "payload": {
@@ -44,47 +44,10 @@
             "id": "a-wake-that-fails",
             "on": {
               "fact": {
-                "kind": "due-time",
+                "kind": "check-the-wake-alarm",
                 "from": [
-                  "run"
-                ],
-                "match": {
-                  "schedule_id": "schedule:workflow:check-the-wake-alarm:every-minute"
-                },
-                "watch": {
-                  "schedules": [
-                    {
-                      "schedule_id": "schedule:workflow:check-the-wake-alarm:every-minute",
-                      "source_generation": 1,
-                      "schedule_revision": 1,
-                      "timezone": "UTC",
-                      "start_local_date": "1970-01-01",
-                      "local_window": {
-                        "start": "00:00",
-                        "duration_minutes": 1
-                      },
-                      "dst": {
-                        "gap": "next-valid",
-                        "fold": "earlier"
-                      },
-                      "action": {
-                        "operation": "tell-the-engine",
-                        "owner_ref": "workflow:check-the-wake-alarm",
-                        "owner_dispatch": {
-                          "name": "workflow:check-the-wake-alarm",
-                          "input": {}
-                        },
-                        "completion": {
-                          "mode": "synchronous-owner-return"
-                        }
-                      },
-                      "cadence": {
-                        "unit": "minute",
-                        "interval": 1
-                      }
-                    }
-                  ]
-                }
+                  "sender"
+                ]
               }
             },
             "budget": {
