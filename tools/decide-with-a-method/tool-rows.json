@@ -9779,6 +9779,825 @@
           }
         ]
       }
+    },
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-dashboard",
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/lessons-and-learning-paths",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/model-response",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-sql-in-my-database",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:correct-source-identity",
+        "label": "Correct a message decision that names another app's chat",
+        "job": "Point a saved message decision back at its original chat, and keep what it replaced",
+        "description": "Rewrites a message decision's reason, next action, success measure and move to continue its handoff in the original chat it came from. The caller reads the kept person message, its source chat and the handoff by SQL and hands them in as facts, with the agent name the handoff must carry: the message must be the person's and in that chat, the handoff must have arrived from that message, and the decision must be an act that names another app. The replaced decision moves to decision_history and the generation rises by one; an exact repeat answers already_corrected and writes nothing. Any mismatch is refused and nothing is written. Its records are handed in as records and what changed comes back as keep.",
+        "status": "active",
+        "result_selector": "$.result",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "decision_id",
+            "message_id",
+            "source_id",
+            "handoff_id",
+            "handoff_agent",
+            "facts",
+            "apps"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "decision_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "message_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "source_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "handoff_id": {
+              "type": "string",
+              "pattern": "^h_[A-Za-z0-9]+$"
+            },
+            "handoff_agent": {
+              "type": "string",
+              "minLength": 1,
+              "description": "the agent name the handoff must carry"
+            },
+            "apps": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "facts": {
+              "type": "object",
+              "required": [
+                "message",
+                "source",
+                "handoff"
+              ],
+              "properties": {
+                "message": {
+                  "type": "object",
+                  "description": "the kept message row: id, speaker, conversation_id, app"
+                },
+                "source": {
+                  "type": "object",
+                  "description": "the source chat row: id, app"
+                },
+                "handoff": {
+                  "type": "object",
+                  "description": "the handoff row: handoff_id, from_agent, input"
+                }
+              }
+            },
+            "records": {
+              "type": "array",
+              "description": "The records the caller read from its own store for this call, each { id, type, value }: every record the tool reads (the decision's own records, its method and the rows it names, the pursuits and messages it cites). Nothing else is read, and the run writes no store: what it writes comes back as keep.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "case_id",
+            "decision",
+            "decision_generation",
+            "already_corrected",
+            "keep"
+          ],
+          "properties": {
+            "case_id": {
+              "type": "string"
+            },
+            "decision": {
+              "type": "object"
+            },
+            "decision_generation": {
+              "type": "integer"
+            },
+            "already_corrected": {
+              "type": "boolean"
+            },
+            "keep": {
+              "type": "array",
+              "description": "The records that changed, for the caller to write to its own store in one transaction in this order: rows { id, type, value, expected }. value null removes a record. expected is the record as it was handed in (null when it was not there), so the store refuses the whole list when one of them moved. The run writes no store.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value",
+                  "expected"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {},
+                  "expected": {}
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/decide-with-a-method",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/decide-with-a-method/read-data/correct-source-identity.mjs",
+            "correctSourceIdentity"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "decide-with-a-method",
+                "paths": [
+                  "read-data",
+                  "method-rows"
+                ],
+                "at": "/opt/decide-with-a-method"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes/formula-engine"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
+                "package": "check-against-a-persons-rules-and-verdicts",
+                "paths": [
+                  "do-work/branch.mjs"
+                ],
+                "at": "/opt/check-against-a-persons-rules-and-verdicts"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "learn-from-everyones-results",
+                "paths": [
+                  "read-data/plain-privacy-pass.mjs"
+                ],
+                "at": "/opt/learn-from-everyones-results"
+              },
+              {
+                "package": "ask-a-small-model-for-a-verdict",
+                "paths": [
+                  "do-work/ask-a-hosted-classifier.mjs",
+                  "do-work/ask-a-locally-served-model.mjs",
+                  "do-work/ask-for-a-verdict.mjs",
+                  "do-work/fresh-local-classifier-fetch.mjs",
+                  "do-work/judge-content.mjs",
+                  "do-work/who-can-be-asked.mjs"
+                ],
+                "at": "/opt/ask-a-small-model-for-a-verdict"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 120,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:decide-with-a-method",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "decisions": [
+                {
+                  "decision_id": "source:c2FtcGxlOmNsYXNzLXByaWNlLTE",
+                  "because": "A made-up sample decision no longer needed"
+                }
+              ],
+              "by": "sample-person",
+              "records": [
+                {
+                  "id": "source:c2FtcGxlOmNsYXNzLXByaWNlLTE",
+                  "type": "decision",
+                  "value": {
+                    "source_id": "sample:class-price-1",
+                    "scratchpad": [],
+                    "status": "needs_outcome",
+                    "decision": {
+                      "option_id": "raise",
+                      "reason": "Costs went up and families still came",
+                      "next_action": "Email the families the new price",
+                      "success_measure": "Twelve sign ups by May",
+                      "evidence_refs": [
+                        "e1",
+                        "e2"
+                      ],
+                      "who_it_changes": "The twelve families pay a little more and keep their class"
+                    },
+                    "actions": [],
+                    "checks": [],
+                    "pursuits_known": false,
+                    "created_at": "2026-11-04T01:56:42.606Z",
+                    "method_id": "plain",
+                    "method_identity": "1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0",
+                    "call_count": 0,
+                    "decision_generation": 1,
+                    "decided_at": "2026-11-04T01:56:43.754Z",
+                    "id": "source:c2FtcGxlOmNsYXNzLXByaWNlLTE",
+                    "input": {
+                      "source_id": "sample:class-price-1",
+                      "goal": "Decide the made-up sample class price for spring",
+                      "options": [
+                        {
+                          "id": "keep",
+                          "label": "Keep the price"
+                        },
+                        {
+                          "id": "raise",
+                          "label": "Raise the price"
+                        }
+                      ]
+                    },
+                    "input_identity": "1f:9d26086010288bd06202895ce302c3d1327f99d8c0b38de5712eab18a055a548",
+                    "counts": {
+                      "evidence": 3,
+                      "candidates": 0,
+                      "reports": 0,
+                      "carried_out": 0,
+                      "decision_history": 0,
+                      "cited_pursuits": 0,
+                      "answered_steps": 3
+                    }
+                  }
+                },
+                {
+                  "id": "decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0000",
+                  "type": "decision-evidence",
+                  "value": {
+                    "ref": "e1",
+                    "claim": "Last spring twelve made-up families signed up at the old price"
+                  }
+                },
+                {
+                  "id": "decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0001",
+                  "type": "decision-evidence",
+                  "value": {
+                    "ref": "e2",
+                    "claim": "The made-up material costs went up this year"
+                  }
+                },
+                {
+                  "id": "decision-method:1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0",
+                  "type": "decision-method",
+                  "value": {
+                    "method": {
+                      "id": "plain",
+                      "name": "Plain method",
+                      "about": "A made-up method for the tests",
+                      "checks": [
+                        {
+                          "id": "worth_weighing",
+                          "question": "Is this worth weighing beyond a quick choice?",
+                          "on_when_any_other_is_on": true,
+                          "skip_requires": [
+                            {
+                              "name": "why_quick",
+                              "label": "Why it is quick",
+                              "kind": "text",
+                              "min_words": 2
+                            }
+                          ]
+                        },
+                        {
+                          "id": "compare_existing",
+                          "question": "Could something that already exists do this?",
+                          "skip_requires": [
+                            {
+                              "name": "searched",
+                              "label": "Where you looked",
+                              "kind": "list",
+                              "min": 1,
+                              "min_words": 2,
+                              "ask": "Where did you look for something that already does this?"
+                            }
+                          ]
+                        }
+                      ],
+                      "preset": {},
+                      "steps": [
+                        {
+                          "id": "scope",
+                          "kind": "scope",
+                          "question": "What kind of decision is this?"
+                        },
+                        {
+                          "id": "outcome",
+                          "question": "Name the change: what is in which state now, and which state should it be in?",
+                          "fields": [
+                            {
+                              "name": "desired_result",
+                              "label": "Where you want it"
+                            },
+                            {
+                              "name": "current_state",
+                              "label": "Where it is now"
+                            }
+                          ],
+                          "checks_skippable": false
+                        },
+                        {
+                          "id": "proof",
+                          "question": "How will you know it worked?",
+                          "fields": [
+                            {
+                              "name": "check_by",
+                              "label": "Check by",
+                              "kind": "date"
+                            },
+                            {
+                              "name": "measure",
+                              "label": "What you will measure"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "existing",
+                          "question": "What already exists?",
+                          "when": "compare_existing",
+                          "fields": [
+                            {
+                              "name": "found",
+                              "label": "What you found",
+                              "kind": "list"
+                            }
+                          ]
+                        }
+                      ],
+                      "backbone": [
+                        {
+                          "id": "name",
+                          "name": "Name the change",
+                          "steps": [
+                            "outcome"
+                          ]
+                        },
+                        {
+                          "id": "test",
+                          "name": "Test it",
+                          "steps": [
+                            "proof",
+                            "existing"
+                          ]
+                        }
+                      ],
+                      "answer_rules": {
+                        "field_min_words": 2,
+                        "list_item_min_words": 2,
+                        "evidence_min": 1,
+                        "check": {
+                          "handled": [
+                            {
+                              "name": "how",
+                              "label": "How it was handled",
+                              "kind": "text",
+                              "min_words": 1
+                            }
+                          ],
+                          "skip": [
+                            {
+                              "name": "because",
+                              "label": "Why it does not apply",
+                              "kind": "text",
+                              "min_words": 1
+                            }
+                          ],
+                          "distinct": true
+                        }
+                      },
+                      "decision_fields": [
+                        {
+                          "name": "who_it_changes",
+                          "label": "Who it changes beyond you",
+                          "when": "worth_weighing",
+                          "ask": "Who beyond the person does this change?",
+                          "check": "Who beyond the person does this move change, and what is different for them?",
+                          "good_answer": "Names people beyond the person and one concrete difference for them.",
+                          "says": "Who it changes beyond you: {value}."
+                        }
+                      ],
+                      "workflows": []
+                    }
+                  }
+                },
+                {
+                  "id": "decision-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:000",
+                  "type": "decision-step",
+                  "value": {
+                    "step_id": "scope",
+                    "answer": {
+                      "decision_context": {
+                        "worth_weighing": true,
+                        "compare_existing": false
+                      },
+                      "omission_reasons": {
+                        "compare_existing": {
+                          "searched": [
+                            "the sample price list"
+                          ],
+                          "evidence_refs": [
+                            "e1"
+                          ]
+                        }
+                      },
+                      "evidence_refs": [
+                        "e1"
+                      ]
+                    },
+                    "verdicts": {
+                      "given": []
+                    },
+                    "judged_checks": 0,
+                    "answered_at": "2026-11-04T01:56:42.931Z",
+                    "version": 1,
+                    "by": "calling-ai"
+                  }
+                },
+                {
+                  "id": "decision-answered-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:000",
+                  "type": "decision-answered-step",
+                  "value": {
+                    "step_id": "scope",
+                    "answered_at": "2026-11-04T01:56:42.931Z",
+                    "checks": 0,
+                    "graded": 0,
+                    "graded_by": "",
+                    "version": 1,
+                    "needs_recheck": false
+                  }
+                },
+                {
+                  "id": "decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0002",
+                  "type": "decision-evidence",
+                  "value": {
+                    "ref": "e3",
+                    "claim": "A made-up nearby class costs a little more",
+                    "added_at": "2026-11-04T01:56:43.123Z"
+                  }
+                },
+                {
+                  "id": "decision-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:001",
+                  "type": "decision-step",
+                  "value": {
+                    "step_id": "outcome",
+                    "answer": {
+                      "desired_result": "Twelve families sign up at a price covering the costs",
+                      "current_state": "The old price no longer covers the material costs",
+                      "checklist": {
+                        "outcome-before-after": {
+                          "handled": true,
+                          "how": "Before: price below costs; after: twelve families at a covering price",
+                          "evidence_refs": [
+                            "e2"
+                          ]
+                        }
+                      },
+                      "evidence_refs": [
+                        "e1",
+                        "e2"
+                      ]
+                    },
+                    "checklist": {
+                      "checks": [
+                        {
+                          "id": "outcome-before-after",
+                          "check": "Have you named what is in which state now and which state it should end up in?",
+                          "identity": "1f:6342b5e7e99919219f51bc336865775a6ac4a45f8ebe6d69b4cdb5514a1b0aef"
+                        }
+                      ]
+                    },
+                    "verdicts": {
+                      "given": [
+                        {
+                          "id": "outcome-before-after",
+                          "meets": true,
+                          "why": "",
+                          "missing": "",
+                          "by": "calling-ai",
+                          "graded_by": "sample-judge"
+                        }
+                      ]
+                    },
+                    "judged_checks": 1,
+                    "answered_at": "2026-11-04T01:56:43.302Z",
+                    "version": 1,
+                    "by": "calling-ai"
+                  }
+                },
+                {
+                  "id": "decision-answered-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:001",
+                  "type": "decision-answered-step",
+                  "value": {
+                    "step_id": "outcome",
+                    "answered_at": "2026-11-04T01:56:43.302Z",
+                    "checks": 1,
+                    "graded": 1,
+                    "graded_by": "sample-judge",
+                    "version": 1,
+                    "needs_recheck": false
+                  }
+                },
+                {
+                  "id": "decision-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:002",
+                  "type": "decision-step",
+                  "value": {
+                    "step_id": "proof",
+                    "answer": {
+                      "check_by": "2099-05-01",
+                      "measure": "Count the spring sign ups",
+                      "evidence_refs": [
+                        "e1"
+                      ]
+                    },
+                    "verdicts": {
+                      "given": []
+                    },
+                    "judged_checks": 0,
+                    "answered_at": "2026-11-04T01:56:43.453Z",
+                    "version": 1,
+                    "by": "calling-ai"
+                  }
+                },
+                {
+                  "id": "decision-answered-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:002",
+                  "type": "decision-answered-step",
+                  "value": {
+                    "step_id": "proof",
+                    "answered_at": "2026-11-04T01:56:43.453Z",
+                    "checks": 0,
+                    "graded": 0,
+                    "graded_by": "",
+                    "version": 1,
+                    "needs_recheck": false
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
     }
   ]
 }

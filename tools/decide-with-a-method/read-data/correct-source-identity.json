@@ -1,0 +1,16 @@
+{
+  "about": "DATA for read-data/correct-source-identity.mjs (tool:correct-source-identity). The words a correction writes into the decision and the words it refuses with.",
+  "reason": "The person asked for cross-chat verification and repair. The original message came from {source_id}. The source identity is verified by the kept message and handoff; delivery and a substantive result require separate live checks.",
+  "next_action": "Continue handoff {handoff_id} in its original {app} chat {source_id}. Repair the proven continuity breaks and verify its final work result against the same handoff and transcript.",
+  "success_measure": "Handoff {handoff_id} has a completed substantive outcome and source_return.verified:true from a later final answer in {source_id}; the requested cross-chat behavior is checked live and any remaining failure is recorded truthfully.",
+  "move": "Keep handoff {handoff_id} open until the original {app} chat returns a verified substantive result.",
+  "correction_reason": "Verified source identity correction",
+  "act_option": "act",
+  "handoff_id_pattern": "^h_[A-Za-z0-9]+$",
+  "refuse": {
+    "unverified": "A verified source message, source chat, and handoff are required.",
+    "mismatch": "The kept person message and original handoff do not match this decision.",
+    "not_active": "This is not an active action decision for the verified source message.",
+    "unproven": "This decision does not contain the proven wrong source identity."
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "drafted_from": "tool:correct-source-identity's own row (its words, input schema and the sample run below, read from the made-up decision in test/correct-source-identity-route.test.mjs); the old route is tool:end-a-decision's neighbour in the old engine (b6ae0ebf815f src/engine.mjs correctSourceIdentity).",
+  "start_here": "Say to your AI: \"Point this decision back at the chat its message came from\", with the decision, the kept message, its source chat and the handoff it arrived with (read by SQL from your own database). It runs tool:correct-source-identity and answers {\"case_id\":\"source:bWVzc2FnZTpzYW1wbGUtcGVyc29uLTE\",\"decision_generation\":2,\"already_corrected\":false,\"keep\":[...]}, with the decision's next action now naming the original chat.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes the decision, the message, the source chat and the handoff as input and keeps only the decision's own rows (decision, decision-history and the decision records it changes).",
+  "workflows": [],
+  "tools": [
+    "tool:correct-source-identity"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Point this decision back at the chat its message came from\", and give it decision_id, message_id, source_id, handoff_id, apps and the facts it read.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:correct-source-identity and its input (the worked example shows one).",
+    "3. Read what comes back: the decision with its next action, success measure and move naming the original chat, its generation, and whether it was already corrected.",
+    "4. A mismatch in the message, the source chat or the handoff is refused and nothing is written; a decision that is not an act, or names no other app, is refused too."
+  ],
+  "worked_examples": [
+    {
+      "title": "Point a made-up message decision back at its original chat",
+      "ask": "Point this decision back at the chat its message came from",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:correct-source-identity",
+            "input": {
+              "decision_id": "source:bWVzc2FnZTpzYW1wbGUtcGVyc29uLTE",
+              "message_id": "message:sample-person-1",
+              "source_id": "chat:sample-app-a-1",
+              "handoff_id": "h_sample1",
+              "handoff_agent": "synthetic-agent",
+              "apps": [
+                "app-a",
+                "app-b"
+              ],
+              "facts": {
+                "message": {
+                  "id": "message:sample-person-1",
+                  "speaker": "person",
+                  "conversation_id": "chat:sample-app-a-1",
+                  "app": "app-a"
+                },
+                "source": {
+                  "id": "chat:sample-app-a-1",
+                  "app": "app-a"
+                },
+                "handoff": {
+                  "handoff_id": "h_sample1",
+                  "from_agent": "synthetic-agent",
+                  "input": {
+                    "arrived": {
+                      "message_id": "message:sample-person-1",
+                      "source_id": "chat:sample-app-a-1",
+                      "from_person": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "given": "A made-up decision (option act, reason naming app-b) on the made-up message, with its method answered; the kept records are handed in as records.",
+      "hands_back": "It answered decision_generation 2, already_corrected false, with next_action \"Continue handoff h_sample1 in its original app-a chat chat:sample-app-a-1. Repair the proven continuity breaks and verify its final work result against the same handoff and transcript.\", and 4 records kept (the decision, its history and its generation)."
+    }
+  ]
+}

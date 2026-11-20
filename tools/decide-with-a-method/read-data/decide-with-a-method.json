@@ -880,6 +880,92 @@
           }
         }
       }
+    },
+    "tool:correct-source-identity": {
+      "type": "object",
+      "required": [
+        "decision_id",
+        "message_id",
+        "source_id",
+        "handoff_id",
+        "handoff_agent",
+        "facts",
+        "apps"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "message_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "handoff_id": {
+          "type": "string",
+          "pattern": "^h_[A-Za-z0-9]+$"
+        },
+        "handoff_agent": {
+          "type": "string",
+          "minLength": 1,
+          "description": "the agent name the handoff must carry"
+        },
+        "apps": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "facts": {
+          "type": "object",
+          "required": [
+            "message",
+            "source",
+            "handoff"
+          ],
+          "properties": {
+            "message": {
+              "type": "object",
+              "description": "the kept message row: id, speaker, conversation_id, app"
+            },
+            "source": {
+              "type": "object",
+              "description": "the source chat row: id, app"
+            },
+            "handoff": {
+              "type": "object",
+              "description": "the handoff row: handoff_id, from_agent, input"
+            }
+          }
+        },
+        "records": {
+          "type": "array",
+          "description": "The records the caller read from its own store for this call, each { id, type, value }: every record the tool reads (the decision's own records, its method and the rows it names, the pursuits and messages it cites). Nothing else is read, and the run writes no store: what it writes comes back as keep.",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "type",
+              "value"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "value": {}
+            }
+          }
+        }
+      }
     }
   },
   "records": {
