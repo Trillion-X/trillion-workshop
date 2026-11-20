@@ -1,0 +1,108 @@
+{
+  "kind": "tool-rows",
+  "record_set": "arrange-screens-in-panes-tool-records",
+  "what_this_is": "The Workshop row that answers the Panes and Feel settings a screen draws (tool:read-pane-and-feel-settings, do-work/read-pane-and-feel-settings.mjs): the pane sizes and the settings rows from pane-sizes.json, and the feels every moment plays from tools/feel's records/feel-moments.json. It reads both DATA files and keeps nothing; tool:look retires onto it.",
+  "records": [
+    {
+      "id": "package::arrange-screens-in-panes::tool::read-pane-and-feel-settings",
+      "address": "package::arrange-screens-in-panes::tool::read-pane-and-feel-settings",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-pane-and-feel-settings",
+        "label": "Read the Panes and Feel settings",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:arrange-screens-in-panes",
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "job": "Show the Panes settings (how panes size and snap, with the rows a person edits) and the Feel settings (each moment and the feel it plays on touch, sound and motion)",
+        "description": "Reads the starting pane sizes and their settings rows from tools/arrange-screens-in-panes/pane-sizes.json and the feels from tools/feel/records/feel-moments.json. Refuses a moment that names a feel the DATA does not define. Keeps nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "panes",
+            "feel"
+          ],
+          "properties": {
+            "panes": {
+              "type": "object",
+              "required": [
+                "defaults",
+                "sections"
+              ]
+            },
+            "feel": {
+              "type": "object",
+              "required": [
+                "outputs",
+                "feels",
+                "moments"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/arrange-screens-in-panes",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/arrange-screens-in-panes/do-work/read-pane-and-feel-settings.mjs",
+            "readPaneAndFeelSettings"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "arrange-screens-in-panes",
+                "paths": [
+                  "do-work/read-pane-and-feel-settings.mjs",
+                  "pane-sizes.json"
+                ],
+                "at": "/opt/arrange-screens-in-panes"
+              },
+              {
+                "package": "feel",
+                "paths": [
+                  "records/feel-moments.json"
+                ],
+                "at": "/opt/feel"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          }
+        },
+        "provenance": {
+          "moved_from": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts tool:look sections panes and feel (tool-rows.json lines 215-224 at 6c073b412)"
+        }
+      }
+    }
+  ]
+}

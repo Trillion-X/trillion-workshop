@@ -33719,6 +33719,30 @@
    "at": "/opt/read-objects-in-an-s3-store"
   }
  ],
+ "tool:read-pane-and-feel-settings": [
+  {
+   "package": "arrange-screens-in-panes",
+   "paths": [
+    "do-work/read-pane-and-feel-settings.mjs",
+    "pane-sizes.json"
+   ],
+   "at": "/opt/arrange-screens-in-panes"
+  },
+  {
+   "package": "feel",
+   "paths": [
+    "records/feel-moments.json"
+   ],
+   "at": "/opt/feel"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
  "tool:read-peoples-poses-from-a-video": [],
  "tool:read-post-calendar": [
   {
