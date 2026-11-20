@@ -1,0 +1,8 @@
+{
+  "_what": "What the operator account sees about each customer: two choices per account, kept under key_prefix plus the account id as { activity, content, set_at, via }. activity is what a person did and is on until they turn it off; content is what they wrote or a notice said and is off until they turn it on. An account with no key reads as default. The plain words that say so come from the brand row of the site that runs this tool, not from this file.",
+  "key_prefix": "hq-sharing:",
+  "default": {
+    "activity": true,
+    "content": false
+  }
+}

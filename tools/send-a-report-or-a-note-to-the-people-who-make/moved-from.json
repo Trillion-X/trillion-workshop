@@ -7,7 +7,7 @@
     {
       "from": "records/hq-sharing.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/send-a-report-or-a-note-to-the-people-who-make/from-an-older-version/records/hq-sharing.json",
+      "to": "tools/see-customers-and-their-journeys/records/hq-sharing.json",
       "source_identity": "1f:b4d331a3eca30e53c075044ad373f39684b68bee26a91bd4e9417ae1a74808de",
       "identity": "1f:b4d331a3eca30e53c075044ad373f39684b68bee26a91bd4e9417ae1a74808de"
     },
