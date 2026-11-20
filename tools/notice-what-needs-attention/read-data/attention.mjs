@@ -163,7 +163,8 @@ async function retriageWaiting({ openHandoffs, readHandoff, readMessage, byRules
     const messageId = arrived?.message_id ?? handoff?.input?.said_by_ai?.message_id;
     const message = messageId && !handoff.taken_by && !handoff.to_agent ? readMessage(messageId) : null;
     if (message) {
-      const arrival = { route: arrived?.route ?? message.app, from_person: arrived ? arrived.from_person : false, text: message.text, at: message.at, authored_at: message.authored_at, recorded_at: message.recorded_at };
+      // heard and voice are the carrier's facts about how the words were heard: the rules that decide heard words need them.
+      const arrival = { route: arrived?.route ?? message.app, from_person: arrived ? arrived.from_person : false, text: message.text, at: message.at, authored_at: message.authored_at, recorded_at: message.recorded_at, heard: arrived?.heard ?? message.heard, voice: arrived?.voice ?? message.voice };
       const ruled = await byRules(arrival);
       if (ruled.attention === 'classify' && asked >= Math.max(Number(classified) || 0, 0)) break;
       if (ruled.attention === 'classify') asked += 1;
