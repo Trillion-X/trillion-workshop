@@ -13,12 +13,18 @@
 // --parent-actions-fd N). The descriptor route carries no authority on its own: the native parent rechecks this run at
 // the physical effect.
 //
+// A row that declares its keep table (argv: --keep-into TABLE --keep-fd N, the descriptor its connection is mounted on) writes
+// its keep list there only when the run's input names a `database`: then the list is written in one transaction
+// (write-keep-list.mjs) and the answer names the count. With no `database` the answer keeps the list, as every row does.
+//
 // A function a wake started may answer `wake_effects` (the engine's wake.json `effects_field`: timed runs, writes,
 // events). The engine reads them from the top of the last line, so they are printed beside the result, not in it.
+import { fstatSync, readFileSync } from 'node:fs';
 import { text } from 'node:stream/consumers';
 import { pathToFileURL } from 'node:url';
 import { openBearerDoor } from '../read-data/records-door.mjs';
 import { valuesDoor } from '../read-data/values-door.mjs';
+import { writeKeepList } from './write-keep-list.mjs';
 
 const EFFECTS = 'wake_effects';
 
@@ -28,11 +34,32 @@ const EFFECTS = 'wake_effects';
 const parentActionsAtFirstUse = descriptor => new Proxy({}, { get: (_, method) => typeof method === 'string' ? async (...args) => {
   const { openHostActions } = await import('../../workflows/read-data/host-actions.mjs');
   return openHostActions({ descriptor }).parentActions[method](...args);
-} : undefined });const [file, name, ...options] = process.argv.slice(2);
+} : undefined });// The keep list goes into the database on `fd`: the connection string is the held value the engine mounts there, never argv or a file.
+// pg loads only here, on the write path, so a run without a database never loads it.
+async function writeKeptRows(rows, table, fd) {
+  fstatSync(fd); // refuses at once when nothing is mounted on the descriptor
+  const connection = readFileSync(fd, 'utf8').trim();
+  if (!/^postgres(ql)?:\/\//.test(connection)) throw new Error(`No database connection is mounted on descriptor ${fd}.`);
+  const { default: pg } = await import('pg');
+  const { throughProxy } = await import('../../run-sql-in-my-database/do-work/through-the-run-proxy.mjs');
+  const proxy = process.env.HTTPS_PROXY;
+  const client = new pg.Client({ connectionString: connection, ...(proxy ? { stream: throughProxy(proxy) } : {}) });
+  await client.connect();
+  try {
+    return await writeKeepList(rows, client, { table });
+  } finally {
+    await client.end();
+  }
+}
+
+const [file, name, ...options] = process.argv.slice(2);
 try {
   if (!file || !name) throw new Error('usage: run-an-export.mjs <module file> <export name> < input.json');
-  const parentActionsFd = options.length === 0 ? 3
-    : options.length === 2 && options[0] === '--parent-actions-fd' && /^\d+$/.test(options[1]) ? Number(options[1]) : NaN;
+  const flags = new Map();
+  for (let n = 0; n < options.length; n += 2) flags.set(options[n], options[n + 1]);
+  if (options.length % 2 || [...flags.keys()].some(flag => !['--parent-actions-fd', '--keep-into', '--keep-fd'].includes(flag))) throw new Error('Supply --parent-actions-fd, or --keep-into with --keep-fd, with the row\'s declared file descriptors.');
+  const parentActionsFd = !flags.has('--parent-actions-fd') ? 3
+    : /^\d+$/.test(flags.get('--parent-actions-fd')) ? Number(flags.get('--parent-actions-fd')) : NaN;
   if (!Number.isSafeInteger(parentActionsFd) || parentActionsFd < 3) throw new Error('Supply --parent-actions-fd with the row\'s declared file descriptor.');
   const fn = (await import(pathToFileURL(file).href))[name];
   if (typeof fn !== 'function') throw new Error(`${file} has no function ${name}.`);
@@ -48,16 +75,30 @@ try {
     door: values.door,
     get parentActions() { return (parentActions ??= parentActionsAtFirstUse(parentActionsFd)); },
   };
-  const answered = await fn(input, context);
+  // The database a keep list goes to is named in the input; the function never sees it.
+  // Only a row that declares its keep table takes `database`; any other row passes its input on unchanged.
+  const named = flags.has('--keep-into') && typeof input.database === 'string' && input.database.length > 0;
+  const toFunction = named ? (({ database, ...rest }) => rest)(input) : input;
+  const answered = await fn(toFunction, context);
   const keep = values.keep();
-  const result = !keep.length ? answered
-    : answered && typeof answered === 'object' && !Array.isArray(answered) ? { ...answered, keep: [...(answered.keep ?? []), ...keep] }
-    : { answer: answered, keep };
-  if (result && typeof result === 'object' && !Array.isArray(result) && EFFECTS in result) {
-    const { [EFFECTS]: effects, ...shown } = result;
-    console.log(JSON.stringify({ result: shown, [EFFECTS]: effects }));
+  if (named) {
+    // The keep list goes into the row's table, one transaction; the answer then names the count, not the list.
+    const keepFd = Number(flags.get('--keep-fd'));
+    if (!Number.isSafeInteger(keepFd) || keepFd < 4) throw new Error('--keep-into needs --keep-fd with the descriptor its database is mounted on (not 3).');
+    const object = answered && typeof answered === 'object' && !Array.isArray(answered);
+    const { keep: returned = [], ...shown } = object ? answered : {};
+    const written = await writeKeptRows([...(object ? returned : []), ...keep], flags.get('--keep-into'), keepFd);
+    console.log(JSON.stringify({ result: { ...(object ? shown : { answer: answered }), kept_in: flags.get('--keep-into'), kept: written.written } }));
   } else {
-    console.log(JSON.stringify({ result }));
+    const result = !keep.length ? answered
+      : answered && typeof answered === 'object' && !Array.isArray(answered) ? { ...answered, keep: [...(answered.keep ?? []), ...keep] }
+      : { answer: answered, keep };
+    if (result && typeof result === 'object' && !Array.isArray(result) && EFFECTS in result) {
+      const { [EFFECTS]: effects, ...shown } = result;
+      console.log(JSON.stringify({ result: shown, [EFFECTS]: effects }));
+    } else {
+      console.log(JSON.stringify({ result }));
+    }
   }
 } catch (error) {
   console.log(JSON.stringify({ error: error.message }));

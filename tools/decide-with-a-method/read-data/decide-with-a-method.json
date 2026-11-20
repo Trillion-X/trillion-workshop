@@ -79,6 +79,11 @@
               "value": {}
             }
           }
+        },
+        "database": {
+          "type": "string",
+          "minLength": 1,
+          "description": "the pursuit database the keep list is written to; the connection is mounted from it"
         }
       }
     },
@@ -210,6 +215,11 @@
               "value": {}
             }
           }
+        },
+        "database": {
+          "type": "string",
+          "minLength": 1,
+          "description": "the pursuit database the keep list is written to; the connection is mounted from it"
         }
       }
     },
@@ -288,6 +298,11 @@
               "value": {}
             }
           }
+        },
+        "database": {
+          "type": "string",
+          "minLength": 1,
+          "description": "the pursuit database the keep list is written to; the connection is mounted from it"
         }
       }
     },
@@ -363,6 +378,11 @@
               "value": {}
             }
           }
+        },
+        "database": {
+          "type": "string",
+          "minLength": 1,
+          "description": "the pursuit database the keep list is written to; the connection is mounted from it"
         }
       }
     },
@@ -432,6 +452,11 @@
               "value": {}
             }
           }
+        },
+        "database": {
+          "type": "string",
+          "minLength": 1,
+          "description": "the pursuit database the keep list is written to; the connection is mounted from it"
         }
       }
     },
@@ -486,6 +511,11 @@
               "value": {}
             }
           }
+        },
+        "database": {
+          "type": "string",
+          "minLength": 1,
+          "description": "the pursuit database the keep list is written to; the connection is mounted from it"
         }
       }
     },
@@ -544,6 +574,11 @@
               "value": {}
             }
           }
+        },
+        "database": {
+          "type": "string",
+          "minLength": 1,
+          "description": "the pursuit database the keep list is written to; the connection is mounted from it"
         }
       }
     },
@@ -595,6 +630,11 @@
               "value": {}
             }
           }
+        },
+        "database": {
+          "type": "string",
+          "minLength": 1,
+          "description": "the pursuit database the keep list is written to; the connection is mounted from it"
         }
       }
     },
@@ -745,6 +785,11 @@
               "value": {}
             }
           }
+        },
+        "database": {
+          "type": "string",
+          "minLength": 1,
+          "description": "the pursuit database the keep list is written to; the connection is mounted from it"
         }
       }
     },
@@ -878,6 +923,11 @@
               "value": {}
             }
           }
+        },
+        "database": {
+          "type": "string",
+          "minLength": 1,
+          "description": "the pursuit database the keep list is written to; the connection is mounted from it"
         }
       }
     },
@@ -964,6 +1014,11 @@
               "value": {}
             }
           }
+        },
+        "database": {
+          "type": "string",
+          "minLength": 1,
+          "description": "the pursuit database the keep list is written to; the connection is mounted from it"
         }
       }
     },
@@ -1148,6 +1203,11 @@
               "value": {}
             }
           }
+        },
+        "database": {
+          "type": "string",
+          "minLength": 1,
+          "description": "the pursuit database the keep list is written to; the connection is mounted from it"
         }
       }
     }
