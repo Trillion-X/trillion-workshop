@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:ce71a3c9731def6cce69eda4160b71f475dd32c1432b919bbdde1aa2b61c76ba"
+  "blake3": "1f:c49676dcd0b55155d142a9a2fd2e5e17e8a3898f708c3e9664329f66c9c2aa36"
  },
  "fields": [
   {
@@ -5045,6 +5045,21 @@
    }
   },
   {
+   "id": "tool:guess-voice-suggestions",
+   "values": {
+    "title": "Guess who each unnamed voice is",
+    "job": "For each voice nobody has named, say which of the person's people it probably is, with the reason, from evidence the account holds",
+    "description": "Pure. Takes the voices (each with its window and words), the person's people rows, the DATA rules and pattern (sources.voices.guess of the Waiting on you DATA), and the evidence handed in: the owner's name and words, calendar items, recording titles and file names by clip, names said nearby, earlier choices by label, and the messages said in each conversation. Answers each voice with its suggestions (a row, its why, and sure when it rests on the voice itself or on the moment alone). It names nothing: the person picks.",
+    "status": "active",
+    "maker": "maker:name-voices-from-the-call",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "name-voices-from-the-call"
+   }
+  },
+  {
    "id": "tool:hand-a-request-to-its-owner",
    "values": {
     "title": "Hand a request to its owner",
@@ -5595,6 +5610,21 @@
      "placement:your-computer"
     ],
     "folder": "research-a-creator-or-topic"
+   }
+  },
+  {
+   "id": "tool:keep-hearing-session",
+   "values": {
+    "title": "Keep one hearing session record",
+    "job": "Write one session record that tool:hear-sources answered into the person's database, so the session is kept",
+    "description": "The keep step of tool:hear-sources (the old automatic keeping, computer/hearing-sources.mjs:50-57 @b7dc53d08a). Takes the `session` record the hearing tool answered and names it as one keep row (id is the record's own id, expected null: new records only); the runner writes it into the table hearing_sessions of the database the input names (`database`) through the connection mounted on the row, in one transaction, and answers the count. Without `database` the answer keeps the row as every row does. It writes nothing else.",
+    "status": "active",
+    "maker": "maker:listen-for-a-while",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "listen-for-a-while"
    }
   },
   {
@@ -11450,7 +11480,7 @@
    "values": {
     "title": "Judge cited code lines against their repositories at the cited commit",
     "job": "Check each citation (root/path:line-line@commit) against its repository: the line, or range, holds the quoted text, read at the commit the citation names, or at the root's ref when it names none. One verdict per citation, with the reason when refused.",
-    "description": "The citation resolver (read-data/citation-resolvers.mjs with citation-resolvers.json) as a tool, so a workflow check can refuse a wrong citation with its reason. It reads only the repositories the resolver names, through git in their checkouts on this computer; a repository not here answers ok null, never true. The answer is { result: [{ cite, ok, why, against }] }.",
+    "description": "The citation resolver (read-data/citation-resolvers.mjs with citation-resolvers.json) as a tool, so a workflow check can refuse a wrong citation with its reason. Each run is granted ONE repository folder (read-a-folder, from the run's grant): a citation whose root is another repository is answered ok false with 'root not granted to this run'. It reads that folder through git (use-git-in-a-folder), at the commit a citation names or at the root's ref. A repository not here answers ok null, never true. The answer is { result: [{ cite, ok, why, against }] }.",
     "status": "active",
     "placements": [
      "placement:your-computer"

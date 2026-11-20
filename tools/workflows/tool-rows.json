@@ -2456,7 +2456,7 @@
           "placement:your-computer"
         ],
         "job": "Check each citation (root/path:line-line@commit) against its repository: the line, or range, holds the quoted text, read at the commit the citation names, or at the root's ref when it names none. One verdict per citation, with the reason when refused.",
-        "description": "The citation resolver (read-data/citation-resolvers.mjs with citation-resolvers.json) as a tool, so a workflow check can refuse a wrong citation with its reason. It reads only the repositories the resolver names, through git in their checkouts on this computer; a repository not here answers ok null, never true. The answer is { result: [{ cite, ok, why, against }] }.",
+        "description": "The citation resolver (read-data/citation-resolvers.mjs with citation-resolvers.json) as a tool, so a workflow check can refuse a wrong citation with its reason. Each run is granted ONE repository folder (read-a-folder, from the run's grant): a citation whose root is another repository is answered ok false with 'root not granted to this run'. It reads that folder through git (use-git-in-a-folder), at the commit a citation names or at the root's ref. A repository not here answers ok null, never true. The answer is { result: [{ cite, ok, why, against }] }.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -2533,17 +2533,21 @@
         "invoke": {
           "kind": "computer",
           "capabilities": [
-            "use-git-in-a-folder",
-            "read-a-folder"
+            "read-a-folder",
+            "use-git-in-a-folder"
           ],
           "workdir": "/opt/workflows",
           "internet": false,
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/workflows/do-work/run-a-function.mjs",
-            "/opt/workflows/read-data/resolve-citations.mjs",
-            "resolveCitations"
+            "/opt/workflows/do-work/resolve-citations-here.mjs",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            }
           ],
           "stdin": {
             "fill": {
@@ -2556,7 +2560,7 @@
               {
                 "package": "workflows",
                 "paths": [
-                  "do-work/run-a-function.mjs",
+                  "do-work/resolve-citations-here.mjs",
                   "read-data/resolve-citations.mjs",
                   "read-data/citation-resolvers.mjs",
                   "citation-resolvers.json"

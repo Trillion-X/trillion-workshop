@@ -41510,7 +41510,7 @@
   {
    "package": "workflows",
    "paths": [
-    "do-work/run-a-function.mjs",
+    "do-work/resolve-citations-here.mjs",
     "read-data/resolve-citations.mjs",
     "read-data/citation-resolvers.mjs",
     "citation-resolvers.json"
