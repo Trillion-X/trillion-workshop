@@ -1,7 +1,7 @@
 // tools/list-and-run-my-tools-for-any-ai/test/save-tool.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fingerprintOf, filesAsBytes, descriptorProblems, saveTool, SAVED_TABLE, SaveToolError } from '../do-work/save-tool.mjs';
+import { fingerprintOf, filesAsBytes, descriptorProblems, saveTool, SAVED_TABLE, SaveToolError, MAX_SAVED_BYTES } from '../do-work/save-tool.mjs';
 
 const echo = {
   kind: 'ai-tool-descriptor', id: 'tool:echo-test', job: 'Echo the input text back',
@@ -53,4 +53,18 @@ test('a refused descriptor writes nothing', async () => {
   const client = fakeClient();
   await assert.rejects(saveTool({ descriptor: { ...echo, job: '' }, files: { 'a.py': 'x' } }, client), SaveToolError);
   assert.equal(client.calls.length, 0);
+});
+
+test('a tool just over the 20 MB limit (20 MiB + 1 byte) is refused and writes nothing', async () => {
+  const client = fakeClient();
+  const bytesBase64 = Buffer.alloc(MAX_SAVED_BYTES + 1).toString('base64');
+  await assert.rejects(saveTool({ descriptor: echo, bytes_base64: bytesBase64 }, client), /over 20971520 bytes/);
+  assert.equal(client.calls.length, 0);
+});
+
+test('a tool exactly at the 20 MB limit (20 MiB = 20971520 bytes) is accepted', async () => {
+  const client = fakeClient();
+  const saved = await saveTool({ descriptor: echo, bytes_base64: Buffer.alloc(MAX_SAVED_BYTES).toString('base64') }, client);
+  assert.equal(saved.bytes, 20971520);
+  assert.equal(saved.saved, true);
 });

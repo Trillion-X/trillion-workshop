@@ -1,0 +1,40 @@
+{
+  "drafted_from": "the old server's publishTool/unpublishTool at b6ae0ebf815f (src/workshop.mjs:1686, 1793), ported as tool:publish-tool",
+  "start_here": "Say to your AI: \"Publish my tool tool:echo-test as my listing.\"",
+  "no_lists_because": "A listing is one row of the marketplace_listings table in the database the person names (the tool makes that table on first use), not a row of a list, so there is no list for a person to keep or pour into.",
+  "lists": [],
+  "workflows": [],
+  "tools": [
+    "tool:publish-tool"
+  ],
+  "instructions": [
+    "1. Save the tool first with tool:save-tool, in the database the listing goes to.",
+    "2. Say to your AI which saved tool to publish, the maker's name, and the database, and whether it shows on the public site (default no).",
+    "3. Read the answer: the listing with its status published. A refusal names the problem in plain words; fix it and publish again."
+  ],
+  "worked_examples": [
+    {
+      "title": "Publish a saved tool",
+      "ask": "Save this tool so I can find it later: it echoes text back.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:publish-tool",
+            "input": {
+              "tool_id": "tool:echo-test",
+              "maker": "the maker's name",
+              "database": "the database the listing is in"
+            }
+          }
+        }
+      },
+      "given": "Publish or withdraw tool:echo-test for this maker",
+      "hands_back": "The listing: tool_id \"tool:echo-test\", status \"published\", show_on_public_site false."
+    }
+  ],
+  "workflow": null
+}

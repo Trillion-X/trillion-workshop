@@ -1,0 +1,17 @@
+// tools/list-and-run-my-tools-for-any-ai/do-work/unpublish-tool-in-database.mjs
+//
+// tool:unpublish-tool, one container process (tool-rows.json): withdraws one listing from the database the request names. The
+// connection and the request are read as tool:publish-tool's are (publish-tool-in-database.mjs); the withdrawal rules are unpublishTool's.
+import { unpublishTool } from './publish-tool.mjs';
+import { runInDatabase } from './publish-tool-in-database.mjs';
+
+export async function main() {
+  return runInDatabase(unpublishTool);
+}
+
+if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+  main().then(answer => console.log(JSON.stringify(answer))).catch(error => {
+    console.log(JSON.stringify({ error: error.message }));
+    process.exitCode = 1;
+  });
+}

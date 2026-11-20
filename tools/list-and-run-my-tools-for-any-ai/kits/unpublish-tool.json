@@ -1,0 +1,40 @@
+{
+  "drafted_from": "the old server's publishTool/unpublishTool at b6ae0ebf815f (src/workshop.mjs:1686, 1793), ported as tool:unpublish-tool",
+  "start_here": "Say to your AI: \"Take my listing of tool:echo-test back out.\"",
+  "no_lists_because": "A listing is one row of the marketplace_listings table in the database the person names (the tool makes that table on first use), not a row of a list, so there is no list for a person to keep or pour into.",
+  "lists": [],
+  "workflows": [],
+  "tools": [
+    "tool:unpublish-tool"
+  ],
+  "instructions": [
+    "1. Say to your AI which tool to take back and the maker's name, with the database it is listed in.",
+    "2. Read the answer: the evidence (status withdrawn, the maker, the fingerprint and the times). The body is removed; the evidence stays.",
+    "3. A tool you did not publish cannot be withdrawn by you; a refusal says so."
+  ],
+  "worked_examples": [
+    {
+      "title": "Unpublish a tool",
+      "ask": "Save this tool so I can find it later: it echoes text back.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:unpublish-tool",
+            "input": {
+              "tool_id": "tool:echo-test",
+              "maker": "the maker's name",
+              "database": "the database the listing is in"
+            }
+          }
+        }
+      },
+      "given": "Publish or withdraw tool:echo-test for this maker",
+      "hands_back": "The evidence: tool_id \"tool:echo-test\", status \"withdrawn\", with its fingerprint and times; the body is gone."
+    }
+  ],
+  "workflow": null
+}
