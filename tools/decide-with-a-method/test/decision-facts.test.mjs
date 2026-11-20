@@ -126,15 +126,15 @@ test('resultFacts puts checks, reports and observations oldest first and leaves 
   assert.equal(rows[0].result, 'it worked');
 });
 
-test('stanceOf takes its rows from where-a-person-stands, three stands with partly, and marks the stand taken on this version', () => {
-  const facts = stanceOf(record, { stance: 'partly', at: '2026-11-12T00:00:00Z', why: 'Mostly', decision_generation: 1 }, words);
-  assert.deepEqual(facts.choices.map(choice => choice.id), ['agree', 'disagree', 'partly']);
-  assert.equal(facts.choices.find(choice => choice.id === 'partly').primary, true);
-  assert.equal(facts.said, 'You partly agree with this.');
+test('stanceOf takes its rows from where-a-person-stands, two stands, and marks the stand taken on this version', () => {
+  const facts = stanceOf(record, { stance: 'disagree', at: '2026-11-12T00:00:00Z', why: 'Mostly', decision_generation: 1 }, words);
+  assert.deepEqual(facts.choices.map(choice => choice.id), ['agree', 'disagree']);
+  assert.equal(facts.choices.find(choice => choice.id === 'disagree').primary, true);
+  assert.equal(facts.said, 'You disagree with this.');
   assert.equal(facts.earlier_said, null);
   assert.equal(facts.why, 'Mostly');
   assert.equal(facts.detailed, true);
-  assert.deepEqual(facts.status, { label: 'Nov 12, 2026', tone: 'quiet' });
+  assert.deepEqual(facts.status, { label: 'Nov 12, 2026', tone: 'attention' });
   assert.deepEqual(facts.words, { heading: 'Do you agree?', ask: 'Do you agree with this decision?', why_label: 'Why, in your words (optional)', earlier: 'On an earlier version of this decision.' });
 });
 

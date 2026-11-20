@@ -1,6 +1,6 @@
 // tools/where-a-person-stands/read-data/stance-facts.mjs: where a person stands on one record, from the stand kept on it
 // and the stand rows. Each case is the record's stand as the decision screen reads it: the current stand, a stand on an
-// earlier version, a stand taken back, a stand with words of why, and a stand row this owner adds (partly).
+// earlier version, a stand taken back, a stand with words of why, and the stand rows themselves.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { stanceFacts } from '../read-data/stance-facts.mjs';
@@ -22,7 +22,6 @@ test('no stand kept: nothing said, no status, no stand chosen, every stand offer
     choices: [
       { id: 'agree', label: 'I agree', icon: 'ThumbsUp', primary: false },
       { id: 'disagree', label: 'I disagree', icon: 'ThumbsDown', primary: false },
-      { id: 'partly', label: 'Partly', icon: null, primary: false },
     ],
   });
 });
@@ -73,10 +72,10 @@ test('a record with no decision generation counts as generation 1, so a stand on
 });
 
 test('a stand with no decision generation is never earlier', () => {
-  const facts = stanceFacts({ record: { decision_generation: 5 }, stance: { stance: 'partly', at: AT }, stances });
-  assert.equal(facts.said, 'You partly agree with this.');
+  const facts = stanceFacts({ record: { decision_generation: 5 }, stance: { stance: 'disagree', at: AT }, stances });
+  assert.equal(facts.said, 'You disagree with this.');
   assert.equal(facts.earlier_said, null);
-  assert.deepEqual(primaries(facts), ['partly']);
+  assert.deepEqual(primaries(facts), ['disagree']);
 });
 
 test('a stand taken back (no stand row) is said by nothing and chooses nothing', () => {
@@ -98,12 +97,12 @@ test('a stand whose id is not a stand row says nothing and gives no status', () 
 });
 
 test('the choices follow the stand rows in order, one per row, whatever the stand', () => {
-  const facts = stanceFacts({ record: {}, stance: { stance: 'partly', at: AT }, stances });
-  assert.deepEqual(choiceIds(facts), ['agree', 'disagree', 'partly']);
-  assert.deepEqual(primaries(facts), ['partly']);
+  const facts = stanceFacts({ record: {}, stance: { stance: 'disagree', at: AT }, stances });
+  assert.deepEqual(choiceIds(facts), ['agree', 'disagree']);
+  assert.deepEqual(primaries(facts), ['disagree']);
 });
 
-test('the stand rows keep the words and tone the old owner had, and add partly', () => {
+test('the stand rows keep the words and tone the old owner had', () => {
   const byId = Object.fromEntries(stances.map(row => [row.id, row]));
   assert.equal(byId.agree.said, 'You agree with this.');
   assert.equal(byId.agree.label, 'I agree');
@@ -111,6 +110,6 @@ test('the stand rows keep the words and tone the old owner had, and add partly',
   assert.equal(byId.disagree.said, 'You disagree with this.');
   assert.equal(byId.disagree.label, 'I disagree');
   assert.equal(byId.disagree.tone, 'attention');
-  assert.equal(byId.partly.tone, undefined, 'partly has no tone: the old owner (src/record-stance.json) names none');
-  for (const row of stances.filter(row => row.id !== 'partly')) assert.ok(row.id && row.label && row.said && row.tone, `row ${row.id} has every word and its tone`);
+  assert.deepEqual(stances.map(row => row.id), ['agree', 'disagree']);
+  for (const row of stances) assert.ok(row.id && row.label && row.said && row.tone, `row ${row.id} has every word and its tone`);
 });

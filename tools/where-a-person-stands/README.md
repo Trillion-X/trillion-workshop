@@ -1,6 +1,6 @@
 # tools/where-a-person-stands/
 
-Where a person stands on one thing made for them (a title, a voice take, a plan, a file): agree, disagree or partly, with their own words for why. Each kind of thing and identity gets one `stance` record, named `stance:<kind>:<identity>`. The tool answers that record and the caller keeps it where the person keeps stances: no row names a records method or the records door. A change of mind is a new version of the same record, so every earlier stand is part of that record's history and never a copy inside it. The reader takes those versions and gives the current stand, the person's words, and every stand before it.
+Where a person stands on one thing made for them (a title, a voice take, a plan, a file): agree or disagree, with their own words for why. Each kind of thing and identity gets one `stance` record, named `stance:<kind>:<identity>`. The tool answers that record and the caller keeps it where the person keeps stances: no row names a records method or the records door. A change of mind is a new version of the same record, so every earlier stand is part of that record's history and never a copy inside it. The reader takes those versions and gives the current stand, the person's words, and every stand before it.
 
 `do-work/artifact-ref.mjs` is the only place that decides how a thing is identified. A text is `1f:` + BLAKE3 of the text after the owner's DATA fold, so the same title typed again finds the same stand. A file or JSON view is BLAKE3 of its bytes. Every check that keys a stand on a thing imports it. `tool:plan-a-stance-reload` turns stands kept elsewhere into these records' versions, earlier stands first, and says what would change before anything is written.
 
@@ -18,7 +18,7 @@ This is taken from the decision engine's record-stance owner: the stands, the pe
 
 | File | Purpose |
 |------|---------|
-| `read-data/stances.json` | The record kind (`stance`), its id prefix, the stands a person can take (`agree`, `disagree`, `partly`), each stand's words, `tone` and `icon`, and the words of every refusal. A new stand is one row. |
+| `read-data/stances.json` | The record kind (`stance`), its id prefix, the stands a person can take (`agree`, `disagree`), each stand's words, `tone` and `icon`, and the words of every refusal. A new stand is one row. |
 | `read-data/stance-facts.mjs` | `stanceFacts`: the computed facts of one record's stand (the row's words, the earlier-version check, the status tone, the primary choice, the choices, detailed). Pure: no reads, no words. No tool row names it yet. |
 | `do-work/artifact-ref.mjs` | The one identity of a judged thing: `foldWith` (the DATA fold), `textRef`, `bytesRef`, `viewRef`, `artifactRef`. |
 | `do-work/where-a-person-stands.mjs` | Builds the record to keep, reads stands back from versions, and plans a reload. Its header holds the invariants. |
@@ -42,7 +42,7 @@ This is taken from the decision engine's record-stance owner: the stands, the pe
 
 | Name | Signature / Shape | Role |
 |------|-------------------|------|
-| Stance record | `{ type: "stance", id: "stance:<kind>:1f:<hex>", kind, artifact: "1f:<hex>", text? \| contains? \| view?, stance: "agree" \| "disagree" \| "partly" \| null, said?, why?, by, at }` | One thing's stand. `stance: null` takes the stand back. `why` is kept exactly as given. |
+| Stance record | `{ type: "stance", id: "stance:<kind>:1f:<hex>", kind, artifact: "1f:<hex>", text? \| contains? \| view?, stance: "agree" \| "disagree" \| null, said?, why?, by, at }` | One thing's stand. `stance: null` takes the stand back. `why` is kept exactly as given. |
 | `foldWith` | `(fold) -> (text) -> text` | The DATA fold `{ lowercase?, quotes?, collapse_space?, strip_trailing? }`, applied in that order, with a trim before the trailing cut and a trim after it. |
 | `textRef` / `bytesRef` / `viewRef` | `(text, fold)` / `(bytes)` / `(json) -> "1f:<hex>"` | BLAKE3-256 of the folded text's UTF-8, of the bytes, or of `JSON.stringify(view)`. |
 | `artifactRef` | `({ text?, contains?, view? }, fold) -> "1f:<hex>"` | A view by its bytes, otherwise the text or part folded. |

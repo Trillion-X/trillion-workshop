@@ -1,7 +1,7 @@
 // tools/where-a-person-stands/do-work/where-a-person-stands.mjs
 //
 // Purpose
-//   Where a person stands on one thing made for them (a title, a take, a plan, a file): agree, disagree, partly, or any
+//   Where a person stands on one thing made for them (a title, a take, a plan, a file): agree, disagree, or any
 //   stand read-data/stances.json lists, with their own words for why. A stand is kept as one record per thing, of the
 //   kind read-data/stances.json declares, so a change of mind is a new version of that record; the stands before it are
 //   the record's earlier versions, read back here, never copied into the record.

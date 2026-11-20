@@ -16,11 +16,6 @@
    "said": "You disagree with this.",
    "tone": "attention",
    "icon": "ThumbsDown"
-  },
-  {
-   "id": "partly",
-   "label": "Partly",
-   "said": "You partly agree with this."
   }
  ],
  "words": {

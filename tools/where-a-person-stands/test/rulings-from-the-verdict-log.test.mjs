@@ -141,8 +141,8 @@ test('picks follow the pick ledger: the latest picked row gives good, a standing
 
 test('the stands read back are counted by kind and stand, with history and taken back', () => {
   const stands = [{ kind: 'title', stance: 'agree', earlier: [{ stance: 'disagree' }] }, { kind: 'title', stance: 'disagree', earlier: [] },
-    { kind: 'voice', stance: 'partly' }, { kind: 'voice', stance: null, taken_back: true }];
-  assert.deepEqual(countStands({ stands }), { read: 4, by_kind: { title: { agree: 1, disagree: 1 }, voice: { partly: 1 } }, with_history: 1, taken_back: 1 });
+    { kind: 'voice', stance: 'agree' }, { kind: 'voice', stance: null, taken_back: true }];
+  assert.deepEqual(countStands({ stands }), { read: 4, by_kind: { title: { agree: 1, disagree: 1 }, voice: { agree: 1 } }, with_history: 1, taken_back: 1 });
 });
 
 test('without settings_record the tools answer from their input alone and write nothing', async () => {

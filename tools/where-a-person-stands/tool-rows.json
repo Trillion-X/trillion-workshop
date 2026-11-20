@@ -195,8 +195,8 @@
         "id": "tool:keep-where-you-stand",
         "label": "Keep where you stand on something",
         "status": "active",
-        "job": "Write down whether a person agrees, disagrees or partly agrees with something made for them, such as a title, a take, a plan or a file, in their own words",
-        "description": "Give kind (what the thing is: a title, a take, a plan, a file), the thing (artifact_ref, its identity: 1f: and 64 hex digits, or file: and that identity; or the thing itself: text, contains for a part of a text, or view for any JSON, with fold, how its owner says two texts are the same), stance (agree, disagree or partly, or null to take a stand back), why (the person's own words, kept exactly) and answered_by \"person\": only send what the person said. Returns the stance record, one per kind and identity (stance:<kind>:<identity>), for the caller to keep where the person keeps stances: a change of mind is a new version and every earlier stand stays in its history. Text is identified folded, so the same title typed again finds the same stand. A name instead of an identity, or a stand not answered by the person, is refused.",
+        "job": "Write down whether a person agrees or disagrees with something made for them, such as a title, a take, a plan or a file, in their own words",
+        "description": "Give kind (what the thing is: a title, a take, a plan, a file), the thing (artifact_ref, its identity: 1f: and 64 hex digits, or file: and that identity; or the thing itself: text, contains for a part of a text, or view for any JSON, with fold, how its owner says two texts are the same), stance (agree or disagree, or null to take a stand back), why (the person's own words, kept exactly) and answered_by \"person\": only send what the person said. Returns the stance record, one per kind and identity (stance:<kind>:<identity>), for the caller to keep where the person keeps stances: a change of mind is a new version and every earlier stand stays in its history. Text is identified folded, so the same title typed again finds the same stand. A name instead of an identity, or a stand not answered by the person, is refused.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -238,7 +238,6 @@
               "enum": [
                 "agree",
                 "disagree",
-                "partly",
                 null
               ],
               "description": "Where the person stands; null takes the stand back"
@@ -423,7 +422,7 @@
                 "collapse_space": true,
                 "strip_trailing": "[.!?]+"
               },
-              "stance": "partly",
+              "stance": "disagree",
               "why": "fine for now",
               "answered_by": "person",
               "at": "2026-01-01T12:00:00Z"
@@ -657,7 +656,7 @@
         "id": "tool:read-where-you-stand",
         "label": "Read where you stand on things",
         "status": "active",
-        "job": "See whether a person agrees, disagrees or partly agrees with one thing made for them, in their own words, with every time they changed their mind",
+        "job": "See whether a person agrees or disagrees with one thing made for them, in their own words, with every time they changed their mind",
         "description": "Two steps. First read the thing's stance record's history from the store the person keeps it in (id stance:<kind>:<identity>, newest version first, up to 100 versions a page, each page from the next of the one before, until next is null); this tool cannot read the person's store itself. Then give the versions of every page together and next from the last page, as the store gave them. Returns stand: its stand now (the newest version), said, why in the person's own words, by, at, version, earlier (every version before it, oldest first, a tombstone as deleted) and complete (false while next is not null: earlier stands not yet read are unknown); and choices, the stands a person can take. No version, a tombstone or a stand taken back reads stance null with taken_back: silence is not agreement.",
         "input_schema": {
           "type": "object",

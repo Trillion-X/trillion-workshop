@@ -47,14 +47,14 @@ test('a stand names its thing by kind and identity, and a name or a short identi
   assert.deepEqual([title.id, title.text], [`stance:title:${textRef('start here', FOLD)}`, 'Start Here.']);
 });
 
-test('only the person\'s own stand is kept, with their words exactly, and partly is a stand of its own', () => {
+test('only the person\'s own stand is kept, with their words exactly, and a stand is one of the stand rows', () => {
   assert.throws(() => stanceRecord({ ...said, answered_by: 'ai', stance: 'agree' }), /answered_by/);
-  assert.throws(() => stanceRecord({ ...said, stance: 'love' }), /agree, disagree, partly/);
+  assert.throws(() => stanceRecord({ ...said, stance: 'love' }), /agree, disagree, or null/);
   const why = '  Fine for now,  but the opening is slow. ';
-  const kept = stanceRecord({ ...said, stance: 'partly', why, at: '2026-01-01T12:00:00Z' });
-  assert.deepEqual(kept, { type: 'stance', id: `stance:file:${IDENTITY}`, kind: 'file', artifact: IDENTITY, stance: 'partly',
-    said: 'You partly agree with this.', why, by: 'person', at: '2026-01-01T12:00:00Z' });
-  assert.deepEqual(stanceChoices().map(choice => choice.id), ['agree', 'disagree', 'partly']);
+  const kept = stanceRecord({ ...said, stance: 'disagree', why, at: '2026-01-01T12:00:00Z' });
+  assert.deepEqual(kept, { type: 'stance', id: `stance:file:${IDENTITY}`, kind: 'file', artifact: IDENTITY, stance: 'disagree',
+    said: 'You disagree with this.', why, by: 'person', at: '2026-01-01T12:00:00Z' });
+  assert.deepEqual(stanceChoices().map(choice => choice.id), ['agree', 'disagree']);
   const back = stanceRecord({ ...said, stance: null, why: 'ignored' });
   assert.deepEqual([back.stance, 'said' in back, 'why' in back], [null, false, false]);
 });
@@ -80,11 +80,11 @@ test('a tombstone or a stand taken back is no stand, and the stands before it st
   const tomb = standFrom(page([version(1, agreed, '2026-01-01T11:00:00.000Z'), version(2, null, '2026-01-01T12:00:00.000Z')]));
   assert.deepEqual([tomb.stance, tomb.taken_back, tomb.artifact, tomb.earlier.map(item => item.stance)], [null, true, IDENTITY, ['agree']]);
   const back = stanceRecord({ ...said, stance: null, at: '2026-01-01T12:30:00.000Z' });
-  const again = stanceRecord({ ...said, stance: 'partly', why: 'better', at: '2026-01-01T14:00:00.000Z' });
+  const again = stanceRecord({ ...said, stance: 'disagree', why: 'better', at: '2026-01-01T14:00:00.000Z' });
   const history = page([version(1, agreed, '2026-01-01T11:00:00.000Z'), version(2, null, '2026-01-01T12:00:00.000Z'),
     version(3, back, '2026-01-01T12:30:00.000Z'), version(4, again, '2026-01-01T14:00:00.000Z')]);
   const now = standFrom(history);
-  assert.deepEqual([now.stance, now.why, 'taken_back' in now], ['partly', 'better', false]);
+  assert.deepEqual([now.stance, now.why, 'taken_back' in now], ['disagree', 'better', false]);
   assert.deepEqual(now.earlier.map(item => [item.version, item.stance, item.deleted]), [[1, 'agree', false], [2, null, true], [3, null, false]]);
   assert.equal(standFrom(page([version(1, agreed, '2026-01-01T11:00:00.000Z'), version(2, back, '2026-01-01T12:30:00.000Z')])).taken_back, true);
 });
@@ -106,14 +106,14 @@ test('a reload plan writes earlier stands first, oldest first, counts changed re
     { kind: 'title', text: 'Start Here.', stance: 'agree', why: 'good', by: 'this browser', at: '2026-01-01T11:00:00Z',
       ref: `file:${IDENTITY}`, earlier: [{ stance: 'disagree', why: 'no', at: '2026-01-01T10:00:00Z' }] },
     { kind: 'title', text: 'Start  HERE?', stance: 'disagree', why: 'worse', at: '2026-01-01T13:00:00Z' },
-    { kind: 'title', text: 'start here!', stance: 'partly', why: 'mid', at: '2026-01-01T09:00:00Z', ref: `file:${textRef('start here', FOLD)}` },
+    { kind: 'title', text: 'start here!', stance: 'disagree', why: 'mid', at: '2026-01-01T09:00:00Z', ref: `file:${textRef('start here', FOLD)}` },
     { kind: 'onscreen', text: 'Start here', stance: 'agree', at: '2026-01-01T08:00:00Z' },
     { kind: 'stitch-plan', view: { segments: [] }, text: '{"segments":[]}', stance: 'disagree', why: 'too many questions', at: '2026-01-01T12:00:00Z' },
   ] });
   const id = `stance:title:${textRef('start here', FOLD)}`;
   const title = plan.writes.filter(write => write.id === id);
   assert.deepEqual(title.map(write => [write.value.stance, write.value.at]), [
-    ['partly', '2026-01-01T09:00:00Z'], ['disagree', '2026-01-01T10:00:00Z'], ['agree', '2026-01-01T11:00:00Z'], ['disagree', '2026-01-01T13:00:00Z']]);
+    ['disagree', '2026-01-01T09:00:00Z'], ['disagree', '2026-01-01T10:00:00Z'], ['agree', '2026-01-01T11:00:00Z'], ['disagree', '2026-01-01T13:00:00Z']]);
   assert.equal(title[1].value.by, 'this browser', 'an earlier stand keeps who it was said through');
   assert.deepEqual(plan.summary.by_kind.title, { records: 1, versions: 4, rows: 3 });
   assert.equal(plan.summary.refs_changed, 1, 'only the row whose old ref is not its folded identity');
