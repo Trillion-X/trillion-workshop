@@ -204,24 +204,24 @@
             "live-namespace": {
               "fetch": {
                 "macos-aarch64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.12-tidy/live-namespace-0.1.12-tidy-macos-aarch64.tar.gz",
-                  "version": "0.1.12-tidy",
-                  "blake3": "8c147414b1a5dec6a9dc9453805059f659e1a1e99ab6a9aedfed8e7f75bbdf45",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.12-batch/live-namespace-0.1.12-batch-macos-aarch64.tar.gz",
+                  "version": "0.1.12-batch",
+                  "blake3": "db028add9d8da6d6f6b6ddde49dfbef570dfa5ef90efb3bec8fad7abca3feda9",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.12-tidy/live-namespace-0.1.12-tidy-macos-aarch64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.12-batch/live-namespace-0.1.12-batch-macos-aarch64.tar.gz.b3"
                 },
                 "macos-x86_64": {
-                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.12-tidy)."
+                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.12-batch)."
                 },
                 "linux-x86_64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.12-tidy/live-namespace-0.1.12-tidy-linux-x86_64.tar.gz",
-                  "version": "0.1.12-tidy",
-                  "blake3": "6f037f3c1200f3b223b054140b25e50dde816d9d3db021262a913985db70a24b",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.12-batch/live-namespace-0.1.12-batch-linux-x86_64.tar.gz",
+                  "version": "0.1.12-batch",
+                  "blake3": "4fc3d62f7988f8be1b3c43cdee920eb26c1e7f35221ac4ac0e8b368227a1d755",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.12-tidy/live-namespace-0.1.12-tidy-linux-x86_64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.12-batch/live-namespace-0.1.12-batch-linux-x86_64.tar.gz.b3"
                 },
                 "linux-aarch64": {
-                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.12-tidy)."
+                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.12-batch)."
                 }
               },
               "search": "live-namespace"
@@ -492,24 +492,24 @@
             "live-namespace": {
               "fetch": {
                 "macos-aarch64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.12-tidy/live-namespace-0.1.12-tidy-macos-aarch64.tar.gz",
-                  "version": "0.1.12-tidy",
-                  "blake3": "8c147414b1a5dec6a9dc9453805059f659e1a1e99ab6a9aedfed8e7f75bbdf45",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.12-batch/live-namespace-0.1.12-batch-macos-aarch64.tar.gz",
+                  "version": "0.1.12-batch",
+                  "blake3": "db028add9d8da6d6f6b6ddde49dfbef570dfa5ef90efb3bec8fad7abca3feda9",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.12-tidy/live-namespace-0.1.12-tidy-macos-aarch64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.12-batch/live-namespace-0.1.12-batch-macos-aarch64.tar.gz.b3"
                 },
                 "macos-x86_64": {
-                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.12-tidy)."
+                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.12-batch)."
                 },
                 "linux-x86_64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.12-tidy/live-namespace-0.1.12-tidy-linux-x86_64.tar.gz",
-                  "version": "0.1.12-tidy",
-                  "blake3": "6f037f3c1200f3b223b054140b25e50dde816d9d3db021262a913985db70a24b",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.12-batch/live-namespace-0.1.12-batch-linux-x86_64.tar.gz",
+                  "version": "0.1.12-batch",
+                  "blake3": "4fc3d62f7988f8be1b3c43cdee920eb26c1e7f35221ac4ac0e8b368227a1d755",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.12-tidy/live-namespace-0.1.12-tidy-linux-x86_64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.12-batch/live-namespace-0.1.12-batch-linux-x86_64.tar.gz.b3"
                 },
                 "linux-aarch64": {
-                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.12-tidy)."
+                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.12-batch)."
                 }
               },
               "search": "live-namespace"
