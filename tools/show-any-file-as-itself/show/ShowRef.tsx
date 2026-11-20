@@ -15,6 +15,8 @@
 
 import React from 'react';
 import { classifyRef } from '../read-data/classify-ref.mjs';
+import { videoRefMedia } from '../read-data/video-ref-media.mjs';
+import { MediaPlaybackSurface } from './lazy-playback-surface';
 
 const FRAME_SANDBOX = 'allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox';
 
@@ -24,7 +26,7 @@ export function ShowRef({ source, label }: { source: string; label: string }) {
   return (
     <figure className="m-0 flex flex-col gap-2">
       {shown.kind === 'image' && <img src={shown.src} alt={label} loading="lazy" className={`${media} h-auto max-h-[480px] object-contain`} />}
-      {shown.kind === 'video' && <video src={shown.src} controls preload="metadata" playsInline aria-label={label} className={media} />}
+      {shown.kind === 'video' && <MediaPlaybackSurface media={videoRefMedia(shown.src, label)} showFrameChrome={false} preload="metadata" />}
       {shown.kind === 'audio' && <audio src={shown.src} controls preload="none" aria-label={label} className="w-full" />}
       {shown.kind === 'page' && <iframe src={shown.src} title={label} sandbox={FRAME_SANDBOX} loading="lazy" referrerPolicy="no-referrer" className={`${media} h-[480px] border`} />}
       {shown.kind === 'unsupported' && <p className="m-0 text-[13px] leading-5 break-all">This address can not be opened here: {shown.src}</p>}
