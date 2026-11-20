@@ -33,7 +33,7 @@ const EARLIER = {
   'tools/record-log/do-work/record-log-store.mjs': 'record-log-store-before-unused-kinds.mjs',
   'tools/record-log/do-work/record-tables.mjs': 'record-tables-before-unused-kinds.mjs',
 };
-const earlierSource = path => readFileSync(new URL(`./fixtures/from-an-older-version/${EARLIER[path]}`, import.meta.url), 'utf8');
+const earlierSource = path => readFileSync(new URL(`./fixtures/${EARLIER[path]}`, import.meta.url), 'utf8');
 
 async function bundle(road) {
   const earlier = new Map(Object.keys(EARLIER).map(path => [root + path, earlierSource(path)]));
