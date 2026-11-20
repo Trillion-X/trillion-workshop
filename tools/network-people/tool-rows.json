@@ -595,7 +595,40 @@
         "result_selector": "$.result",
         "provenance": {
           "source": "the old network_profile (an older tag of the old worker tools, tools.mjs.held:295 at a476dd597): the person's own Network profile, shown to other people only when findable"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "subject": "person:sample-ana",
+              "handle": "sample_ana",
+              "offering": "Sourdough baking classes at home",
+              "records": [
+                {
+                  "id": "record:network-profile:person%3Asample-ana",
+                  "type": "record:network-profile",
+                  "value": {
+                    "subject": "person:sample-ana",
+                    "handle": "sample_ana",
+                    "name": "Sample Ana",
+                    "offering": "Sourdough baking classes at home",
+                    "seeking": "Pastry sales help",
+                    "findable": true,
+                    "open_to_messages": true,
+                    "show_pursuits": true,
+                    "pursuits": [
+                      "sourdough bread classes"
+                    ],
+                    "links": [],
+                    "written": []
+                  }
+                }
+              ]
+            },
+            "output_selector": "$.result.subject",
+            "contains": false
+          }
+        ]
       }
     },
     {
@@ -1149,7 +1182,58 @@
         "result_selector": "$.result",
         "provenance": {
           "source": "the old find (an older tag of the old worker tools, tools.mjs.held:297 at a476dd597 and src/network.mjs:2009-2017): matched by meaning, cosine at the network settings' min_similarity"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "subject": "person:sample-bo",
+              "need": "where can I learn sourdough baking",
+              "records": [
+                {
+                  "id": "record:network-profile:person%3Asample-ana",
+                  "type": "record:network-profile",
+                  "value": {
+                    "subject": "person:sample-ana",
+                    "handle": "sample_ana",
+                    "name": "Sample Ana",
+                    "offering": "Sourdough baking classes at home",
+                    "seeking": "Pastry sales help",
+                    "findable": true,
+                    "open_to_messages": true,
+                    "show_pursuits": true,
+                    "pursuits": [
+                      "sourdough bread classes"
+                    ],
+                    "links": [],
+                    "written": []
+                  }
+                },
+                {
+                  "id": "record:network-profile:person%3Asample-bo",
+                  "type": "record:network-profile",
+                  "value": {
+                    "subject": "person:sample-bo",
+                    "handle": "sample_bo",
+                    "name": "Sample Bo",
+                    "offering": "Flour milling",
+                    "seeking": "Sourdough baking teachers",
+                    "findable": true,
+                    "open_to_messages": true,
+                    "show_pursuits": true,
+                    "pursuits": [
+                      "grain milling for bakers"
+                    ],
+                    "links": [],
+                    "written": []
+                  }
+                }
+              ]
+            },
+            "output_selector": "$.result.subject",
+            "contains": false
+          }
+        ]
       }
     },
     {
@@ -1691,7 +1775,57 @@
         "result_selector": "$.result",
         "provenance": {
           "source": "the old on_my_path (an older tag of the old worker tools, tools.mjs.held:298 at a476dd597 and src/network.mjs:2022-2060), with its open pursuits from src/person-network.mjs:21-36"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "subject": "person:sample-bo",
+              "records": [
+                {
+                  "id": "record:network-profile:person%3Asample-ana",
+                  "type": "record:network-profile",
+                  "value": {
+                    "subject": "person:sample-ana",
+                    "handle": "sample_ana",
+                    "name": "Sample Ana",
+                    "offering": "Sourdough baking classes at home",
+                    "seeking": "Pastry sales help",
+                    "findable": true,
+                    "open_to_messages": true,
+                    "show_pursuits": true,
+                    "pursuits": [
+                      "sourdough bread classes"
+                    ],
+                    "links": [],
+                    "written": []
+                  }
+                },
+                {
+                  "id": "record:network-profile:person%3Asample-bo",
+                  "type": "record:network-profile",
+                  "value": {
+                    "subject": "person:sample-bo",
+                    "handle": "sample_bo",
+                    "name": "Sample Bo",
+                    "offering": "Flour milling",
+                    "seeking": "Sourdough baking teachers",
+                    "findable": true,
+                    "open_to_messages": true,
+                    "show_pursuits": true,
+                    "pursuits": [
+                      "grain milling for bakers"
+                    ],
+                    "links": [],
+                    "written": []
+                  }
+                }
+              ]
+            },
+            "output_selector": "$.result.subject",
+            "contains": false
+          }
+        ]
       }
     },
     {
