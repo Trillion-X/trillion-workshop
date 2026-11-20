@@ -83,11 +83,17 @@ export async function keepPackageFilesCurrent({ root, seams }) {
   const verdict = classify({ oldRows, newRows });
   const summary = { at: tip, added: verdict.added.length, findings: verdict.findings };
   if (!verdict.land) return { outcome: 'nothing-to-do', ...summary };
-  // Origin may have moved while the generator ran: a commit on the old tip would be judged against the wrong base, so this pass
-  // lands nothing and the next pass starts again from the new tip.
-  if (await seams.fetchOriginMain(root) !== tip) return { outcome: 'origin-moved', ...summary };
+  // Origin may have moved while the generator ran. The additions were made against origin's file at `tip`, so they are still right
+  // on a newer tip only when origin's file is unchanged; then the commit is built on the newer tip. Any other change to the file
+  // lands nothing, and the next pass starts again from the new tip.
+  let base = tip;
+  const moved = await seams.fetchOriginMain(root);
+  if (moved !== tip) {
+    if (await seams.fileAt(root, moved) !== await seams.fileAt(root, tip)) return { outcome: 'origin-moved', ...summary };
+    base = moved;
+  }
   const text = JSON.stringify(verdict.merged, null, 1) + '\n';
-  const landed = await seams.land(root, { tip, text });
+  const landed = await seams.land(root, { tip: base, text });
   return { outcome: landed.ok ? 'landed' : 'error', ...summary, commit: landed.commit ?? null, why: landed.why ?? null };
 }
 

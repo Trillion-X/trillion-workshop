@@ -58,9 +58,23 @@ test('nothing to add: nothing lands, and the findings are still recorded', async
   assert.equal(result.findings.length, 1, 'tool:beta is missing from the generated file as a whole');
 });
 
-test('origin moves while the generator runs: nothing lands, the next pass starts again', async () => {
+test('origin moves but its package-files.json does not: the additions land on the newer tip', async () => {
+  const generated = { ...origin, 'tool:new': [itemOf('new', ['do-work'])] };
+  const seams = { ...fakes({ generated }).seams };
+  let fetches = 0;
+  const landed = [];
+  seams.fetchOriginMain = async () => { fetches += 1; return fetches > 1 ? 'newer0000000000000000000000000000000000' : TIP; };
+  seams.land = async (_root, { tip }) => { landed.push(tip); return { ok: true, commit: 'commit1' }; };
+  const result = await keepPackageFilesCurrent({ root: '/x', seams });
+  assert.equal(result.outcome, 'landed');
+  assert.deepEqual(landed, ['newer0000000000000000000000000000000000']);
+});
+
+test('origin moves and its package-files.json changes too: nothing lands, the next pass starts again', async () => {
   const generated = { ...origin, 'tool:new': [itemOf('new', ['do-work'])] };
   const { seams, calls } = fakes({ generated, movedAfterGenerate: true });
+  const fileAt = seams.fileAt;
+  seams.fileAt = async (root, tip) => (tip === TIP ? await fileAt(root, tip) : JSON.stringify({ 'tool:changed': [] }));
   const result = await keepPackageFilesCurrent({ root: '/x', seams });
   assert.equal(result.outcome, 'origin-moved');
   assert.equal(calls.landed.length, 0);
