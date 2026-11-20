@@ -45,7 +45,7 @@
                 "purpose",
                 "surface"
               ],
-              "description": "The use this statement runs for: a recipe step's declared purpose and surface (config.context.use). The engine sets it on every call a recipe step sends, over any use the step's input carried. A direct caller sends its own use and the tool binds it as given; until the reader role is in place (see README) the database trusts that binding. Bound as run_use.purpose and run_use.surface inside the statement's own transaction, so the database's row policies read it. Absent: no use is bound.",
+              "description": "The use this statement runs for: a recipe step's declared purpose and surface (config.context.use, set by the workflow engine over any use the step's input carried). Given with database, the computer opens the database with its reader login (one that cannot get round the row rules, change a table or read the use binding) instead of the owner's, and hands the run a ticket of this use that it signed; the statement's transaction claims it first, so the database's row rules read this use and the statement cannot change it. A use with credential_name, which has no ticket, is refused. Absent: the owner's own work, read under the database's own purpose_when_unstated.",
               "properties": {
                 "purpose": {
                   "type": "string",
@@ -60,6 +60,10 @@
             "role_credential_name": {
               "type": "string",
               "description": "A recipe's standing login: the held name of its connection string, whose role and password the recipe makes or drops."
+            },
+            "value_credential_name": {
+              "type": "string",
+              "description": "A recipe that takes a held value (may-read-under-row-rules: the database's use key, held as <database>-use-key): the held name of that value, handed to the recipe and filled in by the server, never in the request."
             },
             "recipe": {
               "type": "object",
@@ -456,6 +460,10 @@
               "only_when": {
                 "input": "database",
                 "present": true
+              },
+              "under_use": {
+                "use_from_input": "use",
+                "ticket_fd": 5
               }
             },
             {
@@ -463,6 +471,14 @@
               "fd": 4,
               "only_when": {
                 "input": "role_credential_name",
+                "present": true
+              }
+            },
+            {
+              "secret_name_from_input": "value_credential_name",
+              "fd": 6,
+              "only_when": {
+                "input": "value_credential_name",
                 "present": true
               }
             }

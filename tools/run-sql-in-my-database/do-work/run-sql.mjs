@@ -20,6 +20,14 @@
 // values the server sets on every row it adds.
 // A recipe runs in one transaction unless it says `in_one_transaction: false`: Postgres runs CREATE DATABASE and DROP
 // DATABASE only outside a transaction block, so such a recipe's statements run one by one on the same connection.
+// A recipe that takes a held value (`takes_held_value`) is handed it on descriptor 6 (value_credential_name) and fills it in
+// as %10$L, so a value no caller holds (a database's use key) reaches the database without passing through the request.
+//
+// A statement under a declared use ({ sql, use: { purpose, surface } }, database given) is run by the database's reader
+// login with the ticket the engine signed for that use on descriptor 5 (the engine's use_ticket.rs): the
+// statement's own transaction first claims the ticket (use_binding.claim_use, role recipe may-read-under-row-rules), which
+// binds the use to that transaction once, so the row rules read it and nothing the statement does can change it. A use with
+// no ticket is refused here: only the engine binds a use.
 import { randomBytes } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -28,6 +36,8 @@ import { throughProxy } from './through-the-run-proxy.mjs';
 
 const CONNECTION_DESCRIPTOR = 3;
 const ROLE_CONNECTION_DESCRIPTOR = 4;
+const TICKET_DESCRIPTOR = 5;
+const HELD_VALUE_DESCRIPTOR = 6;
 // 32 random bytes written as base64url are 43 characters; a standing login's password shorter than that is refused.
 const MIN_PASSWORD_LENGTH = 43;
 // A SCRAM-SHA-256 verifier as Postgres keeps one (RFC 5803): iterations, salt, StoredKey and ServerKey. The server takes it as the
@@ -56,12 +66,12 @@ const usedOf = use => {
   return { purpose: use.purpose, surface: use.surface };
 };
 
-// One statement inside a transaction that first binds the use as run_use.purpose and run_use.surface. set_config(..., true)
-// lasts to the end of that transaction only, so the row policies read this statement's use and nothing else.
-const runUnderUse = async (client, shape) => {
+// One statement inside a transaction that first claims the run's use ticket: the database checks the engine's signature and
+// the ticket's end, and binds its use to this transaction alone, so the row rules read this statement's use and nothing else.
+const runUnderTicket = async (client, shape, ticket) => {
   await runOne(client, 'BEGIN');
   try {
-    await runOne(client, "SELECT set_config('run_use.purpose', $1, true), set_config('run_use.surface', $2, true)", [shape.use.purpose, shape.use.surface]);
+    await runOne(client, 'SELECT * FROM use_binding.claim_use($1)', [ticket]);
     const answer = await runOne(client, shape.sql, shape.params);
     await runOne(client, 'COMMIT');
     return answer;
@@ -123,6 +133,14 @@ const loginOf = connection => {
   return { role: decodeURIComponent(url.username), password: decodeURIComponent(url.password) };
 };
 
+// The held value a recipe fills in as %10$L: a recipe that takes one needs it to create, and one that takes none is never
+// handed one, so a value is never sent where no statement asked for it.
+const heldValueOf = (shape, heldValue) => {
+  const takes = RECIPES[shape.name].takes_held_value === true;
+  if (takes && shape.action === 'create' && !heldValue) throw new Error(`The ${shape.name} recipe takes a held value: give value_credential_name.`);
+  if (!takes && heldValue) throw new Error(`The ${shape.name} recipe takes no held value: give no value_credential_name.`);
+};
+
 // The role a recipe makes or takes away, its password and when it stops working: a standing login is the held role
 // connection's (descriptor 4); someone else's is the verifier they sent, with the role they named (and valid_until if given);
 // a minted one is made up here and needs valid_until; a drop needs only the role.
@@ -154,7 +172,7 @@ const recipeLogin = (shape, roleConnection) => {
 
 // One recipe action, in one transaction unless the recipe says otherwise: each statement is filled by the server's format()
 // and then run. %4$I is the database the connection names; %5$I the one the held role connection names.
-const runRecipe = async (client, shape, connection, roleConnection) => {
+const runRecipe = async (client, shape, connection, roleConnection, heldValue) => {
   const login = recipeLogin(shape, roleConnection);
   const database = new URL(connection).pathname.slice(1);
   const roleDatabase = roleConnection ? new URL(roleConnection).pathname.slice(1) : '';
@@ -167,7 +185,7 @@ const runRecipe = async (client, shape, connection, roleConnection) => {
     const { rows: [{ listed }] } = await runOne(client, "SELECT string_agg(format('%I', each), ', ') AS listed FROM unnest($1::text[]) AS columns(each)", [shape.columns ?? null]);
     const rule = recipe.adds_rows === true ? JSON.stringify(shape.fixed) : null;
     for (const template of recipe[shape.action]) {
-      const { rows: [{ statement }] } = await runOne(client, "SELECT format($1, $2::text, $3::text, $4::text, $5::text, $6::text, $7::text, $8::text, $9::text, left('rule_' || $2::text, 63)) AS statement", [template, login.role, login.password, login.validUntil, database, roleDatabase, shape.table ?? null, listed, rule]);
+      const { rows: [{ statement }] } = await runOne(client, "SELECT format($1, $2::text, $3::text, $4::text, $5::text, $6::text, $7::text, $8::text, $9::text, left('rule_' || $2::text, 63), $10::text) AS statement", [template, login.role, login.password, login.validUntil, database, roleDatabase, shape.table ?? null, listed, rule, heldValue || null]);
       await runOne(client, statement);
     }
     for (const [limit, value] of Object.entries(shape.limits ?? {})) {
@@ -191,16 +209,19 @@ const runRecipe = async (client, shape, connection, roleConnection) => {
 };
 
 // Runs the request as the connection's login. `connect` makes a connected client (a test hands its own); the client is
-// always closed. A server error is the server's own text; the connection string is removed from any text first.
-export async function runSql({ connection, roleConnection = '', input, connect = connectTo }) {
+// always closed. A server error is the server's own text; the connection string is removed from any text first. `ticket` is
+// the engine's use ticket (descriptor 5) and `heldValue` a recipe's held value (descriptor 6).
+export async function runSql({ connection, roleConnection = '', ticket = '', heldValue = '', input, connect = connectTo }) {
   if (typeof connection !== 'string' || connection === '') throw new Error('No database connection was handed to this run. Hold the connection string under the name credential_name gives.');
   const shape = shapeOf(input);
+  if (shape.kind === 'sql' && shape.use && !ticket) throw new Error("A use is bound only by the engine's ticket: give database, so the computer opens it with the database's reader login and hands this run the ticket of its use.");
+  if (shape.kind === 'recipe') heldValueOf(shape, heldValue);
   const timeout = input.statement_timeout_ms;
   if (timeout !== undefined && !(Number.isInteger(timeout) && timeout > 0)) throw new Error('statement_timeout_ms must be a whole number of milliseconds above zero.');
   const client = await connect(connection, timeout);
   try {
-    if (shape.kind === 'sql') return shape.use ? await runUnderUse(client, shape) : await runOne(client, shape.sql, shape.params);
-    return await runRecipe(client, shape, connection, roleConnection);
+    if (shape.kind === 'sql') return ticket ? await runUnderTicket(client, shape, ticket) : await runOne(client, shape.sql, shape.params);
+    return await runRecipe(client, shape, connection, roleConnection, heldValue);
   } finally {
     await client.end().catch(() => {});
   }
@@ -228,11 +249,16 @@ export function sayWithout(error, ...connections) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const connection = held(CONNECTION_DESCRIPTOR), roleConnection = held(ROLE_CONNECTION_DESCRIPTOR);
+  let ticket = '', heldValue = '';
   try {
     const input = JSON.parse(readFileSync(0, 'utf8'));
-    console.log(JSON.stringify(await runSql({ connection, roleConnection, input })));
+    // Descriptors 5 and 6 are read only when the input is one the row mounts them for: an unmounted number may be one the
+    // runtime itself opened (Node's own event queue), and reading that would wait for ever.
+    if (input?.use !== undefined && input.use !== null && typeof input.database === 'string') ticket = held(TICKET_DESCRIPTOR);
+    if (typeof input?.value_credential_name === 'string' && input.value_credential_name !== '') heldValue = held(HELD_VALUE_DESCRIPTOR);
+    console.log(JSON.stringify(await runSql({ connection, roleConnection, ticket, heldValue, input })));
   } catch (error) {
-    console.error(sayWithout(error, connection, roleConnection));
+    console.error(sayWithout(error, connection, roleConnection, ticket, heldValue));
     process.exitCode = 1;
   }
 }

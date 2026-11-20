@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { runSql, shapeOf } from '../do-work/run-sql.mjs';
 
-// A client that records each statement it is sent and answers one empty row set, so the order of BEGIN, the use binding,
-// the statement, COMMIT or ROLLBACK can be read back without a server.
+// A client that records each statement it is sent and answers one empty row set, so the order of BEGIN, the ticket's claim,
+// the statement, COMMIT or ROLLBACK can be read back without a server. test/use-tickets.test.mjs runs the same on a real one.
 const recordingClient = (sent, { failOn } = {}) => ({
   async query({ text, values = [] }) {
     sent.push({ text, values });
@@ -13,22 +13,19 @@ const recordingClient = (sent, { failOn } = {}) => ({
   async end() {},
 });
 const connect = sent => async () => recordingClient(sent);
-const connection = 'postgres://owner:made-up-pw@127.0.0.1:5432/proofs';
+const connection = 'postgres://reader:made-up-pw@127.0.0.1:5432/proofs';
+const ticket = 'aa.made-up-ticket';
 
-test('a use binds run_use.purpose and run_use.surface inside one transaction before the statement', async () => {
+test('a run handed a use ticket claims it inside the statement\'s own transaction, before the statement', async () => {
   const sent = [];
   const answer = await runSql({
     connection,
+    ticket,
     connect: connect(sent),
-    input: { sql: 'select n from clip', use: { purpose: 'publish', surface: 'social/instagram' } },
+    input: { database: 'proofs', sql: 'select n from clip', use: { purpose: 'publish', surface: 'social/instagram' } },
   });
-  assert.deepEqual(sent.map(s => s.text), [
-    'BEGIN',
-    "SELECT set_config('run_use.purpose', $1, true), set_config('run_use.surface', $2, true)",
-    'select n from clip',
-    'COMMIT',
-  ]);
-  assert.deepEqual(sent[1].values, ['publish', 'social/instagram']);
+  assert.deepEqual(sent.map(s => s.text), ['BEGIN', 'SELECT * FROM use_binding.claim_use($1)', 'select n from clip', 'COMMIT']);
+  assert.deepEqual(sent[1].values, [ticket], 'the ticket is a bound value, never statement text');
   assert.deepEqual(answer, { columns: ['n'], rows: [{ n: 1 }], row_count: 1 });
 });
 
@@ -38,12 +35,18 @@ test('a statement without a use runs as before, with no transaction of its own',
   assert.deepEqual(sent.map(s => s.text), ['select 1']);
 });
 
-test('a refused statement rolls its use back', async () => {
+test('a refused statement rolls its claim back', async () => {
   const sent = [];
   const failing = async () => recordingClient(sent, { failOn: 'select boom' });
-  await assert.rejects(runSql({ connection, connect: failing, input: { sql: 'select boom', use: { purpose: 'publish', surface: '' } } }));
+  await assert.rejects(runSql({ connection, ticket, connect: failing, input: { sql: 'select boom', use: { purpose: 'publish', surface: '' } } }));
   assert.deepEqual(sent.map(s => s.text).slice(-2), ['select boom', 'ROLLBACK']);
   assert.ok(!sent.some(s => s.text === 'COMMIT'));
+});
+
+test('a use with no ticket is refused before any connection: only the engine binds a use', async () => {
+  const sent = [];
+  await assert.rejects(runSql({ connection, connect: connect(sent), input: { sql: 'select 1', use: { purpose: 'coach/review', surface: '' } } }), /bound only by the engine's ticket/);
+  assert.deepEqual(sent, []);
 });
 
 test('a use must be exactly purpose and surface as text', () => {
