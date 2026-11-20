@@ -1,6 +1,6 @@
 # tools/revenue-ledger/
 
-Adds up revenue, refunds, net revenue and active recurring revenue from any provider's payment events, read through the caller's own field paths: the Workshop tool `tool:add-up-revenue`, run in the deployed tool container. Ported from bitfield-packages `packages/revenue-ledger` (its read side; the finance screen was not brought in); nothing here is imported by the Worker.
+Adds up revenue, refunds, net revenue and active recurring revenue from any provider's payment events, read through the caller's own field paths: the Workshop tool `tool:add-up-revenue`, run in the deployed tool container. Ported from bitfield-packages `packages/revenue-ledger` (commit d926b7adb8): its read side is here, and the finance screen's pure files are under `packages/revenue-ledger/show/` but no screen row mounts them yet (their live mount still imports a retired runtime hook). Nothing here is imported by the Worker.
 
 ## Files
 
@@ -14,6 +14,7 @@ Adds up revenue, refunds, net revenue and active recurring revenue from any prov
 | `part.json` | Public: `read-data/read-payment-events.ts` and the `read-data/revenue-types.ts` it imports. |
 | `test/project-revenue.test.ts` | The reducer: config-driven field paths, a second config with other names, honest zero, unknown kinds ignored, cohorts, review buckets. |
 | `test/read-payment-events.test.ts` | The read boundary: rows to events, the config row, and rows to totals. |
+| `test/revenue-pipeline.test.ts` | The money pipeline with no key: a Stripe webhook fixture through take-payments' mapper and map, then the projection; plus the grant-twin guard (payment.complete never double-counts). Ported from bitfield-packages' revenue-pipeline-e2e test. |
 | `tool-rows.json` | Lists `records.json` into the Workshop (`source:business-revenue-tools`). |
 
 ## Key Types / Functions
