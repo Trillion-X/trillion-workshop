@@ -8,6 +8,25 @@ One folder, not one per script: the scripts read each other's settings files by 
 
 The person's Claude Code cloud sessions (claude.ai/code) are AI sessions too, run off this computer: `harness/read-cloud-sessions.mjs` lists them for one Claude sign-in on this computer (`list`), cuts each one's messages down to what it was asked, what it said last, its pull requests and pushes and the questions it asked (`read`), sends one a message as the person's next turn (`send`), and starts a new one with every repository it needs cloned from main and its first message (`start`; `claude --cloud` attaches only the repository it is run in, and a session asking for a second one waits on a permission only the person can give). It uses the same account pages Claude Code's own `--teleport` and the claude.ai/code page use (`/v1/sessions`, `/v1/sessions/<id>/events`), with the sign-in Claude Code keeps in the Keychain for that config folder; the token stays in memory and in the Authorization header only. `send` and `start` take the message, the brief, from a record of the person's Trillion by its id (`start .claude-account1 Trillion-X/trillion-workshop "Sort the list" record:brief:sort-the-list`: read with `records:read` through the Mac app's local door with the account key, its type the id up to its last `:`, its text the value when that is text, else the value's `brief`, `text`, `body`, `message` or `says`), or from standard input (`-` or nothing), so the lead never writes a brief file; a file that already exists is still read. Written here, not moved: `moved-from.json` does not name it.
 
+## Claude Cloud accounts and existing work (November 20, 2026)
+
+The same `harness/read-cloud-sessions.mjs` controller now reads accounts signed in through Claude Code on **Linux** (the existing private `<CLAUDE_CONFIG_DIR>/.credentials.json`) as well as macOS (the existing Keychain item). Tokens stay on the owned computer; no token is printed or copied into Trillion.
+
+From the root of this checkout on the computer that owns the sign-ins:
+
+```sh
+node tools/keep-and-wake-ai-sessions-on-this-computer/harness/read-cloud-sessions.mjs accounts
+node tools/keep-and-wake-ai-sessions-on-this-computer/harness/read-cloud-sessions.mjs list-json .claude-account1 100
+node tools/keep-and-wake-ai-sessions-on-this-computer/harness/read-cloud-sessions.mjs read-one .claude-account1 <session-id>
+# Resume one existing session, with a brief read from stdin rather than the command line:
+printf '%s\n' 'Continue from the last verified checkpoint. Re-read the repository and avoid duplicate work.' |
+  node tools/keep-and-wake-ai-sessions-on-this-computer/harness/read-cloud-sessions.mjs send .claude-account1 <session-id> -
+```
+
+`tool:manage-claude-cloud-sessions` exposes five typed actions: `accounts`, `list`, `read`, `resume`, and deliberate `start`. Its bridge is `harness/claude-cloud-control.mjs`, and the Mac tool host maps the operation in `tools/run-on-a-persons-computer/mac-tools.json`. A resume sends one message into the same session; it does not make a new cloud session. `dry_run` changes nothing. The original send/start commands still use the existing authenticated provider road, while newer Claude Code also supports the documented `claude -p --cloud <session-id>` continuation command.
+
+**Deployment boundary:** publishing this repository alone does not prove that a signed Mac tool host has installed the new code or that a Linux server is exposing it as an authenticated computer tool. Read back the installed tool and execute `accounts` and `list` before sending work. Never treat a tool row, a passing test, or a pushed commit as a resumed agent.
+
 ## Who imports it
 
 - `tools/run-on-a-persons-computer` (the computer's own tools) imports `../harness/account-key.mjs`, `../harness/setup.mjs` and `../harness/setup.json`, written for the old tree's layout; on this repository's main those paths reach nothing. They are repointed here by the lane that gives that folder its rows.
