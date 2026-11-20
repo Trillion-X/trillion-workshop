@@ -17,6 +17,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { blake3 } from '@noble/hashes/blake3.js';
+import { hearFile } from '../../audio-transcription/read-data/hear-here.mjs';
 import { bytesToHex } from '@noble/hashes/utils.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -56,5 +57,18 @@ export function recordSession({ program, flags = {}, sources, at = Date.now() },
   writeFileSync(`${file}.part`, `${JSON.stringify({ sessions: [...rows, record].slice(-settings.most_sessions) }, null, 1)}\n`, { mode: 0o600 });
   renameSync(`${file}.part`, file);
   return record;
+}
+
+/**
+ * The hear step: each source's recording is heard by `hear` (default: audio-transcription's hearFile, which reads its options
+ * from `hearing`), the words come back in time order labelled by source, and the session is recorded. Sources, labels and the
+ * record file are the same DATA as above. `file` overrides where the session record goes (default: settings.session_file).
+ */
+export async function hearSourcesOfACall(input, { hear = hearFile, hearing = {}, settings = sourcesSettings(), at = 0, file } = {}) {
+  const words = await hearSources((input.sources ?? []).map(entry => ({ source: entry.source, path: expand(entry.path) })), {
+    hear: recording => hear(recording, hearing), settings, at,
+  });
+  const session = recordSession({ program: hearing.produced_by ?? 'hearFile', flags: input.flags ?? {}, sources: [...new Set(words.map(word => word.source))] }, { settings, file });
+  return { words, session };
 }
 
