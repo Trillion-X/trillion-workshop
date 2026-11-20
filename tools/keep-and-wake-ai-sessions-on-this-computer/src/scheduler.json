@@ -20,7 +20,7 @@
     "max_aging_steps": 99
   },
   "spread": {
-    "_what": "How fires are spread so many stores do not all run at :00 (tools/run-work-later-or-on-a-repeat/do-work/spread-fires.ts). A recurring occurrence starts later by recurring_frac of its own interval at most recurring_cap_seconds; a one-off on a minute divisible by one_shot_minute_mod fires earlier by between one_shot_floor_seconds and one_shot_max_seconds, never before it was created. `on` false moves nothing: a time a person pinned is on time until an operator turns this on.",
+    "_what": "How fires are spread so many stores do not all run at :00 (the timed-action engine's spread, tools/run-work-later-or-on-a-repeat/crates/timed-action/src/spread.rs). A recurring occurrence starts later by recurring_frac of its own interval at most recurring_cap_seconds; a one-off on a minute divisible by one_shot_minute_mod fires earlier by between one_shot_floor_seconds and one_shot_max_seconds, never before it was created. `on` false moves nothing: a time a person pinned is on time until an operator turns this on.",
     "on": false,
     "recurring_frac": 0.1,
     "recurring_cap_seconds": 900,

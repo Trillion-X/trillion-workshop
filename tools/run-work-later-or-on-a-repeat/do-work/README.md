@@ -1,5 +1,9 @@
 # tools/run-work-later-or-on-a-repeat/do-work/
 
-Files more than one moved group imports, kept once.
+What other code imports from this tool.
 
-Moved here byte for byte from Trillion-X/trillion by `tools/move-code-between-trees`; `moved-from.json` names each file's source path and commit and the identity of its bytes there and here. Trillion-X/trillion imports these files from this package. The folder keeps the source tree's own paths under it, so the files import each other as they did.
+| File | Purpose |
+|------|---------|
+| `timed-action.mjs` | The Rust timed-action engine (`../crates/timed-action`, built into `../built-stored-bytes/timed-action`) loaded once for a Node tool or test; every engine function re-exported. Each takes one object (shapes in `../crates/timed-action/README.md`). A page imports the same path and its build answers it with `tools/workspace-screens/web/src/workspace/timed-action-in-the-page.mjs`. |
+| `quiet-hours.json` | Quiet-hours modes: DATA the engine reads at build time and the pages read to name a mode. |
+| `moved-from.json` | Where the files first moved here from (Trillion-X/trillion); the TypeScript it lists was replaced by the engine and deleted. |

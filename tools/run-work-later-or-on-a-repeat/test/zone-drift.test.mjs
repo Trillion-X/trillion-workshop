@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { zoneDrift } from '../do-work/zone-drift.ts';
+import * as engine from '../do-work/timed-action.mjs';
+
+const zoneDrift = (planningZone, deviceZone, askedZones) => engine.zoneDrift({ planningZone, deviceZone, askedZones });
 
 test('a device zone different from the planning zone is asked about once', () => {
   assert.deepEqual(zoneDrift('America/New_York', 'America/New_York'), { planning_zone: 'America/New_York', device_zone: 'America/New_York', drifted: false, ask: false });

@@ -92,9 +92,9 @@ test('a soft bounce waits for its retry time, is then sent again once despite th
   assert.deepEqual(retried.held, [{ recipient: 'soft@example.com', why: 'sent to within the last 30 days' }]);
 });
 
-test('local hours are read through tools/wall-time, so a clock change keeps the window at its wall-clock hour', () => {
+test('local hours are read through the timed-action engine, so a clock change keeps the window at its wall-clock hour', () => {
   const source = readFileSync(join(folder, 'read-data', 'inbox-pacing.mjs'), 'utf8');
-  assert.match(source, /from '\.\.\/\.\.\/wall-time\/read-data\/wall-time\.mjs'/);
+  assert.match(source, /from '\.\.\/\.\.\/run-work-later-or-on-a-repeat\/do-work\/timed-action\.mjs'/);
   assert.doesNotMatch(source, /new Intl\.DateTimeFormat/, 'no second wall-clock reader');
   // US clocks go back on 2026-11-01: the Saturday before is UTC-5, the Saturday after UTC-6; both open at 08:00 local.
   const before = planSends({ pacing: 'saturday-local', time_zone: 'America/Chicago', now: '2026-10-30T12:00:00Z', recipients: ['x@example.com'] });

@@ -131,6 +131,7 @@
           "trillion-workshop/run-experiments",
           "trillion-workshop/run-on-a-persons-computer",
           "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
           "trillion-workshop/screen-arrangement",
           "trillion-workshop/screen-look",
           "trillion-workshop/screen-looks",
@@ -171,7 +172,6 @@
           "trillion-workshop/view-as",
           "trillion-workshop/walk-a-new-person-through-first-setup",
           "trillion-workshop/walk-nested-input-within-limits",
-          "trillion-workshop/wall-time",
           "trillion-workshop/watch-my-sources",
           "trillion-workshop/what-is-waiting-on-me",
           "trillion-workshop/where-a-person-stands",
@@ -301,9 +301,8 @@
           "workdir": "/opt/run-work-later-or-on-a-repeat",
           "stdout": "json",
           "argv": [
-            "node",
-            "/opt/workflows/do-work/run-a-function.mjs",
-            "/opt/run-work-later-or-on-a-repeat/do-work/when-to-wake.ts",
+            "component",
+            "/opt/run-work-later-or-on-a-repeat/built-stored-bytes/component/timed-action.wasm",
             "whenToWake"
           ],
           "stdin": {
@@ -316,39 +315,9 @@
               {
                 "package": "run-work-later-or-on-a-repeat",
                 "paths": [
-                  "do-work"
+                  "built-stored-bytes/component/timed-action.wasm"
                 ],
                 "at": "/opt/run-work-later-or-on-a-repeat"
-              },
-              {
-                "package": "wall-time",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/wall-time"
-              },
-              {
-                "package": "workflows",
-                "paths": [
-                  "do-work/run-a-function.mjs"
-                ],
-                "at": "/opt/workflows"
-              },
-              {
-                "packages": [
-                  "node_modules/@noble/hashes"
-                ],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
               }
             ]
           }
@@ -527,6 +496,7 @@
           "trillion-workshop/run-experiments",
           "trillion-workshop/run-on-a-persons-computer",
           "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
           "trillion-workshop/screen-arrangement",
           "trillion-workshop/screen-look",
           "trillion-workshop/screen-looks",
@@ -567,7 +537,6 @@
           "trillion-workshop/view-as",
           "trillion-workshop/walk-a-new-person-through-first-setup",
           "trillion-workshop/walk-nested-input-within-limits",
-          "trillion-workshop/wall-time",
           "trillion-workshop/watch-my-sources",
           "trillion-workshop/what-is-waiting-on-me",
           "trillion-workshop/where-a-person-stands",
@@ -675,9 +644,8 @@
           "workdir": "/opt/run-work-later-or-on-a-repeat",
           "stdout": "json",
           "argv": [
-            "node",
-            "/opt/workflows/do-work/run-a-function.mjs",
-            "/opt/run-work-later-or-on-a-repeat/do-work/materialize-recurring-windows.ts",
+            "component",
+            "/opt/run-work-later-or-on-a-repeat/built-stored-bytes/component/timed-action.wasm",
             "planRecurringWindows"
           ],
           "stdin": {
@@ -690,39 +658,9 @@
               {
                 "package": "run-work-later-or-on-a-repeat",
                 "paths": [
-                  "do-work"
+                  "built-stored-bytes/component/timed-action.wasm"
                 ],
                 "at": "/opt/run-work-later-or-on-a-repeat"
-              },
-              {
-                "package": "wall-time",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/wall-time"
-              },
-              {
-                "package": "workflows",
-                "paths": [
-                  "do-work/run-a-function.mjs"
-                ],
-                "at": "/opt/workflows"
-              },
-              {
-                "packages": [
-                  "node_modules/@noble/hashes"
-                ],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
               }
             ]
           }

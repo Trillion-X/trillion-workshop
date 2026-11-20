@@ -6,7 +6,7 @@ import { resolveScreenLookPalette, resolveScreenLookButton } from '../read-data/
 import { deviceLook } from '../read-data/device-look-tokens.js';
 import { initSync, filterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 import { blendLookValues, lookAtTime, readLookPlan } from '../read-data/look-over-time.mjs';
-import { timeZoneName } from '../read-data/look-time-zone.js';
+import { timeZoneName } from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
 
 const WORN = 'screen-look';
 const OWN = 'screen-look-own-themes';
@@ -100,7 +100,7 @@ function ruleResult(value, facts, now, zone, wearableIds, ruleSettings) {
       ? turns.has(node.field)
       : Array.isArray(node.rules) && node.rules.some(mentionsClock));
     readsClock ||= mentionsClock(rule.when);
-    const ruleZone = timeZoneName(rule.time_zone) ?? zone;
+    const ruleZone = timeZoneName({ value: rule.time_zone }) ?? zone;
     const row = factsAt(now, ruleZone, facts);
     const fields = ruleSettings.facts.map(({ id, kind }) => ({ id, kind }));
     engine();
@@ -123,7 +123,7 @@ export async function readCurrentWornLook(input = {}, { now = () => new Date() }
   const saved = input.saved ?? {};
   if (!saved || typeof saved !== 'object' || Array.isArray(saved)) throw new Error(`saved must be an object of the person's saved look values by name (${SAVED_NAMES(input.app_data).join(', ')}); a value left out reads as not saved.`);
   const { appLooks, startWith, planSettings, ruleSettings } = appDataOf(input);
-  const zone = input.time_zone === undefined || input.time_zone === null || input.time_zone === '' ? 'UTC' : timeZoneName(input.time_zone);
+  const zone = input.time_zone === undefined || input.time_zone === null || input.time_zone === '' ? 'UTC' : timeZoneName({ value: input.time_zone });
   if (!zone) throw new Error(`${String(input.time_zone)} is not a time zone; use one like America/Los_Angeles.`);
   const planLabel = `workspace-preference:${planSettings.record_key}`;
   const rulesLabel = `workspace-preference:${ruleSettings.record_key}`;

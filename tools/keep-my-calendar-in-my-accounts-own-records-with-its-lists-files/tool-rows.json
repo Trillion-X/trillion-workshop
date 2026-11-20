@@ -167,7 +167,6 @@
           "trillion-workshop/view-as",
           "trillion-workshop/walk-a-new-person-through-first-setup",
           "trillion-workshop/walk-nested-input-within-limits",
-          "trillion-workshop/wall-time",
           "trillion-workshop/watch-my-sources",
           "trillion-workshop/what-is-waiting-on-me",
           "trillion-workshop/where-a-person-stands",
@@ -382,9 +381,8 @@
                 "package": "run-work-later-or-on-a-repeat",
                 "paths": [
                   "do-work/quiet-hours.json",
-                  "do-work/quiet-hours.ts",
-                  "do-work/wall-time.ts",
-                  "do-work/zone-drift.ts"
+                  "do-work/timed-action.mjs",
+                  "built-stored-bytes/timed-action"
                 ],
                 "at": "/opt/run-work-later-or-on-a-repeat"
               },
@@ -439,13 +437,6 @@
                   "read-data/bounded-walk.mjs"
                 ],
                 "at": "/opt/walk-nested-input-within-limits"
-              },
-              {
-                "package": "wall-time",
-                "paths": [
-                  "read-data/wall-time.mjs"
-                ],
-                "at": "/opt/wall-time"
               },
               {
                 "packages": [

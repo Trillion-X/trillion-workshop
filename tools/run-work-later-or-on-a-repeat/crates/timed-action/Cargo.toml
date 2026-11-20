@@ -1,0 +1,27 @@
+# crates/timed-action/Cargo.toml
+#
+# The timed-action crate. Its time zones come from jiff's bundled tz database (jiff-tzdb, compiled in), never from the
+# host, so every computer and page answers the same. Hashing is BLAKE3 (the spread offset of a fire).
+
+[package]
+name = "timed-action"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "timed_action"
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "timed-action"
+path = "src/main.rs"
+
+[dependencies]
+serde_json.workspace = true
+blake3 = "1.8"
+jiff = { version = "0.2", default-features = false, features = ["std", "tzdb-bundle-always"] }
+
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+wasm-bindgen.workspace = true
+js-sys = "0.3"

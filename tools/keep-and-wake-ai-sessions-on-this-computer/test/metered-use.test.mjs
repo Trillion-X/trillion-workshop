@@ -1,7 +1,7 @@
 // Ported from old trillion test/metered-use.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81), deleted by
 // Trillion-X/trillion #243. Of its sixty-one tests one has a running owner: the scheduler (src/scheduler.mjs here) waits out a
 // use-budget refusal until its time and never counts it as a failure; it is the old test, its built-in
-// tool:when-to-run-next answered by tools/run-work-later-or-on-a-repeat/do-work/when-to-wake.ts. The other sixty
+// tool:when-to-run-next answered by the timed-action engine (tools/run-work-later-or-on-a-repeat/do-work/timed-action.mjs). The other sixty
 // tested old src/metered-use.mjs, the Durable Object's per-purpose SQL meter (its budgets and stops, admission, hourly limits, flushes to the pool, the pool's
 // ranking, traces and the kept judgement). That file went with the Worker and nothing meters that way now: trillion-rust only
 // carries the old metered_use_days rows as records (src/storage/record_store_resources.json "metered-use-days"), its
@@ -12,7 +12,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { makeScheduler } from '../src/scheduler.mjs';
-import { whenToWake } from '../../run-work-later-or-on-a-repeat/do-work/when-to-wake.ts';
+import { whenToWake } from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
 
 const NOON = Date.parse('2026-10-04T12:00:00Z');
 // The built-in tool the scheduler asks (tool:when-to-run-next), as the old test/engine-tools-for-tests.mjs ran it.

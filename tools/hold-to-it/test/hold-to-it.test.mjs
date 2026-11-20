@@ -127,7 +127,7 @@ test('the row hands the run no records door and asks for the policy, the held ag
   assert.ok(schema.properties.agreement && schema.properties.marks && schema.properties.policy);
   assert.ok(!schema.properties.operation.enum.includes('agreements'));
   const packs = invoke.files.package_files.map(item => item.package ?? item.module);
-  for (const name of ['hold-to-it', 'wall-time', 'records-door']) assert.ok(packs.includes(name), name);
+  for (const name of ['hold-to-it', 'run-work-later-or-on-a-repeat', 'records-door']) assert.ok(packs.includes(name), name);
 });
 
 test('a check reads heard turns: the speaker names who came, and voices with no name or several candidates leave nobody marked absent', () => {

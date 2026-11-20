@@ -171,7 +171,6 @@
           "trillion-workshop/view-as",
           "trillion-workshop/walk-a-new-person-through-first-setup",
           "trillion-workshop/walk-nested-input-within-limits",
-          "trillion-workshop/wall-time",
           "trillion-workshop/watch-my-sources",
           "trillion-workshop/what-is-waiting-on-me",
           "trillion-workshop/where-a-person-stands",
@@ -336,11 +335,12 @@
                 "at": "/opt/shared-code"
               },
               {
-                "package": "wall-time",
+                "package": "run-work-later-or-on-a-repeat",
                 "paths": [
-                  "read-data/wall-time.mjs"
+                  "do-work/timed-action.mjs",
+                  "built-stored-bytes/timed-action"
                 ],
-                "at": "/opt/wall-time"
+                "at": "/opt/run-work-later-or-on-a-repeat"
               },
               {
                 "packages": ["node_modules/@noble/hashes"],
@@ -604,7 +604,6 @@
           "trillion-workshop/view-as",
           "trillion-workshop/walk-a-new-person-through-first-setup",
           "trillion-workshop/walk-nested-input-within-limits",
-          "trillion-workshop/wall-time",
           "trillion-workshop/watch-my-sources",
           "trillion-workshop/what-is-waiting-on-me",
           "trillion-workshop/where-a-person-stands",
@@ -800,11 +799,12 @@
                 "at": "/opt/run-experiments"
               },
               {
-                "package": "wall-time",
+                "package": "run-work-later-or-on-a-repeat",
                 "paths": [
-                  "read-data/wall-time.mjs"
+                  "do-work/timed-action.mjs",
+                  "built-stored-bytes/timed-action"
                 ],
-                "at": "/opt/wall-time"
+                "at": "/opt/run-work-later-or-on-a-repeat"
               },
               {
                 "package": "browse-and-upload-my-files",

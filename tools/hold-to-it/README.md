@@ -22,6 +22,6 @@ Nothing is sent or booked. The answer says the times to arm (the reminder and th
 
 ## Dependencies
 
-**Depends on:** `tools/wall-time` (zones and clock changes), `tools/records-door` (only its `run-an-export.mjs` runner).
+**Depends on:** `tools/run-work-later-or-on-a-repeat` (the timed-action engine: zones and clock changes), `tools/records-door` (only its `run-an-export.mjs` runner).
 
 **Depended on by:** `tool-rows.json`; the workflows that name `tool:hold-to-it`.

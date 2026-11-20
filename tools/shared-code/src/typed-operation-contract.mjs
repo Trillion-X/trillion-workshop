@@ -2,7 +2,7 @@
 import { blake3 } from '../../keep-and-wake-ai-sessions-on-this-computer/parts/live-namespace/do-work/blake3.mjs';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import { NAMESPACE_FILE, NAMESPACE_IDENTITY } from './repo-explorer.mjs';
-import { timeZoneName } from '../../wall-time/read-data/wall-time.mjs';
+import { timeZoneName } from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
 
@@ -79,7 +79,7 @@ export function schemaProblems(value, schema, path = 'value') {
     if (schema.format === 'date-time' && (!/^\d{4}-\d{2}-\d{2}T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/.test(value) || !Number.isFinite(Date.parse(value)) || !validCalendarDate(value.slice(0, 10)))) {
       problems.push(`${path} must be a valid date-time with a time zone`);
     }
-    if (schema.format === 'time-zone' && !timeZoneName(value)) problems.push(`${path} must name a time zone like America/New_York, not an offset`);
+    if (schema.format === 'time-zone' && !timeZoneName({ value })) problems.push(`${path} must name a time zone like America/New_York, not an offset`);
   }
   if (typeof value === 'number') {
     if (schema.minimum !== undefined && value < schema.minimum) problems.push(`${path} must be at least ${schema.minimum}`);

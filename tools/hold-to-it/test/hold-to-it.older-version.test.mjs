@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { aroundNow, makeHoldToIt, marksFor, presentAmong, tally } from '../hold-to-it.mjs';
-import { instantAt } from '../../run-work-later-or-on-a-repeat/do-work/wall-time.ts';
+import { instantAt } from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
 
 // A pretend space and person store: items, events and messages kept in memory.
 function fakeIo({ now, messagesByApp = {}, events = [] } = {}) {
@@ -66,8 +66,8 @@ const ZONE = 'America/Los_Angeles';
 const cadence = { every: 'day', at: '11:00', minutes: 60, time_zone: ZONE };
 
 test('a local time in a zone is the right instant, across a clock change', () => {
-  assert.equal(new Date(instantAt('2026-10-05', '11:00', ZONE)).toISOString(), '2026-10-05T18:00:00.000Z');
-  assert.equal(new Date(instantAt('2026-12-05', '11:00', ZONE)).toISOString(), '2026-12-05T19:00:00.000Z');
+  assert.equal(new Date(instantAt({ date: '2026-10-05', time: '11:00', zone: ZONE })).toISOString(), '2026-10-05T18:00:00.000Z');
+  assert.equal(new Date(instantAt({ date: '2026-12-05', time: '11:00', zone: ZONE })).toISOString(), '2026-12-05T19:00:00.000Z');
 });
 
 test('the last ended meeting and the next one around now', () => {

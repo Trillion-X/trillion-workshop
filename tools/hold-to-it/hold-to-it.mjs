@@ -21,7 +21,7 @@
 //      one with this tool; this module only schedules, reads evidence and counts.
 //
 import settings from './from-an-older-version/src/hold-to-it.json' with { type: 'json' };
-import { instantAt, timeZoneName, wallTimeOf, weekday } from '../run-work-later-or-on-a-repeat/do-work/wall-time.ts';
+import { instantAt, timeZoneName, wallTimeOf, weekday } from '../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
 
 export class HoldToItError extends Error {
   constructor(message) { super(message); this.status = 400; }
@@ -37,13 +37,13 @@ const WEEKDAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', '
 
 /** The local day (YYYY-MM-DD) and weekday of an instant in a time zone. */
 export function localDay(instant, zone) {
-  const { date } = wallTimeOf(instant, zone);
-  return { date, weekday: WEEKDAY_NAMES[weekday(date)] };
+  const { date } = wallTimeOf({ instantMs: instant, zone });
+  return { date, weekday: WEEKDAY_NAMES[weekday({ date })] };
 }
 
-// A session's start: its local date and time in its zone, by the one clock-change rule (tools/run-work-later-or-on-a-repeat wall-time):
+// A session's start: its local date and time in its zone, by the one clock-change rule (the timed-action engine's instantAt, tools/run-work-later-or-on-a-repeat):
 // a time the clocks skip starts at the first minute that exists, a time that happens twice starts the first time.
-const startOf = (date, time, zone) => instantAt(date, time, zone, { gap: 'next-valid', fold: 'earlier' });
+const startOf = (date, time, zone) => instantAt({ date, time, zone, options: { gap: 'next-valid', fold: 'earlier' } });
 
 const addDays = (date, days) => new Date(Date.parse(`${date}T12:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
 
@@ -267,7 +267,7 @@ export function makeHoldToIt(io) {
       // How often comes from what was said; the time only when someone said it (no time is never guessed).
       const asked = input.cadence ?? {};
       // A zone that is said is kept in its own name, or refused; it is never read as UTC.
-      const zone = timeZoneName(asked.time_zone ?? settings.defaults.time_zone);
+      const zone = timeZoneName({ value: asked.time_zone ?? settings.defaults.time_zone });
       if (!zone) throw new HoldToItError(say('bad_zone', { zone: String(asked.time_zone) }));
       const cadence = { every: asked.every ?? 'day', ...(asked.at ? { at: asked.at } : {}), ...(asked.on ? { on: asked.on } : {}), ...(asked.date ? { date: asked.date } : {}), minutes: asked.minutes ?? settings.defaults.minutes, time_zone: zone };
       const body = { what, agreed_by: agreedBy, ...(text(input.proposed_by) ? { proposed_by: text(input.proposed_by) } : {}), cadence, ...(text(input.quote) ? { quote: text(input.quote) } : {}), ...(input.aliases ? { aliases: input.aliases } : {}), ...(text(input.heard_in) ? { heard_in: text(input.heard_in) } : {}) };

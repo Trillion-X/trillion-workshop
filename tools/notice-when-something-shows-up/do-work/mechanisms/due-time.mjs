@@ -49,7 +49,7 @@
  *   change when it tells; timed-action refuses a schedule it cannot read
  *   (rejected_schedules), said on standard error.
  */
-import { whenToWake } from "../../../run-work-later-or-on-a-repeat/do-work/when-to-wake.ts";
+import { whenToWake } from "../../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs";
 
 export const MECHANISM_REF = "package::notice-when-something-shows-up::mechanism::due-time";
 

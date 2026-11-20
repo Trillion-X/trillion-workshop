@@ -1,5 +1,0 @@
-{ "public": ["read-data/wall-time.mjs"],
-  "exports": {
-    "wall-time": "read-data/wall-time.mjs"
-  }
-}

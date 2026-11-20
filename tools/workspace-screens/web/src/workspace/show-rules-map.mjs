@@ -20,7 +20,7 @@
 //      fields than the rows did may use the answer only when no rule reads one of them.
 //   5. A strict subject is not decided here (`strict` comes back true): its caller decides each thing as before.
 
-import { timeZoneName } from 'trillion-workshop/tools/wall-time/read-data/wall-time.mjs';
+import { timeZoneName } from 'trillion-workshop/tools/run-work-later-or-on-a-repeat/do-work/timed-action-in-a-page.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const timeOf = value => (typeof value === 'number' ? value : typeof value === 'string' ? Date.parse(value) : NaN);
@@ -35,7 +35,7 @@ function leaves(tree) {
 // One formatter per time zone, as show-rules.mjs keeps them.
 const formatters = new Map();
 function clockIn(now, requestedZone) {
-  const zone = timeZoneName(requestedZone || 'UTC');
+  const zone = timeZoneName({ value: requestedZone || 'UTC' });
   if (!zone) return { hour: null, minute: null, weekday: null };
   let formatter = formatters.get(zone);
   if (!formatter) {

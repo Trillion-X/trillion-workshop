@@ -1,0 +1,22 @@
+# crates/Cargo.toml
+#
+# The workspace of the timed-action engine: the one crate that owns recurrence, wall time in named zones, due
+# evaluation, spreading and quiet hours for the run-work-later-or-on-a-repeat tool. Built two ways from the same source
+# (see ../../../build-engine-modules-for-web-hosts/build/build-timed-action.mjs): a wasm-bindgen module for pages and
+# Node tools, and one wasm32-wasip2 component the engine runs as a WASI command.
+
+[workspace]
+resolver = "2"
+members = ["timed-action"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "UNLICENSED"
+
+[workspace.dependencies]
+# preserve_order keeps object keys in the order they were read, as a JavaScript object does, so a serialized answer
+# lists its keys in the order the TypeScript writes them.
+serde_json = { version = "1", features = ["preserve_order"] }
+# Pinned to the wasm-bindgen CLI the build script finds (wasm-bindgen 0.2.120).
+wasm-bindgen = "=0.2.120"

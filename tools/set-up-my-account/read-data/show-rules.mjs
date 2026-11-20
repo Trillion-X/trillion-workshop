@@ -39,7 +39,7 @@
 
 import { decideRuleEffects } from './rule-decisions.mjs';
 import { factsOf, nextTurn, rulesIn } from './sidebar-rules.mjs';
-import { timeZoneName } from '../../wall-time/read-data/wall-time.mjs';
+import { timeZoneName } from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
 
 const HOUR_MS = 3_600_000;
 // A path never walks into an object's prototype.
@@ -64,7 +64,7 @@ const formatterIn = zone => {
 // The clock in a zone (UTC when none is named). A zone that is not one gives no clock, so a rule on the hour or the day
 // fails closed instead of reading another zone's time.
 function clockIn(now, timeZone) {
-  const zone = timeZoneName(timeZone || 'UTC');
+  const zone = timeZoneName({ value: timeZone || 'UTC' });
   if (!zone) return { hour: null, minute: null, weekday: null };
   const parts = Object.fromEntries(formatterIn(zone).formatToParts(new Date(now)).map(part => [part.type, part.value]));
   return { hour: Number(parts.hour), minute: Number(parts.minute), weekday: String(parts.weekday).toLowerCase() };
@@ -295,7 +295,7 @@ export function ruleProblem(data, rule, authority = null) {
   const subject = data.subjects?.[rule.subject];
   if (Array.isArray(subject?.allowed_effects) && !subject.allowed_effects.includes(rule.effect)) return `This subject uses ${subject.allowed_effects.join(', ')}; hiding it cannot change what is required.`;
   if (rule.until !== undefined && rule.until !== null && !Number.isFinite(timeOf(rule.until))) return 'until is a date and time, like 2026-10-05T08:00:00Z.';
-  if (rule.time_zone !== undefined && rule.time_zone !== null && !timeZoneName(rule.time_zone)) return `${String(rule.time_zone)} is not a time zone; use one like America/Los_Angeles.`;
+  if (rule.time_zone !== undefined && rule.time_zone !== null && !timeZoneName({ value: rule.time_zone })) return `${String(rule.time_zone)} is not a time zone; use one like America/Los_Angeles.`;
   if (rule.audience !== undefined && rule.audience !== null && (!object(rule.audience) || rule.audience.kind !== 'group')) return 'audience is a rule tree over the account facts (account_id, plan, created_at, cohorts, experiments, bucket...), like when.';
   if ((data.effects ?? []).find(effect => effect.id === rule.effect)?.changes) {
     const set = rule.set;
@@ -349,7 +349,7 @@ function nextAtHour(now, hour, timeZone) {
 export function quickRule(data, { choice, subject, thing, device = null, now, time_zone = null, by = null, label = null }) {
   const row = (data.quick ?? []).find(one => one.id === choice);
   if (!row) throw new Error(`choice is one of ${(data.quick ?? []).map(one => one.id).join(', ')}.`);
-  if (time_zone !== null && !timeZoneName(time_zone)) throw new Error(`${String(time_zone)} is not a time zone; use one like America/Los_Angeles.`);
+  if (time_zone !== null && !timeZoneName({ value: time_zone })) throw new Error(`${String(time_zone)} is not a time zone; use one like America/Los_Angeles.`);
   const declared = data.subjects?.[subject] ?? {};
   const sameFact = (declared.facts ?? []).find(fact => fact.id === declared.same_fact);
   const sameValue = sameFact ? sameFact.path.reduce((held, key) => (held && typeof held === 'object' ? held[key] : undefined), thing) : undefined;

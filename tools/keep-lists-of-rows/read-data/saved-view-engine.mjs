@@ -2,7 +2,7 @@
 // Predicates remain formula-engine rule trees; this owner only resolves the view's
 // context and hands the rule to that engine. No list or field name is special.
 
-import { timeZoneName } from '../../run-work-later-or-on-a-repeat/do-work/wall-time.ts';
+import { timeZoneName } from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
 
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const stamp = value => {
@@ -167,7 +167,7 @@ export function normalizeSavedView(input, fieldIds) {
   const columns = input.columns === undefined ? {} : input.columns;
   if (!isObject(columns)) throw new Error('View columns must be an object.');
   const time = input.time === null ? undefined : input.time;
-  const timeZone = timeZoneName(input.time_zone ?? 'UTC');
+  const timeZone = timeZoneName({ value: input.time_zone ?? 'UTC' });
   if (!timeZone) throw new Error('Unknown view time zone.');
   if (time !== undefined && (!isObject(time) || !time.field || (!time.after && !time.before))) throw new Error('A time range needs a field and a bound.');
   const point = value => {

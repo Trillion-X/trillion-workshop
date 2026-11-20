@@ -2,7 +2,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { deriveOpenSlots } from '../read-data/derive-open-slots.ts';
-import { instantAt } from '../../wall-time/read-data/wall-time.mjs';
+import * as engine from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
+
+const instantAt = (date, time, zone) => engine.instantAt({ date, time, zone });
 
 const TZ = 'America/Chicago';
 const DAY = '2026-08-10'; // a Monday

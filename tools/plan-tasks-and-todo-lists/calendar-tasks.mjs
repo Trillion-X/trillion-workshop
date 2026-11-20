@@ -1,9 +1,7 @@
 // Personal Calendar tasks are records in the generic Lists owner, not a second task store.
 import data from './calendar-tasks.json' with { type: 'json' };
-import { timeZoneName, wallTimeOf } from '../run-work-later-or-on-a-repeat/do-work/wall-time.ts';
+import { checkedWorkingHours, quietHoursAnswer, timeZoneName, wallTimeOf, zoneDrift } from '../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
 import { identityOf } from '../shared-code/src/typed-operation-contract.mjs';
-import { zoneDrift } from '../run-work-later-or-on-a-repeat/do-work/zone-drift.ts';
-import { checkedWorkingHours, quietHoursAnswer } from '../run-work-later-or-on-a-repeat/do-work/quiet-hours.ts';
 import quietModes from '../run-work-later-or-on-a-repeat/do-work/quiet-hours.json' with { type: 'json' };
 import { dayOverrideOf } from './parts/ui/show/schedule-calendar/schedule-planner.mjs';
 import { classifyMessage } from './calendar-task-messages.mjs';
@@ -126,7 +124,7 @@ function recurrenceValue(value) {
   } else throw new CalendarTasksError('Choose a valid repeat end date or occurrence count.');
   const nextTodo = value.nextTodo ?? next_todo_modes[0];
   if (!next_todo_modes.includes(nextTodo)) throw new CalendarTasksError('Choose when to create the next task.');
-  const timeZone = timeZoneName(value.timeZone ?? 'UTC');
+  const timeZone = timeZoneName({ value: value.timeZone ?? 'UTC' });
   if (!timeZone) throw new CalendarTasksError('Choose a time zone Trillion knows.');
   return { frequency, interval, weekdays: [...value.weekdays].sort((a, b) => weekdays.indexOf(a) - weekdays.indexOf(b)), ends, nextTodo, timeZone };
 }
@@ -835,8 +833,8 @@ async function openTasks(lists, wanted) {
 
 async function rolloverTasks(lists, input) {
   const rule = await statusRule(lists);
-  if (!dateOnly(input.today) || !timeZoneName(input.time_zone)) throw new CalendarTasksError(data.words.bad_rollover);
-  const zone = timeZoneName(input.time_zone);
+  if (!dateOnly(input.today) || !timeZoneName({ value: input.time_zone })) throw new CalendarTasksError(data.words.bad_rollover);
+  const zone = timeZoneName({ value: input.time_zone });
   const today = input.today;
   const reasons = data.rollover.skip_reasons;
   const carried = [];
@@ -848,11 +846,11 @@ async function rolloverTasks(lists, input) {
     if (settledBy(rule, row)) { skip(reasons.done); continue; }
     if (row.values.recurrence || row.values.recurrence_series) { skip(reasons.repeats); continue; }
     const values = {};
-    const missed = row.values.starts_at && wallTimeOf(Date.parse(row.values.starts_at), zone).date < today;
+    const missed = row.values.starts_at && wallTimeOf({ instantMs: Date.parse(row.values.starts_at), zone }).date < today;
     if (missed) Object.assign(values, { starts_at: null, ends_at: null, pinned_until: null, placed_by: null });
     const due = row.values.due;
     if (dateOnly(due) && due < today) values.due = today;
-    else if (due && !dateOnly(due) && Number.isFinite(Date.parse(due)) && wallTimeOf(Date.parse(due), zone).date < today && !missed) { skip(reasons.timed_due); continue; }
+    else if (due && !dateOnly(due) && Number.isFinite(Date.parse(due)) && wallTimeOf({ instantMs: Date.parse(due), zone }).date < today && !missed) { skip(reasons.timed_due); continue; }
     if (!Object.keys(values).length) { skip(reasons.nothing_to_carry); continue; }
     writes.push({ id: row.id, values });
     changes.push({ id: row.id, before: row });
@@ -939,7 +937,7 @@ async function quietHours(lists, input, now) {
   if (!Number.isFinite(at)) throw new CalendarTasksError(data.words.bad_working_hours);
   const dismissed = input.dismissed_period_start_ms ?? null;
   if (dismissed !== null && !Number.isFinite(dismissed)) throw new CalendarTasksError(data.words.bad_working_hours);
-  return quietHoursAnswer(hours, at, hours?.mode, dismissed);
+  return quietHoursAnswer({ hours, atMs: at, mode: hours?.mode, dismissedPeriodStartMs: dismissed });
 }
 
 // A task too long for any one free stretch, placed in slices (the planner's `chunk_index`/`chunk_count` proposals): each
@@ -979,11 +977,11 @@ async function planningZone(lists) {
 }
 async function zoneDriftAnswer(lists, input) {
   let zone;
-  try { zone = timeZoneName(input.device_zone); } catch { zone = null; }
+  try { zone = timeZoneName({ value: input.device_zone }); } catch { zone = null; }
   if (!zone) throw new CalendarTasksError(data.words.bad_zone_drift);
   const planning = await planningZone(lists);
   // With no working hours there is no planning zone yet, so there is nothing to have drifted from.
-  return planning ? zoneDrift(planning.zone, zone, planning.asked) : { planning_zone: null, device_zone: zone, drifted: false, ask: false };
+  return planning ? zoneDrift({ planningZone: planning.zone, deviceZone: zone, askedZones: planning.asked }) : { planning_zone: null, device_zone: zone, drifted: false, ask: false };
 }
 async function answerZoneDrift(lists, input) {
   const answer = await zoneDriftAnswer(lists, input);
@@ -1119,7 +1117,7 @@ export const readWorkingHours = async lists => workingHoursOf(await lists.row(da
 export async function silentAt(lists, atMs) {
   const hours = await readWorkingHours(lists);
   if (!hours || !Number.isFinite(atMs)) return false;
-  try { return quietHoursAnswer(hours, atMs, hours.mode).send_silently; } catch { return false; }
+  try { return quietHoursAnswer({ hours, atMs, mode: hours.mode }).send_silently; } catch { return false; }
 }
 const capacityOf = async lists => {
   try { return JSON.parse((await lists.row(data.working_hours.id, data.working_hours.row_id))?.values?.capacity ?? 'null'); } catch { return null; }

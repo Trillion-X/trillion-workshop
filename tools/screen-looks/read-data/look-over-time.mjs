@@ -19,7 +19,7 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import { parseColour, toLinear, colourOf, contrast, screenLookScheme } from './look-scheme.mjs';
-import { timeZoneName } from './look-time-zone.js';
+import { timeZoneName } from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
 export { colourOf, contrast, screenLookScheme };
 const MINUTE = 60_000;
 const DAY = 86_400_000;
@@ -76,7 +76,7 @@ export function startOfDay(instant, zone) {
     return instant - ((wall.h * 60 + wall.min) * 60 + wall.s) * 1000 - instant % 1000;
 }
 export function isTimeZone(zone) {
-    return timeZoneName(zone) !== null;
+    return timeZoneName({ value: zone }) !== null;
 }
 // ---------------------------------------------------------------------------------------------------------------------
 // The sun (the standard low-precision solar position formulae: mean anomaly, ecliptic longitude, declination and the

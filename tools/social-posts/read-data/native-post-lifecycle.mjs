@@ -60,7 +60,7 @@
 import { mediaFacts, readyFor, readyOverall } from './post-ready.mjs';
 import { APPROVAL_FIELDS, shaped } from './post-shape.mjs';
 import { resolveCaptionStyle } from '#tools/media-composition/read-data/caption-styles.mjs';
-import { timeZoneName } from '#tools/run-work-later-or-on-a-repeat/do-work/wall-time.ts';
+import { timeZoneName } from '#tools/run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
 import { TYPED_ON_SIGNED_IN_SCREEN } from './native-post-origin.mjs';
 import marksData from '#tools/shared-code/src/activity-marks.json' with { type: 'json' };
 const PERSON_APP = marksData.person_app;
@@ -325,7 +325,7 @@ export function makeSocialPosts({ eeaf, settings, places, placeSource=null, publ
     const scheduledFor = input.scheduled_for === undefined ? base.scheduled_for ?? null : text(input.scheduled_for, 60);
     if (scheduledFor && !Number.isFinite(Date.parse(scheduledFor))) throw new PostsError('scheduled_for is a date and time with its zone, like 2026-10-01T09:00:00-04:00.');
     const saidZone = input.time_zone === undefined ? base.time_zone ?? null : text(input.time_zone, 80);
-    const timeZone = saidZone === null ? null : timeZoneName(saidZone);
+    const timeZone = saidZone === null ? null : timeZoneName({ value: saidZone });
     if (saidZone !== null && !timeZone) throw new PostsError(`${saidZone} is not a time zone; use one like America/New_York.`);
     const reaches = input.reaches === undefined ? base.reaches ?? [] : reachesOf(input.reaches, settings.first_contact);
     if (!reaches) throw new PostsError(fillWords(settings.first_contact.words.reaches, { most: String(settings.first_contact.most) }));

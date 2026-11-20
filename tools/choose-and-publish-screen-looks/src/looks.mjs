@@ -64,7 +64,7 @@ import { wearRegister } from '../../screen-look/read-data/type-register.ts';
 import { resolveScreenLookButton, resolveScreenLookPalette } from '../../screen-look/read-data/resolve-screen-look-palette.js';
 import { deviceLook } from '../../screen-look/read-data/device-look-tokens.js';
 import { LOOK_RULES_RECORD, WHERE_LOOKS_APPLY, changeLookRules, lookForFacts, readLookRules, sayLookRules } from '../../screen-look/read-data/where-looks-apply.ts';
-import { timeZoneName } from '../../run-work-later-or-on-a-repeat/do-work/wall-time.ts';
+import { timeZoneName } from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
 import { LOOK_OVER_TIME, LOOK_PLAN_RECORD, blendLookValues, changeLookPlan, lookAtTime, readLookPlan, sayLookPlan } from '../../screen-look/read-data/look-over-time.ts';
 import { themeChangesFor } from '../../screen-look/read-data/theme-from-inputs.ts';
 import { readabilityMisses, sayReadability } from '../../screen-look/read-data/look-readability.ts';
@@ -81,7 +81,7 @@ export const LOOK_SHELF = 'look';
 // refused, never read as UTC, so a device is never shown the look of a clock it is not on.
 const deviceZone = value => {
   if (value === undefined || value === null || value === '') return 'UTC';
-  const zone = timeZoneName(value);
+  const zone = timeZoneName({ value });
   if (!zone) throw new Error(`${String(value)} is not a time zone; use one like America/Los_Angeles.`);
   return zone;
 };

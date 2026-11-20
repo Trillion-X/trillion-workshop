@@ -21,7 +21,7 @@
 //   5. Nothing is sent or booked here. The answer says the times to arm (the reminder and the check, as a repeat or once)
 //      and the sentences to say; whoever runs this arms the wake, books the calendar and tells the group.
 import { readFileSync } from 'node:fs';
-import { addCivilDays, instantAt, timeZoneName, wallTimeOf, weekday } from '../../wall-time/read-data/wall-time.mjs';
+import { addCivilDays, instantAt, timeZoneName, wallTimeOf, weekday } from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
 
 export const readSettings = () => JSON.parse(readFileSync(new URL('./hold-to-it.json', import.meta.url), 'utf8'));
 const OPERATIONS = ['keep', 'retime', 'remind', 'check', 'mark', 'scorecard'];
@@ -39,8 +39,8 @@ const list = names => (names.length <= 1 ? names.join('') : `${names.slice(0, -1
 /** A cadence is timed when it says when: a time, and for a one-time session also its day. */
 export const isTimed = cadence => Boolean(cadence?.at) && (cadence.every !== 'once' || Boolean(cadence.date));
 
-const startOf = (date, time, zone) => instantAt(date, time, zone, { gap: 'next-valid', fold: 'earlier' });
-const localDay = (instant, zone) => { const { date } = wallTimeOf(instant, zone); return { date, weekday: WEEKDAYS[weekday(date)] }; };
+const startOf = (date, time, zone) => instantAt({ date, time, zone, options: { gap: 'next-valid', fold: 'earlier' } });
+const localDay = (instant, zone) => { const { date } = wallTimeOf({ instantMs: instant, zone }); return { date, weekday: WEEKDAYS[weekday({ date })] }; };
 
 /** The occurrences of a cadence from `fromDate` for `days` days, each { date, starts, ends } in ms. */
 export function occurrences(cadence, fromDate, days, policy) {
@@ -48,7 +48,7 @@ export function occurrences(cadence, fromDate, days, policy) {
   const minutes = cadence.minutes ?? policy.defaults.minutes;
   const out = [];
   for (let offset = 0; offset < days; offset += 1) {
-    const date = addCivilDays(fromDate, offset);
+    const date = addCivilDays({ date: fromDate, days: offset });
     if (cadence.every === 'once' && date !== cadence.date) continue;
     const starts = startOf(date, cadence.at, zone);
     if (cadence.every === 'week' && !(cadence.on ?? []).map(day => day.toLowerCase()).includes(localDay(starts, zone).weekday)) continue;
@@ -67,7 +67,7 @@ export function aroundNow(cadence, now, policy) {
     return { last: only.ends <= now ? only : null, next: only.starts > now ? only : null };
   }
   const today = localDay(now, zone).date;
-  const near = occurrences(cadence, addCivilDays(today, -8), 17, policy);
+  const near = occurrences(cadence, addCivilDays({ date: today, days: -8 }), 17, policy);
   return { last: near.filter(each => each.ends <= now).at(-1) ?? null, next: near.find(each => each.starts > now) ?? null };
 }
 
@@ -153,7 +153,7 @@ export function tally(marks, defaultArea) {
 
 function policyOf(input, settings) {
   const policy = input.policy ?? refuse(settings.words.no_policy);
-  if (!Array.isArray(policy.marks) || !policy.defaults || !timeZoneName(policy.defaults.time_zone) || !(policy.defaults.minutes > 0)) {
+  if (!Array.isArray(policy.marks) || !policy.defaults || !timeZoneName({ value: policy.defaults.time_zone }) || !(policy.defaults.minutes > 0)) {
     refuse(settings.words.bad_policy);
   }
   return policy;
@@ -190,7 +190,7 @@ export function holdToIt(input, { now = () => Date.now() } = {}) {
     const agreedBy = (input.agreed_by ?? []).map(text).filter(Boolean);
     if (!agreedBy.length) refuse(words.needs_who);
     const asked = input.cadence ?? {};
-    const zone = timeZoneName(asked.time_zone ?? policy.defaults.time_zone) ?? refuse(fill(words.bad_zone, { zone: String(asked.time_zone) }));
+    const zone = timeZoneName({ value: asked.time_zone ?? policy.defaults.time_zone }) ?? refuse(fill(words.bad_zone, { zone: String(asked.time_zone) }));
     if (asked.at !== undefined && !HHMM.test(String(asked.at))) refuse(words.needs_at);
     if (asked.date !== undefined && !DAY.test(String(asked.date))) refuse(words.needs_date);
     const cadence = {
@@ -215,7 +215,7 @@ export function holdToIt(input, { now = () => Date.now() } = {}) {
     if (!HHMM.test(String(input.at ?? ''))) refuse(words.needs_at);
     if (input.date !== undefined && !DAY.test(String(input.date))) refuse(words.needs_date);
     const held = agreementOf();
-    const zone = input.time_zone === undefined ? held.cadence.time_zone : timeZoneName(input.time_zone) ?? refuse(fill(words.bad_zone, { zone: String(input.time_zone) }));
+    const zone = input.time_zone === undefined ? held.cadence.time_zone : timeZoneName({ value: input.time_zone }) ?? refuse(fill(words.bad_zone, { zone: String(input.time_zone) }));
     const cadence = { ...held.cadence, at: input.at, ...(input.date ? { date: input.date } : {}), ...(input.minutes ? { minutes: Number(input.minutes) } : {}), ...(Array.isArray(input.on) ? { on: input.on } : {}), time_zone: zone };
     const hadTime = isTimed(held.cadence);
     const armed = arming(held.agreement_id, cadence);

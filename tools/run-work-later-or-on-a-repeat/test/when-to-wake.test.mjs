@@ -1,9 +1,9 @@
-// tools/run-work-later-or-on-a-repeat/do-work/when-to-wake.ts as a Durable Object alarm uses it: each wake asks what is due and when to
+// The timed-action engine's whenToWake (do-work/timed-action.mjs) as an alarm uses it: each wake asks what is due and when to
 // wake next, runs what is due, records the owner's proof, and sets the alarm again. Times cross a daylight-saving
 // change in New York.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { whenToWake } from '../do-work/when-to-wake.ts';
+import { whenToWake } from '../do-work/timed-action.mjs';
 
 const mondayReview = {
   schedule_id: 'schedule:monday-review',

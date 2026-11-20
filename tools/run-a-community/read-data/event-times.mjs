@@ -1,6 +1,6 @@
 // Recurring event times from the immutable community-activity source named in
 // source-baselines/events.provenance.json; copied before this fresh active core.
-import { addCivilDays, addCivilMonths, instantAt, timeZoneName, wallTimeOf } from '../../wall-time/read-data/wall-time.mjs';
+import { addCivilDays, addCivilMonths, instantAt, timeZoneName, wallTimeOf } from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
 
 const REPEATS = { day: 1, week: 7 };
 
@@ -14,13 +14,13 @@ export const activityMethods = {
     const one = [{ starts_at: new Date(start).toISOString(), ends_at: endsAt ? new Date(start + length).toISOString() : null }];
     if (!repeats) return one;
     if (repeats.every !== 'month' && !Object.hasOwn(REPEATS, repeats.every)) throw new Error('repeats.every is day, week or month.');
-    const zone = timeZoneName(repeats.time_zone);
+    const zone = timeZoneName({ value: repeats.time_zone });
     if (!zone) throw new Error('repeats.time_zone names the zone the event is put on in, like America/New_York, so each time keeps its clock time.');
     const count = Math.min(Math.max(Number(repeats.count) || 1, 1), 52);
-    const first = wallTimeOf(start, zone);
+    const first = wallTimeOf({ instantMs: start, zone });
     return [...Array(count)].map((_, index) => {
-      const date = repeats.every === 'month' ? addCivilMonths(first.date, index) : addCivilDays(first.date, index * REPEATS[repeats.every]);
-      const at = instantAt(date, first.time, zone, { gap: 'next-valid', fold: 'earlier' }) + (start % 60_000);
+      const date = repeats.every === 'month' ? addCivilMonths({ date: first.date, months: index }) : addCivilDays({ date: first.date, days: index * REPEATS[repeats.every] });
+      const at = instantAt({ date, time: first.time, zone, options: { gap: 'next-valid', fold: 'earlier' } }) + (start % 60_000);
       return { starts_at: new Date(at).toISOString(), ends_at: endsAt ? new Date(at + length).toISOString() : null };
     });
   },

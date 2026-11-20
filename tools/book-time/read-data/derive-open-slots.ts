@@ -21,7 +21,7 @@
 // external calendars in real time. The bookee's availability windows are
 // WALL-CLOCK ("09:00" in a timezone), so this module converts each candidate
 // window to absolute instants and the two can be intersected correctly. The
-// conversion is tools/wall-time's instantAt, the one owner of a local time in a
+// conversion is the timed-action engine's instantAt (tools/run-work-later-or-on-a-repeat), the one owner of a local time in a
 // zone across clock changes (a time the clock skips is not offered, a time it
 // repeats is offered once, at the earlier), so the whole module stays a pure function
 // with no I/O and no ambient clock.
@@ -34,7 +34,7 @@
 // `busy = []` buffers are a no-op too. Proven in `derive-open-slots.test.ts`.
 // =============================================================================
 
-import { instantAt, pad, timeZoneName, weekday } from '../../wall-time/read-data/wall-time.mjs';
+import { instantAt, pad, timeZoneName, weekday } from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
 
 // A weekly availability window, wall-clock in the availability timezone.
 export interface AvailabilityWindow {
@@ -127,8 +127,8 @@ export function deriveOpenSlots(input: DeriveOpenSlotsInput): OpenSlot[] {
     busy = [],
   } = input;
 
-  if (timeZoneName(timezone) === null) throw new RangeError(`${timezone} is not a time zone`);
-  const wd = weekday(dateISO);
+  if (timeZoneName({ value: timezone }) === null) throw new RangeError(`${timezone} is not a time zone`);
+  const wd = weekday({ date: dateISO });
   const takenSet = new Set<number>(taken);
   const bufferBeforeMs = bufferBeforeMin * 60000;
   const bufferAfterMs = bufferAfterMin * 60000;
@@ -144,8 +144,8 @@ export function deriveOpenSlots(input: DeriveOpenSlotsInput): OpenSlot[] {
     const winStart = toMinutes(w.start);
     const winEnd = toMinutes(w.end);
     for (let t = winStart; t + durationMin <= winEnd; t += stepMin) {
-      const time = `${pad(Math.floor(t / 60))}:${pad(t % 60)}`;
-      const startMs = instantAt(dateISO, time, timezone, { gap: 'skip' });
+      const time = `${pad({ value: Math.floor(t / 60) })}:${pad({ value: t % 60 })}`;
+      const startMs = instantAt({ date: dateISO, time, zone: timezone, options: { gap: 'skip' } });
       if (startMs === null) continue; // a time the clock skips that day cannot be booked
       if (seen.has(startMs)) continue;
       seen.add(startMs);

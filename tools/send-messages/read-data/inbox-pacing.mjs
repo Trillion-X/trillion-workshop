@@ -7,7 +7,10 @@
 // means and which addresses to leave alone. The send tools do the sending.
 
 import { readFileSync } from 'node:fs';
-import { DAY_MS, addCivilDays, instantAt, timeZoneName, wallTimeOf, weekday } from '../../wall-time/read-data/wall-time.mjs';
+import * as engine from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
+
+const { addCivilDays, instantAt, timeZoneName, wallTimeOf, weekday } = engine;
+const DAY_MS = engine.DAY_MS();
 
 export const PACING = JSON.parse(readFileSync(new URL('./inbox-pacing.json', import.meta.url), 'utf8'));
 
@@ -85,19 +88,19 @@ function chosen(request, key, rowKey, list, label, problemsOf) {
 }
 
 // ---------- time ----------
-// Local dates, weekdays and hours come from tools/wall-time, the one place a zone's wall clock is read.
+// Local dates, weekdays and hours come from the timed-action engine (tools/run-work-later-or-on-a-repeat), the one place a zone's wall clock is read.
 
 function zoneOf(timeZone) {
   if (typeof timeZone !== 'string' || !timeZone) throw new Error('Send time_zone, the sending inbox\'s IANA time zone (such as America/Chicago).');
-  const zone = timeZoneName(timeZone);
+  const zone = timeZoneName({ value: timeZone });
   if (zone === null) throw new Error(`time_zone ${timeZone} is not a time zone the time zone database knows.`);
   return zone;
 }
 
 function local(zone, ms) {
-  const { date, time } = wallTimeOf(ms, zone);
+  const { date, time } = wallTimeOf({ instantMs: ms, zone });
   const [hour, minute] = time.split(':').map(Number);
-  return { date, weekday: WEEKDAYS[weekday(date)], hour: hour % 24, minute };
+  return { date, weekday: WEEKDAYS[weekday({ date })], hour: hour % 24, minute };
 }
 
 function instant(value, name) {
@@ -107,7 +110,7 @@ function instant(value, name) {
 }
 
 const dayBetween = (from, to) => Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / DAY_MS);
-const hourAt = (date, hour, zone) => (hour === 24 ? instantAt(addCivilDays(date, 1), '00:00', zone) : instantAt(date, `${String(hour).padStart(2, '0')}:00`, zone));
+const hourAt = (date, hour, zone) => (hour === 24 ? instantAt({ date: addCivilDays({ date, days: 1 }), time: '00:00', zone }) : instantAt({ date, time: `${String(hour).padStart(2, '0')}:00`, zone }));
 
 // ---------- planning sends ----------
 
@@ -203,7 +206,7 @@ export function planSends(request, data = PACING) {
       }
       // Jump to the start of the allowed hours, today when it is still ahead, else on the next local day.
       const today = here.hour < row.hours.from && row.weekdays.includes(here.weekday) && !full;
-      const next = hourAt(today ? here.date : addCivilDays(here.date, 1), row.hours.from, zone);
+      const next = hourAt(today ? here.date : addCivilDays({ date: here.date, days: 1 }), row.hours.from, zone);
       at = next !== null && next > at ? next : at + 60_000;
     }
   }

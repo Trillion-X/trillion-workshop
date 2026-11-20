@@ -1,8 +1,7 @@
 {
   "exports": {
-    "materialize-recurring-windows": "do-work/materialize-recurring-windows.ts",
-    "quiet-hours.json": "do-work/quiet-hours.json",
-    "wall-time": "do-work/wall-time.ts"
+    "timed-action": "do-work/timed-action.mjs",
+    "quiet-hours.json": "do-work/quiet-hours.json"
   },
   "imported_by": [
     "tools/keep-and-wake-ai-sessions-on-this-computer",
@@ -11,14 +10,10 @@
     "Trillion-X/trillion"
   ],
   "public": [
-    "do-work/when-to-wake.ts",
-    "do-work/materialize-recurring-windows.ts",
-    "do-work/wall-time.ts",
-    "do-work/quiet-hours.ts",
+    "do-work/timed-action.mjs",
     "do-work/quiet-hours.json",
-    "do-work/zone-drift.ts",
-    "do-work/evaluate-due-scheduled-actions.ts",
-    "do-work/write-scheduled-action-record.ts",
-    "do-work/spread-fires.ts"
+    "built-stored-bytes/timed-action/timed_action.js",
+    "built-stored-bytes/timed-action/timed_action_bg.wasm",
+    "built-stored-bytes/component/timed-action.wasm"
   ]
 }

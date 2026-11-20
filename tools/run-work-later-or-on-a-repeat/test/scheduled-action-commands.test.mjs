@@ -1,6 +1,6 @@
-// Ported from bitfield-packages packages/timed-action/__tests__/scheduled-action-commands.test.mjs; the module is imported directly.
+// Ported from bitfield-packages packages/timed-action/__tests__/scheduled-action-commands.test.mjs; the record writers are the timed-action engine's (do-work/timed-action.mjs).
 import assert from 'node:assert/strict';
-const recordModule = await import('../do-work/write-scheduled-action-record.ts');
+const recordModule = await import('../do-work/timed-action.mjs');
 
 // Row-carried dispatch doctrine: the action row carries its OWN complete dispatch
 // config as DATA. A workflow target is slot::workflow + execute_definition (ask names

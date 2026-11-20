@@ -38,7 +38,7 @@ Libraries Trillion's Worker and scripts use, kept in this repository so the buil
 | `service-connections/` | Connect, disconnect and rename a service; `records.json` holds the service descriptors and how-to-ask rows, `work-contract.json` the one record the Worker bundles. |
 | `sidebar/` | The app sidebar: rows, icons, names, hover cards and actions, collapsible collections, a collection that hosts a panel (`show/mount-sidebar.tsx`). |
 | `signed-event-effects/` | Verifies a signed event and runs its effects once (`records.json`). |
-| `timed-action/` | Scheduled work as DATA: recurring schedules in IANA zones with daylight-saving handling, one-off actions and their receipts, and `do-work/when-to-wake.ts`, the one call a Durable Object alarm makes to learn what is due and when to wake next. |
+| `timed-action/` | Scheduled work as DATA: recurring schedules in IANA zones with daylight-saving handling, one-off actions and their receipts, and `whenToWake`, the one call that learns what is due and when to wake next; all of it is the Rust timed-action engine (`tools/run-work-later-or-on-a-repeat/crates/timed-action`). |
 | `ui/` | The shared page writer (`show/server-rendered-page/`), declared selectors, and every shared control the workspace draws with (record views, dropzone, notifications, guide, breadcrumb, tooltips, `show/coss/`). |
 | `workflow-canvas/` | A job's steps drawn as a graph with each step's state and what it handed back (`show/StepGraph.tsx`), the curved edge and the layered layout, for the Workflows screens. |
 

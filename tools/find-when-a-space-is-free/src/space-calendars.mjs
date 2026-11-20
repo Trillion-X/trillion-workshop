@@ -37,9 +37,8 @@
 //      connected before it places anything.
 //
 import settings from './space-calendars.json' with { type: 'json' };
-import { quietHoursAnswer } from '../../run-work-later-or-on-a-repeat/do-work/quiet-hours.ts';
 import { deriveOpenSlots } from '../../booking-slots-and-invitations/do-work/derive-open-slots.ts';
-import { timeZoneName } from '../../run-work-later-or-on-a-repeat/do-work/wall-time.ts';
+import { quietHoursAnswer, timeZoneName } from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 
@@ -123,7 +122,7 @@ function searchOf(input, nowMs) {
   const earliest = input.earliest ?? defaults.earliest;
   const latest = input.latest ?? defaults.latest;
   for (const [field, value] of [['earliest', earliest], ['latest', latest]]) if (typeof value !== 'string' || !HH_MM.test(value)) throw new SpaceCalendarError(say('bad_time', { field }));
-  const timeZone = timeZoneName(input.time_zone ?? defaults.time_zone);
+  const timeZone = timeZoneName({ value: input.time_zone ?? defaults.time_zone });
   if (!timeZone) throw new SpaceCalendarError(say('bad_zone'));
   return { fromMs: Math.max(fromMs, nowMs), toMs, durationMin, earliest, latest, timeZone };
 }
@@ -320,7 +319,7 @@ export function memberCalendar({ records, run, workingHours = async () => null, 
       if (!shares(spaceId)) return { shares: false };
       const hours = await workingHours();
       if (!hours) return { shares: true, set: false };
-      const answer = quietHoursAnswer(hours, atMs, hours.mode);
+      const answer = quietHoursAnswer({ hours, atMs, mode: hours.mode });
       return { shares: true, set: true, quiet: answer.quiet, opens_at_ms: answer.opens_at_ms, period_start_ms: answer.period_start_ms, mode: hours.mode };
     },
     /** Places one space meeting on this member's calendar, moves it, or cancels it when they are not going. */

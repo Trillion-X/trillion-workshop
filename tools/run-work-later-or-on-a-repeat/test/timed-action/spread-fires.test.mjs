@@ -1,7 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { whenToWake } from '../../do-work/when-to-wake.ts';
-import { fractionOf, spreadOneShotDue, spreadRecurringStart } from '../../do-work/spread-fires.ts';
+import * as engine from '../../do-work/timed-action.mjs';
+
+const { whenToWake } = engine;
+const fractionOf = id => engine.fractionOf({ id });
+const spreadRecurringStart = (startMs, id, intervalMs, config) => engine.spreadRecurringStart({ startMs, id, intervalMs, config });
+const spreadOneShotDue = (dueMs, id, createdAtMs, config) => engine.spreadOneShotDue({ dueMs, id, createdAtMs, config });
 import settings from '../../../keep-and-wake-ai-sessions-on-this-computer/src/scheduler.json' with { type: 'json' };
 
 const every = (id) => ({

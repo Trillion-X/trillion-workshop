@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { quietHoursAnswer } from '../do-work/quiet-hours.ts';
+import * as engine from '../do-work/timed-action.mjs';
+
+const quietHoursAnswer = (hours, atMs, mode, dismissedPeriodStartMs) => engine.quietHoursAnswer({ hours, atMs, mode, dismissedPeriodStartMs });
 
 const ny = { start: '09:00', end: '17:00', time_zone: 'America/New_York', weekdays: [1, 2, 3, 4, 5] };
 const at = iso => Date.parse(iso);

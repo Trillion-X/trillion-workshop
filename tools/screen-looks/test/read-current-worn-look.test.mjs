@@ -2,7 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { readCurrentWornLook } from '../do-work/read-current-worn-look.mjs';
-import { timeZoneName } from '../read-data/look-time-zone.js';
+import * as engine from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
+
+const timeZoneName = value => engine.timeZoneName({ value });
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const fixed = () => new Date('2026-10-31T12:00:00.000Z');
@@ -108,7 +110,7 @@ test('refuses an invalid device time zone', async () => {
   await assert.rejects(readCurrentWornLook({ time_zone: 'not/a-zone', app_data: appData, ...saved() }, { now: fixed }), /not a time zone/);
 });
 
-test('screen-look zones use wall-time canonical spelling and rejection rules', () => {
+test('screen-look zones use the timed-action engine\'s canonical spelling and rejection rules', () => {
   assert.equal(timeZoneName('Europe/London'), 'Europe/London');
   assert.equal(timeZoneName('UTC'), 'UTC');
   assert.equal(timeZoneName('america/new_york'), 'America/New_York');
@@ -116,7 +118,7 @@ test('screen-look zones use wall-time canonical spelling and rejection rules', (
     assert.equal(timeZoneName(invalid), null, String(invalid));
   }
   const packed = rowOf(rows, 'tool:read-current-worn-look').invoke.files.package_files;
-  assert.ok(packed.some(item => item.package === 'wall-time' && item.paths.includes('read-data')), 'the native bundle carries the imported shared owner');
+  assert.ok(packed.some(item => item.package === 'run-work-later-or-on-a-repeat' && item.paths.includes('do-work/timed-action.mjs') && item.paths.includes('built-stored-bytes/timed-action')), 'the native bundle carries the engine it imports');
 });
 
 test('the shipped row run as the engine runs it reaches no database and returns its full device contract', async () => {

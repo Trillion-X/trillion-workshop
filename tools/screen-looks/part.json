@@ -6,7 +6,6 @@
     "read-data/resolve-screen-look-palette.js",
     "read-data/look-document-css.js",
     "read-data/device-look-tokens.js",
-    "read-data/look-time-zone.js",
     "read-data/look-over-time.mjs",
     "read-data/look-over-time.d.mts",
     "read-data/look-scheme.mjs",

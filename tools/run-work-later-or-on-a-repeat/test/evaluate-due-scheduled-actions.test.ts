@@ -13,7 +13,10 @@ import { describe, it, expect } from './vitest-shim.mjs';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { evaluateDueScheduledActions, receiptKey, actionOperation } from '../do-work/evaluate-due-scheduled-actions.ts';
+import * as engine from '../do-work/timed-action.mjs';
+
+const { evaluateDueScheduledActions, actionOperation } = engine;
+const receiptKey = (record_id: unknown, operation: unknown) => engine.receiptKey({ record_id, operation });
 
 const NOW = '2026-07-02T12:00:00Z';
 const HERE = dirname(fileURLToPath(import.meta.url));

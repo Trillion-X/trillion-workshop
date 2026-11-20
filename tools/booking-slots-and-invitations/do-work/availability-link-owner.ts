@@ -2,7 +2,7 @@
 // current EEAF owner. This module owns no database, queue, clock or provider
 // connection; the native resource supplies those current owners.
 import { deriveOpenSlots, type AvailabilityWindow, type Interval, type OpenSlot } from './derive-open-slots.ts';
-import { timeZoneName } from '../../run-work-later-or-on-a-repeat/do-work/wall-time.ts';
+import { timeZoneName } from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
 
 export type AvailabilityLinkState = 'active' | 'revoked' | 'deleted';
 export type ReservationState = 'requested' | 'pending' | 'booked' | 'cancelled' | 'failed';
@@ -203,7 +203,7 @@ const sameCalendarIdentity = (left: any, right: any) => ['source_id', 'connectio
   .every(key => left?.[key] === right?.[key]);
 const checkTimeZone = (timezone: unknown) => {
   if (!nonempty(timezone)) throw new AvailabilityLinkError('Choose a time zone.');
-  if (!timeZoneName(timezone)) throw new AvailabilityLinkError('Choose a time zone Trillion knows.');
+  if (!timeZoneName({ value: timezone })) throw new AvailabilityLinkError('Choose a time zone Trillion knows.');
 };
 
 function validateInput(input: AvailabilityLinkInput, deps: AvailabilityLinkOwnerDependencies, retainedSlots: AvailabilityLinkInput['one_off_slots'] = []): AvailabilityLinkInput {
