@@ -10,7 +10,7 @@
 import React from 'react';
 import { Container, Text, ErrorBoundary, mountReactSurface } from '../../ui/index.ts';
 import { useBitfieldData } from '#workspace-records';
-import { CanvasView } from '../../draw-lists-on-a-canvas/show/CanvasView';
+import { CanvasView } from '../../graph-canvas/show/CanvasView';
 import { useGraphCanvas } from '../../draw-lists-on-a-canvas/show/use-graph-canvas';
 import type { CanvasNodeFrame } from '../../draw-lists-on-a-canvas/show/types';
 import { buildKnowledgeGraphView } from '../read-data/knowledge-graph-view.ts';
