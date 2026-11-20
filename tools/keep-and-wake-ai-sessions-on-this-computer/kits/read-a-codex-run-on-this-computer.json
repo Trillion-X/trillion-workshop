@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tools/keep-and-wake-ai-sessions-on-this-computer/tool-rows.json (tool:read-a-codex-run-on-this-computer), harness/codex-runs.mjs (readCodexRun and its command line), test/codex-runs.test.mjs",
+  "start_here": "Say to your AI: \"Read my Codex run codex-<id> from the beginning.\" It answers the run's state and the output so far, and the next position to read from.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it reads one Codex run's output file and state from this computer and changes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-codex-run-on-this-computer"
+  ],
+  "instructions": [
+    "1. Give the run id the start row answered.",
+    "2. Read with after 0 at first; the answer says next, the byte position to read from the next time.",
+    "3. Read again from next while the state is running; stop once the state is exited, ended or cancelled.",
+    "4. Read the exit_code when the state is exited; a non-zero code means Codex failed and its output says why."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read a finished run from the start",
+      "ask": "Read codex-<id> from the beginning.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-codex-run-on-this-computer",
+            "input": {
+              "run": "codex-<id>",
+              "after": 0
+            }
+          }
+        }
+      },
+      "given": "A run id the start row answered.",
+      "hands_back": "{\"run\": \"codex-3f2a9c1e-7b4d-4e8a-9c21-5d6e0f1a2b3c\", \"state\": \"exited\", \"exit_code\": 0, \"written\": 412, \"from\": 0, \"next\": 412, \"output\": \"{\\\"type\\\":\\\"item.completed\\\"...}\"}"
+    }
+  ]
+}

@@ -770,6 +770,69 @@
         "maker": "maker:trillion",
         "provenance": {"source": "The AI session harness moved here from Trillion-X/trillion (moved-from.json): harness/setup.mjs and harness/mcp-registration.mjs"}
       }
+    },
+    {
+      "id": "package::keep-and-wake-ai-sessions-on-this-computer::tool::start-a-codex-run-on-this-computer",
+      "address": "package::keep-and-wake-ai-sessions-on-this-computer::tool::start-a-codex-run-on-this-computer",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "uses_tools": [],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:start-a-codex-run-on-this-computer",
+        "label": "Start a Codex run on this computer",
+        "status": "active",
+        "job": "Start one fresh Codex run in a folder on this computer and get its run id (harness/codex-runs.mjs startCodexRun)",
+        "description": "Starts `codex exec` detached in the given folder, with the prompt read from the message file (never on the command line). Answers the run id and state running. Read the run with tool:read-a-codex-run-on-this-computer; end it with tool:cancel-a-codex-run-on-this-computer. Codex uses the person's own login; nothing here reads a credential.",
+        "input_schema": {"type": "object", "required": ["folder", "message_file"], "additionalProperties": false, "properties": {"folder": {"type": "string", "minLength": 1, "maxLength": 4096, "description": "The folder Codex runs in. Must exist on this computer."}, "message_file": {"type": "string", "minLength": 1, "maxLength": 4096, "description": "A plain text file holding the prompt. Must not be empty."}}},
+        "output_schema": {"type": "object", "required": ["run", "folder", "state"], "properties": {"run": {"type": "string"}, "folder": {"type": "string"}, "state": {"type": "string", "const": "running"}}},
+        "invoke": {"kind": "on-your-computer", "get_it": ["clone the Workshop repository (package.json repository.url)", "npm ci, from the root of the checkout"], "run": "node tools/keep-and-wake-ai-sessions-on-this-computer/harness/codex-runs.mjs start --folder {folder} --message-file {message_file}", "needs": ["node", "codex"], "say": "This runs on the person's own computer, from the root of the Workshop checkout. Tell the person the run id; read it with the read row and cancel it with the cancel row only when the person asks."},
+        "placements": ["placement:your-computer"],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:keep-and-wake-ai-sessions-on-this-computer",
+        "provenance": {"source": "Landed as harness/codex-runs.mjs (commit 597ed7061) and its CLI entry point in this lane"}
+      }
+    },
+    {
+      "id": "package::keep-and-wake-ai-sessions-on-this-computer::tool::read-a-codex-run-on-this-computer",
+      "address": "package::keep-and-wake-ai-sessions-on-this-computer::tool::read-a-codex-run-on-this-computer",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "uses_tools": [],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-codex-run-on-this-computer",
+        "label": "Read a Codex run on this computer",
+        "status": "active",
+        "job": "Read a Codex run's output after a byte position and its state (harness/codex-runs.mjs readCodexRun)",
+        "description": "Answers the run's state (running, exited with exit_code, ended or cancelled), the output bytes after the given position (whole UTF-8 characters only), and next, the position to read from next time. Refuses a run id that is not a codex run.",
+        "input_schema": {"type": "object", "required": ["run", "after"], "additionalProperties": false, "properties": {"run": {"type": "string", "pattern": "^codex-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"}, "after": {"type": "integer", "minimum": 0, "description": "The byte position to read after; 0 for the start."}}},
+        "output_schema": {"type": "object", "required": ["run", "state", "written", "from", "next", "output"], "properties": {"run": {"type": "string"}, "state": {"type": "string"}, "exit_code": {"type": "integer"}, "written": {"type": "integer"}, "from": {"type": "integer"}, "next": {"type": "integer"}, "output": {"type": "string"}}},
+        "invoke": {"kind": "on-your-computer", "get_it": ["clone the Workshop repository (package.json repository.url)", "npm ci, from the root of the checkout"], "run": "node tools/keep-and-wake-ai-sessions-on-this-computer/harness/codex-runs.mjs read --run {run} --after {after}", "needs": ["node"], "say": "This runs on the person's own computer, from the root of the Workshop checkout. Read from next each time; stop reading once the state is not running."},
+        "placements": ["placement:your-computer"],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:keep-and-wake-ai-sessions-on-this-computer",
+        "provenance": {"source": "Landed as harness/codex-runs.mjs (commit 597ed7061) and its CLI entry point in this lane"}
+      }
+    },
+    {
+      "id": "package::keep-and-wake-ai-sessions-on-this-computer::tool::cancel-a-codex-run-on-this-computer",
+      "address": "package::keep-and-wake-ai-sessions-on-this-computer::tool::cancel-a-codex-run-on-this-computer",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "uses_tools": [],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:cancel-a-codex-run-on-this-computer",
+        "label": "Cancel a Codex run on this computer",
+        "status": "active",
+        "job": "End a running Codex run's process group and read back that it is cancelled (harness/codex-runs.mjs cancelCodexRun)",
+        "description": "Ends the run only while it is still the same running process (its start time is checked). Answers the state and cancelled true when it was running; a run that is not running answers cancelled false.",
+        "input_schema": {"type": "object", "required": ["run"], "additionalProperties": false, "properties": {"run": {"type": "string", "pattern": "^codex-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"}}},
+        "output_schema": {"type": "object", "required": ["run", "state", "cancelled"], "properties": {"run": {"type": "string"}, "state": {"type": "string"}, "cancelled": {"type": "boolean"}}},
+        "invoke": {"kind": "on-your-computer", "get_it": ["clone the Workshop repository (package.json repository.url)", "npm ci, from the root of the checkout"], "run": "node tools/keep-and-wake-ai-sessions-on-this-computer/harness/codex-runs.mjs cancel --run {run}", "needs": ["node"], "say": "This runs on the person's own computer, from the root of the Workshop checkout. Run it only when the person asks to stop the run."},
+        "placements": ["placement:your-computer"],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:keep-and-wake-ai-sessions-on-this-computer",
+        "provenance": {"source": "Landed as harness/codex-runs.mjs (commit 597ed7061) and its CLI entry point in this lane"}
+      }
     }
   ]
 }

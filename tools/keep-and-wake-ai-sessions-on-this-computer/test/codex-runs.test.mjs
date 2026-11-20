@@ -5,9 +5,10 @@
 // contacts a real account and nothing is written under the person's home folder.
 import test, { before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { cancelCodexRun, readCodexRun, startCodexRun } from '../harness/codex-runs.mjs';
 
 // A stand-in for the codex CLI: it says its arguments, echoes the prompt it reads on standard input, and ends with a
@@ -125,4 +126,61 @@ test('a start is refused for a missing folder, an empty message, and a run read 
   assert.throws(() => startCodexRun({ folder, message: '   ', root }), /message is needed/);
   assert.throws(() => readCodexRun({ run: '../../etc', root }), /run id is codex-/);
   assert.throws(() => readCodexRun({ run: 'codex-00000000-0000-0000-0000-000000000000', root }), /No such run/);
+});
+
+// The three tool rows run this file's command line (tool-rows.json `invoke.run`). Each refusal is checked before any run
+// folder is made, so these tests write nothing under the person's home folder.
+const CLI = resolve(import.meta.dirname, '../harness/codex-runs.mjs');
+const runCli = args => {
+  try {
+    const out = execFileSync(process.execPath, [CLI, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    return { status: 0, out, err: '' };
+  } catch (error) {
+    return { status: error.status, out: error.stdout, err: error.stderr };
+  }
+};
+
+test('the start row refuses an empty folder and an empty message file before any run is made', () => {
+  const emptyMessage = join(sandbox, 'empty-message.txt');
+  writeFileSync(emptyMessage, '  \n');
+  const noFolder = runCli(['start', '--folder', '', '--message-file', emptyMessage]);
+  assert.equal(noFolder.status, 1);
+  assert.match(noFolder.err, /folder is needed/);
+  const noMessage = runCli(['start', '--folder', sandbox, '--message-file', emptyMessage]);
+  assert.equal(noMessage.status, 1);
+  assert.match(noMessage.err, /message is needed/);
+  assert.equal(noMessage.out, '');
+});
+
+test('the read and cancel rows refuse an unknown or malformed run id', async () => {
+  const unknown = 'codex-00000000-0000-0000-0000-000000000000';
+  const read = runCli(['read', '--run', unknown, '--after', '0']);
+  assert.equal(read.status, 1);
+  assert.match(read.err, /No such run/);
+  const malformed = runCli(['read', '--run', '../../etc', '--after', '0']);
+  assert.equal(malformed.status, 1);
+  assert.match(malformed.err, /run id is codex-/);
+  const badAfter = runCli(['read', '--run', unknown, '--after', '-3']);
+  assert.equal(badAfter.status, 1);
+  assert.match(badAfter.err, /byte position after is needed/);
+  const cancel = runCli(['cancel', '--run', unknown]);
+  assert.equal(cancel.status, 1);
+  assert.match(cancel.err, /No such run/);
+});
+
+test('each codex row declares its input and runs this command line', () => {
+  const rows = JSON.parse(readFileSync(resolve(import.meta.dirname, '../tool-rows.json'), 'utf8')).records.map(r => r.payload);
+  const byId = Object.fromEntries(rows.map(p => [p.id, p]));
+  const start = byId['tool:start-a-codex-run-on-this-computer'];
+  const read = byId['tool:read-a-codex-run-on-this-computer'];
+  const cancel = byId['tool:cancel-a-codex-run-on-this-computer'];
+  assert.deepEqual(start.input_schema.required, ['folder', 'message_file']);
+  assert.equal(start.input_schema.properties.folder.minLength, 1);
+  assert.equal(start.input_schema.properties.message_file.minLength, 1);
+  assert.deepEqual(read.input_schema.required, ['run', 'after']);
+  assert.deepEqual(cancel.input_schema.required, ['run']);
+  for (const row of [read, cancel]) assert.ok(row.input_schema.properties.run.pattern.startsWith('^codex-'));
+  assert.match(start.invoke.run, /codex-runs\.mjs start --folder \{folder\} --message-file \{message_file\}$/);
+  assert.match(read.invoke.run, /codex-runs\.mjs read --run \{run\} --after \{after\}$/);
+  assert.match(cancel.invoke.run, /codex-runs\.mjs cancel --run \{run\}$/);
 });

@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "tools/keep-and-wake-ai-sessions-on-this-computer/tool-rows.json (tool:start-a-codex-run-on-this-computer), harness/codex-runs.mjs (startCodexRun and its command line), test/codex-runs.test.mjs",
+  "start_here": "Say to your AI: \"Start a Codex run in my folder ~/projects/demo with the prompt in the file ~/prompts/hello.txt.\" It starts Codex in that folder on this computer and answers a run id; read it with the read row.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it starts one Codex run in a folder you name, with a prompt you name in a file, and writes only its own run folder.",
+  "workflows": [],
+  "tools": [
+    "tool:start-a-codex-run-on-this-computer",
+    "tool:read-a-codex-run-on-this-computer",
+    "tool:cancel-a-codex-run-on-this-computer"
+  ],
+  "instructions": [
+    "1. Put the prompt in a plain text file, not empty, outside the repository.",
+    "2. Name the folder Codex runs in; it must exist on this computer.",
+    "3. The AI runs node tools/keep-and-wake-ai-sessions-on-this-computer/harness/codex-runs.mjs start --folder <folder> --message-file <file> from the root of the Workshop checkout. The prompt is read from the file, never from the command line.",
+    "4. Keep the run id it answers; read the run with tool:read-a-codex-run-on-this-computer, and stop it only when you ask with tool:cancel-a-codex-run-on-this-computer."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start a one-line Codex run",
+      "ask": "Start Codex in ~/projects/demo with the prompt in ~/prompts/hello.txt.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-codex-run-on-this-computer",
+            "input": {
+              "folder": "~/projects/demo",
+              "message_file": "~/prompts/hello.txt"
+            }
+          }
+        }
+      },
+      "given": "A folder that exists and a prompt file that is not empty.",
+      "hands_back": "{\"run\": \"codex-3f2a9c1e-7b4d-4e8a-9c21-5d6e0f1a2b3c\", \"folder\": \"~/projects/demo\", \"state\": \"running\"}"
+    }
+  ]
+}

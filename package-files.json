@@ -4453,6 +4453,7 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:cancel-a-codex-run-on-this-computer": [],
  "tool:cancel-a-stripe-subscription": [
   {
    "package": "take-payments",
@@ -31744,6 +31745,7 @@
   }
  ],
  "tool:re-time-events-tied-to-words": [],
+ "tool:read-a-codex-run-on-this-computer": [],
  "tool:read-a-computer": [],
  "tool:read-a-computer-price": [],
  "tool:read-a-conversation": [
@@ -47026,6 +47028,7 @@
    "at": "/opt/node_modules/@noble/hashes"
   }
  ],
+ "tool:start-a-codex-run-on-this-computer": [],
  "tool:start-a-computer": [],
  "tool:start-a-decision": [
   {

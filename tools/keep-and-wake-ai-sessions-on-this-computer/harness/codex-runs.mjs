@@ -22,6 +22,7 @@ import { randomUUID } from 'node:crypto';
 import { closeSync, existsSync, mkdirSync, openSync, readFileSync, readSync, realpathSync, renameSync, statSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 // The helper's folder is the `folder` row of wake-sessions.json (read there, never named in code).
 const helperFolder = JSON.parse(readFileSync(new URL('./wake-sessions.json', import.meta.url), 'utf8')).folder;
@@ -125,4 +126,39 @@ export async function cancelCodexRun({ run, root = defaultRoot, grace_ms = 3000 
   while (groupAlive(record.pid) && Date.now() < until) await sleep(50);
   if (groupAlive(record.pid)) { try { process.kill(-record.pid, 'SIGKILL'); } catch { /* already gone */ } }
   return { run, ...stateOf(dir), cancelled: true };
+}
+
+// The command line the three keep-and-wake tool rows run (tool-rows.json, `invoke.run`):
+//   node harness/codex-runs.mjs start --folder <folder> --message-file <file>   the prompt is read from <file>, never argv
+//   node harness/codex-runs.mjs read --run <codex-run-id> --after <bytes>
+//   node harness/codex-runs.mjs cancel --run <codex-run-id>
+// Each prints one JSON answer on standard output. A refusal prints { error } on standard error and exits 1.
+export async function main(argv, out = process.stdout) {
+  const [action, ...rest] = argv;
+  const flags = {};
+  for (let i = 0; i < rest.length; i += 2) {
+    if (!/^--[a-z-]+$/.test(rest[i] ?? '') || i + 1 >= rest.length) throw new Error(`Bad flag ${rest[i]}.`);
+    flags[rest[i].slice(2)] = rest[i + 1];
+  }
+  let answer;
+  if (action === 'start') {
+    if (!flags.folder || !flags.folder.trim()) throw new Error('The folder is needed.');
+    if (!flags['message-file']) throw new Error('The message file is needed.');
+    answer = startCodexRun({ folder: flags.folder, message: readFileSync(flags['message-file'], 'utf8') });
+  } else if (action === 'read') {
+    if (!/^[0-9]+$/.test(flags.after ?? '')) throw new Error('The byte position after is needed.');
+    answer = readCodexRun({ run: flags.run, after: Number(flags.after) });
+  } else if (action === 'cancel') {
+    answer = await cancelCodexRun({ run: flags.run });
+  } else {
+    throw new Error('The action is start, read or cancel.');
+  }
+  out.write(`${JSON.stringify(answer)}\n`);
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+  main(process.argv.slice(2)).catch(error => {
+    process.stderr.write(`${JSON.stringify({ error: error.message })}\n`);
+    process.exitCode = 1;
+  });
 }
