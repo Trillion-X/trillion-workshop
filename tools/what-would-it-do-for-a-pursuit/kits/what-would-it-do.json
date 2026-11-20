@@ -1,0 +1,118 @@
+{
+  "drafted_from": "the old Network's the old pursuit answer (src/pursuit-plan.mjs and its tool row at b6ae0ebf815f); read it before relying on it",
+  "start_here": "Say to your AI: \"What would the platform do for my pursuit: sell a mobile game\", with the pursuit's embedding, the moves table and the rows from the caller.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours; it keeps one answer a day in the person's own database when a database is given.",
+  "workflows": [],
+  "tools": [
+    "tool:what-would-it-do"
+  ],
+  "instructions": [
+    "1. Say to your AI what the pursuit is, in the person's own words.",
+    "2. The AI gives tool:what-would-it-do the pursuit, its pursuit_vector from its own embedding, the moves table, the rows and the recordings, and person and database to keep the answer.",
+    "3. Read what comes back: the first_moves (each move with its closest row), then the workflows, tools and screens, and kept (true when it answered from the day's kept answer)."
+  ],
+  "worked_examples": [
+    {
+      "title": "What the platform would do for a made-up pursuit",
+      "ask": "What would the platform do for my pursuit: sell a mobile game",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:what-would-it-do",
+            "input": {
+              "pursuit": "sell a mobile game",
+              "person": "person:sample",
+              "database": "ethos_for_who_runs_it",
+              "pursuit_vector": [
+                1,
+                0.1
+              ],
+              "moves": {
+                "dimensions": 2,
+                "rows": [
+                  "row:sales-page"
+                ],
+                "vectors": [
+                  1,
+                  0
+                ],
+                "moves": [
+                  {
+                    "id": "sell",
+                    "label": "Sell it",
+                    "vector": [
+                      1,
+                      0
+                    ],
+                    "rows": [
+                      {
+                        "id": "row:sales-page",
+                        "closeness": 0.9
+                      }
+                    ]
+                  }
+                ]
+              },
+              "rows": [
+                {
+                  "id": "row:sales-page",
+                  "kind": "workflow",
+                  "label": "Write a sales page"
+                }
+              ],
+              "recordings": []
+            }
+          }
+        }
+      },
+      "given": {
+        "pursuit": "sell a mobile game",
+        "person": "person:sample",
+        "database": "ethos_for_who_runs_it",
+        "pursuit_vector": [
+          1,
+          0.1
+        ],
+        "moves": {
+          "dimensions": 2,
+          "rows": [
+            "row:sales-page"
+          ],
+          "vectors": [
+            1,
+            0
+          ],
+          "moves": [
+            {
+              "id": "sell",
+              "label": "Sell it",
+              "vector": [
+                1,
+                0
+              ],
+              "rows": [
+                {
+                  "id": "row:sales-page",
+                  "closeness": 0.9
+                }
+              ]
+            }
+          ]
+        },
+        "rows": [
+          {
+            "id": "row:sales-page",
+            "kind": "workflow",
+            "label": "Write a sales page"
+          }
+        ],
+        "recordings": []
+      },
+      "hands_back": "It answered {\"pursuit\":\"sell a mobile game\",\"first_moves\":[{\"id\":\"sell\",\"label\":\"Sell it\",\"row\":{\"id\":\"row:sales-page\",\"kind\":\"workflow\",\"label\":\"Write a sales page\",\"closeness\":0.9,\"recording\":null}}],\"workflows\":[],\"tools\":[],\"screens\":[],\"kept\":false} (run on the test's fake database and made-up vectors; not yet run on a real person database or the Mac)."
+    }
+  ]
+}
