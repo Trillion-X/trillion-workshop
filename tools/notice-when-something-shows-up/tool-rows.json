@@ -1425,7 +1425,7 @@
         "invoke": {
           "kind": "computer",
           "capabilities": [
-            "read-messages"
+            "read-a-folder"
           ],
           "workdir": "/opt/notice-when-something-shows-up",
           "internet": false,
