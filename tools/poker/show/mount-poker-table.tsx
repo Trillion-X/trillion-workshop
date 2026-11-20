@@ -53,6 +53,7 @@ import {
   POKER_WORKSPACE_PLACEABLE_SURFACE_LIST_ADDRESS_LABEL,
 } from '../read-data/read-poker-workspace-layout-state.ts';
 import { PokerTablePanel, PokerTableStyles } from './PokerTablePanel.tsx';
+import { browserUrlForRoute, isLoopbackUrl } from '../read-data/shared-room-links.mjs';
 
 type MountArgs = {
   el: HTMLElement;
@@ -213,17 +214,9 @@ function canUseNativeShare(): boolean {
   return typeof navigator !== 'undefined' && typeof navigator.share === 'function';
 }
 
-function routeUrlFromBase(routePath: string, baseUrl: string): string {
-  return new URL(routePath, baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`).toString();
-}
-
 function currentBrowserUrl(routePath: string): string {
   if (typeof window === 'undefined') return routePath;
-  return routeUrlFromBase(routePath, window.location.href);
-}
-
-function loopbackUrl(url: string): boolean {
-  return /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::|\/|$)/u.test(url);
+  return browserUrlForRoute(routePath, window.location);
 }
 
 /** The invite link is built from the address THIS PAGE was reached at, and nothing else.
@@ -272,7 +265,7 @@ function buildPokerJoinLinks(routePath: string, room: PokerRoomState): PokerJoin
   const inviteUrl = pokerRoomInviteUrl(routePath, room);
   return {
     inviteUrl,
-    inviteUrlUsesLocalHost: loopbackUrl(inviteUrl),
+    inviteUrlUsesLocalHost: isLoopbackUrl(inviteUrl),
   };
 }
 
