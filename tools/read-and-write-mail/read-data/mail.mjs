@@ -13,6 +13,7 @@
 // 3. A refusal is a Refused with words a person can read; the provider's own reply is quoted only up to SAID characters.
 
 import { readFileSync } from 'node:fs';
+import { makeComposioProxy } from '../../composio-connection/read-data/composio-call.mjs';
 
 const HELD_DESCRIPTOR = 4;
 const SAID = 300;
@@ -37,7 +38,9 @@ export function providerFor(input) {
  *  to the provider's base_url (a path part is encoded by its caller); a query value that is a list is the name repeated,
  *  null and undefined are left out. An address a reply handed over (a paging link) may be given whole when it is inside
  *  the base_url. The reply is its JSON, or null when it has none. */
-export function makeCall(provider, { read = descriptor => readFileSync(descriptor, 'utf8'), send = fetch } = {}) {
+export function makeCall(provider, io = {}) {
+  if (provider.transport === 'composio-proxy') return makeProxiedCall(provider, io);
+  const { read = descriptor => readFileSync(descriptor, 'utf8'), send = fetch } = io;
   let key = null;
   const held = () => {
     if (key === null) key = String(read(HELD_DESCRIPTOR)).trim();
@@ -64,6 +67,23 @@ export function makeCall(provider, { read = descriptor => readFileSync(descripto
   };
 }
 
+/** The same `call` for a provider whose requests the Composio proxy sends with the person's connected account: the request
+ *  goes to the provider's own address as one proxy request, and the account's ids come from the connection the run names. */
+function makeProxiedCall(provider, { connection = {}, read, send } = {}) {
+  const proxy = makeComposioProxy({ read, send });
+  return async function call(method, path, { query = {}, body, headers = {} } = {}) {
+    const url = path.startsWith(provider.base_url) ? new URL(path) : new URL(provider.base_url + path);
+    for (const [name, value] of Object.entries(query)) {
+      if (value === undefined || value === null) continue;
+      for (const item of Array.isArray(value) ? value : [value]) url.searchParams.append(name, String(item));
+    }
+    const parameters = Object.entries(headers).map(([name, value]) => ({ name, value: String(value), in: 'header' }));
+    const { data } = await proxy({ endpoint: url.toString(), method, ...(body === undefined ? {} : { body }), ...(parameters.length ? { parameters } : {}) },
+      connection.connection_id, connection.user_id, connection.project_id);
+    return data;
+  };
+}
+
 /** Runs one operation for the provider the input names. `io` is only for tests: the descriptor reader and the fetch. */
 export async function perform(operation, input = {}, io = {}) {
   const provider = providerFor(input);
@@ -72,8 +92,8 @@ export async function perform(operation, input = {}, io = {}) {
   const adapter = await import(`./adapters/${provider.adapter}.mjs`);
   const run = adapter.operations[operation];
   if (typeof run !== 'function') throw new Refused(fill(rows.words.not_offered, { label: provider.label, job: jobOf(operation) }));
-  const { provider: _named, connection: _connection, ...asked } = input;
-  return run({ provider, call: makeCall(provider, io), words: rows.words, fill, Refused }, asked);
+  const { provider: _named, connection, ...asked } = input;
+  return run({ provider, call: makeCall(provider, { ...io, connection }), words: rows.words, fill, Refused }, asked);
 }
 
 const operation = name => input => perform(name, input);

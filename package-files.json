@@ -8233,6 +8233,15 @@
     "src/workspace"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/workshop-looks.json",
+    "src/workspace/offered-screens.mjs",
+    "src/workspace/screens.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
   }
  ],
  "tool:check-the-x-connection": [],
@@ -11311,6 +11320,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
   },
   {
    "package": "content-identity",
@@ -14923,6 +14939,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
+  },
+  {
    "package": "content-identity",
    "paths": [
     "read-data/blake3.mjs",
@@ -14977,6 +15000,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
   },
   {
    "package": "content-identity",
@@ -19670,6 +19700,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "starting-set",
+   "paths": [
+    "read-data/shipped-default.mjs"
+   ],
+   "at": "/opt/starting-set"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -19828,6 +19865,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "starting-set",
+   "paths": [
+    "read-data/shipped-default.mjs"
+   ],
+   "at": "/opt/starting-set"
   },
   {
    "package": "workflows",
@@ -20250,180 +20294,6 @@
     "do-work/fetch_forum_posts.py"
    ],
    "at": "/opt/research-a-creator-or-topic"
-  }
- ],
- "tool:transcribe-file": [
-  {
-   "package": "run-on-a-persons-computer",
-   "paths": [
-    "confined-run.mjs",
-    "confined-run.json"
-   ],
-   "at": "/opt/run-on-a-persons-computer"
-  },
-  {
-   "package": "audio-transcription",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/audio-transcription"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "do-work/run-a-function.mjs",
-    "read-data/host-actions.mjs"
-   ],
-   "at": "/opt/workflows"
-  },
-  {
-   "package": "computer-programs",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/computer-programs"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  }
- ],
- "tool:keep-transcript": [
-  {
-   "package": "audio-transcription",
-   "paths": [
-    "read-data/keep-transcript.mjs"
-   ],
-   "at": "/opt/audio-transcription"
-  },
-  {
-   "package": "records-door",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/records-door"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
   }
  ],
  "tool:keep-hearing-session": [
@@ -21113,6 +20983,162 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
+ "tool:keep-transcript": [
+  {
+   "package": "audio-transcription",
+   "paths": [
+    "read-data/keep-transcript.mjs"
+   ],
+   "at": "/opt/audio-transcription"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "read-data/role-recipes.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
@@ -22896,6 +22922,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
+  },
+  {
    "package": "content-identity",
    "paths": [
     "read-data/blake3.mjs",
@@ -23402,6 +23435,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
+  },
+  {
    "package": "content-identity",
    "paths": [
     "read-data/blake3.mjs",
@@ -23723,6 +23763,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
   },
   {
    "package": "content-identity",
@@ -30782,6 +30829,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
+  },
+  {
    "package": "content-identity",
    "paths": [
     "read-data/blake3.mjs",
@@ -30834,6 +30888,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
   },
   {
    "package": "content-identity",
@@ -33256,6 +33317,13 @@
     "utils.js"
    ],
    "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "publish-content-for-discovery",
+   "paths": [
+    "read-data/publication-view-default.json"
+   ],
+   "at": "/opt/publish-content-for-discovery"
   }
  ],
  "tool:price-a-sale": [
@@ -35135,6 +35203,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
+  },
+  {
    "package": "content-identity",
    "paths": [
     "read-data/blake3.mjs",
@@ -35272,6 +35347,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
+  },
+  {
    "package": "content-identity",
    "paths": [
     "read-data/blake3.mjs",
@@ -35324,6 +35406,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
   },
   {
    "package": "content-identity",
@@ -37934,6 +38023,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
   },
   {
    "package": "content-identity",
@@ -44066,6 +44162,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
+  },
+  {
    "package": "content-identity",
    "paths": [
     "read-data/blake3.mjs",
@@ -44118,6 +44221,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
   },
   {
    "package": "content-identity",
@@ -45371,6 +45481,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
   },
   {
    "package": "content-identity",
@@ -48187,6 +48304,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "starting-set",
+   "paths": [
+    "read-data/shipped-default.mjs"
+   ],
+   "at": "/opt/starting-set"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -48579,6 +48703,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
   },
   {
    "package": "content-identity",
@@ -49602,6 +49733,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
   },
   {
    "package": "content-identity",
@@ -51316,6 +51454,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "starting-set",
+   "paths": [
+    "read-data/shipped-default.mjs"
+   ],
+   "at": "/opt/starting-set"
   },
   {
    "package": "workflows",
@@ -53226,6 +53371,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "starting-set",
+   "paths": [
+    "read-data/shipped-default.mjs"
+   ],
+   "at": "/opt/starting-set"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -53683,6 +53835,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "starting-set",
+   "paths": [
+    "read-data/shipped-default.mjs"
+   ],
+   "at": "/opt/starting-set"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -54015,6 +54174,13 @@
    "at": "/opt/browse-and-upload-my-files"
   },
   {
+   "package": "starting-set",
+   "paths": [
+    "read-data/shipped-default.mjs"
+   ],
+   "at": "/opt/starting-set"
+  },
+  {
    "package": "workflows",
    "paths": [
     "read-data/host-actions.mjs",
@@ -54173,6 +54339,13 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "starting-set",
+   "paths": [
+    "read-data/shipped-default.mjs"
+   ],
+   "at": "/opt/starting-set"
   },
   {
    "package": "workflows",
@@ -54929,6 +55102,101 @@
  "tool:train-a-small-model-on-a-persons-rules": [],
  "tool:train-a-writing-voice-adapter": [],
  "tool:transcribe-audio-and-repair-whisper-loops": [],
+ "tool:transcribe-file": [
+  {
+   "package": "run-on-a-persons-computer",
+   "paths": [
+    "confined-run.mjs",
+    "confined-run.json"
+   ],
+   "at": "/opt/run-on-a-persons-computer"
+  },
+  {
+   "package": "audio-transcription",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/audio-transcription"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs",
+    "read-data/host-actions.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "audio-transcription",
+   "paths": [
+    "show/AudioTranscriptionPanel.tsx",
+    "things-to-store-and-run.json"
+   ],
+   "at": "/opt/audio-transcription"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
  "tool:trash-a-conversation": [
   {
    "package": "read-and-write-mail",
@@ -54958,6 +55226,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
   },
   {
    "package": "content-identity",
@@ -55012,6 +55287,13 @@
     "send-settings.json"
    ],
    "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
   },
   {
    "package": "content-identity",

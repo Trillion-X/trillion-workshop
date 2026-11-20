@@ -94,7 +94,7 @@ test('a provider\'s own refusal and an operation it does not offer are said in w
   const none = standIn([]);
   await assert.rejects(perform('set-a-mail-signature', { provider: 'outlook', address: 'me@example.org', signature: 'x' }, none.io), /Outlook does not offer this: set a mail signature/);
   assert.equal(none.asked.length, 0);
-  await assert.rejects(perform('find-my-mailbox', {}, none.io), /Give provider: one of gmail, outlook/);
+  await assert.rejects(perform('find-my-mailbox', {}, none.io), /Give provider: one of gmail, gmail-via-composio, outlook/);
   await assert.rejects(perform('find-my-mailbox', { provider: 'nope' }, none.io), /nope is not a mail provider here/);
 });
 

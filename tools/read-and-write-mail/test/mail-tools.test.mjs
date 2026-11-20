@@ -24,7 +24,11 @@ test('one row per operation of the provider file, named for its job, with no ven
 });
 
 test('each row\'s by_input variants are exactly the provider rows\' connection kind and key renewal', () => {
-  const expected = Object.fromEntries(providers.providers.map(row => [row.id, { connection: { vendor: row.connection_vendor, from_input: 'connection' }, refresh: row.refresh }]));
+  // A provider whose requests Composio sends takes its key from the Composio secret, not the person's own connection (as the
+  // calendar row does); every other provider takes the connection's key and renews it.
+  const expected = Object.fromEntries(providers.providers.map(row => [row.id, row.transport === 'composio-proxy'
+    ? { connection: null, credential_mounts: [{ secret_name: 'composio-api-key', fd: 4 }] }
+    : { connection: { vendor: row.connection_vendor, from_input: 'connection' }, refresh: row.refresh }]));
   for (const row of rows) {
     assert.equal(row.invoke.by_input.input, 'provider', row.id);
     assert.deepEqual(row.invoke.by_input.variants, expected, row.id);

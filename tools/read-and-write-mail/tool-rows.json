@@ -370,6 +370,10 @@
                   },
                   "when_expiry_unknown": true
                 }
+              },
+              "gmail-via-composio": {
+                "connection": null,
+                "credential_mounts": [{"secret_name": "composio-api-key", "fd": 4}]
               }
             }
           },
@@ -789,6 +793,10 @@
                   },
                   "when_expiry_unknown": true
                 }
+              },
+              "gmail-via-composio": {
+                "connection": null,
+                "credential_mounts": [{"secret_name": "composio-api-key", "fd": 4}]
               }
             }
           },
@@ -1237,6 +1245,10 @@
                   },
                   "when_expiry_unknown": true
                 }
+              },
+              "gmail-via-composio": {
+                "connection": null,
+                "credential_mounts": [{"secret_name": "composio-api-key", "fd": 4}]
               }
             }
           },
@@ -1639,6 +1651,10 @@
                   },
                   "when_expiry_unknown": true
                 }
+              },
+              "gmail-via-composio": {
+                "connection": null,
+                "credential_mounts": [{"secret_name": "composio-api-key", "fd": 4}]
               }
             }
           },
@@ -2084,6 +2100,10 @@
                   },
                   "when_expiry_unknown": true
                 }
+              },
+              "gmail-via-composio": {
+                "connection": null,
+                "credential_mounts": [{"secret_name": "composio-api-key", "fd": 4}]
               }
             }
           },
@@ -2544,6 +2564,10 @@
                   },
                   "when_expiry_unknown": true
                 }
+              },
+              "gmail-via-composio": {
+                "connection": null,
+                "credential_mounts": [{"secret_name": "composio-api-key", "fd": 4}]
               }
             }
           },
@@ -3028,6 +3052,10 @@
                   },
                   "when_expiry_unknown": true
                 }
+              },
+              "gmail-via-composio": {
+                "connection": null,
+                "credential_mounts": [{"secret_name": "composio-api-key", "fd": 4}]
               }
             }
           },
@@ -3457,6 +3485,10 @@
                   },
                   "when_expiry_unknown": true
                 }
+              },
+              "gmail-via-composio": {
+                "connection": null,
+                "credential_mounts": [{"secret_name": "composio-api-key", "fd": 4}]
               }
             }
           },
@@ -3877,6 +3909,10 @@
                   },
                   "when_expiry_unknown": true
                 }
+              },
+              "gmail-via-composio": {
+                "connection": null,
+                "credential_mounts": [{"secret_name": "composio-api-key", "fd": 4}]
               }
             }
           },
@@ -4298,6 +4334,10 @@
                   },
                   "when_expiry_unknown": true
                 }
+              },
+              "gmail-via-composio": {
+                "connection": null,
+                "credential_mounts": [{"secret_name": "composio-api-key", "fd": 4}]
               }
             }
           },
@@ -4706,6 +4746,10 @@
                   },
                   "when_expiry_unknown": true
                 }
+              },
+              "gmail-via-composio": {
+                "connection": null,
+                "credential_mounts": [{"secret_name": "composio-api-key", "fd": 4}]
               }
             }
           },
@@ -5110,6 +5154,10 @@
                   },
                   "when_expiry_unknown": true
                 }
+              },
+              "gmail-via-composio": {
+                "connection": null,
+                "credential_mounts": [{"secret_name": "composio-api-key", "fd": 4}]
               }
             }
           },
@@ -5543,6 +5591,10 @@
                   },
                   "when_expiry_unknown": true
                 }
+              },
+              "gmail-via-composio": {
+                "connection": null,
+                "credential_mounts": [{"secret_name": "composio-api-key", "fd": 4}]
               }
             }
           },
@@ -5959,6 +6011,10 @@
                   },
                   "when_expiry_unknown": true
                 }
+              },
+              "gmail-via-composio": {
+                "connection": null,
+                "credential_mounts": [{"secret_name": "composio-api-key", "fd": 4}]
               }
             }
           },
@@ -6457,6 +6513,10 @@
                   },
                   "when_expiry_unknown": true
                 }
+              },
+              "gmail-via-composio": {
+                "connection": null,
+                "credential_mounts": [{"secret_name": "composio-api-key", "fd": 4}]
               }
             }
           },
@@ -6872,6 +6932,10 @@
                   },
                   "when_expiry_unknown": true
                 }
+              },
+              "gmail-via-composio": {
+                "connection": null,
+                "credential_mounts": [{"secret_name": "composio-api-key", "fd": 4}]
               }
             }
           },
@@ -7283,6 +7347,10 @@
                   },
                   "when_expiry_unknown": true
                 }
+              },
+              "gmail-via-composio": {
+                "connection": null,
+                "credential_mounts": [{"secret_name": "composio-api-key", "fd": 4}]
               }
             }
           },
@@ -7700,6 +7768,10 @@
                   },
                   "when_expiry_unknown": true
                 }
+              },
+              "gmail-via-composio": {
+                "connection": null,
+                "credential_mounts": [{"secret_name": "composio-api-key", "fd": 4}]
               }
             }
           },
@@ -8116,6 +8188,10 @@
                   },
                   "when_expiry_unknown": true
                 }
+              },
+              "gmail-via-composio": {
+                "connection": null,
+                "credential_mounts": [{"secret_name": "composio-api-key", "fd": 4}]
               }
             }
           },

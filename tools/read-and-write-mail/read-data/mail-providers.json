@@ -86,6 +86,47 @@
       }
     },
     {
+      "id": "gmail-via-composio",
+      "label": "Gmail through Composio",
+      "channel": "mail",
+      "adapter": "gmail",
+      "connection_vendor": "composio-account",
+      "transport": "composio-proxy",
+      "hosts": ["backend.composio.dev"],
+      "base_url": "https://gmail.googleapis.com/gmail/v1/users/me",
+      "refresh": null,
+      "operations": [
+        "find-my-mailbox", "list-new-mail", "find-mail", "read-mail-headers", "read-a-mail", "read-a-conversation",
+        "organize-mail", "organize-a-conversation", "trash-mail", "restore-mail", "trash-a-conversation", "restore-a-conversation",
+        "list-mail-drafts", "read-a-mail-draft", "save-a-mail-draft", "delete-a-mail-draft", "send-a-mail-draft",
+        "list-send-as-addresses", "set-a-mail-signature"
+      ],
+      "labels": {
+        "INBOX": "inbox",
+        "UNREAD": "unread",
+        "STARRED": "starred",
+        "IMPORTANT": "important",
+        "DRAFT": "draft",
+        "SENT": "sent",
+        "TRASH": "trash",
+        "SPAM": "spam"
+      },
+      "folders": {
+        "inbox": "in:inbox",
+        "starred": "is:starred",
+        "sent": "in:sent",
+        "drafts": "in:drafts",
+        "trash": "in:trash",
+        "all": "in:anywhere -in:spam -in:trash"
+      },
+      "page_size": 50,
+      "history_page_size": 100,
+      "web_link": {
+        "message": "https://mail.google.com/mail/?authuser={mailbox}#all/{id}",
+        "draft": "https://mail.google.com/mail/?authuser={mailbox}#drafts/{id}"
+      }
+    },
+    {
       "id": "outlook",
       "label": "Outlook",
       "channel": "mail",
