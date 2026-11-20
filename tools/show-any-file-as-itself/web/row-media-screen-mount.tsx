@@ -100,9 +100,8 @@ function RowMedia({ input }: { input: RowMediaInput }) {
                 allowEmbeddedDocument
                 showFrameChrome={false}
                 captionsStartOn={timed.length > 0}
-                captionStyle="subtitle"
                 timedTextSegments={timed.length ? timed : undefined}
-                captionPlacement="below-picture"
+                captionPlacement="over-picture"
                 transcriptPlacement="beside-media"
                 onTimeChange={currentTime => setNow(currentTime)}
                 seekRequest={seek}
