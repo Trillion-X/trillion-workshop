@@ -84,6 +84,7 @@ test('the settings of a wake are what the engine takes: retry, skip_unchanged, r
   assert.deepEqual(wakeProblems([{ id: 'keep', on: { running: {} }, budget: { steps: 1, wall_ms: 120000 }, input: { start_at: 'first' }, rate: { most: 1, per_ms: 1 } }], context),
     ['wakes[0].rate is taken only on a fact wake.'], 'a kept program restarts itself and admits once');
   assert.deepEqual(wakeProblems([{ id: 'keep', on: { running: {} }, budget: { steps: 1, wall_ms: 120000 }, input: { start_at: 'first' }, needs_input: ['credential_name'] }], context), [], 'needs_input on any wake');
+  assert.deepEqual(wakeProblems([{ id: 'keep', on: { running: {} }, budget: { steps: 1, wall_ms: 120000 }, input: { start_at: 'first' }, retry: { attempts: 5, first_ms: 30000 } }], context), [], 'retry on a running wake starts a failed start again');
   assert.deepEqual(wakeProblems(set({ needs_input: [] }), context), ['wakes[0].needs_input must be texts.']);
 });
 
