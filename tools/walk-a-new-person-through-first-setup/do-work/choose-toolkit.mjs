@@ -1,11 +1,12 @@
-// A toolkit is a list row of type record:toolkit that lists tool ids. First setup offers the account's toolkit rows; the person
-// picks one, drops some of its tool ids and adds others. This is the whole decision: the caller reads the rows with
-// TOOLKITS_READ (records:list at the person's own records, the same read every list uses) and hands them in as they come, and
-// installs what comes back. The Workshop ships starter toolkits as rows of this type (toolkits/), the way it ships tool rows.
-// Nothing here reads storage or writes.
+// A toolkit is a row of the toolkits table that lists tool ids. First setup offers the toolkit rows; the person picks one,
+// drops some of its tool ids and adds others. This is the whole decision. The rows are read straight from the database that
+// keeps them, in its own language (readToolkitRows): the toolkits and toolkit_swaps tables, each { id, value, position },
+// beside workflow_recipes in the database of whoever runs the site. No file and no other store holds a toolkit. Everything
+// else here reads nothing and writes nothing.
 //
 //   toolkit row   { id, type: 'record:toolkit', value: { title?, description?, tools: ['tool:...', ...], default?: true,
 //                   stack?: { slot: [pointer, ...] } } }   (the stack and its pointers: toolkit-stack.mjs)
+//   swap row      { id: 'toolkit-swap:...', type: 'record:toolkit-swap', value: { title?, description?, swap: { slot: [pointer] } } }
 //   choice        { toolkit: the id of an offered toolkit row, drop?: [tool ids], add?: [tool ids],
 //                   swap?: { slot: [pointer, ...] } }   any part swapped: each named slot takes these pointers instead (a slot
 //                   the toolkit lacks is added); checked as a stack is (toolkit-stack.mjs), and no slot name is known here
@@ -13,8 +14,6 @@
 //   known_tools   optional: every tool id the caller can install; an added id outside it is refused
 
 import { readStack, readToolkitStack } from './toolkit-stack.mjs';
-import starterToolkits from '../toolkits/starter-toolkits.json' with { type: 'json' };
-import starterSwaps from '../swaps/starter-swaps.json' with { type: 'json' };
 
 const TOOL_ID = /^tool:\S+$/;
 const TOOLKIT_TYPE = 'record:toolkit';
@@ -22,23 +21,21 @@ const TOOLKIT_TYPE = 'record:toolkit';
 const SWAP_TYPE = 'record:toolkit-swap';
 const SWAP_ID = /^toolkit-swap:[a-z0-9-]+$/;
 
-// The starter rows this tool ships (toolkits/ and swaps/, listed by its row sources) travel with it, so it reads them itself:
-// no store is asked for them. The person's own rows are handed in from wherever they keep them, in the same shape.
-const asRow = type => ({ payload }) => ({ id: payload.id, type, value: payload });
-export const STARTER_TOOLKITS = starterToolkits.records.map(asRow(TOOLKIT_TYPE));
-export const STARTER_SWAPS = starterSwaps.records.map(asRow(SWAP_TYPE));
+// Each table and the type its rows are read as. A row's value is the toolkit or swap as written; position is its order.
+export const TOOLKIT_TABLES = Object.freeze({ toolkits: TOOLKIT_TYPE, toolkit_swaps: SWAP_TYPE });
 
-/** The person's rows, then each starter row they hold no row of that id for: a person's copy of a starter stands in its place.
- *  When a row of theirs is marked default, a starter's default stands down, so one toolkit is still the default. */
-export function withStarters(own, starters) {
-  if (!Array.isArray(own)) throw new Error('Hand in the rows the person keeps as a list ([] when they keep none).');
-  const held = new Set(own.map(row => row?.id));
-  const theirsIsDefault = own.some(row => row?.value?.default === true);
-  const kept = starters.filter(row => !held.has(row.id)).map(row => (theirsIsDefault && row.value.default ? { ...row, value: { ...row.value, default: undefined } } : row));
-  return [...own, ...kept];
+/** The toolkit and swap rows as the database keeps them, in their order: { toolkits, toolkit_swaps }, each [{ id, type, value }].
+ *  `query(text)` runs one statement and answers its rows (a pg client's query, or a test's own). */
+export async function readToolkitRows(query) {
+  const read = {};
+  for (const [table, type] of Object.entries(TOOLKIT_TABLES)) {
+    const rows = await query(`SELECT id, value FROM ${table} ORDER BY position, id`);
+    read[table] = rows.map(({ id, value }) => ({ id, type, value }));
+  }
+  return read;
 }
 
-/** A choice's swap as pointers: a swap row's id is that row's value.swap, from the person's swap rows or the starters. */
+/** A choice's swap as pointers: a swap row's id is that row's value.swap. */
 export function swapOf(swap, swapRows) {
   if (typeof swap !== 'string') return swap;
   if (!SWAP_ID.test(swap)) throw new Error(`swap is { slot: [pointer] } or the id of a swap row (toolkit-swap: then the id), not ${JSON.stringify(swap)}.`);

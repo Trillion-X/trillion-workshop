@@ -31,7 +31,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 ## The tools
 
 <!-- tool-catalogue:start -->
-Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-catalogue.mjs`; do not edit it by hand. 1463 tools in 314 folders. A tool's job, inputs, outputs and sample run are in its row. `test/tool-catalogue-is-current.test.mjs` fails when this table is stale.
+Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-catalogue.mjs`; do not edit it by hand. 1460 tools in 314 folders. A tool's job, inputs, outputs and sample run are in its row. `test/tool-catalogue-is-current.test.mjs` fails when this table is stale.
 
 | Folder | Tools |
 |---|---|
@@ -327,7 +327,7 @@ Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-c
 | `unit-economics` | `tool:work-out-unit-economics` |
 | `upload-a-file-to-a-signed-slot` | `tool:upload-a-file-to-a-signed-slot` |
 | `use-your-tools-from-a-shell` | `tool:use-your-tools-from-a-shell` |
-| `walk-a-new-person-through-first-setup` | `tool:start-or-resume-the-first-setup`, `tool:walk-a-new-person-through-first-setup`, `toolkit:answer-your-audience`, `toolkit:keep-your-work-in-order`, `toolkit:launch-and-sell-a-product` |
+| `walk-a-new-person-through-first-setup` | `tool:start-or-resume-the-first-setup`, `tool:walk-a-new-person-through-first-setup` |
 | `walk-a-new-person-through-setup` | `tool:keep-what-my-devices-report-about-themselves` |
 | `walk-nested-input-within-limits` | `tool:check-nested-input` |
 | `walk-through-an-app-like-its-users` | `tool:map-an-apps-screens-and-controls`, `tool:read-what-a-running-app-shows`, `tool:walk-through-an-app-like-its-users` |

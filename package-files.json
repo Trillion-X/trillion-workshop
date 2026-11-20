@@ -43015,12 +43015,11 @@
    "at": "/opt/node_modules/uqr"
   },
   {
-   "package": "walk-a-new-person-through-first-setup",
+   "package": "run-sql-in-my-database",
    "paths": [
-    "swaps/starter-swaps.json",
-    "toolkits/starter-toolkits.json"
+    "do-work/through-the-run-proxy.mjs"
    ],
-   "at": "/opt/walk-a-new-person-through-first-setup"
+   "at": "/opt/run-sql-in-my-database"
   }
  ],
  "tool:step-through-a-guided-tour": [
@@ -45809,6 +45808,13 @@
    "at": "/opt/workflows"
   },
   {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
    "package": "shared-code",
    "paths": [
     "src/server-instruction-paragraphs.mjs",
@@ -45942,12 +45948,82 @@
    "at": "/opt/node_modules/uqr"
   },
   {
-   "package": "walk-a-new-person-through-first-setup",
-   "paths": [
-    "swaps/starter-swaps.json",
-    "toolkits/starter-toolkits.json"
+   "packages": [
+    "pg"
    ],
-   "at": "/opt/walk-a-new-person-through-first-setup"
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
   }
  ],
  "tool:walk-through-an-app-like-its-users": [

@@ -4,12 +4,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { chooseToolkit, fillCart, offeredToolkits } from '../do-work/choose-toolkit.mjs';
-import { setupSteps } from '../do-work/setup-steps-from-a-cart.mjs';
-import { readStack } from '../do-work/toolkit-stack.mjs';
+import { fillCart, offeredToolkits } from '../do-work/choose-toolkit.mjs';
 import { readPointer, readToolkitStack } from '../do-work/toolkit-stack.mjs';
 import { walkAPersonThroughFirstSetup } from '../do-work/walk-a-new-person-through-first-setup.mjs';
-import { rows as shippedRows } from '../../../test-helpers/tool-rows.mjs';
 
 const ORIGIN = 'https://app.example.test';
 const notStarted = { workflow: { exists: false, state: 'not_started' } };
@@ -63,60 +60,11 @@ test('a pick fills the cart from the picked toolkit with its stack', () => {
   assert.deepEqual(cart.stack.data.map(pointer => pointer.id), ['sample-server', 'sample-file']);
 });
 
-test('first setup carries the cart in the plan; with no default of the person\'s, it is the starter default', () => {
+test('first setup carries the cart in the plan; with no row marked default and nothing picked, there is no cart', () => {
   const toolkits = [row('toolkit:a', { ...withStack(), default: true })];
   const plan = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, toolkits });
   assert.equal(plan.toolkits.cart.toolkit, 'toolkit:a');
   assert.equal(plan.toolkits.choice, undefined);
   const plain = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, toolkits: [row('toolkit:a', { tools: ['tool:sample-cut'] })] });
-  assert.equal(plain.toolkits.cart.toolkit, 'toolkit:answer-your-audience');
-  assert.equal(plain.toolkits.cart.picked, false);
-});
-
-const shipped = shippedRows().filter(({ payload }) => payload.kind === 'toolkit').map(({ payload }) => ({ id: payload.id, type: 'record:toolkit', value: payload }));
-const toolIds = new Set(shippedRows().filter(({ payload }) => payload.kind === 'ai-tool-descriptor').map(({ payload }) => payload.id));
-
-test('every starter toolkit carries a stack whose pointers are valid, and exactly one is the default', () => {
-  const offered = offeredToolkits(shipped);
-  assert.equal(offered.length, 3);
-  assert.deepEqual(offered.filter(toolkit => toolkit.default).map(toolkit => toolkit.id), [offered[0].id]);
-  for (const toolkit of offered) {
-    assert.deepEqual(Object.keys(toolkit.stack), ['database', 'files', 'screens', 'hosting', 'sign-in', 'payments'], `${toolkit.id} fills every slot`);
-  }
-});
-
-test('a pointer of a starter stack that names a Workshop tool names one the Workshop offers', () => {
-  const named = offeredToolkits(shipped).flatMap(toolkit => Object.values(toolkit.stack).flat()).filter(pointer => pointer.label?.startsWith('tool:'));
-  assert.ok(named.length > 0);
-  assert.deepEqual(named.filter(pointer => !toolIds.has(pointer.label)).map(pointer => pointer.label), []);
-});
-
-test('picking nothing fills the cart from the first starter row, whose database slot answers a file store first', () => {
-  const cart = fillCart({ toolkits: shipped });
-  assert.equal(cart.toolkit, 'toolkit:answer-your-audience');
-  assert.equal(cart.stack.database[0].id, 'sqlite-file');
-  assert.ok(cart.stack.database.length >= 2, 'a second pointer to fall back to or swap in');
-});
-
-const swaps = shippedRows().filter(({ payload }) => payload.kind === 'toolkit-swap').map(({ payload }) => payload);
-
-test('every starter swap goes into every starter toolkit, and the cart renders a step for each part from tools the Workshop ships', () => {
-  assert.ok(swaps.length > 0, 'the swap rows are listed by source:starter-toolkit-swaps');
-  const available = [...toolIds];
-  for (const swap of swaps) {
-    assert.match(swap.id, /^toolkit-swap:[a-z0-9-]+$/);
-    readStack(swap.swap, swap.id);
-    const labels = Object.values(swap.swap).flat().map(pointer => pointer.label).filter(label => label?.startsWith('tool:'));
-    assert.deepEqual(labels.filter(label => !toolIds.has(label)), [], `${swap.id} names only shipped tools`);
-    for (const toolkit of offeredToolkits(shipped)) {
-      const cart = chooseToolkit({ toolkits: shipped, choice: { toolkit: toolkit.id, swap: swap.swap } });
-      assert.deepEqual(cart.swapped, Object.keys(swap.swap));
-      for (const [slot, pointers] of Object.entries(swap.swap)) assert.deepEqual(cart.stack[slot], pointers, `${swap.id} in ${toolkit.id}: ${slot} is the swap's`);
-      for (const [slot, pointers] of Object.entries(toolkit.stack)) if (!(slot in swap.swap)) assert.deepEqual(cart.stack[slot], pointers, `${slot} stays the toolkit's`);
-      const steps = setupSteps(cart, { available });
-      assert.equal(steps.filter(step => step.kind === 'part').length, Object.keys(cart.stack).length);
-      assert.deepEqual(steps.filter(step => step.status === 'unavailable').map(step => step.id), [], `${swap.id} in ${toolkit.id}`);
-      for (const step of steps.filter(step => step.kind === 'part' && step.credential)) assert.equal(step.status, 'needs_credential');
-    }
-  }
+  assert.equal(plain.toolkits.cart, undefined);
 });

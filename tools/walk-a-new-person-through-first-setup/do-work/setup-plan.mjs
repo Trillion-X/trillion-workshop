@@ -5,7 +5,7 @@ import policy from '../read-data/setup-policy.json' with { type: 'json' };
 import { instructionParagraph } from '../../shared-code/src/server-instruction-paragraphs.mjs';
 import { setupInstalls } from './setup-installs.mjs';
 import { lensForSetup } from '../../see-a-pursuit-through-the-lens/src/pursuit-lens.mjs';
-import { chooseToolkit, fillCart, offeredToolkits, STARTER_SWAPS, STARTER_TOOLKITS, swapOf, withStarters } from './choose-toolkit.mjs';
+import { chooseToolkit, fillCart, offeredToolkits, swapOf } from './choose-toolkit.mjs';
 import { setupSteps } from './setup-steps-from-a-cart.mjs';
 
 const callFor = (tool, args = {}) => ({ tool, arguments: args });
@@ -18,10 +18,10 @@ export function setupInstructions() {
 // What first setup offers from the toolkit rows: every row, the person's choice answered as tool ids, and the cart a new account is
 // filled with: the choice, else the toolkit marked default as it stands (a person who picks nothing still gets a working cart).
 // The cart carries its setup steps, rendered from its own parts (setup-steps-from-a-cart.mjs), never written by hand.
-// The starter toolkits and swaps this tool ships are offered with the person's own rows; a choice may name a swap row by id.
-function toolkitsFor({ toolkits: own, toolkitSwaps, toolkitChoice: picked, knownTools }) {
-  const toolkits = withStarters(own ?? [], STARTER_TOOLKITS);
-  const swaps = withStarters(toolkitSwaps ?? [], STARTER_SWAPS);
+// The rows are the toolkits and toolkit_swaps tables as read (choose-toolkit.mjs readToolkitRows); a choice may name a swap row by id.
+function toolkitsFor({ toolkits: rows, toolkitSwaps, toolkitChoice: picked, knownTools }) {
+  const toolkits = rows ?? [];
+  const swaps = toolkitSwaps ?? [];
   const offered = offeredToolkits(toolkits);
   // A swap picked with no toolkit goes into the default one.
   const base = picked && picked.toolkit === undefined ? { ...picked, toolkit: offered.find(row => row.default)?.id } : picked;
@@ -83,7 +83,7 @@ export function setupPlan({ runtime, known = null, prerequisites = null, native 
       'After admitting discovery that changes the required devices, call start_setup again without restart, then follow prerequisites.next_calls. It prepares current native access through the same account owner as the setup screen; no open browser screen is required. read_setup only reads these prerequisites. A missing mandate needs the person’s explicit access request; never add consent merely to advance setup. A stopped setup stays stopped until the person explicitly requests a restart.',
       'The human supplies direction and observations. Retrieve known facts first. Ask only for a genuinely missing fact, authorization, or an operating-system action the AI cannot perform, with one concrete prepared action in this conversation.',
       'Inspect the local harness installer before applying it, and verify actual hook execution afterward. Preserve unrelated configuration, chosen models, pauses, budgets and permissions. Do not enable paid inference or disable approval safeguards as a side effect of setup.',
-      'To offer toolkits, hand in toolkits: the toolkit rows the person keeps, read from wherever they keep them ([] when they keep none); the starter toolkits and swaps this tool ships are offered with them. Offer what toolkits answers: the person picks one, drops tool ids they do not want and adds tool ids they do. To set up another way (their own domain, a machine they already run, no domain), put the id of one of toolkits.swaps in the choice as swap. Send that choice back as toolkit_choice and install the tool ids it answers; the cart in toolkits.cart is what a new account is filled with, the toolkit marked default when nothing is picked, and its stack names the pointers of each slot; never install a toolkit as it stands once the person has changed it.',
+      'To offer toolkits, give database: the database that keeps the toolkits and toolkit_swaps tables (its name as this computer names it, or credential_name, the held name of its connection); the tool reads both tables there. Offer what toolkits answers: the person picks one, drops tool ids they do not want and adds tool ids they do. To set up another way (their own domain, a machine they already run, no domain), put the id of one of toolkits.swaps in the choice as swap. Send that choice back as toolkit_choice and install the tool ids it answers; the cart in toolkits.cart is what a new account is filled with, the toolkit marked default when nothing is picked, and its stack names the pointers of each slot; never install a toolkit as it stands once the person has changed it.',
       'Use read_setup to verify current owner state. If your cached tool catalog does not expose read_setup, call start_setup with {read_only:true} for the same observation; never combine it with restart. Do not mark a capability complete from an instruction, a configuration entry, an armed alarm, a queued import or a failed read. A large import may continue with its tracked backlog after a verified first arrival and useful result.',
     ],
   };

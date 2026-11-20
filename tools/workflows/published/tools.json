@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:0ddd1dd5305abece1eb5c7d47159477b41683d295875039e5ad6b43cc44e5b31"
+  "blake3": "1f:b2c7d82076fbadaaeca6ec04940d4e17fbf51991a87de71b229a595ccb6ea8ca"
  },
  "fields": [
   {
@@ -13641,7 +13641,7 @@
    "values": {
     "title": "Walk a new person through first setup",
     "job": "Walk a new person through first setup: the apps to install on their devices, the AIs to connect, and the one saved run that resumes where they stopped",
-    "description": "Give the setup plan for one person's account from what the caller reads and hands over: the saved setup run and what it does next (its next calls, the workflow's steps), the access prerequisites still open, what the account already has (pursuits, connections, profile, devices), the computers it can reach and their tool cards, the person's pursuit lens and the entry point they came from. Returns the plan: the apps to install on their devices (with the public links or the honest not-yet words), the local harness installer's download, inspect, apply and remove commands per supported AI host, the MCP registration preview commands, the instructions the AI follows, and the setup policy. view 'state' returns the run and its next calls only; view 'full' adds the installs, the policy and the lens. When toolkit rows are handed in it offers them, and a toolkit_choice (the toolkit picked, tool ids dropped from it, tool ids added) answers the tool ids to install. Nothing is read from storage and nothing is written: starting or resuming the saved run is not yet ported, so next calls that name start_setup are not run by this tool.",
+    "description": "Give the setup plan for one person's account from what the caller reads and hands over: the saved setup run and what it does next (its next calls, the workflow's steps), the access prerequisites still open, what the account already has (pursuits, connections, profile, devices), the computers it can reach and their tool cards, the person's pursuit lens and the entry point they came from. Returns the plan: the apps to install on their devices (with the public links or the honest not-yet words), the local harness installer's download, inspect, apply and remove commands per supported AI host, the MCP registration preview commands, the instructions the AI follows, and the setup policy. view 'state' returns the run and its next calls only; view 'full' adds the installs, the policy and the lens. Given database (or credential_name), it reads the toolkits and toolkit_swaps tables there and offers their rows, and a toolkit_choice (the toolkit picked, tool ids dropped from it, tool ids added) answers the tool ids to install. Nothing else is read from storage and nothing is written: starting or resuming the saved run is not yet ported, so next calls that name start_setup are not run by this tool.",
     "status": "active",
     "maker": "maker:walk-a-new-person-through-first-setup",
     "licence_class": "licence:maker-own",
