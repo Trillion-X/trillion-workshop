@@ -69,8 +69,8 @@ export function seedOfSession(session, { volume, identity }) {
     words: 'pending',
     came_from: { source: 'volume', volume, paths: session.clips.map(clip => clip.path), at: iso(session.start) },
     media: {
-      clips: session.clips.map(clip => ({ name: clip.name, path: clip.path, start: iso(clip.start), end: iso(clip.end), seconds: clip.seconds })),
-      session: { start: iso(session.start), end: iso(session.end), clip_count: session.clips.length, total_seconds: Math.round(seconds) },
+      clips: session.clips.map(clip => ({ name: clip.name, path: clip.path, start: iso(clip.start), end: iso(clip.end), seconds: clip.seconds, bytes: clip.bytes, stored_as: null })),
+      session: { start: iso(session.start), end: iso(session.end), clip_count: session.clips.length, total_seconds: Math.round(seconds), total_bytes: session.clips.reduce((sum, clip) => sum + (clip.bytes ?? 0), 0) },
     },
     at: iso(session.start),
   };
@@ -86,8 +86,14 @@ const IDENTITY_TEXT = /^[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}$/;
 export async function readCameraCardIndex({ target, devices }, deps = {}) {
   const readdir = deps.readdir ?? (dir => fsp.readdir(dir));
   const readFile = deps.readFile ?? (file => fsp.readFile(file, 'utf8'));
+  const sizeOf = deps.sizeOf ?? (file => fsp.stat(file).then(stat => stat.size, () => null));
   const found = await driveOf(target, devices);
-  if (!found) throw fail('This volume is not a connected drive, so its index is not read.');
+  if (!found) {
+    // A volume that is not a connected drive (the system disk, a disk image) is not a camera card: nothing is read on it.
+    return { volume: { name: path.basename(target), mount: null, identity: null }, index_folder: null, since: settings.since,
+      session_gap_seconds: settings.session_gap_seconds, clips_in_range: 0, clips_before_since: 0, sidecars_unreadable: 0,
+      sidecars_without_media: 0, sessions: [], reason: 'not on a connected drive' };
+  }
   const identity = await readFile(path.join(found.real, VOLUME_IDENTITY_FILE)).then(text => (IDENTITY_TEXT.test(text.trim()) ? text.trim() : null), () => null);
   const folder = path.join(found.real, settings.index_folder);
   let names;
@@ -114,7 +120,9 @@ export async function readCameraCardIndex({ target, devices }, deps = {}) {
     }
     if (!parsed) { unreadable += 1; continue; }
     if (parsed.start < since) { before_since += 1; continue; }
-    clips.push({ name: clipName, path: path.join(folder, mediaName), start: parsed.start, seconds: parsed.seconds });
+    // The media file is never read, only its size is asked for: a clip can be tens of gigabytes.
+    const mediaPath = path.join(folder, mediaName);
+    clips.push({ name: clipName, path: mediaPath, start: parsed.start, seconds: parsed.seconds, bytes: await sizeOf(mediaPath) });
   }
   const sessions = groupSessions(clips, settings.session_gap_seconds).map(session => seedOfSession(session, { volume, identity }));
   return {
@@ -127,6 +135,7 @@ export async function readCameraCardIndex({ target, devices }, deps = {}) {
     sidecars_unreadable: unreadable,
     sidecars_without_media: without_media,
     sessions,
+    reason: null,
   };
 }
 

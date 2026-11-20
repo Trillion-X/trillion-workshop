@@ -1,7 +1,6 @@
-import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, readFileSync, realpathSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, realpathSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { enumerateDevices, getADriveIcon, hiddenIn, listConnectedDrives, listDriveFolder, nameWhatHoldsADrive, seeWhatIsOnADrive, walkDrive } from '../read-data/drives.mjs';
@@ -10,7 +9,7 @@ const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.ur
 
 // A pretend /Volumes: one external drive with a folder in it, and one hidden (nobrowse) volume.
 function pretendMac() {
-  const root = realpathSync(tempFolder(join(tmpdir(), 'connected-drives-')));
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'connected-drives-')));
   const drive = join(root, 'SAMPLE DRIVE');
   mkdirSync(join(drive, 'DCIM', 'Day 2'), { recursive: true });
   writeFileSync(join(drive, 'DCIM', 'clip-10.mov'), 'xx');
@@ -107,7 +106,7 @@ test('a process is named the way the person knows it: a script by its script, a 
 
 // A pretend place with no diskutil: a kernel mount table and one mount root holding one drive.
 function pretendMountTable() {
-  const base = realpathSync(tempFolder(join(tmpdir(), 'mount-table-')));
+  const base = realpathSync(mkdtempSync(join(tmpdir(), 'mount-table-')));
   const media = join(base, 'media');
   const drive = join(media, 'CARD ONE');
   mkdirSync(join(drive, 'DCIM'), { recursive: true });

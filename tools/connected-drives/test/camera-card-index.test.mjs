@@ -75,6 +75,8 @@ test('a card gives one seed per session, read only, and leaves out what is befor
     assert.deepEqual(morning.came_from.paths, [join(clip, 'C0005.MP4'), join(clip, 'C0006.MP4')]);
     assert.equal(morning.media.session.clip_count, 2);
     assert.equal(morning.media.session.total_seconds, 720);
+    assert.equal(morning.media.clips[0].stored_as, null);
+    assert.equal(morning.media.clips[0].bytes, 1, 'the media is sized by stat, never read');
     assert.equal(morning.at, '2026-11-20T16:36:55.000Z');
     assert.equal(afternoon.id, 'camera-card:6C44E496-0C38-48BA-B9F3-52A1213FF8F9:C0007');
   });
@@ -85,7 +87,9 @@ test('a volume with no camera index holds no sessions, and a path off the connec
   const device = { name: 'Plain disk', mount: root, internal: false };
   const answer = await readCameraCardIndex({ target: root, devices: [device] });
   assert.deepEqual(answer.sessions, []);
-  await assert.rejects(readCameraCardIndex({ target: tmpdir(), devices: [device] }), /not a connected drive/);
+  const off = await readCameraCardIndex({ target: tmpdir(), devices: [device] });
+  assert.equal(off.reason, 'not on a connected drive');
+  assert.deepEqual(off.sessions, []);
 });
 
 test('a volume with no identity file is seeded by its visible name', async () => {
