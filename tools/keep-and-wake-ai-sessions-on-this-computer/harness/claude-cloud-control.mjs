@@ -4,7 +4,7 @@ import { dispatchCloudSessions } from './read-cloud-sessions.mjs';
 
 const CONFIG = /^[A-Za-z0-9._-]+$/;
 const SESSION = /^[A-Za-z0-9_-]{1,200}$/;
-const REPOSITORIES = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+(?:,[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)*$/;
+const REPOSITORIES = /^[A-Za-z0-9][A-Za-z0-9_.-]*\/[A-Za-z0-9][A-Za-z0-9_.-]*(?:,[A-Za-z0-9][A-Za-z0-9_.-]*\/[A-Za-z0-9][A-Za-z0-9_.-]*)*$/;
 
 export function validateClaudeCloudRequest(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('The request must be an object.');
