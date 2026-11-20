@@ -752,6 +752,320 @@
                 }
               ]
             }
+          },
+          {
+            "id": "replay-main-line-edge-cases",
+            "on": {
+              "running": {}
+            },
+            "budget": {
+              "steps": 2,
+              "wall_ms": 600000
+            },
+            "retry": {
+              "attempts": 64,
+              "factor": 2,
+              "first_ms": 30000,
+              "most_ms": 600000
+            },
+            "input": {
+              "waiters": [
+                {
+                  "kind": "notice-when-something-shows-up.waiter-descriptor",
+                  "id": "waiter:replay-parked-folders-removed-out-of-the-workshop",
+                  "is_active": true,
+                  "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::repository-main-line",
+                  "mechanism_leaf": "repository-main-line.mjs",
+                  "mechanism_settings": {
+                    "repository": "https://github.com/Trillion-X/trillion-workshop",
+                    "where": "workshop-main-line",
+                    "branch": "main",
+                    "park_folders": [
+                      "from-*"
+                    ],
+                    "removed_lines_at_least": 40,
+                    "removed_files_at_least": 2,
+                    "park_at_least": 1,
+                    "replay": {
+                      "from": "806cc3ccc491e0b73078aa76660b8e0a5fc45a8c",
+                      "to": "332230b3395362fdde9277815942394e65357c83"
+                    }
+                  },
+                  "emitted_record": {
+                    "change_kind": "something-changed",
+                    "address_label": "where::something-changed",
+                    "path_labels": [
+                      "current-item",
+                      "something-changed"
+                    ],
+                    "payload_fields": [
+                      "where",
+                      "place",
+                      "change",
+                      "at",
+                      "key",
+                      "before",
+                      "after",
+                      "kinds"
+                    ]
+                  },
+                  "candidate_identity_feed": null,
+                  "why": "Edge case: replays one real commit (332230b33) through the move rules. Must fire: a parked removal of 603 files."
+                },
+                {
+                  "kind": "notice-when-something-shows-up.waiter-descriptor",
+                  "id": "waiter:replay-two-files-removed-no-new-home",
+                  "is_active": true,
+                  "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::repository-main-line",
+                  "mechanism_leaf": "repository-main-line.mjs",
+                  "mechanism_settings": {
+                    "repository": "https://github.com/Trillion-X/trillion-workshop",
+                    "where": "workshop-main-line",
+                    "branch": "main",
+                    "park_folders": [
+                      "from-*"
+                    ],
+                    "removed_lines_at_least": 40,
+                    "removed_files_at_least": 2,
+                    "park_at_least": 1,
+                    "replay": {
+                      "from": "bc5bf7d83f2a000597209296d22fbd6ec84d5669",
+                      "to": "c73d0050fac96ef6852d842e087705a9f513d8c6"
+                    }
+                  },
+                  "emitted_record": {
+                    "change_kind": "something-changed",
+                    "address_label": "where::something-changed",
+                    "path_labels": [
+                      "current-item",
+                      "something-changed"
+                    ],
+                    "payload_fields": [
+                      "where",
+                      "place",
+                      "change",
+                      "at",
+                      "key",
+                      "before",
+                      "after",
+                      "kinds"
+                    ]
+                  },
+                  "candidate_identity_feed": null,
+                  "why": "Edge case: replays one real commit (c73d0050f) through the move rules. Must fire: two files removed with no new home."
+                },
+                {
+                  "kind": "notice-when-something-shows-up.waiter-descriptor",
+                  "id": "waiter:replay-parked-files-left-with-additions",
+                  "is_active": true,
+                  "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::repository-main-line",
+                  "mechanism_leaf": "repository-main-line.mjs",
+                  "mechanism_settings": {
+                    "repository": "https://github.com/Trillion-X/trillion-workshop",
+                    "where": "workshop-main-line",
+                    "branch": "main",
+                    "park_folders": [
+                      "from-*"
+                    ],
+                    "removed_lines_at_least": 40,
+                    "removed_files_at_least": 2,
+                    "park_at_least": 1,
+                    "replay": {
+                      "from": "5856af3e927de226e9b743a4337c4b080ca61f1c",
+                      "to": "ba7a9a8481cf74a4382c7dae39894ccddd1f6e85"
+                    }
+                  },
+                  "emitted_record": {
+                    "change_kind": "something-changed",
+                    "address_label": "where::something-changed",
+                    "path_labels": [
+                      "current-item",
+                      "something-changed"
+                    ],
+                    "payload_fields": [
+                      "where",
+                      "place",
+                      "change",
+                      "at",
+                      "key",
+                      "before",
+                      "after",
+                      "kinds"
+                    ]
+                  },
+                  "candidate_identity_feed": null,
+                  "why": "Edge case: replays one real commit (ba7a9a848) through the move rules. Must fire: parked removals mixed with additions."
+                },
+                {
+                  "kind": "notice-when-something-shows-up.waiter-descriptor",
+                  "id": "waiter:replay-line-endings-across-25-files",
+                  "is_active": true,
+                  "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::repository-main-line",
+                  "mechanism_leaf": "repository-main-line.mjs",
+                  "mechanism_settings": {
+                    "repository": "https://github.com/Trillion-X/trillion-workshop",
+                    "where": "workshop-main-line",
+                    "branch": "main",
+                    "park_folders": [
+                      "from-*"
+                    ],
+                    "removed_lines_at_least": 40,
+                    "removed_files_at_least": 2,
+                    "park_at_least": 1,
+                    "replay": {
+                      "from": "8e51eec7a7fae6849cb3514b4e99a5c61c0bf628",
+                      "to": "143e155e1434c406d6ed8e07ab78de69cb3658b6"
+                    }
+                  },
+                  "emitted_record": {
+                    "change_kind": "something-changed",
+                    "address_label": "where::something-changed",
+                    "path_labels": [
+                      "current-item",
+                      "something-changed"
+                    ],
+                    "payload_fields": [
+                      "where",
+                      "place",
+                      "change",
+                      "at",
+                      "key",
+                      "before",
+                      "after",
+                      "kinds"
+                    ]
+                  },
+                  "candidate_identity_feed": null,
+                  "why": "Edge case: replays one real commit (143e155e1) through the move rules. Must not fire: 25 lines, below the threshold."
+                },
+                {
+                  "kind": "notice-when-something-shows-up.waiter-descriptor",
+                  "id": "waiter:replay-additions-only",
+                  "is_active": true,
+                  "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::repository-main-line",
+                  "mechanism_leaf": "repository-main-line.mjs",
+                  "mechanism_settings": {
+                    "repository": "https://github.com/Trillion-X/trillion-workshop",
+                    "where": "workshop-main-line",
+                    "branch": "main",
+                    "park_folders": [
+                      "from-*"
+                    ],
+                    "removed_lines_at_least": 40,
+                    "removed_files_at_least": 2,
+                    "park_at_least": 1,
+                    "replay": {
+                      "from": "f842a28a63016f93cf4625e949b883e08adf8390",
+                      "to": "eac88c67690906cb0b92ecd5f399d6e4cedd6518"
+                    }
+                  },
+                  "emitted_record": {
+                    "change_kind": "something-changed",
+                    "address_label": "where::something-changed",
+                    "path_labels": [
+                      "current-item",
+                      "something-changed"
+                    ],
+                    "payload_fields": [
+                      "where",
+                      "place",
+                      "change",
+                      "at",
+                      "key",
+                      "before",
+                      "after",
+                      "kinds"
+                    ]
+                  },
+                  "candidate_identity_feed": null,
+                  "why": "Edge case: replays one real commit (eac88c676) through the move rules. Must not fire: nothing removed."
+                },
+                {
+                  "kind": "notice-when-something-shows-up.waiter-descriptor",
+                  "id": "waiter:replay-additions-and-three-lines-removed",
+                  "is_active": true,
+                  "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::repository-main-line",
+                  "mechanism_leaf": "repository-main-line.mjs",
+                  "mechanism_settings": {
+                    "repository": "https://github.com/Trillion-X/trillion-workshop",
+                    "where": "workshop-main-line",
+                    "branch": "main",
+                    "park_folders": [
+                      "from-*"
+                    ],
+                    "removed_lines_at_least": 40,
+                    "removed_files_at_least": 2,
+                    "park_at_least": 1,
+                    "replay": {
+                      "from": "e74a7d0047b9b3094f4e9c82061063d04a857551",
+                      "to": "f842a28a63016f93cf4625e949b883e08adf8390"
+                    }
+                  },
+                  "emitted_record": {
+                    "change_kind": "something-changed",
+                    "address_label": "where::something-changed",
+                    "path_labels": [
+                      "current-item",
+                      "something-changed"
+                    ],
+                    "payload_fields": [
+                      "where",
+                      "place",
+                      "change",
+                      "at",
+                      "key",
+                      "before",
+                      "after",
+                      "kinds"
+                    ]
+                  },
+                  "candidate_identity_feed": null,
+                  "why": "Edge case: replays one real commit (f842a28a6) through the move rules. Must not fire: three lines removed."
+                },
+                {
+                  "kind": "notice-when-something-shows-up.waiter-descriptor",
+                  "id": "waiter:replay-rename-with-additions-and-small-removals",
+                  "is_active": true,
+                  "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::repository-main-line",
+                  "mechanism_leaf": "repository-main-line.mjs",
+                  "mechanism_settings": {
+                    "repository": "https://github.com/Trillion-X/trillion-workshop",
+                    "where": "workshop-main-line",
+                    "branch": "main",
+                    "park_folders": [
+                      "from-*"
+                    ],
+                    "removed_lines_at_least": 40,
+                    "removed_files_at_least": 2,
+                    "park_at_least": 1,
+                    "replay": {
+                      "from": "49a34f11e920d5be2ae006dcd6859f6d8929d052",
+                      "to": "e74a7d0047b9b3094f4e9c82061063d04a857551"
+                    }
+                  },
+                  "emitted_record": {
+                    "change_kind": "something-changed",
+                    "address_label": "where::something-changed",
+                    "path_labels": [
+                      "current-item",
+                      "something-changed"
+                    ],
+                    "payload_fields": [
+                      "where",
+                      "place",
+                      "change",
+                      "at",
+                      "key",
+                      "before",
+                      "after",
+                      "kinds"
+                    ]
+                  },
+                  "candidate_identity_feed": null,
+                  "why": "Edge case: replays one real commit (e74a7d004) through the move rules. Must not fire: a rename that keeps everything."
+                }
+              ]
+            }
           }
         ],
         "provenance": {

@@ -75,6 +75,7 @@ export function readSettings(settings = {}) {
     removed_files_at_least: whole(settings.removed_files_at_least, 2),
     park_at_least: whole(settings.park_at_least, 1),
     look_again_ms: (Number(settings.look_again_seconds) > 0 ? Number(settings.look_again_seconds) : 300) * 1000,
+    replay: settings.replay && typeof settings.replay.from === "string" && typeof settings.replay.to === "string" ? { from: settings.replay.from, to: settings.replay.to } : null,
   };
 }
 
@@ -154,11 +155,43 @@ async function readJson(url, fetchImpl) {
 
 /** Watch the main line: read the head, then each move since the kept head, and tell each move that holds a kind.
  *  Handlers: onTransition, signal, state ({head}), keepState, and for tests: fetch, now. */
+/** Tell one move (base to head, from the compare answer) when a kind holds; the same transition the live read tells. */
+async function tellMove(own, handlers, base, head, answer, one) {
+  const fitted = fitField({ counts: one.counts, moves: one.moves, removed: one.removed.slice(0, 50) });
+  const commit = answer.commits?.at(-1) ?? null;
+  return handlers.onTransition({
+    condition: "became-reachable",
+    observed_identity: { where: own.where, place: own.branch },
+    event_key: `${own.where}:${own.branch}:${head}`,
+    state: { head },
+    detail: {
+      where: own.where,
+      place: own.branch,
+      change: "moved",
+      at: commit?.commit?.committer?.date ?? new Date(handlers.now?.() ?? Date.now()).toISOString(),
+      key: head,
+      before: JSON.stringify({ base }),
+      after: fitted.text,
+      kinds: JSON.stringify(one.kinds),
+    },
+  });
+}
+
+/** A replay (the row's `replay: {from, to}`): read the one move from one commit to another, tell it when a kind holds,
+ *  and return. Its fact is keyed by the `to` commit, so a restart tells the same fact again and the engine admits it once. */
+async function replayOnce(own, handlers, fetchImpl) {
+  const { from, to } = own.replay;
+  const answer = await readJson(`${own.api_base}/repos/${own.repository}/compare/${from}...${to}`, fetchImpl);
+  const one = summarize(answer, own);
+  if (one.kinds.length) await tellMove(own, handlers, from, to, answer, one);
+}
+
 export async function watchForTransitions(settings, handlers) {
   const own = readSettings(settings);
   const signal = handlers.signal;
   const keepState = handlers.keepState ?? (async () => {});
   const fetchImpl = handlers.fetch ?? fetch;
+  if (own.replay) return replayOnce(own, handlers, fetchImpl);
   const headUrl = `${own.api_base}/repos/${own.repository}/commits/${encodeURIComponent(own.branch)}`;
   let state = handlers.state?.head ? handlers.state : null;
   try {
@@ -182,24 +215,7 @@ export async function watchForTransitions(settings, handlers) {
         } else {
           const one = summarize(answer, own);
           if (one.kinds.length) {
-            const fitted = fitField({ counts: one.counts, moves: one.moves, removed: one.removed.slice(0, 50) });
-            const commit = answer.commits?.at(-1) ?? null;
-            const told = await handlers.onTransition({
-              condition: "became-reachable",
-              observed_identity: { where: own.where, place: own.branch },
-              event_key: `${own.where}:${own.branch}:${head}`,
-              state: { head },
-              detail: {
-                where: own.where,
-                place: own.branch,
-                change: "moved",
-                at: commit?.commit?.committer?.date ?? new Date(handlers.now?.() ?? Date.now()).toISOString(),
-                key: head,
-                before: JSON.stringify({ base }),
-                after: fitted.text,
-                kinds: JSON.stringify(one.kinds),
-              },
-            });
+            const told = await tellMove(own, handlers, base, head, answer, one);
             if (told !== false) {
               state = { head };
               await keepState(state);

@@ -108,3 +108,32 @@ test("a refused tell keeps the head where it was, so the same move is told again
   });
   assert.equal(kept.every((state) => state.head === "h1"), true);
 });
+
+test("a replay tells one move between two commits once, keyed by the to commit, and returns", async () => {
+  const told = [];
+  const urls = [];
+  const fetch = async (url) => {
+    urls.push(url);
+    return { ok: true, status: 200, json: async () => ({ files: [file("tools/from-old/a.mjs", "removed", 80)], total_commits: 1, commits: [{ commit: { committer: { date: "2026-11-19T03:05:25Z" } } }] }) };
+  };
+  await watchForTransitions({ repository: "example-owner/example-repo", replay: { from: "c0", to: "c1" } }, {
+    fetch,
+    onTransition: async (transition) => { told.push(transition); return true; },
+  });
+  assert.equal(urls.length, 1);
+  assert.match(urls[0], /compare\/c0\.\.\.c1$/);
+  assert.equal(told.length, 1);
+  assert.equal(told[0].event_key, "example-owner/example-repo:main:c1");
+  assert.equal(told[0].detail.key, "c1");
+  assert.deepEqual(JSON.parse(told[0].detail.kinds), ["old-code-parked", "old-code-removed"]);
+});
+
+test("a replay of a commit with nothing removed tells nothing", async () => {
+  const told = [];
+  const fetch = async () => ({ ok: true, status: 200, json: async () => ({ files: [file("tools/x/new.mjs", "added")], total_commits: 1 }) });
+  await watchForTransitions({ repository: "example-owner/example-repo", replay: { from: "c0", to: "c1" } }, {
+    fetch,
+    onTransition: async (transition) => { told.push(transition); return true; },
+  });
+  assert.equal(told.length, 0);
+});
