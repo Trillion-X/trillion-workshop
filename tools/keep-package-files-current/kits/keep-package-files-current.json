@@ -1,0 +1,34 @@
+{
+  "drafted_from": "tool:keep-package-files-current's own row (its words, input schema, wake and steps) and the procedure in its README; read it before relying on it",
+  "start_here": "Nothing to say: the engine runs tool:keep-package-files-current every 5 minutes on the Mac that holds the shared Workshop checkout. To read its last pass, say to your AI: \"Show the last pass that kept the Workshop's package-files current.\" It answers the outcome (nothing-to-do, landed, origin-moved or error), the entries added and the findings (items the generator does not find, which origin keeps).",
+  "lists": [],
+  "no_lists_because": "It keeps no row: it adds to package-files.json on origin/main and returns what it found; nothing else is stored.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-package-files-current"
+  ],
+  "instructions": [
+    "1. Leave it on: the wake every-five-minutes runs the tool at the Mac that holds the shared Workshop checkout, with that checkout as its granted use-git-in-a-folder folder.",
+    "2. Read each pass: landed means one commit was added to origin/main with the entries the generator found that origin lacks; nothing-to-do means nothing was missing; origin-moved means origin changed during the pass and the next pass starts again; error means nothing was pushed and why says what held it.",
+    "3. Read the findings: each is an item or row origin has that the generator does not find. Origin keeps it, so it is never removed by this tool; its owner decides what to change, by hand."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the last pass",
+      "ask": "Show the last pass that kept the Workshop's package-files current.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-package-files-current",
+            "input": {}
+          }
+        }
+      },
+      "given": "An empty input: the tool reads its granted checkout, not the input.",
+      "hands_back": "A JSON pass result such as {\"outcome\":\"nothing-to-do\",\"at\":\"<origin commit>\",\"added\":0,\"findings\":[{\"row\":\"tool:example\",\"item\":{\"package\":\"example\",\"paths\":[\"do-work\"],\"at\":\"/opt/example\"},\"why\":\"the generator does not find this item; origin keeps it\"}]}, where every finding names its row and why."
+    }
+  ]
+}
