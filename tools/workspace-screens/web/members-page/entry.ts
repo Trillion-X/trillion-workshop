@@ -22,14 +22,21 @@ import type { WarmMount } from '../src/workspace/lazy-screen';
 import mountSidebar from '../../../sidebar/show/mount-sidebar';
 import mountArrangement from '../../../screen-arrangement/show/mount-screen-arrangement';
 import { SCREEN_MODULES } from 'members-screen-registry';
-import { doorTransport, readHostConfig, recordsTransport, subjectOf } from './host';
+import { customPropertiesOf, doorTransport, readHostConfig, recordsTransport, subjectOf } from './host';
 import { screenInputOf } from './rows.mjs';
 import { sidebarCollections, type ScreenRow, type SidebarListsData } from '../src/workspace/sidebar-lists';
 import { activeRecordsSource } from '../src/workspace/records-source';
 import { setLiveChangesOffered } from '../src/workspace/store-changes';
 import { setSavedViewsOffered } from '../src/workspace/record-configurations';
+import { readSavedLabels } from '../src/workspace/records';
+import { keepShowRules } from '../src/workspace/show-rules-live';
 import { applyChosenScreenLook } from '../../../screen-look/show/apply-chosen-screen-look';
+import { applyScreenLookValues } from '../../../screen-look/show/ApplyCurrentScreenLook';
 import looks from '../src/workspace/looks.json';
+// Every list's view switch offers visual-database's views, and the designed views (chat, feed, forum, and the rest), as the
+// workspace's own page offers them (src/workspace/main.tsx): a list's views are the same on both pages.
+import '../../../keep-lists-of-rows/show/offer-views-to-every-list.tsx';
+import '../../../ui/show/record-views/designs/offer-designed-views';
 
 type ScreenModule = { mount: (element: HTMLElement, props: Record<string, unknown>) => ReturnType<WarmMount> };
 
@@ -37,6 +44,9 @@ const host = readHostConfig();
 // The page wears a look as the workspace does (src/workspace/main.tsx): its tokens on the root and the bridges on the body, so
 // every shared part draws its edges, grounds and muted words in the look's colours instead of the browser's black.
 applyChosenScreenLook(looks.themes, looks.themes.some(row => row.payload?.id === host.look) ? host.look! : looks.start_with);
+// The site's own look over it, the one its sign-in page wears (host.site_look): the same tokens, set through the same setter, so
+// they win over the workspace look above and the shared buttons take the site's colours.
+if (host.site_look) applyScreenLookValues(host.site_look.id, customPropertiesOf(host.site_look.css));
 // The members page has no Worker: no live channel (/work/live) and no saved configurations (/work/api/configurations), so it asks for
 // neither. Its screens keep what they show from the host's answers.
 setLiveChangesOffered(false);
@@ -55,6 +65,11 @@ const screens: Record<string, WarmMount> = Object.fromEntries(
 setWorkspaceRecordsSource(remoteRecordsSource(recordsTransport(host)));
 setRecordsDoor(doorTransport(host));
 await answerTargets();
+// The person's show rules are the `show-rules` record the host's records source answers for them, read as the workspace reads
+// it (src/workspace/main.tsx keepShowRules). They decide every control the sidebar and the arrangement draw (controls.json) and the
+// arrangement's limits (its `constraints`). A host that answers no record shows every control, as the workspace does with no rules.
+await readSavedLabels(['show-rules']);
+await keepShowRules({ rules: [] });
 
 // The list definitions and the rows that name them, read from the host's records under the labels the host block gives.
 async function membersLists(): Promise<unknown> {

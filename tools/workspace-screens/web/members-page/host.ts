@@ -27,8 +27,18 @@ export type HostConfig = {
   /** The look the page wears, by its id among the workspace's looks (src/workspace/looks.json); without one, the look a new
    *  account starts with. */
   look?: string;
+  /** The site's own look, the one its sign-in page wears: its theme id (the sign-in's data-theme) and the resolved tokens of that
+   *  theme as the CSS its rows hold (look_css). The page sets these over the workspace look, so its shared buttons match the site. */
+  site_look?: { id: string; css: string };
 };
 type Json = Record<string, unknown>;
+
+/** The custom properties a CSS text sets, every rule's declarations in order (a later one wins). */
+export function customPropertiesOf(css: string): Record<string, string> {
+  const properties: Record<string, string> = {};
+  for (const [, name, value] of css.matchAll(/(--[\w-]+)\s*:\s*([^;}]+)/g)) properties[name] = value.trim();
+  return properties;
+}
 
 export function readHostConfig(): HostConfig {
   const text = document.getElementById('members-host')?.textContent ?? '';

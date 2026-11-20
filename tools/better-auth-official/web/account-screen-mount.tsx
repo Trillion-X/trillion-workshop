@@ -51,14 +51,14 @@ async function deleteAccount(password: string | null): Promise<string | null> {
   return body.code === 'INVALID_PASSWORD' ? words.account_wrong_password : words.account_delete_failed;
 }
 
-function Row({ heading, detail, change }: { heading: string; detail: string; change?: { href: string; text: string } }) {
+function Row({ heading, detail, change }: { heading: string; detail: string; change?: { href: string; text: string; primary?: boolean } }) {
   return (
     <div className="flex items-center justify-between gap-4 border-b border-[var(--border-primary)] py-3">
       <div className="grid min-w-0 gap-1">
         <Text weight="medium">{heading}</Text>
         <Text color="muted">{detail}</Text>
       </div>
-      {change ? <Button variant="ghost" size="sm" onClick={() => location.assign(change.href)}>{change.text}</Button> : null}
+      {change ? <Button variant={change.primary ? 'primary' : 'ghost'} size="sm" onClick={() => location.assign(change.href)}>{change.text}</Button> : null}
     </div>
   );
 }
@@ -98,7 +98,7 @@ function AccountScreen() {
       <Text color="muted">{words.account_intro}</Text>
       <Row heading={words.account_name} detail={name || words.account_name_unset} change={{ href: '/sign-in/your-name', text: words.account_change }} />
       <Row heading={words.account_email} detail={session.user.email} change={{ href: '/sign-in/change-email', text: words.account_change }} />
-      <Row heading={words.account_passkeys} detail={passkeyWords(passkeys)} change={{ href: '/sign-in/add-passkey', text: words.account_add_passkey }} />
+      <Row heading={words.account_passkeys} detail={passkeyWords(passkeys)} change={{ href: '/sign-in/add-passkey', text: words.account_add_passkey, primary: true }} />
       <Row heading={words.account_authenticator} detail={session.user.twoFactorEnabled ? words.account_on : words.account_off} />
       <Row heading={words.account_password} detail={hasPassword ? words.account_password_set : words.account_password_unset} />
       <Row heading={words.account_other} detail={others.length ? others.join(', ') : words.account_other_none} />
