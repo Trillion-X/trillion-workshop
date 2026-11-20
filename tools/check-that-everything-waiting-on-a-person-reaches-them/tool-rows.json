@@ -95,6 +95,14 @@
                   "read-data/needs-you-hold.mjs"
                 ],
                 "at": "/opt/hold-one-thing-until-done"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "src/workshop-looks.json",
+                  "src/workspace"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
               }
             ]
           },
