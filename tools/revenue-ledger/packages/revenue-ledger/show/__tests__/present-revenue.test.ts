@@ -5,9 +5,9 @@
 // The display model is finished, human-facing data; these tests are the visual
 // proof at the data layer (a surface renders this model verbatim).
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "../../../../../../test-helpers/vitest-shim.mjs";
 import type { RevenueView } from "../../read-data/revenue-types";
-import { presentRevenue, humanizeKey } from "../revenue-finance-display";
+import { presentRevenue, humanizeKey } from "../revenue-finance-display.ts";
 
 const EMPTY_VIEW: RevenueView = {
   gross_cents: 0,
