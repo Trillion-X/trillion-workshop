@@ -288,6 +288,7 @@ Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-c
 | `share-anything` | `tool:end-shares-whose-condition-failed`, `tool:share-anything` |
 | `share-links` | `tool:read-link-page` |
 | `show-any-file-as-itself` | `tool:choose-how-each-file-is-shown` |
+| `show-my-automations-on-the-signed-in-page-what-sets` | `tool:list-my-automations` |
 | `show-my-screens-from-a-catalogue-of-reads-and-layouts` | `tool:business`, `tool:get-started`, `tool:look` |
 | `show-the-media-library-and-search-what-was` | `tool:answer-the-media-page` |
 | `show-the-signed-in-persons-message-inbox-and-tell` | `tool:answer-the-message-page-routes` |

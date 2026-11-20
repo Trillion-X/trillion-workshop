@@ -20035,6 +20035,24 @@
    "at": "/opt/node_modules/@noble/hashes"
   }
  ],
+ "tool:list-my-automations": [
+  {
+   "package": "show-my-automations-on-the-signed-in-page-what-sets",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/show-my-automations-on-the-signed-in-page-what-sets"
+  },
+  {
+   "package": "what-runs-on-its-own",
+   "paths": [
+    "do-work/what-runs-on-its-own.mjs",
+    "read-data/states.json"
+   ],
+   "at": "/opt/what-runs-on-its-own"
+  }
+ ],
  "tool:list-my-conversations-newest-first": [
   {
    "package": "messages-screen",

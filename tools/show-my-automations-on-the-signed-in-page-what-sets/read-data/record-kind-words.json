@@ -1,0 +1,9 @@
+{
+  "what_this_is": "How an automation says what sets it off, per kind of record (src/work-workflows.mjs sayWhen, and the default name of a rule in src/automations.mjs). Each value finishes the sentence 'When ...'. A kind with no row here reads 'When a <kind> is recorded', with 'an' before a vowel. Adding a kind's words is one row.",
+  "kinds": {
+    "arrival": "something arrives from elsewhere",
+    "asked": "you ask for something with a button",
+    "decision-made": "a decision is made",
+    "file-arrival": "a file arrives"
+  }
+}
