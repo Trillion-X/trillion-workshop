@@ -7,10 +7,10 @@
         "id": "workflow:keep-practice-cards-and-grades",
         "label": "Keep practice cards and their grades",
         "job": "Keep the person's cards (a prompt, its answer, a deck, an optional why and source), each grade they give a card as its own entry, and their spacing policy, in the person's own store: a card added again keeps its progress and refreshes its answer and why; a grade is only ever added; a removed card leaves its grades behind; and a read gives the cards with their standing folded from their grades, the cards due now, and how many are due.",
-        "produces": "The store's own card, grade and policy objects, proven on the example attempts in PostgreSQL (PGlite) and a folder of JSON files: every attempt kept, refused or answered, and every answer the same as the old tool's.",
+        "produces": "The store's own card, grade and policy objects, proven on the example attempts in PostgreSQL (PGlite) and a folder of JSON files: every attempt kept, refused or answered, and every answer the same as the old tool's. Each morning at 09:00 (America/Chicago until the person's AI sets their own zone when it switches the wake on), a remind that finds cards due tells the person once.",
         "source": {
           "from": "tools/practice-and-review/read-data/practice-cards.mjs (tool:practice) and read-data/practice-cards.json, at trillion-workshop origin/main bb8022539 before this change",
-          "note": "Only the keeping is the store's job. The card id is a stable key from the deck and the prompt: 'card:' + deck + ':' + the first 16 hex characters of the BLAKE3 hash of deck, a zero byte and prompt (the old tool's cardId, so existing cards keep their ids). A due time is never stored: it is folded from the grades each time by tool:list-what-is-due and tool:schedule-next-review, and the mastery number is computed from the state the engine returns: round(min(1, interval_days / policy.mastered_at_days) x 1000), or nothing when the policy has no mastered_at_days. The policy is the person's: it comes with the request or is kept as the policy record with the id asked for (default: 'default'); there is no default policy. The words the old tool sent back are the person's to keep: no card is 'No card <card id> is kept.'; remind says '1 card is due to practise now.', '<count> cards are due to practise now.' or 'Nothing is due to practise now.'; a due list shows 20 cards unless the request asks for a limit."
+          "note": "Only the keeping is the store's job. The card id is a stable key from the deck and the prompt: 'card:' + deck + ':' + the first 16 hex characters of the BLAKE3 hash of deck, a zero byte and prompt (the old tool's cardId, so existing cards keep their ids). A due time is never stored: it is folded from the grades each time by tool:list-what-is-due and tool:schedule-next-review, and the mastery number is computed from the state the engine returns: round(min(1, interval_days / policy.mastered_at_days) x 1000), or nothing when the policy has no mastered_at_days, and 0 while the state's reps is 0 (a lapse starts a card over, as the first tool's mastery did: its test asserted a missed card has mastery 0). A cards read also answers the mean mastery of the cards it shows, round(sum / count), 0 when it shows none. The policy is the person's: it comes with the request or is kept as the policy record with the id asked for (default: 'default'); there is no default policy. The words the old tool sent back are the person's to keep: no card is 'No card <card id> is kept.'; remind says '1 card is due to practise now.', '<count> cards are due to practise now.' or 'Nothing is due to practise now.'; a due list shows 20 cards unless the request asks for a limit; an add that would keep a new card past input.max_cards is refused with 'An account practises at most <max_cards> cards. Remove one first.'; a card added again may change its answer without touching its source_ref (kept), and a source_ref given as null clears it."
         },
         "input_schema": {
           "type": "object",
@@ -48,7 +48,17 @@
               "items": {
                 "type": "object"
               },
-              "description": "Each operation: add (prompt, answer, deck, why, source_ref), grade (card_id, grade, policy or policy_id), remove (card_id), cards (deck), due (deck, limit), remind"
+              "description": "Each operation: add (prompt, answer, deck, why, source_ref; a source_ref left out keeps the card's earlier one, null clears it), grade (card_id, grade, policy or policy_id), remove (card_id), cards (deck; answers each card's mastery and the mean), due (deck, limit), remind (tells the person when cards are due, once a day)"
+            },
+            "max_cards": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Optional. The most cards the person keeps; an add that would keep a new card past it is refused (a card added again is not a new card). Left out, no limit."
+            },
+            "notices_database": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Optional. The name of the person's own database the notices live in. When given, a remind that finds cards due tells the person once a day through workflow:tell-the-person; left out, remind only answers the sentence."
             }
           }
         },
@@ -103,7 +113,7 @@
           {
             "id": "prove",
             "title": "Prove the objects on the example attempts",
-            "do": "In a throwaway place in the same store, with the same objects, and with the policy {initial_ease 2.5, min_ease 1.3, first_interval_days 1, second_interval_days 6, lapse_below_quality 0.6, mastered_at_days 30, grade_quality {miss 0, shaky 0.6, solid 0.8, instant 1}} kept as policy 'default', run these attempts in order on the day each is given (day 0 is 2026-01-01T12:00:00Z; CARD_1 is card:sample-deck:4fd68f6ab03764f9 and CARD_2 is card:general:1212e13cd674cd15, the ids the old tool gives): [{\"day\": 0, \"operation\": \"add\", \"prompt\": \"A sample word\", \"answer\": \"Its sample meaning\", \"deck\": \"sample-deck\"}, {\"day\": 0, \"operation\": \"add\", \"prompt\": \"A sample word\", \"answer\": \"Its sample meaning, again\", \"why\": \"a note\", \"deck\": \"sample-deck\"}, {\"day\": 0, \"operation\": \"add\", \"prompt\": \"Second card\", \"answer\": \"Second meaning\"}, {\"day\": 0, \"operation\": \"add\", \"answer\": \"no prompt\"}, {\"day\": 0, \"operation\": \"add\", \"prompt\": \"Bad deck\", \"answer\": \"x\", \"deck\": \"a b\"}, {\"day\": 0, \"operation\": \"grade\", \"card_id\": \"card:general:missing\", \"grade\": \"solid\"}, {\"day\": 1, \"operation\": \"grade\", \"card_id\": \"CARD_1\", \"grade\": \"solid\"}, {\"day\": 2, \"operation\": \"grade\", \"card_id\": \"CARD_1\", \"grade\": \"miss\"}, {\"day\": 3, \"operation\": \"due\"}, {\"day\": 5, \"operation\": \"due\"}, {\"day\": 5, \"operation\": \"remind\"}, {\"day\": 5, \"operation\": \"cards\", \"deck\": \"sample-deck\"}, {\"day\": 6, \"operation\": \"grade\", \"card_id\": \"CARD_2\", \"grade\": \"shaky\"}, {\"day\": 7, \"operation\": \"remove\", \"card_id\": \"CARD_2\"}, {\"day\": 8, \"operation\": \"cards\"}]. Rules: an add needs a prompt and an answer; a deck is letters, numbers, dots, dashes and underscores; a card added again with the same deck and prompt keeps its progress and takes the new answer and why; a grade needs an existing card; a remove keeps the card's grades. The fold of the grades into each card's standing is the values-in engine's (tool:list-what-is-due with the cards as prompts, the grades as responses and the policy; tool:schedule-next-review for one grade, with the card's prior state). Submit outcomes (one per attempt, kept, refused or answered) and the answer: the read-back of each attempt's answer, with the remind sentence and the mastery shown.",
+            "do": "In a throwaway place in the same store, with the same objects, and with the policy {initial_ease 2.5, min_ease 1.3, first_interval_days 1, second_interval_days 6, lapse_below_quality 0.6, mastered_at_days 30, grade_quality {miss 0, shaky 0.6, solid 0.8, instant 1}} kept as policy 'default', max_cards 3 and the notices kept in the same throwaway place, run these attempts in order on the day each is given (day 0 is 2026-01-01T12:00:00Z; CARD_1 is card:sample-deck:4fd68f6ab03764f9 and CARD_2 is card:general:1212e13cd674cd15, CARD_3 is card:general:f2345125af637f79, the ids the old tool gives): [{\"day\": 0, \"operation\": \"add\", \"prompt\": \"A sample word\", \"answer\": \"Its sample meaning\", \"deck\": \"sample-deck\"}, {\"day\": 0, \"operation\": \"add\", \"prompt\": \"A sample word\", \"answer\": \"Its sample meaning, again\", \"why\": \"a note\", \"deck\": \"sample-deck\"}, {\"day\": 0, \"operation\": \"add\", \"prompt\": \"Second card\", \"answer\": \"Second meaning\"}, {\"day\": 0, \"operation\": \"add\", \"answer\": \"no prompt\"}, {\"day\": 0, \"operation\": \"add\", \"prompt\": \"Bad deck\", \"answer\": \"x\", \"deck\": \"a b\"}, {\"day\": 0, \"operation\": \"grade\", \"card_id\": \"card:general:missing\", \"grade\": \"solid\"}, {\"day\": 1, \"operation\": \"grade\", \"card_id\": \"CARD_1\", \"grade\": \"solid\"}, {\"day\": 2, \"operation\": \"grade\", \"card_id\": \"CARD_1\", \"grade\": \"miss\"}, {\"day\": 3, \"operation\": \"due\"}, {\"day\": 5, \"operation\": \"due\"}, {\"day\": 5, \"operation\": \"remind\"}, {\"day\": 5, \"operation\": \"cards\", \"deck\": \"sample-deck\"}, {\"day\": 6, \"operation\": \"grade\", \"card_id\": \"CARD_2\", \"grade\": \"shaky\"}, {\"day\": 7, \"operation\": \"remove\", \"card_id\": \"CARD_2\"}, {\"day\": 8, \"operation\": \"cards\"}, {\"day\": 9, \"operation\": \"add\", \"prompt\": \"Third card\", \"answer\": \"Third meaning\", \"source_ref\": \"fixture:third\"}, {\"day\": 9, \"operation\": \"add\", \"prompt\": \"Fourth card\", \"answer\": \"Fourth meaning\"}, {\"day\": 9, \"operation\": \"add\", \"prompt\": \"Fifth card\", \"answer\": \"Fifth meaning\"}, {\"day\": 9, \"operation\": \"add\", \"prompt\": \"Third card\", \"answer\": \"Third meaning edited\"}, {\"day\": 9, \"operation\": \"grade\", \"card_id\": \"CARD_3\", \"grade\": \"solid\"}, {\"day\": 9, \"operation\": \"cards\"}, {\"day\": 9, \"operation\": \"add\", \"prompt\": \"Third card\", \"answer\": \"Third meaning edited\", \"source_ref\": null}, {\"day\": 9, \"operation\": \"remind\"}, {\"day\": 9, \"operation\": \"remind\"}]. Rules: an add needs a prompt and an answer; a deck is letters, numbers, dots, dashes and underscores; a card added again with the same deck and prompt keeps its progress and takes the new answer and why; a grade needs an existing card; a remove keeps the card's grades; an add past max_cards for a new card is refused, and one for a card already kept is not; a card added again without a source_ref keeps its source_ref, and one given null clears it; a missed card has mastery 0; a cards read answers the mean mastery of the cards it shows; a remind that finds cards due keeps one notice in the notices through workflow:tell-the-person under the key 'practice:<that day>' (title 'Practise now', kind 'practice'), however often it runs that day. The fold of the grades into each card's standing is the values-in engine's (tool:list-what-is-due with the cards as prompts, the grades as responses and the policy; tool:schedule-next-review for one grade, with the card's prior state). Submit outcomes (one per attempt, kept, refused or answered) and the answer: the read-back of each attempt's answer, with the remind sentence, the mastery, the mean mastery and the notice count shown.",
             "submit": {
               "type": "object",
               "required": [
@@ -146,6 +156,15 @@
                     "answered",
                     "kept",
                     "kept",
+                    "answered",
+                    "kept",
+                    "kept",
+                    "refused",
+                    "kept",
+                    "kept",
+                    "answered",
+                    "kept",
+                    "answered",
                     "answered"
                   ]
                 ]
@@ -163,7 +182,7 @@
                     "first_card_id": "card:sample-deck:4fd68f6ab03764f9",
                     "grade_after_solid_due_at": "2026-01-03T12:00:00.000Z",
                     "grade_after_miss_due_at": "2026-01-04T12:00:00.000Z",
-                    "mastery_after_solid_and_miss": 33,
+                    "mastery_after_solid_and_miss": 0,
                     "due_count_day_3": 2,
                     "due_count_day_5": 2,
                     "remind_day_5": "2 cards are due to practise now.",
@@ -172,8 +191,16 @@
                     "refused_messages": [
                       "add needs a prompt.",
                       "deck is made of letters, numbers, dots, dashes and underscores.",
-                      "No card card:general:missing is kept."
-                    ]
+                      "No card card:general:missing is kept.",
+                      "An account practises at most 3 cards. Remove one first."
+                    ],
+                    "first_card_lapse_count": 1,
+                    "third_card_id": "card:general:f2345125af637f79",
+                    "source_ref_kept_when_answer_edited": "fixture:third",
+                    "source_ref_after_given_null": null,
+                    "mean_mastery_day_9": 11,
+                    "remind_day_9": "2 cards are due to practise now.",
+                    "notices_kept_for_key_practice_2026-01-10": 1
                   }
                 ]
               }
@@ -182,7 +209,7 @@
           {
             "id": "keep",
             "title": "Keep this run's operations",
-            "do": "Run each operation in the request in order, through the store's own objects and the values-in tools: an add writes or refreshes the card and keeps its progress; a grade computes the card's next state with tool:schedule-next-review from the card's last state (folded from its grades) and the policy, then adds one grade entry; a remove deletes the card and keeps its grades; a card, due or remind read folds every card's standing with tool:list-what-is-due and answers the cards, the count and the sentence. Submit results (one per operation: the answer it gave, or the refusal's words), kept_records (the card ids and grade entries kept), and found_records (each card read back). With no operations, submit empty lists.",
+            "do": "Run each operation in the request in order, through the store's own objects and the values-in tools: an add writes or refreshes the card and keeps its progress and, when the request gives no source_ref, the card's earlier source_ref (null clears it), and a new card past input.max_cards is refused; a grade computes the card's next state with tool:schedule-next-review from the card's last state (folded from its grades) and the policy, then adds one grade entry; a remove deletes the card and keeps its grades; a card, due or remind read folds every card's standing with tool:list-what-is-due and answers the cards (each with its mastery and lapse_count), the count and the sentence, and a cards read also answers the mean mastery of the cards it shows; a remind that finds cards due, when input.notices_database is given, runs workflow:tell-the-person with that database, the title 'Practise now', the sentence as the body, kind 'practice' and the key 'practice:<today's date>', so the person is told once a day however often it runs. Submit results (one per operation: the answer it gave, or the refusal's words), kept_records (the card ids and grade entries kept), and found_records (each card read back). With no operations, submit empty lists.",
             "submit": {
               "type": "object",
               "required": [
@@ -227,7 +254,69 @@
             ]
           }
         ],
-        "erase": "On the person's request the store deletes every card with its grades, or one card with its grades; the policy is deleted only with the person's word. Nothing keeps a copy outside the store."
+        "erase": "On the person's request the store deletes every card with its grades, or one card with its grades; the policy is deleted only with the person's word. Nothing keeps a copy outside the store.",
+        "wakes": [
+          {
+            "id": "daily-reminder",
+            "on": {
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:keep-practice-cards-and-grades:daily-reminder"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:keep-practice-cards-and-grades:daily-reminder",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "America/Chicago",
+                      "start_local_date": "1969-12-31",
+                      "local_window": {
+                        "start": "09:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:keep-practice-cards-and-grades",
+                        "owner_dispatch": {
+                          "name": "workflow:keep-practice-cards-and-grades",
+                          "input": {
+                            "operations": [
+                              {
+                                "operation": "remind"
+                              }
+                            ]
+                          }
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "day"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "budget": {
+              "steps": 60,
+              "wall_ms": 600000
+            },
+            "input": {
+              "start_at": "keep"
+            }
+          }
+        ]
       }
     }
   ]

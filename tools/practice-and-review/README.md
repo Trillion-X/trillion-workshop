@@ -26,7 +26,7 @@ The cards, the grades and the spacing policy are no longer kept by this folder. 
 | `checkPolicy` | `(policy) -> policy` | Refuses a missing or partial policy with every field that is wrong. |
 | `scheduleNextReview` | `({prior?, grade, reviewedAtMs, policy}) -> {state, dueAtMs, lapsed, quality, grade_in_policy}` | One review: ease moves by the grade's quality, the first two gaps are the policy's, later gaps grow by ease, a lapse resets to the first gap. |
 | `foldReviewHistory` | `(responses, policy) -> {state, dueAtMs} or null` | Grades in any order, folded oldest first; null when there are none. |
-| `dueQueueFromResponses` | `({prompts, responses, nowMs, policy, learner?}) -> standing[]` | Each item with `is_due`, `due_at`, `state` and `review_count`; never-reviewed items are due at once. |
+| `dueQueueFromResponses` | `({prompts, responses, nowMs, policy, learner?}) -> standing[]` | Each item with `is_due`, `due_at`, `state`, `review_count` and `lapse_count` (how many of its grades lapsed, the old practice card's lapses, folded from the grades); never-reviewed items are due at once. |
 
 Both scripts read the run's input as JSON on standard input and print the result as JSON on the last line.
 
@@ -85,4 +85,6 @@ The record half of `tool:practice` left this folder for `workflow:keep-practice-
 | `practice-cards.json` (record types, default deck, id prefixes, mastery field and scale, due limit, sentences) | the recipe's `source.note`; the store's own names |
 | `test/practice-cards.test.mjs` | the lane proof (old module as oracle over 15 attempts, PostgreSQL (PGlite) and a JSON folder, all equal) |
 
-The scheduling (`review-schedule.mjs`, `tool:schedule-next-review`, `tool:list-what-is-due`) is unchanged.
+The scheduling (`review-schedule.mjs`, `tool:schedule-next-review`, `tool:list-what-is-due`) is unchanged, except that `tool:list-what-is-due` now also returns each item's `lapse_count`.
+
+Four things the first tool did that the first move left out are in the recipe again, each proved by its prove step: a daily 09:00 reminder (the recipe's `daily-reminder` wake) and a remind that tells the person once a day through `workflow:tell-the-person` (key `practice:<date>`), the mean mastery in a cards read with mastery 0 for a card that just lapsed, a card added again keeping its `source_ref` unless given null, and an optional `max_cards` cap (the old tool's 2000 was a fixed number; here it is the person's input).

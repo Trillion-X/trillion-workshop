@@ -288,3 +288,13 @@ test('list-what-is-due: the policy can come from rows', async () => {
   const answer = await runWithInput('list-what-is-due', { prompts: [prompt('p1')], rows: [{ payload: { kind: 'my-policy', ...POLICY } }], policy_kind: 'my-policy', now: iso(T0) });
   assert.equal(answer.due_count, 1);
 });
+
+test('each item says how many of its grades lapsed (the old practice card\'s lapses), counted from its grades, for the learner asked about', () => {
+  const grades = [response('p1', 'solid', T0), response('p1', 'miss', T0 + DAY), response('p1', 'solid', T0 + 2 * DAY), response('p1', 'miss', T0 + 3 * DAY, 'learner-2')];
+  const queue = dueQueueFromResponses({ prompts: [prompt('p1'), prompt('p2')], responses: grades, nowMs: T0 + 9 * DAY, policy: POLICY });
+  assert.equal(queue.find(item => item.prompt.id === 'p1').lapse_count, 2);
+  assert.equal(queue.find(item => item.prompt.id === 'p2').lapse_count, 0, 'never reviewed: none');
+  const mine = dueQueueFromResponses({ prompts: [prompt('p1')], responses: grades, nowMs: T0 + 9 * DAY, policy: POLICY, learner: 'learner-1' });
+  assert.equal(mine[0].lapse_count, 1);
+  assert.equal(foldReviewHistory([{ grade: 'solid', at: iso(T0) }], POLICY).lapses, 0);
+});

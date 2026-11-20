@@ -3,7 +3,8 @@
   "lists": [],
   "no_lists_because": "It names no list: the cards, grades and policy are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
   "workflows": [
-    "workflow:keep-practice-cards-and-grades"
+    "workflow:keep-practice-cards-and-grades",
+    "workflow:tell-the-person"
   ],
   "tools": [
     "tool:run-workflow-definition",
@@ -15,7 +16,8 @@
     "2. Keep the person's spacing policy in that store (or give it with each request). There is no default policy: a request without one is refused.",
     "3. Say \"Run workflow:keep-practice-cards-and-grades\" with store and, when you have them, the operations to run.",
     "4. The first run makes the store's own objects once and proves them on the example attempts: the prove step must give every expected outcome and answer, or the run stops and says which.",
-    "5. Every later run keeps the new cards and grades, and folds each card's standing from its grades with tool:list-what-is-due. Ask your AI what is due now, and it reads the store's own objects."
+    "5. Every later run keeps the new cards and grades, and folds each card's standing from its grades with tool:list-what-is-due. Ask your AI what is due now, and it reads the store's own objects.",
+    "6. To be told each morning when cards are due, give notices_database (the database your notices live in) and switch on the recipe's daily-reminder wake (its zone is America/Chicago until your AI sets yours): a remind that finds cards due tells you once that day through workflow:tell-the-person. To cap how many cards you keep, give max_cards."
   ],
   "worked_examples": [
     {

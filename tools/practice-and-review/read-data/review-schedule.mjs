@@ -99,7 +99,8 @@ export function scheduleNextReview({ prior, grade, reviewedAtMs, policy }) {
 }
 
 /**
- * One item's responses, oldest first, folded through the scheduler. Returns null when there are none (never reviewed).
+ * One item's responses, oldest first, folded through the scheduler. Returns null when there are none (never reviewed). `lapses`
+ * counts the grades that lapsed (the old practice card's lapses counter, folded from the grades like everything else).
  * @param {{ grade: string, at: string }[]} responses in any order; equal times keep their given order
  */
 export function foldReviewHistory(responses, policy) {
@@ -108,12 +109,14 @@ export function foldReviewHistory(responses, policy) {
   timed.sort((a, b) => a.ms - b.ms);
   let state;
   let dueAtMs = 0;
+  let lapses = 0;
   for (const { grade, ms } of timed) {
     const next = scheduleNextReview({ prior: state, grade, reviewedAtMs: ms, policy });
     state = next.state;
     dueAtMs = next.dueAtMs;
+    if (next.lapsed) lapses += 1;
   }
-  return state === undefined ? null : { state, dueAtMs };
+  return state === undefined ? null : { state, dueAtMs, lapses };
 }
 
 /**
@@ -143,11 +146,12 @@ export function dueQueueFromResponses({ prompts, responses, nowMs, policy, learn
     seen.add(prompt.id);
     const own = byPrompt.get(prompt.id) ?? [];
     const folded = foldReviewHistory(own, policy);
-    if (folded === null) return { prompt, is_due: true, review_count: 0, state: null, due_at: null, dueAtMs: 0 };
+    if (folded === null) return { prompt, is_due: true, review_count: 0, lapse_count: 0, state: null, due_at: null, dueAtMs: 0 };
     return {
       prompt,
       is_due: folded.dueAtMs <= nowMs,
       review_count: own.length,
+      lapse_count: folded.lapses,
       state: folded.state,
       due_at: new Date(folded.dueAtMs).toISOString(),
       dueAtMs: folded.dueAtMs,
