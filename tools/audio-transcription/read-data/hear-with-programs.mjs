@@ -21,6 +21,16 @@ const seconds = ms => (Number.isFinite(ms) ? ms / 1000 : 0);
 
 const failure = (what, error) => new Error(String(error.stderr ?? '').trim().split('\n').pop() || `${what} failed: ${error.message}`);
 
+// The rows of whisper's JSON that are words: empty rows and special tokens are dropped, the two shapes transcribe-audio.py:133 skips
+// ([_...] and <|...|>); punctuation such as "-" is kept, as the old path kept it.
+const SPECIAL = /^(\[_[^\]]*_\]|<\|.*\|>)$/;
+export function wordRows(heard) {
+  const rows = Array.isArray(heard.transcription) ? heard.transcription : Array.isArray(heard.segments) ? heard.segments : [];
+  return rows
+    .map(item => ({ start: seconds(item.offsets?.from), end: seconds(item.offsets?.to), text: String(item.text ?? '').trim() }))
+    .filter(segment => segment.text && !SPECIAL.test(segment.text));
+}
+
 /**
  * { text, segments: [{ start, end, text }], language, produced_by } for one recording, heard by `whisperCli` with `modelPath`
  * after `ffmpeg` makes its WAV. `env` is the environment the programs run in (default: this process's).
@@ -37,10 +47,7 @@ export async function hearWithPrograms(file, { modelPath, whisperCli, ffmpeg = '
     await run(whisperCli, ['-m', modelPath, '-f', wav, '-oj', '-ojf', '-ml', '1', '-sow', '-of', base, '-np', '-ng'], { env, maxBuffer: 64 * 1024 * 1024 })
       .catch(error => { throw failure('whisper-cli', error); });
     const heard = JSON.parse(readFileSync(`${base}.json`, 'utf8'));
-    const rows = Array.isArray(heard.transcription) ? heard.transcription : Array.isArray(heard.segments) ? heard.segments : [];
-    const segments = rows
-      .map(item => ({ start: seconds(item.offsets?.from), end: seconds(item.offsets?.to), text: String(item.text ?? '').trim() }))
-      .filter(segment => segment.text);
+    const segments = wordRows(heard);
     return { text: segments.map(segment => segment.text).join(' ').trim(), segments, language: heard.result?.language || null, produced_by };
   } finally {
     rmSync(work, { recursive: true, force: true });

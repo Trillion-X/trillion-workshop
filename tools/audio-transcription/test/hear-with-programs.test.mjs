@@ -5,7 +5,7 @@ import { chmodSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { hearWithPrograms } from '../read-data/hear-with-programs.mjs';
+import { hearWithPrograms, wordRows } from '../read-data/hear-with-programs.mjs';
 import { hearSourcesTool, sourcesSettings } from '../../listen-for-a-while/read-data/hearing-sources.mjs';
 
 const folder = mkdtempSync(path.join(os.tmpdir(), 'hear-with-programs-test-'));
@@ -74,4 +74,23 @@ test('tool:hear-sources refuses a recording over the most bytes one run takes, a
   await assert.rejects(call(4, 'over.m4a'), /5 bytes, more than one run takes \(4\)/);
   const { words } = await call(5, 'at-limit.m4a');
   assert.equal(words.length, 2);
+});
+
+test('a special token is dropped, as transcribe-audio.py drops it', () => {
+  const rows = wordRows({ transcription: [
+    { offsets: { from: 0, to: 80 }, text: ' [_BEG_]' },
+    { offsets: { from: 80, to: 160 }, text: ' <|en|>' },
+    { offsets: { from: 160, to: 300 }, text: ' Hello' },
+  ] });
+  assert.deepEqual(rows.map(row => row.text), ['Hello']);
+});
+
+test('a punctuation token is kept, as the old path kept it', () => {
+  const rows = wordRows({ transcription: [{ offsets: { from: 10, to: 80 }, text: ' -' }, { offsets: { from: 80, to: 200 }, text: ' Yes,' }] });
+  assert.deepEqual(rows.map(row => row.text), ['-', 'Yes,']);
+});
+
+test('an empty token is dropped', () => {
+  const rows = wordRows({ transcription: [{ offsets: { from: 0, to: 10 }, text: '   ' }, { offsets: { from: 10, to: 20 }, text: '' }, { offsets: { from: 20, to: 40 }, text: ' Hi' }] });
+  assert.deepEqual(rows.map(row => row.text), ['Hi']);
 });
