@@ -158,11 +158,6 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/use-your-tools-from-a-shell/from-an-older-version/harness/action-bus.json",
-      "why": "This is historical dispatcher DATA that names the old capture operations, not a current Node export binding."
-    },
-    {
-      "repository": "trillion-workshop",
       "path": "tools/workflows/published/tools.json",
       "why": "This is a published tool catalogue of invocation descriptors, not an implementation of the named module API."
     }
