@@ -188,7 +188,7 @@ export async function verifyAccessDecisionTarget(
   const subjectRef = text(input.subject_ref);
   // action_ref is OPTIONAL. A caller with one particular action in mind
   // (isAllowed, ai-action-guard) still supplies it and gets the tighter check.
-  // A caller saving a NOTE listing several actions (permission-lease) supplies
+  // A caller saving a NOTE listing several actions (the permission-lease save target, which no served row calls) supplies
   // none, so the verified decision returns ordering-independent: it used to
   // reject the whole request when the FIRST requested action was not in the
   // authorized set and accept the same set reordered, which reads as caller

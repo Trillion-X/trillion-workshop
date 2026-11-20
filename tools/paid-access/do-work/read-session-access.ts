@@ -1,5 +1,6 @@
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import { readAccountGrantedAccessProjection, readAuthorizationTimeForRef } from './read-account-granted-access-refs';
+import { readAccountGrantedAccessProjection } from './read-account-granted-access-refs';
+import { sessionAuthorityState } from '../read-data/session-authority-state';
 
 function record(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -21,7 +22,8 @@ function decode(reply: unknown): Record<string, unknown> {
 }
 
 /** Resolve a browser session through its owner before reading that account's access.
- * This read accepts no asserted principal, object owner operation or caller clock.
+ * This read accepts no asserted principal, object owner operation or caller clock. A session's end is its pass's own
+ * expiry, refused where the pass is verified (read-data/session-authority-state.ts), so no time is read here.
  */
 export async function readSessionAccessTarget(input: unknown): Promise<{
   authenticated: boolean; granted_access_refs: string[]; membership_revision?: string;
@@ -32,19 +34,7 @@ export async function readSessionAccessTarget(input: unknown): Promise<{
   }
   const root = decode(await sendRequestToBitfieldTarget({ target: 'account-session.browser-session', payload: { browser_id: input.browser_id } }));
   if (root.session === null) return { authenticated: false, granted_access_refs: [] };
-  if (!record(root.session)) throw new Error('Session could not be read.');
-  const session = root.session;
-  const authority = session.authority;
-  const subject = session.accountIdHash ?? session.accountId;
-  if (!record(authority) || typeof subject !== 'string' || !subject.trim()
-    || authority.actor_ref !== subject || typeof authority.session_ref !== 'string' || !authority.session_ref.trim()
-    || !Number.isSafeInteger(authority.session_revision) || Number(authority.session_revision) <= 0
-    || !Number.isSafeInteger(authority.expires_at_milliseconds) || Number(authority.expires_at_milliseconds) < 0) {
-    throw new Error('Session authority is invalid.');
-  }
-  if (authority.state === 'revoked') return { authenticated: false, granted_access_refs: [] };
-  if (authority.state !== 'active') throw new Error('Session authority is invalid.');
-  const now = await readAuthorizationTimeForRef(authority.session_ref);
-  if (Number(authority.expires_at_milliseconds) <= now) return { authenticated: false, granted_access_refs: [] };
-  return { authenticated: true, ...await readAccountGrantedAccessProjection(subject) };
+  const session = sessionAuthorityState(root.session);
+  if (!session.active) return { authenticated: false, granted_access_refs: [] };
+  return { authenticated: true, ...await readAccountGrantedAccessProjection(session.subject) };
 }

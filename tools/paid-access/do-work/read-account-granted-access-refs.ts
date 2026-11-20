@@ -9,42 +9,15 @@
 // read the EEAF fact store directly; it asks the authority for this account's effects.
 
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import { makeHashCodeHexFromBytes, makeMultihashEncodedBytesFromCodeHex } from '@bitfield/slot-protocol';
+import { makeHashCodeHexFromBytes } from '@bitfield/slot-protocol';
 import { grantedAccessProjectionFromEffects } from '../read-data/read-granted-access-refs';
 
 const LIST_EFFECTS_TARGET = 'signed-event-authority.list-effects';
 
 export class GrantedAccessProjectionUnavailableError extends Error {
-  constructor(readonly retry_class: 'transport' | 'invalid_response' | 'authorization_clock') {
+  constructor(readonly retry_class: 'transport' | 'invalid_response') {
     super('Access could not be checked.');
     this.name = 'GrantedAccessProjectionUnavailableError';
-  }
-}
-
-export async function readAuthorizationTimeForRef(ownerRef: string): Promise<number> {
-  try {
-    const reply = await sendRequestToBitfieldTarget({
-      target: 'permission-lease.read-authorization-time',
-      payload: { request_ref: `product-access:${makeHashCodeHexFromBytes(new TextEncoder().encode(ownerRef))}` },
-    });
-    let value = (reply as { payload?: unknown } | null)?.payload;
-    if (value instanceof ArrayBuffer) value = new Uint8Array(value);
-    if (ArrayBuffer.isView(value)) {
-      if (value.byteLength > 4096) throw new Error('oversized time response');
-      value = new TextDecoder('utf-8', { fatal: true }).decode(new Uint8Array(value.buffer, value.byteOffset, value.byteLength));
-    }
-    if (typeof value === 'string') {
-      if (value.length > 4096) throw new Error('oversized time response');
-      value = JSON.parse(value);
-    }
-    const time = value as { now_ms?: unknown; observation_ref?: unknown; observation_hash?: unknown } | null;
-    if (!time || !Number.isSafeInteger(time.now_ms) || Number(time.now_ms) < 0
-      || time.observation_ref !== 'package::permission-lease::authorization-time'
-      || typeof time.observation_hash !== 'string') throw new Error('invalid time response');
-    makeMultihashEncodedBytesFromCodeHex(time.observation_hash);
-    return Number(time.now_ms);
-  } catch {
-    throw new GrantedAccessProjectionUnavailableError('authorization_clock');
   }
 }
 
@@ -116,11 +89,8 @@ export async function readAccountGrantedAccessProjection(accountId: string | nul
     throw new GrantedAccessProjectionUnavailableError('transport');
   }
   const source = parseReply((reply as { payload?: unknown } | null)?.payload);
-  const needsTime = source.effects.some((effect) => {
-    const material = effect.material;
-    return effect.kind === 'license_access' && material !== null && typeof material === 'object'
-      && (Object.prototype.hasOwnProperty.call(material, 'valid_from_ms')
-        || Object.prototype.hasOwnProperty.call(material, 'expires_at_ms'));
-  });
-  return project(source, needsTime ? await readAuthorizationTimeForRef(subject) : undefined);
+  // No clock is read: the grant's own state decides. A grant with a window (valid_from_ms / expires_at_ms) is not held
+  // without a clock; it fails closed until a tool that ends it writes its terminal effect (see the header of
+  // read-data/read-granted-access-refs.ts).
+  return project(source);
 }
