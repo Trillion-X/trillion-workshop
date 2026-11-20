@@ -54359,6 +54359,16 @@
   }
  ],
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
+ "tool:guess-voice-suggestions": [
+  {
+   "package": "name-voices-from-the-call",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/name-voices-from-the-call"
+  }
+ ],
  "tool:your-files": [],
  "tool:your-files-names": []
 }

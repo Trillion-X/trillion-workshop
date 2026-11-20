@@ -295,7 +295,82 @@
           }
         },
         "result_selector": "$.result",
-        "verify": [{"kind": "sample-run", "input": {"turns": [{"start": 0, "end": 10, "who": "Someone (voice-1)"}], "samples": [{"at": 600, "names": ["Ada Example"]}, {"at": 1600, "names": ["Ada Example"]}, {"at": 2600, "names": ["Ada Example"]}, {"at": 3600, "names": ["Ada Example"]}, {"at": 4600, "names": ["Ada Example"]}, {"at": 5600, "names": ["Ada Example"]}, {"at": 6600, "names": ["Ada Example"]}, {"at": 7600, "names": ["Ada Example"]}, {"at": 8600, "names": ["Ada Example"]}, {"at": 9600, "names": ["Ada Example"]}]}}],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "turns": [
+                {
+                  "start": 0,
+                  "end": 10,
+                  "who": "Someone (voice-1)"
+                }
+              ],
+              "samples": [
+                {
+                  "at": 600,
+                  "names": [
+                    "Ada Example"
+                  ]
+                },
+                {
+                  "at": 1600,
+                  "names": [
+                    "Ada Example"
+                  ]
+                },
+                {
+                  "at": 2600,
+                  "names": [
+                    "Ada Example"
+                  ]
+                },
+                {
+                  "at": 3600,
+                  "names": [
+                    "Ada Example"
+                  ]
+                },
+                {
+                  "at": 4600,
+                  "names": [
+                    "Ada Example"
+                  ]
+                },
+                {
+                  "at": 5600,
+                  "names": [
+                    "Ada Example"
+                  ]
+                },
+                {
+                  "at": 6600,
+                  "names": [
+                    "Ada Example"
+                  ]
+                },
+                {
+                  "at": 7600,
+                  "names": [
+                    "Ada Example"
+                  ]
+                },
+                {
+                  "at": 8600,
+                  "names": [
+                    "Ada Example"
+                  ]
+                },
+                {
+                  "at": 9600,
+                  "names": [
+                    "Ada Example"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
         "record_model": {
           "_what": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
           "kinds": [
@@ -334,6 +409,171 @@
             }
           ]
         }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:guess-voice-suggestions",
+        "label": "Guess who each unnamed voice is",
+        "status": "active",
+        "job": "For each voice nobody has named, say which of the person's people it probably is, with the reason, from evidence the account holds",
+        "description": "Pure. Takes the voices (each with its window and words), the person's people rows, the DATA rules and pattern (sources.voices.guess of the Waiting on you DATA), and the evidence handed in: the owner's name and words, calendar items, recording titles and file names by clip, names said nearby, earlier choices by label, and the messages said in each conversation. Answers each voice with its suggestions (a row, its why, and sure when it rests on the voice itself or on the moment alone). It names nothing: the person picks.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "voices",
+            "people",
+            "rules",
+            "pattern"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "voices": {
+              "type": "array",
+              "description": "Unnamed voices: { id, app, speaker, turns, since, until, last_at, last_words, conversation_id?, clip? }"
+            },
+            "people": {
+              "type": "array",
+              "description": "The person's people rows: { id, list_id, row_type, title }"
+            },
+            "rules": {
+              "type": "object",
+              "description": "sources.voices.guess of the Waiting on you DATA"
+            },
+            "pattern": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The listener-guess pattern (guess_pattern of the same DATA)"
+            },
+            "owner": {
+              "type": "string",
+              "description": "The owner's own name"
+            },
+            "owner_words": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The owner's own words"
+            },
+            "calendar_items": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Calendar items near the voices: { title, starts_at, ends_at, all_day }"
+            },
+            "titles": {
+              "type": "object",
+              "description": "Recording title by clip id"
+            },
+            "names": {
+              "type": "object",
+              "description": "File base names by clip id: { clip_id: [name] }"
+            },
+            "earlier": {
+              "type": "object",
+              "description": "Earlier choice by 'app|speaker': a record id"
+            },
+            "said": {
+              "type": "object",
+              "description": "Messages said in a conversation, by conversation_id: [{ app, speaker, text, at }]"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "voices",
+            "left_out"
+          ],
+          "properties": {
+            "voices": {
+              "type": "array"
+            },
+            "left_out": {
+              "type": "object",
+              "required": [
+                "own",
+                "playback"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": {
+              "package": "name-voices-from-the-call",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/name-voices-from-the-call"
+            }
+          },
+          "workdir": "/opt/name-voices-from-the-call",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "do-work/guess-voice-suggestions.mjs",
+            {
+              "fill": {
+                "from": "input"
+              }
+            }
+          ]
+        },
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:deployed-container"
+        ],
+        "maker": "maker:name-voices-from-the-call",
+        "result_selector": "$",
+        "provenance": {
+          "source": "the older Workshop copy of src/voice-guesses.mjs (commit 5dc302be), ported Nov 2026"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "voices": [
+                {
+                  "id": "listen:Someone (voice-1)@2026-10-09T10:10:00.000Z",
+                  "app": "listen",
+                  "speaker": "Someone (voice-1)",
+                  "turns": 2,
+                  "since": "2026-10-09T10:10:00.000Z",
+                  "until": "2026-10-09T10:14:00.000Z",
+                  "last_at": "2026-10-09T10:14:00.000Z",
+                  "last_words": "Could you send the notes tonight please",
+                  "conversation_id": "c-1"
+                }
+              ],
+              "people": [
+                {
+                  "id": "sofus-hansen",
+                  "list_id": "friends",
+                  "row_type": "contact",
+                  "title": "Sofus Hansen"
+                }
+              ],
+              "rules": {
+                "sources": {}
+              },
+              "pattern": "x"
+            },
+            "expect": {
+              "note": "refused until its rules are supplied"
+            }
+          }
+        ]
       }
     }
   ]

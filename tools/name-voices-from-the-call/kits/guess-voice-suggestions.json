@@ -1,0 +1,22 @@
+{
+  "drafted_from": "tools/name-voices-from-the-call/tool-rows.json (tool:guess-voice-suggestions) and read-data/guess-voices.mjs; the rules come from the Waiting on you DATA; no live call was made",
+  "start_here": "Say to your AI: \"Guess who the unnamed voices from my calls are, and show me the likeliest person for each.\" The Waiting on you card opens with each voice's likeliest person and the reason beside it.",
+  "lists": [],
+  "no_lists_because": "It reads no list itself: the caller hands in the people rows and the evidence, and the tool only answers the guesses. Nothing is written.",
+  "workflows": [],
+  "tools": ["tool:guess-voice-suggestions"],
+  "instructions": [
+    "1. Give the unnamed voices with their windows and words, and the people rows (id, list_id, row_type, title).",
+    "2. Give the DATA rules and pattern from the Waiting on you DATA (sources.voices.guess and its guess_pattern).",
+    "3. Give the evidence you hold: the owner's name and words, calendar items, recording titles and file names, names said nearby, and earlier choices.",
+    "4. Show each voice's first suggestion with its why. A suggestion names nothing; the person picks."
+  ],
+  "worked_examples": [{
+    "title": "A call with Sofus names the voice",
+    "ask": "Who were the unnamed voices on my call with Sofus?",
+    "mcp": {"server": "{cli}", "tool": "do_one_thing_in_my_account", "input": {"address": "@tools", "method": "tools:run", "input": {"tool": "tool:guess-voice-suggestions", "input": {"voices": [{"id": "listen:Someone (voice-1)", "app": "listen", "speaker": "Someone (voice-1)", "turns": 2, "since": "2026-10-09T10:10:00.000Z", "until": "2026-10-09T10:14:00.000Z", "last_at": "2026-10-09T10:14:00.000Z", "last_words": "Could you send the notes tonight"}], "people": [{"id": "sofus-hansen", "list_id": "friends", "row_type": "contact", "title": "Sofus Hansen"}], "calendar_items": [{"title": "Call with Sofus", "starts_at": "2026-10-09T10:05:00.000Z", "ends_at": "2026-10-09T10:35:00.000Z", "all_day": false}], "rules": "<the DATA rules>", "pattern": "<the guess pattern>"}}}},
+    "workflow": "none", "step": "none",
+    "given": "A call with Sofus, recorded in the listen app, with one unnamed voice",
+    "hands_back": "suggestions for voice-1 with sofus-hansen first, its why naming Call with Sofus, and sure set"
+  }]
+}
