@@ -88,8 +88,8 @@ def main():
     source = REFERENCE.read_text(encoding="utf-8")
     patterns = catalog(source)
     numbers = [pattern["number"] for pattern in patterns]
-    if numbers != list(range(1, 106)):
-        raise ValueError("The preserved reference must contain patterns 1 through 105 exactly once")
+    if numbers != list(range(1, len(numbers) + 1)):
+        raise ValueError("The reference must number its patterns 1 through N exactly once, in order")
     print(json.dumps({
         "query": query,
         "total": len(patterns),

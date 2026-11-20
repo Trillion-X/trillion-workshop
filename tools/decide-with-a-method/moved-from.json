@@ -7,7 +7,7 @@
     {
       "from": "workshop/architecture-patterns/README.md",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/decide-with-a-method/from-an-older-version/workshop/architecture-patterns/README.md",
+      "to": "tools/search-architecture-patterns/README.md",
       "source_identity": "1f:6917fed00fb4c8049e9efb2aca7c6bb75de2036b601e0e8fee223f9d26d43733",
       "identity": "1f:df58442016ae069096903e153a9ddf95f1397d9aba434001da4ab9ad3a8c0346",
       "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
@@ -15,21 +15,23 @@
     {
       "from": "workshop/architecture-patterns/descriptor.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/decide-with-a-method/from-an-older-version/workshop/architecture-patterns/descriptor.json",
+      "to": "tools/search-architecture-patterns/descriptor.json",
+      "adapted": "Adapted in tools/search-architecture-patterns: the reference now numbers 114 patterns, so the 1-through-105 guard and total const were replaced by a 1-through-N check; the bytes here differ from the source identity by that edit.",
       "source_identity": "1f:8a75768cf7a470eb0829837453c6256dfd700cdd7396ba5c2a9f7601f0c50201",
       "identity": "1f:8a75768cf7a470eb0829837453c6256dfd700cdd7396ba5c2a9f7601f0c50201"
     },
     {
       "from": "workshop/architecture-patterns/main.py",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/decide-with-a-method/from-an-older-version/workshop/architecture-patterns/main.py",
+      "to": "tools/search-architecture-patterns/main.py",
+      "adapted": "Adapted in tools/search-architecture-patterns: the reference now numbers 114 patterns, so the 1-through-105 guard and total const were replaced by a 1-through-N check; the bytes here differ from the source identity by that edit.",
       "source_identity": "1f:ae4cf59aa96be7dca847b8a2f554afabfb78632a170bc5779d5a765c34ed66a1",
       "identity": "1f:ae4cf59aa96be7dca847b8a2f554afabfb78632a170bc5779d5a765c34ed66a1"
     },
     {
       "from": "workshop/architecture-patterns/workflow.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/decide-with-a-method/from-an-older-version/workshop/architecture-patterns/workflow.json",
+      "to": "tools/search-architecture-patterns/workflow.json",
       "source_identity": "1f:aac892dc31849629be8bd32a7c83161e4c9e9e640253d139883df584fa659745",
       "identity": "1f:aac892dc31849629be8bd32a7c83161e4c9e9e640253d139883df584fa659745"
     },

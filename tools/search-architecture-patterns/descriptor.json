@@ -1,7 +1,7 @@
 {
   "id": "tool:1000x-architecture-patterns",
   "label": "Find production architecture patterns",
-  "job": "Find reusable production architecture patterns for a coding task, browse all 105 separately, or read the preserved original Rust example for one pattern",
+  "job": "Find reusable production architecture patterns for a coding task, browse all of its numbered patterns separately, or read the preserved original Rust example for one pattern",
   "input_schema": {
     "type": "object",
     "required": ["query"],
@@ -10,7 +10,7 @@
       "query": {
         "type": "string",
         "minLength": 1,
-        "description": "A coding problem, 'index' for all 105 patterns, or '#42' for one full original pattern"
+        "description": "A coding problem, 'index' for all of its numbered patterns, or '#42' for one full original pattern"
       }
     }
   },
@@ -19,7 +19,7 @@
     "required": ["query", "total", "patterns", "usage"],
     "properties": {
       "query": { "type": "string" },
-      "total": { "type": "integer", "const": 105 },
+      "total": { "type": "integer", "minimum": 1 },
       "patterns": { "type": "array", "items": { "type": "object", "required": ["number", "title", "summary"] } },
       "usage": { "type": "string" }
     }
