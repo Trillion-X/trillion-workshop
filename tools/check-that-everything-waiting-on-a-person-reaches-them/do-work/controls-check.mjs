@@ -87,7 +87,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const chunks = [];
   for await (const chunk of process.stdin) chunks.push(chunk);
   const input = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
-  if (typeof input.waiting === 'number') process.stdout.write(JSON.stringify(countsWithoutControl(input)));
+  if ('waiting' in input) process.stdout.write(JSON.stringify(countsWithoutControl(input)));
   else {
     const opensScreen = input.origin ? opensScreenAt(input.origin) : () => false;
     process.stdout.write(JSON.stringify(cardsWithoutControl(input, opensScreen)));

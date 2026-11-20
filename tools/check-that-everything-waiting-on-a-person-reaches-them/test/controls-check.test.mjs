@@ -111,3 +111,8 @@ test('a very long list is counted in full and names at most five examples', () =
   assert.equal(out.without_control, 100000);
   assert.equal(out.examples.length, 5);
 });
+
+test('counts that arrive as text from the SQL step are read as numbers', () => {
+  const out = countsWithoutControl({ database: 'database-a', served: [], waiting: '8', unplaced: '0', examples: [] });
+  assert.deepEqual([out.checked, out.without_control], [8, 8]);
+});
