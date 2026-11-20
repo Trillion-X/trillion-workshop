@@ -23,6 +23,8 @@ import { readAll, writeAll } from './files-in-one-go.mjs';
 import { readFileSync, readdirSync, statSync, createReadStream } from 'node:fs';
 import { isAbsolute, dirname, relative, resolve as resolvePath } from 'node:path';
 import { spawn, execFile } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { homedir } from 'node:os';
 import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
@@ -210,6 +212,16 @@ export async function runsState(machine, given, run = onMachine, { pages } = {})
 export function sourceOf(unit) {
   const { source } = unit, where = `${unit.unit} source`;
   if (!/^[0-9a-f]{40}$/.test(source.commit ?? '')) throw refused(`${where} needs commit, a full commit id.`);
+  // A program built elsewhere (`prebuilt`: the BLAKE3 of its bytes) is placed, not built: no repository, build or toolchain on
+  // the computer, so a small computer that serves never compiles (Nov 20 2026, 11:00:54-11:02:27 AM CST: an engine build on the
+  // 3.8 GB always-on computer stalled its sites for 93 s).
+  if (source.prebuilt !== undefined) {
+    if (!/^[0-9a-f]{64}$/.test(source.prebuilt?.blake3 ?? '')) throw refused(`${where} prebuilt needs blake3, the 64 hex digits of the program's BLAKE3.`);
+    if (!/^[A-Za-z0-9._-]+$/.test(unit.program ?? '') || typeof unit.builds !== 'string' || !isAbsolute(unit.builds)) throw refused(`${where} needs the unit's program and its builds folder.`);
+    const current = unit.current ?? 'current';
+    if (!/^current[A-Za-z0-9_-]*$/.test(current)) throw refused(`${where}: the build link a unit runs is current, or current- and a slot's name.`);
+    return { user: unit.user, builds: unit.builds, commit: source.commit, program: unit.program, current, prebuilt: source.prebuilt.blake3 };
+  }
   if (typeof source.repository !== 'string' || !/^(https:\/\/|ssh:\/\/|[A-Za-z0-9._-]+@[A-Za-z0-9.-]+:)\S+$/.test(source.repository)) throw refused(`${where} needs repository, the git address the computer fetches the commit from.`);
   if (!Array.isArray(source.build) || !source.build.length || typeof source.output !== 'string') throw refused(`${where} needs build (an argv) and output (the file the build makes).`);
   if (source.credential !== undefined && (typeof source.credential !== 'string' || !Array.isArray(source.host_keys) || !source.host_keys.length)) throw refused(`${where} credential is the vault name of an SSH key, and needs host_keys: the known_hosts lines of the repository's host.`);
@@ -226,11 +238,38 @@ export function sourceOf(unit) {
  * the row names (`credential`) is the value the person's vault holds under that name (`held`); it reaches the computer only
  * on the SSH channel's standard input, into an ssh-agent for that one fetch. A commit already built there is only made
  * `current`. */
-export async function buildOnTheComputer(machine, unit, held = {}, run = onMachine) {
+export async function buildOnTheComputer(machine, unit, held = {}, run = onMachine, store = prebuiltStore()) {
   const source = sourceOf(unit);
+  if (source.prebuilt) return placePrebuilt(machine, source, run, store);
   if (source.credential && (typeof held[source.credential] !== 'string' || !held[source.credential])) throw refused(`${unit.unit} fetches ${source.repository} with the key held under the vault name ${source.credential}: hand it on descriptor 5 as {"${source.credential}": value}, read from the person's vault.`);
   const { credential, ...given } = source;
   return (await run(machine, `sh -c ${q(BUILD)} sh ${q(JSON.stringify({ ...given, keyed: Boolean(credential) }))}`, credential ? `${held[credential]}\n` : '')).trim();
+}
+
+/** Where the computer running the apply keeps programs built elsewhere, each file named by the BLAKE3 of its bytes
+ * (settings.json `prebuilt_store`, `~` being this computer's home). */
+export const prebuiltStore = () => SETTINGS.prebuilt_store.replace(/^~(?=\/)/, homedir());
+
+/** Place a program built elsewhere: the file named by its BLAKE3 in this computer's store is checked against that name, sent on
+ * the SSH channel's standard input and kept at `builds/<commit>/<program>` once its sha256 there is the sent bytes' (a cut-off
+ * copy is never a build), then `current` moves to it with one rename. A commit already placed with those bytes is only made
+ * `current`, and nothing is sent. */
+export async function placePrebuilt(machine, { user, builds, commit, program, current, prebuilt }, run = onMachine, store = prebuiltStore()) {
+  const file = resolvePath(store, prebuilt);
+  let bytes;
+  try { bytes = readFileSync(file); } catch { throw refused(`${commit} is placed from ${file}, the program built elsewhere whose BLAKE3 the row names, and this computer has no such file.`); }
+  const { blake3 } = await import('@noble/hashes/blake3.js');
+  const named = Buffer.from(blake3(bytes)).toString('hex');
+  if (named !== prebuilt) throw refused(`${file} holds bytes whose BLAKE3 is ${named}, not the row's ${prebuilt}.`);
+  const sha256 = createHash('sha256').update(bytes).digest('hex');
+  const at = `${builds}/${commit}`, path = `${at}/${program}`;
+  const link = `runuser -u ${q(user)} -- sh -c 'ln -sfn "$0" "$1/$2.new" && mv -T "$1/$2.new" "$1/$2"' ${q(commit)} ${q(builds)} ${q(current)}`;
+  const placed = await run(machine, `[ -x ${q(path)} ] && [ "$(sha256sum ${q(path)} | cut -c1-64)" = ${q(sha256)} ] || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; });
+  if (!placed) await run(machine, `set -e; install -d -o ${q(user)} -g ${q(user)} -m 0755 ${q(at)}; cat > ${q(`${path}.new`)}; ` +
+    `[ "$(sha256sum ${q(`${path}.new`)} | cut -c1-64)" = ${q(sha256)} ] || { rm -f ${q(`${path}.new`)}; echo 'the program arrived cut off' >&2; exit 1; }; ` +
+    `chown ${q(user)}:${q(user)} ${q(`${path}.new`)}; chmod 0755 ${q(`${path}.new`)}; mv -f ${q(`${path}.new`)} ${q(path)}`, bytes);
+  await run(machine, link);
+  return commit;
 }
 
 /** Whether `path` is in a folder some unit of `runs` owns whole (`owned_folders`). */

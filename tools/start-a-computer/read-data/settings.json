@@ -1,5 +1,5 @@
 {
-  "_what": "Generic machine set-up limits. The engine's source commit, its build, its computer config, a front door's Caddy (`binary`, `binary_files`) and every download address are the computer row's. One SSH connection carries every command of an apply (`ssh_reuse_path`, the ssh ControlPath, %C its connection hash, short enough for a socket name; `ssh_reuse_seconds`, how long it stays open after the last command).",
+  "_what": "Generic machine set-up limits. The engine's source commit, its build, its computer config, a front door's Caddy (`binary`, `binary_files`) and every download address are the computer row's. One SSH connection carries every command of an apply (`ssh_reuse_path`, the ssh ControlPath, %C its connection hash, short enough for a socket name; `ssh_reuse_seconds`, how long it stays open after the last command). `prebuilt_store` is where the computer running an apply keeps programs built elsewhere, each file named by the BLAKE3 of its bytes (a row's unit `source.prebuilt.blake3`); `~` is that computer's home.",
   "journal": {
     "system_max_use": "500M"
   },
@@ -32,5 +32,6 @@
     "_what": "What a unit's template reads when its row gives none: the build link in its builds folder it runs (`current`; a slot runs `current-<slot>`), and the seconds systemd waits for its stop before it ends the unit (`stop_seconds`; a unit that finishes long calls on a stop names more, longer than its own drain).",
     "current": "current",
     "stop_seconds": 30
-  }
+  },
+  "prebuilt_store": "~/.cache/start-a-computer/built"
 }
