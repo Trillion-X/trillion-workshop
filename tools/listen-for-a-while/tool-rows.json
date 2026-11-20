@@ -1897,7 +1897,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": false,
+          "internet": true,
           "workdir": "/opt/listen-for-a-while",
           "stdout": "json",
           "argv": [
