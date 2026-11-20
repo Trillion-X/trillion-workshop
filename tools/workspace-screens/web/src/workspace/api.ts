@@ -160,6 +160,8 @@ export function setPageDoor(door: (path: string, init: RequestInit) => Promise<P
 
 async function fetchAnswer(path: string, init: RequestInit): Promise<PageAnswer> {
   if (pageDoor) return pageDoor(path, init).catch((error: unknown) => {
+    // The door gave up on an answer that did not come in its time (account-door.json most_ms): said as slow.
+    if ((error as { name?: string } | null)?.name === 'TimeoutError') throw Object.assign(new TypeError(failureWords.slow), { status: 0, unreached: true, slow: true });
     if ((error as { name?: string } | null)?.name === 'AbortError') throw error;
     throw Object.assign(new TypeError(failureWords.unreached), { status: 0, unreached: true });
   });

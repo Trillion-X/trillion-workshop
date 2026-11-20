@@ -1,6 +1,7 @@
 {
-  "_what": "The account's one door as this page reaches it (account-door.ts): the MCP route on this page's own origin and its one tool. An address of the door's own form, `form`, is one call of that tool; any other address was a retired Worker's route and is answered as no owner (api.ts failure_code no-owner).",
+  "_what": "The account's one door as this page reaches it (account-door.ts): the MCP route on this page's own origin and its one tool. An address of the door's own form, `form`, is one call of that tool; any other address was a retired Worker's route and is answered as no owner (api.ts failure_code no-owner). `most_ms` is the longest one call waits for the door's whole answer before it is given up as slow (api.ts failure words `slow`), so a screen whose computer does not answer says so with Try again instead of loading forever.",
   "route": "/mcp",
   "tool": "do_one_thing_in_my_account",
-  "form": "/work/api/door/"
+  "form": "/work/api/door/",
+  "most_ms": 30000
 }

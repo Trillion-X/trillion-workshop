@@ -10,6 +10,7 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. Nothing here names a method, a tool or a record: the method is the address's own.
 //   2. The pass is the page's (account-pass.ts); a pass the door refuses is dropped and the call asked once more.
+//   3. No call waits longer than account-door.json `most_ms` for its whole answer (invariant of api.ts READ_MOST_MS).
 
 import door from './account-door.json' with { type: 'json' };
 import { pass, passRefused } from './account-pass';
@@ -28,8 +29,19 @@ function callOf(path: string, init: RequestInit): Call | null {
   };
 }
 
-const ask = async (call: Call, signal?: AbortSignal | null) => fetch(door.route, {
-  method: 'POST', signal: signal ?? null,
+// One call waits at most door.most_ms for the whole answer: past it the call is stopped as a TimeoutError (api.ts says
+// it as slow). A caller's own stop still stops it. Built by hand, since AbortSignal.any is missing in older web views.
+function within(signal?: AbortSignal | null): AbortSignal {
+  const stop = new AbortController();
+  const timer = setTimeout(() => stop.abort(new DOMException('The door did not answer in time.', 'TimeoutError')), door.most_ms);
+  stop.signal.addEventListener('abort', () => clearTimeout(timer), { once: true });
+  if (signal?.aborted) stop.abort(signal.reason);
+  else signal?.addEventListener('abort', () => stop.abort(signal.reason), { once: true });
+  return stop.signal;
+}
+
+const ask = async (call: Call, signal: AbortSignal) => fetch(door.route, {
+  method: 'POST', signal,
   // MCP over HTTP refuses (406) a caller that does not take both: the door may answer as one event (2025-06-18 transports).
   headers: { authorization: `Bearer ${await pass()}`, 'content-type': 'application/json', accept: 'application/json, text/event-stream' },
   body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: door.tool, arguments: call } }),
@@ -48,9 +60,10 @@ async function replyOf(response: Response): Promise<unknown> {
 export async function answerAtTheDoor(path: string, init: RequestInit): Promise<PageAnswer> {
   const call = callOf(path, init);
   if (!call) return { status: 404, body: { failure_code: 'no-owner' } };
-  let response = await ask(call, init.signal);
-  if (response.status === 401) { passRefused(); response = await ask(call, init.signal); }
-  const reply = await replyOf(response).catch(() => null) as { result?: { isError?: boolean; structuredContent?: Record<string, unknown>; content?: { text?: string }[] }; error?: { message?: string } } | null;
+  const signal = within(init.signal);
+  let response = await ask(call, signal);
+  if (response.status === 401) { passRefused(); response = await ask(call, signal); }
+  const reply = await replyOf(response).catch((error: unknown) => { if (signal.aborted) throw error; return null; }) as { result?: { isError?: boolean; structuredContent?: Record<string, unknown>; content?: { text?: string }[] }; error?: { message?: string } } | null;
   if (!response.ok || !reply) return { status: response.status || 503, body: null };
   if (reply.error) return { status: 400, body: { error: reply.error.message } };
   const result = reply.result ?? {};
