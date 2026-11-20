@@ -1,0 +1,47 @@
+{
+  "drafted_from": "the tool row in tool-rows.json (its words, input schema and status) and the code it points to in this folder; read it before relying on it",
+  "start_here": "Say to your AI: \"Show how each source my automations use is doing today\". Once this row is on, it reads each source's arrivals, runs and last error, and says whether it is working, quiet, failing or not connected. It is off (status inactive) until the scheduling owner accepts the call shape; while it is off, the AI says so and does not pretend a schedule was kept.",
+  "lists": [],
+  "no_lists_because": "The health is read from the sources given; the row keeps nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:read-source-health"
+  ],
+  "instructions": [
+    "1. Ask your AI how each source is doing.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run and tool tool:read-source-health with the sources it was given.",
+    "3. Read each source's state and last error; the words come from the looks DATA beside the code.",
+    "4. Report only the sources that are failing or not connected."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the health of two sources",
+      "ask": "How is each source my automations use doing?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-source-health",
+            "input": {
+              "sources": [
+                {
+                  "source_id": "calendar",
+                  "kind": "event-source",
+                  "label": "Calendar",
+                  "connected": true,
+                  "arrived": [],
+                  "rules": [],
+                  "runs": []
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The person asks for source health.",
+      "hands_back": "It answers the calendar source with state \"working\" and its last error (none), in plain words."
+    }
+  ]
+}

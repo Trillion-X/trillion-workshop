@@ -20,7 +20,7 @@
 export const CORE_TOOL_IDS = Object.freeze([
   'tool:filter-rows-by-rules',
   'tool:when-to-run-next',
-  'tool:evaluate-binding',
+  'tool:evaluate-a-formula',
   'tool:run-workflow-definition',
 ]);
 const TOOL_CATALOG_PAGE_SIZE = 32;

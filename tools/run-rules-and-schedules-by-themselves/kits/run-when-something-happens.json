@@ -1,0 +1,44 @@
+{
+  "drafted_from": "the tool row in tool-rows.json (its words, input schema and status) and the code it points to in this folder; read it before relying on it",
+  "start_here": "Say to your AI: \"When a new sales contract comes in, run the contract builder\". Once this row is on, it sets a rule that runs a tool or workflow when something happens. It is off (status inactive) until the scheduling owner accepts the call shape; while it is off, the AI says so and does not pretend a schedule was kept.",
+  "lists": [],
+  "no_lists_because": "Rules are kept by the host, and this row does not store them.",
+  "workflows": [],
+  "tools": [
+    "tool:run-when-something-happens",
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Ask your AI to set a rule in plain words: when something happens, run a tool or workflow.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run and tool tool:run-when-something-happens with the rule's input.",
+    "3. The rule is kept by the host's rules list, not by this row; this row only answers.",
+    "4. Read the reply and confirm to the person what the rule now does."
+  ],
+  "worked_examples": [
+    {
+      "title": "Set a rule for new sales contracts",
+      "ask": "When a new sales contract comes in, run the contract builder.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-when-something-happens",
+            "input": {
+              "operation": "set",
+              "rule_id": "new-sales-contract",
+              "when": "a sales contract is created",
+              "then": {
+                "workflow_id": "workflow:build-and-send-a-sales-contract"
+              },
+              "enabled": true
+            }
+          }
+        }
+      },
+      "given": "The person asks for a rule on new sales contracts.",
+      "hands_back": "The reply says \"unavailable\" while this row is off, and no rule is kept. Once on, it returns the rule id \"new-sales-contract\" with enabled true."
+    }
+  ]
+}

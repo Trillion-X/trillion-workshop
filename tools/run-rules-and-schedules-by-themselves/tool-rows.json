@@ -38,7 +38,6 @@
       "trillion-workshop/check-a-packages-declared-permissions",
       "trillion-workshop/check-against-a-persons-rules-and-verdicts",
       "trillion-workshop/check-bundle-package-boundaries",
-      "trillion-workshop/check-consent-to-an-introduction",
       "trillion-workshop/choose-and-publish-screen-looks",
       "trillion-workshop/command-palette",
       "trillion-workshop/composition-scene-renderer",
@@ -104,7 +103,6 @@
       "trillion-workshop/models-on-this-computer",
       "trillion-workshop/move-records-through-declared-states",
       "trillion-workshop/native-space-source-release",
-      "trillion-workshop/network-people",
       "trillion-workshop/operation-records",
       "trillion-workshop/organize-my-files",
       "trillion-workshop/organize-the-sidebar",
@@ -368,6 +366,184 @@
       "contains": "Worse than before"
      }
     ]
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::tool::run-at-a-time",
+   "address": "package::ai-tool-catalog::tool::run-at-a-time",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:run-at-a-time",
+    "label": "At a time, run a tool or workflow",
+    "job": "Set, list, remove or run now this person's schedules: at one time, or every day or week at a local time in a time zone, a tool runs or a workflow starts by itself",
+    "description": "operation list answers the schedules in items (the list the host keeps). operation set keeps one schedule: schedule_id, every (unit minute, hour, day or week, interval, at, time_zone, on for a week) or once_at (one time with its zone), then ({tool_id or workflow_id, input}), label, starts_on, overlap (allow or wait), only_if_changed ({tool_id, input}), enabled. A set with only schedule_id and enabled turns that schedule on or off and keeps the rest. operation remove takes schedule_id and expected_set_at and refuses when the schedule was set again since. operation run-now runs its then once, input laid over the then's own input, whether it is on or off. The reply's items is the list the host keeps from now on.",
+    "status": "inactive",
+    "input_schema": {
+     "type": "object",
+     "required": ["operation"],
+     "additionalProperties": false,
+     "properties": {
+      "operation": { "enum": ["list", "set", "remove", "run-now"] },
+      "schedule_id": { "type": "string" },
+      "every": { "type": "object" },
+      "once_at": { "type": "string" },
+      "starts_on": { "type": "string" },
+      "overlap": { "enum": ["allow", "wait"] },
+      "only_if_changed": { "type": "object" },
+      "then": { "type": "object" },
+      "label": { "type": "string" },
+      "enabled": { "type": "boolean" },
+      "expected_set_at": { "type": "string" },
+      "input": { "type": "object" },
+      "items": { "type": "array", "description": "The schedules the host keeps" },
+      "now": { "type": "string" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["answer", "items"],
+     "properties": { "answer": { "type": "object" }, "items": { "type": "array" } }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/run-rules-and-schedules-by-themselves",
+     "stdout": "json",
+     "argv": ["node", "/opt/run-rules-and-schedules-by-themselves/do-work/automation-operations.mjs", "--kind", "schedule"],
+     "stdin": { "fill": { "from": "input" } },
+     "files": { "package_files": [ { "package": "run-rules-and-schedules-by-themselves", "paths": ["do-work", "src"], "at": "/opt/run-rules-and-schedules-by-themselves" } ] }
+    },
+    "needs": { "expected_seconds": 2, "network_egress": false },
+    "maker": "maker:run-rules-and-schedules-by-themselves",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:this-account"],
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": { "operation": "list", "items": [ { "schedule_id": "s1", "label": "Morning review", "every": { "unit": "day", "at": "09:00", "time_zone": "America/New_York", "interval": 1 }, "then": { "tool_id": "tool:example", "input": {} }, "enabled": true, "set_at": "2026-11-01T00:00:00Z" } ] },
+      "output_selector": "$.answer.schedules[0].label",
+      "contains": "Morning review"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::tool::run-when-something-happens",
+   "address": "package::ai-tool-catalog::tool::run-when-something-happens",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:run-when-something-happens",
+    "label": "When this happens, run a tool or workflow",
+    "job": "Set, list, remove or run now this person's rules: when something is recorded in their account, an item is added to a pursuit they are in, or an event arrives from outside, a tool runs or a workflow starts by itself",
+    "description": "operation list answers the rules in items (the list the host keeps). operation set keeps one rule: rule_id, when (exactly one of recorded (a kind of record) with where tests, space_id with kind and where, or source_id with event and words), then ({tool_id or workflow_id, input}), label, enabled. A set with only rule_id and enabled turns that rule on or off and keeps the rest. operation remove takes rule_id and expected_set_at and refuses when the rule was set again since. operation run-now runs its then once, input laid over the then's own input, whether it is on or off. The reply's items is the list the host keeps from now on.",
+    "status": "inactive",
+    "input_schema": {
+     "type": "object",
+     "required": ["operation"],
+     "additionalProperties": false,
+     "properties": {
+      "operation": { "enum": ["list", "set", "remove", "run-now"] },
+      "rule_id": { "type": "string" },
+      "when": { "type": "object" },
+      "then": { "type": "object" },
+      "label": { "type": "string" },
+      "enabled": { "type": "boolean" },
+      "expected_set_at": { "type": "string" },
+      "input": { "type": "object" },
+      "items": { "type": "array", "description": "The rules the host keeps" },
+      "now": { "type": "string" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["answer", "items"],
+     "properties": { "answer": { "type": "object" }, "items": { "type": "array" } }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/run-rules-and-schedules-by-themselves",
+     "stdout": "json",
+     "argv": ["node", "/opt/run-rules-and-schedules-by-themselves/do-work/automation-operations.mjs", "--kind", "rule"],
+     "stdin": { "fill": { "from": "input" } },
+     "files": { "package_files": [ { "package": "run-rules-and-schedules-by-themselves", "paths": ["do-work", "src"], "at": "/opt/run-rules-and-schedules-by-themselves" } ] }
+    },
+    "needs": { "expected_seconds": 2, "network_egress": false },
+    "maker": "maker:run-rules-and-schedules-by-themselves",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:this-account"],
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": { "operation": "list", "items": [ { "rule_id": "r1", "label": "File invoices", "when": { "recorded": "message", "where": [ { "field": "text", "contains": "invoice" } ] }, "then": { "tool_id": "tool:example", "input": {} }, "enabled": true, "set_at": "2026-11-01T00:00:00Z" } ] },
+      "output_selector": "$.answer.rules[0].label",
+      "contains": "File invoices"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::tool::read-source-health",
+   "address": "package::ai-tool-catalog::tool::read-source-health",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-source-health",
+    "label": "How each source that feeds automations is doing",
+    "job": "Automation health: for each source things arrive from, count what arrived over the last day and week, say what the last arrival started and whether it worked, count the runs that worked, failed or are still going, say the last error in plain words, and say whether the source is working, quiet, failing or not connected",
+    "description": "Give now and sources: each { source_id, kind (carrier, event-source, schedule), label, connected, arrived: [{ id, at, title? }], rules: [{ rule_id, label, enabled }], runs: [{ at, state, error?, rule_id?, arrival_id?, run_id?, task_id? }] }. Returns each source with its last arrival, what the last arrival started, arrivals per period, fires, results per run, last error and state with its words and tone. Periods, silence limits, states and error words come from tools/run-rules-and-schedules-by-themselves/src/automation-health-looks.json. Inactive until its container is proven: the health module and formula filter it packs from sibling folders are not yet proven to load there.",
+    "status": "inactive",
+    "input_schema": {
+     "type": "object",
+     "required": ["sources"],
+     "properties": {
+      "now": { "type": "string" },
+      "sources": { "type": "array", "items": { "type": "object" } }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["sources", "periods", "runs_counted_over", "states", "results"],
+     "properties": {
+      "sources": { "type": "array" },
+      "periods": { "type": "array" },
+      "runs_counted_over": { "type": "object" },
+      "states": { "type": "array" },
+      "results": { "type": "array" }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/run-rules-and-schedules-by-themselves",
+     "stdout": "json",
+     "argv": ["node", "/opt/run-rules-and-schedules-by-themselves/do-work/read-source-health.mjs"],
+     "stdin": { "fill": { "from": "input" } },
+     "files": { "package_files": [
+      { "package": "run-rules-and-schedules-by-themselves", "paths": ["do-work", "src"], "at": "/opt/run-rules-and-schedules-by-themselves" },
+      { "package": "formula-engine", "paths": ["built-stored-bytes/formula-engine"], "at": "/opt/formula-engine" },
+      { "package": "shared-code", "paths": ["src/automation-health.mjs"], "at": "/opt/shared-code" }
+     ] }
+    },
+    "needs": { "expected_seconds": 5, "network_egress": false },
+    "maker": "maker:run-rules-and-schedules-by-themselves",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:this-account"],
+    "verify": []
    }
   }
  ]

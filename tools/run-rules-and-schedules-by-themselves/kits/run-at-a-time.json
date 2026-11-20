@@ -1,0 +1,55 @@
+{
+  "drafted_from": "the tool row in tool-rows.json (its words, input schema and status) and the code it points to in this folder; read it before relying on it",
+  "start_here": "Say to your AI: \"Run my weekday report at 7 in the morning, Chicago time\" (or \"Show my schedules\"). Once this row is on, it lists, sets, removes or runs one schedule of yours. It is off (status inactive) until the scheduling owner accepts the call shape; while it is off, the AI says so and does not pretend a schedule was kept.",
+  "lists": [],
+  "no_lists_because": "The schedules are not kept by this row; the host keeps the list.",
+  "workflows": [],
+  "tools": [
+    "tool:run-at-a-time",
+    "tool:run-work-later-or-on-a-repeat"
+  ],
+  "instructions": [
+    "1. Ask your AI to list, set, remove or run a schedule in plain words.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run and tool tool:run-at-a-time; with operation list it reads the schedules the host keeps.",
+    "3. With operation set it keeps one schedule (schedule_id, every or once_at, then); remove takes schedule_id and expected_set_at; run-now runs its then once.",
+    "4. Read the reply's items and say what changed."
+  ],
+  "worked_examples": [
+    {
+      "title": "Set a weekday schedule",
+      "ask": "Run my weekday report at 7 in the morning, Chicago time.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-at-a-time",
+            "input": {
+              "operation": "set",
+              "schedule_id": "weekday-report",
+              "every": {
+                "unit": "day",
+                "at": "07:00",
+                "time_zone": "America/Chicago",
+                "on": [
+                  "mon",
+                  "tue",
+                  "wed",
+                  "thu",
+                  "fri"
+                ]
+              },
+              "then": {
+                "tool_id": "tool:weekday-report"
+              },
+              "enabled": true
+            }
+          }
+        }
+      },
+      "given": "The person asks for a weekday 7 AM schedule.",
+      "hands_back": "The reply says \"unavailable\" while this row is off, and nothing is stored. Once on, it returns the items list, for example \"weekday-report\" with its every setting."
+    }
+  ]
+}

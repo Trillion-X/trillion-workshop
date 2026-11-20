@@ -16785,6 +16785,16 @@
   }
  ],
  "tool:grade-and-repair-speech-audio": [],
+ "tool:guess-voice-suggestions": [
+  {
+   "package": "name-voices-from-the-call",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/name-voices-from-the-call"
+  }
+ ],
  "tool:hand-a-request-to-its-owner": [
   {
    "package": "take-requests",
@@ -17138,131 +17148,6 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
-  }
- ],
- "tool:keep-hearing-session": [
-  {
-   "package": "listen-for-a-while",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/listen-for-a-while"
-  },
-  {
-   "package": "records-door",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/records-door"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
   }
  ],
  "tool:hear-for-a-device": [
@@ -19519,6 +19404,131 @@
     "do-work/fetch_forum_posts.py"
    ],
    "at": "/opt/research-a-creator-or-topic"
+  }
+ ],
+ "tool:keep-hearing-session": [
+  {
+   "package": "listen-for-a-while",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/listen-for-a-while"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
   }
  ],
  "tool:keep-keyed-things-in-a-fixed-memory-budget": [
@@ -22476,6 +22486,22 @@
     "node_modules/@opencoredev/social-sdk"
    ],
    "at": "/opt/node_modules/@opencoredev/social-sdk"
+  }
+ ],
+ "tool:list-posts-by-status": [
+  {
+   "package": "social-posts",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/social-posts"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
   }
  ],
  "tool:list-public-prediction-markets": [
@@ -37767,6 +37793,30 @@
    "at": "/opt/node_modules/tldts-core"
   }
  ],
+ "tool:read-source-health": [
+  {
+   "package": "run-rules-and-schedules-by-themselves",
+   "paths": [
+    "do-work",
+    "src"
+   ],
+   "at": "/opt/run-rules-and-schedules-by-themselves"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/automation-health.mjs"
+   ],
+   "at": "/opt/shared-code"
+  }
+ ],
  "tool:read-spend-rails": [
   {
    "package": "guard-ai-spending",
@@ -42092,6 +42142,16 @@
   }
  ],
  "tool:run-an-installed-apps-command-line": [],
+ "tool:run-at-a-time": [
+  {
+   "package": "run-rules-and-schedules-by-themselves",
+   "paths": [
+    "do-work",
+    "src"
+   ],
+   "at": "/opt/run-rules-and-schedules-by-themselves"
+  }
+ ],
  "tool:run-better-auth-sign-in": [],
  "tool:run-official-better-auth": [],
  "tool:run-sql-in-my-database": [
@@ -42180,6 +42240,16 @@
     "split2"
    ],
    "at": "/opt/node_modules/split2"
+  }
+ ],
+ "tool:run-when-something-happens": [
+  {
+   "package": "run-rules-and-schedules-by-themselves",
+   "paths": [
+    "do-work",
+    "src"
+   ],
+   "at": "/opt/run-rules-and-schedules-by-themselves"
   }
  ],
  "tool:run-workflow-definition": [
@@ -54437,32 +54507,6 @@
   }
  ],
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
- "tool:guess-voice-suggestions": [
-  {
-   "package": "name-voices-from-the-call",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/name-voices-from-the-call"
-  }
- ],
  "tool:your-files": [],
- "tool:your-files-names": [],
- "tool:list-posts-by-status": [
-  {
-   "package": "social-posts",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/social-posts"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "do-work/run-a-function.mjs"
-   ],
-   "at": "/opt/workflows"
-  }
- ]
+ "tool:your-files-names": []
 }
