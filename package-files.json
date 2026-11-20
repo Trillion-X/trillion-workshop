@@ -8050,12 +8050,11 @@
    "at": "/opt/page-critic"
   },
   {
-   "package": "records-door",
+   "package": "workflows",
    "paths": [
-    "do-work",
-    "read-data"
+    "do-work/run-a-function.mjs"
    ],
-   "at": "/opt/records-door"
+   "at": "/opt/workflows"
   },
   {
    "package": "content-identity",
@@ -8132,13 +8131,6 @@
     "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
    ],
    "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work/through-the-run-proxy.mjs"
-   ],
-   "at": "/opt/run-sql-in-my-database"
   },
   {
    "package": "workflows",
