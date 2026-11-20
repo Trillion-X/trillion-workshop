@@ -68,7 +68,7 @@ const defaultValues = new Map<string, unknown>();
 const loadedLabels = new Set<string>();
 const loadingLabels = new Map<string, Promise<void>>();
 type CachedRecord = { bytes: number; used: number; loaded: boolean; shown?: boolean; missingUntil?: number };
-const recordCache = cacheData as { max_items: number; max_bytes: number; max_record_bytes: number; item_overhead_bytes: number; missing_ttl_ms: number; max_parallel_reads: number; refresh_batch: number; absent_guard: { min_labels: number; most_absent_share: number } };
+const recordCache = cacheData as { max_items: number; max_bytes: number; max_record_bytes: number; item_overhead_bytes: number; missing_ttl_ms: number; max_parallel_reads: number; refresh_batch: number; gather_ms: number; absent_guard: { min_labels: number; most_absent_share: number } };
 const cachedRecords = new Map<string, CachedRecord>();
 const activeRecordReaders = new Map<string, number>();
 const startupLabels = new Set<string>();
@@ -585,6 +585,8 @@ async function readLabels(labels: string[], refresh: boolean): Promise<void> {
   await Promise.all(Array.from({ length: Math.min(recordCache.max_parallel_reads, batches.length) }, async () => {
     while (nextBatch < batches.length) await readBatch(batches[nextBatch++]);
   }));
+  // A first read: every label not yet loading joins one gathered read (gatherRead); one already loading is waited for.
+  if (!refresh) { await Promise.all(singles.map(label => loadingLabels.get(label) ?? gatherRead(label))); return; }
   let next = 0;
   const count = Math.min(recordCache.max_parallel_reads, singles.length);
   await Promise.all(Array.from({ length: count }, async () => {
@@ -597,6 +599,27 @@ async function readLabels(labels: string[], refresh: boolean): Promise<void> {
       } else await readOneLabel(label);
     }
   }));
+}
+
+// A first read of a label waits record-cache.json gather_ms for the other labels asked in that moment, and they are
+// read together (readBatch, refresh_batch at a time): one request for what a screen asks as it opens, not one each.
+let gathered: { labels: Set<string>; done: Promise<void> } | null = null;
+function gatherRead(label: string): Promise<void> {
+  if (!gathered) {
+    const now: { labels: Set<string>; done: Promise<void> } = { labels: new Set(), done: Promise.resolve() };
+    now.done = new Promise<void>(resolve => setTimeout(resolve, recordCache.gather_ms)).then(async () => {
+      if (gathered === now) gathered = null;
+      const labels = [...now.labels];
+      // The gathered labels were held as loading by this wait; readBatch holds them by its own request from here.
+      for (const one of labels) if (loadingLabels.get(one) === now.done) loadingLabels.delete(one);
+      await Promise.all(Array.from({ length: Math.ceil(labels.length / recordCache.refresh_batch) }, (_, index) =>
+        readBatch(labels.slice(index * recordCache.refresh_batch, (index + 1) * recordCache.refresh_batch))));
+    });
+    gathered = now;
+  }
+  gathered.labels.add(label);
+  loadingLabels.set(label, gathered.done);
+  return gathered.done;
 }
 
 async function readBatch(labels: string[]): Promise<void> {
