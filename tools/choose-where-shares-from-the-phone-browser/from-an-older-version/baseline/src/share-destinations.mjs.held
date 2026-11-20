@@ -100,7 +100,7 @@ import { buildInvocation, schemaProblems } from './workshop.mjs';
 import { readBoundedJson } from './read-bounded-json.mjs';
 import { routingAction, startingAction } from './share-starting-action.mjs';
 import { MAX_SHARED_ITEMS } from './share-input-limits.mjs';
-import { instructionsFor } from '../../../../record-voice-and-meetings/read-data/meeting-settings.mjs';
+import { instructionsFor } from '../parts/record-audio/read-data/meeting-settings.mjs';
 
 export class ShareDestinationsError extends Error {}
 
