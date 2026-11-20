@@ -6,15 +6,23 @@
 //
 // Publish reads the saved tool from `saved_tools` in the same database, inside one transaction: the saved row is locked (FOR SHARE)
 // until the listing is written, so the saved version cannot change between the check and the write (the old publicationCurrent).
-// A listing keeps the maker who published it. Only that maker can withdraw it, and another maker cannot take the id while it is
-// kept, even after withdrawal. Withdrawal removes the body (the descriptor) and keeps the content-free evidence: the maker, the
-// fingerprint and the times (shared-workshop-projection.mjs kept the same evidence and dropped the public body).
+// The listing keeps a copy of the saved files (the old publishBundle: the tool's code for everyone who runs the listing). A listing
+// keeps the maker who published it. Only that maker can withdraw it, and another maker cannot take the id while it is kept, even
+// after withdrawal. Withdrawal removes the body (the descriptor, the files and the public run terms) and keeps the content-free
+// evidence: the maker, the fingerprint and the times (shared-workshop-projection.mjs kept the same evidence and dropped the body).
 //
-// Not ported here, and named so no one assumes it is: the price_ref existence check (the old code read published prices from the
-// shared store), the sample run on publish (the engine owns sample runs), the public_run permission and the bundle publish for
-// container and screen tools. A publish here records the listing; it does not run the sample.
+// A lost publish is read from its effect, never by publishing again: publishOutcome answers committed, aborted or unknown from the
+// listing row and the saved version (the old publishOutcome). A publish with recover: true only reads.
+//
+// The public run terms are checked by the kept owner (keep-and-wake's public-app-run-permission.mjs): a public run needs
+// show_on_public_site, no price, and a tool that publicRunEligible admits.
+//
+// Not ported here, and named so no one assumes it is: the price_ref existence check (a published price is a person's offer record,
+// read by the funnels-and-offers owner's read-offers.ts; the database it reads from is not yet decided), and the sample run on
+// publish (the engine owns sample runs; ai-command-center-70's saved-tool runs will provide it). A publish here records the listing.
 import { SAVED_TABLE } from './save-tool.mjs';
 import { admitToolDescriptor } from '../../ai-tool-catalog/read-data/read-ai-tool-catalog.ts';
+import { checkedPublicRunPermission, publicRunEligible } from '../../keep-and-wake-ai-sessions-on-this-computer/src/public-app-run-permission.mjs';
 
 export const LISTINGS_TABLE = 'marketplace_listings';
 const TABLE_SQL = `CREATE TABLE IF NOT EXISTS ${LISTINGS_TABLE} (
@@ -25,17 +33,27 @@ const TABLE_SQL = `CREATE TABLE IF NOT EXISTS ${LISTINGS_TABLE} (
   price_ref text,
   usage_price jsonb,
   show_on_public_site boolean NOT NULL DEFAULT false,
+  public_run jsonb,
   body jsonb,
+  files bytea,
   first_published_at timestamptz NOT NULL,
   published_at timestamptz,
   withdrawn_at timestamptz
 )`;
+// A table made before a column existed keeps its old shape, so the columns added since are added here too.
+const ADD_COLUMNS_SQL = [
+  `ALTER TABLE ${LISTINGS_TABLE} ADD COLUMN IF NOT EXISTS public_run jsonb`,
+  `ALTER TABLE ${LISTINGS_TABLE} ADD COLUMN IF NOT EXISTS files bytea`,
+];
 
 export class PublishToolError extends Error {}
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim() !== '';
 const MIN_MICROS = 100;
+
+// The same text for the same value whatever the key order, so two terms compare equal when they are equal.
+const stable = value => JSON.stringify(value, (key, item) => (object(item) ? Object.fromEntries(Object.keys(item).sort().map(k => [k, item[k]])) : item)) ?? 'null';
 
 function usagePriceProblem(usage) {
   if (!object(usage) || !Number.isSafeInteger(usage.amount_micros) || usage.amount_micros < MIN_MICROS
@@ -45,8 +63,34 @@ function usagePriceProblem(usage) {
   return null;
 }
 
-/** Publish one saved tool as this maker's listing. input: { database-side client, tool_id, maker, price_ref | usage_price,
- *  show_on_public_site (default false), expected_fingerprint (optional: refuse if the saved version is not this one) }. */
+async function ensureListings(client) {
+  await client.query(TABLE_SQL, []);
+  for (const sql of ADD_COLUMNS_SQL) await client.query(sql, []);
+}
+
+/** Read a listing's state from its effect: committed when this maker's listing holds the asked terms and the saved version is the
+ *  one asked; aborted when there is no listing of this maker's; unknown otherwise (never a second publish). */
+export async function publishOutcome(input, client) {
+  const asked = object(input) ? input : {};
+  const { tool_id: toolId, maker } = asked;
+  if (!nonempty(toolId) || !nonempty(maker)) return { state: 'unknown' };
+  await ensureListings(client);
+  const { rows: found } = await client.query(`SELECT * FROM ${LISTINGS_TABLE} WHERE tool_id = $1`, [toolId]);
+  if (!found.length || found[0].maker !== maker) return { state: 'aborted' };
+  const listing = found[0];
+  const { rows: saved } = await client.query(`SELECT fingerprint FROM ${SAVED_TABLE} WHERE id = $1`, [toolId]);
+  if (!saved.length || listing.status !== 'published') return { state: 'unknown' };
+  const sameTerms = listing.fingerprint === saved[0].fingerprint
+    && listing.show_on_public_site === (asked.show_on_public_site ?? false)
+    && (listing.price_ref ?? null) === (asked.price_ref ?? null)
+    && stable(listing.usage_price ?? null) === stable(asked.usage_price ?? null)
+    && stable(listing.public_run ?? null) === stable(asked.public_run ? checkedPublicRunPermission(asked.public_run) : null);
+  if (!sameTerms) return { state: 'unknown' };
+  return { state: 'committed', listing: { tool_id: listing.tool_id, maker: listing.maker, status: listing.status, fingerprint: listing.fingerprint, published_at: listing.published_at } };
+}
+
+/** Publish one saved tool as this maker's listing. input: { tool_id, maker, price_ref | usage_price, show_on_public_site (default false),
+ *  public_run ({ runs_per_day, max_input_bytes? }, optional), expected_fingerprint (optional), recover (true reads the outcome only) }. */
 export async function publishTool(input, client) {
   const asked = object(input) ? input : {};
   const { tool_id: toolId, maker, price_ref: priceRef, usage_price: usage, expected_fingerprint: expected } = asked;
@@ -54,17 +98,20 @@ export async function publishTool(input, client) {
   if (!nonempty(toolId)) throw new PublishToolError('tool_id: the saved tool to publish, for example "tool:count-words".');
   if (!nonempty(maker)) throw new PublishToolError('maker: the person publishing the tool. Only this maker can withdraw it.');
   if (typeof showOnPublicSite !== 'boolean') throw new PublishToolError('show_on_public_site: true or false (default false).');
+  if (asked.recover === true) return { outcome: await publishOutcome(asked, client) };
   if (priceRef !== undefined && usage !== undefined) throw new PublishToolError('Choose either an existing offer price or a price for each completed run.');
   if (usage !== undefined) {
     const problem = usagePriceProblem(usage);
     if (problem) throw new PublishToolError(problem);
   }
-  await client.query(TABLE_SQL, []);
+  let publicRun;
+  try { publicRun = checkedPublicRunPermission(asked.public_run); } catch (error) { throw new PublishToolError(error.message); }
+  await ensureListings(client);
   await client.query('BEGIN', []);
   try {
-    const { rows: saved } = await client.query(`SELECT id, descriptor, fingerprint FROM ${SAVED_TABLE} WHERE id = $1 FOR SHARE`, [toolId]);
+    const { rows: saved } = await client.query(`SELECT id, descriptor, fingerprint, files FROM ${SAVED_TABLE} WHERE id = $1 FOR SHARE`, [toolId]);
     if (!saved.length) throw new PublishToolError(`${toolId} is not one of the saved tools in this database. Save it with save_tool first.`);
-    const { descriptor, fingerprint } = saved[0];
+    const { descriptor, fingerprint, files } = saved[0];
     if (expected !== undefined && expected !== fingerprint) {
       throw new PublishToolError(`${toolId} changed since it was checked for publication. Publish its current version.`);
     }
@@ -73,19 +120,24 @@ export async function publishTool(input, client) {
     }
     const admitted = admitToolDescriptor(descriptor);
     if ('refused' in admitted) throw new PublishToolError(admitted.refused.reason);
+    if (publicRun && (!showOnPublicSite || priceRef !== undefined || usage !== undefined
+      || !publicRunEligible({ ...descriptor, show_on_public_site: true }))) {
+      throw new PublishToolError('public_run is available only for a public-site tool that runs in a no-network container without credentials, external effects, or a visitor price.');
+    }
     const { rows: existing } = await client.query(`SELECT maker FROM ${LISTINGS_TABLE} WHERE tool_id = $1 FOR UPDATE`, [toolId]);
     if (existing.length && existing[0].maker !== maker) {
       throw new PublishToolError(`${toolId} belongs to another maker, so this maker cannot publish it.`);
     }
     const { rows } = await client.query(
-      `INSERT INTO ${LISTINGS_TABLE} (tool_id, maker, status, fingerprint, price_ref, usage_price, show_on_public_site, body,
+      `INSERT INTO ${LISTINGS_TABLE} (tool_id, maker, status, fingerprint, price_ref, usage_price, show_on_public_site, public_run, body, files,
          first_published_at, published_at, withdrawn_at)
-       VALUES ($1, $2, 'published', $3, $4, $5::jsonb, $6, $7::jsonb, now(), now(), NULL)
+       VALUES ($1, $2, 'published', $3, $4, $5::jsonb, $6, $7::jsonb, $8::jsonb, $9, now(), now(), NULL)
        ON CONFLICT (tool_id) DO UPDATE SET status = 'published', fingerprint = EXCLUDED.fingerprint, price_ref = EXCLUDED.price_ref,
-         usage_price = EXCLUDED.usage_price, show_on_public_site = EXCLUDED.show_on_public_site, body = EXCLUDED.body,
-         published_at = now(), withdrawn_at = NULL
-       RETURNING tool_id, maker, status, fingerprint, price_ref, usage_price, show_on_public_site, published_at`,
-      [toolId, maker, fingerprint, priceRef ?? null, usage === undefined ? null : JSON.stringify(usage), showOnPublicSite, JSON.stringify(descriptor)],
+         usage_price = EXCLUDED.usage_price, show_on_public_site = EXCLUDED.show_on_public_site, public_run = EXCLUDED.public_run,
+         body = EXCLUDED.body, files = EXCLUDED.files, published_at = now(), withdrawn_at = NULL
+       RETURNING tool_id, maker, status, fingerprint, price_ref, usage_price, show_on_public_site, public_run, published_at`,
+      [toolId, maker, fingerprint, priceRef ?? null, usage === undefined ? null : JSON.stringify(usage), showOnPublicSite,
+        publicRun ? JSON.stringify(publicRun) : null, JSON.stringify(descriptor), files],
     );
     await client.query('COMMIT', []);
     return { listing: rows[0] };
@@ -95,13 +147,13 @@ export async function publishTool(input, client) {
   }
 }
 
-/** Withdraw this maker's listing: the body goes, the content-free evidence (maker, fingerprint, times) stays. */
+/** Withdraw this maker's listing: the body and the files go, the content-free evidence (maker, fingerprint, times) stays. */
 export async function unpublishTool(input, client) {
   const asked = object(input) ? input : {};
   const { tool_id: toolId, maker } = asked;
   if (!nonempty(toolId)) throw new PublishToolError('tool_id: the published tool to withdraw.');
   if (!nonempty(maker)) throw new PublishToolError('maker: the person who published it.');
-  await client.query(TABLE_SQL, []);
+  await ensureListings(client);
   await client.query('BEGIN', []);
   try {
     const { rows: found } = await client.query(`SELECT maker, status FROM ${LISTINGS_TABLE} WHERE tool_id = $1 FOR UPDATE`, [toolId]);
@@ -109,7 +161,7 @@ export async function unpublishTool(input, client) {
       throw new PublishToolError(`${toolId} is not a tool this maker published.`);
     }
     const { rows } = await client.query(
-      `UPDATE ${LISTINGS_TABLE} SET status = 'withdrawn', body = NULL, withdrawn_at = now() WHERE tool_id = $1
+      `UPDATE ${LISTINGS_TABLE} SET status = 'withdrawn', body = NULL, files = NULL, public_run = NULL, withdrawn_at = now() WHERE tool_id = $1
        RETURNING tool_id, maker, status, fingerprint, first_published_at, withdrawn_at`,
       [toolId],
     );

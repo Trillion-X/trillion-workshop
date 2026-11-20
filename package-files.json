@@ -31839,11 +31839,11 @@
    "at": "/opt/node_modules/split2"
   },
   {
-   "package": "run-sql-in-my-database",
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
    "paths": [
-    "read-data/role-recipes.json"
+    "src/public-app-run-permission.mjs"
    ],
-   "at": "/opt/run-sql-in-my-database"
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
   }
  ],
  "tool:publish_site": [
@@ -43038,13 +43038,6 @@
     "split2"
    ],
    "at": "/opt/node_modules/split2"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "read-data/role-recipes.json"
-   ],
-   "at": "/opt/run-sql-in-my-database"
   }
  ],
  "tool:save-voice": [
@@ -52435,11 +52428,11 @@
    "at": "/opt/node_modules/split2"
   },
   {
-   "package": "run-sql-in-my-database",
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
    "paths": [
-    "read-data/role-recipes.json"
+    "src/public-app-run-permission.mjs"
    ],
-   "at": "/opt/run-sql-in-my-database"
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
   }
  ],
  "tool:unstage-changes": [
