@@ -679,7 +679,7 @@ for (const rf of toolRowFiles) {
   for (const d of rows) {
     if (!d.invoke) { if (d.kind === ROW_KIND) results.push({ row_file: rf, id: d.id, status: d.status, note: 'no invoke' }); continue; }
     const { findings, items } = checkRow(rf, d);
-    results.push({ row_file: rf, id: d.id, status: d.status, package_files: (d.invoke.files?.package_files || []).length, findings, items });
+    results.push({ row_file: rf, id: d.id, status: d.status, kind: d.invoke.kind, workdir: d.invoke.workdir ?? null, argv: d.invoke.argv ?? [], package_files: (d.invoke.files?.package_files || []).length, findings, items });
   }
 }
 const byRow = {};
