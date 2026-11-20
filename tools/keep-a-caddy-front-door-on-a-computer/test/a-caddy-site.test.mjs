@@ -92,6 +92,7 @@ test('a single-name front door renders its own name, pages, sign-in routes and e
     'every slot of the engine is an upstream; the first that answers its health page takes each call');
   assert.match(file.text, /^\t@engine path \/a\/\*\n\thandle @engine \{\n/m);
   assert.match(file.text, /^\tgrace_period 150s$/m);
+  assert.match(file.text, /^\tlog default \{\n\t\texclude http\.handlers\.reverse_proxy\.health_checker\.active\n\t\}$/m, 'an idle slot\'s failing health page fills no journal');
   assert.match(file.text, /^\thandle \/api\/auth\/\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792 \{\n\t\t\tlb_policy first\n[\s\S]*?\n\t\t\}\n\t\}$/m);
   assert.match(file.text, /^\thandle \/\.well-known\/oauth-authorization-server\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792 \{\n\t\t\tlb_policy first\n[\s\S]*?\n\t\t\}\n\t\}$/m);
   assert.doesNotMatch(file.text, /oauth-protected-resource/, 'the protected-resource document is the engine\'s, carried, never the sign-in tool\'s');

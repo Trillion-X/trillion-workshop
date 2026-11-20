@@ -5,6 +5,12 @@
 	admin localhost:2019
 	# A reload of this file lets calls in flight finish for this long before it ends them.
 	grace_period {{grace_period}}
+	# A pool's idle slot is not running, so its health page fails every health_interval; one line per failure was 40% of this
+	# computer's journal (25,133 of 63,137 lines in the hour to 8:20 AM CST Nov 20 2026) and pushed out the lines worth keeping.
+	# Health-check lines are not kept; a running slot that stops answering shows as the requests it fails, which are kept.
+	log default {
+		exclude http.handlers.reverse_proxy.health_checker.active
+	}
 }
 
 {{door_host}} {
