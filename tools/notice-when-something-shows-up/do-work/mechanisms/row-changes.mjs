@@ -28,12 +28,25 @@
  *     This leaf is one way a Postgres database tells its changes, one transport
  *     among many: nothing shared names it, and another store tells its changes
  *     its own way (workflow:tell-me-when-something-changes).
+ *   - Changes held back are told, once: committed changes that wait behind one
+ *     transaction still running (anywhere on the database's server: the horizon
+ *     is the server's) for held_back_seconds are told as the waiter's trouble
+ *     (handlers.onTrouble), naming the holding session's pid and database when
+ *     this login may see them. Nov 20 2026, 7:29:55 to 7:41 AM CST: one session
+ *     left idle in a transaction on another database (pid 415254) held every
+ *     row change on the Mac back for 11 minutes, and nothing said so.
  *
  * Settings (mechanism_settings)
  *   connection_fd       the descriptor holding the connection string (default 4; a waiter that names its own credential_name reads it from the descriptor the run gave it instead)
  *   table, channel      the change table and its NOTIFY channel (row_changes)
  *   look_again_seconds  the longest wait between reads (default 30)
  *   most_per_read       the most changes one read takes (default 500)
+ *   held_back_seconds   how long committed changes may wait behind a running
+ *                       transaction before that is told (default 120: longer
+ *                       than the one minute after which the server ends a
+ *                       session idle in a transaction, held_database's
+ *                       idle_in_transaction_session_timeout, so a hold the server
+ *                       ends itself is never told)
  */
 import { readFileSync } from "node:fs";
 
@@ -67,7 +80,27 @@ export function readSettings(settings = {}) {
     channel,
     look_again_ms: number(settings.look_again_seconds, 30) * 1000,
     most_per_read: number(settings.most_per_read, 500),
+    held_back_ms: number(settings.held_back_seconds, 120) * 1000,
   };
+}
+
+/** The read that says whether committed changes wait behind a running transaction: the horizon (xmin), how many changes
+ *  wait at or after it, and the session holding the oldest running transaction, when this login may see it. */
+export const heldBackSql = (table) => `SELECT pg_snapshot_xmin(pg_current_snapshot())::text AS xmin,
+  (SELECT count(*) FROM ${table} WHERE txid >= pg_snapshot_xmin(pg_current_snapshot()))::int AS waiting,
+  current_database() AS database,
+  (SELECT json_build_object('pid', pid, 'database', datname, 'state', state, 'since', xact_start)
+     FROM pg_stat_activity WHERE backend_xid IS NOT NULL ORDER BY age(backend_xid) DESC LIMIT 1) AS holder`;
+
+/** Who holds changes back, in words: the session's pid, database, state and since when, as far as they can be seen. */
+export function heldBackWords({ waiting, database, holder }, heldMs) {
+  const minutes = Math.max(1, Math.round(heldMs / 60000));
+  const seen = [holder?.state, holder?.since ? `since ${new Date(holder.since).toISOString()}` : null].filter(Boolean).join(' ');
+  const who = holder?.pid
+    ? `session ${holder.pid} on ${holder.database ?? 'a database this login may not name'}${seen ? ` (${seen})` : ''}`
+    : 'a session this login may not see';
+  const changes = waiting === 1 ? '1 committed change has' : `${waiting} committed changes have`;
+  return `${changes} waited in ${database} for ${minutes} min behind a transaction still running: ${who}. They are told once that transaction ends (pg_terminate_backend on its pid ends it).`;
 }
 
 /** The read that takes the next changes after `after` ({txid, position} or null), oldest first. */
@@ -91,10 +124,31 @@ async function connectWithPg(connection) {
   return client;
 }
 
+/** One look at whether changes wait behind a running transaction; told once per horizon after held_back_ms. A look that
+ *  fails changes nothing: the changes are read as before, and the next look tries again. */
+async function lookForHeldBack(client, own, held, handlers) {
+  const now = (handlers.now ?? Date.now)();
+  let found;
+  try {
+    found = (await client.query(heldBackSql(own.table))).rows?.[0];
+  } catch {
+    return held;
+  }
+  if (!found || !(found.waiting > 0)) return null;
+  const same = held?.xmin === found.xmin ? held : { xmin: found.xmin, since: now, told: false };
+  if (same.told || now - same.since < own.held_back_ms) return same;
+  const told = await handlers.onTrouble?.({
+    event_key: `${found.database}:held-back:${found.xmin}`,
+    cause: 'row-changes-held-back',
+    said: heldBackWords(found, now - same.since),
+  });
+  return { ...same, told: told !== false };
+}
+
 /**
  * Wait for row changes and report each once.
  * @param {object} settings the descriptor row's mechanism_settings
- * @param {object} handlers onTransition, signal, state (last kept {after}), keepState, and for tests: connect, connection, sleep
+ * @param {object} handlers onTransition, onTrouble, signal, state (last kept {after}), keepState, and for tests: connect, connection, now
  */
 export async function watchForTransitions(settings, handlers) {
   const own = readSettings(settings);
@@ -104,6 +158,8 @@ export async function watchForTransitions(settings, handlers) {
   const client = await (handlers.connect ?? connectWithPg)(connection);
   let state = handlers.state?.after !== undefined ? handlers.state : { after: null };
   let wake = () => {};
+  // The horizon changes wait behind, since when, and whether that hold was told.
+  let held = null;
   client.on?.("notification", (message) => { if (message.channel === own.channel) wake(); });
   try {
     await client.query(`LISTEN ${own.channel}`);
@@ -127,6 +183,7 @@ export async function watchForTransitions(settings, handlers) {
       }
       if (rows.length === own.most_per_read && !refused) continue;
       if (signal?.aborted) return;
+      held = await lookForHeldBack(client, own, held, handlers);
       await new Promise((resolve) => {
         const timer = setTimeout(resolve, own.look_again_ms);
         wake = () => { clearTimeout(timer); resolve(); };

@@ -1,5 +1,5 @@
 {
-  "_what": "Tells the person when one of their wakes stops, as a needs-you notice kept in the person's own store (notices, the table workflow:read-my-notices and the person's devices read). It wakes on the wake-failed fact the engine keeps (engine commit e9f19e41c) and names no store of its own (the switch's input names it): the fact carries the tool, the wake and the cause. The notice says what stopped and what to read before switching the wake on again.",
+  "_what": "Tells the person when one of their wakes stops, as a needs-you notice kept in the person's own store (notices, the table workflow:read-my-notices and the person's devices read). It wakes on the wake-failed fact the engine keeps (engine commit e9f19e41c) and names no store of its own (the switch's input names it): the fact carries the tool, the wake and the cause. The notice says what stopped and what to read before switching the wake on again. Its second wake, a-waiter-is-held-back, hears a waiter that cannot see what it watches (tool:notice-when-something-shows-up tells it as something-showed-up, became-unreachable, named with the same tool, wake, cause and said a stopped wake's fact has), so the same notice tells the person. Nov 20 2026, 7:29:55 to 7:41 AM CST: one session idle in a transaction held every row change on the Mac back for 11 minutes and nothing said so.",
   "records": [
     {
       "payload": {
@@ -48,6 +48,43 @@
                 "from": [
                   "wake"
                 ]
+              }
+            },
+            "budget": {
+              "steps": 16,
+              "wall_ms": 1920000
+            },
+            "input": {
+              "start_at": "make-devices"
+            },
+            "retry": {
+              "attempts": 6,
+              "first_ms": 60000,
+              "factor": 2,
+              "most_ms": 900000
+            },
+            "on_failure": {
+              "tool": "tool:run-sql-in-my-database",
+              "input": {
+                "sql": "insert into notices (title, body, kind) values ('The alarm that tells you a wake stopped did not run', 'One of your wakes stopped, and workflow:tell-when-a-wake-stops, which tells you so, failed six times over half an hour. Open your causes screen (wake:list) to see which wake stopped and why.', 'needs-you')"
+              },
+              "from_input": {
+                "credential_name": "store.credential_name"
+              }
+            }
+          },
+          {
+            "id": "a-waiter-is-held-back",
+            "on": {
+              "fact": {
+                "kind": "something-showed-up",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "condition": "became-unreachable",
+                  "tool": "tool:notice-when-something-shows-up"
+                }
               }
             },
             "budget": {

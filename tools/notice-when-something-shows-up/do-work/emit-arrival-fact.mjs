@@ -66,6 +66,32 @@ export const CONDITIONS = Object.freeze({
 
 const MECHANISM_LEAF_NAME = /^[a-z][a-z0-9-]*\.mjs$/;
 
+/** This tool, as a waiter's trouble names it: a stopped wake's fact names its tool, and a waiter's trouble is told the
+ *  same way (tool, wake, cause, said), so what tells the person a wake stopped can hear it too. */
+export const THIS_TOOL = "tool:notice-when-something-shows-up";
+/** A fact field holds at most 1,024 bytes (trillion-rust src/wake/host-events.json max_value_bytes). */
+const SAID_BYTES = 1000;
+
+/** The fact a waiter's trouble is told as: a waiter that cannot see what it watches is not reachable, the same fact a
+ *  refused row is (something-showed-up, the departure polarity), named the way a stopped wake is named. */
+export function troublePayload(declared, { cause, said }, { observedAt, sequence }) {
+  const words = String(said ?? "");
+  return {
+    kind: "something-showed-up",
+    waiter_ref: declared.waiter_ref,
+    condition: CONDITIONS.unreachable,
+    observed_at: observedAt,
+    observed_identity: {
+      tool: THIS_TOOL,
+      wake: declared.waiter_ref,
+      cause: String(cause ?? "waiter-cannot-see"),
+      said: Buffer.byteLength(words) <= SAID_BYTES ? words : Buffer.from(words).subarray(0, SAID_BYTES).toString().replace(/\uFFFD$/, ""),
+    },
+    matched_source_refs: [],
+    sequence,
+  };
+}
+
 export class WaiterRowRefused extends Error {
   constructor(message, { waiterRef, reason } = {}) {
     super(message);
@@ -635,6 +661,23 @@ async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, c
     folder: carrier.folderFor ? carrier.folderFor(declared.waiter_ref) : null,
     // Which switched-on wakes hear a kind of fact, as the engine lists them (a carrier over the engine's door).
     listening: (kind) => (carrier.listening ? carrier.listening(kind) : Promise.resolve([])),
+    // A mechanism that cannot see what it watches (changes held back by a transaction it cannot end) says so here: told
+    // once under its own event key, at an address of its own, so the waiter's kept place and sequence are not touched.
+    async onTrouble(trouble) {
+      try {
+        await carrier.writeRecord({
+          addressLabel: `${emitted.address_label}::trouble`,
+          waiterRef: declared.waiter_ref,
+          pathLabels: emitted.path_labels,
+          payload: troublePayload(declared, trouble, { observedAt: new Date(nowMs()).toISOString(), sequence }),
+          eventKey: trouble?.event_key ?? null,
+        });
+        return true;
+      } catch (error) {
+        console.error(`notice-when-something-shows-up: could not tell the trouble of ${declared.waiter_ref}:`, error?.message ?? error);
+        return false;
+      }
+    },
     async onTransition(transition) {
       const observedAt = nextObservedAt(nowMs(), previousObservedAt);
       const matched = matchedSourceRefs(transition?.observed_identity, candidates);
