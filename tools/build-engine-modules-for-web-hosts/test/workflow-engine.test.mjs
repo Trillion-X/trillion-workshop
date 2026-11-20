@@ -5,9 +5,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildCrateForAWebHost } from '../build/build-crate-for-a-web-host.mjs';
 import { workflowEngineForTests } from './workflow-engine-for-tests.mjs';
-import { isolateOutput } from './isolated-output.mjs';
-
-isolateOutput();
 
 test('the ported workflow engine runs in WebAssembly and asks the JavaScript host for each step, in order', { timeout: 900_000 }, async () => {
   const built = await buildCrateForAWebHost({ crate: 'workflow-engine', bindgenTarget: 'web' });

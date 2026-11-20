@@ -9,15 +9,12 @@ The crates themselves live with the tool whose job they do, in that tool's `crat
 | File | Purpose |
 |------|---------|
 | `build/compiled-modules.mjs` | The rows of the modules (`COMPILED_MODULES` for the Workers, `PAGE_COMPILED_MODULES` for the page, `ENGINE_COMPONENTS` for the engine to run as a tool's component), `crateSourceFingerprint`, `committedModulesCurrent`, `withCommittedModules` (one coherent admitted generation for a reader) and `prepareCompiledModules` (stage the modules and their restartable glue into a folder). |
-| `build/output-root.mjs` | The one output root of this tool (`outputRoot`): `built-stored-bytes/` and `target/` live under it, this folder by default. `BUILD_ENGINE_MODULES_OUT` moves them; only the tests set it. |
 | `build/build-compiled-modules.mjs` | Compile every row's crate and publish `built-stored-bytes/` whole, with `fingerprint.json`; a failed or interrupted build leaves the published generation as it was. |
 | `build/build-crate-for-a-web-host.mjs` | Build one crate as a wasm-bindgen module (`buildCrateForAWebHost`), find the Cargo workspaces (`crateWorkspaces`: each tool's `crates/`, then the engine's) and the one a crate belongs to. |
 | `build/shared-cargo-target.mjs` | The one cargo target folder of the computer, held by one build at a time, kept under a size ceiling, with the flags that keep the building computer's paths out of a module. |
 | `build/build-formula-evaluator.mjs` | Rebuild the formula engine from `tools/formula-engine/crates/formula-engine`: the module every page and Node tool calls directly (`tools/formula-engine/built-stored-bytes/formula-engine/`) and the one WebAssembly component its tool rows run (`tools/formula-engine/built-stored-bytes/component/formula-engine.wasm`). |
 | `build/build-timed-action.mjs` | Rebuild the timed-action engine (`tools/run-work-later-or-on-a-repeat/crates/timed-action`) into `tools/run-work-later-or-on-a-repeat/built-stored-bytes/`: the wasm-bindgen module (`timed-action/`) and the WASI component (`component/timed-action.wasm`). |
 | `built-stored-bytes/` | The committed modules (`composition-engine/`, `held-values/`, `screen-arrangement/`, `trigger-engine/`, `workflow-engine/`, `workflow-component/`) and `fingerprint.json`. Regenerate; never edit. |
-| `test/isolated-output.mjs` | `isolateOutput()`: points the output root at a mkdtemp folder (a copy of the committed generation) for one test file, and removes it after. |
-| `test/tests-write-only-temp.test.mjs` | Runs the other tests as child processes and asserts that no file under this folder changed (a BLAKE3 identity over path and bytes). |
 | `test/` | The tests of the build: the fingerprint, the published generation under interruption and under readers, the shared target folder, and the engines running in WebAssembly. |
 
 ## Key Types / Functions
@@ -39,4 +36,3 @@ The crates themselves live with the tool whose job they do, in that tool's `crat
 - A module is published only with the fingerprint of the sources it was compiled from; a change to any source, workspace manifest, lock or build script makes it stale.
 - `built-stored-bytes/` is replaced whole by one rename, so a reader never sees half of two generations.
 - No compiled module carries the path of the computer that built it (`shared-cargo-target.mjs` `pathRemapFlags`).
-- A test writes only under its own output root (`test/isolated-output.mjs`); `tests-write-only-temp.test.mjs` fails when any file under this folder changes. Cargo's freshness step still sets the modification times of crate sources (`shared-cargo-target.mjs`); the guard compares content, not times.

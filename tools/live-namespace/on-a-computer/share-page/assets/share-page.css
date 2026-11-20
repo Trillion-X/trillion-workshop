@@ -1,0 +1,27 @@
+/* The share's page. Every colour, font and radius is the person's own look (their site row's look_css tokens); the numbers after each
+   are only what shows when a look names none. */
+*,*::before,*::after{box-sizing:border-box}
+html{color-scheme:light dark;background:var(--bg-primary,#111);color:var(--text-primary,#f4f4f4);font-family:var(--font-primary,system-ui,-apple-system,"Segoe UI",sans-serif)}
+body{margin:0;min-height:100dvh;display:flex;flex-direction:column;gap:var(--space-4,16px);padding:max(var(--space-6,24px),env(safe-area-inset-top)) var(--space-4,16px) var(--space-8,32px)}
+.share-head{max-width:1100px;width:100%;margin:0 auto;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:var(--space-2,8px)}
+.share-head h1{margin:0;font-family:var(--font-display,inherit);font-size:var(--font-size-heading-lg,22px);font-weight:600;letter-spacing:-.01em}
+.share-from{margin:0;color:var(--text-secondary,#a3a3a3);font-size:var(--font-size-body,14px)}
+.share-items{max-width:1100px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:var(--space-6,24px)}
+.share-item{margin:0;display:flex;flex-direction:column;gap:var(--space-2,8px)}
+.share-item video,.share-item img{display:block;width:100%;max-height:78dvh;border-radius:var(--radius-card,12px);background:#000;object-fit:contain}
+.share-item audio{width:100%}
+.share-item figcaption{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--space-2,8px);font-size:var(--font-size-body,14px)}
+.share-name{color:var(--text-primary,#f4f4f4);font-weight:500;overflow-wrap:anywhere}
+.share-download,.share-open{color:var(--accent-primary,#7aa7ff);text-decoration:none}
+.share-download:hover,.share-open:hover{text-decoration:underline}
+.share-file{padding:var(--space-6,24px);border:1px solid var(--border-primary,#2a2a2a);border-radius:var(--radius-card,12px);background:var(--surface-1,#181818)}
+/* One at a time (share-page.js): the focused item, then a strip of every item. */
+.one-at-a-time .share-item:not(.is-shown){display:none}
+.share-strip{max-width:1100px;width:100%;margin:0 auto;display:flex;gap:var(--space-2,8px);overflow-x:auto;padding-bottom:var(--space-2,8px);scroll-snap-type:x proximity}
+.share-strip button{flex:0 0 auto;width:148px;display:flex;flex-direction:column;gap:6px;padding:0;border:0;background:none;color:var(--text-secondary,#a3a3a3);font:inherit;font-size:var(--font-size-caption,12px);text-align:left;cursor:pointer;scroll-snap-align:start}
+.share-strip .thumb{width:148px;aspect-ratio:16/9;border-radius:var(--radius-lg,8px);background:var(--surface-2,#222) center/cover no-repeat;outline:2px solid transparent;outline-offset:2px}
+.share-strip button[aria-current="true"]{color:var(--text-primary,#f4f4f4)}
+.share-strip button[aria-current="true"] .thumb{outline-color:var(--accent-primary,#7aa7ff)}
+.share-strip button:focus-visible .thumb{outline-color:var(--focus-ring-color,var(--accent-primary,#7aa7ff))}
+.share-strip .label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (prefers-reduced-motion:no-preference){.share-strip .thumb{transition:outline-color .15s}}

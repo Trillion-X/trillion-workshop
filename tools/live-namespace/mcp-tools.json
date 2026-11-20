@@ -418,13 +418,56 @@
     },
     {
       "name": "share_file",
-      "description": "Make a link that opens one file (any size) without any other credential, whole or by byte range, for 1 up to 604800 seconds (7 days). The link is answered once, with its key; only a digest of the key is kept, as one row of the person's own files. The share byte route serves it, reading that row on every request, so stop_share refuses the next read.",
+      "description": "Make a link that opens one file or many (any size) without any other credential, for 1 up to 604800 seconds (7 days). A browser that opens it gets the share's page (each item shown and played, in the person's own look, when the share route has a page); anything else gets the first file's bytes, whole or by byte range. Each item may name other files of the person's as its forms, such as a copy every browser plays (play) or a poster (poster); the page uses them and the route serves them at <link>/<n>/<form>. The link is answered once, with its key; only a digest of the key is kept, as one row of the person's own files, read on every request, so stop_share refuses the next read.",
       "input_schema": {
         "type": "object",
         "properties": {
           "name_or_identity": {
             "type": "string",
-            "description": "A file's name (a path such as /Notes/a.txt) or its content identity (1f: or 12: then 64 hex digits)"
+            "description": "One file: its name (a path such as /Notes/a.txt) or its content identity (1f: or 12: then 64 hex digits). Name this or items, not both"
+          },
+          "forms": {
+            "type": "object",
+            "description": "With name_or_identity: the file's forms, each a form's name (letters, digits, - or _) to another file of the person's, such as {\"play\": \"/previews/clip 1080p.mp4\", \"poster\": \"/previews/clip.jpg\"}",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 2000,
+            "description": "Many files at one link, in the order the page shows them: each a file's name or identity, or {name_or_identity, forms}",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name_or_identity": {
+                      "type": "string"
+                    },
+                    "forms": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "name_or_identity"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "The words the page shows above the items (one line); without it, the first file's name"
           },
           "seconds": {
             "type": "integer",
@@ -432,7 +475,6 @@
           }
         },
         "required": [
-          "name_or_identity",
           "seconds"
         ],
         "additionalProperties": false

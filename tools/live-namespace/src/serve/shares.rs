@@ -19,7 +19,7 @@ use super::{open_rows, settings::Settings, Refusal};
 use live_namespace::{
     account_files::{account_routes::AccountFilesDoor, CallControl, FILES, SHARE_ROUTE, SHARE_ROUTE_ID, SHARE_ROUTE_KIND},
     store::Mutation,
-    share_bytes::{RowGrants, Reader, Route, Unavailable},
+    share_bytes::{Page, RowGrants, Reader, Route, Unavailable},
     store::Store,
 };
 use std::{
@@ -59,7 +59,13 @@ pub fn run(settings: &Settings, state: &Path) -> Result<(), Refusal> {
     let reader = FilesReader { door, state, store, account: settings.account.clone(), call_limit: Duration::from_secs(settings.call_seconds) };
     let listen = config.listen.clone();
     let socket = config.socket_path().map(Path::to_path_buf);
-    let route = Route { grants: Arc::new(grants), reader: Arc::new(reader), config };
+    // The share's page is read once here: a folder named but unreadable stops the route, so a broken page is never served half.
+    let page = match config.page.as_deref() {
+        Some(folder) => Some(Page::read(Path::new(folder))?),
+        None => None,
+    };
+    let look = settings.site.clone().unwrap_or(serde_json::Value::Null);
+    let route = Route { grants: Arc::new(grants), reader: Arc::new(reader), config, page, look };
     let runtime = tokio::runtime::Builder::new_multi_thread().enable_all().build()?;
     runtime.block_on(async move {
         let router = live_namespace::share_bytes::router(route);

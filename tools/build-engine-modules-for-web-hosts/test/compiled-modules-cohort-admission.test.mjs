@@ -26,7 +26,10 @@ function fixture() {
   const home = join(sandbox, 'app');
   mkdirSync(home);
   const built = join(home, TOOL, 'built-stored-bytes');
-  cpSync(join(source, 'build'), join(home, BUILD), { recursive: true });
+  mkdirSync(join(home, BUILD), { recursive: true });
+  for (const name of ['shared-cargo-target.mjs', 'build-crate-for-a-web-host.mjs', 'compiled-modules.mjs', 'build-compiled-modules.mjs']) {
+    cpSync(join(source, 'build', name), join(home, BUILD, name));
+  }
   mkdirSync(join(home, 'tools/process-session/do-work'), { recursive: true });
   cpSync(cacheRule, join(home, 'tools/process-session/do-work/computer-cache-folder.mjs'));
   writeFileSync(join(home, 'package.json'), '{"type":"module"}\n');
@@ -256,7 +259,7 @@ test('ordinary builder restores omitted or undeclared app DATA receipt entries i
     f.declare({'compiled-module': {'source-files': ['../../../../package.json']}});
     const first = await f.run().ended; assert.equal(first.code, 0, first.output);
     const old = readFileSync(join(f.built,'fingerprint.json'),'utf8');
-    const tamper = `import{readFileSync,writeFileSync}from'node:fs';import{builtCratesFolder}from'./${BUILD}/compiled-modules.mjs';const path=builtCratesFolder()+'/fingerprint.json',value=JSON.parse(readFileSync(path));value.source_files=[];writeFileSync(path,JSON.stringify(value));`;
+    const tamper = `import{readFileSync,writeFileSync}from'node:fs';import{BUILT_CRATES_FOLDER}from'./${BUILD}/compiled-modules.mjs';const path=BUILT_CRATES_FOLDER+'/fingerprint.json',value=JSON.parse(readFileSync(path));value.source_files=[];writeFileSync(path,JSON.stringify(value));`;
     const changed = await f.run(['--input-type=module','-e',tamper]).ended;assert.equal(changed.code,0,changed.output);
     const rebuild = await f.run(undefined,{FAKE_GENERATION:'B'}).ended;assert.equal(rebuild.code,0,rebuild.output);
     assert.equal(f.log().length, 2 * perBuild,'declared app DATA cannot be waived by a retained empty input list');

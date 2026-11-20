@@ -8,8 +8,8 @@
 // Invariants:
 // - Cargo compiles into the computer's one shared target folder (scripts/shared-cargo-target.mjs), held for this
 //   build alone; wasm-bindgen reads the crate's wasm from it while it is held and writes the bindings into this copy's
-//   own `target/web-host-bindings/[<target>/]<crate>/` under the output root (build/output-root.mjs), so copies building at
-//   once never read each other's output and no copy keeps a full cargo build of its own.
+//   own `target/web-host-bindings/[<target>/]<crate>/` beside this folder, so copies building at once never read each other's
+//   output and no copy keeps a full cargo build of its own.
 // - The wasm-bindgen CLI must be the exact version the crate's workspace Cargo.lock pins for the `wasm-bindgen`
 //   library, or the bindings are wrong. A mismatch fails with the install command instead of building.
 // - `importModules` lists every module the wasm imports from, so a caller can prove no slot-world (`slots:`) or
@@ -24,7 +24,6 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { outputRoot } from './output-root.mjs';
 import { cargoEnv, withSharedCargoTarget } from './shared-cargo-target.mjs';
 
 const buildTool = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -134,7 +133,7 @@ async function buildWebHostInTarget({ crate, cargoArgs = [], bindgenTarget = 'ex
   const command = wasmBindgenCommand(lockedWasmBindgenVersion(workspace));
   const libName = crate.replaceAll('-', '_');
   const moduleName = outName ?? libName;
-  const outDir = join(outputRoot(), 'target', 'web-host-bindings', ...(bindgenTarget === 'experimental-nodejs-module' ? [] : [bindgenTarget]), crate);
+  const outDir = join(buildTool, 'target', 'web-host-bindings', ...(bindgenTarget === 'experimental-nodejs-module' ? [] : [bindgenTarget]), crate);
   execFileSync('cargo', ['build', '-p', crate, '--lib', '--release', '--target', 'wasm32-unknown-unknown', ...cargoArgs],
     { cwd: workspace, env: cargoEnv(folder), stdio: ['ignore', 'ignore', 'inherit'] });
   execFileSync(command,

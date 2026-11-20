@@ -210,6 +210,8 @@ pub const CHUNKS: &str = "@namespace/chunks";
 pub const ALIASES: &str = "@namespace/aliases";
 pub const ORIGINS: &str = "@namespace/origins";
 pub const FILE_SHARES: &str = "@namespace/file-shares";
+/// The most files one share names (`share_files`): a share row holds the facts of each, read on every request of the share.
+pub const MOST_SHARE_ITEMS: usize = 2000;
 
 /// How many reads of one window the store has shown it takes together: unbounded until it refuses a read for load (HTTP 429 or 503),
 /// then half of what was in flight, and one more for each window that ran at it without a refusal (`read_pieces`).
@@ -1179,24 +1181,47 @@ impl AccountFiles {
     /// (`share_bytes`) serves by range for as long as the person's share stands. No link to the store is made: a provider URL would
     /// outlive the share, and `stop_share` stops the next reader.
     pub fn share_file(&mut self, name_or_identity: &str, seconds: u64) -> Answer<Value> {
+        self.share_files(&[(name_or_identity.to_owned(), BTreeMap::new())], None, seconds)
+    }
+
+    /// `share_file` of many files at one address: each item is a file and the files it names as its forms (`{form: file}`, such as a
+    /// copy every browser plays or a poster), all of them the person's own; the share's page lists the items in order under `title`.
+    /// Every file is resolved before anything is written, so a name that is not there refuses the whole share.
+    pub fn share_files(&mut self, asked: &[(String, BTreeMap<String, String>)], title: Option<&str>, seconds: u64) -> Answer<Value> {
         if !(1..=MOST_SHARE_SECONDS).contains(&seconds) {
             return Err(AccountFilesError::Invalid(
                 "seconds must be 1 up to 604800 (seven days)",
              crate::cause!()));
         }
-        let found = self.resolve(name_or_identity)?;
-        let file = &found.file;
+        if asked.is_empty() || asked.len() > MOST_SHARE_ITEMS {
+            return Err(AccountFilesError::Invalid("a share names 1 up to 2000 files", crate::cause!()));
+        }
+        if title.is_some_and(|title| title.chars().count() > 200 || title.chars().any(char::is_control)) {
+            return Err(AccountFilesError::Invalid("a share's title is at most 200 characters on one line", crate::cause!()));
+        }
+        let plain_form = |form: &str| !form.is_empty() && form.len() <= 64 && form.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_');
+        if asked.iter().any(|(_, forms)| forms.len() > 16 || forms.keys().any(|form| !plain_form(form))) {
+            return Err(AccountFilesError::Invalid("an item has at most 16 forms, each named with letters, digits, - or _", crate::cause!()));
+        }
+        let mut items = Vec::with_capacity(asked.len());
+        for (name_or_identity, forms) in asked {
+            let mut item = self.shared_facts(name_or_identity)?;
+            let mut kept = serde_json::Map::new();
+            for (form, file) in forms {
+                kept.insert(form.clone(), self.shared_facts(file)?);
+            }
+            if !kept.is_empty() {
+                item["forms"] = Value::Object(kept);
+            }
+            items.push(item);
+        }
+        let first = items[0].clone();
         let origin = match self.control.share_origin.clone() {
             Some(origin) => origin,
             None => self.get(SHARE_ROUTE, SHARE_ROUTE_ID)?
                 .and_then(|row| text(&row.value, "origin").filter(|origin| origin.starts_with("https://")).map(|origin| origin.trim_end_matches('/').to_owned()))
                 .ok_or(AccountFilesError::Invalid("a share needs the address it opens at: no share route of this person has started (serve-shares with share.origin), and settings.json names no share.origin", crate::cause!()))?,
         };
-        let size = file
-            .value
-            .get("byte_length")
-            .and_then(Value::as_u64)
-            .ok_or(crate::cause!(Error::Unavailable))?;
         self.check_current()?;
         let random = ring::rand::SystemRandom::new();
         let mut id_bytes = [0u8; 16];
@@ -1208,18 +1233,39 @@ impl AccountFiles {
         let made = chrono::Utc::now();
         let at = |time: chrono::DateTime<chrono::Utc>| time.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
         let expires_at = made + chrono::Duration::seconds(seconds as i64);
-        let media_type = text(&file.value, "media_type").unwrap_or("application/octet-stream").to_owned();
-        let value = json!({
-            "kind": FILE_SHARE_KIND, "identity": file.id, "name": found.name.clone().unwrap_or_else(|| file.id.clone()),
-            "byte_length": size, "media_type": media_type,
+        let mut value = json!({
+            "kind": FILE_SHARE_KIND, "identity": first["identity"], "name": first["name"],
+            "byte_length": first["byte_length"], "media_type": first["media_type"],
             "key_blake3": content_crypto::advanced::blake3::hash(key.as_bytes()).to_hex().to_string(),
             "can": ["view"], "published": true, "revoked_at": null, "expires_at": at(expires_at), "made_at": at(made),
         });
+        let many = items.len() > 1 || items[0].get("forms").is_some();
+        if many {
+            value["items"] = Value::Array(items.clone());
+        }
+        if let Some(title) = title {
+            value["title"] = json!(title);
+        }
         self.check_current()?;
         self.mutate(FILE_SHARES, Mutation { id: id.clone(), expected_version: 0, request_key: id.clone(), deleted: false, value })?;
+        let mut answer = json!({
+            "url": format!("{origin}/share/{id}/{key}"), "share": id, "identity": first["identity"], "name": first["name"],
+            "byte_length": first["byte_length"], "media_type": first["media_type"], "expires_at": at(expires_at),
+        });
+        if many {
+            answer["items"] = json!(items.len());
+        }
+        Ok(answer)
+    }
+
+    /// The facts a share keeps of one file of the person's: its identity, name, size and type.
+    fn shared_facts(&self, name_or_identity: &str) -> Answer<Value> {
+        let found = self.resolve(name_or_identity)?;
+        let file = &found.file;
+        let size = file.value.get("byte_length").and_then(Value::as_u64).ok_or(crate::cause!(Error::Unavailable))?;
         Ok(json!({
-            "url": format!("{origin}/share/{id}/{key}"), "share": id, "identity": file.id, "name": found.name, "byte_length": size,
-            "media_type": media_type, "expires_at": at(expires_at),
+            "identity": file.id, "name": found.name.clone().unwrap_or_else(|| file.id.clone()), "byte_length": size,
+            "media_type": text(&file.value, "media_type").unwrap_or("application/octet-stream"),
         }))
     }
 
@@ -2059,11 +2105,29 @@ impl AccountFiles {
                 .ok_or(AccountFilesError::Invalid("id is required", crate::cause!()))
                 .and_then(|id| self.stop_share(id)),
             "list_shares" => self.list_shares(field("after"), number("limit").map(|limit| limit as usize)),
-            "share_file" => asked().and_then(|asked| {
-                let seconds =
-                    number("seconds").ok_or(AccountFilesError::Invalid("seconds is required", crate::cause!()))?;
-                self.share_file(asked, seconds)
-            }),
+            "share_file" => {
+                let seconds = number("seconds").ok_or(AccountFilesError::Invalid("seconds is required", crate::cause!()));
+                let forms_of = |value: Option<&Value>| -> Answer<BTreeMap<String, String>> {
+                    match value {
+                        None | Some(Value::Null) => Ok(BTreeMap::new()),
+                        Some(Value::Object(forms)) => forms.iter().map(|(form, file)| file.as_str().map(|file| (form.clone(), file.to_owned()))
+                            .ok_or(AccountFilesError::Invalid("each form names a file of the person's (a name or a content identity)", crate::cause!()))).collect(),
+                        Some(_) => Err(AccountFilesError::Invalid("forms maps a form's name to a file of the person's", crate::cause!())),
+                    }
+                };
+                let asked: Answer<Vec<(String, BTreeMap<String, String>)>> = match (input.get("items").and_then(Value::as_array), field("name_or_identity")) {
+                    (Some(items), None) => items.iter().map(|item| match item {
+                        Value::String(name) => Ok((name.clone(), BTreeMap::new())),
+                        Value::Object(_) => item.get("name_or_identity").and_then(Value::as_str)
+                            .ok_or(AccountFilesError::Invalid("each item names name_or_identity", crate::cause!()))
+                            .and_then(|name| Ok((name.to_owned(), forms_of(item.get("forms"))?))),
+                        _ => Err(AccountFilesError::Invalid("each item is a file's name or {name_or_identity, forms?}", crate::cause!())),
+                    }).collect(),
+                    (None, Some(name)) => forms_of(input.get("forms")).map(|forms| vec![(name.to_owned(), forms)]),
+                    _ => Err(AccountFilesError::Invalid("name one file (name_or_identity) or many (items), not both", crate::cause!())),
+                };
+                seconds.and_then(|seconds| self.share_files(&asked?, field("title"), seconds))
+            }
             "read_file" => asked().and_then(|asked| {
                 let base64 = match input.get("encoding") {
                     None => false,

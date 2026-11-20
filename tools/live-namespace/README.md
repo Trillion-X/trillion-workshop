@@ -79,8 +79,17 @@ makes its links there, so no shipped settings file carries a person's address.
 `on-a-computer/serve-shares.service` is the unit a computer row runs the route with (template fields: `program`, the path the
 row's machine downloads keep the linux build at; `settings_file` and the row's `settings`; `descriptors`, the shell redirections
 that hand each sealed credential to its descriptor, such as `3<"$CREDENTIALS_DIRECTORY/files-store-secret"`; `runtime_directory`,
-`sites/<name>`; `user`, `group` (the front door's), `state`, `writable`). Not built here: the share's page; the route answers bytes
-for a bare `<video src>`, a download or `curl`.
+`sites/<name>`; `user`, `group` (the front door's), `state`, `writable`).
+A share names one file or many (`share_file` with `items`), and each item may name other files of the person's as its forms (`forms`,
+such as `play`, a copy every browser plays, and `poster`): `/share/<id>/<key>/<n>` and `/share/<id>/<key>/<n>/<form>` are their bytes
+by range, `?download` offers one as a download. The share's page: when the settings name `share_bytes.page` (a folder laid on the
+computer; `on-a-computer/share-page` is the shipped one), a browser opening `/share/<id>/<key>` gets `page.html` filled from the share
+row (each item drawn with the markup `items.json` gives its media type, escaped) and wearing the person's look (settings `site`, laid
+from their own `site` row as every site of theirs wears it: `name`, `theme`, `look_css`), with its player and style from
+`/share/assets/<file>`. The page runs only the address's own script files (no sandbox, no inline script, no referrer), shows one
+item at a time with a strip of every item, and plays with no script at all. Each item carries `data-media-playback-*`, so a player
+laid in `assets/` (the Workshop's share-view island) mounts onto it. A tool that asks for bytes (`curl`, a download manager) still
+gets the first file's bytes. Tests: `tests/share_page.rs`.
 The run needs what `mcp` needs and nothing more: its state folder and the attached store fields (`files-store`, `own-rows-postgres`).
 
 ## Build and test

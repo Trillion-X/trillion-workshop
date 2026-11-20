@@ -11,7 +11,7 @@
     "1. Make sure your files-store connection (your S3-compatible store: secret, key id, bucket, endpoint, region) and your database connection (own-rows-postgres-connection) are saved in your vault. tool:your-files is handed the files-store fields alone, and tool:your-files-names the database connection alone, each on the descriptor its row names and never printed: the engine lets one run reach only hosts every key it holds may go to.",
     "2. Ask your AI for your files. Each ask is one call: tools:run at @tools with {tool: \"tool:your-files\", call: {name, arguments}}, where name is an operation of mcp-tools.json (list_files, list_changes, read_file_span, write_file, move_names, set_aside, make_folder, bounds, this_computer and the rest).",
     "3. A device's folder (tools/files-on-every-device) makes the same calls through the same door, so a file saved there is the file your AI reads.",
-    "4. To share a file, say to your AI: \"Share /Notes/a.txt for a day\". share_file answers an address that opens the file by range (any size, in pieces or not) from the share byte route; stop it with stop_share (list_shares shows each share, never its key) and the next reader is refused."
+    "4. To share a file, say to your AI: \"Share /Notes/a.txt for a day\". share_file answers an address that opens the file by range (any size, in pieces or not) from the share byte route; stop it with stop_share (list_shares shows each share, never its key) and the next reader is refused. To share many files at one address, name them as items; give a video no browser plays a play form (a playable copy of it) and a poster form, and the share's page plays the copy and offers the original as a download."
   ],
   "worked_examples": [
     {

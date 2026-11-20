@@ -51,6 +51,10 @@ pub struct Settings {
     /// The public byte route of a share (`serve-shares`): where it listens and its numbers.
     #[serde(default)]
     pub share_bytes: Option<live_namespace::share_bytes::Config>,
+    /// The person's look (the `site` block every site of theirs wears: `name`, `theme`, `look_css`), laid here from their own `site`
+    /// row; the share's page wears it.
+    #[serde(default)]
+    pub site: Option<serde_json::Value>,
     /// The fields of the connections (`files-store`: the byte store; the database's own) and the descriptor each is attached on.
     pub attached: Vec<Attached>,
 }

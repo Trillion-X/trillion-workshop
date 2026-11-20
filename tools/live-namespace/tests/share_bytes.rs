@@ -84,6 +84,8 @@ fn serve_with(mut files: AccountFiles, name: &str, media_type: &str, window_byte
         grants: Arc::new(RowGrants::new(store.clone())),
         reader: Arc::new(Files { files: Mutex::new(files), reads: Default::default(), hook: Mutex::new(hook) }),
         config: config(window_bytes),
+        page: None,
+        look: Value::Null,
     };
     let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
     listener.set_nonblocking(true).unwrap();
@@ -299,7 +301,7 @@ fn stop_share_ends_the_next_request_and_list_shares_never_shows_a_key() {
     assert_eq!(listed["shares"][0]["state"], "stopped");
     let files = files.into_inner().unwrap();
     let store = files.store.clone();
-    let route = Route { grants: Arc::new(RowGrants::new(store)), reader: Arc::new(Files { files: Mutex::new(files), reads: Default::default(), hook: Mutex::new(None) }), config: config(100) };
+    let route = Route { grants: Arc::new(RowGrants::new(store)), reader: Arc::new(Files { files: Mutex::new(files), reads: Default::default(), hook: Mutex::new(None) }), config: config(100), page: None, look: Value::Null };
     let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
     listener.set_nonblocking(true).unwrap();
     let address = listener.local_addr().unwrap().to_string();
@@ -369,7 +371,7 @@ fn the_route_listens_on_a_unix_socket_a_front_door_sends_a_names_requests_to() {
     let folder = tempfile::tempdir().unwrap();
     let socket = folder.path().join("http.sock");
     let store = files.store.clone();
-    let route = Route { grants: Arc::new(RowGrants::new(store)), reader: Arc::new(Files { files: Mutex::new(files), reads: Default::default(), hook: Mutex::new(None) }), config: config(100) };
+    let route = Route { grants: Arc::new(RowGrants::new(store)), reader: Arc::new(Files { files: Mutex::new(files), reads: Default::default(), hook: Mutex::new(None) }), config: config(100), page: None, look: Value::Null };
     let runtime = tokio::runtime::Builder::new_multi_thread().enable_all().build().unwrap();
     let listener = runtime.block_on(async { tokio::net::UnixListener::bind(&socket) }).unwrap();
     runtime.spawn(async move { axum::serve(listener, router(route)).await.unwrap() });

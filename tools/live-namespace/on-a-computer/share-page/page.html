@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en" data-theme="{{theme}}" data-look-scheme="{{scheme}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="{{theme_color}}">
+<title>{{title}}</title>
+<style>{{{look_css}}}</style>
+<link rel="stylesheet" href="/share/assets/share-page.css">
+</head>
+<body>
+<header class="share-head">
+  <h1>{{title}}</h1>
+  <p class="share-from">{{site_name}}</p>
+</header>
+<main class="share-items" data-count="{{count}}">
+{{{items}}}
+</main>
+<script type="application/json" id="share-items">{{{items_json}}}</script>
+<script src="/share/assets/share-page.js" defer></script>
+</body>
+</html>
