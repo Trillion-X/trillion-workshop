@@ -72,25 +72,56 @@ export function manifestIdentity(files) {
 
 const LAYOUT_FILE = 'package-files.json';
 
+// Where one entry of a row lands, as keys: a packages entry lays each named package at its folder (a trailing slash dropped, a
+// node_modules/ prefix dropped, so split2 and node_modules/split2 at one folder are one landing); a paths entry lays each path at
+// its place under `at`. The engine refuses a run when a file is already where an entry puts it (trillion-rust container.rs
+// copy_file), so a key laid twice by one row is refused.
+const folderOf = at => {
+  const plain = String(at).replace(/\/+$/, '');
+  return plain.startsWith('/opt/node_modules/') ? `/opt/${plain.slice('/opt/node_modules/'.length)}` : plain;
+};
+const landingsOf = item => item.packages
+  ? item.packages.map(key => ({ key: `package ${folderOf(item.at)} ${String(key).replace(/^node_modules\//, '')}`, at: item.at }))
+  : (item.paths ?? []).map(path => ({ key: `path ${folderOf(`${String(item.at).replace(/\/+$/, '')}/${String(path).replace(/\/+$/, '')}`)}`, at: item.at, path }));
+
+/** The landings one row makes more than once, from a package-files.json object ({row id: items}): each as {row, key, at, path}, where
+ *  `at` is the repeated entry's own folder and `path` its path when it lays a path. Two entries that land on one place are one
+ *  duplicate, whichever spelling each uses. */
+export function duplicateLayouts(rows) {
+  const duplicates = [];
+  for (const [row, items] of Object.entries(rows)) {
+    const seen = new Set();
+    for (const item of items) for (const landing of landingsOf(item)) {
+      if (seen.has(landing.key)) duplicates.push({ row, key: landing.key, at: landing.at, ...(landing.path === undefined ? {} : { path: landing.path }) });
+      seen.add(landing.key);
+    }
+  }
+  return duplicates;
+}
+
 /** What in the commit's package-files.json would stop a run, as readable lines (none when it has no such file): a laid-out
- *  path of a package item that is neither a file of the commit nor a folder holding one, and a package folder (`at` of a
- *  `packages` item) one row places twice. The same rules as test/package-files.test.mjs, judged on the commit's own files. */
+ *  path of a package item that is neither a file of the commit nor a folder holding one, and a place one row lays twice
+ *  (duplicateLayouts). The same rules as test/package-files.test.mjs, judged on the commit's own files. */
 export function layoutProblems(files) {
   const layout = files.find(([path]) => path === LAYOUT_FILE);
   if (!layout) return [];
   const paths = new Set(files.map(([path]) => path));
   const folders = new Set();
   for (const path of paths) for (let cut = path.lastIndexOf('/'); cut > 0; cut = path.lastIndexOf('/', cut - 1)) folders.add(path.slice(0, cut));
+  const rows = JSON.parse(layout[1].toString('utf8'));
   const problems = [];
-  for (const [row, items] of Object.entries(JSON.parse(layout[1].toString('utf8')))) {
+  for (const [row, items] of Object.entries(rows)) {
     for (const item of items) {
       if (item.package) for (const path of item.paths ?? []) {
         const full = `tools/${item.package}/${path}`.replace(/\/+$/, '');
         if (!paths.has(full) && !folders.has(full)) problems.push(`${row} is laid out with ${full}, which this commit does not hold`);
       }
     }
-    const ats = items.filter(item => item.packages).map(item => item.at);
-    for (const at of new Set(ats.filter((at, index) => ats.indexOf(at) !== index))) problems.push(`${row} places the package folder ${at} twice`);
+  }
+  for (const duplicate of duplicateLayouts(rows)) {
+    problems.push(duplicate.path === undefined
+      ? `${duplicate.row} places the package folder ${duplicate.at} twice`
+      : `${duplicate.row} lays ${duplicate.key.slice('path '.length)} twice`);
   }
   return problems;
 }

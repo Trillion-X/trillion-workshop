@@ -8,7 +8,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { pinOf } from '../do-work/pin-a-commit-by-its-files.mjs';
+import { duplicateLayouts, pinOf } from '../do-work/pin-a-commit-by-its-files.mjs';
 
 test('a commit is pinned by exactly its archived files, in the engine\'s identity', () => {
   const repository = mkdtempSync(join(tmpdir(), 'pin-a-commit-'));
@@ -54,3 +54,27 @@ test('a commit whose layout would stop runs is not pinned: a laid-out file it la
   const twice = commitWith({ 'tool:b': [{ packages: ['split2'], at: '/opt/node_modules/split2' }, { packages: ['node_modules/split2'], at: '/opt/node_modules/split2' }] });
   assert.throws(() => pinOf(repository, twice, address), (error) => error.problems?.[0] === 'tool:b places the package folder /opt/node_modules/split2 twice');
 });
+
+test('a row that lays one place twice is found by duplicateLayouts: a packages entry spelled two ways, and a paths entry twice', () => {
+  const packagesTwoWays = { 'tool:a': [{ packages: ['split2'], at: '/opt/node_modules/split2' }, { packages: ['node_modules/split2'], at: '/opt/split2' }] };
+  assert.deepEqual(duplicateLayouts(packagesTwoWays), [{ row: 'tool:a', key: 'package /opt/split2 split2', at: '/opt/split2' }]);
+  const pathsTwice = { 'tool:b': [{ package: 'kit', paths: ['do-work/run.mjs'], at: '/opt/kit' }, { package: 'kit', paths: ['do-work/run.mjs/'], at: '/opt/kit/' }] };
+  assert.deepEqual(duplicateLayouts(pathsTwice), [{ row: 'tool:b', key: 'path /opt/kit/do-work/run.mjs', at: '/opt/kit/', path: 'do-work/run.mjs/' }]);
+  const folderAndPath = { 'tool:c': [{ package: 'media', paths: ['do-work'], at: '/opt/media' }, { packages: ['numpy'], at: '/opt/media/do-work' }] };
+  assert.deepEqual(duplicateLayouts(folderAndPath), [], 'a package folder and a path of one folder are two different landings');
+});
+
+test('a commit whose paths entry lays one path twice is not pinned', () => {
+  const repository = mkdtempSync(join(tmpdir(), 'pin-a-twice-'));
+  const git = (...args) => execFileSync('git', ['-C', repository, ...args], { encoding: 'utf8' }).trim();
+  git('init', '-q');
+  const files = { 'tools/kit/do-work/run.mjs': 'export {}', 'package-files.json': JSON.stringify({ 'tool:a': [
+    { package: 'kit', paths: ['do-work/run.mjs'], at: '/opt/kit' }, { package: 'kit', paths: ['do-work/run.mjs/'], at: '/opt/kit/' }] }) };
+  for (const [path, text] of Object.entries(files)) { mkdirSync(join(repository, path, '..'), { recursive: true }); writeFileSync(join(repository, path), text); }
+  git('add', '-A');
+  git('-c', 'user.name=Example', '-c', 'user.email=maker@example.com', 'commit', '-q', '-m', 'twice');
+  const commit = git('rev-parse', 'HEAD');
+  assert.throws(() => pinOf(repository, commit, 'https://archives.example.com/{commit}.tar.gz'),
+    (error) => error.problems?.[0] === 'tool:a lays /opt/kit/do-work/run.mjs twice');
+});
+
