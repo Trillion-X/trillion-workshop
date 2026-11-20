@@ -82,62 +82,66 @@ function RowMedia({ input }: { input: RowMediaInput }) {
   const withTranscript = source?.kind === 'media' && timed.length > 0;
   return (
     <ErrorBoundary zoneName="row media">
-      <Container layout="horizontal" gap="none" width="full" alignItems="stretch" className="h-full min-h-0 w-full">
-        <Container layout="vertical" gap="lg" minWidth="0" className="min-h-0 min-w-0 flex-1 overflow-y-auto p-4">
-          {typeof title === 'string' && title ? <Text variant="heading-xl" color="strong">{title}</Text> : null}
-          {failed ? <Text variant="body" color="secondary">This could not be read. Try again.</Text> : null}
-          {loading ? (
-            <Container layout="horizontal" justifyContent="center" className="py-12">
-              <Spinner size="lg" aria-label="Opening" />
-            </Container>
-          ) : null}
-          {source?.kind === 'media' ? (
-            <MediaPlaybackSurface
-              media={source.media}
-              allowEmbeddedDocument
-              showFrameChrome={false}
-              captionsStartOn={timed.length > 0}
-              captionStyle="subtitle"
-              timedTextSegments={timed.length ? timed : undefined}
-              captionPlacement="below-picture"
-              transcriptPlacement="beside-media"
-              onTimeChange={currentTime => setNow(currentTime)}
-              seekRequest={seek}
-            />
-          ) : null}
-          {source?.kind === 'file' ? (
-            <Container className="h-[min(78vh,60rem)] min-h-[36rem] overflow-hidden">
-              <FilePreview url={source.file.url} contentType={source.file.contentType} label={source.file.label} autoPlay={false} />
-            </Container>
-          ) : null}
-          {files.map((item, index) => (
-            <Container key={`${item.kind}-${index}`} layout="vertical" gap="sm">
-              {item.kind === 'media' ? (
-                <MediaPlaybackSurface media={item.media} allowEmbeddedDocument showFrameChrome={false} captionPlacement="below-picture" />
-              ) : (
-                <>
-                  {item.file.label ? <Text variant="body" color="strong" weight="semibold">{item.file.label}</Text> : null}
-                  <Container className="h-[min(78vh,60rem)] min-h-[36rem] overflow-hidden">
-                    <FilePreview url={item.file.url} contentType={item.file.contentType} label={item.file.label} autoPlay={false} />
-                  </Container>
-                </>
-              )}
-            </Container>
-          ))}
-          {body ? <Container maxWidth="prose"><MarkdownWords words={body} /></Container> : null}
-          {!loading && !failed && !source && !files.length && !body ? <Text variant="body" color="secondary">Nothing to show yet.</Text> : null}
-        </Container>
-        {withTranscript ? (
-          <Container layout="vertical" minWidth="0" className="h-full min-h-0 w-[22rem] shrink-0 p-4 pl-0">
-            <TranscriptReaderSurface
-              framed={false}
-              title="Transcript"
-              segments={timed}
-              currentTimeSeconds={now}
-              onSelectTime={seconds => setSeek(prev => ({ requestId: (prev?.requestId ?? 0) + 1, seconds }))}
-            />
+      {/* A pane at least 56rem wide holds the transcript beside the picture; a narrower one puts it below, so the picture
+          keeps the width (the pane's own width, by a container query, not the window's). */}
+      <Container layout="vertical" gap="none" width="full" className="@container h-full min-h-0 w-full overflow-y-auto">
+        <Container layout="vertical" gap="none" width="full" alignItems="stretch" className="min-h-full @[56rem]:h-full @[56rem]:flex-row">
+          <Container layout="vertical" gap="lg" minWidth="0" className="min-w-0 flex-1 p-4 @[56rem]:min-h-0 @[56rem]:overflow-y-auto">
+            {typeof title === 'string' && title ? <Text variant="heading-xl" color="strong">{title}</Text> : null}
+            {failed ? <Text variant="body" color="secondary">This could not be read. Try again.</Text> : null}
+            {loading ? (
+              <Container layout="horizontal" justifyContent="center" className="py-12">
+                <Spinner size="lg" aria-label="Opening" />
+              </Container>
+            ) : null}
+            {source?.kind === 'media' ? (
+              <MediaPlaybackSurface
+                media={source.media}
+                allowEmbeddedDocument
+                showFrameChrome={false}
+                captionsStartOn={timed.length > 0}
+                captionStyle="subtitle"
+                timedTextSegments={timed.length ? timed : undefined}
+                captionPlacement="below-picture"
+                transcriptPlacement="beside-media"
+                onTimeChange={currentTime => setNow(currentTime)}
+                seekRequest={seek}
+              />
+            ) : null}
+            {source?.kind === 'file' ? (
+              <Container className="h-[min(78vh,60rem)] min-h-[36rem] overflow-hidden">
+                <FilePreview url={source.file.url} contentType={source.file.contentType} label={source.file.label} autoPlay={false} />
+              </Container>
+            ) : null}
+            {files.map((item, index) => (
+              <Container key={`${item.kind}-${index}`} layout="vertical" gap="sm">
+                {item.kind === 'media' ? (
+                  <MediaPlaybackSurface media={item.media} allowEmbeddedDocument showFrameChrome={false} captionPlacement="below-picture" />
+                ) : (
+                  <>
+                    {item.file.label ? <Text variant="body" color="strong" weight="semibold">{item.file.label}</Text> : null}
+                    <Container className="h-[min(78vh,60rem)] min-h-[36rem] overflow-hidden">
+                      <FilePreview url={item.file.url} contentType={item.file.contentType} label={item.file.label} autoPlay={false} />
+                    </Container>
+                  </>
+                )}
+              </Container>
+            ))}
+            {body ? <Container maxWidth="prose"><MarkdownWords words={body} /></Container> : null}
+            {!loading && !failed && !source && !files.length && !body ? <Text variant="body" color="secondary">Nothing to show yet.</Text> : null}
           </Container>
-        ) : null}
+          {withTranscript ? (
+            <Container layout="vertical" minWidth="0" className="h-[28rem] w-full shrink-0 px-4 pb-4 @[56rem]:h-full @[56rem]:min-h-0 @[56rem]:w-[22rem] @[56rem]:p-4 @[56rem]:pl-0">
+              <TranscriptReaderSurface
+                framed={false}
+                title="Transcript"
+                segments={timed}
+                currentTimeSeconds={now}
+                onSelectTime={seconds => setSeek(prev => ({ requestId: (prev?.requestId ?? 0) + 1, seconds }))}
+              />
+            </Container>
+          ) : null}
+        </Container>
       </Container>
     </ErrorBoundary>
   );
