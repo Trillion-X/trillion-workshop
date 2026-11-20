@@ -60,8 +60,12 @@ export const runFetcher = (row, part, values, seconds, confine = linkSettings().
 const expand = place => String(place).replace(/^~(?=\/|$)/, os.homedir());
 const said = (template, values, status) => Object.assign(new Error(fill(template, values)), status ? { status } : {});
 
-/** The seam's `transcribe` on one file: { text, segments, language, produced_by }, or throws the seam's last line. */
-export async function hearFile(file, { modelPath, whisperCli = null, ffmpeg = null, language = '', python = 'python3', script = path.join(HERE, '..', 'do-work', 'audio_transcription.py') }, words = linkSettings().words) {
+/** The hearing options of a picked hearing row: its found program is the whisper-cli, `model` and `ffmpeg` are its own paths, and the request's options fill what the row leaves out. */
+const optionsOfRow = (row, options) => ({ ...options, modelPath: row.model ?? options.modelPath, whisperCli: row.program, ffmpeg: row.ffmpeg ?? options.ffmpeg ?? null });
+
+/** The seam's `transcribe` on one file: { text, segments, language, produced_by }, or throws the seam's last line. With `program` (a picked hearing row) its options come from the row; without it, from the options given. */
+export async function hearFile(file, given, words = linkSettings().words) {
+  const { modelPath, whisperCli = null, ffmpeg = null, language = '', python = 'python3', script = path.join(HERE, '..', 'do-work', 'audio_transcription.py') } = given.program ? optionsOfRow(given.program, given) : given;
   const out = `${file}.heard.json`;
   const programs = [...(whisperCli ? ['--whisper-cli', whisperCli] : []), ...(ffmpeg ? ['--ffmpeg', ffmpeg] : [])];
   try {
