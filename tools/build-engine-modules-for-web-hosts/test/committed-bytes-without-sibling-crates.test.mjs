@@ -2,10 +2,11 @@
 //
 // A Workshop exported alone (as a computer's apply runs it) has no engine crates beside it, so the committed modules'
 // sources cannot be read there. Such a Workshop admits the committed modules by their own bytes: each file's BLAKE3 must
-// be the one fingerprint.json records. A file whose bytes differ is refused, and nothing tries to build it again.
+// be the one fingerprint.json records, also when a folder of the engine's name beside it is not its repository. A file whose
+// bytes differ is refused, and nothing tries to build it again.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cpSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -28,6 +29,10 @@ test('a Workshop with no sibling crates admits the committed modules by their re
       assert.ok(recorded.crate_dirs.some(dir => dir.startsWith('../')), 'the modules are built from a crate beside the Workshop');
       assert.equal(await alone.committedModulesCurrent(), true);
       assert.equal(await alone.withCommittedModules(admitted => admitted.fingerprint), recorded.fingerprint);
+      // A folder beside it under the engine's name that is not the engine's repository (an apply's /tmp held one, Nov 20 2026)
+      // cannot answer for the recorded commit either: the bytes still decide.
+      mkdirSync(join(root, 'trillion-rust', 'crates'), { recursive: true });
+      assert.equal(await alone.committedModulesCurrent(), true);
 
       const [file] = Object.keys(recorded.files);
       const bytes = readFileSync(join(tool, 'built-stored-bytes', file));

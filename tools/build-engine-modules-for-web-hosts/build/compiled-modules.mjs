@@ -231,12 +231,12 @@ export async function compiledFileIdentities(folder = BUILT_CRATES_FOLDER) {
     .map(file => [file, bytesToHex(blake3(readFileSync(join(folder, file))))]));
 }
 
-/** Whether a crate workspace the modules are built from lies outside this Workshop and is not beside it (a Workshop
- *  exported alone, as a computer's apply runs it): then its sources cannot be read here. */
-const siblingAway = crateDirs => crateDirs.some(dir => dir.startsWith('../') && !existsSync(join(TOOLS, dirname(dir))));
+/** The source fingerprint of a recorded build, or null when its sources cannot be read here (a Workshop exported alone, as
+ *  a computer's apply runs it, has no engine checkout beside it that holds the recorded commit). */
+const readableFingerprint = built => crateSourceFingerprint(built.crate_dirs, built.source_files ?? [], built.workspace_commits ?? {}).catch(() => null);
 
-/** Source identity and required files must both be current. Failed/partial builds refuse. Where a sibling crate workspace
- *  is not beside this Workshop, the sources cannot be read, so the modules are admitted by their own bytes instead: each
+/** Source identity and required files must both be current. Failed/partial builds refuse. Where the crates' sources cannot
+ *  be read here (no engine checkout beside this Workshop holding the recorded commit), the modules are admitted by their own bytes instead: each
  *  file's BLAKE3 must be the one the build recorded where both repositories were, when it matched them to their sources.
  *  A byte that differs, or a record with no file identities, is refused. */
 async function currentCommittedModules(expectedCrateDirs = null, expectedSourceFiles = null) {
@@ -249,16 +249,14 @@ async function currentCommittedModules(expectedCrateDirs = null, expectedSourceF
   const sourceFiles = Object.hasOwn(built, 'source_files') ? built.source_files : [];
   if (!Array.isArray(sourceFiles) || sourceFiles.some(file => typeof file !== 'string') || new Set(sourceFiles).size !== sourceFiles.length ||
       expectedSourceFiles !== null && (!Array.isArray(expectedSourceFiles) || expectedSourceFiles.some(file => typeof file !== 'string') || JSON.stringify([...sourceFiles].sort()) !== JSON.stringify([...expectedSourceFiles].sort()))) return null;
-  if (siblingAway(built.crate_dirs)) {
+  const fingerprint = await readableFingerprint({ ...built, source_files: sourceFiles });
+  if (fingerprint === null) {
     const recorded = built.files;
     if (!recorded || typeof recorded !== 'object' || Array.isArray(recorded)) return null;
     let now;
     try { now = await compiledFileIdentities(); } catch { return null; }
     if (JSON.stringify(Object.entries(now).sort()) !== JSON.stringify(Object.entries(recorded).sort())) return null;
-  } else {
-    try { if (await crateSourceFingerprint(built.crate_dirs, sourceFiles, built.workspace_commits ?? {}) !== built.fingerprint) return null; }
-    catch { return null; }
-  }
+  } else if (fingerprint !== built.fingerprint) return null;
   if (!compiledModuleFiles().every(file => {
     try { return statSync(file).isFile(); } catch { return false; }
   })) return null;
@@ -366,10 +364,10 @@ export async function withCommittedModules(read) {
   });
   let result = await attempt();
   if (result.current) return result.value;
-  // Where a sibling crate workspace is not beside this Workshop nothing here can build the modules again: refused bytes stop.
+  // Where the crates' sources cannot be read here nothing here can build the modules again: refused bytes stop.
   const recorded = (() => { try { return JSON.parse(readFileSync(`${BUILT_CRATES_FOLDER}/fingerprint.json`, 'utf8')); } catch { return null; } })();
-  if (Array.isArray(recorded?.crate_dirs) && siblingAway(recorded.crate_dirs)) {
-    throw new Error(`The compiled modules in ${BUILT_CRATES_FOLDER} are not the bytes their fingerprint.json records, and their crates are not beside this Workshop to build them again. Build them where both repositories are (node ${BUILD_COMMAND}) and land the result.`);
+  if (Array.isArray(recorded?.crate_dirs) && await readableFingerprint(recorded) === null) {
+    throw new Error(`The compiled modules in ${BUILT_CRATES_FOLDER} are not the bytes their fingerprint.json records, and their crates' sources cannot be read here to build them again. Build them where both repositories are (node ${BUILD_COMMAND}) and land the result.`);
   }
   if (process.env.WORKERS_CI) {
     process.stderr.write(`\nBUILD STOPPED: a compiled module is missing or its crate sources changed, and ${BUILT_CRATES_FOLDER} was not rebuilt. Run node ${BUILD_COMMAND} and commit ${BUILT_CRATES_FOLDER}.\n`);
