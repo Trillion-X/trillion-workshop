@@ -44,6 +44,8 @@ async function sourceOf(rootName, root, files) {
         // The head a verdict is judged against: the commit the ref names now (a checkout is live), so a verdict says what it saw.
         head: async () => git(folder, 'rev-parse', '--short=12', `${source.ref ?? 'HEAD'}^{commit}`).then(out => out.trim(), () => null),
         readFile: async path => git(folder, 'show', `${source.ref ?? 'HEAD'}:${path}`).catch(() => null),
+        // A citation pinned to a commit (file:line@commit) reads the file as that commit holds it; null: not there at that commit.
+        readAt: async (commitId, path) => git(folder, 'show', `${commitId}:${path}`).catch(() => null),
         commitDate: async hash => git(folder, 'show', '-s', '--format=%cI', `${hash}^{commit}`).then(out => out.trim(), () => null),
       };
     }
@@ -88,23 +90,26 @@ async function judgedAgainst(source) {
 }
 
 async function fileLine(row, cite, item, check, { files }) {
-  const [, rootName, path, line] = new RegExp(row.pattern).exec(cite);
+  // A citation may name a line range (file:40-55) and a commit (@commit): then the file is read as that commit holds it.
+  const [, rootName, path, line, endLine, pinned] = new RegExp(row.pattern).exec(cite);
   const root = row.roots?.[rootName];
   if (!root) return { cite, ok: false, why: `no repository named ${rootName} in the resolver` };
   if (path.split('/').some(part => part === '..' || part === '.' || part === '') || path.includes('\\')) return { cite, ok: false, why: `${path} is not a path inside ${rootName}` };
   const source = await sourceOf(rootName, root, files);
   if (!source) return { cite, ok: null, why: `${rootName} is not on this computer and no copy of it is in the files this run may read` };
-  const text = await source.readFile(path);
+  if (pinned && !source.readAt) return { cite, ok: null, why: `${rootName} has no source that can read ${path} at commit ${pinned}` };
+  const text = pinned ? await source.readAt(pinned, path) : await source.readFile(path);
   if (text === undefined) return { cite, ok: null, why: `${path} could not be read from ${source.name}` };
-  if (text === null) return { cite, ok: false, why: `${path} is not in ${source.name}` };
+  if (text === null) return { cite, ok: false, why: `${path} is not in ${pinned ? `${rootName} at commit ${pinned}` : source.name}` };
   const lines = text.split('\n');
   if (lines.at(-1) === '') lines.pop();
   const at = Number(line);
-  if (at < 1 || at > lines.length) return { cite, ok: false, why: `${path} has ${lines.length} lines, not ${at}` };
+  const last = endLine === undefined ? at : Number(endLine);
+  if (at < 1 || last < at || last > lines.length) return { cite, ok: false, why: `${path} has ${lines.length} lines, not ${last}` };
   const quote = check.quote === undefined ? null : item?.[check.quote];
   if (check.quote !== undefined && !(typeof quote === 'string' && squash(quote))) return { cite, ok: false, why: `the quote in ${check.quote} is missing` };
-  const against = await judgedAgainst(source);
-  if (quote !== null && !squash(lines[at - 1]).includes(squash(quote))) return { cite, ok: false, why: `line ${at} of ${path} does not hold the quoted text`, against };
+  const against = pinned ? `${source.name.split(' at ')[0]} at commit ${pinned}` : await judgedAgainst(source);
+  if (quote !== null && !squash(lines.slice(at - 1, last).join(' ')).includes(squash(quote))) return { cite, ok: false, why: `line ${at}${last > at ? `-${last}` : ''} of ${path} does not hold the quoted text`, against };
   return { cite, ok: true, against };
 }
 
