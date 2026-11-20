@@ -14,15 +14,6 @@
             "fact": {
               "type": "object",
               "description": "The something-changed fact that woke this run: where, place (what changed, in the store's own name), change (added, changed or removed), at, key, and before and after as JSON text when they fit"
-            },
-            "own": {
-              "type": "object",
-              "description": "Where the person keeps their own workflow rows: credential_name, the vault name of the login to the database holding workflow_recipes. Each row there is chosen beside the installed workflows, the person's own row winning. Without it only the installed workflows are chosen from.",
-              "properties": {
-                "credential_name": {
-                  "type": "string"
-                }
-              }
             }
           }
         },
@@ -42,7 +33,7 @@
               "wall_ms": 3600000
             },
             "input": {
-              "start_at": "read-own"
+              "start_at": "choose"
             }
           }
         ],
@@ -53,37 +44,6 @@
           "is_active": true,
           "version": 1,
           "steps": [
-            {
-              "id": "read-own",
-              "kind": "ask",
-              "config": {
-                "name": "tool:run-sql-in-my-database",
-                "input": {
-                  "credential_name": {
-                    "$kind": "binding",
-                    "select": {
-                      "from": "input",
-                      "path": "own.credential_name"
-                    }
-                  },
-                  "sql": "SELECT recipe AS id, jsonb_build_object('recipe', recipe, 'title', title, 'fires_when', fires_when) AS value FROM workflow_recipes WHERE fires_when IS NOT NULL",
-                  "params": []
-                },
-                "context": {
-                  "step_id": "read-own"
-                }
-              }
-            },
-            {
-              "id": "no-own-rows",
-              "kind": "return",
-              "config": {
-                "value": {
-                  "rows": [],
-                  "said": "no workflow rows of the person were read (no own.credential_name on the switch, or the read failed): only the installed workflows are chosen from"
-                }
-              }
-            },
             {
               "id": "choose",
               "kind": "ask",
@@ -153,32 +113,7 @@
                   ],
                   "within": [
                     "workflow:route-each-row-change"
-                  ],
-                  "own": {
-                    "$kind": "binding",
-                    "select": {
-                      "from": "literal",
-                      "value": 0
-                    },
-                    "transform": [
-                      {
-                        "op": "op:core.coalesce",
-                        "args": {
-                          "values": [
-                            {
-                              "$kind": "binding",
-                              "select": {
-                                "from": "steps",
-                                "key": "read-own",
-                                "path": "output.rows"
-                              }
-                            },
-                            []
-                          ]
-                        }
-                      }
-                    ]
-                  }
+                  ]
                 }
               }
             },
@@ -201,21 +136,6 @@
             }
           ],
           "edges": [
-            {
-              "from": "read-own",
-              "to": "choose",
-              "kind": "always"
-            },
-            {
-              "from": "read-own",
-              "to": "no-own-rows",
-              "kind": "on_failure"
-            },
-            {
-              "from": "no-own-rows",
-              "to": "choose",
-              "kind": "always"
-            },
             {
               "from": "choose",
               "to": "start-each",
