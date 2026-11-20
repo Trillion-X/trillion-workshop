@@ -47,3 +47,27 @@ test('a list other than bookmarks or likes is refused and writes no file', async
     rmSync(out, { recursive: true, force: true });
   }
 });
+
+test('a second run keeps the first run\'s posts: fresh posts go first, kept ones are not dropped', async () => {
+  const out = mkdtempSync(join(tmpdir(), 'save-x-'));
+  try {
+    await saveXPosts({ which: 'bookmarks', account: 'service_connection:x' }, { out, way: page(['9', '5']) });
+    const second = await saveXPosts({ which: 'bookmarks', account: 'service_connection:x', since: '9' }, { out, way: page(['12', '11']) });
+    assert.equal(second.total, 4);
+    const kept = JSON.parse(readFileSync(join(out, second.file), 'utf8'));
+    assert.deepEqual(kept.posts.map(p => p.key), ['12', '11', '9', '5']);
+  } finally {
+    rmSync(out, { recursive: true, force: true });
+  }
+});
+
+test('a run with no file in its folder keeps the posts the caller passes in', async () => {
+  const out = mkdtempSync(join(tmpdir(), 'save-x-'));
+  try {
+    const answer = await saveXPosts({ which: 'likes', account: 'service_connection:x', kept: [post('5')] }, { out, way: page(['9']) });
+    assert.equal(answer.total, 2);
+    assert.deepEqual(JSON.parse(readFileSync(join(out, answer.file), 'utf8')).posts.map(p => p.key), ['9', '5']);
+  } finally {
+    rmSync(out, { recursive: true, force: true });
+  }
+});

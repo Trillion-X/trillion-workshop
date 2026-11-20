@@ -7,9 +7,10 @@
 // are new, the newest key (the since the next read takes) and the file's name.
 //
 // Usage: node do-work/save-x-posts.mjs --which bookmarks|likes --out <folder> < input.json
-//   input: { account, since?, already_kept? }; the token is on descriptor 3 (the reader's tokenFrom).
+//   input: { account, since?, already_kept?, kept? }; the token is on descriptor 3 (the reader's tokenFrom).
+//   The file already in <folder> is merged with the fresh posts (kept? is used when there is none): a run never drops an earlier run's posts.
 // Refusals exit 1 with X's own words or the reason, and write no file.
-import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readSaved } from './read-saved-x-posts.mjs';
@@ -19,9 +20,23 @@ export async function saveXPosts(request, { out, way } = {}) {
   if (request.which !== 'bookmarks' && request.which !== 'likes') throw new Error('which must be bookmarks or likes.');
   const read = await readSaved({ via: 'api', which: request.which, since: request.since ?? null, already_kept: request.already_kept ?? [], token_fd: 3 }, way);
   const file = `saved-x-${request.which}.json`;
+  const posts = mergePosts(keptPosts(join(out, file), request.kept), read.posts);
   mkdirSync(out, { recursive: true });
-  writeFileSync(join(out, file), `${JSON.stringify({ saved_from: 'X', which: request.which, generated: new Date().toISOString(), posts: read.posts }, null, 1)}\n`);
-  return { which: request.which, newest: read.newest, read: read.read, not_kept_yet: read.not_kept_yet, total: read.posts.length, file };
+  writeFileSync(join(out, file), `${JSON.stringify({ saved_from: 'X', which: request.which, generated: new Date().toISOString(), posts }, null, 1)}\n`);
+  return { which: request.which, newest: read.newest, read: read.read, not_kept_yet: read.not_kept_yet, total: posts.length, file };
+}
+
+/** The posts the file already holds: the file in this folder if there is one, else the posts the caller passes in. */
+function keptPosts(path, passed = []) {
+  if (!existsSync(path)) return passed;
+  const parsed = JSON.parse(readFileSync(path, 'utf8'));
+  return Array.isArray(parsed?.posts) ? parsed.posts : passed;
+}
+
+/** New posts first, then every kept one that is not among them, so an earlier run's posts are never dropped. */
+export function mergePosts(kept, fresh) {
+  const keys = new Set(fresh.map(post => post.key));
+  return [...fresh, ...kept.filter(post => !keys.has(post.key))];
 }
 
 function argument(name) {
