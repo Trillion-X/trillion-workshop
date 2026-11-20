@@ -10,13 +10,19 @@
 // Anatomy (inspiration, original code): Workshop ui/show/status-overview (sections and counts, from 21st.dev 28770
 // and Linear/Asana grouped lists on Mobbin), 21st.dev 29442 "Onboarding Checklist" (ring with k of n, rows that open in
 // place), and the visual-hierarchy pairs: summary not a list, one hue, every state drawn.
-import React, { useMemo, useState } from 'react';
+// A row named in the address (#task=<row id>, the link anyone gives when they ask the reader to look at one row) is opened
+// in place: every goal above it, the "Show done" it may sit behind, and the row itself; then it is scrolled to and marked.
+// It is opened once per name, so the page's own refresh never takes the reader back to it.
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ago, factsOf, goalComplete, muted, plain, showsOf, tally, when, type Data, type Standing, type Status, type Task, type Tree } from '../read-data/task-rows';
 import { Chevron, Detail, Mark, Ring } from './task-marks';
 import { OpenedShows } from './task-shows';
 
 const INDENT = 22;
 const ROW = 'tl-row min-h-9 py-1.5';
+const NAMED = /^#task=(.+)$/;
+const namedInAddress = () => { const m = NAMED.exec(location.hash); return m ? decodeURIComponent(m[1]) : null; };
+const namedTone = 'color-mix(in srgb, var(--color-foreground) 6%, transparent)';
 
 export function NowView({ data, tree, now, seenBefore }: { data: Data; tree: Tree; now: Standing; seenBefore: string | null }) {
   const looks = useMemo(() => new Map(data.statuses.map(s => [s.name, s])), [data]);
@@ -37,6 +43,27 @@ export function NowView({ data, tree, now, seenBefore }: { data: Data; tree: Tre
     walk(null);
     return out;
   }, [tree]);
+  const [named, setNamed] = useState(namedInAddress);
+  const openedFor = useRef<string | null>(null);
+  useEffect(() => { const on = () => setNamed(namedInAddress()); addEventListener('hashchange', on); return () => removeEventListener('hashchange', on); }, []);
+  useEffect(() => {
+    if (!named || openedFor.current === named) return;
+    const byId = new Map(all.map(task => [task.id, task]));
+    const parentOf = new Map<string, string | null>();
+    for (const [parent, kids] of tree.kids) for (const kid of kids) parentOf.set(kid.id, parent);
+    if (!byId.has(named)) return;
+    openedFor.current = named;
+    const keys: string[] = [named];
+    for (let id = named; ;) {
+      const parent = parentOf.get(id) ?? null;
+      if (isDoneRow(byId.get(id)!)) keys.push(`done-${parent ?? 'top'}`);
+      if (parent === null) break;
+      keys.push(parent);
+      id = parent;
+    }
+    setOpen(set => new Set([...set, ...keys]));
+    requestAnimationFrame(() => document.getElementById(`row-${named}`)?.scrollIntoView({ block: 'center' }));
+  }, [named, all, tree]);
   const count = tally(tree.allItems, lookOf);
   const held = all.filter(heldUp);
   const openByStatus = [...data.statuses].sort((a, b) => a.place - b.place).filter(s => !s.closed)
@@ -57,7 +84,7 @@ export function NowView({ data, tree, now, seenBefore }: { data: Data; tree: Tre
     const look = lookOf(task.id), isOpen = open.has(task.id);
     const word = look && !look.counts_as_done && look.tone ? look : undefined;
     return (
-      <li key={task.id} style={{ paddingLeft: depth * INDENT }}>
+      <li key={task.id} id={`row-${task.id}`} className="rounded-lg" style={{ paddingLeft: depth * INDENT, background: named === task.id ? namedTone : undefined }}>
         <button type="button" className={ROW} aria-expanded={isOpen} aria-controls={`now-${task.id}`} onClick={() => flip(task.id)}>
           <span className="flex w-[14px] flex-none" />
           <Mark look={look} />
@@ -102,7 +129,7 @@ export function NowView({ data, tree, now, seenBefore }: { data: Data; tree: Tre
     const leaves = tree.items.get(task.id) ?? [], steps = tally(leaves, lookOf), own = lookOf(task.id), isOpen = open.has(task.id);
     const attention = heldUnder(task);
     return (
-      <li key={task.id} style={{ paddingLeft: depth * INDENT }}>
+      <li key={task.id} id={`row-${task.id}`} className="rounded-lg" style={{ paddingLeft: depth * INDENT, background: named === task.id ? namedTone : undefined }}>
         <button type="button" className={ROW} aria-expanded={isOpen} aria-controls={`now-${task.id}`} onClick={() => flip(task.id)}>
           <span className="flex w-[14px] flex-none justify-center"><Chevron open={isOpen} /></span>
           <Ring done={steps.done} total={steps.total} complete={goalComplete(own, steps)} />
