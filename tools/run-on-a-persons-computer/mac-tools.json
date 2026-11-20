@@ -31,6 +31,7 @@
   60000
  ],
  "tools": {
+  "tool:manage-claude-cloud-sessions": {"workshop":"tools/keep-and-wake-ai-sessions-on-this-computer/harness/claude-cloud-control.mjs","function":"manageClaudeCloudSessions"},
   "tool:trillion-media-drives": {
    "workshop": "tools/work-on-connected-drives/read-data/drives.mjs",
    "function": "listDrives"

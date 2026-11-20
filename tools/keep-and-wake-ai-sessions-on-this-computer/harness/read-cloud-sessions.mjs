@@ -42,8 +42,8 @@
 //
 import { execFileSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
-import { homedir } from 'node:os';
+import { existsSync, mkdirSync, readFileSync, realpathSync, readdirSync, writeFileSync } from 'node:fs';
+import { homedir, platform } from 'node:os';
 import { join } from 'node:path';
 import { text as readAll } from 'node:stream/consumers';
 import { fileURLToPath } from 'node:url';
@@ -54,12 +54,33 @@ import { makeHashCodeHexFromBytes, makeHashCodeHexFromJson } from '../../content
 const API = 'https://api.anthropic.com';
 const PR_URL = /https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/pull\/\d+/g;
 
-function signIn(folderName) {
-  const folder = join(homedir(), folderName);
-  const org = JSON.parse(readFileSync(join(folder, '.claude.json'), 'utf8')).oauthAccount.organizationUuid;
-  const item = `Claude Code-credentials-${createHash('sha256').update(folder).digest('hex').slice(0, 8)}`;
-  const oauth = JSON.parse(execFileSync('security', ['find-generic-password', '-s', item, '-w'], { encoding: 'utf8' })).claudeAiOauth;
-  if (oauth.expiresAt < Date.now()) throw new Error(`${folderName}: sign-in expired at ${new Date(oauth.expiresAt).toString()}`);
+/** Read only the existing Claude Code sign-in. macOS uses Keychain; Linux uses the CLI's private credentials file.
+ * Never echo, persist, refresh, or forward the access token except as the provider Authorization header.
+ */
+export function signIn(folderName, { home = homedir(), system = platform(), read = readFileSync, keychain = execFileSync, now = Date.now() } = {}) {
+  if (typeof folderName !== 'string' || !/^[A-Za-z0-9._-]+$/.test(folderName) || ['.', '..'].includes(folderName)) {
+    throw new Error('Name one Claude config folder directly beneath the home folder.');
+  }
+  const folder = join(home, folderName);
+  const accountFile = folderName === '.claude' && !existsSync(join(folder, '.claude.json'))
+    ? join(home, '.claude.json') : join(folder, '.claude.json');
+  const account = JSON.parse(read(accountFile, 'utf8'));
+  const org = account.oauthAccount?.organizationUuid;
+  if (typeof org !== 'string' || !org) throw new Error(`${folderName}: no Claude organization in its existing sign-in`);
+  let raw;
+  if (system === 'darwin') {
+    const item = `Claude Code-credentials-${createHash('sha256').update(folder).digest('hex').slice(0, 8)}`;
+    raw = keychain('security', ['find-generic-password', '-s', item, '-w'], { encoding: 'utf8' });
+  } else if (system === 'linux') {
+    raw = read(join(folder, '.credentials.json'), 'utf8');
+  } else {
+    throw new Error(`${folderName}: this sign-in reader supports macOS and Linux only`);
+  }
+  const oauth = JSON.parse(raw).claudeAiOauth;
+  if (typeof oauth?.accessToken !== 'string' || !oauth.accessToken || !Number.isFinite(oauth.expiresAt)) {
+    throw new Error(`${folderName}: no valid Claude subscription sign-in found`);
+  }
+  if (oauth.expiresAt <= now) throw new Error(`${folderName}: sign-in expired at ${new Date(oauth.expiresAt).toString()}; refresh it with Claude Code`);
   return { org, token: oauth.accessToken };
 }
 
@@ -229,7 +250,19 @@ export function whatItSaid(events) {
   };
 }
 
-export async function dispatchCloudSessions([command, folderName, ...rest], { authenticate = signIn, request = fetch, print = console.log } = {}) {
+export async function dispatchCloudSessions([command, folderName, ...rest], { authenticate = signIn, request = fetch, print = console.log, resolveBrief = briefFrom } = {}) {
+  if (command === 'accounts') {
+    if (folderName !== undefined || rest.length) throw new Error('usage: accounts');
+    const home = homedir();
+    const folders = readdirSync(home, { withFileTypes: true })
+      .filter(item => item.isDirectory() && /^\\.claude(?:[-_][A-Za-z0-9_-]+)?$/.test(item.name)
+        && (existsSync(join(home, item.name, '.claude.json'))
+          || (item.name === '.claude' && existsSync(join(home, '.claude.json')))))
+      .map(item => item.name).sort();
+    const answer = { folders, count: folders.length };
+    print(JSON.stringify(answer));
+    return answer;
+  }
   if (command === 'read-first') {
     if (rest.length < 1 || rest.length > 4) throw new Error('usage: read-first <config-folder> <session-id> [offset] [length] [snapshot]');
     const [session, offset = '0', length = String(FIRST_TEXT_BYTES), snapshot] = rest;
@@ -238,9 +271,26 @@ export async function dispatchCloudSessions([command, folderName, ...rest], { au
     print(JSON.stringify(answer));
     return answer;
   }
-  const account = signIn(folderName);
+  const account = await authenticate(folderName);
+  if (command === 'list-json') {
+    if (rest.length > 1 || !/^[0-9]+$/.test(rest[0] ?? '100')) throw new Error('usage: list-json <config-folder> [limit 1..200]');
+    const limit = Number(rest[0] ?? 100);
+    if (!Number.isSafeInteger(limit) || limit < 1 || limit > 200) throw new Error('list-json limit must be 1..200');
+    const rows = (await everyPage(account, '/v1/sessions', Math.min(100, limit), { request, until: sessions => sessions.length >= limit })).slice(0, limit).map(sessionRow);
+    const answer = { config_folder: folderName, sessions: rows, count: rows.length, limited: rows.length === limit };
+    print(JSON.stringify(answer));
+    return answer;
+  }
+  if (command === 'read-one') {
+    if (rest.length !== 1 || !/^[A-Za-z0-9_-]{1,200}$/.test(rest[0])) throw new Error('usage: read-one <config-folder> <session-id>');
+    const session = await get(account, `/v1/sessions/${rest[0]}`, undefined, { request, includeErrorBody: false });
+    const said = whatItSaid(await everyPage(account, `/v1/sessions/${rest[0]}/events`, 1000, { request, includeErrorBody: false }));
+    const answer = { config_folder: folderName, ...sessionRow(session), ...said };
+    print(JSON.stringify(answer));
+    return answer;
+  }
   if (command === 'list') {
-    const rows = (await everyPage(account, '/v1/sessions', 100)).map(sessionRow);
+    const rows = (await everyPage(account, '/v1/sessions', 100, { request })).map(sessionRow);
     writeFileSync(rest[0], JSON.stringify(rows));
     console.log(`${folderName}: ${rows.length} sessions`);
     return;
@@ -256,7 +306,7 @@ export async function dispatchCloudSessions([command, folderName, ...rest], { au
     const worker = async () => {
       for (let session = queue.shift(); session; session = queue.shift()) {
         try {
-          const said = whatItSaid(await everyPage(account, `/v1/sessions/${session.id}/events`, 1000));
+          const said = whatItSaid(await everyPage(account, `/v1/sessions/${session.id}/events`, 1000, { request }));
           writeFileSync(join(outFolder, `${session.id}.json`), JSON.stringify({ config_folder: folderName, ...session, ...said }));
           read++;
         } catch (error) {
@@ -273,23 +323,23 @@ export async function dispatchCloudSessions([command, folderName, ...rest], { au
   if (command === 'send') {
     const [id, from] = rest;
     if (!id) throw new Error('usage: send <config-folder> <session-id> [<record id> | - | <file>]');
-    const text = await briefFrom(from);
+    const text = await resolveBrief(from);
     // One uuid per call, kept across retries, so a retried post is the same message.
     const message = { uuid: randomUUID(), session_id: id, type: 'user', parent_tool_use_id: null, message: { role: 'user', content: text } };
-    await get(account, `/v1/sessions/${id}/events`, { events: [message] });
+    await get(account, `/v1/sessions/${id}/events`, { events: [message] }, { request });
     for (let waited = 0; waited < 90000; waited += 5000) {
       await new Promise(resolve => setTimeout(resolve, 5000));
-      const events = await everyPage(account, `/v1/sessions/${id}/events`, 1000);
+      const events = await everyPage(account, `/v1/sessions/${id}/events`, 1000, { request });
       const sent = events.findIndex(event => event.uuid === message.uuid);
       if (sent < 0) continue;
       const answer = events.slice(sent + 1).find(event => event.type === 'assistant' && textOf(event.message?.content));
       if (answer) {
-        const session = await get(account, `/v1/sessions/${id}`);
-        console.log(JSON.stringify({ session: id, sent: message.uuid, status: session.session_status, answered_at: answer.created_at, answer: textOf(answer.message.content).slice(0, 2000) }));
+        const session = await get(account, `/v1/sessions/${id}`, undefined, { request });
+        print(JSON.stringify({ session: id, sent: message.uuid, status: session.session_status, answered_at: answer.created_at, answer: textOf(answer.message.content).slice(0, 2000) }));
         return;
       }
     }
-    console.log(JSON.stringify({ session: id, sent: message.uuid, answer: null, note: 'no answer within 90 seconds' }));
+    print(JSON.stringify({ session: id, sent: message.uuid, answer: null, note: 'no answer within 90 seconds' }));
     return;
   }
   if (command === 'start') {
@@ -297,9 +347,9 @@ export async function dispatchCloudSessions([command, folderName, ...rest], { au
     const [repositories, title, from] = rest;
     const names = (repositories ?? '').split(',').filter(Boolean);
     if (!names.length || !title) throw new Error('usage: start <config-folder> <owner/repo[,owner/repo...]> <title> [<record id> | - | <file>]');
-    const text = await briefFrom(from);
+    const text = await resolveBrief(from);
     // A new session runs where this sign-in's latest cloud session ran.
-    const latest = (await get(account, '/v1/sessions?limit=20')).data.find(session => session.environment_kind === 'anthropic_cloud');
+    const latest = (await get(account, '/v1/sessions?limit=20', undefined, { request })).data.find(session => session.environment_kind === 'anthropic_cloud');
     if (!latest) throw new Error(`${folderName}: no earlier cloud session names an environment to start in`);
     const session = await get(account, '/v1/sessions', {
       title,
@@ -310,11 +360,11 @@ export async function dispatchCloudSessions([command, folderName, ...rest], { au
         outcomes: [{ type: 'git_repository', git_info: { type: 'github', repo: names[0], branches: [] } }],
         model: latest.session_context?.model ?? undefined,
       },
-    });
-    console.log(JSON.stringify({ session: session.id, status: session.session_status, repositories: names, url: session.session_url ?? null }));
+    }, { request });
+    print(JSON.stringify({ session: session.id, status: session.session_status, repositories: names, url: session.session_url ?? null }));
     return;
   }
-  throw new Error('usage: read-cloud-sessions.mjs list|read|read-first|send|start <config-folder> ...');
+  throw new Error('usage: read-cloud-sessions.mjs accounts|list-json|read-one|list|read|read-first|send|start <config-folder> ...');
 }
 
 // A record id of the person's Trillion: a type and a name, `record:brief:release-plan`, never a path.
