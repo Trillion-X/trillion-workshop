@@ -199,3 +199,81 @@ export function listMySpacesAndEvents(input) {
   }
   return { subject, spaces, events: events.sort((a, b) => (a.starts_at > b.starts_at ? 1 : -1)) };
 }
+
+// Handing a space over, and the one-time static items moved into a space. The old hand_over_community made a random code (24 bytes)
+// that is kept only as its hash and expires in 14 days; take_over used it once, deleted it, and refused it after that
+// (community.mjs:451-475 at the old commit). Here the code's hash is a record:space-handover row the caller stores, and the
+// single use is that row's used_at, which the caller stores too: a second use reads the row as used and is refused.
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+
+const HANDOVER_DAYS = 14;
+const USED_OR_EXPIRED = 'This hand-over link is used or has expired. Ask for a new one.';
+const codeHashOf = code => makeHashCodeHexFromBytes(new TextEncoder().encode(String(code)));
+
+/** tool:hand-over-a-space: the person who runs a space makes a one-time code, good for 14 days. The code is shown once; only its hash
+ * is kept, as a record:space-handover row for the caller to store. */
+export function handOverASpace(input) {
+  const records = recordsIn(input);
+  const subject = subjectOf(input);
+  const { id, value: space } = readSpace(records, input?.space);
+  if (space.owner !== subject) refuse('Only the person who runs this space can hand it over.');
+  refuseUnlessMember(records, id, space, subject);
+  const code = [...globalThis.crypto.getRandomValues(new Uint8Array(24))].map(byte => byte.toString(16).padStart(2, '0')).join('');
+  const hash = codeHashOf(code);
+  const expires_at = new Date(Date.now() + HANDOVER_DAYS * 86400000).toISOString();
+  const handoverId = rowId('handover', id, hash);
+  const keep = keepRow('handover', handoverId, { space: id, code_hash: hash, expires_at, from: subject, used_at: null }, null);
+  return { space: id, subject, code, expires_at, keep: [keep] };
+}
+
+/** tool:take-over-a-space: whoever opens a live code signed in becomes the space's owner, and the owner before stays a member. The
+ * code is used once: the answer marks its row used, and any later use is refused in the same words as a lapsed code. */
+export function takeOverASpace(input) {
+  const records = recordsIn(input);
+  const subject = subjectOf(input);
+  const { id, value: space } = readSpace(records, input?.space);
+  const code = words(input?.code);
+  if (!code) refuse(USED_OR_EXPIRED);
+  const handed = recordOf(records, KINDS.handover, rowId('handover', id, codeHashOf(code)));
+  if (!handed || handed.value.used_at || handed.value.expires_at < new Date(Date.now()).toISOString()) refuse(USED_OR_EXPIRED);
+  if (space.owner === subject) refuse('This person already runs this space.');
+  const now = new Date(Date.now()).toISOString();
+  const previous = readMember(records, id, space.owner);
+  const incoming = readMember(records, id, subject);
+  const spaceHanded = recordOf(records, KINDS.space, rowId('space', id));
+  const keeps = [
+    keepRow('handover', handed.id, { ...handed.value, used_at: now }, handed),
+    keepRow('space', rowId('space', id), { ...space, owner: subject }, spaceHanded),
+    previous && keepRow('member', previous.id, { ...previous.value, member_type: 'member' }, previous),
+    keepRow('member', rowId('member', id, subject), { ...(incoming?.value ?? {}), space: id, subject, member_type: 'owner', state: 'member', how: 'owner', joined_at: incoming?.value?.joined_at ?? now }, incoming),
+  ].filter(Boolean);
+  return answered({ space: id, subject, owner: true, previous_owner: space.owner }, ...keeps);
+}
+
+// The static items a space held before it was read live (the old migrate-static-projection-items): each protected item of a static
+// projection becomes a record:space-item row of the space, keyed by where it came from, so asking again keeps nothing. Only the
+// space's owner may move them, and only items whose target is the space itself.
+export function moveStaticItemsIntoASpace(input) {
+  const records = recordsIn(input);
+  const subject = subjectOf(input);
+  const { id, value: space } = readSpace(records, input?.space);
+  if (space.owner !== subject) refuse('Only the person who runs this space can move its static items in.');
+  const projection = input?.projection;
+  if (!projection || typeof projection !== 'object' || Array.isArray(projection)) refuse('projection must be the static projection the caller read.');
+  const items = Array.isArray(projection.items) ? projection.items : null;
+  if (!items || items.length === 0) refuse('projection holds no items to move.');
+  const source = words(input?.source) ?? refuse('source must name where the projection came from.');
+  const moved = [];
+  const keeps = [];
+  for (const item of items) {
+    const itemRef = words(item?.item_ref);
+    const createdAt = words(item?.created_at);
+    if (!itemRef || !createdAt || !item.fields || typeof item.fields !== 'object' || Array.isArray(item.fields)) refuse('each item needs its item_ref, created_at and fields.');
+    const key = `static-projection:${source}:${encodeURIComponent(itemRef)}`;
+    const itemId = rowId('item', id, key);
+    moved.push(itemId);
+    if (recordOf(records, KINDS.item, itemId)) continue;
+    keeps.push(keepRow('item', itemId, { space: id, author: subject, fields: item.fields, idempotency_ref: key, revision: 1, posted_at: createdAt, from_static: source }, null));
+  }
+  return answered({ space: id, subject, moved: moved.length, item_ids: moved }, ...keeps);
+}

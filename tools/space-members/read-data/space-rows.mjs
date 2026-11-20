@@ -22,6 +22,7 @@ export const KINDS = {
   rsvp: 'record:space-rsvp',
   fact: 'record:space-fact',
   claim: 'record:space-reward-claim',
+  handover: 'record:space-handover',
 };
 
 const part = value => encodeURIComponent(String(value));

@@ -1,0 +1,75 @@
+{
+  "drafted_from": "tool:move-static-items-into-a-space's own row (its words, input schema, sample run and steps) and what its sample run answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Move the static items this space held into its own posts, once\", with {\"space\":\"sample-club\",\"subject\":\"owner@example.com\",\"source\":\"sample-static-projection\",\"projection\":{\"items\":[{\"item_ref\":\"sample-page-1\",\"created_at\":\"2026-02-01T00:00:00.000Z\",\"fields\":{\"text\":\"Welcome\"}}]},\"records\":[{\"id\":\"record:space:sample-club\",\"type\":\"record:space\",\"value\":{\"title\":\"Sample club\",\"owner\":\"owner@example.com\",\"label\":\"group\",\"config\":{\"join\":[]}}},{\"id\":\"record:space-member:sample-club:owner%40example.com\",\"type\":\"record:space-member\",\"value\":{\"space\":\"sample-club\",\"subject\":\"owner@example.com\",\"member_type\":\"owner\",\"state\":\"member\",\"how\":\"owner\",\"joined_at\":\"2026-01-01T00:00:00.000Z\"}}]}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row except the ones it hands back under keep, which the caller stores.",
+  "workflows": [],
+  "tools": [
+    "tool:move-static-items-into-a-space"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Move the static items this space held into its own posts, once\", and give it space (the space's id); subject (this person); records (the space row and the member rows the caller read from its store) and the input the ask needs.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, the tool id and its input (the worked example shows one).",
+    "3. Read the answer: the rows under keep are stored by the caller. A code is shown once: give it to the person and keep only its hash."
+  ],
+  "worked_examples": [
+    {
+      "title": "Move the static items this space held into its own posts, once",
+      "ask": "Move the static items this space held into its own posts, once",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:move-static-items-into-a-space",
+            "input": {
+              "space": "sample-club",
+              "subject": "owner@example.com",
+              "source": "sample-static-projection",
+              "projection": {
+                "items": [
+                  {
+                    "item_ref": "sample-page-1",
+                    "created_at": "2026-02-01T00:00:00.000Z",
+                    "fields": {
+                      "text": "Welcome"
+                    }
+                  }
+                ]
+              },
+              "records": [
+                {
+                  "id": "record:space:sample-club",
+                  "type": "record:space",
+                  "value": {
+                    "title": "Sample club",
+                    "owner": "owner@example.com",
+                    "label": "group",
+                    "config": {
+                      "join": []
+                    }
+                  }
+                },
+                {
+                  "id": "record:space-member:sample-club:owner%40example.com",
+                  "type": "record:space-member",
+                  "value": {
+                    "space": "sample-club",
+                    "subject": "owner@example.com",
+                    "member_type": "owner",
+                    "state": "member",
+                    "how": "owner",
+                    "joined_at": "2026-01-01T00:00:00.000Z"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The input {\"space\":\"sample-club\",\"subject\":\"owner@example.com\",\"source\":\"sample-static-projection\",\"projection\":{\"items\":[{\"item_ref\":\"sample-page-1\",\"created_at\":\"2026-02-01T00:00:00.000Z\",\"fields\":{\"text\":\"Welcome\"}}]},\"records\":[{\"id\":\"record:space:sample-club\",\"type\":\"record:space\",\"value\":{\"title\":\"Sample club\",\"owner\":\"owner@example.com\",\"label\":\"group\",\"config\":{\"join\":[]}}},{\"id\":\"record:space-member:sample-club:owner%40example.com\",\"type\":\"record:space-member\",\"value\":{\"space\":\"sample-club\",\"subject\":\"owner@example.com\",\"member_type\":\"owner\",\"state\":\"member\",\"how\":\"owner\",\"joined_at\":\"2026-01-01T00:00:00.000Z\"}}]}.",
+      "hands_back": "It answered {\"space\":\"sample-club\",\"subject\":\"owner@example.com\",\"moved\":1,\"item_ids\":[\"record:space-item:sample-club:static-projection%3Asample-static-projection%3Asample-page-1\"],\"keep\":\"1 row(s) to store\"}."
+    }
+  ]
+}
