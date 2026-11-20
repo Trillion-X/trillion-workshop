@@ -1,4 +1,4 @@
-// read-data/verify-every-port-publish-the-operators-shared-records-such-as-regional-records.mjs
+// read-data/regional-records.mjs
 //
 // The publish decisions for the operator's shared records, ported from the old src/service-records.mjs (commit
 // b6ae0ebf815f of the earlier repository). Only the rules are here: no storage, no network, no clock, no hashing. The old module published
@@ -20,7 +20,7 @@
 //   planServiceRefreshWant(input, before, settings) → { first, next }
 //
 // A record's identity is the owner's content identity, computed by the caller. This module never computes one.
-import serviceRecordSettings from './verify-every-port-publish-the-operators-shared-records-such-as-regional-records.json' with { type: 'json' };
+import serviceRecordSettings from './regional-records.json' with { type: 'json' };
 
 export const isServiceRecordLabel = (label, settings = serviceRecordSettings) => typeof label === 'string' && label.length > 0
   && (settings.labels.includes(label) || settings.prefixes.some(prefix => label.startsWith(prefix)));

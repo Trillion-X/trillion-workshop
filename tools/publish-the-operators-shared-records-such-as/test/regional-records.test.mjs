@@ -1,11 +1,11 @@
-// test/verify-every-port-publish-the-operators-shared-records-such-as-regional-records.test.mjs
+// test/regional-records.test.mjs
 //
 // The publish decisions of the operator's shared records, with no storage and no network: which names are published,
 // which records a batch sends, what the operator's store still publishes, when a kept read stands, and which refresh
 // want wins its window.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import settings from '../read-data/verify-every-port-publish-the-operators-shared-records-such-as-regional-records.json' with { type: 'json' };
+import settings from '../read-data/regional-records.json' with { type: 'json' };
 import {
   assertServiceRecordLabel,
   isKeptServiceRead,
@@ -13,7 +13,7 @@ import {
   operatorStorePublished,
   planServiceRecordPublication,
   planServiceRefreshWant,
-} from '../read-data/verify-every-port-publish-the-operators-shared-records-such-as-regional-records.mjs';
+} from '../read-data/regional-records.mjs';
 
 test('only a named label or one under a named prefix is a service record', () => {
   assert.equal(isServiceRecordLabel('show-rules'), true);
