@@ -303,12 +303,13 @@ export async function toolCall(client, tool, input, { idempotent = false, rules 
 }
 
 /** The route a call of one Workshop tool is sent with: the `need` of the tool's run template (tools:list with `tool`, the
- *  row's invoke block as the engine gives it), passed through untouched. A need that names no door is no route (the same
- *  as none), so such a call is sent exactly as it was before routes existed. */
+ *  row's invoke block as the engine gives it), passed through untouched. A need that names no door and no computer
+ *  capability is no route (the same as none), so such a call is sent exactly as it was before routes existed. */
 export async function routeOf(client, tool, { rules = settings } = {}) {
   const row = await client.op(null, rules.engine.tools_list, { tool }, { idempotent: true });
   const need = row?.run?.need;
-  return Array.isArray(need?.local_doors) && need.local_doors.length > 0 ? { need } : {};
+  const names = list => Array.isArray(list) && list.length > 0;
+  return names(need?.local_doors) || names(need?.capabilities) ? { need } : {};
 }
 
 /** The call one task command makes: { call, input, read, wait? }. `call` names its tool in command.json `tasks.tools`
@@ -765,12 +766,25 @@ export function heldDoors(entries) {
  *  and its label. It sends only what the engine accepts (trillion-rust src/tool_runs/reach.rs `Have::parse`): a door name of
  *  1 to 64 lowercase letters, digits and '-', a port from 1 to 65535, and a label of 1 to 128 characters with no control
  *  character. */
-export function haveOf(report = {}) {
+export function haveOf(report = {}, offers) {
   const doors = heldDoors(Object.entries(report?.local_ports ?? {}))
     .filter(({ name, port }) => /^[a-z0-9-]{1,64}$/.test(name) && Number.isInteger(port) && port >= 1 && port <= 65535);
   const label = report?.label;
   const named = typeof label === 'string' && [...label].length >= 1 && [...label].length <= 128 && !/\p{Cc}/u.test(label);
-  return named ? { doors, label } : { doors };
+  const have = named ? { doors, label } : { doors };
+  // What the engine offers tool runs (its /readyz `offers`, capability ids): a meeting point sends a row's call only to a
+  // computer that offers what the row declares (trillion-rust reach.rs `Have::offers`). Not known: not said.
+  if (Array.isArray(offers) && offers.length <= 64 && offers.every(id => typeof id === 'string' && /^[a-z0-9-]{1,64}$/.test(id))) have.offers = [...new Set(offers)].sort();
+  return have;
+}
+
+/** The capability ids the engine listening at `listen` offers (its /readyz `offers`), or undefined when it does not say. */
+export async function offersHere(listen, { fetchImpl = fetch, timeoutMs = 3000 } = {}) {
+  try {
+    const answer = await fetchImpl(`http://${listen}/readyz`, { signal: AbortSignal.timeout(timeoutMs) });
+    const said = await answer.json();
+    return Array.isArray(said?.offers) ? said.offers : undefined;
+  } catch { return undefined; }
 }
 
 /** Carries this computer to the meeting point of the site this command came from (command.json `carry`) when it runs its own
@@ -795,7 +809,7 @@ export async function carryThisComputer(context, { rules = settings, home = home
   return carrier.installCarrier({
     label: rules.carry.label, way, relay_host: { id: 'site', hostname: new URL(site).hostname },
     computer_id: Buffer.from(blake3(new TextEncoder().encode(key.public))).toString('hex').slice(0, 16), local_port: Number(listen.split(':').at(-1)),
-    values: { public_key: key.public, have: JSON.stringify(haveOf(engine.report)) }, credential_command: [...self, 'carrier-key'],
+    values: { public_key: key.public, have: JSON.stringify(haveOf(engine.report, await offersHere(listen))) }, credential_command: [...self, 'carrier-key'],
     announce: { argv: [...self, 'op', '--origin', site, '--address', announce.address, announce.method, announce.input], every_seconds: announce.every_seconds, settle_seconds: announce.settle_seconds, gives: announce.gives },
   }, state);
 }

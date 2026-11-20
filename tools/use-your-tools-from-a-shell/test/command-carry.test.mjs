@@ -6,7 +6,7 @@ import { mkdirSync, mkdtempSync, readFileSync, statSync, writeFileSync } from 'n
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { carrierKeyStore, carryThisComputer, haveOf, heldDoors, speakFor } from '../do-work/command.mjs';
+import { carrierKeyStore, carryThisComputer, haveOf, heldDoors, offersHere, routeOf, speakFor } from '../do-work/command.mjs';
 import settings from '../do-work/command.json' with { type: 'json' };
 
 speakFor({ cli: 'example', site_name: 'Example' });
@@ -97,4 +97,23 @@ test('a computer that reports no doors still sends a have with doors, and a name
 test('a name reported with two different ports is not sent as held; the same name and port twice is held once', () => {
   assert.deepEqual(heldDoors([['gpu', 9001], ['gpu', 9002], ['browser', 9003], ['browser', 9003]]), [{ name: 'browser', port: 9003 }]);
   assert.deepEqual(haveOf({ local_ports: { gpu: 9001 } }), { doors: [{ name: 'gpu', port: 9001 }] });
+});
+
+test('a have says what the engine offers when it says, and never an id the meeting point would refuse', async () => {
+  assert.deepEqual(haveOf({ local_ports: {} }, ['use-git-in-a-folder', 'read-a-folder', 'read-a-folder']), { doors: [], offers: ['read-a-folder', 'use-git-in-a-folder'] });
+  assert.deepEqual(haveOf({ local_ports: {} }, []), { doors: [], offers: [] }, 'offers nothing is said');
+  assert.deepEqual(haveOf({ local_ports: {} }, undefined), { doors: [] }, 'not known is not said');
+  assert.deepEqual(haveOf({ local_ports: {} }, ['Not An Id']), { doors: [] });
+  const answering = offers => async () => ({ json: async () => ({ persons: 1, offers }) });
+  assert.deepEqual(await offersHere('127.0.0.1:1', { fetchImpl: answering(['use-git-in-a-folder']) }), ['use-git-in-a-folder']);
+  assert.equal(await offersHere('127.0.0.1:1', { fetchImpl: answering(undefined) }), undefined, 'an older engine says nothing');
+  assert.equal(await offersHere('127.0.0.1:1', { fetchImpl: async () => { throw new Error('refused'); } }), undefined);
+});
+
+test('a call goes with its route when its row names a door or a computer capability, and with none otherwise', async () => {
+  const client = need => ({ op: async () => ({ run: { need } }) });
+  assert.deepEqual(await routeOf(client({ local_doors: [], capabilities: ['use-git-in-a-folder'] }), 'tool:x'), { need: { local_doors: [], capabilities: ['use-git-in-a-folder'] } });
+  assert.deepEqual(await routeOf(client({ local_doors: [{ name: 'gpu', required: true }] }), 'tool:x'), { need: { local_doors: [{ name: 'gpu', required: true }] } });
+  assert.deepEqual(await routeOf(client({ local_doors: [] }), 'tool:x'), {});
+  assert.deepEqual(await routeOf(client(undefined), 'tool:x'), {});
 });
