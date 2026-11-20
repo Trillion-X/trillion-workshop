@@ -1,0 +1,173 @@
+{
+  "_what": "A check that the wake alarm's second road works on a real failure, switched on only while it is checked. Its wake a-wake-that-fails runs every minute and fails for a real cause (the person's database answers that the table it reads does not exist), so the engine keeps one real wake-failed fact. Its wake an-alarm-that-fails is a copy of workflow:tell-when-a-wake-stops's a-wake-stopped that hears only that fact (match), fails the same real way, is tried again by its retry, and then starts its on_failure: one needs-you notice kept in the person's store. The real alarm also hears the fact and tells it as it tells any wake that stops. Switch both wakes off when the check is read back.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:check-the-wake-alarm",
+        "label": "Check that a failing wake alarm still tells me",
+        "job": "Prove, on a real failure, that a wake whose runs keep failing is tried again and then tells the person by a second road: one wake fails every minute for a real cause, and a copy of the wake alarm hears that, fails the same way, is tried again, and keeps a needs-you notice.",
+        "produces": "One real wake-failed fact for the wake a-wake-that-fails; the alarm copy's runs (attempt 1, then 2 and 3 after its retry waits) each failing on the same database answer; and one notice kept in the person's store, kind needs-you, titled 'The check of the wake alarm failed three times'.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "fact": {
+              "type": "object",
+              "description": "The wake-failed fact the engine kept (tool, wake, cause, said), when the alarm copy is woken"
+            },
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language",
+                "credential_name"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps the notices their workflows tell them (table notices): the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the runs use"
+                }
+              }
+            }
+          }
+        },
+        "wakes": [
+          {
+            "id": "a-wake-that-fails",
+            "on": {
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:check-the-wake-alarm:every-minute"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:check-the-wake-alarm:every-minute",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "UTC",
+                      "start_local_date": "1970-01-01",
+                      "local_window": {
+                        "start": "00:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:check-the-wake-alarm",
+                        "owner_dispatch": {
+                          "name": "workflow:check-the-wake-alarm",
+                          "input": {}
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "minute",
+                        "interval": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "budget": {
+              "steps": 4,
+              "wall_ms": 120000
+            },
+            "input": {
+              "start_at": "read-a-table-kept-nowhere"
+            }
+          },
+          {
+            "id": "an-alarm-that-fails",
+            "on": {
+              "fact": {
+                "kind": "wake-failed",
+                "from": [
+                  "wake"
+                ],
+                "match": {
+                  "tool": "workflow:check-the-wake-alarm",
+                  "wake": "a-wake-that-fails"
+                }
+              }
+            },
+            "budget": {
+              "steps": 8,
+              "wall_ms": 600000
+            },
+            "input": {
+              "start_at": "read-a-table-kept-nowhere"
+            },
+            "retry": {
+              "attempts": 3,
+              "first_ms": 20000,
+              "factor": 2
+            },
+            "on_failure": {
+              "tool": "tool:run-sql-in-my-database",
+              "input": {
+                "sql": "insert into notices (title, body, kind) values ('The check of the wake alarm failed three times', 'workflow:check-the-wake-alarm''s wake an-alarm-that-fails heard a wake stop, failed, was tried again twice, and kept this notice by its second road. This is the check working: switch both of its wakes off.', 'needs-you')"
+              },
+              "from_input": {
+                "credential_name": "store.credential_name"
+              }
+            }
+          }
+        ],
+        "definition": {
+          "id": "workflow:check-the-wake-alarm",
+          "name": "Check that a failing wake alarm still tells me",
+          "kind": "workflow",
+          "is_active": true,
+          "version": 1,
+          "steps": [
+            {
+              "id": "read-a-table-kept-nowhere",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  },
+                  "sql": "select * from a_table_kept_nowhere_so_this_run_fails"
+                },
+                "context": {
+                  "step_id": "read-a-table-kept-nowhere"
+                }
+              }
+            }
+          ],
+          "edges": []
+        },
+        "records": {
+          "runs": [
+            "tool:run-sql-in-my-database"
+          ]
+        }
+      }
+    }
+  ]
+}
