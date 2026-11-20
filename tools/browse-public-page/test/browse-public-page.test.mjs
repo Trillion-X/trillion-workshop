@@ -45,14 +45,23 @@ test('HTML extraction and redirects keep bounded readable output', async () => {
   await assert.rejects(readPublicPage('https://example.com/', async () => ({ status: 200, headers: { 'content-type': 'text/html' }, body: Buffer.alloc(2_000_001) })), /2 MB limit/);
 });
 
-test('around returns the words around the exact text, one read per address, and says why a text is missing', async () => {
+test('around returns each item with the words around its exact text, one read per address, and says why a text is missing', async () => {
   const reads = [];
   const fetchPage = async url => { reads.push(url.href); return { status: 200, headers: { 'content-type': 'text/html' }, body: new TextEncoder().encode('<html><head><title>Notes</title></head><body><p>Before the words. Say Hello to everyone. After the words.</p></body></html>') }; };
-  const { windows } = await readPublicPageOrArchive({ around: { addresses: ['https://example.com/a', 'https://example.com/a', 'https://example.com/a', 'https://example.com/a', 'file:///etc/passwd'], texts: ['say Hello', 'Say Hello', 'Say Hello', '', 'Say Hello'] } }, fetchPage);
+  const items = [
+    { id: 'a', source: 'https://example.com/a', words: 'say Hello' },
+    { id: 'b', source: 'https://example.com/a', words: 'Say Hello' },
+    { id: 'c', source: 'https://example.com/a', words: 'Say Hello' },
+    { id: 'd', source: 'https://example.com/a', words: '' },
+    { id: 'e', source: 'file:///etc/passwd', words: 'Say Hello' },
+  ];
+  const { windows } = await readPublicPageOrArchive({ around: { items, address: 'source', text: 'words' } }, fetchPage);
   assert.equal(windows[0].window, '', 'the lower-case words are not on the page');
   assert.match(windows[0].error, /not on the page/);
-  assert.match(windows[1].window, /^Before the words\. Say Hello to everyone\. After the words\.$/);
+  assert.equal(windows[0].id, 'a', 'each item keeps its own fields');
+  assert.equal(windows[1].window, 'Before the words. Say Hello to everyone. After the words.');
   assert.equal(windows[1].error, null);
+  assert.equal(windows[1].text, 'Say Hello');
   assert.match(windows[2].window, /Say Hello/);
   assert.match(windows[3].error, /empty/);
   assert.match(windows[4].error, /Only public HTTP and HTTPS/);

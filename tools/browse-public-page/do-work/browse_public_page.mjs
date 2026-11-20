@@ -78,27 +78,28 @@ export async function readPublicPageOrArchive(input, fetchPage = fetchOnce, slee
   return { ...factsOf(start), walk };
 }
 
-// For each address and text pair, the words of that page around the first exact occurrence of the text: WINDOW_SIDE
-// characters on each side, case and quote marks as the page has them. A text the page does not hold gives "" with no
-// error; a page that cannot be read gives "" and why. Each address is read once, however many texts name it.
+// For each item, the words of the page at item[address] around the first exact occurrence of item[text]: WINDOW_SIDE
+// characters on each side, case and quote marks as the page has them. The item comes back with its own fields and three
+// more: text (the words looked for), window ("" when the words are not there or the page cannot be read) and error (null,
+// or why). Each address is read once, however many items name it.
 export async function windowsAround(around, fetchPage = fetchOnce) {
-  const { addresses = [], texts = [] } = around;
-  if (addresses.length !== texts.length) throw new Error('around needs one text for each address.');
+  const { items = [], address: addressField, text: textField } = around;
+  if (!addressField || !textField) throw new Error('around needs the name of its address field and of its text field.');
   const pages = new Map();
   const readOnce = address => {
     if (!pages.has(address)) pages.set(address, readPublicPage(address, fetchPage).then(page => page.text));
     return pages.get(address);
   };
-  const windows = await Promise.all(addresses.map(async (address, index) => {
-    const text = texts[index];
+  const windows = await Promise.all(items.map(async item => {
+    const text = item?.[textField];
     try {
       if (typeof text !== 'string' || text === '') throw new Error('The text to find is empty.');
-      const page = await readOnce(address);
+      const page = await readOnce(item[addressField]);
       const at = page.indexOf(text);
       const window = at === -1 ? '' : page.slice(Math.max(0, at - WINDOW_SIDE), at + text.length + WINDOW_SIDE);
-      return { address, window, error: at === -1 ? 'The text is not on the page.' : null };
+      return { ...item, text, window, error: at === -1 ? 'The text is not on the page.' : null };
     } catch (error) {
-      return { address, window: '', error: error.message };
+      return { ...item, text: typeof text === 'string' ? text : '', window: '', error: error.message };
     }
   }));
   return { windows };

@@ -207,11 +207,12 @@
       "around": {
        "type": "object",
        "additionalProperties": false,
-       "required": ["addresses", "texts"],
-       "description": "Instead of one page: for each addresses[i], the words of that page around the first exact occurrence of texts[i] (300 characters on each side, case and quote marks as the page has them), as windows[i] = {address, window, error}. A text the page does not hold gives window \"\" and an error saying so; a page that cannot be read gives \"\" and why. Each address is read once.",
+       "required": ["items", "address", "text"],
+       "description": "Instead of one page: for each item, the words of the page at item[address] around the first exact occurrence of item[text] (300 characters on each side, case and quote marks as the page has them). Each item comes back with its own fields plus text, window and error (null, or why the window is empty). Each address is read once.",
        "properties": {
-        "addresses": {"type": "array", "maxItems": 100, "items": {"type": "string", "format": "uri"}, "description": "One public HTTP or HTTPS page address for each text, in order."},
-        "texts": {"type": "array", "maxItems": 100, "items": {"type": "string", "minLength": 1}, "description": "The exact words to find on the page at the same index in addresses."}
+        "items": {"type": "array", "maxItems": 100, "items": {"type": "object"}, "description": "The items to look in, each carrying its address and its text in the fields named below."},
+        "address": {"type": "string", "minLength": 1, "description": "The name of the field in each item that holds its page address."},
+        "text": {"type": "string", "minLength": 1, "description": "The name of the field in each item that holds the exact words to find."}
        }
       },
       "url": {
@@ -290,15 +291,12 @@
     },
     "output_schema": {
      "type": "object",
-     "required": [
-      "url",
-      "final_url",
-      "status",
-      "title",
-      "text",
-      "links"
+     "anyOf": [
+      {"required": ["url", "final_url", "status", "title", "text", "links"]},
+      {"required": ["windows"]}
      ],
      "properties": {
+      "windows": {"type": "array", "items": {"type": "object", "required": ["text", "window", "error"], "properties": {"text": {"type": "string"}, "window": {"type": "string"}, "error": {"type": ["string", "null"]}}}},
       "url": {
        "type": "string"
       },
