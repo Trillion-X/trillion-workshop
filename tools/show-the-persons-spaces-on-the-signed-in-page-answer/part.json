@@ -14,8 +14,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "spaces",
+        "kind": "module",
+        "module": {
+          "package": "show-the-persons-spaces-on-the-signed-in-page-answer",
+          "entry": "show/spaces-mount.tsx"
+        },
         "icon": "Compass",
         "surface": {
           "id": "trillion.pursuits",
@@ -204,8 +207,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "space",
+        "kind": "module",
+        "module": {
+          "package": "show-the-persons-spaces-on-the-signed-in-page-answer",
+          "entry": "show/space-mount.tsx"
+        },
         "icon": "Compass",
         "surface": {
           "id": "trillion.space",

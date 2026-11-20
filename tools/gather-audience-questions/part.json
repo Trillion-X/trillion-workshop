@@ -14,8 +14,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "audience-questions",
+        "kind": "module",
+        "module": {
+          "package": "gather-audience-questions",
+          "entry": "show/audience-questions-mount.tsx"
+        },
         "icon": "MessageCircleQuestion",
         "surface": {
           "id": "trillion.audience-questions",

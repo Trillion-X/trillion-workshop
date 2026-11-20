@@ -18,8 +18,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "ai-work",
+        "kind": "module",
+        "module": {
+          "package": "see-what-is-being-worked-on",
+          "entry": "show/ai-work-mount.tsx"
+        },
         "icon": "Kanban",
         "surface": {
           "id": "trillion.ai-work",
@@ -152,8 +155,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "message-task-canvas",
+        "kind": "module",
+        "module": {
+          "package": "see-what-is-being-worked-on",
+          "entry": "show/message-task-canvas-mount.tsx"
+        },
         "icon": "Workflow",
         "surface": {
           "id": "trillion.message-task-canvas",

@@ -20,8 +20,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "public-apps",
+        "kind": "module",
+        "module": {
+          "package": "edit-a-site-visually",
+          "entry": "show/public-apps-mount.tsx"
+        },
         "icon": "PanelsTopLeft",
         "surface": {
           "id": "trillion.public-apps",

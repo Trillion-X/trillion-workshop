@@ -37,7 +37,8 @@ import { keepShowRules } from './show-rules-live';
 import surfaces from './screens.mjs';
 import { toolSurfaces } from '../work-workshop.mjs';
 // The screens every tool offers, read when the page was built (scripts/build-workspace.mjs).
-import screensToolsOffer from 'offered-screen-rows';
+import screensToolsOffer, { rows as rowsToolsOffer } from 'offered-screen-rows';
+import { setOfferedRows } from './offered-rows';
 
 type Listed = { tools: { id: string; label?: string; job?: string }[]; next?: string | null };
 const listed = (after: string | null) =>
@@ -52,6 +53,7 @@ const statement = (sql: string, params: unknown[]) =>
 const notifications = notificationsAnswers(statement);
 setPageDoor(async (path, init) => answerHere(path, init) ?? await notifications(path, init) ?? answerAtTheDoor(path, init));
 setWorkspaceRecordsSource(remoteRecordsSource(sqlRecordsTransport(statement, kept.table, kept.retry)));
+setOfferedRows(rowsToolsOffer);
 installScreenRunner(screens, surfaces.address_label);
 await answerTargets();
 const viewer = { access_refs: [] as string[] };

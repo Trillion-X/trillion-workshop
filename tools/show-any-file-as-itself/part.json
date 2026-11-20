@@ -11,8 +11,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "file",
+        "kind": "module",
+        "module": {
+          "package": "show-any-file-as-itself",
+          "entry": "show/file-mount.tsx"
+        },
         "icon": "File",
         "surface": {
           "id": "trillion.file",

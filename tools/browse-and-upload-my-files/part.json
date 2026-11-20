@@ -43,8 +43,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "files",
+        "kind": "module",
+        "module": {
+          "package": "browse-and-upload-my-files",
+          "entry": "show/files-mount.tsx"
+        },
         "icon": "FolderOpen",
         "surface": {
           "id": "trillion.files",

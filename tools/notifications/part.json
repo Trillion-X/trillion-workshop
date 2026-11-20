@@ -12,8 +12,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "notification-settings",
+        "kind": "module",
+        "module": {
+          "package": "notifications",
+          "entry": "show/notification-settings-mount.tsx"
+        },
         "icon": "Bell",
         "surface": {
           "id": "trillion.notification-settings",

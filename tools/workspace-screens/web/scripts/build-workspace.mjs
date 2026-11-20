@@ -31,7 +31,7 @@ import { barrelImportsPlugin } from '../../../../tools/check-bundle-package-boun
 import { jsonFieldsPlugin } from './json-fields.mjs';
 import { buildScreenModules, filesOfBundle, formerNameShims, importMap, savedScreenSharedModules, screenModuleSpecs, SHARED_NAMESPACE, sharedEntries, writeScreenModules } from './screen-modules.mjs';
 import { toolFolders } from './tool-folders.mjs';
-import { offeredScreens as screensToolsOffer } from '../../../../tools/keep-and-wake-ai-sessions-on-this-computer/src/workspace/offered-screens.mjs';
+import { offeredRows, offeredScreens as screensToolsOffer } from '../../../../tools/keep-and-wake-ai-sessions-on-this-computer/src/workspace/offered-screens.mjs';
 import { firstLoadInputs } from './workspace-screen-sizes.mjs';
 import { writeHarnessSetupAssets } from './harness-setup-assets.mjs';
 import { moduleDownloadGraph, staticModuleClosure } from './module-download-graph.mjs';
@@ -123,7 +123,10 @@ const pageBuild = (extraEntries = {}, extraPlugins = [], write = true) => build(
       // (keep-and-wake-ai-sessions-on-this-computer src/workspace/offered-screens.mjs): a page with no server of its own
       // offers them beside its account's catalogue (src/workspace/account-workspace.ts).
       builder.onResolve({ filter: /^offered-screen-rows$/ }, () => ({ path: 'offered-screen-rows', namespace: 'offered-screen-rows' }));
-      builder.onLoad({ filter: /.*/, namespace: 'offered-screen-rows' }, () => ({ contents: JSON.stringify(screensToolsOffer(workshop).surfaces), loader: 'json' }));
+      // Its default is the screens to offer; `rows` are the rows themselves, which a tool's own screen opens from
+      // (src/workspace/offered-rows.ts), since a screen a tool offers is not one of the account's catalogue tools.
+      builder.onLoad({ filter: /.*/, namespace: 'offered-screen-rows' }, () => ({ loader: 'js', contents:
+        `export default ${JSON.stringify(screensToolsOffer(workshop).surfaces)};\nexport const rows = ${JSON.stringify(offeredRows(workshop).map(({ offeredBy, ...row }) => ({ id: row.id, label: row.label, description: row.description, job: row.job, screen: row.screen })))};` }));
     },
   }, walkthroughsPlugin({ publicNamed: PUBLIC_NAMED, toursName, walkthroughFiles, root }), ...extraPlugins],
 });
@@ -134,7 +137,7 @@ const probe = await pageBuild({}, [], false);
 firstLoadSources.files = firstLoadInputs(probe.metafile).filter(file => !file.split('/').includes('node_modules')).map(file => resolve(root, file)).filter(file => existsSync(file));
 const folders = toolFolders(undefined, root, modules, { 'trillion-workshop': workshop });
 const toolScreens = await buildScreenModules({
-  root, specs: screenModuleSpecs(folders.rowFiles), packageDir: folders.packageDir,
+  root, specs: screenModuleSpecs(folders.rowFiles, offeredRows(workshop).filter(row => { try { return folders.packageDir(row.screen?.module?.package ?? ''); } catch { return false; } })), packageDir: folders.packageDir,
   pageFiles: filesOfBundle(probe.metafile, root),
   options: { target: 'es2022', minify: true, jsx: 'automatic', logLevel: 'warning', legalComments: 'none', define: { 'process.env.NODE_ENV': '"production"' }, loader: { '.css': 'css' } },
   plugins: [namedIconsPlugin(root, iconFolders), jsonFields, partSideEffectsPlugin(parts), workshopShell, partsAreTools, barrels.plugin, walkthroughsPlugin({ publicNamed: PUBLIC_NAMED, toursName, walkthroughFiles, root })],

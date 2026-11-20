@@ -15,8 +15,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "workshop",
+        "kind": "module",
+        "module": {
+          "package": "describe-the-workshop",
+          "entry": "show/workshop-mount.tsx"
+        },
         "icon": "History",
         "surface": {
           "id": "trillion.workshop",
@@ -146,8 +149,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "workshop-tool",
+        "kind": "module",
+        "module": {
+          "package": "describe-the-workshop",
+          "entry": "show/workshop-tool-mount.tsx"
+        },
         "icon": "Wrench",
         "surface": {
           "id": "trillion.workshop-tool",
@@ -181,8 +187,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "workshop-run",
+        "kind": "module",
+        "module": {
+          "package": "describe-the-workshop",
+          "entry": "show/workshop-run-mount.tsx"
+        },
         "icon": "History",
         "surface": {
           "id": "trillion.workshop-run",

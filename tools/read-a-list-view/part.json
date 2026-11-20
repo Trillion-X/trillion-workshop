@@ -14,8 +14,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "record-set",
+        "kind": "module",
+        "module": {
+          "package": "read-a-list-view",
+          "entry": "show/record-set-mount.tsx"
+        },
         "icon": "Send",
         "surface": {
           "id": "trillion.sent",
@@ -83,8 +86,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "record-set",
+        "kind": "module",
+        "module": {
+          "package": "read-a-list-view",
+          "entry": "show/record-set-mount.tsx"
+        },
         "icon": "Receipt",
         "surface": {
           "id": "trillion.spend",
@@ -152,8 +158,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "record-set",
+        "kind": "module",
+        "module": {
+          "package": "read-a-list-view",
+          "entry": "show/record-set-mount.tsx"
+        },
         "icon": "MousePointerClick",
         "surface": {
           "id": "trillion.visitors",
@@ -219,8 +228,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "record-set",
+        "kind": "module",
+        "module": {
+          "package": "read-a-list-view",
+          "entry": "show/record-set-mount.tsx"
+        },
         "icon": "FlaskConical",
         "surface": {
           "id": "trillion.price-tests",
@@ -286,8 +298,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "chart",
+        "kind": "module",
+        "module": {
+          "package": "read-a-list-view",
+          "entry": "show/chart-mount.tsx"
+        },
         "icon": "ChartColumn",
         "surface": {
           "id": "trillion.chart",

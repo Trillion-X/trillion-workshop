@@ -11,8 +11,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "marketplace",
+        "kind": "module",
+        "module": {
+          "package": "browse-and-publish-what-my-ai-can-use",
+          "entry": "show/marketplace-mount.tsx"
+        },
         "icon": "Store",
         "surface": {
           "id": "trillion.marketplace",

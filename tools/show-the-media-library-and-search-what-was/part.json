@@ -14,8 +14,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "media",
+        "kind": "module",
+        "module": {
+          "package": "show-the-media-library-and-search-what-was",
+          "entry": "show/media-mount.tsx"
+        },
         "icon": "Clapperboard",
         "surface": {
           "id": "trillion.media",
@@ -47,8 +50,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "media-edit",
+        "kind": "module",
+        "module": {
+          "package": "show-the-media-library-and-search-what-was",
+          "entry": "show/media-edit-mount.tsx"
+        },
         "icon": "Clapperboard",
         "surface": {
           "id": "trillion.media-edit",

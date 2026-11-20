@@ -11,8 +11,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "activity",
+        "kind": "module",
+        "module": {
+          "package": "see-what-my-ais-did",
+          "entry": "show/activity-mount.tsx"
+        },
         "icon": "Bot",
         "surface": {
           "id": "trillion.activity",
@@ -160,8 +163,11 @@
         "type": "object"
       },
       "screen": {
-        "kind": "app-entry",
-        "entry": "activity",
+        "kind": "module",
+        "module": {
+          "package": "see-what-my-ais-did",
+          "entry": "show/activity-mount.tsx"
+        },
         "input": {
           "only": "failed"
         },
@@ -181,8 +187,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "activity-trace",
+        "kind": "module",
+        "module": {
+          "package": "see-what-my-ais-did",
+          "entry": "show/activity-trace-mount.tsx"
+        },
         "icon": "Route",
         "surface": {
           "id": "trillion.activity-trace",

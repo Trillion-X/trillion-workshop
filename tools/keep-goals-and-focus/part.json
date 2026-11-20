@@ -11,8 +11,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "home",
+        "kind": "module",
+        "module": {
+          "package": "keep-goals-and-focus",
+          "entry": "show/home-mount.tsx"
+        },
         "icon": "House",
         "surface": {
           "id": "trillion.home",
@@ -147,8 +150,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "home",
+        "kind": "module",
+        "module": {
+          "package": "keep-goals-and-focus",
+          "entry": "show/home-mount.tsx"
+        },
         "icon": "PanelTop",
         "surface": {
           "id": "trillion.menu-bar",
@@ -205,8 +211,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "home-card",
+        "kind": "module",
+        "module": {
+          "package": "keep-goals-and-focus",
+          "entry": "show/home-card-mount.tsx"
+        },
         "icon": "Hand",
         "surface": {
           "id": "trillion.home.greeting",
@@ -238,8 +247,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "home-card",
+        "kind": "module",
+        "module": {
+          "package": "keep-goals-and-focus",
+          "entry": "show/home-card-mount.tsx"
+        },
         "icon": "ChartLine",
         "surface": {
           "id": "trillion.home.numbers",
@@ -271,8 +283,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "home-card",
+        "kind": "module",
+        "module": {
+          "package": "keep-goals-and-focus",
+          "entry": "show/home-card-mount.tsx"
+        },
         "icon": "Target",
         "surface": {
           "id": "trillion.home.needle-mover",
@@ -304,8 +319,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "home-card",
+        "kind": "module",
+        "module": {
+          "package": "keep-goals-and-focus",
+          "entry": "show/home-card-mount.tsx"
+        },
         "icon": "Workflow",
         "surface": {
           "id": "trillion.home.workstreams",
@@ -337,8 +355,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "home-card",
+        "kind": "module",
+        "module": {
+          "package": "keep-goals-and-focus",
+          "entry": "show/home-card-mount.tsx"
+        },
         "icon": "Timer",
         "surface": {
           "id": "trillion.home.deciding",
@@ -370,8 +391,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "home-card",
+        "kind": "module",
+        "module": {
+          "package": "keep-goals-and-focus",
+          "entry": "show/home-card-mount.tsx"
+        },
         "icon": "Hourglass",
         "surface": {
           "id": "trillion.home.waiting",
@@ -408,8 +432,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "home-card",
+        "kind": "module",
+        "module": {
+          "package": "keep-goals-and-focus",
+          "entry": "show/home-card-mount.tsx"
+        },
         "icon": "Scale",
         "surface": {
           "id": "trillion.home.recent",
@@ -441,8 +468,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "home-card",
+        "kind": "module",
+        "module": {
+          "package": "keep-goals-and-focus",
+          "entry": "show/home-card-mount.tsx"
+        },
         "icon": "MessagesSquare",
         "surface": {
           "id": "trillion.home.messages",
@@ -474,8 +504,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "home-card",
+        "kind": "module",
+        "module": {
+          "package": "keep-goals-and-focus",
+          "entry": "show/home-card-mount.tsx"
+        },
         "icon": "Flag",
         "surface": {
           "id": "trillion.home.pursuits",
@@ -507,8 +540,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "home-card",
+        "kind": "module",
+        "module": {
+          "package": "keep-goals-and-focus",
+          "entry": "show/home-card-mount.tsx"
+        },
         "icon": "Lightbulb",
         "surface": {
           "id": "trillion.home.suggestions",

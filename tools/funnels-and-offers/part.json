@@ -16,8 +16,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "funnels",
+        "kind": "module",
+        "module": {
+          "package": "funnels-and-offers",
+          "entry": "show/funnels-mount.tsx"
+        },
         "icon": "Filter",
         "surface": {
           "id": "trillion.funnels",
@@ -49,8 +52,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "funnel",
+        "kind": "module",
+        "module": {
+          "package": "funnels-and-offers",
+          "entry": "show/funnel-mount.tsx"
+        },
         "icon": "Filter",
         "surface": {
           "id": "trillion.funnel",

@@ -88,8 +88,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "lists",
+        "kind": "module",
+        "module": {
+          "package": "keep-lists-of-rows",
+          "entry": "show/lists-mount.tsx"
+        },
         "icon": "List",
         "surface": {
           "id": "trillion.lists",
@@ -121,8 +124,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "list",
+        "kind": "module",
+        "module": {
+          "package": "keep-lists-of-rows",
+          "entry": "show/list-mount.tsx"
+        },
         "icon": "List",
         "surface": {
           "id": "trillion.list",

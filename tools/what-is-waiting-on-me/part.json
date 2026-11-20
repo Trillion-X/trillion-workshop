@@ -1,5 +1,10 @@
 {
-  "public": ["read-data/waiting.mjs", "read-data/waiting-records.mjs", "read-data/waiting-sources.json", "read-data/work-rounds.mjs"],
+  "public": [
+    "read-data/waiting.mjs",
+    "read-data/waiting-records.mjs",
+    "read-data/waiting-sources.json",
+    "read-data/work-rounds.mjs"
+  ],
   "exports": {},
   "offers": [
     {
@@ -13,8 +18,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "waiting",
+        "kind": "module",
+        "module": {
+          "package": "what-is-waiting-on-me",
+          "entry": "show/waiting-mount.tsx"
+        },
         "icon": "ListChecks",
         "surface": {
           "id": "trillion.waiting",

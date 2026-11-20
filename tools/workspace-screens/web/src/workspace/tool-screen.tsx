@@ -39,6 +39,7 @@ import { moduleSurfaceScopeKey } from '../../../../ui/show/isolated-module-surfa
 import { onKeptAnswerReplaced, readWithKeptAnswers } from '../../../../ui/show/request/kept-answers';
 import { moduleAddress, screenModuleSpecifier } from './screen-module-address.mjs';
 import { SCREEN_TOOL_ROWS } from './screens.mjs';
+import { offeredRow } from './offered-rows';
 
 // This loader reads full descriptors through the existing screen-inputs projection. Every screen row is its own tool's
 // (part.json `offers`), so the page holds none here; a tool's own screen opens through that tool's descriptor.
@@ -271,9 +272,11 @@ export function mountToolScreen(element: HTMLElement, props: Props, screens: Rec
   const named = String(props.surfaceInput?.tool_id ?? '');
   const id = named && !named.includes(':') ? `tool:${named}` : named;
   if (!id) return unavailable(element);
-  // A screen row of the page's own (records/workshop-screen-tool-records.json) opens straight away from its row, on
-  // every plan and in every space, with no Workshop read: its module, or the workspace screen it names.
-  const own = SCREEN_TOOL_ROWS.find(row => row.id === id && (row.screen.kind === 'module' || row.screen.kind === 'app-entry')) as Descriptor | undefined;
+  // A screen row the page holds (one a tool offers in its part.json, offered-rows.ts) opens straight away from its row,
+  // on every plan and in every space, with no Workshop read: its module, or the workspace screen it names.
+  const offered = offeredRow(id);
+  const own = (SCREEN_TOOL_ROWS.find(row => row.id === id) ?? offered) as Descriptor | undefined;
+  if (own?.screen && own.screen.kind !== 'module' && own.screen.kind !== 'app-entry') return unavailable(element);
   if (own?.screen) return SHOWS[own.screen.kind](element, own, own.screen, props, screens);
   let unmount: Unmount = letGo(element);
   let gone = false;

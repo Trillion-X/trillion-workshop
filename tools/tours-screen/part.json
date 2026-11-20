@@ -101,8 +101,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "canvas-edit",
+        "kind": "module",
+        "module": {
+          "package": "tours-screen",
+          "entry": "show/canvas-edit-mount.tsx"
+        },
         "icon": "Frame",
         "takes_thing": {
           "formats": [

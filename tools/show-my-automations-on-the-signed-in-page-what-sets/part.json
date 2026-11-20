@@ -14,8 +14,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "workflows",
+        "kind": "module",
+        "module": {
+          "package": "show-my-automations-on-the-signed-in-page-what-sets",
+          "entry": "show/workflows-mount.tsx"
+        },
         "icon": "Zap",
         "surface": {
           "id": "trillion.workflows",
@@ -145,8 +148,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "workflow",
+        "kind": "module",
+        "module": {
+          "package": "show-my-automations-on-the-signed-in-page-what-sets",
+          "entry": "show/workflow-mount.tsx"
+        },
         "icon": "Workflow",
         "surface": {
           "id": "trillion.workflow",

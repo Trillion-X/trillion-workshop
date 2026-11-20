@@ -21,8 +21,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "show-rules-admin",
+        "kind": "module",
+        "module": {
+          "package": "decide-when-things-show",
+          "entry": "show/show-rules-admin-mount.tsx"
+        },
         "icon": "Users",
         "surface": {
           "id": "trillion.show-rules-admin",

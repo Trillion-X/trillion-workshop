@@ -12,8 +12,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "job-run",
+        "kind": "module",
+        "module": {
+          "package": "hand-work-to-ais",
+          "entry": "show/job-run-mount.tsx"
+        },
         "icon": "ListChecks",
         "surface": {
           "id": "trillion.job-run",

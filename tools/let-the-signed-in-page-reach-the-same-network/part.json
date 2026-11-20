@@ -14,8 +14,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "network",
+        "kind": "module",
+        "module": {
+          "package": "let-the-signed-in-page-reach-the-same-network",
+          "entry": "show/network-mount.tsx"
+        },
         "icon": "UsersRound",
         "surface": {
           "id": "trillion.network",

@@ -71,12 +71,18 @@ const payloadsIn = path => {
   return files.flatMap(file => (JSON.parse(readFileSync(file, 'utf8')).records ?? []).map(record => record.payload));
 };
 
-/** Every screen module the rows in `rowFiles` (scripts/tool-folders.mjs) name, once each. */
-export function screenModuleSpecs(rowFiles) {
+/** Every screen module the rows in `rowFiles` (scripts/tool-folders.mjs) and the screen rows tools offer in their
+ *  part.json (`offered`) name, once each. */
+export function screenModuleSpecs(rowFiles, offered = []) {
   const specs = new Map();
-  for (const file of rowFiles) for (const row of payloadsIn(file)) {
+  for (const row of rowFiles.flatMap(file => payloadsIn(file))) {
     const spec = moduleSpecOf(row);
     if (spec) specs.set(moduleKey(spec), { package: spec.package, entry: spec.entry });
+  }
+  // A screen a tool offers is left out of the page, with its words, when its code does not build (buildScreenModules).
+  for (const row of offered) {
+    const spec = moduleSpecOf(row);
+    if (spec && !specs.has(moduleKey(spec))) specs.set(moduleKey(spec), { package: spec.package, entry: spec.entry, optional: true });
   }
   return [...specs.values()];
 }
@@ -235,11 +241,17 @@ export async function buildScreenModules({ root, specs, packageDir, pageFiles, o
     const built = await build({
       ...options,
       absWorkingDir: root,
+      ...(spec.optional ? { logLevel: 'silent' } : {}),
       entryPoints: [entryPath],
       bundle: true, format: 'esm', splitting: true, platform: 'browser', write: false, metafile: true,
       outdir: '/screen-module', entryNames: '[name]-[hash]', chunkNames: '[name]-[hash]', assetNames: '[name]-[hash]',
       plugins: [sharedWithThePage({ root, pageFiles, asked, edges }), ...plugins],
+    }).catch(error => {
+      if (!spec.optional) throw error;
+      console.warn(`left out the offered screen ${moduleKey(spec)}: its code does not build (${String(error.message).split('\n').slice(0, 3).join(' ')})`);
+      return null;
     });
+    if (!built) continue;
     // The output made from this screen's entry file: a chunk split off a dynamic import names an entry point too, so the
     // first output with one is not the screen's.
     const entryOutput = Object.entries(built.metafile.outputs).find(([, output]) => output.entryPoint && realpathSync(resolve(root, output.entryPoint)) === realpathSync(entryPath))?.[0];

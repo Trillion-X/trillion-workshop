@@ -15,8 +15,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "settings",
+        "kind": "module",
+        "module": {
+          "package": "settings",
+          "entry": "show/settings-mount.tsx"
+        },
         "icon": "Settings",
         "surface": {
           "id": "trillion.settings",

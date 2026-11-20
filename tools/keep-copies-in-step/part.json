@@ -17,8 +17,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "catch-up",
+        "kind": "module",
+        "module": {
+          "package": "keep-copies-in-step",
+          "entry": "show/catch-up-mount.tsx"
+        },
         "icon": "MonitorSmartphone",
         "surface": {
           "id": "trillion.catch-up",
@@ -60,8 +63,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "catch-up-status",
+        "kind": "module",
+        "module": {
+          "package": "keep-copies-in-step",
+          "entry": "show/catch-up-status-mount.tsx"
+        },
         "icon": "CloudCheck",
         "surface": {
           "id": "trillion.catch-up-status",
@@ -90,8 +96,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "two-versions",
+        "kind": "module",
+        "module": {
+          "package": "keep-copies-in-step",
+          "entry": "show/two-versions-mount.tsx"
+        },
         "icon": "GitCompareArrows",
         "surface": {
           "id": "trillion.two-versions",
