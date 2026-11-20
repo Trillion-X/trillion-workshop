@@ -104,4 +104,11 @@ test('the client signs an ES256 token from the held key, stays on App Store Conn
   const failure = await client.get('/v1/fail').catch(error => error);
   assert.equal(failure.status, 409);
   assert.ok(!failure.message.includes('private@'));
+  // The notary service is the same team key on Apple's notary host, under /notary/v2/ only.
+  await client.notary.post('/notary/v2/submissions', { submissionName: 'a.zip', sha256: 'ab' });
+  assert.equal(seen.at(-1).url, 'https://appstoreconnect.apple.com/notary/v2/submissions');
+  assert.ok(seen.at(-1).auth.startsWith('Bearer '));
+  await assert.rejects(client.notary.get('/v1/apps'), /stay on App Store Connect/);
+  await assert.rejects(client.get('/notary/v2/submissions'), /stay on App Store Connect/);
+  await assert.rejects(client.notary.get('https://api.appstoreconnect.apple.com/notary/v2/submissions'), /stay on App Store Connect/);
 });

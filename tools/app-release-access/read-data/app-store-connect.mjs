@@ -1,7 +1,8 @@
 // tools/app-release-access/read-data/app-store-connect.mjs (moved from old trillion scripts/app-store-connect.mjs)
 //
 // Purpose: the App Store Connect API client the release-access tools use. It signs a short-lived JWT from the
-// release owner's team API key and makes JSON requests to api.appstoreconnect.apple.com only.
+// release owner's team API key and makes JSON requests to App Store Connect only: its API (api.appstoreconnect.apple.com,
+// /v1/) and its notary service (appstoreconnect.apple.com, /notary/v2/), which takes the same team key and token.
 //
 // Invariants:
 // - The key is the release owner's held value `app-store-connect-key`, handed to this one process on a private pipe
@@ -15,6 +16,8 @@ import { createPrivateKey, createSign } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 
 const API = 'https://api.appstoreconnect.apple.com';
+// Each Apple service this client may reach: its origin and the one path its requests stay under.
+const SERVICES = { api: { origin: API, path: '/v1/' }, notary: { origin: 'https://appstoreconnect.apple.com', path: '/notary/v2/' } };
 export const KEY_DESCRIPTOR = 4;
 
 /** The held team key { keyId, issuerId, keyText }, from the JSON text the pipe carried. */
@@ -64,9 +67,10 @@ export function appStoreConnect({ apiKey, issuerId = apiKey?.issuerId, fetcher =
     return token;
   }
 
-  async function request(method, path, { query = {}, body, accepted = [200] } = {}) {
-    const url = new URL(path, API);
-    if (url.origin !== API || !url.pathname.startsWith('/v1/')) throw new Error('The Apple API request must stay on App Store Connect.');
+  async function request(method, path, { query = {}, body, accepted = [200], service = 'api' } = {}) {
+    const { origin, path: under } = SERVICES[service] ?? {};
+    const url = new URL(path, origin ?? API);
+    if (!origin || url.origin !== origin || !url.pathname.startsWith(under)) throw new Error('The Apple API request must stay on App Store Connect.');
     for (const [key, value] of Object.entries(query)) url.searchParams.set(key, String(value));
     const headers = { Authorization: `Bearer ${jwt()}`, Accept: 'application/json' };
     if (body !== undefined) headers['Content-Type'] = 'application/json';
@@ -85,5 +89,10 @@ export function appStoreConnect({ apiKey, issuerId = apiKey?.issuerId, fetcher =
     request,
     get: (path, options) => request('GET', path, options),
     post: (path, body, accepted = [201]) => request('POST', path, { body, accepted }),
+    /** The notary service (Apple's Notary API): `notary.get` and `notary.post` under /notary/v2/. */
+    notary: {
+      get: (path, options) => request('GET', path, { ...options, service: 'notary' }),
+      post: (path, body, accepted = [200]) => request('POST', path, { body, accepted, service: 'notary' }),
+    },
   };
 }
