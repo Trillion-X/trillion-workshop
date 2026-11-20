@@ -68,6 +68,8 @@ function pendingInputFields(problems, schema) {
 // (`body_template` is the notes' own name for the body and is read the same way.)
 // and `credential_injections` and `credential_mounts` become the names the locked box holds: `secret_name` (or
 // `vault_key`) as written, else the service-connections name for `connection_id` + `field_id`.
+// `connection: { vendor, from_input }` (the form the container rows use) takes the connection the caller names in input
+// (`connection_id`: service_connection:<vendor> or service_connection:<vendor>:<account>) in place of a fixed `connection_id`.
 // `argv` (a container tool's command) reads the same `{ from }` leaves, but its text is passed as written: a braced
 // word in a command is the command's, never a hole.
 const REQUEST_FIELDS = { url: 'address', headers: 'text', body: 'text', body_template: 'text', query: 'text', argv: 'as-written' };
@@ -125,6 +127,14 @@ const FETCHES = {
     return btoa(binary);
   },
 };
+// The connection a caller names through input, for an invoke with `connection: { vendor, from_input }`: its handle must be
+// this vendor's (service_connection:<vendor> or service_connection:<vendor>:<account>). Anything else is refused before a key is named.
+function connectionFromInput({ vendor, from_input }, input) {
+  const handed = factAt(input, `${from_input}.connection_id`);
+  const bare = `service_connection:${vendor}`;
+  if (!nonempty(handed) || !(handed === bare || handed.startsWith(`${bare}:`))) throw new WorkshopError(`This tool needs a ${vendor} connection: input.${from_input}.connection_id as ${bare} or ${bare}:<account>.`);
+  return handed;
+}
 export async function buildInvocation(template, { input, task, extra = {}, needs = {}, fetchBytes = fetch, request = false }) {
   const sources = { input, task, ...extra };
   const fill = async (value, zone = null) => {
@@ -169,11 +179,14 @@ export async function buildInvocation(template, { input, task, extra = {}, needs
     return Object.fromEntries((await Promise.all(Object.entries(value).map(async ([key, item]) => [key, await fill(item, zone)]))).filter(([, item]) => item !== OMIT));
   };
   if (!request || !object(template)) return fill(template);
-  const built = Object.fromEntries(await Promise.all(Object.entries(template).map(async ([key, item]) => [key, await fill(item, REQUEST_FIELDS[key] ?? null)])));
+  const named = object(template.connection) ? connectionFromInput(template.connection, input) : undefined;
+  const connected = named === undefined ? template : { ...template, connection_id: named };
+  const built = Object.fromEntries(await Promise.all(Object.entries(template).filter(([key]) => key !== 'connection').map(async ([key, item]) => [key, await fill(item, REQUEST_FIELDS[key] ?? null)])));
   return {
     ...built,
-    ...(template.credential_injections === undefined ? {} : { credential_injections: credentialInjections(template) }),
-    ...(template.credential_mounts === undefined ? {} : { credential_mounts: credentialMounts(template) }),
+    ...(named === undefined ? {} : { connection_id: named }),
+    ...(connected.credential_injections === undefined ? {} : { credential_injections: credentialInjections(connected) }),
+    ...(connected.credential_mounts === undefined ? {} : { credential_mounts: credentialMounts(connected) }),
   };
 }
 const formPairs = (node, prefix = '') => {
