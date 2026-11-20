@@ -9688,6 +9688,94 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:create-a-space": [
+  {
+   "package": "space-members",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/space-members"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "paid-access",
+   "paths": [
+    "read-data/who-holds-access.mjs",
+    "read-data/payment-effects.mjs",
+    "read-data/effect-lifecycle.mjs",
+    "read-data/read-granted-access-refs.ts",
+    "read-data/take-payments-events.json"
+   ],
+   "at": "/opt/paid-access"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "space-member-types",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/space-member-types"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+   ],
+   "at": "/opt/formula-engine"
+  }
+ ],
  "tool:credit-kept-lines-to-their-writer": [
   {
    "package": "credit-kept-lines-to-their-writer",
@@ -10290,6 +10378,133 @@
     "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
+  }
+ ],
+ "tool:decide-in-one-pass": [
+  {
+   "package": "decide-with-a-method",
+   "paths": [
+    "read-data",
+    "method-rows"
+   ],
+   "at": "/opt/decide-with-a-method"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/branch.mjs"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "learn-from-everyones-results",
+   "paths": [
+    "read-data/plain-privacy-pass.mjs"
+   ],
+   "at": "/opt/learn-from-everyones-results"
+  },
+  {
+   "package": "ask-a-small-model-for-a-verdict",
+   "paths": [
+    "do-work/ask-a-hosted-classifier.mjs",
+    "do-work/ask-a-locally-served-model.mjs",
+    "do-work/ask-for-a-verdict.mjs",
+    "do-work/fresh-local-classifier-fetch.mjs",
+    "do-work/judge-content.mjs",
+    "do-work/who-can-be-asked.mjs"
+   ],
+   "at": "/opt/ask-a-small-model-for-a-verdict"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/branch-core.mjs"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "learn-from-everyones-results",
+   "paths": [
+    "read-data/plain-privacy-pass.json"
+   ],
+   "at": "/opt/learn-from-everyones-results"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
   }
  ],
  "tool:decide-the-replies": [
@@ -19568,94 +19783,6 @@
    "at": "/opt/node_modules/react"
   }
  ],
- "tool:create-a-space": [
-  {
-   "package": "space-members",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/space-members"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
-    "do-work/send-a-file-to-a-namespace.mjs",
-    "do-work/send-retry.mjs",
-    "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "paid-access",
-   "paths": [
-    "read-data/who-holds-access.mjs",
-    "read-data/payment-effects.mjs",
-    "read-data/effect-lifecycle.mjs",
-    "read-data/read-granted-access-refs.ts",
-    "read-data/take-payments-events.json"
-   ],
-   "at": "/opt/paid-access"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "rules",
-    "built-stored-bytes/formula-engine"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "package": "space-member-types",
-   "paths": [
-    "src"
-   ],
-   "at": "/opt/space-member-types"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/formula-engine/formula_engine.js",
-    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
-   ],
-   "at": "/opt/formula-engine"
-  }
- ],
  "tool:leave-a-space": [
   {
    "package": "space-members",
@@ -20873,6 +21000,108 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  }
+ ],
+ "tool:list-my-stays": [
+  {
+   "package": "save-and-list-my-stays",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/save-and-list-my-stays"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "read-data/role-recipes.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   }
  ],
  "tool:list-my-youtube-videos": [],
@@ -34971,6 +35200,133 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:read-shared-decision": [
+  {
+   "package": "decide-with-a-method",
+   "paths": [
+    "read-data",
+    "method-rows"
+   ],
+   "at": "/opt/decide-with-a-method"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/branch.mjs"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "learn-from-everyones-results",
+   "paths": [
+    "read-data/plain-privacy-pass.mjs"
+   ],
+   "at": "/opt/learn-from-everyones-results"
+  },
+  {
+   "package": "ask-a-small-model-for-a-verdict",
+   "paths": [
+    "do-work/ask-a-hosted-classifier.mjs",
+    "do-work/ask-a-locally-served-model.mjs",
+    "do-work/ask-for-a-verdict.mjs",
+    "do-work/fresh-local-classifier-fetch.mjs",
+    "do-work/judge-content.mjs",
+    "do-work/who-can-be-asked.mjs"
+   ],
+   "at": "/opt/ask-a-small-model-for-a-verdict"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/branch-core.mjs"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "learn-from-everyones-results",
+   "paths": [
+    "read-data/plain-privacy-pass.json"
+   ],
+   "at": "/opt/learn-from-everyones-results"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
  "tool:read-sharing-state": [
   {
    "package": "choose-whether-my-decisions-are-shared-show",
@@ -39894,6 +40250,108 @@
     "node_modules/@noble/hashes"
    ],
    "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
+ "tool:save-a-stay": [
+  {
+   "package": "save-and-list-my-stays",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/save-and-list-my-stays"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "read-data/role-recipes.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   }
  ],
  "tool:save-interest-in-an-email-update": [
@@ -50738,449 +51196,5 @@
  ],
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:your-files": [],
- "tool:your-files-names": [],
- "tool:read-shared-decision": [
-  {
-   "package": "decide-with-a-method",
-   "paths": [
-    "read-data",
-    "method-rows"
-   ],
-   "at": "/opt/decide-with-a-method"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "rules",
-    "built-stored-bytes/formula-engine"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "package": "check-against-a-persons-rules-and-verdicts",
-   "paths": [
-    "do-work/branch.mjs"
-   ],
-   "at": "/opt/check-against-a-persons-rules-and-verdicts"
-  },
-  {
-   "package": "records-door",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/records-door"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "package": "learn-from-everyones-results",
-   "paths": [
-    "read-data/plain-privacy-pass.mjs"
-   ],
-   "at": "/opt/learn-from-everyones-results"
-  },
-  {
-   "package": "ask-a-small-model-for-a-verdict",
-   "paths": [
-    "do-work/ask-a-hosted-classifier.mjs",
-    "do-work/ask-a-locally-served-model.mjs",
-    "do-work/ask-for-a-verdict.mjs",
-    "do-work/fresh-local-classifier-fetch.mjs",
-    "do-work/judge-content.mjs",
-    "do-work/who-can-be-asked.mjs"
-   ],
-   "at": "/opt/ask-a-small-model-for-a-verdict"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
-    "do-work/send-a-file-to-a-namespace.mjs",
-    "do-work/send-retry.mjs",
-    "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "check-against-a-persons-rules-and-verdicts",
-   "paths": [
-    "do-work/branch-core.mjs"
-   ],
-   "at": "/opt/check-against-a-persons-rules-and-verdicts"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/formula-engine/formula_engine.js",
-    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
-   ],
-   "at": "/opt/formula-engine"
-  },
-  {
-   "package": "learn-from-everyones-results",
-   "paths": [
-    "read-data/plain-privacy-pass.json"
-   ],
-   "at": "/opt/learn-from-everyones-results"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "read-data/host-actions.mjs",
-    "read-data/large-file.json",
-    "read-data/whole-file.mjs"
-   ],
-   "at": "/opt/workflows"
-  }
- ],
- "tool:save-a-stay": [
-  {
-   "package": "save-and-list-my-stays",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/save-and-list-my-stays"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
-  }
- ],
- "tool:list-my-stays": [
-  {
-   "package": "save-and-list-my-stays",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/save-and-list-my-stays"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
-  }
- ],
- "tool:decide-in-one-pass": [
-  {
-   "package": "decide-with-a-method",
-   "paths": [
-    "read-data",
-    "method-rows"
-   ],
-   "at": "/opt/decide-with-a-method"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "rules",
-    "built-stored-bytes/formula-engine"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "package": "check-against-a-persons-rules-and-verdicts",
-   "paths": [
-    "do-work/branch.mjs"
-   ],
-   "at": "/opt/check-against-a-persons-rules-and-verdicts"
-  },
-  {
-   "package": "records-door",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/records-door"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "package": "learn-from-everyones-results",
-   "paths": [
-    "read-data/plain-privacy-pass.mjs"
-   ],
-   "at": "/opt/learn-from-everyones-results"
-  },
-  {
-   "package": "ask-a-small-model-for-a-verdict",
-   "paths": [
-    "do-work/ask-a-hosted-classifier.mjs",
-    "do-work/ask-a-locally-served-model.mjs",
-    "do-work/ask-for-a-verdict.mjs",
-    "do-work/fresh-local-classifier-fetch.mjs",
-    "do-work/judge-content.mjs",
-    "do-work/who-can-be-asked.mjs"
-   ],
-   "at": "/opt/ask-a-small-model-for-a-verdict"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
-    "do-work/send-a-file-to-a-namespace.mjs",
-    "do-work/send-retry.mjs",
-    "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "check-against-a-persons-rules-and-verdicts",
-   "paths": [
-    "do-work/branch-core.mjs"
-   ],
-   "at": "/opt/check-against-a-persons-rules-and-verdicts"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/formula-engine/formula_engine.js",
-    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
-   ],
-   "at": "/opt/formula-engine"
-  },
-  {
-   "package": "learn-from-everyones-results",
-   "paths": [
-    "read-data/plain-privacy-pass.json"
-   ],
-   "at": "/opt/learn-from-everyones-results"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "read-data/host-actions.mjs",
-    "read-data/large-file.json",
-    "read-data/whole-file.mjs"
-   ],
-   "at": "/opt/workflows"
-  }
- ]
+ "tool:your-files-names": []
 }

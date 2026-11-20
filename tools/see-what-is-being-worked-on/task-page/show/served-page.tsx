@@ -52,8 +52,21 @@ async function finishSignIn(code: string) {
   location.replace(sessionStorage.getItem(RETURN) ?? base);
 }
 
-/** One call of the row's kept session through the door: tools:run {tool, call, input}. */
+/** One call of the row's kept session through the door: tools:run {tool, call, input}. An answer too long for one reply
+ *  comes in pieces ({ part, at, total, key }); the rest are asked with `part` and the joined text is the answer. */
 async function call(name: string, args: Record<string, unknown>, input: Record<string, unknown>) {
+  const first = await callOnce(name, args, input);
+  if (!(first && typeof first.key === 'string' && typeof first.part === 'string' && typeof first.total === 'number')) return first;
+  let text = first.part;
+  while (text.length < first.total) {
+    const piece = await callOnce('part', { key: first.key, at: text.length }, input);
+    if (typeof piece?.part !== 'string' || piece.part.length === 0) throw new Error('A piece of the answer did not come.');
+    text += piece.part;
+  }
+  return JSON.parse(text);
+}
+
+async function callOnce(name: string, args: Record<string, unknown>, input: Record<string, unknown>) {
   const pass = sessionStorage.getItem(PASS);
   if (!pass) { await signIn(); throw new Error('signing in'); }
   const reply = await fetch(`${location.origin}/mcp`, { method: 'POST', cache: 'no-store',

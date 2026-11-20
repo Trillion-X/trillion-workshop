@@ -64,10 +64,40 @@ test('the MCP lines: initialize, tools/list, a call answered with structuredCont
   const session = taskPagesSession({ open });
   assert.equal((await answer(session, { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-06-18' } })).result.serverInfo.name, 'serve-the-task-pages');
   assert.equal(await answer(session, { jsonrpc: '2.0', method: 'notifications/initialized' }), null);
-  assert.deepEqual((await answer(session, { jsonrpc: '2.0', id: 2, method: 'tools/list' })).result.tools.map(tool => tool.name), ['pursuits', 'data']);
+  assert.deepEqual((await answer(session, { jsonrpc: '2.0', id: 2, method: 'tools/list' })).result.tools.map(tool => tool.name), ['pursuits', 'data', 'part']);
   const listed = await answer(session, { jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'pursuits', arguments: { dbs, pages_database: 'runs_it' } } });
   assert.deepEqual(listed.result.structuredContent.items.map(item => item.id), ['bakery', 'garden']);
   const failed = await answer(session, { jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'data', arguments: { dbs, pages_database: 'runs_it' } } });
   assert.equal(failed.result.isError, true);
   assert.match(failed.result.content[0].text, /p is the list/);
+});
+
+test('an answer longer than one reply comes in pieces, each small enough for one door message, and joins to the whole', async () => {
+  const long = Array.from({ length: 3000 }, (_, at) => ({ id: `t${at}`, title: `Task "${at}" ${'é'.repeat(200)}` }));
+  const session = { pursuits: async () => long };
+  const first = (await answer(session, { jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'pursuits', arguments: {} } })).result.structuredContent;
+  assert.equal(first.at, 0);
+  let text = first.part, asked = 0;
+  while (text.length < first.total) {
+    const reply = await answer(session, { jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'part', arguments: { key: first.key, at: text.length } } });
+    assert.ok(Buffer.byteLength(JSON.stringify(reply)) < 1024 * 1024, 'each reply fits one door message');
+    text += reply.result.structuredContent.part;
+    asked += 1;
+  }
+  assert.ok(asked >= 2, 'more than one piece was asked');
+  assert.deepEqual(JSON.parse(text), long);
+  const gone = await answer(session, { jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'part', arguments: { key: first.key, at: 0 } } });
+  assert.equal(gone.result.isError, true, 'an answer read to its end is let go');
+});
+
+test('a connection reset while it waits is let go, and the next ask opens it again', async () => {
+  const { EventEmitter } = await import('node:events');
+  const { open: openReal } = await databases();
+  let opens = 0, last;
+  const open = async (database, index) => { opens += 1; const real = await openReal(database, index); last = Object.assign(new EventEmitter(), { query: text => real.query(text) }); return last; };
+  const session = taskPagesSession({ open });
+  await session.pursuits({ dbs, pages_database: 'runs_it' });
+  last.emit('error', new Error('read ECONNRESET'));
+  assert.deepEqual((await session.pursuits({ dbs, pages_database: 'runs_it' })).map(item => item.id), ['bakery', 'garden']);
+  assert.equal(opens, 2);
 });

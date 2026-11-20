@@ -13,6 +13,12 @@
 //
 //   pursuits {dbs, pages_database}           -> [{ id, label }]                       the pursuits with a page, in their place
 //   data     {dbs, pages_database, p: [ids]} -> { tasks, statuses, shows, changes, facts, fact_kinds }  their pages joined
+//   part     {key, at}                        -> { part, at, total, key }                 the next piece of a long answer
+//
+// One reply line is held to one door message (the engine drops a longer line), so an answer whose JSON is longer than
+// PART_BYTES is kept here as its text and answered in pieces: the first reply is { part, at: 0, total, key }, and the
+// caller asks `part` with the key and the next `at` until it holds `total` characters, then parses the joined text. A
+// kept answer is let go when its last piece is read, or KEPT_MS after it was made.
 //
 // Reads are the task page's own read-only SELECT (read-data/read-task-page.mjs); nothing is written, copied or kept.
 import { readFileSync } from 'node:fs';
@@ -24,12 +30,18 @@ import { taskPageFrom, taskPageSql } from '../read-data/read-task-page.mjs';
 const FIRST_DESCRIPTOR = 3;
 const SUFFIX = '-connection';
 const NAME = /^[a-z_][a-z0-9_]*$/;
+// The most bytes of answer one reply carries (well under the door's 1 MiB message once escaped inside the reply), and how
+// long an answer read in pieces is kept for its caller.
+const PART_BYTES = 400_000;
+const KEPT_MS = 60_000;
 
 const TOOLS = [
   { name: 'pursuits', description: 'The pursuits that have a task page: [{ id, label }], in their place.',
     inputSchema: { type: 'object', required: ['dbs', 'pages_database'], properties: { dbs: { type: 'array' }, pages_database: { type: 'string' } } } },
   { name: 'data', description: 'The task pages of the chosen pursuits, joined: { tasks, statuses, shows, changes, facts, fact_kinds }.',
     inputSchema: { type: 'object', required: ['dbs', 'pages_database', 'p'], properties: { dbs: { type: 'array' }, pages_database: { type: 'string' }, p: { type: 'array', items: { type: 'string' } } } } },
+  { name: 'part', description: 'The next piece of a long answer: { part, at, total, key }, from the key and `at` its earlier piece named.',
+    inputSchema: { type: 'object', required: ['key', 'at'], properties: { key: { type: 'string' }, at: { type: 'integer' } } } },
 ];
 
 /** A database's login as the engine handed it on its descriptor; empty when none was handed. */
@@ -74,7 +86,14 @@ export function taskPagesSession({ open }) {
     const index = names.indexOf(database);
     if (index < 0) throw new Error(`${database} is not one of the databases this page was started with.`);
     // A database that failed to open is asked again by the next call, never kept failed.
-    if (!clients.has(database)) clients.set(database, Promise.resolve(open(database, index)).catch(error => { clients.delete(database); throw error; }));
+    // A connection the server or the network ends while it waits (an idle reset) is let go, so the next ask opens it again
+    // and the session never ends over it.
+    if (!clients.has(database)) {
+      const opened = Promise.resolve(open(database, index)).then(
+        made => { made.on?.('error', () => { if (clients.get(database) === opened) clients.delete(database); }); return made; },
+        error => { clients.delete(database); throw error; });
+      clients.set(database, opened);
+    }
     return clients.get(database);
   };
   const pages = async (names, pagesDatabase) => {
@@ -101,6 +120,30 @@ export function taskPagesSession({ open }) {
   return { pursuits, data };
 }
 
+/** The answers too long for one reply, kept by key while their caller reads them in pieces. */
+const kept = new Map();
+let made = 0;
+
+/** The piece of `text` from character `at` whose escaped JSON is at most PART_BYTES. */
+function pieceOf(key, text, at) {
+  let length = Math.min(text.length - at, PART_BYTES);
+  for (let size = Buffer.byteLength(JSON.stringify(text.slice(at, at + length))); length > 1 && size > PART_BYTES;
+    size = Buffer.byteLength(JSON.stringify(text.slice(at, at + length)))) length = Math.max(1, Math.floor(length * PART_BYTES / size * 0.98));
+  const part = text.slice(at, at + length);
+  if (at + length >= text.length) { clearTimeout(kept.get(key)?.timer); kept.delete(key); }
+  return { part, at, total: text.length, key };
+}
+
+/** A call's value as its reply: whole when its JSON fits one reply, else the first piece of it. */
+function replyOf(value) {
+  const text = JSON.stringify(value);
+  if (Buffer.byteLength(text) <= PART_BYTES) return { content: [{ type: 'text', text }], structuredContent: Array.isArray(value) ? { items: value } : value };
+  const key = `answer-${process.pid}-${(made += 1)}`;
+  kept.set(key, { text, timer: setTimeout(() => kept.delete(key), KEPT_MS).unref?.() });
+  const piece = pieceOf(key, text, 0);
+  return { content: [{ type: 'text', text: `Piece 1 of an answer of ${text.length} characters; ask part with key ${key}.` }], structuredContent: piece };
+}
+
 /** One JSON-RPC message in, its reply out (null for a notification). */
 export async function answer(session, message) {
   const reply = result => ({ jsonrpc: '2.0', id: message.id, result });
@@ -109,10 +152,16 @@ export async function answer(session, message) {
   if (message.method === 'tools/list') return reply({ tools: TOOLS });
   if (message.method !== 'tools/call') return { jsonrpc: '2.0', id: message.id, error: { code: -32601, message: `No method ${message.method}.` } };
   const { name, arguments: args = {} } = message.params ?? {};
+  if (name === 'part') {
+    const held = kept.get(String(args.key));
+    const at = Number(args.at);
+    if (!held || !Number.isInteger(at) || at < 0 || at >= held.text.length) return reply({ isError: true, content: [{ type: 'text', text: 'That answer is no longer kept; ask for it again.' }] });
+    const piece = pieceOf(String(args.key), held.text, at);
+    return reply({ content: [{ type: 'text', text: `Piece at ${at} of ${held.text.length} characters.` }], structuredContent: piece });
+  }
   if (!Object.hasOwn(session, name)) return reply({ isError: true, content: [{ type: 'text', text: `No call ${name}.` }] });
   try {
-    const value = await session[name](args);
-    return reply({ content: [{ type: 'text', text: JSON.stringify(value) }], structuredContent: Array.isArray(value) ? { items: value } : value });
+    return reply(replyOf(await session[name](args)));
   } catch (error) {
     return reply({ isError: true, content: [{ type: 'text', text: String(error?.message ?? error) }] });
   }
