@@ -38,6 +38,7 @@ import { tarGz, untarGz } from './tar-gz.mjs';
 import { InputStagingPending, inputPlacement, NAMESPACE_FILE, NAMESPACE_IDENTITY, runsSealed } from '../../shared-code/src/repo-explorer.mjs';
 import { sharedNamespaceFileInput, placeSharedNamespaceFileInput } from './shared-namespace-file-input.mjs';
 import SAVE_TOOL_EXAMPLE from './save-tool-example.json' with { type: 'json' };
+import WORKSHOP_SETTINGS from './workshop-settings.json' with { type: 'json' };
 import { decideExternalEffectAttempt, recordExternalEffectResult } from '../../connect-a-service-and-seal-its-key/do-work/external-effect-attempt.ts';
 import { sentFromRun } from './sent.mjs';
 import { completeExecutionCapture, executionContext, providerObservation, taskEffectBinding } from './execution-context.mjs';
@@ -661,7 +662,7 @@ const unavailableFields = unavailable => !unavailable?.length ? {} : {
 
 // handedToCaller(task): hears each run handed to the caller's own computer (placement executor caller), after it is
 // kept, so the stream route can tell whatever runs tools there; that computer answers it with answer().
-export function makeWorkshop({ data, store, pool, executors, host, handedToCaller = () => {}, box = null, sourced = null, connectionFields = null, connections = null, authorizeConnection = null, market = null, maker = null, access = null, payers = null, payouts = null, sources = null, files = null, publishBundle = null, sharedTool = null, records = null, sent = null, execution = null, relay = null, sendFromConnection = null, sendMeter = null, authorizeSpaceTask = async () => {}, authorizeResourceTask = null, fetchBytes = fetch, keepAlive = () => {}, reportRun = null, defaultPublisher = () => false, hostVersion = HOST_VERSION, now = () => new Date() }) {
+export function makeWorkshop({ data, store, pool, executors, host, handedToCaller = () => {}, box = null, sourced = null, connectionFields = null, connections = null, authorizeConnection = null, market = null, maker = null, access = null, payers = null, payouts = null, sources = null, files = null, publishBundle = null, sharedTool = null, records = null, sent = null, execution = null, relay = null, sendFromConnection = null, sendMeter = null, authorizeSpaceTask = async () => {}, authorizeResourceTask = null, fetchBytes = fetch, keepAlive = () => {}, reportRun = null, defaultPublisher = () => false, hostVersion = HOST_VERSION, refuseAliasedInputs = WORKSHOP_SETTINGS.refuse_aliased_inputs === true, now = () => new Date() }) {
   // Only tasks running in this isolate. Another host can own a live container for the same person.
   const running = new Set();
   // Resource binding authority belongs to the host's current owner. A descriptor cannot grant itself a
@@ -2047,7 +2048,7 @@ export function makeWorkshop({ data, store, pool, executors, host, handedToCalle
     const through = open.task.payer.through;
     if (tool?.invoke?.kind !== 'gateway-call' || tool.invoke.gateway !== through) throw new WorkshopError(`${tool_id} is not a call through ${open.task.payer.through_label}.`);
     open.tools.set(tool_id, tool);
-    const aliased = aliasProblems(input, tool.input_schema);
+    const aliased = refuseAliasedInputs ? aliasProblems(input, tool.input_schema) : [];
     if (aliased.length) throw new WorkshopError(aliased.join('; '));
     const problems = schemaProblems(input, tool.input_schema, 'input');
     if (problems.length) throw new WorkshopError(`${problems.join('; ')}. The input must match ${tool_id}'s input_schema.`);
@@ -2194,7 +2195,7 @@ export function makeWorkshop({ data, store, pool, executors, host, handedToCalle
   async function readOnce({ tool, task_id, input, shared }) {
     const startedAt = now();
     const resolved = await resolveRefs(input);
-    const aliased = aliasProblems(resolved, tool.input_schema);
+    const aliased = refuseAliasedInputs ? aliasProblems(resolved, tool.input_schema) : [];
     if (aliased.length) throw new WorkshopError(aliased.join('; '));
     const problems = schemaProblems(resolved, tool.input_schema, 'input');
     if (problems.length) throw new WorkshopError(`${problems.join('; ')}. The input must match this tool's input_schema.`);
@@ -2413,7 +2414,7 @@ export function makeWorkshop({ data, store, pool, executors, host, handedToCalle
         input = task.input;
       } else input = await resolveRefs(task.input);
       const joinedInput = joinHeld(input, held);
-      const aliased = aliasProblems(joinedInput, tool.input_schema);
+      const aliased = refuseAliasedInputs ? aliasProblems(joinedInput, tool.input_schema) : [];
       if (aliased.length) throw new WorkshopError(aliased.join('; '));
       const problems = schemaProblems(joinedInput, tool.input_schema, 'input');
       if (problems.length) {

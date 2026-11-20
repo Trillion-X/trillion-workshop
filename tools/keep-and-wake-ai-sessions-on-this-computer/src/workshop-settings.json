@@ -1,0 +1,4 @@
+{
+  "_what": "Switches the Workshop owner (src/workshop.mjs) reads at startup, as DATA. refuse_aliased_inputs: when true, a tool input that names a declared required field by an undeclared key is refused before dispatch with the old words (src/input-alias-refusal.mjs). When false (the default), such an input waits for the person through the pending-input path, as it did before that check. Off by default until the caller check in the verify-every-port-alias-refusal row is done. makeWorkshop takes refuseAliasedInputs to override it per instance (tests).",
+  "refuse_aliased_inputs": false
+}
