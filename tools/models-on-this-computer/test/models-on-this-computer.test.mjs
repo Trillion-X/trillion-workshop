@@ -35,6 +35,27 @@ test('a job selects its model, structured output and output limit from data', as
   } finally { server.close(); }
 });
 
+test('an answer lacking the fields its job names is that model\'s failure: the next model is asked, and none means no answer', async () => {
+  const asked = [];
+  const answers = { small: '{}', large: '{"subject":"Our call","text":"See you Saturday."}' };
+  const server = await serve(body => { asked.push(body.model); return { choices: [{ message: { content: answers[body.model] } }] }; });
+  const url = `http://127.0.0.1:${server.address().port}/v1/chat/completions`;
+  const settings = { most_tokens: 600, retry_after_seconds: 60, words, classify: [], chat: [
+    { id: 'small', url, model: 'small', timeout_seconds: 5 },
+    { id: 'large', url, model: 'large', timeout_seconds: 5 },
+  ], jobs: { reply: { models: ['small', 'large'], response_format: { type: 'json_object' }, answer_has: ['subject', 'text'] } } };
+  try {
+    const reply = await askLocal({ job: 'reply', messages: [{ role: 'user', content: 'Write it' }] }, settings);
+    assert.equal(reply.served_by, 'large');
+    assert.deepEqual(asked, ['small', 'large']);
+    answers.large = '{"subject":"","text":"Hi"}';
+    const none = await askLocal({ job: 'reply', messages: [{ role: 'user', content: 'Write it' }] }, settings);
+    assert.equal(none.error, words.none);
+    assert.deepEqual(none.tried, [{ id: 'small', why: 'answered without subject, text' }, { id: 'large', why: 'answered without subject' }]);
+    assert.deepEqual(asked, ['small', 'large', 'small', 'large'], 'a model that answered is not rested');
+  } finally { server.close(); }
+});
+
 test('a conversation goes to the first local server that answers; one not running is skipped', async () => {
   const asked = [];
   const server = await serve(body => { asked.push(body); return { choices: [{ message: { content: '{"verdicts":[]}' } }], usage: { prompt_tokens: 12, completion_tokens: 3 } }; });

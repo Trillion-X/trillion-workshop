@@ -73,8 +73,18 @@ const modelKey = row => `${row.url}\0${row.model ?? row.id}`;
 
 // A server that refused this request's shape (400-499: the model takes no tool calls, the input is too long) is working;
 // resting it would silence its other asks for the pause. Only silence, a failing server or a full queue rests a model.
-const refusedTheAsk = error => error?.status >= 400 && error.status < 500 && error.status !== 408 && error.status !== 429;
-const whyNot = error => (error?.status ? `answered ${error.status}` : error?.name === 'TimeoutError' ? 'did not answer in time' : 'is not running');
+const refusedTheAsk = error => Boolean(error?.said) || (error?.status >= 400 && error.status < 500 && error.status !== 408 && error.status !== 429);
+const whyNot = error => (error?.said ?? (error?.status ? `answered ${error.status}` : error?.name === 'TimeoutError' ? 'did not answer in time' : 'is not running'));
+
+// The fields a job's row says its answer must have (`answer_has`) that this reply lacks: its content is read as one JSON
+// object, and each named field must be words. A reply lacking any is that model's failure, so the next model is asked;
+// the model is not rested for it, since it answered.
+export function answerLacks(reply, fields) {
+  if (!Array.isArray(fields) || !fields.length) return [];
+  let value;
+  try { value = JSON.parse(String(reply?.choices?.[0]?.message?.content ?? '')); } catch { return fields; }
+  return fields.filter(field => typeof value?.[field] !== 'string' || !value[field].trim());
+}
 
 /** Asks the first row of `rows` whose server answers; null when none does. `failures` (an array) is filled with each
  *  row passed over and why, so an empty result can say what happened. */
@@ -139,9 +149,14 @@ async function askChatYesNo(row, { state, questions }) {
 export async function askLocal(input, settings, { priority = 0 } = {}) {
   if (Array.isArray(input.messages)) {
     const job = settings.jobs?.[input.job] ?? settings.jobs?.default ?? {};
+    const checked = reply => {
+      const lacking = answerLacks(reply, job.answer_has);
+      if (lacking.length) throw Object.assign(new Error('the answer lacks fields'), { said: `answered without ${lacking.join(', ')}` });
+      return reply;
+    };
     const rows = Array.isArray(job.models) ? job.models.map(id => settings.chat.find(row => row.id === id)).filter(Boolean) : settings.chat;
     const failures = [];
-    const found = await firstAnswer(rows, row => (input.parts === true ? postStreaming : post)(row.url, {
+    const found = await firstAnswer(rows, async row => checked(await (input.parts === true ? postStreaming : post)(row.url, {
       model: row.model, messages: input.messages, stream: false, ...(row.keep_alive ? { keep_alive: row.keep_alive } : {}),
       ...(Array.isArray(input.tools) ? { tools: input.tools } : {}),
       ...(job.response_format ? { response_format: job.response_format } : {}),
@@ -149,7 +164,7 @@ export async function askLocal(input, settings, { priority = 0 } = {}) {
       ...(row.num_ctx ? { options: { num_ctx: row.num_ctx } } : {}),
       ...(Number.isFinite(input.temperature) ? { temperature: input.temperature } : {}),
       ...(Number.isInteger(input.seed) ? { seed: input.seed } : {}),
-    }, job.timeout_seconds ?? row.timeout_seconds), settings.retry_after_seconds, failures, priority);
+    }, job.timeout_seconds ?? row.timeout_seconds)), settings.retry_after_seconds, failures, priority);
     return found ? { ...found.reply, model: found.row.model, served_by: found.row.id } : { error: settings.words.none, tried: failures };
   }
   if (input.state !== undefined && input.questions && typeof input.questions === 'object') {

@@ -108,7 +108,11 @@
       "timeout_seconds": 90,
       "response_format": {
         "type": "json_object"
-      }
+      },
+      "answer_has": [
+        "subject",
+        "text"
+      ]
     },
     "meeting-notes": {
       "models": [
