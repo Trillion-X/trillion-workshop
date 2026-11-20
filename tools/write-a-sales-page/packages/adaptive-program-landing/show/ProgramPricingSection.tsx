@@ -6,12 +6,13 @@
 
 import React from 'react';
 import { SectionShell, TextColumn } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
-import { Text, Button, Container, ShowcaseStrip } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { CtaButton, Text, Button, Container, ShowcaseStrip } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
 import { LANDING_PRICING_SECTION_ID } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
 import { PROGRAM_HERO_ENGRAVED_HEADING_STYLE } from './programHeroTypography';
 import { useProgramLandingData } from './ProgramLandingData';
 import {
   parsePatronAmount,
+  readBookingOffer,
   readPatronPolicy,
   readSystemOffer,
   type PatronAmountState,
@@ -59,10 +60,15 @@ type SystemOfferEnvelope =
     }
   | { status: 'unavailable'; reason?: string };
 
+type BookingOfferEnvelope =
+  | { status: 'ready'; offerId: string; priceOptionId: string; bookingUrl: string }
+  | { status: 'unavailable'; reason?: string };
+
 declare global {
   interface Window {
     __programPatronPolicyForThisPage__?: PatronPolicyEnvelope;
     __programSystemOfferForThisPage__?: SystemOfferEnvelope;
+    __programBookingForThisPage__?: BookingOfferEnvelope;
   }
 }
 
@@ -102,6 +108,10 @@ export function ProgramPricingSection({ flatSurfaces, instanceId, embedded = fal
   const systemOffer = typeof window === 'undefined'
     ? null
     : readSystemOffer(window.__programSystemOfferForThisPage__, plan.system.offerId);
+  const bookingPlan = plan.booking && plan.booking.shown !== false ? plan.booking : null;
+  const bookingOffer = typeof window === 'undefined'
+    ? null
+    : readBookingOffer(window.__programBookingForThisPage__, bookingPlan?.offerId);
   const [customEditing, setCustomEditing] = React.useState(false);
   const [showMoreAmounts, setShowMoreAmounts] = React.useState(false);
   const [customValue, setCustomValue] = React.useState('');
@@ -118,7 +128,7 @@ export function ProgramPricingSection({ flatSurfaces, instanceId, embedded = fal
     const report = window.__programReachedPrice__;
     const section = document.getElementById(anchorId);
     if (!report || !section || typeof IntersectionObserver === 'undefined') return;
-    const shownOfferIds = [plan.patron, plan.system].filter((card) => card.shown !== false).map((card) => card.offerId);
+    const shownOfferIds = [plan.patron, plan.system, plan.booking].filter((card) => card && card.shown !== false).map((card) => card.offerId);
     const observer = new IntersectionObserver((entries) => {
       if (!entries.some((entry) => entry.isIntersecting)) return;
       observer.disconnect();
@@ -126,7 +136,7 @@ export function ProgramPricingSection({ flatSurfaces, instanceId, embedded = fal
     }, { threshold: 0.4 });
     observer.observe(section);
     return () => observer.disconnect();
-  }, [anchorId, plan.patron, plan.system]);
+  }, [anchorId, plan.patron, plan.system, plan.booking]);
 
   // The direct no-friction pay path: pay click -> start-checkout -> the provider's
   // own hosted page. NO interstitial form ever sits between intent and Stripe
@@ -506,6 +516,33 @@ export function ProgramPricingSection({ flatSurfaces, instanceId, embedded = fal
           >
             {openingCard === 'patron' ? 'Opening checkout...' : ctaText}
           </Button>
+        </article>
+        )}
+
+        {bookingPlan === null ? null : (
+        <article
+          aria-labelledby={scoped("program-booking-plan-name")}
+          className="program-pricing-card"
+          data-offer-card="booking"
+          style={{ order: bookingPlan.order ?? 0 }}
+        >
+          <div className="program-pricing-name-row">
+            <span className="program-pricing-name" id={scoped("program-booking-plan-name")}>{bookingPlan.planName}</span>
+          </div>
+          <p className="program-pricing-model">{bookingPlan.modelNote}</p>
+          {bookingOffer ? (
+            <CtaButton href={bookingOffer.bookingUrl} label={bookingPlan.ctaLabel} />
+          ) : (
+            <div className="grid gap-3" role="alert">
+              <p className="m-0 text-[15px] leading-[1.5]">Booking is unavailable right now.</p>
+              <Button flat={flatSurfaces} onClick={() => window.location.reload()} size="md" type="button" variant="hardware">
+                Try again
+              </Button>
+            </div>
+          )}
+          <Text as="p" variant="body" color="muted" className="program-pricing-footnote" style={{ fontSize: 15, lineHeight: 1.5 }}>
+            {bookingPlan.footnote}
+          </Text>
         </article>
         )}
       </Container>

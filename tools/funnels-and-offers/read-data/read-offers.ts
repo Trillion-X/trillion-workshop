@@ -7,6 +7,8 @@ export type CommercialPriceOption = {
   currency?: string;
   id: string;
   installment_count?: number;
+  /** Where a buyer goes to book a time for this option (payment_timing 'booking'). Carries no amount. */
+  booking_url?: string;
   /** Total due on the first subscription invoice. Absent means the ordinary recurring amount. */
   initial_amount_cents?: number;
   interval?: string;
@@ -546,6 +548,7 @@ function readPriceOptions(value: unknown, lists: SuggestionLists | undefined, of
     const initialAmountCents = typeof option.initial_amount_cents === 'number' ? option.initial_amount_cents : undefined;
     const interval = readString(option.interval);
     const paymentTiming = readString(option.payment_timing);
+    const bookingUrl = readString(option.booking_url);
     const trialDays = typeof option.trial_days === 'number' ? option.trial_days : undefined;
     const includedUnits = typeof option.included_units === 'number' ? option.included_units : undefined;
     const additionalUnitAmountCents = typeof option.additional_unit_amount_cents === 'number' ? option.additional_unit_amount_cents : undefined;
@@ -585,6 +588,7 @@ function readPriceOptions(value: unknown, lists: SuggestionLists | undefined, of
       ...(interval ? { interval } : {}),
       label,
       ...(paymentTiming ? { payment_timing: paymentTiming } : {}),
+      ...(bookingUrl ? { booking_url: bookingUrl } : {}),
       ...(trialDays == null ? {} : { trial_days: trialDays }),
       ...(includedUnits == null ? {} : { included_units: includedUnits }),
       ...(additionalUnitAmountCents == null ? {} : { additional_unit_amount_cents: additionalUnitAmountCents }),

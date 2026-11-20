@@ -226,6 +226,11 @@ test('a session intent follows the quote: recurring mode and amount for a subscr
   assert.equal(once.session.schedule.charges[0].amount_cents, '2500', 'whole cents cross as text');
 });
 
+test('a booking option has no amount, so no paid session can be quoted for it', () => {
+  const booking = [{ kind: 'commercial-offer', id: 'offer:call', label: 'Book a call', access_refs: [], sort_order: 40, price_options: [{ id: 'price:call:booking', label: 'Book a call', payment_timing: 'booking', booking_url: 'https://example.test/call' }] }];
+  assert.throws(() => sessionIntentFromQuote(quoteOf(booking, 'offer:call', 'price:call:booking'), urls), /A positive amount is required for a paid session/);
+});
+
 test('the idempotency key is stable for one quote and changes when the price-determining fields change', () => {
   const a = sessionIntentFromQuote(quoteOf(offerRows, 'offer:box', 'price:box:monthly'), urls).idempotency_key;
   const again = sessionIntentFromQuote(quoteOf(offerRows, 'offer:box', 'price:box:monthly'), urls).idempotency_key;

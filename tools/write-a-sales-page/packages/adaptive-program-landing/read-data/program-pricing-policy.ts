@@ -106,3 +106,20 @@ export function parsePatronAmount(rawValue: string, minCents: number, maxCents: 
   if (maxCents != null && amountCents > maxCents) return { kind: 'above-max', amountCents };
   return { kind: 'valid', amountCents };
 }
+
+export type BookingOffer = {
+  bookingUrl: string;
+  offerId: string;
+  priceOptionId: string;
+};
+
+// A booking offer's next step is the address its row names (price option `booking_url`). The page reads that address
+// from the host's envelope for the offer the page names, and draws nothing it cannot prove came from that row.
+export function readBookingOffer(envelope: unknown, expectedOfferId: string | undefined): BookingOffer | null {
+  if (!expectedOfferId || !envelope || typeof envelope !== 'object') return null;
+  const candidate = envelope as Record<string, unknown>;
+  if (candidate.status !== 'ready' || candidate.offerId !== expectedOfferId) return null;
+  if (typeof candidate.priceOptionId !== 'string' || !candidate.priceOptionId) return null;
+  if (typeof candidate.bookingUrl !== 'string' || !/^https:\/\//.test(candidate.bookingUrl)) return null;
+  return { bookingUrl: candidate.bookingUrl, offerId: expectedOfferId, priceOptionId: candidate.priceOptionId };
+}
