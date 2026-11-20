@@ -23,16 +23,18 @@ const TOOLS = '@tools';
 
 // Every record of `type` (whose `where` fields equal), page after page, at most `most` of them. With `order`
 // ({ field, direction }) only the first `most` in that order, in one call: a store that keeps the records in tables sorts them.
-async function every(resource, type, where, most, pageSize, order = null) {
+async function every(resource, type, where, most, pageSize, order = null, present = null) {
+  if (present) where = null;
+  const only = present ? { present } : {};
   if (order) {
-    const page = await resource(RECORDS, 'records:list', { type, ...(where ? { where } : {}), limit: most, order });
+    const page = await resource(RECORDS, 'records:list', { type, ...(where ? { where } : {}), ...only, limit: most, order });
     if (!Array.isArray(page?.records)) throw new Error(`The account did not return its ${type} records.`);
     return page.records.map(row => ({ id: row.id, type, value: row.value ?? null }));
   }
   const found = [];
   let after = null;
   do {
-    const page = await resource(RECORDS, 'records:list', { type, ...(where ? { where } : {}), limit: Math.min(pageSize, most - found.length), ...(after ? { after } : {}) });
+    const page = await resource(RECORDS, 'records:list', { type, ...(where ? { where } : {}), ...only, limit: Math.min(pageSize, most - found.length), ...(after ? { after } : {}) });
     if (!Array.isArray(page?.records)) throw new Error(`The account did not return its ${type} records.`);
     for (const row of page.records) found.push({ id: row.id, type, value: row.value ?? null });
     after = page.next ?? null;
@@ -52,7 +54,11 @@ export async function readFor(resource, read = {}, { rules = RULES } = {}) {
     const order = read.tasks.newest ? { field: read.tasks.newest.field, direction: read.tasks.newest.direction } : null;
     for (const status of statuses) add(await every(resource, rules.task_kind, status === null ? read.tasks.where : { ...read.tasks.where, status }, order ? read.tasks.newest.count : most, pageSize, order));
   }
-  for (const type of read.types ?? []) add(await every(resource, type, null, rules.most_people_read, pageSize));
+  // A type is a record type, or { type, present }: only the records whose `present` fields hold a value.
+  for (const one of read.types ?? []) {
+    const { type, present = null } = typeof one === 'string' ? { type: one } : one;
+    add(await every(resource, type, null, rules.most_people_read, pageSize, null, present));
+  }
   // records:read answers the record's own value (the engine's read is the value, native-record-consumers.mjs), or null.
   for (const { type, id } of read.ids ?? []) {
     if (held.has(id)) continue;
@@ -95,13 +101,15 @@ export function recordsInTables(runSql, { rest, rules = RULES } = {}) {
   const keptObject = table => `jsonb_build_object(${[...table.columns, table.rest].map(column => `'${column}', ${column === table.rest ? `coalesce(${column}, '{}'::jsonb)` : column}`).join(', ')})`;
   const tableOf = type => { const table = tables.get(type); if (!table) throw new Error(`No table keeps records of type ${type} (task-moves.json rows_in_tables).`); return table; };
 
-  async function list({ type, where = {}, limit = 100, after = null, order = null }) {
+  async function list({ type, where = {}, limit = 100, after = null, order = null, present = [] }) {
     const table = tableOf(type);
+    for (const field of present) if (!table.columns.includes(named(field))) throw new Error(`${field} is not a column of ${table.table}.`);
     if (order && after) throw new Error('A list in an order is read in one call: it takes no `after`.');
     if (order && !table.columns.includes(named(order.field))) throw new Error(`${order.field} is not a column of ${table.table}.`);
     const sorted = order ? `${order.field} ${order.direction === 'desc' ? 'desc' : 'asc'} nulls last, id ${order.direction === 'desc' ? 'desc' : 'asc'}` : 'id';
     const params = [];
     const conditions = Object.entries(where).map(([column, want]) => { params.push(cell(table, named(column), want)); return `${column} = ${cast(table, column, params.length)}`; });
+    for (const field of present) conditions.push(`${field} is not null`);
     if (after) { params.push(after); conditions.push(`id > $${params.length}::text`); }
     params.push(order ? limit : limit + 1);
     const rows = await runSql(`select id, ${[...table.columns, table.rest].join(', ')} from ${table.table}${conditions.length ? ` where ${conditions.join(' and ')}` : ''} order by ${sorted} limit $${params.length}`, params);

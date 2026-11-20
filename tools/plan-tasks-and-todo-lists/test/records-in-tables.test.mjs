@@ -64,6 +64,10 @@ test('of two takes that read the same waiting task, only the first is kept, and 
   await assert.rejects(resource('@own-records', 'records:write', { records: second.keep }), error => error.code === 'original_command_conflict');
   const [row] = (await db.query('select taken_by from calendar_tasks where id = $1', [result.task_id])).rows;
   assert.equal(row.taken_by, 'ai:north');
+  await db.query(`insert into users (id, name) values ('person:no-can', 'Says nothing it can take')`);
+  const takers = await resource('@own-records', 'records:list', { type: 'user', present: ['can'] });
+  assert.deepEqual(takers.records.map(one => one.id).sort(), ['ai:north', 'person:someone'], 'a user whose can holds nothing is not listed as one who can take');
+  await assert.rejects(resource('@own-records', 'records:list', { type: 'user', present: ['nope; drop'] }), /not a plain table or column name/);
   await assert.rejects(resource('@own-records', 'records:list', { type: 'ai-job' }), /No table keeps records of type ai-job/);
   await assert.rejects(resource('@own-records', 'records:list', { type: 'calendar-task', where: { 'status; drop': 'x' } }), /not a plain table or column name/);
 });

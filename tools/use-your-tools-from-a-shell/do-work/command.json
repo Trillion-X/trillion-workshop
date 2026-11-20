@@ -320,7 +320,7 @@
     "need_refusal": { "code": -32602, "message": "Addressed resource arguments are incomplete: `need` is not an argument of a call." }
   },
   "tasks": {
-    "_what": "Each task command is one read or one move through a Workshop task tool (trillion-workshop tools/plan-tasks-and-todo-lists, packed under ./packs). `tools` names the tool for see (tasks), give, take, who (who-can-take), change (every move by id except finish) and finish (its own row, so it may name only the saved target). `actions` maps each move command to the action the task row takes. `holder_commands` are the moves the AI holding a task makes: the claim (taken_at) is read from the task's own row. `who_types` are the record types who-can-take reads (the people and AIs that may take a task). `list_limit` is how many tasks `tasks` shows when no limit is given. `store` is where the tasks are kept when the person's own database keeps them as table rows: `--store NAME` on any task command names the held connection of that database (kept in `file` under the state folder for the next command), and who-can-take then reads `who_types` from it; `tasks` asks the store for only the newest it shows, in `newest` order (the order the see-tasks row shows them in).",
+    "_what": "Each task command is one read or one move through a Workshop task tool (trillion-workshop tools/plan-tasks-and-todo-lists, packed under ./packs). `tools` names the tool for see (tasks), give, take, who (who-can-take), change (every move by id except finish) and finish (its own row, so it may name only the saved target). `actions` maps each move command to the action the task row takes. `holder_commands` are the moves the AI holding a task makes: the claim (taken_at) is read from the task's own row. `who_types` are the record types who-can-take reads (the people and AIs that may take a task). `list_limit` is how many tasks `tasks` shows when no limit is given. `store` is where the tasks are kept when the person's own database keeps them as table rows: `--store NAME` on any task command names the held connection of that database (kept in `file` under the state folder for the next command), and who-can-take then reads `who_types` from it (only the users whose `can` says what they can take); `tasks` asks the store for only the newest it shows, in `newest` order (the order the see-tasks row shows them in).",
     "tools": {
       "see": "tool:see-tasks",
       "give": "tool:give-a-task",
@@ -357,7 +357,7 @@
       "ai",
       "person"
     ],
-    "store": {"flag": "store", "file": "tasks-store.json", "who_types": ["user"], "newest": {"field": "sent_at", "direction": "desc"}},
+    "store": {"flag": "store", "file": "tasks-store.json", "who_types": [{"type": "user", "present": ["can"]}], "newest": {"field": "sent_at", "direction": "desc"}},
     "list_limit": 20
   },
   "bearers": {
