@@ -32,6 +32,15 @@
       "needs": "handle"
     }
   },
+  "composio": {
+    "_what": "The one Composio route to a person's X bookmarks: the toolkit's bookmarks action and the fields its page carries. Composio holds the person's X account, so no X token is in the vault for this route.",
+    "toolkit": "twitter",
+    "bookmarks": "TWITTER_BOOKMARKS_BY_USER",
+    "expansions": ["author_id", "attachments.media_keys", "referenced_tweets.id", "referenced_tweets.id.author_id"],
+    "tweet_fields": ["created_at", "author_id", "entities", "note_tweet", "referenced_tweets", "attachments"],
+    "user_fields": ["username", "name"],
+    "media_fields": ["url", "preview_image_url", "type"]
+  },
   "sign_in_page": "https://x.com/i/flow/login",
   "signed_out_address_pattern": "^/(?:i/flow/login|login|i/jf/onboarding)(?:[/?]|$)",
   "scroll": { "wheel_pixels": 4000, "pause_ms": 1500, "window": { "width": 1280, "height": 2400 } },

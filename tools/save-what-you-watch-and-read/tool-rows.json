@@ -2099,7 +2099,7 @@
       "id": "tool:save-x-bookmarks",
       "label": "Save your X bookmarks to your files",
       "job": "Keep the posts the person bookmarked on X in their files, newest first, so their AI can use them",
-      "description": "Reads the posts the person bookmarked on their connected X account through X's API (the reader in save-what-you-watch-and-read) and keeps them as one file in their files. Give since (the newest key the last read answered) to read only the new ones; the answer says how many were read, how many are not kept yet, the newest key and the file's name. It reads only: nothing is posted, liked or changed on X.",
+      "description": "Reads the posts the person bookmarked on X, through the person's X account that Composio holds: Composio's X bookmarks action, run as the person. No X token is kept in the vault for this. It keeps them as one file in their files. Give since (the newest key the last read answered) to read only the new ones; the answer says how many were read, how many are not kept yet, the newest key and the file's name. It reads only: nothing is posted, liked or changed on X.",
       "status": "active",
       "input_schema": {
         "type": "object",
@@ -2110,7 +2110,7 @@
         "properties": {
           "account": {
             "type": "string",
-            "description": "Which of the person's X connections to read with, by its id (service_connection:x, or service_connection:x:<account>)."
+            "description": "The Composio account id of the person's X connection, as the connection list names it (for example twitter_terma-weedy)."
           },
           "since": {
             "type": [
@@ -2162,41 +2162,6 @@
         }
       },
       "invoke": {
-        "refresh": {
-          "token_url": "https://api.x.com/2/oauth2/token",
-          "asked": {
-            "method": "POST",
-            "grant_type": "refresh_token",
-            "token_param": "refresh_token"
-          },
-          "client_auth": "basic",
-          "client": {
-            "id": {
-              "name": "x-sign-in-client-id"
-            },
-            "secret": {
-              "name": "x-sign-in-client-secret"
-            }
-          },
-          "access_field": "access_token",
-          "token_paths": [
-            [
-              "access_token"
-            ]
-          ],
-          "expires_path": [
-            "expires_in"
-          ],
-          "refresh": {
-            "field": "refresh_token",
-            "token_paths": [
-              [
-                "refresh_token"
-              ]
-            ]
-          },
-          "when_expiry_unknown": true
-        },
         "kind": "container",
         "internet": true,
         "workdir": "/opt/save-what-you-watch-and-read",
@@ -2238,17 +2203,21 @@
                 "quiet-switches.json"
               ],
               "at": "/opt/headless-browser"
+            },
+            {
+              "package": "composio-connection",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/composio-connection"
             }
           ]
         },
-        "connection": {
-          "vendor": "x",
-          "from_input": "account"
-        },
+        "connection": null,
         "credential_mounts": [
           {
-            "field_id": "access_token",
-            "fd": 3
+            "secret_name": "composio-api-key",
+            "fd": 4
           }
         ]
       },
@@ -2261,7 +2230,60 @@
       "placements": [
         "placement:your-computer"
       ],
-      "verify": []
+      "verify": [
+        {
+          "kind": "sample-run",
+          "input": {
+            "which": "bookmarks",
+            "account": "twitter_terma-weedy"
+          },
+          "replies": [
+            {
+              "request": {
+                "method": "POST",
+                "url": "https://backend.composio.dev/api/v3/tools/execute/TWITTER_BOOKMARKS_BY_USER"
+              },
+              "status": 200,
+              "body": {
+                "successful": true,
+                "data": {
+                  "data": {
+                    "data": [
+                      {
+                        "id": "2000000001",
+                        "text": "A sample post https://t.co/aaa",
+                        "author_id": "1000000001",
+                        "created_at": "2026-09-02T16:50:26.000Z",
+                        "entities": {
+                          "urls": [
+                            {
+                              "url": "https://t.co/aaa",
+                              "expanded_url": "https://example.org/sample-repo"
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "includes": {
+                      "users": [
+                        {
+                          "id": "1000000001",
+                          "name": "Sample Maker",
+                          "username": "sample_maker"
+                        }
+                      ]
+                    },
+                    "meta": {
+                      "result_count": 1
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "shape_read_at": "2026-11-20"
+        }
+      ]
     }
   },
   {

@@ -71,3 +71,22 @@ test('a run with no file in its folder keeps the posts the caller passes in', as
     rmSync(out, { recursive: true, force: true });
   }
 });
+
+test('the bookmarks come through the person\'s Composio X account, one file in the folder, with the cursor', async () => {
+  const out = mkdtempSync(join(tmpdir(), 'save-x-'));
+  const calls = [];
+  const execute = async (tool, account) => {
+    calls.push({ tool, account });
+    return { data: { data: [{ id: '9', text: 'a post', author_id: '100', created_at: '2026-09-02T16:50:26.000Z' }, { id: '5', text: 'older', author_id: '100', created_at: '2026-09-01T10:00:00.000Z' }], includes: { users: [{ id: '100', username: 'sample_maker', name: 'Sample Maker' }] }, meta: {} } };
+  };
+  try {
+    const answer = await saveXPosts({ which: 'bookmarks', account: 'twitter_terma-weedy' }, { out, execute });
+    assert.deepEqual(calls, [{ tool: 'TWITTER_BOOKMARKS_BY_USER', account: 'twitter_terma-weedy' }]);
+    assert.equal(answer.newest, '9');
+    assert.equal(answer.total, 2);
+    const kept = JSON.parse(readFileSync(join(out, answer.file), 'utf8'));
+    assert.deepEqual(kept.posts.map(p => p.key), ['9', '5']);
+  } finally {
+    rmSync(out, { recursive: true, force: true });
+  }
+});

@@ -7,18 +7,24 @@
 // are new, the newest key (the since the next read takes) and the file's name.
 //
 // Usage: node do-work/save-x-posts.mjs --which bookmarks|likes --out <folder> < input.json
-//   input: { account, since?, already_kept?, kept? }; the token is on descriptor 3 (the reader's tokenFrom).
+//   input: { account, since?, already_kept?, kept? }: account is the Composio account id of the person's X connection (bookmarks);
+//   the likes read takes the X API token on descriptor 3 (the reader's tokenFrom).
 //   The file already in <folder> is merged with the fresh posts (kept? is used when there is none): a run never drops an earlier run's posts.
 // Refusals exit 1 with X's own words or the reason, and write no file.
 import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readSaved } from './read-saved-x-posts.mjs';
+import { readFromComposio } from './composio-source.mjs';
+import { makeComposioCall } from '../../composio-connection/read-data/composio-call.mjs';
 
 /** Reads the list the request names and writes it to `out`; answers the summary the row returns. */
-export async function saveXPosts(request, { out, way } = {}) {
+export async function saveXPosts(request, { out, way, execute } = {}) {
   if (request.which !== 'bookmarks' && request.which !== 'likes') throw new Error('which must be bookmarks or likes.');
-  const read = await readSaved({ via: 'api', which: request.which, since: request.since ?? null, already_kept: request.already_kept ?? [], token_fd: 3 }, way);
+  // Bookmarks are read through the person's X account that Composio holds; likes still read through the X API token.
+  const composio = (req, collected) => readFromComposio(req, collected, { execute: execute ?? makeComposioCall() });
+  const source = way ?? (request.which === 'bookmarks' ? composio : undefined);
+  const read = await readSaved({ via: request.which === 'bookmarks' ? 'composio' : 'api', which: request.which, account: request.account, user_id: request.user_id, since: request.since ?? null, already_kept: request.already_kept ?? [], token_fd: 3 }, source);
   const file = `saved-x-${request.which}.json`;
   const posts = mergePosts(keptPosts(join(out, file), request.kept), read.posts);
   mkdirSync(out, { recursive: true });
