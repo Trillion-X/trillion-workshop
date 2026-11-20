@@ -18,6 +18,7 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { git, gitPathIn } from '../../keep-the-shared-checkout-current/do-work/git-in-a-declared-folder.mjs';
+import { duplicateLayouts } from '../../workflows/do-work/pin-a-commit-by-its-files.mjs';
 
 export const PACKAGE_FILES = 'package-files.json';
 const LANE = 'keep-package-files-current';
@@ -54,25 +55,34 @@ finally:
     lease_module.release(lease)
 `;
 
-/** origin's rows with what the generator adds: a new row, or new items appended to a row origin has. Nothing origin has is removed. */
+/** origin's rows with what the generator adds: a new row, or new items appended to a row origin has. Nothing origin has is removed.
+ *  An add whose place the row already lays (by an origin item, or by an earlier add) is not an add: the pin tool's own rule
+ *  (duplicateLayouts) judges each candidate, so the merged file cannot fail the judge on a duplicate. */
 export function classify({ oldRows, newRows }) {
   const merged = {};
   const added = [];
+  const skipped = [];
   const findings = [];
   for (const row of Object.keys(oldRows)) merged[row] = [...oldRows[row]];
+  const addIfClear = (row, item) => {
+    const candidate = [...merged[row], item];
+    if (duplicateLayouts({ [row]: candidate }).length) { skipped.push({ row, item, why: 'its place is already laid by this row' }); return false; }
+    merged[row] = candidate;
+    return true;
+  };
   for (const row of Object.keys(newRows)) {
     if (!(row in oldRows)) {
-      merged[row] = [...newRows[row]];
-      added.push({ row, why: 'row added' });
+      merged[row] = [];
+      for (const item of newRows[row]) if (addIfClear(row, item)) added.push({ row, item, why: 'row added' });
       continue;
     }
     const before = new Set(oldRows[row].map(itemKey));
     const after = new Set(newRows[row].map(itemKey));
-    for (const item of newRows[row]) if (!before.has(itemKey(item))) { merged[row].push(item); added.push({ row, item, why: 'item added' }); }
+    for (const item of newRows[row]) if (!before.has(itemKey(item)) && addIfClear(row, item)) added.push({ row, item, why: 'item added' });
     for (const item of oldRows[row]) if (!after.has(itemKey(item))) findings.push({ row, item, why: 'the generator does not find this item; origin keeps it' });
   }
   for (const row of Object.keys(oldRows)) if (!(row in newRows)) findings.push({ row, why: 'the generator does not find this row; origin keeps it' });
-  return { merged, added, findings, land: added.length > 0 };
+  return { merged, added, skipped, findings, land: added.length > 0 };
 }
 
 /** One pass. The seams do the git, generator and landing work; the tests pass fakes and the command line passes the real ones. */
@@ -81,7 +91,7 @@ export async function keepPackageFilesCurrent({ root, seams }) {
   const oldRows = JSON.parse(await seams.fileAt(root, tip));
   const newRows = JSON.parse(await seams.generate(root, tip));
   const verdict = classify({ oldRows, newRows });
-  const summary = { at: tip, added: verdict.added.length, findings: verdict.findings };
+  const summary = { at: tip, added: verdict.added.length, skipped: verdict.skipped.length, findings: verdict.findings };
   if (!verdict.land) return { outcome: 'nothing-to-do', ...summary };
   // Origin may have moved while the generator ran. The additions were made against origin's file at `tip`, so they are still right
   // on a newer tip only when origin's file is unchanged; then the commit is built on the newer tip. Any other change to the file

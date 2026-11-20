@@ -93,3 +93,21 @@ test('a landing that is not wired reports an error and lands nothing', async () 
   const result = await keepPackageFilesCurrent({ root: '/x', seams });
   assert.equal(result.outcome, 'error');
 });
+
+test('an add whose place the row already lays is not an add: the merged file has no duplicate layout (name-a-heard-voice)', async () => {
+  const folder = { package: 'media-composition', paths: ['do-work'], at: '/opt/media-composition' };
+  const file = { package: 'media-composition', paths: ['do-work/blur-faces-not-agreed.py'], at: '/opt/media-composition' };
+  const verdict = classify({ oldRows: { 'tool:name-a-heard-voice': [folder] }, newRows: { 'tool:name-a-heard-voice': [folder, file] } });
+  assert.equal(verdict.added.length, 0);
+  assert.equal(verdict.skipped.length, 1);
+  assert.equal(verdict.land, false);
+  assert.deepEqual(verdict.merged['tool:name-a-heard-voice'], [folder]);
+});
+
+test('a row added whole does not lay one place twice: the second is skipped', () => {
+  const folder = { package: 'media-composition', paths: ['do-work'], at: '/opt/media-composition' };
+  const file = { package: 'media-composition', paths: ['do-work/x.py'], at: '/opt/media-composition' };
+  const verdict = classify({ oldRows: {}, newRows: { 'tool:new': [folder, file] } });
+  assert.equal(verdict.added.length, 1);
+  assert.equal(verdict.skipped.length, 1);
+});
