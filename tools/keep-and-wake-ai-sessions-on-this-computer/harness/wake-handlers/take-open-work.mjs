@@ -53,15 +53,15 @@ let schedule = () => {};
 
 export const wants = ({ event, helper, taker }) => Boolean(helper || taker) && event.type === 'handoff.created' && !event.refs?.handed_to;
 
-export const handle = ({ event, key, origin }) => {
+export const handle = ({ event }) => {
   // New work on the stream: the account is no longer idle, so the next full pass comes at the usual time.
   const waited = wait?.minutes();
   if (wait && wait.woken() !== waited) schedule();
-  return takeOpenWork(event, null, key, origin, { afterRuns: () => fullPass?.() });
+  return takeOpenWork(event, null, { afterRuns: () => fullPass?.() });
 };
 
 // The helper also takes work that was already waiting before this computer connected, and looks again on a timer.
-export const start = ({ key, origin, rules, log }) => {
+export const start = ({ rules, log }) => {
   if (!chosenAi(rules)) return null;
   // Started again (the person chose another AI): the earlier timer stops, so one timer runs.
   clearTimeout(timer);
@@ -73,7 +73,7 @@ export const start = ({ key, origin, rules, log }) => {
     timer.unref?.();
   };
   fullPass = passer({ run: async () => {
-    try { wait.after(await takeOpenWork(null, null, key, origin, { afterRuns: () => fullPass() })); }
+    try { wait.after(await takeOpenWork(null, null, { afterRuns: () => fullPass() })); }
     finally { schedule(); }
   }, log });
   fullPass();

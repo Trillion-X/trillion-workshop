@@ -635,16 +635,11 @@ async function jobFixture() {
   return { held, calls, configured, raw, wrap, pass, child, finish, resume, move, as, task, tick: () => { time = new Date(time.getTime() + 120000); } };
 }
 
-test('the addressed resource call asks for JSON and an event stream, as the account requires (a JSON-only accept is answered 406)', async () => {
-  const seen = [];
-  const send = async (url, init) => {
-    seen.push({ url, accept: init.headers.accept });
-    return { ok: true, status: 200, headers: new Map(), json: async () => ({ jsonrpc: '2.0', id: 'x', result: { structuredContent: { ok: 1 } } }) };
-  };
-  const call = accountCaller('https://example.test', 'key-for-test', { send });
-  assert.deepEqual(await call.resource('@own-records', 'records:read', { id: 'a' }), { ok: 1 });
-  assert.equal(seen[0].url, 'https://example.test/mcp');
-  assert.equal(seen[0].accept, 'application/json, text/event-stream');
+test('the account source is data: the kept sign-in, pinned to the Mac, with the account bridge the AI run receives', () => {
+  assert.equal(settingsFile.account.credential.from, 'kept sign-in');
+  assert.deepEqual(settingsFile.account.pins, ['f596fa0076f6c620']);
+  assert.deepEqual(Object.keys(settingsFile.account).sort(), ['credential', 'pins', 'timeout_seconds', 'what_this_is']);
+  assert.equal(settingsFile.work_mcp.bridge, './account-mcp-bridge.mjs');
 });
 
 test('task worker leaves a task that names nobody: no run starts and the task stays To do', async () => {

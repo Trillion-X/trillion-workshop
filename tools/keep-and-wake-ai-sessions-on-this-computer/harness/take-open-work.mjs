@@ -15,8 +15,9 @@
 //   claude) is usually not. It is looked for on this PATH, then in the folders take-open-work.json program_paths names,
 //   then by the person's login shell. The same finding serves the taker, its chats and the sorting step (triage).
 //
-//   Helper seam: export default handle(event, agents, key, origin), one pass that returns once the runs are started.
-//   Standalone: node harness/take-open-work.mjs --once [--origin <url>] [--keychain-item <name>]
+//   Helper seam: export default handle(event, agents, options), one pass that returns once the runs are started.
+//   Standalone: node harness/take-open-work.mjs --once
+//               (every account call goes through the source `account.credential` names, pinned: account-call.mjs)
 //               one pass that waits for the runs it started to end, printing one JSON line per thing that happened.
 //
 // Non-negotiable invariants
@@ -30,7 +31,7 @@
 //      is at most chat_largest_bytes (a longer chat costs more to resume than the task is worth), one run per chat at a
 //      time; a chat with a published agent card takes its own work and is left alone.
 //   4. No AI, chat app or product is named in this file: commands, prompts, limits and words are DATA in
-//      take-open-work.json. The personal key is held in memory and sent only in the Authorization header.
+//      take-open-work.json. A kept key (the keychain source) is read at each call and sent only in the Authorization header.
 //   5. Before a claim, the exact Trillion MCP bridge the AI will receive must initialize successfully. A run that ends
 //      without finishing its claimed task gives it back immediately with the log and exit code, never silently.
 //   6. One announced task costs one read by its id (and one page of open work for the agent cards when the caller has
@@ -45,11 +46,13 @@ import { execFileSync, spawn } from 'node:child_process';
 import { accessSync, closeSync, constants, mkdirSync, openSync, readFileSync, readSync, readdirSync, realpathSync, renameSync, statSync, writeFileSync } from 'node:fs';
 import { homedir, hostname } from 'node:os';
 import { isAbsolute, join } from 'node:path';
-import { createInterface } from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import { aiOrder, chosenAi as chosenAiOnThisComputer, computerSettings } from './chosen-ai.mjs';
 import { isOwnWork, takingOrder } from '../src/own-work.mjs';
-import { accountKeyOrNull, accountOrigin } from './account-key.mjs';
+import { accountWithWord, operationCaller } from './account-call.mjs';
+
+// The account as this computer's settings name it: the command's brand placeholder filled from the marks word the settings keep.
+export const accountOfSettings = settings => accountWithWord(settings.account, settings.trillion_marks_as);
 import { runTaskMove, stateOfWord, tasksIn, wordsOfStates } from '../../plan-tasks-and-todo-lists/run-a-task-move.mjs';
 
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (whole, name) => (Object.hasOwn(values, name) ? String(values[name]) : whole));
@@ -136,7 +139,7 @@ export function withWorkMcp(job, command, settings, folder, options = {}) {
   return [...command.slice(0, at), ...added, ...command.slice(at)];
 }
 
-/** Starts the same keychain-backed stdio bridge the AI will receive and completes an MCP initialize round trip. */
+/** Starts the same stdio bridge (account-mcp-bridge.mjs) the AI will receive and completes an MCP initialize round trip. */
 export async function preflightTrillion(settings, { launch = spawn, runtime = process.execPath, bridge = bridgePath(settings) } = {}) {
   const timeoutMs = (settings.work_mcp?.preflight_timeout_seconds ?? 10) * 1000;
   return new Promise((resolve, reject) => {
@@ -1071,10 +1074,10 @@ export async function listOpenWork(call, retry) {
 /** The helper's handler: one pass on any account change; returns once the runs are started. A full pass reads the
  * open work once for sorting and taking; it answers `idle` when it sorted nothing and started nothing. */
 // afterRuns (optional) is called once every run this pass started has ended, so a freed slot is filled at once.
-export default async function handle(event, agents, key, origin, { afterRuns = null } = {}) {
+export default async function handle(event, agents, { afterRuns = null } = {}) {
   const settings = readSettings();
   const log = entry => process.stdout.write(`${JSON.stringify({ at: new Date().toISOString(), part: 'take-open-work', event: event?.type ?? null, ...entry })}\n`);
-  const call = taskCaller(accountCaller(accountOrigin({ asked: origin }), key), settings);
+  const call = taskCaller(operationCaller(accountOfSettings(settings), { env: childEnv() }), settings);
   // New work is sorted first, so only real work gets a full run (harness/triage-open-work.mjs).
   const announcedId = event?.refs?.handoff_id ?? event?.subject_id ?? null;
   const onlyHandoffId = call.tasks && !String(announcedId).startsWith(`${settings.tasks.kind}:`) ? null : announcedId;
@@ -1095,15 +1098,8 @@ async function main(argv) {
   const settings = readSettings();
   const pairs = Object.fromEntries(argv.flatMap((value, index) => (value.startsWith('--') ? [[value.slice(2), argv[index + 1]?.startsWith('--') ? 'true' : argv[index + 1] ?? 'true']] : [])));
   if (!pairs.once) throw new Error('Run one pass with --once.');
-  const item = pairs['keychain-item'] ?? settings.keychain_item;
-  let key;
-  key = accountKeyOrNull({ item, timeout: 0 });
-  if (!key) {
-    for await (const line of createInterface({ input: process.stdin })) { key = line.trim(); break; }
-  }
-  if (!key) throw new Error(`No personal key: put one in the Keychain item ${item}, or give it on the first line of stdin.`);
   const log = entry => process.stdout.write(`${JSON.stringify({ at: new Date().toISOString(), ...entry })}\n`);
-  const call = taskCaller(accountCaller(accountOrigin({ asked: pairs.origin }), key), settings);
+  const call = taskCaller(operationCaller(accountOfSettings(settings), { env: childEnv() }), settings);
   if (settings.triage && !call.tasks && !pairs['handoff-id']) { const triage = await import('./triage-open-work.mjs'); await triage.runTriage({ settings, call, computer: computerName(), log }); }
   const pass = await runPass({ settings, call, computer: computerName(), log, onlyHandoffId: pairs['handoff-id'] ?? null });
   const ended = await Promise.all(pass.runs);

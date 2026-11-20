@@ -33,9 +33,15 @@
   "full_pass_every_minutes": 10,
   "idle_pass_most_minutes": 60,
   "run_timeout_minutes": 30,
+  "account": {
+    "what_this_is": "How this computer's task runner and its AI runs reach the account: one engine operation at a time, pinned to `pins` (the Mac, so an operation never reaches the always-on computer). `credential` names the source the operation is sent by, and the source is the data owner's choice: { \"from\": \"kept sign-in\", \"command\": [...] } runs the person's own command, which holds the sign-in (this program holds no key); { \"from\": \"keychain\", \"item\": NAME, \"origin\": URL } sends the operation with the kept account key that Keychain item NAME holds, read at each call and sent only in the Authorization header. The source is chosen here and nowhere in code.",
+    "credential": { "from": "kept sign-in", "command": ["{brand}"] },
+    "pins": ["f596fa0076f6c620"],
+    "timeout_seconds": 120
+  },
   "work_mcp": {
-    "what_this_is": "The authenticated Trillion tool connection every full AI run receives. Before any job is claimed, the helper starts this same keychain-backed stdio bridge and requires a successful MCP initialize. The account key stays in Keychain and bridge memory; it is never put in AI arguments, config, environment or logs.",
-    "bridge": "./keychain-mcp-bridge.mjs",
+    "what_this_is": "The connection every full AI run receives: a stdio MCP server that answers each call through the source `account.credential` names, pinned (account-mcp-bridge.mjs, account-call.mjs, `account` below). Before any job is claimed, the helper starts this same bridge and requires a successful MCP initialize. It holds no key, so none is put in AI arguments, config, environment or logs.",
+    "bridge": "./account-mcp-bridge.mjs",
     "preflight_timeout_seconds": 10
   },
   "use_ai": "claude",
