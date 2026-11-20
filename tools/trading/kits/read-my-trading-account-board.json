@@ -1,0 +1,40 @@
+{
+  "drafted_from": "tool:read-my-trading-account-board's own row (its words, input schema and sample run) and what its sample run answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show my trading account board from my trading agent's last cycle\", with {\"cycle\": {\"attribute\": \"agent:trading-momentum.last-cycle\", \"value_json\": \"{\\\"cycle_id\\\": \\\"sample-cycle-1\\\", \\\"equity\\\": 100000, \\\"last_equity\\\": 99000, \\\"daily_pl_pct\\\": 1.01, \\\"target_pct\\\": 5, \\\"on_target\\\": false, \\\"buying_power\\\": 200000, \\\"positions\\\": [{\\\"symbol\\\": \\\"AAPL260116C00150000\\\", \\\"qty\\\": 2, \\\"market_value\\\": 1200}, {\\\"symbol\\\": \\\"BREAD\\\", \\\"qty\\\": 10, \\\"market_value\\\": 900}]}\"}}. It runs tool:read-my-trading-account-board and answers the hero (value, today's change, goal), the account's own figures and the holdings, each option contract with its label. It reads only what you give it: nothing is sent to a broker.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes the trading agent's last cycle as input and answers the board; it keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:read-my-trading-account-board"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Show my trading account board from my trading agent's last cycle\", and give it the cycle fact the store holds for agent:trading-momentum.last-cycle (its value_json, or the cycle object itself).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-my-trading-account-board and its input (the worked example shows one).",
+    "3. Read what comes back: live (false means no readable cycle was given), headline (value, deltaValue, deltaPct, goalLabel), account (the cycle's own figures) and positions (one record per holding, with a label for each option contract).",
+    "4. Give a new cycle fact each time you want a fresh board: the answer is only as new as the cycle it was given."
+  ],
+  "worked_examples": [
+    {
+      "title": "Show the board from the last cycle on its own sample",
+      "ask": "Show my trading account board from my trading agent's last cycle",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-my-trading-account-board",
+            "input": {
+              "cycle": {
+                "attribute": "agent:trading-momentum.last-cycle",
+                "value_json": "{\"cycle_id\": \"sample-cycle-1\", \"equity\": 100000, \"last_equity\": 99000, \"daily_pl_pct\": 1.01, \"target_pct\": 5, \"on_target\": false, \"buying_power\": 200000, \"positions\": [{\"symbol\": \"AAPL260116C00150000\", \"qty\": 2, \"market_value\": 1200}, {\"symbol\": \"BREAD\", \"qty\": 10, \"market_value\": 900}]}"
+              }
+            }
+          }
+        }
+      },
+      "given": "The cycle fact with equity 100000, last equity 99000, daily P&L 1.01%, target 5% a day, buying power 200000, and two holdings: an AAPL call with strike 150 expiring Jan 16 2026, and 10 BREAD shares.",
+      "hands_back": "It answered {\"live\": true, \"headline\": {\"live\": true, \"value\": \"$100,000.00\", \"deltaValue\": \"+$1,000.00\", \"deltaPct\": \"+1.01%\", \"deltaTone\": \"up\", \"goalLabel\": \"20% of the 5% daily goal\", \"goalProgressPct\": 20.200000000000003, \"equitySeries\": [99000, 100000]}, \"account\": {\"id\": \"account\", \"cycle_id\": \"sample-cycle-1\", \"equity\": 100000, \"last_equity\": 99000, \"daily_pl_pct\": 1.01, \"target_pct\": 5, \"on_target\": false, \"buying_power\": 200000}, \"positions\": [{\"id\": \"AAPL260116C00150000\", \"payload\": {\"symbol\": \"AAPL260116C00150000\", \"qty\": 2, \"market_value\": 1200, \"id\": \"AAPL260116C00150000\", \"label\": \"AAPL $150 Call \\u00b7 Jan 16 '26\"}}, {\"id\": \"BREAD\", \"payload\": {\"symbol\": \"BREAD\", \"qty\": 10, \"market_value\": 900, \"id\": \"BREAD\"}}]}. The hero reads $100,000.00, +$1,000.00 (+1.01%), 20% of the 5% daily goal; the option holding reads \"AAPL $150 Call · Jan 16 '26\"."
+    }
+  ]
+}

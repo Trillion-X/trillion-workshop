@@ -31,7 +31,8 @@
     "what the file did in the package: its exports, its rules and its edge cases are not rewritten here"
   ],
   "allowed_deltas": [
-    "import paths and the file header name the file's new place"
+    "import paths and the file header name the file's new place",
+    "added after the original exports (Nov 19 2026, lane verify-every-port L05): accountBoardOf, the one tool row's reader (tool:read-my-trading-account-board), which projects the existing helpers; and parseOccSymbol/humanLabelForSymbol (ported from bitfield-packages packages/trade-order/read-data/trade-order-live.ts, d926b7adb lines 196-236) with the position record carrying a label only for an OCC option symbol; no existing export changed"
   ],
   "banned_substitutions": [
     "a second implementation of the same job beside this file",
@@ -57,7 +58,10 @@
       "export const accountSurfaceCopy =",
       "export const accountCycleInput ="
     ],
-    "test_refs": [],
+    "test_refs": [
+      "tools/trading/test/account-board-read.test.mjs",
+      "tools/trading/test/account-board-metrics.test.mjs"
+    ],
     "render_refs": [],
     "originality_ref": null
   }

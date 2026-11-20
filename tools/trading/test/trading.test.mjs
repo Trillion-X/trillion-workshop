@@ -187,13 +187,15 @@ test('the place row runs through its export and refuses an empty request with th
   assert.match(answer.error, /No trading policy was given/);
 });
 
-test('each row holds only its own mode\'s credentials and declares no records door, through an export that exists', async () => {
-  const exports = await import('../read-data/trading.mjs');
+test('each broker row holds only its own mode\'s credentials, the account read holds none; no row declares a records door; each export exists', async () => {
+  const modules = { 'read-data/trading.mjs': await import('../read-data/trading.mjs'), 'read-data/account-board.ts': await import('../read-data/account-board.ts') };
   for (const { payload } of rows.records) {
     const mode = payload.id.includes('-live-') ? 'live' : 'paper';
-    assert.deepEqual(payload.invoke.credential_mounts, [{ secret_name: `${mode}-broker-credentials`, fd: 4 }], payload.id);
+    if (payload.id === 'tool:read-my-trading-account-board') assert.equal(payload.invoke.credential_mounts, undefined, payload.id);
+    else assert.deepEqual(payload.invoke.credential_mounts, [{ secret_name: `${mode}-broker-credentials`, fd: 4 }], payload.id);
     assert.equal(payload.invoke.records, undefined, `${payload.id} declares no records door`);
-    assert.equal(typeof exports[payload.invoke.argv.at(-1)], 'function', payload.id);
+    const file = payload.invoke.argv.find(arg => arg.startsWith('/opt/trading/')).replace('/opt/trading/', '');
+    assert.equal(typeof modules[file][payload.invoke.argv.at(-1)], 'function', payload.id);
     assert.equal(payload.maker, 'maker:trading');
   }
 });

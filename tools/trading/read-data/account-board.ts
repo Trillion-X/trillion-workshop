@@ -347,9 +347,69 @@ export function projectPositionRecords(cycle: Record<string, unknown> | null): r
       : typeof position.id === 'string' && position.id.trim() !== ''
         ? position.id.trim()
         : `position-${index}`;
-    records.push({ id: symbol, payload: { ...position, id: symbol } });
+    // An option contract (OCC symbol) also reads as a person's label: "AAPL $150 Call · Jan 16 '26".
+    const label = parseOccSymbol(symbol) ? humanLabelForSymbol(symbol) : undefined;
+    records.push({ id: symbol, payload: { ...position, id: symbol, ...(label ? { label } : {}) } });
   });
   return records;
+}
+
+// ---------------------------------------------------------------------------
+// 4. Account board read (the one tool row's answer)
+// ---------------------------------------------------------------------------
+
+/**
+ * The account board from the live trading-agent cycle: the hero headline, the account's own scalar figures and the
+ * holdings records. `cycle` is the fact as the store holds it (its value_json envelope) or the cycle object itself.
+ * Pure: nothing is kept, sent or read here. A missing or unreadable cycle answers live: false with nothing in it.
+ */
+export function accountBoardOf(input: { cycle?: unknown } = {}) {
+  const cycle = unwrapAccountCycle(input?.cycle);
+  return {
+    live: cycle !== null,
+    headline: decodeAccountHeadline(cycle),
+    account: projectAccountRecord(cycle)[0]?.payload ?? null,
+    positions: projectPositionRecords(cycle),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// 5. OCC option symbol -> human label (a person reads this, never the raw OCC symbol)
+// ---------------------------------------------------------------------------
+
+const OCC_PATTERN = /^([A-Z]+)(\d{2})(\d{2})(\d{2})([CP])(\d{8})$/;
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const;
+
+export interface ParsedOcc {
+  readonly underlying: string;
+  readonly strike: number;
+  readonly expiry: string;
+  readonly right: 'Call' | 'Put';
+}
+
+/** Parse an OCC option symbol (AAPL260116C00150000). Null for a plain ticker. */
+export function parseOccSymbol(symbol: string): ParsedOcc | null {
+  const match = OCC_PATTERN.exec(symbol);
+  if (!match) return null;
+  const [, underlying, yy, mm, dd, right, strikeRaw] = match;
+  return {
+    underlying: underlying!,
+    strike: Number(strikeRaw) / 1000,
+    expiry: `20${yy}-${mm}-${dd}`,
+    right: right === 'C' ? 'Call' : 'Put',
+  };
+}
+
+/** Any broker symbol as a label a person reads: "AAPL $150 Call · Jan 16 '26"; a plain ticker is returned as it is. */
+export function humanLabelForSymbol(symbol: string): string {
+  const occ = parseOccSymbol(symbol);
+  if (!occ) return symbol;
+  const [fullYear, mm, dd] = occ.expiry.split('-');
+  const yy = fullYear!.slice(2);
+  const monthIndex = Number(mm) - 1;
+  const monthName = monthIndex >= 0 && monthIndex < 12 ? MONTHS[monthIndex] : mm;
+  const strikeText = Number.isInteger(occ.strike) ? `$${occ.strike}` : `$${occ.strike.toFixed(2)}`;
+  return `${occ.underlying} ${strikeText} ${occ.right} · ${monthName} ${Number(dd)} '${yy}`;
 }
 
 // ---------------------------------------------------------------------------

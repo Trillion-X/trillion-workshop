@@ -224,6 +224,22 @@ export function bodyOf(text) {
 }
 
 /**
+ * The broker's own words for why it refused or failed an order: its message, reason or error (or the error's message),
+ * or the same read inside a `body` that is a JSON text (Alpaca-style nests the order's JSON there). A body that is plain
+ * text is its own reason. At most 300 characters; null when the answer says nothing a person can read.
+ * Ported from bitfield-packages packages/trade-order/read-data/trade-order-live.ts (d926b7adb, messageFromBrokerObject
+ * and failureReasonFromOrder).
+ */
+export function failureReasonOf(answerBody, depth = 0) {
+  const body = bodyOf(answerBody);
+  const text = value => (typeof value === 'string' && value.trim() !== '' ? value.trim().slice(0, 300) : null);
+  if (typeof body === 'string') return text(body);
+  if (!isObject(body) || depth > 2) return null;
+  return text(body.message) ?? text(body.reason) ?? text(body.error) ?? text(objectOf(body.error).message)
+    ?? (typeof body.body === 'string' ? failureReasonOf(body.body, depth + 1) : null);
+}
+
+/**
  * The order's real state from a broker answer the broker accepted (HTTP 2xx), read through the route's response_map
  * and status_map. Every response_map name is an answer field; the order status is status_map[broker_status], else
  * "filled" when the answer shows a fill with a price, else status_map.__default__, else "submitted".

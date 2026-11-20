@@ -15,7 +15,8 @@ their broker takes an order. With no policy, no limits or no route, nothing is s
 | `read-data/decide-orders.mjs` | `decide(...)`: checks every order of the policy and skips, with its reason, any that is malformed, of the other mode, routeless, already sent, or over a limit. Never resizes. |
 | `read-data/broker-requests.mjs` | Order to request (`orderRequest`, `statusRequest`, `lookupRequest`), credentials and signed headers onto a request (`withCredentials`, `mergeHeaders`), answer to state (`readOrderAnswer`, `readLookupAnswer`). Every broker difference is route DATA. |
 | `read-data/values.mjs` | Shared readers: numbers from text, dotted paths, the ASCII JSON forms an identity and a body use. |
-| `tool-rows.json` | Six container rows: place, check and look up, each for paper and for live. |
+| `read-data/account-board.ts` | `accountBoardOf({ cycle })`: the account board read from the trading agent's last cycle (hero, the account's own figures, holdings), pure; `humanLabelForSymbol` gives an option contract its label. Run by `tool:read-my-trading-account-board`. |
+| `tool-rows.json` | Seven rows: place, check and look up, each for paper and for live, and the account board read. Each row that runs `records-door`'s run-an-export or `workflows`' run-a-function packs the files it imports (workflows' host reader and large-file settings for the broker rows). |
 | `test/fixtures.mjs` | A made-up broker at broker.example, its routes, synthetic policies and a fake broker. |
 | `test/decide-orders.test.mjs`, `test/broker-requests.test.mjs`, `test/trading.test.mjs` | The old package's cases and the runs in process with a fake broker and no records door. |
 
@@ -111,7 +112,7 @@ price-reading rows of `tools/live-market-prices`.
   a run only knows the orders it is handed. A broker client order id built from `{order_id}` makes the broker refuse the
   second copy.
 
-## Moved from bitfield-packages (byte for byte, not yet wired to a tool row)
+## Moved from bitfield-packages (byte for byte; the account board read is wired to a tool row, the screens are not yet)
 
 The original `portfolio-connector` package: the account board read and the portfolio screen (hero, holdings, guardrails, not-connected card).
 

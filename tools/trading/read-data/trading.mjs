@@ -24,7 +24,7 @@
 // - Held values reach only the request; records, events and answers never carry one.
 import { readFileSync } from 'node:fs';
 import { decide } from './decide-orders.mjs';
-import { bodyOf, lookupRequest, orderRequest, readLookupAnswer, readOrderAnswer, statusRequest, withCredentials } from './broker-requests.mjs';
+import { bodyOf, failureReasonOf, lookupRequest, orderRequest, readLookupAnswer, readOrderAnswer, statusRequest, withCredentials } from './broker-requests.mjs';
 import { isObject, listOf, missing, numberOf, objectOf } from './values.mjs';
 
 const MODES = { paper: 'paper-broker-credentials', live: 'live-broker-credentials' };
@@ -111,8 +111,14 @@ const kept = text => (typeof text === 'string' && text.length > KEPT_ANSWER_CHAR
 /** What a broker answer means for an order: its new fields and status. */
 function outcomeOf(answer, route) {
   if (answer.lost) return { status: 'unknown', note: answer.lost, http_status: null };
-  if (answer.status_code >= 200 && answer.status_code < 300) return readOrderAnswer(answer, route);
-  if (answer.status_code >= 400 && answer.status_code < 500) return { status: 'refused', note: 'the broker refused the order', http_status: answer.status_code };
+  if (answer.status_code >= 200 && answer.status_code < 300) {
+    const read = readOrderAnswer(answer, route);
+    return read.status === 'rejected' ? { ...read, note: failureReasonOf(answer.body) } : read;
+  }
+  if (answer.status_code >= 400 && answer.status_code < 500) {
+    const reason = failureReasonOf(answer.body);
+    return { status: 'refused', note: reason ? `the broker refused the order: ${reason}` : 'the broker refused the order', http_status: answer.status_code };
+  }
   return { status: 'unknown', note: `the broker answered HTTP ${answer.status_code}`, http_status: answer.status_code };
 }
 
