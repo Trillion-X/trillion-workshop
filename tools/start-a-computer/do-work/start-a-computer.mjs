@@ -19,6 +19,7 @@ import { differences, renderWhatItRuns, dropInName, withPrepared, withSlots, pub
 import { addressesOfName, dnsClient, keepHealthyRecords } from '../../move-the-public-door/do-work/portable-dns-cutover.mjs';
 import { fill } from './fill-fields.mjs';
 import { keyState, keyDifferences, sealTheKeys, removeThePlainKeys } from './keep-the-key-sealed.mjs';
+import { readAll, writeAll } from './files-in-one-go.mjs';
 import { readFileSync, readdirSync, statSync, createReadStream } from 'node:fs';
 import { isAbsolute, dirname, relative, resolve as resolvePath } from 'node:path';
 import { spawn, execFile } from 'node:child_process';
@@ -94,8 +95,10 @@ export async function runsDifferences(machine, runs, run = onMachine, deps = {})
 export async function runsState(machine, given, run = onMachine, { pages } = {}) {
   const runs = withSlots(await withPrepared(given, { pages })), units = runs.units;
   const rendered = renderWhatItRuns(runs);
-  const live = {};
-  for (const { path, binary } of rendered) live[path] = await readIfPresent(machine, run, path, binary);
+  // The files of a folder a unit owns whole are read in one command (files-in-one-go.mjs); every other file one by one.
+  const inOwned = ownedFolders(runs);
+  const live = await readAll(machine, run, rendered.filter(({ path }) => inOwned(path)));
+  for (const { path, binary } of rendered.filter(({ path }) => !inOwned(path))) live[path] = await readIfPresent(machine, run, path, binary);
   const found = [];
   for (const unit of units) {
     const dir = `/etc/systemd/system/${unit.unit}.d`;
@@ -226,6 +229,12 @@ export async function buildOnTheComputer(machine, unit, held = {}, run = onMachi
   return (await run(machine, `sh -c ${q(BUILD)} sh ${q(JSON.stringify({ ...given, keyed: Boolean(credential) }))}`, credential ? `${held[credential]}\n` : '')).trim();
 }
 
+/** Whether `path` is in a folder some unit of `runs` owns whole (`owned_folders`). */
+const ownedFolders = runs => {
+  const owned = runs.units.flatMap(unit => unit.owned_folders ?? []).map(folder => `${folder.replace(/\/$/, '')}/`);
+  return path => owned.some(folder => path.startsWith(folder));
+};
+
 /** One file's text on the computer, or undefined when it is absent. A binary file is read as its base64, the form the computer row renders it in. */
 async function readIfPresent(machine, run, path, binary) {
   return run(machine, `if [ -f ${q(path)} ]; then ${binary ? 'base64 -w0' : 'cat'} ${q(path)}; else exit 3; fi`).catch(error => { if (error.code === 3) return undefined; throw error; });
@@ -338,9 +347,11 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   // A file in a folder a unit owns whole (a site's page) keeps no copy beside it: the person's own folder holds every page, and a
   // copy there would be a stray the next apply removes.
-  const owned = runs.units.flatMap(unit => unit.owned_folders ?? []).map(folder => `${folder.replace(/\/$/, '')}/`);
-  for (const { path, text, binary, check } of writes) {
-    if (live[path] !== undefined && !owned.some(folder => path.startsWith(folder))) await run(machine, `cp -p ${q(path)} ${q(`${path}.bak-${stamp}`)}`);
+  // Those files are written in one command too, first, so a site file that names a page finds it.
+  const inOwned = ownedFolders(runs);
+  await writeAll(machine, run, writes.filter(({ path, check }) => inOwned(path) && !check));
+  for (const { path, text, binary, check } of writes.filter(({ path, check }) => !inOwned(path) || check)) {
+    if (live[path] !== undefined && !inOwned(path)) await run(machine, `cp -p ${q(path)} ${q(`${path}.bak-${stamp}`)}`);
     const write = `install -d -m 0755 ${q(dirname(path))} && ${binary ? 'base64 -d | ' : ''}install -m 0644 -o root -g root /dev/stdin`;
     // A file that names `check` (an argv, `{file}` the new text's path) is written beside the live one and replaces it only
     // once that command passes: a site file its own server validates, so a bad one never reaches the running program.

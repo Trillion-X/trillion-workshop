@@ -3,6 +3,7 @@
 // Applying what a computer's row says it runs to a computer that matches it (nothing written, nothing restarted) and to a fresh one
 // (set up, then every file the row renders written, and its units started).
 import test from 'node:test';
+import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { applyWhatItRuns, runsDifferences } from '../do-work/start-a-computer.mjs';
 import { renderWhatItRuns } from '../do-work/render-what-a-computer-runs.mjs';
@@ -20,10 +21,15 @@ const runs = {
 };
 
 // A computer that runs its row as rendered (`live`), or nothing yet (`live` empty). `commands` records every command.
+// The one command that reads a folder a unit owns whole (files-in-one-go.mjs): each named file that exists, with its SHA-256.
+const hashesOf = (live, input) => String(input ?? '').split('\n').filter(path => path && live[path] !== undefined)
+  .map(path => `${createHash('sha256').update(live[path]).digest('hex')}  ${path}\n`).join('');
+
 const computer = live => {
   const commands = [];
   const run = async (_machine, command, input) => {
     commands.push({ command, input });
+    if (command.startsWith('while IFS= read -r p')) return hashesOf(live, input);
     if (command.startsWith('if [ -f ')) {
       const path = command.match(/if \[ -f '([^']+)' \]/)[1];
       if (live[path] === undefined) throw Object.assign(new Error('absent'), { code: 3 });
@@ -422,8 +428,9 @@ test('a folder a unit owns whole keeps only the files the row renders: a stray i
   const row = { ...runs, units: [owner] };
   const live = Object.fromEntries(renderWhatItRuns(row).map(({ path, text }) => [path, text]));
   const commands = [];
-  const run = async (_machine, command) => {
+  const run = async (_machine, command, input) => {
     commands.push(command);
+    if (command.startsWith('while IFS= read -r p')) return hashesOf(live, input);
     if (command.startsWith('if [ -f ')) { const p = command.match(/if \[ -f '([^']+)' \]/)[1]; if (live[p] === undefined) throw Object.assign(new Error('absent'), { code: 3 }); return live[p]; }
     if (command.startsWith("if [ -d '/var/lib/example-pages' ]")) return '/var/lib/example-pages/kept.html\n/var/lib/example-pages/old/left.html\n';
     if (command.includes('curl')) return '200';
@@ -457,8 +464,9 @@ test('a changed file in a folder a unit owns whole keeps no copy beside it, so t
   const live = Object.fromEntries(renderWhatItRuns(row).map(({ path, text }) => [path, text]));
   live['/var/lib/example-pages/kept.html'] = 'old\n';
   const commands = [];
-  const run = async (_machine, command) => {
+  const run = async (_machine, command, input) => {
     commands.push(command);
+    if (command.startsWith('while IFS= read -r p')) return hashesOf(live, input);
     if (command.startsWith('if [ -f ')) { const p = command.match(/if \[ -f '([^']+)' \]/)[1]; if (live[p] === undefined) throw Object.assign(new Error('absent'), { code: 3 }); return live[p]; }
     if (command.startsWith("if [ -d '/var/lib/example-pages' ]")) return '/var/lib/example-pages/kept.html\n';
     if (command.includes('curl')) return '200';
