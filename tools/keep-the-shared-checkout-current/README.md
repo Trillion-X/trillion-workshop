@@ -13,24 +13,24 @@ Otherwise, in order:
    - bytes already equal to origin: nothing to do;
    - clean (bytes equal HEAD) and edited in the last 120 seconds: skipped this pass, and remembered in `.git/keep-the-shared-checkout-current.json`;
    - clean and origin has a version: updated from origin;
-   - clean and origin deleted it: moved to `<git-dir>/keep-the-shared-checkout-current-trash/<time>/`, keeping its relative path (the git folder is inside the granted checkout, so the sandbox allows the move; `~/.Trash` is refused by it);
-   - origin deleted it and its bytes are one of its versions at the last 20 HEADs (the reflog): a clean file, moved to the trash (the same rule catches a file a pass kept earlier that later went back to its old bytes);
+   - a dirty file whose bytes are one of its versions in origin's history (a stale copy left by a reset, e.g. the old HEAD's): origin's version is written over it, after the rescue ref saved it;
+   - origin deleted it and its bytes are one of its versions in origin's history: a removal entry with a proof (the file is left in place; disk-guard removes it);
    - anything else (someone's edit, an untracked file, a local deletion): kept, with the reason.
 3. **Move.** HEAD and the index go to `origin/main` with `git reset --mixed`. The working tree is not touched by this step. HEAD is re-read just before it; if it moved, the pass stops and the next one retries.
 4. **Write.** Clean paths take origin's bytes with `git checkout origin/main -- <path>`, only if the bytes still match what step 2 saw.
-5. **Trash.** Clean paths origin deleted are moved into `<git-dir>/keep-the-shared-checkout-current-trash/<time>/`, and their bytes are also in the rescue ref. Nothing is deleted. A file that cannot be moved stays where it is and is reported.
+5. **Removal.** Each file origin deleted and that holds bytes from origin's history is named in `removal_entries` with `{path, size, proof}` (the proof is the sha256 of its whole bytes from that history). This pass removes nothing: disk-guard's removal list does, reading the proof back first. Untracked files origin deleted also need their bytes in this pass's rescue ref.
 
 It never runs `git reset --hard`, `git clean`, `git push`, `git gc`, or `rm`.
 
 ## Output
 
-One JSON line on stdout: `outcome` (`ran`, `refused`, `stopped`, or `error`), `why`, `behind_before`, `behind_after`, `head_before`, `head_after`, `origin`, `local_commits`, `rescue_ref`, `updated`, `trashed`, `kept` and `skipped` (each with `why`).
+One JSON line on stdout: `outcome` (`ran`, `refused`, `stopped`, or `error`), `why`, `behind_before`, `behind_after`, `head_before`, `head_after`, `origin`, `local_commits`, `rescue_ref`, `updated`, `removal_entries`, `kept` and `skipped` (each with `why`).
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `do-work/keep-the-shared-checkout-current.mjs` | `keepCurrent(root, { trashRoot, now, beforeReset })` and its command line `--root <checkout>`. |
+| `do-work/keep-the-shared-checkout-current.mjs` | `keepCurrent(root, { now, beforeReset })` and its command line `--root <checkout>`. |
 | `do-work/git-in-a-declared-folder.mjs` | The one way a Workshop tool runs git in a granted folder: `git`, `gitOrNull`, `refusingState` (index lock, merge, rebase, cherry-pick, revert), `blobsAt`, `workingState`, `dirtyPaths`, `gitPathIn`. Any tool that runs git from a scheduled wake imports it (`../../keep-the-shared-checkout-current/do-work/git-in-a-declared-folder.mjs`). |
 | `test/keep-the-shared-checkout-current.test.mjs` | Temporary repositories (a bare origin, a publisher, the shared checkout): a dirty overlap kept, an untracked clash kept with origin's version not written, an origin delete of a dirty file kept, an origin delete of a clean file moved to the Trash, HEAD moving mid-pass stops it, unpushed commits saved and reported, a recently edited file skipped and then written by the next pass, and `index.lock` a no-op. |
 | `tool-rows.json` | `tool:keep-the-shared-checkout-current`, a `computer` run with `use-git-in-a-folder` (the granted checkout folder; the wake's switch input names it under `computer`), and its wake `every-five-minutes` (every 5 minutes, UTC). |

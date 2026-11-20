@@ -5,14 +5,15 @@
 // README: save the whole working state on a local rescue ref, keep every path someone changed, move HEAD and the
 // index to origin/main, write the clean paths from origin, and move the clean paths origin deleted into the repository's git folder.
 // Nothing is deleted: a file that cannot be moved stays where it is and is reported.
-import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { copyFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { blobsAt, dirtyPaths, git, gitOrNull, gitPathIn, refusingState, workingState } from './git-in-a-declared-folder.mjs';
+import { BASE_ENV, blobsAt, dirtyPaths, git, gitOrNull, gitPathIn, refusingState, workingState } from './git-in-a-declared-folder.mjs';
 
 const RECENT_MS = 120_000;
 const STATE_FILE = 'keep-the-shared-checkout-current.json';
-const TRASH_DIR = 'keep-the-shared-checkout-current-trash';
 const INDEX_FILE = 'keep-the-shared-checkout-current.index';
 const RESCUE_PREFIX = 'refs/rescue/workshop-shared-';
 const GIT_AUTHOR = { GIT_AUTHOR_NAME: 'keep-the-shared-checkout-current', GIT_AUTHOR_EMAIL: 'keep-current@localhost', GIT_COMMITTER_NAME: 'keep-the-shared-checkout-current', GIT_COMMITTER_EMAIL: 'keep-current@localhost' };
@@ -33,10 +34,10 @@ function reasonToKeep({ head, origin, work, clash }) {
   return parts.join('; ');
 }
 
-function uniqueDestination(path) {
-  let candidate = path;
-  for (let n = 1; existsSync(candidate); n += 1) candidate = `${path}.${n}`;
-  return candidate;
+// The newest rescue ref holds this file with these bytes (an untracked file origin deleted is removed only when the
+// rescue of this pass saved it first).
+function rescueHolds(root, ref, p, oid) {
+  return ref !== null && gitOrNull(root, ['rev-parse', '-q', '--verify', `${ref}:${p}`])?.trim() === oid;
 }
 
 function readMarker(stateFile) {
@@ -81,25 +82,35 @@ function pruneRescueRefs(root, origin) {
   });
 }
 
-// The bytes each path had at the HEADs of the last RECENT_HEADS reflog entries, as path -> Set of blob ids. A file origin
-// deleted that still holds one of them was clean when origin deleted it, so it may go to the trash.
-const RECENT_HEADS = 20;
-function recentHeadBlobs(root) {
-  const byPath = new Map();
-  const heads = [...new Set(git(root, ['reflog', '-n', String(RECENT_HEADS), '--format=%H', 'HEAD']).split('\n').filter(Boolean))];
-  for (const head of heads) {
-    for (const [p, oid] of blobsAt(root, head)) {
-      if (!byPath.has(p)) byPath.set(p, new Set());
-      byPath.get(p).add(oid);
+// Every blob id each candidate path had in origin/main's history (each commit that changed it, both sides), as
+// path -> Set of blob ids. Read once for all candidates, from the history git already holds.
+function historyVersions(root, rev, paths) {
+  const versions = new Map();
+  for (let i = 0; i < paths.length; i += 200) {
+    const out = git(root, ['log', '--raw', '--no-abbrev', '--no-renames', '--format=', rev, '--', ...paths.slice(i, i + 200)]);
+    for (const line of out.split('\n')) {
+      if (!line.startsWith(':')) continue;
+      const tab = line.indexOf('\t');
+      const [, , oldOid, newOid] = line.slice(0, tab).split(' ');
+      const p = line.slice(tab + 1);
+      if (!versions.has(p)) versions.set(p, new Set());
+      for (const oid of [oldOid, newOid]) if (!/^0+$/.test(oid)) versions.get(p).add(oid);
     }
   }
-  return byPath;
+  return versions;
+}
+
+// A removal entry for one file (its absolute path): its size, and the sha256 of its whole bytes as the blob in origin's history holds them.
+// disk-guard reads the file back against this proof before it removes anything.
+function removalProof(root, path, oid) {
+  const data = execFileSync('git', ['-C', root, 'cat-file', 'blob', oid], { env: BASE_ENV, maxBuffer: 1 << 30 });
+  return { path, size: data.length, proof: { samples: [{ offset: 0, length: data.length, sha256: createHash('sha256').update(data).digest('hex') }] } };
 }
 
 // The whole pass. Refusals and a moved HEAD return before anything in the working tree is written.
-export function keepCurrent(root, { trashRoot = gitPathIn(root, TRASH_DIR), now = new Date(), beforeReset = () => {} } = {}) {
+export function keepCurrent(root, { now = new Date(), beforeReset = () => {} } = {}) {
   const gitPath = (name) => gitPathIn(root, name);
-  const result = { at: stampWords(now), outcome: 'ran', branch: null, head_before: null, head_after: null, origin: null, behind_before: null, behind_after: null, local_commits: [], rescue_ref: null, updated: [], trashed: [], kept: [], skipped: [], why: null };
+  const result = { at: stampWords(now), outcome: 'ran', branch: null, head_before: null, head_after: null, origin: null, behind_before: null, behind_after: null, local_commits: [], rescue_ref: null, updated: [], removal_entries: [], kept: [], skipped: [], why: null };
   const refuse = (why, outcome = 'refused') => ({ ...result, outcome, why });
   const refusal = refusingState(root);
   if (refusal) return refuse(refusal);
@@ -146,21 +157,24 @@ export function keepCurrent(root, { trashRoot = gitPathIn(root, TRASH_DIR), now 
   const incoming = git(root, ['diff', '--name-only', '--no-renames', '-z', head, origin]).split('\0').filter(Boolean);
   const candidates = [...new Set([...incoming, ...dirty, ...Object.keys(marker)])].sort();
   const disk = workingState(root, candidates, now);
-  const recentBlobs = recentHeadBlobs(root);
-  const plan = { update: [], trash: [], keep: [], skip: [], marker: {} };
+  const versions = historyVersions(root, origin, candidates);
+  const plan = { update: [], removal: [], keep: [], skip: [], marker: {} };
   for (const p of candidates) {
     const headOid = headBlobs.get(p) ?? null;
     const originOid = originBlobs.get(p) ?? null;
     const { oid: work, recent } = disk.get(p);
     if (work === originOid) continue;
-    const clean = work === headOid || (work !== null && marker[p] === work) || (work !== null && originOid === null && recentBlobs.get(p)?.has(work) === true);
+    // Clean: the bytes are HEAD's, a skipped pass's, or an older version of this path that origin's history holds (a stale
+    // copy left by a reset). Someone's edit is none of these.
+    const known = work !== null && (versions.get(p)?.has(work) === true || work === headOid);
+    const clean = work === headOid || (work !== null && marker[p] === work) || (headOid !== null && known);
     if (clean && recent) {
       plan.skip.push({ path: p, why: 'edited in the last 120 s; left for the next pass' });
       if (work !== null) plan.marker[p] = work;
     } else if (clean && originOid !== null) {
       plan.update.push({ path: p, was: work });
-    } else if (clean) {
-      plan.trash.push({ path: p, was: work });
+    } else if (originOid === null && work !== null && versions.get(p)?.has(work) === true && (clean || rescueHolds(root, result.rescue_ref, p, work))) {
+      plan.removal.push({ path: p, was: work });
     } else {
       const clash = headOid === null && originOid !== null;
       plan.keep.push({ path: p, why: `${reasonToKeep({ head: headOid, origin: originOid, work, clash })}${recent ? ' (edited in the last 120 s)' : ''}` });
@@ -185,22 +199,15 @@ export function keepCurrent(root, { trashRoot = gitPathIn(root, TRASH_DIR), now 
     result.updated.push(u.path);
   }
 
-  // Step 5: a clean path origin deleted moves into the trash folder in the git folder, never deleted.
-  const trashDir = join(trashRoot, stampFile(now));
-  for (const t of plan.trash) {
-    const now2 = workingState(root, [t.path], new Date()).get(t.path).oid;
-    if (now2 !== t.was) {
-      result.kept.push({ path: t.path, why: 'changed while the pass was running' });
+  // Step 5: a clean file origin deleted is not removed here: the pass names it with its removal proof, and disk-guard's
+  // removal list removes it after reading the proof back. Nothing is moved or deleted by this pass.
+  for (const r of plan.removal) {
+    const now2 = workingState(root, [r.path], new Date()).get(r.path).oid;
+    if (now2 !== r.was) {
+      result.kept.push({ path: r.path, why: 'changed while the pass was running' });
       continue;
     }
-    try {
-      const destination = uniqueDestination(join(trashDir, t.path));
-      mkdirSync(dirname(destination), { recursive: true });
-      renameSync(join(root, t.path), destination);
-      result.trashed.push({ path: t.path, to: destination });
-    } catch (error) {
-      result.kept.push({ path: t.path, why: `origin deleted it and it could not be moved to the trash folder: ${error.message}` });
-    }
+    result.removal_entries.push(removalProof(root, join(root, r.path), r.was));
   }
 
   writeFileSync(stateFile, `${JSON.stringify({ at: result.at, skipped: plan.marker }, null, 2)}\n`);
