@@ -39,3 +39,10 @@ On each `alarm()`: read the person's schedules, occurrence states, time windows,
 **Depends on:** `crates/timed-action` (built into `built-stored-bytes/`); `do-work/quiet-hours.json`. No host zone data: the zones are compiled in.
 
 **Depended on by:** `tools/notice-when-something-shows-up` (`do-work/mechanisms/due-time.mjs`, `whenToWake`), `tools/plan-tasks-and-todo-lists` (`calendar-tasks.mjs`), `tools/hold-to-it`, `tools/book-time`, `tools/booking-slots-and-invitations`, `tools/run-a-community`, `tools/send-messages`, `tools/screen-looks`, `tools/choose-and-publish-screen-looks`, `tools/find-when-a-space-is-free`, `tools/keep-lists-of-rows`, `tools/social-posts`, `tools/set-up-my-account`, `tools/shared-code` (`typed-operation-contract.mjs`), `tools/workspace-screens` (show rules, through the page loader). Ported from bitfield-packages `packages/timed-action/do-work`; the TypeScript and `tools/wall-time` it replaced were deleted with this engine's landing.
+
+## Ported in the verify-every-port L05 pass (Nov 20 2026)
+
+- `read-data/schedule-graph.mjs`: the schedule projection (old Bitfield `read-data/read-scheduled-action-graph.ts`, commit d926b7adb8). Its old test is `test/schedule-graph.test.mjs` (4 old assertions groups plus one receipt test), 5 pass.
+- Not wired: no tool row serves this read yet, so no screen or workflow calls it (LOST-UNWIRED until a tool row exists; handoff row under the verify-every-port tool row).
+- Still lost: C21 fire one due action from its row's dispatch and C22 run the owner action first (both need the workflow runner design; gap at `do-work/mechanisms/due-time.mjs:196-214`); C13 materialization consumer (no reader of `materializations`); C17 schedule-record writer (no tool row defines it, and `tools/autonomous-agent-tick/packages/autonomous-agent-tick/things-to-store-and-run.json` still names `action:timed-action.write-scheduled-action` as owner_target, a live break); C25 screen.
+- C11 (owner outcome proof needs owner_ref, proof_ref and observed_at) is KEPT: `crates/timed-action/src/recurring.rs:269-274`. The earlier LOST verdict was stale.
