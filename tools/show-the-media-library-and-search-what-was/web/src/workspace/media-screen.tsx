@@ -11,8 +11,8 @@
 //   plays the recording from that second, and Edit puts that stretch into a new edit.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Only real rows: every row is a recording the person's library recorded or a file a tool made (GET
-//      /work/api/media/library, src/media-library.mjs); every moment was measured (src/media-search.mjs).
+//   1. Only real rows: every row is a recording the person's library recorded or a file a tool made (each name
+//      the person's files owner keeps, read by media-library-read.ts); every moment was measured (src/media-search.mjs).
 //   2. The first signed-in page reads at most 60 recent rows; Show more follows a revision-bound cursor. Search still
 //      reaches the whole namespace, and the full library stays available to tools that explicitly ask for all rows.
 //   3. Previews are the shared ones: HoverPreview for the suggestion and every row (previewFields), MediaPreview's
@@ -43,6 +43,7 @@ import { recencyGroup, recencyValues } from './recency-group.mjs';
 import { previewStore } from './made-previews';
 import { contentTypeOf, filePicture } from './file-picture';
 import { readJson, fileResults } from './api';
+import { readMediaLibrary } from './media-library-read';
 import { mountSharedContent } from '../../../../ui/show/coss/shared-content';
 import { releaseNode } from '../../../../ui/show/one-owner-per-node';
 import { DockedComposer } from './global-composer';
@@ -117,17 +118,6 @@ export function mountMediaScreen(element: HTMLElement, _props: { surfaceInput?: 
   element.replaceChildren(next, list, askBar);
   mountSharedContent(askBar, <DockedComposer />);
 
-  const pageAddress = (after?: string | null, revision?: string) => {
-    const query = new URLSearchParams({ limit: '60' });
-    if (selectedMediaView === 'ready') query.set('stored', 'true');
-    if (selectedMediaView === 'elsewhere') query.set('stored', 'false');
-    if (selectedMediaView === 'made') query.set('origin', 'made');
-    if (selectedMediaView === 'unused') query.set('unused', 'true');
-    if (after) query.set('after', after);
-    if (revision) query.set('revision', revision);
-    return `/work/api/media/library?${query}`;
-  };
-
   const primePagePosters = (rows: Row[]) => {
     for (const row of rows) if (row.file && row.preview) primeSavedPreview(row.file, typeOf(row), row.preview);
   };
@@ -139,7 +129,7 @@ export function mountMediaScreen(element: HTMLElement, _props: { surfaceInput?: 
     loadingMore = true;
     void drawList();
     try {
-      const page = await readJson<Library>(pageAddress(before.next_after, before.revision));
+      const page: Library = await readMediaLibrary(view, before.next_after);
       if (disposed || view !== selectedMediaView || library !== before) return;
       if (page.reset) {
         stopReading();
@@ -421,7 +411,7 @@ export function mountMediaScreen(element: HTMLElement, _props: { surfaceInput?: 
   // The server answers the first recent page in the opening document; Show more reads only another page on demand.
   const screen = loadScreen(list, {
     loading: { label: 'Loading your media', layout: 'gallery' },
-    read: () => readJson<Library>(pageAddress()),
+    read: () => readMediaLibrary(selectedMediaView),
     failed: refusal('Your media could not load'),
     clear: () => { stopReading(); views?.destroy(); views = null; },
     // Kept only while a mounted view shows it: a refused read clears the views, so a same-revision answer draws again.

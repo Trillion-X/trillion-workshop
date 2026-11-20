@@ -1,0 +1,8 @@
+{
+  "_what": "Where the Media screen reads its library (media-library-read.ts): the person's own files, as their files owner keeps them (ns_name for each name, ns_file for each file's media type and whether its bytes are kept), read by `tool` with `credential_name`. A file is media when the first part of its media type is one of `kinds`. Rows come newest first, `limit` at a time; a page after the first starts after the last row of the one before. `views` says, for each saved view of the screen, which files it asks for: `stored` true or false, or every file when absent.",
+  "tool": "tool:run-sql-in-my-database",
+  "credential_name": "own-rows-postgres-connection",
+  "kinds": ["video", "audio", "image"],
+  "limit": 60,
+  "views": { "ready": { "stored": true }, "elsewhere": { "stored": false } }
+}
