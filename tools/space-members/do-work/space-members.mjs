@@ -131,3 +131,71 @@ export function chooseTheNameIShowInASpace(input) {
   if (!now.member) refuse(now.reason);
   return answered({ space: id, subject, name }, keepRow('member', rowId('member', id, subject), { ...existing, name }, handed));
 }
+
+// The post and event functions: the community jobs a space holds (the old create_group_post, read-items and the community
+// events reader), now made of the same rows. A post is an item row of the space; an event is a post whose fields hold a start.
+const POST_OWN_FIELDS = ['subject', 'author', 'space', 'posted_at', 'revision', 'idempotency_ref'];
+
+/** Refuses unless the person counts as a member of the space now, the one answer memberNow gives. */
+function refuseUnlessMember(records, id, space, subject) {
+  const member = readMember(records, id, subject)?.value ?? null;
+  const now = memberNow({ space, subject, member, held_access_refs: heldAccessOf(records, space, subject, Date.now()) });
+  if (!now.member) refuse(now.reason);
+}
+
+/** tool:post-in-a-space (the old create_group_post): a member who counts now shares one item into the space. The item's id is made
+ * from the idempotency key, so asking again with the same key finds the item it made and keeps nothing. */
+export function postInASpace(input) {
+  const records = recordsIn(input);
+  const subject = subjectOf(input);
+  const { id, value: space } = readSpace(records, input?.space);
+  const key = words(input?.idempotency_ref);
+  if (!key) refuse('idempotency_ref must name this post, so asking again does not post it twice.');
+  const fields = input?.fields;
+  if (!fields || typeof fields !== 'object' || Array.isArray(fields)) refuse('fields must be an object: what the post says.');
+  const taken = POST_OWN_FIELDS.filter(name => name in fields);
+  if (taken.length) refuse(`fields may not set ${taken.join(', ')}: the post sets those.`);
+  refuseUnlessMember(records, id, space, subject);
+  const itemId = rowId('item', id, key);
+  if (recordOf(records, KINDS.item, itemId)) return { space: id, subject, posted: false, item_id: itemId, replay: true };
+  const value = { space: id, author: subject, fields, idempotency_ref: key, revision: 1, posted_at: new Date(Date.now()).toISOString() };
+  return answered({ space: id, subject, posted: true, item_id: itemId, replay: false }, keepRow('item', itemId, value, null));
+}
+
+/** tool:list-a-spaces-posts (the old read-items): the items a member who counts now sees in a space, newest first. */
+export function listASpacesPosts(input) {
+  const records = recordsIn(input);
+  const subject = subjectOf(input);
+  const { id, value: space } = readSpace(records, input?.space);
+  refuseUnlessMember(records, id, space, subject);
+  const items = rowsWithPrefix(records, 'item', prefixOf('item', id))
+    .map(row => ({ item_id: row.id, author: row.value.author, fields: row.value.fields, posted_at: row.value.posted_at }))
+    .sort((a, b) => (a.posted_at < b.posted_at ? 1 : -1));
+  return { space: id, subject, items };
+}
+
+/** tool:list-my-spaces-and-events (the old community reader): the spaces a person counts in now, and the events in them: posts
+ * whose fields hold a starts_at, between `from` and `to` when given, soonest first. Nothing is decided here: the member rows answer. */
+export function listMySpacesAndEvents(input) {
+  const records = recordsIn(input);
+  const subject = subjectOf(input);
+  const from = input?.from === undefined ? null : words(input.from);
+  const to = input?.to === undefined ? null : words(input.to);
+  const spaces = [];
+  const events = [];
+  for (const row of records.filter(record => record.type === KINDS.member && record.value?.subject === subject)) {
+    const id = row.value.space;
+    const space = recordOf(records, KINDS.space, rowId('space', id))?.value;
+    if (!space) continue;
+    const now = memberNow({ space, subject, member: row.value, held_access_refs: heldAccessOf(records, space, subject, Date.now()) });
+    if (!now.member) continue;
+    spaces.push({ space: id, title: space.title, label: space.label ?? null, member_type: row.value.member_type, state: now.state });
+    for (const item of rowsWithPrefix(records, 'item', prefixOf('item', id))) {
+      const fields = item.value.fields ?? {};
+      const start = words(fields.starts_at);
+      if (!start || (from && start < from) || (to && start > to)) continue;
+      events.push({ event_id: item.id, space: id, space_title: space.title, title: fields.title ?? null, about: fields.about ?? null, starts_at: start, ends_at: fields.ends_at ?? null });
+    }
+  }
+  return { subject, spaces, events: events.sort((a, b) => (a.starts_at > b.starts_at ? 1 : -1)) };
+}

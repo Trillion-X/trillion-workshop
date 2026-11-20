@@ -1,0 +1,63 @@
+{
+  "drafted_from": "tool:list-a-spaces-posts's own row (its words, input schema, sample run and steps) and what its sample run answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read the posts in a shared space, newest first, for a member who counts there now\", with {\"space\":\"sample-hike\",\"subject\":\"owner@example.com\",\"records\":[{\"id\":\"record:space:sample-hike\",\"type\":\"record:space\",\"value\":{\"title\":\"Sample hike\",\"owner\":\"owner@example.com\",\"label\":\"group\",\"config\":{\"join\":[]}}},{\"id\":\"record:space-member:sample-hike:owner%40example.com\",\"type\":\"record:space-member\",\"value\":{\"space\":\"sample-hike\",\"subject\":\"owner@example.com\",\"member_type\":\"owner\",\"state\":\"member\",\"how\":\"owner\",\"joined_at\":\"2026-01-01T00:00:00.000Z\"}}]}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row except the one it hands back under keep.",
+  "workflows": [],
+  "tools": [
+    "tool:list-a-spaces-posts"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Read the posts in a shared space, newest first, for a member who counts there now\", and give it space (the space's id); subject (this person); records (the space's record:space row, this person's record:space-member row, and the record:space-item rows the caller read from its store).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:list-a-spaces-posts and its input (the worked example shows one).",
+    "3. Read the answer: items are the posts, newest first. Anyone who does not count in the space is refused in words."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the posts in a shared space, newest first, for a member who counts there now",
+      "ask": "Read the posts in a shared space, newest first, for a member who counts there now",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-a-spaces-posts",
+            "input": {
+              "space": "sample-hike",
+              "subject": "owner@example.com",
+              "records": [
+                {
+                  "id": "record:space:sample-hike",
+                  "type": "record:space",
+                  "value": {
+                    "title": "Sample hike",
+                    "owner": "owner@example.com",
+                    "label": "group",
+                    "config": {
+                      "join": []
+                    }
+                  }
+                },
+                {
+                  "id": "record:space-member:sample-hike:owner%40example.com",
+                  "type": "record:space-member",
+                  "value": {
+                    "space": "sample-hike",
+                    "subject": "owner@example.com",
+                    "member_type": "owner",
+                    "state": "member",
+                    "how": "owner",
+                    "joined_at": "2026-01-01T00:00:00.000Z"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The input {\"space\":\"sample-hike\",\"subject\":\"owner@example.com\",\"records\":[{\"id\":\"record:space:sample-hike\",\"type\":\"record:space\",\"value\":{\"title\":\"Sample hike\",\"owner\":\"owner@example.com\",\"label\":\"group\",\"config\":{\"join\":[]}}},{\"id\":\"record:space-member:sample-hike:owner%40example.com\",\"type\":\"record:space-member\",\"value\":{\"space\":\"sample-hike\",\"subject\":\"owner@example.com\",\"member_type\":\"owner\",\"state\":\"member\",\"how\":\"owner\",\"joined_at\":\"2026-01-01T00:00:00.000Z\"}}]}.",
+      "hands_back": "It answered {\"space\":\"sample-hike\",\"subject\":\"owner@example.com\",\"items\":[]}."
+    }
+  ]
+}

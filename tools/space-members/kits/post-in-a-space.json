@@ -1,0 +1,67 @@
+{
+  "drafted_from": "tool:post-in-a-space's own row (its words, input schema, sample run and steps) and what its sample run answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Share one post into a shared space as a member who counts there now, and answer the item row to store\", with {\"space\":\"sample-hike\",\"subject\":\"owner@example.com\",\"idempotency_ref\":\"sample-post-1\",\"fields\":{\"text\":\"Sample post\"},\"records\":[{\"id\":\"record:space:sample-hike\",\"type\":\"record:space\",\"value\":{\"title\":\"Sample hike\",\"owner\":\"owner@example.com\",\"label\":\"group\",\"config\":{\"join\":[]}}},{\"id\":\"record:space-member:sample-hike:owner%40example.com\",\"type\":\"record:space-member\",\"value\":{\"space\":\"sample-hike\",\"subject\":\"owner@example.com\",\"member_type\":\"owner\",\"state\":\"member\",\"how\":\"owner\",\"joined_at\":\"2026-01-01T00:00:00.000Z\"}}]}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row except the one it hands back under keep.",
+  "workflows": [],
+  "tools": [
+    "tool:post-in-a-space"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Share one post into a shared space as a member who counts there now, and answer the item row to store\", and give it space (the space's id, the last part of its record:space row id); subject (this person, the way the space names them); idempotency_ref (a key that names this post, so asking again does not post it twice); fields (what the post says: for an event, title, about, starts_at and ends_at); records (the space's record:space row, this person's record:space-member row, and the record:space-item rows it shows).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:post-in-a-space and its input (the worked example shows one).",
+    "3. Read the answer: posted true means the item row under keep is stored by the caller; replay true means the post was already there and nothing is kept."
+  ],
+  "worked_examples": [
+    {
+      "title": "Share one post into a shared space as a member who counts there now, and answer the item row to store",
+      "ask": "Share one post into a shared space as a member who counts there now, and answer the item row to store",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:post-in-a-space",
+            "input": {
+              "space": "sample-hike",
+              "subject": "owner@example.com",
+              "idempotency_ref": "sample-post-1",
+              "fields": {
+                "text": "Sample post"
+              },
+              "records": [
+                {
+                  "id": "record:space:sample-hike",
+                  "type": "record:space",
+                  "value": {
+                    "title": "Sample hike",
+                    "owner": "owner@example.com",
+                    "label": "group",
+                    "config": {
+                      "join": []
+                    }
+                  }
+                },
+                {
+                  "id": "record:space-member:sample-hike:owner%40example.com",
+                  "type": "record:space-member",
+                  "value": {
+                    "space": "sample-hike",
+                    "subject": "owner@example.com",
+                    "member_type": "owner",
+                    "state": "member",
+                    "how": "owner",
+                    "joined_at": "2026-01-01T00:00:00.000Z"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The input {\"space\":\"sample-hike\",\"subject\":\"owner@example.com\",\"idempotency_ref\":\"sample-post-1\",\"fields\":{\"text\":\"Sample post\"},\"records\":[{\"id\":\"record:space:sample-hike\",\"type\":\"record:space\",\"value\":{\"title\":\"Sample hike\",\"owner\":\"owner@example.com\",\"label\":\"group\",\"config\":{\"join\":[]}}},{\"id\":\"record:space-member:sample-hike:owner%40example.com\",\"type\":\"record:space-member\",\"value\":{\"space\":\"sample-hike\",\"subject\":\"owner@example.com\",\"member_type\":\"owner\",\"state\":\"member\",\"how\":\"owner\",\"joined_at\":\"2026-01-01T00:00:00.000Z\"}}]}.",
+      "hands_back": "It answered {\"space\":\"sample-hike\",\"subject\":\"owner@example.com\",\"posted\":true,\"item_id\":\"record:space-item:sample-hike:sample-post-1\",\"replay\":false,\"keep\":[{\"id\":\"record:space-item:sample-hike:sample-post-1\",\"type\":\"record:space-item\",\"value\":{\"space\":\"sample-hike\",\"author\":\"owner@example.com\",\"fields\":{\"text\":\"Sample post\"},\"idempotency_ref\":\"sample-post-1\",\"revision\":1,\"posted_at\":\"2026-11-20T08:53:22.788Z\"},\"expected\":null}]}."
+    }
+  ]
+}

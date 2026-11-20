@@ -19783,6 +19783,270 @@
    "at": "/opt/node_modules/react"
   }
  ],
+ "tool:post-in-a-space": [
+  {
+   "package": "space-members",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/space-members"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "paid-access",
+   "paths": [
+    "read-data/who-holds-access.mjs",
+    "read-data/payment-effects.mjs",
+    "read-data/effect-lifecycle.mjs",
+    "read-data/read-granted-access-refs.ts",
+    "read-data/take-payments-events.json"
+   ],
+   "at": "/opt/paid-access"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "space-member-types",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/space-member-types"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+   ],
+   "at": "/opt/formula-engine"
+  }
+ ],
+ "tool:list-a-spaces-posts": [
+  {
+   "package": "space-members",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/space-members"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "paid-access",
+   "paths": [
+    "read-data/who-holds-access.mjs",
+    "read-data/payment-effects.mjs",
+    "read-data/effect-lifecycle.mjs",
+    "read-data/read-granted-access-refs.ts",
+    "read-data/take-payments-events.json"
+   ],
+   "at": "/opt/paid-access"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "space-member-types",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/space-member-types"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+   ],
+   "at": "/opt/formula-engine"
+  }
+ ],
+ "tool:list-my-spaces-and-events": [
+  {
+   "package": "space-members",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/space-members"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "paid-access",
+   "paths": [
+    "read-data/who-holds-access.mjs",
+    "read-data/payment-effects.mjs",
+    "read-data/effect-lifecycle.mjs",
+    "read-data/read-granted-access-refs.ts",
+    "read-data/take-payments-events.json"
+   ],
+   "at": "/opt/paid-access"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "space-member-types",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/space-member-types"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+   ],
+   "at": "/opt/formula-engine"
+  }
+ ],
  "tool:leave-a-space": [
   {
    "package": "space-members",
