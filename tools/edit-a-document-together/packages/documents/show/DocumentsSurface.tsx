@@ -1454,8 +1454,10 @@ export function DocumentsSurface({
             return;
           }
         }
-      } catch {
-        // Streaming launch failed — fall through to the workflow one-shot below.
+      } catch (error) {
+        // A live launch that fails is said in plain words. Falling through to the one-shot run below hid that the stream never started.
+        settle(`Live streaming could not start: ${error instanceof Error ? error.message : String(error)}`);
+        return;
       }
     }
     try {
