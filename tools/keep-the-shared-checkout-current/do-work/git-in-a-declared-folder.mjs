@@ -3,7 +3,8 @@
 // The one way a Workshop tool runs git in a folder the person granted (its change-a-folder or read-a-folder folder):
 // the environment is cleaned of inherited GIT_* repository variables, a refusal state is read, paths are classified by
 // blob id, and nothing here writes a file. Keep-the-shared-checkout-current and keep-package-files-current both use it.
-import { execFileSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, lstatSync, readlinkSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
@@ -11,8 +12,15 @@ const RECENT_MS = 120_000;
 
 export const BASE_ENV = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_') || key.includes('SSH')));
 
-export function git(root, args, { env = {}, input } = {}) {
-  return execFileSync('git', ['-C', root, ...args], { env: { ...BASE_ENV, ...env }, input, encoding: 'utf8', maxBuffer: 1 << 30, stdio: ['pipe', 'pipe', 'pipe'] });
+// Runs git in the folder with stdin closed (no pipe a child can exit under). A failure throws with the arguments and
+// git's own stderr, so the pass's `why` names the call that failed and the words git gave.
+export function git(root, args, { env = {} } = {}) {
+  const run = spawnSync('git', ['-C', root, ...args], { env: { ...BASE_ENV, ...env }, encoding: 'utf8', maxBuffer: 1 << 30, stdio: ['ignore', 'pipe', 'pipe'] });
+  if (run.error || run.status !== 0) {
+    const stderr = (run.stderr || run.error?.message || '').trim();
+    throw new Error(`git ${args.join(' ')} failed (status ${run.status ?? run.signal}): ${stderr}`);
+  }
+  return run.stdout;
 }
 
 // Returns null instead of throwing: a missing ref, a detached HEAD or a failed command is an answer here.
@@ -36,14 +44,25 @@ export function blobsAt(root, rev) {
   return blobs;
 }
 
-// Blob ids of regular files, in order. One batch is the fast path; when git cannot read one of them (a permission the
-// sandbox refuses, a file that vanished) the batch fails, so each file is hashed alone and an unreadable one is 'unreadable'.
+// Blob ids of regular files, in order, by path argument in chunks (no stdin). A file git cannot read, or one that vanished,
+// is 'unreadable' and is kept by the pass; the rest of its chunk is hashed one file at a time.
 function hashRegularFiles(root, paths) {
-  try {
-    return git(root, ['hash-object', '--no-filters', '--stdin-paths'], { input: `${paths.join('\n')}\n` }).trim().split('\n');
-  } catch {
-    return paths.map((p) => gitOrNull(root, ['hash-object', '--no-filters', '--', p])?.trim() ?? 'unreadable');
+  const oids = [];
+  for (let i = 0; i < paths.length; i += 200) {
+    const chunk = paths.slice(i, i + 200);
+    try {
+      oids.push(...git(root, ['hash-object', '--no-filters', '--', ...chunk]).trim().split('\n'));
+    } catch {
+      oids.push(...chunk.map((p) => gitOrNull(root, ['hash-object', '--no-filters', '--', p])?.trim() ?? 'unreadable'));
+    }
   }
+  return oids;
+}
+
+// The git blob id of a symbolic link's target text, computed here (no git call, no pipe).
+function linkBlobId(target) {
+  const body = Buffer.from(target);
+  return createHash('sha1').update(Buffer.concat([Buffer.from(`blob ${body.length}\0`), body])).digest('hex');
 }
 
 // Blob ids of the bytes on disk, hashed as they are (no clean filters). A symlink is hashed as its target text.
@@ -64,7 +83,7 @@ export function workingState(root, paths, now) {
       regular.push(p);
       state.set(p, { oid: null, recent });
     } else if (info.isSymbolicLink()) {
-      state.set(p, { oid: git(root, ['hash-object', '--no-filters', '--stdin'], { input: readlinkSync(full) }).trim(), recent });
+      state.set(p, { oid: linkBlobId(readlinkSync(full)), recent });
     } else {
       state.set(p, { oid: 'not-a-file', recent });
     }
