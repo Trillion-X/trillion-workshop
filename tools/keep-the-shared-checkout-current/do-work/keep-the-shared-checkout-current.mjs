@@ -3,16 +3,16 @@
 //
 // One pass that keeps a shared checkout on origin/main without losing anyone's work. The steps are in the tool's
 // README: save the whole working state on a local rescue ref, keep every path someone changed, move HEAD and the
-// index to origin/main, write the clean paths from origin, and move the clean paths origin deleted to the Trash.
+// index to origin/main, write the clean paths from origin, and move the clean paths origin deleted into the repository's git folder.
 // Nothing is deleted: a file that cannot be moved stays where it is and is reported.
 import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
-import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { blobsAt, dirtyPaths, git, gitOrNull, gitPathIn, refusingState, workingState } from './git-in-a-declared-folder.mjs';
 
 const RECENT_MS = 120_000;
 const STATE_FILE = 'keep-the-shared-checkout-current.json';
+const TRASH_DIR = 'keep-the-shared-checkout-current-trash';
 const INDEX_FILE = 'keep-the-shared-checkout-current.index';
 const RESCUE_PREFIX = 'refs/rescue/workshop-shared-';
 const GIT_AUTHOR = { GIT_AUTHOR_NAME: 'keep-the-shared-checkout-current', GIT_AUTHOR_EMAIL: 'keep-current@localhost', GIT_COMMITTER_NAME: 'keep-the-shared-checkout-current', GIT_COMMITTER_EMAIL: 'keep-current@localhost' };
@@ -74,7 +74,7 @@ function pruneRescueRefs(root, origin) {
 }
 
 // The whole pass. Refusals and a moved HEAD return before anything in the working tree is written.
-export function keepCurrent(root, { trashRoot = join(homedir(), '.Trash'), now = new Date(), beforeReset = () => {} } = {}) {
+export function keepCurrent(root, { trashRoot = gitPathIn(root, TRASH_DIR), now = new Date(), beforeReset = () => {} } = {}) {
   const gitPath = (name) => gitPathIn(root, name);
   const result = { at: stampWords(now), outcome: 'ran', branch: null, head_before: null, head_after: null, origin: null, behind_before: null, behind_after: null, local_commits: [], rescue_ref: null, updated: [], trashed: [], kept: [], skipped: [], why: null };
   const refuse = (why, outcome = 'refused') => ({ ...result, outcome, why });
@@ -162,8 +162,8 @@ export function keepCurrent(root, { trashRoot = join(homedir(), '.Trash'), now =
     result.updated.push(u.path);
   }
 
-  // Step 5: a clean path origin deleted moves to the Trash, never deleted.
-  const trashDir = join(trashRoot, `keep-the-shared-checkout-current-${stampFile(now)}`);
+  // Step 5: a clean path origin deleted moves into the trash folder in the git folder, never deleted.
+  const trashDir = join(trashRoot, stampFile(now));
   for (const t of plan.trash) {
     const now2 = workingState(root, [t.path], new Date()).get(t.path).oid;
     if (now2 !== t.was) {
@@ -176,7 +176,7 @@ export function keepCurrent(root, { trashRoot = join(homedir(), '.Trash'), now =
       renameSync(join(root, t.path), destination);
       result.trashed.push({ path: t.path, to: destination });
     } catch (error) {
-      result.kept.push({ path: t.path, why: `origin deleted it and it could not be moved to the Trash: ${error.message}` });
+      result.kept.push({ path: t.path, why: `origin deleted it and it could not be moved to the trash folder: ${error.message}` });
     }
   }
 

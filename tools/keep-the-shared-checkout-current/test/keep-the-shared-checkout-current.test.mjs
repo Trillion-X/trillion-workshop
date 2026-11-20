@@ -189,3 +189,13 @@ test('an older rescue ref whose files a newer one holds is removed; the newest i
   assert.notEqual(second.rescue_ref, first.rescue_ref);
   assert.equal(git(env.shared, ['show', `${second.rescue_ref}:a.txt`]), 'a mine');
 });
+
+test('by default an origin-deleted clean file moves into the trash folder in the git folder', () => {
+  const env = setup();
+  publish(env, { 'clean-gone.txt': null }, 'delete clean-gone');
+  const result = keepCurrent(env.shared, { now: LATER() });
+  assert.equal(result.trashed.length, 1);
+  assert.equal(existsSync(join(env.shared, 'clean-gone.txt')), false);
+  assert.equal(result.trashed[0].to.startsWith(join(env.shared, '.git', 'keep-the-shared-checkout-current-trash')), true);
+  assert.equal(readFileSync(result.trashed[0].to, 'utf8'), 'clean gone\n');
+});
