@@ -345,8 +345,11 @@
       "maker": "maker:trillion",
       "licence_class": "licence:maker-own",
       "screen": {
-        "kind": "app-entry",
-        "entry": "guide",
+        "kind": "module",
+        "module": {
+          "package": "settings",
+          "entry": "show/settings-mount.tsx"
+        },
         "icon": "Plug",
         "surface": {
           "id": "trillion.connections",
@@ -359,14 +362,15 @@
           "sidebar_collection": "settings",
           "order": 110,
           "surface_input": {
-            "screen": "connections"
+            "page": "connections",
+            "alone": true
           },
           "placement_labels": [
             "trillion"
           ],
           "placement_order_key": "000000110:trillion.connections",
           "wrap_material": false,
-          "material_target": "component:trillion-guide",
+          "material_target": "component:trillion-settings",
           "route_paths": [
             "/connections"
           ],

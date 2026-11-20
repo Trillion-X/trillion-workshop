@@ -164,7 +164,8 @@
             ],
             "shape_read_at": "2026-11-20"
           }
-        ]
+        ],
+        "result_selector": "$"
       }
     },
     {

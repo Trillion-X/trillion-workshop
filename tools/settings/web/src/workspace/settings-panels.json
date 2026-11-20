@@ -29,7 +29,7 @@
           "id": "connections",
           "label": "Connected accounts",
           "icon": "Plug",
-          "address": "/connections"
+          "panel": "connections"
         },
         {
           "id": "ai",

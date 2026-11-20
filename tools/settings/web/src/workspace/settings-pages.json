@@ -32,5 +32,26 @@
         "heading": "Feel"
       }
     ]
+  },
+  "connections": {
+    "_what": "Settings > Connected accounts (settings-pages.tsx ConnectionsPage): the accounts `accounts_tool` answers (each with its app, name and status; `working_status` is not shown) and the names of the keys the person's vault holds, read by `names_method` at the account's door. No value of a key is ever read here.",
+    "title": "Connected accounts",
+    "body": "The accounts your AIs can act in for you, and the keys your vault holds. Only the names of keys are shown.",
+    "accounts_tool": "tool:list-my-connected-accounts",
+    "names_method": "/work/api/door/secrets:names",
+    "accounts_heading": "Accounts",
+    "keys_heading": "Keys in your vault",
+    "reading": "Reading",
+    "failed": "This could not be read.",
+    "retry": "Try again",
+    "no_accounts": "No accounts are connected yet.",
+    "no_keys": "Your vault holds no keys yet.",
+    "working_status": "ACTIVE",
+    "status_words": {
+      "EXPIRED": "Needs connecting again",
+      "INITIATED": "Not finished connecting",
+      "FAILED": "Could not connect",
+      "INACTIVE": "Switched off"
+    }
   }
 }
