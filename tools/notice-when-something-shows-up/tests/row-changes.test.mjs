@@ -24,6 +24,12 @@ function client(changes) {
         if (next instanceof Error) throw next;
         return { rows: [next] };
       }
+      if (sql.includes('ORDER BY txid DESC')) {
+        // The newest committed change: where a reader with no kept place starts.
+        const newest = [...changes].sort((a, b) => Number(BigInt(b.txid) - BigInt(a.txid)) || Number(b.position) - Number(a.position))[0];
+        asked.push('NOW');
+        return { rows: newest ? [{ txid: newest.txid, position: newest.position }] : [] };
+      }
       asked.push(sql.startsWith('LISTEN') ? sql : params);
       if (sql.startsWith('LISTEN')) return { rows: [] };
       const [txid, position, limit] = params;
@@ -38,7 +44,7 @@ const run = async (stand, { state = null, tell = async () => true, stopAfter = 1
   const control = new AbortController();
   const told = [];
   let kept = null;
-  const done = watchForTransitions({ look_again_seconds: 3600, ...settings }, {
+  const done = watchForTransitions({ look_again_seconds: 3600, from_the_start: true, ...settings }, {
     connection: 'postgresql://made-up', connect: async () => stand, signal: control.signal, state, now,
     onTrouble: troubles ? async trouble => { troubles.push(trouble); return true; } : undefined,
     keepState: async value => { kept = value; },
@@ -49,7 +55,8 @@ const run = async (stand, { state = null, tell = async () => true, stopAfter = 1
 
 test('it declares its fields and reads its settings, refusing a table name that is not a plain name', () => {
   assert.deepEqual(describeMechanism().conditions, ['became-reachable']);
-  assert.deepEqual(readSettings({}), { connection_fd: 4, table: 'row_changes', channel: 'row_changes', look_again_ms: 30000, most_per_read: 500, held_back_ms: 120000 });
+  assert.deepEqual(readSettings({}), { connection_fd: 4, table: 'row_changes', channel: 'row_changes', look_again_ms: 30000, most_per_read: 500, held_back_ms: 120000, from_the_start: false });
+  assert.equal(readSettings({ from_the_start: 'yes' }).from_the_start, false, 'only true replays the table');
   assert.equal(readSettings({ held_back_seconds: 5 }).held_back_ms, 5000);
   assert.equal(readSettings({ table: 'x; DROP TABLE y' }).table, 'row_changes');
   assert.match(readSql('row_changes'), /WHERE txid < coalesce\(\(SELECT min\(x\) FROM pg_snapshot_xip\(pg_current_snapshot\(\)\) x/, 'the horizon is this database\'s own');
@@ -151,7 +158,7 @@ async function looks(held, { looks: count = held.length, settings = {} } = {}) {
   let at = Date.parse('2026-11-20T13:30:00Z');
   const troubles = [];
   const control = new AbortController();
-  const done = watchForTransitions({ look_again_seconds: 1, held_back_seconds: 3, ...settings }, {
+  const done = watchForTransitions({ look_again_seconds: 1, held_back_seconds: 3, from_the_start: true, ...settings }, {
     connection: 'postgresql://made-up', connect: async () => stand, signal: control.signal,
     now: () => at, onTrouble: async trouble => { troubles.push(trouble); return true; }, onTransition: async () => true,
   });
@@ -204,4 +211,43 @@ test("a waiter's trouble is told as the fact a stopped wake is named by: tool, w
   assert.equal(fact.payload.wake, 'waiter:row-changes');
   assert.equal(Buffer.byteLength(fact.payload.said), 1000, 'cut to a fact field');
   assert.equal(troublePayload({ waiter_ref: 'w' }, { said: 'é'.repeat(600) }, { observedAt: 'x', sequence: 0 }).observed_identity.said.length, 500, 'cut at a character');
+});
+
+// A reader with no kept place starts from now (Nov 20 2026, 2:15 PM CST: a first switch on the always-on computer told all 189
+// old changes of the person's own database, and 122 owed causes were let go, the one it was switched on for among them).
+test('a reader with no kept place starts from now, keeps that place at once, and tells only what comes after', async () => {
+  const stand = client([change(1, 1), change(2, 2), change(3, 3)]);
+  const kept = [];
+  const told = [];
+  const control = new AbortController();
+  const done = watchForTransitions({ look_again_seconds: 3600 }, {
+    connection: 'postgresql://made-up', connect: async () => stand, signal: control.signal,
+    keepState: async value => { kept.push(value); },
+    onTransition: async transition => { told.push(transition.event_key); control.abort(); return true; },
+  });
+  await new Promise(resolve => setTimeout(resolve, 20));
+  assert.deepEqual(told, [], 'nothing already in the table is told');
+  assert.deepEqual(kept[0], { after: { txid: '3', position: '3' } }, 'the starting place is kept before anything is told');
+  stand.changes.push(change(4, 1));
+  stand.notify('row_changes');
+  await done;
+  assert.deepEqual(told, ['p_made_up:4:1'], 'a change after the start is told');
+});
+
+test('an empty table starts at its beginning, a kept place is resumed, and from_the_start tells the whole table', async () => {
+  const empty = client([]);
+  const first = await run(empty, { settings: { from_the_start: false } });
+  await new Promise(resolve => setTimeout(resolve, 20));
+  empty.changes.push(change(1, 1));
+  empty.notify('row_changes');
+  await first.done;
+  assert.deepEqual(first.told.map(item => item.event_key), ['p_made_up:1:1'], 'the first change of an empty table is told');
+  const kept = client([change(1, 1), change(2, 2), change(3, 3)]);
+  const resumed = await run(kept, { state: { after: { txid: '1', position: '1' } }, stopAfter: 2, settings: { from_the_start: false } });
+  await resumed.done;
+  assert.deepEqual(resumed.told.map(item => item.event_key), ['p_made_up:2:2', 'p_made_up:3:3'], 'a kept place resumes, never jumps to now');
+  assert.ok(!kept.asked.includes('NOW'), 'a reader with a kept place never asks where now is');
+  const all = await run(client([change(1, 1), change(2, 2)]), { stopAfter: 2, settings: { from_the_start: true } });
+  await all.done;
+  assert.deepEqual(all.told.map(item => item.event_key), ['p_made_up:1:1', 'p_made_up:2:2'], 'from_the_start tells every change');
 });

@@ -15,6 +15,15 @@
  *     every transaction still running in this database (txid < the horizon,
  *     horizonSql), so a change committed later can never sort before one
  *     already passed. The kept place is the last told (txid, position).
+ *   - A reader with no kept place starts from now: its first read keeps the
+ *     newest change already committed below the horizon as its place, tells
+ *     nothing before it, and keeps that place at once, so a crash before its
+ *     first change does not replay the table either. Nov 20 2026, 2:15 PM
+ *     CST: a reader first switched on for the person's own database on the
+ *     always-on computer told all 189 old changes, and 122 owed causes were let
+ *     go, the one it was switched on for among them. from_the_start (a
+ *     setting) tells the whole table instead, for a reader that must see every
+ *     change ever made.
  *   - The horizon is this database's own. The server's (pg_snapshot_xmin) waits
  *     for transactions in every database on it, and a transaction in another
  *     database can never write this one's change table: Nov 20 2026, 7:29:55 to
@@ -50,6 +59,8 @@
  *   table, channel      the change table and its NOTIFY channel (row_changes)
  *   look_again_seconds  the longest wait between reads (default 30)
  *   most_per_read       the most changes one read takes (default 500)
+ *   from_the_start      true to tell every change already in the table when
+ *                       there is no kept place (default false: start from now)
  *   held_back_seconds   how long committed changes may wait behind a running
  *                       transaction before that is told (default 120: longer
  *                       than the one minute after which the server ends a
@@ -90,6 +101,7 @@ export function readSettings(settings = {}) {
     look_again_ms: number(settings.look_again_seconds, 30) * 1000,
     most_per_read: number(settings.most_per_read, 500),
     held_back_ms: number(settings.held_back_seconds, 120) * 1000,
+    from_the_start: settings.from_the_start === true,
   };
 }
 
@@ -123,6 +135,11 @@ export const horizonSql = `coalesce((SELECT min(x) FROM pg_snapshot_xip(pg_curre
     WHERE (x::text::bigint % 4294967296) NOT IN (SELECT l.transactionid::text::bigint FROM pg_locks l JOIN pg_stat_activity a ON a.pid = l.pid
       WHERE l.locktype = 'transactionid' AND l.mode = 'ExclusiveLock' AND l.granted AND a.datname IS NOT NULL AND a.datname <> current_database())),
   pg_snapshot_xmax(pg_current_snapshot()))`;
+
+/** The place a reader with no kept place starts from: the newest change already committed below the horizon (none when the
+ *  table holds none yet). */
+export const nowSql = (table) => `SELECT txid::text AS txid, position::text AS position FROM ${table}
+  WHERE txid < ${horizonSql} ORDER BY txid DESC, position DESC LIMIT 1`;
 
 /** The read that takes the next changes after `after` ({txid, position} or null), oldest first. */
 export const readSql = (table) => `SELECT position::text AS position, txid::text AS txid, at, table_name, op, before, after, to_jsonb(c) ->> 'changed_by' AS by, current_database() AS database
@@ -184,6 +201,13 @@ export async function watchForTransitions(settings, handlers) {
   client.on?.("notification", (message) => { if (message.channel === own.channel) wake(); });
   try {
     await client.query(`LISTEN ${own.channel}`);
+    if (state.after === null && !own.from_the_start) {
+      const newest = (await client.query(nowSql(own.table))).rows?.[0];
+      if (newest) {
+        state = { after: { txid: newest.txid, position: newest.position } };
+        await keepState(state);
+      }
+    }
     while (!signal?.aborted) {
       const { rows } = await client.query(readSql(own.table), [state.after?.txid ?? null, state.after?.position ?? null, own.most_per_read]);
       let refused = false;
