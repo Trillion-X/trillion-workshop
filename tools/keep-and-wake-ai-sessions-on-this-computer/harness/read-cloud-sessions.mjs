@@ -332,11 +332,11 @@ export async function dispatchCloudSessions([command, folderName, ...rest], { au
       const answer = events.slice(sent + 1).find(event => event.type === 'assistant' && textOf(event.message?.content));
       if (answer) {
         const session = await get(account, `/v1/sessions/${id}`);
-        console.log(JSON.stringify({ session: id, sent: message.uuid, status: session.session_status, answered_at: answer.created_at, answer: textOf(answer.message.content).slice(0, 2000) }));
+        print(JSON.stringify({ session: id, sent: message.uuid, status: session.session_status, answered_at: answer.created_at, answer: textOf(answer.message.content).slice(0, 2000) }));
         return;
       }
     }
-    console.log(JSON.stringify({ session: id, sent: message.uuid, answer: null, note: 'no answer within 90 seconds' }));
+    print(JSON.stringify({ session: id, sent: message.uuid, answer: null, note: 'no answer within 90 seconds' }));
     return;
   }
   if (command === 'start') {
@@ -358,7 +358,7 @@ export async function dispatchCloudSessions([command, folderName, ...rest], { au
         model: latest.session_context?.model ?? undefined,
       },
     });
-    console.log(JSON.stringify({ session: session.id, status: session.session_status, repositories: names, url: session.session_url ?? null }));
+    print(JSON.stringify({ session: session.id, status: session.session_status, repositories: names, url: session.session_url ?? null }));
     return;
   }
   throw new Error('usage: read-cloud-sessions.mjs accounts|list-json|read-one|list|read|read-first|send|start <config-folder> ...');
