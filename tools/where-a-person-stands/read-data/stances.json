@@ -1,22 +1,27 @@
 {
- "what_this_is": "The stands a person can take on something made for them, read by do-work/where-a-person-stands.mjs. `kind` is the type of the record a stand is kept as, one record per kind of thing and identity (`id_prefix`<thing kind>:<identity>), so every change of stand is a new version of that one record. `stances` are the stands, one row each: `label` on its button, `said` what a reader shows once it is taken. A new stand is one row here. `rule_infix` joins a waiver stand's rule to its record id, so a stand that names one rule is its own record.",
+ "what_this_is": "The stands a person can take on something made for them, read by do-work/where-a-person-stands.mjs. `kind` is the type of the record a stand is kept as, one record per kind of thing and identity (`id_prefix`<thing kind>:<identity>), so every change of stand is a new version of that one record. `stances` are the stands, one row each: `label` on its button, `said` what a reader shows once it is taken, `tone` how loudly it reads on a page (good, attention or quiet) and `icon` the button's icon name, when it has one. A new stand is one row here. `rule_infix` joins a waiver stand's rule to its record id, so a stand that names one rule is its own record.",
  "kind": "stance",
  "id_prefix": "stance:",
  "stances": [
   {
    "id": "agree",
    "label": "I agree",
-   "said": "You agree with this."
+   "said": "You agree with this.",
+   "tone": "good",
+   "icon": "ThumbsUp"
   },
   {
    "id": "disagree",
    "label": "I disagree",
-   "said": "You disagree with this."
+   "said": "You disagree with this.",
+   "tone": "attention",
+   "icon": "ThumbsDown"
   },
   {
    "id": "partly",
    "label": "Partly",
-   "said": "You partly agree with this."
+   "said": "You partly agree with this.",
+   "tone": "quiet"
   }
  ],
  "words": {

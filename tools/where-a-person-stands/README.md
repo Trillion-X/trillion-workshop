@@ -18,7 +18,8 @@ This is taken from the decision engine's record-stance owner: the stands, the pe
 
 | File | Purpose |
 |------|---------|
-| `read-data/stances.json` | The record kind (`stance`), its id prefix, the stands a person can take (`agree`, `disagree`, `partly`) and the words of every refusal. A new stand is one row. |
+| `read-data/stances.json` | The record kind (`stance`), its id prefix, the stands a person can take (`agree`, `disagree`, `partly`), each stand's words, `tone` and `icon`, and the words of every refusal. A new stand is one row. |
+| `read-data/stance-facts.mjs` | `stanceFacts`: the computed facts of one record's stand (the row's words, the earlier-version check, the status tone, the primary choice, the choices, detailed). Pure: no reads, no words. No tool row names it yet. |
 | `do-work/artifact-ref.mjs` | The one identity of a judged thing: `foldWith` (the DATA fold), `textRef`, `bytesRef`, `viewRef`, `artifactRef`. |
 | `do-work/where-a-person-stands.mjs` | Builds the record to keep, reads stands back from versions, and plans a reload. Its header holds the invariants. |
 | `do-work/keep-where-you-stand.mjs` | `tool:keep-where-you-stand`: the stance record to keep, or `{ error }` for a stand that is not the person's or a thing it cannot identify. |
@@ -34,6 +35,7 @@ This is taken from the decision engine's record-stance owner: the stands, the pe
 | `do-work/plan-stance-reload.mjs` | `tool:plan-a-stance-reload`: the versions to write and a summary (by kind, refs changed, fold collisions). It writes nothing. |
 | `part.json` | `do-work/where-a-person-stands.mjs`, `do-work/artifact-ref.mjs`, `do-work/rulings.mjs`, `do-work/ruling-records.mjs`, `do-work/picks.mjs` and `do-work/ruling-status.mjs` are public. |
 | `tool-rows.json` | The Workshop rows Trillion reads for this folder: `tool:keep-where-you-stand`, `tool:read-where-you-stand`, `tool:plan-a-stance-reload`, `tool:keep-rulings-on-lines`, `tool:make-examples-from-rulings`, `tool:make-examples-from-picks`, `tool:count-real-rulings` and `tool:count-where-a-person-stands`. Each packs `@noble/hashes` (BLAKE3) into the container; the rulings rows run through the plain function runner `workflows` `run-a-function` and pack `tools/settings`. |
+| `test/stance-facts.test.mjs` | `stanceFacts` on the current stand, an earlier version's stand, no stand, a stand taken back, an unknown stand and a stand with no decision generation, and the stand rows' words and tones. |
 | `test/where-a-person-stands.test.mjs` | The fold order, BLAKE3 test vectors, identity refs, person-only stands, verbatim words, newest-wins with earlier stands, silence as no stand, the reload plan, and every row's sample run as the container runs it. |
 
 ## Key Types / Functions
