@@ -1,0 +1,28 @@
+{
+  "start_here": "Say to your AI: \"Search what my coach teaches for grip.\" It finds the word in the lessons you hold and in the published articles, and answers each match with its lesson, a snippet and the second it is spoken.",
+  "no_lists_because": "The search reads the school's own lessons, passages and articles through the engine for the learner who holds them; the person keeps no list of their own for this job.",
+  "lists": [],
+  "workflows": [],
+  "tools": ["tool:search-what-my-coach-teaches"],
+  "instructions": [
+    "1. Give your AI the engine connection it already uses for your account; the school's coach must be set up for the school first.",
+    "2. Say \"Search what my coach teaches for grip.\"",
+    "3. Read each match: its kind, its lesson id (none for an article), its snippet and its start second when it is spoken. Open the lesson with tool:read-a-lesson-i-hold for the whole of it."
+  ],
+  "worked_examples": [
+    {
+      "title": "A search for a word finds the lesson and the article that name it",
+      "ask": "Search what my coach teaches for grip.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": { "tool": "tool:search-what-my-coach-teaches", "input": { "query": "grip", "most": 5 } }
+        }
+      },
+      "hands_back": "3 matches: lesson-1 at 1.5 s \"Keep the grip loose.\"; lesson-3 at 4.2 s \"Keep the racket grip relaxed.\"; the article \"Grip basics\" at /articles/grip. truncated false."
+    }
+  ]
+}

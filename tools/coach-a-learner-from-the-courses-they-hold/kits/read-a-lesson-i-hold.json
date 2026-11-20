@@ -1,0 +1,28 @@
+{
+  "start_here": "Say to your AI: \"Read lesson-1 from my courses.\" It reads that lesson's title, video link, passages and timed transcript, cut to the school's word limit, and says when it was cut short.",
+  "no_lists_because": "The lesson and its transcript are the school's own rows, read through the engine for the learner who holds the course; the person keeps no list of their own for this job.",
+  "lists": [],
+  "workflows": [],
+  "tools": ["tool:read-a-lesson-i-hold", "tool:list-the-lessons-i-hold"],
+  "instructions": [
+    "1. Give your AI the engine connection it already uses for your account; the school's coach must be set up for the school first.",
+    "2. Say \"List the lessons I hold in my courses.\" to find a lesson's id (tool:list-the-lessons-i-hold).",
+    "3. Say \"Read lesson-1 from my courses.\" and read the title, the video link, the passages and the timed transcript lines with their start seconds. If truncated is true, ask for the next part through a search instead."
+  ],
+  "worked_examples": [
+    {
+      "title": "A learner reads a lesson they hold",
+      "ask": "Read lesson-1 from my courses.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": { "tool": "tool:read-a-lesson-i-hold", "input": { "lesson_id": "lesson-1" } }
+        }
+      },
+      "hands_back": "\"Accepting Invariants\", video link https://youtu.be/AAAAAAAAAAA, the transcript at 0 s \"Welcome to the first lesson.\", at 1.5 s \"Keep the grip loose.\", at 2.8 s \"Hold the racket low.\"; truncated false."
+    }
+  ]
+}

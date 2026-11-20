@@ -1,0 +1,615 @@
+{
+  "kind": "package-set-records",
+  "record_set": "coach-a-learner-from-the-courses-they-hold-tool-rows",
+  "what_this_is": "The three Workshop rows that let a learner's own AI (Claude, ChatGPT or another) read the lessons the learner holds in a school's courses through the school's engine. The engine admits the caller through a team share grant with identity self and fills grant_person with the caller's id. Each row runs do-work/run.mjs, which reads the school's settings from the access database and opens the three held connections on descriptors 3, 4 and 5. Generic code; the school's values are only in the school's own settings row.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-the-lessons-i-hold",
+        "label": "List the lessons I hold",
+        "job": "See the courses and lessons my school's access opens for me: title, video link and whether there is a transcript",
+        "description": "Answers the open courses of the caller, each with its id and title, and its lessons with id, title, video link and whether the lesson has a transcript. Only the courses whose access refs the caller holds are answered. The caller is the school's own person, admitted by the engine through a team share grant with identity self: grant_person is the caller's id, which the engine fills in and you do not type. Refuses in plain words when the caller is not from this school, is not a known person, has an unverified email, or does not hold the school's AI coach access. Reads only, in read-only transactions, from the sign-in, runs and content databases the settings name; nothing is written, kept or sent.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["grant_person"],
+          "additionalProperties": false,
+          "properties": {
+            "grant_person": {
+              "type": "string",
+              "description": "The caller's id, <issuer tag>_<sub>, filled in by the engine from the team share grant (identity self). Not typed by the learner."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["courses"],
+          "properties": {
+            "courses": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["course_id", "title", "lessons"],
+                "properties": {
+                  "course_id": { "type": "string" },
+                  "title": { "type": "string" },
+                  "lessons": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["lesson_id", "title", "video_link", "has_transcript"],
+                      "properties": {
+                        "lesson_id": { "type": "string" },
+                        "title": { "type": "string" },
+                        "video_link": { "type": ["string", "null"] },
+                        "has_transcript": { "type": "boolean" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/coach-a-learner-from-the-courses-they-hold",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/coach-a-learner-from-the-courses-they-hold/do-work/run.mjs",
+            "listTheLessonsIHold"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "coach-a-learner-from-the-courses-they-hold",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/coach-a-learner-from-the-courses-they-hold"
+              },
+              {
+                "package": "run-sql-in-my-database",
+                "paths": [
+                  "do-work/through-the-run-proxy.mjs"
+                ],
+                "at": "/opt/run-sql-in-my-database"
+              },
+              {
+                "package": "paid-access",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/paid-access"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes/formula-engine"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              { "packages": ["pg"], "at": "/opt/node_modules/pg" },
+              { "packages": ["pg-connection-string"], "at": "/opt/node_modules/pg-connection-string" },
+              { "packages": ["pg-pool"], "at": "/opt/node_modules/pg-pool" },
+              { "packages": ["pg-protocol"], "at": "/opt/node_modules/pg-protocol" },
+              { "packages": ["pg-types"], "at": "/opt/node_modules/pg-types" },
+              { "packages": ["pg-int8"], "at": "/opt/node_modules/pg-int8" },
+              { "packages": ["postgres-array"], "at": "/opt/node_modules/postgres-array" },
+              { "packages": ["postgres-bytea"], "at": "/opt/node_modules/postgres-bytea" },
+              { "packages": ["postgres-date"], "at": "/opt/node_modules/postgres-date" },
+              { "packages": ["postgres-interval"], "at": "/opt/node_modules/postgres-interval" },
+              { "packages": ["xtend"], "at": "/opt/node_modules/xtend" },
+              { "packages": ["pgpass"], "at": "/opt/node_modules/pgpass" },
+              { "packages": ["split2"], "at": "/opt/node_modules/split2" },
+              {
+                "packages": ["node_modules/@noble/hashes"],
+                "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "packages": {
+            "pg": {
+              "version": "8.23.1",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz", "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827", "checked_against": "https://registry.npmjs.org/pg/8.23.1" } }
+            },
+            "pg-connection-string": {
+              "version": "2.14.1",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz", "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965", "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1" } }
+            },
+            "pg-pool": {
+              "version": "3.14.0",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz", "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e", "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0" } }
+            },
+            "pg-protocol": {
+              "version": "1.16.1",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz", "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4", "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1" } }
+            },
+            "pg-types": {
+              "version": "2.2.0",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz", "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945", "checked_against": "https://registry.npmjs.org/pg-types/2.2.0" } }
+            },
+            "pg-int8": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz", "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa", "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1" } }
+            },
+            "postgres-array": {
+              "version": "2.0.0",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz", "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836", "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0" } }
+            },
+            "postgres-bytea": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz", "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553", "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1" } }
+            },
+            "postgres-date": {
+              "version": "1.0.7",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz", "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079", "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7" } }
+            },
+            "postgres-interval": {
+              "version": "1.2.0",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz", "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2", "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0" } }
+            },
+            "xtend": {
+              "version": "4.0.2",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz", "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be", "checked_against": "https://registry.npmjs.org/xtend/4.0.2" } }
+            },
+            "pgpass": {
+              "version": "1.0.5",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz", "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d", "checked_against": "https://registry.npmjs.org/pgpass/1.0.5" } }
+            },
+            "split2": {
+              "version": "4.2.0",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz", "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005", "checked_against": "https://registry.npmjs.org/split2/4.2.0" } }
+            }
+          },
+          "credential_mounts": [
+            { "secret_name": "coach-sign-ins-connection", "fd": 3 },
+            { "secret_name": "coach-access-connection", "fd": 4 },
+            { "secret_name": "coach-lessons-connection", "fd": 5 }
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 10,
+          "memory_mb": 256
+        },
+        "maker": "maker:coach-a-learner-from-the-courses-they-hold",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "tools/paid-access read-data/who-holds-access.mjs (the paid-access function the school's site calls), tools/run-sql-in-my-database do-work/through-the-run-proxy.mjs and its pinned pg tarballs, trillion-rust src/account/issuers.rs (caller_id, issuer_tag)"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-lesson-i-hold",
+        "label": "Read a lesson I hold",
+        "job": "Read one lesson my school's access opens for me: its title, video link, passages and timed transcript",
+        "description": "Answers one lesson of the caller's open courses: its title, course, video link, its passages (the transcript of the video when it has one, else the passages of its collection) and its timed transcript as lines of { start_s, text } (the seconds from the start of the video). The answer is cut to the school's most_words setting, passages first, and says truncated when it was. A lesson outside the caller's open courses is refused. The caller is admitted as the list tool admits them: grant_person is filled in by the engine from the team share grant (identity self) and is not typed. Reads only, in read-only transactions; nothing is written, kept or sent.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["grant_person", "lesson_id"],
+          "additionalProperties": false,
+          "properties": {
+            "grant_person": {
+              "type": "string",
+              "description": "The caller's id, <issuer tag>_<sub>, filled in by the engine from the team share grant (identity self). Not typed by the learner."
+            },
+            "lesson_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The lesson's id, as tool:list-the-lessons-i-hold answers it."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["lesson_id", "course_id", "course", "title", "video_link", "passages", "transcript", "truncated"],
+          "properties": {
+            "lesson_id": { "type": "string" },
+            "course_id": { "type": "string" },
+            "course": { "type": "string" },
+            "title": { "type": "string" },
+            "video_link": { "type": ["string", "null"] },
+            "passages": {
+              "type": "array",
+              "items": { "type": "object", "required": ["id", "text"], "properties": { "id": { "type": ["string", "null"] }, "text": { "type": "string" } } }
+            },
+            "transcript": {
+              "type": "array",
+              "items": { "type": "object", "required": ["start_s", "text"], "properties": { "start_s": { "type": "number" }, "text": { "type": "string" } } }
+            },
+            "truncated": { "type": "boolean" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/coach-a-learner-from-the-courses-they-hold",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/coach-a-learner-from-the-courses-they-hold/do-work/run.mjs",
+            "readALessonIHold"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "coach-a-learner-from-the-courses-they-hold",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/coach-a-learner-from-the-courses-they-hold"
+              },
+              {
+                "package": "run-sql-in-my-database",
+                "paths": [
+                  "do-work/through-the-run-proxy.mjs"
+                ],
+                "at": "/opt/run-sql-in-my-database"
+              },
+              {
+                "package": "paid-access",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/paid-access"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes/formula-engine"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              { "packages": ["pg"], "at": "/opt/node_modules/pg" },
+              { "packages": ["pg-connection-string"], "at": "/opt/node_modules/pg-connection-string" },
+              { "packages": ["pg-pool"], "at": "/opt/node_modules/pg-pool" },
+              { "packages": ["pg-protocol"], "at": "/opt/node_modules/pg-protocol" },
+              { "packages": ["pg-types"], "at": "/opt/node_modules/pg-types" },
+              { "packages": ["pg-int8"], "at": "/opt/node_modules/pg-int8" },
+              { "packages": ["postgres-array"], "at": "/opt/node_modules/postgres-array" },
+              { "packages": ["postgres-bytea"], "at": "/opt/node_modules/postgres-bytea" },
+              { "packages": ["postgres-date"], "at": "/opt/node_modules/postgres-date" },
+              { "packages": ["postgres-interval"], "at": "/opt/node_modules/postgres-interval" },
+              { "packages": ["xtend"], "at": "/opt/node_modules/xtend" },
+              { "packages": ["pgpass"], "at": "/opt/node_modules/pgpass" },
+              { "packages": ["split2"], "at": "/opt/node_modules/split2" },
+              {
+                "packages": ["node_modules/@noble/hashes"],
+                "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "packages": {
+            "pg": {
+              "version": "8.23.1",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz", "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827", "checked_against": "https://registry.npmjs.org/pg/8.23.1" } }
+            },
+            "pg-connection-string": {
+              "version": "2.14.1",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz", "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965", "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1" } }
+            },
+            "pg-pool": {
+              "version": "3.14.0",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz", "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e", "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0" } }
+            },
+            "pg-protocol": {
+              "version": "1.16.1",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz", "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4", "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1" } }
+            },
+            "pg-types": {
+              "version": "2.2.0",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz", "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945", "checked_against": "https://registry.npmjs.org/pg-types/2.2.0" } }
+            },
+            "pg-int8": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz", "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa", "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1" } }
+            },
+            "postgres-array": {
+              "version": "2.0.0",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz", "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836", "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0" } }
+            },
+            "postgres-bytea": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz", "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553", "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1" } }
+            },
+            "postgres-date": {
+              "version": "1.0.7",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz", "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079", "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7" } }
+            },
+            "postgres-interval": {
+              "version": "1.2.0",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz", "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2", "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0" } }
+            },
+            "xtend": {
+              "version": "4.0.2",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz", "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be", "checked_against": "https://registry.npmjs.org/xtend/4.0.2" } }
+            },
+            "pgpass": {
+              "version": "1.0.5",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz", "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d", "checked_against": "https://registry.npmjs.org/pgpass/1.0.5" } }
+            },
+            "split2": {
+              "version": "4.2.0",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz", "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005", "checked_against": "https://registry.npmjs.org/split2/4.2.0" } }
+            }
+          },
+          "credential_mounts": [
+            { "secret_name": "coach-sign-ins-connection", "fd": 3 },
+            { "secret_name": "coach-access-connection", "fd": 4 },
+            { "secret_name": "coach-lessons-connection", "fd": 5 }
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 10,
+          "memory_mb": 256
+        },
+        "maker": "maker:coach-a-learner-from-the-courses-they-hold",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "tools/paid-access read-data/who-holds-access.mjs, tools/run-sql-in-my-database do-work/through-the-run-proxy.mjs and its pinned pg tarballs, trillion-rust src/account/issuers.rs (caller_id, issuer_tag)"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:search-what-my-coach-teaches",
+        "label": "Search what my coach teaches",
+        "job": "Search the lessons my school's access opens for me, and the school's published articles, for a word or a phrase",
+        "description": "Finds the text in the caller's open lessons (their titles, passages, timed transcript lines and transcript segments) and in the school's published articles. Each match names its kind, the lesson it belongs to (none for an article), a snippet around the text, and the start second in the video when the match is spoken. Only the caller's open courses are searched; articles are searched only once published. Answers at most most matches (default from the settings, capped there too). The caller is admitted as the list tool admits them: grant_person is filled in by the engine from the team share grant (identity self) and is not typed. Reads only, in read-only transactions; nothing is written, kept or sent.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["grant_person", "query"],
+          "additionalProperties": false,
+          "properties": {
+            "grant_person": {
+              "type": "string",
+              "description": "The caller's id, <issuer tag>_<sub>, filled in by the engine from the team share grant (identity self). Not typed by the learner."
+            },
+            "query": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "The word or phrase to find; matched without regard to case."
+            },
+            "most": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "The most matches to answer. Left out, the school's default; a larger number than the school's cap is refused."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["query", "matches", "truncated"],
+          "properties": {
+            "query": { "type": "string" },
+            "matches": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["kind", "snippet"],
+                "properties": {
+                  "kind": { "type": "string", "description": "lesson-title, passage, transcript or article" },
+                  "lesson_id": { "type": "string" },
+                  "start_s": { "type": "number" },
+                  "path": { "type": "string" },
+                  "title": { "type": "string" },
+                  "snippet": { "type": "string" }
+                }
+              }
+            },
+            "truncated": { "type": "boolean" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/coach-a-learner-from-the-courses-they-hold",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/coach-a-learner-from-the-courses-they-hold/do-work/run.mjs",
+            "searchWhatMyCoachTeaches"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "coach-a-learner-from-the-courses-they-hold",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/coach-a-learner-from-the-courses-they-hold"
+              },
+              {
+                "package": "run-sql-in-my-database",
+                "paths": [
+                  "do-work/through-the-run-proxy.mjs"
+                ],
+                "at": "/opt/run-sql-in-my-database"
+              },
+              {
+                "package": "paid-access",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/paid-access"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes/formula-engine"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              { "packages": ["pg"], "at": "/opt/node_modules/pg" },
+              { "packages": ["pg-connection-string"], "at": "/opt/node_modules/pg-connection-string" },
+              { "packages": ["pg-pool"], "at": "/opt/node_modules/pg-pool" },
+              { "packages": ["pg-protocol"], "at": "/opt/node_modules/pg-protocol" },
+              { "packages": ["pg-types"], "at": "/opt/node_modules/pg-types" },
+              { "packages": ["pg-int8"], "at": "/opt/node_modules/pg-int8" },
+              { "packages": ["postgres-array"], "at": "/opt/node_modules/postgres-array" },
+              { "packages": ["postgres-bytea"], "at": "/opt/node_modules/postgres-bytea" },
+              { "packages": ["postgres-date"], "at": "/opt/node_modules/postgres-date" },
+              { "packages": ["postgres-interval"], "at": "/opt/node_modules/postgres-interval" },
+              { "packages": ["xtend"], "at": "/opt/node_modules/xtend" },
+              { "packages": ["pgpass"], "at": "/opt/node_modules/pgpass" },
+              { "packages": ["split2"], "at": "/opt/node_modules/split2" },
+              {
+                "packages": ["node_modules/@noble/hashes"],
+                "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "packages": {
+            "pg": {
+              "version": "8.23.1",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz", "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827", "checked_against": "https://registry.npmjs.org/pg/8.23.1" } }
+            },
+            "pg-connection-string": {
+              "version": "2.14.1",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz", "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965", "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1" } }
+            },
+            "pg-pool": {
+              "version": "3.14.0",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz", "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e", "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0" } }
+            },
+            "pg-protocol": {
+              "version": "1.16.1",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz", "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4", "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1" } }
+            },
+            "pg-types": {
+              "version": "2.2.0",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz", "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945", "checked_against": "https://registry.npmjs.org/pg-types/2.2.0" } }
+            },
+            "pg-int8": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz", "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa", "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1" } }
+            },
+            "postgres-array": {
+              "version": "2.0.0",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz", "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836", "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0" } }
+            },
+            "postgres-bytea": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz", "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553", "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1" } }
+            },
+            "postgres-date": {
+              "version": "1.0.7",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz", "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079", "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7" } }
+            },
+            "postgres-interval": {
+              "version": "1.2.0",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz", "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2", "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0" } }
+            },
+            "xtend": {
+              "version": "4.0.2",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz", "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be", "checked_against": "https://registry.npmjs.org/xtend/4.0.2" } }
+            },
+            "pgpass": {
+              "version": "1.0.5",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz", "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d", "checked_against": "https://registry.npmjs.org/pgpass/1.0.5" } }
+            },
+            "split2": {
+              "version": "4.2.0",
+              "archive": "tgz",
+              "fetch": { "any": { "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz", "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005", "checked_against": "https://registry.npmjs.org/split2/4.2.0" } }
+            }
+          },
+          "credential_mounts": [
+            { "secret_name": "coach-sign-ins-connection", "fd": 3 },
+            { "secret_name": "coach-access-connection", "fd": 4 },
+            { "secret_name": "coach-lessons-connection", "fd": 5 }
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 10,
+          "memory_mb": 256
+        },
+        "maker": "maker:coach-a-learner-from-the-courses-they-hold",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "tools/paid-access read-data/who-holds-access.mjs, tools/run-sql-in-my-database do-work/through-the-run-proxy.mjs and its pinned pg tarballs, trillion-rust src/account/issuers.rs (caller_id, issuer_tag)"
+        }
+      }
+    }
+  ]
+}

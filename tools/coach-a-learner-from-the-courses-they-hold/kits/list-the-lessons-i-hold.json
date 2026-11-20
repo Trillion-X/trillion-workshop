@@ -1,0 +1,28 @@
+{
+  "start_here": "Say to your AI: \"List the lessons I hold in my courses.\" It reads the courses your access opens and answers each lesson with its title, its video link and whether it has a transcript.",
+  "no_lists_because": "The lessons are the school's own rows, read through the engine each time; the person keeps no list of their own for this job.",
+  "lists": [],
+  "workflows": [],
+  "tools": ["tool:list-the-lessons-i-hold"],
+  "instructions": [
+    "1. Give your AI the engine connection it already uses for your account; the school's coach must be set up for the school first.",
+    "2. Say \"List the lessons I hold in my courses.\"",
+    "3. Read the answer: each course with its lessons, and for each lesson the video link and whether a transcript exists. Ask for one lesson by its id to read it."
+  ],
+  "worked_examples": [
+    {
+      "title": "A learner who holds one course sees its lessons",
+      "ask": "List the lessons I hold in my courses.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": { "tool": "tool:list-the-lessons-i-hold", "input": {} }
+        }
+      },
+      "hands_back": "One course, \"Alpha course\", with 3 lessons: lesson-1 \"Accepting Invariants\" (video link, transcript yes), lesson-2 \"North Star talk\" (no video, transcript no), lesson-3 \"Racket grip drill\" (video link, transcript yes)."
+    }
+  ]
+}
