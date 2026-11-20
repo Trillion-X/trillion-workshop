@@ -78,16 +78,19 @@ async function clearWhatWasNotProven(ctx) {
 //   the prompt out again when consent is answered. The product's own programs (settings.mcp.first_party_clients) are not sent there once
 //   allowed: the page answers for them with no screen anyway, and the extra page cost the Mac app's first open about 2.6 s (Nov 20 2026).
 function shapeAuthorize(ctx) {
+  // The product's own program gets no consent screen, so it is asked for no read-only variant either: the remembered consent holds
+  // exactly what it asked, and an added variant it never held sent every visit back to /consent (11:21 AM CST Nov 20 2026).
+  const own = firstPartyIds().includes(ctx.query?.client_id);
   const scope = ctx.query?.scope;
   if (typeof scope === 'string' && scope.trim() && settings.mcp.always_offline_access && !scope.split(' ').includes('offline_access')) ctx.query.scope = `${scope} offline_access`;
   // A scope that has a read-only variant (rules.read_only_swaps) is asked with it, because the consent answer may only choose among the scopes
   // the signed request named: Read only then keeps the variant and drops the full scope.
   const asked = typeof ctx.query?.scope === 'string' ? ctx.query.scope.split(' ').filter(Boolean) : [];
   const variants = Object.entries(rules.read_only_swaps).filter(([full, variant]) => asked.includes(full) && !asked.includes(variant)).map(([, variant]) => variant);
-  if (variants.length && ctx.request?.method === 'GET') ctx.query.scope = [...asked, ...variants].join(' ');
+  if (variants.length && ctx.request?.method === 'GET' && !own) ctx.query.scope = [...asked, ...variants].join(' ');
   // Only the AI's own request (a GET): Better Auth runs authorize again inside its consent and sign-in answers, and that run must not ask again.
   const prompt = (ctx.query?.prompt ?? '').split(' ').filter(Boolean);
-  if (ctx.request?.method === 'GET' && !prompt.includes('consent') && !firstPartyIds().includes(ctx.query?.client_id)) ctx.query.prompt = [...prompt, 'consent'].join(' ');
+  if (ctx.request?.method === 'GET' && !prompt.includes('consent') && !own) ctx.query.prompt = [...prompt, 'consent'].join(' ');
 }
 
 // Read only is a switch on the consent screen, off for the person's own AI. Off, what is granted is what the AI asked for (the read-only variants
@@ -96,7 +99,11 @@ function shapeAuthorize(ctx) {
 // has. The signed query is checked by Better Auth itself afterwards, and only a subset of it is accepted.
 function narrowConsent(ctx) {
   if (typeof ctx.body?.oauth_query !== 'string') return;
-  const asked = (new URLSearchParams(ctx.body.oauth_query).get('scope') ?? '').split(' ').filter(Boolean);
+  const query = new URLSearchParams(ctx.body.oauth_query);
+  // The product's own program has no Read only switch and was asked for no variant (shapeAuthorize): it is granted exactly what it
+  // asked, so its remembered consent covers its next visit. Narrowed, its own tools:list went and every visit was asked again.
+  if (firstPartyIds().includes(query.get('client_id'))) return;
+  const asked = (query.get('scope') ?? '').split(' ').filter(Boolean);
   const swaps = Object.entries(rules.read_only_swaps);
   const leftOut = ctx.body.read_only ? [...rules.read_only_drops, ...swaps.map(([full]) => full)] : swaps.filter(([full]) => asked.includes(full)).map(([, variant]) => variant);
   ctx.body.scope = asked.filter(scope => !leftOut.includes(scope)).join(' ');
