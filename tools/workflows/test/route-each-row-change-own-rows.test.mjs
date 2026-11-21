@@ -137,7 +137,7 @@ test('the read hands back only the conditions a change could meet, so 600 rows a
   rows.push(['workflow:any-change', [when('any change at all', [{ kind: 'rule', field: 'place', operator: 'is_not_empty' }])], steps('select 0')]);
   rows.push(['workflow:off-switched', null, null]);
   const db = await store(rows);
-  const read = async (place, changed, kinds) => (await db.query(READ, [place, changed, SHOP, kinds, HOME])).rows;
+  const read = async (place, changed, kinds) => (await db.query(READ, [place, changed, SHOP, kinds, HOME, null])).rows;
   const one = await read('table_10', 'added', null);
   assert.deepEqual(one.map(row => row.id), ['workflow:any-change', 'workflow:w-010']);
   assert.ok(JSON.stringify(one).length < 4096, `${JSON.stringify(one).length} bytes`);
@@ -155,3 +155,29 @@ test('the read hands back only the conditions a change could meet, so 600 rows a
   const answers = d.calls.filter(call => call.name === 'tool:run-sql-in-my-database').length;
   assert.equal(answers, 3, 'two stores read, one definition read');
 });
+
+test('the read leaves out only what the formula engine would not keep: after fields, or groups, and rules it does not judge stay', async () => {
+  const field = (id, kind, path = [id]) => ({ id, kind, path });
+  const group = (combinator, rules, fieldsList) => ({ label: combinator, state: 'On', made_by: 'the person', condition: { fields: fieldsList, tree: { kind: 'group', combinator, negate: false, rules } } });
+  const db = await store([
+    ['workflow:design-ready', [group('and', [rule('place', 'is_any_of', ['product_stage']), rule('piece', 'is_any_of', ['design'])], [field('place', 'choice'), field('piece', 'choice', ['after', 'piece'])])], null],
+    ['workflow:niche-or-kind', [group('or', [{ kind: 'rule', field: 'niches', operator: 'is_not_empty' }, rule('kinds', 'has_any_of', ['niche'])], [field('niches', 'tags'), field('kinds', 'tags')])], null],
+    ['workflow:text-place', [group('and', [rule('place', 'is_any_of', ['elsewhere'])], [field('place', 'text')])], null],
+    ['workflow:before-state', [group('and', [rule('was', 'is_any_of', ['open'])], [field('was', 'choice', ['before', 'state'])])], null],
+    ['workflow:number-choice', [group('and', [rule('n', 'is_any_of', [1])], [field('n', 'choice', ['after', 'n'])])], null],
+  ]);
+  const kept = async (after, kinds = null) => (await db.query(READ, ['product_stage', 'changed', SHOP, kinds, HOME, after === null ? null : JSON.stringify(after)])).rows.map(row => row.id);
+  assert.deepEqual(await kept({ piece: 'design', n: 1 }), ['workflow:before-state', 'workflow:design-ready', 'workflow:number-choice', 'workflow:text-place']);
+  assert.deepEqual(await kept({ piece: 'price', n: 2 }), ['workflow:before-state', 'workflow:text-place'],
+    'an after field that is not listed leaves the condition out; is_any_of on a text field, which the engine does not judge, and a rule on before stay');
+  assert.deepEqual(await kept(null, JSON.stringify(['niche'])), ['workflow:before-state', 'workflow:niche-or-kind', 'workflow:text-place'], 'an or group stays while one of its rules can be met');
+  for (const [recipe, rules, fieldsList] of [['workflow:text-place', [rule('place', 'is_any_of', ['elsewhere'])], [field('place', 'text')]], ['workflow:design-ready', [rule('piece', 'is_any_of', ['design'])], [field('piece', 'choice', ['after', 'piece'])]]]) {
+    const engine = await chooseTheWorkflowsThatFire({ parts: [{ place: 'product_stage', change: 'changed', where: SHOP, after: { piece: 'price' } }], own: [{ id: recipe, value: { recipe, fires_when: [group('and', rules, fieldsList)] } }], installed: false });
+    assert.equal(engine.chosen.length + engine.unfinished.length > 0, (await kept({ piece: 'price', n: 2 })).includes(recipe), `${recipe}: the read keeps what the chooser would choose or name`);
+  }
+});
+
+test('the router keeps no facts while it is switched off, so a computer whose router is off never fills its owed facts', () => {
+  assert.deepEqual(ROUTER.wakes.map(wake => [wake.id, wake.replay]), [['a-row-changed', { within_ms: 86400000 }]]);
+});
+
