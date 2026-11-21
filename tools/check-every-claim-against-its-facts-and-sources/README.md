@@ -39,7 +39,7 @@ Answer: `{"result": {"ok", "shots": [{"id", "ok", "fails", "notes", "lines"}], "
 
 ## Rules
 
-The person's settings row (`list:settings`, `record:setting:check-every-claim-against-its-facts-and-sources~<scope_kind>~<scope_id>`) holds:
+The person's settings row (settings table, `record:setting:check-every-claim-against-its-facts-and-sources~<scope_kind>~<scope_id>`) holds:
 
 - `rules`: `strength` (scales of words by level), `bind_from_level`, `qualifiers` (how far a spoken number may sit from its value, and which words set a bound), `subject_words` (words that make a line about the subject), `support_said_by_not` (who does not count as support: the narrator), `no_claim.imperative_verbs`, `labels`, `accounting_skips`, `auto_topic_kinds`, `fillers`, `tense_markers`, `claim_fact_kinds`, `claim_said_by`, `compounds`, `quantity_units`, `same_quantity_unit` and `unit_clause_breaks`. `test/fixture_world.py` `RULES` is a complete made-up example.
 - `subject_name` and `narrator_name`: the words the reports use for them.

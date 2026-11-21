@@ -42,7 +42,7 @@ SETTINGS = {'rules': RULES, 'subject_name': 'Mara', 'narrator_name': 'Pip', 'hed
 
 
 def setting_row(settings=None, tool='tool:check-every-claim-against-its-facts-and-sources', status='active'):
-    """The person's list:settings row as selected from the person's database: settings as compact JSON text, sorted keys."""
+    """The person's settings table row as selected from the person's database: settings as compact JSON text, sorted keys."""
     return {'id': 'record:setting:check-every-claim-against-its-facts-and-sources~film~sample-film', 'type': 'record:setting',
             'value': {'name': 'claim rules of a made-up film', 'tool': tool, 'scope_kind': 'film', 'scope_id': 'sample-film',
                       'settings': json.dumps(SETTINGS if settings is None else settings, sort_keys=True, separators=(',', ':')),
