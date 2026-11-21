@@ -2,14 +2,16 @@
 //
 // Stripe events of the kinds the event map names, from a time, as the payment rows the webhook check keeps for the same
 // events. Each event is mapped by mapStripeWebhookEvent with webhook-event-map.json and named by paymentEventNamedBy, the
-// same two steps checkAStripeEvent uses, so one event gives one row whichever way it arrives.
+// same steps checkAStripeEvent uses (a paid invoice first reads its PaymentIntent), so one payment gives one row whichever
+// way it arrives.
 //
 // Stripe returns events newest first and keeps them for 30 days. A read asks for events created at or after `since_unix`
 // and pages to older ones with starting_after. The rows come back oldest first. `complete` is true when no older event is
 // left in the window. When it is false, `next_cursor` is the id to send as `starting_after` to continue the same read.
 // Nothing is kept here; the caller keeps each row once by its id, which is the Stripe event id.
 import { call } from '../../shared-code/src/build-provider-request.mjs';
-import { mapStripeWebhookEvent, paymentEventNamedBy } from './map-webhook-event.mjs';
+import { invoiceNeedingPaymentIntent, mapStripeWebhookEvent, paymentEventNamedBy } from './map-webhook-event.mjs';
+import { invoicePaymentIntent } from './invoice-payment-intent.mjs';
 
 const RETENTION_SECONDS = 30 * 86_400; // Stripe lists events going back up to 30 days.
 const MAX_PAGE = 100;                  // Stripe's `limit` ceiling.
@@ -48,7 +50,11 @@ export async function listStripeEvents(input, { send, eventMap }) {
   const payment_events = [];
   let left_out = 0;
   for (const event of [...events].reverse()) {
-    const mapped = mapStripeWebhookEvent(event, eventMap);
+    // A paid invoice (or a subscription Checkout's) is read for its PaymentIntent here; a failed read throws, so the caller's
+    // saved point does not move past it.
+    const invoice = invoiceNeedingPaymentIntent(event);
+    const paymentIntent = invoice ? await invoicePaymentIntent(invoice, send) : null;
+    const mapped = mapStripeWebhookEvent(event, eventMap, paymentIntent);
     if (mapped) payment_events.push(paymentEventNamedBy(mapped));
     else left_out += 1;
   }

@@ -61,11 +61,19 @@ describe('Stripe events since a time', () => {
     const stripeEvent = checkout('evt_parity', NOW - 5);
     const payload = JSON.stringify(stripeEvent);
     const signature = createHmac('sha256', 'whsec_test').update(`${NOW}.${payload}`, 'utf8').digest('hex');
-    const webhook = checkAStripeEvent({ payload, signature_header: `t=${NOW},v1=${signature}`, now_seconds: NOW }, { secrets: { webhookSecret: 'whsec_test' } });
+    const webhook = await checkAStripeEvent({ payload, signature_header: `t=${NOW},v1=${signature}`, now_seconds: NOW }, { secrets: { webhookSecret: 'whsec_test' } });
     assert.equal(webhook.admitted, true);
     const { send } = fakeStripe({ data: [stripeEvent], has_more: false });
     const listed = await listStripeEventsAsPaymentEvents({ since_unix: NOW - 1000, now_unix: NOW }, { send });
     assert.deepEqual(listed.payment_events[0], webhook.payment_event);
+  });
+
+  it('a paid invoice is read for its PaymentIntent, so its row is the payment\'s row, and a failed read keeps nothing', async () => {
+    const invoice = event('evt_inv', NOW - 3, 'invoice.paid', { id: 'in_1', billing_reason: 'subscription_create', amount_paid: 2900, currency: 'usd', parent: { type: 'subscription_details', subscription_details: { subscription: 'sub_1', metadata: { offer_id: 'offer:seat' } } } });
+    const payments = (rows) => async request => (request.url.includes('invoice_payments') ? { data: rows } : { data: [invoice], has_more: false });
+    const read = await listStripeEventsAsPaymentEvents({ since_unix: NOW - 1000, now_unix: NOW }, { send: payments([{ status: 'paid', payment: { type: 'payment_intent', payment_intent: 'pi_1' } }]) });
+    assert.deepEqual(read.payment_events.map(row => [row.id, row.event_kind, row.attributes.provider_object_ref, row.attributes.invoice_ref]), [['payment-event:payment:pi_1', 'payment.confirmed', 'pi_1', 'in_1']]);
+    await assert.rejects(listStripeEventsAsPaymentEvents({ since_unix: NOW - 1000, now_unix: NOW }, { send: payments([{ status: 'open', payment: { type: 'payment_intent', payment_intent: 'pi_2' } }]) }), /exactly one is needed/);
   });
 
   it('counts a listed event whose kind the map does not keep, and keeps no row for it', async () => {

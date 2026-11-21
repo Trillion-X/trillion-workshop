@@ -38,6 +38,7 @@ describe('completed checkouts since a time', () => {
     expect(read.checkouts[0]).toEqual({
       provider_session_id: 'cs_test_a', created: 1790000100, customer_email: 'cs_test_a@example.com', offer_id: 'offer:seat',
       price_option_id: 'price:seat-monthly', amount_total_cents: 29900, currency: 'usd', subscription_id: 'sub_test_cs_test_a',
+      payment_mode: null, payment_intent: null, invoice_id: null,
     });
     expect(JSON.stringify(read)).not.toContain('+15555550100');
     expect(JSON.stringify(read)).not.toContain('country');

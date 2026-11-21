@@ -1,0 +1,699 @@
+{
+  "note": "Stripe test-mode events of the skip-rule proof, emails and names redacted.",
+  "invoicePaymentIntents": {
+    "in_1UeIPTJ45Jo5jVKkBMdIAFu1": "pi_3UeIPTJ45Jo5jVKk0Q6tIQ7s",
+    "in_1UeIPVJ45Jo5jVKkv46k80Dm": "pi_3UeIPWJ45Jo5jVKk0MSlqiqt"
+  },
+  "events": [
+    {
+      "id": "evt_1UeIPXJ45Jo5jVKkaF09UCaJ",
+      "object": "event",
+      "api_version": "2025-08-27.basil",
+      "created": 1795283355,
+      "data": {
+        "object": {
+          "id": "in_1UeIPVJ45Jo5jVKkv46k80Dm",
+          "object": "invoice",
+          "account_country": "redacted",
+          "account_name": "redacted",
+          "account_tax_ids": null,
+          "amount_due": 9900,
+          "amount_overpaid": 0,
+          "amount_paid": 9900,
+          "amount_remaining": 0,
+          "amount_shipping": 0,
+          "application": null,
+          "attempt_count": 1,
+          "attempted": true,
+          "auto_advance": false,
+          "automatic_tax": {
+            "disabled_reason": null,
+            "enabled": false,
+            "liability": null,
+            "provider": null,
+            "status": null
+          },
+          "automatically_finalizes_at": null,
+          "billing_reason": "subscription_create",
+          "collection_method": "charge_automatically",
+          "created": 1795283353,
+          "currency": "usd",
+          "custom_fields": null,
+          "customer": "cus_Vfdgp18LtKmOYw",
+          "customer_account": null,
+          "customer_address": null,
+          "customer_email": null,
+          "customer_name": "redacted",
+          "customer_phone": null,
+          "customer_shipping": null,
+          "customer_tax_exempt": "none",
+          "customer_tax_ids": [],
+          "default_payment_method": null,
+          "default_source": null,
+          "default_tax_rates": [],
+          "description": null,
+          "discounts": [],
+          "due_date": null,
+          "effective_at": 1795283353,
+          "ending_balance": 0,
+          "footer": null,
+          "from_invoice": null,
+          "hosted_invoice_url": "redacted",
+          "invoice_pdf": "redacted",
+          "issuer": {
+            "type": "self"
+          },
+          "last_finalization_error": null,
+          "latest_revision": null,
+          "lines": {
+            "object": "list",
+            "data": [
+              {
+                "id": "il_1UeIPVJ45Jo5jVKkHNBcJZ0V",
+                "object": "line_item",
+                "amount": 9900,
+                "currency": "usd",
+                "description": "1 × Skip-rule proof membership (test) (at $99.00 / month)",
+                "discount_amounts": [],
+                "discountable": true,
+                "discounts": [],
+                "invoice": "in_1UeIPVJ45Jo5jVKkv46k80Dm",
+                "livemode": false,
+                "metadata": {},
+                "parent": {
+                  "invoice_item_details": null,
+                  "license_fee_subscription_details": null,
+                  "subscription_item_details": {
+                    "invoice_item": null,
+                    "proration": false,
+                    "proration_details": {
+                      "credited_items": null
+                    },
+                    "subscription": "sub_1UeIPVJ45Jo5jVKkzcY72nNr",
+                    "subscription_item": "si_VfdgPwB5UfcHf1"
+                  },
+                  "type": "subscription_item_details"
+                },
+                "period": {
+                  "end": 1797875353,
+                  "start": 1795283353
+                },
+                "pretax_credit_amounts": [],
+                "pricing": {
+                  "price_details": {
+                    "price": "price_1UeIPTJ45Jo5jVKk31wEZXyN",
+                    "product": "prod_Vfdg1iVx1ghBaf"
+                  },
+                  "type": "price_details",
+                  "unit_amount_decimal": "9900"
+                },
+                "quantity": 1,
+                "quantity_decimal": "1",
+                "subtotal": 9900,
+                "taxes": []
+              }
+            ],
+            "has_more": false,
+            "total_count": 1,
+            "url": "redacted"
+          },
+          "livemode": false,
+          "metadata": {},
+          "next_payment_attempt": null,
+          "number": "ILCFNZMS-0002",
+          "on_behalf_of": null,
+          "parent": {
+            "quote_details": null,
+            "subscription_details": {
+              "metadata": {},
+              "subscription": "sub_1UeIPVJ45Jo5jVKkzcY72nNr"
+            },
+            "type": "subscription_details"
+          },
+          "payment_settings": {
+            "default_mandate": null,
+            "payment_method_options": null,
+            "payment_method_types": null
+          },
+          "period_end": 1795283353,
+          "period_start": 1795283353,
+          "post_payment_credit_notes_amount": 0,
+          "pre_payment_credit_notes_amount": 0,
+          "receipt_number": null,
+          "rendering": null,
+          "shipping_cost": null,
+          "shipping_details": null,
+          "starting_balance": 0,
+          "statement_descriptor": null,
+          "status": "paid",
+          "status_transitions": {
+            "finalized_at": 1795283353,
+            "marked_uncollectible_at": null,
+            "paid_at": 1795283353,
+            "voided_at": null
+          },
+          "subtotal": 9900,
+          "subtotal_excluding_tax": 9900,
+          "test_clock": null,
+          "total": 9900,
+          "total_discount_amounts": [],
+          "total_excluding_tax": 9900,
+          "total_pretax_credit_amounts": [],
+          "total_taxes": [],
+          "webhooks_delivered_at": 1795283353
+        }
+      },
+      "livemode": false,
+      "pending_webhooks": 0,
+      "request": {
+        "id": "req_SY9OXE0cJWqaYi",
+        "idempotency_key": "abc1ef73-591d-4de4-8e0f-2793b174ec28"
+      },
+      "type": "invoice.paid"
+    },
+    {
+      "id": "evt_3UeIPWJ45Jo5jVKk0qEXq6kE",
+      "object": "event",
+      "api_version": "2025-08-27.basil",
+      "created": 1795283355,
+      "data": {
+        "object": {
+          "id": "pi_3UeIPWJ45Jo5jVKk0MSlqiqt",
+          "object": "payment_intent",
+          "allowed_payment_method_types": [
+            "amazon_pay",
+            "blik",
+            "card",
+            "cashapp",
+            "klarna",
+            "link"
+          ],
+          "amount": 9900,
+          "amount_capturable": 0,
+          "amount_details": {
+            "tip": {}
+          },
+          "amount_received": 9900,
+          "application": null,
+          "application_fee_amount": null,
+          "automatic_payment_methods": null,
+          "canceled_at": null,
+          "cancellation_reason": null,
+          "capture_method": "automatic",
+          "client_secret": "pi_3UeIPWJ45Jo5jVKk0MSlqiqt_secret_WvK3uqBWGMtfOWTwWrVkUBFCu",
+          "confirmation_method": "automatic",
+          "created": 1795283354,
+          "currency": "usd",
+          "customer": "cus_Vfdgp18LtKmOYw",
+          "customer_account": null,
+          "description": "Subscription creation",
+          "excluded_payment_method_types": null,
+          "last_payment_error": null,
+          "latest_charge": "ch_3UeIPWJ45Jo5jVKk0oQOthaP",
+          "livemode": false,
+          "managed_payments": {
+            "enabled": false
+          },
+          "metadata": {},
+          "next_action": null,
+          "on_behalf_of": null,
+          "payment_details": {
+            "customer_reference": null,
+            "order_reference": "in_1UeIPVJ45Jo5jVKkv46k80Dm"
+          },
+          "payment_method": "pm_1UeIPSJ45Jo5jVKkgFHsvi0z",
+          "payment_method_configuration_details": null,
+          "payment_method_options": {
+            "amazon_pay": {
+              "express_checkout_element_session_id": null
+            },
+            "blik": {},
+            "card": {
+              "installments": null,
+              "mandate_options": null,
+              "network": null,
+              "request_three_d_secure": "automatic"
+            },
+            "cashapp": {},
+            "klarna": {
+              "preferred_locale": null
+            },
+            "link": {
+              "persistent_token": null
+            }
+          },
+          "payment_method_types": [
+            "amazon_pay",
+            "card",
+            "cashapp",
+            "klarna",
+            "link"
+          ],
+          "payment_record": null,
+          "processing": null,
+          "receipt_email": null,
+          "review": null,
+          "setup_future_usage": "off_session",
+          "shared_payment_granted_token": null,
+          "shipping": null,
+          "source": null,
+          "statement_descriptor": null,
+          "statement_descriptor_suffix": null,
+          "status": "succeeded",
+          "transfer_data": null,
+          "transfer_group": null
+        }
+      },
+      "livemode": false,
+      "pending_webhooks": 0,
+      "request": {
+        "id": "req_SY9OXE0cJWqaYi",
+        "idempotency_key": "abc1ef73-591d-4de4-8e0f-2793b174ec28"
+      },
+      "type": "payment_intent.succeeded"
+    },
+    {
+      "id": "evt_1UeIPVJ45Jo5jVKks0TbW0Wa",
+      "object": "event",
+      "api_version": "2025-08-27.basil",
+      "created": 1795283353,
+      "data": {
+        "object": {
+          "id": "in_1UeIPTJ45Jo5jVKkBMdIAFu1",
+          "object": "invoice",
+          "account_country": "redacted",
+          "account_name": "redacted",
+          "account_tax_ids": null,
+          "amount_due": 9900,
+          "amount_overpaid": 0,
+          "amount_paid": 9900,
+          "amount_remaining": 0,
+          "amount_shipping": 0,
+          "application": null,
+          "attempt_count": 1,
+          "attempted": true,
+          "auto_advance": false,
+          "automatic_tax": {
+            "disabled_reason": null,
+            "enabled": false,
+            "liability": null,
+            "provider": null,
+            "status": null
+          },
+          "automatically_finalizes_at": null,
+          "billing_reason": "subscription_create",
+          "collection_method": "charge_automatically",
+          "created": 1795283351,
+          "currency": "usd",
+          "custom_fields": null,
+          "customer": "cus_Vfdgp18LtKmOYw",
+          "customer_account": null,
+          "customer_address": null,
+          "customer_email": null,
+          "customer_name": "redacted",
+          "customer_phone": null,
+          "customer_shipping": null,
+          "customer_tax_exempt": "none",
+          "customer_tax_ids": [],
+          "default_payment_method": null,
+          "default_source": null,
+          "default_tax_rates": [],
+          "description": null,
+          "discounts": [],
+          "due_date": null,
+          "effective_at": 1795283351,
+          "ending_balance": 0,
+          "footer": null,
+          "from_invoice": null,
+          "hosted_invoice_url": "redacted",
+          "invoice_pdf": "redacted",
+          "issuer": {
+            "type": "self"
+          },
+          "last_finalization_error": null,
+          "latest_revision": null,
+          "lines": {
+            "object": "list",
+            "data": [
+              {
+                "id": "il_1UeIPTJ45Jo5jVKkJNV1Mweo",
+                "object": "line_item",
+                "amount": 9900,
+                "currency": "usd",
+                "description": "1 × Skip-rule proof membership (test) (at $99.00 / month)",
+                "discount_amounts": [],
+                "discountable": true,
+                "discounts": [],
+                "invoice": "in_1UeIPTJ45Jo5jVKkBMdIAFu1",
+                "livemode": false,
+                "metadata": {
+                  "sold_through": "checkout_session"
+                },
+                "parent": {
+                  "invoice_item_details": null,
+                  "license_fee_subscription_details": null,
+                  "subscription_item_details": {
+                    "invoice_item": null,
+                    "proration": false,
+                    "proration_details": {
+                      "credited_items": null
+                    },
+                    "subscription": "sub_1UeIPTJ45Jo5jVKkdwqs2DPI",
+                    "subscription_item": "si_Vfdgbw8AaFNfAw"
+                  },
+                  "type": "subscription_item_details"
+                },
+                "period": {
+                  "end": 1797875351,
+                  "start": 1795283351
+                },
+                "pretax_credit_amounts": [],
+                "pricing": {
+                  "price_details": {
+                    "price": "price_1UeIPTJ45Jo5jVKk31wEZXyN",
+                    "product": "prod_Vfdg1iVx1ghBaf"
+                  },
+                  "type": "price_details",
+                  "unit_amount_decimal": "9900"
+                },
+                "quantity": 1,
+                "quantity_decimal": "1",
+                "subtotal": 9900,
+                "taxes": []
+              }
+            ],
+            "has_more": false,
+            "total_count": 1,
+            "url": "redacted"
+          },
+          "livemode": false,
+          "metadata": {},
+          "next_payment_attempt": null,
+          "number": "ILCFNZMS-0001",
+          "on_behalf_of": null,
+          "parent": {
+            "quote_details": null,
+            "subscription_details": {
+              "metadata": {
+                "sold_through": "checkout_session"
+              },
+              "subscription": "sub_1UeIPTJ45Jo5jVKkdwqs2DPI"
+            },
+            "type": "subscription_details"
+          },
+          "payment_settings": {
+            "default_mandate": null,
+            "payment_method_options": null,
+            "payment_method_types": null
+          },
+          "period_end": 1795283351,
+          "period_start": 1795283351,
+          "post_payment_credit_notes_amount": 0,
+          "pre_payment_credit_notes_amount": 0,
+          "receipt_number": null,
+          "rendering": null,
+          "shipping_cost": null,
+          "shipping_details": null,
+          "starting_balance": 0,
+          "statement_descriptor": null,
+          "status": "paid",
+          "status_transitions": {
+            "finalized_at": 1795283351,
+            "marked_uncollectible_at": null,
+            "paid_at": 1795283351,
+            "voided_at": null
+          },
+          "subtotal": 9900,
+          "subtotal_excluding_tax": 9900,
+          "test_clock": null,
+          "total": 9900,
+          "total_discount_amounts": [],
+          "total_excluding_tax": 9900,
+          "total_pretax_credit_amounts": [],
+          "total_taxes": [],
+          "webhooks_delivered_at": 1795283351
+        }
+      },
+      "livemode": false,
+      "pending_webhooks": 0,
+      "request": {
+        "id": "req_1o2dlw6UEGlDdV",
+        "idempotency_key": "d70c8dcf-a22e-40c9-a84c-56ec36f0f182"
+      },
+      "type": "invoice.paid"
+    },
+    {
+      "id": "evt_3UeIPTJ45Jo5jVKk0mr3jtvK",
+      "object": "event",
+      "api_version": "2025-08-27.basil",
+      "created": 1795283352,
+      "data": {
+        "object": {
+          "id": "pi_3UeIPTJ45Jo5jVKk0Q6tIQ7s",
+          "object": "payment_intent",
+          "allowed_payment_method_types": [
+            "amazon_pay",
+            "blik",
+            "card",
+            "cashapp",
+            "klarna",
+            "link"
+          ],
+          "amount": 9900,
+          "amount_capturable": 0,
+          "amount_details": {
+            "tip": {}
+          },
+          "amount_received": 9900,
+          "application": null,
+          "application_fee_amount": null,
+          "automatic_payment_methods": null,
+          "canceled_at": null,
+          "cancellation_reason": null,
+          "capture_method": "automatic",
+          "client_secret": "pi_3UeIPTJ45Jo5jVKk0Q6tIQ7s_secret_Rx2qrsAv5PRSTYw6CoTJiyNfz",
+          "confirmation_method": "automatic",
+          "created": 1795283351,
+          "currency": "usd",
+          "customer": "cus_Vfdgp18LtKmOYw",
+          "customer_account": null,
+          "description": "Subscription creation",
+          "excluded_payment_method_types": null,
+          "last_payment_error": null,
+          "latest_charge": "ch_3UeIPTJ45Jo5jVKk0DDIdOMH",
+          "livemode": false,
+          "managed_payments": {
+            "enabled": false
+          },
+          "metadata": {},
+          "next_action": null,
+          "on_behalf_of": null,
+          "payment_details": {
+            "customer_reference": null,
+            "order_reference": "in_1UeIPTJ45Jo5jVKkBMdIAFu1"
+          },
+          "payment_method": "pm_1UeIPSJ45Jo5jVKkgFHsvi0z",
+          "payment_method_configuration_details": null,
+          "payment_method_options": {
+            "amazon_pay": {
+              "express_checkout_element_session_id": null
+            },
+            "blik": {},
+            "card": {
+              "installments": null,
+              "mandate_options": null,
+              "network": null,
+              "request_three_d_secure": "automatic"
+            },
+            "cashapp": {},
+            "klarna": {
+              "preferred_locale": null
+            },
+            "link": {
+              "persistent_token": null
+            }
+          },
+          "payment_method_types": [
+            "amazon_pay",
+            "card",
+            "cashapp",
+            "klarna",
+            "link"
+          ],
+          "payment_record": null,
+          "processing": null,
+          "receipt_email": null,
+          "review": null,
+          "setup_future_usage": "off_session",
+          "shared_payment_granted_token": null,
+          "shipping": null,
+          "source": null,
+          "statement_descriptor": null,
+          "statement_descriptor_suffix": null,
+          "status": "succeeded",
+          "transfer_data": null,
+          "transfer_group": null
+        }
+      },
+      "livemode": false,
+      "pending_webhooks": 0,
+      "request": {
+        "id": "req_1o2dlw6UEGlDdV",
+        "idempotency_key": "d70c8dcf-a22e-40c9-a84c-56ec36f0f182"
+      },
+      "type": "payment_intent.succeeded"
+    },
+    {
+      "id": "evt_3UeIPRJ45Jo5jVKk1UQJVKKd",
+      "object": "event",
+      "api_version": "2025-08-27.basil",
+      "created": 1795283350,
+      "data": {
+        "object": {
+          "id": "pi_3UeIPRJ45Jo5jVKk1pNpPtjc",
+          "object": "payment_intent",
+          "allowed_payment_method_types": null,
+          "amount": 15000,
+          "amount_capturable": 0,
+          "amount_details": {
+            "tip": {}
+          },
+          "amount_received": 15000,
+          "application": null,
+          "application_fee_amount": null,
+          "automatic_payment_methods": null,
+          "canceled_at": null,
+          "cancellation_reason": null,
+          "capture_method": "automatic_async",
+          "client_secret": "pi_3UeIPRJ45Jo5jVKk1pNpPtjc_secret_NAzWWOjFvf8qhE4ZBIMershLe",
+          "confirmation_method": "automatic",
+          "created": 1795283349,
+          "currency": "usd",
+          "customer": null,
+          "customer_account": null,
+          "description": "skip-rule proof case 2",
+          "excluded_payment_method_types": null,
+          "last_payment_error": null,
+          "latest_charge": "ch_3UeIPRJ45Jo5jVKk1VzsThrU",
+          "livemode": false,
+          "managed_payments": {
+            "enabled": false
+          },
+          "metadata": {},
+          "next_action": null,
+          "on_behalf_of": null,
+          "payment_method": "pm_1UeIPRJ45Jo5jVKkDI7gDCfq",
+          "payment_method_configuration_details": null,
+          "payment_method_options": {
+            "card": {
+              "installments": null,
+              "mandate_options": null,
+              "network": null,
+              "request_three_d_secure": "automatic"
+            }
+          },
+          "payment_method_types": [
+            "card"
+          ],
+          "payment_record": null,
+          "processing": null,
+          "receipt_email": null,
+          "review": null,
+          "setup_future_usage": null,
+          "shared_payment_granted_token": null,
+          "shipping": null,
+          "source": null,
+          "statement_descriptor": null,
+          "statement_descriptor_suffix": null,
+          "status": "succeeded",
+          "transfer_data": null,
+          "transfer_group": null
+        }
+      },
+      "livemode": false,
+      "pending_webhooks": 0,
+      "request": {
+        "id": "req_RJRU2AblmUSWok",
+        "idempotency_key": "e9b0ae18-6c2f-402d-bfd1-7d348dff5576"
+      },
+      "type": "payment_intent.succeeded"
+    },
+    {
+      "id": "evt_3UeIPQJ45Jo5jVKk0OuKmLRy",
+      "object": "event",
+      "api_version": "2025-08-27.basil",
+      "created": 1795283349,
+      "data": {
+        "object": {
+          "id": "pi_3UeIPQJ45Jo5jVKk0vGEqe1Y",
+          "object": "payment_intent",
+          "allowed_payment_method_types": null,
+          "amount": 15000,
+          "amount_capturable": 0,
+          "amount_details": {
+            "tip": {}
+          },
+          "amount_received": 15000,
+          "application": null,
+          "application_fee_amount": null,
+          "automatic_payment_methods": null,
+          "canceled_at": null,
+          "cancellation_reason": null,
+          "capture_method": "automatic_async",
+          "client_secret": "pi_3UeIPQJ45Jo5jVKk0vGEqe1Y_secret_viOyN8ru5x4swzrzfEULnMz0S",
+          "confirmation_method": "automatic",
+          "created": 1795283348,
+          "currency": "usd",
+          "customer": null,
+          "customer_account": null,
+          "description": "skip-rule proof case 1",
+          "excluded_payment_method_types": null,
+          "last_payment_error": null,
+          "latest_charge": "ch_3UeIPQJ45Jo5jVKk0dkviXLB",
+          "livemode": false,
+          "managed_payments": {
+            "enabled": false
+          },
+          "metadata": {
+            "sold_through": "checkout_session"
+          },
+          "next_action": null,
+          "on_behalf_of": null,
+          "payment_method": "pm_1UeIPQJ45Jo5jVKkDmIY5Bqx",
+          "payment_method_configuration_details": null,
+          "payment_method_options": {
+            "card": {
+              "installments": null,
+              "mandate_options": null,
+              "network": null,
+              "request_three_d_secure": "automatic"
+            }
+          },
+          "payment_method_types": [
+            "card"
+          ],
+          "payment_record": null,
+          "processing": null,
+          "receipt_email": null,
+          "review": null,
+          "setup_future_usage": null,
+          "shared_payment_granted_token": null,
+          "shipping": null,
+          "source": null,
+          "statement_descriptor": null,
+          "statement_descriptor_suffix": null,
+          "status": "succeeded",
+          "transfer_data": null,
+          "transfer_group": null
+        }
+      },
+      "livemode": false,
+      "pending_webhooks": 0,
+      "request": {
+        "id": "req_GFDPE0wrgBuI9M",
+        "idempotency_key": "14386a81-401a-4110-b943-fd8634af7660"
+      },
+      "type": "payment_intent.succeeded"
+    }
+  ]
+}

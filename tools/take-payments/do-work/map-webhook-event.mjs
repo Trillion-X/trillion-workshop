@@ -12,19 +12,18 @@
 // "charge.refunded". Adding a new Stripe event type = a rule row in the DATA map,
 // ZERO code here (L090 / enum-dissolution: the decoder enumerates nothing).
 //
-// Idempotency (SP4): `event_id` is the Stripe `event.id`, except a completed checkout, which is named by its
-// checkout session (`checkout:<cs id>`, see paymentEventIdOf). Re-delivery of the same webhook, or the same checkout
-// read from a list, gives the same event_id, so the signed-event-authority dedupe (BTreeMap<event_id, payload_hash>)
-// counts it once. Fail-closed: an
-// event type with no rule returns null (ignored, never a guessed revenue row).
+// One payment, one row. Every event that is a row of one payment is named by that payment's PaymentIntent
+// (`payment:<pi id>`): the PaymentIntent's own event, a one-time Checkout's completed event (its session's PaymentIntent),
+// and a paid invoice's event (the PaymentIntent the invoice was paid with, read by invoicePaymentIntent, because the
+// invoice does not name it). Stripe sends several events for one payment, so they share one key and the keep (payment
+// events, by id) takes the payment once whichever arrives first. An event with no PaymentIntent (a $0 invoice, a setup
+// checkout) keeps its Stripe event id. Re-delivery of the same event gives the same id.
+// Fail-closed: an event type with no rule returns null (ignored, never a guessed revenue row), and a paid invoice with no
+// PaymentIntent is refused rather than keyed by its own id, which would count the payment twice.
 //
-// One purchase, one row (Stripe sends a Checkout purchase twice: the session's completed event and its PaymentIntent's
-// succeeded event). A rule's `skip_when` drops the event when it holds (see skipWhenHolds). A one-time Checkout's
-// PaymentIntent is skipped by the marker `checkoutPaymentIntentMetadata` returns; a PaymentIntent an invoice made is
-// skipped because the invoice counts that payment; a subscription's first invoice that a Checkout made is skipped by
-// the marker `checkoutSubscriptionMetadata` returns, because the Checkout's completed event counts that payment. A bare
-// PaymentIntent and an API subscription's first invoice carry no marker and count.
-// The decision reads only the one event, so the result does not depend on which of the events arrives first.
+// A rule's `skip_when` drops an event whose value at its path is exactly `equals`. Two rules use it: a one-time
+// Checkout's PaymentIntent (stamped with the marker `checkoutPaymentIntentMetadata` returns, so the completed session is
+// the row) and a subscription Checkout's completed event (its PaymentIntent comes from the invoice, which is the row).
 //
 // Pure function, zero I/O, zero secrets, zero network — fixture-provable with no
 // key. Signature verification is a SEPARATE upstream step
@@ -53,29 +52,14 @@ function ruleFor(eventMap, stripeEventType) {
   return rules.find((rule) => rule.stripe_event_type === stripeEventType);
 }
 
-/** One skip condition holds when the event's value at its path is exactly `equals`, or, with `present: true`, when a
- *  value is there. A malformed condition throws: a skip that silently never applies would count a purchase twice. */
-function conditionHolds(stripeEvent, condition) {
-  if (!Array.isArray(condition?.path)) throw new Error('webhook-event-map: skip_when needs a path array.');
-  if (condition.present === true) return getPath(stripeEvent, condition.path) != null;
-  if (typeof condition.equals !== 'string') throw new Error('webhook-event-map: skip_when needs a text equals or present: true.');
+/** A rule's `skip_when` holds when the event's value at its path is exactly `equals`. A malformed condition throws:
+ *  a skip that silently never applies would count a purchase twice. */
+function skipWhenHolds(stripeEvent, condition) {
+  if (condition === undefined) return false;
+  if (!Array.isArray(condition?.path) || typeof condition.equals !== 'string') {
+    throw new Error('webhook-event-map: skip_when needs a path array and a text equals.');
+  }
   return getPath(stripeEvent, condition.path) === condition.equals;
-}
-
-/** A `skip_when` is one condition, a list (any one holds), or { all_of: [...] } (every one holds); groups nest. */
-function skipWhenHolds(stripeEvent, skipWhen) {
-  if (skipWhen === undefined) return false;
-  if (Array.isArray(skipWhen)) return skipWhen.some((item) => skipWhenHolds(stripeEvent, item));
-  if (Array.isArray(skipWhen.all_of)) return skipWhen.all_of.every((item) => skipWhenHolds(stripeEvent, item));
-  return conditionHolds(stripeEvent, skipWhen);
-}
-
-/** Every single condition a `skip_when` names, whatever its shape. */
-function conditionsIn(skipWhen) {
-  if (skipWhen === undefined) return [];
-  if (Array.isArray(skipWhen)) return skipWhen.flatMap(conditionsIn);
-  if (Array.isArray(skipWhen.all_of)) return skipWhen.all_of.flatMap(conditionsIn);
-  return [skipWhen];
 }
 
 /** ISO-8601 from a Stripe unix `created` (seconds). The value comes from the
@@ -86,23 +70,53 @@ function occurredAtFrom(created) {
 }
 
 /**
- * The id a completed checkout's payment row is named by. The webhook, the event list and the checkout list all name a
- * checkout through this one function, so the same checkout is the same row whichever way it arrives.
+ * The invoice whose PaymentIntent the caller must read before this event can be keyed: a paid invoice's own (amount above
+ * zero), and a subscription Checkout's first invoice (a Checkout that charged nothing has none). Null when no read is needed.
  */
-export function checkoutEventIdOf(sessionId) {
-  return `checkout:${sessionId}`;
+export function invoiceNeedingPaymentIntent(stripeEvent) {
+  const object = stripeEvent?.data?.object;
+  if (stripeEvent?.type === 'invoice.paid' && Number(object?.amount_paid) > 0) return object.id;
+  if (stripeEvent?.type === 'checkout.session.completed' && object?.mode === 'subscription' && Number(object?.amount_total) > 0
+    && typeof object?.invoice === 'string' && object.invoice && !object.payment_intent) return object.invoice;
+  return null;
 }
 
 /**
- * The id a Stripe event's payment row is named by: a completed checkout by its checkout session, every other kind by
- * its Stripe event id. A checkout reached by webhook and by either list has one row, not one per path.
+ * The PaymentIntent a Stripe event's payment is named by, or null when the event names none. A paid invoice's, and a
+ * subscription Checkout's, come from the caller's read (`paymentIntent`), because those events do not carry it.
  */
-export function paymentEventIdOf(stripeEvent) {
-  const sessionId = stripeEvent.data?.object?.id;
-  if (stripeEvent.type === 'checkout.session.completed' && typeof sessionId === 'string' && sessionId) {
-    return checkoutEventIdOf(sessionId);
+export function paymentIntentOf(stripeEvent, paymentIntent = null) {
+  const object = stripeEvent.data?.object;
+  if (stripeEvent.type === 'payment_intent.succeeded') return typeof object?.id === 'string' && object.id ? object.id : null;
+  if (stripeEvent.type === 'invoice.paid') return typeof paymentIntent === 'string' && paymentIntent ? paymentIntent : null;
+  if (stripeEvent.type === 'checkout.session.completed' || stripeEvent.type === 'checkout.session.async_payment_succeeded') {
+    if (typeof object?.payment_intent === 'string' && object.payment_intent) return object.payment_intent;
+    return typeof paymentIntent === 'string' && paymentIntent ? paymentIntent : null;
   }
+  return null;
+}
+
+/**
+ * The id a Stripe event's payment row is named by: `payment:<PaymentIntent id>` when the event belongs to a payment, its
+ * Stripe event id otherwise (a completed checkout without one keeps its checkout session's id). Rows written before this
+ * key keep their ids.
+ */
+export function paymentEventIdOf(stripeEvent, paymentIntent = null) {
+  const key = paymentIntentOf(stripeEvent, paymentIntent);
+  if (key) return `payment:${key}`;
+  const sessionId = stripeEvent.data?.object?.id;
+  if (stripeEvent.type === 'checkout.session.completed' && typeof sessionId === 'string' && sessionId) return `checkout:${sessionId}`;
   return typeof stripeEvent.id === 'string' ? stripeEvent.id : '';
+}
+
+/**
+ * The payment kind an event is, from its own facts: a rule's `target_event_kind_by_billing_reason` names the kind for an
+ * invoice's billing reason (a first subscription invoice is the first payment), and `target_event_kind` is the rest.
+ */
+function eventKindOf(stripeEvent, rule) {
+  const byReason = rule.target_event_kind_by_billing_reason ?? {};
+  const reason = stripeEvent.data?.object?.billing_reason;
+  return (typeof reason === 'string' && byReason[reason]) || rule.target_event_kind;
 }
 
 /**
@@ -110,13 +124,17 @@ export function paymentEventIdOf(stripeEvent) {
  * if no rule matches the event type (ignored / fail-closed).
  * @param {object} stripeEvent - verified Stripe event { id, type, created, data:{object} }
  * @param {object} eventMap - the webhook-event-map DATA
+ * @param {string|null} [paymentIntent] - the PaymentIntent of a paid invoice, read from its payments (invoicePaymentIntent)
  * @returns {{event_id:string, occurred_at:string, event_kind:string, attributes:Record<string,unknown>}|null}
  */
-export function mapStripeWebhookEvent(stripeEvent, eventMap) {
+export function mapStripeWebhookEvent(stripeEvent, eventMap, paymentIntent = null) {
   if (!isRecord(stripeEvent) || typeof stripeEvent.type !== 'string') return null;
   const rule = ruleFor(eventMap, stripeEvent.type);
   if (!rule) return null; // unknown event type → ignored, never guessed
-  if (skipWhenHolds(stripeEvent, rule.skip_when)) return null; // the Checkout that made this PaymentIntent is the payment
+  if (skipWhenHolds(stripeEvent, rule.skip_when)) return null; // the one-time Checkout's PaymentIntent: its completed session is the payment
+  if (invoiceNeedingPaymentIntent(stripeEvent) && !paymentIntent) {
+    throw new Error(`webhook-event-map: ${stripeEvent.type} ${stripeEvent.data?.object?.id} needs its PaymentIntent before it is mapped.`);
+  }
 
   const attributes = {};
   for (const [canonicalKey, source] of Object.entries(rule.attribute_map || {})) {
@@ -129,24 +147,19 @@ export function mapStripeWebhookEvent(stripeEvent, eventMap) {
       if (value !== undefined && value !== null) attributes[canonicalKey] = value;
     }
   }
+  // Every row of one payment refers to it by its PaymentIntent, so the stored reference does not depend on which of the
+  // payment's events arrived first (the checkout session stays in completion_ref, the invoice in invoice_ref).
+  const key = paymentIntentOf(stripeEvent, paymentIntent);
+  if (key) attributes.provider_object_ref = key;
   // Provenance the revenue/audit trail always carries.
   attributes.provider_event_id = stripeEvent.id;
 
   return {
-    event_id: paymentEventIdOf(stripeEvent),
+    event_id: paymentEventIdOf(stripeEvent, paymentIntent),
     occurred_at: occurredAtFrom(stripeEvent.created),
-    event_kind: rule.target_event_kind,
+    event_kind: eventKindOf(stripeEvent, rule),
     attributes,
   };
-}
-
-/** The one marker a rule's skip condition reads at `prefix` (a path to a metadata object), as the metadata to stamp. */
-function markerAt(eventMap, stripeEventType, prefix, failure) {
-  const found = conditionsIn(ruleFor(eventMap, stripeEventType)?.skip_when).filter((condition) => Array.isArray(condition.path)
-    && condition.path.length === prefix.length + 1 && prefix.every((segment, index) => condition.path[index] === segment)
-    && typeof condition.equals === 'string');
-  if (found.length !== 1) throw new Error(failure);
-  return { [found[0].path.at(-1)]: found[0].equals };
 }
 
 /**
@@ -155,19 +168,13 @@ function markerAt(eventMap, stripeEventType, prefix, failure) {
  * written: a session builder that stamps anything else would count its purchase twice again.
  */
 export function checkoutPaymentIntentMetadata(eventMap) {
-  return markerAt(eventMap, 'payment_intent.succeeded', ['data', 'object', 'metadata'],
-    'webhook-event-map: payment_intent.succeeded needs skip_when at data.object.metadata.<key> with a text equals.');
-}
-
-/**
- * The subscription metadata a Checkout in subscription mode stamps on the Subscription it makes. Stripe copies it onto
- * that subscription's first invoice (parent.subscription_details.metadata), where the invoice.paid rule's skip_when
- * reads it, so the Checkout's completed event is the one row for that first payment. An API subscription has no marker
- * and its first invoice counts.
- */
-export function checkoutSubscriptionMetadata(eventMap) {
-  return markerAt(eventMap, 'invoice.paid', ['data', 'object', 'parent', 'subscription_details', 'metadata'],
-    'webhook-event-map: invoice.paid needs skip_when at data.object.parent.subscription_details.metadata.<key> with a text equals.');
+  const condition = ruleFor(eventMap, 'payment_intent.succeeded')?.skip_when;
+  const path = condition?.path;
+  if (!Array.isArray(path) || path.length !== 4 || path[0] !== 'data' || path[1] !== 'object' || path[2] !== 'metadata'
+    || typeof condition.equals !== 'string') {
+    throw new Error('webhook-event-map: payment_intent.succeeded needs skip_when at data.object.metadata.<key> with a text equals.');
+  }
+  return { [path[3]]: condition.equals };
 }
 
 /** Load the DATA map from disk (package-relative). */
@@ -176,10 +183,10 @@ export function loadWebhookEventMap(mapPath) {
 }
 
 /**
- * The payment row a mapped Stripe event becomes, named by the Stripe event id. Every path that reads a Stripe event
- * (the webhook check, the event listing) builds its row here, so one event is one row whichever way it arrives.
+ * The payment row a mapped Stripe event becomes, named by its payment key. Every path that reads a Stripe event
+ * (the webhook check, the event listing, the checkout list) builds its row here, so one payment is one row whichever way
+ * it arrives.
  */
 export function paymentEventNamedBy(mapped) {
   return { kind: 'payment-event', id: `payment-event:${mapped.event_id}`, ...mapped };
 }
-

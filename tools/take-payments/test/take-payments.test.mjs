@@ -114,14 +114,14 @@ test('the held key is read once from its descriptor and never appears in an erro
   });
 });
 
-test('a webhook is believed only inside its window and with a matching signature', () => {
+test('a webhook is believed only inside its window and with a matching signature', async () => {
   const secret = 'whsec_fixture_signing_secret';
   const now = 1790000000;
   const payload = JSON.stringify({ id: 'evt_1', type: 'checkout.session.completed', created: now, data: { object: { id: 'cs_1', amount_total: 2500, currency: 'usd', payment_status: 'paid', metadata: { offer_id: 'offer:cake' } } } });
   const header = (t, body = payload, key = secret) => `t=${t},v1=${createHmac('sha256', key).update(`${t}.${body}`).digest('hex')}`;
   const context = { secrets: { webhookSecret: secret } };
 
-  const good = checkAStripeEvent({ payload, signature_header: header(now), now_seconds: now }, context);
+  const good = await checkAStripeEvent({ payload, signature_header: header(now), now_seconds: now }, context);
   assert.equal(good.admitted, true);
   assert.equal(good.event_kind, 'payment.confirmed');
   assert.equal(good.payment_event.kind, 'payment-event');
@@ -129,12 +129,12 @@ test('a webhook is believed only inside its window and with a matching signature
   assert.equal(good.payment_event.attributes.offer_id, 'offer:cake');
   assert.doesNotMatch(JSON.stringify(good), /whsec_/);
 
-  assert.deepEqual(checkAStripeEvent({ payload, signature_header: header(now, payload, 'whsec_another'), now_seconds: now }, context), { admitted: false, reason: 'signature-mismatch', payment_event: null });
-  assert.equal(checkAStripeEvent({ payload: `${payload} `, signature_header: header(now), now_seconds: now }, context).reason, 'signature-mismatch');
-  assert.equal(checkAStripeEvent({ payload, signature_header: header(now - 10_000), now_seconds: now }, context).reason, 'timestamp-outside-tolerance');
-  assert.equal(checkAStripeEvent({ payload, signature_header: 'nonsense', now_seconds: now }, context).reason, 'malformed-signature-header');
+  assert.deepEqual(await checkAStripeEvent({ payload, signature_header: header(now, payload, 'whsec_another'), now_seconds: now }, context), { admitted: false, reason: 'signature-mismatch', payment_event: null });
+  assert.equal((await checkAStripeEvent({ payload: `${payload} `, signature_header: header(now), now_seconds: now }, context)).reason, 'signature-mismatch');
+  assert.equal((await checkAStripeEvent({ payload, signature_header: header(now - 10_000), now_seconds: now }, context)).reason, 'timestamp-outside-tolerance');
+  assert.equal((await checkAStripeEvent({ payload, signature_header: 'nonsense', now_seconds: now }, context)).reason, 'malformed-signature-header');
   const unknown = JSON.stringify({ id: 'evt_2', type: 'some.other.event', created: now, data: { object: {} } });
-  assert.equal(checkAStripeEvent({ payload: unknown, signature_header: header(now, unknown), now_seconds: now }, context).reason, 'unmapped-event-type');
+  assert.equal((await checkAStripeEvent({ payload: unknown, signature_header: header(now, unknown), now_seconds: now }, context)).reason, 'unmapped-event-type');
 });
 
 test('what a buyer paid must be a price the offer declares', () => {

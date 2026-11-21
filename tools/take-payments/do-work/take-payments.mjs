@@ -40,8 +40,9 @@ import {
 import { ensureOfferPaymentLinks } from './ensure-offer-payment-links.mjs';
 import { destinationCheckoutSubject, onboardingLinkSubject, payeeAccountSubject, payeeReadiness, shareTransferSubject } from './connect-payees.mjs';
 import { call } from '../../shared-code/src/build-provider-request.mjs';
-import { admitStripeWebhook } from './admit-a-webhook.mjs';
-import { checkoutEventIdOf, mapStripeWebhookEvent, paymentEventNamedBy } from './map-webhook-event.mjs';
+import { verifyStripeWebhookSignature } from './admit-a-webhook.mjs';
+import { invoiceNeedingPaymentIntent, mapStripeWebhookEvent, paymentEventNamedBy } from './map-webhook-event.mjs';
+import { invoicePaymentIntent } from './invoice-payment-intent.mjs';
 import { listStripeEvents } from './list-stripe-events.mjs';
 import { heldKey, makeStripeSender } from './stripe-send.mjs';
 import { assertTestKey, rehearseAPaymentSchedule } from './rehearse-a-payment-schedule.mjs';
@@ -196,23 +197,27 @@ export async function setUpStripePaymentLinks(input, context = {}) {
 /**
  * Check a Stripe webhook the way Stripe documents it (the replay window and the signature, with the person's signing
  * secret) and read it as payment events. Nothing unchecked is kept: an event that fails any step comes back with its
- * reason and no records.
+ * reason and no records. A paid invoice is read for its PaymentIntent only after its signature is verified; a failed read
+ * throws, so the webhook answers with an error and Stripe sends it again.
  */
-export function checkAStripeEvent(input, context = {}) {
+export async function checkAStripeEvent(input, context = {}) {
   const secret = context.secrets?.webhookSecret ?? heldKey(WEBHOOK_SECRET_DESCRIPTOR, context.readKey);
-  const verdict = admitStripeWebhook({
+  const checked = verifyStripeWebhookSignature({
     payload: input.payload,
     header: input.signature_header,
     secret,
-    eventMap: input.event_map ?? dataFile('webhook-event-map.json'),
     toleranceSeconds: input.tolerance_seconds,
     nowSeconds: input.now_seconds,
   });
-  if (!verdict.admitted) return { admitted: false, reason: verdict.reason, payment_event: null };
+  if (!checked.admitted) return { admitted: false, reason: checked.reason, payment_event: null };
+  const invoice = invoiceNeedingPaymentIntent(checked.stripeEvent);
+  const paymentIntent = invoice ? await invoicePaymentIntent(invoice, sender(context)) : null;
+  const mapped = mapStripeWebhookEvent(checked.stripeEvent, input.event_map ?? dataFile('webhook-event-map.json'), paymentIntent);
+  if (!mapped) return { admitted: false, reason: 'unmapped-event-type', payment_event: null };
   return {
     admitted: true,
-    event_kind: verdict.event_kind,
-    payment_event: paymentEventNamedBy(verdict.records[0]),
+    event_kind: mapped.event_kind,
+    payment_event: paymentEventNamedBy(mapped),
   };
 }
 
@@ -223,11 +228,14 @@ export function checkAStripeEvent(input, context = {}) {
  */
 function checkoutAsStripeEvent(checkout) {
   return {
-    id: checkoutEventIdOf(checkout.provider_session_id),
+    id: `checkout:${checkout.provider_session_id}`,
     type: 'checkout.session.completed',
     created: checkout.created,
     data: { object: {
       id: checkout.provider_session_id,
+      mode: checkout.payment_mode,
+      payment_intent: checkout.payment_intent,
+      invoice: checkout.invoice_id,
       amount_total: checkout.amount_total_cents,
       currency: checkout.currency,
       // A listed session is a completed one: it holds money when it charged anything, and none is owed when it charged 0.
@@ -257,7 +265,10 @@ export async function listCompletedCheckoutsAsPaymentEvents(input, context = {})
   for (const checkout of listed.checkouts) {
     if (!checkout.customer_email) { left.no_buyer_email += 1; continue; }
     if (!checkout.offer_id) { left.no_offer += 1; continue; }
-    const mapped = mapStripeWebhookEvent(checkoutAsStripeEvent(checkout), eventMap);
+    const event = checkoutAsStripeEvent(checkout);
+    // A subscription Checkout that charged is keyed by its first invoice's PaymentIntent, read here; a failed read throws.
+    const invoice = invoiceNeedingPaymentIntent(event);
+    const mapped = mapStripeWebhookEvent(event, eventMap, invoice ? await invoicePaymentIntent(invoice, sender(context)) : null);
     if (!mapped) { left.not_mapped += 1; continue; }
     const pursuits = pursuitsOf.get(checkout.offer_id);
     const row = paymentEventNamedBy(mapped);

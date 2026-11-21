@@ -1,7 +1,7 @@
 import { call } from '../../shared-code/src/build-provider-request.mjs';
 import { paymentScheduleFromTheWire } from '../read-data/when-money-is-taken.ts';
 import webhookEventMap from '../read-data/webhook-event-map.json' with { type: 'json' };
-import { checkoutPaymentIntentMetadata, checkoutSubscriptionMetadata } from './map-webhook-event.mjs';
+import { checkoutPaymentIntentMetadata } from './map-webhook-event.mjs';
 import {
   howStripeTakesASchedule,
   whatTheCheckoutDoes,
@@ -315,9 +315,7 @@ export function sessionRequestBody(session: CreateHostedSessionInput['session'])
   if (isSubscription && !scheduled) {
     const subscriptionData: Record<string, unknown> = {};
     if (trialDays > 0) subscriptionData.trial_period_days = trialDays;
-    // The Checkout marker on the Subscription: its first invoice is the Checkout's payment, so the webhook mapper counts it
-    // once, on the session's completed event (map-webhook-event.mjs, skip_when).
-    const subscriptionMetadata: Record<string, string> = { ...metadata, ...checkoutSubscriptionMetadata(webhookEventMap) };
+    const subscriptionMetadata: Record<string, string> = { ...metadata };
     // Stripe's subscription-ended webhook carries the Subscription object, not
     // the Checkout Session. Preserve the same already-provider-visible buyer
     // email on the Subscription so the generic entitlement-reversal route can
@@ -578,6 +576,9 @@ export type CompletedCheckout = {
   amount_total_cents: number | null;
   currency: string | null;
   subscription_id: string | null;
+  payment_mode: string | null;
+  payment_intent: string | null;
+  invoice_id: string | null;
 };
 
 /**
@@ -622,6 +623,9 @@ export async function listCompletedHostedSessions(input: unknown, { send }: { se
         amount_total_cents: typeof candidate.amount_total === 'number' ? candidate.amount_total : null,
         currency: text(candidate.currency) || null,
         subscription_id: text(candidate.subscription) || null,
+        payment_mode: text(candidate.mode) || null,
+        payment_intent: text(candidate.payment_intent) || null,
+        invoice_id: text(candidate.invoice) || null,
       });
     }
     more = page.has_more === true && sessions.length > 0;

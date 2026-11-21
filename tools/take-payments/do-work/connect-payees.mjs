@@ -19,7 +19,7 @@
 //                                                                          → operation:create-transfer subject
 //   payeeReadiness(account)                                                → { can_be_paid, onboarding_done, due }
 import webhookEventMap from '../read-data/webhook-event-map.json' with { type: 'json' };
-import { checkoutPaymentIntentMetadata, checkoutSubscriptionMetadata } from './map-webhook-event.mjs';
+import { checkoutPaymentIntentMetadata } from './map-webhook-event.mjs';
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const INTERVALS = new Set(['day', 'week', 'month', 'year']);
@@ -81,7 +81,7 @@ export function destinationCheckoutSubject({ offer, option, payee_account = null
     cancel_url,
     metadata: { ...tags, ...(payee_account ? { platform_fee_cents: String(feeCents({ amount_cents: option.amount_cents, fee })) } : {}) },
     ...(recurring
-      ? { subscription_data: { metadata: { ...tags, ...checkoutSubscriptionMetadata(webhookEventMap) }, ...(payee_account ? { application_fee_percent: Number(fee.percent), ...toPayee } : {}) } }
+      ? { subscription_data: { metadata: tags, ...(payee_account ? { application_fee_percent: Number(fee.percent), ...toPayee } : {}) } }
       : { payment_intent_data: { metadata: { ...tags, ...checkoutPaymentIntentMetadata(webhookEventMap) }, ...(payee_account ? { application_fee_amount: feeCents({ amount_cents: option.amount_cents, fee }), ...toPayee } : {}) } }),
   };
 }
