@@ -17158,6 +17158,47 @@
     "utils.js"
    ],
    "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "connect-a-service-and-seal-its-key",
+   "paths": [
+    "records.json"
+   ],
+   "at": "/opt/connect-a-service-and-seal-its-key"
+  },
+  {
+   "package": "find-and-keep-my-connections",
+   "paths": [
+    "src/connection-records.mjs"
+   ],
+   "at": "/opt/find-and-keep-my-connections"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
   }
  ],
  "tool:find-the-event-that-starts-one-tour": [
@@ -24481,6 +24522,13 @@
     "read-data"
    ],
    "at": "/opt/composio-connection"
+  },
+  {
+   "package": "keep-secrets-out-of-answers",
+   "paths": [
+    "read-data/strip-secrets.mjs"
+   ],
+   "at": "/opt/keep-secrets-out-of-answers"
   }
  ],
  "tool:list-my-conversations-newest-first": [
@@ -28921,6 +28969,7 @@
   }
  ],
  "tool:make-youtube-playlists-from-a-sort-plan": [],
+ "tool:manage-claude-cloud-sessions": [],
  "tool:manage-harness": [],
  "tool:manage-my-api-descriptions": [
   {
@@ -38077,17 +38126,18 @@
   {
    "package": "decide-with-a-method",
    "paths": [
-    "method-rows/view.mjs",
     "method-rows/answers.mjs",
     "method-rows/settings.json",
+    "method-rows/view.mjs",
+    "read-data/answer-words.json",
+    "read-data/answer-words.mjs",
     "read-data/decide-with-a-method.json",
     "read-data/decision-outcome.mjs",
     "read-data/decision-records.mjs",
     "read-data/decisions.mjs",
-    "read-data/answer-words.mjs",
-    "read-data/answer-words.json",
     "read-data/legacy-decision.mjs",
-    "read-data/read-worked-steps.mjs"
+    "read-data/read-worked-steps.mjs",
+    "read-data/store-decision.mjs"
    ],
    "at": "/opt/decide-with-a-method"
   },
@@ -60323,6 +60373,13 @@
     "read-data"
    ],
    "at": "/opt/composio-connection"
+  },
+  {
+   "package": "keep-secrets-out-of-answers",
+   "paths": [
+    "read-data/strip-secrets.mjs"
+   ],
+   "at": "/opt/keep-secrets-out-of-answers"
   }
  ],
  "tool:walk-a-funnel": [
@@ -61203,6 +61260,44 @@
    "at": "/opt/words-as-picture-vector/do-work"
   }
  ],
+ "tool:words-as-picture-vector-kept": [
+  {
+   "package": "words-as-picture-vector",
+   "paths": [
+    "do-work/words-as-picture-vector-session.py"
+   ],
+   "at": "/opt/words-as-picture-vector"
+  },
+  {
+   "packages": [
+    "clip-vit-b32-text-model",
+    "clip-vit-b32-tokenizer"
+   ],
+   "at": "/opt/models/clip-vit-base-patch32"
+  },
+  {
+   "package": "words-as-picture-vector",
+   "paths": [
+    "clip-vit-base-patch32/model.json"
+   ],
+   "at": "/opt/models"
+  },
+  {
+   "packages": [
+    "coloredlogs",
+    "flatbuffers",
+    "humanfriendly",
+    "mpmath",
+    "numpy",
+    "onnxruntime",
+    "packaging",
+    "protobuf",
+    "sympy",
+    "tokenizers"
+   ],
+   "at": "/opt/words-as-picture-vector/do-work"
+  }
+ ],
  "tool:work-a-piece-through-a-question-bank": [],
  "tool:work-a-session-catalog": [
   {
@@ -61572,29 +61667,78 @@
    "at": "/opt/lessons-and-learning-paths"
   }
  ],
-  "tool:workflow-run-find": [
-   {
-    "package": "workflows",
-    "paths": [
-     "do-work/run-a-function.mjs",
-     "read-data/workflow-run-find.mjs",
-     "read-data/choose-the-workflows-that-fire.mjs",
-     "read-data/public-recipes.mjs",
-     "read-data/fires-when.mjs",
-     "recipes",
-     "branches"
-    ],
-    "at": "/opt/workflows"
-   },
-   {
-    "package": "formula-engine",
-    "paths": [
-     "rules",
-     "built-stored-bytes/formula-engine"
-    ],
-    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-   }
-  ],
+ "tool:workflow-run-find": [
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs",
+    "read-data/workflow-run-find.mjs",
+    "read-data/choose-the-workflows-that-fire.mjs",
+    "read-data/public-recipes.mjs",
+    "read-data/fires-when.mjs",
+    "recipes",
+    "branches"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:write-a-message-body-from-a-document": [],
  "tool:write-a-post-for-a-place": [
   {
