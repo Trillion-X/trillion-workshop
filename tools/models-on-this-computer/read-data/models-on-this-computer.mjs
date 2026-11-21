@@ -145,6 +145,39 @@ async function askChatYesNo(row, { state, questions }) {
   return { model: row.model, answers };
 }
 
+// A chat row names its wire shape (DATA `api_shape`). `chat` is the OpenAI chat-completions shape the local servers speak;
+// `responses` is the OpenAI Responses shape a codex-lb door serves (`/v1/responses`): the system words go to
+// `instructions`, the rest to `input`, and the answer comes back in the chat shape, so every caller reads both alike. A
+// row written before the field existed is `chat`. Words a shape does not take (tools, streamed parts) are refused for
+// that request only, as a model that takes no such request; response_format, seed, temperature and num_ctx are not sent
+// in the responses shape, and a job whose answer must be structured is checked by `answer_has`.
+const shapes = new Set(['chat', 'responses']);
+
+/** The OpenAI Responses reply in the chat shape: its message text, its stop reason and its token counts. */
+export function chatReplyOf(reply, model) {
+  const text = (reply?.output ?? []).filter(item => item.type === 'message').flatMap(item => item.content ?? [])
+    .filter(part => part.type === 'output_text').map(part => part.text).join('');
+  const usage = reply?.usage ? { prompt_tokens: reply.usage.input_tokens, completion_tokens: reply.usage.output_tokens, total_tokens: reply.usage.total_tokens } : undefined;
+  return { model: reply?.model ?? model, choices: [{ message: { role: 'assistant', content: text }, finish_reason: reply?.status === 'completed' ? 'stop' : 'length' }], ...(usage ? { usage } : {}) };
+}
+
+/** One chat request to a row, in the row's own wire shape; the answer is always returned in the chat shape. */
+async function askChatShape(row, body, seconds, streamed) {
+  const shape = row.api_shape ?? 'chat';
+  if (!shapes.has(shape)) throw Object.assign(new Error(`${row.id} has no known api_shape`), { said: `has no known wire shape (${shape})` });
+  if (shape === 'chat') return (streamed ? postStreaming : post)(row.url, body, seconds);
+  if (streamed) throw Object.assign(new Error(`${row.id} streams no parts`), { said: 'streams no parts in this shape' });
+  if (Array.isArray(body.tools)) throw Object.assign(new Error(`${row.id} takes no tool calls`), { said: 'takes no tool calls in this shape' });
+  const system = body.messages.filter(message => message.role === 'system').map(message => message.content).join('\n\n');
+  const reply = await post(row.url, {
+    model: body.model, store: false, stream: false,
+    ...(system ? { instructions: system } : {}),
+    input: body.messages.filter(message => message.role !== 'system').map(message => ({ role: message.role, content: message.content })),
+    ...(body.max_tokens ? { max_output_tokens: body.max_tokens } : {}),
+  }, seconds);
+  return chatReplyOf(reply, body.model);
+}
+
 /** { messages, tools?, max_tokens?, temperature? } -> the chat reply (OpenAI shape, with model), { state, questions } -> the
  *  classifier's answers, or { texts } -> one vector per text ({ vectors, model, dimensions }); { error } when no model here
  *  answered. */
@@ -158,7 +191,7 @@ export async function askLocal(input, settings, { priority = 0 } = {}) {
     };
     const rows = Array.isArray(job.models) ? job.models.map(id => settings.chat.find(row => row.id === id)).filter(Boolean) : settings.chat;
     const failures = [];
-    const found = await firstAnswer(rows, async row => checked(await (input.parts === true ? postStreaming : post)(row.url, {
+    const found = await firstAnswer(rows, async row => checked(await askChatShape(row, {
       model: row.model, messages: input.messages, stream: false, ...(row.keep_alive ? { keep_alive: row.keep_alive } : {}),
       ...(Array.isArray(input.tools) ? { tools: input.tools } : {}),
       ...(job.response_format ? { response_format: job.response_format } : {}),
@@ -166,7 +199,7 @@ export async function askLocal(input, settings, { priority = 0 } = {}) {
       ...(row.num_ctx ? { options: { num_ctx: row.num_ctx } } : {}),
       ...(Number.isFinite(input.temperature) ? { temperature: input.temperature } : {}),
       ...(Number.isInteger(input.seed) ? { seed: input.seed } : {}),
-    }, job.timeout_seconds ?? row.timeout_seconds)), settings.retry_after_seconds, failures, priority);
+    }, job.timeout_seconds ?? row.timeout_seconds, input.parts === true)), settings.retry_after_seconds, failures, priority);
     return found ? { ...found.reply, model: found.row.model, served_by: found.row.id } : { error: settings.words.none, tried: failures };
   }
   if (input.state !== undefined && input.questions && typeof input.questions === 'object') {

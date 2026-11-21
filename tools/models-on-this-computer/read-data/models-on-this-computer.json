@@ -16,7 +16,8 @@
       "path": "/v1/chat/completions",
       "model": "qwen2.5:14b-instruct",
       "keep_alive": "30m",
-      "timeout_seconds": 45
+      "timeout_seconds": 45,
+      "api_shape": "chat"
     },
     {
       "id": "ollama-gemma3-4b",
@@ -24,7 +25,8 @@
       "path": "/v1/chat/completions",
       "model": "gemma3:4b",
       "keep_alive": "30m",
-      "timeout_seconds": 40
+      "timeout_seconds": 40,
+      "api_shape": "chat"
     },
     {
       "id": "ollama-judge-qwen2.5-14b",
@@ -33,7 +35,8 @@
       "model": "qwen2.5:14b-instruct",
       "keep_alive": "30m",
       "timeout_seconds": 45,
-      "num_ctx": 16384
+      "num_ctx": 16384,
+      "api_shape": "chat"
     },
     {
       "id": "ollama-awareness-4b",
@@ -42,7 +45,16 @@
       "model": "gemma3:4b",
       "keep_alive": -1,
       "timeout_seconds": 120,
-      "num_ctx": 16384
+      "num_ctx": 16384,
+      "api_shape": "chat"
+    },
+    {
+      "id": "codex-lb-responses",
+      "door": "codex-lb",
+      "path": "/v1/responses",
+      "api_shape": "responses",
+      "model": "gpt-6.2-sol",
+      "timeout_seconds": 120
     }
   ],
   "jobs": {
@@ -151,6 +163,13 @@
       "models": [
         "ollama-nomic-embed-text"
       ]
+    },
+    "codex-lb-answer": {
+      "models": [
+        "codex-lb-responses"
+      ],
+      "most_tokens": 300,
+      "timeout_seconds": 120
     }
   },
   "classify": [

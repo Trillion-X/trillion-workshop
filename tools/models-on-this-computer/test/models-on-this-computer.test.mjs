@@ -412,3 +412,49 @@ test('texts become one vector each from the embedding row its job names, with th
     assert.equal((await askLocal({ texts: [3] }, settings)).error, words.needs_input);
   } finally { server.close(); }
 });
+
+test('a responses-shaped row is asked in the Responses shape and its answer reads as a chat answer', async () => {
+  const asked = [];
+  const server = await serve(body => { asked.push(body); return { id: 'resp_1', model: 'gpt-x', status: 'completed', output: [{ type: 'reasoning', content: [] }, { type: 'message', role: 'assistant', content: [{ type: 'output_text', text: 'Hello ' }, { type: 'output_text', text: 'there' }] }], usage: { input_tokens: 7, output_tokens: 2, total_tokens: 9 } }; });
+  const url = `http://127.0.0.1:${server.address().port}/v1/responses`;
+  const settings = { most_tokens: 4000, words, classify: [], chat: [{ id: 'codex', url, model: 'gpt-x', api_shape: 'responses', timeout_seconds: 5 }], jobs: {} };
+  try {
+    const reply = await askLocal({ messages: [{ role: 'system', content: 'Be brief.' }, { role: 'user', content: 'Say hi' }], max_tokens: 50 }, settings);
+    assert.equal(reply.served_by, 'codex');
+    assert.equal(reply.choices[0].message.content, 'Hello there');
+    assert.equal(reply.choices[0].finish_reason, 'stop');
+    assert.deepEqual(reply.usage, { prompt_tokens: 7, completion_tokens: 2, total_tokens: 9 });
+    assert.deepEqual(asked[0], { model: 'gpt-x', store: false, stream: false, instructions: 'Be brief.', input: [{ role: 'user', content: 'Say hi' }], max_output_tokens: 50 });
+  } finally { server.close(); }
+});
+
+test('a responses-shaped row that takes no tools is passed over for that request, and a chat row answers', async () => {
+  const chatAsked = [];
+  const responses = await serve(() => { throw new Error('not asked'); });
+  const chat = await serve(body => { chatAsked.push(body); return { choices: [{ message: { content: 'chat answer' } }] }; });
+  const settings = { most_tokens: 4000, words, classify: [], retry_after_seconds: 60, chat: [
+    { id: 'codex', url: `http://127.0.0.1:${responses.address().port}/v1/responses`, model: 'gpt-x', api_shape: 'responses', timeout_seconds: 5 },
+    { id: 'local', url: `http://127.0.0.1:${chat.address().port}/v1/chat/completions`, model: 'small', timeout_seconds: 5 },
+  ], jobs: {} };
+  try {
+    const reply = await askLocal({ messages: [{ role: 'user', content: 'x' }], tools: [{ type: 'function', function: { name: 'f' } }] }, settings);
+    assert.equal(reply.served_by, 'local');
+    assert.equal(chatAsked.length, 1);
+  } finally { responses.close(); chat.close(); }
+});
+
+test('a row with a shape the code does not know is passed over with the reason in words', async () => {
+  const settings = { most_tokens: 4000, words, classify: [], chat: [{ id: 'odd', url: 'http://127.0.0.1:9/v1/x', model: 'm', api_shape: 'embeddings', timeout_seconds: 1 }], jobs: {} };
+  const reply = await askLocal({ messages: [{ role: 'user', content: 'x' }] }, settings);
+  assert.equal(reply.error, words.none);
+  assert.match(reply.tried[0].why, /no known wire shape/);
+});
+
+test('the codex-lb row is DATA: responses shape on its own door, and the ask-a-model tool may read that door', () => {
+  const data = JSON.parse(readFileSync(new URL('../read-data/models-on-this-computer.json', import.meta.url), 'utf8'));
+  const row = data.chat.find(item => item.id === 'codex-lb-responses');
+  assert.deepEqual({ door: row.door, path: row.path, api_shape: row.api_shape }, { door: 'codex-lb', path: '/v1/responses', api_shape: 'responses' });
+  assert.ok(data.chat.filter(item => item.id !== row.id).every(item => item.api_shape === 'chat'));
+  const ask = rows.records.find(row => row.payload.id === 'tool:ask-a-model');
+  assert.ok(ask.payload.invoke.local_doors.some(door => door.name === 'codex-lb'));
+});

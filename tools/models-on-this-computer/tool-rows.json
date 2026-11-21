@@ -257,7 +257,7 @@
         "invoke": {
           "kind": "computer",
           "capabilities": [],
-          "local_doors": ["local-model-server", {"name": "local-judge-server", "required": false}, {"name": "local-classifier-server", "required": false}],
+          "local_doors": ["local-model-server", {"name": "local-judge-server", "required": false}, {"name": "local-classifier-server", "required": false}, {"name": "codex-lb", "required": false}],
           "workdir": "/opt/models-on-this-computer",
           "stdout": "json",
           "argv": [
@@ -530,7 +530,7 @@
         "invoke": {
           "kind": "computer",
           "capabilities": [],
-          "local_doors": ["local-model-server", {"name": "local-judge-server", "required": false}, {"name": "local-classifier-server", "required": false}],
+          "local_doors": ["local-model-server", {"name": "local-judge-server", "required": false}, {"name": "local-classifier-server", "required": false}, {"name": "codex-lb", "required": false}],
           "workdir": "/opt/models-on-this-computer",
           "stdout": "json",
           "argv": [
