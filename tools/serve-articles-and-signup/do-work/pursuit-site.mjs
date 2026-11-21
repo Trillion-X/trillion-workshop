@@ -25,12 +25,15 @@ const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&
 const nowIso = () => new Date().toISOString();
 const json = (text, fallback) => { try { return text ? JSON.parse(text) : fallback; } catch { return fallback; } };
 
-/** The HTML of a body: blank-line paragraphs, `#`/`##` headings, everything else escaped. */
+/** An escaped paragraph's [words](https://address) links as anchors: only http and https, so a row never writes a script link. */
+const links = (escaped) => escaped.replace(/\[([^\]\n]+)\]\((https?:\/\/[^\s)]+)\)/g, (all, words, href) => `<a href="${href}">${words}</a>`);
+
+/** The HTML of a body: blank-line paragraphs with their links, `#`/`##` headings, everything else escaped. */
 export function bodyHtml(markdown) {
   return String(markdown ?? '').split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean).map((block) => {
     if (block.startsWith('## ')) return `<h2>${esc(block.slice(3))}</h2>`;
     if (block.startsWith('# ')) return `<h1>${esc(block.slice(2))}</h1>`;
-    return `<p>${esc(block).replace(/\n/g, '<br>')}</p>`;
+    return `<p>${links(esc(block)).replace(/\n/g, '<br>')}</p>`;
   }).join('\n');
 }
 

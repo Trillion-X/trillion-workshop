@@ -57,3 +57,11 @@ test('a published row whose time has come answers when read from the database as
   assert.equal(answer.status, 200);
   assert.equal(await answer.text(), 'article:dated');
 });
+
+test('a paragraph\'s markdown link is an anchor, and only to an http or https address', () => {
+  const html = bodyHtml('If you want it, [book a call with me](https://example.test/book?utm_source=site&utm_medium=article). Or [this](javascript:alert(1)).');
+  assert.ok(html.includes('<a href="https://example.test/book?utm_source=site&amp;utm_medium=article">book a call with me</a>'));
+  assert.ok(!html.includes('href="javascript'));
+  assert.ok(html.includes('[this](javascript:alert(1))'));
+  assert.ok(!bodyHtml('[x](https://a.test/"onmouseover=alert(1))').includes('"onmouseover'));
+});
