@@ -20,6 +20,7 @@
 // values the server sets on every row it adds.
 // A recipe that grants per table (`per_table`, may-read-under-row-rules) also takes { tables: ['schema.table', ...] }: each named
 // table, and USAGE on its schema, and nothing else in that schema (a schema's other tables may hold rows no row rule guards).
+// Named tables also mean no whole-public read: the public_grants block (every public table) is given only when no tables are named.
 // A recipe runs in one transaction unless it says `in_one_transaction: false`: Postgres runs CREATE DATABASE and DROP
 // DATABASE only outside a transaction block, so such a recipe's statements run one by one on the same connection.
 // A recipe that takes a held value (`takes_held_value`) is handed it on descriptor 6 (value_credential_name) and fills it in
@@ -93,7 +94,9 @@ export function shapeOf(input) {
   const hasRecipe = Object.hasOwn(asked, 'recipe');
   if (hasSql + hasRecipe > 1) throw new Error('Give one of: sql (with params), or recipe.');
   if (hasRecipe) {
-    const { name, action, role, valid_until: validUntil, password_verifier: verifier, limits = {}, table, columns, fixed, tables } = asked.recipe ?? {};
+    const { name, action, role, valid_until: validUntil, password_verifier: verifier, limits = {}, table, columns, fixed, tables: tablesGiven } = asked.recipe ?? {};
+    // A workflow input that is not given binds null: no tables named, the same as leaving them out.
+    const tables = tablesGiven ?? undefined;
     if (!Object.hasOwn(RECIPES, name ?? '')) throw new Error(`recipe.name must be one of ${Object.keys(RECIPES).join(', ')}.`);
     if (!['create', 'drop'].includes(action)) throw new Error('recipe.action must be create or drop.');
     if (role !== undefined && (typeof role !== 'string' || role === '')) throw new Error('recipe.role must be a role name.');
@@ -193,7 +196,9 @@ const runRecipe = async (client, shape, connection, roleConnection, heldValue) =
     const { rows: [{ listed }] } = await runOne(client, "SELECT string_agg(format('%I', each), ', ') AS listed FROM unnest($1::text[]) AS columns(each)", [shape.columns ?? null]);
     const rule = recipe.adds_rows === true ? JSON.stringify(shape.fixed) : null;
     // A recipe that grants per table runs its per_table statements once for each named table, %11$I its schema and %12$I its table.
-    const steps = [...recipe[shape.action].map(template => [template, null, null]),
+    // The whole public schema is read only when no tables are named: with recipe.tables the login reads exactly those tables.
+    const publicGrants = shape.action === 'create' && shape.tables.length === 0 ? recipe.public_grants?.create ?? [] : [];
+    const steps = [...[...recipe[shape.action], ...publicGrants].map(template => [template, null, null]),
       ...(recipe.per_table?.[shape.action] ?? []).flatMap(template => shape.tables.map(named => [template, ...named.split('.')]))];
     for (const [template, schema, tableName] of steps) {
       const { rows: [{ statement }] } = await runOne(client, "SELECT format($1, $2::text, $3::text, $4::text, $5::text, $6::text, $7::text, $8::text, $9::text, left('rule_' || $2::text, 63), $10::text, $11::text, $12::text) AS statement", [template, login.role, login.password, login.validUntil, database, roleDatabase, shape.table ?? null, listed, rule, heldValue || null, schema, tableName]);

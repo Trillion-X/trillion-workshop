@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import EmbeddedPostgres from 'embedded-postgres';
 import pg from 'pg';
 import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
-import { runSql } from '../do-work/run-sql.mjs';
+import { runSql, shapeOf } from '../do-work/run-sql.mjs';
 
 // A run's use bound by the engine (its use_ticket.rs), on a real PostgreSQL server: a run
 // that declares a use is handed the database's reader login and a ticket of that use signed with the database's use key;
@@ -162,8 +162,10 @@ test('a named table outside public is granted alone: the schema\'s other tables 
     "INSERT INTO proof_side.subjects VALUES ('a person who must not be named')",
   ]) await runSql({ connection: owner, input: { sql } });
   await assert.rejects(under(publish, 'SELECT id FROM proof_side.open_clip'), /permission denied for schema proof_side/, 'before it is named');
+  await runSql({ connection: owner, input: { recipe: { name: 'may-read-under-row-rules', action: 'drop', role: READER } } });
   await runSql({ connection: owner, heldValue: KEY, input: { recipe: { name: 'may-read-under-row-rules', action: 'create', role: READER, tables: ['proof_side.open_clip'] } } });
   assert.deepEqual(ids(await under(publish, 'SELECT id FROM proof_side.open_clip ORDER BY id')), ['clip-a', 'clip-b']);
+  await assert.rejects(under(publish, 'SELECT id FROM clip'), /permission denied for table clip/, 'with tables named, no table of public is read: the whole-public grant is not given');
   await assert.rejects(under(publish, 'SELECT name FROM proof_side.subjects'), /permission denied for table subjects/, 'a table not named');
   await runSql({ connection: owner, input: { sql: 'CREATE TABLE proof_side.later (id text)' } });
   await assert.rejects(under(publish, 'SELECT id FROM proof_side.later'), /permission denied for table later/, 'a table made after it is named');
@@ -171,8 +173,13 @@ test('a named table outside public is granted alone: the schema\'s other tables 
   await assert.rejects(runSql({ connection: owner, input: { recipe: { name: 'may-read-under-row-rules', action: 'create', role: READER, tables: ['use_binding.claims'] } } }), /may not name the use_binding schema/);
   await assert.rejects(runSql({ connection: owner, input: { recipe: { name: 'a-login', action: 'create', tables: ['proof_side.open_clip'] } } }), /recipe.tables is for a recipe that grants per table/);
   await assert.rejects(runSql({ connection: owner, input: { recipe: { name: 'may-read-under-row-rules', action: 'create', role: READER, tables: ['no_dot'] } } }), /one each/);
-  await runSql({ connection: owner, heldValue: KEY, input: { recipe: { name: 'may-read-under-row-rules', action: 'create', role: READER, tables: ['proof_side.open_clip'] } } });
   await runSql({ connection: owner, input: { recipe: { name: 'may-read-under-row-rules', action: 'drop', role: READER, tables: ['proof_side.open_clip'] } } });
   await runSql({ connection: owner, heldValue: KEY, input: { recipe: { name: 'may-read-under-row-rules', action: 'create', role: READER } } });
   await assert.rejects(under(publish, 'SELECT id FROM proof_side.open_clip'), /permission denied for schema proof_side/, 'the drop takes the named table back, and the rights made again do not name it');
+  assert.deepEqual(ids(await under(publish, 'SELECT id FROM clip ORDER BY id')), ['owner-alone'], 'with no tables named, public is read as before');
+});
+
+test('a null tables input (a workflow input not given) is no tables named', async () => {
+  const shape = shapeOf({ recipe: { name: 'may-read-under-row-rules', action: 'create', role: READER, tables: null } });
+  assert.deepEqual(shape.tables, []);
 });

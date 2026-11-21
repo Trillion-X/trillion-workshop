@@ -140,10 +140,7 @@
         "CREATE OR REPLACE FUNCTION use_binding.run_purpose() RETURNS text LANGUAGE sql STABLE SECURITY DEFINER SET search_path = pg_catalog, use_binding, pg_temp AS $body$ SELECT CASE WHEN c.nonce IS NOT NULL AND c.purpose IS NOT NULL THEN c.purpose ELSE (SELECT s.value FROM public.use_settings s WHERE s.name = 'purpose_when_unstated') END FROM (SELECT pg_current_xact_id_if_assigned() AS xact) t LEFT JOIN use_binding.claims c ON c.xact = t.xact $body$",
         "CREATE OR REPLACE FUNCTION use_binding.run_surface() RETURNS text LANGUAGE sql STABLE SECURITY DEFINER SET search_path = pg_catalog, use_binding, pg_temp AS $body$ SELECT coalesce(c.surface, '') FROM (SELECT pg_current_xact_id_if_assigned() AS xact) t LEFT JOIN use_binding.claims c ON c.xact = t.xact $body$",
         "REVOKE TEMPORARY ON DATABASE %4$I FROM PUBLIC, %1$I",
-        "GRANT CONNECT ON DATABASE %4$I TO %1$I",
-        "GRANT USAGE ON SCHEMA public TO %1$I",
-        "GRANT SELECT ON ALL TABLES IN SCHEMA public TO %1$I",
-        "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO %1$I"
+        "GRANT CONNECT ON DATABASE %4$I TO %1$I"
       ],
       "drop": [
         "ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE SELECT ON TABLES FROM %1$I",
@@ -151,6 +148,14 @@
         "REVOKE USAGE ON SCHEMA public FROM %1$I",
         "REVOKE CONNECT ON DATABASE %4$I FROM %1$I"
       ],
+      "_public_grants_what": "The whole public schema, read by the login: USAGE, SELECT on every table there now and later. Given only when no recipe.tables are named; with recipe.tables the login reads exactly those tables and their schemas' USAGE (a public table with no row rule, such as a consent table, is then not readable).",
+      "public_grants": {
+        "create": [
+          "GRANT USAGE ON SCHEMA public TO %1$I",
+          "GRANT SELECT ON ALL TABLES IN SCHEMA public TO %1$I",
+          "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO %1$I"
+        ]
+      },
       "_per_table_what": "Named tables (recipe.tables, each schema.table) the login may read in a schema other than public. Only the named table is granted: a schema's other tables may hold rows no row rule guards (a subject's name, a consent record), so no whole-schema SELECT and no default privilege is given here. %11$I is the schema, %12$I the table.",
       "per_table": {
         "create": [
