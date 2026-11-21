@@ -20,6 +20,7 @@ import { addressesOfName, dnsClient, keepHealthyRecords } from '../../move-the-p
 import { fill } from './fill-fields.mjs';
 import { keyState, keyDifferences, sealTheKeys, removeThePlainKeys } from './keep-the-key-sealed.mjs';
 import { readAll, writeAll } from './files-in-one-go.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { readFileSync, readdirSync, statSync, createReadStream } from 'node:fs';
 import { isAbsolute, dirname, relative, resolve as resolvePath } from 'node:path';
 import { spawn, execFile } from 'node:child_process';
@@ -303,7 +304,37 @@ const needsHeld = unit => secretsOf(unit).length > 0 || Boolean(unit.source?.cre
  * nothing written, no set-up run and nothing restarted. A file that is replaced keeps its previous bytes beside it as
  * `NAME.bak-STAMP`. `held` maps a unit's `secret_vault_key` to the value the person's vault holds under that name; the value
  * reaches the computer only on the SSH channel's standard input, sealed there by systemd-creds at the unit's `secret_file`. */
+// The error answers (status 400 and up) the access log's unit holds since `since` (epoch seconds): each route (path only), status,
+// ip_hash (the BLAKE3 identity of the client address, never the address) and time. Read over the same route as the boot check.
+// A journal that cannot be read is said so, never reported as no failures.
+const JOURNAL_LINES = 5000;
+async function journalErrors(machine, run, accessLogUnit, since) {
+  if (!accessLogUnit) return { reachable: false, reason: 'the computer row names no access_log_unit', failures: [] };
+  let text;
+  try { text = await run(machine, `journalctl -u ${q(accessLogUnit)} --since @${since} -o cat --no-pager | tail -n ${JOURNAL_LINES}`); }
+  catch (error) { return { reachable: false, reason: error.message, failures: [] }; }
+  const failures = text.split('\n').flatMap(line => {
+    let entry;
+    try { entry = JSON.parse(line); } catch { return []; }
+    const { request = {} } = entry;
+    if (!(entry.status >= 400) || !request.uri || !request.remote_ip) return [];
+    return [{ route: request.uri.split('?')[0], status: entry.status, ip_hash: makeHashCodeHexFromBytes(new TextEncoder().encode(request.remote_ip)), at: new Date(entry.ts * 1000).toISOString() }];
+  });
+  return { reachable: true, failures };
+}
+
+// The apply-checked fact of one restarted unit: its window (from the apply's start until its check ended), the check's result and the
+// error answers in that window. Told before a failed apply throws, so a failure still reports its window.
+async function applyCheckedFact(machine, run, { computer, unit, build, accessLogUnit, since, check, reason }) {
+  const journal = await journalErrors(machine, run, accessLogUnit, Math.floor(since / 1000));
+  return {
+    computer, unit, build, down_started: new Date(since).toISOString(), down_ended: new Date().toISOString(), check,
+    ...(reason && { reason }), journal_reachable: journal.reachable, ...(journal.reason && { journal_reason: journal.reason }), failures: journal.failures,
+  };
+}
+
 export async function applyWhatItRuns(machine, given, run = onMachine, held = {}, deps = {}) {
+  const applyStarted = Date.now();
   const { runs, rendered, live, present, strays, usersPresent, portsClosed, builds, stale, switches, keys } = await runsState(machine, given, run, deps);
   // A sealed key the computer lacks is made, and a plain key it still holds is removed once its unit runs from the sealed one: that unit restarts.
   const keysOwed = keys.filter(({ sealed, plain }) => !sealed || plain).map(({ unit }) => unit.unit);
@@ -471,12 +502,19 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   // and its ssh server's reload) runs them, each once, in order, once every unit it may send to has started.
   const thens = [...new Map(writes.flatMap(({ then }) => then ?? []).map(argv => [JSON.stringify(argv), argv])).values()];
   for (const argv of thens) await run(machine, argv.map(q).join(' '));
+  const computer = deps.computer ?? machine.address, checked = [];
   for (const unit of units) {
-    await bootCheck(unit);
+    const common = { computer, unit, build: runs.units.find(given => given.unit === unit)?.commit ?? null, accessLogUnit: runs.access_log_unit, since: applyStarted };
+    try { await bootCheck(unit); }
+    catch (error) {
+      error.apply_checked = [...checked, await applyCheckedFact(machine, run, { ...common, check: 'failed', reason: error.message })];
+      throw error;
+    }
+    checked.push(await applyCheckedFact(machine, run, { ...common, check: 'passed' }));
     booted.push(unit);
   }
   const plainKeysRemoved = await removeThePlainKeys(machine, keys, booted, run);
-  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(plainKeysRemoved.length ? { plain_keys_removed: plainKeysRemoved } : {}), ...(switched.length ? { switched } : {}), ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}), ...(built.length ? { built } : {}), ...removed };
+  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(plainKeysRemoved.length ? { plain_keys_removed: plainKeysRemoved } : {}), ...(switched.length ? { switched } : {}), ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}), ...(built.length ? { built } : {}), ...removed, ...(checked.length ? { apply_checked: checked } : {}) };
 }
 
 const refused = message => Object.assign(new Error(message), { exit: 2 });
@@ -551,7 +589,7 @@ export async function startAComputer(request, { machineToken, nameToken, held = 
   const rented = await rentAMachine(request, { machineToken, nameToken, fetchImpl, wait, run });
   if (rented.lease.state === 'waiting') return rented;
   const { machine, price, arch, lease, host_name } = rented;
-  const applied = await applyWhatItRuns(machine, runs, run, held, { pages: readPages(request), wait });
+  const applied = await applyWhatItRuns(machine, runs, run, held, { pages: readPages(request), wait, computer: request.machine.name });
   await capTheJournal(machine, run);
   const status = await healthStatus(machine, {}, host_name, { ...healthOf(runs.health), where: 'public' }, { fetchImpl, wait, tries, run });
   return { lease, host_name, arch, price, applied, health_status: status };
@@ -622,7 +660,7 @@ export function readPages(request) {
 /** Apply a computer's row to the computer the request names (`machine.address`, `ssh`), already running: the same
  * apply a start does, with the values its units name by vault name (`held`). */
 export async function applyAComputerRow(request, { held = {}, run = onMachine, fetchImpl = fetch } = {}) {
-  const applied = await applyWhatItRuns({ ssh: request.ssh, address: request.machine.address }, runsOf(request), run, held, { pages: readPages(request) });
+  const applied = await applyWhatItRuns({ ssh: request.ssh, address: request.machine.address }, runsOf(request), run, held, { pages: readPages(request), computer: request.machine.name });
   const names = await keepTheNames(request, { held, fetchImpl, apply: true });
   return names.length ? { ...applied, names } : applied;
 }
@@ -817,6 +855,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.stdout.write(`${JSON.stringify(answer)}\n`);
     if (answer.alert === true) process.exitCode = 3;
   } catch (error) {
+    if (error.apply_checked) process.stdout.write(`${JSON.stringify({ apply_checked: error.apply_checked, error: error.message })}\n`);
     process.stderr.write(`${error.message}\n`);
     process.exitCode = error.exit ?? 1;
   }
