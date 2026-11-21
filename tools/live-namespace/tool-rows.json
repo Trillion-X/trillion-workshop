@@ -270,24 +270,24 @@
             "live-namespace": {
               "fetch": {
                 "macos-aarch64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.16-types/live-namespace-0.1.16-types-macos-aarch64.tar.gz",
-                  "version": "0.1.16-types",
-                  "blake3": "ccb08ec9e2e4deed104711a76ace7ec6ec169048ea92473b93c6e0200165441c",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.17-pool/live-namespace-0.1.17-pool-macos-aarch64.tar.gz",
+                  "version": "0.1.17-pool",
+                  "blake3": "ff375fd1919201e949c5e1956ec0e306b71029de74a942bfdc81e50c4adcaaa7",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.16-types/live-namespace-0.1.16-types-macos-aarch64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.17-pool/live-namespace-0.1.17-pool-macos-aarch64.tar.gz.b3"
                 },
                 "macos-x86_64": {
-                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.16-types)."
+                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.17-pool)."
                 },
                 "linux-x86_64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.16-types/live-namespace-0.1.16-types-linux-x86_64.tar.gz",
-                  "version": "0.1.16-types",
-                  "blake3": "79a878c89cf8d4448a4502e06d77109e9e633aebc917af88c379d761a003c693",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.17-pool/live-namespace-0.1.17-pool-linux-x86_64.tar.gz",
+                  "version": "0.1.17-pool",
+                  "blake3": "7dbacf9c91dee7a4533c7a3c5c01b363d9fbb43b76e075ce43da3c9879fdf4f5",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.16-types/live-namespace-0.1.16-types-linux-x86_64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.17-pool/live-namespace-0.1.17-pool-linux-x86_64.tar.gz.b3"
                 },
                 "linux-aarch64": {
-                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.16-types)."
+                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.17-pool)."
                 }
               },
               "search": "live-namespace"
@@ -560,24 +560,24 @@
             "live-namespace": {
               "fetch": {
                 "macos-aarch64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.16-types/live-namespace-0.1.16-types-macos-aarch64.tar.gz",
-                  "version": "0.1.16-types",
-                  "blake3": "ccb08ec9e2e4deed104711a76ace7ec6ec169048ea92473b93c6e0200165441c",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.17-pool/live-namespace-0.1.17-pool-macos-aarch64.tar.gz",
+                  "version": "0.1.17-pool",
+                  "blake3": "ff375fd1919201e949c5e1956ec0e306b71029de74a942bfdc81e50c4adcaaa7",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.16-types/live-namespace-0.1.16-types-macos-aarch64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.17-pool/live-namespace-0.1.17-pool-macos-aarch64.tar.gz.b3"
                 },
                 "macos-x86_64": {
-                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.16-types)."
+                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.17-pool)."
                 },
                 "linux-x86_64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.16-types/live-namespace-0.1.16-types-linux-x86_64.tar.gz",
-                  "version": "0.1.16-types",
-                  "blake3": "79a878c89cf8d4448a4502e06d77109e9e633aebc917af88c379d761a003c693",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.17-pool/live-namespace-0.1.17-pool-linux-x86_64.tar.gz",
+                  "version": "0.1.17-pool",
+                  "blake3": "7dbacf9c91dee7a4533c7a3c5c01b363d9fbb43b76e075ce43da3c9879fdf4f5",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.16-types/live-namespace-0.1.16-types-linux-x86_64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.17-pool/live-namespace-0.1.17-pool-linux-x86_64.tar.gz.b3"
                 },
                 "linux-aarch64": {
-                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.16-types)."
+                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.17-pool)."
                 }
               },
               "search": "live-namespace"
