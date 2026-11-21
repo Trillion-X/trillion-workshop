@@ -26,4 +26,6 @@ test('Automation not allowed, terms that did not compile and other failures are 
   const other = await refuse('the program went away\nmore');
   assert.deepEqual(other, { error: 'osascript_failed', said: 'the program went away' });
   assert.equal(refusalFrom(undefined).error, 'osascript_failed');
+  const logged = await refuse('2026-11-21 12:50:00.539 osascript[1:2] Connection Invalid error for service com.apple.hiservices-xpcservice.\n44:155: execution error: An error of type -10810 has occurred. (-10810)');
+  assert.equal(logged.said, '44:155: execution error: An error of type -10810 has occurred. (-10810)', 'the reason is osascript\'s error line, not a log line before it');
 });

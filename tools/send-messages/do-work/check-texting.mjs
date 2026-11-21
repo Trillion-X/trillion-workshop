@@ -33,6 +33,10 @@ const NOT_ALLOWED = /-1743|not allowed to send Apple events|Not authorized to se
 const NO_TERMS = /-2741|Expected class name but found identifier/;
 
 const firstLine = text => String(text ?? '').split('\n').map(line => line.trim()).find(Boolean)?.slice(0, 300) ?? 'no output';
+// osascript's own error line ("44:155: execution error: ... (-10810)"); the system's log lines before it (a service it could
+// not reach) are not the reason, so the reason is that line when there is one, else the first line.
+const reasonOf = text => String(text ?? '').split('\n').map(line => line.trim()).filter(Boolean).reverse()
+  .find(line => /\berror\b.*\(-?\d+\)\s*$/.test(line))?.slice(0, 300) ?? firstLine(text);
 
 // The answer from osascript's printed line: "<chats>\t<kind>,<kind>".
 export function answerFrom(stdout) {
@@ -46,8 +50,8 @@ export function answerFrom(stdout) {
 export function refusalFrom(error) {
   const text = `${error?.stderr ?? ''}\n${error?.message ?? ''}`;
   if (NOT_ALLOWED.test(text)) return { needs_access: 'automation', said: 'Allow the app that runs this tool to control Messages in System Settings, Privacy & Security, Automation.' };
-  if (NO_TERMS.test(text)) return { error: 'cannot_read_messages_terms', said: `The script could not use Messages' own terms: ${firstLine(error?.stderr || error?.message)}` };
-  return { error: 'osascript_failed', said: firstLine(error?.stderr || error?.message) };
+  if (NO_TERMS.test(text)) return { error: 'cannot_read_messages_terms', said: `The script could not use Messages' own terms: ${reasonOf(error?.stderr || error?.message)}` };
+  return { error: 'osascript_failed', said: reasonOf(error?.stderr || error?.message) };
 }
 
 export function checkMessages({ run = (file, args) => new Promise((done, fail) => execFile(file, args, { timeout: 30000, maxBuffer: 65536 }, (error, stdout, stderr) => (error ? fail(Object.assign(error, { stderr })) : done(stdout)))) } = {}) {
