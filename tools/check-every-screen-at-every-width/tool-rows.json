@@ -564,6 +564,7 @@
                 "paths": [
                   "launch.mjs",
                   "admission.mjs",
+                  "admission.json",
                   "quiet-switches.json"
                 ],
                 "at": "/opt/headless-browser"
@@ -1178,6 +1179,7 @@
                 "paths": [
                   "launch.mjs",
                   "admission.mjs",
+                  "admission.json",
                   "quiet-switches.json"
                 ],
                 "at": "/opt/headless-browser"

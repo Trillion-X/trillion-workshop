@@ -1,0 +1,4 @@
+{
+  "_what": "DATA for admission.mjs. A headless Chromium this admission does not manage (one a person or another program started, such as an agent-browser daemon's) blocks local browser work only until it has been running for outside_browser_wait_minutes. After that its pid and start time are logged once (\"outside browser pid X since T\") and the browser no longer blocks; a browser that is younger than the wait, or whose start time cannot be read, still blocks. Browsers this admission grants are never outside browsers: their turn is the queue's own.",
+  "outside_browser_wait_minutes": 10
+}

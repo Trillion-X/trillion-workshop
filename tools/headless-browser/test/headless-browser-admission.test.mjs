@@ -6,7 +6,7 @@ import { mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { createBrowserAdmissionQueue, legacyHeadlessRoots, parseLegacyHeadlessRoots } from '../admission.mjs';
+import { ADMISSION, createBrowserAdmissionQueue, legacyHeadlessRoots, outsideBrowserBlocks, parseLegacyHeadlessRoots } from '../admission.mjs';
 
 async function queueFixture() {
   const root = tempFolder(join(tmpdir(), 'trillion-browser-admission-'));
@@ -215,19 +215,69 @@ test('legacy admission reads argv only for browser candidates and bounds every p
       ? ' 111 /usr/bin/node\n 921 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome\n'
       : `921 111 ${started} /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new\n`;
   };
-  assert.equal(legacyHeadlessRoots({ run, inspect: () => started }), true);
+  assert.deepEqual(legacyHeadlessRoots({ run, inspect: () => started }).map(row => row.pid), [921]);
   assert.deepEqual(calls.map(call => call.args), [['-axo', 'pid=,comm='], ['-p', '921', '-o', 'pid=,ppid=,lstart=,command=']]);
   assert.ok(calls.every(call => call.options.timeout === 2000 && call.options.killSignal === 'SIGKILL'));
   calls.length = 0;
-  assert.equal(legacyHeadlessRoots({ run: (...args) => { calls.push(args); return '111 /usr/bin/node\n'; } }), false);
+  assert.deepEqual(legacyHeadlessRoots({ run: (...args) => { calls.push(args); return '111 /usr/bin/node\n'; } }), []);
   assert.equal(calls.length, 1);
 });
 
 test('failed process inspection keeps browser admission closed', () => {
   const timeout = () => { throw Object.assign(new Error('process probe timed out'), { code: 'ETIMEDOUT' }); };
-  assert.equal(legacyHeadlessRoots({ run: timeout }), true);
+  assert.equal(legacyHeadlessRoots({ run: timeout }), null);
+  assert.equal(outsideBrowserBlocks(legacyHeadlessRoots({ run: timeout })), true);
   let count = 0;
-  assert.equal(legacyHeadlessRoots({ run: () => ++count === 1 ? '921 /opt/chrome-headless-shell\n' : timeout() }), true);
+  assert.equal(legacyHeadlessRoots({ run: () => ++count === 1 ? '921 /opt/chrome-headless-shell\n' : timeout() }), null);
+});
+
+// A fake process list: the ps lines an agent-browser daemon's Chrome and a new Chrome would print, with their start times.
+const OLD_START = 'Sat Nov 21 03:47:33 2026';
+const NEW_START = 'Sat Nov 21 04:40:10 2026';
+const fakePs = (...rows) => (program, args) => args[0] === '-axo'
+  ? rows.map(row => ` ${row.pid} ${row.comm}`).join('\n') + '\n'
+  : rows.map(row => `${row.pid} ${row.ppid} ${row.started} ${row.command}`).join('\n') + '\n';
+const daemonChrome = { pid: 53510, ppid: 53289, started: OLD_START, comm: '/Users/example/.agent-browser/browsers/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing', command: '/Users/example/.agent-browser/browsers/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing --headless=new' };
+const minutesAfter = (start, minutes) => Date.parse(start) + minutes * 60000;
+
+test('an old outside headless browser (an agent-browser daemon\'s, 53 minutes up) no longer blocks browser admission, and is logged once', () => {
+  const roots = legacyHeadlessRoots({ run: fakePs(daemonChrome), inspect: () => OLD_START });
+  assert.deepEqual(roots.map(row => row.pid), [53510]);
+  const logs = [];
+  const log = line => logs.push(line);
+  const now = minutesAfter(OLD_START, 53);
+  assert.equal(ADMISSION.outside_browser_wait_minutes, 10);
+  assert.equal(outsideBrowserBlocks(roots, { now, log }), false);
+  assert.equal(outsideBrowserBlocks(roots, { now: now + 1000, log }), false);
+  assert.equal(logs.length, 1);
+  assert.match(logs[0], /outside browser pid 53510 since Sat Nov 21 03:47:33 2026 no longer holds local browser work/);
+});
+
+test('a young outside headless browser still blocks, and so does one whose start time cannot be read', () => {
+  const roots = legacyHeadlessRoots({ run: fakePs({ ...daemonChrome, started: NEW_START }), inspect: () => NEW_START });
+  const log = () => assert.fail('a browser inside the wait is not logged as released');
+  assert.equal(outsideBrowserBlocks(roots, { now: minutesAfter(NEW_START, 2), log }), true);
+  assert.equal(outsideBrowserBlocks([{ pid: 1, process_started: 'not a time' }], { now: minutesAfter(OLD_START, 500), log }), true);
+});
+
+test('an old outside browser that is still in the list does not block a queued browser, through the whole queue', async () => {
+  const root = tempFolder(join(tmpdir(), 'trillion-browser-old-outside-'));
+  try {
+    const roots = legacyHeadlessRoots({ run: fakePs(daemonChrome), inspect: () => OLD_START });
+    const now = minutesAfter(OLD_START, 53);
+    const queue = createBrowserAdmissionQueue(root, { inspectProcess: pid => pid === process.pid ? 'this process' : null, isBlocked: () => outsideBrowserBlocks(roots, { now, log: () => {} }) });
+    const release = await queue.acquire({ timeoutMs: 3000 });
+    await release();
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test('a fresh outside browser alongside an old one still blocks until the fresh one is past the wait', () => {
+  const roots = [
+    { pid: 53510, process_started: OLD_START, command: 'chrome --headless' },
+    { pid: 60001, process_started: NEW_START, command: 'chrome --headless' },
+  ];
+  assert.equal(outsideBrowserBlocks(roots, { now: minutesAfter(NEW_START, 1), log: () => {} }), true);
+  assert.equal(outsideBrowserBlocks(roots, { now: minutesAfter(NEW_START, 11), log: () => {} }), false);
 });
 
 test('an unavailable identity probe never reclaims a live browser lease', async () => {

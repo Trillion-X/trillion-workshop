@@ -1055,6 +1055,7 @@
         "paths": [
          "launch.mjs",
          "admission.mjs",
+         "admission.json",
          "quiet-switches.json",
          "devtools.mjs",
          "browser-places.json"

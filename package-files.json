@@ -2342,6 +2342,7 @@
   {
    "package": "headless-browser",
    "paths": [
+    "admission.json",
     "admission.mjs",
     "devtools.mjs",
     "launch.mjs",
@@ -8005,6 +8006,7 @@
    "paths": [
     "launch.mjs",
     "admission.mjs",
+    "admission.json",
     "quiet-switches.json"
    ],
    "at": "/opt/headless-browser"
@@ -25628,6 +25630,7 @@
    "paths": [
     "launch.mjs",
     "admission.mjs",
+    "admission.json",
     "quiet-switches.json",
     "devtools.mjs",
     "browser-places.json"
@@ -61674,6 +61677,7 @@
    "paths": [
     "launch.mjs",
     "admission.mjs",
+    "admission.json",
     "quiet-switches.json"
    ],
    "at": "/opt/headless-browser"
