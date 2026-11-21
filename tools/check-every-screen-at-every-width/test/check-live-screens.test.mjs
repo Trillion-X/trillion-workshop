@@ -143,12 +143,6 @@ test('a picture that cannot be kept is returned inline when it is small, and say
   assert.ok(big.reason);
 });
 
-test('window is true or false, and the window picture is asked only then', () => {
-  assert.throws(() => planOf({ pages: [{ id: 'a', url: origin }], window: 'yes' }), /window is true or false/);
-  assert.equal(planOf({ pages: [{ id: 'a', url: origin }], window: true }).window, true);
-  assert.equal(planOf({ pages: [{ id: 'a', url: origin }] }).window, false);
-});
-
 test('the window picture is the widest on-screen main window, captured by its id and kept by the same keep path', async () => {
   const calls = [];
   const exec = async (program, args) => {

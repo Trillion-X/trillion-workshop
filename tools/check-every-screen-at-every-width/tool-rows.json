@@ -887,8 +887,8 @@
           "memory_mb": 2048
         },
         "label": "Check live screens on a phone and a computer",
-        "job": "Open each live page at its real address the way a person's phone and computer open it, and measure how long it takes to first show, to be usable, its longest task, its console errors and failed requests; tap the controls named and say whether each did what it expects; keep a picture of each screen in the person's Files; and the Trillion app's window as it is on screen (passive: read by its window id, nothing clicked)",
-        "description": "Opens each of pages (each { id, url, old_url?, sign_in?, ready?, taps? }) in a headless Chromium through Playwright (headless-browser/launch.mjs, with its quiet switches and one-browser-at-a-time admission) at each view of views.json (phone 390x844, tablet, desktop; all when left out, or the views asked for). Each view is a cold load in its own browser context. The phone has its CPU and network slowed as live-screens.json names (DATA); the desktop has none. For each page and view it answers: status, first_paint_ms, first_contentful_paint_ms, usable_ms (the ready selector is visible and the main thread has been idle for usable_idle_ms), blank_ms (until the screen first shows any text, picture or control), longest_task_ms, console_errors, failed_requests, and picture (the full screen as PNG, kept in the person's Files under /live-screens/<run>/ and returned by its 1f: identity; a picture the Files right cannot keep is returned as base64 when small). The same for old_url when given. taps are made on the new side after its load, one after another; each reports worked, ms, detail and a picture. It judges nothing: the caller compares the numbers with its own bar. A sign_in is either cookies the caller already holds, or { kind: 'email-code', origin, email, code }: the code the site emailed (the caller sent the request for it), exchanged here for the session cookie. Cookies and codes are never printed or returned. reach steps (taps and waits) run after load and sign-in; the screen's usable time is then measured from the last reach tap, and load_usable_ms keeps the time from the page's load. A URL in the answer has its query removed. A view not begun by until is answered as skipped. With window true it also answers window: the Trillion app's main window on this Mac, captured by its window id with screencapture (nothing clicked, typed or raised), kept in the person's Files the same way; it needs the Mac, so this row runs on the person's computer. Refuses a page without an id or url, a non-http address, a view views.json does not name, and an expect with no known key.",
+        "job": "Open each live page at its real address the way a person's phone and computer open it, and measure how long it takes to first show, to be usable, its longest task, its console errors and failed requests; tap the controls named and say whether each did what it expects; keep a picture of each screen in the person's Files",
+        "description": "Opens each of pages (each { id, url, old_url?, sign_in?, ready?, taps? }) in a headless Chromium through Playwright (headless-browser/launch.mjs, with its quiet switches and one-browser-at-a-time admission) at each view of views.json (phone 390x844, tablet, desktop; all when left out, or the views asked for). Each view is a cold load in its own browser context. The phone has its CPU and network slowed as live-screens.json names (DATA); the desktop has none. For each page and view it answers: status, first_paint_ms, first_contentful_paint_ms, usable_ms (the ready selector is visible and the main thread has been idle for usable_idle_ms), blank_ms (until the screen first shows any text, picture or control), longest_task_ms, console_errors, failed_requests, and picture (the full screen as PNG, kept in the person's Files under /live-screens/<run>/ and returned by its 1f: identity; a picture the Files right cannot keep is returned as base64 when small). The same for old_url when given. taps are made on the new side after its load, one after another; each reports worked, ms, detail and a picture. It judges nothing: the caller compares the numbers with its own bar. A sign_in is either cookies the caller already holds, or { kind: 'email-code', origin, email, code }: the code the site emailed (the caller sent the request for it), exchanged here for the session cookie. Cookies and codes are never printed or returned. reach steps (taps and waits) run after load and sign-in; the screen's usable time is then measured from the last reach tap, and load_usable_ms keeps the time from the page's load. A URL in the answer has its query removed. A view not begun by until is answered as skipped. Refuses a page without an id or url, a non-http address, a view views.json does not name, and an expect with no known key.",
         "read_only": false,
         "input_schema": {
           "type": "object",
@@ -1083,10 +1083,6 @@
             "until": {
               "type": "number",
               "description": "Epoch milliseconds; a view not begun by then is answered as skipped"
-            },
-            "window": {
-              "type": "boolean",
-              "description": "true to add a passive picture of the Trillion app window (Mac only)"
             }
           }
         },
@@ -1102,9 +1098,6 @@
             },
             "seconds": {
               "type": "number"
-            },
-            "window": {
-              "type": "object"
             },
             "pages": {
               "type": "array",
@@ -1181,7 +1174,29 @@
           }
         },
         "invoke": {
-          "kind": "computer",
+          "programs": {
+            "chrome-headless-shell": {
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://storage.googleapis.com/chrome-for-testing-public/153.0.8010.12/mac-arm64/chrome-headless-shell-mac-arm64.zip",
+                  "version": "153.0.8010.12",
+                  "archive": "zip",
+                  "blake3": "f9daf3404db01b9bd1434183a6a49f1f3e6961ceb921ad2d113d5212c476194a",
+                  "executable": "chrome-headless-shell-mac-arm64/chrome-headless-shell",
+                  "checked_against": "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json"
+                },
+                "linux-x86_64": {
+                  "url": "https://storage.googleapis.com/chrome-for-testing-public/153.0.8010.12/linux64/chrome-headless-shell-linux64.zip",
+                  "version": "153.0.8010.12",
+                  "archive": "zip",
+                  "blake3": "abccf17437cf7bd491fa423539d416a14ef08a4624215341684bdc3aefc72a47",
+                  "executable": "chrome-headless-shell-linux64/chrome-headless-shell",
+                  "checked_against": "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json"
+                }
+              }
+            }
+          },
+          "kind": "container",
           "max_run_ms": 900000,
           "internet": true,
           "workdir": "/opt/check-every-screen-at-every-width",
@@ -1209,9 +1224,7 @@
                   "views.json",
                   "live-screens.json",
                   "allowlist.json",
-                  "vendor",
-                  "window-picture.mjs",
-                  "list-windows.py"
+                  "vendor"
                 ],
                 "at": "/opt/check-every-screen-at-every-width"
               },
@@ -1327,7 +1340,6 @@
               }
             ]
           },
-          "capabilities": [],
           "public_read": true
         },
         "result_selector": "$.result",

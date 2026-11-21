@@ -32,7 +32,6 @@
 //   A side is { status, first_paint_ms, first_contentful_paint_ms, usable_ms, blank_ms, longest_task_ms, console_errors,
 //   console_error_count, failed_requests, failed_request_count, picture, picture_kept, reason?, png_base64?, error? }.
 //   A tap is { name, worked, ms, detail, picture, picture_kept, reason?, png_base64? }.
-//   window  true to add the picture of the Trillion app's window as the person sees it (window-picture.mjs); passive, on the Mac only.
 //   Refuses (code refused, nothing is opened) a page without an id, url or unique id, an address that is not http or https, a
 //   view views.json does not name, an expect with no known key, and a sign-in cookie without a name or value.
 import { randomUUID } from 'node:crypto';
@@ -41,7 +40,6 @@ import { launchChromium, onThisPath } from '../headless-browser/launch.mjs';
 import { readViews } from './check-screens.mjs';
 import { makeHashCodeHexFromBytes } from '../content-identity/read-data/identity.mjs';
 import { writeWholeFile } from '../workflows/read-data/whole-file.mjs';
-import { windowPicture } from './window-picture.mjs';
 
 export const LIVE = JSON.parse(readFileSync(new URL('./live-screens.json', import.meta.url), 'utf8'));
 
@@ -158,7 +156,7 @@ function tapsOf(taps, what) {
 
 // The plan the input asks for, checked before a browser is started.
 export function planOf(input) {
-  const { pages, views, until, window } = input ?? {};
+  const { pages, views, until } = input ?? {};
   if (!Array.isArray(pages) || pages.length === 0) throw refuse('Give pages: [{ id, url, old_url?, sign_in?, ready?, taps? }].');
   const known = readViews().widths;
   const ids = views === undefined ? known.map(view => view.id) : views;
@@ -166,7 +164,6 @@ export function planOf(input) {
     throw refuse(`views is a list of ${known.map(view => view.id).join(', ')}.`);
   }
   if (until !== undefined && !Number.isFinite(until)) throw refuse('until is epoch milliseconds.');
-  if (window !== undefined && typeof window !== 'boolean') throw refuse('window is true or false: the app window as the person sees it.');
   const slugs = new Set();
   const planned = pages.map((page, at) => {
     if (!page || typeof page.id !== 'string' || !page.id) throw refuse(`pages[${at}] needs an id: a name for the page.`);
@@ -191,7 +188,6 @@ export function planOf(input) {
     pages: planned,
     views: known.filter(view => ids.includes(view.id)).map(view => ({ ...view, throttle: LIVE.throttle[view.id] ?? null })),
     until: until ?? null,
-    window: window === true,
   };
 }
 
@@ -461,9 +457,7 @@ export async function checkLiveScreens(input = {}, host, { keep = (name, bytes) 
       }
       pages.push({ id: page.id, views });
     }
-    const answer = { run, seconds: Math.round((Date.now() - started) / 100) / 10, pages };
-    if (plan.window) answer.window = await windowPicture({ owner: 'Trillion', name: `/live-screens/${run}/window.png`, keep });
-    return answer;
+    return { run, seconds: Math.round((Date.now() - started) / 100) / 10, pages };
   } finally {
     await browser.close().catch(() => {});
   }

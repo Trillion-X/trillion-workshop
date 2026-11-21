@@ -8357,6 +8357,153 @@
    "at": "/opt/run-sql-in-my-database"
   }
  ],
+ "tool:check-live-screens": [
+  {
+   "package": "check-every-screen-at-every-width",
+   "paths": [
+    "check-given-pages.mjs",
+    "check-live-screens.mjs",
+    "check-screens.mjs",
+    "in-page.mjs",
+    "views.json",
+    "live-screens.json",
+    "allowlist.json",
+    "vendor"
+   ],
+   "at": "/opt/check-every-screen-at-every-width"
+  },
+  {
+   "package": "headless-browser",
+   "paths": [
+    "launch.mjs",
+    "admission.mjs",
+    "admission.json",
+    "quiet-switches.json"
+   ],
+   "at": "/opt/headless-browser"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/process-admission.mjs",
+    "do-work/computer-cache-folder.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "page-critic",
+   "paths": [
+    "do-work/measure-page-craft.mjs",
+    "do-work/collect-control-names.mjs",
+    "do-work/measure-rendered-label-size.mjs",
+    "read-data/page-craft-rules.json"
+   ],
+   "at": "/opt/page-critic"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs",
+    "read-data/host-actions.mjs",
+    "read-data/whole-file.mjs",
+    "read-data/large-file.json"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/playwright"
+   ],
+   "paths": [
+    "LICENSE",
+    "NOTICE",
+    "package.json",
+    "index.js",
+    "index.mjs",
+    "cli.js",
+    "lib"
+   ],
+   "at": "/opt/node_modules/playwright"
+  },
+  {
+   "packages": [
+    "node_modules/playwright-core"
+   ],
+   "paths": [
+    "LICENSE",
+    "NOTICE",
+    "package.json",
+    "index.js",
+    "index.mjs",
+    "cli.js",
+    "browsers.json",
+    "bin",
+    "lib"
+   ],
+   "at": "/opt/node_modules/playwright-core"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work",
+    "built-stored-bytes",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/raw-pieces.mjs",
+    "read-data/large-file.json"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "read-data/capability-edges.mjs",
+    "read-data/expected-current-from-content-hash.mjs",
+    "read-data/identical-snapshot-ab-plan.mjs",
+    "read-data/namespace-records-from-a-name-and-identity-table.mjs",
+    "read-data/operation-pair-cases.mjs",
+    "read-data/operation-pair-outcome.mjs",
+    "read-data/reconcile-namespace-corpus.mjs",
+    "read-data/residual-read-demand-from-receiver-facts.mjs"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "send-requests-to-an-engine",
+   "paths": [
+    "read-data/find-the-running-app-and-send-requests-to-it.mjs"
+   ],
+   "at": "/opt/send-requests-to-an-engine"
+  }
+ ],
  "tool:check-match-evidence": [
   {
    "package": "form-groups-and-matches",
@@ -16974,6 +17121,86 @@
    "at": "/opt/media-composition/do-work"
   }
  ],
+ "tool:find-the-account-of-a-service": [
+  {
+   "package": "connections",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/connections"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "connect-a-service-and-seal-its-key",
+   "paths": [
+    "records.json"
+   ],
+   "at": "/opt/connect-a-service-and-seal-its-key"
+  },
+  {
+   "package": "find-and-keep-my-connections",
+   "paths": [
+    "src/connection-records.mjs"
+   ],
+   "at": "/opt/find-and-keep-my-connections"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
  "tool:find-the-event-that-starts-one-tour": [
   {
    "package": "guided-tours",
@@ -24016,45 +24243,6 @@
    "at": "/opt/workflows"
   }
  ],
- "tool:find-the-account-of-a-service": [
-  {
-   "package": "connections",
-   "paths": [
-    "do-work"
-   ],
-   "at": "/opt/connections"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "do-work/run-a-function.mjs"
-   ],
-   "at": "/opt/workflows"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  }
- ],
  "tool:list-email-sending-domains": [
   {
    "package": "email-sending-domains",
@@ -24334,6 +24522,13 @@
     "read-data"
    ],
    "at": "/opt/composio-connection"
+  },
+  {
+   "package": "keep-secrets-out-of-answers",
+   "paths": [
+    "read-data/strip-secrets.mjs"
+   ],
+   "at": "/opt/keep-secrets-out-of-answers"
   }
  ],
  "tool:list-my-conversations-newest-first": [
@@ -28774,6 +28969,7 @@
   }
  ],
  "tool:make-youtube-playlists-from-a-sort-plan": [],
+ "tool:manage-claude-cloud-sessions": [],
  "tool:manage-harness": [],
  "tool:manage-my-api-descriptions": [
   {
@@ -37930,17 +38126,18 @@
   {
    "package": "decide-with-a-method",
    "paths": [
-    "method-rows/view.mjs",
     "method-rows/answers.mjs",
     "method-rows/settings.json",
+    "method-rows/view.mjs",
+    "read-data/answer-words.json",
+    "read-data/answer-words.mjs",
     "read-data/decide-with-a-method.json",
     "read-data/decision-outcome.mjs",
     "read-data/decision-records.mjs",
     "read-data/decisions.mjs",
-    "read-data/answer-words.mjs",
-    "read-data/answer-words.json",
     "read-data/legacy-decision.mjs",
-    "read-data/read-worked-steps.mjs"
+    "read-data/read-worked-steps.mjs",
+    "read-data/store-decision.mjs"
    ],
    "at": "/opt/decide-with-a-method"
   },
@@ -60168,6 +60365,23 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:wait-for-a-composio-container": [
+  {
+   "package": "composio-connection",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/composio-connection"
+  },
+  {
+   "package": "keep-secrets-out-of-answers",
+   "paths": [
+    "read-data/strip-secrets.mjs"
+   ],
+   "at": "/opt/keep-secrets-out-of-answers"
+  }
+ ],
  "tool:walk-a-funnel": [
   {
    "package": "funnels-and-offers",
@@ -61415,6 +61629,78 @@
    "at": "/opt/lessons-and-learning-paths"
   }
  ],
+ "tool:workflow-run-find": [
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs",
+    "read-data/workflow-run-find.mjs",
+    "read-data/choose-the-workflows-that-fire.mjs",
+    "read-data/public-recipes.mjs",
+    "read-data/fires-when.mjs",
+    "recipes",
+    "branches"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:write-a-message-body-from-a-document": [],
  "tool:write-a-post-for-a-place": [
   {
@@ -61693,187 +61979,5 @@
  ],
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:your-files": [],
- "tool:your-files-names": [],
- "tool:check-live-screens": [
-  {
-   "package": "check-every-screen-at-every-width",
-   "paths": [
-    "check-given-pages.mjs",
-    "check-live-screens.mjs",
-    "check-screens.mjs",
-    "in-page.mjs",
-    "views.json",
-    "live-screens.json",
-    "allowlist.json",
-    "vendor",
-    "window-picture.mjs",
-    "list-windows.py"
-   ],
-   "at": "/opt/check-every-screen-at-every-width"
-  },
-  {
-   "package": "headless-browser",
-   "paths": [
-    "launch.mjs",
-    "admission.mjs",
-    "admission.json",
-    "quiet-switches.json"
-   ],
-   "at": "/opt/headless-browser"
-  },
-  {
-   "package": "process-session",
-   "paths": [
-    "do-work/process-admission.mjs",
-    "do-work/computer-cache-folder.mjs"
-   ],
-   "at": "/opt/process-session"
-  },
-  {
-   "package": "page-critic",
-   "paths": [
-    "do-work/measure-page-craft.mjs",
-    "do-work/collect-control-names.mjs",
-    "do-work/measure-rendered-label-size.mjs",
-    "read-data/page-craft-rules.json"
-   ],
-   "at": "/opt/page-critic"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "do-work/run-a-function.mjs",
-    "read-data/host-actions.mjs",
-    "read-data/whole-file.mjs",
-    "read-data/large-file.json"
-   ],
-   "at": "/opt/workflows"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "packages": [
-    "node_modules/playwright"
-   ],
-   "paths": [
-    "LICENSE",
-    "NOTICE",
-    "package.json",
-    "index.js",
-    "index.mjs",
-    "cli.js",
-    "lib"
-   ],
-   "at": "/opt/node_modules/playwright"
-  },
-  {
-   "packages": [
-    "node_modules/playwright-core"
-   ],
-   "paths": [
-    "LICENSE",
-    "NOTICE",
-    "package.json",
-    "index.js",
-    "index.mjs",
-    "cli.js",
-    "browsers.json",
-    "bin",
-    "lib"
-   ],
-   "at": "/opt/node_modules/playwright-core"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "do-work",
-    "built-stored-bytes",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "records-door",
-   "paths": [
-    "read-data/raw-pieces.mjs",
-    "read-data/large-file.json"
-   ],
-   "at": "/opt/records-door"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "read-data/capability-edges.mjs",
-    "read-data/expected-current-from-content-hash.mjs",
-    "read-data/identical-snapshot-ab-plan.mjs",
-    "read-data/namespace-records-from-a-name-and-identity-table.mjs",
-    "read-data/operation-pair-cases.mjs",
-    "read-data/operation-pair-outcome.mjs",
-    "read-data/reconcile-namespace-corpus.mjs",
-    "read-data/residual-read-demand-from-receiver-facts.mjs"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "send-requests-to-an-engine",
-   "paths": [
-    "read-data/find-the-running-app-and-send-requests-to-it.mjs"
-   ],
-   "at": "/opt/send-requests-to-an-engine"
-  }
- ],
- "tool:wait-for-a-composio-container": [
-  {
-   "package": "composio-connection",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/composio-connection"
-  }
- ],
-  "tool:workflow-run-find": [
-   {
-    "package": "workflows",
-    "paths": [
-     "do-work/run-a-function.mjs",
-     "read-data/workflow-run-find.mjs",
-     "read-data/choose-the-workflows-that-fire.mjs",
-     "read-data/public-recipes.mjs",
-     "read-data/fires-when.mjs",
-     "recipes",
-     "branches"
-    ],
-    "at": "/opt/workflows"
-   },
-   {
-    "package": "formula-engine",
-    "paths": [
-     "rules",
-     "built-stored-bytes/formula-engine"
-    ],
-    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-   }
-  ]
+ "tool:your-files-names": []
 }
