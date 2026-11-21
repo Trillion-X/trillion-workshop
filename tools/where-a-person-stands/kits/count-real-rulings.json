@@ -135,7 +135,7 @@
       ]
     },
     {
-      "list": "list:settings",
+      "list": "list:tool-settings",
       "label": "Settings",
       "row_type": "record:setting",
       "holds": "One setting row for one tool and one scope (a person, a film, a piece or the whole account): the values as JSON and where they came from.",
@@ -244,7 +244,7 @@
     "tool:make-examples-from-rulings"
   ],
   "instructions": [
-    "1. Keep your rulings as rows of list:checks and your settings for this tool as a row of list:settings: real (who counts), needs (fields a ruling must carry), needed (how many real bad rulings a model row needs) and default_kind.",
+    "1. Keep your rulings as rows of list:checks and your settings for this tool as a row of the settings table: real (who counts), needs (fields a ruling must carry), needed (how many real bad rulings a model row needs) and default_kind.",
     "2. The AI reads the rulings (the person's Checks list: type record:check with id prefix record:check:ruling-) and runs tool:count-real-rulings at @tools with {rulings, settings_record}.",
     "3. Read real_bad_film (the real bad rulings), needed, promotion_allowed (true only when real_bad_film reaches needed), counts (each \"<by> <verdict>\") and bad_lines (text, kind, where), the lines to check.",
     "4. Run your check on bad_lines, then send again with rules (the model rows, [{id, ask: {calibration: {t_fail}}}]) and results ([{text, uncertain: [{rule, p_fail}]}]) to read escalated_by_any, per_rule and unanswered. It runs no check and writes nothing."

@@ -12,7 +12,7 @@ import { countRealRulings, rulingStatus } from '../do-work/ruling-status.mjs';
 import { examplesFromPicks } from '../do-work/picks.mjs';
 import { countStands } from '../do-work/where-a-person-stands.mjs';
 
-// The person's setting for this tool, as a made-up row of list:settings would hold it.
+// The person's setting for this tool, as a made-up row of the settings table would hold it.
 const SETTING = {
   unruled_part_of: 'content-production',
   real: ['person'],
