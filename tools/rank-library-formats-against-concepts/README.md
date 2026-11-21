@@ -10,7 +10,7 @@ The ranking is a reading by judges, not a model score. A cross-encoder scores to
 This was moved from a film's tools folder (`rank_formats.py`, see `ports/rank-formats.json`).
 - Its readers, its record and its refusals are the old code, line for line.
 - The paths are now the request's.
-- What belonged to one person or film is now their settings: a row of their `list:settings` (`record:setting:rank-library-formats-against-concepts~<scope_kind>~<scope_id>`), read through `tools/settings`.
+- What belonged to one person or film is now their settings: a row of their settings table (`record:setting:rank-library-formats-against-concepts~<scope_kind>~<scope_id>`), read through `tools/settings`.
 
 On the film's in-git library, concept files and titles file, the `catalog` output and the `apply` file are byte-for-byte the old tool's.
 
@@ -35,7 +35,7 @@ On the film's in-git library, concept files and titles file, the `catalog` outpu
 | `concepts` | `{files: [markdown files]}`. Each `## <ID> ...` heading is a concept, and its table rows are its beats. |
 | `package` | An optional CSV of package concepts (`id`, `domain`, `viewer_gets`, `proof_needed`). The rows whose ids are in `package_ids` are added. |
 | `titles`, `judged` | For `apply`: the titles file to rewrite, and the judged files, laid over each other in order. |
-| `settings_record`, `settings` | The person's `list:settings` row for this folder, and settings for this run laid over it. |
+| `settings_record`, `settings` | The person's settings table row for this folder, and settings for this run laid over it. |
 
 The settings (defaults are in `do-work/rank_formats.py`):
 
