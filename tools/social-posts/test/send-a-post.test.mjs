@@ -319,7 +319,7 @@ test('a post goes to beehiiv as the place row writes it: made with its title and
     assert.equal(body.title, 'A letter');
     assert.equal(body.status, 'confirmed');
     assert.ok(!('subtitle' in body), 'a setting the post leaves out is left out');
-    assert.equal(body.body_html, '<h2>A heading</h2><p>A <strong>short</strong> letter with <a href="https://example.test/a?b=1&amp;c=2">a link</a>.</p>');
+    assert.equal(body.body_html, '<h2>A heading</h2><p>A <strong>short</strong> letter with <a href="https://example.test/a?b=1&amp;c=2&amp;utm_source=beehiiv&amp;utm_medium=social&amp;utm_content=post%3Ap1&amp;utm_campaign=post%3Ap1">a link</a>.</p>');
     const kept = fake.kept.get('post:p1').value.deliveries[BEEHIIV];
     assert.equal(kept.url, 'https://letters.example.test/p/a-letter');
     assert.equal(kept.platform_post_id, 'post_made_up');
