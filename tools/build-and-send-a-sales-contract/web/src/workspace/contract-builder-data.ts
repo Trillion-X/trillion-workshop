@@ -5,10 +5,10 @@
 // its sender (email_sender). Every read is one tool:run-sql-in-my-database call through the door, with a statement
 // time limit. The builder keeps its draft in the screen; nothing here saves a contract.
 
-import focusWords from './focus.json';
-import { postJson } from './api';
-import { runWorkshopTool } from './workshop-tool-api';
-import { pursuitsFromNames } from './pursuit-list.mjs';
+import focusWords from '../../../../workspace-screens/web/src/workspace/focus.json';
+import { postJson } from '../../../../workspace-screens/web/src/workspace/api';
+import { runWorkshopTool } from '../../../../workspace-screens/web/src/workspace/workshop-tool-api';
+import { pursuitsFromNames } from '../../../../workspace-screens/web/src/workspace/pursuit-list.mjs';
 
 const STATEMENT_MS = 5000;
 const SQL_TOOL = 'tool:run-sql-in-my-database';
@@ -20,7 +20,7 @@ export type PricePart = {
   id: string; piece: string; option_key: string; label: string; basis: 'flat' | 'per_unit' | 'percent' | 'at_cost';
   unit: string | null; amount_cents: number | null; percent: number | null; shown_publicly: boolean; position: number;
 };
-export type Sender = { name: string; from_address: string; reply_to: string | null; mailing_address: string | null };
+export type Sender = { name: string; from_address: string; reply_to: string | null; mailing_address: string | null; credential_name: string | null };
 
 /** The pursuits the vault holds, by name (names only, never values). */
 export async function readPursuits(): Promise<Pursuit[]> {
@@ -31,9 +31,11 @@ export async function readPursuits(): Promise<Pursuit[]> {
 
 /** The database a pursuit's connection opens: the connection's name without its -connection suffix. */
 const databaseOf = (pursuit: Pursuit) => pursuit.connection.replace(/-connection$/, '');
+/** The pursuit's uses database (its runs database's name with the uses suffix, the same pattern the social screens read). */
+const usesDatabaseOf = (pursuit: Pursuit) => databaseOf(pursuit).replace(/_for_who_runs_it$/, '_for_who_uses_it');
 
-async function sql<T>(pursuit: Pursuit, text: string, params: unknown[] = []): Promise<T[]> {
-  const ran = await runWorkshopTool<{ rows?: T[] }>(SQL_TOOL, { database: databaseOf(pursuit), statement_timeout_ms: STATEMENT_MS, sql: text, params });
+async function sql<T>(pursuit: Pursuit, text: string, params: unknown[] = [], database = databaseOf(pursuit)): Promise<T[]> {
+  const ran = await runWorkshopTool<{ rows?: T[] }>(SQL_TOOL, { database, statement_timeout_ms: STATEMENT_MS, sql: text, params });
   return ran.result?.rows ?? [];
 }
 
@@ -62,7 +64,39 @@ export async function readPriceParts(pursuit: Pursuit, offerId: string): Promise
 
 /** The pursuit's sender row (who the message is from), or null when it has none. */
 export async function readSender(pursuit: Pursuit): Promise<Sender | null> {
-  const [row] = await sql<Record<string, unknown>>(pursuit, 'select name, from_address, reply_to, mailing_address from email_sender order by changed_at desc nulls last limit 1');
+  const [row] = await sql<Record<string, unknown>>(pursuit, 'select name, from_address, reply_to, mailing_address, credential_name from email_sender order by changed_at desc nulls last limit 1');
   if (!row) return null;
-  return { name: String(row.from_address ?? '').replace(/<.*$/, '').trim() || String(row.name), from_address: String(row.from_address), reply_to: (row.reply_to as string | null) ?? null, mailing_address: (row.mailing_address as string | null) ?? null };
+  return {
+    name: String(row.from_address ?? '').replace(/<.*$/, '').trim() || String(row.name), from_address: String(row.from_address),
+    reply_to: (row.reply_to as string | null) ?? null, mailing_address: (row.mailing_address as string | null) ?? null,
+    credential_name: (row.credential_name as string | null) ?? null,
+  };
+}
+
+/** The sender's address as the email tool takes it: its display name and its email. */
+export function senderParts(sender: Sender): { name: string; email: string } {
+  const match = /^(.*?)\s*<([^>]+)>\s*$/.exec(sender.from_address);
+  return match ? { name: match[1].trim(), email: match[2].trim() } : { name: sender.name, email: sender.from_address.trim() };
+}
+
+/** The email tool's own composition of one message, sending nothing: the sender's key is the one its row names, through the
+ *  keyed provider (the send tool mounts only the key the input names, and only for its owner). */
+export async function dryRunWithEmailTool(sender: Sender, message: { to: string; subject: string; body: string }): Promise<{ from: string; to: string; subject: string; text: string | null }> {
+  const parts = senderParts(sender);
+  const ran = await runWorkshopTool<{ sent?: { composed?: { from: string; to: string; subject: string; text?: string }; error?: string }[] }>('tool:send-an-email', {
+    provider: 'resend-keyed', key_name: sender.credential_name, dry_run: true, to: message.to, subject: message.subject, markdown: message.body,
+    ...(sender.reply_to ? { reply_to: sender.reply_to } : {}), mail_settings: { from: parts, postal_address: sender.mailing_address },
+  });
+  const [only] = ran.result?.sent ?? [];
+  if (!only?.composed) throw new Error(only?.error ?? ran.error ?? 'The email tool did not compose the message.');
+  return { from: only.composed.from, to: only.composed.to, subject: only.composed.subject, text: only.composed.text ?? null };
+}
+
+/** The pursuit's look, from its own how_it_looks row (id 'site') in its uses database: the theme the page sets on its root,
+ *  and the brand name and picture it shows. Null when the pursuit has no row, so the page keeps the shared look. */
+export type Brand = { theme_id: string; brand_name: string | null; brand_image: string | null; icon: string | null };
+export async function readBrand(pursuit: Pursuit): Promise<Brand | null> {
+  const [row] = await sql<Record<string, unknown>>(pursuit, "select theme_id, brand_name, brand_image, icon from how_it_looks where id = 'site'", [], usesDatabaseOf(pursuit));
+  if (!row || typeof row.theme_id !== 'string') return null;
+  return { theme_id: row.theme_id, brand_name: (row.brand_name as string | null) ?? null, brand_image: (row.brand_image as string | null) ?? null, icon: (row.icon as string | null) ?? null };
 }

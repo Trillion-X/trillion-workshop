@@ -1,7 +1,14 @@
 {
   "_what": "Every word the private deal builder shows (contract-builder-screen.tsx), and the words the message uses where a value is not set yet (do-work/contract-builder-quote.mjs). A changed word is changed here, never in the screen's code.",
   "title": "Private deal",
-  "steps": { "pursuit": "Pursuit", "customer": "Customer", "product": "Product", "lines": "Price lines", "template": "Message", "preview": "What they get" },
+  "steps": {
+    "pursuit": "Pursuit",
+    "customer": "Customer",
+    "product": "Product",
+    "lines": "Price lines",
+    "template": "Message",
+    "preview": "What they get"
+  },
   "pursuit_pick": "Choose the pursuit this deal is for.",
   "pursuits_none": "No pursuits are set up yet.",
   "customer_search": "Find a customer by name or email",
@@ -29,5 +36,8 @@
   "preview_note": "This is the message as the customer will get it. Sending is not part of this step.",
   "sender_missing": "This pursuit has no sender set up, so the message cannot say who it is from.",
   "reading": "Reading this pursuit.",
-  "read_failed": "This pursuit did not read. Try again."
+  "read_failed": "This pursuit did not read. Try again.",
+  "check_send": "Check with the email tool",
+  "checked": "The email tool composed this message with the sender's own key. Nothing was sent.",
+  "check_failed": "The email tool could not compose the message."
 }

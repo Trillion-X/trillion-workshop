@@ -1,0 +1,22 @@
+{
+  "_what": "Every word the private deal page shows (private-deal-page.tsx). Sign and Pay are disabled, and the reason sits beside each.",
+  "title": "Your offer",
+  "from": "From",
+  "for": "For",
+  "lines": "What you are getting",
+  "unpriced": "not priced yet",
+  "at_cost": "at cost",
+  "total": "Total",
+  "sign_heading": "Sign",
+  "sign_button": "Sign",
+  "sign_not_set_up": "Signing not set up yet",
+  "pay_heading": "Pay",
+  "pay_button": "Pay",
+  "payment_not_set_up": "Payment link not set up",
+  "signatures_none": "No one has signed yet.",
+  "read_only": "This page shows the offer as it stands. Nothing here is changed by opening it.",
+  "date": "Date",
+  "expires": "Offer ends",
+  "included": "Included",
+  "offer_badge": "Private offer"
+}

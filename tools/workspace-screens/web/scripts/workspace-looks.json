@@ -1,6 +1,7 @@
 [
   "fonts.css",
   "look-bridges.css",
+  "styles/landing-canvas-material.css",
   "surfaces.css",
   "control-beside-text.css",
   "app-navigation.css",

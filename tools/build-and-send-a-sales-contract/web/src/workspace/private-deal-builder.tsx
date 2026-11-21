@@ -15,7 +15,7 @@ import words from './contract-builder-words.json';
 import templates from './contract-templates.json';
 import { quoteLines, composeMessage } from '../../../do-work/contract-builder-quote.mjs';
 import {
-  readPursuits, searchCustomers, readOffers, readPriceParts, readSender,
+  readPursuits, searchCustomers, readOffers, readPriceParts, readSender, dryRunWithEmailTool,
   type Customer, type Offer, type Pursuit, type PricePart, type Sender,
 } from './contract-builder-data';
 
@@ -69,6 +69,8 @@ function PrivateDealBuilder({ pursuits }: { pursuits: Pursuit[] }) {
   const [subject, setSubject] = React.useState(template.subject);
   const [body, setBody] = React.useState(template.body);
   const [failure, setFailure] = React.useState<string | null>(null);
+  const [checked, setChecked] = React.useState<{ from: string; to: string; subject: string } | null>(null);
+  const [checkFailure, setCheckFailure] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (!pursuit) return;
@@ -194,6 +196,15 @@ function PrivateDealBuilder({ pursuits }: { pursuits: Pursuit[] }) {
           <Text variant="heading-xs" color="strong">{message.subject}</Text>
           <Text variant="body-sm" color="default" wrap="preserve">{message.body}</Text>
           {message.footer ? <Text variant="body-xs" color="muted">{`${words.preview_footer}: ${message.footer}`}</Text> : null}
+          <Button variant="outline" size="sm" className="self-start" onClick={() => {
+            setChecked(null); setCheckFailure(null);
+            dryRunWithEmailTool(sender!, message).then(
+              answer => setChecked(answer),
+              () => setCheckFailure(words.check_failed),
+            );
+          }}>{words.check_send}</Button>
+          {checked ? <Text variant="body-xs" color="muted">{`${words.checked} ${checked.from} → ${checked.to}`}</Text> : null}
+          {checkFailure ? <Text variant="body-xs" color="muted">{checkFailure}</Text> : null}
           <Text variant="body-xs" color="muted">{words.preview_note}</Text>
         </Step>
       ) : null}
