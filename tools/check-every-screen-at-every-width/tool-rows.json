@@ -888,7 +888,7 @@
         },
         "label": "Check live screens on a phone and a computer",
         "job": "Open each live page at its real address the way a person's phone and computer open it, and measure how long it takes to first show, to be usable, its longest task, its console errors and failed requests; tap the controls named and say whether each did what it expects; keep a picture of each screen in the person's Files",
-        "description": "Opens each of pages (each { id, url, old_url?, sign_in?, ready?, taps? }) in a headless Chromium through Playwright (headless-browser/launch.mjs, with its quiet switches and one-browser-at-a-time admission) at each view of views.json (phone 390x844, tablet, desktop; all when left out, or the views asked for). Each view is a cold load in its own browser context. The phone has its CPU and network slowed as live-screens.json names (DATA); the desktop has none. For each page and view it answers: status, first_paint_ms, first_contentful_paint_ms, usable_ms (the ready selector is visible and the main thread has been idle for usable_idle_ms), blank_ms (until the screen first shows any text, picture or control), longest_task_ms, console_errors, failed_requests, and picture (the full screen as PNG, kept in the person's Files under /live-screens/<run>/ and returned by its 1f: identity; a picture the Files right cannot keep is returned as base64 when small). The same for old_url when given. taps are made on the new side after its load, one after another; each reports worked, ms, detail and a picture. It judges nothing: the caller compares the numbers with its own bar. A sign_in is either cookies the caller already holds, or { kind: 'email-code', origin, email }: the tool asks the site for a code to that address, reads it from the test inbox (AgentMail, with the vault's agentmail-api-key mounted on descriptor 4) and exchanges it for the session cookie. Cookies and codes are never printed or returned. reach steps (taps and waits) run after load and sign-in; the screen's usable time is then measured from the last reach tap, and load_usable_ms keeps the time from the page's load. A URL in the answer has its query removed. A view not begun by until is answered as skipped. Refuses a page without an id or url, a non-http address, a view views.json does not name, and an expect with no known key.",
+        "description": "Opens each of pages (each { id, url, old_url?, reach?, ready?, taps? }) in a headless Chromium through Playwright (headless-browser/launch.mjs, with its quiet switches and one-browser-at-a-time admission) at each view of views.json (phone 390x844, tablet, desktop; all when left out, or the views asked for). Each view is a cold load in its own browser context. The phone has its CPU and network slowed as live-screens.json names (DATA); the desktop has none. For each page and view it answers: status, first_paint_ms, first_contentful_paint_ms, usable_ms (the ready selector is visible and the main thread has been idle for usable_idle_ms), blank_ms (until the screen first shows any text, picture or control), longest_task_ms, console_errors, failed_requests, and picture (the full screen as PNG, kept in the person's Files under /live-screens/<run>/ and returned by its 1f: identity; a picture the Files right cannot keep is returned as base64 when small). The same for old_url when given. taps are made on the new side after its load, one after another; each reports worked, ms, detail and a picture. It judges nothing: the caller compares the numbers with its own bar. It holds no key and signs nobody in: a signed-in screen is measured by tool:check-live-screens-signed-in. reach steps (taps and waits) run after load; the screen's usable time is then measured from the last reach tap, and load_usable_ms keeps the time from the page's load. A URL in the answer has its query removed. A view not begun by until is answered as skipped. Refuses a page without an id or url, a non-http address, a view views.json does not name, and an expect with no known key.",
         "read_only": false,
         "input_schema": {
           "type": "object",
@@ -918,73 +918,6 @@
                   "old_url": {
                     "type": "string",
                     "pattern": "^https?://"
-                  },
-                  "sign_in": {
-                    "oneOf": [
-                      {
-                        "type": "object",
-                        "required": [
-                          "cookies"
-                        ],
-                        "properties": {
-                          "cookies": {
-                            "type": "array",
-                            "minItems": 1,
-                            "items": {
-                              "type": "object",
-                              "required": [
-                                "name",
-                                "value"
-                              ],
-                              "properties": {
-                                "name": {
-                                  "type": "string"
-                                },
-                                "value": {
-                                  "type": "string"
-                                },
-                                "domain": {
-                                  "type": "string"
-                                },
-                                "path": {
-                                  "type": "string"
-                                },
-                                "secure": {
-                                  "type": "boolean"
-                                },
-                                "httpOnly": {
-                                  "type": "boolean"
-                                },
-                                "expires": {
-                                  "type": "number"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      },
-                      {
-                        "type": "object",
-                        "required": [
-                          "kind",
-                          "origin",
-                          "email"
-                        ],
-                        "additionalProperties": false,
-                        "properties": {
-                          "kind": {
-                            "const": "email-code"
-                          },
-                          "origin": {
-                            "type": "string",
-                            "pattern": "^https?://"
-                          },
-                          "email": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    ]
                   },
                   "reach": {
                     "type": "array",
@@ -1213,7 +1146,7 @@
                 "paths": [
                   "check-given-pages.mjs",
                   "check-live-screens.mjs",
-                  "email-code.mjs",
+                  "held-session.mjs",
                   "check-screens.mjs",
                   "in-page.mjs",
                   "views.json",
@@ -1335,13 +1268,7 @@
               }
             ]
           },
-          "public_read": true,
-          "credential_mounts": [
-            {
-              "secret_name": "agentmail-api-key",
-              "fd": 4
-            }
-          ]
+          "public_read": true
         },
         "result_selector": "$.result",
         "provenance": {
@@ -1377,6 +1304,732 @@
             ]
           }
         ]
+      }
+    },
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-dashboard",
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/check-consent-to-an-introduction",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/lessons-and-learning-paths",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/model-response",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/network-people",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/page-critic",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-sql-in-my-database",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-storage-release-rules",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:check-every-screen-at-every-width",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:check-live-screens-signed-in",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 120,
+          "network_egress": true,
+          "memory_mb": 2048
+        },
+        "label": "Check signed-in live screens on a phone and a computer",
+        "job": "Open each live page signed in as the proof account at its real address the way a person's phone and computer open it, and measure how long it takes to first show, to be usable, its longest task, its console errors and failed requests; tap the controls named and say whether each did what it expects; keep a picture of each screen in the person's Files",
+        "description": "Opens each of pages (each { id, url, old_url?, sign_in?, ready?, taps? }) in a headless Chromium through Playwright (headless-browser/launch.mjs, with its quiet switches and one-browser-at-a-time admission) at each view of views.json (phone 390x844, tablet, desktop; all when left out, or the views asked for). Each view is a cold load in its own browser context. The phone has its CPU and network slowed as live-screens.json names (DATA); the desktop has none. For each page and view it answers: status, first_paint_ms, first_contentful_paint_ms, usable_ms (the ready selector is visible and the main thread has been idle for usable_idle_ms), blank_ms (until the screen first shows any text, picture or control), longest_task_ms, console_errors, failed_requests, and picture (the full screen as PNG, kept in the person's Files under /live-screens/<run>/ and returned by its 1f: identity; a picture the Files right cannot keep is returned as base64 when small). The same for old_url when given. taps are made on the new side after its load, one after another; each reports worked, ms, detail and a picture. It judges nothing: the caller compares the numbers with its own bar. Each page with sign_in { kind: 'held-session' } signs in with the cookies of its own origin from the proof account's session, the vault's proof-sessions (JSON keyed by origin, minted and refreshed by its owner's workflow), mounted on descriptor 4; the key's hosts bound where the run may go. No cookie is an input or an answer, and an origin the session does not hold refuses the run before a browser starts. reach steps (taps and waits) run after load and sign-in; the screen's usable time is then measured from the last reach tap, and load_usable_ms keeps the time from the page's load. A URL in the answer has its query removed. A view not begun by until is answered as skipped. Refuses a page without an id or url, a non-http address, a view views.json does not name, and an expect with no known key.",
+        "read_only": false,
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pages"
+          ],
+          "properties": {
+            "pages": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "url"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string",
+                    "pattern": "^https?://"
+                  },
+                  "old_url": {
+                    "type": "string",
+                    "pattern": "^https?://"
+                  },
+                  "sign_in": {
+                    "type": "object",
+                    "required": [
+                      "kind"
+                    ],
+                    "additionalProperties": false,
+                    "description": "The page signs in with its origin's cookies from the mounted proof session",
+                    "properties": {
+                      "kind": {
+                        "const": "held-session"
+                      }
+                    }
+                  },
+                  "reach": {
+                    "type": "array",
+                    "description": "Steps after load and sign-in, before the screen is measured: taps (sidebar links) and waits",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "required": [
+                            "tap"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "tap": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        {
+                          "type": "object",
+                          "required": [
+                            "wait"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "wait": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "ready": {
+                    "type": "string",
+                    "description": "A CSS selector that must be visible before the page is usable"
+                  },
+                  "taps": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "name",
+                        "selector",
+                        "expect"
+                      ],
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "selector": {
+                          "type": "string"
+                        },
+                        "expect": {
+                          "type": "object",
+                          "minProperties": 1,
+                          "additionalProperties": false,
+                          "properties": {
+                            "appears": {
+                              "type": "string"
+                            },
+                            "text": {
+                              "type": "string"
+                            },
+                            "url_changes": {
+                              "const": true
+                            },
+                            "changes": {
+                              "const": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "views": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "phone",
+                  "tablet",
+                  "desktop"
+                ]
+              }
+            },
+            "until": {
+              "type": "number",
+              "description": "Epoch milliseconds; a view not begun by then is answered as skipped"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "run",
+            "pages"
+          ],
+          "properties": {
+            "run": {
+              "type": "string"
+            },
+            "seconds": {
+              "type": "number"
+            },
+            "pages": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "views"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "views": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "view"
+                      ],
+                      "properties": {
+                        "view": {
+                          "type": "string"
+                        },
+                        "skipped": {
+                          "type": "string"
+                        },
+                        "new": {
+                          "type": "object"
+                        },
+                        "old": {
+                          "type": "object"
+                        },
+                        "taps": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "name",
+                              "worked",
+                              "detail"
+                            ],
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "worked": {
+                                "type": "boolean"
+                              },
+                              "ms": {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
+                              },
+                              "detail": {
+                                "type": "string"
+                              },
+                              "picture": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "programs": {
+            "chrome-headless-shell": {
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://storage.googleapis.com/chrome-for-testing-public/153.0.8010.12/mac-arm64/chrome-headless-shell-mac-arm64.zip",
+                  "version": "153.0.8010.12",
+                  "archive": "zip",
+                  "blake3": "f9daf3404db01b9bd1434183a6a49f1f3e6961ceb921ad2d113d5212c476194a",
+                  "executable": "chrome-headless-shell-mac-arm64/chrome-headless-shell",
+                  "checked_against": "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json"
+                },
+                "linux-x86_64": {
+                  "url": "https://storage.googleapis.com/chrome-for-testing-public/153.0.8010.12/linux64/chrome-headless-shell-linux64.zip",
+                  "version": "153.0.8010.12",
+                  "archive": "zip",
+                  "blake3": "abccf17437cf7bd491fa423539d416a14ef08a4624215341684bdc3aefc72a47",
+                  "executable": "chrome-headless-shell-linux64/chrome-headless-shell",
+                  "checked_against": "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json"
+                }
+              }
+            }
+          },
+          "kind": "container",
+          "max_run_ms": 900000,
+          "internet": true,
+          "workdir": "/opt/check-every-screen-at-every-width",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/check-every-screen-at-every-width/check-live-screens.mjs",
+            "checkLiveScreens"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "check-every-screen-at-every-width",
+                "paths": [
+                  "check-given-pages.mjs",
+                  "check-live-screens.mjs",
+                  "held-session.mjs",
+                  "check-screens.mjs",
+                  "in-page.mjs",
+                  "views.json",
+                  "live-screens.json",
+                  "allowlist.json",
+                  "vendor"
+                ],
+                "at": "/opt/check-every-screen-at-every-width"
+              },
+              {
+                "package": "headless-browser",
+                "paths": [
+                  "launch.mjs",
+                  "admission.mjs",
+                  "admission.json",
+                  "quiet-switches.json"
+                ],
+                "at": "/opt/headless-browser"
+              },
+              {
+                "package": "process-session",
+                "paths": [
+                  "do-work/process-admission.mjs",
+                  "do-work/computer-cache-folder.mjs"
+                ],
+                "at": "/opt/process-session"
+              },
+              {
+                "package": "page-critic",
+                "paths": [
+                  "do-work/measure-page-craft.mjs",
+                  "do-work/collect-control-names.mjs",
+                  "do-work/measure-rendered-label-size.mjs",
+                  "read-data/page-craft-rules.json"
+                ],
+                "at": "/opt/page-critic"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs",
+                  "read-data/host-actions.mjs",
+                  "read-data/whole-file.mjs",
+                  "read-data/large-file.json"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "packages": [
+                  "node_modules/playwright"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "NOTICE",
+                  "package.json",
+                  "index.js",
+                  "index.mjs",
+                  "cli.js",
+                  "lib"
+                ],
+                "at": "/opt/node_modules/playwright"
+              },
+              {
+                "packages": [
+                  "node_modules/playwright-core"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "NOTICE",
+                  "package.json",
+                  "index.js",
+                  "index.mjs",
+                  "cli.js",
+                  "browsers.json",
+                  "bin",
+                  "lib"
+                ],
+                "at": "/opt/node_modules/playwright-core"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "do-work",
+                  "built-stored-bytes",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "read-data/raw-pieces.mjs",
+                  "read-data/large-file.json"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "proof-sessions",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "group 9: the signed-in half of tool:check-live-screens, split so the keyless row reaches any public address and this one holds only the proof session (held-session.mjs)."
+        },
+        "verify": [],
+        "stored": [
+          {
+            "files": "/live-screens/",
+            "operations": [
+              "write_file_start",
+              "write_file_piece",
+              "write_file_finish"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:check-every-screen-at-every-width",
+        "listed_on": "2026-11-21T00:00:00Z",
+        "id": "tool:read-when-the-proof-session-ends",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "label": "Read when the proof account's sign-in ends",
+        "job": "Say, for each site the proof account is signed in to, when its sign-in ends and how many days are left, so it is minted again before the signed-in live check stops working",
+        "description": "Reads the vault's proof-sessions (JSON keyed by origin, mounted on descriptor 4) and answers, for each origin, the soonest expires of its cookies as expires_at (ISO, UTC) and days_left (one decimal); a cookie with no end counts as none (null). It answers times only: no cookie name or value is ever in the answer. The refresh workflow reads it daily and wakes the vault's owner to mint the session again before it ends.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "origins"
+          ],
+          "properties": {
+            "origins": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "origin",
+                  "expires_at",
+                  "days_left"
+                ],
+                "properties": {
+                  "origin": {
+                    "type": "string"
+                  },
+                  "expires_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "days_left": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/check-every-screen-at-every-width",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/check-every-screen-at-every-width/held-session.mjs",
+            "heldSessionExpiries"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "proof-sessions",
+              "fd": 4
+            }
+          ],
+          "files": {
+            "package_files": [
+              {
+                "package": "check-every-screen-at-every-width",
+                "paths": [
+                  "held-session.mjs"
+                ],
+                "at": "/opt/check-every-screen-at-every-width"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "group 9: held-session.mjs heldSessionExpiries, for the proof session's refresh workflow (tools/check-every-screen-at-every-width)."
+        },
+        "verify": []
       }
     }
   ]

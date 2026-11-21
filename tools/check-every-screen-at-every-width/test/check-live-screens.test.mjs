@@ -27,6 +27,12 @@ before(async () => {
   server = createServer((request, response) => {
     const body = FIXTURES[new URL(request.url, 'http://fixture').pathname];
     if (request.url === '/missing.png') { response.writeHead(404); response.end(); return; }
+    if (request.url === '/private') {
+      const signedIn = /(^|; )session=held-value(;|$)/.test(request.headers.cookie ?? '');
+      response.writeHead(signedIn ? 200 : 401, { 'content-type': 'text/html; charset=utf-8' });
+      response.end(pageOf(signedIn ? '<h1>Signed in</h1>' : '<h1>Sign in</h1>', ''));
+      return;
+    }
     if (!body) { response.writeHead(404); response.end(); return; }
     response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
     response.end(body);
@@ -53,7 +59,7 @@ test('a page list is checked before any browser opens: a missing url, a bad addr
   assert.throws(() => planOf({ pages: [{ id: 'a', url: 'file:///etc/passwd' }] }), /full address \(http or https\)/);
   assert.throws(() => planOf({ pages: [{ id: 'a', url: origin }], views: ['watch'] }), /views is a list of/);
   assert.throws(() => planOf({ pages: [{ id: 'a', url: origin, taps: [{ name: 'x', selector: 'button', expect: { shown: true } }] }] }), /expect names/);
-  assert.throws(() => planOf({ pages: [{ id: 'a', url: origin, sign_in: { cookies: [{ name: 'session' }] } }] }), /needs a name and a value/);
+  assert.throws(() => planOf({ pages: [{ id: 'a', url: origin, sign_in: { cookies: [{ name: 'session', value: 'v' }] } }] }), /held-session/);
   assert.throws(() => planOf({ pages: [{ id: 'a', url: origin }, { id: 'A', url: origin }] }), /another page has the name/);
 });
 
@@ -181,15 +187,31 @@ test('an owner with no window on screen is answered as no_window', async () => {
   assert.deepEqual(await windowPicture({ owner: 'Trillion' }, { exec }).then(answer => answer.error), 'no_window');
 });
 
-test('sign_in is a list of cookies or one email code with no code field; reach is a list of taps and waits', () => {
+test('sign_in is only the held session, never cookies or a code in the input; reach is a list of taps and waits', () => {
   const page = (extra) => planOf({ pages: [{ id: 'a', url: origin, ...extra }] }).pages[0];
-  assert.deepEqual(page({ sign_in: { kind: 'email-code', origin: 'https://app.ethosschooloftennis.com', email: 'x@agentmail.to' } }).signIn,
-    { kind: 'email-code', origin: 'https://app.ethosschooloftennis.com', email: 'x@agentmail.to' });
-  assert.throws(() => page({ sign_in: { kind: 'email-code', origin: 'https://a.example', email: 'x@agentmail.to', code: '123456' } }), /not given/);
-  assert.throws(() => page({ sign_in: { kind: 'email-code', origin: 'file:///x', email: 'x@agentmail.to' } }), /full address/);
-  assert.equal(page({ sign_in: { cookies: [{ name: 'session', value: 'v' }] } }).signIn.kind, 'cookies');
+  assert.deepEqual(page({ sign_in: { kind: 'held-session' } }).signIn, { kind: 'held-session' });
+  assert.throws(() => page({ sign_in: { kind: 'held-session', cookies: [{ name: 'session', value: 'v' }] } }), /held-session/);
+  assert.throws(() => page({ sign_in: { kind: 'email-code', origin: 'https://a.example', email: 'x@agentmail.to' } }), /held-session/);
   assert.deepEqual(page({ reach: [{ tap: '#billing' }, { wait: '#billing-panel' }] }).reach, [{ tap: '#billing' }, { wait: '#billing-panel' }]);
   assert.deepEqual(page({}).reach, []);
   assert.throws(() => page({ reach: [{ tap: '#a', wait: '#b' }] }), /reach\[0\] is/);
   assert.throws(() => page({ reach: 'billing' }), /reach is a list/);
+});
+
+test('a signed-in page takes its own origin\'s cookies from the held session; a page that does not sign in gets none', async () => {
+  const { keep } = recorder();
+  const readHeld = async () => new Map([[origin, [{ name: 'session', value: 'held-value' }]]]);
+  const answer = await checkLiveScreens({ pages: [
+    { id: 'in', url: `${origin}/private`, sign_in: { kind: 'held-session' } },
+    { id: 'out', url: `${origin}/private` },
+  ], views: ['desktop'] }, undefined, { keep, readHeld });
+  assert.equal(answer.pages[0].views[0].new.status, 200);
+  assert.equal(answer.pages[1].views[0].new.status, 401);
+  assert.ok(!JSON.stringify(answer).includes('held-value'), 'the cookie is not in the answer');
+});
+
+test('an origin the held session does not hold refuses the run before a browser starts', async () => {
+  const readHeld = async () => new Map([['https://app.gettrillion.ai', [{ name: 'session', value: 'held-value' }]]]);
+  await assert.rejects(checkLiveScreens({ pages: [{ id: 'in', url: `${origin}/private`, sign_in: { kind: 'held-session' } }], views: ['desktop'] }, undefined, { keep: recorder().keep, readHeld }),
+    error => error.code === 'no_held_session' && !error.message.includes('held-value'));
 });

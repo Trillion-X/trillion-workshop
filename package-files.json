@@ -8363,7 +8363,155 @@
    "paths": [
     "check-given-pages.mjs",
     "check-live-screens.mjs",
-    "email-code.mjs",
+    "held-session.mjs",
+    "check-screens.mjs",
+    "in-page.mjs",
+    "views.json",
+    "live-screens.json",
+    "allowlist.json",
+    "vendor"
+   ],
+   "at": "/opt/check-every-screen-at-every-width"
+  },
+  {
+   "package": "headless-browser",
+   "paths": [
+    "launch.mjs",
+    "admission.mjs",
+    "admission.json",
+    "quiet-switches.json"
+   ],
+   "at": "/opt/headless-browser"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/process-admission.mjs",
+    "do-work/computer-cache-folder.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "page-critic",
+   "paths": [
+    "do-work/measure-page-craft.mjs",
+    "do-work/collect-control-names.mjs",
+    "do-work/measure-rendered-label-size.mjs",
+    "read-data/page-craft-rules.json"
+   ],
+   "at": "/opt/page-critic"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs",
+    "read-data/host-actions.mjs",
+    "read-data/whole-file.mjs",
+    "read-data/large-file.json"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/playwright"
+   ],
+   "paths": [
+    "LICENSE",
+    "NOTICE",
+    "package.json",
+    "index.js",
+    "index.mjs",
+    "cli.js",
+    "lib"
+   ],
+   "at": "/opt/node_modules/playwright"
+  },
+  {
+   "packages": [
+    "node_modules/playwright-core"
+   ],
+   "paths": [
+    "LICENSE",
+    "NOTICE",
+    "package.json",
+    "index.js",
+    "index.mjs",
+    "cli.js",
+    "browsers.json",
+    "bin",
+    "lib"
+   ],
+   "at": "/opt/node_modules/playwright-core"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work",
+    "built-stored-bytes",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/raw-pieces.mjs",
+    "read-data/large-file.json"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "read-data/capability-edges.mjs",
+    "read-data/expected-current-from-content-hash.mjs",
+    "read-data/identical-snapshot-ab-plan.mjs",
+    "read-data/namespace-records-from-a-name-and-identity-table.mjs",
+    "read-data/operation-pair-cases.mjs",
+    "read-data/operation-pair-outcome.mjs",
+    "read-data/reconcile-namespace-corpus.mjs",
+    "read-data/residual-read-demand-from-receiver-facts.mjs"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "send-requests-to-an-engine",
+   "paths": [
+    "read-data/find-the-running-app-and-send-requests-to-it.mjs"
+   ],
+   "at": "/opt/send-requests-to-an-engine"
+  }
+ ],
+ "tool:check-live-screens-signed-in": [
+  {
+   "package": "check-every-screen-at-every-width",
+   "paths": [
+    "check-given-pages.mjs",
+    "check-live-screens.mjs",
+    "held-session.mjs",
     "check-screens.mjs",
     "in-page.mjs",
     "views.json",
@@ -44073,6 +44221,63 @@
   }
  ],
  "tool:read-what-shipped": [],
+ "tool:read-when-the-proof-session-ends": [
+  {
+   "package": "check-every-screen-at-every-width",
+   "paths": [
+    "held-session.mjs"
+   ],
+   "at": "/opt/check-every-screen-at-every-width"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:read-where-you-stand": [
   {
    "package": "where-a-person-stands",
@@ -62244,77 +62449,5 @@
  ],
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:your-files": [],
- "tool:your-files-names": [],
- "tool:workflow-run-start": [
-  {
-   "package": "workflows",
-   "paths": [
-    "do-work/start-a-workflow-run.mjs",
-    "read-data/engine-door.mjs"
-   ],
-   "at": "/opt/workflows"
-  }
- ],
- "tool:workflow-run-show": [
-  {
-   "package": "workflows",
-   "paths": [
-    "do-work/show-a-workflow-run.mjs",
-    "read-data/show-a-workflow-run.mjs",
-    "read-data/engine-door.mjs"
-   ],
-   "at": "/opt/workflows"
-  }
- ],
- "tool:workflow-run-cancel": [
-  {
-   "package": "workflows",
-   "paths": [
-    "do-work/cancel-a-workflow-run.mjs",
-    "read-data/workflow-run-holder.mjs",
-    "read-data/engine-door.mjs"
-   ],
-   "at": "/opt/workflows"
-  }
- ],
- "tool:edit-a-shared-draft": [
-  {
-   "package": "edit-a-shared-draft",
-   "paths": [
-    "do-work",
-    "read-data"
-   ],
-   "at": "/opt/edit-a-shared-draft"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "do-work/run-a-function.mjs"
-   ],
-   "at": "/opt/workflows"
-  }
- ]
+ "tool:your-files-names": []
 }

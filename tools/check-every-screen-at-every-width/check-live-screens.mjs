@@ -23,8 +23,8 @@
 // SHAPE
 //   checkLiveScreens({ pages, views?, until? }, host) -> { run, seconds, pages: [{ id, views: [{ view, new, old?, taps? }] }] }
 //     pages   [{ id, url, old_url?, sign_in?, ready?, taps? }]: id is a name for the page; url is the address a person opens;
-//             old_url is the address of the old way, measured the same way; sign_in is { cookies: [{ name, value, domain?,
-//             path?, secure?, httpOnly?, expires? }] }; ready is a CSS selector that must be visible before the page is usable;
+//             old_url is the address of the old way, measured the same way; sign_in is { kind: 'held-session' } (the cookies of
+//             the page's origin, read from the proof session the signed-in row mounts on fd 4); ready is a CSS selector that must be visible before the page is usable;
 //             taps is [{ name, selector, expect: { appears?: css, text?: string, url_changes?: true, changes?: true } }], each tap
 //             made on the new side after its load, one after another, with every expect named there holding to count as worked.
 //     views   the view ids of views.json (phone, tablet, desktop); all of them when left out. A view's throttle is in live-screens.json.
@@ -38,7 +38,7 @@ import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { launchChromium, onThisPath } from '../headless-browser/launch.mjs';
 import { readViews } from './check-screens.mjs';
-import { emailCodeSession } from './email-code.mjs';
+import { readHeldSessions, sessionFor } from './held-session.mjs';
 import { makeHashCodeHexFromBytes } from '../content-identity/read-data/identity.mjs';
 import { writeWholeFile } from '../workflows/read-data/whole-file.mjs';
 
@@ -76,24 +76,14 @@ function httpAddress(url, what) {
   return url;
 }
 
-// sign_in is { cookies: [...] } (a session the caller already holds) or { kind: 'email-code', origin, email }: the site's
-// one-time code is requested, read from the test inbox and exchanged for the session here (email-code.mjs emailCodeSession).
+// sign_in is { kind: 'held-session' }: the page signs in with its origin's cookies from the proof session the signed-in row mounts
+// (held-session.mjs). No cookie is ever an input, so none can pass through a caller's step answer.
 function signInOf(signIn, what) {
   if (signIn === undefined) return null;
-  if (signIn?.kind === 'email-code') {
-    if (typeof signIn.origin !== 'string' || typeof signIn.email !== 'string' || !signIn.email || Object.keys(signIn).length !== 3) {
-      throw refuse(`${what}: sign_in is { kind: 'email-code', origin, email }; the code is read from the test inbox, not given.`);
-    }
-    httpAddress(signIn.origin, `${what}: sign_in.origin`);
-    return { kind: 'email-code', origin: signIn.origin, email: signIn.email };
+  if (signIn?.kind !== 'held-session' || Object.keys(signIn).length !== 1) {
+    throw refuse(`${what}: sign_in is { kind: 'held-session' }; the session is the proof account's, mounted by the signed-in row.`);
   }
-  if (!signIn || !Array.isArray(signIn.cookies) || signIn.cookies.length === 0) throw refuse(`${what}: sign_in is { cookies: [{ name, value }] } or { kind: 'email-code', origin, email }.`);
-  return { kind: 'cookies', cookies: signIn.cookies.map((cookie, at) => {
-    if (!cookie || typeof cookie.name !== 'string' || !cookie.name || typeof cookie.value !== 'string') {
-      throw refuse(`${what}: sign_in.cookies[${at}] needs a name and a value.`);
-    }
-    return cookie;
-  }) };
+  return { kind: 'held-session' };
 }
 
 // reach: the steps that take the page to the screen a person measures (sidebar taps, waits), run after load and sign-in.
@@ -399,16 +389,19 @@ async function measureSide({ browser, url, view, signIn, ready, reach = [], name
 }
 
 /** Every page at every view on a real browser, measured and pictured; see the header for the shapes. */
-export async function checkLiveScreens(input = {}, host, { keep = (name, bytes) => keepPicture(host, name, bytes) } = {}) {
+export async function checkLiveScreens(input = {}, host, { keep = (name, bytes) => keepPicture(host, name, bytes), readHeld = readHeldSessions } = {}) {
   const plan = planOf(input);
   const started = Date.now();
   const run = randomUUID().slice(0, 8);
+  // The held session is read once, before a browser starts, and each signed-in address takes its own origin's cookies; an origin
+  // the session does not hold refuses the run here rather than measuring a signed-out screen as if it were signed in.
+  const signing = plan.pages.filter(page => page.signIn);
+  const held = signing.length > 0 ? await readHeld() : null;
+  const signIns = new Map(signing.flatMap(page => [page.url, page.oldUrl].filter(Boolean)).map(url => [url, { cookies: sessionFor(held, url) }]));
   const browser = await launchChromium({ headless: true, executablePath: onThisPath('chrome-headless-shell') });
   try {
     const pages = [];
     for (const page of plan.pages) {
-      // An email code is sent, read and exchanged once per page; its cookies are then the page's session in every view.
-      const session = page.signIn?.kind === 'email-code' ? { kind: 'cookies', cookies: await emailCodeSession(page.signIn) } : page.signIn;
       const views = [];
       for (const view of plan.views) {
         if (plan.until !== null && Date.now() >= plan.until) {
@@ -418,11 +411,11 @@ export async function checkLiveScreens(input = {}, host, { keep = (name, bytes) 
         const name = `${page.slug}-${view.id}`;
         const answer = { view: view.id };
         const shared = { browser, view, ready: page.ready, run, keep };
-        const current = await measureSide({ ...shared, url: page.url, signIn: session, reach: page.reach, name: `${name}-new`, taps: page.taps });
+        const current = await measureSide({ ...shared, url: page.url, signIn: page.signIn && signIns.get(page.url), reach: page.reach, name: `${name}-new`, taps: page.taps });
         answer.new = current.side;
         if (page.taps.length > 0) answer.taps = current.taps;
         if (page.oldUrl) {
-          answer.old = (await measureSide({ ...shared, url: page.oldUrl, signIn: session, reach: page.reach, name: `${name}-old` })).side;
+          answer.old = (await measureSide({ ...shared, url: page.oldUrl, signIn: page.signIn && signIns.get(page.oldUrl), reach: page.reach, name: `${name}-old` })).side;
         }
         views.push(answer);
       }
