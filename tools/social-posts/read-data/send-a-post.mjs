@@ -236,6 +236,30 @@ async function mediaFor(post, place, mediaUrl, fetchMedia) {
   return { kind, mimeType: mediaType, byteSize: post.media.byte_length, source: { kind: 'https-url', url: mediaUrl } };
 }
 
+// A post's own file, read from the person's Files by the name its media lists: spans of at most span_bytes, the whole read capped at
+// max_bytes, and the bytes handed to the place as a blob. Nothing is read for a name the post does not list, and nothing is logged.
+async function filesMediaFor(post, place, mediaName, files) {
+  const words = settings.files_read.words;
+  if (!post.media || post.media.name !== mediaName) throw new Refused(fillWords(words.not_a_file, { platform: place.label }));
+  if (!['stream', 'whole'].includes(place.media_from)) throw new Refused(fillWords(words.address_only, { platform: place.label }));
+  if (typeof files !== 'function') throw new Refused(fillWords(words.no_right, { platform: place.label }));
+  const size = Number(post.media.byte_length);
+  if (!Number.isInteger(size) || size <= 0 || size > settings.files_read.max_bytes) throw new Refused(fillWords(words.too_large, { platform: place.label }));
+  const parts = [];
+  for (let offset = 0; offset < size; offset += settings.files_read.span_bytes) {
+    const length = Math.min(settings.files_read.span_bytes, size - offset);
+    let answer;
+    try { answer = await files('read_file_span', { name_or_identity: mediaName, offset, length }); }
+    catch (error) { throw new Refused(fillWords(words.unreadable, { platform: place.label, code: error?.code ?? 'files' })); }
+    const bytes = Buffer.from(typeof answer?.content === 'string' ? answer.content : '', 'base64');
+    if (answer?.bytes_returned !== length || bytes.length !== length) throw new Refused(fillWords(words.unreadable, { platform: place.label, code: 'short_read' }));
+    parts.push(bytes);
+  }
+  const mediaType = post.media.media_type ?? 'application/octet-stream';
+  const kind = mediaType.startsWith('image/') ? 'image' : mediaType.startsWith('video/') ? 'video' : 'document';
+  return { kind, mimeType: mediaType, byteSize: size, ...(post.media.name ? { filename: post.media.name.split('/').pop() } : {}), source: { kind: 'blob', blob: new Blob(parts, { type: mediaType }), fingerprint: post.media.identity } };
+}
+
 // The files a format is sent with: a carousel's items (media_urls, each { url, kind }), or the post's one file (media_url).
 function formatMedia(spec, post, mediaUrl, items) {
   if (!spec.children) {
@@ -251,8 +275,8 @@ function formatMedia(spec, post, mediaUrl, items) {
  *  The post and the destination's connection are handed in as `records`; the run stores nothing and answers the post as it
  *  ends under `keep`. Given armed_at (the timed run of workflow:send-each-post-at-its-time gives it), it sends nothing once the
  *  post no longer carries it. */
-export async function sendAPost(input = {}, { now = () => new Date(), send = fetch, fetchMedia = fetch, held = null, publishers = PUBLISHERS } = {}) {
-  const { post_id: postId, place: placeSlug, account_id: accountId, resend = false, armed_at: armedAt, media_url: mediaUrl, media_urls: mediaUrls, cover_url: coverUrl, reply_to: replyTo } = input;
+export async function sendAPost(input = {}, { now = () => new Date(), send = fetch, fetchMedia = fetch, files = null, held = null, publishers = PUBLISHERS } = {}) {
+  const { post_id: postId, place: placeSlug, account_id: accountId, resend = false, armed_at: armedAt, media_url: mediaUrl, media_urls: mediaUrls, cover_url: coverUrl, reply_to: replyTo, media_name: mediaName } = input;
   if (typeof postId !== 'string' || !postId.trim() || typeof accountId !== 'string' || !accountId.trim()) throw new Error('Give post_id and account_id (one of the post\'s destinations).');
   if (typeof placeSlug !== 'string' || !placeSlug.trim()) throw new Error('Give place (the slug of the place account_id belongs to).');
   const { records, kept } = recordsIn(input);
@@ -296,7 +320,7 @@ export async function sendAPost(input = {}, { now = () => new Date(), send = fet
     const byFormat = formatOf(post.format);
     if (byFormat && byFormat.platform !== place.platform) throw new Refused(`${byFormat.label} posts go to ${byFormat.platform}, not ${place.label}. Nothing was sent.`);
     if (byFormat && replyTo !== undefined) throw new Refused(`${byFormat.label} posts cannot be sent as a reply yet. Nothing was sent.`);
-    const media = byFormat ? null : await mediaFor(post, place, mediaUrl, fetchMedia);
+    const media = byFormat ? null : mediaName !== undefined ? await filesMediaFor(post, place, mediaName, files) : await mediaFor(post, place, mediaUrl, fetchMedia);
     if (coverUrl !== undefined && !/^https:\/\//.test(String(coverUrl))) throw new Refused('cover_url must be an https address of the cover image. Nothing was sent.');
     const chosen = { ...(place.default_settings ?? {}), ...(post.settings_by_platform?.[place.platform] ?? {}) };
     // Until the place answers, the outcome is not known: a send that is cut off answers nothing, and the caller's post

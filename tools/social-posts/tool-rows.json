@@ -5274,6 +5274,14 @@
           "expected_seconds": 60,
           "network_egress": true
         },
+        "stored": [
+          {
+            "files": "/",
+            "operations": [
+              "read_file_span"
+            ]
+          }
+        ],
         "id": "tool:send-a-post",
         "label": "Send a post",
         "job": "Send one of the person's approved posts to one of their accounts at a place once its time has come, and answer where it went as the post to keep",
@@ -5322,6 +5330,10 @@
             "reply_to": {
               "type": "string",
               "description": "For a thread part after the first: the platform post id of the part before it (its delivery's platform_post_id). The part is sent as a reply to it, where the place takes replies (posts.json reply.platforms); nothing else is sent"
+            },
+            "media_name": {
+              "type": "string",
+              "description": "For a post whose file is in your files: the file's name, exactly as the post's media lists it. The file is read from your files by that name, and a name the post does not list is refused"
             },
             "media_url": {
               "type": "string",

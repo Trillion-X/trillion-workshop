@@ -164,6 +164,18 @@
       "unreachable": "Your files could not hand {platform} the post's file right now ({code}), so nothing was sent. Send it again shortly."
     }
   },
+  "files_read": {
+    "_what": "How a post's own file is read from the person's Files for a place that takes its file as bytes (send-a-post media_name): read in spans of span_bytes (the Files tool answers at most 192 KB a call), at most max_bytes in all. words are its plain answers.",
+    "span_bytes": 196608,
+    "max_bytes": 268435456,
+    "words": {
+      "not_a_file": "This file is not one of the post's own files, so nothing was read or sent to {platform}.",
+      "address_only": "{platform} takes its file as an address, not from your files, so nothing was read or sent.",
+      "no_right": "This run was not handed the right to read your files, so nothing was read or sent to {platform}.",
+      "too_large": "This post's file is too large to send to {platform} from your files, so nothing was sent.",
+      "unreadable": "Your files could not give {platform} the post's file ({code}), so nothing was sent. Send it again shortly."
+    }
+  },
   "at_its_time": {
     "_what": "How a post set to go at its time is sent then. The minute wake of workflow:send-each-post-at-its-time reads the due posts and hands each destination to tool:send-a-post, which sends only while the post still carries the armed_at it was set with and is in sends_while, so a post taken back, changed or set again sends nothing at the old time. words are its plain answers.",
     "sends_while": [

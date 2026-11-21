@@ -226,9 +226,9 @@ test('a send handed no post record, or no connection record for its account, is 
   assert.equal(kept.keep[0].value.deliveries[ACCOUNT].status, 'posted', 'the same post sends once its connection is handed in');
 });
 
-test('the send row reads none of the person\'s files: a post\'s file comes as the address the caller gives', () => {
+test('the send row reads the person\'s files only by read_file_span, and no other files operation', () => {
   const row = rowOf(rows, 'tool:send-a-post');
-  assert.deepEqual(rightsOf(row).filter(right => 'files' in right), []);
+  assert.deepEqual(rightsOf(row).filter(right => 'files' in right), [{ files: '/', operations: ['read_file_span'] }]);
   assert.doesNotMatch(JSON.stringify(row), /records:(read|write|list)/, 'the send row declares no records door right');
   assert.equal(row.input_schema.properties.media_url.type, 'string');
 });
@@ -462,5 +462,39 @@ test('a send the place refuses for its credits waits with the reason, stays queu
     const sent = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { send: back.send, held: () => VALUE });
     assert.equal(sent.status, 'posted', sent.said);
     assert.equal(back.sent.length, 1, 'the next send goes once');
+  });
+});
+
+test('a post\'s own file is read from the Files right in spans of at most 192 KB, and nothing is read for a name the post does not list', async () => {
+  const size = 400000;
+  const clip = new Uint8Array(size).map((_, i) => i % 251);
+  const calls = [];
+  const files = async (method, input) => {
+    calls.push({ method, ...input });
+    const bytes = clip.subarray(input.offset, input.offset + input.length);
+    return { bytes_returned: bytes.length, encoding: 'base64', content: Buffer.from(bytes).toString('base64') };
+  };
+  const video = { media: { name: '/Recordings/clip.mp4', media_type: 'video/mp4', byte_length: size, identity: `1f:${'a'.repeat(64)}` } };
+  await withDoor([post(video), connection], async () => {
+    await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, media_name: '/Recordings/clip.mp4' }, { send: place().send, held: () => VALUE, files });
+  });
+  assert.deepEqual(calls.map(call => [call.method, call.name_or_identity, call.offset, call.length]), [
+    ['read_file_span', '/Recordings/clip.mp4', 0, 196608],
+    ['read_file_span', '/Recordings/clip.mp4', 196608, 196608],
+    ['read_file_span', '/Recordings/clip.mp4', 393216, 6784]]);
+  const other = [];
+  await withDoor([post(video), connection], async fake => {
+    const refused = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, media_name: '/Private/other.mp4' }, { send: place().send, held: () => VALUE, files: async () => other.push(1) });
+    assert.equal(other.length, 0, 'no read for a name the post does not list');
+    assert.equal(fake.kept.get('post:p1').value.deliveries[ACCOUNT].status, 'failed');
+    assert.match(fake.kept.get('post:p1').value.deliveries[ACCOUNT].error, /not one of the post's own files/, refused.said);
+  });
+});
+
+test('a post\'s file from the Files right is refused in plain words when the run was not handed the right', async () => {
+  const video = { media: { name: '/Recordings/clip.mp4', media_type: 'video/mp4', byte_length: 1000, identity: `1f:${'b'.repeat(64)}` } };
+  await withDoor([post(video), connection], async fake => {
+    await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, media_name: '/Recordings/clip.mp4' }, { send: place().send, held: () => VALUE });
+    assert.match(fake.kept.get('post:p1').value.deliveries[ACCOUNT].error, /not handed the right to read your files/);
   });
 });
