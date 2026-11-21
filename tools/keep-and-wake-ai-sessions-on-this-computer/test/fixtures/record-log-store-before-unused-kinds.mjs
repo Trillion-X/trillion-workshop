@@ -70,19 +70,19 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
-import { keptRuns, repairKeptRunsCatalog, KeptRangeBudgetExceeded, KEPT_RANGE_PROGRESS, KEPT_RUNS_DEFAULTS } from './kept-runs.mjs';
-import { slotTable } from '../../../../slot-table/do-work/slot-table.mjs';
-import { jsonExpansionBytes } from '../../../../json-expansion.mjs';
-import { sqlStatementWasNotExecuted } from '../../../../sql-statement-execution.mjs';
-import { jsonMembers } from './json-members.mjs';
-import pacing from '../../../../record-log/do-work/maintenance-pacing.json' with { type: 'json' };
+import { keptRuns, repairKeptRunsCatalog, KeptRangeBudgetExceeded, KEPT_RANGE_PROGRESS, KEPT_RUNS_DEFAULTS } from '../../../record-log/do-work/kept-runs.mjs';
+import { slotTable } from '../../../slot-table/do-work/slot-table.mjs';
+import { jsonExpansionBytes } from '../../../json-expansion.mjs';
+import { sqlStatementWasNotExecuted } from '../../../sql-statement-execution.mjs';
+import { jsonMembers } from '../../../record-log/do-work/json-members.mjs';
+import pacing from '../../../record-log/do-work/maintenance-pacing.json' with { type: 'json' };
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { storeSums, lanesFrom, bucketOf, textHash, BUCKETS } from '../../../../record-log/do-work/record-digest.mjs';
-import { stateOf, stateFrom, merge, keptFrom, stampAfter, tieByContent, envelopeOfKept, sameKept } from '../../../../record-log/do-work/record-stamps.mjs';
-import { recordModel, declarationIndexesOf, partsOf, setsOf, refusalOf, undeclaredOf, factsOf, valueKindOf, ModelRefused, ModelUndeclared } from '../../../../record-log/do-work/record-model.mjs';
-import { recordTables } from './record-tables.mjs';
-import { erasableKeys, erasureQueue, seal, open as openSealed, isSealed, keyIdOf, SEALED_MARK } from './erasable.mjs';
+import { storeSums, lanesFrom, bucketOf, textHash, BUCKETS } from '../../../record-log/do-work/record-digest.mjs';
+import { stateOf, stateFrom, merge, keptFrom, stampAfter, tieByContent, envelopeOfKept, sameKept } from '../../../record-log/do-work/record-stamps.mjs';
+import { recordModel, declarationIndexesOf, partsOf, setsOf, refusalOf, undeclaredOf, factsOf, valueKindOf, ModelRefused, ModelUndeclared } from '../../../record-log/do-work/record-model.mjs';
+import { recordTables } from '../../parts/record-log/do-work/record-tables.mjs';
+import { erasableKeys, erasureQueue, seal, open as openSealed, isSealed, keyIdOf, SEALED_MARK } from '../../../record-log/do-work/erasable.mjs';
 export { ModelRefused, ModelUndeclared };
 
 const SEP = '\u0000';
@@ -184,8 +184,8 @@ export class RecordTooLarge extends Error {
 let lastMs = 0;
 let counter = 0;
 /** The first log id of the millisecond `ms`: every log id written before it sorts lower. */
-export { logIdAt, logTimeOf, logPositionOf } from '../../../../record-log/do-work/log-position.mjs';
-import { logIdAt, logTimeOf, logPositionOf } from '../../../../record-log/do-work/log-position.mjs';
+export { logIdAt, logTimeOf, logPositionOf } from '../../../record-log/do-work/log-position.mjs';
+import { logIdAt, logTimeOf, logPositionOf } from '../../../record-log/do-work/log-position.mjs';
 // Random bytes are drawn from the system a pool at a time (one call per 256 ids, not one per id), and written out as hex
 // through a table, so making an id costs well under a microsecond.
 const POOL = new Uint8Array(4096);
