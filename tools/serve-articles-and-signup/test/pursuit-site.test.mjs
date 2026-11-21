@@ -49,3 +49,11 @@ test('a row listed false answers at its address and is left out of the index', a
   assert.equal(await answer.text(), 'article:quiet');
   assert.equal(await (await handler.handle(new Request('https://example.test/articles'))).text(), 'index:');
 });
+
+test('a published row whose time has come answers when read from the database as a Date', async () => {
+  const row = { slug: 'dated', title: 'Dated', description: 'd', body_markdown: 'Words', status: 'published', published_at: new Date('2026-01-01T00:00:00Z'), updated_at: new Date('2026-01-01T00:00:00Z') };
+  const handler = site({ db: async () => [row], draw: { index: () => '', article: (item) => `article:${item.slug}` } });
+  const answer = await handler.handle(new Request('https://example.test/articles/dated'));
+  assert.equal(answer.status, 200);
+  assert.equal(await answer.text(), 'article:dated');
+});

@@ -70,7 +70,7 @@ export function createSite({ db, mail, origin, brand, secret, layout, signupText
       FROM articles WHERE slug = $1`, [slug]);
     if (!row) return page({ title: 'Not found', body: '<h1>Not found</h1>', status: 404 });
     const preview = url.searchParams.get('preview');
-    const shown = row.status === 'published' && (!row.published_at || row.published_at <= now());
+    const shown = row.status === 'published' && (!row.published_at || new Date(row.published_at) <= new Date(now()));
     if (!shown && preview !== previewToken(slug)) return page({ title: 'Not found', body: '<h1>Not found</h1>', status: 404 });
     if (draw) return htmlPage(draw.article(row, { preview: !shown }));
     const body = `<article>\n<h1>${esc(row.title)}</h1>\n${bodyHtml(row.body_markdown)}\n</article>\n${signupBlock(`/articles/${slug}`)}`;
