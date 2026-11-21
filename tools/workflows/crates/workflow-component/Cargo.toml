@@ -17,6 +17,8 @@ async-trait.workspace = true
 serde_json.workspace = true
 futures.workspace = true
 chrono.workspace = true
+# The pin of a definition read by recipe (main.rs `pinned_definition`): the BLAKE3 of its JSON.
+blake3 = { version = "1.8.5", default-features = false }
 
 # ask-rights.json and ask-words.json are read into the component (main.rs `ASK_RIGHTS`, `ASK_WORDS`), so a change to
 # either builds the component again.

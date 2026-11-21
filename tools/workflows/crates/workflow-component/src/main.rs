@@ -3,7 +3,13 @@
 // The run is the tool's input: its `definition` (or `definitions`, the first the one to run), handed in by whatever
 // started it from where the person keeps their workflows (their own database): in the input, or in the fact that woke
 // it (the router's workflow-chosen carries the chosen row's `definition` and `start_at`). This reads no file and no
-// store, so no person's workflows depend on a shared folder. Every other field is the workflow's own input; `answers` (by step id),
+// store, so no person's workflows depend on a shared folder. A run named only by its recipe id (`recipe`, or the listed
+// row's id `row` the engine hands a listed workflow's run) reads its definition first, through the step the run is
+// handed as `read_definition` {tool, input, recipe_at, definition_at, version_at?, step?} (a row source's `listed_input`
+// declares it once, trillion-rust catalog.rs): its answer is used for that pass alone and never carried, so a definition
+// of any size (x-mode's is 655 KB) never rides in an envelope or the wake book, and each pass reads it again. The first
+// read pins it: the BLAKE3 of the definition (and its version, when the reader names one) is held as that step's answer,
+// and a later read that differs fails the run, naming the change, unless the run says `definition_may_move`. Every other field is the workflow's own input; `answers` (by step id),
 // `start_at` (a step to start at), `started_at` and `run` are kept with it.
 // Out, on standard output: { "result": { "status", "workflow", "run", "steps", "waiting" }, "wake_effects": [...] };
 // a walk that failed prints { "error", "result" } and exits 1.
@@ -117,11 +123,93 @@ fn effect_of(waiting: &Value, told: Value, doors: &BTreeSet<String>, workflow: &
     }
     let mut payload = json!({ "workflow": workflow, "step": waiting["step"], "for": name, "asks": waiting["asks"], "told_as": told });
     if let Some(unfilled) = waiting.get("unfilled") { payload["unfilled"] = unfilled.clone(); }
+    if let Some(by) = waiting.get("started_by") { payload["started_by"] = by.clone(); }
     json!({ "arrive": { "source": WAITING, "event_id": told["event_id"], "payload": payload } })
 }
 
 /// The fields of a run that are the run's own, not the workflow's input.
-const KEPT: [&str; 8] = ["row", "definition", "definitions", "answers", "start_at", "started_at", "run", "refused"];
+const KEPT: [&str; 12] = ["row", "definition", "definitions", "answers", "start_at", "started_at", "run", "refused", "recipe",
+    "read_definition", "definition_may_move", "started_by"];
+
+/// The step a definition is read under when its reader names none.
+const READ_STEP: &str = "read-definition";
+/// Where this pass holds the reader's answer it was told: taken out before anything is carried.
+const READ: &str = "definition_read";
+
+/// The recipe id a run is named by when it carries no definition: its `recipe`, else the listed row's id `row`.
+fn recipe_of(run: &Map<String, Value>) -> Option<String> {
+    run.get("recipe").or_else(|| run.get("row")).and_then(Value::as_str).filter(|id| !id.is_empty()).map(str::to_owned)
+}
+
+/// The step the run's reader answers under (`read_definition.step`, else `READ_STEP`), when the run names a reader.
+fn reader_step(run: &Map<String, Value>) -> Option<String> {
+    let reader = run.get("read_definition").filter(|reader| reader.is_object())?;
+    Some(reader["step"].as_str().filter(|step| !step.is_empty()).unwrap_or(READ_STEP).to_string())
+}
+
+/// Whether the run was handed its definitions themselves.
+fn carries_definition(run: &Map<String, Value>) -> bool {
+    run.get("definition").is_some_and(Value::is_object) || run.get("definitions").and_then(Value::as_array).is_some_and(|all| !all.is_empty())
+}
+
+/// The value at a dotted path (`rows.0.definition`): a part that is a number indexes an array.
+fn at_path<'v>(value: &'v Value, path: &str) -> Option<&'v Value> {
+    path.split('.').filter(|part| !part.is_empty()).try_fold(value, |at, part| match (at, part.parse::<usize>()) {
+        (Value::Array(items), Ok(index)) => items.get(index),
+        (Value::Object(fields), _) => fields.get(part),
+        _ => None,
+    })
+}
+
+/// `value` with `put` set at a dotted path (`params.0`), making the objects and arrays on the way.
+fn set_at(value: &mut Value, path: &str, put: Value) {
+    let parts: Vec<&str> = path.split('.').filter(|part| !part.is_empty()).collect();
+    let mut at = value;
+    for (index, part) in parts.iter().enumerate() {
+        let last = index + 1 == parts.len();
+        at = match part.parse::<usize>() {
+            Ok(position) => {
+                if !at.is_array() { *at = json!([]); }
+                let items = at.as_array_mut().unwrap();
+                while items.len() <= position { items.push(Value::Null); }
+                &mut items[position]
+            }
+            Err(_) => {
+                if !at.is_object() { *at = json!({}); }
+                at.as_object_mut().unwrap().entry(part.to_string()).or_insert(Value::Null)
+            }
+        };
+        if last { *at = put; return; }
+    }
+}
+
+/// The ask the reader is handed: its input with the recipe id at `recipe_at`.
+fn reader_ask(reader: &Value, recipe: &str) -> Value {
+    let mut input = reader.get("input").cloned().unwrap_or(json!({}));
+    if let Some(path) = reader["recipe_at"].as_str() { set_at(&mut input, path, json!(recipe)); }
+    input
+}
+
+/// The definition the reader answered, held to the run's pin: the first read holds the BLAKE3 of its JSON (and its version,
+/// when the reader names `version_at`) as the reader step's answer; a later read that differs is refused in words, unless
+/// the run says `definition_may_move`, when the pin moves with it.
+fn pinned_definition(run: &mut Map<String, Value>, recipe: &str, step: &str, answer: &Value) -> Result<Value, String> {
+    let reader = run.get("read_definition").cloned().unwrap_or(Value::Null);
+    let definition_at = reader["definition_at"].as_str().unwrap_or("definition");
+    let definition = at_path(answer, definition_at).filter(|definition| definition.is_object()).cloned()
+        .ok_or_else(|| format!("no definition of {recipe} was read: its reader answered nothing at {definition_at} (is there a row for {recipe}?)"))?;
+    let version = reader["version_at"].as_str().and_then(|path| at_path(answer, path)).cloned().unwrap_or(Value::Null);
+    let pin = json!({ "blake3": blake3::hash(definition.to_string().as_bytes()).to_hex().to_string(), "version": version });
+    let may_move = run.get("definition_may_move") == Some(&Value::Bool(true));
+    let answers = run.entry("answers").or_insert_with(|| json!({}));
+    let held = answers.get(step).filter(|held| held.get("blake3").is_some()).cloned();
+    match held {
+        Some(held) if held["blake3"] != pin["blake3"] && !may_move => Err(format!(
+            "the workflow's definition changed while it ran (recipe {recipe}): it started on {} (version {}) and reads {} (version {}) now",
+            held["blake3"].as_str().unwrap_or_default(), held["version"], pin["blake3"].as_str().unwrap_or_default(), pin["version"])),
+        _ => { answers[step] = pin; Ok(definition) }
+    }
+}
 
 struct Held { run: String, answers: BTreeMap<String, Value>, refused: BTreeMap<String, String>, waiting: Mutex<Vec<Value>>, told: Mutex<Vec<(String, Value, Value)>>,
     /// The run's own input, which an ask's words are filled from after the ask's own input (`fill_ask_words`).
@@ -193,6 +281,12 @@ fn the_run(given: &Value) -> (Map<String, Value>, BTreeMap<String, String>) {
         if let Some(Value::Object(kept)) = run.get("refused") {
             for (step, why) in kept { refused.insert(step.clone(), why.as_str().unwrap_or_default().to_string()); }
         }
+        // The reader's answer (the definition, of any size) is for this pass alone: never held, never carried, never
+        // counted against the bound; only the pin it makes is held (`pinned_definition`).
+        if told.get("error").is_none() && reader_step(&run).as_deref() == Some(step.as_str()) {
+            run.insert(READ.into(), told["result"].clone());
+            return (run, refused);
+        }
         match told.get("error") {
             Some(why) => {
                 let said = told["said"].as_str().map(|said| format!(": {said}")).unwrap_or_default();
@@ -224,7 +318,10 @@ fn the_run(given: &Value) -> (Map<String, Value>, BTreeMap<String, String>) {
         // are the run's. Its `input` (the person's own settings for that workflow, from their row's condition) is spread
         // into the workflow's input, and the rest of the fact is the workflow's input as `fact`.
         let mut fact = fact.clone();
-        for field in ["definition", "start_at"] {
+        // A fact that starts a run by its recipe (`recipe`) may say who started it (`started_by`): the run keeps it, and
+        // every step it hands out says it, so whoever answers can check the holder. A router's fact names none, and the
+        // run then has none (never the account in its place).
+        for field in ["definition", "start_at", "recipe", "started_by"] {
             if let Some(value) = fact.remove(field) {
                 run.entry(field.to_string()).or_insert(value);
             }
@@ -284,7 +381,36 @@ fn main() {
     std::io::stdin().read_to_string(&mut text).unwrap_or_else(|error| fail(error));
     let given: Value = serde_json::from_str(&text).unwrap_or_else(|error| fail(format!("the run is not JSON: {error}")));
     let (mut run, refused) = the_run(&given);
-    let mut all = definitions_of(&run);
+    let mut all = match (carries_definition(&run), recipe_of(&run)) {
+        (false, Some(recipe)) => {
+            let step = reader_step(&run).unwrap_or_else(|| fail(format!(
+                "{recipe} was named with no definition: hand in definition, or read_definition with a recipe")));
+            if let Some(why) = refused.get(&step) { fail(format!("the definition of {recipe} was not read: {why}")); }
+            // A caller that read it itself hands the reader's answer as the step's answer; it is used, never held.
+            let given_read = run.get("answers").and_then(|answers| answers.get(&step))
+                .filter(|answer| answer.get("blake3").is_none()).cloned();
+            if given_read.is_some() { run["answers"].as_object_mut().unwrap().remove(&step); }
+            match run.remove(READ).or(given_read) {
+                Some(answer) => with_used(pinned_definition(&mut run, &recipe, &step, &answer).unwrap_or_else(|why| fail(why))),
+                None => {
+                    // Nothing walks until the definition is read: the reader is the one step handed out this pass.
+                    let reader = run["read_definition"].clone();
+                    let tool = reader["tool"].as_str().unwrap_or_default().to_string();
+                    let run_id = run.get("run").and_then(Value::as_str).unwrap_or("run").to_string();
+                    let told = json!({ "source": ANSWERED, "event_id": format!("{run_id}:{step}"),
+                        "payload": { "workflow": recipe, "run": run, "step": step, "for": tool } });
+                    let waiting = json!({ "step": step, "for": tool, "asks": reader_ask(&reader, &recipe) });
+                    let effect = effect_of(&waiting, told.clone(), &door_asks(), &recipe);
+                    let mut shown = waiting.clone();
+                    shown["told_as"] = told;
+                    println!("{}", json!({ "result": { "status": "paused", "workflow": recipe, "run": run_id, "steps": {}, "waiting": [shown] },
+                        "wake_effects": [effect] }));
+                    return;
+                }
+            }
+        }
+        _ => definitions_of(&run),
+    };
     if let Some(step) = run.get("start_at").and_then(Value::as_str) { all[0] = started_at_step(all[0].clone(), step); }
     let definitions: Vec<workflow_core::Definition> = all.into_iter()
         .map(|definition| serde_json::from_value(definition).unwrap_or_else(|error| fail(format!("a definition does not decode: {error}")))).collect();
@@ -321,6 +447,9 @@ fn main() {
     // One waiting step is handed out per pass, the first the walk reached. The run is carried in each answer's envelope
     // and kept nowhere else, so two steps handed out together would each come back with the run as it stood before
     // either answered, and the second answer back would lose the first. The next pass hands out the next one.
+    // Who started the run, when its starting fact said so, goes with every step it hands out.
+    let started_by = run.get("started_by").cloned();
+    let waiting: Vec<Value> = waiting.into_iter().map(|mut w| { if let Some(by) = &started_by { w["started_by"] = by.clone(); } w }).collect();
     let mut effects: Vec<Value> = told.into_iter().map(|(_, _, fact)| fact).collect();
     let doors = door_asks();
     effects.extend(waiting.iter().take(1).map(|w| effect_of(w, told_as(&w["step"], &w["for"]), &doors, &id)));
@@ -485,5 +614,105 @@ mod tests {
         let fact = effect_of(&waiting, json!({ "event_id": "k:ask" }), &door_asks(), "give");
         assert_eq!(fact["arrive"]["payload"]["asks"], json!({ "do": "Give ana access ({why})", "sql": "{people}" }));
         assert_eq!(fact["arrive"]["payload"]["unfilled"], json!(["why"]));
+    }
+
+    fn reader() -> Value {
+        json!({ "tool": "tool:reader", "input": { "credential_name": "rows-connection", "sql": "select definition from workflow_recipes where recipe = $1", "params": [] },
+            "recipe_at": "params.0", "definition_at": "rows.0.definition", "version_at": "rows.0.kept_at" })
+    }
+
+    fn one_step(id: &str, ask: &str) -> Value {
+        json!({ "id": id, "name": id, "kind": "workflow", "is_active": true, "version": 1, "edges": [],
+            "steps": [{ "id": "say", "kind": "ask", "config": { "name": ask, "context": { "step_id": "say" }, "input": {} } }] })
+    }
+
+    fn read_answer(definition: Value, kept_at: &str) -> Value { json!({ "rows": [{ "definition": definition, "kept_at": kept_at }] }) }
+
+    // The reader is handed the recipe id where it asks for it, and a listed row's id reads the same way.
+    #[test]
+    fn a_run_named_by_its_recipe_or_listed_row_asks_its_reader_with_that_id() {
+        let asks = reader_ask(&reader(), "workflow:x");
+        assert_eq!(asks["params"], json!(["workflow:x"]));
+        assert_eq!(asks["credential_name"], "rows-connection");
+        let mut by_row = Map::new();
+        by_row.insert("row".into(), json!("workflow:x"));
+        assert_eq!(recipe_of(&by_row).as_deref(), Some("workflow:x"));
+        by_row.insert("read_definition".into(), reader());
+        assert_eq!(reader_step(&by_row).as_deref(), Some(READ_STEP));
+        assert!(!carries_definition(&by_row));
+    }
+
+    // A told reader answer is used for its pass alone: not held, not counted, whatever its size; only its pin is held, and
+    // the run it hands on carries no definition.
+    #[test]
+    fn the_readers_answer_is_never_carried_and_only_its_pin_is_held() {
+        let big = { let mut definition = one_step("workflow:x", "tool:x"); definition["filler"] = json!("x".repeat(700 * 1024)); definition };
+        let run = json!({ "recipe": "workflow:x", "read_definition": reader(), "input": {}, "answers": {} });
+        let given = json!({ "input": {}, "cause": { "key": "k", "detail": { "kind": ANSWERED, "payload": {
+            "workflow": "workflow:x", "run": run, "step": READ_STEP, "for": "tool:reader", "result": read_answer(big.clone(), "2026-11-21") } } }, "context": {} });
+        let (mut run, refused) = the_run(&given);
+        assert!(refused.is_empty(), "{refused:?}");
+        assert!(run["answers"].get(READ_STEP).is_none(), "the answer is not held");
+        let answer = run.remove(READ).expect("the answer is this pass's");
+        let definition = pinned_definition(&mut run, "workflow:x", READ_STEP, &answer).unwrap();
+        assert_eq!(definition, big);
+        let carried = Value::Object(run.clone()).to_string();
+        assert!(carried.len() < 1024, "the run carries the pin, not the definition: {} bytes", carried.len());
+        assert_eq!(run["answers"][READ_STEP]["version"], "2026-11-21");
+        assert_eq!(run["answers"][READ_STEP]["blake3"].as_str().unwrap().len(), 64);
+    }
+
+    // A definition that changed while the run ran fails it in words, unless the run says it may move; the same one again
+    // passes.
+    #[test]
+    fn a_definition_changed_mid_run_fails_the_run_unless_it_may_move() {
+        let mut run = Map::new();
+        run.insert("read_definition".into(), reader());
+        pinned_definition(&mut run, "workflow:x", READ_STEP, &read_answer(one_step("workflow:x", "tool:x"), "v1")).unwrap();
+        assert!(pinned_definition(&mut run, "workflow:x", READ_STEP, &read_answer(one_step("workflow:x", "tool:x"), "v1")).is_ok(), "the same one again");
+        let changed = pinned_definition(&mut run, "workflow:x", READ_STEP, &read_answer(one_step("workflow:x", "tool:y"), "v2")).unwrap_err();
+        assert!(changed.contains("the workflow's definition changed while it ran (recipe workflow:x)"), "{changed}");
+        run.insert("definition_may_move".into(), json!(true));
+        assert!(pinned_definition(&mut run, "workflow:x", READ_STEP, &read_answer(one_step("workflow:x", "tool:y"), "v2")).is_ok());
+        assert_eq!(run["answers"][READ_STEP]["version"], "v2", "the pin moved with it");
+    }
+
+    // A reader that found no row fails the run, naming the recipe.
+    #[test]
+    fn a_missing_row_fails_naming_the_recipe() {
+        let mut run = Map::new();
+        run.insert("read_definition".into(), reader());
+        let missing = pinned_definition(&mut run, "workflow:gone", READ_STEP, &json!({ "rows": [] })).unwrap_err();
+        assert!(missing.contains("no definition of workflow:gone was read") && missing.contains("rows.0.definition"), "{missing}");
+    }
+
+    // The size guard counts the pin and the held answers only: a held step answer is still refused past the bound, with the
+    // reader's pin among the run's answers.
+    #[test]
+    fn the_size_guard_counts_the_pin_not_the_definition() {
+        let mut run = Map::new();
+        run.insert("read_definition".into(), reader());
+        run.insert("recipe".into(), json!("workflow:x"));
+        run.insert("input".into(), json!({ "most_answer_bytes": 1000 }));
+        pinned_definition(&mut run, "workflow:x", READ_STEP, &read_answer(one_step("workflow:x", "tool:x"), "v1")).unwrap();
+        let (held, refused) = the_run(&told_answer(Value::Object(run.clone()), json!({ "text": "y".repeat(300) })));
+        assert!(refused.is_empty() && held["answers"]["fetch"].is_object(), "{refused:?}");
+        let (_, refused) = the_run(&told_answer(Value::Object(run), json!({ "text": "y".repeat(1200) })));
+        assert!(refused["fetch"].contains("at most 1000 bytes"), "{refused:?}");
+    }
+
+    // A fact that starts a run by its recipe says who started it: the run keeps it and every handed-out step says it; a
+    // router's fact names none, and the run has none.
+    #[test]
+    fn who_started_a_run_goes_with_it_and_a_routers_run_has_none() {
+        let fact = |payload: Value| json!({ "input": {}, "cause": { "key": "k", "detail": { "kind": "workflow-chosen-from-rows", "event_id": "e1", "payload": payload } }, "context": {} });
+        let (run, _) = the_run(&fact(json!({ "recipe": "workflow:x", "started_by": "person:ana", "input": { "a": 1 } })));
+        assert_eq!(run["started_by"], "person:ana");
+        assert_eq!(run["recipe"], "workflow:x");
+        assert!(run["input"]["fact"].get("started_by").is_none(), "it is the run's, not the workflow's input");
+        let (routed, _) = the_run(&fact(json!({ "workflow": "workflow:x", "condition": "c" })));
+        assert!(routed.get("started_by").is_none());
+        let waiting = json!({ "step": "ask", "for": "person", "asks": {}, "started_by": "person:ana" });
+        assert_eq!(effect_of(&waiting, json!({ "event_id": "k:ask" }), &door_asks(), "workflow:x")["arrive"]["payload"]["started_by"], "person:ana");
     }
 }
