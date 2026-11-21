@@ -1,0 +1,39 @@
+{
+  "start_here": "Say to your AI: \"Run the tests of the commit that just landed.\" It runs tool:run-the-tests-of-what-landed.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: its findings are calendar_tasks rows in the person's database.",
+  "workflows": [
+    "workflow:run-the-tests-of-what-landed"
+  ],
+  "tools": [
+    "tool:run-the-tests-of-what-landed"
+  ],
+  "instructions": [
+    "1. Keep the checkout of the Rust engine and its module map (read-data/module-map.json) on the computer that runs the tool.",
+    "2. Run the tool with the commit before the landing and the landed commit.",
+    "3. Read the answer: status pass, fail, unknown or not-mapped, and each filter's seconds. A cap-out is unknown, which is not a pass.",
+    "4. Findings for red filters go to the lane named in the commit's Lane trailer. The tool never refuses or reverts a push."
+  ],
+  "worked_examples": [
+    {
+      "title": "Run the module tests of the last landed commit",
+      "ask": "Run the tests of the commit that just landed.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-the-tests-of-what-landed",
+            "input": {
+              "since": "<the commit before the landing>",
+              "commit": "<the landed commit>"
+            }
+          }
+        }
+      },
+      "given": "A landed commit C whose parent is P, and a module map with the Rust engine checkout named in read-data/module-map.json.",
+      "hands_back": "{\"status\":\"pass\",\"commit\":\"<short C>\",\"since\":\"<short P>\",\"unmapped\":[],\"results\":[{\"key\":\"<module filter>\",\"status\":\"pass\",\"seconds\":<n>,\"failed\":[]}]}"
+    }
+  ]
+}

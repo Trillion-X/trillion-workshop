@@ -1,0 +1,19 @@
+{
+  "repo": "~/dev/trillion-rust",
+  "source_root": "src/",
+  "drop_last_segments": [
+    "mod",
+    "lib"
+  ],
+  "test_root": "tests/",
+  "skip_paths": [
+    "src/main.rs",
+    "src/lib.rs"
+  ],
+  "cargo_target": "~/dev/trillion-rust/target",
+  "cap_seconds": 1200,
+  "jobs": 4,
+  "rule": "src/a/b.rs -> cargo test --lib a::b (mod.rs and lib.rs drop their last segment); tests/x.rs -> cargo test --test x; any other .rs path is listed as unmapped",
+  "job": "rust-post-land-tests",
+  "export_folder": "~/.local/state/run-the-tests-of-what-landed"
+}

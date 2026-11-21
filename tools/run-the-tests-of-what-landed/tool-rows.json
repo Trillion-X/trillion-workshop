@@ -1,0 +1,38 @@
+{
+  "kind": "package-set-records",
+  "record_set": "run-the-tests-of-what-landed-tool-rows",
+  "what_this_is": "The row that runs the module tests of a commit of the Rust engine repository after it lands, on the person's own computer. It never refuses or reverts a push: it writes one calendar finding per failing test filter, names the commit and its lane, and closes the finding when the filter passes again.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:run-the-tests-of-what-landed",
+        "label": "Run the tests of what landed on the Rust engine",
+        "job": "After a commit of the Rust engine lands, run the test filters of the modules it changed and open or close a finding",
+        "status": "active",
+        "description": "Takes since (the commit before the landing) and commit (the landed commit). Maps each changed .rs path to its cargo test filter (read-data/module-map.json, DATA), runs each filter on an export of the commit with a time cap, and writes findings: red filters open a calendar finding assigned to the lane named in the commit's Lane trailer, and a finding closes when its filter passes. A cap-out is unknown, never a pass. Never refuses a push.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["since", "commit", "cli", "database"],
+          "properties": {
+            "since": {"type": "string", "minLength": 7, "description": "The commit before the landing."},
+            "commit": {"type": "string", "minLength": 7, "description": "The landed commit."},
+            "cli": {"type": "string", "minLength": 1, "description": "The command the calling site uses to call its own tools (its path on the computer)."},
+            "database": {"type": "string", "minLength": 1, "description": "The name of the database the findings are written to."}
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "needs": ["python3", "git", "cargo (Rust toolchain)", "a checkout of the Rust engine repository named in read-data/module-map.json"],
+          "run": "python3 trillion-workshop/tools/run-the-tests-of-what-landed/do-work/run_the_tests.py {since} {commit} {cli} {database}",
+          "say": "Runs on the person's computer, never on the hosted service. Run it with the two commits, then tell the person each filter's status and any finding it opened or closed."
+        },
+        "maker": "maker:trillion-workshop",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    }
+  ]
+}
