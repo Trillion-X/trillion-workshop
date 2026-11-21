@@ -2,7 +2,8 @@
 //
 // PURPOSE
 //   The one ready mark for every pane. The shell sets two attributes on the pane (its container element):
-//   `data-screen-ready` once the pane has drawn something a person can read, and `data-screen-state` saying what:
+//   `data-screen-ready` once the pane has drawn something a person can read, and `data-pane-state` saying what
+//   (not `data-screen-state`: the shared ScreenState part owns that name on its own element):
 //     content  the active screen drew its own words (its panel has text and no state marker)
 //     words    the pane shows a words-state (empty, unavailable): the screen says why it has nothing
 //     failure  the pane shows a failure (the arrangement or a screen could not be shown)
@@ -40,7 +41,7 @@ export function paneReadyState(pane: HTMLElement): ScreenReadyState | null {
   return null;
 }
 
-/** Keeps `data-screen-ready` and `data-screen-state` on `pane` in step with what it draws. Returns the call that stops it. */
+/** Keeps `data-screen-ready` and `data-pane-state` on `pane` in step with what it draws. Returns the call that stops it. */
 export function watchScreenReady(pane: HTMLElement | null): () => void {
   if (!pane) return () => {};
   let frame: number | null = null;
@@ -49,10 +50,10 @@ export function watchScreenReady(pane: HTMLElement | null): () => void {
     const state = paneReadyState(pane);
     if (state) {
       pane.setAttribute('data-screen-ready', '');
-      pane.setAttribute('data-screen-state', state);
+      pane.setAttribute('data-pane-state', state);
     } else {
       pane.removeAttribute('data-screen-ready');
-      pane.removeAttribute('data-screen-state');
+      pane.removeAttribute('data-pane-state');
     }
   };
   const later = () => { if (frame === null) frame = requestAnimationFrame(update); };
@@ -63,6 +64,6 @@ export function watchScreenReady(pane: HTMLElement | null): () => void {
     observer.disconnect();
     if (frame !== null) cancelAnimationFrame(frame);
     pane.removeAttribute('data-screen-ready');
-    pane.removeAttribute('data-screen-state');
+    pane.removeAttribute('data-pane-state');
   };
 }

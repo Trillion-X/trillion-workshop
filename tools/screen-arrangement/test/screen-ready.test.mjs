@@ -1,6 +1,6 @@
 // tools/screen-arrangement/test/screen-ready.test.mjs
 //
-// The pane's one ready mark: `data-screen-ready` and `data-screen-state` are set on a pane that draws content, words or
+// The pane's one ready mark: `data-screen-ready` and `data-pane-state` are set on a pane that draws content, words or
 // a failure, and never while it only loads or when only its tab bar has words. Runs the real screen-ready.ts in Chromium.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -56,13 +56,13 @@ test('the marks follow what is drawn, and go when the content goes', async () =>
     const stop = window.__ready.watchScreenReady(pane);
     const frame = () => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done)));
     await frame();
-    const loading = [pane.getAttribute('data-screen-ready'), pane.getAttribute('data-screen-state')];
+    const loading = [pane.getAttribute('data-screen-ready'), pane.getAttribute('data-pane-state')];
     pane.querySelector('[data-screen-state]').replaceWith(Object.assign(document.createElement('p'), { textContent: 'Your list' }));
     await frame();
-    const drawn = [pane.getAttribute('data-screen-ready'), pane.getAttribute('data-screen-state')];
+    const drawn = [pane.getAttribute('data-screen-ready'), pane.getAttribute('data-pane-state')];
     pane.querySelector('p').textContent = '';
     await frame();
-    const cleared = [pane.getAttribute('data-screen-ready'), pane.getAttribute('data-screen-state')];
+    const cleared = [pane.getAttribute('data-screen-ready'), pane.getAttribute('data-pane-state')];
     stop();
     return { loading, drawn, cleared };
   });
