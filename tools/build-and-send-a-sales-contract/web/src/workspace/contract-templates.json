@@ -5,7 +5,7 @@
       "id": "private-deal",
       "name": "Private deal",
       "subject": "Your offer, {name}",
-      "body": "Hi {name},\n\nHere is what we discussed: {offer}.\n\n{lines}\n\nTotal: {total}\n\nRead it, sign it and see the price here: {link}\nPayment: {payment}\n\n{signature}"
+      "body": "Hi {name},\n\nHere is what we discussed: {offer}.\n\n{lines}\n\nTotal: {total}\n\nRead it, sign it and see the price here: {link}\n\nPayment: {payment}\n\n{signature}"
     }
   ]
 }
