@@ -1,0 +1,57 @@
+{
+  "drafted_from": "tool:pull-a-page-in-arc's row in tools/read-a-page-in-arc/tool-rows.json, pull-a-page-in-arc.mjs, arc-tab.mjs, page-scripts.mjs, pull-settings.json and test/pull-a-page-in-arc.test.mjs",
+  "start_here": "Say to your AI: \"Pull https://example.com/ from Arc with its links.\" It opens the page in the browser you are signed in to, scrolls it to its end, and answers its whole text and its links.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: each run answers one page, and a saved file goes to a folder the settings name.",
+  "workflows": [],
+  "tools": [
+    "tool:pull-a-page-in-arc"
+  ],
+  "instructions": [
+    "1. Give one page address (http or https). Add links true to get its links, follow to read linked pages (same_site_only and most_pages, optionally match), or save to write one file the page exposes into a folder inside the save root.",
+    "2. Say to your AI: \"Pull this Notion page with its scroll pane .notion-scroller.\" It calls tool:pull-a-page-in-arc with the address and the selector.",
+    "3. Read the answer: title, address, text, truncated (true when the text was cut at its bound), scroll (how the scroll stopped), and links, follow or file when you asked for them. An answer with error says why nothing was read: a bad address, a folder outside the save root, or Arc not answering."
+  ],
+  "worked_examples": [
+    {
+      "title": "Pull a Notion page's whole text",
+      "ask": "Pull the Notion page with its scroll pane.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:pull-a-page-in-arc",
+            "input": {
+              "url": "https://example.notion.site/Creative-Library-example",
+              "scroll_selector": ".notion-scroller"
+            }
+          }
+        }
+      },
+      "given": "A Notion page whose list is drawn in a scroll pane: the page's own text is only the header before scrolling.",
+      "hands_back": "The title, the whole text (the pane is read from its top to its end, so the rows scrolled out of view are kept), truncated false, and scroll with stopped_by stable."
+    },
+    {
+      "title": "Save a signed-in Google Doc as text",
+      "ask": "Save my Google Doc as text.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:pull-a-page-in-arc",
+            "input": {
+              "url": "https://docs.google.com/document/d/DOC_ID/edit",
+              "save": { "folder": "~/Library/Application Support/pulled-pages-in-arc/docs", "format": "txt" }
+            }
+          }
+        }
+      },
+      "given": "A Google Doc the person can open in Arc.",
+      "hands_back": "file with name <BLAKE3>.txt, its path, its bytes, its blake3 and from_url (the page's own HTML rendition the text came from)."
+    }
+  ]
+}

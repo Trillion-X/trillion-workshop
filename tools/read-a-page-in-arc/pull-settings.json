@@ -1,0 +1,41 @@
+{
+  "_what": "The bounds of tool:pull-a-page-in-arc, in one place. Every limit the pull enforces is a number here: how long to wait for a page, how far and how long to scroll it, how much text, how many links, how many linked pages and how long the follow may run, and where a saved file may go. A value is a whole number of the unit its name says (ms, seconds, characters, bytes, steps, pages) unless it is a list or a path.",
+  "wait": {
+    "most_seconds": 60,
+    "poll_ms": 1000,
+    "settle_ms": 1500,
+    "call_timeout_ms": 20000
+  },
+  "scroll": {
+    "most_steps": 200,
+    "pause_ms": 800,
+    "stable_rounds": 3,
+    "most_seconds": 240
+  },
+  "text": {
+    "most_chars": 2000000,
+    "chunk_chars": 50000
+  },
+  "links": {
+    "most_links": 2000,
+    "most_text_chars": 200
+  },
+  "follow": {
+    "most_pages_limit": 30,
+    "most_run_seconds": 480,
+    "most_total_text_chars": 10000000,
+    "most_match_chars": 200
+  },
+  "save": {
+    "root": "~/Library/Application Support/pulled-pages-in-arc",
+    "most_bytes": 100000000,
+    "most_download_seconds": 300,
+    "poll_ms": 500,
+    "chunk_chars": 200000,
+    "export_formats": {
+      "document": ["txt", "html"],
+      "spreadsheet": ["csv", "tsv", "xlsx", "ods", "pdf"],
+      "presentation": ["pdf", "pptx"]
+    }
+  }
+}

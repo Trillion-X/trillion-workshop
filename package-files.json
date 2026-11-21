@@ -7233,6 +7233,7 @@
  "tool:check-a-rendered-video": [],
  "tool:check-a-sign-up": [],
  "tool:check-a-sound-effect-palette": [],
+ "tool:check-a-spoken-line-reads-back": [],
  "tool:check-a-stage-move": [
   {
    "package": "move-records-through-declared-states",
@@ -37485,6 +37486,24 @@
    "at": "/opt/records-door"
   }
  ],
+ "tool:pull-a-page-in-arc": [
+  {
+   "package": "read-a-page-in-arc",
+   "paths": [
+    "pull-a-page-in-arc.mjs",
+    "arc-tab.mjs",
+    "page-scripts.mjs",
+    "pull-settings.json"
+   ],
+   "at": "/opt/read-a-page-in-arc"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:pull-a-time-window-from-a-stored-camera-file": [
   {
    "package": "pull-a-time-window-from-a-stored-camera-file",
@@ -39311,6 +39330,17 @@
    "at": "/opt/node_modules/@noble/hashes"
   }
  ],
+ "tool:read-a-message-attachment-on-this-mac": [
+  {
+   "package": "read-a-message-attachment-on-this-mac",
+   "paths": [
+    "do-work/read-a-message-attachment.mjs",
+    "read-data/attachment-read.mjs",
+    "read-data/words.json"
+   ],
+   "at": "/opt/read-a-message-attachment-on-this-mac"
+  }
+ ],
  "tool:read-a-method": [
   {
    "package": "decide-with-a-method",
@@ -39533,6 +39563,15 @@
     "do-work/read-a-page-in-a-scriptable-browser.mjs"
    ],
    "at": "/opt/run-tools-in-my-signed-in-browser"
+  }
+ ],
+ "tool:read-a-page-in-arc": [
+  {
+   "package": "read-a-page-in-arc",
+   "paths": [
+    "read-a-page-in-arc.mjs"
+   ],
+   "at": "/opt/read-a-page-in-arc"
   }
  ],
  "tool:read-a-page-in-my-browser": [
@@ -63159,17 +63198,5 @@
  ],
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:your-files": [],
- "tool:your-files-names": [],
- "tool:check-a-spoken-line-reads-back": [],
- "tool:read-a-message-attachment-on-this-mac": [
-  {
-   "package": "read-a-message-attachment-on-this-mac",
-   "paths": [
-    "do-work/read-a-message-attachment.mjs",
-    "read-data/attachment-read.mjs",
-    "read-data/words.json"
-   ],
-   "at": "/opt/read-a-message-attachment-on-this-mac"
-  }
- ]
+ "tool:your-files-names": []
 }
