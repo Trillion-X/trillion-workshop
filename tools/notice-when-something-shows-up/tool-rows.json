@@ -1687,7 +1687,7 @@
           "argv": [
             "node",
             "--no-warnings",
-            "/opt/notice-when-something-shows-up/do-work/read-a-page-of-messages.mjs"
+            "do-work/read-a-page-of-messages.mjs"
           ],
           "stdin": {
             "fill": {
