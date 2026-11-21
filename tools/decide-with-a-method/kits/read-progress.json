@@ -1,0 +1,50 @@
+{
+  "drafted_from": "tool:read-a-decisions-worked-steps's kit and tool:read-a-method's row shape; written with the Progress port (read-data/progress-facts.mjs); read it before relying on it",
+  "start_here": "Say to your AI: \"Show my Progress: what is waiting for my answer and what I am working toward\", with the account's screen. It runs tool:read-progress and answers the facts the Progress screen draws.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes the account's screen as the caller reads it and keeps nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:read-progress"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Show my Progress: what is waiting for my answer and what I am working toward\", and give it the account's screen.",
+    "2. The AI calls tool:read-progress with origin, screen and sections_after.",
+    "3. Read what it answers: the waiting decisions, the pursuit tree, the invitation and the allowance line."
+  ],
+  "worked_examples": [
+    {
+      "title": "Progress on a free plan",
+      "ask": "Show my Progress: what is waiting for my answer and what I am working toward",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-progress",
+            "input": {
+              "origin": {
+                "offer": "A made-up plan",
+                "price": "0",
+                "url": "https://example.com"
+              },
+              "screen": {
+                "free": true,
+                "price_arm": "pro",
+                "allowance": {
+                  "count": 3,
+                  "per": "month",
+                  "used": 1
+                },
+                "space_pursuits": []
+              }
+            }
+          }
+        }
+      },
+      "given": "The account's screen on the free plan: 3 free decisions a month, 1 used, and no space pursuits.",
+      "hands_back": "It answered the Progress facts: {\"free\": true, \"kind\": \"progress\", \"keeps\": \"Nothing from this decision is kept on the free plan. A made-up plan, 0, keeps your decisions and what you are working toward, so each one builds on the last: https://example.com\", \"lead\": \"Your decisions are not kept on the free plan, so there is nothing to list here. 2 of 3 free decisions left this month.\", \"space_pursuits\": []}."
+    }
+  ]
+}

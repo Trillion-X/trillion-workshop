@@ -54,7 +54,11 @@
       "week": "week"
     }
   },
+  "pursuits": {
+    "screen_invite": "Nothing yet. Every decision is weighed against what you are working toward and what it changes beyond you: tell your AI, and it adds it here."
+  },
   "free": {
+    "screen": "Your decisions are not kept on the free plan, so there is nothing to list here.",
     "keeps": "Nothing from this decision is kept on the free plan. {offer}, {price}, keeps your decisions and what you are working toward, so each one builds on the last: {url}",
     "withheld": "This is part of {offer} ({price}), not the free plan: {feature}. The free plan is {count} decisions a {per} and nothing else. {offer} adds: {adds}. Upgrade here: {url}",
     "paid_worth": "It keeps every decision and what you are working toward, so nothing is lost between chats or when a long conversation is shortened, and every AI you use (Claude, ChatGPT, Grok, Gemini, Muse or any other that connects) reads the same account. It also shows how other people's similar decisions turned out, and your AI can run the tools in the Marketplace for you."

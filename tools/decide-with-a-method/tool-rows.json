@@ -941,7 +941,6 @@
           "credential_mounts": [
             {
               "secret_name_from_database": "database",
-              "held_suffix": "-connection",
               "fd": 4,
               "only_when": {
                 "input": "database",
@@ -2038,7 +2037,6 @@
           "credential_mounts": [
             {
               "secret_name_from_database": "database",
-              "held_suffix": "-connection",
               "fd": 4,
               "only_when": {
                 "input": "database",
@@ -2970,7 +2968,6 @@
           "credential_mounts": [
             {
               "secret_name_from_database": "database",
-              "held_suffix": "-connection",
               "fd": 4,
               "only_when": {
                 "input": "database",
@@ -3853,7 +3850,6 @@
           "credential_mounts": [
             {
               "secret_name_from_database": "database",
-              "held_suffix": "-connection",
               "fd": 4,
               "only_when": {
                 "input": "database",
@@ -5051,7 +5047,6 @@
           "credential_mounts": [
             {
               "secret_name_from_database": "database",
-              "held_suffix": "-connection",
               "fd": 4,
               "only_when": {
                 "input": "database",
@@ -6261,7 +6256,6 @@
           "credential_mounts": [
             {
               "secret_name_from_database": "database",
-              "held_suffix": "-connection",
               "fd": 4,
               "only_when": {
                 "input": "database",
@@ -7303,7 +7297,6 @@
           "credential_mounts": [
             {
               "secret_name_from_database": "database",
-              "held_suffix": "-connection",
               "fd": 4,
               "only_when": {
                 "input": "database",
@@ -9104,7 +9097,6 @@
           "credential_mounts": [
             {
               "secret_name_from_database": "database",
-              "held_suffix": "-connection",
               "fd": 4,
               "only_when": {
                 "input": "database",
@@ -9821,7 +9813,6 @@
           "credential_mounts": [
             {
               "secret_name_from_database": "database",
-              "held_suffix": "-connection",
               "fd": 4,
               "only_when": {
                 "input": "database",
@@ -12042,7 +12033,6 @@
           "credential_mounts": [
             {
               "secret_name_from_database": "database",
-              "held_suffix": "-connection",
               "fd": 4,
               "only_when": {
                 "input": "database",
@@ -12853,7 +12843,6 @@
           "credential_mounts": [
             {
               "secret_name_from_database": "database",
-              "held_suffix": "-connection",
               "fd": 4,
               "only_when": {
                 "input": "database",
@@ -14748,7 +14737,6 @@
           "credential_mounts": [
             {
               "secret_name_from_database": "database",
-              "held_suffix": "-connection",
               "fd": 4,
               "only_when": {
                 "input": "database",
@@ -15539,6 +15527,134 @@
             },
             "contains": "What is the scope?",
             "output_selector": "$.steps[0].question"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "uses_tools": [],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-progress",
+        "label": "Read Progress: what is waiting for me and what I am working toward",
+        "job": "Show what is waiting for the person's answer, the pursuits they are working toward as the tree they nest into, the pursuits made with others and the free plan's allowance line, from the account's screen the caller reads",
+        "description": "Give origin (where to pay), screen (the account's work screen: summaries, pursuits, pursuits_words, allowance, free, price_arm, space_pursuits) and sections_after (the sections the owners of awareness, decision trends and what helped already built). Returns the Progress facts the screen draws: the waiting decisions with their links, the pursuit tree with each status, the invitation when nothing is recorded, and the free allowance line. Pure: reads nothing, writes nothing.",
+        "status": "active",
+        "result_selector": "$.result",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "screen"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "origin": {
+              "type": "object",
+              "description": "Where to pay: {offer, price, url}, read by the caller from the plan record."
+            },
+            "screen": {
+              "type": "object",
+              "description": "The account's work screen as the caller reads it."
+            },
+            "sections_after": {
+              "type": "array",
+              "description": "The sections the owners of awareness, decision trends and what helped built, passed through as they are.",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "kind",
+            "free"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string"
+            },
+            "free": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/decide-with-a-method",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/decide-with-a-method/read-data/progress-facts.mjs",
+            "progressFacts"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "decide-with-a-method",
+                "paths": [
+                  "read-data/progress-facts.mjs",
+                  "read-data/screen-links.mjs",
+                  "read-data/allowance.mjs",
+                  "read-data/screen-words.json"
+                ],
+                "at": "/opt/decide-with-a-method"
+              },
+              {
+                "package": "keep-goals-and-focus",
+                "paths": [
+                  "read-data/pursuit-hierarchy-view.mjs"
+                ],
+                "at": "/opt/keep-goals-and-focus"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:decide-with-a-method",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "origin": {
+                "offer": "A made-up plan",
+                "price": "0",
+                "url": "https://example.com"
+              },
+              "screen": {
+                "free": true,
+                "price_arm": "pro",
+                "allowance": {
+                  "count": 3,
+                  "per": "month",
+                  "used": 1
+                },
+                "space_pursuits": []
+              }
+            }
           }
         ]
       }
