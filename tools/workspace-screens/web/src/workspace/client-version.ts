@@ -12,8 +12,8 @@
 //      page already kept on the device are left as they are, for the reloaded page to send (quiet-writes.ts).
 //   3. One check at a time, none while the tab is hidden, and nothing after the tab is locked out.
 
-import settings from '../client-version.json' with { type: 'json' };
-import { lockedOut } from '../client-version.mjs';
+import settings from '../../../../lock-out-stale-pages/src/client-version.json' with { type: 'json' };
+import { lockedOut } from '../../../../lock-out-stale-pages/src/client-version.mjs';
 import { mountScreenState } from '../../../../ui/show/screen-state';
 
 let locked = false;
