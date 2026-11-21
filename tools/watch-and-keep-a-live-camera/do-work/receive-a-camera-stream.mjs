@@ -36,7 +36,7 @@ import { accountTools } from '../../receive-files-over-ftp/do-work/tell-the-acco
 import { loadChunking } from '../../browse-and-upload-my-files/do-work/content-chunks.mjs';
 import { bearerControl, namespaceClient } from '../../browse-and-upload-my-files/do-work/namespace-client.mjs';
 import { fetchWithoutCopies } from '../../browse-and-upload-my-files/do-work/send-without-copies.mjs';
-import { endWithTheApp } from '../../../computer/end-with-the-app.mjs';
+import { endWithTheApp } from '../../run-on-a-persons-computer/end-with-the-app.mjs';
 import { piecesSender } from './capabilities/file-pieces-into-the-account.mjs';
 import { appDataFolder } from '../../process-session/do-work/computer-data-folder.mjs';
 
