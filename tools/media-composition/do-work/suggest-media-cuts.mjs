@@ -5,14 +5,24 @@
 // in the answer it kept earlier (`kept`, { algorithm_version, proposals }) and gets back the one to keep (`keep`), so the
 // cache stays per (recording, mode, algorithm version) in the caller's own records.
 //
-//   suggestMediaCuts({ identity, mode, transcript, kept? }) -> { lines, keep: { id, entry } | null, modes }
+//   suggestMediaCuts({ identity, mode, transcript | transcript_file, kept? }) -> { lines, keep: { id, entry } | null, modes }
+// `transcript_file` is the local path of a transcript the hearing tool kept in Files ({ segments: timed words }), placed in
+// the run's folder by the engine from its identity, so a long recording's words never ride in a step's answer.
 import { autoEditLines } from '../read-data/auto-edit.mjs';
 import { suggestionId } from '../read-data/suggestion-stream.mjs';
 import { pathToFileURL } from 'node:url';
-import { realpathSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import stream from '../read-data/suggestion-stream.json' with { type: 'json' };
 
-export async function suggestMediaCuts({ identity, mode, transcript, kept = null }) {
+/** The transcript a kept transcript file holds, as timed words in one segment: { segments: [{ words }] }. */
+export function transcriptOfFile(file) {
+  const kept = JSON.parse(readFileSync(file, 'utf8'));
+  if (!Array.isArray(kept?.segments)) throw new Error('The transcript file has no segments.');
+  return { segments: [{ words: kept.segments }] };
+}
+
+export async function suggestMediaCuts({ identity, mode, transcript = null, transcript_file: transcriptFile = null, kept = null }) {
+  if (!transcript && transcriptFile) transcript = transcriptOfFile(transcriptFile);
   const id = suggestionId({ input: identity, mode });
   let keep = null;
   const cache = { get: () => kept ?? undefined, set: (key, entry) => { keep = { id: key, entry }; } };

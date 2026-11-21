@@ -16,7 +16,10 @@
       "update_hint": "python3 -m pip install -U yt-dlp"
     }
   ],
+  "transcripts": {"_why": "tool:hear-a-recording keeps each whole transcript here and answers only its identity and counts: a step answer is kept in the wake book, bounded at 1 MiB a record, and a 20-minute recording's timed words are about 250 KB (Nov 21 2026, the Mac book at its stop).", "folder": "/transcripts/", "identity_prefix": "1f:", "media_type": "application/json"},
   "words": {
+    "not_placed": "The recording {file} was not handed to this run by its identity, so its transcript cannot be kept by it. Give `file` as the recording's identity (1f: and 64 hex characters).",
+    "not_kept": "The words were heard, but keeping the transcript as {name} in the person's files did not answer its identity.",
     "needs_url": "Send the link to a video or a recording as url.",
     "no_fetcher": "This computer has no program that reads video links (such as yt-dlp), so the words could not be read from {url}.",
     "no_hearing": "{url} has no captions, and no Whisper model was given (model_path), so its sound could not be turned into words.",

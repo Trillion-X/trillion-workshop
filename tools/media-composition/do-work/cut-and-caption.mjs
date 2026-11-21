@@ -27,7 +27,7 @@ import { captionLinesForCut, wordsOf } from '../read-data/caption-lines.ts';
 import { captionAss, resolveCaptionStyle } from '../read-data/caption-styles.mjs';
 import { renderEdl } from './render-an-edit.mjs';
 import { pathToFileURL } from 'node:url';
-import { realpathSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 
 /** The caption style the command names: a style id from read-data/caption-styles.json, a style row of one's own as
  *  JSON (starting from a catalog style named by its `id`), or nothing for the default style. */
@@ -70,6 +70,9 @@ if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.ar
     let transcript = null;
     if (args.get('transcript')) {
       try { transcript = JSON.parse(args.get('transcript')); } catch { throw new Error('The transcript is not JSON.'); }
+    } else if (args.get('transcript-file')) {
+      // A transcript the hearing tool kept in Files, placed in the run's folder by the engine: its timed words.
+      try { transcript = JSON.parse(readFileSync(args.get('transcript-file'), 'utf8')).segments ?? null; } catch { throw new Error('The transcript file is not JSON.'); }
     }
     const style = styleFromArgument(args.get('style'));
     const { width, height, duration } = probeVideo(video);

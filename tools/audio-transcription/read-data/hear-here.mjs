@@ -76,7 +76,8 @@ export async function hearFile(file, given, words = linkSettings().words) {
   const heard = JSON.parse(readFileSync(out, 'utf8'));
   rmSync(out, { force: true });
   const segments = (heard.segments ?? []).map(({ start, end, text }) => ({ start, end, text: String(text ?? '').trim() }));
-  return { text: String(heard.full_text ?? segments.map(segment => segment.text).join(' ')).trim(), segments, language: heard.language || language || null, produced_by: words.heard_by };
+  return { text: String(heard.full_text ?? segments.map(segment => segment.text).join(' ')).trim(), segments, language: heard.language || language || null,
+    duration: Number.isFinite(heard.duration) ? heard.duration : null, produced_by: words.heard_by };
 }
 
 /** The hearing settings of one request; refuses without a model unless a test gives its own hearing. */
@@ -117,6 +118,35 @@ export async function hearARecording(input, host, { hear = hearFile } = {}) {
   } finally {
     rmSync(folder, { recursive: true, force: true });
   }
+}
+
+/** The content identity of a file the engine placed: its folder is the identity's hex (trillion-rust input_files.rs puts a
+ *  file at `<run folder>/<folder>/<identity hex>/<name>`), and a placed file is a person's file by its BLAKE3 identity (1f:). */
+export function placedIdentity(file, prefix) {
+  const hex = path.basename(path.dirname(String(file ?? '')));
+  return /^[0-9a-f]{64}$/.test(hex) ? `${prefix}${hex}` : null;
+}
+
+/**
+ * tool:hear-a-recording: { file, model_path, ... } -> { identity, transcript, transcript_name, segments, duration, language,
+ * heard_whole, produced_by }: hears the recording the engine placed (hearARecording) and keeps the whole transcript in the
+ * person's Files (`transcripts.folder` of hear-a-link.json, one file per recording, named by its identity's hex), through the
+ * run's write-only files right in raw pieces (host.writeLarge), so the answer stays a few hundred bytes whatever the length:
+ * a step answer is kept in the wake book, whose record is bounded (1 MiB; a 20-minute recording's timed words are about
+ * 250 KB). A caller reads the words by `transcript`, an identity at a namespace-file field, which the engine places.
+ */
+export async function hearAndKeepARecording(input, host, { hear = hearFile } = {}) {
+  const settings = linkSettings();
+  const heard = await hearARecording(input, host, { hear });
+  if (input?.keep_transcript === false) return heard;
+  const identity = placedIdentity(input.file, settings.transcripts.identity_prefix);
+  if (!identity) throw said(settings.words.not_placed, { file: input.file }, 400);
+  const name = `${settings.transcripts.folder}${identity.slice(settings.transcripts.identity_prefix.length)}.json`;
+  const bytes = Buffer.from(JSON.stringify({ identity, ...heard }));
+  const kept = await host.writeLarge(name, { size: bytes.length, readAt: async (offset, length) => bytes.subarray(offset, offset + length) }, { mediaType: settings.transcripts.media_type });
+  if (typeof kept?.identity !== 'string') throw said(settings.words.not_kept, { name });
+  return { identity, transcript: kept.identity, transcript_name: name, segments: heard.segments.length, duration: heard.duration,
+    language: heard.language, heard_whole: heard.heard_whole, produced_by: heard.produced_by };
 }
 
 /** The program a fetcher row runs: the one the person gave, else its check program in `search_path`, else on PATH. */

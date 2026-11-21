@@ -2253,6 +2253,11 @@
        ],
        "description": "Timed words for the whole video or for the clip"
       },
+      "transcript_file": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The kept transcript in the person's Files by its identity (1f: and 64 hex), as the hearing tool answers it (`transcript`): the engine places it in the run's folder and its timed words are read there, so no step carries them; used when `transcript` is not given"
+      },
       "transcript_from": {
        "type": "number",
        "minimum": 0,
@@ -2604,6 +2609,13 @@
       "--to",
       {
        "from": "to"
+      },
+      "--transcript-file",
+      {
+       "from": "transcript_file",
+       "otherwise": {
+        "const": ""
+       }
       },
       "--transcript",
       {
@@ -6727,8 +6739,7 @@
      "type": "object",
      "required": [
       "identity",
-      "mode",
-      "transcript"
+      "mode"
      ],
      "additionalProperties": false,
      "properties": {
@@ -6744,6 +6755,11 @@
         "object",
         "null"
        ]
+      },
+      "transcript_file": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The kept transcript in the person's Files by its identity (1f: and 64 hex), as the hearing tool answers it (`transcript`): the engine places it in the run's folder and its timed words are read there, so no step carries them"
       },
       "kept": {
        "type": [

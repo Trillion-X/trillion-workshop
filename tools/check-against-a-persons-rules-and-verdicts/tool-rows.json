@@ -263,6 +263,11 @@
          "text": {
           "type": "string"
          },
+         "text_file": {
+          "type": "string",
+          "format": "namespace-file",
+          "description": "In place of text: a transcript kept in the person's Files by its identity, as the hearing tool answers it (`transcript`); the engine places it in the run's folder and its text is checked"
+         },
          "view": {},
          "kind": {
           "type": "string"

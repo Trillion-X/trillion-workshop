@@ -22,8 +22,10 @@
 // Every mode only reads: what it reads is given, so nothing is kept.
 import { text } from 'node:stream/consumers';
 import { recordsHandedIn } from './records-in-hand.mjs';
+import { unitsWithTextFiles } from './units-from-files.mjs';
 
 const input = JSON.parse((await text(process.stdin)) || '{}');
+if (Array.isArray(input.units)) input.units = unitsWithTextFiles(input.units);
 try {
   if (process.argv[2] === 'check-every-piece-is-covered') {
     const { coverageOfRecords } = await import('./piece-sweep.mjs');
