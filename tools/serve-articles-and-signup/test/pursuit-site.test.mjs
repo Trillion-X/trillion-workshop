@@ -37,3 +37,15 @@ test('a draft answers only with its own preview token', async () => {
   assert.equal(shown.status, 200);
   assert.ok((await shown.text()).includes('Secret words'));
 });
+
+test('a row listed false answers at its address and is left out of the index', async () => {
+  const row = { slug: 'quiet', title: 'Quiet', description: 'd', body_markdown: 'Words', status: 'published', published_at: null, updated_at: '2026-11-21', listed: false };
+  const handler = site({
+    db: async (sql) => (sql.includes('listed IS DISTINCT FROM false') ? [row].filter((item) => item.listed !== false) : sql.includes('WHERE slug') ? [row] : []),
+    draw: { index: (rows) => `index:${rows.map((item) => item.slug).join(',')}`, article: (item) => `article:${item.slug}` },
+  });
+  const answer = await handler.handle(new Request('https://example.test/articles/quiet'));
+  assert.equal(answer.status, 200);
+  assert.equal(await answer.text(), 'article:quiet');
+  assert.equal(await (await handler.handle(new Request('https://example.test/articles'))).text(), 'index:');
+});

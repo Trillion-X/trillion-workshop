@@ -34,7 +34,7 @@ export function bodyHtml(markdown) {
   }).join('\n');
 }
 
-export function createSite({ db, mail, origin, brand, secret, layout, signupText, now = nowIso }) {
+export function createSite({ db, mail, origin, brand, secret, layout, signupText, now = nowIso, draw = null }) {
   if (!secret || secret.length < 32) throw new Error('createSite needs a secret of at least 32 characters (the caller holds it).');
   const keyed = (purpose, value) => createHmac('sha256', secret).update(`${purpose}\n${value}`).digest('base64url');
   const absolute = (path) => new URL(path, origin).toString();
@@ -48,31 +48,37 @@ export function createSite({ db, mail, origin, brand, secret, layout, signupText
     });
   }
 
-  async function publishedRows() {
-    return db(`SELECT slug, title, description, body_markdown, picture, keywords, status, canonical, published_at, updated_at
-      FROM articles WHERE status = 'published' AND (published_at IS NULL OR published_at <= $1) ORDER BY published_at DESC NULLS LAST`, [now()]);
+  function htmlPage(html, status = 200) {
+    return new Response(html, { status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' } });
+  }
+
+  async function listedRows() {
+    return db(`SELECT slug, title, description, body_markdown, picture, keywords, status, canonical, published_at, updated_at, listed, category, image, course_slug, sources, related, short_version, sections
+      FROM articles WHERE status = 'published' AND listed IS DISTINCT FROM false AND (published_at IS NULL OR published_at <= $1) ORDER BY published_at DESC NULLS LAST`, [now()]);
   }
 
   async function articleIndex() {
-    const rows = await publishedRows();
+    const rows = await listedRows();
+    if (draw) return htmlPage(draw.index(rows));
     const items = rows.map((row) => `<li><a href="/articles/${encodeURIComponent(row.slug)}"><strong>${esc(row.title)}</strong></a>
       <p>${esc(row.description)}</p></li>`).join('\n');
     return page({ title: 'Articles', description: 'Articles', body: `<h1>Articles</h1>\n<ul>\n${items}\n</ul>\n${signupBlock('/articles')}` });
   }
 
   async function articlePage(slug, url) {
-    const [row] = await db(`SELECT slug, title, description, body_markdown, picture, keywords, status, canonical, published_at, updated_at
+    const [row] = await db(`SELECT slug, title, description, body_markdown, picture, keywords, status, canonical, published_at, updated_at, listed, category, image, course_slug, sources, related, short_version, sections
       FROM articles WHERE slug = $1`, [slug]);
     if (!row) return page({ title: 'Not found', body: '<h1>Not found</h1>', status: 404 });
     const preview = url.searchParams.get('preview');
     const shown = row.status === 'published' && (!row.published_at || row.published_at <= now());
     if (!shown && preview !== previewToken(slug)) return page({ title: 'Not found', body: '<h1>Not found</h1>', status: 404 });
+    if (draw) return htmlPage(draw.article(row, { preview: !shown }));
     const body = `<article>\n<h1>${esc(row.title)}</h1>\n${bodyHtml(row.body_markdown)}\n</article>\n${signupBlock(`/articles/${slug}`)}`;
     return page({ title: row.title, description: row.description, body });
   }
 
   async function feed() {
-    const rows = await publishedRows();
+    const rows = await listedRows();
     const items = rows.map((row) => `<item><title>${esc(row.title)}</title><link>${esc(absolute(`/articles/${row.slug}`))}</link>
       <guid>${esc(absolute(`/articles/${row.slug}`))}</guid><description>${esc(row.description)}</description>
       <pubDate>${new Date(row.published_at ?? row.updated_at).toUTCString()}</pubDate></item>`).join('\n');
