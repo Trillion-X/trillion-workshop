@@ -8,9 +8,11 @@ Each presentation frame on a board becomes one slide, in story order, drawn by t
 |------|---------|
 | `read-data/group-graph.ts`, `node-ref.ts`, `visual-layer-types.ts` | The graph the board is kept in, which other tools import from here (part.json). |
 | `do-work/make-slides.mjs` | `node do-work/make-slides.mjs <request.json> --out <folder> [--browser <chromium>] [--pdf] [--pictures]`: look values, assets and filled words into the board, then the slides, the document, the PDF and the pictures. |
+| `read-data/words-a-reader-sees.json` | DATA: the rule rows (tools/judge-words rows) every line on a slide is judged by before anything is drawn: no long dash, no small-print hedging, no small label above the title. A request's `words_rules` (the person's own rows) are judged with them. |
 | `tool-rows.json` | `tool:turn-frames-into-slides`, an `on-your-computer` row. |
 | `part.json` | The graph files other tools may import. |
 | `test/board-deck.test.ts` | The deck export's own tests, carried with it. |
+| `test/words-a-reader-sees.test.mjs` | A long dash, an en dash, small-print hedging, a label above the title (whatever it is named) and a person's own rule row each stop the deck; plain words, a hyphen, a caption under a picture and a subtitle below the title are drawn. |
 | `test/make-slides.test.mjs` | A made-up board: story order, frame size, look values, an asset, filled words, stops on a missing value, and (with a Chromium) the PDF and pictures. |
 
 ## How to run it
@@ -51,11 +53,13 @@ Per-reader wording: make a word template from the printed `deck.html` (`html_jso
 
 ## Dependencies
 
-**Depends on:** Node's standard library; `tools/organize-the-sidebar` (the board model, frames, exporter and deck); `tools/headless-browser` (`devtools.mjs`, loaded only for `--pdf` and `--pictures`) and a Chromium.
+**Depends on:** Node's standard library; `tools/judge-words` (`judge`, for the words every slide is judged by); `tools/organize-the-sidebar` (the board model, frames, exporter and deck); `tools/headless-browser` (`devtools.mjs`, loaded only for `--pdf` and `--pictures`) and a Chromium.
 
 **Depended on by:** `tools/workflows/recipes/make-a-brand-book-and-decks.json`.
 
 ## Invariants
+
+- Every line on every chosen slide is judged (`wordFindings`, with `tools/judge-words`) before any slide is drawn; one broken row stops the run with each finding and its slide, so a deck drawn by a workflow and a deck drawn by a lane's own script meet the same rules. A short line set at most 0.8 of the slide's largest words and wholly above them is judged as a label above the title (`slideLines`), by where it sits, not by its name.
 
 - One slide per frame, in the frames' story order; every frame is the same size, and that size is the page.
 - A colour or font written as a variable name is the look's own value, and text shows a look value as `{{--name}}` (a swatch label) so the value is never copied; a name the look lacks stops the run. Nothing here names a colour, a font or a brand.

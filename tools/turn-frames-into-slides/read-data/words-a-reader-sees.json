@@ -1,0 +1,28 @@
+{
+  "about": "The rule rows every slide's words are judged by before a deck is drawn, read by do-work/make-slides.mjs with tools/judge-words. A row is a judge-words rule row; adding a rule is adding a row. A request's own words_rules rows (the person's) are judged too. 'label-above-title' is the kind make-slides gives a short line set smaller than the slide's largest words and placed above them (an eyebrow or kicker); every other line is 'slide-words'.",
+  "why": "Nov 21 2026: a pitch deck for a lead was drawn with this tool by a lane's own script, outside any workflow, so no copy check ran: it shipped a long dash (from a quoted passage), a small label above every title, and small print saying the drafts were 'not launched'. The person refused it. The tool every deck is drawn by now refuses those words itself.",
+  "rules": [
+    {
+      "id": "no-long-dash",
+      "pattern": "[—–]",
+      "count_at_most": 0,
+      "says": "A long dash reads as machine-written.",
+      "suggest": "Use a full stop and two sentences, a comma, or a plain joining word."
+    },
+    {
+      "id": "no-disclaimer",
+      "words": ["not launched", "nothing goes out without you", "not mockups", "not a mockup", "drafts from research", "for illustration only", "illustrative only", "placeholder", "for demo purposes", "sample only", "not real data"],
+      "count_at_most": 0,
+      "says": "Small-print hedging tells the reader the piece is not real.",
+      "suggest": "Show the real thing (a screenshot, a real send to a test address) instead of saying what it is not."
+    },
+    {
+      "id": "no-label-above-title",
+      "kinds": ["label-above-title"],
+      "pattern": "\\S",
+      "count_at_most": 0,
+      "says": "A small label above the title (an eyebrow) makes the reader read twice.",
+      "suggest": "Put what the label says into the title or the first sentence, or drop it."
+    }
+  ]
+}

@@ -21,6 +21,9 @@
 //                  board can hold the pages of several decks; each deck's request names the ones it shows.
 //   words_from?    a filled word template (tool:fill-a-word-template's piece) whose tokens name the board item they
 //                  belong to (record): that item's text becomes the filled words.
+//   words_rules?   the person's own rule rows (tools/judge-words rows, a file or a list), judged with the shipped rows of
+//                  read-data/words-a-reader-sees.json. Every line on a slide is judged before anything is drawn; a line
+//                  that breaks a row stops the run with each finding, so no deck leaves this tool with those words.
 //
 // Writes slides/<NN>.svg, deck.html (pages of the frame size), and with --pdf deck.pdf, with --pictures
 // pages/<NN>.png. Prints one JSON line { slides: [{ order, label, items, svg }], html, pdf?, pictures? }.
@@ -30,6 +33,7 @@ import { pathToFileURL } from 'node:url';
 import { boardToDeck, deckToHtml } from '../../organize-the-sidebar/do-work/board-deck.ts';
 import { exportFillOf } from '../../organize-the-sidebar/do-work/board-svg.ts';
 import { boardFrames, itemsInsideFrame } from '../../organize-the-sidebar/do-work/board-frames.ts';
+import { judge } from '../../judge-words/do-work/judge-words.mjs';
 
 const IMAGE_TYPES = { '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp' };
 const STYLE_KEYS = ['fill', 'stroke', 'strokeWidth', 'cornerRadius', 'opacity', 'textColor'];
@@ -132,6 +136,33 @@ export function slideFillOf(item) {
   return Object.fromEntries(STYLE_KEYS.filter(key => style[key] !== undefined).map(key => [key, style[key]]));
 }
 
+const LABEL_SHARE = 0.8; // a line at most this share of the slide's largest words, above them, is a label
+const LABEL_WORDS = 12;
+
+/** Each line of one slide as the judge reads it: a short line set smaller than the slide's largest words and placed
+ * wholly above them is a label above the title; every other line is slide words. */
+export function slideLines(items, slide) {
+  const sized = items.filter(item => Number.isFinite(item.extra?.fontSize));
+  const largest = sized.reduce((top, item) => (top && top.extra.fontSize >= item.extra.fontSize ? top : item), null);
+  return items.map(item => {
+    const label = largest && item !== largest && Number.isFinite(item.extra?.fontSize)
+      && item.extra.fontSize <= largest.extra.fontSize * LABEL_SHARE && item.y + item.h <= largest.y
+      && item.text.trim().split(/\s+/).length <= LABEL_WORDS;
+    return { id: item.memberId, slide, text: item.text, kind: label ? 'label-above-title' : 'slide-words' };
+  });
+}
+
+/** The findings that stop a deck: every line judged against the shipped rows and the person's own. */
+export function wordFindings(lines, personRules = []) {
+  const shipped = JSON.parse(readFileSync(new URL('../read-data/words-a-reader-sees.json', import.meta.url), 'utf8')).rules;
+  const rules = [...shipped, ...personRules];
+  const result = judge({ rules, items: lines.map(line => ({ text: line.text, kind: line.kind, id: line.id })) });
+  return result.findings.filter(finding => finding.at_most === undefined).map(finding => {
+    const line = lines.find(candidate => candidate.text === finding.text);
+    return { ...finding, slide: line?.slide, item: line?.id };
+  });
+}
+
 async function printDeck(htmlPath, browserPath, page, slideCount, { pdf, pictures }, out) {
   // The browser library is loaded only when a page is printed or pictured: slides alone need no browser.
   const { openBrowser } = await import('../../headless-browser/devtools.mjs');
@@ -182,6 +213,16 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   if (!frames.length) fail('the board has no presentation frames: give a frame extra.presentationFrame.order.');
   const page = { width: frames[0].w, height: frames[0].h };
   for (const frame of frames) if (frame.w !== page.width || frame.h !== page.height) fail(`frame ${frame.memberId} is ${frame.w} x ${frame.h}; every slide is ${page.width} x ${page.height}.`);
+
+  const lines = frames.flatMap((frame, index) => slideLines(itemsInsideFrame(items, frame)
+    .filter(item => typeof item.text === 'string' && item.text.trim()), index + 1));
+  const personRules = request.words_rules ? readJson(base, request.words_rules) : [];
+  if (!Array.isArray(personRules)) fail('words_rules is a list of rule rows (tools/judge-words), or a file of one.');
+  const broken = wordFindings(lines, personRules);
+  if (broken.length) {
+    fail(`the words on ${new Set(broken.map(finding => finding.slide)).size} slide(s) break the reader's rules, so nothing was drawn:\n${broken
+      .map(finding => `  slide ${finding.slide} (${finding.item}) ${finding.rule}: "${finding.text}". ${finding.says} ${finding.suggest ?? ''}`.trimEnd()).join('\n')}`);
+  }
 
   const deck = boardToDeck(items, { padding: 0, fillOf: slideFillOf, fontFamily: lookValue(palette, request.font ?? '--font-primary', 'request.font') });
   const words = frames.flatMap((frame, index) => itemsInsideFrame(items, frame)
