@@ -1,0 +1,6 @@
+{
+  "_what": "How blur-faces-not-agreed finds faces. score: a detection below this is not a face (YuNet's own default is 0.6, too strict for small or far faces in a tall frame). tile and stride: the frame is also searched in tile x tile windows, stride apart, because the detector reads one 640-pixel picture and a face is too small to find in a 886 x 1920 frame scaled to it. A window is searched at its own size, not scaled down.",
+  "score": 0.4,
+  "tile": 640,
+  "stride": 480
+}

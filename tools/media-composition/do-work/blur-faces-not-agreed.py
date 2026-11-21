@@ -41,7 +41,7 @@ ort.set_default_logger_severity(3)
 
 SIDE = 640                       # YuNet 2023mar takes a fixed 640x640 picture
 STRIDES = (8, 16, 32)
-SCORE = 0.6                      # a detection below this is not a face
+DETECTION = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'blur-detection.json')))  # score, tile, stride
 NMS_IOU = 0.3
 KEEP_BLURRED_FRAMES = 6          # frames a face stays blurred after it was last seen
 RECOGNIZE_EVERY = 15             # frames between recognizing the same tracked face again
@@ -58,6 +58,7 @@ class Faces:
     def __init__(self, detector, recognizer):
         self.detector = ort.InferenceSession(detector, providers=['CPUExecutionProvider'])
         self.recognizer = ort.InferenceSession(recognizer, providers=['CPUExecutionProvider'])
+        self.score, self.tile, self.stride = DETECTION['score'], DETECTION['tile'], DETECTION['stride']
         self.grids = {}
         for stride in STRIDES:
             cells = SIDE // stride
@@ -65,7 +66,25 @@ class Faces:
             self.grids[stride] = (cols.astype(np.float32), rows.astype(np.float32))
 
     def find(self, rgb):
-        """Faces in an RGB picture (H, W, 3 uint8): rows of [x1, y1, x2, y2, score, 10 landmark coordinates]."""
+        """Faces in an RGB picture (H, W, 3 uint8): rows of [x1, y1, x2, y2, score, 10 landmark coordinates]. The whole picture
+        is searched, then every tile x tile window of it at its own size, so a small face is found where one scaled picture misses it."""
+        height, width = rgb.shape[:2]
+        found = [self.detect(rgb)]
+        if max(height, width) > self.tile:
+            for top in starts(height, self.tile, self.stride):
+                for left in starts(width, self.tile, self.stride):
+                    part = self.detect(rgb[top:top + self.tile, left:left + self.tile])
+                    part[:, [0, 2] + list(range(5, 15, 2))] += left
+                    part[:, [1, 3] + list(range(6, 15, 2))] += top
+                    found.append(part)
+        faces = np.concatenate(found)
+        if not len(faces):
+            return faces
+        faces = faces[nms(faces[:, :4], faces[:, 4], NMS_IOU)]
+        return faces
+
+    def detect(self, rgb):
+        """Faces in one picture, in its own coordinates (the same rows as find)."""
         height, width = rgb.shape[:2]
         scale = SIDE / max(height, width)
         shown = np.asarray(Image.fromarray(rgb).resize((max(1, round(width * scale)), max(1, round(height * scale))), Image.BILINEAR))
@@ -76,7 +95,7 @@ class Faces:
         for stride in STRIDES:
             cols, rows = self.grids[stride]
             score = np.sqrt(np.clip(out[f'cls_{stride}'][0, :, 0], 0, 1) * np.clip(out[f'obj_{stride}'][0, :, 0], 0, 1))
-            pick = score >= SCORE
+            pick = score >= self.score
             if not pick.any():
                 continue
             box, kps = out[f'bbox_{stride}'][0][pick], out[f'kps_{stride}'][0][pick]
@@ -89,7 +108,6 @@ class Faces:
         if not found:
             return np.zeros((0, 15), dtype=np.float32)
         faces = np.concatenate(found)
-        faces = faces[nms(faces[:, :4], faces[:, 4], NMS_IOU)]
         faces[:, :4] /= scale
         faces[:, 5:] /= scale
         return faces
@@ -103,6 +121,14 @@ class Faces:
         blob = np.asarray(aligned, dtype=np.float32).transpose(2, 0, 1)[None]  # SFace reads RGB, 0..255
         vector = self.recognizer.run(None, {'data': blob})[0][0]
         return vector / (np.linalg.norm(vector) or 1.0)
+
+
+def starts(length, size, stride):
+    """Window starts covering 0..length: every stride, and the last window flush with the far edge."""
+    if length <= size:
+        return [0]
+    found = list(range(0, length - size, stride)) + [length - size]
+    return found
 
 
 def nms(boxes, scores, threshold):
@@ -134,6 +160,17 @@ def similarity(source, target):
     scale = np.trace(np.diag(d) @ sign) / s.var(0).sum()
     shift = target_mean - scale * rotation @ source_mean
     return np.column_stack([scale * rotation, shift])
+
+
+def spans_of(times, step):
+    """The times, each one step long, as [start, end] spans with the neighbours joined."""
+    spans = []
+    for at in times:
+        if spans and abs(spans[-1][1] - at) < step / 2:
+            spans[-1][1] = round(at + step, 3)
+        else:
+            spans.append([round(at, 3), round(at + step, 3)])
+    return spans
 
 
 def iou(a, b):
@@ -276,6 +313,10 @@ def main():
     tracks = []  # each: box, kept (agreed), last frame seen, last frame recognized, id
     seen_ids, blurred_ids, kept_ids = set(), set(), set()
     frames, next_id = 0, 0
+    # Spans find-who saw a person unknown in: the whole picture is blurred through them, faces found or not, so a person the
+    # detector misses is never shown. A frame counts as blurred when it has a blurred face or sits in one of these spans.
+    unknown = [(float(first), float(last)) for first, last in asked.get('unknown_spans') or []]
+    blurred_at = []
     while True:
         raw = reader.stdout.read(size)
         if len(raw) < size:
@@ -300,6 +341,12 @@ def main():
             else:
                 blurred_ids.add(track['id'])
                 blur(frame, track['box'])
+        at = frames / fps
+        whole = any(first <= at <= last for first, last in unknown)
+        if whole:
+            blur(frame, [0, 0, width, height])
+        if whole or any(not track['kept'] for track in tracks):
+            blurred_at.append(at)
         writer.stdin.write(frame.tobytes())
         frames += 1
     reader.wait()
@@ -311,6 +358,7 @@ def main():
         'faces': len(seen_ids), 'blurred': len(blurred_ids), 'kept': len(kept_ids - blurred_ids),
         'agreed_faces': int(len(agreed)), 'pictures_without_a_face': without, 'agreed_voices': voices_used,
         'silenced': len(silenced), 'silenced_seconds': round(sum(last - first for first, last in silenced), 2), 'video_bytes': os.path.getsize(out),
+        'blurred_spans': spans_of(blurred_at, 1 / fps), 'unknown_spans': [[first, last] for first, last in unknown],
     }))
 
 

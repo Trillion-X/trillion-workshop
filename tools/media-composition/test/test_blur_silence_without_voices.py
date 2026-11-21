@@ -47,5 +47,19 @@ class SilenceWithoutVoicesTest(unittest.TestCase):
         self.assertEqual((silenced, voices_used), ([], 0))
 
 
+class SpansAndWindowsTest(unittest.TestCase):
+    def test_windows_cover_the_whole_length_with_the_far_edge_flush(self):
+        tool = load_tool()
+        self.assertEqual(tool.starts(600, 640, 480), [0])
+        self.assertEqual(tool.starts(1920, 640, 480), [0, 480, 960, 1280])
+        self.assertEqual(tool.starts(886, 640, 480), [0, 246])
+
+    def test_blurred_times_join_into_spans(self):
+        tool = load_tool()
+        step = 0.5
+        self.assertEqual(tool.spans_of([0.0, 0.5, 1.0, 2.0], step), [[0.0, 1.5], [2.0, 2.5]])
+        self.assertEqual(tool.spans_of([], step), [])
+
+
 if __name__ == '__main__':
     unittest.main()
