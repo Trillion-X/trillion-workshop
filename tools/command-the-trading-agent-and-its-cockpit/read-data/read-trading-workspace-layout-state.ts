@@ -1,5 +1,5 @@
 import type { LayoutState, SplitTreeNode, TabMeta } from '../../screen-arrangement/read-data/layout-types';
-import { normalizeLayoutState } from '../../screen-arrangement/read-data/read-screen-arrangement';
+import { normalizeLayoutState } from '../../arrange-screens-in-panes/read-data/read-screen-arrangement';
 
 const TRADING_WORKSPACE_TILED_ROOT = {
   kind: 'split',
