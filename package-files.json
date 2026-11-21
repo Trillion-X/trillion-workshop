@@ -12308,7 +12308,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "rules/rule-operators.json"
+    "rules/rule-operators.json",
+    "rules/variants.json"
    ],
    "at": "/opt/formula-engine"
   },
@@ -12533,7 +12534,9 @@
   {
    "package": "write-a-job-done-in-several-steps-have",
    "paths": [
-    "read-data/workflows.mjs"
+    "read-data/workflows.mjs",
+    "read-data/variants.mjs",
+    "read-data/variant-results.json"
    ],
    "at": "/opt/write-a-job-done-in-several-steps-have"
   },
@@ -35081,7 +35084,8 @@
    "package": "formula-engine",
    "paths": [
     "built-stored-bytes/formula-engine/formula_engine.js",
-    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
+    "rules/variants.json"
    ],
    "at": "/opt/formula-engine"
   },
@@ -35388,7 +35392,9 @@
   {
    "package": "write-a-job-done-in-several-steps-have",
    "paths": [
-    "read-data/workflows.mjs"
+    "read-data/workflows.mjs",
+    "read-data/variants.mjs",
+    "read-data/variant-results.json"
    ],
    "at": "/opt/write-a-job-done-in-several-steps-have"
   },
@@ -39211,7 +39217,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "rules/rule-operators.json"
+    "rules/rule-operators.json",
+    "rules/variants.json"
    ],
    "at": "/opt/formula-engine"
   },
@@ -39406,7 +39413,9 @@
   {
    "package": "write-a-job-done-in-several-steps-have",
    "paths": [
-    "read-data/workflows.mjs"
+    "read-data/workflows.mjs",
+    "read-data/variants.mjs",
+    "read-data/variant-results.json"
    ],
    "at": "/opt/write-a-job-done-in-several-steps-have"
   },
@@ -40171,7 +40180,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "rules/rule-operators.json"
+    "rules/rule-operators.json",
+    "rules/variants.json"
    ],
    "at": "/opt/formula-engine"
   },
@@ -40381,7 +40391,9 @@
   {
    "package": "write-a-job-done-in-several-steps-have",
    "paths": [
-    "read-data/workflows.mjs"
+    "read-data/workflows.mjs",
+    "read-data/variants.mjs",
+    "read-data/variant-results.json"
    ],
    "at": "/opt/write-a-job-done-in-several-steps-have"
   },
@@ -40946,7 +40958,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "rules/rule-operators.json"
+    "rules/rule-operators.json",
+    "rules/variants.json"
    ],
    "at": "/opt/formula-engine"
   },
@@ -41156,7 +41169,9 @@
   {
    "package": "write-a-job-done-in-several-steps-have",
    "paths": [
-    "read-data/workflows.mjs"
+    "read-data/workflows.mjs",
+    "read-data/variants.mjs",
+    "read-data/variant-results.json"
    ],
    "at": "/opt/write-a-job-done-in-several-steps-have"
   },
@@ -43056,7 +43071,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "rules/rule-operators.json"
+    "rules/rule-operators.json",
+    "rules/variants.json"
    ],
    "at": "/opt/formula-engine"
   },
@@ -43265,7 +43281,9 @@
   {
    "package": "write-a-job-done-in-several-steps-have",
    "paths": [
-    "read-data/workflows.mjs"
+    "read-data/workflows.mjs",
+    "read-data/variants.mjs",
+    "read-data/variant-results.json"
    ],
    "at": "/opt/write-a-job-done-in-several-steps-have"
   },
@@ -48450,7 +48468,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "rules/rule-operators.json"
+    "rules/rule-operators.json",
+    "rules/variants.json"
    ],
    "at": "/opt/formula-engine"
   },
@@ -48677,7 +48696,9 @@
    "package": "write-a-job-done-in-several-steps-have",
    "paths": [
     "read-data/run-a-workflow.mjs",
-    "read-data/workflows.mjs"
+    "read-data/workflows.mjs",
+    "read-data/variants.mjs",
+    "read-data/variant-results.json"
    ],
    "at": "/opt/write-a-job-done-in-several-steps-have"
   },
@@ -53799,7 +53820,8 @@
   {
    "package": "formula-engine",
    "paths": [
-    "rules/rule-operators.json"
+    "rules/rule-operators.json",
+    "rules/variants.json"
    ],
    "at": "/opt/formula-engine"
   },
@@ -54009,7 +54031,9 @@
   {
    "package": "write-a-job-done-in-several-steps-have",
    "paths": [
-    "read-data/workflows.mjs"
+    "read-data/workflows.mjs",
+    "read-data/variants.mjs",
+    "read-data/variant-results.json"
    ],
    "at": "/opt/write-a-job-done-in-several-steps-have"
   },
@@ -54209,7 +54233,8 @@
    "paths": [
     "built-stored-bytes/formula-engine/formula_engine.js",
     "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
-    "rules/rule-operators.json"
+    "rules/rule-operators.json",
+    "rules/variants.json"
    ],
    "at": "/opt/formula-engine"
   },
@@ -54428,7 +54453,9 @@
   {
    "package": "write-a-job-done-in-several-steps-have",
    "paths": [
-    "read-data/workflows.mjs"
+    "read-data/workflows.mjs",
+    "read-data/variants.mjs",
+    "read-data/variant-results.json"
    ],
    "at": "/opt/write-a-job-done-in-several-steps-have"
   },
@@ -62019,30 +62046,30 @@
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:your-files": [],
  "tool:your-files-names": [],
-  "tool:read-progress": [
-    {
-      "package": "decide-with-a-method",
-      "paths": [
-        "read-data/progress-facts.mjs",
-        "read-data/screen-links.mjs",
-        "read-data/allowance.mjs",
-        "read-data/screen-words.json"
-      ],
-      "at": "/opt/decide-with-a-method"
-    },
-    {
-      "package": "keep-goals-and-focus",
-      "paths": [
-        "read-data/pursuit-hierarchy-view.mjs"
-      ],
-      "at": "/opt/keep-goals-and-focus"
-    },
-    {
-      "package": "workflows",
-      "paths": [
-        "do-work/run-a-function.mjs"
-      ],
-      "at": "/opt/workflows"
-    }
-  ]
+ "tool:read-progress": [
+  {
+   "package": "decide-with-a-method",
+   "paths": [
+    "read-data/progress-facts.mjs",
+    "read-data/screen-links.mjs",
+    "read-data/allowance.mjs",
+    "read-data/screen-words.json"
+   ],
+   "at": "/opt/decide-with-a-method"
+  },
+  {
+   "package": "keep-goals-and-focus",
+   "paths": [
+    "read-data/pursuit-hierarchy-view.mjs"
+   ],
+   "at": "/opt/keep-goals-and-focus"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ]
 }

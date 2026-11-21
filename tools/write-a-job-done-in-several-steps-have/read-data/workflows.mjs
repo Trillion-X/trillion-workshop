@@ -40,6 +40,7 @@
 // row that names it, read from the shelf each time, so the graph grows as AIs save variations and is never written twice.
 import { blake3 } from '@noble/hashes/blake3.js';
 import { checkProblems, checkSteps, refusalsOf } from '../../workflows/read-data/check-bindings.mjs';
+import { hasVariants, variantStepProblems, variantSteps } from './variants.mjs';
 
 import { bytesToHex } from '@noble/hashes/utils.js';
 import { schemaProblems } from '../../keep-and-wake-ai-sessions-on-this-computer/src/workshop.mjs';
@@ -103,6 +104,11 @@ export function recipeProblems(recipe) {
     if (!STEP_ID.test(step.id ?? '')) problems.push(`${name}.id must be lowercase letters, numbers, dashes or underscores.`);
     else if (seen.has(step.id)) problems.push(`${name}.id "${step.id}" is used twice.`);
     seen.add(step.id);
+    if (hasVariants(step)) {
+      if (!nonempty(step.do)) problems.push(`${name}.do must say what the step gets done.`);
+      problems.push(...variantStepProblems(step, name, { later: recipe.steps.slice(index + 1).map(after => after?.id), earlier: seen }));
+      return;
+    }
     if (!nonempty(step.do)) problems.push(`${name}.do must say what to do in this step.`);
     if (!(object(step.submit) && step.submit.type === 'object')) problems.push(`${name}.submit must be a JSON Schema with "type": "object" for what the step hands back.`);
     if (step.run_tool !== undefined && !(object(step.run_tool) && /^tool:/.test(step.run_tool.tool_id ?? '') && (step.run_tool.input === undefined || object(step.run_tool.input)))) problems.push(`${name}.run_tool must be { tool_id: "tool:...", input: { field: value, or { "from": path } } }.`);
@@ -110,7 +116,17 @@ export function recipeProblems(recipe) {
     problems.push(...checkProblems(step.checks, name, step.id, seen));
     problems.push(...actorPolicyProblems(step.actor_policy, { name, step_id: step.id, asks: actorAsks, prior: id => id !== step.id && seen.has(id) }));
   });
-  return problems;
+  return problems.length ? problems : unreachedProblems(recipe);
+}
+
+// A step no earlier step leads to would start the run on its own: the steps a `then` passes over are reached by nothing.
+// A recipe whose checks cannot be made into steps yet is refused where it is made into a definition, not here.
+function unreachedProblems(recipe) {
+  let edges;
+  try { ({ edges } = definitionOf(recipe)); } catch { return []; }
+  const entered = new Set(edges.map(edge => edge.to));
+  return recipe.steps.slice(1).filter(step => !entered.has(hasVariants(step) ? `${step.id}#table` : step.id))
+    .map(step => `steps "${step.id}" is reached by no step before it: a then passes over it; name it in that then, or move it.`);
 }
 
 // What is wrong with an engine definition written directly: { steps: [{ id, kind, config }], edges: [{ from, to, kind }] }.
@@ -127,6 +143,7 @@ function definitionProblems(definition) {
     if (step.kind === 'ask' && !named(step.config?.name)) problems.push(`${name}.config.name must say who answers: a tool id, or a binding such as the run's own actor ${JSON.stringify(RUN_ACTOR)}.`);
     if (step.kind === 'ask') problems.push(...pinProblems(step.config?.context?.pinned, `${name}.config.context.pinned`));
     if (step.kind === 'ask' && !toolNamed(step.config?.name) && !(nonempty(step.config.input?.do) && object(step.config.input?.submit) && step.config.input.submit.type === 'object')) problems.push(`${name}.config.input must say what is done (do) and the shape it hands back (submit, a JSON Schema with "type": "object").`);
+    if (step.kind === 'variants') problems.push(...variantStepProblems(step, name, { earlier: ids }));
     if (step.kind === 'check') problems.push(`${name} is a check step, which the engine no longer has: put the rules in a step's \`checks\`, or judge them with a \`return\` step and an \`on_result\` edge to a \`fail\` step.`);
   });
   if (!Array.isArray(definition.edges ?? [])) problems.push('definition.edges must be a list of { from, to, kind }.');
@@ -167,31 +184,59 @@ function bindingsOf(template) {
 // run sees of that step, so the host can name the step and check an answer's shape whoever answers it.
 export function definitionOf(row) {
   const shell = { id: row.id, name: row.label ?? row.id, kind: 'workflow', is_active: true, version: 1 };
+  const uses = [];
+  const use = definitions => uses.push(...definitions.filter(used => !uses.some(known => known.id === used.id)));
   if (row.definition) {
-    return {
-      ...shell, edges: row.definition.edges ?? [],
-      ...(Array.isArray(row.definition.uses) ? { uses: row.definition.uses } : {}),
-      steps: row.definition.steps.map(step => (step.kind === 'ask' ? { ...step, config: { ...step.config, context: { ...(object(step.config.context) ? step.config.context : {}), step_id: step.id } } } : step)),
-    };
+    const written = row.definition.steps.map(step => (step.kind === 'ask' ? { ...step, config: { ...step.config, context: { ...(object(step.config.context) ? step.config.context : {}), step_id: step.id } } } : step));
+    if (!written.some(hasVariants)) return { ...shell, edges: row.definition.edges ?? [], ...(Array.isArray(row.definition.uses) ? { uses: row.definition.uses } : {}), steps: written };
+    // A step of kind "variants" becomes its steps: an edge into it leads to its first, an edge out of it leaves from its
+    // own id (the winner's answer), and its then adds the edges to the steps it names.
+    if (Array.isArray(row.definition.uses)) use(row.definition.uses);
+    const nodes = new Map(written.filter(hasVariants).map(step => [step.id, variantSteps(step, { workflow: row.id, ask: askOf, bindingsOf })]));
+    const first = id => nodes.get(id)?.first ?? id;
+    const steps = written.flatMap(step => nodes.get(step.id)?.steps ?? [step]);
+    const edges = (row.definition.edges ?? []).map(edge => (nodes.has(edge.to) ? { ...edge, to: first(edge.to) } : edge));
+    for (const node of nodes.values()) {
+      edges.push(...node.edges, ...(node.routes ?? []).map(({ to, edge }) => edge(first(to))));
+      use(node.uses);
+    }
+    return { ...shell, steps, edges, ...(uses.length ? { uses } : {}) };
   }
   const steps = [];
   const edges = [];
-  const uses = [];
-  let onwards = null;
+  // An edge-maker waits for the step after it in the list; a step a `then` names is entered only from the step that names it,
+  // and the steps a then map names are alternatives, so whichever ran, the run goes on at the first step after them that
+  // the map does not name.
+  let pending = [];
+  const routed = new Map();
   for (const step of row.steps) {
-    const shown = { step_id: step.id, title: step.title ?? step.id, do: step.do, submit: step.submit, checks: (step.checks ?? []).map(check => check.says), ...(step.actor_policy ? { actor_policy: step.actor_policy } : {}), ...(step.run_tool?.pinned ? { pinned: step.run_tool.pinned } : {}) };
-    steps.push({ id: step.id, kind: 'ask', config: { name: step.run_tool?.tool_id ?? RUN_ACTOR, input: step.run_tool ? bindingsOf(step.run_tool.input ?? {}) : { do: step.do, submit: step.submit, checks: shown.checks }, context: shown } });
-    if (onwards) edges.push(onwards(step.id));
-    onwards = to => ({ from: step.id, to, kind: 'always' });
-    if (step.checks?.length) {
+    const node = hasVariants(step) ? variantSteps(step, { workflow: row.id, ask: askOf, bindingsOf }) : null;
+    const entry = node ? node.first : step.id;
+    steps.push(...(node ? node.steps : [askOf(step)]));
+    if (routed.has(step.id)) edges.push(...routed.get(step.id).map(edge => edge(entry)));
+    else { edges.push(...pending.map(edge => edge(entry))); pending = []; }
+    let onwards = node ? node.onwards : to => ({ from: step.id, to, kind: 'always' });
+    if (node) {
+      edges.push(...node.edges);
+      use(node.uses);
+      for (const { to, edge } of node.routes ?? []) routed.set(to, [...(routed.get(to) ?? []), edge]);
+    } else if (step.checks?.length) {
       const judged = checkSteps(step.id, step.checks);
       steps.push(...judged.steps);
       edges.push(...judged.edges);
-      uses.push(...judged.uses.filter(used => !uses.some(known => known.id === used.id)));
+      use(judged.uses);
       onwards = judged.onwards;
     }
+    if (onwards) pending.push(onwards);
   }
   return { ...shell, steps, edges, ...(uses.length ? { uses } : {}) };
+}
+
+// The ask a recipe step is: of the tool it runs, or of the run's own actor, carrying as its context what a person or AI
+// reading the run sees of the step.
+function askOf(step) {
+  const shown = { step_id: step.id, title: step.title ?? step.id, do: step.do, submit: step.submit, checks: (step.checks ?? []).map(check => check.says), ...(step.actor_policy ? { actor_policy: step.actor_policy } : {}), ...(step.run_tool?.pinned ? { pinned: step.run_tool.pinned } : {}) };
+  return { id: step.id, kind: 'ask', config: { name: step.run_tool?.tool_id ?? RUN_ACTOR, input: step.run_tool ? bindingsOf(step.run_tool.input ?? {}) : { do: step.do, submit: step.submit, checks: shown.checks }, context: shown } };
 }
 
 // The asks of a row in the order they are written: the steps a run shows as done or left.

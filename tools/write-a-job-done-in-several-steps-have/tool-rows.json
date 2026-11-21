@@ -358,6 +358,7 @@
               {
                 "package": "decide-with-a-method",
                 "paths": [
+                  "read-data/decision-outcome.mjs",
                   "read-data/what-helped-words.json"
                 ],
                 "at": "/opt/decide-with-a-method"
@@ -372,7 +373,8 @@
               {
                 "package": "formula-engine",
                 "paths": [
-                  "rules/rule-operators.json"
+                  "rules/rule-operators.json",
+                  "rules/variants.json"
                 ],
                 "at": "/opt/formula-engine"
               },
@@ -404,6 +406,7 @@
                   "src/connecting-without-the-store.mjs",
                   "src/cut-off.mjs",
                   "src/execution-context.mjs",
+                  "src/input-alias-refusal.mjs",
                   "src/live-tool-sources.mjs",
                   "src/maker-payouts.json",
                   "src/maker-payouts.mjs",
@@ -436,6 +439,7 @@
                   "src/work-workshop.mjs",
                   "src/workshop-looks.json",
                   "src/workshop-sample-rules.mjs",
+                  "src/workshop-settings.json",
                   "src/workshop.mjs",
                   "src/workspace/file-previews.json",
                   "src/workspace/first-answers.json",
@@ -610,7 +614,9 @@
                 "package": "write-a-job-done-in-several-steps-have",
                 "paths": [
                   "read-data/run-a-workflow.mjs",
-                  "read-data/workflows.mjs"
+                  "read-data/workflows.mjs",
+                  "read-data/variants.mjs",
+                  "read-data/variant-results.json"
                 ],
                 "at": "/opt/write-a-job-done-in-several-steps-have"
               },
