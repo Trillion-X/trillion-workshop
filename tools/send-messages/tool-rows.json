@@ -203,6 +203,7 @@
             "recipients": { "type": "array", "minItems": 1, "items": { "type": "string" } },
             "to": { "type": "string" },
             "provider": { "type": "string" },
+            "key_name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$", "description": "The vault name of the Resend key the provider resend-keyed sends with (the name the person connected it under); never the key itself" },
             "region": { "type": "string" },
             "kind": { "type": "string" },
             "markdown": { "type": "string" },
@@ -330,6 +331,7 @@
           },
           "credential_mounts": [
             { "secret_name": "resend-api-key", "fd": 4, "only_when": { "input": "provider", "equals": "resend" } },
+            { "secret_name_from_input": "key_name", "fd": 4, "only_when": { "input": "provider", "equals": "resend-keyed" } },
             { "secret_name": "amazon-ses-access-key-id", "fd": 4, "only_when": { "input": "provider", "equals": "amazon-ses" } },
             { "secret_name": "amazon-ses-secret-access-key", "fd": 5, "only_when": { "input": "provider", "equals": "amazon-ses" } }
           ]
@@ -852,7 +854,7 @@
         },
         "invoke": {
           "kind": "computer",
-          "capabilities": ["automate-an-app"],
+          "capabilities": ["use-the-messages-app"],
           "workdir": "/opt/send-messages",
           "stdout": "json",
           "argv": ["node", "/opt/send-messages/do-work/send-a-message.mjs", "messages-on-this-mac"],
@@ -1362,6 +1364,7 @@
             "course": { "type": "object" },
             "source": { "type": "string" },
             "provider": { "type": "string" },
+            "key_name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$", "description": "The vault name of the Resend key the provider resend-keyed sends with (the name the person connected it under); never the key itself" },
             "region": { "type": "string" }
           }
         },
@@ -1461,6 +1464,7 @@
           },
           "credential_mounts": [
             { "secret_name": "resend-api-key", "fd": 4, "only_when": { "input": "provider", "equals": "resend" } },
+            { "secret_name_from_input": "key_name", "fd": 4, "only_when": { "input": "provider", "equals": "resend-keyed" } },
             { "secret_name": "amazon-ses-access-key-id", "fd": 4, "only_when": { "input": "provider", "equals": "amazon-ses" } },
             { "secret_name": "amazon-ses-secret-access-key", "fd": 5, "only_when": { "input": "provider", "equals": "amazon-ses" } }
           ]
@@ -1671,6 +1675,7 @@
             "records": { "type": "array", "items": { "type": "object", "required": ["id", "type"], "properties": { "id": { "type": "string" }, "type": { "type": "string" }, "value": {} } }, "description": "The person's `email-lesson-due`, `email-course-subscription`, `email-course-token` and `contact-point` rows ({ id, type, value }), read from their store; [] when they hold none" },
             "limit": { "type": "integer", "minimum": 1, "maximum": 50 },
             "provider": { "type": "string" },
+            "key_name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$", "description": "The vault name of the Resend key the provider resend-keyed sends with (the name the person connected it under); never the key itself" },
             "region": { "type": "string" }
           }
         },
@@ -1770,6 +1775,7 @@
           },
           "credential_mounts": [
             { "secret_name": "resend-api-key", "fd": 4, "only_when": { "input": "provider", "equals": "resend" } },
+            { "secret_name_from_input": "key_name", "fd": 4, "only_when": { "input": "provider", "equals": "resend-keyed" } },
             { "secret_name": "amazon-ses-access-key-id", "fd": 4, "only_when": { "input": "provider", "equals": "amazon-ses" } },
             { "secret_name": "amazon-ses-secret-access-key", "fd": 5, "only_when": { "input": "provider", "equals": "amazon-ses" } }
           ]

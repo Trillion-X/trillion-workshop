@@ -364,13 +364,25 @@ describe('the keys and the rows', () => {
       }
       const row = rows.find(item => item.id === toolOf[provider.channel]);
       const mounted = row.invoke.credential_mounts.filter(mount => mount.only_when.equals === provider.id);
-      assert.deepEqual(mounted, provider.credentials.map(({ secret_name, fd }) => ({ secret_name, fd, only_when: { input: 'provider', equals: provider.id } })), provider.id);
+      assert.deepEqual(mounted, provider.credentials.map(({ secret_name, secret_name_from_input, fd }) => ({ ...(secret_name ? { secret_name } : { secret_name_from_input }), fd, only_when: { input: 'provider', equals: provider.id } })), provider.id);
       assert.equal(row.invoke.internet, true);
     }
   });
 
   it('a missing key is refused in words before anything runs', async () => {
     await assert.rejects(sendMessage(base, { providerId: 'resend', credentials: {} }), /No resend-api-key was handed to this run/);
+  });
+
+  it('the keyed Resend provider names the key it was given by input, and sends with it', async () => {
+    await assert.rejects(sendMessage(base, { providerId: 'resend-keyed', credentials: {} }), /No key named by key_name was handed to this run/);
+    const { run, requests } = stubbed({ status: 200, body: JSON.stringify({ id: '0b1f7a52-7d1e-4c0a-9a55-5a0f2f6e9d11' }) });
+    const answer = await sendMessage(base, { providerId: 'resend-keyed', credentials: resendKey, run });
+    assert.equal(answer.sent[0].messageId, '0b1f7a52-7d1e-4c0a-9a55-5a0f2f6e9d11');
+    assert.equal(requests().length, 1);
+  });
+
+  it('heldKeys for the keyed Resend provider reads its key from descriptor 4', () => {
+    assert.deepEqual(heldKeys(providerOf('resend-keyed'), descriptor => (descriptor === 4 ? 'test-key-keyed' : '')), { RESEND_API_KEY: 'test-key-keyed' });
   });
 
   it('heldKeys reads each key from its descriptor and a missing one as empty', () => {

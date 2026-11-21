@@ -8,13 +8,14 @@ import assert from 'node:assert/strict';
 import { it } from 'node:test';
 import { providers } from '../do-work/send-a-message.mjs';
 
-const byName = (a, b) => a.secret_name.localeCompare(b.secret_name);
+const nameOf = mount => mount.secret_name ?? mount.secret_name_from_input;
+const byName = (a, b) => nameOf(a).localeCompare(nameOf(b));
 
 /** The mounts the providers of `channel` call for, in a fixed order. */
 export function mountsFor(channel) {
   return providers()
     .filter(provider => provider.channel === channel && provider.kind === 'adapter')
-    .flatMap(provider => provider.credentials.map(({ secret_name, fd }) => ({ secret_name, fd, only_when: { input: 'provider', equals: provider.id } })))
+    .flatMap(provider => provider.credentials.map(({ secret_name, secret_name_from_input, fd }) => ({ ...(secret_name ? { secret_name } : { secret_name_from_input }), fd, only_when: { input: 'provider', equals: provider.id } })))
     .sort(byName);
 }
 
@@ -26,7 +27,7 @@ it('every adapter provider names its keys, and no two providers of a channel sha
     const adapters = providers().filter(provider => provider.channel === channel && provider.kind === 'adapter');
     assert.ok(adapters.length > 0, channel);
     const mounts = mountsFor(channel);
-    assert.equal(new Set(mounts.map(mount => mount.secret_name)).size, mounts.length, `${channel}: a key name is shared`);
+    assert.equal(new Set(mounts.map(nameOf)).size, mounts.length, `${channel}: a key name is shared`);
     assert.equal(new Set(adapters.map(provider => provider.id)).size, adapters.length, `${channel}: an id is shared`);
   }
 });

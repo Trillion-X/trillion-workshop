@@ -161,8 +161,8 @@ export async function sendMessage(request, { providerId, credentials = {}, rows 
   const recipients = recipientsOf(request);
   const message = messageOf(request, provider.channel);
   const settings = settingsOf(provider, request, message);
-  for (const { env, secret_name: name } of provider.credentials) {
-    if (typeof credentials[env] !== 'string' || credentials[env].trim() === '') throw new MessageRejectedError(`No ${name} was handed to this run. Connect the ${provider.label} account first.`);
+  for (const { env, secret_name: name, secret_name_from_input: nameFromInput } of provider.credentials) {
+    if (typeof credentials[env] !== 'string' || credentials[env].trim() === '') throw new MessageRejectedError(`${name ? `No ${name}` : `No key named by ${nameFromInput}`} was handed to this run. Connect the ${provider.label} account first.`);
   }
   const headers = readCustomHeaders(request.headers);
   const secrets = Object.fromEntries(provider.credentials.map(({ env }) => [env, credentials[env].trim()]));

@@ -29,6 +29,19 @@
       ]
     },
     {
+      "id": "resend-keyed",
+      "label": "Resend (the key named in the request)",
+      "channel": "email",
+      "kind": "adapter",
+      "adapter": "send-via-resend.cjs",
+      "settings": [
+        { "env": "EMAIL_FROM", "input": "from" }
+      ],
+      "credentials": [
+        { "env": "RESEND_API_KEY", "secret_name_from_input": "key_name", "fd": 4 }
+      ]
+    },
+    {
       "id": "twilio-sms",
       "label": "Twilio text message",
       "channel": "text",

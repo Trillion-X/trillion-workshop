@@ -13,9 +13,17 @@ const answering = (status, body) => async (address, request) => {
 
 test('the row hands the held key on a private pipe and runs on the person\'s computer', () => {
   assert.equal(row.id, 'tool:list-email-sending-domains');
-  assert.deepEqual(row.invoke.credential_mounts, [{ secret_name: 'resend-api-key', fd: 3 }]);
+  assert.deepEqual(row.invoke.credential_mounts, [{ secret_name_from_input: 'key_name', fd: 3 }]);
   assert.equal(row.invoke.internet, true);
   assert.deepEqual(row.placements, ['placement:your-computer']);
+});
+
+test('every Resend row takes the vault name of its key from the input, never a fixed name', () => {
+  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  for (const each of rows) {
+    assert.ok(each.input_schema.required.includes('key_name'), `${each.id} requires key_name`);
+    assert.ok(!JSON.stringify(each).includes('resend-api-key'), `${each.id} names no fixed key`);
+  }
 });
 
 test('answers domain names, states and the count only, never the key or the raw reply', async () => {
@@ -47,19 +55,19 @@ function assertSendingKeyContract(maker) {
   assert.equal(maker.invoke.url, 'https://api.resend.com/api-keys');
   assert.deepEqual(maker.invoke.body_template.permission, { const: 'sending_access' });
   assert.deepEqual(maker.invoke.credential_injections, [
-    { secret_name: 'resend-api-key', placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' } },
+    { secret_name_from_input: 'key_name', placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' } },
   ]);
   assert.deepEqual(maker.invoke.reply_holds_values, [{ from: 'token', secret_name_from_input: 'keep_as' }]);
-  assert.deepEqual(maker.input_schema.required, ['name', 'keep_as']);
+  assert.deepEqual(maker.input_schema.required, ['key_name', 'name', 'keep_as']);
   assert.ok(new RegExp(maker.input_schema.properties.keep_as.pattern).test('resend-sign-in-proof-key'));
   assert.ok(!new RegExp(maker.input_schema.properties.keep_as.pattern).test('Resend API Key'));
 }
 
 function assertDomainRowsContract(add, read, check) {
-  const header = [{ secret_name: 'resend-api-key', placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' } }];
+  const header = [{ secret_name_from_input: 'key_name', placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' } }];
   assert.deepEqual([add.invoke.kind, add.invoke.method, add.invoke.url], ['http', 'POST', 'https://api.resend.com/domains']);
   assert.deepEqual(add.invoke.credential_injections, header);
-  assert.deepEqual(add.input_schema.required, ['name']);
+  assert.deepEqual(add.input_schema.required, ['key_name', 'name']);
   assert.deepEqual([read.invoke.method, read.invoke.url], ['GET', 'https://api.resend.com/domains/{domain_id}']);
   assert.deepEqual([check.invoke.method, check.invoke.url], ['POST', 'https://api.resend.com/domains/{domain_id}/verify']);
   for (const row of [read, check]) {
@@ -71,10 +79,10 @@ function assertDomainRowsContract(add, read, check) {
 }
 
 function assertKeyRowsContract(list, remove) {
-  const header = [{ secret_name: 'resend-api-key', placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' } }];
+  const header = [{ secret_name_from_input: 'key_name', placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' } }];
   assert.deepEqual([list.invoke.kind, list.invoke.method, list.invoke.url], ['http', 'GET', 'https://api.resend.com/api-keys']);
   assert.deepEqual([remove.invoke.kind, remove.invoke.method, remove.invoke.url], ['http', 'DELETE', 'https://api.resend.com/api-keys/{api_key_id}']);
-  assert.deepEqual(remove.input_schema.required, ['api_key_id']);
+  assert.deepEqual(remove.input_schema.required, ['key_name', 'api_key_id']);
   const id = new RegExp(remove.input_schema.properties.api_key_id.pattern);
   assert.ok(id.test('0f1e2d3c-4b5a-4968-8776-a5b4c3d2e1f0') && !id.test('../domains') && !id.test('a/b'));
   for (const row of [list, remove]) {
