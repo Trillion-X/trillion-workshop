@@ -115,7 +115,8 @@ export function shapeOf(input) {
     // A workflow input that is not given binds null: no tables named, the same as leaving them out.
     const tables = tablesGiven ?? undefined;
     if (!Object.hasOwn(RECIPES, name ?? '')) throw new Error(`recipe.name must be one of ${Object.keys(RECIPES).join(', ')}.`);
-    if (!['create', 'drop'].includes(action)) throw new Error('recipe.action must be create or drop.');
+    if (!['create', 'drop', 'reset'].includes(action)) throw new Error('recipe.action must be create, drop or reset.');
+    if (RECIPES[name][action] === undefined) throw new Error(`The ${name} recipe has no ${action}.`);
     if (role !== undefined && (typeof role !== 'string' || role === '')) throw new Error('recipe.role must be a role name.');
     if (validUntil !== undefined && Number.isNaN(Date.parse(validUntil))) throw new Error('recipe.valid_until must be a time, like 2026-12-01T00:00:00Z.');
     if (limits === null || typeof limits !== 'object' || Array.isArray(limits)) throw new Error('recipe.limits must be an object of limit names and whole numbers.');
@@ -187,7 +188,7 @@ const recipeLogin = (shape, roleConnection) => {
   if (roleConnection) {
     const { role, password } = loginOf(roleConnection);
     if (shape.role !== undefined && shape.role !== role) throw new Error('recipe.role is not the role the held role connection names.');
-    if (shape.action === 'create' && password.length < MIN_PASSWORD_LENGTH) throw new Error(`A standing login's password must be at least ${MIN_PASSWORD_LENGTH} characters, 32 random bytes as base64url or more: make a longer one on the computer that keeps it.`);
+    if (shape.action !== 'drop' && password.length < MIN_PASSWORD_LENGTH) throw new Error(`A standing login's password must be at least ${MIN_PASSWORD_LENGTH} characters, 32 random bytes as base64url or more: make a longer one on the computer that keeps it.`);
     if (shape.validUntil !== undefined) throw new Error('A standing login (role_credential_name) stops only when it is dropped; give no valid_until.');
     return { role, password, validUntil: 'infinity', minted: false };
   }
@@ -195,6 +196,7 @@ const recipeLogin = (shape, roleConnection) => {
     if (shape.role === undefined) throw new Error('A drop needs recipe.role or role_credential_name.');
     return { role: shape.role, password: '', validUntil: 'infinity', minted: false };
   }
+  if (shape.action === 'reset') throw new Error('A reset needs role_credential_name: the new password is the one the held role connection names, which the server reads and never the request.');
   if (shape.validUntil === undefined) throw new Error('A minted login needs recipe.valid_until; a standing one needs role_credential_name.');
   return { role: shape.role ?? `${shape.name.replace(/[^a-z0-9]/g, '_')}_${randomBytes(6).toString('hex')}`, password: randomBytes(32).toString('base64url'), validUntil: shape.validUntil, minted: true };
 };

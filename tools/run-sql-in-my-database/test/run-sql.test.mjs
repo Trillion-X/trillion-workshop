@@ -138,7 +138,7 @@ test('a request that is neither shape, or both, or has no connection, is refused
   assert.throws(() => shapeOf({}), /Give sql/);
   assert.throws(() => shapeOf({ sql: 'SELECT 1', recipe: { name: 'read-only', action: 'create' } }), /Give one of/);
   assert.throws(() => shapeOf({ recipe: { name: 'no-such-recipe', action: 'create' } }), /recipe.name must be one of read-only/);
-  assert.throws(() => shapeOf({ recipe: { name: 'read-only', action: 'alter' } }), /create or drop/);
+  assert.throws(() => shapeOf({ recipe: { name: 'read-only', action: 'alter' } }), /create, drop or reset/);
   assert.throws(() => shapeOf({ recipe: { name: 'read-only', action: 'create', valid_until: 'soon' } }), /must be a time/);
   assert.throws(() => shapeOf({ sql: '  ' }), /statement as text/);
   assert.throws(() => shapeOf({ sql: 'SELECT 1', params: 'x' }), /list of values/);
@@ -360,6 +360,28 @@ test('own-database: the operator makes a login and the database it owns, closed 
   assert.deepEqual((await runSql({ connection: operator, input: { sql: "SELECT pg_has_role('p_example_pursuit', 'SET') AS can_set, pg_has_role('p_example_pursuit', 'USAGE') AS inherits" } })).rows, [{ can_set: false, inherits: false }]);
   await runSql({ connection: operator, roleConnection: pursuit, input: { recipe: { name: 'own-database', action: 'drop' } } });
   assert.deepEqual((await runSql({ connection: operator, input: { sql: "SELECT (SELECT count(*)::int FROM pg_database WHERE datname = 'p_example_pursuit') AS dbs, (SELECT count(*)::int FROM pg_roles WHERE rolname = 'p_example_pursuit') AS roles" } })).rows, [{ dbs: 0, roles: 0 }]);
+});
+
+// The operator that made a pursuit's login is its admin, so it sets a new password from the held role connection: the server
+// reads the new value (descriptor 4), the old one is refused from then on, and a reset takes no valid_until and needs the held value.
+test('own-database reset: the operator that made the login sets its new password, the old one is refused, and a reset needs the held value', async () => {
+  const admin = new pg.Client({ ...ADMIN, database: 'postgres' });
+  await admin.connect();
+  await admin.query("CREATE ROLE p_example_reset_operator LOGIN CREATEROLE CREATEDB PASSWORD 'made-up-reset-operator-pw'");
+  await admin.query('CREATE DATABASE p_example_reset_operator OWNER p_example_reset_operator');
+  await admin.end();
+  const operator = `postgres://p_example_reset_operator:made-up-reset-operator-pw@127.0.0.1:${PORT}/p_example_reset_operator`;
+  const OLD_PW = 'made-up-old-password-of-more-than-forty-three-chars';
+  const NEW_PW = 'made-up-new-password-of-more-than-forty-three-chars';
+  const pursuit = password => `postgres://p_example_reset:${password}@127.0.0.1:${PORT}/p_example_reset`;
+  await runSql({ connection: operator, roleConnection: pursuit(OLD_PW), input: { recipe: { name: 'own-database', action: 'create' } } });
+  await assert.rejects(runSql({ connection: operator, input: { recipe: { name: 'own-database', action: 'reset' } } }), /A reset needs role_credential_name/);
+  await assert.rejects(runSql({ connection: operator, roleConnection: pursuit(NEW_PW), input: { recipe: { name: 'own-database', action: 'reset', valid_until: '2099-01-01T00:00:00Z' } } }), /stops only when it is dropped/);
+  await assert.rejects(runSql({ connection: operator, roleConnection: pursuit(NEW_PW), input: { recipe: { name: 'read-only', action: 'reset' } } }), /The read-only recipe has no reset/);
+  await runSql({ connection: operator, roleConnection: pursuit(NEW_PW), input: { recipe: { name: 'own-database', action: 'reset' } } });
+  await assert.rejects(runSql({ connection: pursuit(OLD_PW), input: { sql: 'SELECT 1' } }), /password authentication failed/);
+  assert.deepEqual((await runSql({ connection: pursuit(NEW_PW), input: { sql: 'SELECT 1 AS one' } })).rows, [{ one: 1 }]);
+  await runSql({ connection: operator, roleConnection: pursuit(NEW_PW), input: { recipe: { name: 'own-database', action: 'drop' } } });
 });
 
 // Per-login limits (role-recipes.json limits rows): set when the login is made, each only when the caller gives a whole number,

@@ -41,6 +41,9 @@
         "RESET ROLE",
         "DROP ROLE %1$I"
       ],
+      "reset": [
+        "ALTER ROLE %1$I PASSWORD %2$L"
+      ],
       "limits": {
         "connection_limit": "ALTER ROLE %1$I CONNECTION LIMIT %6$s",
         "statement_timeout_ms": "ALTER ROLE %1$I SET statement_timeout = %6$s"
