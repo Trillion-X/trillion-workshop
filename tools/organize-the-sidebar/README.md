@@ -2,7 +2,7 @@
 
 The one owner of the sidebar and of the group board.
 
-- The sidebar: the lists of screens and rows a person sees, the rules that fill or hide a list, the colours and places of rows, and the notes an AI leaves on rows (`sidebar/part.json`, `sidebar.mjs`, `show/`, `read-data/`, `do-work/`).
+- The sidebar: the lists of screens and rows a person sees, the rules that fill or hide a list, the colours and places of rows, and the notes an AI leaves on rows (`sidebar/part.json`, `show/`, `read-data/`, `do-work/`).
 - The group board (a pursuit's shared canvas or a person's own): its screen is the `tool:screen-board` offer in `part.json` (`show/board-screen.tsx`); its records, transitions and shared pieces are in `read-data/`, `do-work/` and `show/`, listed in `group/part.json`.
 - The vision-board screen (`packages/vision-board`, `from-bitfield-packages`).
 
