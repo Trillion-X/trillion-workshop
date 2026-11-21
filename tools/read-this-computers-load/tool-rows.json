@@ -1,0 +1,87 @@
+{
+  "kind": "tool-rows",
+  "record_set": "read-this-computers-load-tool-rows",
+  "what_this_is": "The Workshop row for the tool in tools/read-this-computers-load: a read-only load sample on the person's computer.",
+  "records": [
+    {
+      "id": "package::read-this-computers-load::tool::read-this-computers-load",
+      "address": "package::read-this-computers-load::tool::read-this-computers-load",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-this-computers-load",
+        "label": "Read this computer's load",
+        "job": "Sample this computer's 1-minute load, its core count, its memory pressure and the names of the five processes using the most CPU, read-only, and say what it read",
+        "description": "Runs on the person's own computer and reads only: the load average, the core count, the memory pressure's free percentage and the names (no paths, no arguments, no users) of the top five CPU processes. It changes nothing. The recipe workflow:sample-this-computers-load runs it every five minutes and keeps the load as a load_1m row.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "read_at",
+            "host",
+            "cores",
+            "load_1m",
+            "memory_pressure_free_pct",
+            "top_cpu_names"
+          ],
+          "properties": {
+            "read_at": {
+              "type": "string"
+            },
+            "host": {
+              "type": "string"
+            },
+            "cores": {
+              "type": "integer"
+            },
+            "load_1m": {
+              "type": "number"
+            },
+            "memory_pressure_free_pct": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "top_cpu_names": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "result_selector": "$",
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)"
+          ],
+          "run": "python3 -I tools/read-this-computers-load/do-work/read-load.py",
+          "needs": [
+            "macOS (sysctl, memory_pressure, ps, scutil)"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout, with no request. Read the one JSON line it prints as the result. It reads only; it never writes to the computer."
+        },
+        "needs": null,
+        "placements": [
+          "placement:your-computer"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:read-this-computers-load",
+        "provenance": {
+          "source": "the read-only sampler from the memory-measure session (read-mac.sh), reduced to load, cores, memory pressure and top CPU names"
+        },
+        "verify": null
+      }
+    }
+  ]
+}

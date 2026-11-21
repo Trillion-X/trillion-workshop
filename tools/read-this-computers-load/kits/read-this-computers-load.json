@@ -1,0 +1,36 @@
+{
+  "start_here": "Say to your AI: \"Read this computer's load.\" It samples this computer's load, cores, memory pressure and top CPU process names, read-only, and gives back one line. Its workflow workflow:sample-this-computers-load runs it every five minutes.",
+  "lists": [],
+  "no_lists_because": "The samples are kept as computer_readings rows of the person's own database; no list of the person's is needed.",
+  "workflows": [
+    "workflow:sample-this-computers-load"
+  ],
+  "tools": [
+    "tool:read-this-computers-load"
+  ],
+  "instructions": [
+    "1. Run the tool from the Workshop checkout: python3 -I tools/read-this-computers-load/do-work/read-load.py.",
+    "2. Read the one JSON line it prints: load_1m, cores, memory_pressure_free_pct and top_cpu_names.",
+    "3. To keep it every five minutes, switch on the wake of workflow:sample-this-computers-load with credential_name set to your database's vault name."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the load once",
+      "ask": "Run workflow:sample-this-computers-load now",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-this-computers-load",
+            "input": {}
+          }
+        }
+      },
+      "answer": "One JSON line: read_at, host, cores, load_1m, memory_pressure_free_pct and top_cpu_names.",
+      "hands_back": "{\"host\": \"MacBook Pro (3)\", \"cores\": 18, \"load_1m\": 114.73, \"memory_pressure_free_pct\": 73, \"top_cpu_names\": [\"dasd\", \"sysmond\", \"fseventsd\", \"launchd\", \"syspolicyd\"]}"
+    }
+  ],
+  "drafted_from": "tool:read-this-computers-load do-work/read-load.py"
+}

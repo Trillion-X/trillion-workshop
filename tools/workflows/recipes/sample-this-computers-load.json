@@ -1,0 +1,159 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:sample-this-computers-load",
+        "label": "Sample this computer load every five minutes",
+        "job": "Every five minutes, sample this computer's load and memory pressure with tool:read-this-computers-load (read-only) and keep them as load_1m and memory_pressure_free_pct rows in computer_readings. The principle load-stays-under-150-minutes-a-day counts the minutes above 150 from these rows.",
+        "produces": "One load_1m row and one memory_pressure_free_pct row per run, in computer_readings of the person's database.",
+        "source": {
+          "from": "team lead, Nov 21 2026: the load sampler as a tool plus a recipe with a real wake",
+          "note": "Separate from workflow:measure-what-a-computer-can-still-take (the roadmap measurement, Nov 18). Replaces the one-off measure run of 2026-11-19 (no wake, scripts in the memory-measure session)."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "credential_name"
+          ],
+          "properties": {
+            "credential_name": {
+              "type": "string",
+              "pattern": "-connection$",
+              "description": "The person's own database, as the switch's input names it (its vault name)."
+            }
+          }
+        },
+        "fires_when": [],
+        "wakes": [
+          {
+            "id": "every-five-minutes",
+            "on": {
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:sample-this-computers-load:every-five-minutes"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:sample-this-computers-load:every-five-minutes",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "America/Chicago",
+                      "start_local_date": "2026-11-21",
+                      "local_window": {
+                        "start": "00:00",
+                        "duration_minutes": 1440
+                      },
+                      "cadence": {
+                        "unit": "minute",
+                        "interval": 5
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:sample-this-computers-load",
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        },
+                        "owner_dispatch": {
+                          "name": "workflow:sample-this-computers-load",
+                          "input": {}
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "input": {
+              "start_at": "measure"
+            },
+            "budget": {
+              "steps": 3,
+              "wall_ms": 120000
+            }
+          }
+        ],
+        "steps": [
+          {
+            "id": "measure",
+            "kind": "ask",
+            "config": {
+              "name": "tool:read-this-computers-load",
+              "input": {},
+              "context": {
+                "title": "Read this computer's load",
+                "step_id": "measure"
+              }
+            }
+          },
+          {
+            "id": "keep",
+            "kind": "ask",
+            "config": {
+              "name": "tool:run-sql-in-my-database",
+              "input": {
+                "sql": "INSERT INTO computer_readings (computer, read_at, measure, value, of_value, run, how) VALUES ($1, now(), 'load_1m', $2::numeric, $3::numeric, $4, $5), ($1, now(), 'memory_pressure_free_pct', $6::numeric, 100, $4, $5)",
+                "credential_name": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "credential_name"
+                  }
+                },
+                "params": [
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "measure",
+                      "path": "output.result.host"
+                    }
+                  },
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "measure",
+                      "path": "output.result.load_1m"
+                    }
+                  },
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "measure",
+                      "path": "output.result.cores"
+                    }
+                  },
+                  "workflow:sample-this-computers-load",
+                  "tool:read-this-computers-load (read-only, every five minutes)",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "measure",
+                      "path": "output.result.memory_pressure_free_pct"
+                    }
+                  }
+                ]
+              },
+              "context": {
+                "title": "Keep the load and memory pressure as computer readings",
+                "step_id": "keep"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

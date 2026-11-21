@@ -1,0 +1,39 @@
+{
+  "start_here": "Say to your AI: \"Switch on workflow:sample-this-computers-load with credential_name <the vault name of my own account database>.\" It reads this computer's load every five minutes and keeps it as load rows, so the load principle can be measured.",
+  "lists": [],
+  "no_lists_because": "The samples are kept as computer_readings rows of the person's own database; no list of the person's is needed.",
+  "workflows": [
+    "workflow:sample-this-computers-load"
+  ],
+  "tools": [
+    "tool:read-this-computers-load",
+    "tool:run-sql-in-my-database"
+  ],
+  "instructions": [
+    "1. Switch on the five-minute wake of workflow:sample-this-computers-load, with credential_name set to the vault name of your own database.",
+    "2. Each run asks this computer for its load (tool:read-this-computers-load) and writes one load_1m row and one memory_pressure_free_pct row.",
+    "3. Read the rows in computer_readings; the principle load-stays-under-150-minutes-a-day counts minutes above 150 from them, and says unmeasured until a day of samples exists."
+  ],
+  "worked_examples": [
+    {
+      "title": "Sample once now",
+      "ask": "Run workflow:sample-this-computers-load now",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-this-computers-load",
+            "input": {}
+          }
+        }
+      },
+      "answer": "One JSON line: read_at, host, cores, load_1m, memory_pressure_free_pct and top_cpu_names.",
+      "hands_back": "{\"host\": \"MacBook Pro (3)\", \"cores\": 18, \"load_1m\": 114.73, \"memory_pressure_free_pct\": 73, \"top_cpu_names\": [\"dasd\", \"sysmond\", \"fseventsd\", \"launchd\", \"syspolicyd\"]}",
+      "workflow": "workflow:sample-this-computers-load",
+      "step": "measure"
+    }
+  ],
+  "drafted_from": "workflow:sample-this-computers-load steps measure, keep"
+}
