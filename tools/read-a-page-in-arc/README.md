@@ -22,6 +22,12 @@ Two tools live here:
 | `test/pull-a-page-in-arc.test.mjs` | The pull against a fake Arc (no browser): refusals, bounds, chunks, scroll, links, follow, save, the row. |
 | `test/pull-a-page-in-arc.live.test.mjs` | The pull against the real Arc: example.com with its links, the signed-in Google Doc saved as text, and a Notion page before and after scrolling its pane. |
 
+## Reading a page
+
+- Every Arc call names its own tab by window id and tab id (`arc-tab.mjs`). Nothing works on "the active tab", so two reads at once each read their own page. Each answer checks that the tab is on the host that was asked for; a redirect to another host is refused and the tab is closed.
+- A Notion page (`notion.site`, `notion.com`, `notion.so`) is read through the page's own API inside the tab (`loadPageChunk`, then `syncRecordValuesSpace` for children that were not loaded), with no clicks. Toggles and child pages are included in block order; child pages are answered as links. If the API refuses, the page is read by scrolling and `notion_error` says why.
+- A `scroll_selector` that matches nothing falls back to scrolling the window; `scroll.pane_found` says whether the pane was found.
+
 ## Save
 
 - A Google Doc is read from its own HTML page (`/mobilebasic`) with the person's sign-in, and saved as `txt` (the visible text, converted in node) or `html` (the bytes as fetched). Its export address (`/export?format=`) cannot be used from Arc: the fetch fails with "Failed to fetch" for every format, because the export redirects to another origin without CORS headers.
@@ -31,7 +37,7 @@ Two tools live here:
 ## Run
 
 - Unit tests (no browser): `node --test tools/read-a-page-in-arc/test/pull-a-page-in-arc.test.mjs`.
-- Live tests (Arc running and signed in to Google; they open tabs in Arc's front window, so run one at a time): `node --test tools/read-a-page-in-arc/test/pull-a-page-in-arc.live.test.mjs`.
+- Live tests (Arc running and signed in to Google; they open tabs in Arc's front window, so run them when no other read is using Arc): `node --test tools/read-a-page-in-arc/test/pull-a-page-in-arc.live.test.mjs`.
 - The read tool's test: `node --test tools/read-a-page-in-arc/test/read-a-page-in-arc.test.mjs`.
 
 ## Not proven
@@ -39,5 +45,6 @@ Two tools live here:
 - Google Sheet and Slides exports, Drive file downloads and `save.file_url` from other origins are not proven live. The Doc rendition is the only saved Google file proven end to end.
 - Two runs at the same time are not guarded: they share Arc's front window. The row runs one at a time only by the caller's care.
 - The rendition's text is not Google's export: formatting is lost in `txt`, and the page's own structure is what `html` keeps.
-- A page that loads its text only after a click is not read: the tool clicks nothing.
-- Notion pages were read through `scroll_selector` `.notion-scroller` (the pane). A page with another scroll container needs its own selector.
+- A page that loads its text only after a click is not read by the scroll path: the tool clicks nothing. A Notion page is read through its API instead, which needs no click.
+- Two Notion pages given with different hosts but the same page id returned identical text lengths in the live check (14787); whether they are the same page was not checked.
+- A first script call on a heavy page can wait up to `wait.call_timeout_ms` before Arc answers; the readiness check retries until `wait.most_seconds`.

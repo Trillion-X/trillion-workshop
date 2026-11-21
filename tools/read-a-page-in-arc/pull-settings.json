@@ -1,16 +1,23 @@
 {
   "_what": "The bounds of tool:pull-a-page-in-arc, in one place. Every limit the pull enforces is a number here: how long to wait for a page, how far and how long to scroll it, how much text, how many links, how many linked pages and how long the follow may run, and where a saved file may go. A value is a whole number of the unit its name says (ms, seconds, characters, bytes, steps, pages) unless it is a list or a path.",
   "wait": {
-    "most_seconds": 60,
+    "most_seconds": 120,
     "poll_ms": 1000,
     "settle_ms": 1500,
-    "call_timeout_ms": 20000
+    "call_timeout_ms": 25000
   },
   "scroll": {
     "most_steps": 200,
     "pause_ms": 800,
     "stable_rounds": 3,
     "most_seconds": 240
+  },
+  "notion": {
+    "most_blocks": 5000,
+    "most_chunks": 30,
+    "most_rounds": 30,
+    "most_seconds": 120,
+    "poll_ms": 500
   },
   "text": {
     "most_chars": 2000000,
@@ -33,9 +40,21 @@
     "poll_ms": 500,
     "chunk_chars": 200000,
     "export_formats": {
-      "document": ["txt", "html"],
-      "spreadsheet": ["csv", "tsv", "xlsx", "ods", "pdf"],
-      "presentation": ["pdf", "pptx"]
+      "document": [
+        "txt",
+        "html"
+      ],
+      "spreadsheet": [
+        "csv",
+        "tsv",
+        "xlsx",
+        "ods",
+        "pdf"
+      ],
+      "presentation": [
+        "pdf",
+        "pptx"
+      ]
     }
   }
 }

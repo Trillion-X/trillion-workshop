@@ -29,9 +29,11 @@ import {
   base64PieceScript,
   downloadStateScript,
   linksScript,
+  notionStateScript,
   readyStateScript,
   scrollStepScript,
   startDownloadScript,
+  startNotionReadScript,
   stashPageScript,
   textPieceScript,
 } from './page-scripts.mjs';
@@ -52,6 +54,8 @@ function refuse(message) {
 }
 
 const pause = (ms) => new Promise((done) => setTimeout(done, ms));
+const hostOf = (address) => new URL(address).hostname.toLowerCase().replace(/^www\./, '');
+const isNotionAddress = (address) => /(^|\.)notion\.(site|com|so)$/i.test(new URL(address).hostname);
 const homePath = (path) => (path.startsWith('~/') ? join(homedir(), path.slice(2)) : path);
 const isWebAddress = (address) => /^https?:\/\/\S+$/i.test(address) && address.length <= 2000;
 
@@ -224,9 +228,10 @@ async function scrollToEnd(tab, selector, s, sleep) {
   let same = 0;
   let steps = 0;
   let stoppedBy = 'most_steps';
+  let paneFound = selector === null ? null : true;
   while (steps < s.scroll.most_steps) {
     const step = await tab.evaluate(scrollStepScript(selector));
-    if (selector !== null && !step.found) refuse('scroll_selector matched no element on the page.');
+    if (selector !== null && !step.found) paneFound = false;
     steps += 1;
     same = step.height === last ? same + 1 : 0;
     last = step.height;
@@ -240,20 +245,72 @@ async function scrollToEnd(tab, selector, s, sleep) {
     }
     await sleep(s.scroll.pause_ms);
   }
-  return { steps, stopped_by: stoppedBy, text_chars_before: textCharsBefore };
+  return { steps, stopped_by: stoppedBy, text_chars_before: textCharsBefore, pane_found: paneFound };
 }
 
-/** Waits for the page, scrolls it to its end and reads its title, address and text (up to the text bound). */
-async function readOpenPage(tab, selector, s, sleep) {
-  await waitUntilLoaded(tab, s, sleep);
-  const scroll = await scrollToEnd(tab, selector, s, sleep);
-  const page = await tab.evaluate(stashPageScript(s.text.most_chars));
-  const cap = Math.min(page.textChars, s.text.most_chars);
+/** The tab must be on the address asked for (the same host, a leading www. aside); a redirect to another host is refused. */
+function refuseOtherPage(page, asked) {
+  if (hostOf(page.url) !== hostOf(asked)) {
+    refuse(`Arc opened ${page.url}, not the address asked (${asked}). Nothing was read.`);
+  }
+}
+
+/** Reads the Notion page through its API in the tab: its text in block order and its links. Answers { text, links } or { error }. */
+async function readNotionText(tab, s, sleep) {
+  await tab.evaluate(startNotionReadScript({
+    maxBlocks: s.notion.most_blocks,
+    maxChunks: s.notion.most_chunks,
+    maxRounds: s.notion.most_rounds,
+  }));
+  const deadline = Date.now() + s.notion.most_seconds * 1000;
+  for (;;) {
+    const state = await tab.evaluate(notionStateScript(s.links.most_links));
+    if (state.state === 'done') {
+      return { text: await readWholeText(tab, state.chars, s), links: state.links, blocks: state.blocks, chars: state.chars, sync_error: state.sync_error };
+    }
+    if (state.state === 'failed') return { error: state.error };
+    if (Date.now() >= deadline) return { error: `The Notion page did not finish within ${s.notion.most_seconds} seconds.` };
+    await sleep(s.notion.poll_ms);
+  }
+}
+
+/** The kept text, in pieces of chunk_chars, cut at most_chars. */
+async function readWholeText(tab, textChars, s) {
+  const cap = Math.min(textChars, s.text.most_chars);
   let body = '';
   for (let at = 0; at < cap; at += s.text.chunk_chars) {
     body += await tab.evaluate(textPieceScript(at, Math.min(cap, at + s.text.chunk_chars)));
   }
   if (body.length !== cap) refuse('The page text did not come back whole. Nothing was kept.');
+  return body;
+}
+
+/** Waits for the page, then reads its title, address and whole text: a Notion page through its API, any other page by scrolling. */
+async function readOpenPage(tab, asked, selector, s, sleep) {
+  let notionError = null;
+  await waitUntilLoaded(tab, s, sleep);
+  const first = await tab.evaluate(stashPageScript(0));
+  refuseOtherPage(first, asked);
+  if (isNotionAddress(asked)) {
+    const notion = await readNotionText(tab, s, sleep);
+    if (notion.text !== undefined) {
+      const page = await tab.evaluate(stashPageScript(0));
+      return {
+        title: page.title,
+        url: page.url,
+        text: notion.text,
+        truncated: notion.chars > s.text.most_chars,
+        text_chars_total: notion.chars,
+        scroll: { steps: 0, stopped_by: 'notion_blocks', text_chars_before: first.textChars, pane_found: null, notion_blocks: notion.blocks },
+        notion_links: notion.links,
+        notion_error: notion.sync_error,
+      };
+    }
+    notionError = notion.error;
+  }
+  const scroll = await scrollToEnd(tab, selector, s, sleep);
+  const page = await tab.evaluate(stashPageScript(s.text.most_chars));
+  const body = await readWholeText(tab, page.textChars, s);
   return {
     title: page.title,
     url: page.url,
@@ -261,6 +318,7 @@ async function readOpenPage(tab, selector, s, sleep) {
     truncated: page.textChars > s.text.most_chars,
     text_chars_total: page.textChars,
     scroll,
+    notion_error: notionError,
   };
 }
 
@@ -288,7 +346,7 @@ async function followPages(tab, page, linked, follow, s, sleep, startedAt) {
       break;
     }
     try {
-      const linkedPage = await withTab(tab, link.href, () => readOpenPage(tab, null, s, sleep));
+      const linkedPage = await withTab(tab, link.href, () => readOpenPage(tab, link.href, null, s, sleep));
       textChars += linkedPage.text.length;
       pages.push(linkedPage);
     } catch (error) {
@@ -298,12 +356,26 @@ async function followPages(tab, page, linked, follow, s, sleep, startedAt) {
   return { pages, considered: picked.length, stopped_by: stoppedBy };
 }
 
+/** The page's links: a Notion page's child pages first, then the links on the page, each address once, bounded. found counts the page's links before the bound. */
+function mergeLinks(notionLinks, dom, most) {
+  const seen = new Set();
+  const links = [];
+  for (const link of [...notionLinks, ...dom.links]) {
+    if (seen.has(link.href)) continue;
+    seen.add(link.href);
+    links.push(link);
+  }
+  return { links: links.slice(0, most), found: notionLinks.length + dom.found };
+}
+
 async function pullPage(tab, want, s, sleep, startedAt) {
   const { page, linked } = await withTab(tab, want.url, async () => {
-    const read = await readOpenPage(tab, want.selector, s, sleep);
-    return { page: read, linked: want.needs_links ? await readLinks(tab, s) : null };
+    const read = await readOpenPage(tab, want.url, want.selector, s, sleep);
+    const dom = want.needs_links ? await readLinks(tab, s) : null;
+    return { page: read, linked: dom && mergeLinks(read.notion_links ?? [], dom, s.links.most_links) };
   });
   const answer = { title: page.title, url: page.url, text: page.text, truncated: page.truncated, text_chars_total: page.text_chars_total, scroll: page.scroll };
+  if (page.notion_error) answer.notion_error = page.notion_error;
   if (want.links) {
     answer.links = linked.links;
     answer.links_found = linked.found;
@@ -317,6 +389,7 @@ async function pullFile(tab, want, source, folder, s, sleep) {
   return withTab(tab, want.url, async () => {
     await waitUntilLoaded(tab, s, sleep);
     const { title, url } = await tab.evaluate(stashPageScript(0));
+    refuseOtherPage({ url }, want.url);
     await tab.evaluate(startDownloadScript(source.from_url, s.save.most_bytes));
     const state = await waitForDownload(tab, s, sleep);
     if (!source.as_text && source.extension !== 'html' && state.mediaType.startsWith('text/html')) {

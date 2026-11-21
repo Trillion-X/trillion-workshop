@@ -49,7 +49,9 @@
               {
                 "package": "read-a-page-in-arc",
                 "paths": [
-                  "read-a-page-in-arc.mjs"
+                  "read-a-page-in-arc.mjs",
+                  "arc-tab.mjs",
+                  "page-scripts.mjs"
                 ],
                 "at": "/opt/read-a-page-in-arc"
               }
@@ -92,7 +94,7 @@
         "label": "Pull a page in Arc",
         "status": "active",
         "job": "Pull one page from the person's Arc browser, signed in, as its whole text and optionally its links, the pages those links lead to, or one file it can download",
-        "description": "Opens the http or https address in a new tab of Arc's front window, scrolls the page to its end until it stops growing, and reads its title, address and whole text (up to 2000000 characters; truncated says when it was cut). With links true it also answers every link on the page as { href, text }, once each (up to 2000). With follow it reads the linked pages one after another, same site only if same_site_only is true, optionally only those matching match, up to most_pages (at most 30), each as its own entry. With save it fetches one file inside the tab with the person's sign-in (a Google Doc, Sheet or Slides export, a Drive file, or file_url) and writes it under the save root, named by its BLAKE3 with its extension; it answers { file: { name, path, bytes, blake3, media_type, from_url } }. Downloads are only written, never opened or run. Nothing is filled, submitted or clicked. Every tab it opens is closed. Refused in words when the address is not http or https, when the save folder is outside the save root, or when Arc does not answer.",
+        "description": "Opens the http or https address in a new tab of Arc's front window, reads its title, address and whole text (up to 2000000 characters; truncated says when it was cut), and closes that tab; every call goes to its own tab by id, so two reads at once never read each other's page. A page that lands on another host is refused. A Notion page is read through its own API inside the tab: every block in order, closed toggles and child pages included, child pages answered as links. Any other page is scrolled to its end until it stops growing (scroll_selector names an inner pane to scroll instead; when it matches nothing the window is scrolled). With links true it also answers every link on the page as { href, text }, once each (up to 2000). With follow it reads the linked pages one after another, same site only if same_site_only is true, optionally only those matching match, up to most_pages (at most 30), each as its own entry. With save it fetches one file inside the tab with the person's sign-in (a Google Doc as its signed-in text, a Sheet or Slides export, a Drive file, or file_url) and writes it under the save root, named by its BLAKE3 with its extension; it answers { file: { name, path, bytes, blake3, media_type, from_url } }. Downloads are only written, never opened or run. Nothing is filled, submitted or clicked. Every tab it opens is closed. Refused in words when the address is not http or https, when the save folder is outside the save root, or when Arc does not answer.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,

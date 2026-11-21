@@ -33,7 +33,10 @@ export function scrollStepScript(selector) {
     return asciiJson({ height: Math.max(document.documentElement.scrollHeight, document.body ? document.body.scrollHeight : 0), found: true, atEnd: true });
   }
   var box = document.querySelector(selector);
-  if (!box) return asciiJson({ found: false });
+  if (!box) {
+    window.scrollTo(0, document.documentElement.scrollHeight);
+    return asciiJson({ height: Math.max(document.documentElement.scrollHeight, document.body ? document.body.scrollHeight : 0), found: false, atEnd: true });
+  }
   if (state.top === null) {
     box.scrollTop = 0;
   } else {
@@ -143,4 +146,182 @@ export function downloadStateScript() {
 export function base64PieceScript(start, end) {
   return `${asciiJson.toString()};
 asciiJson(window.__arcDownload.base64.slice(${JSON.stringify(start)}, ${JSON.stringify(end)}));`;
+}
+
+/**
+ * Reads a Notion page through its own API, inside the signed-in tab, without clicking anything: every block of the page in
+ * order (toggles and columns included, their children fetched when the page did not load them), child pages listed as links.
+ * The text goes to window.__arcPull (the same place the page text piece reads), the state to window.__arcNotion. Every bound
+ * comes from config (pull-settings.json notion section).
+ */
+function readNotion(config) {
+  var result = window.__arcNotion = { state: 'running' };
+  var origin = location.origin;
+  var match = location.pathname.match(/([0-9a-f]{32})\/?$/i);
+  if (!match) {
+    result.state = 'failed';
+    result.error = 'The address has no Notion page id.';
+    return;
+  }
+  var raw = match[1].toLowerCase();
+  var pageId = raw.slice(0, 8) + '-' + raw.slice(8, 12) + '-' + raw.slice(12, 16) + '-' + raw.slice(16, 20) + '-' + raw.slice(20);
+  var blocks = {};
+  var chunk = 0;
+  var rounds = 0;
+  function post(path, body) {
+    return fetch(origin + path, { method: 'POST', credentials: 'include', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (response) {
+        if (!response.ok) throw new Error('HTTP ' + response.status + ' from ' + path);
+        return response.json();
+      });
+  }
+  function absorb(recordMap) {
+    var found = (recordMap && recordMap.block) || {};
+    Object.keys(found).forEach(function (id) {
+      var entry = found[id];
+      var value = entry && entry.value && entry.value.value ? entry.value.value : (entry && entry.value);
+      if (value && value.type !== undefined && value.alive !== false) blocks[id] = value;
+    });
+  }
+  function nextChunk(cursor) {
+    return post('/api/v3/loadPageChunk', { page: { id: pageId }, limit: 100, cursor: cursor, chunkNumber: chunk, verticalColumns: false })
+      .then(function (data) {
+        absorb(data.recordMap);
+        chunk += 1;
+        var more = data.cursor && data.cursor.stack && data.cursor.stack.length > 0;
+        if (more && chunk < config.maxChunks) return nextChunk(data.cursor);
+      });
+  }
+  function missingIds() {
+    var missing = {};
+    Object.keys(blocks).forEach(function (id) {
+      (blocks[id].content || []).forEach(function (child) { if (!blocks[child]) missing[child] = true; });
+    });
+    return Object.keys(missing);
+  }
+  function syncRound() {
+    var ids = missingIds();
+    if (!ids.length || rounds >= config.maxRounds) return Promise.resolve();
+    rounds += 1;
+    var requests = ids.slice(0, 100).map(function (id) { return { pointer: { table: 'block', id: id }, version: -1 }; });
+    return post('/api/v3/syncRecordValuesSpace', { requests: requests }).then(function (data) {
+      absorb(data.recordMap);
+      return syncRound();
+    });
+  }
+  function titleOf(value) {
+    var title = value.properties && value.properties.title;
+    return title ? title.map(function (piece) { return piece[0] || ''; }).join('') : '';
+  }
+  function propertyText(value, name) {
+    var property = value.properties && value.properties[name];
+    return property && property[0] ? property[0][0] : '';
+  }
+  var lines = [];
+  var links = [];
+  var linkSeen = {};
+  var visited = 0;
+  function addLink(href, text) {
+    if (!href || linkSeen[href]) return;
+    linkSeen[href] = true;
+    links.push({ href: href, text: text });
+  }
+  function render(id, depth) {
+    var value = blocks[id];
+    if (!value || visited >= config.maxBlocks) return;
+    visited += 1;
+    var text = titleOf(value);
+    var line = null;
+    var recurse = true;
+    switch (value.type) {
+      case 'page':
+        var href = origin + '/' + id.replace(/-/g, '');
+        addLink(href, text);
+        line = text ? '[' + text + '](' + href + ')' : href;
+        recurse = false;
+        break;
+      case 'header': line = '# ' + text; break;
+      case 'sub_header': line = '## ' + text; break;
+      case 'sub_sub_header': line = '### ' + text; break;
+      case 'bulleted_list': line = '- ' + text; break;
+      case 'numbered_list': line = '1. ' + text; break;
+      case 'to_do': line = (propertyText(value, 'checked') === 'Yes' ? '[x] ' : '[ ] ') + text; break;
+      case 'quote': line = '> ' + text; break;
+      case 'toggle': line = '> ' + text; break;
+      case 'callout': line = text; break;
+      case 'divider': line = '---'; break;
+      case 'code': line = '```' + propertyText(value, 'language') + '\n' + text + '\n```'; break;
+      case 'table_row':
+        line = Object.keys(value.properties || {}).map(function (name) { return propertyText(value, name); }).join(' | ');
+        break;
+      case 'bookmark':
+      case 'embed':
+      case 'image':
+      case 'video':
+      case 'file':
+      case 'pdf':
+        var source = propertyText(value, 'source') || propertyText(value, 'link');
+        addLink(source, text);
+        line = text || source;
+        break;
+      case 'equation': line = propertyText(value, 'title') || text; break;
+      default: line = text || null;
+    }
+    if (line !== null && line !== '') lines.push(new Array(depth * 2 + 1).join(' ') + line);
+    if (recurse) {
+      var childDepth = value.type === 'column_list' || value.type === 'column' ? depth : depth + 1;
+      (value.content || []).forEach(function (child) { render(child, childDepth); });
+    }
+  }
+  nextChunk({ stack: [] })
+    .then(function () {
+      return syncRound().catch(function (error) {
+        result.sync_error = String((error && error.message) || error);
+      });
+    })
+    .then(function () {
+      if (!blocks[pageId]) throw new Error('Notion did not return the page.');
+      (blocks[pageId].content || []).forEach(function (child) { render(child, 0); });
+      var text = lines.join('\n');
+      window.__arcPull = { text: text };
+      result.links = links;
+      result.chars = text.length;
+      result.blocks = visited;
+      result.chunks = chunk;
+      result.rounds = rounds;
+      result.sync_error = result.sync_error || null;
+      result.state = 'done';
+    })
+    .catch(function (error) {
+      result.state = 'failed';
+      result.error = String((error && error.message) || error);
+    });
+}
+
+/** Starts readNotion with the bounds from the settings. */
+export function startNotionReadScript(config) {
+  return `${asciiJson.toString()};
+${readNotion.toString()};
+readNotion(${JSON.stringify(config)});
+asciiJson({ state: 'running' });`;
+}
+
+/** The state of readNotion: state, error, chars, blocks, chunks, rounds, and the links it found (bounded to most_links). */
+export function notionStateScript(maxLinks) {
+  return `${asciiJson.toString()};
+(function (maxLinks) {
+  var result = window.__arcNotion;
+  if (!result) return asciiJson({ state: 'missing' });
+  return asciiJson({
+    state: result.state,
+    error: result.error || null,
+    chars: result.chars || 0,
+    blocks: result.blocks || 0,
+    chunks: result.chunks || 0,
+    rounds: result.rounds || 0,
+    sync_error: result.sync_error || null,
+    links: (result.links || []).slice(0, maxLinks),
+    links_found: (result.links || []).length
+  });
+})(${JSON.stringify(maxLinks)});`;
 }

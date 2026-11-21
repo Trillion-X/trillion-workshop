@@ -3,7 +3,7 @@
 // Notion page before and after scrolling its pane. The lengths it prints are the numbers a report needs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { execFile } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
@@ -15,6 +15,16 @@ import { pullAPageInArc } from '../pull-a-page-in-arc.mjs';
 const run = promisify(execFile);
 const activeTabUrl = async () => (await run('osascript', ['-e', 'tell application "Arc" to return URL of (active tab of front window)'])).stdout.trim();
 const saveRoot = join(homedir(), 'Library/Application Support/pulled-pages-in-arc');
+const pullScript = new URL('../pull-a-page-in-arc.mjs', import.meta.url).pathname;
+/** One pull in its own process, as the workshop runs it: the input on standard input, the answer on standard output. */
+const pullInProcess = (input) => new Promise((resolve, reject) => {
+  const child = spawn(process.execPath, [pullScript]);
+  let out = '';
+  child.stdout.on('data', (chunk) => { out += chunk; });
+  child.on('error', reject);
+  child.on('close', () => resolve(JSON.parse(out)));
+  child.stdin.end(JSON.stringify(input));
+});
 
 test('reads example.com in Arc with its links, and closes its tab', async () => {
   const answer = await pullAPageInArc({ url: 'https://example.com/', links: true });
@@ -51,8 +61,35 @@ test('reads the Notion page before and after scrolling its pane', async () => {
   assert.match(answer.title, /AI Meta Creative Library/);
   assert.ok(answer.scroll.text_chars_before > 0);
   assert.ok(answer.text_chars_total > answer.scroll.text_chars_before, 'scrolling the pane brings in more text');
-  assert.equal(answer.scroll.stopped_by, 'stable');
-  assert.equal(answer.truncated, false);
-  console.log(`Notion: ${answer.scroll.text_chars_before} characters before scrolling, ${answer.text_chars_total} after (${answer.scroll.steps} steps, ${answer.scroll.stopped_by})`);
+  assert.ok(['notion_blocks', 'stable'].includes(answer.scroll.stopped_by), answer.scroll.stopped_by);
+  assert.equal(answer.notion_error, undefined);
+  assert.ok(answer.text_chars_total >= 10000, 'the whole library is read, not its header');
+  console.log(`Notion: ${answer.scroll.text_chars_before} characters before, ${answer.text_chars_total} after (${answer.scroll.notion_blocks ?? answer.scroll.steps} blocks or steps, ${answer.scroll.stopped_by})`);
   assert.notEqual(await activeTabUrl(), url, 'the tab is closed');
 });
+
+test('two pulls at the same time, in two processes, each read their own page', async () => {
+  const [one, two] = await Promise.all([
+    pullInProcess({ url: 'https://example.com/' }),
+    pullInProcess({ url: 'https://www.iana.org/help/example-domains' }),
+  ]);
+  assert.equal(one.error, undefined, one.error);
+  assert.equal(two.error, undefined, two.error);
+  assert.equal(one.title, 'Example Domain');
+  assert.match(two.url, /iana\.org/);
+  assert.notEqual(one.title, two.title);
+  console.log(`two at once: "${one.title}" and "${two.title}"`);
+});
+
+test('a Notion page with no scroll pane of that name is read by scrolling the window, not refused', async () => {
+  for (const url of [
+    'https://rural-lifeboat-196.notion.site/3addb9d7074d81d2ba5ed847785ba527',
+    'https://shiny-college-b22.notion.site/How-We-Helped-Callum-3addb9d7074d81d2ba5ed847785ba527',
+  ]) {
+    const answer = await pullAPageInArc({ url, scroll_selector: '.no-such-pane-here' });
+    assert.equal(answer.error, undefined, `${url}: ${answer.error}`);
+    assert.ok(answer.text_chars_total > 0, url);
+    console.log(`${new URL(url).hostname}: ${answer.text_chars_total} characters, ${answer.scroll.stopped_by}, pane_found ${answer.scroll.pane_found}`);
+  }
+});
+

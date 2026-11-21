@@ -16,10 +16,14 @@ const noSleep = async () => {};
 /** AppleScript prints a returned string as a literal: quotes, with \ and " escaped. */
 const literal = (value) => `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
 
-/** A fake Arc: `pages` maps an address to a page model; `log` counts what the run opened, closed and evaluated. */
+/**
+ * A fake Arc: `pages` maps an address to a page model; `log` counts what the run opened, closed and evaluated. Tabs are kept by
+ * their ids (the window is one id), and a call on an id that is not open fails the way Arc's own error does.
+ */
 function fakeArc(pages) {
-  const log = { opened: [], closed: 0, evaluated: 0, osascript: 0 };
-  let tab = null;
+  const log = { opened: [], closed: 0, evaluated: 0, osascript: 0, ids: [] };
+  const tabs = new Map();
+  let next = 0;
   const exec = async (file, argv) => {
     log.osascript += 1;
     assert.equal(file, 'osascript');
@@ -27,24 +31,31 @@ function fakeArc(pages) {
     if (operation === 'open') {
       const address = argv[3];
       if (!pages[address]) throw Object.assign(new Error('no such page'), { stderr: 'no such page' });
-      tab = makeTab(pages[address], address);
+      next += 1;
+      const id = `tab-${next}`;
+      const tab = makeTab(pages[address], pages[address].redirect_to ?? address);
+      tabs.set(id, tab);
       log.opened.push(address);
-      return { stdout: 'opened\n' };
+      log.ids.push(id);
+      return { stdout: `window-1|${id}\n` };
     }
     if (operation === 'close') {
-      if (!tab) throw Object.assign(new Error('no tab'), { stderr: 'no tab' });
-      tab = null;
+      const id = argv[4];
+      if (!tabs.has(id)) throw Object.assign(new Error('Can’t get tab id'), { stderr: 'Can’t get tab id' });
+      tabs.delete(id);
       log.closed += 1;
       return { stdout: 'closed\n' };
     }
     assert.equal(operation, 'js');
-    if (!tab) throw Object.assign(new Error('no tab'), { stderr: 'no tab' });
+    const id = argv[4];
+    const tab = tabs.get(id);
+    if (!tab) throw Object.assign(new Error('Can’t get tab id'), { stderr: 'Can’t get tab id' });
     log.evaluated += 1;
-    const value = vm.runInContext(argv[3], tab.context);
+    const value = vm.runInContext(argv[5], tab.context);
     assert.equal(typeof value, 'string', 'every page script answers a JSON text');
     return { stdout: `${literal(value)}\n` };
   };
-  return { exec, log, isOpen: () => tab !== null };
+  return { exec, log, isOpen: () => tabs.size > 0 };
 }
 
 /** A scrolling pane that, like Notion's, keeps only the rows in view: its innerText is the visible rows, and scrollTop is clamped. */
@@ -81,11 +92,21 @@ function makeTab(spec, address) {
       querySelector: (selector) => (spec.pane && selector === spec.pane.selector ? pane : null),
       querySelectorAll: () => anchors,
     },
-    location: { href: address },
+    location: { href: address, origin: new URL(address).origin, pathname: new URL(address).pathname },
     scrollTo: () => { scrolls.count += 1; },
     URL,
     btoa,
     fetch: (downloadAddress, options) => {
+      if (spec.notion && downloadAddress.includes('/api/v3/')) {
+        const body = JSON.parse(options.body);
+        spec.notion.calls.push({ path: new URL(downloadAddress).pathname, body });
+        try {
+          const recordMap = spec.notion.answer(new URL(downloadAddress).pathname, body);
+          return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ recordMap, cursor: { stack: [] } }) });
+        } catch (error) {
+          return Promise.reject(error);
+        }
+      }
       const download = spec.downloads?.[downloadAddress];
       if (!download) return Promise.reject(new TypeError('Failed to fetch'));
       download.seen?.push({ address: downloadAddress, credentials: options?.credentials });
@@ -213,10 +234,12 @@ test('stops scrolling at the step bound when the page keeps growing', async () =
   assert.equal(answer.scroll.stopped_by, 'most_steps');
 });
 
-test('refuses a scroll_selector that names no element, and closes the tab', async () => {
-  const arc = fakeArc({ 'https://example.com/': { title: 'E', text: 'x' } });
-  const answer = await pullAPageInArc({ url: 'https://example.com/', scroll_selector: '.notion-scroller' }, { exec: arc.exec, sleep: noSleep });
-  assert.match(answer.error, /matched no element/);
+test('a scroll_selector that names no element falls back to scrolling the window, and says so', async () => {
+  const arc = fakeArc({ 'https://example.com/': { title: 'E', text: 'plain text' } });
+  const answer = await pullAPageInArc({ url: 'https://example.com/', scroll_selector: '.notion-scroller' }, { exec: arc.exec, settings: realSettings, sleep: noSleep });
+  assert.equal(answer.error, undefined, answer.error);
+  assert.equal(answer.text, 'plain text');
+  assert.equal(answer.scroll.pane_found, false);
   assert.equal(arc.log.opened.length, arc.log.closed);
 });
 
@@ -465,4 +488,76 @@ test('the tool row names the pull, its input schema is closed, and its time boun
   assert.ok(payload.invoke.max_run_ms >= realSettings.save.most_download_seconds * 1000);
   const old = rows.records.find((item) => item.payload.id === 'tool:read-a-page-in-arc');
   assert.equal(old.payload.invoke.argv[1], '/opt/read-a-page-in-arc/read-a-page-in-arc.mjs', 'the read tool row is untouched');
+});
+
+test('a tab that lands on another host is refused, and the tab is closed', async () => {
+  const arc = fakeArc({ 'https://from.example/': { title: 'Elsewhere', text: 'not the page', redirect_to: 'https://elsewhere.example/landing' } });
+  const answer = await pullAPageInArc({ url: 'https://from.example/' }, { exec: arc.exec, settings: realSettings, sleep: noSleep });
+  assert.match(answer.error, /not the address asked/);
+  assert.equal(answer.text, undefined);
+  assert.equal(arc.log.opened.length, arc.log.closed);
+  assert.equal(arc.isOpen(), false);
+});
+
+test('two reads at the same time each get their own page, by their own tab id', async () => {
+  const arc = fakeArc({
+    'https://one.example/': { title: 'One', text: 'the first page' },
+    'https://two.example/': { title: 'Two', text: 'the second page' },
+  });
+  const [first, second] = await Promise.all([
+    pullAPageInArc({ url: 'https://one.example/' }, { exec: arc.exec, settings: realSettings, sleep: noSleep }),
+    pullAPageInArc({ url: 'https://two.example/' }, { exec: arc.exec, settings: realSettings, sleep: noSleep }),
+  ]);
+  assert.equal(first.title, 'One');
+  assert.equal(first.text, 'the first page');
+  assert.equal(second.title, 'Two');
+  assert.equal(second.text, 'the second page');
+  assert.equal(new Set(arc.log.ids).size, 2, 'each read opened its own tab');
+  assert.equal(arc.log.opened.length, arc.log.closed);
+});
+
+test('a Notion page is read through its API: blocks in order, a closed toggle filled in, child pages listed as links', async () => {
+  const origin = 'https://example.notion.site';
+  const id = 'aaaaaaaabbbbccccddddeeeeeeeeeeee';
+  const blockOf = (value) => ({ value: { value: { alive: true, ...value } } });
+  const notion = {
+    calls: [],
+    answer: (path, body) => {
+      if (path === '/api/v3/loadPageChunk') {
+        assert.equal(body.page.id, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee');
+        return { block: {
+          'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee': blockOf({ type: 'page', properties: { title: [['Library']] }, content: ['10000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000002', '11111111-2222-3333-4444-555555555555'] }),
+          '10000000-0000-0000-0000-000000000001': blockOf({ type: 'header', properties: { title: [['Intro']] }, content: [] }),
+          '10000000-0000-0000-0000-000000000002': blockOf({ type: 'toggle', properties: { title: [['More']] }, content: ['10000000-0000-0000-0000-000000000003'] }),
+          '11111111-2222-3333-4444-555555555555': blockOf({ type: 'page', properties: { title: [['Sub page']] }, content: [] }),
+        } };
+      }
+      assert.equal(path, '/api/v3/syncRecordValuesSpace');
+      return { block: {
+        '10000000-0000-0000-0000-000000000003': blockOf({ type: 'bulleted_list', properties: { title: [['Hidden point']] }, content: [] }),
+      } };
+    },
+  };
+  const arc = fakeArc({ [`${origin}/Library-${id}`]: { title: 'Library', text: 'shell text', notion } });
+  const answer = await pullAPageInArc({ url: `${origin}/Library-${id}` }, { exec: arc.exec, settings: realSettings, sleep: noSleep });
+  assert.equal(answer.error, undefined, answer.error);
+  assert.equal(answer.notion_error, undefined);
+  assert.equal(answer.text, `# Intro\n> More\n  - Hidden point\n[Sub page](${origin}/11111111222233334444555555555555)`);
+  assert.equal(answer.scroll.stopped_by, 'notion_blocks');
+  assert.equal(answer.truncated, false);
+  assert.equal(notion.calls.filter((call) => call.path === '/api/v3/syncRecordValuesSpace').length, 1, 'the missing toggle child is fetched once');
+  assert.deepEqual(notion.calls[1].body.requests.map((request) => request.pointer.id), ['10000000-0000-0000-0000-000000000003']);
+  assert.equal(arc.log.opened.length, arc.log.closed);
+});
+
+test('a Notion page whose API refuses falls back to scrolling the page, and says why', async () => {
+  const origin = 'https://example.notion.site';
+  const id = 'ffffffffeeeeddddccccbbbbbbbbbbbb';
+  const notion = { calls: [], answer: () => { throw new Error('HTTP 401 from /api/v3/loadPageChunk'); } };
+  const arc = fakeArc({ [`${origin}/Private-${id}`]: { title: 'Private', text: 'visible text', notion } });
+  const answer = await pullAPageInArc({ url: `${origin}/Private-${id}` }, { exec: arc.exec, settings: realSettings, sleep: noSleep });
+  assert.equal(answer.error, undefined, answer.error);
+  assert.equal(answer.text, 'visible text');
+  assert.match(answer.notion_error, /HTTP 401/);
+  assert.equal(arc.log.opened.length, arc.log.closed);
 });
