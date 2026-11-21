@@ -1,6 +1,6 @@
 // Source-owned narration adapter. Voice lookup, reference recovery and synthesis
 // stay with computer/speak.mjs; a film may require the requested voice exactly.
-import { sayHere } from '../../../../computer/speak.mjs';
+import { sayHere } from '../../../generate-speech/read-data/speak.mjs';
 
 let input = '';
 for await (const chunk of process.stdin) input += chunk;
