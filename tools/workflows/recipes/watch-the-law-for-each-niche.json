@@ -1,0 +1,315 @@
+{
+ "records": [
+  {
+   "payload": {
+    "kind": "workflow-recipe",
+    "id": "workflow:watch-the-law-for-each-niche",
+    "label": "Watch the law behind each cited source",
+    "job": "Re-read each law source a library rests on and open a calendar_tasks finding when a quoted sentence is no longer on its page",
+    "produces": "findings",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "connection",
+      "table"
+     ],
+     "properties": {
+      "connection": {
+       "type": "string"
+      },
+      "table": {
+       "type": "string"
+      },
+      "niche_key": {
+       "type": [
+        "string",
+        "null"
+       ]
+      }
+     }
+    },
+    "definition": {
+     "id": "workflow:watch-the-law-for-each-niche",
+     "name": "Watch the law behind each cited source",
+     "kind": "workflow",
+     "is_active": true,
+     "version": 1,
+     "uses": [],
+     "edges": [
+      {
+       "from": "read-the-law-sources",
+       "to": "reread-each-source",
+       "kind": "always"
+      },
+      {
+       "from": "reread-each-source",
+       "to": "open-findings",
+       "kind": "always"
+      }
+     ],
+     "steps": [
+      {
+       "id": "read-the-law-sources",
+       "kind": "ask",
+       "config": {
+        "name": "anyone",
+        "input": {
+         "do": "Call tool:run-sql-in-my-database with { credential_name: input.connection, sql: \"SELECT id FROM <input.table> WHERE kind = 'law_source' AND (<input.niche_key> IS NULL OR niche_key = <input.niche_key>) ORDER BY id\", params: [] }, where input is the wake's input (connection, table, niche_key; a null niche_key means every niche). Submit count (rows) and ids only.",
+         "checks": [],
+         "submit": {
+          "type": "object",
+          "required": [
+           "count",
+           "ids"
+          ],
+          "properties": {
+           "count": {
+            "type": "integer"
+           },
+           "ids": {
+            "type": "array",
+            "items": {
+             "type": "string"
+            }
+           }
+          }
+         }
+        },
+        "context": {
+         "do": "Call tool:run-sql-in-my-database with { credential_name: input.connection, sql: \"SELECT id FROM <input.table> WHERE kind = 'law_source' AND (<input.niche_key> IS NULL OR niche_key = <input.niche_key>) ORDER BY id\", params: [] }, where input is the wake's input (connection, table, niche_key; a null niche_key means every niche). Submit count (rows) and ids only.",
+         "why": "Start of the weekly watch: which cited sources the wake's niche covers.",
+         "checks": [],
+         "submit": {
+          "type": "object",
+          "required": [
+           "count",
+           "ids"
+          ],
+          "properties": {
+           "count": {
+            "type": "integer"
+           },
+           "ids": {
+            "type": "array",
+            "items": {
+             "type": "string"
+            }
+           }
+          }
+         }
+        },
+        "part_of": [
+         "workflow:watch-the-law-for-each-niche"
+        ],
+        "step_id": "read-the-law-sources",
+        "done_when": "count and ids are submitted.",
+        "if_missing": "If the query fails, submit count 0 and ids [] with the error name."
+       }
+      },
+      {
+       "id": "reread-each-source",
+       "kind": "ask",
+       "config": {
+        "name": "anyone",
+        "input": {
+         "do": "For each id from read-the-law-sources, read its source_url and quote from <input.table> (kind law_source) with the same connection, and fetch the source_url. Check whether the stored quote still appears verbatim. Submit checked (count), changed_ids (quote no longer present), and unreachable_ids (page not fetched). Never paste page text into the answer.",
+         "checks": [],
+         "submit": {
+          "type": "object",
+          "required": [
+           "checked",
+           "changed_ids"
+          ],
+          "properties": {
+           "checked": {
+            "type": "integer"
+           },
+           "changed_ids": {
+            "type": "array",
+            "items": {
+             "type": "string"
+            }
+           },
+           "unreachable_ids": {
+            "type": "array",
+            "items": {
+             "type": "string"
+            }
+           }
+          }
+         }
+        },
+        "context": {
+         "do": "For each id from read-the-law-sources, read its source_url and quote from <input.table> (kind law_source) with the same connection, and fetch the source_url. Check whether the stored quote still appears verbatim. Submit checked (count), changed_ids (quote no longer present), and unreachable_ids (page not fetched). Never paste page text into the answer.",
+         "why": "A changed law makes the cited rows stale.",
+         "checks": [],
+         "submit": {
+          "type": "object",
+          "required": [
+           "checked",
+           "changed_ids"
+          ],
+          "properties": {
+           "checked": {
+            "type": "integer"
+           },
+           "changed_ids": {
+            "type": "array",
+            "items": {
+             "type": "string"
+            }
+           },
+           "unreachable_ids": {
+            "type": "array",
+            "items": {
+             "type": "string"
+            }
+           }
+          }
+         }
+        },
+        "part_of": [
+         "workflow:watch-the-law-for-each-niche"
+        ],
+        "step_id": "reread-each-source",
+        "done_when": "checked equals the number of ids read.",
+        "if_missing": "Unreachable pages are listed, not treated as changed."
+       }
+      },
+      {
+       "id": "open-findings",
+       "kind": "ask",
+       "config": {
+        "name": "anyone",
+        "input": {
+         "do": "For each changed_id, insert one calendar_tasks row through the same connection with status 'To do', title 'Law changed: <niche_key> <source id>', and a description naming the rows that cite that source and its source_url. Do not publish or send anything. Submit opened (count) and task_ids.",
+         "checks": [],
+         "submit": {
+          "type": "object",
+          "required": [
+           "opened",
+           "task_ids"
+          ],
+          "properties": {
+           "opened": {
+            "type": "integer"
+           },
+           "task_ids": {
+            "type": "array",
+            "items": {
+             "type": "string"
+            }
+           }
+          }
+         }
+        },
+        "context": {
+         "do": "For each changed_id, insert one calendar_tasks row through the same connection with status 'To do', title 'Law changed: <niche_key> <source id>', and a description naming the rows that cite that source and its source_url. Do not publish or send anything. Submit opened (count) and task_ids.",
+         "why": "A change opens one finding per source for the person to read.",
+         "checks": [],
+         "submit": {
+          "type": "object",
+          "required": [
+           "opened",
+           "task_ids"
+          ],
+          "properties": {
+           "opened": {
+            "type": "integer"
+           },
+           "task_ids": {
+            "type": "array",
+            "items": {
+             "type": "string"
+            }
+           }
+          }
+         }
+        },
+        "part_of": [
+         "workflow:watch-the-law-for-each-niche"
+        ],
+        "step_id": "open-findings",
+        "done_when": "one calendar_tasks row per changed id.",
+        "if_missing": "No changed ids means opened 0."
+       }
+      }
+     ]
+    },
+    "records": {
+     "rights": [],
+     "runs": [
+      "tool:run-sql-in-my-database"
+     ]
+    },
+    "wakes": [
+     {
+      "id": "weekly",
+      "tool": "workflow:watch-the-law-for-each-niche",
+      "switched_on": false,
+      "budget": {
+       "steps": 6,
+       "wall_ms": 900000
+      },
+      "replay": {
+       "while_off_ms": 21600000,
+       "within_ms": 86400000
+      },
+      "until": null,
+      "mark": {},
+      "on": {
+       "fact": {
+        "from": [
+         "run"
+        ],
+        "kind": "due-time",
+        "fold": true,
+        "match": {
+         "schedule_id": "schedule:workflow:watch-the-law-for-each-niche:weekly"
+        },
+        "watch": {
+         "schedules": [
+          {
+           "action": {
+            "completion": {
+             "mode": "synchronous-owner-return"
+            },
+            "operation": "tell-the-engine",
+            "owner_dispatch": {
+             "input": {
+              "connection": null,
+              "table": null,
+              "niche_key": null
+             },
+             "name": "workflow:watch-the-law-for-each-niche"
+            },
+            "owner_ref": "workflow:watch-the-law-for-each-niche"
+           },
+           "cadence": {
+            "interval": 7,
+            "unit": "day"
+           },
+           "dst": {
+            "fold": "earlier",
+            "gap": "next-valid"
+           },
+           "local_window": {
+            "duration_minutes": 1,
+            "start": "09:00"
+           },
+           "schedule_id": "schedule:workflow:watch-the-law-for-each-niche:weekly",
+           "schedule_revision": 1,
+           "source_generation": 1,
+           "start_local_date": "2026-11-22",
+           "timezone": "America/Chicago"
+          }
+         ]
+        }
+       }
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

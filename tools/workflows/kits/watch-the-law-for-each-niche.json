@@ -1,0 +1,36 @@
+{
+ "start_here": "Say to your AI: \"Watch the law behind my cited sources.\" It reads each law-source row of the library table you name, re-reads each source page, and opens a calendar task for each quoted sentence that changed.",
+ "lists": [],
+ "no_lists_because": "It keeps no list: each check is a run, and each change is one calendar_tasks row written through the connection the wake names.",
+ "workflows": [
+  "workflow:watch-the-law-for-each-niche"
+ ],
+ "tools": [
+  "tool:run-sql-in-my-database"
+ ],
+ "instructions": [
+  "1. Name the store connection and the library table in the wake input (connection, table); a niche_key narrows the watch to one niche, null watches all.",
+  "2. Switch on the weekly wake: switch on the wake for workflow:watch-the-law-for-each-niche weekly.",
+  "3. Each changed quote becomes one calendar_tasks row with status To do; read them with select id, title from calendar_tasks where title like 'Law changed:%'.",
+  "4. Fix the cited rows or the business pages they feed, then mark the task Done."
+ ],
+ "worked_examples": [
+  {
+   "title": "A weekly watch with no changed quote opens nothing",
+   "workflow": "workflow:watch-the-law-for-each-niche",
+   "step": "reread-each-source",
+   "ask": "Say to your AI: \"Watch the law behind my cited sources.\"",
+   "mcp": {
+    "server": "engine",
+    "tool": "run-sql-in-my-database",
+    "input": {
+     "credential_name": "<connection named in the wake input>",
+     "sql": "SELECT id FROM <table named in the wake input> WHERE kind = 'law_source' ORDER BY id",
+     "params": []
+    }
+   },
+   "hands_back": "checked 4, changed_ids [], unreachable_ids [], so opened 0 calendar tasks and the run completes."
+  }
+ ],
+ "drafted_from": "workflow:watch-the-law-for-each-niche row in the store"
+}
