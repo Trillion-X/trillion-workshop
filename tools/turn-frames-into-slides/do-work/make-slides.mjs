@@ -10,6 +10,8 @@
 // request.json (paths relative to it):
 //   board          the board's items (a JSON file of [BoardItem] or { items }). A presentation frame is an item with
 //                  extra.presentationFrame.order; every item centred inside it is on that slide.
+//   slides         instead of board: the deck as slides (what each says and shows), laid out onto a board by
+//                  do-work/slides-to-board.mjs (kinds words, compare, picture, table). Give board or slides, not both.
 //   title?         the document's title.
 //   look_values?   a look's concrete values by variable name (tool:resolve-a-look's palette, a file or an object).
 //                  Any style, colour or font in the board written as a variable name ("--accent-primary") is read
@@ -34,6 +36,7 @@ import { boardToDeck, deckToHtml } from '../../organize-the-sidebar/do-work/boar
 import { exportFillOf } from '../../organize-the-sidebar/do-work/board-svg.ts';
 import { boardFrames, itemsInsideFrame } from '../../organize-the-sidebar/do-work/board-frames.ts';
 import { judge } from '../../judge-words/do-work/judge-words.mjs';
+import { slidesToBoard } from './slides-to-board.mjs';
 
 const IMAGE_TYPES = { '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp' };
 const STYLE_KEYS = ['fill', 'stroke', 'strokeWidth', 'cornerRadius', 'opacity', 'textColor'];
@@ -202,9 +205,12 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = argsOf(process.argv.slice(2));
   const base = dirname(resolve(args.request));
   const request = readJson(base, args.request);
-  const board = readJson(base, request.board);
+  if (Boolean(request.board) === Boolean(request.slides)) fail('give the deck as a board or as slides, one of the two.');
+  const laidOut = request.slides ? slidesToBoard(readJson(base, request.slides)) : null;
+  const board = laidOut ?? readJson(base, request.board);
   const rawItems = Array.isArray(board) ? board : board?.items;
   if (!Array.isArray(rawItems)) fail('board is a list of items, or { items }.');
+  if (laidOut) request.assets = { ...laidOut.assets, ...(request.assets ?? {}) };
   const values = request.look_values ? readJson(base, request.look_values) : {};
   const palette = values.palette ?? values;
   const texts = request.words_from ? textsFromPiece(readJson(base, request.words_from)) : new Map();
