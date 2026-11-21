@@ -23,7 +23,9 @@
           "id": "workspace",
           "label": "Workspace",
           "icon": "Building2",
-          "panel": "workspace"
+          "panel": "workspace",
+          "shown": false,
+          "waits_for": "The Workspace page draws the account's guide screen at /work/api/screens/workspace, which no offered row serves."
         },
         {
           "id": "connections",
@@ -125,7 +127,9 @@
           "id": "whats-new",
           "label": "What's new",
           "icon": "Sparkles",
-          "panel": "whats-new"
+          "panel": "whats-new",
+          "shown": false,
+          "waits_for": "What's new reads the posts the build publishes, from a static file that no owner answers for."
         },
         {
           "id": "contact",

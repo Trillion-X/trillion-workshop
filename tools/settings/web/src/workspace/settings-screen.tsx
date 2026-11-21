@@ -12,11 +12,12 @@ import { PAGES } from './settings-pages';
 import { answerSettingsPageRequests } from './settings-page-request';
 import data from './settings-panels.json';
 
-type Item = PanelNavigationItem & { address?: string; panel?: string; tool?: string; href?: string };
+type Item = PanelNavigationItem & { address?: string; panel?: string; tool?: string; href?: string; shown?: boolean; waits_for?: string };
 const PANELS: Record<string, () => React.ReactElement> = { ...PAGES };
 
 export function mountSettingsScreen(element: HTMLElement, props: { surfaceInput?: Record<string, unknown> } = {}) {
-  const items: Item[] = data.groups.flatMap(group => group.items);
+  // An item the data switches off (shown: false, waits_for names what its owner must answer) is kept, not drawn.
+  const items: Item[] = data.groups.flatMap(group => group.items.filter(item => item.shown !== false));
   const pages = items.filter(item => !item.action);
   const requested = props.surfaceInput?.page;
   // The page opened first is the one asked for, else the DATA default, else the first page: a default that names an item
