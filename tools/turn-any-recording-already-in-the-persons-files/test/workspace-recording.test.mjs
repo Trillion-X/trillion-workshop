@@ -11,7 +11,7 @@ import surfaces from '../../shared-code/src/workspace/screens.mjs';
 import { queuedWork } from '../../turn-a-button-press-like-ask-my-ai/src/queued-work.mjs';
 import { handleContentFormatsRequest, makeContentFormats } from '../../shape-a-thought-into-my-content-formats/read-data/content-formats.mjs';
 import { keepVoiceMemo } from '../src/voice-memos.mjs';
-import voiceTools from '../from-an-older-version/records/workshop-voice-and-formats-tool-records.json' with { type: 'json' };
+import voiceTools from '../records/workshop-voice-and-formats-tool-records.json' with { type: 'json' };
 import { toolSurfaces } from '../../keep-and-wake-ai-sessions-on-this-computer/src/work-workshop.mjs';
 
 const format = { id: 'hook-story', label: 'Hook / Story', slots: [{ id: 'hook', label: 'Hook', hint: 'Open on the surprise' }, { id: 'story', label: 'Story', hint: 'Tell what happened next' }, { id: 'lesson', label: 'Lesson' }], output: 'A short video' };
