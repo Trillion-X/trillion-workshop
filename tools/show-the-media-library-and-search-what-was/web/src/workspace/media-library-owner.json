@@ -1,8 +1,17 @@
 {
-  "_what": "Where the Media screen reads its library (media-library-read.ts): the person's own files, as their files owner keeps them (ns_name for each name, ns_file for each file's media type and whether its bytes are kept), read by `tool` with `credential_name`. A file is media when the first part of its media type is one of `kinds`. Rows come newest first, `limit` at a time; a page after the first starts after the last row of the one before. `views` says, for each saved view of the screen, which files it asks for: `stored` true or false, or every file when absent.",
+  "_what": "Where the Media screen reads its library, search and pictures (media-library-read.ts, media-search.ts, media-pictures.ts, media-playback.ts): the person's own files, as their files owner keeps them. The library is one row per media file of ns_file (a file whose media type's first part is one of `kinds`), named by its newest name from ns_name, newest first, `limit` at a time; a page after the first starts after the last row of the one before. `total` counts every such file. `views` says, for each saved view of the screen, which files it asks for: `stored` true or false, or every file when absent. Read by `tool` with `credential_name` (SQL on the person's own database). `files_tool` is the files owner (tool:your-files) for pictures (thumbnail) and playback (read_file_span, `span_bytes` a window). `search` is the picture search: `embed_tool` turns the words into a picture-space vector, the nearest `pool` frames are read from media_index_vectors, and the best frame of each file is kept, the `results` best files shown.",
   "tool": "tool:run-sql-in-my-database",
   "credential_name": "own-rows-postgres-connection",
   "kinds": ["video", "audio", "image"],
   "limit": 60,
-  "views": { "ready": { "stored": true }, "elsewhere": { "stored": false } }
+  "views": { "all-media": {}, "ready": { "stored": true }, "elsewhere": { "stored": false } },
+  "files_tool": "tool:your-files",
+  "thumbnail_size": 480,
+  "span_bytes": 8388608,
+  "most_playable_bytes": 1073741824,
+  "search": {
+    "embed_tool": "tool:words-as-picture-vector",
+    "pool": 400,
+    "results": 60
+  }
 }
