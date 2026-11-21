@@ -10,7 +10,7 @@ import { mountReactSurface } from '../../../../ui';
 import { Button, Card, Container, Input, Text, Textarea } from '../../../../ui';
 import { ErrorBoundary } from '../../../../ui/show/error-boundary';
 import { ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
-import { refusal } from './failure';
+import { refusal } from '../../../../workspace-screens/web/src/workspace/failure';
 import words from './contract-builder-words.json';
 import templates from './contract-templates.json';
 import { quoteLines, composeMessage } from '../../../do-work/contract-builder-quote.mjs';
@@ -153,14 +153,20 @@ function PrivateDealBuilder({ pursuits }: { pursuits: Pursuit[] }) {
               <Container key={piece} layout="vertical" gap="xs" className="min-w-0">
                 <PickButtons items={options.map(row => ({ ...row, id: row.option_key }))} label={row => row.label} selected={chosen?.option} onPick={row => setChoice(piece, { option: row.option_key })} />
                 {part.basis === 'per_unit' ? (
-                  <Container layout="horizontal" gap="xs">
-                    <Input type="number" value={String(chosen?.quantity ?? 1)} aria-label={words.line_quantity} onChange={event => setChoice(piece, { quantity: Math.trunc(Number(event.target.value)) })} />
-                    <Text variant="body-xs" color="muted">{part.unit ? words.line_unit.replace('{unit}', part.unit) : ''}</Text>
+                  <Container layout="vertical" gap="xs">
+                    <Text variant="label" color="muted">{words.line_quantity}</Text>
+                    <Container layout="horizontal" gap="xs">
+                      <Input type="number" value={String(chosen?.quantity ?? 1)} aria-label={words.line_quantity} onChange={event => setChoice(piece, { quantity: Math.trunc(Number(event.target.value)) })} />
+                      <Text variant="body-xs" color="muted">{part.unit ? words.line_unit.replace('{unit}', part.unit) : ''}</Text>
+                    </Container>
                   </Container>
                 ) : null}
                 {part.basis === 'flat' || part.basis === 'per_unit' ? (
-                  <Input type="number" value={dollars(chosen?.amount_cents ?? part.amount_cents)} aria-label={words.line_amount} placeholder={words.unpriced}
-                    onChange={event => { const value = Math.round(Number(event.target.value)); if (Number.isFinite(value) && value >= 0) setChoice(piece, { amount_cents: value * 100 }); }} />
+                  <Container layout="vertical" gap="xs">
+                    <Text variant="label" color="muted">{words.line_amount}</Text>
+                    <Input type="number" value={dollars(chosen?.amount_cents ?? part.amount_cents)} aria-label={words.line_amount} placeholder={words.unpriced}
+                      onChange={event => { const value = Math.round(Number(event.target.value)); if (Number.isFinite(value) && value >= 0) setChoice(piece, { amount_cents: value * 100 }); }} />
+                  </Container>
                 ) : null}
                 {part.basis === 'percent' ? <Text variant="body-xs" color="muted">{`${words.line_percent}: ${part.percent}%`}</Text> : null}
                 {part.basis === 'at_cost' ? <Text variant="body-xs" color="muted">{`${part.label} — ${words.line_at_cost}`}</Text> : null}
@@ -176,7 +182,7 @@ function PrivateDealBuilder({ pursuits }: { pursuits: Pursuit[] }) {
           <Text variant="body-xs" color="muted">{words.template_pick}</Text>
           <PickButtons items={templates.templates} label={item => item.name} selected={template.id} onPick={pickTemplate} />
           <Input value={subject} aria-label={words.subject} onChange={event => setSubject(event.target.value)} />
-          <Textarea value={body} aria-label={words.body} rows={8} onChange={event => setBody(event.target.value)} />
+          <Textarea value={body} aria-label={words.body} rows={Math.max(8, body.split('\n').length + Math.ceil(body.length / 70))} onChange={event => setBody(event.target.value)} />
         </Step>
       ) : null}
 
@@ -186,7 +192,7 @@ function PrivateDealBuilder({ pursuits }: { pursuits: Pursuit[] }) {
           <Text variant="body-xs" color="muted">{`${words.preview_from}: ${message.from}`}</Text>
           {message.reply_to ? <Text variant="body-xs" color="muted">{`${words.preview_reply_to}: ${message.reply_to}`}</Text> : null}
           <Text variant="heading-xs" color="strong">{message.subject}</Text>
-          <Text variant="body-sm" color="default" className="whitespace-pre-line">{message.body}</Text>
+          <Text variant="body-sm" color="default" wrap="preserve">{message.body}</Text>
           {message.footer ? <Text variant="body-xs" color="muted">{`${words.preview_footer}: ${message.footer}`}</Text> : null}
           <Text variant="body-xs" color="muted">{words.preview_note}</Text>
         </Step>
