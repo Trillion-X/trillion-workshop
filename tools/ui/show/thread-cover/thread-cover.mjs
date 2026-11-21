@@ -69,7 +69,8 @@ export function runThreadCover(geometry, root, settings) {
   const by = doc.createElement('figcaption');
   by.textContent = quotes[chosen].by;
   figure.append(words, by);
-  root.append(mesh, drawing, figure);
+  // Replaces the static first frame the page's markup drew (the same straight thread, needle and first quote, in markup).
+  root.replaceChildren(mesh, drawing, figure);
 
   let width = 0;
   let height = 0;
