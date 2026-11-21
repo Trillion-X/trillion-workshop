@@ -60,9 +60,9 @@
  *   change when it tells; timed-action refuses a schedule it cannot read
  *   (rejected_schedules), said on standard error.
  */
-import { readFileSync } from "node:fs";
 import { whenToWake } from "../../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs";
 import { clientOptions } from "./row-changes.mjs";
+import { readGivenCredential } from "./given-credential.mjs";
 
 async function connectWithPg(connection) {
   const { default: pg } = await import("pg");
@@ -219,7 +219,7 @@ export async function watchForTransitions(settings, handlers) {
   let rowsClient = null;
   const readRows = async () => {
     if (rowsClient === null) {
-      const connection = handlers.connection ?? readFileSync(handlers.credentialFd ?? 4, "utf8").trim();
+      const connection = handlers.connection ?? readGivenCredential(handlers, 4);
       rowsClient = await (handlers.connect ?? connectWithPg)(connection);
     }
     return keptWakes(rowsClient, own.from_rows);

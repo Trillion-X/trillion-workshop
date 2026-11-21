@@ -47,7 +47,7 @@
  *   look_again_seconds  how long between reads (default 300)
  */
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readGivenCredential } from "./given-credential.mjs";
 
 export const MECHANISM_REF = "package::notice-when-something-shows-up::mechanism::service-lists";
 export const CARRIED_BYTES = 1000;
@@ -177,7 +177,7 @@ export async function watchForTransitions(settings, handlers) {
   const own = readSettings(settings);
   const signal = handlers.signal;
   const keepState = handlers.keepState ?? (async () => {});
-  const credential = handlers.credential ?? readFileSync(handlers.credentialFd ?? own.credential_fd, "utf8").trim();
+  const credential = handlers.credential ?? readGivenCredential(handlers, own.credential_fd);
   let state = handlers.state?.seen ? handlers.state : null;
   try {
     while (!signal?.aborted) {

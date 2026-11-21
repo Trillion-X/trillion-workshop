@@ -59,6 +59,7 @@
 import { createServer } from "node:http";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { readFileSync } from "node:fs";
+import { readGivenCredential } from "./given-credential.mjs";
 
 export const MECHANISM_REF = "package::notice-when-something-shows-up::mechanism::signed-service-calls";
 // A told fact holds at most 1,024 bytes a field (the engine's fact inbox, trillion-rust src/wake/host-events.json).
@@ -338,7 +339,7 @@ export async function watchForTransitions(settings, handlers) {
   const own = readSettings(settings);
   assertRows(settings, own);
   const signal = handlers.signal;
-  const secret = handlers.secret ?? readFileSync(handlers.credentialFd ?? own.secret_fd, "utf8").trim();
+  const secret = handlers.secret ?? readGivenCredential(handlers, own.secret_fd);
   const answer = (response, status, value) => { response.writeHead(status, { "Content-Type": "application/json" }); response.end(JSON.stringify(value)); };
   const server = (handlers.makeServer ?? createServer)(async (request, response) => {
     const chunks = [];

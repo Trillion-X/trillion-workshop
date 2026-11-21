@@ -518,7 +518,9 @@ export async function runResidentEmitter({
   signal,
   nowMs = () => Date.now(),
   onRefusal,
-  connection = null,
+  // The run's one credential's vault name, null when the run was given none; left out by a caller that does not know
+  // (the retired shell host), whose mechanisms read as before.
+  connection = undefined,
 } = {}) {
   const waiterPathLabels = (env.BITFIELD_ARRIVAL_WAITER_PATH
     || "packages,notice-when-something-shows-up,waiter-descriptor")
@@ -533,6 +535,9 @@ export async function runResidentEmitter({
 
   let consecutiveFailures = 0;
   const started = [];
+  // A waiter refused because the run was given no credential for it: the wake was switched on without the input it
+  // needs, which no restart mends, so the run ends non-zero once every other waiter has ended and the wake shows it failed.
+  let noCredential = null;
 
   for (const row of rows) {
     let resolved;
@@ -571,6 +576,7 @@ export async function runResidentEmitter({
       // is not watching.
       await recordRefusal(carrier, row, Object.assign(error, { reason: error?.reason ?? "mechanism-cannot-wait" }), nowMs);
       onRefusal?.(error);
+      if (error?.noCredential) noCredential = error;
       // A waiter that broke while it watched (flagged crash by its mechanism) is not an ended waiter: it rethrows, so the
       // process exits non-zero and the supervisor restarts it with backoff. A clean return means only that the waiter is done.
       if (error?.crash) throw error;
@@ -581,6 +587,7 @@ export async function runResidentEmitter({
     throw new Error("Every waiter descriptor row was refused or inactive; nothing is waiting");
   }
   await Promise.all(started);
+  if (noCredential) throw noCredential;
 }
 
 async function recordRefusal(carrier, row, error, nowMs) {
@@ -658,6 +665,10 @@ async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, c
     // keep more before anything is told: a mechanism's own memory, never a second store.
     state: current?.state ?? null,
     credentialFd: declared.credential_name ? declared.credential_fd : null,
+    // Whether the run was given a credential for this waiter at all: its own, or the run's one credential_name (the
+    // engine mounts each only when the input names it). A mechanism never reads a descriptor it was not given
+    // (mechanisms/given-credential.mjs).
+    credentialMounted: declared.credential_name ? Number.isInteger(declared.credential_fd) : runs === undefined ? undefined : Boolean(runs),
     keepState: (state) => carrier.keepState?.(emitted.address_label, state, declared.waiter_ref),
     // A folder of this waiter's own that outlasts the run, when the carrier keeps one (a linked device's session lives
     // there); null otherwise.
