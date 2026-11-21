@@ -183,3 +183,38 @@ test('a null tables input (a workflow input not given) is no tables named', asyn
   const shape = shapeOf({ recipe: { name: 'may-read-under-row-rules', action: 'create', role: READER, tables: null } });
   assert.deepEqual(shape.tables, []);
 });
+
+test('a named table\'s row policy is read by the login under its use: the functions the policy calls get EXECUTE, nothing else', async () => {
+  for (const sql of [
+    'CREATE SCHEMA IF NOT EXISTS gate_side',
+    'CREATE TABLE gate_side.gated (id text PRIMARY KEY, allowed text NOT NULL)',
+    "INSERT INTO gate_side.gated VALUES ('clip-publish', 'publish:social/instagram'), ('clip-coach', 'coach/review:')",
+    'ALTER TABLE gate_side.gated ENABLE ROW LEVEL SECURITY',
+    'ALTER TABLE gate_side.gated FORCE ROW LEVEL SECURITY',
+    "CREATE POLICY by_use ON gate_side.gated USING (use_binding.run_purpose() || ':' || use_binding.run_surface() = ANY (string_to_array(allowed, ' ')))",
+    'CREATE TABLE gate_side.fence (id text PRIMARY KEY)',
+    "INSERT INTO gate_side.fence VALUES ('kept-from-the-login')",
+  ]) await runSql({ connection: owner, input: { sql } });
+  await assert.rejects(under(publish, 'SELECT id FROM gate_side.gated'), /permission denied for schema gate_side/, 'before it is named');
+  await runSql({ connection: owner, heldValue: KEY, input: { recipe: { name: 'may-read-under-row-rules', action: 'create', role: READER, tables: ['gate_side.gated'] } } });
+  assert.deepEqual(ids(await under(publish, 'SELECT id FROM gate_side.gated ORDER BY id')), ['clip-publish'], 'the policy answers under the publish use');
+  assert.deepEqual(ids(await under(coach, 'SELECT id FROM gate_side.gated ORDER BY id')), ['clip-coach'], 'and under the coach use');
+  await assert.rejects(under(publish, 'SELECT id FROM gate_side.fence'), /permission denied for table fence/, 'a table the policy does not name stays closed');
+  await runSql({ connection: owner, input: { sql: "CREATE FUNCTION gate_side.unnamed_fn(a text) RETURNS boolean LANGUAGE sql AS $$ SELECT a IS NOT NULL $$" } });
+  await runSql({ connection: owner, input: { sql: 'REVOKE EXECUTE ON FUNCTION gate_side.unnamed_fn(text) FROM PUBLIC' } });
+  const granted = await runSql({ connection: owner, input: { sql: "SELECT has_function_privilege($1, 'use_binding.run_purpose()', 'EXECUTE') AS purpose, has_function_privilege($1, 'gate_side.unnamed_fn(text)', 'EXECUTE') AS other", params: [READER] } });
+  assert.deepEqual(granted.rows, [{ purpose: true, other: false }], 'the policy\'s own function is granted; a function it does not name is not');
+});
+
+test('a policy that calls a SECURITY INVOKER function is refused: the login would run it as itself', async () => {
+  for (const sql of [
+    'CREATE TABLE gate_side.plain (id text PRIMARY KEY, allowed text NOT NULL)',
+    "INSERT INTO gate_side.plain VALUES ('clip-x', 'anything')",
+    "CREATE FUNCTION gate_side.plain_ok(a text) RETURNS boolean LANGUAGE sql AS $$ SELECT a IS NOT NULL $$",
+    'ALTER TABLE gate_side.plain ENABLE ROW LEVEL SECURITY',
+    'ALTER TABLE gate_side.plain FORCE ROW LEVEL SECURITY',
+    'CREATE POLICY by_plain ON gate_side.plain USING (gate_side.plain_ok(allowed))',
+  ]) await runSql({ connection: owner, input: { sql } });
+  await assert.rejects(runSql({ connection: owner, heldValue: KEY, input: { recipe: { name: 'may-read-under-row-rules', action: 'create', role: READER, tables: ['gate_side.plain'] } } }), /SECURITY INVOKER/);
+  await assert.rejects(under(publish, 'SELECT id FROM gate_side.plain'), /permission denied for table plain/, 'nothing was granted by the refused create: the login reads the table no more than before');
+});

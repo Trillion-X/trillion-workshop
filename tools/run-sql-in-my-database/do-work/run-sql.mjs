@@ -200,6 +200,15 @@ const runRecipe = async (client, shape, connection, roleConnection, heldValue) =
     const publicGrants = shape.action === 'create' && shape.tables.length === 0 ? recipe.public_grants?.create ?? [] : [];
     const steps = [...[...recipe[shape.action], ...publicGrants].map(template => [template, null, null]),
       ...(recipe.per_table?.[shape.action] ?? []).flatMap(template => shape.tables.map(named => [template, ...named.split('.')]))];
+    // The functions the named tables' row policies call get EXECUTE for the login, and no other: read from pg_depend, so a
+    // helper a policy names is granted and nothing a policy does not name. A policy function that is SECURITY INVOKER would run
+    // as the login and read what the login may not, so its grant is refused; the owner makes it SECURITY DEFINER first.
+    if (shape.tables.length) {
+      const functions = await runOne(client, `SELECT DISTINCT CASE WHEN $3::text = 'drop' THEN format('REVOKE EXECUTE ON FUNCTION %s FROM %I', pr.oid::regprocedure, $2::text) ELSE format('GRANT EXECUTE ON FUNCTION %s TO %I', pr.oid::regprocedure, $2::text) END AS statement, pr.prosecdef AS definer, pr.oid::regprocedure::text AS fn FROM pg_policy pol JOIN pg_depend d ON d.classid = 'pg_policy'::regclass AND d.objid = pol.oid AND d.refclassid = 'pg_proc'::regclass JOIN pg_proc pr ON pr.oid = d.refobjid WHERE pol.polrelid = ANY (SELECT to_regclass(each) FROM unnest($1::text[]) AS named(each))`, [shape.tables, login.role, shape.action]);
+      const invoked = functions.rows.filter(row => !row.definer).map(row => row.fn);
+      if (invoked.length) throw new Error(`A row policy of ${shape.tables.join(', ')} calls ${invoked.join(', ')}, which is SECURITY INVOKER: it would run as the login. The owner makes it SECURITY DEFINER with a fixed search_path, then this grant.`);
+      for (const { statement } of functions.rows) await runOne(client, statement);
+    }
     for (const [template, schema, tableName] of steps) {
       const { rows: [{ statement }] } = await runOne(client, "SELECT format($1, $2::text, $3::text, $4::text, $5::text, $6::text, $7::text, $8::text, $9::text, left('rule_' || $2::text, 63), $10::text, $11::text, $12::text) AS statement", [template, login.role, login.password, login.validUntil, database, roleDatabase, shape.table ?? null, listed, rule, heldValue || null, schema, tableName]);
       await runOne(client, statement);

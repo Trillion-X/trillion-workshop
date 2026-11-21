@@ -44,3 +44,20 @@ Runs one SQL statement, as written, in a person's own Postgres-wire database and
 **Depends on:** `pg` 8.23.1 (MIT), the engine's `credential_mounts`, its run proxy and `packages` rows.
 
 **Depended on by:** nothing in the Workshop imports it; a person's AI calls it, or uses the database directly.
+
+## How a workflow step runs under a use (the contract)
+
+A step that reads a pursuit's rows under a use never handles a ticket. The recipe step declares the use, and the engine does the rest:
+
+1. **Declare it in the step** (the recipe row's `definition`): `config.name` is `tool:run-sql-in-my-database`, `config.input` has `database` (the pursuit's database, e.g. `ethos_for_who_runs_it`) and `sql`, and `config.context.use` is `{"purpose": "...", "surface": "..."}`. Two text values, no others.
+2. **The engine signs the ticket** (`src/tool_runs/tools/use_ticket.rs` in trillion-rust). It makes a ticket for each run: `hex(payload).hex(HMAC-SHA256(<database>-use-key, hex(payload)))`, where payload is `{"nonce": 16 random bytes as hex, "purpose", "surface", "until": the run's deadline in Unix ms}`. The use key is read from the vault inside the engine and never leaves it.
+3. **The tool presents it** (`do-work/run-sql.mjs`). The run gets the reader login (`<database>-reader-connection`) and the ticket on descriptor 5. The statement runs as `BEGIN; SELECT * FROM use_binding.claim_use($1); <your sql>; COMMIT`. The claim binds the use to that one transaction, once per nonce; `use_binding.run_purpose()` and `run_surface()` read it, and the row rules read those.
+4. **Nothing else.** The step's SQL is ordinary SQL with no claim call. A statement with no ticket is refused before it is sent, and `set_config` cannot change the use (the test `a run cannot SET its purpose and be believed` proves it).
+
+Example, the shape `clip-examiner` (purpose `manage`) and `daily-formats` (purpose `publish`, surface `social/instagram`) use:
+
+    config.name: "tool:run-sql-in-my-database"
+    config.context.use: {"purpose": "publish", "surface": "social/instagram"}
+    config.input: {"database": "ethos_for_who_runs_it", "sql": "select id from public.recording_moment order by id"}
+
+Claims and their counts: `select count(*) from use_binding.claims` lists one row per claimed use (nonce, purpose, surface, claimed_by, until), read by the owner. A pursuit's default for a run with no claim is `use_settings.purpose_when_unstated`; `none` reads nothing.
