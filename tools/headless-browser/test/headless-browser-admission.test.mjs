@@ -217,7 +217,7 @@ test('legacy admission reads argv only for browser candidates and bounds every p
   };
   assert.deepEqual(legacyHeadlessRoots({ run, inspect: () => started }).map(row => row.pid), [921]);
   assert.deepEqual(calls.map(call => call.args), [['-axo', 'pid=,comm='], ['-p', '921', '-o', 'pid=,ppid=,lstart=,command=']]);
-  assert.ok(calls.every(call => call.options.timeout === 2000 && call.options.killSignal === 'SIGKILL'));
+  assert.ok(calls.every(call => call.options.timeout === 10000 && call.options.killSignal === 'SIGKILL'));
   calls.length = 0;
   assert.deepEqual(legacyHeadlessRoots({ run: (...args) => { calls.push(args); return '111 /usr/bin/node\n'; } }), []);
   assert.equal(calls.length, 1);

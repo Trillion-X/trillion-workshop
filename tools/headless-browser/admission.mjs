@@ -7,6 +7,9 @@ import { computerCacheFolder } from '../process-session/do-work/computer-cache-f
 import ADMISSION from './admission.json' with { type: 'json' };
 const QUEUE_ROOT = join(computerCacheFolder(), 'headless-browser-admission');
 const PROBE_OPTIONS = { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 2000, killSignal: 'SIGKILL' };
+// The outside-browser scan reads the whole process list, which takes about 0.7 s on a busy Mac and more under load; a 2 s limit made
+// every scan inconclusive (Nov 21 2026: a run waited the full 600 s, "the process list could not be read"). Still bounded.
+const LEGACY_PROBE_OPTIONS = { ...PROBE_OPTIONS, timeout: 10000 };
 const BROWSER_PROGRAM = /(?:Google Chrome|Chromium|chrome-for-testing|chromium_headless_shell|chrome-headless-shell)/i;
 export { ADMISSION };
 // DATA (admission.json): how long an outside headless browser may hold local browser work before it stops blocking it.
@@ -34,13 +37,13 @@ export function legacyHeadlessRoots({ run = execFileSync, inspect = identityOf }
   try {
     // Reading every process's argv can hang on a busy computer. First inspect only
     // executable names; request arguments only for actual browser candidates.
-    const programs = run('ps', ['-axo', 'pid=,comm='], PROBE_OPTIONS);
+    const programs = run('ps', ['-axo', 'pid=,comm='], LEGACY_PROBE_OPTIONS);
     const candidates = String(programs).split('\n').flatMap(line => {
       const match = line.match(/^\s*(\d+)\s+(.+)$/);
       return match && BROWSER_PROGRAM.test(match[2]) ? [match[1]] : [];
     });
     if (!candidates.length) return [];
-    const rows = run('ps', ['-p', candidates.join(','), '-o', 'pid=,ppid=,lstart=,command='], PROBE_OPTIONS);
+    const rows = run('ps', ['-p', candidates.join(','), '-o', 'pid=,ppid=,lstart=,command='], LEGACY_PROBE_OPTIONS);
     return parseLegacyHeadlessRoots(rows, (pid, started) => {
       const current = inspect(pid);
       return current === UNKNOWN_LIVE || current === started;
