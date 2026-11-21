@@ -1,0 +1,11 @@
+	# Calls an outside service makes to this computer (a signed webhook): the paths in service_call_paths of the names in
+	# service_call_hosts go to the one local listener at service_call_listen (tools/notice-when-something-shows-up
+	# signed-service-calls), which checks each call's signature itself. No health check: the listener answers only signed
+	# calls, so a call before it runs is answered 502. Every other path of those names is the site's as before.
+	@service_calls {
+		host {service_call_hosts}
+		path {service_call_paths}
+	}
+	handle @service_calls {
+		reverse_proxy {service_call_listen}
+	}
