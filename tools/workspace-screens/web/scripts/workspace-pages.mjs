@@ -13,6 +13,10 @@
 //   address, so the front door answers it and the page opens that screen (addresses.mjs). Until Nov 20 2026 /menu-bar had no
 //   page there and the panel's reload every 31 s got 404; until Nov 21 2026 only screens shown alone had one, so a link to
 //   /grants (the owner's grants screen) or a reload of /calendar answered 404.
+//
+//   Each screen's route_prefix (one or two segments: `/file/`, `/record/about/`) is one more page, `<segments joined by .>.prefix.html`
+//   (prefixPage). The front door's prefix rule (keep-a-caddy-front-door-on-a-computer sites/) answers each address under it with that
+//   page, so /file/<id> opens the file screen. Until Nov 21 2026 /file/<id> answered 404: no page had that name.
 
 //   A tool's own screen (a row's screen.kind "module") is built into a bundle the page imports from
 //   /workshop/modules/<bundle>/<file> (src/workspace/screen-module-address.mjs). A front door serving files has no server to
@@ -35,6 +39,7 @@ const PROGRAM = join(dirname(fileURLToPath(import.meta.url)), '../src/workspace/
 
 const TOOLS = join(dirname(fileURLToPath(import.meta.url)), '../../..');
 const PLAIN = /^\/[a-z0-9][a-z0-9-]*(\/[a-z0-9][a-z0-9-]*)*$/;
+const PREFIX = /^\/[a-z0-9][a-z0-9-]*(\/[a-z0-9][a-z0-9-]*)?\/$/;
 
 /** Each tool's screen surfaces, from its part.json `offers[].screen.surface`. */
 export function toolScreenSurfaces(tools = TOOLS) {
@@ -49,6 +54,16 @@ export function screenAddresses(program = JSON.parse(readFileSync(PROGRAM, 'utf8
   return [...new Set([...(program.surfaces ?? []), ...surfaces].flatMap(surface => surface.route_paths ?? [])
     .filter(path => typeof path === 'string' && PLAIN.test(path) && path !== '/workspace' && !path.startsWith('/workspace/')))];
 }
+
+/** The route_prefix addresses of the same surfaces, one or two plain segments each (`/file/`, `/record/about/`); a deeper prefix
+ *  is not listed, and the front door has no rule for it (a test holds every real prefix to two segments). */
+export function screenPrefixes(program = JSON.parse(readFileSync(PROGRAM, 'utf8')), surfaces = toolScreenSurfaces()) {
+  return [...new Set([...(program.surfaces ?? []), ...surfaces].map(surface => surface.route_prefix)
+    .filter(prefix => typeof prefix === 'string' && PREFIX.test(prefix)))];
+}
+
+/** The page a front door's prefix rule reads for a prefix: `/record/about/` is `record.about.prefix.html`. */
+export const prefixPage = prefix => `${prefix.slice(1, -1).replaceAll('/', '.')}.prefix.html`;
 
 /** The workspace's pages for `origin` and its site `{ name }`. */
 export function workspacePages(origin, site) {
@@ -68,5 +83,6 @@ export function workspacePages(origin, site) {
     untarGz(bytes, { withBytes: true }).map(file => ({ page: decodeURIComponent(moduleAddress(bundle, file.name)).slice(1), bytes: Buffer.from(file.bytes) })));
   const workspace = pages.find(({ page }) => page === 'workspace.html');
   const alone = workspace ? screenAddresses().map(path => ({ page: `${path.slice(1)}.html`, bytes: workspace.bytes })) : [];
-  return [...pages, ...alone, ...modules].sort((a, b) => (a.page < b.page ? -1 : 1));
+  const prefixed = workspace ? screenPrefixes().map(prefix => ({ page: prefixPage(prefix), bytes: workspace.bytes })) : [];
+  return [...pages, ...alone, ...prefixed, ...modules].sort((a, b) => (a.page < b.page ? -1 : 1));
 }
