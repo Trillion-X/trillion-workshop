@@ -61803,5 +61803,15 @@
    ],
    "at": "/opt/send-requests-to-an-engine"
   }
- ]
+ ],
+  "tool:wait-for-a-composio-container": [
+    {
+      "package": "composio-connection",
+      "paths": [
+        "do-work",
+        "read-data"
+      ],
+      "at": "/opt/composio-connection"
+    }
+  ]
 }

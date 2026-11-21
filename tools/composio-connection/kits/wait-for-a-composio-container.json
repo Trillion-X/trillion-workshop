@@ -1,0 +1,39 @@
+{
+  "drafted_from": "tool:wait-for-a-composio-container's row and the stub test tools/composio-connection/test/wait-for-a-composio-container.test.mjs; the container id comes from a live Instagram reel container created on Nov 21 2026 (status FINISHED after about 20 s)",
+  "start_here": "Say to your AI: \"Wait until my Instagram container 18079563326737976 is ready\", with the connection id, the owning user id and the container id.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: the caller names the account and the container.",
+  "workflows": [],
+  "tools": [
+    "tool:wait-for-a-composio-container",
+    "tool:run-a-composio-action"
+  ],
+  "instructions": [
+    "1. Create the container first with tool:run-a-composio-action (a proxy POST to /{ig-user-id}/media). Keep the id it returns.",
+    "2. Call tool:wait-for-a-composio-container with {account_id, user_id, container_id, max_tries (default 30), every_seconds (default 5)}.",
+    "3. Read status_code FINISHED and tries. Only then publish with media_publish. ERROR or EXPIRED, or no FINISHED after max_tries, is refused with the last status: the container will not publish; create a new one."
+  ],
+  "worked_examples": [
+    {
+      "title": "Wait for a reel container before publishing it",
+      "ask": "Wait until my reel container is ready",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:wait-for-a-composio-container",
+            "input": {
+              "account_id": "ca_sample",
+              "user_id": "sample-owner",
+              "container_id": "18079563326737976"
+            }
+          }
+        }
+      },
+      "given": "A reel container the app is still processing.",
+      "hands_back": "{account_id: ca_sample, container_id: 18079563326737976, status_code: FINISHED, tries: 4}"
+    }
+  ]
+}

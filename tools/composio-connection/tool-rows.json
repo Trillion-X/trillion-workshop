@@ -343,6 +343,131 @@
           }
         ]
       }
+    },
+    {
+      "id": "tool:wait-for-a-composio-container",
+      "address": "tool:wait-for-a-composio-container",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:wait-for-a-composio-container",
+        "label": "Wait until an app container is FINISHED",
+        "job": "Wait until a media container an app created (an Instagram reel, for example) is FINISHED, so it can be published",
+        "description": "Asks the app, through the connected account and the vault's Composio key, for one container's status_code every few seconds, up to max_tries (1 to 120, default 30) at every_seconds (1 to 60, default 5). It answers FINISHED with the number of tries. It refuses with the last status when the app says ERROR or EXPIRED, or when the container is not FINISHED after max_tries. It reads only: nothing is published, changed or removed.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "account_id",
+            "user_id",
+            "container_id"
+          ],
+          "properties": {
+            "account_id": {
+              "type": "string",
+              "description": "The Composio connection id of the account (its ca_ id)"
+            },
+            "user_id": {
+              "type": "string",
+              "description": "The Composio user id that owns the connection"
+            },
+            "project_id": {
+              "type": "string",
+              "description": "The Composio project id, only when the connection lives outside the key's own project"
+            },
+            "container_id": {
+              "type": "string",
+              "description": "The numeric id the app returned for the container"
+            },
+            "max_tries": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 120,
+              "description": "How many status asks before refusing (default 30)"
+            },
+            "every_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 60,
+              "description": "Seconds between asks (default 5)"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "account_id",
+            "container_id",
+            "status_code",
+            "tries"
+          ],
+          "properties": {
+            "account_id": {
+              "type": "string"
+            },
+            "container_id": {
+              "type": "string"
+            },
+            "status_code": {
+              "type": "string",
+              "enum": [
+                "FINISHED"
+              ]
+            },
+            "tries": {
+              "type": "integer"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/composio-connection",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/composio-connection/do-work/wait-for-a-composio-container.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "composio-api-key",
+              "fd": 4
+            }
+          ],
+          "files": {
+            "package_files": [
+              {
+                "package": "composio-connection",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/composio-connection"
+              }
+            ]
+          },
+          "connection": null
+        },
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": true
+        },
+        "maker": "maker:composio-connection",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "verify": "[{\"kind\": \"unit-test\", \"file\": \"tools/composio-connection/test/wait-for-a-composio-container.test.mjs\", \"shape_read_at\": \"2026-11-21\", \"note\": \"stubbed app: FINISHED after 3 tries; ERROR/EXPIRED refused; cap refused; non-200 refused; bad input refused before any request\"}]"
+      }
     }
   ]
 }
