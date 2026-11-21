@@ -42,6 +42,13 @@ export const playbackCompletionLook = {
   icon: 'size-4 shrink-0',
 } as const;
 
+/** The outline a caption draws when it has no background of its own: a dark edge under white words, a light edge under black
+ * words, so the words read on any picture. */
+export const captionHalo = {
+  white: '0 0 2px #000, 0 0 4px #000, 0 0 8px rgba(0,0,0,0.9)',
+  black: '0 0 2px #fff, 0 0 4px #fff, 0 0 8px rgba(255,255,255,0.9)',
+} as const;
+
 export function captionShellClass(background: boolean, color: 'white' | 'black') {
   return [captionReaderLook.shell, background ? color === 'white' ? 'bg-black/70 shadow-lg backdrop-blur-sm' : 'bg-white/50 shadow-lg backdrop-blur-sm' : 'bg-transparent'].join(' ');
 }

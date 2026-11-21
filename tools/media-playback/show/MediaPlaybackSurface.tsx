@@ -7,7 +7,7 @@ import { InlineTextAction } from '../../ui/show/inline-text-action';
 import { PlaybackCompletion as PlaybackCompletionOverlay } from '../../ui/show/playback-completion';
 import { Dropdown } from '../../ui/show/dropdown';
 import { widestTextWidth } from '../../ui/read-data/widest-text';
-import { captionReaderLook, captionShellClass, captionToolbarClass, timedPassageClass, timedWordClass, type TimedWordLook } from '../../screen-look/show/timed-text-style';
+import { captionHalo, captionReaderLook, captionShellClass, captionToolbarClass, timedPassageClass, timedWordClass, type TimedWordLook } from '../../screen-look/show/timed-text-style';
 import { timedTextSegmentLookup } from '../read-data/timed-text-index';
 import { transcriptSegmentsForSpeaker, transcriptSpeakers } from '../../transcript-reader/read-data/read-transcript-records';
 import { readOrMakePreview, type MadePreviewStore } from '../../ui/show/media-preview';
@@ -597,14 +597,15 @@ const TimedSegmentWords = React.memo(function TimedSegmentWords({
 });
 
 const CaptionSegment = React.memo(function CaptionSegment({
-  segment, active, past, wordIndex, fontSize, textColor, onSeek,
+  segment, active, past, wordIndex, fontSize, textColor, halo, onSeek,
 }: {
   segment: TimedTextSegment; active: boolean; past: boolean; wordIndex: number;
-  fontSize: number; textColor: 'white' | 'black' | 'below-picture'; onSeek: (seconds: number) => void;
+  fontSize: number; textColor: 'white' | 'black' | 'below-picture'; halo?: 'white' | 'black'; onSeek: (seconds: number) => void;
 }) {
   return <p
-    className={[captionReaderLook.segment, active ? 'opacity-100' : 'opacity-50'].join(' ')}
-    data-media-caption-segment={segment.id} data-media-caption-active-segment={active ? 'true' : 'false'} style={{ fontSize }}
+    className={[captionReaderLook.segment, active || halo ? 'opacity-100' : 'opacity-50'].join(' ')}
+    data-media-caption-segment={segment.id} data-media-caption-active-segment={active ? 'true' : 'false'}
+    style={{ fontSize, textShadow: halo ? captionHalo[halo] : undefined }}
   >{segment.speaker ? <strong className="mr-1 font-medium">{segment.speaker}:</strong> : null}<TimedSegmentWords segment={segment} active={active} past={past} wordIndex={wordIndex} look={textColor} onSeek={onSeek} /></p>;
 });
 
@@ -735,12 +736,12 @@ export function TimedTextCaptionOverlay({
   const scaledFontSize = Math.max(captionReaderLook.minimumFont, Math.min(maximumFontSize, Math.round(fontSize * fontScale)));
   const readableHeight = Math.ceil(scaledFontSize * captionReaderLook.lineHeight * lines + captionReaderLook.textInset * 2 + (docked ? captionReaderLook.passageBlockInset * 2 : 0));
   const height = docked ? toolbarHeight + readableHeight : Math.min(availableHeight, Math.max(toolbarHeight + readableHeight, Math.min(containerSize.height * 0.5, containerSize.height * heightRatio)));
-  const defaultTopSafeInset = Math.max(safeInset, containerSize.height * 0.1);
-  const defaultBottomSafeInset = Math.max(120, containerSize.height * 0.28);
   // Reserve controls until their fade-out actually removes them. Frame and
   // control measurements apply together, without animating through old bounds.
   const baseLeft = (containerSize.width - width) / 2;
-  const baseTop = defaultTopSafeInset + (containerSize.height - defaultTopSafeInset - defaultBottomSafeInset - height) / 2;
+  // The reader rests just above the transport bar, as the caption box did before the port: never on the picture's centre, where the
+  // large play button sits. The bar's measured space (or the frame inset when the bar is hidden) keeps the reader clear of it.
+  const baseTop = docked ? 0 : containerSize.height - height - Math.max(controlsSafeBottom, safeInset);
   const minimumOffsetX = safeInset - baseLeft;
   const maximumOffsetX = containerSize.width - width - safeInset - baseLeft;
   const minimumOffsetY = safeInset - baseTop;
@@ -967,7 +968,8 @@ export function TimedTextCaptionOverlay({
                 segment={segment} active={segmentIndex === activeSegmentIndex}
                 past={activeSegmentIndex >= 0 && segmentIndex < activeSegmentIndex}
                 wordIndex={segmentIndex === activeSegmentIndex ? activeWordIndex : -1}
-                fontSize={scaledFontSize} textColor={docked ? 'below-picture' : textColor} onSeek={seekWord}
+                fontSize={scaledFontSize} textColor={docked ? 'below-picture' : textColor}
+                halo={docked || showBackground ? undefined : textColor} onSeek={seekWord}
               />}
             />
           </div>
@@ -1810,7 +1812,9 @@ export function BrowserMediaPlayer({
             video with no src can otherwise be announced as failed media by the
             browser even while its poster and Play action are usable. */}
         <video {...mediaProps} disablePictureInPicture={!controlShown(PICTURE_IN_PICTURE_CONTROL)} aria-hidden="true" ref={setVideoElement} style={sourceFailed ? { visibility: 'hidden' } : undefined} />
-        {!isPlaying && !hasEnded ? (
+        {/* The centre disc is the paused affordance; with the caption reader open it would sit on the captions (on a short picture,
+            on the caption toolbar too). The picture's click and the bar's Play button still play. */}
+        {!isPlaying && !hasEnded && !showCaptions ? (
           <button
             aria-label={sourceFailed ? 'Try video again' : 'Play video'}
             title={sourceFailed ? 'Try video again' : undefined}
