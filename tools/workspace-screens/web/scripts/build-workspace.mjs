@@ -31,6 +31,8 @@ import { barrelImportsPlugin } from '../../../../tools/check-bundle-package-boun
 import { jsonFieldsPlugin } from './json-fields.mjs';
 import { buildScreenModules, filesOfBundle, formerNameShims, importMap, savedScreenSharedModules, screenModuleSpecs, SHARED_NAMESPACE, sharedEntries, writeScreenModules } from './screen-modules.mjs';
 import { toolFolders } from './tool-folders.mjs';
+import { threadCoverHtml } from '../../../../tools/ui/show/thread-cover/thread-cover.mjs';
+import { assertNoOwnerGate, scanNoOwnerAddresses, writeReport } from './no-owner-gate.mjs';
 import { offeredRows, offeredScreens as screensToolsOffer } from '../../../../tools/keep-and-wake-ai-sessions-on-this-computer/src/workspace/offered-screens.mjs';
 import { firstLoadInputs } from './workspace-screen-sizes.mjs';
 import { writeHarnessSetupAssets } from './harness-setup-assets.mjs';
@@ -142,6 +144,10 @@ const toolScreens = await buildScreenModules({
   options: { target: 'es2022', minify: true, jsx: 'automatic', logLevel: 'warning', legalComments: 'none', define: { 'process.env.NODE_ENV': '"production"' }, loader: { '.css': 'css' } },
   plugins: [namedIconsPlugin(root, iconFolders), jsonFields, partSideEffectsPlugin(parts), workshopShell, partsAreTools, barrels.plugin, walkthroughsPlugin({ publicNamed: PUBLIC_NAMED, toursName, walkthroughFiles, root })],
 });
+// The no-owner gate: what the bundled screens read is a door address, or the build stops (scripts/no-owner-gate.mjs).
+const noOwner = scanNoOwnerAddresses({ workshop });
+writeReport(noOwner);
+assertNoOwnerGate(noOwner);
 const shared = await sharedEntries(savedScreenSharedModules(toolScreens.asked), root, [partsAreTools, workshopShell]);
 const bundled = keepBundleNames(await pageBuild(shared.entryPoints, [shared.plugin], false),
   { root, outdir: named, publicPath: PUBLIC_NAMED });
@@ -322,7 +328,7 @@ const escapeHtml = text => text.replace(/[&<>"]/g, mark => ({ '&': '&amp;', '<':
 const accountPage = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(siteName)}</title>`
   + `<link rel="stylesheet" href="${PUBLIC_NAMED}${stylesheetName}"><script type="importmap">${JSON.stringify(screenImportMap)}</script>`
   + accountFiles.map(file => `<link rel="modulepreload" href="${file}">`).join('')
-  + `</head><body><script type="module" src="${addressOf(accountOutput[0])}"></script></body></html>\n`;
+  + `</head><body>${threadCoverHtml()}<script type="module" src="${addressOf(accountOutput[0])}"></script></body></html>\n`;
 const accountPass = JSON.parse(readFileSync(join(root, 'src/workspace/account-pass.json'), 'utf8'));
 writeFileSync(resolve(out, '..', `${accountPass.home.slice(1)}.html`), accountPage);
 writeFileSync(resolve(out, '..', `${accountPass.callback.slice(1)}.html`), accountPage);
