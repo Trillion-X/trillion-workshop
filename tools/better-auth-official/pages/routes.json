@@ -1,5 +1,5 @@
 {
-  "_what": "Which page answers each sign-in address (GET only), first match wins: `path` is the address, `query` the values its query must hold (\"*\": any value), a row with `redirect` sends the address on instead of drawing a page; `sections` the files of sections/ drawn between the shell's <main> tags (shell.html is the one shared head, style and script set), `title` and `description` the page's own words. The addresses are the ones the sign-in pages link and post to. `assets` is the folder served under `assets_path`. `headers` go on every page answer: the content security policy (its inline scripts by their sha256, this tool's own script by 'self'), and its referrer and frame rules.",
+  "_what": "Which page answers each sign-in address (GET only), first match wins: `path` is the address, `query` the values its query must hold (\"*\": any value), a row with `redirect` sends the address on instead of drawing a page; `sections` the files of sections/ drawn between the shell's <main> tags (shell.html is the one shared head, style and script set), `title` and `description` the page's own words. A route with `policy` (its name in settings.site.policy) is drawn from that site's own words for it instead of sections, title and description; a site that gives no such words gets no page at that address. The addresses are the ones the sign-in pages link and post to. `assets` is the folder served under `assets_path`. `headers` go on every page answer: the content security policy (its inline scripts by their sha256, this tool's own script by 'self'), and its referrer and frame rules.",
   "assets_path": "/sign-in/assets/",
   "assets": "assets",
   "headers": {
@@ -187,6 +187,14 @@
       ],
       "title": "Connect a device",
       "description": "Approve or deny the device that asked to use your {{name}}."
+    },
+    {
+      "path": "/terms",
+      "policy": "terms"
+    },
+    {
+      "path": "/privacy",
+      "policy": "privacy"
     }
   ]
 }

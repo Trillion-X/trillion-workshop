@@ -12,10 +12,12 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// The pages draw the site block they are given: this run's has a mark, so the pages that name it can be checked.
+// The pages draw the site block they are given: this run's has a mark and policy words, so the pages that name them can be checked.
 const given = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
+const policy = { terms: { title: 'Example terms', description: 'The terms for Example.', sections: [{ heading: 'Who runs it', body: 'Example Co runs it.' }] },
+  privacy: { title: 'What we keep', description: 'What Example keeps.', sections: [{ heading: 'Sign-in', body: 'Your email.' }] } };
 const scratchDir = tempFolder(join(tmpdir(), 'pages-test-'));
-writeFileSync(join(scratchDir, 'settings.json'), JSON.stringify({ ...given, site: { ...given.site, mark_svg: '<svg xmlns="http://www.w3.org/2000/svg"/>' } }));
+writeFileSync(join(scratchDir, 'settings.json'), JSON.stringify({ ...given, site: { ...given.site, mark_svg: '<svg xmlns="http://www.w3.org/2000/svg"/>', policy } }));
 process.env.BETTER_AUTH_SETTINGS = join(scratchDir, 'settings.json');
 const { pageAnswer, table } = await import('../pages.mjs');
 
@@ -48,7 +50,8 @@ test('every page is the one shared shell around its own sections: no head, style
   assert.deepEqual([...used].sort(), sectionFiles.map(name => name.replace(/\.html$/, '')).sort(), 'every section file is drawn by a route and every route draws a file');
   for (const route of table.routes.filter(row => !row.redirect)) {
     const body = page(urlOf(route));
-    assert.ok(body.includes(`<title>${route.title.replace('{{name}}', given.site.name).replace(/&/g, '&amp;')}</title>`), `${route.path} carries its own title`);
+    const title = route.policy ? policy[route.policy].title : route.title;
+    assert.ok(body.includes(`<title>${title.replace('{{name}}', given.site.name).replace(/&/g, '&amp;')}</title>`), `${route.path} carries its own title`);
     assert.doesNotMatch(body, /\{\{/, `${route.path} leaves no gap of the shell undrawn`);
   }
 });

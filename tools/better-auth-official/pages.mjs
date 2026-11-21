@@ -30,14 +30,27 @@ const values = {
 const drawn = text => text.replace(/\{\{(\w+)\}\}/g, (gap, key) => values[key] ?? gap);
 const escaped = escapedText;
 
+// A policy page (routes.json `policy`) is the site's own words, settings.site.policy[name]: a title, a description and sections
+// of heading and body. Each body is paragraphs split by a blank line. A site without those words gets no such page.
+const policyOf = name => {
+  const policy = site.policy?.[name];
+  return policy && typeof policy.title === 'string' && typeof policy.description === 'string' && Array.isArray(policy.sections) ? policy : null;
+};
+const policySections = policy => `<section class="page-section"><h1 class="page-heading">${escaped(policy.title)}</h1>${policy.sections.map(({ heading, body }) => `<h2 class="page-item-heading">${escaped(heading)}</h2>${String(body).split(/\n\s*\n/).map(paragraph => `<p class="page-body">${escaped(paragraph.trim())}</p>`).join('')}`).join('')}</section>`
+  + '<section class="page-section page-section--fine"><div class="page-actions"><a class="page-action page-action--link" href="/sign-in">Back to sign in</a></div></section>';
+
 /** The page for a GET of `url` as bytes, or null: the shell with the matching route's title, description and sections. */
 export function pageOf(url) {
   const { pathname, searchParams } = new URL(url, 'http://page');
   const route = table.routes.find(({ path, query = {} }) => path === pathname
     && Object.entries(query).every(([key, value]) => searchParams.has(key) && (value === '*' || searchParams.get(key) === value)));
   if (!route || route.redirect) return null;
-  const sections = route.sections.map(name => readFileSync(new URL(`sections/${name}.html`, pages), 'utf8')).join('');
-  return Buffer.from(drawn(shell.replace('{{title}}', () => escaped(route.title)).replace('{{description}}', () => escaped(route.description)).replace('{{sections}}', () => sections)));
+  const policy = route.policy ? policyOf(route.policy) : null;
+  if (route.policy && !policy) return null;
+  const title = policy ? policy.title : route.title;
+  const description = policy ? policy.description : route.description;
+  const sections = policy ? policySections(policy) : route.sections.map(name => readFileSync(new URL(`sections/${name}.html`, pages), 'utf8')).join('');
+  return Buffer.from(drawn(shell.replace('{{title}}', () => escaped(title)).replace('{{description}}', () => escaped(description)).replace('{{sections}}', () => sections)));
 }
 
 /** An asset under assets_path, by its plain file name only, or null. */

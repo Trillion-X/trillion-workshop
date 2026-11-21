@@ -150,7 +150,7 @@
     "most": 100
   },
   "site": {
-    "_what": "Who this sign-in is for: the one block the computer running it supplies (the tool's own files name no product, colour or logo). `name` fills every {{name}} in pages and words and is the passkey and authenticator issuer; `cli` fills {{cli}} (the command a person types to sign in again); `storage_prefix` starts every key the pages keep in the browser and the session cookie's name (__Host-<prefix>_session) unless session_cookie_name is set; `theme` {data_theme, scheme, theme_color} is the Screen Look theme the pages wear; `look_css` is that theme's resolved tokens; `share` {title, description} are the link-preview words (null: none); `links` are the head's manifest, icon and font links; `mark_svg` (text) and `wordmark_png` (base64) are the pictures, served from the assets path as mark.svg and wordmark.png (null: none drawn); `email` {palette, made_with_label} is the look every email is drawn in (email-message-html.mjs). The values below are a neutral stand-in.",
+    "_what": "Who this sign-in is for: the one block the computer running it supplies (the tool's own files name no product, colour or logo). `name` fills every {{name}} in pages and words and is the passkey and authenticator issuer; `cli` fills {{cli}} (the command a person types to sign in again); `storage_prefix` starts every key the pages keep in the browser and the session cookie's name (__Host-<prefix>_session) unless session_cookie_name is set; `theme` {data_theme, scheme, theme_color} is the Screen Look theme the pages wear; `look_css` is that theme's resolved tokens; `share` {title, description} are the link-preview words (null: none); `links` are the head's manifest, icon and font links; `mark_svg` (text) and `wordmark_png` (base64) are the pictures, served from the assets path as mark.svg and wordmark.png (null: none drawn); `email` {palette, made_with_label} is the look every email is drawn in (email-message-html.mjs). `policy` {terms, privacy} holds the words of the /terms and /privacy pages, each {title, description, sections: [{heading, body}]} (a body's blank line starts a new paragraph); null: neither address answers. The values below are a neutral stand-in.",
     "name": "Example",
     "cli": "example",
     "storage_prefix": "example",
@@ -161,6 +161,7 @@
     },
     "look_css": "",
     "share": null,
+    "policy": null,
     "links": [],
     "mark_svg": null,
     "wordmark_png": null,
