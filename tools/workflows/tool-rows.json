@@ -2783,10 +2783,8 @@
           ]
         },
         "invoke": {
-          "kind": "computer",
-          "capabilities": [
-            "start-a-program"
-          ],
+          "kind": "container",
+          "internet": false,
           "workdir": "/opt/workflows",
           "stdout": "json",
           "argv": [
@@ -2877,10 +2875,8 @@
           ]
         },
         "invoke": {
-          "kind": "computer",
-          "capabilities": [
-            "start-a-program"
-          ],
+          "kind": "container",
+          "internet": false,
           "workdir": "/opt/workflows",
           "stdout": "json",
           "argv": [
@@ -2973,10 +2969,8 @@
           ]
         },
         "invoke": {
-          "kind": "computer",
-          "capabilities": [
-            "start-a-program"
-          ],
+          "kind": "container",
+          "internet": false,
           "workdir": "/opt/workflows",
           "stdout": "json",
           "argv": [
