@@ -2,7 +2,7 @@ import { buildAnswerFactWrites, type WriteEntry as AnswerFactWrite } from '../..
 import {
   readSessionCatalog,
   type SessionCatalogEntry,
-} from '../../coordination-session/read-data/read-session-catalog';
+} from '../../coordination-sessions/packages/coordination-session/read-data/read-session-catalog';
 import { publishForm, type AnyRecord, type PublishFormResult, type PublishNode } from './publish-form';
 
 export const STRUCTURED_SELECTION_KIND = 'session-selection-submission';
