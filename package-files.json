@@ -39167,6 +39167,23 @@
    "at": "/opt/run-tools-in-my-signed-in-browser"
   }
  ],
+ "tool:read-a-page-of-messages-on-this-mac": [
+  {
+   "package": "notice-when-something-shows-up",
+   "paths": [
+    "do-work/read-a-page-of-messages.mjs",
+    "do-work/mechanisms/imessage-chat-database.mjs"
+   ],
+   "at": "/opt/notice-when-something-shows-up"
+  },
+  {
+   "package": "bring-in-new-items-from-this-computer",
+   "paths": [
+    "computer/connections/imessage.mjs"
+   ],
+   "at": "/opt/bring-in-new-items-from-this-computer"
+  }
+ ],
  "tool:read-a-thread-summary": [
   {
    "package": "social-posts",
