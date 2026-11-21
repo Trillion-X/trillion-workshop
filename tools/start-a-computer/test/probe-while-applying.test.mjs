@@ -4,6 +4,11 @@
 // request sent while the prober lagged is counted apart, and the percentiles are of the requests sent on time.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
+import { createServer } from 'node:http';
+import { mkdtempSync, symlinkSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { parseArgs, summarize } from '../do-work/probe-while-applying.mjs';
 
 const at = '2026-11-21T18:00:00.000Z';
@@ -50,4 +55,21 @@ test('the arguments are flags then URLs, and a URL is required', () => {
     { every_ms: 25, slow_ms: 1000, lag_ms: 250, log: '/x', urls: ['https://a.example/'] });
   assert.throws(() => parseArgs([]), /at least one URL/);
   assert.throws(() => parseArgs(['--slow-ms', '0', 'https://a.example/']), /above 0/);
+});
+
+test('run through a linked path, the probe asks until SIGTERM and prints its summary', async () => {
+  const server = createServer((request, response) => response.end('ok'));
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  const linked = join(mkdtempSync(join(tmpdir(), 'probe-')), 'probe.mjs');
+  symlinkSync(new URL('../do-work/probe-while-applying.mjs', import.meta.url).pathname, linked);
+  const probe = spawn(process.execPath, [linked, '--every-ms', '20', `http://127.0.0.1:${server.address().port}/`]);
+  let said = '';
+  probe.stdout.on('data', chunk => { said += chunk; });
+  const ended = new Promise(resolve => probe.on('exit', resolve));
+  await new Promise(resolve => setTimeout(resolve, 600));
+  probe.kill('SIGTERM');
+  assert.equal(await ended, 0);
+  server.close();
+  const summary = JSON.parse(said);
+  assert.ok(summary.sent > 0 && summary.ok === summary.sent, `asked ${summary.sent}, ok ${summary.ok}`);
 });

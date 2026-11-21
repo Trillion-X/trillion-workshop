@@ -5,7 +5,8 @@
 // (Nov 21 2026: a probe run on a Mac at load 54 counted 64 requests over 1 s during an apply that restarted nothing the probe
 // reached), so a request sent while the prober lagged more than `lag-ms` (250) is kept but counted apart (`slow_while_lagging`)
 // and never as the served computer's slowness. `answered_by` is the response's `x-answered-by` header, when its server says.
-import { appendFileSync } from 'node:fs';
+import { appendFileSync, realpathSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 
 /** The probe's settings from its arguments: flags first, then the URLs. */
 export function parseArgs(argv) {
@@ -73,4 +74,6 @@ async function main() {
   });
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main().catch(error => { process.stderr.write(`${error.message}\n`); process.exit(2); });
+// Run as a program by its real path, so a linked path runs it too (Nov 21 2026: started as /tmp/..., a link to /private/tmp,
+// it compared unequal and exited at once, with no summary).
+if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) main().catch(error => { process.stderr.write(`${error.message}\n`); process.exit(2); });

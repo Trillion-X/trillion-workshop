@@ -416,6 +416,28 @@ test('a new slot that answers but fails its switch_check_command is stopped agai
   assert.ok(at('check-kept ') < at("systemctl disable --now 'example-place-a.service'"), 'the slot that ran stops only after the check passed');
 });
 
+// A slot served on a unix socket has no TCP address to ask: its own check_command (a curl --unix-socket on its socket) is its
+// boot check, and neither the unit nor the computer's row names health_listen (Nov 21 2026: a site's two slots, a socket each).
+test('a socket-served slot boots on its own check_command, with no health_listen in its unit or its computer\'s row', async () => {
+  const { health_listen: unitListen, ...unit } = slotted.units[0];
+  const { health_listen: rowListen, ...row } = slotted;
+  const socket = slot => `/run/sites/place.example.test/http-${slot}.sock`;
+  const socketed = { ...row, units: [{ ...unit, slots: Object.fromEntries(['a', 'b'].map(slot => [slot, { 'settings.listen': `unix:${socket(slot)}`, check_command: `check-socket ${socket(slot)}` }])) }] };
+  const served = slotComputer({ active: ['example-place-a.service'], links: { 'current-a': 'b'.repeat(40) } });
+  const run = async (m, command, input) => {
+    if (command.startsWith('check-socket ')) { served.commands.push({ command }); return ''; }
+    return served.run(m, command, input);
+  };
+  const answer = await applyWhatItRuns(machine, socketed, run, {}, { wait: async () => {} });
+  assert.deepEqual(answer.switched, [{ to: 'example-place-b.service', from: ['example-place-a.service'] }]);
+  const at = text => served.commands.findIndex(({ command }) => command.startsWith(text));
+  assert.ok(at(`check-socket ${socket('b')}`) > at("systemctl restart 'example-place-b.service'"), 'the new slot\'s socket is asked after its start');
+  assert.ok(at("systemctl restart 'example-place-b.service'") >= 0);
+  assert.ok(at(`check-socket ${socket('b')}`) < at("systemctl disable --now 'example-place-a.service'"), 'the slot that ran stops only once the new slot\'s socket answers');
+  assert.equal(at(`check-socket ${socket('a')}`), -1, 'the slot that ran is not asked');
+  assert.equal(served.commands.some(({ command }) => command.startsWith('curl ')), false, 'no TCP health is asked');
+});
+
 test('a slot that runs its row\'s release is left alone', async () => {
   const { run, commands } = slotComputer({ active: ['example-place-b.service'], links: { 'current-b': SOURCE_COMMIT } });
   assert.deepEqual(await runsDifferences(machine, slotted, run), []);
