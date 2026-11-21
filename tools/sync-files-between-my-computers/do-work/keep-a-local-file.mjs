@@ -10,6 +10,8 @@
 //   2. One file's refusal or failure does not stop the others: the answer lists what was kept and what was refused, each
 //      with its reason, so a run that failed halfway says which files still need keeping.
 //   3. Nothing is deleted or moved here. A file is read in place.
+//   5. A file's upload id is made from its name, length, change time and file number, so the next run of an unchanged file
+//      goes on with an upload a run left partway.
 //   4. A run keeps at most DATA `most_files` (keep-a-local-file.json) files.
 //
 //   keepALocalFile({ path, name, media_type } | { files: [...] }, host) — `host` (the run's host actions) is read only when a file is kept
@@ -18,6 +20,7 @@ import { lstat } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 import { isAbsolute } from 'node:path';
 import { keepLocalFile } from '../../workflows/read-data/whole-file.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const SETTINGS = JSON.parse(readFileSync(new URL('./keep-a-local-file.json', import.meta.url), 'utf8'));
 
@@ -37,7 +40,11 @@ async function keepOne({ path, name, media_type = 'application/octet-stream' } =
   if (info.isSymbolicLink()) refuse('A link is not kept; name the file itself.');
   if (!info.isFile()) refuse('Only a regular file can be kept.');
   // The host's files right is used only when a file is kept: a run that keeps nothing never asks for it.
-  const finished = await keepLocalFile(context, name, path, { mediaType: media_type });
+  // The upload id is the file's own (its name in Files, its length, its change time and its file number), so a run that
+  // ends partway, as a run past its deadline does, is gone on with from where the upload stands by the next run of the
+  // same file, never sent from the start again (a 3,020,837,328-byte card file was cut at 2 minutes on Nov 21 2026).
+  const uploadId = makeHashCodeHexFromBytes(Buffer.from(`keep-a-local-file\0${name}\0${info.size}\0${info.mtimeMs}\0${info.ino}`)).slice(3, 35);
+  const finished = await keepLocalFile(context, name, path, { mediaType: media_type, uploadId });
   return { name, bytes: info.size, media_type, finished };
 }
 

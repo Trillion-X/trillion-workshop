@@ -18,7 +18,7 @@
 //   readWholeFile(host, name, { readBytes, mostBytes })  -> { title, size, bytes } (bytes null when too large)
 //   writeWholeFile(host, name, bytes, { mediaType, pieceBytes, uploadId }) -> the finish answer
 //   writeWholeFileOnce(host, name, bytes, options)        -> { already_kept: true } when the file already holds exactly these bytes
-//   keepLocalFile(host, name, path, { mediaType })        -> the same answer for a file on this computer, read a chunk at a time when large
+//   keepLocalFile(host, name, path, { mediaType, uploadId }) -> the same answer for a file on this computer, read a chunk at a time when large
 //
 // `host` is any object with `files(method, input)` and, for a large file, `writeLarge(name, source, { mediaType })`.
 import { randomBytes } from 'node:crypto';
@@ -79,11 +79,13 @@ export async function writeWholeFileOnce(host, name, bytes, options = {}) {
 }
 
 // A file on this computer: a small one is read whole and written in pieces; a large one is sent by the chunked sender.
-export async function keepLocalFile(host, name, path, { mediaType } = {}) {
+// `uploadId`, when given, is the upload's own id, so a run that ends partway is gone on with by the next run under it.
+export async function keepLocalFile(host, name, path, { mediaType, uploadId } = {}) {
   const source = await fileSource(path);
+  const named = uploadId ? { uploadId } : {};
   try {
-    if (source.size <= LARGE_FILE.threshold_bytes) return await writeWholeFile(host, name, readFileSync(path), { mediaType });
-    return await largeRoute(host).writeLarge(name, source, { mediaType });
+    if (source.size <= LARGE_FILE.threshold_bytes) return await writeWholeFile(host, name, readFileSync(path), { mediaType, ...named });
+    return await largeRoute(host).writeLarge(name, source, { mediaType, ...named });
   } finally {
     await source.close();
   }

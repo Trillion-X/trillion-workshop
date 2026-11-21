@@ -49,6 +49,32 @@ test('a file above the whole-file threshold goes in raw pieces (writeLarge), not
   assert.equal(door.calls[0].size, LARGE_FILE.threshold_bytes + 5);
 });
 
+test('the next run of an unchanged file goes on with the same upload, and a changed file starts a new one', async () => {
+  const dir = tempFolder(join(tmpdir(), 'keep-local-'));
+  const path = join(dir, 'card.mp4');
+  await writeFile(path, Buffer.alloc(LARGE_FILE.threshold_bytes + 5, 1));
+  const first = fakeDoor();
+  const second = fakeDoor();
+  await keepALocalFile({ path, name: '/cards/card.mp4' }, first);
+  await keepALocalFile({ path, name: '/cards/card.mp4' }, second);
+  const id = first.calls[0].options.uploadId;
+  assert.match(id, /^[0-9a-f]{32}$/);
+  assert.equal(second.calls[0].options.uploadId, id);
+  const renamed = fakeDoor();
+  await keepALocalFile({ path, name: '/cards/other.mp4' }, renamed);
+  assert.notEqual(renamed.calls[0].options.uploadId, id);
+  await writeFile(path, Buffer.alloc(LARGE_FILE.threshold_bytes + 6, 1));
+  const changed = fakeDoor();
+  await keepALocalFile({ path, name: '/cards/card.mp4' }, changed);
+  assert.notEqual(changed.calls[0].options.uploadId, id);
+  const small = join(dir, 'note.txt');
+  await writeFile(small, 'hello');
+  const a = fakeDoor(); const b = fakeDoor();
+  await keepALocalFile({ path: small, name: '/cards/note.txt' }, a);
+  await keepALocalFile({ path: small, name: '/cards/note.txt' }, b);
+  assert.equal(a.calls[0].args.upload_id, b.calls[0].args.upload_id);
+});
+
 test('a list keeps each file in order and names each refusal, and one refusal does not stop the others', async () => {
   const dir = tempFolder(join(tmpdir(), 'keep-local-'));
   const real = join(dir, 'real.txt');

@@ -739,6 +739,7 @@
           }
         },
         "invoke": {
+          "max_run_ms": 50400000,
           "kind": "computer",
           "capabilities": [
             "see-connected-drives",
