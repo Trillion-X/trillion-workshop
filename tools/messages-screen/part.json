@@ -23,6 +23,7 @@
         "icon": "MessagesSquare",
         "surface": {
           "id": "trillion.messages",
+          "everyday": true,
           "opens_kinds": [
             "message"
           ],

@@ -19,6 +19,7 @@
         "icon": "House",
         "surface": {
           "id": "trillion.home",
+          "everyday": true,
           "surface_id": "trillion.home",
           "control": "screens.home",
           "kind": "placeable-surface",

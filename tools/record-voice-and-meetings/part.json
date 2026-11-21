@@ -67,6 +67,7 @@
         "icon": "Mic",
         "surface": {
           "id": "trillion.record",
+          "everyday": true,
           "surface_id": "trillion.record",
           "control": "screens.record",
           "kind": "placeable-surface",

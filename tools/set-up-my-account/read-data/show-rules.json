@@ -158,7 +158,8 @@
         { "id": "screen", "label": "Screen", "kind": "choice", "path": ["id"] },
         { "id": "name", "label": "Name", "kind": "text", "path": ["label"] },
         { "id": "list", "label": "Sidebar list", "kind": "choice", "path": ["sidebar_collection"] },
-        { "id": "from", "label": "Comes from", "kind": "choice", "path": ["source", "kind"] }
+        { "id": "from", "label": "Comes from", "kind": "choice", "path": ["source", "kind"] },
+        { "id": "everyday", "label": "Everyday screen", "kind": "boolean", "path": ["everyday"] }
       ]
     },
     "control": {

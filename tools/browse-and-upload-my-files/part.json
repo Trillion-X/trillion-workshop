@@ -51,6 +51,7 @@
         "icon": "FolderOpen",
         "surface": {
           "id": "trillion.files",
+          "everyday": true,
           "surface_id": "trillion.files",
           "kind": "placeable-surface",
           "sidebar_collection": "information-being-acted-on",

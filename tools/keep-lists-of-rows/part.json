@@ -96,6 +96,7 @@
         "icon": "List",
         "surface": {
           "id": "trillion.lists",
+          "everyday": true,
           "surface_id": "trillion.lists",
           "kind": "placeable-surface",
           "sidebar_collection": "information-being-acted-on",

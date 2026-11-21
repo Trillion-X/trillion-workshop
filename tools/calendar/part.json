@@ -20,6 +20,7 @@
         "icon": "CalendarDays",
         "surface": {
           "id": "trillion.calendar",
+          "everyday": true,
           "surface_id": "trillion.calendar",
           "kind": "placeable-surface",
           "sidebar_collection": "information-being-acted-on",

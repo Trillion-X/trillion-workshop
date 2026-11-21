@@ -51,11 +51,8 @@ test('the Simple workspace preset keeps collapse and resize and hides every othe
 test('the Simple workspace preset lists only the everyday screens, Settings as one place, and keeps every pursuit and its parts', () => {
   const changed = row => withChanges(row, showDecision({ data, given: simple, subject: 'screen', thing: row, now: NOW, filterRows: now }).changes);
   const listed = row => changed(row).listed !== false;
-  assert.equal(listed({ id: 'trillion.messages', label: 'Messages', sidebar_collection: 'talk-to-and-see-trillion' }), true);
-  assert.equal(listed({ id: 'trillion.files', label: 'Files', sidebar_collection: 'information-being-acted-on' }), true);
-  assert.equal(listed({ id: 'trillion.lists', label: 'Lists', sidebar_collection: 'information-being-acted-on' }), true);
-  assert.equal(listed({ id: 'trillion.settings', label: 'Settings', sidebar_collection: 'settings' }), true);
-  assert.equal(changed({ id: 'trillion.files', label: 'Files', sidebar_collection: 'information-being-acted-on' }).sidebar_collection, 'everyday', 'the everyday destinations sit together');
+  for (const sidebar_collection of ['talk-to-and-see-trillion', 'information-being-acted-on', 'settings', 'start']) assert.equal(listed({ id: 'stand-in:everyday', everyday: true, sidebar_collection }), true, `an everyday screen in ${sidebar_collection} is listed`);
+  assert.equal(changed({ id: 'stand-in:everyday', everyday: true, sidebar_collection: 'start' }).sidebar_collection, 'everyday', 'the everyday screens sit together, Home among them');
   assert.equal(listed({ id: 'pursuit:a', label: 'Popcorn', sidebar_collection: 'pursuits', source: { kind: 'pursuit-navigation' } }), true);
   assert.equal(listed({ id: 'pursuit:a:part:board', label: 'Board', source: { kind: 'pursuit-navigation', part_of_pursuit: true } }), true);
   assert.equal(listed({ id: 'trillion.workshop', label: 'Runs', sidebar_collection: 'things-trillion-uses' }), false);

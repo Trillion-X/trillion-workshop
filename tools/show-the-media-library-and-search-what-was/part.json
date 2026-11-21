@@ -22,6 +22,7 @@
         "icon": "Clapperboard",
         "surface": {
           "id": "trillion.media",
+          "everyday": true,
           "surface_id": "trillion.media",
           "kind": "placeable-surface",
           "sidebar_collection": "information-being-acted-on",

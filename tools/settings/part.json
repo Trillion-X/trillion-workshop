@@ -23,6 +23,7 @@
         "icon": "Settings",
         "surface": {
           "id": "trillion.settings",
+          "everyday": true,
           "surface_id": "trillion.settings",
           "kind": "placeable-surface",
           "sidebar_collection": "settings",

@@ -64,19 +64,17 @@
         "negate": false,
         "rules": [
           {
-            "kind": "rule",
-            "field": "screen",
-            "operator": "is_none_of",
-            "params": {
-              "values": [
-                "trillion.messages",
-                "trillion.files",
-                "trillion.media",
-                "trillion.lists",
-                "trillion.settings",
-                "trillion.ai"
-              ]
-            }
+            "kind": "group",
+            "combinator": "or",
+            "negate": true,
+            "rules": [
+              {
+                "kind": "rule",
+                "field": "everyday",
+                "operator": "is_true",
+                "params": {}
+              }
+            ]
           },
           {
             "kind": "group",
@@ -128,17 +126,9 @@
         "rules": [
           {
             "kind": "rule",
-            "field": "screen",
-            "operator": "is_any_of",
-            "params": {
-              "values": [
-                "trillion.messages",
-                "trillion.files",
-                "trillion.media",
-                "trillion.lists",
-                "trillion.settings"
-              ]
-            }
+            "field": "everyday",
+            "operator": "is_true",
+            "params": {}
           }
         ]
       },
