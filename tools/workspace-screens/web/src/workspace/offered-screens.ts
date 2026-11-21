@@ -20,18 +20,21 @@ import surfaces from './screens.mjs';
 import { oneRowPerId } from './one-row-per-id.mjs';
 import { pursuitNavigationRows } from './pursuit-navigation-rows.mjs';
 import { conversationNavigationRows } from './conversation-navigation-rows.mjs';
+import { partsOf } from './pursuit-parts';
 
 export type ScreenRow = Record<string, unknown> & { id: string };
 
-/** The app's screens this viewer may see, then each tool's own screen, then a row per pursuit (and per part of the
- *  pursuit `partsOf` shows, pursuit-parts.ts) and per conversation, one row per id. `conversations` is
+/** The app's screens this viewer may see, then each tool's own screen, then a row per pursuit (and under the pursuit the
+ *  focus names, the screens that belong in it, pursuit-parts.ts) and per conversation, one row per id. A screen that
+ *  belongs in a pursuit is not a row of its own: it shows under its pursuit only. `conversations` is
  *  /work/api/messages/threads' answer; when it has not been read, only the conversation every AI reads (All your AIs)
  *  has a row. */
-export function offeredScreens(viewer: { access_refs: string[] }, toolScreens: ScreenRow[], pursuits: Record<string, unknown>[] = [], conversations: Record<string, unknown>[] = [], partsOf?: (pursuit: Record<string, unknown>) => { id: string; label: string; icon?: string; tool_id?: string }[] | null): ScreenRow[] {
+export function offeredScreens(viewer: { access_refs: string[] }, toolScreens: ScreenRow[], pursuits: Record<string, unknown>[] = [], conversations: Record<string, unknown>[] = []): ScreenRow[] {
+  const inPursuit = toolScreens.filter(screen => screen.in_pursuit === true);
   return oneRowPerId([
     ...(surfaces.surfaces as ScreenRow[]),
-    ...toolScreens,
-    ...pursuitNavigationRows(pursuits, surfaces.surfaces, partsOf),
+    ...toolScreens.filter(screen => screen.in_pursuit !== true),
+    ...pursuitNavigationRows(pursuits, surfaces.surfaces, pursuit => partsOf(pursuit, inPursuit)),
     ...conversationNavigationRows(conversations, surfaces.surfaces),
   ]).filter(surface => !('audience' in surface) || viewer.access_refs.includes(`audience:${String(surface.audience)}`));
 }

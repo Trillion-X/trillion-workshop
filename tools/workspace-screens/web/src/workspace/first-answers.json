@@ -8,7 +8,7 @@
     "viewer": "/work/api/viewer",
     "show_rules": "/work/api/show-rules",
     "tool_screens": "/work/api/screens",
-    "pursuits": "/work/api/door/records:list?input=%7B%22type%22%3A%22pursuit%22%2C%22limit%22%3A999%7D",
+    "pursuits": "/work/api/door/secrets:names",
     "initial_setup": "/work/api/screens/get-started"
   },
   "startup_record_inputs": ["layout-state", "own-layouts", "layout-presets", "always-mount-companions", "sidebar-placement", "placeable-surface-list", "current-screen-look", "own-screen-look-themes", "show-rules"],

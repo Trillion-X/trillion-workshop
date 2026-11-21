@@ -26,6 +26,7 @@
 import firstAnswers from './first-answers.json' with { type: 'json' };
 import settings from './screen-catalog.json' with { type: 'json' };
 import { oneRowPerId } from './one-row-per-id.mjs';
+import { pursuitsFromNames } from './pursuit-list.mjs';
 
 export const SCREEN_CATALOG_READS = Object.freeze({
   viewer: firstAnswers.paths.viewer,
@@ -44,11 +45,8 @@ const rowsOf = (value, source) => {
   }
   return value;
 };
-/** The person's pursuits as sidebar rows, from the records door's list read of pursuit records (first-answers.json
- *  paths.pursuits): each record's value, under its record id. */
-export const pursuitRowsOf = answer => rowsOf(Array.isArray(answer?.records)
-  ? answer.records.filter(record => record?.value && typeof record.value === 'object').map(record => ({ ...record.value, id: record.id }))
-  : undefined, 'pursuits');
+/** The person's pursuits as sidebar rows, from the vault's names (first-answers.json paths.pursuits, pursuit-list.mjs). */
+export const pursuitRowsOf = answer => rowsOf(Array.isArray(answer?.names) ? pursuitsFromNames(answer.names) : undefined, 'pursuits');
 const viewerOf = value => {
   if (!value || typeof value !== 'object' || !Array.isArray(value.access_refs)
     || value.access_refs.some(ref => typeof ref !== 'string')) throw new TypeError('The viewer catalog did not return its access.');

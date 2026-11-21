@@ -62,7 +62,7 @@ import surfaces, { screenOpenedEvent } from './screens.mjs';
 import { replaceWorkspaceAddress, screenAt, screensAtAddress } from './addresses.mjs';
 import { takeSpaceInviteAfterCheckout } from './pending-space-invite.mjs';
 import { offeredScreens, startScreenRecords, type ScreenRow as Row } from './offered-screens';
-import { onPartsChange, partsOf } from './pursuit-parts';
+import { onFocusChange } from './scope-focus';
 import { createScreenCatalog, pursuitRowsOf, SCREEN_CATALOG_CONVERSATIONS_EVERY_MS, screenCatalogWords } from './screen-catalog.mjs';
 import { aloneRow, startAlone } from './alone-page';
 import { leaveHost, standForHost } from './host-channel';
@@ -191,7 +191,7 @@ async function start() {
   const toolScreens = toolNow && 'value' in toolNow ? toolNow.value : { surfaces: [] };
   const firstPursuits = pursuitNow && 'value' in pursuitNow ? pursuitNow.value : [];
   // Which screens this person is offered (offered-screens.ts).
-  const offered: Row[] = offeredScreens(viewer, toolScreens.surfaces, firstPursuits, [], partsOf);
+  const offered: Row[] = offeredScreens(viewer, toolScreens.surfaces, firstPursuits, []);
   // The tray picks from what the pointer is over and adds its two rows to the right-click menu; its code arrives
   // while the first screens draw, since nothing is picked before then.
   void import('./tray').then(({ startTray }) => startTray(offered));
@@ -279,7 +279,7 @@ async function start() {
       ...(pursuitNow && 'value' in pursuitNow ? { pursuits: pursuitNow.value } : {}) },
     read: readJson,
     unavailable: (error: unknown) => error instanceof PlanNeeded ? error.upgrade_needed : null,
-    offer: ({ viewer: who, tools, pursuits, conversations }) => offeredScreens(who, tools, pursuits, conversations, partsOf),
+    offer: ({ viewer: who, tools, pursuits, conversations }) => offeredScreens(who, tools, pursuits, conversations),
     onChange: (updated, state) => {
       if (JSON.stringify(updated) !== JSON.stringify(offered)) {
         offered.splice(0, offered.length, ...updated);
@@ -306,8 +306,8 @@ async function start() {
     return answer.value;
   }));
   onStoreChange(async () => { await catalog.readPursuits(); });
-  // The pursuit the workspace is about shows its parts under its row; they change with the focus and its room.
-  onPartsChange(() => { catalog.offerAgain(); });
+  // The pursuit the workspace is about shows its screens under its row; they change with the focus.
+  onFocusChange(() => { catalog.offerAgain(); });
   // The conversations follow the store too, at most once per interval in the shared catalog read policy.
   let conversationsReadAt = 0;
   const readConversationRows = async () => {

@@ -18,8 +18,7 @@
 //   2. A level's rule is one `has_any_of` rule per dimension (its `param`), values the chosen ids; any other rule a
 //      person builds is kept as the ids it names, since a saved scope is ids per dimension (all across dimensions, any
 //      within one), which is exactly an All group of has_any_of rules.
-//   3. No pursuit is named here: each one is a vault connection name ending with focus.json `pursuits.runs_suffix`, and
-//      its words are focus.json DATA. No screen or other value is named here.
+//   3. No pursuit is named here: each one is a vault connection name (pursuit-list.mjs). No screen or other value is named here.
 
 import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json';
 import { allOf, FOCUS_CHAIN_LABEL, withNodeRule, type NodeRules, type NodeRuleStore } from '../../../../ui/show/rule-filter/focus-chain';
@@ -30,6 +29,7 @@ import focusWords from './focus.json';
 import spaceKinds from './space-kinds.json';
 import { readEveryScreenAgain } from './store-changes';
 import { readSavedRecordFromOwner, updateSavedLabelValueDurably } from './records';
+import { pursuitsFromNames } from './pursuit-list.mjs';
 
 type Scope = Record<string, string[]>;
 type Filters = { nodes: NodeRules; coverage: string[] | null };
@@ -83,11 +83,7 @@ let loading: Promise<{ nodeId: string; fields: RuleFieldView[]; facets: Record<s
 async function pursuitDimension(): Promise<Dimension> {
   const answer = await postJson<{ names?: unknown }>(focusWords.pursuits.names_method, {});
   if (!Array.isArray(answer?.names)) throw new Error(focusWords.pursuits.unreadable);
-  const suffix = focusWords.pursuits.runs_suffix;
-  const values = (answer.names as string[]).filter(name => name.endsWith(suffix)).sort().map(name => {
-    const plain = name.slice(0, -suffix.length).replace(/_/g, ' ');
-    return { id: name, title: plain.charAt(0).toUpperCase() + plain.slice(1) };
-  });
+  const values = pursuitsFromNames(answer.names as string[]).map(({ id, title }) => ({ id, title }));
   return { id: spaceKinds.focus_param, param: spaceKinds.focus_param, label: focusWords.pursuits.label, icon: focusWords.pursuits.icon, values };
 }
 
