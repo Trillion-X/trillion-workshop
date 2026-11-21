@@ -1,0 +1,41 @@
+{
+  "drafted_from": "tool:blur-faces-not-agreed-in-a-picture's row in tools/media-composition/records.json, and the --picture mode of tools/media-composition/do-work/blur-faces-not-agreed.py (the same script as the video copy, picture in and picture out)",
+  "start_here": "Say to your AI: \"Blur everyone in this picture who has not agreed.\" It runs tool:blur-faces-not-agreed-in-a-picture and keeps the copy in your files.",
+  "lists": [],
+  "no_lists_because": "It reads the picture and the agreed pictures you name and keeps one copy of the picture, so it keeps no list of its own.",
+  "workflows": [],
+  "tools": [
+    "tool:blur-faces-not-agreed-in-a-picture"
+  ],
+  "instructions": [
+    "1. Find the picture's identity in your files, and a clear picture of each person who agreed to be shown (yourself included).",
+    "2. Say \"Blur everyone in this picture who has not agreed\" with picture and agreed. With no agreed pictures every face is blurred.",
+    "3. The AI calls do_one_thing_in_my_account at @tools with method tools:run and tool tool:blur-faces-not-agreed-in-a-picture. It runs on the tool's own computer with no network.",
+    "4. Read result: faces, blurred, kept, agreed_faces, pictures_without_a_face and blurred_spans. The copy is files.picture, kept under Made by tools; the original is never changed."
+  ],
+  "worked_examples": [
+    {
+      "title": "Blur a still picture of a person who has not agreed",
+      "ask": "Blur everyone in this picture who has not agreed.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:blur-faces-not-agreed-in-a-picture",
+            "input": {
+              "picture": "1f:<identity of the picture in your files>",
+              "name": "Picture without strangers"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:make-a-trial-reel-and-post-it-on-instagram",
+      "step": "blur-picture",
+      "given": "A still picture with one person in it and no agreed pictures, so every face is blurred.",
+      "hands_back": "{\"result\":{\"width\":960,\"height\":540,\"faces\":1,\"blurred\":1,\"kept\":0,\"agreed_faces\":0,\"blurred_spans\":[[0,0]],\"picture_bytes\":<bytes>},\"files\":{\"picture\":{\"identity\":\"1f:<copy identity>\",\"bytes\":<bytes>,\"media_type\":\"image/jpeg\",\"name\":\"Picture without strangers\"}}}"
+    }
+  ]
+}

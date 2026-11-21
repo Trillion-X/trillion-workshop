@@ -4437,6 +4437,315 @@
   },
   {
    "type": "record",
+   "id": "package::media-composition::tool::blur-faces-not-agreed-in-a-picture",
+   "address": "package::media-composition::tool::blur-faces-not-agreed-in-a-picture",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:blur-faces-not-agreed-in-a-picture",
+    "listed_on": "2026-10-06T05:10:00Z",
+    "status": "active",
+    "label": "Blur everyone who has not agreed in a picture",
+    "job": "Make a copy of a still picture with every face blurred except the faces of the people who agreed to be shown, before it is posted or shared",
+    "description": "Give picture, a picture in the person's files, and agreed, pictures of each person who agreed to be shown (a clear picture of their face). Every face in the picture is found (the whole picture and its tiles); a face that matches someone who agreed stays, every other face is blurred. With unknown_spans (a still's one span, 0 to 0) the whole picture is blurred. The original is never changed; the copy is kept in the person's files under Made by tools. Faces are found with YuNet and recognized with SFace (OpenCV Zoo), on the tool's own computer; nothing leaves it.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "picture"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "picture": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The picture, by its identity in your files"
+      },
+      "agreed": {
+       "type": "array",
+       "maxItems": 50,
+       "items": {
+        "type": "string",
+        "format": "namespace-file"
+       },
+       "description": "Pictures of each person who agreed to be filmed, by identity in your files; with none, every face is blurred"
+      },
+      "match": {
+       "type": "number",
+       "minimum": 0.3,
+       "maximum": 0.9,
+       "description": "How alike a face must be to an agreed picture to be kept (default 0.363); higher blurs more"
+      },
+      "name": {
+       "type": "string",
+       "maxLength": 120,
+       "description": "What to call the copy, like Serve practice without strangers",
+       "x-free-text-because": "What to call the blurred copy this run makes: the name of the new file itself."
+      },
+      "unknown_spans": {
+       "type": "array",
+       "maxItems": 500,
+       "items": {
+        "type": "array",
+        "items": {
+         "type": "number"
+        },
+        "minItems": 2,
+        "maxItems": 2
+       },
+       "description": "Spans find-who saw an unknown person in, as [from, to] seconds; the whole picture is blurred through them"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result",
+      "files"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "width",
+        "height",
+        "faces",
+        "blurred",
+        "kept",
+        "agreed_faces",
+        "picture_bytes"
+       ],
+       "properties": {
+        "width": {
+         "type": "integer"
+        },
+        "height": {
+         "type": "integer"
+        },
+        "faces": {
+         "type": "integer",
+         "minimum": 0
+        },
+        "blurred": {
+         "type": "integer",
+         "minimum": 0
+        },
+        "kept": {
+         "type": "integer",
+         "minimum": 0
+        },
+        "agreed_faces": {
+         "type": "integer",
+         "minimum": 0
+        },
+        "pictures_without_a_face": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "blurred_spans": {
+         "type": "array",
+         "items": {
+          "type": "array",
+          "items": {
+           "type": "number"
+          }
+         }
+        },
+        "picture_bytes": {
+         "type": "integer",
+         "minimum": 1
+        }
+       }
+      },
+      "files": {
+       "type": "object",
+       "required": [
+        "picture"
+       ],
+       "properties": {
+        "picture": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ]
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "max_run_ms": 3600000,
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "packages": [
+         "numpy",
+         "onnxruntime",
+         "kaldi-native-fbank",
+         "blake3",
+         "webrtcvad-wheels",
+         "pillow",
+         "flatbuffers",
+         "packaging",
+         "protobuf",
+         "sympy",
+         "mpmath",
+         "coloredlogs",
+         "humanfriendly"
+        ],
+        "at": "/opt/media-composition/do-work"
+       },
+       {
+        "packages": [
+         "yunet-face-model",
+         "sface-face-model"
+        ],
+        "at": "/opt/models/faces"
+       },
+       {
+        "packages": [
+         "campplus-voice-model"
+        ],
+        "at": "/opt/models/campplus-voice"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "stdout": "json",
+     "argv": [
+      "python3",
+      "do-work/blur-faces-not-agreed.py",
+      "--picture"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "outputs": [
+      {
+       "name": "picture",
+       "path": "/opt/media-composition/out/blurred.jpg",
+       "keep_in": "files",
+       "media_type": "image/jpeg",
+       "max_bytes": 200000000,
+       "keep_as": {
+        "name_from": [
+         "name"
+        ]
+       }
+      }
+     ],
+     "programs": {
+      "ffmpeg": {
+       "fetch": {
+        "macos-aarch64": {
+         "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffmpeg.zip",
+         "version": "9.0.2",
+         "archive": "zip",
+         "blake3": "9220d549857e4d4012133fde5f4ddbeb0576e5385e59ad5d917e1f3dfeb79d23",
+         "executable": "ffmpeg",
+         "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffmpeg.zip.sha256"
+        },
+        "macos-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-aarch64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        }
+       },
+       "search": "ffmpeg",
+       "search_path": [
+        "/opt/homebrew/bin",
+        "/usr/local/bin",
+        "/opt/local/bin"
+       ]
+      },
+      "ffprobe": {
+       "fetch": {
+        "macos-aarch64": {
+         "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffprobe.zip",
+         "version": "9.0.2",
+         "archive": "zip",
+         "blake3": "6f4839c66c9bde7e8a02fe19d87059265ccd8dcb49b2ce8c6fd8e827b9e6c1e7",
+         "executable": "ffprobe",
+         "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffprobe.zip.sha256"
+        },
+        "macos-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-aarch64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        }
+       },
+       "search": "ffprobe",
+       "search_path": [
+        "/opt/homebrew/bin",
+        "/usr/local/bin",
+        "/opt/local/bin"
+       ]
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 120,
+     "network_egress": false,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "model": "YuNet face detection 2023mar (MIT) and SFace face recognition 2021dec (Apache 2.0), OpenCV Zoo, and 3D-Speaker CAM++ 200k (Apache 2.0), pinned revisions",
+     "source": "media-composition/do-work/blur-faces-not-agreed.py"
+    },
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.result.width",
+      "at_least": 1
+     },
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.files.picture.bytes"
+      },
+      "right": {
+       "output_selector": "$.result.picture_bytes"
+      },
+      "tolerance": 0
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
    "id": "package::media-composition::tool::blur-faces-not-agreed",
    "address": "package::media-composition::tool::blur-faces-not-agreed",
    "path": [
@@ -4480,6 +4789,19 @@
         "format": "namespace-file"
        },
        "description": "Recordings of each person who agreed speaking (ten seconds or more each); every word by anyone else is silenced, and with none, every word is"
+      },
+      "unknown_spans": {
+       "type": "array",
+       "maxItems": 500,
+       "items": {
+        "type": "array",
+        "items": {
+         "type": "number"
+        },
+        "minItems": 2,
+        "maxItems": 2
+       },
+       "description": "Spans find-who saw an unknown person in, as [from, to] seconds; the whole picture is blurred through them"
       },
       "voice_match": {
        "type": "number",

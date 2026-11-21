@@ -4202,6 +4202,152 @@
    "at": "/opt/node_modules/@noble/hashes"
   }
  ],
+ "tool:blur-faces-not-agreed-in-a-picture": [
+  {
+   "package": "media-composition",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/media-composition",
+   "exclude": [
+    "__tests__"
+   ]
+  },
+  {
+   "packages": [
+    "numpy",
+    "onnxruntime",
+    "kaldi-native-fbank",
+    "blake3",
+    "webrtcvad-wheels",
+    "pillow",
+    "flatbuffers",
+    "packaging",
+    "protobuf",
+    "sympy",
+    "mpmath",
+    "coloredlogs",
+    "humanfriendly"
+   ],
+   "at": "/opt/media-composition/do-work"
+  },
+  {
+   "packages": [
+    "yunet-face-model",
+    "sface-face-model"
+   ],
+   "at": "/opt/models/faces"
+  },
+  {
+   "packages": [
+    "campplus-voice-model"
+   ],
+   "at": "/opt/models/campplus-voice"
+  },
+  {
+   "package": "calibrate-a-camera-frame",
+   "paths": [
+    "src/frame-calibration.mjs"
+   ],
+   "at": "/opt/calibrate-a-camera-frame"
+  },
+  {
+   "package": "check-against-a-persons-rules-and-verdicts",
+   "paths": [
+    "do-work/check-copy.mjs",
+    "do-work/read-words.mjs",
+    "do-work/rules-and-verdicts.mjs",
+    "read-data/answer.json",
+    "read-data/copy-grammar-rules.json",
+    "read-data/copy-words.json",
+    "read-data/words.json"
+   ],
+   "at": "/opt/check-against-a-persons-rules-and-verdicts"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "content-media-evidence",
+   "paths": [
+    "do-work/content-media-work-loop.ts"
+   ],
+   "at": "/opt/content-media-evidence"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "parts/live-namespace/do-work/shared-file-reference.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "media-composition",
+   "paths": [
+    "read-data/adjustment-layers.mjs",
+    "read-data/auto-cleanup.ts",
+    "read-data/auto-edit.json",
+    "read-data/auto-edit.mjs",
+    "read-data/caption-lines.ts",
+    "read-data/caption-styles.json",
+    "read-data/caption-styles.mjs",
+    "read-data/detect-events.json",
+    "read-data/layers-to-edit.mjs",
+    "read-data/looks.json",
+    "read-data/looks.mjs",
+    "read-data/reframe-camera.json",
+    "read-data/session-pairing.mjs",
+    "read-data/suggestion-stream.json",
+    "read-data/suggestion-stream.mjs",
+    "src/confidence-filter.json",
+    "src/confidence-filter.mjs"
+   ],
+   "at": "/opt/media-composition"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/computer-cache-folder.mjs",
+    "do-work/heavy-work.mjs",
+    "do-work/process-admission.mjs",
+    "do-work/run-owned-process.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "where-a-person-stands",
+   "paths": [
+    "do-work/artifact-ref.mjs"
+   ],
+   "at": "/opt/where-a-person-stands"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:break-down-visits-and-sales": [
   {
    "package": "traffic-attribution",

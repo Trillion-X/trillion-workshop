@@ -50,6 +50,7 @@ RECOGNIZE_EVERY = 15             # frames between recognizing the same tracked f
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'out', 'blurred.mp4')
 # The models sit beside the tools folder (the run's /opt/models/faces, which a program reaches from its own file, not by the path itself).
 MODEL_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'models', 'faces')
+PICTURE_OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'out', 'blurred.jpg')  # the still-picture row's output
 MODELS = {'detector': os.path.join(MODEL_FOLDER, 'face_detection_yunet_2023mar.onnx'), 'recognizer': os.path.join(MODEL_FOLDER, 'face_recognition_sface_2021dec.onnx')}
 TEMPLATE = np.array([[38.2946, 51.6963], [73.5318, 51.5014], [56.0252, 71.7366], [41.5493, 92.3655], [70.7299, 92.2041]], dtype=np.float64)
 
@@ -287,16 +288,7 @@ def main():
     faces = Faces(models['detector'], models['recognizer'])
     match = float(asked.get('match') or 0.363)
 
-    agreed, without = [], []
-    for path in asked.get('agreed') or []:
-        picture = np.asarray(Image.open(path).convert('RGB'))
-        found = faces.find(picture)
-        if not len(found):
-            without.append(path.rsplit('/', 1)[-1])
-            continue
-        largest = found[np.argmax((found[:, 2] - found[:, 0]) * (found[:, 3] - found[:, 1]))]
-        agreed.append(faces.print_of(picture, largest))
-    agreed = np.array(agreed) if agreed else np.zeros((0, 128))
+    agreed, without = agreed_prints(faces, asked.get('agreed') or [])
 
     agreed_voices = asked.get('agreed_voices') or []
     silenced, voices_used = silenced_stretches(asked['video'], agreed_voices, float(asked.get('voice_match') or 0.5), models.get('voice')) if has_sound(asked['video']) else ([], 0)
@@ -362,5 +354,52 @@ def main():
     }))
 
 
+def agreed_prints(faces, paths):
+    """The face print of each agreed picture (its largest face), and the names of the pictures with no face in them."""
+    agreed, without = [], []
+    for path in paths:
+        picture = np.asarray(Image.open(path).convert('RGB'))
+        found = faces.find(picture)
+        if not len(found):
+            without.append(path.rsplit('/', 1)[-1])
+            continue
+        largest = found[np.argmax((found[:, 2] - found[:, 0]) * (found[:, 3] - found[:, 1]))]
+        agreed.append(faces.print_of(picture, largest))
+    return (np.array(agreed) if agreed else np.zeros((0, 128))), without
+
+
+def main_picture():
+    """A still picture in, the same picture out: every face not agreed is blurred, and the whole picture is blurred when
+    find-who saw an unknown person in it (a still's one span covers 0 to 0). Reads the same input as the video run, with
+    picture in place of video, and prints the result the picture row declares."""
+    asked = json.load(sys.stdin)
+    models = {**MODELS, **(asked.get('models') or {})}
+    out = asked.get('out') or PICTURE_OUT
+    os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
+    faces = Faces(models['detector'], models['recognizer'])
+    match = float(asked.get('match') or 0.363)
+    agreed, without = agreed_prints(faces, asked.get('agreed') or [])
+    picture = np.asarray(Image.open(asked['picture']).convert('RGB')).copy()
+    height, width = picture.shape[:2]
+    found = faces.find(picture)
+    kept = blurred = 0
+    for face in found:
+        if len(agreed) and float((agreed @ faces.print_of(picture, face)).max()) >= match:
+            kept += 1
+            continue
+        blur(picture, face[:4])
+        blurred += 1
+    unknown = bool(asked.get('unknown_spans'))
+    if unknown:
+        blur(picture, [0, 0, width, height])
+    Image.fromarray(picture).save(out, quality=95)
+    print(json.dumps({
+        'width': width, 'height': height, 'faces': len(found), 'blurred': blurred, 'kept': kept,
+        'agreed_faces': int(len(agreed)), 'pictures_without_a_face': without,
+        'blurred_spans': [[0, 0]] if (blurred or unknown) else [], 'unknown_spans': [[0, 0]] if unknown else [],
+        'picture_bytes': os.path.getsize(out),
+    }))
+
+
 if __name__ == '__main__':
-    main()
+    main_picture() if '--picture' in sys.argv else main()
