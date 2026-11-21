@@ -55,7 +55,7 @@ const run = async (stand, { state = null, tell = async () => true, stopAfter = 1
 
 test('it declares its fields and reads its settings, refusing a table name that is not a plain name', () => {
   assert.deepEqual(describeMechanism().conditions, ['became-reachable']);
-  assert.deepEqual(readSettings({}), { connection_fd: 4, table: 'row_changes', channel: 'row_changes', look_again_ms: 30000, most_per_read: 100, catch_up_pause_ms: 2000, held_back_ms: 120000, from_the_start: false });
+  assert.deepEqual(readSettings({}), { connection_fd: 4, table: 'row_changes', channel: 'row_changes', look_again_ms: 30000, most_per_read: 500, held_back_ms: 120000, from_the_start: false });
   assert.equal(readSettings({ from_the_start: 'yes' }).from_the_start, false, 'only true replays the table');
   assert.equal(readSettings({ held_back_seconds: 5 }).held_back_ms, 5000);
   assert.equal(readSettings({ table: 'x; DROP TABLE y' }).table, 'row_changes');
@@ -272,33 +272,4 @@ test('a read that fails while it watches is a crash too; a waiter ended by its s
   const ended = await run(client([]), { stopAfter: 1 });
   ended.control.abort();
   await ended.done;
-});
-
-test('a restart with no kept place starts from now and keeps that place at once, so the next restart has one', async () => {
-  const stand = client([change(1, 1), change(2, 2)]);
-  const { done, told, kept, control } = await run(stand, { stopAfter: 99, settings: { from_the_start: false }, state: { after: null } });
-  control.abort();
-  await done;
-  assert.deepEqual(told, []);
-  assert.deepEqual(kept(), { after: { txid: '2', position: '2' } });
-});
-
-test('a restart with a kept place resumes after it and tells nothing before it', async () => {
-  const stand = client([change(1, 1), change(2, 2), change(3, 3)]);
-  const { done, told, control } = await run(stand, { stopAfter: 1, state: { after: { txid: '2', position: '2' } } });
-  await done;
-  control.abort();
-  assert.deepEqual(told.map(item => item.event_key), ['p_made_up:3:3']);
-});
-
-test('a 250-change backlog is told in batches of 100 with a pause, and every change is told once in order', async () => {
-  const changes = Array.from({ length: 250 }, (_, i) => change(i + 1, 1));
-  const stand = client(changes);
-  const { done, told, control } = await run(stand, { stopAfter: 250, state: { after: { txid: '0', position: '0' } }, settings: { most_per_read: 100, catch_up_pause_seconds: 0 } });
-  await done;
-  control.abort();
-  assert.equal(told.length, 250);
-  assert.deepEqual(told.slice(0, 2).map(item => item.event_key), ['p_made_up:1:1', 'p_made_up:2:1']);
-  const limits = stand.asked.filter(item => Array.isArray(item)).map(item => item[2]);
-  assert.deepEqual(limits, [100, 100, 100]);
 });

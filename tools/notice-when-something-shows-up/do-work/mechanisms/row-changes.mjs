@@ -58,8 +58,7 @@
  *   connection_fd       the descriptor holding the connection string (default 4; a waiter that names its own credential_name reads it from the descriptor the run gave it instead)
  *   table, channel      the change table and its NOTIFY channel (row_changes)
  *   look_again_seconds  the longest wait between reads (default 30)
- *   most_per_read       the most changes told in one batch (default 100); a backlog is told batch by batch
- *   catch_up_pause_seconds  the pause between batches while a backlog is told (default 2), so a long gap never floods the router
+ *   most_per_read       the most changes one read takes (default 500)
  *   from_the_start      true to tell every change already in the table when
  *                       there is no kept place (default false: start from now)
  *   held_back_seconds   how long committed changes may wait behind a running
@@ -100,8 +99,7 @@ export function readSettings(settings = {}) {
     table,
     channel,
     look_again_ms: number(settings.look_again_seconds, 30) * 1000,
-    most_per_read: number(settings.most_per_read, 100),
-    catch_up_pause_ms: number(settings.catch_up_pause_seconds, 2) * 1000,
+    most_per_read: number(settings.most_per_read, 500),
     held_back_ms: number(settings.held_back_seconds, 120) * 1000,
     from_the_start: settings.from_the_start === true,
   };
@@ -243,14 +241,8 @@ export async function watchForTransitions(settings, handlers) {
         });
         if (told === false) { refused = true; break; }
         state = next;
-        // The kept place is written after each told change, so a restart resumes after it, never from now.
-        await keepState(state);
       }
-      if (rows.length === own.most_per_read && !refused) {
-        // A backlog longer than one batch is told in batches with a pause, so the router hears a steady rate.
-        await new Promise((resolve) => setTimeout(resolve, own.catch_up_pause_ms));
-        continue;
-      }
+      if (rows.length === own.most_per_read && !refused) continue;
       if (signal?.aborted) return;
       held = await lookForHeldBack(client, own, held, handlers);
       await new Promise((resolve) => {
