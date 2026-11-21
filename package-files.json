@@ -9019,6 +9019,15 @@
   }
  ],
  "tool:check-takes-are-complete-with-a-small-local-model": [],
+ "tool:check-texting-works-on-this-mac": [
+  {
+   "package": "send-messages",
+   "paths": [
+    "do-work/check-texting.mjs"
+   ],
+   "at": "/opt/send-messages"
+  }
+ ],
  "tool:check-that-everything-waiting-on-a-person-reaches-them": [
   {
    "package": "check-that-everything-waiting-on-a-person-reaches-them",

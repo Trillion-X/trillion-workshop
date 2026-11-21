@@ -1,0 +1,23 @@
+{
+  "drafted_from": "tool:check-texting-works-on-this-mac row in tools/send-messages/tool-rows.json, do-work/check-texting.mjs and test/check-texting.test.mjs",
+  "start_here": "Say to your AI: \"Check that you can use Messages on my Mac, without sending anything.\" It runs tool:check-texting-works-on-this-mac once and says how many chats and which kinds of accounts Messages has.",
+  "lists": [],
+  "no_lists_because": "It names no list: it reads two counts from Messages when run, keeps nothing and sends nothing.",
+  "workflows": [],
+  "tools": ["tool:check-texting-works-on-this-mac"],
+  "instructions": [
+    "1. Allow the app that runs the tool to control Messages in System Settings, Privacy & Security, Automation; without it the tool answers needs_access \"automation\" and reads nothing.",
+    "2. Your AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:check-texting-works-on-this-mac, input {computer: {\"automate-an-app\": {app: \"com.apple.MobileSMS\"}}}.",
+    "3. Read the answer: chats (how many), accounts (how many) and service_types (for example iMessage, SMS). No address, name or text is in it.",
+    "4. If it answers error cannot_read_messages_terms, the run could not read Messages' scripting terms; nothing was sent either way."
+  ],
+  "worked_examples": [
+    {
+      "title": "Messages ready, two kinds of account",
+      "ask": "Can you use Messages on my Mac? Don't send anything.",
+      "mcp": {"server": "{cli}", "tool": "do_one_thing_in_my_account", "input": {"method": "tools:run", "input": {"tool": "tool:check-texting-works-on-this-mac", "input": {"computer": {"automate-an-app": {"app": "com.apple.MobileSMS"}}}}}},
+      "given": "From tools/send-messages/test/check-texting.test.mjs (osascript stood in for): Messages answers 12 chats and accounts of type iMessage, SMS and iMessage.",
+      "hands_back": "chats 12, accounts 3, service_types [\"SMS\", \"iMessage\"], said \"Messages on this Mac can be scripted: its terms compiled and it answered.\" With Automation not allowed it answers {needs_access: \"automation\", said: \"Allow the app that runs this tool to control Messages in System Settings, Privacy & Security, Automation.\"}."
+    }
+  ]
+}

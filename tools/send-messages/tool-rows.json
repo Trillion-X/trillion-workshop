@@ -854,7 +854,7 @@
         },
         "invoke": {
           "kind": "computer",
-          "capabilities": ["use-the-messages-app"],
+          "capabilities": ["automate-an-app"],
           "workdir": "/opt/send-messages",
           "stdout": "json",
           "argv": ["node", "/opt/send-messages/do-work/send-a-message.mjs", "messages-on-this-mac"],
@@ -3522,6 +3522,108 @@
             },
             "output_selector": "$.outcomes[0].action",
             "contains": "stop-sequence"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::send-messages::tool::check-texting-works-on-this-mac",
+      "address": "package::send-messages::tool::check-texting-works-on-this-mac",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-texting-works-on-this-mac",
+        "label": "Check that Messages on this Mac can be used",
+        "job": "Check, without sending anything, that a run can script the Messages app on the person's own Mac: how many chats it has and which kinds of accounts (iMessage, SMS)",
+        "description": "Runs on the person's own Mac with the automate-an-app capability for Messages (the run names computer[\"automate-an-app\"] {app: \"com.apple.MobileSMS\"}). One read-only script is compiled with Messages' own terms and run: it counts the chats and reads each account's service type. It sends nothing, and the answer holds no address, name or text: chats, accounts, service_types and said. If the Mac has not allowed this to control Messages, it answers needs_access \"automation\" with what to allow; if Messages' terms could not be read, error \"cannot_read_messages_terms\".",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "said"
+          ],
+          "properties": {
+            "chats": {
+              "type": "integer"
+            },
+            "accounts": {
+              "type": "integer"
+            },
+            "service_types": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "needs_access": {
+              "type": "string"
+            },
+            "error": {
+              "type": "string"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "automate-an-app"
+          ],
+          "workdir": "/opt/send-messages",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/send-messages/do-work/check-texting.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "send-messages",
+                "paths": [
+                  "do-work/check-texting.mjs"
+                ],
+                "at": "/opt/send-messages"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "maker": "maker:send-messages",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Made 2026-11-21 to prove, before any send, that the automate-an-app sandbox lets a run compile and run a Messages script (the -2741 failure of tool:send-a-message-on-this-mac at 11:23 AM CST)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "stand_in_programs": {
+              "osascript": "printf '7\\tiMessage,SMS\\n'"
+            },
+            "output_selector": "$.chats",
+            "contains": "7"
           }
         ]
       }
