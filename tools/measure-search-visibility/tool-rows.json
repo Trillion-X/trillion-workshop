@@ -1,0 +1,216 @@
+{
+  "kind": "tool-rows",
+  "record_set": "measure-search-visibility-tool-rows",
+  "what_this_is": "The Workshop row for the measure-search-visibility folder: a script the person's AI runs on the person's own computer to measure how one site shows up in Google's results and in AI answers, and to get the SQL that records it in the person's own database. The endpoints, the table and the sample replies are DATA in data/.",
+  "records": [
+    {
+      "id": "package::measure-search-visibility::tool::measure-search-visibility",
+      "address": "package::measure-search-visibility::tool::measure-search-visibility",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:measure-search-visibility",
+        "label": "Measure how my site shows up in Google and AI answers (runs on your computer)",
+        "status": "active",
+        "job": "Measure where my site ranks in Google for my words, what those words are searched for, and whether AI answers name or cite my site, then record it",
+        "description": "Takes one site (its bare host), the words a buyer types and the questions a buyer asks an AI, and measures each one: the site's position in Google's top 100 organic results (or a plain not-ranking when it is not in them), the monthly search volume where the provider has one, and for each question whether the answer from ChatGPT, Gemini, Google AI Mode or Perplexity names the site and cites one of its addresses. A search that cannot be read is said to be not measured, never a zero. Search Console rows the person already read can be passed in and are kept as ranking rows of their own engine. It does not call Google itself and it never writes to a database: the answer carries the rows and the SQL plan (the table statements and one insert per row), which the person's AI runs with the SQL tool against the database the store names. Each row is tagged with the site, the phase (before, after or check), the client when one is given, and who kept it.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "site",
+            "store",
+            "keywords"
+          ],
+          "properties": {
+            "site": {
+              "type": "string",
+              "description": "The site's bare host, such as example.com: no https://, no path."
+            },
+            "store": {
+              "type": "string",
+              "description": "The name of the database the rows go to, the name the person saved its connection under. It is named in the SQL plan; this tool opens no database."
+            },
+            "phase": {
+              "type": "string",
+              "enum": ["before", "after", "check"],
+              "description": "Which measure this is: before a change, after it, or a check. Default before."
+            },
+            "keywords": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "The search terms to measure, such as the local service and city, the brand and the long-tail words the site's pages answer."
+            },
+            "questions": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Questions a buyer would ask an AI, asked as written on each engine chosen."
+            },
+            "engines": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["chatgpt", "gemini", "google-ai-mode", "perplexity"]
+              },
+              "description": "The answer engines to ask. Default all four."
+            },
+            "location": {
+              "type": ["string", "null"],
+              "description": "The place the business serves, such as Huntsville, AL. Sent to the engines that take one and recorded on every row. Null or absent when there is no place."
+            },
+            "client": {
+              "type": "string",
+              "description": "A tag kept in each row's raw field, so one client's rows can be told apart from another's."
+            },
+            "kept_by": {
+              "type": "string",
+              "description": "Who kept the rows. Default ai:tool:measure-search-visibility."
+            },
+            "name_pattern": {
+              "type": "string",
+              "description": "A regular expression (case-insensitive) for the name the answer must say to count as named, such as the business name. Without it, named is not measured."
+            },
+            "top3_keywords": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The keywords whose top-3 competitors are kept in raw. Default the first ten keywords."
+            },
+            "search_console": {
+              "type": "object",
+              "required": [
+                "site_url",
+                "rows"
+              ],
+              "description": "Search Console rows the person already read: the property (site_url), the dates, and rows of {query or page, clicks, impressions, ctr, position}. Kept as ranking rows whose engine is google-search-console.",
+              "properties": {
+                "site_url": {
+                  "type": "string"
+                },
+                "start_date": {
+                  "type": "string"
+                },
+                "end_date": {
+                  "type": "string"
+                },
+                "rows": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "replay": {
+              "type": "string",
+              "description": "Only for a sample run: the name of a replies file in data/, answered in place of treg. Never set for a real measure."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line: {\"result\": {site, store, phase, measured_at, counts, rows, sql: {store, statements, insert, inserts}, errors, search_console}} or {\"error\": what to change}.",
+          "properties": {
+            "result": {
+              "type": "object",
+              "required": [
+                "site",
+                "store",
+                "phase",
+                "measured_at",
+                "counts",
+                "rows",
+                "sql",
+                "errors",
+                "search_console"
+              ],
+              "properties": {
+                "counts": {
+                  "type": "object"
+                },
+                "rows": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "sql": {
+                  "type": "object"
+                },
+                "errors": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "error": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "Node.js 18 or newer (no packages to install)",
+            "the treg command, signed in, for a live measure (a replay sample run needs none)"
+          ],
+          "run": "node tools/measure-search-visibility/do-work/measure.mjs {request}",
+          "needs": [
+            "node",
+            "treg",
+            "network"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout, with the request as a JSON file passed as {request}. It spends the treg balance: each keyword, the volume batch and each question on each engine is one paid call, so say the count before a large run. Then hand its sql.statements and sql.inserts to tool:run-sql-in-my-database with the store as the database, one statement at a time, and never change a measured value to make a result look better."
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "site": "example-flooring.test",
+              "store": "sample_store_for_who_runs_it",
+              "phase": "before",
+              "client": "sample-client",
+              "location": "Sample Town, ST",
+              "keywords": [
+                "sample flooring service",
+                "example flooring"
+              ],
+              "questions": [
+                "who installs example floors"
+              ],
+              "engines": [
+                "chatgpt",
+                "perplexity"
+              ],
+              "name_pattern": "Example Flooring",
+              "replay": "sample-replies.json"
+            }
+          }
+        ],
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:measure-search-visibility",
+        "provenance": {
+          "source": "Written for the Workshop on Nov 21 2026 from the search-visibility runner used for three site before-measures: the same endpoints, row shape and not-measured rule, with the site, words, questions and table moved into the request and DATA."
+        }
+      }
+    }
+  ]
+}

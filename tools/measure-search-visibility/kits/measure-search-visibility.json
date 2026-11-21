@@ -1,0 +1,55 @@
+{
+  "start_here": "Say to your AI: \"Measure how example-flooring.test shows up in Google and AI answers for sample flooring service and example flooring in Sample Town, ST, with these questions: who installs example floors.\" It measures each word and question, says how many paid calls it made, and hands back the rows and the SQL that records them in your database.",
+  "lists": [],
+  "no_lists_because": "This tool writes its rows to a table in the person's own database (public.search_visibility_measures), not to a list in the app, so it keeps no list the person edits.",
+  "workflows": [],
+  "tools": [
+    "tool:measure-search-visibility",
+    "tool:run-sql-in-my-database"
+  ],
+  "instructions": [
+    "1. Give your AI the site's bare host (example.com), the database name the rows go to, the words a buyer types, and the questions a buyer asks an AI.",
+    "2. The AI runs tool:measure-search-visibility on your computer; it answers the count of paid calls and the rows it measured, and it writes no database by itself.",
+    "3. Read the errors list: a search it could not read is said to be not measured, never a zero. Then run the SQL plan with tool:run-sql-in-my-database: first its statements, then one insert per row, against the database named as store."
+  ],
+  "worked_examples": [
+    {
+      "title": "A before-measure for a flooring business",
+      "ask": "Measure example-flooring.test before my change, for sample flooring service and example flooring, in Sample Town, ST.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:measure-search-visibility",
+            "input": {
+              "site": "example-flooring.test",
+              "store": "sample_store_for_who_runs_it",
+              "phase": "before",
+              "client": "sample-client",
+              "location": "Sample Town, ST",
+              "keywords": [
+                "sample flooring service",
+                "example flooring"
+              ],
+              "questions": [
+                "who installs example floors"
+              ],
+              "engines": [
+                "chatgpt",
+                "perplexity"
+              ],
+              "name_pattern": "Example Flooring"
+            }
+          }
+        }
+      },
+      "workflow": "none: the person asks for the measure directly",
+      "step": "none",
+      "given": "The site, two words, one question and two engines, as above.",
+      "hands_back": "Two organic positions (one ranked at 2, one not in the top 100 and so measured as not ranking), one volume that is a number and one that is null, two answer rows: the ChatGPT answer names the business and cites its hardwood page, the Perplexity answer does not. Then the SQL plan: its table statements and one insert per row."
+    }
+  ]
+}

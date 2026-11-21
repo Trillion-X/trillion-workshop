@@ -1,0 +1,39 @@
+{
+  "what_this_is": "Made-up stand-in answers for a sample run, keyed by endpoint then the question, keyword list or query it answered. The tool reads them in place of treg when the request names this file as replay, so a sample run needs no network and no key. Use only for tests and the sample run; never a real site.",
+  "replies": {
+    "treg.google.serp.organic sample flooring service": {
+      "result": { "output": { "results": [
+        { "position": 1, "domain": "other-floors.test", "url": "https://other-floors.test/" },
+        { "position": 2, "domain": "example-flooring.test", "url": "https://example-flooring.test/hardwood" }
+      ] } },
+      "_treg": { "call_id": "replay-serp-1" }
+    },
+    "treg.google.serp.organic example flooring": {
+      "result": { "output": { "results": [
+        { "position": 1, "domain": "example-flooring.test", "url": "https://example-flooring.test/" }
+      ] } },
+      "_treg": { "call_id": "replay-serp-2" }
+    },
+    "treg.google.keywords.volume sample flooring service|example flooring": {
+      "result": { "output": { "rows": [
+        { "keyword": "sample flooring service", "search_volume": 320 },
+        { "keyword": "example flooring", "search_volume": null }
+      ] } },
+      "_treg": { "call_id": "replay-volume-1" }
+    },
+    "cloro.ai-search.chatgpt.scrape who installs example floors": {
+      "result": { "result": {
+        "text": "Example Flooring installs hardwood and vinyl plank in the sample town.",
+        "sources": [ { "position": 1, "url": "https://example-flooring.test/hardwood" } ]
+      } },
+      "_treg": { "call_id": "replay-chatgpt-1" }
+    },
+    "perplexity.web.answer.fast who installs example floors": {
+      "result": { "output": [
+        { "type": "search_results", "results": [ { "url": "https://other-floors.test/" } ] },
+        { "type": "message", "content": [ { "type": "output_text", "text": "Other Floors and local installers serve the town.", "annotations": [] } ] }
+      ] },
+      "_treg": { "call_id": "replay-perplexity-1" }
+    }
+  }
+}
