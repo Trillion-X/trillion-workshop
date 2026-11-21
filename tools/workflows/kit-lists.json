@@ -2,7 +2,7 @@
   "about": "Lists many Workshop items name, with their fields (as the list is defined in a person's account) and synthetic example rows, so a kit drafted from an item's row (read-data/draft-a-kit.mjs) can carry the list. Add an entry when several items name one list and no kit holds it.",
   "lists": [
     {
-      "list": "list:settings",
+      "list": "list:tool-settings",
       "label": "Settings",
       "row_type": "record:setting",
       "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
