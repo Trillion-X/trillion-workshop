@@ -9,8 +9,9 @@ import { facebookPage } from '../read-data/publisher-facebook-page.mjs';
 const VALUE = 'made-up-id:0123456789abcdef0123456789abcdef';
 const GHOST = 'service_connection:ghost:blog';
 const X = 'service_connection:x:second';
-const AT = '2026-11-20T09:00:00.000Z';
-const NOW = () => new Date('2026-11-19T12:00:00.000Z');
+// The time is a day ahead of the real clock, which the Ghost SDK checks, so the fixture stays in the future whenever it runs.
+const AT = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+const NOW = () => new Date();
 const ghostConnection = { id: `connection:${encodeURIComponent(GHOST)}`, type: 'connection', value: { connection_id: GHOST, vendor: 'ghost', plain: { site_url: 'https://blog.example.test' }, held: ['admin_api_key'] } };
 const xConnection = { id: `connection:${encodeURIComponent(X)}`, type: 'connection', value: { connection_id: X, vendor: 'x', plain: { user_id: '1000000001' }, held: ['access_token'] } };
 const post = fields => ({ id: 'post:p1', type: 'post', value: { post_id: 'post:p1', status: 'scheduled', caption: 'A short post', destinations: [GHOST], approved_at: '2026-11-18T00:00:00Z', created_at: '2026-11-18T00:00:00Z', updated_at: '2026-11-18T00:00:00Z', scheduled_for: AT, ...fields } });

@@ -1,5 +1,5 @@
 {
-  "what_this_is": "The formats a post can take beyond the SDK's plain publish, as DATA. A post whose value.format names one of these is sent by its steps (read-data/publish-by-format.mjs) after the consent gates and the place checks of tool:send-a-post; every other post keeps the SDK route. A new format is a new entry here and nothing else.",
+  "what_this_is": "The formats a post can take beyond the SDK's plain publish, as DATA. A post whose value.format names one of these is sent by its steps (read-data/publish-by-format.mjs) after the consent gates and the place checks of tool:send-a-post; every other post keeps the SDK route. A new format is a new entry here and nothing else. A carousel lists its children (one entry per item kind); follow_with names a format sent after the main post publishes, from a cover image the caller gives.",
   "graph": {
     "instagram": {
       "origin": "https://graph.instagram.com/v25.0",
@@ -13,12 +13,23 @@
       "container": {
         "media_type": "REELS",
         "video_field": "video_url",
-        "trial_params": { "graduation_strategy": "SS_PERFORMANCE" },
+        "trial_params": {
+          "graduation_strategy": "SS_PERFORMANCE"
+        },
         "why_trial": "A trial reel goes first to non-followers. SS_PERFORMANCE graduates it to the grid and feed automatically when it performs; MANUAL needs the native app, so the API cannot graduate it. The SDK's publishReel has no trial_params field, so this format's container is made here, with the trial settings."
       },
-      "wait": { "max_tries": 30, "every_seconds": 5 },
+      "wait": {
+        "max_tries": 30,
+        "every_seconds": 5
+      },
       "then": "publish",
-      "source": "graph.instagram.com/v25.0 media and media_publish; media_type REELS with trial_params (live proof Nov 21 2026, container 18079563326737976 FINISHED after one status ask)."
+      "source": "graph.instagram.com/v25.0 media and media_publish; media_type REELS with trial_params (live proof Nov 21 2026, container 18079563326737976 FINISHED after one status ask).",
+      "follow_with": {
+        "format": "story",
+        "cover_input": "cover_url",
+        "link_sticker": false,
+        "why_no_link_sticker": "The SDK's Instagram story publisher has no link sticker field and the Graph container call used here sends none; the cover story is posted plain, with no link to the new post."
+      }
     },
     "story": {
       "platform": "instagram",
@@ -28,10 +39,50 @@
         "video_field": "video_url",
         "image_field": "image_url"
       },
-      "wait": { "max_tries": 30, "every_seconds": 5 },
+      "wait": {
+        "max_tries": 30,
+        "every_seconds": 5
+      },
       "then": "publish",
       "why_own_wait": "The SDK's publishStory creates the container and makes one status check; an IN_PROGRESS container answers processing and is left for a resume that this send never makes. So a story waits here.",
       "source": "graph.instagram.com/v25.0 media with media_type STORIES (live proof Nov 21 2026: image and video story containers accepted, video FINISHED after one status ask)."
+    },
+    "carousel": {
+      "platform": "instagram",
+      "label": "Instagram carousel",
+      "children": {
+        "image": {
+          "image_field": "image_url",
+          "is_carousel_item": true
+        },
+        "video": {
+          "video_field": "video_url",
+          "media_type": "VIDEO",
+          "is_carousel_item": true
+        }
+      },
+      "items": {
+        "min": 2,
+        "max": 10,
+        "input": "media_urls",
+        "each": "{url, kind: image|video}"
+      },
+      "container": {
+        "media_type": "CAROUSEL"
+      },
+      "wait": {
+        "max_tries": 30,
+        "every_seconds": 5
+      },
+      "then": "publish",
+      "why_children_wait": "Each child container is processed in the background as well, and a CAROUSEL container made from a child that is not FINISHED is refused by Instagram. So every child is waited on before the carousel container is made, and the carousel is waited on before media_publish.",
+      "follow_with": {
+        "format": "story",
+        "cover_input": "cover_url",
+        "link_sticker": false,
+        "why_no_link_sticker": "As for reel."
+      },
+      "source": "graph.instagram.com/v25.0 media with is_carousel_item children and a CAROUSEL container, the same shape the SDK's publishCarousel makes (dist/platforms/instagram.js), with each step waited on here."
     }
   }
 }

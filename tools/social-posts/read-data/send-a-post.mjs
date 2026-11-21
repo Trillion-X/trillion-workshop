@@ -229,12 +229,23 @@ async function mediaFor(post, place, mediaUrl, fetchMedia) {
   return { kind, mimeType: mediaType, byteSize: post.media.byte_length, source: { kind: 'https-url', url: mediaUrl } };
 }
 
+// The files a format is sent with: a carousel's items (media_urls, each { url, kind }), or the post's one file (media_url).
+function formatMedia(spec, post, mediaUrl, items) {
+  if (!spec.children) {
+    if (!/^https:\/\//.test(mediaUrl ?? '')) throw new Refused(`${spec.label} needs its file as media_url, an https address. Nothing was sent.`);
+    return [{ url: mediaUrl, kind: String(post.media?.media_type ?? '').startsWith('image/') ? 'image' : 'video' }];
+  }
+  const valid = Array.isArray(items) && items.length >= spec.items.min && items.length <= spec.items.max && items.every(item => /^https:\/\//.test(item?.url ?? '') && ['image', 'video'].includes(item?.kind));
+  if (!valid) throw new Refused(`${spec.label} needs ${spec.items.min} to ${spec.items.max} items in media_urls, each { url: https address, kind: image or video }. Nothing was sent.`);
+  return items;
+}
+
 /** tool:send-a-post: sends the post to one destination once its time has come, and answers the outcome as the post to keep.
  *  The post and the destination's connection are handed in as `records`; the run stores nothing and answers the post as it
  *  ends under `keep`. Given armed_at (the timed run of workflow:send-each-post-at-its-time gives it), it sends nothing once the
  *  post no longer carries it. */
 export async function sendAPost(input = {}, { now = () => new Date(), send = fetch, fetchMedia = fetch, held = null, publishers = PUBLISHERS } = {}) {
-  const { post_id: postId, place: placeSlug, account_id: accountId, resend = false, armed_at: armedAt, media_url: mediaUrl } = input;
+  const { post_id: postId, place: placeSlug, account_id: accountId, resend = false, armed_at: armedAt, media_url: mediaUrl, media_urls: mediaUrls, cover_url: coverUrl } = input;
   if (typeof postId !== 'string' || !postId.trim() || typeof accountId !== 'string' || !accountId.trim()) throw new Error('Give post_id and account_id (one of the post\'s destinations).');
   if (typeof placeSlug !== 'string' || !placeSlug.trim()) throw new Error('Give place (the slug of the place account_id belongs to).');
   const { records, kept } = recordsIn(input);
@@ -273,15 +284,16 @@ export async function sendAPost(input = {}, { now = () => new Date(), send = fet
   const attempt = (earlier.attempt ?? 0) + (earlier.status && earlier.status !== 'not sent' ? 1 : 0);
   try {
     const { social, account, options } = publisherFor(place, connection, { held: held ?? heldFromDescriptors(place), send, publishers });
-    const media = await mediaFor(post, place, mediaUrl, fetchMedia);
     const byFormat = formatOf(post.format);
     if (byFormat && byFormat.platform !== place.platform) throw new Refused(`${byFormat.label} posts go to ${byFormat.platform}, not ${place.label}. Nothing was sent.`);
+    const media = byFormat ? null : await mediaFor(post, place, mediaUrl, fetchMedia);
+    if (coverUrl !== undefined && !/^https:\/\//.test(String(coverUrl))) throw new Refused('cover_url must be an https address of the cover image. Nothing was sent.');
     const chosen = { ...(place.default_settings ?? {}), ...(post.settings_by_platform?.[place.platform] ?? {}) };
     // Until the place answers, the outcome is not known: a send that is cut off answers nothing, and the caller's post
     // still says what it said.
     deliveries[accountId] = { platform: place.platform, label: place.label, status: 'not known', attempt, error: fillWords(settings.not_known_words, { platform: place.label }) };
     const outcome = byFormat
-      ? await publishByFormat({ format: post.format, options, accountId, mediaUrl, mediaKind: String(post.media?.media_type ?? '').startsWith('image/') ? 'image' : 'video', caption: wordsOf(post, place, accountId), send: options.fetch })
+      ? await publishByFormat({ format: post.format, options, media: formatMedia(byFormat, post, mediaUrl, mediaUrls), cover: coverUrl, caption: wordsOf(post, place, accountId), send: options.fetch })
       : (await social.posts.publish({
         targets: [{ account, ...(Object.keys(chosen).length ? { options: chosen } : {}) }],
         ...(schedule ? { schedule } : {}),
