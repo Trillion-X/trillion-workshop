@@ -1733,6 +1733,10 @@
             {
               "secret_name": "calendar-account",
               "fd": 4
+            },
+            {
+              "secret_name": "composio-api-key",
+              "fd": 5
             }
           ]
         },
@@ -2163,6 +2167,10 @@
             {
               "secret_name": "calendar-account",
               "fd": 4
+            },
+            {
+              "secret_name": "composio-api-key",
+              "fd": 5
             }
           ]
         },
@@ -2563,6 +2571,10 @@
             {
               "secret_name": "calendar-account",
               "fd": 4
+            },
+            {
+              "secret_name": "composio-api-key",
+              "fd": 5
             }
           ]
         },
@@ -2934,6 +2946,10 @@
             {
               "secret_name": "calendar-account",
               "fd": 4
+            },
+            {
+              "secret_name": "composio-api-key",
+              "fd": 5
             }
           ]
         },

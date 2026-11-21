@@ -225,10 +225,22 @@ function accountOf(context) {
   } catch { throw new Error('This run was handed no calendar account. Keep your calendar account as a held value and let this tool use it.'); }
   const account = JSON.parse(text);
   if (!account || typeof account.provider !== 'string') throw new Error('The calendar account must be a JSON object with a provider.');
-  return account;
+  return account.provider === 'composio' ? { ...account, api_key: composioKeyOf(context) } : account;
+}
+
+// The Composio key arrives on descriptor 5 (the tool row's composio-api-key mount), never in the account descriptor.
+function composioKeyOf(context) {
+  if (context.composioKey) return context.composioKey;
+  try {
+    const kind = fstatSync(5);
+    if (!kind.isFIFO() && !kind.isFile()) throw new Error('not a key');
+    const key = readFileSync(5, 'utf8').trim();
+    if (key) return key;
+  } catch { /* refused below */ }
+  throw new Error('This run was handed no Composio key. Keep composio-api-key as a held value and let this tool mount it.');
 }
 // Provider text can echo a request; never let the account's secret parts leave in an answer.
-const scrub = (text, account) => [account.client_secret, account.refresh_token, account.client_id]
+const scrub = (text, account) => [account.client_secret, account.refresh_token, account.client_id, account.api_key]
   .filter(part => typeof part === 'string' && part.length > 0)
   .reduce((out, part) => out.split(part).join('[hidden]'), text ?? '');
 

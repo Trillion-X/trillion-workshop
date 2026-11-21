@@ -10,7 +10,9 @@
 // required proof case. Adding Outlook/CalDAV/etc. is a new adapter entry plus a DATA row, never a change
 // to callers. The one named example (Google) expands to the whole external-calendar category.
 
-export type ExternalCalendarProvider = 'google';
+import { composioCreate, type ComposioCalendarConnection } from './composio-calendar.ts';
+
+export type ExternalCalendarProvider = 'google' | 'composio';
 
 // The resolved connection a credential mount hands this capability. For Google this is an OAuth
 // client plus an offline refresh token for the host's calendar account (a person's own calendar account). The
@@ -24,7 +26,7 @@ export interface GoogleCalendarConnection {
   calendar_id?: string;
 }
 
-export type ExternalCalendarConnection = GoogleCalendarConnection;
+export type ExternalCalendarConnection = GoogleCalendarConnection | ComposioCalendarConnection;
 
 // The booking, in the package's own booking terms (not a caller's internal shape).
 export interface BookingEventInput {
@@ -132,6 +134,7 @@ export async function createExternalCalendarEvent(
 ): Promise<ExternalCalendarEventResult> {
   const adapters: Record<ExternalCalendarProvider, (c: ExternalCalendarConnection, b: BookingEventInput, f: FetchLike) => Promise<ExternalCalendarEventResult>> = {
     google: (c, b, f) => createGoogleEvent(c as GoogleCalendarConnection, b, f),
+    composio: (c, b, f) => composioCreate(c as ComposioCalendarConnection, b, f),
   };
   const adapter = adapters[connection.provider];
   if (!adapter) return { status: 'error', error: `unsupported-provider:${connection.provider}` };

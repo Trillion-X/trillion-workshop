@@ -10,6 +10,7 @@
 // answer: a caller that cannot see the host's calendar must say so rather than offer times it guessed.
 
 import { mintGoogleAccessToken, type ExternalCalendarConnection, type FetchLike, type GoogleCalendarConnection } from './create-external-calendar-event.ts';
+import { composioBusy, composioCancel, type ComposioCalendarConnection } from './composio-calendar.ts';
 import type { Interval } from './derive-open-slots.ts';
 
 export interface ExternalBusyResult {
@@ -57,6 +58,7 @@ async function googleChange(conn: GoogleCalendarConnection, eventId: string, cha
 export async function readExternalCalendarBusy(connection: ExternalCalendarConnection, fromMs: number, toMs: number, doFetch: FetchLike = fetch as unknown as FetchLike): Promise<ExternalBusyResult> {
   const adapters: Record<string, (c: ExternalCalendarConnection) => Promise<ExternalBusyResult>> = {
     google: (c) => googleBusy(c as GoogleCalendarConnection, fromMs, toMs, doFetch),
+    composio: (c) => composioBusy(c as ComposioCalendarConnection, fromMs, toMs, doFetch),
   };
   const adapter = adapters[connection.provider];
   return adapter ? adapter(connection) : { status: 'unknown', busy: [], error: `unsupported-provider:${connection.provider}` };
@@ -75,6 +77,7 @@ export async function moveExternalCalendarEvent(connection: ExternalCalendarConn
 export async function cancelExternalCalendarEvent(connection: ExternalCalendarConnection, eventId: string, doFetch: FetchLike = fetch as unknown as FetchLike): Promise<ExternalChangeResult> {
   const adapters: Record<string, (c: ExternalCalendarConnection) => Promise<ExternalChangeResult>> = {
     google: (c) => googleChange(c as GoogleCalendarConnection, eventId, { cancel: true }, doFetch),
+    composio: (c) => composioCancel(c as ComposioCalendarConnection, eventId, doFetch),
   };
   const adapter = adapters[connection.provider];
   return adapter ? adapter(connection) : { status: 'error', error: `unsupported-provider:${connection.provider}` };
