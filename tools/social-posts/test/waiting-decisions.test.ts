@@ -2,7 +2,7 @@
 // run of the same statements against the database is recorded in the reflection, not in this file.
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
-import { decideStatement, identifier, readFields, shownWords, waitingRowsStatement, type DecisionSource } from '../web/src/workspace/decisions.ts';
+import { approvable, decideStatement, identifier, isBlank, readFields, shownWords, waitingCountStatement, waitingPageStatement, type DecisionSource } from '../web/src/workspace/decisions.ts';
 
 const DATA = JSON.parse(readFileSync(new URL('../web/src/workspace/pieces.json', import.meta.url), 'utf8'));
 const outreach = DATA.decisions.sources[0] as DecisionSource;
@@ -19,6 +19,44 @@ describe('the decision DATA', () => {
     expect(outreach.skip.status).toBe('skipped');
     expect(new Set([outreach.waiting, outreach.yes.status, outreach.skip.status]).size).toBe(3);
   });
+
+  it('gives every page a size from DATA, as a whole number above zero', () => {
+    expect(Number.isInteger(DATA.waiting_page_size)).toBe(true);
+    expect(DATA.waiting_page_size).toBeGreaterThan(0);
+  });
+
+  it('gives every statement a statement timeout from DATA, as a whole number of milliseconds above zero', () => {
+    expect(Number.isInteger(DATA.statement_timeout_ms)).toBe(true);
+    expect(DATA.statement_timeout_ms).toBeGreaterThan(0);
+  });
+
+  it('gives Approve and Skip two different one-letter keys, and shows the rows one at a time', () => {
+    expect(outreach.yes.key).toMatch(/^[a-z]$/);
+    expect(outreach.skip.key).toMatch(/^[a-z]$/);
+    expect(outreach.yes.key).not.toBe(outreach.skip.key);
+    expect(outreach.one_at_a_time).toBe(true);
+  });
+});
+
+describe('an email draft with no address', () => {
+  it('offers no Approve, and the empty list is blank', () => {
+    expect(isBlank('[]', 'list')).toBe(true);
+    expect(isBlank(null, 'list')).toBe(true);
+    expect(isBlank('["a@example.com"]', 'list')).toBe(false);
+    expect(approvable(outreach, { emails: '[]' })).toBe(false);
+    expect(approvable(outreach, { emails: null })).toBe(false);
+    expect(approvable(outreach, { emails: '["a@example.com"]' })).toBe(true);
+  });
+
+  it('shows its own empty words in place of the list, from DATA the words file holds', () => {
+    const emails = outreach.shows.find(shown => shown.field === 'emails');
+    expect(emails?.empty).toBe('no_address');
+    expect(DATA.words[emails!.empty!]).toBe('No address found');
+  });
+
+  it('keeps Skip for it: a source with no yes_needs offers Approve for every row', () => {
+    expect(approvable({ ...outreach, yes_needs: undefined }, { emails: '[]' })).toBe(true);
+  });
 });
 
 describe('identifier', () => {
@@ -33,11 +71,23 @@ describe('identifier', () => {
   });
 });
 
-describe('waitingRowsStatement', () => {
-  it('reads only the waiting rows, in the source order, with the waiting status as its one value', () => {
-    const made = waitingRowsStatement(outreach);
-    expect(made.sql).toBe('select "place_id", "name", "drafted_at", "category", "website", "address", "phone", "emails", "subject", "body", "why", "detail" from "outreach_drafts" where "status" = $1 order by "drafted_at", "place_id"');
-    expect(made.params).toEqual(['waiting on a yes']);
+describe('waitingPageStatement', () => {
+  it('reads the first page of the waiting rows, in the source order, with the waiting status and the size as its values', () => {
+    const made = waitingPageStatement(outreach, 50, null);
+    expect(made.sql).toBe('select "place_id", "name", "drafted_at", "category", "website", "address", "phone", "emails", "subject", "body", "why", "detail" from "outreach_drafts" where "status" = $1 order by "drafted_at", "place_id" limit $2');
+    expect(made.params).toEqual(['waiting on a yes', '50']);
+  });
+
+  it('reads the next page keyset-style, after the order and id of the last row shown, with no offset', () => {
+    const made = waitingPageStatement(outreach, 50, { order: '2026-11-02T00:00:00Z', id: 'p2' });
+    expect(made.sql).toContain('and ("drafted_at", "place_id") > ($2, $3) order by "drafted_at", "place_id" limit $4');
+    expect(made.sql).not.toContain('offset');
+    expect(made.params).toEqual(['waiting on a yes', '2026-11-02T00:00:00Z', 'p2', '50']);
+  });
+
+  it('refuses a page size that is not a whole number above zero', () => {
+    expect(() => waitingPageStatement(outreach, 0, null)).toThrow();
+    expect(() => waitingPageStatement(outreach, 1.5, null)).toThrow();
   });
 
   it('reads each field once even when it is both the order and a shown field', () => {
@@ -47,9 +97,17 @@ describe('waitingRowsStatement', () => {
 
   it('keeps the values out of the text, whatever the DATA holds', () => {
     const odd = { ...outreach, waiting: "x'; drop table outreach_drafts; --" };
-    const made = waitingRowsStatement(odd);
+    const made = waitingPageStatement(odd, 50, null);
     expect(made.sql).not.toContain('drop table');
-    expect(made.params).toEqual(["x'; drop table outreach_drafts; --"]);
+    expect(made.params).toEqual(["x'; drop table outreach_drafts; --", '50']);
+  });
+});
+
+describe('waitingCountStatement', () => {
+  it('counts the same rows the pages read, with the waiting status as its one value', () => {
+    const made = waitingCountStatement(outreach);
+    expect(made.sql).toBe('select count(*) as waiting from "outreach_drafts" where "status" = $1');
+    expect(made.params).toEqual(['waiting on a yes']);
   });
 });
 

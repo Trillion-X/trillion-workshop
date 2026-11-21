@@ -28,12 +28,14 @@ import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
 import { postJson, readFileBytes } from '../../../../workspace-screens/web/src/workspace/api';
 import { runWorkshopTool } from '../../../../workspace-screens/web/src/workspace/workshop-tool-api';
 import pieces from './pieces.json';
-import { decideStatement, shownWords, waitingRowsStatement, type DecisionSource, type Verb } from './decisions';
+import { decideStatement, shownWords, waitingCountStatement, approvable, waitingPageStatement, type Cursor, type DecisionSource, type Verb } from './decisions';
 
 type Piece = Record<string, string | null>;
 type Row = Record<string, string | null>;
 /** The rows one decision source read from one of the person's databases, with the connection they came from. */
-type WaitingGroup = { source: DecisionSource; credential: string; rows: Row[] };
+/** One source's waiting rows from one database: the first page (or every page shown so far), how many wait in all, and
+ *  whether a page past the last one shown may still hold more. */
+type WaitingGroup = { source: DecisionSource; credential: string; rows: Row[]; left: number; more: boolean };
 type Slide = { head: string; body: string };
 type Read<T> = { state: 'reading' } | { state: 'failed'; why: string } | { state: 'read'; value: T };
 const words = pieces.words;
@@ -58,7 +60,7 @@ const NO_TABLE = /relation .* does not exist/i;
 async function readPieces(credential: string): Promise<Piece[] | null> {
   const sql = `select ${pieces.columns.join(', ')} from ${pieces.table} order by coalesce(array_position($1::text[], state), 1000), id`;
   try {
-    const ran = await runWorkshopTool<{ rows?: Piece[] }>(pieces.tool, { credential_name: credential, sql, params: [pieces.order] });
+    const ran = await runWorkshopTool<{ rows?: Piece[] }>(pieces.tool, { credential_name: credential, sql, params: [pieces.order], statement_timeout_ms: pieces.statement_timeout_ms });
     if (!Array.isArray(ran.result?.rows)) throw new Error('');
     return ran.result.rows;
   } catch (error) {
@@ -166,16 +168,32 @@ function Failed({ message, why, retry }: { message: string; why?: string; retry:
 }
 
 const sources = pieces.decisions.sources as DecisionSource[];
-/** The rows that wait on the person's yes: each decision source read from every database the vault names with its suffix
- *  that has its table (one without it makes no such rows and is left out). decisions.ts makes the SQL. */
+/** One page of a source's waiting rows from one database, after the cursor (none for the first page). A page of the
+ *  page size means more may follow. */
+async function readWaitingPage(source: DecisionSource, credential: string, after: Cursor | null): Promise<{ rows: Row[]; more: boolean }> {
+  const { sql, params } = waitingPageStatement(source, pieces.waiting_page_size, after);
+  const ran = await runWorkshopTool<{ rows?: Row[] }>(pieces.tool, { credential_name: credential, sql, params, statement_timeout_ms: pieces.statement_timeout_ms });
+  if (!Array.isArray(ran.result?.rows)) throw new Error('');
+  return { rows: ran.result.rows, more: ran.result.rows.length === pieces.waiting_page_size };
+}
+
+/** How many rows of a source wait, from one database: a count of the same rows the pages read. */
+async function readWaitingCount(source: DecisionSource, credential: string): Promise<number> {
+  const { sql, params } = waitingCountStatement(source);
+  const ran = await runWorkshopTool<{ rows?: { waiting?: string }[] }>(pieces.tool, { credential_name: credential, sql, params, statement_timeout_ms: pieces.statement_timeout_ms });
+  const count = Number(ran.result?.rows?.[0]?.waiting);
+  if (!Number.isInteger(count)) throw new Error('');
+  return count;
+}
+
+/** The first page and the count of each decision source's waiting rows, read from every database the vault names with its
+ *  suffix that has its table (one without it makes no such rows and is left out). decisions.ts makes the SQL. */
 async function readWaiting(): Promise<WaitingGroup[]> {
   const names = await readNames();
   const reads = sources.flatMap(source => names.filter(name => name.endsWith(source.database_suffix)).map(async (credential): Promise<WaitingGroup | null> => {
-    const { sql, params } = waitingRowsStatement(source);
     try {
-      const ran = await runWorkshopTool<{ rows?: Row[] }>(pieces.tool, { credential_name: credential, sql, params });
-      if (!Array.isArray(ran.result?.rows)) throw new Error('');
-      return { source, credential, rows: ran.result.rows };
+      const [page, left] = await Promise.all([readWaitingPage(source, credential, null), readWaitingCount(source, credential)]);
+      return { source, credential, rows: page.rows, left, more: page.more };
     } catch (error) {
       if (error instanceof Error && NO_TABLE.test(error.message)) return null;
       throw error;
@@ -184,17 +202,25 @@ async function readWaiting(): Promise<WaitingGroup[]> {
   return (await Promise.all(reads)).filter((group): group is WaitingGroup => group !== null);
 }
 
+/** The next page of one source's waiting rows, after the last row the group shows. */
+async function readMoreWaiting(group: WaitingGroup): Promise<WaitingGroup> {
+  const last = group.rows[group.rows.length - 1];
+  if (!last) return group;
+  const page = await readWaitingPage(group.source, group.credential, { order: last[group.source.order] ?? '', id: last[group.source.id] ?? '' });
+  return { ...group, rows: [...group.rows, ...page.rows], more: page.more };
+}
+
 /** Sets one row's decision in the database it was read from. The answer is read again either way: a row decided elsewhere
  *  no longer waits and leaves. */
 async function decide(group: WaitingGroup, rowId: string, verb: Verb): Promise<void> {
   const { sql, params } = decideStatement(group.source, verb, rowId);
-  const ran = await runWorkshopTool<{ rows?: Row[] }>(pieces.tool, { credential_name: group.credential, sql, params });
+  const ran = await runWorkshopTool<{ rows?: Row[] }>(pieces.tool, { credential_name: group.credential, sql, params, statement_timeout_ms: pieces.statement_timeout_ms });
   if (!Array.isArray(ran.result?.rows)) throw new Error('');
 }
 
 /** The waiting rows, read as the screen opens and again after each decision. A refresh keeps the rows on screen until
  *  its answer comes, so a decision never blanks the list. */
-function useWaiting(): { held: Read<WaitingGroup[]>; again: () => void } {
+function useWaiting(): { held: Read<WaitingGroup[]>; again: () => void; more: (group: WaitingGroup) => void } {
   const [held, setHeld] = React.useState<Read<WaitingGroup[]>>({ state: 'reading' });
   const [attempt, setAttempt] = React.useState(0);
   React.useEffect(() => {
@@ -202,29 +228,41 @@ function useWaiting(): { held: Read<WaitingGroup[]>; again: () => void } {
     readWaiting().then(value => { if (live) setHeld({ state: 'read', value }); }, (error: unknown) => { if (live) setHeld({ state: 'failed', why: error instanceof Error ? error.message : '' }); });
     return () => { live = false; };
   }, [attempt]);
-  return { held, again: () => setAttempt(count => count + 1) };
+  // The next page of one source's rows is added under the rows already shown; a page that fails fails the whole read.
+  const more = (group: WaitingGroup) => {
+    readMoreWaiting(group).then(
+      next => setHeld(current => current.state === 'read' ? { state: 'read', value: current.value.map(one => (one.credential === group.credential && one.source.table === group.source.table ? next : one)) } : current),
+      (error: unknown) => setHeld({ state: 'failed', why: error instanceof Error ? error.message : '' }),
+    );
+  };
+  return { held, again: () => setAttempt(count => count + 1), more };
 }
 
-function WaitingCard({ group, row, again }: { group: WaitingGroup; row: Row; again: () => void }) {
-  const { source } = group;
+/** One row's decision: busy while it is saved, failed when it is not, and the waiting rows read again after it. */
+function useDecision(group: WaitingGroup, row: Row, again: () => void) {
   const [busy, setBusy] = React.useState<Verb | null>(null);
   const [failed, setFailed] = React.useState(false);
-  const title = row[source.title] || words.untitled;
   const press = (verb: Verb) => {
+    if (busy) return;
     setBusy(verb);
     setFailed(false);
-    decide(group, row[source.id] ?? '', verb).then(again, () => { setBusy(null); setFailed(true); });
+    decide(group, row[group.source.id] ?? '', verb).then(again, () => { setBusy(null); setFailed(true); });
   };
+  return { busy, failed, press };
+}
+
+/** The rows of one source, each with its Approve and Skip. */
+function WaitingCard({ group, row, again }: { group: WaitingGroup; row: Row; again: () => void }) {
+  const { source } = group;
+  const { busy, failed, press } = useDecision(group, row, again);
+  const title = row[source.title] || words.untitled;
   return (
     <Card variant="nested" padding="md" data-waiting={row[source.id]} aria-busy={busy ? true : undefined}>
       <Container layout="vertical" gap="sm">
         <Text as="h2" variant="heading" className="m-0">{title}</Text>
-        {source.shows.map(shown => {
-          const value = shownWords(row[shown.field] ?? null, shown.as);
-          return value ? <Container key={shown.field} layout="vertical" gap="xs"><Text variant="label" color="secondary">{shown.label}</Text><Text as="p" variant="body" className="whitespace-pre-wrap">{value}</Text></Container> : null;
-        })}
+        <WaitingFields source={source} row={row} />
         <Container layout="horizontal" gap="sm" alignItems="center">
-          <Button variant="primary" size="sm" disabled={busy !== null} aria-label={`${source.yes.label}: ${title}`} onClick={() => press(source.yes)}>{source.yes.label}</Button>
+          {approvable(source, row) ? <Button variant="primary" size="sm" disabled={busy !== null} aria-label={`${source.yes.label}: ${title}`} onClick={() => press(source.yes)}>{source.yes.label}</Button> : null}
           <Button variant="ghost" size="sm" disabled={busy !== null} aria-label={`${source.skip.label}: ${title}`} onClick={() => press(source.skip)}>{source.skip.label}</Button>
           {busy ? <Text as="span" variant="caption" color="secondary" role="status">{words.waiting_saving}</Text> : null}
           {failed ? <Text as="span" variant="caption" color="secondary" role="alert">{words.waiting_save_failed}</Text> : null}
@@ -234,21 +272,95 @@ function WaitingCard({ group, row, again }: { group: WaitingGroup; row: Row; aga
   );
 }
 
-function WaitingSection({ held, again }: { held: Read<WaitingGroup[]>; again: () => void }) {
-  const groups = held.state === 'read' ? held.value : [];
-  const count = groups.reduce((total, group) => total + group.rows.length, 0);
+/** The fields a source shows for one row, in the order DATA names them. */
+function WaitingFields({ source, row }: { source: DecisionSource; row: Row }) {
+  return (
+    <>
+      {source.shows.map(shown => {
+        const value = shownWords(row[shown.field] ?? null, shown.as);
+        // A field a row holds nothing in shows its own empty words, when DATA names them (no address found).
+        if (!value && shown.empty) return <Container key={shown.field} layout="vertical" gap="xs"><Text variant="label" color="secondary">{shown.label}</Text><Text as="p" variant="body" color="secondary">{(words as Record<string, string>)[shown.empty]}</Text></Container>;
+        return value ? <Container key={shown.field} layout="vertical" gap="xs"><Text variant="label" color="secondary">{shown.label}</Text><Text as="p" variant="body" className="whitespace-pre-wrap">{value}</Text></Container> : null;
+      })}
+    </>
+  );
+}
+
+
+
+/** A key press is not a decision while the person types in a field. */
+const typing = (target: EventTarget | null) => target instanceof HTMLElement
+  && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
+
+/** One waiting row at a time, large Approve and Skip, the rows left counted, and the keys DATA names pressing them. Only
+ *  the one listening takes keys, so two sources never answer one press. */
+function OneWaiting({ group, row, left, again, listening }: { group: WaitingGroup; row: Row; left: number; again: () => void; listening: boolean }) {
+  const { source } = group;
+  const { busy, failed, press } = useDecision(group, row, again);
+  const title = row[source.title] || words.untitled;
+  React.useEffect(() => {
+    if (!listening) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (busy || event.metaKey || event.ctrlKey || event.altKey || typing(event.target)) return;
+      const verb = [...(approvable(source, row) ? [source.yes] : []), source.skip].find(one => one.key === event.key.toLowerCase());
+      if (!verb) return;
+      event.preventDefault();
+      press(verb);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
+  return (
+    <Card variant="nested" padding="md" data-waiting={row[source.id]} aria-busy={busy ? true : undefined}>
+      <Container layout="vertical" gap="md">
+        <Container layout="horizontal" gap="sm" alignItems="center" justifyContent="between">
+          <Text as="h2" variant="heading-lg" className="m-0">{title}</Text>
+          <Text as="span" variant="caption" color="secondary">{say(words.waiting_left, { count: left })}</Text>
+        </Container>
+        <WaitingFields source={source} row={row} />
+        <Container layout="horizontal" gap="sm" alignItems="center">
+          {approvable(source, row) ? <Button variant="primary" size="lg" disabled={busy !== null} aria-label={`${source.yes.label}: ${title}`} onClick={() => press(source.yes)}>{source.yes.label}</Button> : null}
+          <Button variant="ghost" size="lg" disabled={busy !== null} aria-label={`${source.skip.label}: ${title}`} onClick={() => press(source.skip)}>{source.skip.label}</Button>
+          {busy ? <Text as="span" variant="caption" color="secondary" role="status">{words.waiting_saving}</Text> : null}
+          {failed ? <Text as="span" variant="caption" color="secondary" role="alert">{words.waiting_save_failed}</Text> : null}
+        </Container>
+        {listening ? <Text as="p" variant="caption" color="secondary">{say(words.waiting_keys, { yes: source.yes.key.toUpperCase(), skip: source.skip.key.toUpperCase() })}</Text> : null}
+      </Container>
+    </Card>
+  );
+}
+
+function WaitingSection({ held, again, more }: { held: Read<WaitingGroup[]>; again: () => void; more: (group: WaitingGroup) => void }) {
+  const groups = held.state === 'read' ? held.value.filter(group => group.left > 0 && group.rows.length > 0) : [];
+  const listening = groups.find(group => group.source.one_at_a_time);
   return (
     <Container layout="vertical" gap="sm" data-section="waiting">
       <Text as="h2" variant="heading-lg" className="m-0">{words.waiting_title}</Text>
       {held.state === 'reading' ? <Text as="p" variant="body" color="secondary">{words.waiting_reading}</Text>
         : held.state === 'failed' ? <Failed message={words.waiting_failed} why={held.why} retry={again} />
-          : count === 0 ? <Text as="p" variant="body" color="secondary">{words.waiting_none}</Text>
-            : groups.filter(group => group.rows.length).map(group => (
-              <Container key={`${group.credential}:${group.source.table}`} layout="vertical" gap="sm">
-                <Text as="h3" variant="label" color="secondary">{group.source.label}</Text>
-                {group.rows.map(row => <WaitingCard key={row[group.source.id] ?? ''} group={group} row={row} again={again} />)}
-              </Container>
+          : groups.length === 0 ? <Text as="p" variant="body" color="secondary">{words.waiting_none}</Text>
+            : groups.map(group => (
+              group.source.one_at_a_time
+                ? <OneWaiting key={`${group.credential}:${group.source.table}`} group={group} row={group.rows[0]!} left={group.left} again={again} listening={group === listening} />
+                : (
+                  <Container key={`${group.credential}:${group.source.table}`} layout="vertical" gap="sm">
+                    <Text as="h3" variant="label" color="secondary">{group.source.label}</Text>
+                    <Text as="p" variant="caption" color="secondary">{say(words.waiting_left, { count: group.left })}</Text>
+                    {group.rows.map(row => <WaitingCard key={row[group.source.id] ?? ''} group={group} row={row} again={again} />)}
+                    {group.more ? <Container layout="horizontal"><Button variant="ghost" onClick={() => more(group)}>{words.waiting_more}</Button></Container> : null}
+                  </Container>
+                )
             ))}
+    </Container>
+  );
+}
+
+/** The waiting view alone (its address, pieces.json `waiting_view`): the rows that wait on the person's yes, no pursuits. */
+function WaitingOnly() {
+  const waiting = useWaiting();
+  return (
+    <Container layout="vertical" gap="md" padding="lg" className="h-full min-h-0 overflow-y-auto" data-screen="waiting">
+      <WaitingSection held={waiting.held} again={waiting.again} more={waiting.more} />
     </Container>
   );
 }
@@ -263,7 +375,7 @@ function Pieces() {
     <Container layout="vertical" gap="md" padding="lg" className="h-full min-h-0 overflow-y-auto" data-screen="pieces">
       <Text as="h1" variant="heading-lg" className="page-title m-0">{words.title}</Text>
       <Text as="p" variant="body" color="secondary">{words.body}</Text>
-      {sources.length ? <WaitingSection held={waiting.held} again={waiting.again} /> : null}
+      {sources.length ? <WaitingSection held={waiting.held} again={waiting.again} more={waiting.more} /> : null}
       {made.state === 'reading' ? <Text as="p" variant="body" color="secondary">{words.reading}</Text>
         : made.state === 'failed' ? <Failed message={words.failed} retry={retry} />
           : !current ? <Text as="p" variant="body" color="secondary">{words.none}</Text> : (
@@ -280,6 +392,7 @@ function Pieces() {
   );
 }
 
-export function mountPiecesScreen(element: HTMLElement) {
-  return mountReactSurface(element, <Pieces />);
+/** The Posts screen: its surface input `view` (pieces.json `waiting_view`) picks the waiting view alone. */
+export function mountPiecesScreen(element: HTMLElement, props: { surfaceInput?: Record<string, unknown> } = {}) {
+  return mountReactSurface(element, props.surfaceInput?.view === pieces.waiting_view ? <WaitingOnly /> : <Pieces />);
 }

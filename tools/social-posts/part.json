@@ -1,1 +1,42 @@
-{"public": []}
+{
+  "public": [],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-waiting-on-your-yes",
+      "label": "Waiting on your yes",
+      "job": "Approve or skip each row that waits on your yes, one at a time.",
+      "description": "Approve or skip each row that waits on your yes, one at a time, with the rows left counted.",
+      "status": "active",
+      "maker": "maker:social-posts",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "module",
+        "module": {
+          "package": "social-posts",
+          "entry": "web/src/workspace/posts-screen-mount.tsx"
+        },
+        "icon": "Send",
+        "label": "Waiting on your yes",
+        "about": "Approve or skip each row that waits on your yes.",
+        "surface": {
+          "id": "waiting-on-your-yes",
+          "surface_id": "waiting-on-your-yes",
+          "kind": "placeable-surface",
+          "sidebar_collection": "information-being-acted-on",
+          "order": 11.6,
+          "placement_order_key": "000000011.6:waiting-on-your-yes",
+          "wrap_material": false,
+          "material_target": "component:posts-waiting",
+          "route_paths": [
+            "/waiting-on-your-yes"
+          ],
+          "surface_input": {
+            "view": "waiting"
+          },
+          "actions": []
+        }
+      }
+    }
+  ]
+}

@@ -6,6 +6,9 @@
   "table": "content_pieces",
   "columns": ["id", "kind", "state", "title", "why", "next_step", "script", "draft", "goes_to", "goes_out", "extra", "came_from"],
   "order": ["Needs your voice", "Needs you to approve", "Waits for voice check", "Being made", "Idea", "Posted", "Deleted"],
+  "statement_timeout_ms": 5000,
+  "waiting_page_size": 50,
+  "waiting_view": "waiting",
   "ask_first": ["Needs your voice", "Needs you to approve"],
   "decisions": {
     "sources": [
@@ -19,14 +22,16 @@
         "decided_at": "decided_at",
         "order": "drafted_at",
         "waiting": "waiting on a yes",
-        "yes": { "status": "approved", "label": "Approve" },
-        "skip": { "status": "skipped", "label": "Skip" },
+        "one_at_a_time": true,
+        "yes_needs": "emails",
+        "yes": { "status": "approved", "label": "Approve", "key": "a" },
+        "skip": { "status": "skipped", "label": "Skip", "key": "s" },
         "shows": [
           { "field": "category", "label": "Kind" },
           { "field": "website", "label": "Website" },
           { "field": "address", "label": "Address" },
           { "field": "phone", "label": "Phone" },
-          { "field": "emails", "label": "Emails", "as": "list" },
+          { "field": "emails", "label": "Emails", "as": "list", "empty": "no_address" },
           { "field": "subject", "label": "Subject" },
           { "field": "body", "label": "Email" },
           { "field": "why", "label": "Why" },
@@ -60,6 +65,10 @@
     "waiting_none": "Nothing is waiting on your yes.",
     "waiting_failed": "What waits on your yes could not be read.",
     "waiting_save_failed": "This could not be saved. Nothing changed; try again.",
-    "waiting_saving": "Saving"
+    "waiting_saving": "Saving",
+    "waiting_left": "{count} left",
+    "waiting_keys": "Press {yes} to approve or {skip} to skip.",
+    "waiting_more": "Show more",
+    "no_address": "No address found"
   }
 }

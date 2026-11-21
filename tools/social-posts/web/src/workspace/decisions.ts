@@ -15,9 +15,10 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
-export type Verb = { status: string; label: string };
+/** A decision the person presses: the status it sets, its button words and the key that presses it. */
+export type Verb = { status: string; label: string; key: string };
 
-export type ShownField = { field: string; label: string; as?: 'list' | 'text' };
+export type ShownField = { field: string; label: string; as?: 'list' | 'text'; empty?: string };
 
 export type DecisionSource = {
   label: string;
@@ -29,6 +30,10 @@ export type DecisionSource = {
   decided_at: string;
   order: string;
   waiting: string;
+  /** Shows one waiting row at a time (Approve or Skip for it, then the next), with the rows left counted. */
+  one_at_a_time: boolean;
+  /** The field that must hold something for Approve to be offered (an email draft needs an address). Without it, Approve is always offered. */
+  yes_needs?: string;
   yes: Verb;
   skip: Verb;
   shows: ShownField[];
@@ -49,13 +54,28 @@ export function readFields(source: DecisionSource): string[] {
   return [...new Set([source.id, source.title, source.order, ...source.shows.map(shown => shown.field)])];
 }
 
-/** The rows that wait on the person's yes, in the source's order, read with the waiting status as the one value. */
-export function waitingRowsStatement(source: DecisionSource): Statement {
+/** Where the next page of waiting rows starts: the order and id values of the last row the page before it showed. */
+export type Cursor = { order: string; id: string };
+
+/** One page of the rows that wait on the person's yes, in the source's order, after the cursor (none for the first page).
+ *  The page is keyset-paged on (order, id), so a page starts from an index on the order and id, never from an offset. The
+ *  order column must hold a value on every row a page can reach (a row with none would never be paged past). */
+export function waitingPageStatement(source: DecisionSource, size: number, after: Cursor | null): Statement {
+  if (!Number.isInteger(size) || size < 1) throw new Error('A page of waiting rows needs a whole number of rows above zero.');
   const columns = readFields(source).map(identifier).join(', ');
+  const order = identifier(source.order);
+  const id = identifier(source.id);
+  const head = `select ${columns} from ${identifier(source.table)} where ${identifier(source.status)} = $1`;
+  if (!after) return { sql: `${head} order by ${order}, ${id} limit $2`, params: [source.waiting, String(size)] };
   return {
-    sql: `select ${columns} from ${identifier(source.table)} where ${identifier(source.status)} = $1 order by ${identifier(source.order)}, ${identifier(source.id)}`,
-    params: [source.waiting],
+    sql: `${head} and (${order}, ${id}) > ($2, $3) order by ${order}, ${id} limit $4`,
+    params: [source.waiting, after.order, after.id, String(size)],
   };
+}
+
+/** How many rows wait on the person's yes: the same status as the page, counted and nothing else. */
+export function waitingCountStatement(source: DecisionSource): Statement {
+  return { sql: `select count(*) as waiting from ${identifier(source.table)} where ${identifier(source.status)} = $1`, params: [source.waiting] };
 }
 
 /** Sets the row's status to the verb's status and stamps the decision time, only while the row still waits. It answers
@@ -68,6 +88,18 @@ export function decideStatement(source: DecisionSource, verb: Verb, rowId: strin
     sql: `update ${table} set ${status} = $1, ${identifier(source.decided_at)} = now() where ${id} = $2 and ${status} = $3 returning ${id}`,
     params: [verb.status, rowId, source.waiting],
   };
+}
+
+/** Whether a field's text holds nothing: none, an empty string, or an empty JSON list. */
+export function isBlank(text: string | null, as: ShownField['as']): boolean {
+  return shownWords(text, as).trim() === '';
+}
+
+/** Approve is offered only when the source's `yes_needs` field holds something: an email draft with no address is not sent. */
+export function approvable(source: DecisionSource, row: Record<string, string | null>): boolean {
+  if (!source.yes_needs) return true;
+  const shown = source.shows.find(one => one.field === source.yes_needs);
+  return !isBlank(row[source.yes_needs] ?? null, shown?.as);
 }
 
 /** A shown field's words: a list is read from its JSON array, anything else is the text as it is. */
