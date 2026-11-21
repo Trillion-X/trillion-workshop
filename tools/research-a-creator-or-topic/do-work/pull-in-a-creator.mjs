@@ -7,7 +7,7 @@
 // the rows go to rows.jsonl for the person's AI to keep (one line {table, row}).
 //
 //   node pull-in-a-creator.mjs --creator FILE.json --out FOLDER [--only list|words|frames] [--newest N] [--media none|video]
-//                              [--platforms youtube,x,instagram] [--tag NAME]   (--tag names this run's items-NAME.jsonl and rows-NAME.jsonl)
+//                              [--platforms youtube,x,instagram] [--tag NAME] [--words remote]   (--tag names this run's items-NAME.jsonl and rows-NAME.jsonl)
 //
 // FILE.json is {slug, name, accounts: [{platform: youtube|x|instagram, handle}]}. Re-running is safe: an item whose
 // files are already in FOLDER is not asked for again, and rows carry fixed ids.
@@ -126,6 +126,26 @@ function captions(it) {
   return words;
 }
 
+// A post's spoken words from a remote transcript (treg), for when this computer does not hear the video itself. These
+// answers carry no times, so the one line is at second 0 and the origin says "untimed": a template cites such a video by
+// its key only.
+function remoteWords(it) {
+  const dir = itemDir(it);
+  const done = join(dir, 'words.json');
+  if (existsSync(done)) return JSON.parse(readFileSync(done, 'utf8'));
+  const s = settings.words.remote_transcript?.[it.platform];
+  if (!s) return null;
+  let answer = null;
+  try { answer = treg(s.endpoint, 'GET', { url: it.url }); } catch (error) { say('remote words failed', it.id, error.message); return null; }
+  const found = at(answer ?? {}, s.text);
+  const text = (Array.isArray(found) ? found.map(t => at(t, 'text')).filter(Boolean).join(' ') : found ?? '').replace(/\s+/g, ' ').trim();
+  if (!text) return null;
+  mkdirSync(dir, { recursive: true });
+  const words = { origin: `remote transcript via treg ${s.endpoint} (untimed)`, lines: [[0, text]] };
+  writeFileSync(done, JSON.stringify(words));
+  return words;
+}
+
 function download(it) {
   const dir = itemDir(it);
   mkdirSync(dir, { recursive: true });
@@ -224,6 +244,7 @@ for (const it of items) {
   try {
     let words = null, video = null, frameList = null;
     if (it.platform === 'youtube') { words = captions(it); await polite(); }
+    else if (!wantMedia && it.is_video && args.words === 'remote') { words = remoteWords(it); }
     if (wantMedia && it.is_video) {
       video = download(it);
       if (video && !words) words = hear(it, video);

@@ -1,5 +1,5 @@
 {
-  "_what": "Every number and address tool:pull-in-a-creator (do-work/pull-in-a-creator.mjs) uses. `lists` says, per platform, how a creator's whole post list is asked for: `youtube.tabs` are the channel tabs listed with yt-dlp; `x` and `instagram` are treg catalog endpoints (`endpoint`, the body or query field the handle goes in, the cursor field sent back and the answer paths of items, next cursor and whether more exist). `pages_at_most` bounds one account's listing per run. `media.video_height_at_most` is the tallest picture downloaded for frames (frames need shapes and words on screen, not full quality). `frames.scene_change` is ffmpeg's scene score above which a frame is kept, `frames.at_most_per_video` caps them, `frames.width` scales them, and `frames.sheet_columns` lays one contact sheet per video. `words.youtube_transcript` is the treg endpoint that answers a YouTube video's own timed captions (YouTube refuses repeated caption downloads from one computer with HTTP 429, Nov 21 2026), its language and the answer path of its lines; `words.whisper_model` is the mlx Whisper model used when a video has no captions of its own. `seconds_between_requests` is the polite wait between site requests.",
+  "_what": "Every number and address tool:pull-in-a-creator (do-work/pull-in-a-creator.mjs) uses. `lists` says, per platform, how a creator's whole post list is asked for: `youtube.tabs` are the channel tabs listed with yt-dlp; `x` and `instagram` are treg catalog endpoints (`endpoint`, the body or query field the handle goes in, the cursor field sent back and the answer paths of items, next cursor and whether more exist). `pages_at_most` bounds one account's listing per run. `media.video_height_at_most` is the tallest picture downloaded for frames (frames need shapes and words on screen, not full quality). `frames.scene_change` is ffmpeg's scene score above which a frame is kept, `frames.at_most_per_video` caps them, `frames.width` scales them, and `frames.sheet_columns` lays one contact sheet per video. `words.youtube_transcript` is the treg endpoint that answers a YouTube video's own timed captions (YouTube refuses repeated caption downloads from one computer with HTTP 429, Nov 21 2026), its language and the answer path of its lines; `words.whisper_model` is the mlx Whisper model used when a video has no captions of its own. `seconds_between_requests` is the polite wait between site requests. `words.remote_transcript` names, per platform, the treg endpoint that answers a post video's spoken words when this computer does not hear it (--media none --words remote); those words carry no times.",
   "seconds_between_requests": [
     1.5,
     4
@@ -66,6 +66,22 @@
         "transcript",
         "output.transcript"
       ]
+    },
+    "remote_transcript": {
+      "x": {
+        "endpoint": "scrapecreators.x.v1-twitter-tweet-transcript",
+        "text": [
+          "transcript",
+          "output.transcript"
+        ]
+      },
+      "instagram": {
+        "endpoint": "scrapecreators.x.v2-instagram-media-transcript",
+        "text": [
+          "transcripts",
+          "output.transcripts"
+        ]
+      }
     }
   }
 }
