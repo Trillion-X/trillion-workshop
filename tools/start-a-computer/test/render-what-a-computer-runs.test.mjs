@@ -140,3 +140,22 @@ test('serve-a-built-program renders the built program, its interpreter, its cred
   assert.match(file.text, /^KillMode=mixed$/m);
   assert.match(file.text, /^TimeoutStopSec=30$/m);
 });
+
+// Two slots of one site program share its /run folder, each on its own socket: each says runtime_preserve yes, so the slot that
+// stops never removes the folder the other serves from (Nov 21 2026: a site restarted in place made its names wait).
+test('serve-a-built-program keeps its /run folder always when its row says runtime_preserve yes', () => {
+  const unit = {
+    unit: 'example-site.service', template: 'tools/start-a-computer/read-data/unit-templates/serve-a-built-program.service',
+    description: 'Example site program', user: 'example-site', group: 'example-web', state: '/var/lib/example-site',
+    builds: '/var/lib/example-site/builds', program: 'serve.mjs', interpreter: '/opt/node/bin/node', runtime_directory: 'sites/place.example.test',
+    environment: ['SOCKET=/run/sites/place.example.test/http.sock'], writable: '/var/lib/example-site', credentials: [],
+    runtime_preserve: 'yes',
+    slots: { a: { environment: ['SOCKET=/run/sites/place.example.test/http-a.sock'] }, b: { environment: ['SOCKET=/run/sites/place.example.test/http-b.sock'] } },
+  };
+  const files = renderWhatItRuns({ units: [unit] }).filter(file => file.path.startsWith('/etc/systemd/system/example-site-'));
+  assert.deepEqual(files.map(file => file.path), ['/etc/systemd/system/example-site-a.service', '/etc/systemd/system/example-site-b.service']);
+  for (const [file, slot] of [[files[0], 'a'], [files[1], 'b']]) {
+    assert.match(file.text, /^RuntimeDirectoryPreserve=yes$/m);
+    assert.match(file.text, new RegExp(`^Environment=SOCKET=/run/sites/place\\.example\\.test/http-${slot}\\.sock$`, 'm'));
+  }
+});

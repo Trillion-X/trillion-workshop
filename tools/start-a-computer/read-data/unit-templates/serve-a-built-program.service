@@ -7,8 +7,10 @@ Wants=network-online.target
 # Runs {interpreter} {builds}/{current}/{program}: the program start-a-computer's apply built here from the row's source commit
 # and moved the `{current}` link to. Its held values are sealed credentials it reads from $CREDENTIALS_DIRECTORY; this unit
 # names only where they are. Its own folder under /run is {runtime_directory}, owned by {user} and readable by the group {group}
-# (a web server that sends it requests on a socket there). A restart keeps that folder (RuntimeDirectoryPreserve=restart), so
-# the web server waits for the new program on the same socket instead of finding no folder; the stop sends SIGTERM to the
+# (a web server that sends it requests on a socket there). A restart keeps that folder (the row's runtime_preserve,
+# `restart` unless it says), so the web server waits for the new program on the same socket instead of finding no folder; two
+# slots that share the folder, each on its own socket, say `yes`, so the slot that stops never removes the folder the other
+# serves from. The stop sends SIGTERM to the
 # program alone (KillMode=mixed), which stops taking calls and finishes the ones it holds, for up to {stop_seconds} seconds.
 {credential_lines}
 Environment={environment}
@@ -19,7 +21,7 @@ WorkingDirectory={state}
 ExecStart={interpreter} {builds}/{current}/{program}
 RuntimeDirectory={runtime_directory}
 RuntimeDirectoryMode=0750
-RuntimeDirectoryPreserve=restart
+RuntimeDirectoryPreserve={runtime_preserve}
 KillMode=mixed
 TimeoutStopSec={stop_seconds}
 Restart=always

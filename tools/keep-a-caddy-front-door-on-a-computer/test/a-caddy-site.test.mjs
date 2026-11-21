@@ -175,6 +175,23 @@ test('each name its own folder: the site file names no site, asks before each ce
   assert.match(https, /^\tencode zstd gzip$/m, 'every page and program answer is sent compressed');
 });
 
+// A name the row's site_sockets lists goes to each of its program's sockets, the first that takes the call, after its pages and
+// before the one-socket program route; a name it does not list keeps http.sock (Nov 21 2026: a site restarted in place stalled).
+test('each name its own folder: a name the row lists in site_sockets is sent to every socket of its program, first that answers', async () => {
+  const folders = { site_file: 'each-name-its-own-folder', door_host: '192.0.2.10', certificate_profile: 'shortlived', grace_period: '5s', pages_root: '/var/lib/example-sites', programs_root: '/run/example-sites' };
+  const plain = (await siteFile(folders)).text;
+  assert.doesNotMatch(plain, /@sockets_|site_sockets\}\}/, 'no listed name: no line at all');
+  const text = (await siteFile({ ...folders, site_sockets: { 'place.example.test': ['/run/example-sites/place.example.test/http-a.sock', '/run/example-sites/place.example.test/http-b.sock'] } })).text;
+  const https = text.slice(text.indexOf('https:// {'));
+  assert.match(https, /\t@sockets_0 host place\.example\.test\n\thandle @sockets_0 \{\n\t\treverse_proxy unix\/\/run\/example-sites\/place\.example\.test\/http-a\.sock unix\/\/run\/example-sites\/place\.example\.test\/http-b\.sock \{\n\t\t\tlb_policy first\n/);
+  assert.match(https, /lb_policy first\n\t\t\tlb_try_duration 15s\n\t\t\tlb_try_interval 250ms\n\t\t\tfail_duration 2s\n/);
+  assert.ok(https.indexOf('handle @page') < https.indexOf('handle @sockets_0') && https.indexOf('handle @sockets_0') < https.indexOf('handle @program'), 'pages first, then a listed name\'s sockets, then the one-socket program');
+  assert.match(https, /reverse_proxy unix\/\/run\/example-sites\/\{site\}\/http\.sock/, 'every other name keeps its one socket');
+  for (const bad of [{ 'Place.Example': ['/run/x/http.sock'] }, { 'place.example.test': [] }, { 'place.example.test': ['relative/http.sock'] }, { 'place.example.test': ['/run/../etc/http.sock'] }]) {
+    await assert.rejects(siteFile({ ...folders, site_sockets: bad }), /caddy\.site_sockets/);
+  }
+});
+
 test('each name its own folder: the engine answers some paths of some names first, and every other path stays the site\'s', async () => {
   const folders = { site_file: 'each-name-its-own-folder', door_host: '192.0.2.10', certificate_profile: 'shortlived', grace_period: '5s', pages_root: '/var/lib/example-sites', programs_root: '/run/example-sites' };
   const engine = { engine: { listen: ['127.0.0.1:7199', '127.0.0.1:7198'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s' } };

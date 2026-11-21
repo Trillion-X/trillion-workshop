@@ -29,9 +29,10 @@
     ]
   },
   "unit_defaults": {
-    "_what": "What a unit's template reads when its row gives none: the build link in its builds folder it runs (`current`; a slot runs `current-<slot>`), and the seconds systemd waits for its stop before it ends the unit (`stop_seconds`; a unit that finishes long calls on a stop names more, longer than its own drain).",
+    "_what": "What a unit's template reads when its row gives none: the build link in its builds folder it runs (`current`; a slot runs `current-<slot>`), and the seconds systemd waits for its stop before it ends the unit (`stop_seconds`; a unit that finishes long calls on a stop names more, longer than its own drain), and when systemd keeps its folder under /run (`runtime_preserve`: `restart` keeps it only across a restart; units that share one folder, such as two slots of one program, say `yes`, so the slot that stops never removes the folder the other one serves from).",
     "current": "current",
-    "stop_seconds": 30
+    "stop_seconds": 30,
+  "runtime_preserve": "restart"
   },
   "prebuilt_store": "~/.cache/start-a-computer/built"
 }

@@ -1,0 +1,9 @@
+	@sockets_{at} host {name}
+	handle @sockets_{at} {
+		reverse_proxy {sockets} {
+			lb_policy first
+			lb_try_duration 15s
+			lb_try_interval 250ms
+			fail_duration 2s
+		}
+	}

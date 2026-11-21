@@ -111,12 +111,25 @@ const SITE_FILE = name => {
   if (!/^[a-z0-9-]+$/.test(name) || !existsSync(file)) throw new Error(`caddy.site_file names an unknown site file ${name}`);
   return readFileSync(file, 'utf8');
 };
+// A name a site file sends to its program's sockets (site_sockets: { <name>: [absolute .sock paths] }): every socket of that
+// program, the first that takes the call, and one that refuses is passed over for fail_duration (routes/site-sockets.fragment).
+// The names come from the row alone; a name it does not list keeps the one socket programs_root/<name>/http.sock.
+const SITE_SOCKETS = readFileSync(new URL('./routes/site-sockets.fragment', import.meta.url), 'utf8').trimEnd();
+const siteSockets = site => Object.entries(site.site_sockets ?? {}).map(([name, sockets], at) => {
+  const where = `caddy.site_sockets ${name}`;
+  if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(name)) throw new Error(`${where}: a name is a host name in small letters`);
+  if (!Array.isArray(sockets) || !sockets.length || !sockets.every(path => /^\/[A-Za-z0-9._/-]+\.sock$/.test(path) && !path.includes('..'))) {
+    throw new Error(`${where} lists one or more absolute .sock paths`);
+  }
+  return SITE_SOCKETS.replaceAll('{at}', String(at)).replaceAll('{name}', name).replaceAll('{sockets}', sockets.map(path => `unix/${path}`).join(' '));
+}).join('\n');
 const wholeFile = (site, texts) => {
   const where = `caddy site file ${site.site_file}`;
   const routes = key => (site[key] ?? []).map(path => routeText(texts, path, site)).join('\n');
   const isRoutes = key => key === 'routes' || key.endsWith('_routes');
-  const text = SITE_FILE(site.site_file).replace(/^\{\{([a-z_]+)\}\}\n/gm, (line, key) => isRoutes(key) && !routes(key) ? '' : line);
-  return fillFields(text, site, where, key => (isRoutes(key) ? routes(key) : key === 'refuse_other_hosts' ? REFUSE_OTHER_HOSTS : undefined));
+  const sockets = siteSockets(site);
+  const text = SITE_FILE(site.site_file).replace(/^\{\{([a-z_]+)\}\}\n/gm, (line, key) => (isRoutes(key) && !routes(key)) || (key === 'site_sockets' && !sockets) ? '' : line);
+  return fillFields(text, site, where, key => (isRoutes(key) ? routes(key) : key === 'refuse_other_hosts' ? REFUSE_OTHER_HOSTS : key === 'site_sockets' ? sockets : undefined));
 };
 
 /** The Caddy unit as the computer runs it: its `files` are the site file (checked by the site's Caddy, `binary`, and applied by

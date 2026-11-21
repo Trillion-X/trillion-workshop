@@ -7,6 +7,9 @@
 # answers 404. So this file and the computer's row name no site: a site is a folder, and a program of its own is its folder under programs_root.
 # The site's `routes` (absent or empty: none, and no line) go first, before any page or program, for a route that must answer some
 # paths of some names itself (the engine's door at a site's own name, tools/keep-an-engine-on-a-computer/caddy-route-engine-at-names.caddy).
+# A name the row's `site_sockets` lists (absent: none, and no line) is sent to each of its program's sockets instead, the first
+# that takes the call (routes/site-sockets.fragment): two slots of one program, each on its own socket, so one restarts while
+# the other serves (Nov 21 2026: a site program restarted in place made its names wait up to 1.5 s).
 {
 	admin localhost:2019
 	grace_period {{grace_period}}
@@ -74,6 +77,7 @@ https:// {
 		rewrite @page {file_match.relative}
 		file_server
 	}
+{{site_sockets}}
 	handle @program {
 		reverse_proxy unix/{{programs_root}}/{site}/http.sock {
 			lb_try_duration 15s
