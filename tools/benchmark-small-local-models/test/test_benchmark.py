@@ -326,7 +326,7 @@ class Decider(Case):
 
 
 class Settings(Case):
-    """The person's own paths, models and words come from their list:settings row, read by the shared reader
+    """The person's own paths, models and words come from their settings table row, read by the shared reader
     (tools/settings); the request's own fields win."""
     ROW = {"id": "record:setting:benchmark-small-local-models~person~sample-person", "type": "record:setting",
            "value": {"name": "small-model benchmarks", "tool": "tool:benchmark-small-local-models", "scope_kind": "person",

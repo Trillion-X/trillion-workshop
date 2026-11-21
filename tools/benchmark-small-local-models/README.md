@@ -6,7 +6,7 @@ Every script is one experiment of a private film repository's small-model resear
 
 ## Settings
 
-The person's paths, models, vocabulary and questions are their `list:settings` rows `record:setting:benchmark-small-local-models~<scope_kind>~<scope_id>`, read by the one shared reader `tools/settings` (`settings.setting(...)`). A request gives them as `settings_record` (the rows as `records:read` gave them, or a file of them) with `scopes` (`[[scope_kind, scope_id]]`, most specific first); the row's settings are `{ "commands": { "<script name>": { field: value } } }`, each script's defaults, and the request's own fields win. `settings` inline does the same for a sample. A request with neither is used as it is.
+The person's paths, models, vocabulary and questions are their settings table rows `record:setting:benchmark-small-local-models~<scope_kind>~<scope_id>`, read by the one shared reader `tools/settings` (`settings.setting(...)`). A request gives them as `settings_record` (the rows as the settings table read gave them, or a file of them) with `scopes` (`[[scope_kind, scope_id]]`, most specific first); the row's settings are `{ "commands": { "<script name>": { field: value } } }`, each script's defaults, and the request's own fields win. `settings` inline does the same for a sample. A request with neither is used as it is.
 
 ## Files
 

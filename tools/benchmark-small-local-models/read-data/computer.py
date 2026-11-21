@@ -10,7 +10,7 @@
 And what every command of this tool shares (one JSON request in, one JSON answer out):
 - request(): the JSON request, from the file named by the first argument or from standard input, with the person's
   settings under it (with_settings): their row record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from
-  list:settings as `settings_record` (or inline `settings`), read by the one shared reader, tools/settings.
+  the settings table as `settings_record` (or inline `settings`), read by the one shared reader, tools/settings.
 - need(request, key): a field, or a refusal naming it. refuse(message): { error } as the last line, exit 2.
 - answer(result): { result } as the last line; with `write_to` the whole answer goes to that file and the line counts it.
 """
@@ -71,8 +71,8 @@ def load_decider(repo, on=None, revision=None):
 
 
 def with_settings(request, command):
-    """The request with the person's settings under it: `settings_record` (their list:settings rows
-    record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> as records:read gave them, or a file of them),
+    """The request with the person's settings under it: `settings_record` (their settings table rows
+    record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> as the settings table read gave them, or a file of them),
     the row of the first of `scopes` ([[scope_kind, scope_id]], most specific first) that has one, read by the one shared
     reader, tools/settings; or `settings` inline. The settings hold `commands` ({ command: { field: value } }, each
     command's defaults, which the request's own fields override). A request with neither is used as it is."""

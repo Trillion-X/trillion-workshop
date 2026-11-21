@@ -1,7 +1,7 @@
 {
   "kind": "tool-rows",
   "record_set": "benchmark-small-local-models-tool-rows",
-  "what_this_is": "The Workshop rows for measuring small models that run on the person's computer (image-text, vision deciders, vision-language and language models, cross-encoders, embedders) on their own material: sampling shots and frames from their format library, labelling and scoring frames against their labels, filling a script template's blanks with sourced phrases, ranking clips for slots, checking takes and ranking titles. Their paths, models, vocabulary and questions are their list:settings rows; the tool carries none.",
+  "what_this_is": "The Workshop rows for measuring small models that run on the person's computer (image-text, vision deciders, vision-language and language models, cross-encoders, embedders) on their own material: sampling shots and frames from their format library, labelling and scoring frames against their labels, filling a script template's blanks with sourced phrases, ranking clips for slots, checking takes and ranking titles. Their paths, models, vocabulary and questions are their settings table rows; the tool carries none.",
   "records": [
     {
       "id": "package::benchmark-small-local-models::tool::label-video-frames-with-small-local-models",
@@ -33,7 +33,7 @@
                 "array",
                 "string"
               ],
-              "description": "The person's list:settings rows for this folder as records:read gave them, or a file of them"
+              "description": "The person's settings table rows for this folder as the settings table read gave them, or a file of them"
             },
             "scopes": {
               "type": "array",
@@ -67,7 +67,7 @@
             "the model's Python packages",
             "the model, fetched into the Hugging Face cache"
           ],
-          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from list:settings through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input} and the step's name as {step}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Use write_to and hand the files to tool:score-small-model-labels-against-my-labels. Tell the person the time per frame and the memory held."
+          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from the settings table through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input} and the step's name as {step}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Use write_to and hand the files to tool:score-small-model-labels-against-my-labels. Tell the person the time per frame and the memory held."
         },
         "result_selector": "$.result",
         "licence_class": "licence:maker-own",
@@ -110,7 +110,7 @@
                 "array",
                 "string"
               ],
-              "description": "The person's list:settings rows for this folder as records:read gave them, or a file of them"
+              "description": "The person's settings table rows for this folder as the settings table read gave them, or a file of them"
             },
             "scopes": {
               "type": "array",
@@ -139,7 +139,7 @@
           "needs": [
             "python (standard library only)"
           ],
-          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from list:settings through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Tell the person, per field, which model agrees most and whether it beats the majority baseline."
+          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from the settings table through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Tell the person, per field, which model agrees most and whether it beats the majority baseline."
         },
         "result_selector": "$.result",
         "licence_class": "licence:maker-own",
@@ -178,7 +178,7 @@
                 "array",
                 "string"
               ],
-              "description": "The person's list:settings rows for this folder as records:read gave them, or a file of them"
+              "description": "The person's settings table rows for this folder as the settings table read gave them, or a file of them"
             },
             "scopes": {
               "type": "array",
@@ -210,7 +210,7 @@
             "ffprobe",
             "a frame tool with an `evidence frames <video> --out <folder> --times <json> --max-width <n>` command"
           ],
-          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from list:settings through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input} and the step's name as {step}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Say how many shots from how many videos and creators, and which frames could not be cut."
+          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from the settings table through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input} and the step's name as {step}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Say how many shots from how many videos and creators, and which frames could not be cut."
         },
         "result_selector": "$.result",
         "licence_class": "licence:maker-own",
@@ -251,7 +251,7 @@
                 "array",
                 "string"
               ],
-              "description": "The person's list:settings rows for this folder as records:read gave them, or a file of them"
+              "description": "The person's settings table rows for this folder as the settings table read gave them, or a file of them"
             },
             "scopes": {
               "type": "array",
@@ -285,7 +285,7 @@
             "git",
             "the model's Python packages for the rank and choose steps"
           ],
-          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from list:settings through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input} and the step's name as {step}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Tell the person which blanks a model filled, with each value's source, and which it left empty; never put a value without a source in a blank."
+          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from the settings table through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input} and the step's name as {step}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Tell the person which blanks a model filled, with each value's source, and which it left empty; never put a value without a source in a blank."
         },
         "result_selector": "$.result",
         "licence_class": "licence:maker-own",
@@ -328,7 +328,7 @@
                 "array",
                 "string"
               ],
-              "description": "The person's list:settings rows for this folder as records:read gave them, or a file of them"
+              "description": "The person's settings table rows for this folder as the settings table read gave them, or a file of them"
             },
             "scopes": {
               "type": "array",
@@ -362,7 +362,7 @@
             "the model's Python packages",
             "the model in the Hugging Face cache"
           ],
-          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from list:settings through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Tell the person each slot's best candidate and the agreement with their own ranking."
+          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from the settings table through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Tell the person each slot's best candidate and the agreement with their own ranking."
         },
         "result_selector": "$.result",
         "licence_class": "licence:maker-own",
@@ -404,7 +404,7 @@
                 "array",
                 "string"
               ],
-              "description": "The person's list:settings rows for this folder as records:read gave them, or a file of them"
+              "description": "The person's settings table rows for this folder as the settings table read gave them, or a file of them"
             },
             "scopes": {
               "type": "array",
@@ -437,7 +437,7 @@
             "torch",
             "a decider snapshot in the Hugging Face cache"
           ],
-          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from list:settings through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Say plainly that the labels are by construction, not real footage."
+          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from the settings table through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Say plainly that the labels are by construction, not real footage."
         },
         "result_selector": "$.result",
         "licence_class": "licence:maker-own",
@@ -480,7 +480,7 @@
                 "array",
                 "string"
               ],
-              "description": "The person's list:settings rows for this folder as records:read gave them, or a file of them"
+              "description": "The person's settings table rows for this folder as the settings table read gave them, or a file of them"
             },
             "scopes": {
               "type": "array",
@@ -513,7 +513,7 @@
             "torch",
             "a decider snapshot in the Hugging Face cache"
           ],
-          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from list:settings through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Show the ranking; it is a ranking, not a prediction of clicks."
+          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from the settings table through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Show the ranking; it is a ranking, not a prediction of clicks."
         },
         "result_selector": "$.result",
         "licence_class": "licence:maker-own",
@@ -552,7 +552,7 @@
                 "array",
                 "string"
               ],
-              "description": "The person's list:settings rows for this folder as records:read gave them, or a file of them"
+              "description": "The person's settings table rows for this folder as the settings table read gave them, or a file of them"
             },
             "scopes": {
               "type": "array",
@@ -585,7 +585,7 @@
             "torch",
             "a decider snapshot in the Hugging Face cache"
           ],
-          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from list:settings through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Tell the person the load seconds, the milliseconds per answer and the memory."
+          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from the settings table through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Tell the person the load seconds, the milliseconds per answer and the memory."
         },
         "result_selector": "$.result",
         "licence_class": "licence:maker-own",
