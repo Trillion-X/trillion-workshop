@@ -472,7 +472,9 @@
               },
               "under_use": {
                 "use_from_input": "use",
-                "ticket_fd": 5
+                "ticket_fd": 5,
+                "held_suffix": "-reader-connection",
+                "key_suffix": "-use-key"
               }
             },
             {
