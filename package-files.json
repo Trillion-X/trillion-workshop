@@ -10131,6 +10131,100 @@
    "at": "/opt/headless-browser"
   }
  ],
+ "tool:copy-rows-between-databases": [
+  {
+   "package": "copy-rows-between-databases",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/copy-rows-between-databases"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  }
+ ],
  "tool:correct-a-message-recorded-as-the-person": [
   {
    "package": "correct-a-message-recorded-as-the-person",
@@ -42178,6 +42272,32 @@
    "at": "/opt/live-market-prices"
   }
  ],
+ "tool:read-progress": [
+  {
+   "package": "decide-with-a-method",
+   "paths": [
+    "read-data/progress-facts.mjs",
+    "read-data/screen-links.mjs",
+    "read-data/allowance.mjs",
+    "read-data/screen-words.json"
+   ],
+   "at": "/opt/decide-with-a-method"
+  },
+  {
+   "package": "keep-goals-and-focus",
+   "paths": [
+    "read-data/pursuit-hierarchy-view.mjs"
+   ],
+   "at": "/opt/keep-goals-and-focus"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
  "tool:read-public-web-page": [
   {
    "package": "browse-public-page",
@@ -62045,31 +62165,5 @@
  ],
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:your-files": [],
- "tool:your-files-names": [],
- "tool:read-progress": [
-  {
-   "package": "decide-with-a-method",
-   "paths": [
-    "read-data/progress-facts.mjs",
-    "read-data/screen-links.mjs",
-    "read-data/allowance.mjs",
-    "read-data/screen-words.json"
-   ],
-   "at": "/opt/decide-with-a-method"
-  },
-  {
-   "package": "keep-goals-and-focus",
-   "paths": [
-    "read-data/pursuit-hierarchy-view.mjs"
-   ],
-   "at": "/opt/keep-goals-and-focus"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "do-work/run-a-function.mjs"
-   ],
-   "at": "/opt/workflows"
-  }
- ]
+ "tool:your-files-names": []
 }

@@ -1,0 +1,12 @@
+{
+  "name": "copy-rows-between-databases-tests",
+  "private": true,
+  "type": "module",
+  "description": "The tests of tool:copy-rows-between-databases; the tool itself runs on the pinned package rows of tool-rows.json.",
+  "dependencies": {
+    "pg": "8.23.1"
+  },
+  "devDependencies": {
+    "embedded-postgres": "18.6.0-beta.19"
+  }
+}

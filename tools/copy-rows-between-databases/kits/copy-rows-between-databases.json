@@ -1,0 +1,44 @@
+{
+  "start_here": "Say to your AI: \"Copy these workflow rows from my main database into my client's database.\" It runs tool:copy-rows-between-databases.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it copies rows of a table you name between two of your databases and answers only counts and versions.",
+  "workflows": [],
+  "tools": [
+    "tool:copy-rows-between-databases"
+  ],
+  "instructions": [
+    "1. Hold each database's connection string in your vault under a name of your choosing, such as my-database-connection and client-database-connection. A string is never typed into a request.",
+    "2. Say which rows and where in plain words. Your AI calls tools:run with tool tool:copy-rows-between-databases, source_credential_name, destination_credential_name, table, key_column and keys (and on_conflict update_when_newer with version_column to replace older rows).",
+    "3. Read the answer: copied, updated, kept and missing counts, and each key's result with the source's version and the destination's version after. No row body is in the answer, however big the row is.",
+    "4. The destination's table must already exist with the key column unique; a key the source lacks is answered as missing and nothing is written for it."
+  ],
+  "worked_examples": [
+    {
+      "title": "Copy two rows once",
+      "ask": "Copy workflow rows a and b from my main database to my client's, keeping any the client already has.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:copy-rows-between-databases",
+            "input": {
+              "source_credential_name": "own-rows-postgres-connection",
+              "destination_credential_name": "client-database-connection",
+              "table": "workflow_recipes",
+              "key_column": "recipe",
+              "keys": [
+                "workflow:a",
+                "workflow:b"
+              ]
+            }
+          }
+        }
+      },
+      "given": "From tools/copy-rows-between-databases/test/copy-rows.test.mjs ('copies named rows').",
+      "hands_back": "{\"copied\": 2, \"updated\": 0, \"kept\": 0, \"missing\": 0, \"keys\": [{\"key\": \"workflow:a\", \"result\": \"copied\"}, {\"key\": \"workflow:b\", \"result\": \"copied\"}]}, each key also with its source_version and destination_version"
+    }
+  ],
+  "drafted_from": "tools/copy-rows-between-databases/test/copy-rows.test.mjs"
+}
