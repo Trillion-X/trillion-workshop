@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { RecordAudioPanel } from '../../record-voice-and-meetings/show/RecordAudioPanel';
 import { currentLiveRecording, releaseLiveRecording } from './live-recording';
 import { mediaStreamForMode } from '../../record-voice-and-meetings/show/browser-media-capture';
-import { createMeetingJoinRecordingInvocation } from '../do-work/meeting-join-recording';
+import { createMeetingJoinRecordingInvocation } from '../../record-voice-and-meetings/do-work/meeting-join-recording';
 
 const meetingContext = { source: 'calendar:source-a', sourceId: 'account:a/calendar:main', eventId: 'event:a', title: 'Planning', startsAt: '2026-10-14T10:00:00.000Z', endsAt: '2026-10-14T11:00:00.000Z', url: 'https://meet.example/a' };
 

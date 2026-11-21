@@ -19,7 +19,7 @@ export type LiveRecordingSession = {
   completionTarget?: import('../../ui/show/placeable-surface-intent/surface-completion-target').PlaceableSurfaceCompletionTarget;
   meetingJoinInvocationId?: string;
   meetingApplicationInputContext?: import('../do-work/meeting-application-recording').MeetingApplicationInputContext;
-  meetingEventContext?: import('../do-work/meeting-join-recording').MeetingCalendarContext;
+  meetingEventContext?: import('../../record-voice-and-meetings/do-work/meeting-join-recording').MeetingCalendarContext;
   recordingId: string;
   recordedFileId: string;
   recordedAt: string | null;
