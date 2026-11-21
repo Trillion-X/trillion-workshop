@@ -8,7 +8,7 @@
     "kind": "screen-look-editable-theme",
     "id": "trillion",
     "name": "Trillion",
-    "description": "Warm paper, ink and the logo thread red, with Recoleta titles and SF Pro Text, as on the service's own site.",
+    "description": "Warm paper, ink and the logo thread red, with Recoleta titles and the system text face, as on the service's own site.",
     "author": "trillion",
     "is_public": true,
     "is_favorite": false,
@@ -315,7 +315,7 @@
       "label": "Text font",
       "description": "Body and control text.",
       "kind": "text",
-      "value": "SF Pro Text"
+      "value": "-apple-system, BlinkMacSystemFont, system-ui, sans-serif"
      },
      {
       "key": "displayFontFamily",
@@ -491,7 +491,7 @@
     "kind": "screen-look-editable-theme",
     "id": "trillion-black",
     "name": "Trillion Black",
-    "description": "Pitch black, white and the logo thread red #ff1d1d, with Recoleta titles and SF Pro Text: the look of the Trillion apps.",
+    "description": "Pitch black, white and the logo thread red #ff1d1d, with Recoleta titles and the system text face: the look of the Trillion apps.",
     "author": "trillion",
     "is_public": true,
     "is_favorite": false,
@@ -798,7 +798,7 @@
       "label": "Text font",
       "description": "Body and control text.",
       "kind": "text",
-      "value": "SF Pro Text"
+      "value": "-apple-system, BlinkMacSystemFont, system-ui, sans-serif"
      },
      {
       "key": "displayFontFamily",

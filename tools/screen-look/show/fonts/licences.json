@@ -41,7 +41,9 @@
         "on": "2026-10-06",
         "words": "The owner picked Recoleta, is fine with the foundry noticing it is used, and accepts the consequences."
       }
-    },
+    }
+  ],
+  "removed": [
     {
       "family": "SF Pro Text",
       "foundry": "Apple",
@@ -50,23 +52,9 @@
         "SF-Pro-Text-Medium.woff2",
         "SF-Pro-Text-Semibold.woff2"
       ],
-      "licence_terms": "https://developer.apple.com/fonts/",
-      "buy": null,
-      "licensed_for": [
-        "app",
-        "web",
-        "video",
-        "social"
-      ],
-      "receipt": null,
-      "note": "Apple's system face. Its licence covers designing for Apple's platforms, not carrying the file; every Apple device already draws it as the system font, so an app never needs the file.",
-      "chosen_by": {
-        "kind": "person",
-        "accepted_risk": true,
-        "on": "2026-10-17",
-        "words": "the person chose this face for their videos, their web app and their public site; their own words are kept in their own records",
-        "known_licence_limit": "Apple's licence covers designing for Apple platforms; carrying the file in web, app or video is the owner's accepted risk."
-      }
+      "removed_on": "2026-11-21",
+      "why": "Apple's SF Pro licence does not allow embedding the face in websites, so no web page or app carries these files. Screen Look draws text with the system face through the stack -apple-system, BlinkMacSystemFont, system-ui, sans-serif, which Apple devices render as SF natively. The entry is kept here so the removal and its reason stay on record.",
+      "licence_terms": "https://developer.apple.com/fonts/"
     }
   ]
 }
