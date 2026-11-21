@@ -680,7 +680,7 @@
         "kind": "ai-instruction",
         "id": "start-a-lane-only-from-its-task-row",
         "order": 43,
-        "text": "Start a lane (a subagent, a cloud session or another AI doing part of this work) only from its task row: run the lane launcher (launch-a-lane-job.py) --task calendar-task:<id> --lane <name> --brief FILE in the repository that holds it, so the lane gets its own task (given with the shell command's give), step rows and a marker on the task row; landing refuses a lane without them. Run the lane as a cloud session unless the where-agents-run DATA names a Mac-only need, and then write 'Needs this Mac: <id>' in its brief."
+        "text": "Start a lane (a subagent, a cloud session or another AI doing part of this work) from a task row of its own: a calendar task assigned to the lane, taken by it, with the rule ids that apply to it named in its brief. Nothing checks this today (Nov 21 2026): the lane launcher (launch-a-lane-job.py) cannot reach tasks, because it reads and writes them through the retired records door, and landing does not refuse a lane without a task; do not run the launcher. A lane's task is its workflow run: start it with wf start workflow:do-a-job-no-workflow-fits-yet '{\"request\":\"<the job in one line>\",\"lane\":\"<lane name>\"}' and land under that lane name; the landing puts the run's id on the commit and says so when the lane has none. Run the lane as a cloud session unless the where-agents-run DATA names a Mac-only need, and then write 'Needs this Mac: <id>' in its brief."
       }
     }
   ]
