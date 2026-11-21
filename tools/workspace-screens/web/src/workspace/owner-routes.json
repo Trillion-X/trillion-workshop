@@ -2,10 +2,10 @@
   "_what": "Which road an owner answers, as DATA, for the shared shell. A road with shown: false is switched off: its control is not drawn and its code stays, so switching it on restores it. waits_for names what must exist before the road is switched on.",
   "queue": {
     "shown": false,
-    "waits_for": "a road that carries a job to the person's AIs and an owner answers (/work/api/queue has no owner now)"
+    "waits_for": "a road that carries a job to the person's AIs and an owner answers (the queue road has no owner now)"
   },
   "previews": {
     "shown": false,
-    "waits_for": "a files operation that makes previews on the server (none answers now; /work/api/namespace/previews/ensure has no owner)"
+    "waits_for": "a files operation that makes previews on the server (none answers now; the old previews road has no owner)"
   }
 }

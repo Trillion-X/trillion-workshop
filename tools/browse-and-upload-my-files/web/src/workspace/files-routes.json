@@ -12,6 +12,6 @@
   },
   "tidy": {
     "shown": false,
-    "waits_for": "a road that carries a job to the person's AIs and an owner answers (/work/api/queue has no owner now)"
+    "waits_for": "a road that carries a job to the person's AIs and an owner answers (the queue road has no owner now)"
   }
 }
