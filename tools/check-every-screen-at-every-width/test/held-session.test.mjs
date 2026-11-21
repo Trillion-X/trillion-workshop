@@ -40,7 +40,7 @@ test('nothing mounted is refused as no_held_session', async () => {
   await assert.rejects(readHeldSessions({ fd: 987 }), error => error.code === 'no_held_session');
 });
 
-test('the expiries answer each origin\'s soonest end and no cookie', async () => {
+test('the expiries answer each origin\'s session end, the latest of its cookies, and no cookie value', async () => {
   const now = Date.UTC(2026, 10, 21);
   const readHeld = async () => new Map([
     ['https://app.gettrillion.ai', [{ name: 'a', value: VALUE, expires: now / 1000 + 3 * 86400 }, { name: 'b', value: VALUE, expires: now / 1000 + 86400 }]],
@@ -48,8 +48,9 @@ test('the expiries answer each origin\'s soonest end and no cookie', async () =>
   ]);
   const answer = await heldSessionExpiries({}, undefined, { readHeld, now });
   assert.deepEqual(answer.origins, [
-    { origin: 'https://app.gettrillion.ai', expires_at: '2026-11-22T00:00:00.000Z', days_left: 1 },
-    { origin: 'https://app.ethosschooloftennis.com', expires_at: null, days_left: null },
+    { origin: 'https://app.gettrillion.ai', expires_at: '2026-11-24T00:00:00.000Z', days_left: 3, cookies: [
+      { name: 'a', expires_at: '2026-11-24T00:00:00.000Z' }, { name: 'b', expires_at: '2026-11-22T00:00:00.000Z' }] },
+    { origin: 'https://app.ethosschooloftennis.com', expires_at: null, days_left: null, cookies: [{ name: 'a', expires_at: null }] },
   ]);
   assert.ok(!JSON.stringify(answer).includes(VALUE));
 });

@@ -156,7 +156,9 @@ export function planOf(input) {
 // screen first shows anything, when the ready selector is visible, when the page has loaded, and when it is usable.
 // Self-contained (addInitScript sends its source): it names nothing outside itself.
 function measureInit({ idleMs, ready }) {
-  const live = { firstPaint: null, firstContentful: null, longest: 0, lastLongEnd: 0, blankAt: null, readyAt: null, loadAt: null, usableAt: null };
+  // origin is this document's start on the wall clock: a page that goes through a redirect or a sign-in hop is a new document
+  // with its own performance clock, so every time here is read as origin + time and set against the run's own start.
+  const live = { origin: performance.timeOrigin, firstPaint: null, firstContentful: null, longest: 0, lastLongEnd: 0, blankAt: null, readyAt: null, loadAt: null, usableAt: null };
   window.__live = live;
   const watch = (type, take) => {
     try { new PerformanceObserver(list => list.getEntries().forEach(take)).observe({ type, buffered: true }); } catch { /* not in this browser */ }
@@ -225,6 +227,25 @@ function listen(page, errors, failed) {
 }
 
 const waitForUsable = page => page.waitForFunction(() => window.__live?.usableAt != null, null, { timeout: LIVE.usable_within_ms, polling: 'raf' }).then(() => true, () => false);
+
+// The page a person ends on: a page may send its whole document through other addresses (a sign-in hop: /record, then
+// /api/auth/oauth2/authorize, /workspace/callback, /record again), and each is a new document whose measures start over. The
+// page is settled when its current document is usable and no new main document has come for settle_ms, or when
+// usable_within_ms is spent. Answers the longest task seen in any of the documents.
+async function settle(page, documents) {
+  const deadline = Date.now() + LIVE.usable_within_ms;
+  let longest = 0;
+  for (;;) {
+    const seen = documents.length;
+    await waitForUsable(page);
+    await new Promise(done => setTimeout(done, LIVE.settle_ms));
+    longest = Math.max(longest, (await page.evaluate(() => window.__live?.longest ?? 0).catch(() => 0)) ?? 0);
+    if (documents.length === seen || Date.now() >= deadline) return longest;
+  }
+}
+
+// A time the page measured (milliseconds on its own document's clock) as milliseconds since the run asked for the page.
+const sinceBegan = (live, value, began) => (live && typeof value === 'number' ? live.origin + value - began : null);
 
 // A picture kept in the person's Files under its name, or else returned inline when it is small enough; the identity is the
 // BLAKE3 of the exact bytes, the same whether or not the picture was kept.
@@ -335,14 +356,17 @@ async function measureSide({ browser, url, view, signIn, ready, reach = [], name
     if (view.throttle) await applyThrottle(await context.newCDPSession(page), view.throttle);
     await page.addInitScript(measureInit, { idleMs: LIVE.usable_idle_ms, ready });
     listen(page, errors, failed);
+    const documents = [];
+    page.on('framenavigated', frame => { if (frame === page.mainFrame()) documents.push(addressOf(frame.url())); });
     const began = Date.now();
+    let longest = 0;
     let status = null;
     let error = null;
     let reached = { steps: [], lastTapAt: null };
     let usable = null;
     try {
       status = (await page.goto(url, { waitUntil: 'commit', timeout: LIVE.navigation_within_ms }))?.status() ?? null;
-      await waitForUsable(page);
+      longest = await settle(page, documents);
       // A screen that shows its content after its page is usable is read until it shows (or the wait is spent).
       await page.waitForFunction(() => window.__live?.blankAt != null, null, { timeout: LIVE.usable_within_ms, polling: 'raf' }).catch(() => {});
     } catch (caught) {
@@ -362,15 +386,17 @@ async function measureSide({ browser, url, view, signIn, ready, reach = [], name
     const shot = bytes ? await keep(`${SHOT_FOLDER}/${run}/${name}.png`, bytes) : { picture: null, picture_kept: false, reason: 'no_picture' };
     const side = {
       status,
-      first_paint_ms: ms(loaded?.firstPaint),
-      first_contentful_paint_ms: ms(loaded?.firstContentful),
-      load_usable_ms: ms(loaded?.usableAt),
+      // Every time is from the moment the page was asked for, to the document the person ends on.
+      first_paint_ms: ms(sinceBegan(loaded, loaded?.firstPaint, began)),
+      first_contentful_paint_ms: ms(sinceBegan(loaded, loaded?.firstContentful, began)),
+      load_usable_ms: ms(sinceBegan(loaded, loaded?.usableAt, began)),
       // With reach steps, the screen's own time from its last tap; without, the page's time from its load.
-      usable_ms: reach.length > 0 ? ms(usable) : ms(loaded?.usableAt),
+      usable_ms: reach.length > 0 ? ms(usable) : ms(sinceBegan(loaded, loaded?.usableAt, began)),
+      ...(documents.length > 1 ? { documents: documents.slice(0, LIST_LIMIT) } : {}),
       ...(reach.length > 0 ? { reach: reached.steps } : {}),
       // A screen that never showed anything is blank for the whole wait.
-      blank_ms: ms(live?.blankAt ?? Date.now() - began),
-      longest_task_ms: ms(live?.longest),
+      blank_ms: ms(sinceBegan(live, live?.blankAt, began) ?? Date.now() - began),
+      longest_task_ms: ms(Math.max(longest, live?.longest ?? 0)),
       console_errors: errors.slice(0, LIST_LIMIT),
       console_error_count: errors.length,
       failed_requests: failed.slice(0, LIST_LIMIT),

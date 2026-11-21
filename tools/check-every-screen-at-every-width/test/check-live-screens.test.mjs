@@ -15,6 +15,8 @@ const pageOf = (body, script = '') => `<!doctype html><html lang="en"><head><met
 const FIXTURES = {
   '/answers': pageOf('<h1>Members</h1><button id="show">Show</button><p id="empty"></p>',
     `document.getElementById('show').addEventListener('click', () => { const note = document.createElement('p'); note.id = 'done'; note.textContent = 'Opened'; document.getElementById('app').append(note); });`),
+  '/hop': pageOf('<h1>Starting</h1>', `setTimeout(() => location.replace('/hop-through'), 600);`),
+  '/landed': pageOf('<h1 id="landed">Landed</h1>', ''),
   '/busy': pageOf('<h1 id="ready">Ready</h1>', 'const until = performance.now() + 800; while (performance.now() < until) { /* a long task */ }'),
   '/broken': pageOf('<h1>Broken</h1><img src="/missing.png" alt="">', `console.error('the fixture failed on purpose');`),
   '/late': pageOf('<h1 id="late" hidden>Late</h1>', `setTimeout(() => { document.getElementById('late').hidden = false; }, 1200);`),
@@ -27,6 +29,7 @@ before(async () => {
   server = createServer((request, response) => {
     const body = FIXTURES[new URL(request.url, 'http://fixture').pathname];
     if (request.url === '/missing.png') { response.writeHead(404); response.end(); return; }
+    if (request.url === '/hop-through') { response.writeHead(302, { location: '/landed' }); response.end(); return; }
     if (request.url === '/private') {
       const signedIn = /(^|; )session=held-value(;|$)/.test(request.headers.cookie ?? '');
       response.writeHead(signedIn ? 200 : 401, { 'content-type': 'text/html; charset=utf-8' });
@@ -214,4 +217,22 @@ test('an origin the held session does not hold refuses the run before a browser 
   const readHeld = async () => new Map([['https://app.gettrillion.ai', [{ name: 'session', value: 'held-value' }]]]);
   await assert.rejects(checkLiveScreens({ pages: [{ id: 'in', url: `${origin}/private`, sign_in: { kind: 'held-session' } }], views: ['desktop'] }, undefined, { keep: recorder().keep, readHeld }),
     error => error.code === 'no_held_session' && !error.message.includes('held-value'));
+});
+
+test('a page that sends its document through a hop is measured on the document it lands on, from when it was asked for', async () => {
+  const { keep } = recorder();
+  const answer = await checkLiveScreens({ pages: [{ id: 'hop', url: `${origin}/hop`, ready: '#landed' }], views: ['desktop'] }, undefined, { keep });
+  const side = answer.pages[0].views[0].new;
+  assert.deepEqual(side.documents.map(address => new URL(address).pathname), ['/hop', '/landed']);
+  assert.ok(side.first_contentful_paint_ms >= 600, `first contentful paint ${side.first_contentful_paint_ms} ms is the landed page's`);
+  assert.ok(side.usable_ms >= side.first_contentful_paint_ms, `usable ${side.usable_ms} ms comes after the landed page's paint`);
+  assert.ok(side.blank_ms <= side.first_contentful_paint_ms + 200);
+});
+
+test('a page with no hop answers its paint times and no documents list', async () => {
+  const { keep } = recorder();
+  const side = (await checkLiveScreens({ pages: [{ id: 'still', url: `${origin}/answers` }], views: ['desktop'] }, undefined, { keep })).pages[0].views[0].new;
+  assert.equal(side.documents, undefined);
+  assert.equal(typeof side.first_contentful_paint_ms, 'number');
+  assert.equal(typeof side.first_paint_ms, 'number');
 });

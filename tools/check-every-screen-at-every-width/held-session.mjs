@@ -14,7 +14,7 @@
 // SHAPE
 //   readHeldSessions({ fd? }) -> Map(origin -> [cookie])   (cookie: { name, value, domain?, path?, secure?, httpOnly?, expires? })
 //   sessionFor(sessions, url) -> [cookie]
-//   heldSessionExpiries({}, host) -> { origins: [{ origin, expires_at, days_left }] }   (times only; the refresh workflow reads it)
+//   heldSessionExpiries({}, host) -> { origins: [{ origin, expires_at, days_left, cookies: [{ name, expires_at }] }] }   (times only; the refresh workflow reads it)
 import { createReadStream } from 'node:fs';
 
 export const HELD = Object.freeze({ descriptor: 4, limit: 65536 });
@@ -56,15 +56,19 @@ export function sessionFor(sessions, url) {
   return cookies;
 }
 
-// When each origin's sign-in ends: the soonest expires of its cookies (Playwright's seconds; a cookie with no expires, or -1, ends
-// with the browser and counts as no end). Answers times only, never a cookie, so the refresh workflow can wake its owner in time.
+// When each origin's sign-in ends: the latest expires of its cookies (Playwright's seconds). The session cookie outlives the
+// short cache cookies the server issues again on every visit (better-auth.session_data lasts 5 minutes), so the latest end is the
+// session's. A cookie with no expires, or -1, ends with the browser and counts as no end. Answers each cookie's name and end, and
+// never a value, so the refresh workflow can mint the session again in time.
 export async function heldSessionExpiries(input = {}, host, { readHeld = readHeldSessions, now = Date.now() } = {}) {
   const sessions = await readHeld();
   const origins = [...sessions].map(([origin, cookies]) => {
-    const ends = cookies.map(cookie => cookie.expires).filter(seconds => Number.isFinite(seconds) && seconds > 0);
-    if (ends.length === 0) return { origin, expires_at: null, days_left: null };
-    const at = Math.min(...ends) * 1000;
-    return { origin, expires_at: new Date(at).toISOString(), days_left: Math.floor(((at - now) / 86400000) * 10) / 10 };
+    const endOf = cookie => (Number.isFinite(cookie.expires) && cookie.expires > 0 ? cookie.expires * 1000 : null);
+    const ends = cookies.map(endOf).filter(at => at !== null);
+    const named = cookies.map(cookie => ({ name: cookie.name, expires_at: endOf(cookie) === null ? null : new Date(endOf(cookie)).toISOString() }));
+    if (ends.length === 0) return { origin, expires_at: null, days_left: null, cookies: named };
+    const at = Math.max(...ends);
+    return { origin, expires_at: new Date(at).toISOString(), days_left: Math.floor(((at - now) / 86400000) * 10) / 10, cookies: named };
   });
   return { origins };
 }

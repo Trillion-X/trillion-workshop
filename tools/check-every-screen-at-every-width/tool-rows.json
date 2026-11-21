@@ -1941,7 +1941,7 @@
         },
         "label": "Read when the proof account's sign-in ends",
         "job": "Say, for each site the proof account is signed in to, when its sign-in ends and how many days are left, so it is minted again before the signed-in live check stops working",
-        "description": "Reads the vault's proof-sessions (JSON keyed by origin, mounted on descriptor 4) and answers, for each origin, the soonest expires of its cookies as expires_at (ISO, UTC) and days_left (one decimal); a cookie with no end counts as none (null). It answers times only: no cookie name or value is ever in the answer. The refresh workflow reads it daily and wakes the vault's owner to mint the session again before it ends.",
+        "description": "Reads the vault's proof-sessions (JSON keyed by origin, mounted on descriptor 4) and answers, for each origin, when its sign-in ends: expires_at (ISO, UTC), the latest end of its cookies (the session cookie outlives the short cache cookies the server issues again), and days_left (one decimal), with each cookie's name and its own expires_at; a cookie with no end counts as none (null). It answers names and times only: no cookie value is ever in the answer. The refresh workflow reads it daily and mints the session again before it ends.",
         "read_only": true,
         "input_schema": {
           "type": "object",
