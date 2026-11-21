@@ -13,7 +13,7 @@
       "inputs": "23-41",
       "kept": "42-48"
     },
-    "not_ported": "stages, traits, recording, pursuit_judgements, right_now, questions, consolidate, words, instructions, model: the text values are held back (a privacy gate matched the stage ask text against a private stance file)"
+    "texts": "stages (old lines 49-80), traits (81-107), pursuit_judgements (118-163), recording (108-117), right_now (164-186), questions (187-270), consolidate (271-290), repair_instructions (291), instructions (292), words (293-323), trait_evidence (324-331) are rows of old_store.awareness_framework, assembled by src/settings-from-rows.mjs. model (3-10) is not ported."
   },
   "every_minutes": 5,
   "native_results_check_minutes": 30,
