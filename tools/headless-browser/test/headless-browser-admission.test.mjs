@@ -6,7 +6,7 @@ import { mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { ADMISSION, createBrowserAdmissionQueue, legacyHeadlessRoots, outsideBrowserBlocks, parseLegacyHeadlessRoots } from '../admission.mjs';
+import { ADMISSION, createBrowserAdmissionQueue, legacyHeadlessRoots, namedHolderError, outsideBrowserBlocks, parseLegacyHeadlessRoots } from '../admission.mjs';
 
 async function queueFixture() {
   const root = tempFolder(join(tmpdir(), 'trillion-browser-admission-'));
@@ -309,4 +309,14 @@ test('admission proceeds when the process probe is unavailable for this process'
     const release = await queue.acquire({ timeoutMs: 1000 });
     await release();
   } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test('a browser wait that runs out names the outside browser that holds it: pid, start time and command', () => {
+  const timeout = new Error('Timed out after 600000 ms waiting for the local browser.');
+  const named = namedHolderError(timeout, [{ pid: 53510, process_started: OLD_START, command: '/Users/example/.agent-browser/Google Chrome for Testing --headless=new' }]);
+  assert.equal(named.code, 'browser_held');
+  assert.match(named.message, /^Timed out after 600000 ms waiting for the local browser\. Held by: pid 53510 since Sat Nov 21 03:47:33 2026: \/Users\/example/);
+  assert.match(namedHolderError(timeout, null).message, /process list could not be read/);
+  const other = new Error('something else');
+  assert.equal(namedHolderError(other, []), other, 'an error that is not a timeout is passed on as it is');
 });

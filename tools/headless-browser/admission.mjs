@@ -78,12 +78,28 @@ export const createBrowserAdmissionQueue = (root, options = {}) =>
 const localQueue = createBrowserAdmissionQueue(QUEUE_ROOT, { isBlocked: () => outsideBrowserBlocks(legacyHeadlessRoots()) });
 
 /** Hold exclusive local-browser access across arbitrary work; larger numeric priorities go first. */
+// A wait that ran out names who holds the browser: the outside headless browsers the scan sees (pid, start time, command), so a
+// caller is told what it waits for rather than a bare timeout. The queue's own holder is a process of this checkout and is named
+// by its ticket only when no outside browser is seen.
+export function namedHolderError(error, roots = legacyHeadlessRoots()) {
+  if (!/^Timed out/.test(error?.message ?? '')) return error;
+  const holder = roots === null ? 'the process list could not be read'
+    : roots.length === 0 ? 'no outside headless browser is running; another run of this queue holds it'
+      : roots.map(row => `pid ${row.pid} since ${row.process_started}: ${row.command}`).join('; ');
+  return Object.assign(new Error(`${error.message} Held by: ${holder}`), { code: 'browser_held', holder });
+}
+
+async function acquireNamed(options) {
+  try { return await localQueue.acquire(options); }
+  catch (error) { throw namedHolderError(error); }
+}
+
 export async function withBrowserAdmission(work, options = {}) {
-  const release = await localQueue.acquire(options);
+  const release = await acquireNamed(options);
   try { return await work(); }
   finally { await release(); }
 }
 
 export async function acquireBrowserAdmission(options = {}) {
-  return localQueue.acquire(options);
+  return acquireNamed(options);
 }
