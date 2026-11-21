@@ -1,0 +1,282 @@
+{
+  "package": "read-published-clips",
+  "things": [
+    {
+      "type": "record",
+      "id": "package::read-published-clips::tool::read-published-clips",
+      "address": "package::read-published-clips::tool::read-published-clips",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-published-clips",
+        "label": "Read the published clips for a surface",
+        "job": "Show the published clips (comparisons, transformations, reels) on the site or the members programs, only those the person has let that use show",
+        "description": "Answers the clips published for one use (input.use: purpose and surface, set by the site). Each clip is held to the grants for that use at the read: the database answers only rows the consent fence passes. Each clip is shared by name under /published-clips/ with a short link (900 s): the file, and its cover or its two per-side stills. No identity, name, key or path is answered.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "database",
+            "use"
+          ],
+          "properties": {
+            "database": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The pursuit database the clips are in."
+            },
+            "use": {
+              "type": "object",
+              "required": [
+                "purpose",
+                "surface"
+              ],
+              "additionalProperties": false,
+              "description": "The use the clips are shown for. The site sets it from its own list; a browser never does.",
+              "properties": {
+                "purpose": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "surface": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "swing",
+                "comparison",
+                "reel"
+              ]
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 24
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "clips"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "clips": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "moment",
+                  "cut_url"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "moment": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "aspect": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "captured_day": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "cut_url": {
+                    "type": "string"
+                  },
+                  "picture_url": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "pair": {
+                    "type": "object",
+                    "properties": {
+                      "left": {
+                        "type": "object",
+                        "properties": {
+                          "person": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "day": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "picture_url": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        }
+                      },
+                      "right": {
+                        "type": "object",
+                        "properties": {
+                          "person": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "day": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "picture_url": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/read-published-clips",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-published-clips/do-work/read-published-clips-run.mjs",
+            "readPublishedClips"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name_from_database": "database",
+              "held_suffix": "-connection",
+              "fd": 3,
+              "only_when": {
+                "input": "database",
+                "present": true
+              },
+              "under_use": {
+                "use_from_input": "use",
+                "ticket_fd": 5,
+                "held_suffix": "-reader-connection",
+                "key_suffix": "-use-key"
+              }
+            }
+          ],
+          "stored": [
+            {
+              "files": "/published-clips/",
+              "operations": [
+                "share_file"
+              ]
+            }
+          ],
+          "files": {
+            "package_files": [
+              {
+                "package": "read-published-clips",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/read-published-clips"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "run-sql-in-my-database",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/run-sql-in-my-database"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "pg"
+                ],
+                "at": "/opt/node_modules/pg"
+              }
+            ]
+          }
+        },
+        "result_selector": "$",
+        "read_only": true,
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:run-sql-in-my-database",
+        "provenance": {
+          "what": "Built from the run-sql-in-my-database and records-door rows: the same database mount and the same export runner."
+        },
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "a pursuit database the computer holds, the engine use ticket for publish and site, and a Files session with the /published-clips/ folder",
+            "proved_on": null
+          }
+        ]
+      }
+    }
+  ]
+}

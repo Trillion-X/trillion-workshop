@@ -1,0 +1,41 @@
+{
+  "start_here": "Say to your AI: \"Read the published clips for my site.\" It calls tool:read-published-clips with your pursuit database and the site's use, and gets back each published clip with short links to its file and its still.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it reads the clip rows of your pursuit database through a fenced select, and shares each clip's files from your own Files session by name, under /published-clips/.",
+  "tools": [
+    "tool:read-published-clips"
+  ],
+  "instructions": [
+    "1. Publish a clip with the publish step: it keeps the file at /published-clips/<id>.<ext>, the cover at <id>.jpg, and for a comparison the two stills at <id>-left.jpg and <id>-right.jpg, and sets recording_moment.published_file_name.",
+    "2. Ask for the clips: the site sends use {purpose, surface} from its own list (publish and site for the public site; members and members-page for the members programs).",
+    "3. Read the answer: each clip has cut_url (the file, or the combined render for a comparison), picture_url (its cover, for a single clip or reel) and, for a comparison, pair.left and pair.right each with picture_url (their still).",
+    "4. Links last 900 seconds. Ask again for fresh links; never store them."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the site's clips",
+      "ask": "Read the published clips for my site",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-published-clips",
+            "input": {
+              "database": "ethos_for_who_runs_it",
+              "use": {
+                "purpose": "publish",
+                "surface": "site"
+              },
+              "limit": 24
+            }
+          }
+        }
+      },
+      "given": "A published clip in the database whose person holds a live grant for the use.",
+      "hands_back": "{ clips: [ { id, moment, kind, aspect, captured_day, cut_url, picture_url, pair? } ] }, each URL short-lived; a clip whose grant is withdrawn is not in the answer."
+    }
+  ],
+  "workflows": []
+}

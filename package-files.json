@@ -63254,5 +63254,76 @@
  "tool:your-files": [],
  "tool:your-files-names": [],
  "tool:list-my-tidycal-booking-types": [],
- "tool:list-my-tidycal-bookings": []
+ "tool:list-my-tidycal-bookings": [],
+ "tool:read-published-clips": [
+  {
+   "package": "read-published-clips",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/read-published-clips"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "tool-rows.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ]
 }
