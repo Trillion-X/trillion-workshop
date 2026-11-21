@@ -1,0 +1,33 @@
+{
+  "start_here": "Say to your AI: \"List my TidyCal booking types.\" It runs tool:list-my-tidycal-booking-types with no input.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it reads your TidyCal account and writes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:list-my-tidycal-booking-types"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"List my TidyCal booking types\". It calls tools:run with tool tool:list-my-tidycal-booking-types and an empty input.",
+    "2. Read each booking type's id, title, duration and public booking address.",
+    "3. Use a booking address as the link a booker opens to book that type."
+  ],
+  "worked_examples": [
+    {
+      "title": "List the booking types on my TidyCal account",
+      "ask": "List my TidyCal booking types.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-my-tidycal-booking-types",
+            "input": {}
+          }
+        }
+      },
+      "given": "Reads tools/tidycal/tool-rows.json: a GET to https://tidycal.com/api/booking-types with the vault key tidycal-api-token as a bearer header. Reads only.",
+      "hands_back": "It answers the booking types, for example \"Private call, 30 minutes, booking address tidycal.com/<your-slug>/private-call\" with its numeric id."
+    }
+  ]
+}

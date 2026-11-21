@@ -1,0 +1,33 @@
+{
+  "start_here": "Say to your AI: \"List my TidyCal bookings.\" It runs tool:list-my-tidycal-bookings with no input.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it reads your TidyCal account and writes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:list-my-tidycal-bookings"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"List my TidyCal bookings\". It calls tools:run with tool tool:list-my-tidycal-bookings and an empty input.",
+    "2. Read each booking's id, start and end, cancellation time and meeting link.",
+    "3. Booker names and emails are personal: show them only to the account owner."
+  ],
+  "worked_examples": [
+    {
+      "title": "List the bookings on my TidyCal account",
+      "ask": "List my TidyCal bookings.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-my-tidycal-bookings",
+            "input": {}
+          }
+        }
+      },
+      "given": "Reads tools/tidycal/tool-rows.json: a GET to https://tidycal.com/api/bookings with the vault key tidycal-api-token as a bearer header. Reads only.",
+      "hands_back": "It answers the bookings, for example booking 12345 \"starts 2026-11-25 10:00 UTC, cancelled_at null, meeting link present\" with the booker's email kept out of the answer."
+    }
+  ]
+}
