@@ -63,6 +63,7 @@
               "fact": {
                 "kind": "due-time",
                 "from": ["run"],
+                "fold": true,
                 "match": { "schedule_id": "schedule:tool:keep-the-shared-checkout-current:every-five-minutes" },
                 "watch": {
                   "schedules": [
