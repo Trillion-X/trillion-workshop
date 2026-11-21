@@ -38,7 +38,7 @@ import { call } from '../../shared-code/src/build-provider-request.mjs';
 import { quantityForCheckout } from './quantity-for-checkout.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import webhookEventMap from '../read-data/webhook-event-map.json' with { type: 'json' };
-import { checkoutPaymentIntentMetadata } from './map-webhook-event.mjs';
+import { checkoutPaymentIntentMetadata, checkoutSubscriptionMetadata } from './map-webhook-event.mjs';
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 
@@ -210,7 +210,7 @@ async function ensureLink(send, owner, afterPaymentUrl, priced, price, existing)
     // Collect a card even when a trial or promotion makes today's total zero, so the subscription can renew; one-time
     // payments always make a customer so a refund can be traced back to the buyer.
     ...(recurring
-      ? { payment_method_collection: 'always', subscription_data: { ...trial, metadata: { owner, offer_id: offer.id, price_option_id: option.id } } }
+      ? { payment_method_collection: 'always', subscription_data: { ...trial, metadata: { owner, offer_id: offer.id, price_option_id: option.id, ...checkoutSubscriptionMetadata(webhookEventMap) } } }
       : { customer_creation: 'always', payment_intent_data: { metadata: { owner, offer_id: offer.id, price_option_id: option.id, ...checkoutPaymentIntentMetadata(webhookEventMap) } } }),
   };
   const found = existing.find(link => link.metadata?.owner === owner && link.metadata?.price === price.id);

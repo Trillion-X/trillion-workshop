@@ -10,7 +10,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from './expect.mjs';
 // eslint-disable-next-line import/extensions
-import { mapStripeWebhookEvent, loadWebhookEventMap, checkoutPaymentIntentMetadata, paymentEventIdOf } from '../do-work/map-webhook-event.mjs';
+import { mapStripeWebhookEvent, loadWebhookEventMap, checkoutPaymentIntentMetadata, checkoutSubscriptionMetadata, paymentEventIdOf } from '../do-work/map-webhook-event.mjs';
 
 const packageRoot = join(import.meta.dirname, '..');
 const eventMap = loadWebhookEventMap(join(packageRoot, 'read-data/webhook-event-map.json'));
@@ -35,6 +35,66 @@ const barePaymentIntent = {
   created: 1782086500,
   data: { object: { id: 'pi_bare_once', amount_received: 2000, currency: 'usd', metadata: { offer_id: 'offer:bare' } } },
 };
+
+// A membership bought through Checkout in subscription mode: the completed event, the Subscription's first invoice (which
+// carries the subscription metadata, marker included), and the PaymentIntent that invoice made.
+const membershipCheckout = {
+  id: 'evt_cs_member',
+  type: 'checkout.session.completed',
+  created: 1782086400,
+  data: { object: { id: 'cs_live_member', amount_total: 2900, currency: 'usd', payment_status: 'paid', mode: 'subscription', subscription: 'sub_member', customer_details: { email: 'member@example.com' }, metadata: { offer_id: 'offer:membership' } } },
+};
+const membershipFirstInvoice = {
+  id: 'evt_inv_member_first',
+  type: 'invoice.paid',
+  created: 1782086401,
+  data: { object: { id: 'in_member_1', billing_reason: 'subscription_create', amount_paid: 2900, currency: 'usd', parent: { type: 'subscription_details', subscription_details: { subscription: 'sub_member', metadata: { offer_id: 'offer:membership', ...checkoutSubscriptionMetadata(eventMap) } } } } },
+};
+const membershipFirstPaymentIntent = {
+  id: 'evt_pi_member_first',
+  type: 'payment_intent.succeeded',
+  created: 1782086402,
+  data: { object: { id: 'pi_member_1', amount_received: 2900, currency: 'usd', invoice: 'in_member_1', metadata: {} } },
+};
+// The same membership's next month: the renewal invoice still carries the subscription metadata, so the marker is there.
+const membershipRenewal = {
+  id: 'evt_inv_member_2',
+  type: 'invoice.paid',
+  created: 1784678400,
+  data: { object: { id: 'in_member_2', billing_reason: 'subscription_cycle', amount_paid: 2900, currency: 'usd', parent: { type: 'subscription_details', subscription_details: { subscription: 'sub_member', metadata: { offer_id: 'offer:membership', ...checkoutSubscriptionMetadata(eventMap) } } } } },
+};
+const membershipRenewalPaymentIntent = {
+  id: 'evt_pi_member_2',
+  type: 'payment_intent.succeeded',
+  created: 1784678402,
+  data: { object: { id: 'pi_member_2', amount_received: 2900, currency: 'usd', invoice: 'in_member_2', metadata: {} } },
+};
+// A subscription made through the API, not Checkout: no marker on it, so its first invoice is its first payment.
+const apiSubscriptionFirstInvoice = {
+  id: 'evt_inv_api_first',
+  type: 'invoice.paid',
+  created: 1782086600,
+  data: { object: { id: 'in_api_1', billing_reason: 'subscription_create', amount_paid: 2900, currency: 'usd', parent: { type: 'subscription_details', subscription_details: { subscription: 'sub_api', metadata: { offer_id: 'offer:api-membership' } } } } },
+};
+const apiSubscriptionFirstPaymentIntent = {
+  id: 'evt_pi_api_first',
+  type: 'payment_intent.succeeded',
+  created: 1782086601,
+  data: { object: { id: 'pi_api_1', amount_received: 2900, currency: 'usd', invoice: 'in_api_1', metadata: {} } },
+};
+// A charge made through the API with no invoice and no Checkout.
+const apiCharge = {
+  id: 'evt_pi_api_charge',
+  type: 'payment_intent.succeeded',
+  created: 1782086700,
+  data: { object: { id: 'pi_api_charge', amount_received: 1500, currency: 'usd', metadata: { offer_id: 'offer:api' } } },
+};
+
+/** Every order of a list of events. */
+function permutations(items) {
+  if (items.length <= 1) return [items];
+  return items.flatMap((item, index) => permutations([...items.slice(0, index), ...items.slice(index + 1)]).map((rest) => [item, ...rest]));
+}
 
 /** The revenue rows a stream of Stripe events makes, keyed the way the ledger keys them (event_id). */
 function rowsOf(events) {
@@ -234,6 +294,41 @@ describe('map-webhook-event → generic revenue PaymentEvent (no key)', () => {
   it('a replayed Checkout event counts once', () => {
     expect(rowsOf([checkoutCompleted, checkoutCompleted, checkoutPaymentIntent, checkoutCompleted])).toHaveLength(1);
     expect(rowsOf([checkoutCompleted, checkoutCompleted])).toEqual(rowsOf([checkoutCompleted]));
+  });
+
+  it('a Checkout membership\'s first payment is one row', () => {
+    const rows = rowsOf([membershipCheckout, membershipFirstInvoice, membershipFirstPaymentIntent]);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ event_id: 'checkout:cs_live_member', event_kind: 'payment.confirmed' });
+  });
+
+  it('a membership renewal is one row', () => {
+    const rows = rowsOf([membershipRenewal, membershipRenewalPaymentIntent]);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ event_id: 'evt_inv_member_2', event_kind: 'subscription.renewed' });
+  });
+
+  it('an API subscription\'s first payment is one row', () => {
+    const rows = rowsOf([apiSubscriptionFirstInvoice, apiSubscriptionFirstPaymentIntent]);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ event_id: 'evt_inv_api_first', event_kind: 'subscription.renewed' });
+  });
+
+  it('an API charge is one row, however often it is delivered', () => {
+    expect(rowsOf([apiCharge])).toHaveLength(1);
+    expect(rowsOf([apiCharge, apiCharge])).toHaveLength(1);
+  });
+
+  it('a membership\'s rows are the same in any arrival order', () => {
+    const events = [membershipCheckout, membershipFirstInvoice, membershipFirstPaymentIntent];
+    const expected = rowsOf(events);
+    expect(expected).toHaveLength(1);
+    for (const order of permutations(events)) expect(rowsOf(order)).toEqual(expected);
+  });
+
+  it('the Checkout subscription marker is the one stamped on the Subscription', () => {
+    expect(checkoutSubscriptionMetadata(eventMap)).toEqual({ sold_through: 'checkout_session' });
+    expect(checkoutPaymentIntentMetadata(eventMap)).toEqual({ sold_through: 'checkout_session' });
   });
 
   it('a skip_when with a malformed condition throws instead of silently counting twice', () => {

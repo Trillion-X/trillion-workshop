@@ -19,10 +19,12 @@
 // event type with no rule returns null (ignored, never a guessed revenue row).
 //
 // One purchase, one row (Stripe sends a Checkout purchase twice: the session's completed event and its PaymentIntent's
-// succeeded event). A rule's `skip_when` ({ path, equals }) drops the event whose value at that path is exactly
-// `equals`. The payment_intent.succeeded rule skips the PaymentIntent a Checkout made, because Checkout stamps that
-// PaymentIntent with the marker `checkoutPaymentIntentMetadata` returns. A bare PaymentIntent has no marker and counts.
-// The decision reads only the one event, so the result does not depend on which of the two arrives first.
+// succeeded event). A rule's `skip_when` drops the event when it holds (see skipWhenHolds). A one-time Checkout's
+// PaymentIntent is skipped by the marker `checkoutPaymentIntentMetadata` returns; a PaymentIntent an invoice made is
+// skipped because the invoice counts that payment; a subscription's first invoice that a Checkout made is skipped by
+// the marker `checkoutSubscriptionMetadata` returns, because the Checkout's completed event counts that payment. A bare
+// PaymentIntent and an API subscription's first invoice carry no marker and count.
+// The decision reads only the one event, so the result does not depend on which of the events arrives first.
 //
 // Pure function, zero I/O, zero secrets, zero network — fixture-provable with no
 // key. Signature verification is a SEPARATE upstream step
@@ -51,14 +53,29 @@ function ruleFor(eventMap, stripeEventType) {
   return rules.find((rule) => rule.stripe_event_type === stripeEventType);
 }
 
-/** A rule's `skip_when` holds when the event's value at its path is exactly `equals`. A malformed condition throws:
- *  a skip that silently never applies would count a purchase twice. */
-function skipWhenHolds(stripeEvent, condition) {
-  if (condition === undefined) return false;
-  if (!Array.isArray(condition?.path) || typeof condition.equals !== 'string') {
-    throw new Error('webhook-event-map: skip_when needs a path array and a text equals.');
-  }
+/** One skip condition holds when the event's value at its path is exactly `equals`, or, with `present: true`, when a
+ *  value is there. A malformed condition throws: a skip that silently never applies would count a purchase twice. */
+function conditionHolds(stripeEvent, condition) {
+  if (!Array.isArray(condition?.path)) throw new Error('webhook-event-map: skip_when needs a path array.');
+  if (condition.present === true) return getPath(stripeEvent, condition.path) != null;
+  if (typeof condition.equals !== 'string') throw new Error('webhook-event-map: skip_when needs a text equals or present: true.');
   return getPath(stripeEvent, condition.path) === condition.equals;
+}
+
+/** A `skip_when` is one condition, a list (any one holds), or { all_of: [...] } (every one holds); groups nest. */
+function skipWhenHolds(stripeEvent, skipWhen) {
+  if (skipWhen === undefined) return false;
+  if (Array.isArray(skipWhen)) return skipWhen.some((item) => skipWhenHolds(stripeEvent, item));
+  if (Array.isArray(skipWhen.all_of)) return skipWhen.all_of.every((item) => skipWhenHolds(stripeEvent, item));
+  return conditionHolds(stripeEvent, skipWhen);
+}
+
+/** Every single condition a `skip_when` names, whatever its shape. */
+function conditionsIn(skipWhen) {
+  if (skipWhen === undefined) return [];
+  if (Array.isArray(skipWhen)) return skipWhen.flatMap(conditionsIn);
+  if (Array.isArray(skipWhen.all_of)) return skipWhen.all_of.flatMap(conditionsIn);
+  return [skipWhen];
 }
 
 /** ISO-8601 from a Stripe unix `created` (seconds). The value comes from the
@@ -123,19 +140,34 @@ export function mapStripeWebhookEvent(stripeEvent, eventMap) {
   };
 }
 
+/** The one marker a rule's skip condition reads at `prefix` (a path to a metadata object), as the metadata to stamp. */
+function markerAt(eventMap, stripeEventType, prefix, failure) {
+  const found = conditionsIn(ruleFor(eventMap, stripeEventType)?.skip_when).filter((condition) => Array.isArray(condition.path)
+    && condition.path.length === prefix.length + 1 && prefix.every((segment, index) => condition.path[index] === segment)
+    && typeof condition.equals === 'string');
+  if (found.length !== 1) throw new Error(failure);
+  return { [found[0].path.at(-1)]: found[0].equals };
+}
+
 /**
  * The PaymentIntent metadata every one-time Checkout stamps on the PaymentIntent it makes, so the mapper skips that
  * PaymentIntent (its rule's skip_when). It is read from that rule, so the DATA map is the one place the marker is
  * written: a session builder that stamps anything else would count its purchase twice again.
  */
 export function checkoutPaymentIntentMetadata(eventMap) {
-  const condition = ruleFor(eventMap, 'payment_intent.succeeded')?.skip_when;
-  const path = condition?.path;
-  if (!Array.isArray(path) || path.length !== 4 || path[0] !== 'data' || path[1] !== 'object' || path[2] !== 'metadata'
-    || typeof condition.equals !== 'string') {
-    throw new Error('webhook-event-map: payment_intent.succeeded needs skip_when at data.object.metadata.<key> with a text equals.');
-  }
-  return { [path[3]]: condition.equals };
+  return markerAt(eventMap, 'payment_intent.succeeded', ['data', 'object', 'metadata'],
+    'webhook-event-map: payment_intent.succeeded needs skip_when at data.object.metadata.<key> with a text equals.');
+}
+
+/**
+ * The subscription metadata a Checkout in subscription mode stamps on the Subscription it makes. Stripe copies it onto
+ * that subscription's first invoice (parent.subscription_details.metadata), where the invoice.paid rule's skip_when
+ * reads it, so the Checkout's completed event is the one row for that first payment. An API subscription has no marker
+ * and its first invoice counts.
+ */
+export function checkoutSubscriptionMetadata(eventMap) {
+  return markerAt(eventMap, 'invoice.paid', ['data', 'object', 'parent', 'subscription_details', 'metadata'],
+    'webhook-event-map: invoice.paid needs skip_when at data.object.parent.subscription_details.metadata.<key> with a text equals.');
 }
 
 /** Load the DATA map from disk (package-relative). */

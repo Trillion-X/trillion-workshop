@@ -1,7 +1,7 @@
 import { call } from '../../shared-code/src/build-provider-request.mjs';
 import { paymentScheduleFromTheWire } from '../read-data/when-money-is-taken.ts';
 import webhookEventMap from '../read-data/webhook-event-map.json' with { type: 'json' };
-import { checkoutPaymentIntentMetadata } from './map-webhook-event.mjs';
+import { checkoutPaymentIntentMetadata, checkoutSubscriptionMetadata } from './map-webhook-event.mjs';
 import {
   howStripeTakesASchedule,
   whatTheCheckoutDoes,
@@ -315,7 +315,9 @@ export function sessionRequestBody(session: CreateHostedSessionInput['session'])
   if (isSubscription && !scheduled) {
     const subscriptionData: Record<string, unknown> = {};
     if (trialDays > 0) subscriptionData.trial_period_days = trialDays;
-    const subscriptionMetadata: Record<string, string> = { ...metadata };
+    // The Checkout marker on the Subscription: its first invoice is the Checkout's payment, so the webhook mapper counts it
+    // once, on the session's completed event (map-webhook-event.mjs, skip_when).
+    const subscriptionMetadata: Record<string, string> = { ...metadata, ...checkoutSubscriptionMetadata(webhookEventMap) };
     // Stripe's subscription-ended webhook carries the Subscription object, not
     // the Checkout Session. Preserve the same already-provider-visible buyer
     // email on the Subscription so the generic entitlement-reversal route can
