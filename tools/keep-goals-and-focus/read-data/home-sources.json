@@ -1,0 +1,26 @@
+{
+  "_what": "Where Home's parts read and write the person's own data. Nothing here names a person's database: each read names a role (notices, goals, messages, open_work), and the role's connection name comes from the person's own records, the workspace_records row labelled `roles_label` in the database `roles_credential`, shaped {roles: {<role>: {credential_name, table}}} (the same record the Messages screen reads; written by an upsert that keeps the other roles). With no such row every part shows its empty words. decisions are not read here yet: the decisions owner (tool:see-my-decisions) answers them once its answer shape is wired in. Every statement is run by `tool` with statement_timeout_ms, so no read holds a database. home_goals is the person's goals table; it is made by `goals.create` on the first goal written and a read before that finds no goals.",
+  "tool": "tool:run-sql-in-my-database",
+  "most": 20,
+  "statement_timeout_ms": 5000,
+  "roles_credential": "own-rows-postgres-connection",
+  "roles_label": "owner-places",
+  "roles_sql": "select value from public.workspace_records where label = $1",
+  "notices": {
+    "role": "notices",
+    "sql": "select id, title, left(body, 400) as body, made_at from public.notices where kind = 'needs-you' and read_at is null order by made_at desc limit $1"
+  },
+  "open_work": {
+    "role": "open_work",
+    "sql": "select id, job, trigger, started_at from public.job_runs where finished_at is null order by started_at desc limit $1",
+    "status": "started"
+  },
+  "goals": {
+    "role": "goals",
+    "table": "home_goals",
+    "create": "create table if not exists home_goals (id text primary key, title text not null, now_text text, after_text text, why_it_matters text, needle_mover boolean not null default false, created_at timestamptz not null default now())",
+    "select": "select id, title, now_text, after_text, why_it_matters, needle_mover from home_goals order by created_at desc limit $1",
+    "insert": "insert into home_goals (id, title, now_text, after_text, why_it_matters) values ($1, $2, $3, $4, $5)",
+    "make_needle_mover": "update home_goals set needle_mover = (id = $1)"
+  }
+}

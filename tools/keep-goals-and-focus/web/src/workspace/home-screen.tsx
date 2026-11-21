@@ -10,15 +10,16 @@
 //   Each of those is its own screen (a row of records/workshop-screen-tool-records.json whose entry is `home-card`), so
 //   it can be moved, resized, replaced or removed, opened in a pane on its own, and any other screen the person is
 //   offered can join Home beside them. Each part is drawn by the shared dashboard (tools/ui/show/dashboard) from one
-//   read of the person's own store: /work/api/decisions (decisions and pursuits), and the person's message and
-//   agent-handoff records through the records door (records-door.ts, the reads src/workspace/home-records.json names).
+//   read of the person's own tables: each read names a role, and the role's database comes from the person's own records
+//   (read-data/home-sources.json). Unread notices that need an answer, open AI work and goals are read here; decisions
+//   come from the decisions owner, and the person's messages wait for an index on their table.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Only real rows from the person's store; nothing is made up, and an empty card says so plainly.
 //   2. Every word is in src/home-words.json; a suggestion is one DATA row there, never code here.
 //   3. Answering a decision happens on this screen (the shared hover form); opening one opens it beside Home.
-//   4. Each goal carries the shared button that asks the person's own AIs to look into it (src/workspace/queue-job.ts);
-//      which job it asks is home-words.json pursuits.queue_job, and a free plan, which keeps nothing, shows none.
+//   4. Each goal carries no queue button for now: asking the person's AIs to look into it needs an owner route that is not
+//      wired to this screen yet, so the button is not shown rather than shown as a failure.
 //   6. Home's parts share one read: every part on the page draws from one read of Home's answers (kept a few seconds),
 //      reading again together after an answer, wherever the parts are placed.
 //   7. How the person arranged Home is kept like any screen's (`screen-arrangement-of::trillion.home`), across
@@ -28,12 +29,10 @@
 //      `surface_input.arrangement`, including tabs (a pane of several screens), each placed with its own `kept_as`.
 //   5. The goal marked `needle_mover` is drawn large first; every other goal can be made the one. With none marked,
 //      the goal with the most other goals set under it is drawn as Trillion's guess, saying why, with Make it the one;
-//      with no goal under another, the card asks the person's AIs to pick (home-words.json needle_mover.pick_job).
-//      Goals are records of the pursuit type (home-records.json): a change reads the goal as kept now through the
-//      records door and writes it back whole with only the changed field, so nothing Home worked out is saved into it;
-//      a new goal is a new record whose value carries its own id.
-//   8. Open AI work (the open run of the agent-handoff order, home-records.json; work the store's own agents hand
-//      themselves, src/ai-side-work.json, is not shown) is one row per job it started from, never one per job: the row says the first
+//      with no goal under another, the card says how to choose one (home-words.json needle_mover).
+//      Goals are rows of home_goals in the person's own database (home-sources.json goals): a new goal is a new row with
+//      its own id, and the needle-mover mark is one statement that sets it on the chosen goal alone.
+//   8. Open AI work (the job runs not yet finished, home-sources.json open_work) is one row per job it started from, never one per job: the row says the first
 //      job's own words cut to one line, and under it what is stuck or how many are where, in the overview sections of
 //      the shared work-state looks (tools/screen-look/show/work-state-looks.json), both wrapping rather than cut. What is
 //      stuck comes first.
@@ -51,41 +50,31 @@ import { useSnippets } from './snippets';
 import { loadScreen } from '../../../../ui/show/screen-state';
 import { relativeWhen } from '../../../../ui/show/relative-time/relative-time';
 import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
-import { readCollectionJson } from './api';
-import { listRecords, readRecord, writeRecords, type StoredRecord } from './records-door';
+import { runWorkshopTool } from './workshop-tool-api';
 import { readPastedLink } from './send-message';
 import { useSendChoices } from './send-choices';
 import { JobRuns } from './job-runs-later';
 import { notify } from '../../../../ui/show/coss/notifications';
 import { refusal } from './failure';
-import { answerForm, type Summary } from './decision-answer';
 import type { HoverForm } from '../../../../ui/show/record-views/hover-form';
-import { queueJobProps } from './queue-job';
 import surfaces from './screens.mjs';
 import type { ScreenProps } from './lazy-screen';
 import words from '../home-words.json';
-import reads from './home-records.json';
-import aiSideWork from '../../../../shared-code/src/ai-side-work.json';
 import workLooks from '../../../../screen-look/show/work-state-looks.json';
-// The numbers over time, worked out exactly as the Progress screen shows them.
-import { progressTrendSections } from '../progress-trends.mjs';
+import sources from '../../../read-data/home-sources.json';
+import { goalsOf, isMissingTable, openWorkOf, rolesOf, waitingOf } from '../../../read-data/home-answers.mjs';
 import { onKeptAnswerReplaced } from '../../../../ui/show/request/kept-answers';
 import { sayHappened } from '../../../../ui/show/happened/happened';
 
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
 import { titleOf } from '../work-title.mjs';
-type Trend = { id: string; label: string; value: string; detail?: string; points: { t: number; value: number }[]; unit?: string; better?: 'lower' | 'higher' };
+type Summary = { case_id: string; goal: string; status: string; outcome_question: string | null; decision: string | null; created_at: string };
+type Waiting = { id: string; title: string; detail: string | null };
 type Pursuit = { id: string; title: string; now?: string; after?: string; why_it_matters?: string; needle_mover?: boolean; parents?: string[]; children?: string[] };
 type Job = { handoff_id: string; status: string; job: string; said: string | null; in_the_way: string | null; parent_handoff_id: string | null; handed_at: string; finished_at: string | null };
 type Work = { work: Job[] };
-type Home = {
-  free: boolean;
-  summaries: Summary[];
-  pursuits: Pursuit[];
-  allowance: { count: number | null; per?: string; used: number } | null;
-  helped?: unknown;
-  trends: { stats: { id: string; label: string; value: string }[]; trends: Trend[] } | null;
-};
+type Home = { summaries: Summary[]; waiting: Waiting[]; pursuits: Pursuit[] };
+type Roles = Partial<Record<'notices' | 'goals' | 'messages' | 'open_work', string>>;
 type Message = { id: string; text: string; speaker: string; app: string; at: string };
 
 const fill = (template: string, values: Record<string, string | number>) => template.replace(/\{(\w+)\}/g, (whole, name) => String(values[name] ?? whole));
@@ -107,20 +96,41 @@ function open(id: string, title?: string, input: Record<string, unknown> = {}) {
 }
 const opener = (label: string, id: string) => ({ label, run: () => open(id) });
 
-// A goal's id is its record's id (invariant 5).
-const pursuitRecord = (value: Record<string, unknown> & { id: string }): StoredRecord => ({ id: value.id, type: reads.pursuits.type, value });
-function newPursuitId(): string { return `${reads.pursuits.type}:${crypto.randomUUID()}`; }
-// Changes goals as they are kept now: each read through the records door, the change laid over it, written back whole.
-const changePursuits = async (changes: { id: string; change: Record<string, unknown> }[]) => writeRecords(await Promise.all(changes.map(async ({ id, change }) => {
-  const kept = await readRecord(id, reads.pursuits.type);
-  if (!kept) throw new Error(words.pursuits.gone);
-  return pursuitRecord({ ...kept, ...change, id });
-})));
-
-// Makes one goal the biggest needle mover and clears the mark from any other that held it.
-const makeNeedleMover = async (chosen: Pursuit, all: Pursuit[], reload: () => void) => {
+// Every read and write of Home's own tables: one statement run at the account's door, with the owner's credential and
+// the statement's own time limit (home-sources.json statement_timeout_ms), so no read holds a database.
+const runSql = async (credential_name: string, sql: string, params: unknown[]): Promise<Record<string, unknown>[]> => {
+  const ran = await runWorkshopTool<{ rows?: Record<string, unknown>[] }>(sources.tool, { credential_name, sql, params, statement_timeout_ms: sources.statement_timeout_ms });
+  if (!Array.isArray(ran.result?.rows)) throw new Error(words.unreadable);
+  return ran.result.rows;
+};
+// The person's role-to-connection map, one row of their own records; with no row, no role has a database.
+const readRoles = async (): Promise<Roles> => rolesOf((await runSql(sources.roles_credential, sources.roles_sql, [sources.roles_label]))[0]?.value);
+const readRowsOf = async (roles: Roles, read: { role: string; sql: string }) => {
+  const credential = roles[read.role as keyof Roles];
+  return credential ? runSql(credential, read.sql, [sources.most]) : [];
+};
+const readGoals = async (roles: Roles): Promise<Pursuit[]> => {
+  const credential = roles.goals;
+  if (!credential) return [];
   try {
-    await changePursuits([{ id: chosen.id, change: { needle_mover: true } }, ...all.filter(item => item.id !== chosen.id && item.needle_mover).map(item => ({ id: item.id, change: { needle_mover: false } }))]);
+    return goalsOf(await runSql(credential, sources.goals.select, [sources.most])) as Pursuit[];
+  } catch (cause) {
+    // No goal has been written yet, so the table is not made: nothing is kept there.
+    if (isMissingTable(cause instanceof Error ? cause.message : String(cause))) return [];
+    throw cause;
+  }
+};
+// A change to goals: its statement runs with the goals role's connection, and a person with no goals place is told so.
+const writeGoals = async (sql: string, params: unknown[]) => {
+  const credential = (await readRoles()).goals;
+  if (!credential) throw new Error(words.no_goal_place);
+  return runSql(credential, sql, params);
+};
+
+// Makes one goal the biggest needle mover: one statement sets the mark on it alone, so no other goal keeps it.
+const makeNeedleMover = async (chosen: Pursuit, reload: () => void) => {
+  try {
+    await writeGoals(sources.goals.make_needle_mover, [chosen.id]);
     notify(words.pursuits.made_needle_mover, { kind: 'done' });
     sayHappened({ event_kind: 'needle-found', pursuit: chosen.id });
     reload();
@@ -133,7 +143,10 @@ const addPursuitForm = (reload: () => void): HoverForm => ({
   fields: words.add_pursuit.fields,
   submit: words.add_pursuit.submit,
   run: async values => {
-    await writeRecords([pursuitRecord({ ...Object.fromEntries(Object.entries(values).map(([name, text]) => [name, text.trim()]).filter(([, text]) => text)), id: newPursuitId() })]);
+    const goal = Object.fromEntries(Object.entries(values).map(([name, text]) => [name, text.trim() || null]));
+    if (!goal.title) throw new Error(words.add_pursuit.title_missing);
+    await writeGoals(sources.goals.create, []);
+    await writeGoals(sources.goals.insert, [crypto.randomUUID(), goal.title, goal.now, goal.after, goal.why_it_matters]);
     notify(words.add_pursuit.saved, { kind: 'done' });
     reload();
   },
@@ -143,15 +156,13 @@ const addPursuitForm = (reload: () => void): HoverForm => ({
 function needleMoverCard(home: Home, reload: () => void): DashboardCard {
   const base = { kind: 'spotlight' as const, id: 'needle-mover', wide: 'full' as const, title: words.needle_mover.title };
   const top = home.pursuits.find(item => item.needle_mover);
-  if (top) return { ...base, headline: top.title, detail: top.why_it_matters, stages: stagesOf(top),
-    queue: queueJobProps(words.pursuits.queue_job, { pursuit_id: top.id, title: top.title }) ?? undefined };
+  if (top) return { ...base, headline: top.title, detail: top.why_it_matters, stages: stagesOf(top) };
   if (!home.pursuits.length) return { ...base, headline: words.needle_mover.empty_headline, detail: words.needle_mover.empty_detail, form: { label: words.add_pursuit.label, form: addPursuitForm(reload) } };
-  const pick = queueJobProps(words.needle_mover.pick_job, { count: String(home.pursuits.length) }) ?? undefined;
   const likely = likelyNeedleMover(home.pursuits);
   if (likely) return { ...base, title: words.needle_mover.likely_title, headline: likely.pursuit.title,
     stages: stagesOf(likely.pursuit), detail: fill(likely.under === 1 ? words.needle_mover.likely_detail.one : words.needle_mover.likely_detail.many, { n: likely.under }),
-    action: { label: words.needle_mover.make_it, run: () => makeNeedleMover(likely.pursuit, home.pursuits, reload) }, queue: pick };
-  return { ...base, headline: words.needle_mover.choose_headline, detail: words.needle_mover.choose_detail, queue: pick };
+    action: { label: words.needle_mover.make_it, run: () => makeNeedleMover(likely.pursuit, reload) } };
+  return { ...base, headline: words.needle_mover.choose_headline, detail: words.needle_mover.choose_detail };
 }
 
 const stagesOf = (goal: Pursuit) => [goal.now ? { label: words.needle_mover.now, text: goal.now, tone: 'quiet' as const } : null, goal.after ? { label: words.needle_mover.after, text: goal.after, tone: 'accent' as const } : null].filter(stage => stage !== null);
@@ -238,63 +249,50 @@ const holds = (rule: { fact: string; at_most?: number; at_least?: number }, fact
 };
 
 export function homeDescription(home: Home, messages: Message[], work: Work, reload: () => void, now = new Date()): DashboardProps {
-  const asks = answerForm(reload);
-  const waiting = home.summaries.filter(row => row.outcome_question);
+  const waiting = home.waiting;
   const deciding = home.summaries.filter(row => row.status === 'needs_decision');
   const facts: Facts = { decisions: home.summaries.length, waiting: waiting.length, pursuits: home.pursuits.length, messages: messages.length };
-  const trend = (id: string) => home.trends?.trends.find(item => item.id === id);
   const recentMessages = messages.filter(message => message.speaker === 'person');
 
-  const stats: DashboardStat[] = home.free && home.allowance
-    ? [{ id: 'free', label: words.stat_free_left, value: String(Math.max(0, (home.allowance.count ?? 0) - home.allowance.used)), detail: fill(words.stat_free_detail, { per: home.allowance.per ?? 'month' }) }]
-    : [
-        ...(home.trends?.stats ?? []).map(stat => ({ ...stat, open: undefined })),
-        { id: 'waiting', label: words.stat_waiting, value: String(waiting.length), detail: waiting.length ? words.stat_waiting_detail : words.stat_waiting_none },
-        ...(home.trends?.trends ?? []).map(item => ({ id: item.id, label: item.label, value: item.value, detail: item.detail, points: item.points, unit: item.unit, better: item.better })),
-      ];
-
-  const deciding_line = trend('deciding');
+  const stats: DashboardStat[] = [{ id: 'waiting', label: words.stat_waiting, value: String(waiting.length), detail: waiting.length ? words.stat_waiting_detail : words.stat_waiting_none }];
   const cards: DashboardCard[] = [
-    ...(home.free ? [] : [needleMoverCard(home, reload)]),
+    needleMoverCard(home, reload),
     workstreamsCard(work),
+    // The time-to-decide line needs each decision's own timing, which no owner table keeps yet, so the chart stays empty.
     { kind: 'chart', id: 'deciding', wide: true, title: words.chart.title, description: words.chart.description, empty: words.chart.empty,
-      points: deciding_line?.points ?? [], unit: 'seconds', better: 'lower', value: deciding_line?.value, detail: deciding_line?.detail },
+      points: [], unit: 'seconds', better: 'lower' },
     { kind: 'rows', id: 'waiting', title: words.waiting.title, description: words.waiting.description, empty: words.waiting.empty,
-      rows: [...waiting.map(row => ({ id: row.case_id, title: row.goal, detail: row.outcome_question ?? undefined, form: asks(row) ?? undefined, action: { label: words.waiting.action } }))] },
+      rows: waiting.map(row => ({ id: row.id, title: row.title, detail: row.detail ?? undefined })) },
     { kind: 'rows', id: 'recent', wide: true, title: words.recent.title, description: words.recent.description, empty: words.recent.empty, more: opener(words.recent.more, words.recent.opens),
       rows: home.summaries.slice(0, words.recent.count).map(row => {
         const status = (words.status as Record<string, { label: string; tone: string }>)[row.status];
         return { id: row.case_id, title: row.goal, detail: row.decision ?? undefined, meta: relativeWhen(row.created_at), badge: status, action: { label: words.recent.action, run: () => open('trillion.decision', row.goal, { screen: 'decision', id: row.case_id }) } };
       }) },
-    { kind: 'feed', id: 'messages', wide: true, title: words.messages.title, description: words.messages.description, empty: home.free ? words.messages.empty_free : words.messages.empty, more: opener(words.messages.more, words.messages.opens),
+    { kind: 'feed', id: 'messages', wide: true, title: words.messages.title, description: words.messages.description, empty: words.messages.empty, more: opener(words.messages.more, words.messages.opens),
       items: recentMessages.slice(0, words.messages.count).map(message => ({
         id: message.id, who: message.app, picture: null,
         title: message.text.replace(/\s+/g, ' ').trim().slice(0, 120) || words.messages.with_files,
         at: message.at,
       })) },
     { kind: 'rows', id: 'pursuits', wide: true, title: words.pursuits.title, description: words.pursuits.description, empty: words.pursuits.empty, more: opener(words.pursuits.more, words.pursuits.opens),
-      ...(home.free ? {} : { form: { label: words.add_pursuit.label, form: addPursuitForm(reload) } }),
+      form: { label: words.add_pursuit.label, form: addPursuitForm(reload) },
       // Where a goal is now and where it is going are two state chips, `now -> after`, not a sentence.
       rows: home.pursuits.map(item => ({ id: item.id, title: item.title, icon: words.pursuits.icon,
         ...(item.now && item.after ? { chips: [{ label: item.now, tone: words.pursuits.now_tone }, { label: item.after, tone: words.pursuits.after_tone, arrow: true }] } : {}),
         badge: item.needle_mover ? { label: words.pursuits.needle_badge, tone: 'good' } : { label: words.pursuits.badge, tone: 'info' },
-        ...(home.free ? {} : {
-          queue: queueJobProps(words.pursuits.queue_job, { pursuit_id: item.id, title: item.title }) ?? undefined,
-          ...(item.needle_mover ? {} : { action: { label: words.pursuits.make_needle_mover, run: () => makeNeedleMover(item, home.pursuits, reload) } }),
-        }) })) },
+        ...(item.needle_mover ? {} : { action: { label: words.pursuits.make_needle_mover, run: () => makeNeedleMover(item, reload) } }) })) },
     { kind: 'rows', id: 'suggestions', title: words.suggestions.title, description: words.suggestions.description, empty: words.suggestions.empty,
       rows: words.suggestions.items.filter(item => holds(item.show_when, facts)).slice(0, 3).map(item => ({ id: item.id, title: item.title, detail: item.detail, action: opener(item.action, item.opens) })) },
   ];
 
   const first = waiting[0];
-  const next: DashboardProps['next'] = home.free ? undefined
-    : first ? { title: fill(words.next_answer.title, { question: first.outcome_question ?? '' }), detail: first.goal, action: { label: words.next_answer.action, run: () => {} }, form: asks(first) ?? undefined }
+  const next: DashboardProps['next'] = first ? { title: fill(words.next_answer.title, { question: first.title }), detail: first.detail ?? undefined }
     : !home.summaries.length ? { title: words.next_first.title, detail: words.next_first.detail, action: opener(words.next_first.action, words.next_first.opens) }
     : undefined;
 
   return {
     greeting: greetingAt(now.getHours()),
-    ...(home.free ? { summary: words.summary_free } : { glance: glanceTiles(words.summary, { waiting: waiting.length, deciding: deciding.length, pursuits: home.pursuits.length }) }),
+    glance: glanceTiles(words.summary, { waiting: waiting.length, deciding: deciding.length, pursuits: home.pursuits.length }),
     next,
     stats,
     cards,
@@ -306,30 +304,20 @@ type HomeAnswers = { home: Home; messages: Message[]; work: Work };
 type HomeReads = { [Read in keyof HomeAnswers]: Promise<HomeAnswers[Read]> };
 type HomeRead = keyof HomeReads;
 
-const text = (value: unknown) => (typeof value === 'string' ? value : null);
-// A record's own id within its type: the part after `<type>:`, which is what a job's parent_handoff_id names.
-const ownId = (record: StoredRecord) => record.id.slice(record.id.indexOf(':') + 1);
-const aiSide = new Set(aiSideWork.from_agents);
-/** One open job as the workstreams card draws it: blocked while something is in its way. */
-const jobOf = (record: StoredRecord): Job => {
-  const value = record.value ?? {};
-  return { handoff_id: ownId(record), status: text(value.in_the_way) ? 'blocked' : text(value.state) ?? '', job: text(value.job) ?? '',
-    said: text(value.said), in_the_way: text(value.in_the_way), parent_handoff_id: text(value.parent_handoff_id),
-    handed_at: text(value.handed_at) ?? '', finished_at: null };
-};
-const messageOf = (record: StoredRecord): Message => {
-  const value = record.value ?? {};
-  return { id: record.id, text: text(value.text) ?? '', speaker: text(value.speaker) ?? '', app: text(value.app) ?? '', at: text(value.at) ?? '' };
-};
 
 /** Each of Home's reads on its own, so a part waits only for the reads it draws from (invariant 10). */
-const readHome = (): HomeReads => ({
-  home: readCollectionJson<Home>('/work/api/decisions').then(home => ({ ...home, trends: progressTrendSections(home.helped, {})[0] ?? null }) as Home),
-  messages: listRecords(reads.messages.read, reads.messages.most).then(records => records.map(messageOf)),
-  // Only open work: Home never shows a finished job, so it reads only the open run of the order.
-  work: listRecords(reads.open_work.read, reads.open_work.most)
-    .then(records => ({ work: records.filter(record => !aiSide.has(text(record.value?.from_agent) ?? '')).map(jobOf) })),
-});
+const readHome = (): HomeReads => {
+  const roles = readRoles();
+  return {
+    home: roles.then(map => Promise.all([readRowsOf(map, sources.notices), readGoals(map)])).then(([waiting, pursuits]) => ({
+      // Decisions wait for the decisions owner's answer shape (tool:see-my-decisions); until it is wired, the part is empty.
+      summaries: [], waiting: waitingOf(waiting), pursuits })),
+    // The person's own messages wait for an index on the table that keeps them (a read of it would sort every row).
+    messages: Promise.resolve([]),
+    // Only open work: Home never shows a finished job, so it reads only the job runs not yet finished.
+    work: roles.then(map => readRowsOf(map, sources.open_work)).then(rows => ({ work: openWorkOf(rows, sources.open_work.status) as Job[] })),
+  };
+};
 
 // The reads each of Home's parts draws from (invariant 10). A part not named here is one of the dashboard's cards by
 // its id, which may draw from any read, so it waits for them all.
@@ -348,7 +336,7 @@ const PART_READS: Record<string, HomeRead[]> = {
 };
 // What a read Home's part does not draw from stands as, so homeDescription can build the part it does draw.
 const unread = (): HomeAnswers => ({
-  home: { free: false, summaries: [], pursuits: [], allowance: null, trends: null },
+  home: { summaries: [], waiting: [], pursuits: [] },
   messages: [],
   work: { work: [] },
 });
@@ -379,8 +367,7 @@ const PARTS: Record<string, (description: DashboardProps, answers: HomeAnswers, 
   numbers: description => <DashboardStats stats={description.stats} />,
 };
 
-/** One part of Home, drawn from Home's answers (nothing, when this person's Home has no such part, as a free plan has
- *  no needle mover). */
+/** One part of Home, drawn from Home's answers (nothing, when Home has no such part). */
 function HomePart({ card, store }: { card: string; store: HomeStore }) {
   const answers = React.useSyncExternalStore(store.subscribe, store.get, store.get);
   if (!answers) return null;
@@ -423,9 +410,9 @@ function readHomeInto(host: HTMLElement, card: string, draw: (store: HomeStore) 
   const store = homeAnswers(readAllAgain);
   let drawn = false;
   const screen = loadScreen(host, {
-    loading: { label: 'Loading your home', layout: 'rows' },
+    loading: { label: words.loading, layout: 'rows' },
     read: () => partAnswers(sharedRead().reads, card),
-    failed: refusal('Your home could not load'),
+    failed: refusal(words.failed),
     clear: () => { drawn = false; release?.(); },
     draw: answers => {
       store.set(answers);

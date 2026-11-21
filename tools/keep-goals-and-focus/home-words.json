@@ -11,17 +11,18 @@
     { "count": "deciding", "one": "Being decided", "many": "Being decided", "opens": "trillion.decisions" },
     { "count": "pursuits", "one": "Goal", "many": "Goals", "opens": "trillion.progress" }
   ],
-  "summary_free": "Your AI decides with Trillion on the free plan; your decisions and goals are kept on a paid plan.",
   "ask_bar": { "label": "Message your AIs", "placeholder": "Write to all your AIs, or paste, drop, record or draw", "send": "Send to your AIs" },
-  "next_answer": { "title": "Your answer is needed: {question}", "action": "Answer" },
+  "next_answer": { "title": "Your answer is needed: {question}" },
   "next_first": { "title": "Make your first decision with Trillion", "detail": "Ask your AI to use Trillion on the next choice you face.", "action": "Show me how", "opens": "trillion.ai" },
   "stat_waiting": "Waiting for you",
   "stat_waiting_detail": "Hover one below to answer",
   "stat_waiting_none": "Nothing waiting on you",
-  "stat_free_left": "Free decisions left",
-  "stat_free_detail": "This {per}",
+  "loading": "Loading your home",
+  "failed": "Your home could not load",
+  "unreadable": "Your home could not be read.",
+  "no_goal_place": "Home has no place to keep goals yet.",
   "chart": { "title": "Time to decide", "description": "Each point is one of your decisions, oldest on the left.", "empty": "Your line appears after your second decision." },
-  "waiting": { "title": "Waiting for you", "description": "Decisions waiting for your answer. Hover one to answer it.", "empty": "Nothing is waiting on you.", "action": "Answer" },
+  "waiting": { "title": "Waiting for you", "description": "Unread notices that need your answer.", "empty": "Nothing is waiting on you." },
   "recent": { "title": "Recent decisions", "description": "What your AI decided with Trillion.", "empty": "No decisions yet.", "action": "Open", "more": "See all", "opens": "trillion.decisions", "count": 6 },
   "status": {
     "needs_decision": { "label": "Deciding", "tone": "info" },
@@ -34,7 +35,6 @@
     "after": "After",
     "choose_headline": "Which one moves everything else?",
     "choose_detail": "Make one of your goals below the one, or let your AI weigh them.",
-    "pick_job": "pick-needle-mover",
     "empty_headline": "What are you working toward?",
     "empty_detail": "Add the first thing you are pursuing. Every decision your AI makes with Trillion is weighed against it.",
     "likely_title": "Likely your biggest needle mover",
@@ -56,12 +56,13 @@
     "more": "All AI work",
     "opens": "trillion.ai-work"
   },
-  "pursuits": { "title": "What you are working toward", "description": "Every decision is weighed against these.", "empty": "No goals yet. Add one, or tell your AI what you are working toward.", "icon": "Target", "now_tone": "attention", "after_tone": "good", "badge": "Active", "needle_badge": "Needle mover", "make_needle_mover": "Make this my needle mover", "made_needle_mover": "That goal is now your biggest needle mover.", "gone": "That goal is no longer kept. Read Home again to see your goals.", "more": "Progress", "opens": "trillion.progress", "queue_job": "look-into-goal" },
+  "pursuits": { "title": "What you are working toward", "description": "Every decision is weighed against these.", "empty": "No goals yet. Add one, or tell your AI what you are working toward.", "icon": "Target", "now_tone": "attention", "after_tone": "good", "badge": "Active", "needle_badge": "Needle mover", "make_needle_mover": "Make this my needle mover", "made_needle_mover": "That goal is now your biggest needle mover.", "more": "Progress", "opens": "trillion.progress" },
   "add_pursuit": {
     "label": "Add a goal",
     "title": "Add a goal",
     "submit": "Add",
     "saved": "Added to what you are working toward.",
+    "title_missing": "Write what you are pursuing first.",
     "fields": [
       { "name": "title", "label": "What you are pursuing", "placeholder": "Grow my newsletter to 10,000 readers" },
       { "name": "now", "label": "Where it is now", "placeholder": "1,200 readers, one issue a month" },
@@ -69,7 +70,7 @@
       { "name": "why_it_matters", "label": "Why it matters (optional)", "placeholder": "It pays for the studio and I can stop client work", "optional": true }
     ]
   },
-  "messages": { "title": "Your recent messages", "description": "What you said across your AI apps.", "empty": "No messages have been saved here yet.", "empty_free": "Messages are kept on a paid plan.", "with_files": "Message with files", "more": "See all", "opens": "trillion.message-task-canvas", "count": 8 },
+  "messages": { "title": "Your recent messages", "description": "What you said across your AI apps.", "empty": "No messages have been saved here yet.", "with_files": "Message with files", "more": "See all", "opens": "trillion.message-task-canvas", "count": 8 },
   "suggestions": {
     "title": "Suggested next",
     "description": "Ways to get more from Trillion now.",
