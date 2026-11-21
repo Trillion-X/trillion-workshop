@@ -106,7 +106,7 @@ function waitBefore(error, attempt) {
   return Math.min(base, MAX_WAIT_MS) * (0.5 + Math.random() / 2);
 }
 
-export async function keepInRawPieces(route, name, source, { mediaType = 'application/octet-stream', uploadId = randomBytes(16).toString('hex'), pieceBytes = RAW_PIECES.piece_bytes } = {}) {
+export async function keepInRawPieces(route, name, source, { mediaType = 'application/octet-stream', uploadId = randomBytes(16).toString('hex'), pieceBytes = RAW_PIECES.piece_bytes, bytesPerSecond = RAW_PIECES.most_bytes_per_second ?? 0 } = {}) {
   if (typeof route?.url !== 'string' || typeof route.capability !== 'string' || typeof route.filesTool !== 'string' || !route.filesTool) {
     throw new RawPieceError('no_files', 'This run was not handed a files right.', 'not_started');
   }
@@ -120,14 +120,27 @@ export async function keepInRawPieces(route, name, source, { mediaType = 'applic
   };
   let offset;
   for (;;) {
-    try { offset = (await start())?.next_offset ?? 0; break; } catch (error) { await again(error); }
+    try {
+      const started = await start();
+      // The same file kept again under its own id: the upload is already finished, and its start answers the finish.
+      if (started?.state === 'finished') return started;
+      offset = started?.next_offset ?? 0;
+      break;
+    } catch (error) { await again(error); }
   }
+  // The pace: the bytes this run has sent, at bytesPerSecond, may not take less time than has passed since it began.
+  const now = route.now ?? Date.now;
+  const began = now();
+  let sentHere = 0;
   while (offset < source.size) {
+    const due = bytesPerSecond > 0 ? began + (sentHere * 1000) / bytesPerSecond - now() : 0;
+    if (due > 0) await wait(due);
     const length = Math.min(pieceBytes, source.size - offset);
     const body = Buffer.from(await source.readAt(offset, length));
     try {
       await callFiles(route, 'write_file_piece', { upload_id: uploadId, name, offset }, `${uploadId}:piece:${offset}:${randomUUID()}`, body);
       offset += body.length;
+      sentHere += body.length;
       tries = 0;
     } catch (error) {
       await again(error);

@@ -65,6 +65,8 @@ function largeRoute(door) {
 export async function writeWholeFile(door, name, bytes, { mediaType = 'application/octet-stream', pieceBytes = PIECE_BYTES, uploadId = randomBytes(16).toString('hex') } = {}) {
   if (bytes.length > LARGE_FILE.threshold_bytes) return largeRoute(door).writeLarge(name, bufferSource(bytes), { mediaType, uploadId });
   const started = await door.files('write_file_start', { upload_id: uploadId, name, byte_length: bytes.length, media_type: mediaType });
+  // An upload already finished under this id (the same file kept again) answers its finish at the start: nothing is sent.
+  if (started?.state === 'finished') return started;
   for (let offset = started?.next_offset ?? 0; offset < bytes.length; offset += pieceBytes) {
     await door.files('write_file_piece', { upload_id: uploadId, name, offset, content_base64: Buffer.from(bytes.subarray(offset, offset + pieceBytes)).toString('base64') });
   }

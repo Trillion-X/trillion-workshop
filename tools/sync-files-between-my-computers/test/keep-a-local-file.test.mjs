@@ -75,6 +75,19 @@ test('the next run of an unchanged file goes on with the same upload, and a chan
   assert.equal(a.calls[0].args.upload_id, b.calls[0].args.upload_id);
 });
 
+test('a file kept again under its own upload id answers the finished upload and sends nothing', async () => {
+  const dir = tempFolder(join(tmpdir(), 'keep-local-'));
+  const path = join(dir, 'grid.jpg');
+  await writeFile(path, Buffer.alloc(500, 3));
+  const finished = { name: '/a/grid.jpg', state: 'finished', identity: '1f:kept', version: 1 };
+  const calls = [];
+  const door = { async files(op, args) { calls.push(op); return op === 'write_file_start' ? { ...finished, upload_id: args.upload_id } : {}; } };
+  const answer = await keepALocalFile({ path, name: '/a/grid.jpg' }, door);
+  assert.deepEqual(answer.refused, []);
+  assert.equal(answer.kept[0].finished.state, 'finished');
+  assert.deepEqual(calls, ['write_file_start']);
+});
+
 test('a list keeps each file in order and names each refusal, and one refusal does not stop the others', async () => {
   const dir = tempFolder(join(tmpdir(), 'keep-local-'));
   const real = join(dir, 'real.txt');

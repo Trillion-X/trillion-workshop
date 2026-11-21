@@ -48,6 +48,8 @@ async function startFakeDoor({ fail = {}, refuse = false } = {}) {
     if (name === 'write_file_start') {
       const open = uploads.get(args.upload_id) ?? { name: args.name, length: args.byte_length, parts: [] };
       uploads.set(args.upload_id, open);
+      // As the files tool does: a start under a finished upload answers that upload's finish.
+      if (open.finished) return answer(open.finished);
       return answer({ upload_id: args.upload_id, next_offset: open.parts.reduce((sum, part) => sum + part.length, 0) });
     }
     const open = uploads.get(args.upload_id);
@@ -68,7 +70,8 @@ async function startFakeDoor({ fail = {}, refuse = false } = {}) {
       if (bytes.length !== open.length) return answer({ code: 'length_mismatch', outcome: 'not_started' }, true);
       const identity = makeHashCodeHexFromBytes(bytes);
       files.set(identity, bytes);
-      return answer({ state: 'finished', identity, byte_length: bytes.length, name: open.name });
+      open.finished = { state: 'finished', identity, byte_length: bytes.length, name: open.name, upload_id: args.upload_id };
+      return answer(open.finished);
     }
     return send(400, { error: 'no' });
   });
@@ -90,6 +93,36 @@ test('a large file goes in raw pieces under one upload, and the door keeps the s
     assert.deepEqual(door.calls.map(call => call.name), ['write_file_start', ...Array(6).fill('write_file_piece'), 'write_file_finish']);
     assert.ok(door.calls.every(call => call.raw === (call.name === 'write_file_piece')), 'only the pieces are raw bodies');
     assert.ok(door.calls.every(call => call.bytes <= 1024));
+  } finally { await door.close(); }
+});
+
+test('an upload is paced to bytesPerSecond: each piece waits until the bytes sent so far would have taken that long', async () => {
+  const door = await startFakeDoor();
+  try {
+    let clock = 0;
+    const waits = [];
+    const route = { ...routeOf(door), now: () => clock, wait: async ms => { waits.push(ms); clock += ms; } };
+    const bytes = bytesOf(4 * 1000);
+    const sent = await keepInRawPieces(route, '/paced.bin', bufferSource(bytes), { pieceBytes: 1000, bytesPerSecond: 500 });
+    assert.equal(sent.identity, makeHashCodeHexFromBytes(bytes));
+    // 1,000 bytes at 500 a second take 2 s: the first piece goes at once, each next one 2 s after the one before.
+    assert.deepEqual(waits, [2000, 2000, 2000]);
+    const unpaced = [];
+    await keepInRawPieces({ ...routeOf(door), wait: async ms => { unpaced.push(ms); } }, '/unpaced.bin', bufferSource(bytes), { pieceBytes: 1000, bytesPerSecond: 0 });
+    assert.deepEqual(unpaced, [], '0 sends unpaced');
+    assert.ok(RAW_PIECES.most_bytes_per_second > 0, 'the settings cap an upload');
+  } finally { await door.close(); }
+});
+
+test('a large file kept again under a finished upload answers that finish and sends no piece', async () => {
+  const door = await startFakeDoor();
+  try {
+    const bytes = bytesOf(3 * 1000);
+    const first = await keepInRawPieces(routeOf(door), '/again.bin', bufferSource(bytes), { pieceBytes: 1000, uploadId: 'aa'.repeat(16) });
+    const before = door.calls.length;
+    const again = await keepInRawPieces(routeOf(door), '/again.bin', bufferSource(bytes), { pieceBytes: 1000, uploadId: 'aa'.repeat(16) });
+    assert.equal(again.identity, first.identity);
+    assert.deepEqual(door.calls.slice(before).map(call => call.name), ['write_file_start']);
   } finally { await door.close(); }
 });
 
