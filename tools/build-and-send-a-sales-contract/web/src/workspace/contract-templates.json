@@ -1,0 +1,11 @@
+{
+  "_what": "The messages a private deal starts from (contract-builder-screen.tsx, template picker). The person edits the words on the spot; the placeholders {name}, {offer}, {lines}, {total}, {link}, {payment} and {signature} are filled from the deal. Each template is one row here.",
+  "templates": [
+    {
+      "id": "private-deal",
+      "name": "Private deal",
+      "subject": "Your offer, {name}",
+      "body": "Hi {name},\n\nHere is what we discussed: {offer}.\n\n{lines}\n\nTotal: {total}\n\nRead it, sign it and see the price here: {link}\nPayment: {payment}\n\n{signature}"
+    }
+  ]
+}
