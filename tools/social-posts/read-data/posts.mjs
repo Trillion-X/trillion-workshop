@@ -174,9 +174,9 @@ function taggedLink(href, tags) {
   return html ? address.href.replaceAll('&', '&amp;') : address.href;
 }
 
-// The words with every http(s) link in them tagged, and the tagged links in order.
-export function tagWords(words, tags) {
-  return words.replace(LINK_IN_WORDS, href => taggedLink(href, tags));
+// The words with every http(s) link in them tagged (only those `isTagged` says to tag, when given), and the tagged links in order.
+export function tagWords(words, tags, isTagged = () => true) {
+  return words.replace(LINK_IN_WORDS, href => (isTagged(href) ? taggedLink(href, tags) : href));
 }
 
 export function taggedLinksIn(words, tags) {

@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { tagTheLinksInWords } from '../read-data/tag-the-links.mjs';
-import { wordsOf } from '../read-data/posts.mjs';
+import { tagWords, wordsOf } from '../read-data/posts.mjs';
 
 const reply = { source: 'instagram', medium: 'dm', campaign: 'reply-rule:swing-link', content: 'comment-17' };
 
@@ -46,4 +46,12 @@ test('a call that names no value is refused, naming the value', () => {
   assert.throws(() => tagTheLinksInWords({ source: 'instagram', campaign: 'c', content: 'x', words: 'a' }), /needs medium/);
   assert.throws(() => tagTheLinksInWords({ ...reply, source: '', words: 'a' }), /needs source/);
   assert.throws(() => tagTheLinksInWords({ ...reply }), /needs words/);
+});
+
+test('tagWords tags only the links its predicate names; the others come back as written', () => {
+  const tags = { utm_medium: 'email' };
+  assert.equal(
+    tagWords('Go https://example.test/a and https://other.test/b', tags, href => href.includes('example.test')),
+    'Go https://example.test/a?utm_medium=email and https://other.test/b',
+  );
 });
