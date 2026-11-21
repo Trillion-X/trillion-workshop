@@ -8,9 +8,10 @@ import {createRoot, type Root} from 'react-dom/client';
 import {flushSync} from 'react-dom';
 import {claimNode,releaseNode} from '../one-owner-per-node';
 
-const roots=new WeakMap<HTMLElement,Root>();
+// One registry for every copy of this module (see one-owner-per-node.ts).
+const roots:WeakMap<HTMLElement,Root>=((globalThis as any)[Symbol.for('shared-roots')] ??= new WeakMap());
 /** What tears down a mount's own listeners when its node is released (workspace-controls.tsx sets these). */
-export const disposers=new WeakMap<HTMLElement,()=>void>();
+export const disposers:WeakMap<HTMLElement,()=>void>=((globalThis as any)[Symbol.for('shared-disposers')] ??= new WeakMap());
 let watching=false;
 export function mountSharedContent(node:HTMLElement,content:React.ReactNode){
   node.classList.add('coss-ui');

@@ -31,6 +31,7 @@
 
 import React from 'react';
 import { mountScreenState, releaseScreenState } from '../../../../ui/show/screen-state';
+import { slotOf } from '../../../../ui/show/pane-slots';
 import type { JsonSchema } from '../../../../ui';
 import { readJson, READ_MOST_MS } from './api';
 import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
@@ -68,7 +69,7 @@ export const nameOf = (tool: Descriptor, screen: Screen) => screen.label ?? tool
 /** The line a person reads about the tool: its screen's own plain line; the AI-facing description only when it has none. */
 export const aboutOf = (tool: Descriptor, screen: Screen) => screen.about ?? tool.description ?? tool.job;
 // Lets go of whatever the host drew and empties it (invariant 5).
-const letGo = (element: HTMLElement) => () => { releaseScreenState(element); element.replaceChildren(); };
+const letGo = (element: HTMLElement) => () => { releaseScreenState(element); };
 export const sameInput = (left?: Record<string, unknown>, right?: Record<string, unknown>) => JSON.stringify(left ?? {}) === JSON.stringify(right ?? {});
 
 // The `web-address` screen is drawn by the shared guide, which comes with ./web-address-screen, fetched when one first
@@ -103,7 +104,7 @@ const appEntry: Show = (element, tool, screen, props, screens) => {
   releaseScreenState(element);
   // The tab's own input rides along (an item it was opened at: /use/<tool>/<item>), under the screen's own input.
   let childProps = { ...props, surfaceInput: { ...(props.surfaceInput ?? {}), ...(screen.input ?? {}), tool_id: tool.id } };
-  const unmount = preserveScreenInputs(element, mount(element, childProps), childProps);
+  const unmount = preserveScreenInputs(element, mount(slotOf(element, 'screen'), childProps), childProps);
   const dispose: Unmount = () => unmount();
   dispose.update = next => {
     const updatedProps = { ...next, surfaceInput: { ...(next.surfaceInput ?? {}), ...(screen.input ?? {}), tool_id: tool.id } };
@@ -263,7 +264,7 @@ const moduleScreen: Show = (element, tool, screen, props) => {
         // (tools/ui/show/react-surface-mount).
         try {
           const mountedProps = { ...latestProps, surfaceInput: latestProps.surfaceInput ?? {} };
-          const stop = preserveScreenInputs(element, loaded.mount(element, mountedProps), mountedProps);
+          const stop = preserveScreenInputs(element, loaded.mount(slotOf(element, 'screen'), mountedProps), mountedProps);
           mountedScreen = stop;
           const dispose: Unmount = () => queueMicrotask(() => stop?.());
           unmount = dispose;

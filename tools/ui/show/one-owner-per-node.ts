@@ -25,7 +25,8 @@
 //   there and the new owner can build freely. That ordering is the whole point:
 //   the old owner tears down while its own view of the DOM is still true.
 
-const owners = new WeakMap<HTMLElement, () => void>()
+// One registry for every copy of this module: a screen module is its own bundle with its own copy of this file.
+const owners: WeakMap<HTMLElement, () => void> = ((globalThis as any)[Symbol.for('node-owners')] ??= new WeakMap())
 
 /**
  * Take ownership of `node`, releasing whoever held it first.

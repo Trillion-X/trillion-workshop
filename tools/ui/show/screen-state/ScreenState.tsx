@@ -41,6 +41,7 @@ import { NamedIcon } from '../icon/NamedIcon';
 import { mountSharedContent } from '../coss/shared-content';
 import { notify } from '../coss/notifications';
 import { releaseNode } from '../one-owner-per-node';
+import { existingSlot, slotOf } from '../pane-slots';
 import { keptAnswersServed, onKeptAnswerReplaced, readWithKeptAnswers } from '../request/kept-answers';
 
 /** How the loading rows are laid out, to look like what is coming: a list, a grid of cards, one preview, a form. */
@@ -219,12 +220,13 @@ export function ScreenState({ state }: { state: ScreenStateValue }) {
 
 /** Draws one screen state into `host`, taking the element over from whoever drew there before. */
 export function mountScreenState(host: HTMLElement, state: ScreenStateValue): void {
-  mountSharedContent(host, <ScreenState state={state} />);
+  mountSharedContent(slotOf(host, 'state'), <ScreenState state={state} />);
 }
 
 /** Lets go of the state drawn in `host`, so another writer can draw there. */
 export function releaseScreenState(host: HTMLElement): void {
-  releaseNode(host);
+  const slot = existingSlot(host, 'state');
+  if (slot) releaseNode(slot);
 }
 
 /** The state for a refused read, given the retry to offer (a plan refusal may be an empty state with its own way). */
