@@ -16,6 +16,8 @@ import './members-page.css';
 import '../src/workspace/workspace.css';
 import { remoteRecordsSource, setWorkspaceRecordsSource } from '../src/workspace/records-source';
 import { setRecordsDoor } from '../src/workspace/records-door';
+import * as pageLists from '../src/workspace/list-records';
+import { setListSource } from '../../../keep-lists-of-rows/read-data/list-source';
 import { answerTargets } from '../src/workspace/targets';
 import { installScreenRunner } from '../src/workspace/screen-runner';
 import type { WarmMount } from '../src/workspace/lazy-screen';
@@ -69,6 +71,8 @@ const screens: Record<string, WarmMount> = Object.fromEntries(
 
 setWorkspaceRecordsSource(remoteRecordsSource(recordsTransport(host)));
 setRecordsDoor(doorTransport(host));
+// The lists the page keeps are the records its door answers (list-records.ts), not the person's own database tables.
+setListSource(pageLists);
 await answerTargets();
 // The person's show rules are the `show-rules` record the host's records source answers for them, read as the workspace reads
 // it (src/workspace/main.tsx keepShowRules). They decide every control the sidebar and the arrangement draw (controls.json) and the

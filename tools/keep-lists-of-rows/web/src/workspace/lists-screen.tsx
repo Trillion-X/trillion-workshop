@@ -8,9 +8,10 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. A list's fields are its DATA: nothing here names a list, a field or a field kind; each field's kind row
 //      (src/lists.json field_kinds) says how it draws, how it filters and what a typed value becomes.
-//   2. A list is a table in one of the person's own databases and its rows are that table's rows: every read and change
-//      goes through read-data/table-lists.ts (SQL on the table, the same table the person's AI reads and writes with
-//      SQL); the screen reads the list back after each change instead of guessing it.
+//   2. Every read and change goes through the list source the page picked (read-data/list-source.ts): on the Workshop page a
+//      list is a table in one of the person's own databases (table-lists.ts: SQL on the table, the same table the person's AI
+//      reads and writes with SQL); on a site's members page it is the page's own records (the page's records door). The screen
+//      reads the list back after each change instead of guessing it.
 //   3. Every element is a shared component; this file writes no markup.
 //   4. A computed field (its kind row `carries` a key) is drawn the way any record set draws one (record-set.tsx): a
 //      carried `derive` is a column the formula engine works out from the row's values, a carried `action` is a button
@@ -51,7 +52,8 @@ import { followHighlights, wordsToFind } from '../../../../ui/show/text-highligh
 import { clipboardWords, copyRows, pastePlan, readPastedRows, type PastePlan, type PastedRows } from './row-clipboard';
 
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
-import { changeList, makeList, putRows, readList, readLists, readRows, removeView, saveView, titleLinks, whereOf, type Field, type Kind, type List, type Read, type Row, type RowPut, type View } from '../../../read-data/table-lists';
+import { activeListSource } from '../../../read-data/list-source';
+import type { Field, Kind, List, Read, Row, RowPut, View } from '../../../read-data/table-lists';
 const failed = (what: string) => (error: unknown) => notify(what, { kind: 'error', detail: errorWords(error) });
 const openList = (list: { id: string; label: string }) => openScreenOn('trillion.list', { id: list.id }, list.label);
 
@@ -62,6 +64,7 @@ const LIST_FIELDS: FieldDescriptor[] = [
 ];
 
 export function mountListsScreen(element: HTMLElement): () => void {
+  const { makeList, readLists } = activeListSource();
   let views: ReturnType<typeof mountRecordViews> | null = null;
   const host = document.createElement('div');
   host.className = 'trillion-decisions';
@@ -161,6 +164,7 @@ const typedValue = (kind: Kind | undefined, typed: string): unknown => {
 };
 
 export function mountListScreen(element: HTMLElement, props: { surfaceInput?: Record<string, unknown> }): () => void {
+  const { changeList, putRows, readList, readRows, removeView, saveView, titleLinks, whereOf } = activeListSource();
   // The view it opens on, when the address or the opener names one (`?view=form`); else the way the open saved view says it
   // is drawn (display.as, any view the list offers); else the table.
   const named = typeof props.surfaceInput?.view === 'string' ? props.surfaceInput.view : undefined;
