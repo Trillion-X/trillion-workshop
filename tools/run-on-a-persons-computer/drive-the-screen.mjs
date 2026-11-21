@@ -46,7 +46,7 @@ import { ocrPixels, run } from './observe-visual.mjs';
 import { observationVerdict } from './observation-rules.mjs';
 import { categorySettings, loadCategoryTable, withCategories } from './observation-categories.mjs';
 import { ParkedWrite, writeSettingsFile } from './settings-file.mjs';
-import { decisionSettings, refreshControls, requireAllowed, requireHooks, ruleTools } from 'trillion-workshop/tools/drive-the-screen/read-data/run-decision.mjs';
+import { decisionSettings, refreshControls, requireAllowed, requireHooks, ruleTools } from '../drive-the-screen/read-data/run-decision.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const screenSettings = () => JSON.parse(readFileSync(join(HERE, 'drive-the-screen.json'), 'utf8'));

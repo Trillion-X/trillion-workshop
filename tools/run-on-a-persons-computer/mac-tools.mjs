@@ -42,7 +42,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { confinedEntry } from '../check-a-packages-declared-permissions/read-data/manifest-permissions.mjs';
 import { makeProgramHost, registerHost, startedByApp } from './program-host.mjs';
 import { makeStartupLeases } from './startup-lease.mjs';
-import { decisionSettings, requireHooks } from 'trillion-workshop/tools/drive-the-screen/read-data/run-decision.mjs';
+import { decisionSettings, requireHooks } from '../drive-the-screen/read-data/run-decision.mjs';
 import { nativeOutputUploader, nativeResultOutbox } from './native-result-outbox.mjs';
 import { policedLog } from './log-policy.mjs';
 import { mayRetry, retriable } from './retry-policy.mjs';
