@@ -42,6 +42,7 @@ import { substack } from './publisher-substack.mjs';
 import { reachesSomeone, shaped } from './post-shape.mjs';
 import { slugOf } from './place-variants.mjs';
 import { keepRows, recordsIn, valueAt, withKept } from './records-in.mjs';
+import { formatOf, publishByFormat } from './publish-by-format.mjs';
 
 // The publishers this tool carries, bound by the names place rows use (`adapter`). A place whose adapter is not here
 // is refused in plain words.
@@ -152,8 +153,9 @@ export function publisherFor(place, connection, { held, send = fetch, publishers
   const hosts = place.hosts.map(item => (typeof item === 'string' ? item : URL.canParse(readable(item)) ? new URL(readable(item)).hostname : null)).filter(Boolean);
   const make = publishers[place.adapter];
   if (typeof make !== 'function') throw new Refused(`This tool cannot post to ${place.label} yet.`);
-  const publisher = make({ ...options, fetch: heldFetch({ standIns, hosts, send }) });
-  return { social: createSocial({ backend: publisher }), account: connectedAccountRef({ backend: 'default', platform: place.platform, accountId }) };
+  const publisherOptions = { ...options, fetch: heldFetch({ standIns, hosts, send }) };
+  const publisher = make(publisherOptions);
+  return { social: createSocial({ backend: publisher }), account: connectedAccountRef({ backend: 'default', platform: place.platform, accountId }), options: publisherOptions };
 }
 
 // The words for a failed or unknown destination.
@@ -270,19 +272,23 @@ export async function sendAPost(input = {}, { now = () => new Date(), send = fet
   // The attempt moves on after each send, so a later retry is a new request to the place.
   const attempt = (earlier.attempt ?? 0) + (earlier.status && earlier.status !== 'not sent' ? 1 : 0);
   try {
-    const { social, account } = publisherFor(place, connection, { held: held ?? heldFromDescriptors(place), send, publishers });
+    const { social, account, options } = publisherFor(place, connection, { held: held ?? heldFromDescriptors(place), send, publishers });
     const media = await mediaFor(post, place, mediaUrl, fetchMedia);
+    const byFormat = formatOf(post.format);
+    if (byFormat && byFormat.platform !== place.platform) throw new Refused(`${byFormat.label} posts go to ${byFormat.platform}, not ${place.label}. Nothing was sent.`);
     const chosen = { ...(place.default_settings ?? {}), ...(post.settings_by_platform?.[place.platform] ?? {}) };
     // Until the place answers, the outcome is not known: a send that is cut off answers nothing, and the caller's post
     // still says what it said.
     deliveries[accountId] = { platform: place.platform, label: place.label, status: 'not known', attempt, error: fillWords(settings.not_known_words, { platform: place.label }) };
-    const result = await social.posts.publish({
-      targets: [{ account, ...(Object.keys(chosen).length ? { options: chosen } : {}) }],
-      ...(schedule ? { schedule } : {}),
-      content: { text: wordsOf(post, place, accountId), ...(media ? { media: [media] } : {}) },
-      idempotencyKey: `${post.post_id}:${accountId}:${attempt}`,
-    });
-    deliveries[accountId] = fromOutcome(place, result.outcomes?.[0], attempt);
+    const outcome = byFormat
+      ? await publishByFormat({ format: post.format, options, accountId, mediaUrl, mediaKind: String(post.media?.media_type ?? '').startsWith('image/') ? 'image' : 'video', caption: wordsOf(post, place, accountId), send: options.fetch })
+      : (await social.posts.publish({
+        targets: [{ account, ...(Object.keys(chosen).length ? { options: chosen } : {}) }],
+        ...(schedule ? { schedule } : {}),
+        content: { text: wordsOf(post, place, accountId), ...(media ? { media: [media] } : {}) },
+        idempotencyKey: `${post.post_id}:${accountId}:${attempt}`,
+      })).outcomes?.[0];
+    deliveries[accountId] = fromOutcome(place, outcome, attempt);
   } catch (error) {
     // Refused here before anything left: it failed. Anything else after the send began may have reached the place, so
     // it stays not known (invariant 3).

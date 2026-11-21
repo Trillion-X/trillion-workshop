@@ -1,0 +1,37 @@
+{
+  "what_this_is": "The formats a post can take beyond the SDK's plain publish, as DATA. A post whose value.format names one of these is sent by its steps (read-data/publish-by-format.mjs) after the consent gates and the place checks of tool:send-a-post; every other post keeps the SDK route. A new format is a new entry here and nothing else.",
+  "graph": {
+    "instagram": {
+      "origin": "https://graph.instagram.com/v25.0",
+      "why": "Instagram login (the place row's flavor): the account's own Graph origin, the one the SDK's instagram publisher uses (dist/platforms/instagram.js, apiVersion v25.0)."
+    }
+  },
+  "formats": {
+    "reel": {
+      "platform": "instagram",
+      "label": "Instagram trial reel",
+      "container": {
+        "media_type": "REELS",
+        "video_field": "video_url",
+        "trial_params": { "graduation_strategy": "SS_PERFORMANCE" },
+        "why_trial": "A trial reel goes first to non-followers. SS_PERFORMANCE graduates it to the grid and feed automatically when it performs; MANUAL needs the native app, so the API cannot graduate it. The SDK's publishReel has no trial_params field, so this format's container is made here, with the trial settings."
+      },
+      "wait": { "max_tries": 30, "every_seconds": 5 },
+      "then": "publish",
+      "source": "graph.instagram.com/v25.0 media and media_publish; media_type REELS with trial_params (live proof Nov 21 2026, container 18079563326737976 FINISHED after one status ask)."
+    },
+    "story": {
+      "platform": "instagram",
+      "label": "Instagram story",
+      "container": {
+        "media_type": "STORIES",
+        "video_field": "video_url",
+        "image_field": "image_url"
+      },
+      "wait": { "max_tries": 30, "every_seconds": 5 },
+      "then": "publish",
+      "why_own_wait": "The SDK's publishStory creates the container and makes one status check; an IN_PROGRESS container answers processing and is left for a resume that this send never makes. So a story waits here.",
+      "source": "graph.instagram.com/v25.0 media with media_type STORIES (live proof Nov 21 2026: image and video story containers accepted, video FINISHED after one status ask)."
+    }
+  }
+}
