@@ -29,6 +29,7 @@
 'use client'
 
 import React from 'react';
+import { watchScreenReady } from './screen-ready';
 import { lazyPart } from '../../ui/show/load-later/later';
 import { surfaceInputWithDestination } from './surface-placement';
 import { LayoutActionsContext, LayoutStateContext, LayoutPersistenceIdentityContext, PendingCloseContext } from './screen-arrangement-context'
@@ -423,6 +424,9 @@ export default function ContainerHost({ containerId, placeableSurfaces, publishe
     node.addEventListener(SURFACE_CLOSE_EVENT, onCloseRequest)
     return () => node.removeEventListener(SURFACE_CLOSE_EVENT, onCloseRequest)
   }, [hasContainer])
+
+  // The pane's element exists only once a container is drawn (an earlier branch draws none), so the mark follows that.
+  React.useEffect(() => watchScreenReady(hostRef.current), [hasContainer])
 
   React.useEffect(() => {
     setMountedTabIds((previousMountedTabIds) => {

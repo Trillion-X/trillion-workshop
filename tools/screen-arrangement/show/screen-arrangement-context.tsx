@@ -564,7 +564,9 @@ function LayoutOwnerProviderState({
     // The limited view starts from its own kept copy when there is one (where the person was), else from the full
     // saved arrangement; either way the slot projects it under the limits.
     const limited = limitedPersistenceRef.current
-    void (limited ? readKeptLayoutValue(limited) : Promise.resolve(null)).then(async kept => {
+    // A kept copy the owner cannot give (no computer answers) is the same as none: the limits then apply to the saved
+    // arrangement, so the pane still draws under its limits instead of failing.
+    void (limited ? readKeptLayoutValue(limited).catch(() => null) : Promise.resolve(null)).then(async kept => {
       const source = kept === null ? persistedState : decodeLayoutState(kept, persistedState)
       return { source, reply: await askScreenArrangement({ state: source, operation: 'constrain', constraints }) }
     }).then(({ source, reply }) => {

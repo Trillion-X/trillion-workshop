@@ -149,6 +149,9 @@ export function mountWorkspace(root: HTMLElement, offered: Row[], options: { cat
     surface_collections_graph: lists,
     persist_collection_edits: true,
     visiblePlaceableSurfaceIds: { default: startingScreenIds(surfaces.open_at_start, offered) },
+    // The screens an empty pane opens (the first one this person is offered). A plain list: a { default } value is only
+    // resolved with a when_browsing_surface rule, so the object would read as no screens.
+    empty_container_surface_ids: startingScreenIds(surfaces.open_at_start, offered),
     surface_intent_destination_ref: `destination:${HOST_PACKAGE}`,
     // Unknown saved tabs wait for complete tool pages and conversations; explicitly withdrawn owners close at once.
     tabsOutsideCatalog: 'close',

@@ -84,6 +84,17 @@ const narrowly = new Set<() => Promise<void> | void>();
 let liveOffered = true;
 export function setLiveChangesOffered(offered: boolean): void { liveOffered = offered; }
 let listening = false;
+// The live path answered 404: it has no owner now. The page stops listening for this load; the next load asks again.
+let ownerAbsent = false;
+const ownerAbsentNow = async (): Promise<boolean> => {
+  try {
+    const probe = await fetch(new URL(LIVE.early.path, location.href), { credentials: 'same-origin', headers: { accept: 'text/plain' } });
+    void probe.body?.cancel();
+    return probe.status === 404;
+  } catch {
+    return false;
+  }
+};
 // Changes arrive in bursts (a computer uploading files changes the store many times a second), so the open screens
 // reload at most once every few seconds, one reload at a time, and only while the tab is shown; a hidden tab reloads
 // once when it is shown again. Reading a screen must never be able to keep the person's store busy.
@@ -301,7 +312,7 @@ function stopListening() {
   leaving?.close(1000);
 }
 function listenForStoreChanges() {
-  if (!liveOffered || listening || !storeChanged.size || typeof WebSocket === 'undefined') return;
+  if (!liveOffered || listening || ownerAbsent || !storeChanged.size || typeof WebSocket === 'undefined') return;
   listening = true;
   const generation = ++listenGeneration;
   if (typeof BroadcastChannel !== 'undefined' && canShareTabs()) {
@@ -318,11 +329,23 @@ function listenForStoreChanges() {
       if (generation === listenGeneration && listening && storeChanged.size) listen();
     }, delay);
   };
+  // A socket that never opened is a failed attempt: when the path answers 404 there is no owner (stop for this load);
+  // any other failure backs off as before.
+  const retryUnlessAbsent = async (run: number) => {
+    if (await ownerAbsentNow()) {
+      if (run === listenGeneration) { ownerAbsent = true; stopListening(); }
+      return;
+    }
+    if (run === listenGeneration) retry();
+  };
   const listen = () => {
     if (generation !== listenGeneration || !listening || !storeChanged.size) return;
     retryTimer = null;
+    if (ownerAbsent) { stopListening(); return; }
     const early = (window as unknown as { trillionEarlySocket?: EarlySocket }).trillionEarlySocket;
     (window as unknown as { trillionEarlySocket?: EarlySocket }).trillionEarlySocket = undefined;
+    // The early socket already closed without opening: that attempt failed, so it is judged as one (no second socket).
+    if (early?.socket && early.socket.readyState === WebSocket.CLOSED) { void retryUnlessAbsent(generation); return; }
     const opened = early?.socket && early.socket.readyState <= WebSocket.OPEN ? early.socket : new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/work/live${resumeQuery()}`);
     socket = opened;
     const live = createRequests({ send: text => { if (opened.readyState === WebSocket.OPEN) opened.send(text); } });
@@ -363,6 +386,7 @@ function listenForStoreChanges() {
       if (stableTimer !== null) window.clearTimeout(stableTimer);
       stableTimer = null;
       if (!storeChanged.size) { stopListening(); return; }
+      if (openedAt === null) { void retryUnlessAbsent(generation); return; }
       retry();
     });
   };
