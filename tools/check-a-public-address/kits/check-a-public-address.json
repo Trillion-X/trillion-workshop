@@ -1,0 +1,34 @@
+{
+  "drafted_from": "tool:check-a-public-address's own row (its words, input schema and invoke) and do-work/check-a-public-address.mjs",
+  "start_here": "Say to your AI: \"Check that the public page at this address shows the words I expect and answers status 200.\" It asks the address through the public-address guard and answers ok, the status, the body size, a text excerpt, and the list of expectations that did not hold.",
+  "lists": [],
+  "no_lists_because": "It keeps no row: it asks one address and returns the judgement; the caller decides what to do with it.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-public-address"
+  ],
+  "instructions": [
+    "1. Give it one public HTTPS address; a private, loopback or link-local address is refused before any connection.",
+    "2. Add the expectations you need: status, contains (words that must appear in the body), and json_path with equals for a value in a JSON answer.",
+    "3. Read ok and failed: ok is true when nothing failed; failed names each expectation that did not hold (status, contains:<word>, json_path, equals, or request when the address could not be asked)."
+  ],
+  "worked_examples": [
+    {
+      "title": "A page must show its marker and answer 200",
+      "ask": "Check that the public page at this address answers 200 and contains the marker words.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-public-address",
+            "input": { "url": "https://page.example/", "expect": { "status": 200, "contains": ["application/ld+json"] } }
+          }
+        }
+      },
+      "given": "A public page that answers 200 with a JSON-LD block.",
+      "hands_back": "{\"ok\":true,\"status\":200,\"failed\":[],\"body_bytes\":...,\"excerpt\":\"...\"}"
+    }
+  ]
+}
