@@ -3,7 +3,7 @@
 The reusable parts of the **motion-film format**: a short film made as one HyperFrames HTML composition, timed from its
 recorded voice lines, rendered at two aspects (for example 16:9 and 9:16), with its soundtrack premixed from a cue
 sheet so sound and picture read the same times. Films of this format each copied the same build and mix scripts;
-this folder holds them once, and each film's own choices are a row of the person's `list:settings`
+this folder holds them once, and each film's own choices are a row of the person's settings table
 (`record:setting:motion-film-template~film~<film>`), handed in as `settings_record` and read by `tools/settings` (`request_settings`).
 
 A film of the format has: `build.mjs` (its scenes, events and sound cues: the film's own), `template.html.tpl` (its
