@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Badge, Button, Card, Input, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, mountReactSurface } from '@trillion/ui';
-import { aggregate } from './ledger.mjs';
+import { aggregate } from '../measurement-ledger/read-data/ledger.mjs';
 
 const h = React.createElement;
 const SUMMARY_DIMS = ['provider', 'operation', 'metric', 'evidence_kind', 'metric_kind', 'aggregation', 'unit', 'currency', 'scenario_id', 'source_revision', 'run_id', 'window_start', 'window_end', 'scope'];
