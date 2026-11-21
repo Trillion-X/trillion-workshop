@@ -27,7 +27,7 @@
             "statement_timeout_ms": {
               "type": "integer",
               "minimum": 1,
-              "description": "How long the call's statements may run, in milliseconds: 120000 when absent, at most 598000 (the run ends at 600000). The database itself ends a statement or an open transaction past it, less the time the run has used (read-data/time-limits.json)."
+              "description": "How long the call's statements may run, in milliseconds: 120000 when absent, at most 298000 (the run ends at 300000). The database itself ends a statement or an open transaction past it, less the time the run has used (read-data/time-limits.json)."
             },
             "sql": {
               "type": "string",
@@ -206,7 +206,7 @@
         },
         "invoke": {
           "kind": "container",
-          "max_run_ms": 600000,
+          "max_run_ms": 300000,
           "internet": true,
           "workdir": "/opt/run-sql-in-my-database",
           "stdout": "json",
