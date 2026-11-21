@@ -8,6 +8,7 @@ import { auth, pool, settings } from './auth.mjs';
 import { closeStore, migrateStore } from './store.mjs';
 import { pageAnswer } from './pages.mjs';
 import { relatedOrigins } from './attached-origins.mjs';
+import { appleAppSiteAssociation } from './apple-app-site-association.mjs';
 import { serveInternal } from './internal-verify.mjs';
 import { loopbackCorsHeaders } from './loopback-cors.mjs';
 import { readiness, stopWithoutDropping } from './stop-without-dropping.mjs';
@@ -24,11 +25,11 @@ const server = createServer(async (request, response) => {
   if (url === '/.well-known/webauthn' && request.method === 'GET') {
     return relatedOrigins(settings).then(body => response.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'max-age=300' }).end(JSON.stringify(body)));
   }
-  // The apps that may use this sign-in's passkeys (`settings.apps.webcredentials`: "<team id>.<bundle id>" each), as Apple's associated
-  // domains file on the passkey's own host; an app whose entitlement names this host then offers the passkey in its own window.
-  if (url === '/.well-known/apple-app-site-association' && request.method === 'GET' && settings.apps?.webcredentials?.length) {
-    return response.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'max-age=300' })
-      .end(JSON.stringify({ webcredentials: { apps: settings.apps.webcredentials } }));
+  // Apple's associated domains file on this host (apple-app-site-association.mjs): the apps that may use this sign-in's passkeys
+  // and, with settings.apps.applink_paths, the apps that open this host's links on their own screens.
+  const association = url === '/.well-known/apple-app-site-association' && request.method === 'GET' ? appleAppSiteAssociation(settings.apps) : null;
+  if (association) {
+    return response.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'max-age=300' }).end(JSON.stringify(association));
   }
   // The token endpoint answers a page on a person's own loopback address (loopback-cors.mjs): its preflight here, its POST with the headers.
   const cors = loopbackCorsHeaders(request, settings);
