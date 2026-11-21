@@ -129,6 +129,14 @@
                 "fixed": {
                   "type": "object",
                   "description": "For a recipe that adds rows, with create: column names and the value the server sets on every row the login adds, whatever the login sends (a label every row must carry, a starting status). Not also in columns."
+                },
+                "tables": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[^.\\s]+\\.[^.\\s]+$"
+                  },
+                  "description": "For a recipe that grants per table (may-read-under-row-rules), with create or drop: each table the login may read, as schema.table (consent_proof.clip). Each gets SELECT and its schema USAGE, and nothing else in that schema; use_binding may not be named. A table not named here is not granted."
                 }
               }
             }

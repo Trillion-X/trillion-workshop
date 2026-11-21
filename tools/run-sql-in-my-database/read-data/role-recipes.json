@@ -150,7 +150,18 @@
         "REVOKE SELECT ON ALL TABLES IN SCHEMA public FROM %1$I",
         "REVOKE USAGE ON SCHEMA public FROM %1$I",
         "REVOKE CONNECT ON DATABASE %4$I FROM %1$I"
-      ]
+      ],
+      "_per_table_what": "Named tables (recipe.tables, each schema.table) the login may read in a schema other than public. Only the named table is granted: a schema's other tables may hold rows no row rule guards (a subject's name, a consent record), so no whole-schema SELECT and no default privilege is given here. %11$I is the schema, %12$I the table.",
+      "per_table": {
+        "create": [
+          "GRANT USAGE ON SCHEMA %11$I TO %1$I",
+          "GRANT SELECT ON TABLE %11$I.%12$I TO %1$I"
+        ],
+        "drop": [
+          "REVOKE SELECT ON TABLE %11$I.%12$I FROM %1$I",
+          "REVOKE USAGE ON SCHEMA %11$I FROM %1$I"
+        ]
+      }
     }
   }
 }

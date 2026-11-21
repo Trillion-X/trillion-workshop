@@ -18,6 +18,8 @@
 // with valid_until and no held one mints a login that stops working then, and answers it once; `drop` takes a role away. Every value goes into the recipe's SQL through the server's own format().
 // A recipe that adds rows (`adds_rows`) also takes { table, columns, fixed }: the one table, the columns the login may name and the
 // values the server sets on every row it adds.
+// A recipe that grants per table (`per_table`, may-read-under-row-rules) also takes { tables: ['schema.table', ...] }: each named
+// table, and USAGE on its schema, and nothing else in that schema (a schema's other tables may hold rows no row rule guards).
 // A recipe runs in one transaction unless it says `in_one_transaction: false`: Postgres runs CREATE DATABASE and DROP
 // DATABASE only outside a transaction block, so such a recipe's statements run one by one on the same connection.
 // A recipe that takes a held value (`takes_held_value`) is handed it on descriptor 6 (value_credential_name) and fills it in
@@ -46,6 +48,9 @@ const VERIFIER = /^SCRAM-SHA-256\$(\d+):[A-Za-z0-9+/]+={0,2}\$[A-Za-z0-9+/]{43}=
 const RECIPES = JSON.parse(readFileSync(new URL('../read-data/role-recipes.json', import.meta.url), 'utf8')).recipes;
 
 const rowAddingRecipes = Object.keys(RECIPES).filter(name => RECIPES[name].adds_rows === true);
+const perTableRecipes = Object.keys(RECIPES).filter(name => RECIPES[name].per_table !== undefined);
+// A named table is schema.table: two identifiers, each without a dot or a space.
+const TABLE_NAME = /^[^.\s]+\.[^.\s]+$/;
 
 const held = descriptor => {
   try { return readFileSync(descriptor, 'utf8').trim(); } catch { return ''; }
@@ -88,7 +93,7 @@ export function shapeOf(input) {
   const hasRecipe = Object.hasOwn(asked, 'recipe');
   if (hasSql + hasRecipe > 1) throw new Error('Give one of: sql (with params), or recipe.');
   if (hasRecipe) {
-    const { name, action, role, valid_until: validUntil, password_verifier: verifier, limits = {}, table, columns, fixed } = asked.recipe ?? {};
+    const { name, action, role, valid_until: validUntil, password_verifier: verifier, limits = {}, table, columns, fixed, tables } = asked.recipe ?? {};
     if (!Object.hasOwn(RECIPES, name ?? '')) throw new Error(`recipe.name must be one of ${Object.keys(RECIPES).join(', ')}.`);
     if (!['create', 'drop'].includes(action)) throw new Error('recipe.action must be create or drop.');
     if (role !== undefined && (typeof role !== 'string' || role === '')) throw new Error('recipe.role must be a role name.');
@@ -117,7 +122,10 @@ export function shapeOf(input) {
         for (const column of Object.keys(fixed ?? {})) if (columns.includes(column)) throw new Error(`recipe.fixed.${column} is also in recipe.columns: a column is the login's to name or the server's to set, not both.`);
       } else if (columns !== undefined || fixed !== undefined) throw new Error('recipe.columns and recipe.fixed are given when the rights are made: give them with create.');
     }
-    return { kind: 'recipe', name, action, role, validUntil, verifier, limits, table, columns, fixed: fixed ?? {} };
+    if (tables !== undefined && RECIPES[name].per_table === undefined) throw new Error(`recipe.tables is for a recipe that grants per table (${perTableRecipes.join(', ')}), not ${name}.`);
+    if (tables !== undefined && (!Array.isArray(tables) || tables.some(named => !TABLE_NAME.test(named ?? '')))) throw new Error('recipe.tables must be a list of schema.table names, one each.');
+    if (tables?.some(named => named.startsWith('use_binding.'))) throw new Error('recipe.tables may not name the use_binding schema: its keys and claims are the login\'s to call into, never to read.');
+    return { kind: 'recipe', name, action, role, validUntil, verifier, limits, table, columns, fixed: fixed ?? {}, tables: tables ?? [] };
   }
   if (hasSql) {
     if (typeof asked.sql !== 'string' || asked.sql.trim() === '') throw new Error('sql must be a statement as text.');
@@ -184,8 +192,11 @@ const runRecipe = async (client, shape, connection, roleConnection, heldValue) =
     // JSON text, %9$I the trigger's name; any other recipe is filled with nulls there. (%6$ is the limit's value in the limit statements below.)
     const { rows: [{ listed }] } = await runOne(client, "SELECT string_agg(format('%I', each), ', ') AS listed FROM unnest($1::text[]) AS columns(each)", [shape.columns ?? null]);
     const rule = recipe.adds_rows === true ? JSON.stringify(shape.fixed) : null;
-    for (const template of recipe[shape.action]) {
-      const { rows: [{ statement }] } = await runOne(client, "SELECT format($1, $2::text, $3::text, $4::text, $5::text, $6::text, $7::text, $8::text, $9::text, left('rule_' || $2::text, 63), $10::text) AS statement", [template, login.role, login.password, login.validUntil, database, roleDatabase, shape.table ?? null, listed, rule, heldValue || null]);
+    // A recipe that grants per table runs its per_table statements once for each named table, %11$I its schema and %12$I its table.
+    const steps = [...recipe[shape.action].map(template => [template, null, null]),
+      ...(recipe.per_table?.[shape.action] ?? []).flatMap(template => shape.tables.map(named => [template, ...named.split('.')]))];
+    for (const [template, schema, tableName] of steps) {
+      const { rows: [{ statement }] } = await runOne(client, "SELECT format($1, $2::text, $3::text, $4::text, $5::text, $6::text, $7::text, $8::text, $9::text, left('rule_' || $2::text, 63), $10::text, $11::text, $12::text) AS statement", [template, login.role, login.password, login.validUntil, database, roleDatabase, shape.table ?? null, listed, rule, heldValue || null, schema, tableName]);
       await runOne(client, statement);
     }
     for (const [limit, value] of Object.entries(shape.limits ?? {})) {
