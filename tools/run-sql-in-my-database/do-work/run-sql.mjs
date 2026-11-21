@@ -86,6 +86,12 @@ const runUnderTicket = async (client, shape, ticket) => {
   try {
     await runOne(client, 'SELECT * FROM use_binding.claim_use($1)', [ticket]);
     const answer = await runOne(client, shape.sql, shape.params);
+    // A named fence table is read in the same transaction as the claim: whether it has row rules, the purpose this use claimed,
+    // and whether the login may read it at all (use_binding.fenced, role recipe may-read-under-row-rules).
+    if (shape.fence !== undefined) {
+      const { rows: [fence] } = await runOne(client, 'SELECT fenced, claimed_purpose, allowed FROM use_binding.fenced($1::regclass)', [shape.fence]);
+      answer.fence = fence;
+    }
     await runOne(client, 'COMMIT');
     return answer;
   } catch (error) {
@@ -97,6 +103,10 @@ const runUnderTicket = async (client, shape, ticket) => {
 // The request's two shapes: { sql, params? } and { recipe }. Anything else is refused with its reason.
 export function shapeOf(input) {
   const asked = input !== null && typeof input === 'object' && !Array.isArray(input) ? input : {};
+  // The names the request gives are text. An object or a number is refused in plain words, not read as absent; null is absent (a workflow binds an input not given as null).
+  for (const name of ['credential_name', 'role_credential_name', 'value_credential_name', 'database']) {
+    if (asked[name] !== undefined && asked[name] !== null && typeof asked[name] !== 'string') throw new Error(`${name} must be a name, as text.`);
+  }
   const hasSql = Object.hasOwn(asked, 'sql');
   const hasRecipe = Object.hasOwn(asked, 'recipe');
   if (hasSql + hasRecipe > 1) throw new Error('Give one of: sql (with params), or recipe.');
@@ -140,7 +150,8 @@ export function shapeOf(input) {
   if (hasSql) {
     if (typeof asked.sql !== 'string' || asked.sql.trim() === '') throw new Error('sql must be a statement as text.');
     if (asked.params !== undefined && !Array.isArray(asked.params)) throw new Error('params must be a list of values.');
-    return { kind: 'sql', sql: asked.sql, params: asked.params ?? [], use: usedOf(asked.use) };
+    if (asked.fence !== undefined && (typeof asked.fence !== 'string' || !TABLE_NAME.test(asked.fence) && !/^[A-Za-z_][A-Za-z0-9_]*$/.test(asked.fence))) throw new Error('fence must be a table name, as schema.table or table.');
+    return { kind: 'sql', sql: asked.sql, params: asked.params ?? [], use: usedOf(asked.use), fence: asked.fence };
   }
   throw new Error('Give sql (with params), or recipe.');
 }
@@ -246,6 +257,7 @@ const runRecipe = async (client, shape, connection, roleConnection, heldValue) =
 export async function runSql({ connection, roleConnection = '', ticket = '', heldValue = '', input, usedMs, connect = connectTo }) {
   if (typeof connection !== 'string' || connection === '') throw new Error('No database connection was handed to this run. Hold the connection string under the name credential_name gives.');
   const shape = shapeOf(input);
+  if (shape.kind === 'sql' && shape.fence !== undefined && !shape.use) throw new Error('fence is answered under a use: give use with it, so the claim the fence reports is the run\'s own.');
   if (shape.kind === 'sql' && shape.use && !ticket) throw new Error("A use is bound only by the engine's ticket: give database, so the computer opens it with the database's reader login and hands this run the ticket of its use.");
   if (shape.kind === 'recipe') heldValueOf(shape, heldValue);
   const client = await connect(connection, timeLimitOf(input.statement_timeout_ms, usedMs));

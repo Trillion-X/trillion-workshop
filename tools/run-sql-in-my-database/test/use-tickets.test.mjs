@@ -218,3 +218,14 @@ test('a policy that calls a SECURITY INVOKER function is refused: the login woul
   await assert.rejects(runSql({ connection: owner, heldValue: KEY, input: { recipe: { name: 'may-read-under-row-rules', action: 'create', role: READER, tables: ['gate_side.plain'] } } }), /SECURITY INVOKER/);
   await assert.rejects(under(publish, 'SELECT id FROM gate_side.plain'), /permission denied for table plain/, 'nothing was granted by the refused create: the login reads the table no more than before');
 });
+
+test('a run under a use can name a fence table: the answer says whether it is fenced, the purpose claimed and whether the login may read it', async () => {
+  await runSql({ connection: owner, heldValue: KEY, input: { recipe: { name: 'may-read-under-row-rules', action: 'create', role: READER, tables: ['gate_side.gated'] } } });
+  const fenced = await runSql({ connection: reader, ticket: ticketOf(publish), input: { database: DATABASE, sql: 'SELECT id FROM gate_side.gated ORDER BY id', use: publish, fence: 'gate_side.gated' } });
+  assert.deepEqual(fenced.fence, { fenced: true, claimed_purpose: 'publish', allowed: true });
+  assert.deepEqual(fenced.rows.map(row => row.id), ['clip-publish']);
+  const other = await runSql({ connection: reader, ticket: ticketOf(coach), input: { database: DATABASE, sql: 'SELECT 1 AS one', use: coach, fence: 'gate_side.fence' } });
+  assert.deepEqual(other.fence, { fenced: false, claimed_purpose: 'coach/review', allowed: false }, 'an unfenced table not granted: fenced false, not readable');
+  await assert.rejects(runSql({ connection: reader, ticket: ticketOf(publish), input: { database: DATABASE, sql: 'SELECT 1', fence: 'gate_side.gated' } }), /fence is answered under a use/);
+  await assert.rejects(runSql({ connection: reader, ticket: ticketOf(publish), input: { database: DATABASE, sql: 'SELECT 1', use: publish, fence: 'no-such.table' } }), /does not exist|permission denied|relation/);
+});

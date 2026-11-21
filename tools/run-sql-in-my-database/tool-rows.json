@@ -57,6 +57,11 @@
                 }
               }
             },
+            "fence": {
+              "type": "string",
+              "minLength": 1,
+              "description": "With use: the table whose fence to report, as schema.table (or table). The answer then carries fence: {fenced, claimed_purpose, allowed}: whether the table has row rules forced on, the purpose this use claimed (null if none), and whether the login may read it. Given with use only."
+            },
             "role_credential_name": {
               "type": "string",
               "description": "A recipe's standing login: the held name of its connection string, whose role and password the recipe makes or drops."

@@ -63,3 +63,11 @@ test('a use must be exactly purpose and surface as text', () => {
   assert.deepEqual(shapeOf({ sql: 'select 1', use: { purpose: 'manage', surface: '' } }).use, { purpose: 'manage', surface: '' });
   assert.equal(shapeOf({ sql: 'select 1' }).use, undefined);
 });
+
+test('a name the request gives as an object or a number is refused in plain words; null is absent', () => {
+  assert.throws(() => shapeOf({ sql: 'select 1', database: { name: 'shop_for_who_runs_it' } }), /database must be a name, as text\./);
+  assert.throws(() => shapeOf({ sql: 'select 1', credential_name: { held: 'x' } }), /credential_name must be a name, as text\./);
+  assert.throws(() => shapeOf({ recipe: { name: 'own-database', action: 'drop' }, role_credential_name: 7 }), /role_credential_name must be a name, as text\./);
+  assert.throws(() => shapeOf({ sql: 'select 1', value_credential_name: ['x'] }), /value_credential_name must be a name, as text\./);
+  assert.deepEqual(shapeOf({ sql: 'select 1', database: null, credential_name: null }).sql, 'select 1');
+});
