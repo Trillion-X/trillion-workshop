@@ -18,7 +18,7 @@ assert.ok(python, 'Run the owned Python test-environment setup and supply its ve
 test('each row runs on the person\'s computer and names a script that exists', () => {
   assert.deepEqual(rows.map(row => row.id), ['tool:say-lines-in-a-candidate-voice-model', 'tool:score-how-alike-lines-sound-to-a-reference-voice', 'tool:render-music-note-events-to-a-test-wav',
     'tool:say-a-narration-line-in-a-kokoro-voice', 'tool:say-a-narration-line-in-a-cloned-voice-model', 'tool:measure-narration-takes',
-    'tool:make-and-measure-every-voice-take-of-a-line']);
+    'tool:make-and-measure-every-voice-take-of-a-line', 'tool:check-a-spoken-line-reads-back']);
   for (const row of rows) {
     assert.equal(row.invoke.kind, 'on-your-computer');
     const script = row.invoke.run.match(/tools\/compare-voice-and-music-models\/(do-work\/\w+\.(?:py|sh))/)[1];

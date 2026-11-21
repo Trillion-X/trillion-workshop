@@ -1,0 +1,34 @@
+{
+  "drafted_from": "tool row in tools/compare-voice-and-music-models/tool-rows.json, do-work/read_back_check.py and test/test_read_back_check.py",
+  "start_here": "Say to your AI: \"Check that the words heard back from line.wav read back every word of my script in line.txt.\"",
+  "lists": [],
+  "no_lists_because": "It keeps no list: it takes one script line and the words a Whisper model heard from its clip, and prints whether every word reads back in order.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-spoken-line-reads-back",
+    "tool:hear-sources"
+  ],
+  "instructions": [
+    "1. Hear the clip with tool:hear-sources and keep its answer as heard.json (the list of words it returned).",
+    "2. Say the check in start_here. Your AI reads the row with tools:list {tool: \"tool:check-a-spoken-line-reads-back\"} and runs the command in run with the script line and heard.json.",
+    "3. Read the result: ok true means every script word was heard back in order; missing lists the words that were not."
+  ],
+  "worked_examples": [
+    {
+      "title": "One spoken line checked against its script",
+      "ask": "Did every word of my line read back?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:check-a-spoken-line-reads-back"
+          }
+        }
+      },
+      "given": "Read from tools/compare-voice-and-music-models/do-work/read_back_check.py. Run: python3 -I tools/compare-voice-and-music-models/do-work/read_back_check.py \"watch it slowed down.\" heard.json",
+      "hands_back": "{\"result\":{\"ok\":false,\"script_words\":4,\"missing\":[\"slowed\"]}}: a missing word fails the line; extra heard words do not. An unreadable heard file answers {\"error\": \"...\"}."
+    }
+  ]
+}
