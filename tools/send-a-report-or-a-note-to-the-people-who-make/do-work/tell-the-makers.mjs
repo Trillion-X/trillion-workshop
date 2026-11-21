@@ -53,7 +53,7 @@ async function connectTo(connection) {
   // A run the engine sandboxes reaches its database by address through the run's own proxy (the run-sql tool's file, mounted beside this one).
   const { default: pg } = await import('pg');
   const proxy = process.env.HTTPS_PROXY;
-  const stream = proxy ? (await import('../run-sql/do-work/through-the-run-proxy.mjs')).throughProxy(proxy) : undefined;
+  const stream = proxy ? (await import('../../run-sql-in-my-database/do-work/through-the-run-proxy.mjs')).throughProxy(proxy) : undefined;
   const client = new pg.Client({ connectionString: connection, ...(stream ? { stream } : {}) });
   await client.connect();
   return client;
