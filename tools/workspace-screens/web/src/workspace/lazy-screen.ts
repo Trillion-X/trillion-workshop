@@ -100,7 +100,7 @@ export function preserveScreenInputs(element: HTMLElement, stop: Unmount, props:
 }
 
 /** The failed state of a screen whose code could not be had, in the loader's words (tools/ui/show/load-later). */
-function codeFailedState(error: unknown, retry: () => void): FailedScreenState {
+export function codeFailedState(error: unknown, retry: () => void): FailedScreenState {
   const notice = codeFailureNotice(error instanceof CodeLoadFailure ? error.reason : 'broken', retry);
   return { status: 'failed', title: 'This screen could not open', description: `${notice.why}. ${notice.then}`, retry: notice.action };
 }

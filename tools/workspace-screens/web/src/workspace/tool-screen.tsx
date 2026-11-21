@@ -48,7 +48,8 @@ import { goTo } from './open-screen';
 import type { ToolInputSchema } from './tool-inputs';
 import { onStoreChange } from './store-changes';
 import { toolScreenRequest } from './tool-screen-requests.mjs';
-import { preserveScreenInputs, type ScreenProps, type Unmount } from './lazy-screen';
+import { codeFailedState, preserveScreenInputs, type ScreenProps, type Unmount } from './lazy-screen';
+import { loadCode } from '../../../../ui/show/load-later/load-code';
 import { mountAddressedRenderer } from './addressed-renderer.mjs';
 import { nativeResourcePresentationHost, resourcePresentationHost } from './resource-presentation-host.mjs';
 import type { ResourcePresentationBinding } from './addressed-record-set';
@@ -76,15 +77,19 @@ const webAddressShow: Show = (element, tool, screen, props, screens) => {
   let gone = false;
   let latest = props;
   let shown: Unmount | null = null;
-  import('./web-address-screen').then(
-    module => {
-      if (gone) return;
-      releaseScreenState(element);
-      shown = module.webAddress(element, tool, screen, latest, screens);
-    },
-    error => { if (!gone) mountScreenState(element, failedState(error, () => location.reload(), `${nameOf(tool, screen)} could not open`)); },
-  );
-  mountScreenState(element, { status: 'loading', label: 'Loading the tool', layout: 'rows' });
+  // Try again asks for the code again in this pane alone (the loader mends the fetch; see lazy-screen.ts).
+  const open = () => {
+    mountScreenState(element, { status: 'loading', label: 'Loading the tool', layout: 'rows' });
+    loadCode(() => import('./web-address-screen'), module => module).then(
+      module => {
+        if (gone) return;
+        releaseScreenState(element);
+        shown = module.webAddress(element, tool, screen, latest, screens);
+      },
+      error => { if (!gone) mountScreenState(element, codeFailedState(error, open)); },
+    );
+  };
+  open();
   const dispose: Unmount = () => { gone = true; shown?.(); };
   dispose.update = next => { latest = next; shown?.update?.(next); };
   return dispose;
@@ -121,16 +126,19 @@ const partsScreen: Show = (element, tool, screen, props) => {
   let gone = false;
   let latest = props;
   let shown: PartsScreenHandle | null = null;
-  mountScreenState(element, { status: 'loading', label: `Opening ${nameOf(tool, screen)}`, layout: 'rows' });
-  import('./parts-screen').then(
-    module => {
-      if (gone) return;
-      releaseScreenState(element);
-      shown = module.mountPartsScreen(element, { requests: screen.requests ?? {}, call: (name, input) => declaredCall(screen.requests, latest.surfaceInput ?? {}, name, input) });
-      shown.show(filledSpec(screen.spec ?? { root: null, elements: {} }, latest.surfaceInput?.filled_inputs));
-    },
-    error => { if (!gone) mountScreenState(element, failedState(error, () => location.reload(), `${nameOf(tool, screen)} could not open`)); },
-  );
+  const open = () => {
+    mountScreenState(element, { status: 'loading', label: `Opening ${nameOf(tool, screen)}`, layout: 'rows' });
+    loadCode(() => import('./parts-screen'), module => module).then(
+      module => {
+        if (gone) return;
+        releaseScreenState(element);
+        shown = module.mountPartsScreen(element, { requests: screen.requests ?? {}, call: (name, input) => declaredCall(screen.requests, latest.surfaceInput ?? {}, name, input, tool.id) });
+        shown.show(filledSpec(screen.spec ?? { root: null, elements: {} }, latest.surfaceInput?.filled_inputs));
+      },
+      error => { if (!gone) mountScreenState(element, codeFailedState(error, open)); },
+    );
+  };
+  open();
   const dispose: Unmount = () => { gone = true; shown?.(); };
   dispose.update = next => { latest = next; };
   return dispose;
@@ -211,13 +219,20 @@ const moduleScreen: Show = (element, tool, screen, props) => {
     : spec.package && spec.entry ? screenModuleSpecifier({ package: spec.package, entry: spec.entry }) : '';
   if (!address) return unavailable(element);
   if (screen.resource_binding) {
-    mountScreenState(element, { status: 'loading', label: `Opening ${nameOf(tool, screen)}`, layout: 'rows' });
-    return mountAddressedRenderer({ element, binding: screen.resource_binding, props,
-      host: resourcePresentationHost(nativeResourcePresentationHost({ readJson })),
-      resolveRenderer: async () => import(address),
-      beforeMount: () => releaseScreenState(element),
-      onError: (error: unknown) => mountScreenState(element, failedState(error, () => location.reload(), `${nameOf(tool, screen)} could not open`)),
-    });
+    // Try again opens this pane's renderer again; the one it replaces is closed first.
+    let closeRenderer: () => void = letGo(element);
+    let closed = false;
+    const start = () => {
+      mountScreenState(element, { status: 'loading', label: `Opening ${nameOf(tool, screen)}`, layout: 'rows' });
+      closeRenderer = mountAddressedRenderer({ element, binding: screen.resource_binding!, props,
+        host: resourcePresentationHost(nativeResourcePresentationHost({ readJson })),
+        resolveRenderer: () => loadCode(() => import(address), module => module),
+        beforeMount: () => releaseScreenState(element),
+        onError: (error: unknown) => mountScreenState(element, failedState(error, start, `${nameOf(tool, screen)} could not open`)),
+      });
+    };
+    start();
+    return () => { if (!closed) { closed = true; closeRenderer(); } };
   }
   let unmount: Unmount = letGo(element);
   let mountedScreen: Unmount | null = null;
@@ -232,29 +247,33 @@ const moduleScreen: Show = (element, tool, screen, props) => {
     mountScreenState(element, failedState(Object.assign(new Error(failureWords.absent), { status: 404, absent: true }), () => location.reload(), `${nameOf(tool, screen)} could not open`));
     return () => { gone = true; unmount(); };
   }
-  mountScreenState(element, { status: 'loading', label: `Opening ${nameOf(tool, screen)}`, layout: 'rows' });
-  // A browser keeps a module that failed to arrive as failed for the rest of the page, so trying again reloads it.
-  import(address).then(
-    (loaded: { mount?: Mount }) => {
-      if (gone) return;
-      if (typeof loaded.mount !== 'function') { unmount = unavailable(element); return; }
-      releaseScreenState(element);
-      // A tool's own code that throws as it draws fails in its own pane, with a way to try again; the page and every
-      // other pane go on.
-      // A module is let go while the page holding it is itself drawing (a list switching away from Draw), when React
-      // cannot take the module's own root down; it goes as soon as that drawing is done, as shared screens do
-      // (tools/ui/show/react-surface-mount).
-      try {
-        const mountedProps = { ...latestProps, surfaceInput: latestProps.surfaceInput ?? {} };
-        const stop = preserveScreenInputs(element, loaded.mount(element, mountedProps), mountedProps);
-        mountedScreen = stop;
-        const dispose: Unmount = () => queueMicrotask(() => stop?.());
-        unmount = dispose;
-      }
-      catch (error) { mountScreenState(element, failedState(error, () => location.reload(), `${nameOf(tool, screen)} could not open`)); }
-    },
-    error => { if (!gone) mountScreenState(element, failedState(error, () => location.reload(), `${nameOf(tool, screen)} could not open`)); },
-  );
+  // Opens the module in this pane. A failed fetch is mended by the loader at a new address (lazy-screen.ts), and Try
+  // again opens it here again: the page and the other panes are not reloaded.
+  const open = () => {
+    mountScreenState(element, { status: 'loading', label: `Opening ${nameOf(tool, screen)}`, layout: 'rows' });
+    loadCode(() => import(address), (loaded: { mount?: Mount }) => loaded).then(
+      loaded => {
+        if (gone) return;
+        if (typeof loaded.mount !== 'function') { unmount = unavailable(element); return; }
+        releaseScreenState(element);
+        // A tool's own code that throws as it draws fails in its own pane, with a way to try again; the page and every
+        // other pane go on.
+        // A module is let go while the page holding it is itself drawing (a list switching away from Draw), when React
+        // cannot take the module's own root down; it goes as soon as that drawing is done, as shared screens do
+        // (tools/ui/show/react-surface-mount).
+        try {
+          const mountedProps = { ...latestProps, surfaceInput: latestProps.surfaceInput ?? {} };
+          const stop = preserveScreenInputs(element, loaded.mount(element, mountedProps), mountedProps);
+          mountedScreen = stop;
+          const dispose: Unmount = () => queueMicrotask(() => stop?.());
+          unmount = dispose;
+        }
+        catch (error) { mountScreenState(element, failedState(error, open, `${nameOf(tool, screen)} could not open`)); }
+      },
+      error => { if (!gone) mountScreenState(element, codeFailedState(error, open)); },
+    );
+  };
+  open();
   const dispose: Unmount = () => { gone = true; unmount(); };
   dispose.update = given => {
     const next = withScreenInput(given);
