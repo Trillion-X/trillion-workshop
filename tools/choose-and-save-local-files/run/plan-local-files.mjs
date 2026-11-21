@@ -17,8 +17,8 @@
 //   has_bytes }]), path? (save: where the copy goes) }.
 // Refuses an operation it does not know, a picker reply that is not an object, and whatever the part refuses (a file
 // not of an accepted type, a name with a slash, a folder that is not a full path, more than 16 MB to save).
-import { chooseLocalFiles } from './do-work/choose-local-files.ts';
-import { saveLocalFileCopy } from './do-work/save-local-file-copy.ts';
+import { chooseLocalFiles } from '../do-work/choose-local-files.ts';
+import { saveLocalFileCopy } from '../do-work/save-local-file-copy.ts';
 import { answerWith, kept } from './requests-kept-here.mjs';
 
 // The local.files reply envelope: { payload: bytes of the JSON reply }.
