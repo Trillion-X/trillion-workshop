@@ -16,7 +16,8 @@
 // one of the Worker's secrets, named in the env the way its file is named in capitals (mail-link-key is env.MAIL_LINK_KEY).
 // GET /readyz answers 200 once the Worker is loaded and the database answers, 503 while this process drains (SIGTERM).
 import { createServer } from 'node:http';
-import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
+import { connect } from 'node:net';
 import { extname, join, normalize, resolve } from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import pg from 'pg';
@@ -44,6 +45,9 @@ void WorkerEntrypoint;
 const worker = (await import(pathToFileURL(runnable).href)).default;
 
 const pool = new pg.Pool({ connectionString: held('site-database'), max: 8 });
+// An idle connection the database ends (a restart, or a terminate) is dropped from the pool, which opens a new one when asked; without
+// this listener the pool's 'error' would end the program (Nov 21 2026 1:32 PM CST, a 57P01 took a served site down).
+pool.on('error', error => console.error(JSON.stringify({ database_connection_lost: String(error?.message ?? error).slice(0, 300), code: error?.code })));
 // D1 had sqlite_master; the Worker asks it whether a table exists. The same question, asked of this database.
 await pool.query(`CREATE OR REPLACE VIEW sqlite_master AS SELECT 'table'::text AS type, table_name::text AS name FROM information_schema.tables WHERE table_schema = current_schema()`);
 
@@ -134,9 +138,20 @@ const server = createServer(async (req, res) => {
   }
 });
 // SOCKET (a comma-separated list of unix socket paths, as a computer's web server sends a site's program its requests) or PORT
-// on loopback. Every address answers the same requests.
-const servers = process.env.SOCKET
-  ? process.env.SOCKET.split(',').map(path => path.trim()).filter(Boolean).map((path, index) => (index ? createServer(server.listeners('request')[0]) : server).listen(path, () => console.log(JSON.stringify({ serving: path }))))
+// on loopback. Every address answers the same requests. A socket file no program answers on is what a crashed run leaves, and the
+// unit keeps its folder across restarts, so it is removed first; a file some program still answers on is left, and listen refuses.
+const answeredOn = path => new Promise(done => {
+  if (!existsSync(path)) return done(false);
+  const probe = connect(path);
+  probe.once('connect', () => { probe.destroy(); done(true); });
+  probe.once('error', error => done(error.code !== 'ECONNREFUSED'));
+});
+const socketPaths = (process.env.SOCKET ?? '').split(',').map(path => path.trim()).filter(Boolean);
+for (const path of socketPaths) {
+  if (existsSync(path) && !(await answeredOn(path))) { unlinkSync(path); console.log(JSON.stringify({ removed_dead_socket: path })); }
+}
+const servers = socketPaths.length
+  ? socketPaths.map((path, index) => (index ? createServer(server.listeners('request')[0]) : server).listen(path, () => console.log(JSON.stringify({ serving: path }))))
   : [server.listen(Number(process.env.PORT ?? 8787), '127.0.0.1', () => console.log(JSON.stringify({ serving: Number(process.env.PORT ?? 8787) })))];
 process.on('SIGTERM', () => {
   draining = true;
