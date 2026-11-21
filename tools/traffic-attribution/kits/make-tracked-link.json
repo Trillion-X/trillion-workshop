@@ -1,6 +1,6 @@
 {
   "drafted_from": "tool:make-tracked-link's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Make a tracked link with UTM fields for a post, ad, email or bio, so visits and sales can be traced to it\", with {\"destination\":\"https://shop.example/offer\",\"project\":\"spring-launch\",\"source\":\"instagram\",\"campaign\":\"reel-12\"}. It runs tool:make-tracked-link and answers {\"link\":\"https://shop.example/offer?bf_project=spring-launch&utm_source=instagram&utm_campaign=reel-12\",\"fields\":{\"bf_project\":\"spring-launch\",\"utm_source\":\"instagram\",\"utm_campaign\":\"reel-12\"}}",
+  "start_here": "Say to your AI: \"Make a tracked link with UTM fields for a post, ad, email or bio, so visits and sales can be traced to it\", with {\"destination\":\"https://shop.example/offer\",\"project\":\"spring-launch\",\"source\":\"instagram\",\"campaign\":\"reel-12\"}. It runs tool:make-tracked-link and answers {\"link\":\"https://shop.example/offer?bf_project=spring-launch&utm_source=instagram&utm_campaign=reel-12\",\"fields\":{\"bf_project\":\"spring-launch\",\"utm_source\":\"instagram\",\"utm_campaign\":\"reel-12\"}} With go_base set to the client site's address it also answers the touch row for journey_touches and the short /go/ link.",
   "lists": [],
   "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
@@ -10,7 +10,8 @@
   "instructions": [
     "1. Say to your AI: \"Make a tracked link with UTM fields for a post, ad, email or bio, so visits and sales can be traced to it\", and give it destination (The web page the link opens); project (Your name for what is being promoted, letters, numbers, dots, dashes or underscores); source (Where the link is posted, like instagram or newsletter); campaign.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:make-tracked-link and its input (the worked example shows one).",
-    "3. Read what comes back: Adds the project, source and campaign (and optionally the medium and a content tag for one post) to a web address as UTM fields, replacing any already there."
+    "3. Read what comes back: Adds the project, source and campaign (and optionally the medium and a content tag for one post) to a web address as UTM fields, replacing any already there.",
+    "4. For a visitor to be followed from the post to a booking, a checkout and a sale, give it go_base too (the client site's address, like https://site.example). The answer then also carries touch and short_link. The tool keeps no row: write touch into the pursuit's journey_touches table yourself (tool:run-sql-in-my-database; read-data/journey-steps.sql makes the table), and post short_link as the link. A visitor who opens short_link is sent on to the destination with the UTM fields and a touch id, and each click is kept as a step."
   ],
   "worked_examples": [
     {

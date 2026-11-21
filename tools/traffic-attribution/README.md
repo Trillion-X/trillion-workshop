@@ -19,14 +19,42 @@ Traffic measurement under a funnel: tracked links with UTM fields, visitors, lea
 | `read-data/map-fact-fields.ts` | `mapFactFields`: a fact's fields renamed for an outside venue. |
 | `do-work/observe-traffic.ts` | Visit and conversion facts and `groupObserverFactsByProject`, which folds them into one row per first-touch visitor with outcomes and value. |
 | `do-work/derive-projection.ts` | `deriveProjection`, `configForProject`, `availableDimensionIds`, `aggregateHasRevenue`: the breakdown's columns (visitors, one count and rate per outcome, revenue when value flows). |
-| `do-work/make-a-tracked-link.mjs` | The link tool's command: `{ destination, project, source, campaign, medium?, content? }`. |
+| `do-work/make-a-tracked-link.mjs` | The link tool's command: `{ destination, project, source, campaign, medium?, content?, go_base? }`. With `go_base` it also answers `touch` and `short_link` (see the journey kit). |
+| `do-work/journey.mjs` | The journey kit's functions for a client site's server: the visitor cookie, the source a page keeps, the `/go/` redirect, checkout fields, the booking and sale steps, the touch row and short link. Every name comes from `read-data/journey.json`. |
+| `read-data/journey.json` | DATA: the visitor cookie's settings, the kept URL parameters, the step kinds and what each means, how a step joins to a person, Stripe's limits for checkout fields, and the TidyCal redirect's names. |
+| `read-data/journey-steps.sql` | The tables `journey_touches` and `journey_steps` and the views `journey_email_visitor`, `journey_resolved_steps`, `journey_first_touch` and `funnel_by_source`, for a pursuit's `_for_who_runs_it` database. Idempotent: it applies again without change. |
 | `do-work/break-down-visits-and-sales.mjs` | The breakdown tool's command: `{ project, visits, conversions?, break_down_by? }`. |
 | `do-work/measure-ad-return.mjs` | The ad return tool's command: `{ project, visits, conversions?, paying_outcome, signup_outcome?, break_down_by?, spend?, spend_answers?, revenue_months?, gross_margin?, monthly_churn?, customer_lifetime_months?, target_ltv_to_cac? }`. |
 | `do-work/prepare-ad-conversions.mjs` | The conversion tool's command: `{ project, destinations?, visits, conversions, now? }` → `{ sends: [{ destination, tool_id, input, events }], skipped, said }`. |
-| `records.json` | The four tool rows. The ad return row also carries the two `tools/unit-economics` files it imports, placed beside this folder at `/opt/parts/`, so that import resolves the same way inside the container and in this repository. |
+| `records.json` | The four tool rows. The ad return row also carries the two `tools/unit-economics` files it imports, placed beside this folder at `/opt/parts/`, so that import resolves the same way inside the container and in this repository. The link row also carries `do-work/journey.mjs`, its two DATA files and `tools/content-identity` (the email key's identity), placed the same way. |
 | `tool-rows.json` | The tool-row source that lists `records.json`'s rows into the Workshop. |
 | `test/ad-return.test.mjs` | Runs each tool's command the way its row runs it. |
+| `test/journey.test.mjs` | The journey kit: cookie, source, `/go/`, checkout limits, booking and sale joins, and the SQL run in PGlite twice. |
 | `part.json` | No public files: only the tool runs this code. |
+
+## Journey kit (a client site's server)
+
+The kit follows one visitor from a tracked post, ad, email or bio to a booking, a checkout and a paid sale, and keeps each step in the pursuit's own database. It is one library every client site imports from `workshop/tools/traffic-attribution/do-work/journey.mjs`, pinned by commit in the site's `data/workshop.json`. Nothing in it names a client, a provider's account or a site.
+
+How a client sets it up:
+
+1. Apply `read-data/journey-steps.sql` to the pursuit's `_for_who_runs_it` database (run it through `tool:run-sql-in-my-database`; running it again is harmless).
+2. Import `journey.mjs` in the site server. Each database call takes a `query(sql, params)` that resolves to `{ rows }`, so the server passes its own pg client.
+3. Mount three routes:
+   - `GET /go/:id`: `goRedirect(query, id, { cookieHeader, refererHeader })`. Answer with its `status` and `location`; when `setCookie` is set, send it as a `Set-Cookie` header. A 404 is an unknown touch.
+   - `GET /booked`: read the TidyCal redirect's query, then `keepStep(query, bookedStep({ params, visitor }))`.
+   - Every page request: set the visitor cookie with `visitorOf(cookieHeader)` (send `setCookie` when it is set, HttpOnly), and keep `visitStep({ url, refererHeader, visitor })` when it is not null.
+4. Checkout: when a Checkout Session is created, spread `checkoutAttribution(visitor, source)` into it and keep a `checkout` step. Set `metadata.offer_id` to the offer sold. When a payment succeeds, `keepStep(query, saleStepOf(session))`; the session id keeps a repeated webhook to one sale.
+5. TidyCal: set the post-booking redirect to `https://<site>/booked?email={contact.email}&starts={booking.starts_at}&type={booking_type.title}`. Add `&booking={booking.id}` when the template carries the provider's booking id.
+6. Tracked links: `tool:make-tracked-link` with `go_base` (the site's address) answers `touch` and `short_link`. The tool keeps no row: write `touch` into `journey_touches` with `tool:run-sql-in-my-database`, and post `short_link`. A visitor who follows it lands on `touch.destination` with the UTM fields and `t=<touch id>`.
+
+Invariants:
+
+- The raw email is never written: a step keeps `emailKey(email)`, the identity of its lower-cased, trimmed bytes.
+- A visitor's first touch is their earliest step with a source; a direct visit with no kept parameter is not a touch.
+- A step with a ref is kept once; `keepStep` answers `{ kept: false }` for a repeat.
+- A booking or sale with no visitor joins to the visitor who gave that email; with neither, it counts under the unknown source (null utm fields).
+- Sale values are the session's `amount_total` in the currency's minor units; `funnel_by_source` sums them and does not convert currencies.
 
 ## Key Types / Functions
 
@@ -40,6 +68,17 @@ Traffic measurement under a funnel: tracked links with UTM fields, visitors, lea
 | `measureAdReturn` | `(input) => { rows, paid, total, spend_from, spend_not_matched, unknown, ... }` | One row per value of `break_down_by` (spend with no visitors included, untagged visitors as `(not tagged)`), `paid` over the values that carry spend, `total` blended over everyone; CAC, LTV, LTV:CAC and payback come from `computeUnitEconomics`. |
 | `prepareAdConversions` | `(input) => { sends, skipped, said }` | Each turned-on destination's events, hashed by the platform's rule and batched to its limit. |
 | `makeATrackedLink`, `breakDownVisitsAndSales` | the tools' work | Exported for tests. |
+| `visitorOf` | `(cookieHeader, cookie?) => { visitor, setCookie \| null }` | The visitor's id, kept or minted. |
+| `sourceOf` | `(url, refererHeader) => object` | The kept parameters, referrer host and landing path; `{}` when none. |
+| `visitStep` | `({ url, refererHeader, visitor }) => step \| null` | A page's visit step, when it came with a source. |
+| `goRedirect` | `(query, touchId, { visitor?, cookieHeader?, refererHeader? }) => Promise<{ status, location, setCookie }>` | The `/go/` route: a click step, then the 302 to the destination. |
+| `keepStep` | `(query, step) => Promise<{ kept }>` | Writes one step; a repeated ref is a no-op. |
+| `checkoutAttribution` | `(visitor, source) => { client_reference_id?, metadata? }` | Checkout Session fields within Stripe's limits. |
+| `bookedStep` | `({ params, visitor }) => step \| null` | The booking step from the TidyCal redirect. |
+| `saleStepOf` | `(session) => step` | The sale step from a Checkout Session. |
+| `emailKey` | `(email) => "1f:<hex>" \| null` | The email's key. |
+| `makeTouch` | `({ destination, source, post_id?, offer_id?, base }) => { row, short_link }` | A touch row and its `/go/` link. |
+
 
 ## Invariants
 

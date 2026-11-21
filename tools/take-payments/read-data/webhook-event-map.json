@@ -1,5 +1,5 @@
 {
-  "_comment": "Maps Stripe webhook event types to the generic revenue PaymentEvent shape consumed by the selected revenue projection: event_kind plus amount_due_today_cents, currency, recurring_amount_cents, subscription_status, and offer_id. The decoder reads these rows without app-specific branches; amounts are integer cents from Stripe. Every row of one payment is keyed by its PaymentIntent and refers to it by that id (see map-webhook-event.mjs paymentEventIdOf). A rule's optional skip_when {path, equals} drops an event whose value at that path equals the text: the payment_intent.succeeded rule drops the PaymentIntent a one-time Checkout made (stamped by checkoutPaymentIntentMetadata), since the Checkout's completed event is that payment. A paid invoice's kind comes from its billing_reason (target_event_kind_by_billing_reason).",
+  "_comment": "Maps Stripe webhook event types to the generic revenue PaymentEvent shape consumed by the selected revenue projection: event_kind plus amount_due_today_cents, currency, recurring_amount_cents, subscription_status, and offer_id. The decoder reads these rows without app-specific branches; amounts are integer cents from Stripe. A rule's optional skip_when {path, equals} drops an event whose value at that path equals the text: the payment_intent.succeeded rule drops the PaymentIntent a Checkout made (stamped by checkoutPaymentIntentMetadata), because the Checkout's completed event is that payment.",
   "kind": "webhook-event-map",
   "id": "stripe.webhook-event-map.default",
   "rules": [
@@ -46,6 +46,14 @@
       "stripe_event_type": "checkout.session.completed",
       "target_event_kind": "payment.confirmed",
       "attribute_map": {
+        "journey_visitor": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "journey_visitor"
+          ]
+        },
         "amount_due_today_cents": {
           "path": [
             "data",
@@ -299,6 +307,14 @@
       "stripe_event_type": "checkout.session.async_payment_succeeded",
       "target_event_kind": "payment.confirmed",
       "attribute_map": {
+        "journey_visitor": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "journey_visitor"
+          ]
+        },
         "amount_due_today_cents": {
           "path": [
             "data",
@@ -636,13 +652,7 @@
     {
       "stripe_event_type": "invoice.paid",
       "target_event_kind": "subscription.renewed",
-      "target_event_kind_by_billing_reason": {
-        "subscription_create": "payment.confirmed"
-      },
       "attribute_map": {
-        "subscription_id": {
-          "path": ["data", "object", "parent", "subscription_details", "subscription"]
-        },
         "billing_reason": {
           "path": ["data", "object", "billing_reason"]
         },

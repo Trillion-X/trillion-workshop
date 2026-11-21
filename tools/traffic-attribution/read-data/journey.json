@@ -1,0 +1,95 @@
+{
+  "_what": "The journey kit's settings (do-work/journey.mjs): the visitor cookie a site's server sets, the URL parameters kept with a visit (the click id names come from ad-return.json, not repeated here), the step kinds a journey is written in, how a step is joined to a person, and the limits of the checkout fields Stripe reads. Each step kind's words are what it means in plain speech. Code reads these names and never branches on a client, a site or a provider.",
+  "cookie": {
+    "name": "jv",
+    "max_age_days": 395,
+    "path": "/",
+    "same_site": "Lax",
+    "http_only": true,
+    "secure": true,
+    "value_pattern": "^[A-Za-z0-9_-]{8,128}$",
+    "_what": "Set by the server, so Safari's 7-day limit on script-set cookies does not apply. HttpOnly: the page script never reads it. The value is random and carries nothing about the person."
+  },
+  "kept_params": [
+    "bf_project",
+    "utm_source",
+    "utm_medium",
+    "utm_campaign",
+    "utm_content",
+    "utm_term",
+    "t",
+    "ref"
+  ],
+  "_kept_params_what": "URL parameters a visit keeps as its source. t is the touch id a /go/ link sends the visitor on with. The ad click ids are added from ad-return.json's click_ids.",
+  "touch_param": "t",
+  "_touch_param_what": "The URL parameter that carries the touch id from a /go/ redirect to the destination page.",
+  "steps": {
+    "touch": {
+      "words": "A tracked link was made for a post, ad, email or bio"
+    },
+    "click": {
+      "words": "A visitor followed a tracked link"
+    },
+    "visit": {
+      "words": "A visitor loaded a page that came with a source"
+    },
+    "lead": {
+      "words": "A visitor gave their details or asked to hear more"
+    },
+    "booking": {
+      "words": "A visitor booked a call or a session"
+    },
+    "checkout": {
+      "words": "A visitor opened a payment page"
+    },
+    "sale": {
+      "words": "A visitor paid"
+    },
+    "product": {
+      "words": "A paid product was handed over to the buyer"
+    }
+  },
+  "joined_by": {
+    "cookie": {
+      "words": "The step carries the visitor's cookie"
+    },
+    "touch": {
+      "words": "The step carries the touch id the visitor was sent on with"
+    },
+    "email": {
+      "words": "The step has only the email, made into email_key; it joins to a visitor who gave that email"
+    },
+    "client_reference_id": {
+      "words": "A payment carries the visitor id the checkout was opened with"
+    },
+    "self_reported": {
+      "words": "The visitor said where they heard about it"
+    }
+  },
+  "email_key": {
+    "rule": "lower(trim(email)) read as bytes, identity made by tools/content-identity (BLAKE3 of the exact bytes)",
+    "_what": "The only form of an email a journey keeps. The raw email is never written to journey_steps."
+  },
+  "stripe": {
+    "_what": "Stripe's documented limits for the fields a Checkout Session carries: client_reference_id, and metadata's key count, key length and value length.",
+    "client_reference_id": {
+      "max_length": 200,
+      "pattern": "^[A-Za-z0-9_-]+$"
+    },
+    "metadata": {
+      "max_keys": 50,
+      "max_key_length": 40,
+      "max_value_length": 500
+    },
+    "visitor_key": "journey_visitor",
+    "offer_key": "offer_id",
+    "_offer_key_what": "The metadata key a site sets to the offer a checkout sells, read back by saleStepOf."
+  },
+  "tidycal": {
+    "_what": "The post-booking redirect's query names. The site's /booked route reads them; the TidyCal template is https://<site>/booked?email={contact.email}&starts={booking.starts_at}&type={booking_type.title}. booking_key is read only when the template also sends the provider's booking id.",
+    "email": "email",
+    "starts": "starts",
+    "type": "type",
+    "booking_key": "booking"
+  }
+}

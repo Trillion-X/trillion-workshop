@@ -15,7 +15,7 @@
     "label": "Make a tracked link",
     "status": "active",
     "job": "Make a tracked link with UTM fields for a post, ad, email or bio, so visits and sales can be traced to it",
-    "description": "Adds the project, source and campaign (and optionally the medium and a content tag for one post) to a web address as UTM fields, replacing any already there. Refuses an address that is not a web page or carries a user name or password. Use the same project, source and campaign names when breaking visits down later.",
+    "description": "Adds the project, source and campaign (and optionally the medium and a content tag for one post) to a web address as UTM fields, replacing any already there. Refuses an address that is not a web page or carries a user name or password. With go_base (the site's address) it also answers the touch row to keep in journey_touches and a short /go/ link that sends each visitor through it, so the visit and the sale trace back to the post. Use the same project, source and campaign names when breaking visits down later.",
     "input_schema": {
      "type": "object",
      "required": [
@@ -46,6 +46,10 @@
       "content": {
        "type": "string",
        "description": "A tag for one post or ad"
+      },
+      "go_base": {
+       "type": "string",
+       "description": "The client site's web address. When given, the answer also carries touch (the row to write into journey_touches) and short_link (the /go/ link that sends a visitor through it)"
       }
      },
      "additionalProperties": false
@@ -63,20 +67,54 @@
       },
       "fields": {
        "type": "object"
+      },
+      "touch": {
+       "type": "object"
+      },
+      "short_link": {
+       "type": "string"
       }
      }
     },
     "invoke": {
      "kind": "container",
      "files": {
-      "package_files": {
-       "package": "traffic-attribution",
-       "paths": [
-        "do-work/make-a-tracked-link.mjs",
-        "read-data/tracked-link.mjs"
-       ],
-       "at": "/opt/parts/traffic-attribution"
-      }
+      "package_files": [
+       {
+        "package": "traffic-attribution",
+        "paths": [
+         "do-work/make-a-tracked-link.mjs",
+         "do-work/journey.mjs",
+         "read-data/tracked-link.mjs",
+         "read-data/journey.json",
+         "read-data/ad-return.json"
+        ],
+        "at": "/opt/parts/traffic-attribution"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/parts/content-identity"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
      },
      "workdir": "/opt/parts/traffic-attribution",
      "stdout": "json",
@@ -115,6 +153,18 @@
       },
       "output_selector": "$.link",
       "contains": "utm_source=instagram"
+     },
+     {
+      "kind": "sample-run",
+      "input": {
+       "destination": "https://shop.example/offer",
+       "project": "spring-launch",
+       "source": "instagram",
+       "campaign": "reel-12",
+       "go_base": "https://site.example"
+      },
+      "output_selector": "$.short_link",
+      "contains": "https://site.example/go/"
      },
      {
       "kind": "output-contains-input",
