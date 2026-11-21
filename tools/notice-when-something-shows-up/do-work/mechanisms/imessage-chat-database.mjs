@@ -20,7 +20,8 @@
  *     ("message"), change, at (the message's own time), key (<chat guid>/<message
  *     guid>, the same for its edit and its unsend), by (the sender's handle, "me"
  *     for the person's own), after (JSON text {chat, chat_name, group, from, words,
- *     media, reply_to}), kinds (JSON text of the row's kinds). Words too long for
+ *     media, reply_to}, and on the person's own send `account`, the handle Messages
+ *     sent it from), kinds (JSON text of the row's kinds). Words too long for
  *     after are cut and marked `words_cut`; media is told by its attachment guid and
  *     kind, never its bytes.
  *   - Nothing is told twice. The waiter's state keeps the last message row read
@@ -96,9 +97,9 @@ export function mediaKind({ mime_type: mime, uti, audio }) {
 
 /** `after` as JSON text within CARRIED_BYTES. Over it, media keeps only its kind and identity, then the words are cut to fit
  *  and marked `words_cut` (their whole length in bytes), then media past what fits is left out and counted. */
-export function afterOf({ chat, chat_name, group, from = null, words, media, reply_to }) {
+export function afterOf({ chat, chat_name, group, from = null, account = null, words, media, reply_to }) {
   const fits = (value) => Buffer.byteLength(JSON.stringify(value)) <= CARRIED_BYTES;
-  const whole = { chat, chat_name: chat_name ?? null, group, from, words, media, reply_to: reply_to ? `${chat}/${reply_to}` : null };
+  const whole = { chat, chat_name: chat_name ?? null, group, from, ...(account ? { account } : {}), words, media, reply_to: reply_to ? `${chat}/${reply_to}` : null };
   if (fits(whole)) return JSON.stringify(whole);
   let lean = { ...whole, media: media.map(({ kind, identity }) => ({ kind, identity })) };
   if (fits(lean)) return JSON.stringify(lean);
@@ -123,7 +124,7 @@ export function afterOf({ chat, chat_name, group, from = null, words, media, rep
 // date since 2001 is past it.
 const MESSAGE_COLUMNS = `m.ROWID AS row, m.guid AS guid, m.text AS text, m.attributedBody AS body,
   CAST(m.date AS TEXT) AS date, CAST(COALESCE(m.date_edited, 0) AS TEXT) AS edited, CAST(COALESCE(m.date_retracted, 0) AS TEXT) AS retracted,
-  m.is_from_me AS mine, m.is_audio_message AS audio, m.associated_message_type AS reaction, m.thread_originator_guid AS reply_to,
+  m.is_from_me AS mine, m.account AS account, m.is_audio_message AS audio, m.associated_message_type AS reaction, m.thread_originator_guid AS reply_to,
   h.id AS handle, c.guid AS chat, c.chat_identifier AS chat_identifier, NULLIF(c.display_name, '') AS chat_name, c.style AS style`;
 const MESSAGE_FROM = `FROM message m
   LEFT JOIN handle h ON h.ROWID = m.handle_id
@@ -175,6 +176,9 @@ export function changeOf(own, row, change) {
   if (!chat) return null;
   const key = `${chat}/${row.guid}`;
   const from = Number(row.mine) === 1 ? "me" : row.handle ?? null;
+  // The handle the person's own send went out from (Messages keeps it as E:<email> or P:<number>), so a reader can tell
+  // which of the person's addresses is theirs without asking them.
+  const account = Number(row.mine) === 1 && row.account ? String(row.account).replace(/^[A-Za-z]:/, "") : null;
   const group = Number(row.style) === GROUP_STYLE;
   const at = change === "added" ? appleTime(row.date) : appleTime(change === "removed" ? row.retracted : row.edited) ?? appleTime(row.date);
   if (!at) return null;
@@ -193,7 +197,7 @@ export function changeOf(own, row, change) {
     name: item.name ?? null,
   }).filter(([, value]) => value !== null)));
   if (!said && !media.length) return null;
-  const after = afterOf({ chat, chat_name: row.chat_name, group, from, words: said, media, reply_to: row.reply_to });
+  const after = afterOf({ chat, chat_name: row.chat_name, group, from, account, words: said, media, reply_to: row.reply_to });
   return { event_key, at, detail: { where: own.where, place: "message", change, at, key, by: from, after, kinds: JSON.stringify(own.kinds) } };
 }
 

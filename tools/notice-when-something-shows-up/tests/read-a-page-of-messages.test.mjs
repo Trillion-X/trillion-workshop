@@ -24,17 +24,17 @@ function database(t, messages) {
   db.exec(`CREATE TABLE handle (ROWID INTEGER PRIMARY KEY, id TEXT);
     CREATE TABLE chat (ROWID INTEGER PRIMARY KEY, guid TEXT, chat_identifier TEXT, display_name TEXT, style INTEGER);
     CREATE TABLE message (ROWID INTEGER PRIMARY KEY, guid TEXT, text TEXT, attributedBody BLOB, date INTEGER, date_edited INTEGER DEFAULT 0,
-      date_retracted INTEGER DEFAULT 0, is_from_me INTEGER DEFAULT 0, is_audio_message INTEGER DEFAULT 0, associated_message_type INTEGER DEFAULT 0,
+      date_retracted INTEGER DEFAULT 0, is_from_me INTEGER DEFAULT 0, account TEXT, is_audio_message INTEGER DEFAULT 0, associated_message_type INTEGER DEFAULT 0,
       thread_originator_guid TEXT, handle_id INTEGER);
     CREATE TABLE chat_message_join (chat_id INTEGER, message_id INTEGER);
     CREATE TABLE attachment (ROWID INTEGER PRIMARY KEY, guid TEXT, mime_type TEXT, uti TEXT, transfer_name TEXT, total_bytes INTEGER);
     CREATE TABLE message_attachment_join (message_id INTEGER, attachment_id INTEGER);
     INSERT INTO handle VALUES (1, '${FRIEND}');
     INSERT INTO chat VALUES (1, '${DM}', '${FRIEND}', '', 45);`);
-  messages.forEach(({ text, mine = 0, reaction = 0 }, index) => {
+  messages.forEach(({ text, mine = 0, reaction = 0, account = null }, index) => {
     const row = index + 1;
-    db.prepare(`INSERT INTO message (ROWID, guid, text, date, is_from_me, associated_message_type, handle_id)
-      VALUES (?, ?, ?, CAST(? AS INTEGER), ?, ?, 1)`).run(row, `GUID-${row}`, text, appleNanos(plus(row * 60)), mine, reaction);
+    db.prepare(`INSERT INTO message (ROWID, guid, text, date, is_from_me, associated_message_type, handle_id, account)
+      VALUES (?, ?, ?, CAST(? AS INTEGER), ?, ?, 1, ?)`).run(row, `GUID-${row}`, text, appleNanos(plus(row * 60)), mine, reaction, account);
     db.prepare('INSERT INTO chat_message_join VALUES (1, ?)').run(row);
   });
   db.close();
@@ -88,4 +88,14 @@ test('a page stops at its byte limit, and a tapback, an own send and an empty me
 test('a database that macOS refuses is told with the setting, not as an empty page', () => {
   const answer = readAPage({ database: '/nowhere/chat.db' }, { open: () => { throw new Error('authorization denied'); } });
   assert.match(answer.error, /Full Disk Access/);
+});
+
+test('an own send names the handle it went out from, and a message received names none', (t) => {
+  const { file, open } = database(t, [{ text: 'made-up words 1', account: 'P:+15555550199' }, { text: 'my own', mine: 1, account: 'P:+15555550199' }, { text: 'my own by mail', mine: 1, account: 'E:someone@example.com' }]);
+  const page = readAPage({ database: file, include_own: true }, { open });
+  const after = Object.fromEntries(page.facts.map((fact) => [fact.key.split('/')[1], JSON.parse(fact.after)]));
+  assert.equal(after['GUID-2'].from, 'me');
+  assert.equal(after['GUID-2'].account, '+15555550199');
+  assert.equal(after['GUID-3'].account, 'someone@example.com');
+  assert.equal('account' in after['GUID-1'], false);
 });

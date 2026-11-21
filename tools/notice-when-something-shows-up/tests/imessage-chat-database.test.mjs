@@ -30,7 +30,7 @@ function database(t) {
   db.exec(`CREATE TABLE handle (ROWID INTEGER PRIMARY KEY, id TEXT);
     CREATE TABLE chat (ROWID INTEGER PRIMARY KEY, guid TEXT, chat_identifier TEXT, display_name TEXT, style INTEGER);
     CREATE TABLE message (ROWID INTEGER PRIMARY KEY, guid TEXT, text TEXT, attributedBody BLOB, date INTEGER, date_edited INTEGER DEFAULT 0,
-      date_retracted INTEGER DEFAULT 0, is_from_me INTEGER DEFAULT 0, is_audio_message INTEGER DEFAULT 0, associated_message_type INTEGER DEFAULT 0,
+      date_retracted INTEGER DEFAULT 0, is_from_me INTEGER DEFAULT 0, account TEXT, is_audio_message INTEGER DEFAULT 0, associated_message_type INTEGER DEFAULT 0,
       thread_originator_guid TEXT, handle_id INTEGER);
     CREATE TABLE chat_message_join (chat_id INTEGER, message_id INTEGER);
     CREATE TABLE attachment (ROWID INTEGER PRIMARY KEY, guid TEXT, mime_type TEXT, uti TEXT, transfer_name TEXT, total_bytes INTEGER);
