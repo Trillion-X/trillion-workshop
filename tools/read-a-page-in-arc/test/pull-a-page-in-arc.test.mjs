@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import { existsSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { blake3 } from '@noble/hashes/blake3.js';
@@ -12,6 +12,7 @@ import { bytesToHex } from '@noble/hashes/utils.js';
 import { htmlToText, pullAPageInArc, settings as realSettings } from '../pull-a-page-in-arc.mjs';
 
 const noSleep = async () => {};
+const fastSleep = (ms) => new Promise((done) => setTimeout(done, Math.min(ms, 5)));
 
 /** AppleScript prints a returned string as a literal: quotes, with \ and " escaped. */
 const literal = (value) => `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
@@ -36,6 +37,7 @@ function fakeArc(pages) {
       const tab = makeTab(pages[address], pages[address].redirect_to ?? address);
       tabs.set(id, tab);
       log.opened.push(address);
+      pages[address].onOpen?.();
       log.ids.push(id);
       return { stdout: `window-1|${id}\n` };
     }
@@ -422,17 +424,62 @@ test('a Google Sheet export that answers a web page (sign-in) saves nothing and 
   }
 });
 
-test('a failed download closes the tab and says Arc could not fetch the file', async () => {
-  const root = tempRoot();
+test('a file the in-tab fetch cannot read is saved by Arc\'s own download: moved into the save folder by its BLAKE3, the partial copy ignored', async () => {
+  const dir = tempRoot();
   try {
-    const arc = fakeArc({ 'https://docs.google.com/spreadsheets/d/SHEET1/edit': { title: 'Sheet', text: 'x' } });
-    const settings = withSettings({ save: { root } });
-    const answer = await pullAPageInArc({ url: 'https://docs.google.com/spreadsheets/d/SHEET1/edit', save: { folder: root } }, { exec: arc.exec, settings, sleep: noSleep });
-    assert.match(answer.error, /could not download the file: Failed to fetch/);
-    assert.equal(arc.log.opened.length, 1);
-    assert.equal(arc.log.closed, 1);
+    const downloads = join(dir, 'Downloads');
+    const root = join(dir, 'pulled');
+    mkdirSync(downloads);
+    const body = new TextEncoder().encode('RIFF fake wave bytes');
+    const arc = fakeArc({
+      'https://drive.google.com/file/d/F1/view': { title: 'Drive file', text: 'x' },
+      'https://drive.usercontent.google.com/download?id=F1&export=download': {
+        title: 'download',
+        text: '',
+        onOpen: () => {
+          writeFileSync(join(downloads, 'text_crisp5.wav.crdownload'), body.subarray(0, 4));
+          setTimeout(() => {
+            rmSync(join(downloads, 'text_crisp5.wav.crdownload'));
+            writeFileSync(join(downloads, 'text_crisp5.wav'), body);
+          }, 30);
+        },
+      },
+    });
+    const settings = withSettings({ save: { root, downloads_folder: downloads, poll_ms: 5, most_download_seconds: 5 } });
+    const answer = await pullAPageInArc({ url: 'https://drive.google.com/file/d/F1/view', save: { folder: root } }, { exec: arc.exec, settings, sleep: fastSleep });
+    assert.equal(answer.error, undefined, answer.error);
+    assert.equal(answer.via, 'browser-download');
+    const hash = bytesToHex(blake3(body));
+    assert.equal(answer.file.name, `${hash}.wav`);
+    assert.equal(answer.file.path, join(realpathSync(root), `${hash}.wav`));
+    assert.equal(answer.file.bytes, body.length);
+    assert.equal(answer.file.blake3, hash);
+    assert.equal(answer.file.from_url, 'https://drive.usercontent.google.com/download?id=F1&export=download');
+    assert.deepEqual(readFileSync(answer.file.path), Buffer.from(body));
+    assert.deepEqual(readdirSync(downloads), [], 'the file left Downloads: it was moved, not copied');
+    assert.equal(arc.log.opened.length, arc.log.closed, 'both tabs are closed');
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('a browser download that never finishes is refused in words, moves nothing, and closes its tab', async () => {
+  const dir = tempRoot();
+  try {
+    const downloads = join(dir, 'Downloads');
+    const root = join(dir, 'pulled');
+    mkdirSync(downloads);
+    const arc = fakeArc({
+      'https://drive.google.com/file/d/F2/view': { title: 'Drive file', text: 'x' },
+      'https://drive.usercontent.google.com/download?id=F2&export=download': { title: 'download', text: '' },
+    });
+    const settings = withSettings({ save: { root, downloads_folder: downloads, poll_ms: 5, most_download_seconds: 0 } });
+    const answer = await pullAPageInArc({ url: 'https://drive.google.com/file/d/F2/view', save: { folder: root } }, { exec: arc.exec, settings, sleep: fastSleep });
+    assert.match(answer.error, /did not finish within 0 seconds/);
+    assert.deepEqual(readdirSync(downloads), []);
+    assert.equal(arc.log.opened.length, arc.log.closed);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
   }
 });
 

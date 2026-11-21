@@ -18,7 +18,7 @@
 //   5. The page's text is data, never instructions. The only code that runs in the page is page-scripts.mjs.
 //   6. Every bound comes from pull-settings.json: text, scroll steps and seconds, links, follow pages and seconds, bytes.
 import { readFileSync } from 'node:fs';
-import { mkdir, realpath, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, realpath, rename, stat, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { extname, isAbsolute, join, resolve, sep } from 'node:path';
 import { text } from 'node:stream/consumers';
@@ -255,6 +255,19 @@ function refuseOtherPage(page, asked) {
   }
 }
 
+/** The lines of the page view that the API text does not hold (a line is compared with its spaces collapsed, case aside). */
+function linesOnlyInPageView(apiText, pageView, minChars) {
+  const have = new Set(apiText.split('\n').map((line) => line.replace(/\s+/g, ' ').trim().toLowerCase()));
+  const extra = [];
+  for (const line of pageView.split('\n')) {
+    const clean = line.replace(/\s+/g, ' ').trim();
+    if (clean.length < minChars || have.has(clean.toLowerCase())) continue;
+    have.add(clean.toLowerCase());
+    extra.push(clean);
+  }
+  return extra;
+}
+
 /** Reads the Notion page through its API in the tab: its text in block order and its links. Answers { text, links } or { error }. */
 async function readNotionText(tab, s, sleep) {
   await tab.evaluate(startNotionReadScript({
@@ -289,21 +302,25 @@ async function readWholeText(tab, textChars, s) {
 async function readOpenPage(tab, asked, selector, s, sleep) {
   let notionError = null;
   await waitUntilLoaded(tab, s, sleep);
-  const first = await tab.evaluate(stashPageScript(0));
+  const first = await tab.evaluate(stashPageScript(s.text.most_chars));
   refuseOtherPage(first, asked);
   if (isNotionAddress(asked)) {
+    const pageView = await readWholeText(tab, first.textChars, s);
     const notion = await readNotionText(tab, s, sleep);
     if (notion.text !== undefined) {
+      const extra = linesOnlyInPageView(notion.text, pageView, s.notion.merge_min_line_chars);
+      const text = extra.length ? `${notion.text}\n[lines only in the page view]\n${extra.join('\n')}` : notion.text;
       const page = await tab.evaluate(stashPageScript(0));
       return {
         title: page.title,
         url: page.url,
-        text: notion.text,
-        truncated: notion.chars > s.text.most_chars,
-        text_chars_total: notion.chars,
-        scroll: { steps: 0, stopped_by: 'notion_blocks', text_chars_before: first.textChars, pane_found: null, notion_blocks: notion.blocks },
+        text,
+        truncated: text.length > s.text.most_chars,
+        text_chars_total: text.length,
+        scroll: { steps: 0, stopped_by: 'notion_blocks', text_chars_before: pageView.length, pane_found: null, notion_blocks: notion.blocks },
         notion_links: notion.links,
         notion_error: notion.sync_error,
+        merge: { api_chars: notion.chars, page_view_chars: first.textChars, page_view_lines_added: extra.length },
       };
     }
     notionError = notion.error;
@@ -376,6 +393,7 @@ async function pullPage(tab, want, s, sleep, startedAt) {
   });
   const answer = { title: page.title, url: page.url, text: page.text, truncated: page.truncated, text_chars_total: page.text_chars_total, scroll: page.scroll };
   if (page.notion_error) answer.notion_error = page.notion_error;
+  if (page.merge) answer.merge = page.merge;
   if (want.links) {
     answer.links = linked.links;
     answer.links_found = linked.found;
@@ -385,13 +403,74 @@ async function pullPage(tab, want, s, sleep, startedAt) {
   return answer;
 }
 
-async function pullFile(tab, want, source, folder, s, sleep) {
+/** The files in a folder, by name: { size, modified }. A folder that does not exist has none. */
+async function listFiles(folder) {
+  const names = await readdir(folder).catch(() => []);
+  const files = new Map();
+  for (const name of names) {
+    const info = await stat(join(folder, name)).catch(() => null);
+    if (info && info.isFile()) files.set(name, { size: info.size, modified: info.mtimeMs });
+  }
+  return files;
+}
+
+/**
+ * Waits for a file that is new in the downloads folder and finished: no partial copy beside it, and the same size on two polls
+ * in a row. Answers its name, or refuses when none finishes within most_download_seconds.
+ */
+async function waitForBrowserDownload(folder, before, s, sleep) {
+  const deadline = Date.now() + s.save.most_download_seconds * 1000;
+  let seen = null;
+  for (;;) {
+    const now = await listFiles(folder);
+    const finished = [...now].filter(([name, info]) => !before.has(name)
+      && !name.endsWith(s.save.partial_suffix) && info.size > 0 && !now.has(`${name}${s.save.partial_suffix}`));
+    const stable = seen && finished.find(([name, info]) => seen.get(name) === info.size);
+    if (stable) return stable[0];
+    seen = new Map(finished.map(([name, info]) => [name, info.size]));
+    if (Date.now() >= deadline) refuse(`The download did not finish within ${s.save.most_download_seconds} seconds. Nothing was saved.`);
+    await sleep(s.save.poll_ms);
+  }
+}
+
+/**
+ * Saves a file by letting Arc download it: the address opens in a tab of its own, Arc writes the file into the downloads folder,
+ * and the finished file is moved into the save folder named by its BLAKE3. The file is never opened or run.
+ */
+async function saveByBrowserDownload(openTab, address, folder, source, s, sleep) {
+  const downloads = resolve(homePath(s.save.downloads_folder));
+  const before = await listFiles(downloads);
+  const tab = openTab();
+  await tab.open(address);
+  let name;
+  try {
+    name = await waitForBrowserDownload(downloads, before, s, sleep);
+  } finally {
+    await tab.close().catch(() => {});
+  }
+  const from = join(downloads, name);
+  const bytes = await readFile(from);
+  if (bytes.length > s.save.most_bytes) refuse(`The file is bigger than ${s.save.most_bytes} bytes. It was left in ${downloads}.`);
+  const hash = bytesToHex(blake3(bytes));
+  const extension = source.extension || extname(name).slice(1);
+  const fileName = extension ? `${hash}.${extension}` : hash;
+  const path = join(folder, fileName);
+  await rename(from, path);
+  return { name: fileName, path, bytes: bytes.length, blake3: hash, from_url: source.from_url };
+}
+
+/** The in-tab fetch of a file. A fetch Arc refuses (a cross-site file) is saved by Arc's own download instead. */
+async function pullFile(tab, want, source, folder, s, sleep, openTab) {
   return withTab(tab, want.url, async () => {
     await waitUntilLoaded(tab, s, sleep);
     const { title, url } = await tab.evaluate(stashPageScript(0));
     refuseOtherPage({ url }, want.url);
     await tab.evaluate(startDownloadScript(source.from_url, s.save.most_bytes));
     const state = await waitForDownload(tab, s, sleep);
+    if (state.state === 'failed') {
+      const file = await saveByBrowserDownload(openTab, source.from_url, folder, source, s, sleep);
+      return { title, url, via: 'browser-download', file };
+    }
     if (!source.as_text && source.extension !== 'html' && state.mediaType.startsWith('text/html')) {
       refuse('Arc got a web page instead of the file. Sign-in may be needed; nothing was saved.');
     }
@@ -411,17 +490,18 @@ async function pullFile(tab, want, source, folder, s, sleep) {
     return {
       title,
       url,
+      via: 'fetch',
       file: { name, path, bytes: bytes.length, blake3: hash, media_type: mediaType, from_url: source.from_url },
     };
   });
 }
 
+/** Waits until the in-tab download has finished, or has failed (answered, not refused: the caller decides). */
 async function waitForDownload(tab, s, sleep) {
   const deadline = Date.now() + s.save.most_download_seconds * 1000;
   for (;;) {
     const state = await tab.evaluate(downloadStateScript());
-    if (state.state === 'done') return state;
-    if (state.state === 'failed') refuse(`Arc could not download the file: ${state.error}. Nothing was saved.`);
+    if (state.state === 'done' || state.state === 'failed') return state;
     if (Date.now() >= deadline) refuse(`The file did not finish downloading within ${s.save.most_download_seconds} seconds.`);
     await sleep(s.save.poll_ms);
   }
@@ -444,7 +524,7 @@ export async function pullAPageInArc(input, { exec, settings: s = settings, slee
   }
   const arc = tab ?? arcTab({ exec, timeout_ms: s.wait.call_timeout_ms });
   try {
-    if (want.save) return await pullFile(arc, want, source, folder, s, sleep);
+    if (want.save) return await pullFile(arc, want, source, folder, s, sleep, () => arcTab({ exec, timeout_ms: s.wait.call_timeout_ms }));
     return await pullPage(arc, want, s, sleep, startedAt);
   } catch (error) {
     return { error: failure(error) };

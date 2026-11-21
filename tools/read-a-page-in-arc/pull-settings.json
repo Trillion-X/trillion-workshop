@@ -17,7 +17,8 @@
     "most_chunks": 30,
     "most_rounds": 30,
     "most_seconds": 120,
-    "poll_ms": 500
+    "poll_ms": 500,
+    "merge_min_line_chars": 20
   },
   "text": {
     "most_chars": 2000000,
@@ -55,6 +56,8 @@
         "pdf",
         "pptx"
       ]
-    }
+    },
+    "downloads_folder": "~/Downloads",
+    "partial_suffix": ".crdownload"
   }
 }

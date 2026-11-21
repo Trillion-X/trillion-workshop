@@ -64,6 +64,7 @@ test('reads the Notion page before and after scrolling its pane', async () => {
   assert.ok(['notion_blocks', 'stable'].includes(answer.scroll.stopped_by), answer.scroll.stopped_by);
   assert.equal(answer.notion_error, undefined);
   assert.ok(answer.text_chars_total >= 10000, 'the whole library is read, not its header');
+  assert.ok(answer.merge.api_chars > answer.scroll.text_chars_before, 'the API read holds more than the page view had');
   console.log(`Notion: ${answer.scroll.text_chars_before} characters before, ${answer.text_chars_total} after (${answer.scroll.notion_blocks ?? answer.scroll.steps} blocks or steps, ${answer.scroll.stopped_by})`);
   assert.notEqual(await activeTabUrl(), url, 'the tab is closed');
 });
@@ -81,15 +82,28 @@ test('two pulls at the same time, in two processes, each read their own page', a
   console.log(`two at once: "${one.title}" and "${two.title}"`);
 });
 
-test('a Notion page with no scroll pane of that name is read by scrolling the window, not refused', async () => {
+test('a Notion page with no scroll pane of that name reads its own page (not the other one)', async () => {
   for (const url of [
     'https://rural-lifeboat-196.notion.site/3addb9d7074d81d2ba5ed847785ba527',
-    'https://shiny-college-b22.notion.site/How-We-Helped-Callum-3addb9d7074d81d2ba5ed847785ba527',
+    'https://shiny-college-b22.notion.site/How-We-Helped-Callum-41803c9f6feb81fcba54ea736c704adc',
   ]) {
     const answer = await pullAPageInArc({ url, scroll_selector: '.no-such-pane-here' });
     assert.equal(answer.error, undefined, `${url}: ${answer.error}`);
     assert.ok(answer.text_chars_total > 0, url);
-    console.log(`${new URL(url).hostname}: ${answer.text_chars_total} characters, ${answer.scroll.stopped_by}, pane_found ${answer.scroll.pane_found}`);
+    assert.equal(answer.scroll.pane_found, null, 'a Notion read uses its API, not the pane');
+    console.log(`${new URL(url).hostname}: ${answer.text_chars_total} characters, ${answer.scroll.stopped_by}, first line ${JSON.stringify(answer.text.split('\n')[0])}`);
   }
+});
+
+test('a Google Drive file the in-tab fetch cannot read is saved by Arc\'s own download, named by its BLAKE3', async () => {
+  // Needs a Drive file the signed-in person can see: DRIVE_FILE_URL names it (for example a .wav). Skipped when unset.
+  const driveUrl = process.env.DRIVE_FILE_URL;
+  if (!driveUrl) return;
+  const answer = await pullAPageInArc({ url: driveUrl, save: { folder: saveRoot } });
+  assert.equal(answer.error, undefined, answer.error);
+  assert.equal(answer.via, 'browser-download');
+  assert.equal(bytesToHex(blake3(readFileSync(answer.file.path))), answer.file.blake3);
+  assert.ok(answer.file.bytes > 0);
+  console.log(`Drive file: ${answer.file.bytes} bytes, ${answer.file.name}`);
 });
 

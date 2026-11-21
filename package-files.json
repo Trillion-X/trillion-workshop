@@ -5408,6 +5408,7 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:cancel-a-tidycal-booking": [],
  "tool:cancel-prepared-resource-usage-report": [
   {
    "package": "take-payments",
@@ -7209,6 +7210,45 @@
     "node_modules/@noble/hashes"
    ],
    "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
+ "tool:check-a-public-address": [
+  {
+   "package": "check-a-public-address",
+   "paths": [
+    "do-work/check-a-public-address.mjs"
+   ],
+   "at": "/opt/check-a-public-address-tree/tools/check-a-public-address"
+  },
+  {
+   "package": "http-client",
+   "paths": [
+    "do-work/node-public-fetch.mjs",
+    "do-work/resolved-address.mjs",
+    "do-work/resolved-address.json",
+    "do-work/same-origin.mjs"
+   ],
+   "at": "/opt/check-a-public-address-tree/tools/http-client"
+  },
+  {
+   "package": "refuse-requests-to-private-addresses",
+   "paths": [
+    "public-address.mjs",
+    "public-address.json"
+   ],
+   "at": "/opt/check-a-public-address-tree/tools/refuse-requests-to-private-addresses"
+  },
+  {
+   "packages": [
+    "node_modules/tldts"
+   ],
+   "at": "/opt/node_modules/tldts"
+  },
+  {
+   "packages": [
+    "node_modules/tldts-core"
+   ],
+   "at": "/opt/node_modules/tldts-core"
   }
  ],
  "tool:check-a-record-library": [],
@@ -11606,6 +11646,7 @@
    "at": "/opt/formula-engine"
   }
  ],
+ "tool:create-a-tidycal-booking": [],
  "tool:credit-kept-lines-to-their-writer": [
   {
    "package": "credit-kept-lines-to-their-writer",
@@ -63337,46 +63378,5 @@
  ],
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:your-files": [],
- "tool:your-files-names": [],
- "tool:check-a-public-address": [
-  {
-   "package": "check-a-public-address",
-   "paths": [
-    "do-work/check-a-public-address.mjs"
-   ],
-   "at": "/opt/check-a-public-address-tree/tools/check-a-public-address"
-  },
-  {
-   "package": "http-client",
-   "paths": [
-    "do-work/node-public-fetch.mjs",
-    "do-work/resolved-address.mjs",
-    "do-work/resolved-address.json",
-    "do-work/same-origin.mjs"
-   ],
-   "at": "/opt/check-a-public-address-tree/tools/http-client"
-  },
-  {
-   "package": "refuse-requests-to-private-addresses",
-   "paths": [
-    "public-address.mjs",
-    "public-address.json"
-   ],
-   "at": "/opt/check-a-public-address-tree/tools/refuse-requests-to-private-addresses"
-  },
-  {
-   "packages": [
-    "node_modules/tldts"
-   ],
-   "at": "/opt/node_modules/tldts"
-  },
-  {
-   "packages": [
-    "node_modules/tldts-core"
-   ],
-   "at": "/opt/node_modules/tldts-core"
-  }
- ],
- "tool:create-a-tidycal-booking": [],
- "tool:cancel-a-tidycal-booking": []
+ "tool:your-files-names": []
 }

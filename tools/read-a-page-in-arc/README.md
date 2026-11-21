@@ -31,7 +31,7 @@ Two tools live here:
 ## Save
 
 - A Google Doc is read from its own HTML page (`/mobilebasic`) with the person's sign-in, and saved as `txt` (the visible text, converted in node) or `html` (the bytes as fetched). Its export address (`/export?format=`) cannot be used from Arc: the fetch fails with "Failed to fetch" for every format, because the export redirects to another origin without CORS headers.
-- A Google Sheet or Slides export, a Drive file (`drive.usercontent.google.com/download`), or `save.file_url` is fetched in the tab the same way. Those were not proven live (see below).
+- A Google Sheet or Slides export, a Drive file (`drive.usercontent.google.com/download`), or `save.file_url` is fetched in the tab the same way. When Arc refuses that fetch (a cross-site file: "Failed to fetch"), the file is saved by Arc's own download instead: its address opens in a tab of its own, the finished file (no `.crdownload` partial beside it) is taken from `save.downloads_folder` and moved into the save folder named by its BLAKE3. It is never opened or run. The answer then says `via: browser-download`.
 - A file is written under `save.folder`, which must be inside the root in `pull-settings.json` (`~/Library/Application Support/pulled-pages-in-arc`). The name is `<BLAKE3 hex of the bytes>.<extension>`.
 
 ## Run
@@ -42,7 +42,7 @@ Two tools live here:
 
 ## Not proven
 
-- Google Sheet and Slides exports, Drive file downloads and `save.file_url` from other origins are not proven live. The Doc rendition is the only saved Google file proven end to end.
+- Google Sheet and Slides exports, Drive file downloads and `save.file_url` from other origins are not proven live. The Doc rendition is the only saved Google file proven end to end. The browser-download path is unit-tested against a fake folder; its live check runs only when `DRIVE_FILE_URL` names a Drive file.
 - Two runs at the same time are not guarded: they share Arc's front window. The row runs one at a time only by the caller's care.
 - The rendition's text is not Google's export: formatting is lost in `txt`, and the page's own structure is what `html` keeps.
 - A page that loads its text only after a click is not read by the scroll path: the tool clicks nothing. A Notion page is read through its API instead, which needs no click.

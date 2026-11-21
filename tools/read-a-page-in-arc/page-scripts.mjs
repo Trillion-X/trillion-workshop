@@ -150,9 +150,9 @@ asciiJson(window.__arcDownload.base64.slice(${JSON.stringify(start)}, ${JSON.str
 
 /**
  * Reads a Notion page through its own API, inside the signed-in tab, without clicking anything: every block of the page in
- * order (toggles and columns included, their children fetched when the page did not load them), child pages listed as links.
- * The text goes to window.__arcPull (the same place the page text piece reads), the state to window.__arcNotion. Every bound
- * comes from config (pull-settings.json notion section).
+ * order (any block type: its rich text in any property, its children, table rows, synced blocks, database rows), child pages
+ * listed as links. Children the page did not load are fetched with syncRecordValuesSpace. The text goes to window.__arcPull (the
+ * place the page text piece reads), the state to window.__arcNotion. Every bound comes from config (pull-settings.json notion).
  */
 function readNotion(config) {
   var result = window.__arcNotion = { state: 'running' };
@@ -166,6 +166,7 @@ function readNotion(config) {
   var raw = match[1].toLowerCase();
   var pageId = raw.slice(0, 8) + '-' + raw.slice(8, 12) + '-' + raw.slice(12, 16) + '-' + raw.slice(16, 20) + '-' + raw.slice(20);
   var blocks = {};
+  var collections = {};
   var chunk = 0;
   var rounds = 0;
   function post(path, body) {
@@ -175,12 +176,19 @@ function readNotion(config) {
         return response.json();
       });
   }
+  function unwrap(entry) {
+    return entry && entry.value && entry.value.value ? entry.value.value : (entry && entry.value);
+  }
   function absorb(recordMap) {
     var found = (recordMap && recordMap.block) || {};
     Object.keys(found).forEach(function (id) {
-      var entry = found[id];
-      var value = entry && entry.value && entry.value.value ? entry.value.value : (entry && entry.value);
+      var value = unwrap(found[id]);
       if (value && value.type !== undefined && value.alive !== false) blocks[id] = value;
+    });
+    var collectionFound = (recordMap && recordMap.collection) || {};
+    Object.keys(collectionFound).forEach(function (id) {
+      var value = unwrap(collectionFound[id]);
+      if (value) collections[id] = value;
     });
   }
   function nextChunk(cursor) {
@@ -192,10 +200,16 @@ function readNotion(config) {
         if (more && chunk < config.maxChunks) return nextChunk(data.cursor);
       });
   }
+  function childIdsOf(value) {
+    var ids = (value.content || []).slice();
+    var pointer = value.format && value.format.transclusion_reference_pointer;
+    if (pointer && pointer.id) ids.push(pointer.id);
+    return ids;
+  }
   function missingIds() {
     var missing = {};
     Object.keys(blocks).forEach(function (id) {
-      (blocks[id].content || []).forEach(function (child) { if (!blocks[child]) missing[child] = true; });
+      childIdsOf(blocks[id]).forEach(function (child) { if (!blocks[child]) missing[child] = true; });
     });
     return Object.keys(missing);
   }
@@ -209,13 +223,30 @@ function readNotion(config) {
       return syncRound();
     });
   }
-  function titleOf(value) {
-    var title = value.properties && value.properties.title;
-    return title ? title.map(function (piece) { return piece[0] || ''; }).join('') : '';
+  // Rich text: the pieces of one property as plain text. A mention shows the title of the page it names; an equation shows its expression.
+  function richText(pieces) {
+    return (pieces || []).map(function (piece) {
+      var decorations = piece[1] || [];
+      if (piece[0] === '\u2023') {
+        var page = decorations.filter(function (d) { return d[0] === 'p'; })[0];
+        var target = page && blocks[page[1]];
+        return target ? richText((target.properties || {}).title) : '';
+      }
+      var equation = decorations.filter(function (d) { return d[0] === 'e'; })[0];
+      if (piece[0] === '\u204d' && equation) return equation[1];
+      return piece[0] || '';
+    }).join('');
+  }
+  var SKIP = { checked: 1, language: 1, source: 1, link: 1, format: 1, color: 1, display_source: 1, width: 1 };
+  // Every property of a block that holds text, in the order the block stores them: title first, then caption and the rest.
+  function textOf(value) {
+    var properties = value.properties || {};
+    var names = Object.keys(properties).filter(function (name) { return !SKIP[name]; });
+    names.sort(function (a, b) { return a === 'title' ? -1 : b === 'title' ? 1 : 0; });
+    return names.map(function (name) { return richText(properties[name]); }).filter(function (text) { return text !== ''; }).join(' ');
   }
   function propertyText(value, name) {
-    var property = value.properties && value.properties[name];
-    return property && property[0] ? property[0][0] : '';
+    return richText((value.properties || {})[name]);
   }
   var lines = [];
   var links = [];
@@ -226,13 +257,38 @@ function readNotion(config) {
     linkSeen[href] = true;
     links.push({ href: href, text: text });
   }
-  function render(id, depth) {
+  function push(depth, line) {
+    if (line !== null && line !== undefined && line !== '') lines.push(new Array(depth * 2 + 1).join(' ') + line);
+  }
+  function renderChildren(value, depth) {
+    (value.content || []).forEach(function (child) { render(child, depth); });
+  }
+  function renderRows(collectionId, depth, schemaNames) {
+    var rows = Object.keys(blocks).map(function (id) { return blocks[id]; }).filter(function (row) {
+      return row.parent_table === 'collection' && row.parent_id === collectionId;
+    });
+    rows.forEach(function (row) {
+      if (visited >= config.maxBlocks) return;
+      visited += 1;
+      var cells = [textOf(row)];
+      Object.keys(row.properties || {}).forEach(function (name) {
+        if (name === 'title') return;
+        var label = schemaNames[name] ? schemaNames[name] + ': ' : '';
+        var text = richText(row.properties[name]);
+        if (text) cells.push(label + text);
+      });
+      push(depth, cells.join(' | '));
+    });
+    return rows.length;
+  }
+  function render(id, depth, columnOrder) {
     var value = blocks[id];
     if (!value || visited >= config.maxBlocks) return;
     visited += 1;
-    var text = titleOf(value);
+    var text = textOf(value);
     var line = null;
     var recurse = true;
+    var childDepth = depth + 1;
     switch (value.type) {
       case 'page':
         var href = origin + '/' + id.replace(/-/g, '');
@@ -251,26 +307,55 @@ function readNotion(config) {
       case 'callout': line = text; break;
       case 'divider': line = '---'; break;
       case 'code': line = '```' + propertyText(value, 'language') + '\n' + text + '\n```'; break;
+      case 'column_list':
+      case 'column':
+        childDepth = depth;
+        break;
+      case 'table':
+        columnOrder = (value.format && value.format.table_block_column_order) || null;
+        break;
       case 'table_row':
-        line = Object.keys(value.properties || {}).map(function (name) { return propertyText(value, name); }).join(' | ');
+        var order = columnOrder || Object.keys(value.properties || {});
+        line = order.map(function (name) { return richText((value.properties || {})[name]); }).join(' | ');
+        recurse = false;
+        break;
+      case 'transclusion_reference':
+        var source = blocks[value.format && value.format.transclusion_reference_pointer && value.format.transclusion_reference_pointer.id];
+        if (source) {
+          renderChildren(source, depth);
+        }
+        recurse = false;
+        break;
+      case 'collection_view':
+      case 'collection_view_page':
+      case 'child_database':
+        var collectionId = value.collection_id || (value.format && value.format.collection_pointer && value.format.collection_pointer.id);
+        var schema = collections[collectionId] && collections[collectionId].schema;
+        var schemaNames = {};
+        if (schema) Object.keys(schema).forEach(function (key) { schemaNames[key] = schema[key].name; });
+        line = text || 'Database';
+        push(depth, line);
+        renderRows(collectionId, depth + 1, schemaNames);
+        recurse = false;
         break;
       case 'bookmark':
       case 'embed':
+      case 'link_preview':
       case 'image':
       case 'video':
       case 'file':
       case 'pdf':
-        var source = propertyText(value, 'source') || propertyText(value, 'link');
-        addLink(source, text);
-        line = text || source;
+      case 'audio':
+        var address = propertyText(value, 'source') || propertyText(value, 'link');
+        addLink(address, text);
+        line = text && address ? text + ' ' + address : (text || address);
         break;
       case 'equation': line = propertyText(value, 'title') || text; break;
       default: line = text || null;
     }
-    if (line !== null && line !== '') lines.push(new Array(depth * 2 + 1).join(' ') + line);
+    push(depth, line);
     if (recurse) {
-      var childDepth = value.type === 'column_list' || value.type === 'column' ? depth : depth + 1;
-      (value.content || []).forEach(function (child) { render(child, childDepth); });
+      (value.content || []).forEach(function (child) { render(child, childDepth, columnOrder); });
     }
   }
   nextChunk({ stack: [] })
@@ -281,7 +366,7 @@ function readNotion(config) {
     })
     .then(function () {
       if (!blocks[pageId]) throw new Error('Notion did not return the page.');
-      (blocks[pageId].content || []).forEach(function (child) { render(child, 0); });
+      renderChildren(blocks[pageId], 0);
       var text = lines.join('\n');
       window.__arcPull = { text: text };
       result.links = links;
