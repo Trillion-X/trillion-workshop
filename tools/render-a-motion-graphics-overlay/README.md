@@ -12,7 +12,7 @@ underlines, cut-out photos, footage insets, endcards and more. The render writes
 With `stills`, it writes single frames over the spec's still background instead.
 
 The **look** is the person's settings: colours, faces, paper textures, motion, the sound table, the title-safe margin
-and named sections. It is read from a row of their settings table through `tools/settings`. Nothing about a film is in
+and named sections. It is read from a row of their `list:settings` through `tools/settings`. Nothing about a film is in
 this folder. The words on screen, pictures, clips and voices are in the spec. The palette, faces, recordings and
 textures are in the look. `read-data/example-look/` is a made-up look for samples and tests.
 

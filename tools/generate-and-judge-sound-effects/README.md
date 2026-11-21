@@ -4,7 +4,7 @@ Find, judge and pick sound effects by ear, the way a film's sound palette is cho
 
 The candidates are not made here. Forged sounds (earshot's forge) and the sounds of local models (Stable Audio 3 Small-SFX, MOSS-SoundEffect v2.0, HunyuanVideo-Foley) are styles of `tools/media-composition`'s one runner, `do-work/make-pictures-and-sounds.mjs`, as old trillion made sound effects: `tool:make-<style>` rows (old trillion `records/workshop-media-generation-tool-records.json`:5). This tool judges what they make.
 
-What belongs to one person is never in this folder. That includes the categories and their words, the palette's sources and trims, the queries, the tuned thresholds, the music brief and the licence verdicts. Each comes in as a request or brief file. The judge also takes the person's settings record (`settings_record`: their `record:setting:generate-and-judge-sound-effects~<scope>` row of settings table), read with the one settings reader, `tools/settings/read-data/settings.py` (`setting(given, folder, [(film), (person, me), (account, main)])`).
+What belongs to one person is never in this folder. That includes the categories and their words, the palette's sources and trims, the queries, the tuned thresholds, the music brief and the licence verdicts. Each comes in as a request or brief file. The judge also takes the person's settings record (`settings_record`: their `record:setting:generate-and-judge-sound-effects~<scope>` row of `list:settings`), read with the one settings reader, `tools/settings/read-data/settings.py` (`setting(given, folder, [(film), (person, me), (account, main)])`).
 
 ## Files
 

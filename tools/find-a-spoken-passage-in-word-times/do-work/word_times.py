@@ -22,7 +22,7 @@ The request is one JSON object with a `step`:
 Instead of `words`, `clip` names <words_folder>/<clip>.words.json. Relative paths are read and written in --base, the
 folder the person let this tool change.
 
-Settings (the person's settings table row for this folder, handed in as `settings_record`: the tool reads no records; read here
+Settings (the person's list:settings row for this folder, handed in as `settings_record`: the tool reads no records; read here
 with request_settings): words_folder (where a film's <clip>.words.json
 files are), timing (the word written in a words file's "timing", default "word") and round_to (decimals every written
 time is rounded to; none by default, and 2 when an offset moves them).

@@ -9,7 +9,7 @@
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Pour the two example rows into your own settings list (see pour), or make the settings table from them, then put your own seed, test share, set names and numbers in the build, train and score objects: every law, line, set name and number is yours, none is built in.",
+    "1. Pour the two example rows into your own settings list (see pour), or make list:settings from them, then put your own seed, test share, set names and numbers in the build, train and score objects: every law, line, set name and number is yours, none is built in.",
     "2. Build train.jsonl first with tool:build-training-rows-from-a-persons-rules. Ask the person for the time budget (a run can take most of an hour) and for the frame: the context each line is put in, holding {text}, exactly as their gate asks it.",
     "3. The AI writes the request (base_model, frame, train_file, out, rank, epochs, lr, batch, budget_minutes, seed, lora_targets, optionally device, nice, threads) and runs python3 -I tools/fine-tune-a-small-model-on-a-persons-rules/do-work/train_an_adapter.py <request file>. The run uses low priority and few CPU threads, projects its total time after 20 steps and stops when the projection passes the budget.",
     "4. Read the last line: {\"result\": {adapter, base, rank, alpha, targets, epochs, lr, batch, rows, minutes, final_loss, frame}} or {\"error\": ...}. Then measure it with tool:score-held-out-lines-with-a-small-model, with and without the adapter."
@@ -34,7 +34,7 @@
   ],
   "lists": [
     {
-      "list": "list:tool-settings",
+      "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
       "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON. For the fine-tune tools the row id is record:setting:fine-tune-a-small-model-on-a-persons-rules~<scope_kind>~<scope_id> and its settings hold a build, a train and a score object that fill every request key the request leaves out.",
@@ -144,7 +144,7 @@
     "least_coverage": 0.8,
     "how": "Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
-      "kit_list": "list:tool-settings",
+      "kit_list": "list:settings",
       "into": {
         "list": "list:my-settings",
         "row_type": "record:setting",

@@ -198,7 +198,7 @@
           "properties": {
             "settings_record": {
               "type": ["object", "string"],
-              "description": "The person's sort settings row, record:setting:sort-youtube-watch-later-into-playlists~<scope_kind>~<scope_id> in their settings table, exactly as their own store holds it ({id, type: \"record:setting\", value: {name, tool, scope_kind, scope_id, settings, from, status}}), or the path of a JSON file holding it (a list of rows too, with person naming whose). Read and checked by the shared reader in tools/settings; its tool is this row's id and its settings field holds what settings would."
+              "description": "The person's sort settings row, record:setting:sort-youtube-watch-later-into-playlists~<scope_kind>~<scope_id> in their list:settings, exactly as their own store holds it ({id, type: \"record:setting\", value: {name, tool, scope_kind, scope_id, settings, from, status}}), or the path of a JSON file holding it (a list of rows too, with person naming whose). Read and checked by the shared reader in tools/settings; its tool is this row's id and its settings field holds what settings would."
             },
             "person": { "type": "string", "description": "The scope_id of the person whose row to use when settings_record holds several." },
             "settings": {
@@ -472,7 +472,7 @@
           "properties": {
             "cookies": { "type": "string", "description": "The cookies.txt tool:export-browser-login-cookies-for-yt-dlp wrote, put where {request} is." },
             "channels": { "type": "array", "items": { "type": "object", "required": ["slug", "label"] }, "description": "The channels to read: slug, label, sign_in_as or authuser, page_id. Without it, every channel of settings_record (or inline settings) is read." },
-            "settings_record": { "type": ["object", "string"], "description": "The person's sort settings row record:setting:sort-youtube-watch-later-into-playlists~<scope_kind>~<scope_id> from their settings table, as their own store holds it, or a JSON file holding it." },
+            "settings_record": { "type": ["object", "string"], "description": "The person's sort settings row record:setting:sort-youtube-watch-later-into-playlists~<scope_kind>~<scope_id> from their list:settings, as their own store holds it, or a JSON file holding it." },
             "settings": { "type": "object", "description": "The sort settings inline, when neither channels nor settings_record is given." },
             "out_dir": { "type": "string" },
             "only": { "type": "array", "items": { "type": "string" }, "description": "Read only these slugs." }
@@ -487,7 +487,7 @@
           "get_it": ["clone the Workshop repository (package.json repository.url)"],
           "run": "python3 -I tools/sort-youtube-watch-later-into-playlists/do-work/read_channel.py < {request}",
           "needs": ["python", "a YouTube browser login exported by tool:export-browser-login-cookies-for-yt-dlp"],
-          "say": "This runs on the person's own computer, from the root of the Workshop checkout, and acts as their signed-in YouTube channels, so it reads only. Take the person's sort settings row (record:setting:sort-youtube-watch-later-into-playlists~person~<them>, the settings table) from their own store and put it in the request as settings_record with the cookies file and a private out_dir, as one JSON file named where {request} is. First run do-work/list_signed_in_accounts.py with {\"cookies\"}: when signed_in is false, export the login again with tool:export-browser-login-cookies-for-yt-dlp, wait about 20 seconds and check again a few times before asking the person to sign in to YouTube in that browser. Read the last line: { result } gives each channel's counts; { error } says what to change. The files hold the person's lists: keep them private."
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout, and acts as their signed-in YouTube channels, so it reads only. Take the person's sort settings row (record:setting:sort-youtube-watch-later-into-playlists~person~<them>, list:settings) from their own store and put it in the request as settings_record with the cookies file and a private out_dir, as one JSON file named where {request} is. First run do-work/list_signed_in_accounts.py with {\"cookies\"}: when signed_in is false, export the login again with tool:export-browser-login-cookies-for-yt-dlp, wait about 20 seconds and check again a few times before asking the person to sign in to YouTube in that browser. Read the last line: { result } gives each channel's counts; { error } says what to change. The files hold the person's lists: keep them private."
         },
         "maker": "maker:sort-youtube-watch-later-into-playlists",
         "licence_class": "licence:maker-own",

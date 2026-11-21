@@ -74,7 +74,7 @@ FOLDER = 'keep-a-record-library-valid'
 
 
 def is_setting_record(data: Any) -> bool:
-    """A settings table row as the person's AI read it from their store ({id, type, value}), a list of them, or {records: [...]}."""
+    """A list:settings row as the person's AI read it from their store ({id, type, value}), a list of them, or {records: [...]}."""
     if isinstance(data, dict) and isinstance(data.get('records'), list):
         data = data['records']
     if isinstance(data, list):
@@ -83,7 +83,7 @@ def is_setting_record(data: Any) -> bool:
 
 
 def read_schema(path: Path, scopes: list[tuple[str, str]] | None = None) -> dict:
-    """The schema: the file itself, or the person's settings table row record:setting:keep-a-record-library-valid~<scope_kind>~<scope_id>
+    """The schema: the file itself, or the person's list:settings row record:setting:keep-a-record-library-valid~<scope_kind>~<scope_id>
     (a file holding the record as the person's AI read it from their store, or several), whose settings are the schema; read with tools/settings
     `setting` (the first of `scopes` that has a row; with no scopes, the one row given)."""
     data = read_json(path)

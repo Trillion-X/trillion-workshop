@@ -3,7 +3,7 @@
   "start_here": "Say to your AI: \"Write a draft script for each of my product's capabilities in each video format I picked: the format's own lines filled with the capability's words, the word count of every line against the format's measured budget, the shots, the filming notes, and every fact still missing listed with what would fill it\", with {\"settings\":{\"fetched\":\"a made-up morning\"},\"settings_record\":{\"id\":\"record:setting:generate-fill-scripts-for-formats~account~main\",\"type\":\"record:setting\",\"value\":{\"name\":\"Tea shop fill pages\",\"tool\":\"tool:generate-fill-scripts-for-formats\",\"scope_kind\":\"account\",\"scope_id\":\"main\",\"settings\":\"{\\\"fill_page\\\":[\\\"# Fill: {format.short} x \\\\\\\"{listing.title}\\\\\\\"\\\\n\\\",\\\"| # | slot | line | budget | .... It runs tool:generate-fill-scripts-for-formats and answers {\"fills\":[{\"format\":\"counter-chat\",\"capability\":\"steeper\",\"file\":\"counter-chat/steeper.md\",\"text\":\"# Fill: counter x \\\"Steeper\\\"\\n\\n| # | slot | line | budget | words | diff | secs |\\n| 1 | 1 | Hi, today I'm showing you Steeper. | 8 | 6 | -2 | 2.5 |\\n| 2 | 2 | Cups went cold while I waited. It got me [the real count]. | 12 | 12 | 0 | 4 |\\nNo line is over budget.\\n| 1 | 0-3 | L1 | a pour of ...",
   "lists": [
     {
-      "list": "list:tool-settings",
+      "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
       "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
@@ -221,7 +221,7 @@
     "least_coverage": 0.8,
     "how": "Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
-      "kit_list": "list:tool-settings",
+      "kit_list": "list:settings",
       "into": {
         "list": "list:my-settings",
         "row_type": "record:setting",

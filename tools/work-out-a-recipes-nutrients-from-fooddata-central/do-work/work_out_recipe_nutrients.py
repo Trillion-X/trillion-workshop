@@ -21,14 +21,14 @@ sys.path.insert(1, SETTINGS)
 
 from fooddata_central import Refusal, load_dir, load_texts  # noqa: E402
 from recipe_profile import work_out  # noqa: E402
-import settings  # noqa: E402  (tools/settings, the one reader of the settings table)
+import settings  # noqa: E402  (tools/settings, the one reader of list:settings)
 
 FOLDER = 'work-out-a-recipes-nutrients-from-fooddata-central'
 TOOL = 'tool:' + FOLDER
 
 
 def with_saved_recipe(request):
-    """The request with the person's saved recipe under it: settings_record is their settings table row(s)
+    """The request with the person's saved recipe under it: settings_record is their list:settings row(s)
     (record:setting:<FOLDER>~piece~<piece>), read through tools/settings at scope piece (the request's `piece`);
     a field the request gives itself wins."""
     if 'settings_record' not in request:
@@ -39,7 +39,7 @@ def with_saved_recipe(request):
     except settings.SettingError as e:
         raise Refusal(str(e))
     if saved is None:
-        raise Refusal(f'no settings table row for piece {request.get("piece")} was given: pass the row record:setting:{FOLDER}~piece~<piece> as settings_record')
+        raise Refusal(f'no list:settings row for piece {request.get("piece")} was given: pass the row record:setting:{FOLDER}~piece~<piece> as settings_record')
     if not isinstance(saved, dict):
         raise Refusal('the saved recipe must be an object of request fields (id, ingredients, ...)')
     merged = dict(saved)

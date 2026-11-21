@@ -1078,7 +1078,7 @@ class RealVoiceClassifierGateTests(WritingGateTests):
 
 @unittest.skipUnless((HERE.parents[1] / "settings" / "read-data" / "settings.py").is_file(), "tools/settings is not in this checkout")
 class SettingsRowTests(unittest.TestCase):
-    """The settings come from the book's row of the settings table, read through tools/settings."""
+    """The settings come from the book's row of list:settings, read through tools/settings."""
 
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()

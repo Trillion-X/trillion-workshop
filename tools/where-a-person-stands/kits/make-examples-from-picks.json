@@ -3,7 +3,7 @@
   "start_here": "Say to your AI: \"Make labelled examples for calibrating a small model from which options of a piece a person picked or rejected, and the lines they named\", with {\"films\":[{\"name\":\"piece-1\",\"gate\":{\"picked_verdicts\":[\"picked\"],\"pick_labels\":{\"spec_globs\":[\"cuts/{option}.json\"]}},\"decisions\":[{\"option_id\":\"o1\",\"verdict\":\"picked\"}],\"files\":[\"cuts/o1.json\"],\"units\":{\"cuts/o1.json\":[{\"text\":\"A kept line.\",\"kind\":\"onscreen\"}]}}]}. It runs tool:make-examples-from-picks and answers {\"items\":[{\"text\":\"A kept line.\",\"good\":true,\"bad_for\":[],\"split\":\"real\",\"source\":\"pick-implied\",\"kind\":\"onscreen\",\"film\":\"piece-1\",\"option\":\"o1\",\"verdict\":\"picked\",\"their_words\":null,\"spec\":\"cuts/o1.json\",\"context\":null}],\"left_out\":{\"excluded\":0,\"ruled_directly\":0,\"both_labels\":0,\"no_spec\":[],\"several_specs\":[]},\"units_needed\":[]}",
   "lists": [
     {
-      "list": "list:tool-settings",
+      "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
       "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
@@ -174,7 +174,7 @@
     "least_coverage": 0.8,
     "how": "Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
-      "kit_list": "list:tool-settings",
+      "kit_list": "list:settings",
       "into": {
         "list": "list:my-settings",
         "row_type": "record:setting",

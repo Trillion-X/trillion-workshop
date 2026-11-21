@@ -3,7 +3,7 @@
   "start_here": "Say to your AI: \"Build thumbnail candidate A for my sample-film from the frames in ./frames and the cut-outs in ./cutouts, with the font fonts/DejaVuSans-Bold.ttf, into ./out.\" It reads your settings row for that film, writes the request file and runs the layout script on your computer.",
   "lists": [
     {
-      "list": "list:tool-settings",
+      "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
       "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON. For this tool the settings hold the candidates, each one a template name and its values.",
@@ -112,7 +112,7 @@
     "tool:compose-thumbnails-from-layout-templates"
   ],
   "instructions": [
-    "1. Pour the two example settings rows into the settings list you already keep (see pour), or make the settings table from them; change scope_id and the candidates to your own film, frames and face boxes. Keep status active: a row with any other status is refused.",
+    "1. Pour the two example settings rows into the settings list you already keep (see pour), or make list:settings from them; change scope_id and the candidates to your own film, frames and face boxes. Keep status active: a row with any other status is refused.",
     "2. Put full-size frames in a folder as <name>.png, cut-outs in another as <name>_cut.png (cut from the crop whose top-left is cut_offset, 1000,150 unless you say otherwise), and have a TrueType or OpenType font file ready.",
     "3. Say \"Build thumbnail candidates for my film\" to your AI. It reads the row with tools:list {tool: tool:compose-thumbnails-from-layout-templates}, installs Pillow (python3 -m pip install -U pillow), reads your settings row from your records and writes a request JSON file.",
     "4. The AI runs python3 tools/compose-thumbnails-from-layout-templates/do-work/compose_thumbnails.py request.json from the Workshop checkout root and reads the last line: {\"result\": {\"thumbnails\": [paths]}} lists one 1280x720 PNG per candidate, or {\"error\": ...} says what to change (a missing frame, cut-out, font, or a value the template needs).",
@@ -141,7 +141,7 @@
     "least_coverage": 0.8,
     "how": "Name the settings list you already keep and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
-      "kit_list": "list:tool-settings",
+      "kit_list": "list:settings",
       "into": {
         "list": "list:my-tool-options",
         "row_type": "record:tool-option",

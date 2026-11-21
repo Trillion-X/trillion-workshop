@@ -1,6 +1,6 @@
 // Runs every script of do-work/ for real on made-up posts, comments, buckets, picks, transcripts and a research package,
 // with stand-ins for sentence-transformers and torch (test/stand-in) so no model files are needed, the person's settings
-// given as a settings table row read through tools/settings, and tool:check-copy run for real on made-up rules. Needs
+// given as a list:settings row read through tools/settings, and tool:check-copy run for real on made-up rules. Needs
 // python3; the model steps also need numpy, and skip, saying why, without it. Every name and word here is made up.
 import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test, { before } from 'node:test';
@@ -26,7 +26,7 @@ const putLines = (name, rows) => put(name, rows.map(r => JSON.stringify(r)).join
 const numpy = spawnSync('python3', ['-c', 'import numpy'], { encoding: 'utf8' });
 const modelSkip = numpy.status === 0 ? false : 'needs python3 with numpy';
 const FOLDER = 'collect-and-rank-viewer-questions';
-// The person's settings as their settings table row, the way the door's the settings table read answers it.
+// The person's settings as their list:settings row, the way the door's records:read answers it.
 const settingRow = (settings, folder = FOLDER) => ({
   id: `record:setting:${folder}~person~sample-baker`, type: 'record:setting',
   value: { name: 'Sample baker viewer questions', tool: `tool:${folder}`, scope_kind: 'person', scope_id: 'sample-baker', settings: JSON.stringify(settings), from: 'made-up@0', status: 'active' },

@@ -19,7 +19,7 @@ The discovery file (JSON, paths relative to its "root"):
   renders      folder for render measurements (default: renders beside the manifest)
   registry     the person's dimensions registry (default: the shipped read-data/dimensions.json); --registry overrides it
 
-With --settings-record (the person's settings table row for this tool), its settings.registry is the registry and its
+With --settings-record (the person's list:settings row for this tool), its settings.registry is the registry and its
 settings.discovery is the discovery when no discovery file is given; there "films" may be the films object itself.
 """
 import argparse
@@ -93,7 +93,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("discovery", nargs="?", help="the discovery file (default: the settings row's discovery)")
     ap.add_argument("--registry", help="the dimensions registry to measure with (default: the discovery file's registry, else the shipped one)")
-    ap.add_argument("--settings-record", help="this tool's row of the person's settings table (a JSON file of the record the settings table read returns)")
+    ap.add_argument("--settings-record", help="this tool's row of the person's list:settings (a JSON file of the record records:read returns)")
     ap.add_argument("--scope", action="append", help="KIND:ID, most specific first, when the settings record holds several rows")
     ap.add_argument("--only")
     ap.add_argument("--force", action="store_true")

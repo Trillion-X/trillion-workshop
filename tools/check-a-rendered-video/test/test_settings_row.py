@@ -1,4 +1,4 @@
-"""The person's limits and reviewed pins as one row of their settings table (record:setting:check-a-rendered-video~<scope_kind>~<scope_id>):
+"""The person's limits and reviewed pins as one row of their list:settings (record:setting:check-a-rendered-video~<scope_kind>~<scope_id>):
 read from a file holding the row, or handed in a JSON request (the record itself, or its id with the row in stored.records). Made-up data only.
 Run: python3 test/run_tests.py test_settings_row.py"""
 import contextlib

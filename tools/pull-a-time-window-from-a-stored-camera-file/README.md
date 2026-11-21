@@ -2,7 +2,7 @@
 
 Take the sound of a few seconds, or one still picture, out of a camera video kept in cloud storage, without downloading the video. Camera files run about 13 MB per second of footage; audio is a small part of each second. The tool reads the file's box headers and its index by byte range, builds a sparse local copy with the same layout, asks ffprobe which byte ranges hold the audio packets inside the window (or the one key frame at or before a second), reads only those ranges and decodes them. The wav starts with silence up to the window's start, so second N of the wav is second N of the camera file and a plan can cut it in the camera file's own seconds.
 
-Moved from a film's tools folder (`b2_audio_window.py`). The algorithm is the old one; the reader command, the store and the storage account id are now the person's settings (a settings table row read through `tools/settings`, or keys of the request), and the picture mode's key-frame probe asks ffprobe not to parse (see Invariants).
+Moved from a film's tools folder (`b2_audio_window.py`). The algorithm is the old one; the reader command, the store and the storage account id are now the person's settings (a `list:settings` row read through `tools/settings`, or keys of the request), and the picture mode's key-frame probe asks ffprobe not to parse (see Invariants).
 
 ## Files
 
@@ -23,7 +23,7 @@ Moved from a film's tools folder (`b2_audio_window.py`). The algorithm is the ol
 | `identity` | The stored file's identity as the store names it. |
 | `from`, `to` | Window seconds (window mode). `at`: the second to take a frame at (frame mode). |
 | `out` | Where the wav or jpg goes. |
-| `settings_record`, `settings` | The person's settings table row for this folder (`record:setting:pull-a-time-window-from-a-stored-camera-file~<scope_kind>~<scope_id>`), handed in as the record itself, and settings for this run laid over it. They hold `store`, `account`, `reader`, `credentials` and `gap`; the same key at the top of the request wins. |
+| `settings_record`, `settings` | The person's `list:settings` row for this folder (`record:setting:pull-a-time-window-from-a-stored-camera-file~<scope_kind>~<scope_id>`), handed in as the record itself, and settings for this run laid over it. They hold `store`, `account`, `reader`, `credentials` and `gap`; the same key at the top of the request wins. |
 | `store`, `account` | The store the reader is pointed at, and the storage account id the file is kept under. |
 | `reader` | `{argv, cwd?, env?, ok_marker?, retries?, retry_seconds?}`. `argv` is a template: `{store} {account} {identity} {out} {offset} {length}` are filled in. The command writes the bytes to `{out}` and prints `ok_marker` (default `ok-range`). A failed read is retried (default 20 times, 3 seconds apart). |
 | `credentials` | Names of environment variables the reader needs (a storage key's name). Each must be set where this runs; the values go to the reader and are never read, printed or kept here. |

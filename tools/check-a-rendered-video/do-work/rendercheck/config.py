@@ -31,7 +31,7 @@ def _is_setting(data):
 
 
 def from_setting(data, key):
-    """`settings[key]` of a settings table row (the record the settings table read gives, or its value; its settings JSON text or an object),
+    """`settings[key]` of a list:settings row (the record records:read gives, or its value; its settings JSON text or an object),
     or `data` itself when it is not a row (a bare limits or pins file). The shared reader refuses a retired row or one for another tool."""
     if not _is_setting(data):
         return data
@@ -47,13 +47,13 @@ def from_setting(data, key):
 
 def load(path):
     """The limits as a dict: `frame`, `analysis`, and one section per check (named like its module: in_frame, joins, ...).
-    The file is either the limits themselves or the person's settings table row for this tool (record:setting:check-a-rendered-video~<scope_kind>~<scope_id>),
+    The file is either the limits themselves or the person's list:settings row for this tool (record:setting:check-a-rendered-video~<scope_kind>~<scope_id>),
     whose settings.limits are the limits."""
     return from_setting(jsonio.read(path), 'limits')
 
 
 def load_reviewed(path):
-    """The person's reviewed pins ({check: pin}): a pins file, or settings.reviewed_pins of their settings table row."""
+    """The person's reviewed pins ({check: pin}): a pins file, or settings.reviewed_pins of their list:settings row."""
     return from_setting(jsonio.read(path), 'reviewed_pins')
 
 

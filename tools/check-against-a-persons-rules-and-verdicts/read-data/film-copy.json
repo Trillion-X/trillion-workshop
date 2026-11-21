@@ -1,5 +1,5 @@
 {
- "what_this_is": "DATA for do-work/check-a-films-copy.mjs (tool:check-a-films-copy): the readers it knows, the report's schema, the exit code of each status, the settings it reads and every word it says. The person's layouts, spans, profiles, owners, fields, origin words and reader-knowledge rows are never here: they are their settings row (the settings table, record:setting:<settings_folder>~<scope_kind>~<scope_id>), read through tools/settings.",
+ "what_this_is": "DATA for do-work/check-a-films-copy.mjs (tool:check-a-films-copy): the readers it knows, the report's schema, the exit code of each status, the settings it reads and every word it says. The person's layouts, spans, profiles, owners, fields, origin words and reader-knowledge rows are never here: they are their settings row (list:settings, record:setting:<settings_folder>~<scope_kind>~<scope_id>), read through tools/settings.",
  "settings_folder": "check-against-a-persons-rules-and-verdicts",
  "tool_row": "tool:check-a-films-copy",
  "report_schema": "copy-check-report-v1",
@@ -28,8 +28,8 @@
   "answers": "model answers by question id"
  },
  "words": {
-  "no_settings": "settings_record {id} is not a settings row: give the person's settings table row itself, { id, type, value }, as their AI read it. The film readers, spans and reader-knowledge rows are read from it.",
-  "setting_id": "settings_record {id} is a row's id: give the row itself, { id, type, value }, as your AI read it from your settings table.",
+  "no_settings": "settings_record {id} is not a settings row: give the person's list:settings row itself, { id, type, value }, as their AI read it. The film readers, spans and reader-knowledge rows are read from it.",
+  "setting_id": "settings_record {id} is a row's id: give the row itself, { id, type, value }, as your AI read it from your list:settings.",
   "no_files": "files is a non-empty list of { name, text }: the film's copy files, each by its name (the layouts are chosen by the file's name) and its text.",
   "reader": "reader must be one of {readers}.",
   "owner": "--owner (owner) is only valid with the json-words reader, which requires it.",

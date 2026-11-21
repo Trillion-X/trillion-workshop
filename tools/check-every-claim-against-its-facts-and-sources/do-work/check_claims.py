@@ -9,7 +9,7 @@ One JSON request on standard input, one JSON answer as the last printed line:
    "frames_root": the folder a claim's `frame` path is relative to,
    "world_dir": the person's world rows (lists.json, rows/<list>.json, relations.json),
    "hedge_phrases": ["phrases no claim may carry", ...]   (the person's no-hedge check row's words),
-   "settings_record": the person's settings table row (as selected from the person's database, its value, or a file of it), whose
+   "settings_record": the person's list:settings row (as selected from the person's database, its value, or a file of it), whose
                       settings are {"rules": {...}, "subject_name", "narrator_name", "hedge_row"},
    "settings": optional object laid over the row's settings,
    "path_map": {"<prefix written on another computer>": "<prefix here>"}      (optional),
@@ -54,7 +54,7 @@ def config_of(request):
     if not isinstance(request['shots'], list) or not request['shots']:
         raise Refusal('shots must be a list of one or more shot ids')
     if 'settings_record' not in request and 'settings' not in request:
-        raise Refusal('the request has no settings_record: give the person\'s settings table row for this tool '
+        raise Refusal('the request has no settings_record: give the person\'s list:settings row for this tool '
                       f'(record:setting:{FOLDER}~<scope_kind>~<scope_id>), or a settings object')
     try:
         settings = shared_settings.request_settings(request, DEFAULTS, folder=FOLDER, tool=TOOL)

@@ -12,7 +12,7 @@ Ported from a film repository's `tools/pick-gate/pick_gate.py` (5a9ba39): the fi
 
 Only the pick gate reads the person's rows: the pick and the protected-project settings must be the person's own rows (the four preview tools take the film's settings as input and read nothing). The person's AI reads both from the person's own store and hands them over, exactly as stored, in the file `--stored` names (JSON `{records: [{id, type, value}]}`); a stand missing from it is no stand. A stand is a row the person's AI keeps, so the script cannot tell one the person took from one an AI wrote; `tool:keep-where-you-stand` is the only maker of a stand:
 
-- **The settings** are one row of the person's settings table (type `record:setting`): `record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>`, or the id `--settings-record` names. The script reads the row and hands it to `tools/settings` `request_settings`, which lays it over the script's `DEFAULTS` (`picked_stances` `["agree"]`, `option_kind` `film-option`, `option_fold` `{ collapse_space: true }`, `filmcraft_cli` `filmcraft-cli`, `apply_log` `pick-gate-applied.jsonl`). A row must at least name `protected_projects` and `allowed_option_folders`. A retired row, or a row of another tool, is refused.
+- **The settings** are one row of the person's `list:settings` (type `record:setting`): `record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>`, or the id `--settings-record` names. The script reads the row and hands it to `tools/settings` `request_settings`, which lays it over the script's `DEFAULTS` (`picked_stances` `["agree"]`, `option_kind` `film-option`, `option_fold` `{ collapse_space: true }`, `filmcraft_cli` `filmcraft-cli`, `apply_log` `pick-gate-applied.jsonl`). A row must at least name `protected_projects` and `allowed_option_folders`. A retired row, or a row of another tool, is refused.
 - **The pick** is the person's stance record on the option, the record `tools/where-a-person-stands` keeps (`stance:<option kind>:<identity of the option id>`). Only a stand kept `by: person` whose newest value is one of `picked_stances` counts. The record id and the option's identity are made by that folder's own code, through `do-work/stance-id-from-stdin.mjs`, so the fold and the hash have one owner. Keeping a stand is `tool:keep-where-you-stand`, which checks the person's words against their source; this script never writes one.
 
 The script reads no store itself: the person's AI reads those rows from the person's own store, in that store's own language, and hands them over exactly as stored. A file handed to it cannot stand in for the person's own stand.
@@ -34,7 +34,7 @@ Every command reads one JSON request (a file named as the first argument, or sta
 
 ### The settings
 
-The film's row is the same settings table row the pick gate reads (the previews are handed it as `settings_record`), `record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>`; the previews read its `filmcraft_cli` and its `preview` object (defaults in `option_folders.DEFAULTS`):
+The film's row is the same `list:settings` row the pick gate reads (the previews are handed it as `settings_record`), `record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>`; the previews read its `filmcraft_cli` and its `preview` object (defaults in `option_folders.DEFAULTS`):
 
 | key | default | meaning |
 |---|---|---|

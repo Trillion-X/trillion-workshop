@@ -3,7 +3,7 @@
   "start_here": "Say to your AI: \"Sample up to 5 videos from my format library at formats-library, spread over creators, with 10 evenly spaced shots each, and cut a frame for every shot.\"",
   "lists": [
     {
-      "list": "list:tool-settings",
+      "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
       "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
@@ -115,7 +115,7 @@
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Pour the two example settings rows into your own settings table (see pour), or write your own row record:setting:benchmark-small-local-models~person~<you> whose settings hold {\"commands\":{\"sample_shots_across_groups\":{...your defaults}}}.",
+    "1. Pour the two example settings rows into your own list:settings (see pour), or write your own row record:setting:benchmark-small-local-models~person~<you> whose settings hold {\"commands\":{\"sample_shots_across_groups\":{...your defaults}}}.",
     "2. Say the line in start_here. Your AI reads this tool's row with tools:list {tool: \"tool:sample-shots-and-frames-from-my-format-library\"} and gets its run command.",
     "3. Your AI writes the request as a JSON file (request.json), adds settings_record from your settings row if you keep one, and runs python3 trillion-workshop/tools/benchmark-small-local-models/do-work/sample_shots_across_groups.py request.json on your computer.",
     "4. It reads the last line the script prints: {\"result\": ...} or {\"error\": \"what to change\"} (exit code 2), then tells you the result in plain words.",
@@ -144,7 +144,7 @@
     "least_coverage": 0.8,
     "how": "Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
-      "kit_list": "list:tool-settings",
+      "kit_list": "list:settings",
       "into": {
         "list": "list:my-tool-options",
         "row_type": "record:tool-option",

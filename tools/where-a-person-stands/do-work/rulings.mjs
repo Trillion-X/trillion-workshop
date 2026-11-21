@@ -5,7 +5,7 @@
 //   rule) kept as rows of a list in the person's own account (do-work/ruling-records.mjs keeps them). A ruling is lighter
 //   than a stand: anyone may give one (a person, a reviewer, a checker that escalated the line), and only the rulings by
 //   the people the caller names count as real. This file reads and writes no file: the caller hands in the rows it read
-//   back from the list. `withSettings` puts the person's setting for this tool (their row of the settings table, read by
+//   back from the list. `withSettings` puts the person's setting for this tool (their row of list:settings, read by
 //   tools/settings) under the input of every rulings tool.
 //
 // Non-negotiable invariants
@@ -24,7 +24,7 @@ import { setting } from '../../settings/read-data/settings.mjs';
 export const TOOL = 'where-a-person-stands';
 
 /**
- * The input with the person's setting under it: `settings_record` is their row of the settings table for this tool
+ * The input with the person's setting under it: `settings_record` is their row of list:settings for this tool
  * (record:setting:where-a-person-stands~<scope kind>~<scope id>) as the caller read it from the person's store (the record, its
  * value, or a list of them), read by the one shared reader, tools/settings `setting`. The input's own fields win over the
  * setting's. Without settings_record the input is used as it is.

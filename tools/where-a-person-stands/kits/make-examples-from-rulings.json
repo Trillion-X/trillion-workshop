@@ -135,7 +135,7 @@
       ]
     },
     {
-      "list": "list:tool-settings",
+      "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
       "holds": "One setting row for one tool and one scope (a person, a film, a piece or the whole account): the values as JSON and where they came from.",
@@ -244,7 +244,7 @@
     "tool:count-real-rulings"
   ],
   "instructions": [
-    "1. Keep your rulings as rows of list:checks (tool:keep-rulings-on-lines) and your settings for this tool as a row of the settings table: real (who counts), needs (fields a ruling must carry, such as film) and bad_label.",
+    "1. Keep your rulings as rows of list:checks (tool:keep-rulings-on-lines) and your settings for this tool as a row of list:settings: real (who counts), needs (fields a ruling must carry, such as film) and bad_label.",
     "2. Collect the lines you said yourself as speech ({text, sets}) and the lists of lines a model was trained on as exclude.",
     "3. The AI reads the rulings (the person's Checks list: type record:check with id prefix record:check:ruling-) and your settings row, then runs tool:make-examples-from-rulings at @tools with {rulings, speech, exclude, settings_record}. The input's own fields win over the setting.",
     "4. Read the answer: items ({text, good, bad_for, split, source ruling or speech, context}) and left_out (texts ruled both ways, texts in exclude). Only rulings by the people in real, carrying every field in needs, count. It writes nothing."

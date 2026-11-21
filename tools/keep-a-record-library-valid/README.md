@@ -43,7 +43,7 @@ python3 -I do-work/keep_a_record_library.py --library DIR --schema FILE COMMAND 
 
 `--library` is the folder every file in the schema is relative to. `evidence`, `start`, `finding`, `gate`, `answer`, `answer-from-render-check`, `audit-watch` and `scope-options` take the schema's lock file, so two writers never interleave; `sweep`, `content-gates` and `audition-gates` run their checks unlocked and lock only while they record.
 
-`--schema` is the schema file, or the person's settings table row `record:setting:keep-a-record-library-valid~<scope_kind>~<scope_id>` (a file holding the record as the person's AI read it from their store, or several of them), whose settings are the schema; it is read with the one shared reader, `tools/settings` `setting`. With several rows, `--scope KIND=ID` (repeatable, most specific first) names the one to read.
+`--schema` is the schema file, or the person's `list:settings` row `record:setting:keep-a-record-library-valid~<scope_kind>~<scope_id>` (a file holding the record as the person's AI read it from their store, or several of them), whose settings are the schema; it is read with the one shared reader, `tools/settings` `setting`. With several rows, `--scope KIND=ID` (repeatable, most specific first) names the one to read.
 
 The delivery gate's run option: `--records FILE` holds the rows the person's AI read from their own store (a JSON array of `{ id, type, value }`, or `{ records }`), from which the copy check reads their branch of `list:checks` (without it the copy and verdict rows cannot be pinned and are listed as open with what they need); `--render-check-limits FILE` overrides `delivery_gate.render_check.limits`; `--copy-check-arg ARG` (repeatable, `--name=value` for a value) hands the copy check more arguments, such as `--no-model` or `--decider-python=P`.
 
@@ -129,7 +129,7 @@ The checklist is a pool (`checklist_pool`) whose file holds `stages: [{ id, chec
 | `film_qa_checks`, `film_qa_unmapped_rule`, `film_qa_check_pins`, `not_measured_blip_s`, `machine_by` | Render check name to rule ids (with `finding_match`), the rule an unmatched FAIL fails, the reviewed pin of each check, the shortest unmeasured span that withholds a row, the name its rows carry. |
 | `render_check` | `{ limits }`: the render check's limits file under the library (or `--render-check-limits`). |
 | `sweep_rule`, `sweep_by` | The rule the sweep's own row answers and the name it carries. |
-| `copy_check` | `{ branch, settings_record }`: the person's branch of `list:checks` and the id of the copy check's own settings table row. |
+| `copy_check` | `{ branch, settings_record }`: the person's branch of `list:checks` and the id of the copy check's own `list:settings` row. |
 | `content_gate_roles`, `content_gates` | `{ copy, verdict, fact, audio }` rule ids, and each content gate's row writer name (`by`; the fact gate's `tool`, a path under the library). |
 | `content_gate_lane_previews`, `content_gate_spoken_paths`, `content_gate_text_keys`, `content_gate_fields`, `content_gate_text_optional`, `content_gate_artifact_sources` | Which previews a lane gates, where a spec names its spoken words, how a spec's drawn text is read (with the render check's own text fields), and which artifact each verdict kind reads (`spec`, `strings`, `voice`). |
 | `fact_round_pattern`, `fact_layouts` | Where an option's fact shots and claims are: `[{ root, ids, needs_round? }]` with `{lane}`, `{piece}`, `{option}`, `{option_base}` and `{round}` filled. |

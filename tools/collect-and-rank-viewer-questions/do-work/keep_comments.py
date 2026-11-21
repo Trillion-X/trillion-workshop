@@ -39,7 +39,7 @@ def fail(words):
 
 
 def settings_from(path):
-    """The person's settings for this tool, read through tools/settings: a JSON file holding their settings table row as
+    """The person's settings for this tool, read through tools/settings: a JSON file holding their list:settings row as
     the door read it ({id, type: "record:setting", value}), or a JSON file of the settings themselves."""
     given = json.load(open(path))
     if not isinstance(given, dict) or not ("value" in given or "records" in given or "settings" in given):

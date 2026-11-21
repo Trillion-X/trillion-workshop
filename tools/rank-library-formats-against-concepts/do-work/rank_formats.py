@@ -13,7 +13,7 @@ The request is one JSON object:
   judged       list of judged JSON files `apply` reads: {"<concept id>": [{"format": key, "fit": why}, ...] best first}
 Relative paths are read (and the titles file written) in --base, the folder the person let this tool change.
 
-What belongs to one person or film is their settings: a settings table row handed in as `settings_record` (this tool reads no
+What belongs to one person or film is their settings: a list:settings row handed in as `settings_record` (this tool reads no
 records), read here with
 request_settings), with the run's own `settings` over it: form_templates ({bank id: [name, form]}: the bank's templates
 that name a form), stable_keys (format folder -> the key other work already uses), own_formats (candidate rows of the
@@ -190,7 +190,7 @@ def apply(cands, ideas):
 def load_settings(request):
     """The tool's defaults with the person's settings (their row, then the run's own) laid over."""
     if request.get('settings_file') is not None:
-        raise Refusal('settings_file is gone: name the person\'s settings table row in settings_record, or give settings')
+        raise Refusal('settings_file is gone: name the person\'s list:settings row in settings_record, or give settings')
     return request_settings(request, DEFAULTS, folder=FOLDER, tool=TOOL)
 
 

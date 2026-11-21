@@ -1,5 +1,5 @@
 {
-  "what_this_is": "Every key a script of this tool reads from the person's settings: the settings object of their settings table row record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, read by tools/settings (read-data/settings.py), with the request's own settings laid over it. The tool carries no values: the character's voice, the show's formats, the words and the videos are the person's. Each script needs only the keys it names; a run with one missing, or of the wrong type, is refused, naming it.",
+  "what_this_is": "Every key a script of this tool reads from the person's settings: the settings object of their list:settings row record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, read by tools/settings (read-data/settings.py), with the request's own settings laid over it. The tool carries no values: the character's voice, the show's formats, the words and the videos are the person's. Each script needs only the keys it names; a run with one missing, or of the wrong type, is refused, naming it.",
   "keys": {
     "character_label": {
       "type": "string",

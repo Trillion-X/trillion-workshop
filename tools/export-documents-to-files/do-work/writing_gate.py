@@ -1,7 +1,7 @@
 """Enforce the person's writing settings before the managed DOCX CLI exports.
 
 This is coverage/regression enforcement, not semantic or author approval. The
-settings are one row of the person's settings table
+settings are one row of the person's list:settings
 (record:setting:export-documents-to-files~piece~<book-id>), read at run time; they
 contain no executable paths. The Workshop's own checkers are used:
 tools/pin-files-by-content (writing profile and source spans), the book's checks

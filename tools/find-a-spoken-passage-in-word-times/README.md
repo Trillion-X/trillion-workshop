@@ -24,7 +24,7 @@ Moved from a film's tools folder: `span.py` (step `span`), `sentences.py` (step 
 | `first`, `last`, `after` | `span`: the passage's first words, its last words (searched from the first match on), and a second to start searching from. |
 | `from`, `to` | `sentences`: keep words that start in this window. |
 | `source`, `out`, `offset` | `words-file`: the recording the words are of, the file to write, seconds added to every time. |
-| `settings_record`, `settings` | The person's settings table row for this folder (`record:setting:find-a-spoken-passage-in-word-times~<scope_kind>~<scope_id>`), and settings for this run laid over it: `words_folder`, `timing` (default `word`), `round_to` (default none; times moved by an offset are rounded to 2). |
+| `settings_record`, `settings` | The person's `list:settings` row for this folder (`record:setting:find-a-spoken-passage-in-word-times~<scope_kind>~<scope_id>`), and settings for this run laid over it: `words_folder`, `timing` (default `word`), `round_to` (default none; times moved by an offset are rounded to 2). |
 
 ## Key Types / Functions
 

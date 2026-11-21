@@ -219,11 +219,11 @@
         "string",
         "object"
        ],
-       "description": "The film's settings row in the settings table, handed in as the record itself (as the settings table read gives it) or the path of a JSON file of it."
+       "description": "The film's settings row in list:settings, handed in as the record itself (as records:read gives it) or the path of a JSON file of it."
       },
       "settings": {
        "type": "object",
-       "description": "The film's settings, merged from settings_record (a row of the person's settings table, record:setting:motion-film-template~film~<film>) and any given here: duration (when the cue sheet has no DUR); music {file (a path template with {sound} and {film}), start, fade_out, read_tail, bed, input_args, chain (the bed's ffmpeg filter chain; it may name {DUR}, {start}, {end}, {gain_expr}, {fade_out}, {fade_out_at}, {read_to}, {bed})}; gain {base, duck, duck_pad [before, after], windows: [{from, to, to_inclusive?, set | add | ramp [from_db, to_db]}], steps_per_second, time_format}; voice {files, chain}; cues {files, chain}; mix; after_mix; loudness {method: none | gain-then-limit {measure, target_i, limiter} | linear-two-pass {loudnorm, target_i, limit_db}}; out; work; sample_rate."
+       "description": "The film's settings, merged from settings_record (a row of the person's list:settings, record:setting:motion-film-template~film~<film>) and any given here: duration (when the cue sheet has no DUR); music {file (a path template with {sound} and {film}), start, fade_out, read_tail, bed, input_args, chain (the bed's ffmpeg filter chain; it may name {DUR}, {start}, {end}, {gain_expr}, {fade_out}, {fade_out_at}, {read_to}, {bed})}; gain {base, duck, duck_pad [before, after], windows: [{from, to, to_inclusive?, set | add | ramp [from_db, to_db]}], steps_per_second, time_format}; voice {files, chain}; cues {files, chain}; mix; after_mix; loudness {method: none | gain-then-limit {measure, target_i, limiter} | linear-two-pass {loudnorm, target_i, limit_db}}; out; work; sample_rate."
       },
       "run": {
        "type": "boolean",
@@ -381,7 +381,7 @@
      "placement:your-computer"
     ],
     "provenance": {
-     "source": "Moved from the per-film build and mix scripts of the motion-film format (audio/mix.py; build-icons.mjs) in the old films repository at 5a9ba39; each film's own values became the settings table rows"
+     "source": "Moved from the per-film build and mix scripts of the motion-film format (audio/mix.py; build-icons.mjs) in the old films repository at 5a9ba39; each film's own values became list:settings rows"
     }
    }
   },
@@ -573,7 +573,7 @@
     "status": "active",
     "label": "Premix a motion film's soundtrack from its cue sheet (runs on your computer)",
     "job": "Mix my film's soundtrack: the music bed ducked under the voice, every voice line and every sound effect on the frame of its picture event, at the loudness I chose",
-    "description": "The same premix as tool:plan-a-motion-films-soundtrack-premix, run with ffmpeg where the film's recordings are: writes the film's soundtrack wav (by default <film>/assets/soundtrack.wav), measuring the premix first when the film's loudness method is two-pass, and removes its work file. Answers where it wrote, the counts and the loudness it measured and reached. The film's choices (music, start, gain windows, fades, filter chains, loudness) are its settings row in the settings table.",
+    "description": "The same premix as tool:plan-a-motion-films-soundtrack-premix, run with ffmpeg where the film's recordings are: writes the film's soundtrack wav (by default <film>/assets/soundtrack.wav), measuring the premix first when the film's loudness method is two-pass, and removes its work file. Answers where it wrote, the counts and the loudness it measured and reached. The film's choices (music, start, gain windows, fades, filter chains, loudness) are its settings row in list:settings.",
     "input_schema": {
      "type": "object",
      "properties": {
@@ -610,7 +610,7 @@
      "placement:your-computer"
     ],
     "provenance": {
-     "source": "Moved from the per-film build and mix scripts of the motion-film format (audio/mix.py; build-icons.mjs) in the old films repository at 5a9ba39; each film's own values became the settings table rows"
+     "source": "Moved from the per-film build and mix scripts of the motion-film format (audio/mix.py; build-icons.mjs) in the old films repository at 5a9ba39; each film's own values became list:settings rows"
     }
    }
   },
@@ -838,7 +838,7 @@
      "placement:your-computer"
     ],
     "provenance": {
-     "source": "Moved from the per-film build and mix scripts of the motion-film format (audio/mix.py; build-icons.mjs) in the old films repository at 5a9ba39; each film's own values became the settings table rows"
+     "source": "Moved from the per-film build and mix scripts of the motion-film format (audio/mix.py; build-icons.mjs) in the old films repository at 5a9ba39; each film's own values became list:settings rows"
     }
    }
   }

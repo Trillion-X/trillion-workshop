@@ -1487,7 +1487,7 @@
         "label": "Keep rulings on lines",
         "status": "active",
         "job": "Write down rulings on single lines of copy, such as a line a checker flagged for the person or a reviewer's good or bad, as rows of the person's Checks list",
-        "description": "Give rows (each ruling: text, verdict, by, and optionally rule, kind, at, where and any other field kept), existing (the rulings already in list:checks, read from where the person keeps them, so a ruling is written once) and settings_record (the person's row of the settings table for this tool as the person's store gives it: unruled_part_of, the check branch a ruling with no rule goes under; refuse, [{ field, one_of: [values] } or { field, contains_one_of: [path parts] }] such as a test piece or a temporary folder; place, { field, pattern } that reads a ruling's place from its where; hand_rulings, the words a ruling given by hand may use; escalated_verdicts), or those fields themselves. by_hand true checks hand_rulings. Returns write, { records } to keep where the person keeps its Checks list: one record:check per text, verdict, by and rule (id record:check:ruling-<BLAKE3 hex>, kind labelled-line, or escalated-line for an escalated line, part_of its rule or unruled_part_of, its copy kind as line_kind), and fresh, how many are new. A write holding a refused row is refused whole. It writes nothing.",
+        "description": "Give rows (each ruling: text, verdict, by, and optionally rule, kind, at, where and any other field kept), existing (the rulings already in list:checks, read from where the person keeps them, so a ruling is written once) and settings_record (the person's row of list:settings for this tool as the person's store gives it: unruled_part_of, the check branch a ruling with no rule goes under; refuse, [{ field, one_of: [values] } or { field, contains_one_of: [path parts] }] such as a test piece or a temporary folder; place, { field, pattern } that reads a ruling's place from its where; hand_rulings, the words a ruling given by hand may use; escalated_verdicts), or those fields themselves. by_hand true checks hand_rulings. Returns write, { records } to keep where the person keeps its Checks list: one record:check per text, verdict, by and rule (id record:check:ruling-<BLAKE3 hex>, kind labelled-line, or escalated-line for an escalated line, part_of its rule or unruled_part_of, its copy kind as line_kind), and fresh, how many are new. A write holding a refused row is refused whole. It writes nothing.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -1511,7 +1511,7 @@
                 "object",
                 "array"
               ],
-              "description": "The person's row of the settings table for this tool (record:setting:where-a-person-stands~<scope kind>~<scope id>) as the person's store gives it, its value, or a list of them; read by tools/settings. The input's own fields win over it"
+              "description": "The person's row of list:settings for this tool (record:setting:where-a-person-stands~<scope kind>~<scope id>) as the person's store gives it, its value, or a list of them; read by tools/settings. The input's own fields win over it"
             },
             "existing": {
               "type": "array",
@@ -1885,7 +1885,7 @@
         "label": "Make examples from rulings on lines",
         "status": "active",
         "job": "Make labelled examples for calibrating a small model from the rulings a person gave on lines of copy, and from lines they said themselves",
-        "description": "Give rulings (the person's ruling rows of list:checks, type record:check with id prefix record:check:ruling-, as records or values), real (who counts), needs (fields a ruling must carry to count), and optionally speech (lines they said, each with sets), speech_set, exclude (lists of lines a model was trained on), bad_label (the label a bad example carries in bad_for), contexts ({ text: context }) and verdicts ({ bad, good }). Returns items ({ text, good, bad_for, split, source: ruling or speech, context }) and left_out (texts ruled both ways, texts in exclude). Only rulings by the people in real count. Any of these may come from settings_record, the person's setting for this tool (their row of the settings table as the person's store gives it, read by tools/settings); the input's own fields win. It writes nothing.",
+        "description": "Give rulings (the person's ruling rows of list:checks, type record:check with id prefix record:check:ruling-, as records or values), real (who counts), needs (fields a ruling must carry to count), and optionally speech (lines they said, each with sets), speech_set, exclude (lists of lines a model was trained on), bad_label (the label a bad example carries in bad_for), contexts ({ text: context }) and verdicts ({ bad, good }). Returns items ({ text, good, bad_for, split, source: ruling or speech, context }) and left_out (texts ruled both ways, texts in exclude). Only rulings by the people in real count. Any of these may come from settings_record, the person's setting for this tool (their row of list:settings as the person's store gives it, read by tools/settings); the input's own fields win. It writes nothing.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -1943,7 +1943,7 @@
                 "object",
                 "array"
               ],
-              "description": "The person's row of the settings table for this tool (record:setting:where-a-person-stands~<scope kind>~<scope id>) as the person's store gives it, its value, or a list of them; read by tools/settings. The input's own fields win over it"
+              "description": "The person's row of list:settings for this tool (record:setting:where-a-person-stands~<scope kind>~<scope id>) as the person's store gives it, its value, or a list of them; read by tools/settings. The input's own fields win over it"
             }
           }
         },
@@ -2265,7 +2265,7 @@
         "label": "Make examples from the options a person picked",
         "status": "active",
         "job": "Make labelled examples for calibrating a small model from which options of a piece a person picked or rejected, and the lines they named",
-        "description": "Give films (each piece: name, gate (its pick settings: picked_verdicts and pick_labels with spec_globs using {option}, and optionally words, exclude, rejected_lines, text_keys, spoken_lead_s), decisions (its pick rows: option_id, verdict, lines, reason_verbatim; the last row of an option governs), files (the piece's file paths) and units ({ <spec path>: [{ text, kind, context }] }, the lines of each spec read so far)), and optionally rulings with real and needs (a text ruled directly is left out: the ruling wins), bad_label and rejected (the pattern a rejecting verdict matches, default ^rejected). Units of a picked option are good except the lines its row names; a rejection labels bad only the lines it names. Returns items, left_out (excluded, ruled_directly, both_labels, no_spec, several_specs) and units_needed: the specs whose lines to read and send again. Any of these may come from settings_record, the person's setting for this tool (their row of the settings table as the person's store gives it, read by tools/settings); the input's own fields win. It writes nothing.",
+        "description": "Give films (each piece: name, gate (its pick settings: picked_verdicts and pick_labels with spec_globs using {option}, and optionally words, exclude, rejected_lines, text_keys, spoken_lead_s), decisions (its pick rows: option_id, verdict, lines, reason_verbatim; the last row of an option governs), files (the piece's file paths) and units ({ <spec path>: [{ text, kind, context }] }, the lines of each spec read so far)), and optionally rulings with real and needs (a text ruled directly is left out: the ruling wins), bad_label and rejected (the pattern a rejecting verdict matches, default ^rejected). Units of a picked option are good except the lines its row names; a rejection labels bad only the lines it names. Returns items, left_out (excluded, ruled_directly, both_labels, no_spec, several_specs) and units_needed: the specs whose lines to read and send again. Any of these may come from settings_record, the person's setting for this tool (their row of list:settings as the person's store gives it, read by tools/settings); the input's own fields win. It writes nothing.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -2316,7 +2316,7 @@
                 "object",
                 "array"
               ],
-              "description": "The person's row of the settings table for this tool (record:setting:where-a-person-stands~<scope kind>~<scope id>) as the person's store gives it, its value, or a list of them; read by tools/settings. The input's own fields win over it"
+              "description": "The person's row of list:settings for this tool (record:setting:where-a-person-stands~<scope kind>~<scope id>) as the person's store gives it, its value, or a list of them; read by tools/settings. The input's own fields win over it"
             }
           }
         },
@@ -2712,7 +2712,7 @@
                 "object",
                 "array"
               ],
-              "description": "The person's row of the settings table for this tool (record:setting:where-a-person-stands~<scope kind>~<scope id>) as the person's store gives it, its value, or a list of them; read by tools/settings. The input's own fields win over it"
+              "description": "The person's row of list:settings for this tool (record:setting:where-a-person-stands~<scope kind>~<scope id>) as the person's store gives it, its value, or a list of them; read by tools/settings. The input's own fields win over it"
             },
             "results": {
               "type": "array",

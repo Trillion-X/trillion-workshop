@@ -1302,7 +1302,7 @@
             },
             "schema": {
               "type": "string",
-              "description": "The schema file, or a file holding the person's settings table row record:setting:keep-a-record-library-valid~<scope_kind>~<scope_id>, with its delivery_gate; put where {schema} is in the command."
+              "description": "The schema file, or a file holding the person's list:settings row record:setting:keep-a-record-library-valid~<scope_kind>~<scope_id>, with its delivery_gate; put where {schema} is in the command."
             },
             "command": {
               "type": "string",

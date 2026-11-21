@@ -212,7 +212,7 @@ class TheCommand(unittest.TestCase):
         self.assertEqual(answer['recipe']['title'], 'Given here wins')
         code, answer = self.call(stdin=json.dumps(dict(req, piece='missing')))
         self.assertEqual(code, 1)
-        self.assertIn('no settings table row for piece missing', answer['error'])
+        self.assertIn('no list:settings row for piece missing', answer['error'])
         retired = row('pudding', saved)
         retired['value']['status'] = 'retired'
         code, answer = self.call(stdin=json.dumps(dict(req, settings_record=retired)))

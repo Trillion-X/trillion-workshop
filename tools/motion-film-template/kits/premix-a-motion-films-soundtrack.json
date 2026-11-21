@@ -1,9 +1,9 @@
 {
-  "drafted_from": "tools/motion-film-template/tool-rows.json (tool:premix-a-motion-films-soundtrack), do-work/premix_soundtrack.py, test/test_premix_soundtrack.py (RunTest, PlanTest); the settings table read from the person's own store; the answer was produced by running the script with ffmpeg tones",
+  "drafted_from": "tools/motion-film-template/tool-rows.json (tool:premix-a-motion-films-soundtrack), do-work/premix_soundtrack.py, test/test_premix_soundtrack.py (RunTest, PlanTest); list:settings read from the person's own store; the answer was produced by running the script with ffmpeg tones",
   "start_here": "Say to your AI: \"Mix the soundtrack for my sample film from its cue sheet: the music bed ducked under both voice lines, and three sound effects on their frames.\" It writes the request file and runs the premix on your computer.",
   "lists": [
     {
-      "list": "list:tool-settings",
+      "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
       "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
@@ -114,7 +114,7 @@
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Pour the two example settings rows into your own options list (see pour), or make the settings table from them, and put your film's music file, start, gain windows and loudness choice in its row (record:setting:motion-film-template~film~<film>).",
+    "1. Pour the two example settings rows into your own options list (see pour), or make list:settings from them, and put your film's music file, start, gain windows and loudness choice in its row (record:setting:motion-film-template~film~<film>).",
     "2. Optionally run tool:plan-a-motion-films-soundtrack-premix first to see the ffmpeg commands without making anything.",
     "3. Say \"Mix the soundtrack for my film\". The AI reads the row with tools:list, writes a request file ({cue_sheet, film_folder, sound_folder, settings, run: true}) and runs python3 trillion-workshop/tools/motion-film-template/do-work/premix_soundtrack.py < request.json where your recordings are (needs ffmpeg).",
     "4. Read the last line it prints: {\"result\": {\"out\", \"DUR\", \"method\", \"counts\", ...}} and play the wav at out. For a two-pass method it also gives measured_i and output_i, the loudness before and after."
@@ -142,7 +142,7 @@
     "least_coverage": 0.8,
     "how": "Name the options list you already keep and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than 80% of the kit's fields match, and otherwise answers the example rows to add to your list, leaving your own rows untouched.",
     "example": {
-      "kit_list": "list:tool-settings",
+      "kit_list": "list:settings",
       "into": {
         "list": "list:film-options",
         "row_type": "record:option",

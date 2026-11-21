@@ -8,7 +8,7 @@
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Pour the two example rows into your own settings list (see pour), or make the settings table from them, then put your own seed, test share, set names and numbers in the build, train and score objects: every law, line, set name and number is yours, none is built in.",
+    "1. Pour the two example rows into your own settings list (see pour), or make list:settings from them, then put your own seed, test share, set names and numbers in the build, train and score objects: every law, line, set name and number is yours, none is built in.",
     "2. Collect your laws ({law id: question, options (two answers), fail (the answer that fails a line), bad_from}) and the lines you ruled on ({text, sets, bad_for}) from your own lists; the AI reads your settings row with tool:read-a-tool-setting and passes it as settings_record.",
     "3. The AI writes the request to a file and runs python3 -I tools/fine-tune-a-small-model-on-a-persons-rules/do-work/build_training_rows.py <request file>; the same request always makes the same rows.",
     "4. Read the summary lines and the last line {\"result\": {items_file, train_file, items, train_items, test_items, train_rows, synthetic_rows, synthetic_dropped, per_law}}. A law with only a handful of bad test lines cannot be measured: say so. Then train with tool:train-a-small-model-on-a-persons-rules."
@@ -33,7 +33,7 @@
   ],
   "lists": [
     {
-      "list": "list:tool-settings",
+      "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
       "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON. For the fine-tune tools the row id is record:setting:fine-tune-a-small-model-on-a-persons-rules~<scope_kind>~<scope_id> and its settings hold a build, a train and a score object that fill every request key the request leaves out.",
@@ -143,7 +143,7 @@
     "least_coverage": 0.8,
     "how": "Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
-      "kit_list": "list:tool-settings",
+      "kit_list": "list:settings",
       "into": {
         "list": "list:my-settings",
         "row_type": "record:setting",

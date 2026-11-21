@@ -3,7 +3,7 @@
   "start_here": "Say to your AI: \"Say my narration line in line.json in the Kokoro voice bm_lewis, with the set pauses, into take-kokoro.wav.\"",
   "lists": [
     {
-      "list": "list:tool-settings",
+      "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
       "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
@@ -116,8 +116,8 @@
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Pour the two example settings rows into your own settings table (see pour), or write line.json alone (units, pause_after, inner_most, script) and use the defaults.",
-    "2. Say the line in start_here. Your AI reads the row with tools:list {tool: \"tool:say-a-narration-line-in-a-kokoro-voice\"}, installs mlx-audio, misaki, numpy and soundfile if missing (a Mac with Apple silicon) and runs the command in given. If you keep a settings table row for this folder (record:setting:compare-voice-and-music-models~film~<film>) your AI reads it with tool:read-a-tool-setting, saves it to a file and adds --settings-record that file --film <film>; its values go over the defaults.",
+    "1. Pour the two example settings rows into your own list:settings (see pour), or write line.json alone (units, pause_after, inner_most, script) and use the defaults.",
+    "2. Say the line in start_here. Your AI reads the row with tools:list {tool: \"tool:say-a-narration-line-in-a-kokoro-voice\"}, installs mlx-audio, misaki, numpy and soundfile if missing (a Mac with Apple silicon) and runs the command in given. If you keep a list:settings row for this folder (record:setting:compare-voice-and-music-models~film~<film>) your AI reads it with tool:read-a-tool-setting, saves it to a file and adds --settings-record that file --film <film>; its values go over the defaults.",
     "3. Read the last line: {\"result\": {take, voice, model, seconds, sample_rate}} or {\"error\": \"what to change\"}.",
     "4. Measure it beside the other voices with tool:measure-narration-takes."
   ],
@@ -144,7 +144,7 @@
     "least_coverage": 0.8,
     "how": "Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
-      "kit_list": "list:tool-settings",
+      "kit_list": "list:settings",
       "into": {
         "list": "list:my-tool-options",
         "row_type": "record:tool-option",

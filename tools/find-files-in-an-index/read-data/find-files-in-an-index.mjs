@@ -147,7 +147,7 @@ export function findFilesInAnIndex(request) {
   };
 }
 
-// The keys a person may keep as settings (their settings table row, or the run's settings); the request's own keys win.
+// The keys a person may keep as settings (their list:settings row, or the run's settings); the request's own keys win.
 export const SETTING_KEYS = Object.freeze(['index_dir', 'index_file', 'types_file', 'type', 'root', 'limit', 'fields', 'weights', 'lane_weights']);
 export async function findFilesInAnIndexForARun(request) {
   if (!request || typeof request !== 'object' || Array.isArray(request) || (request.settings_record === undefined && request.settings === undefined)) return findFilesInAnIndex(request);

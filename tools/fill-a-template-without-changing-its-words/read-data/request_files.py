@@ -5,10 +5,10 @@ Keeping them in separate files lets the settings be a row of the person's own re
 Files are laid in the order given, key by key; a key that holds an object in both is merged one level down (so `out`
 can name some paths in one file and the rest in another).
 
-The person's settings are a row of their settings table,
+The person's settings are a row of their list:settings,
 `record:setting:fill-a-template-without-changing-its-words~<scope_kind>~<scope_id>`, read by the one shared reader
 (tools/settings read-data/settings.py `request_settings`): the request's `settings_record` is that record (as
-the settings table read gives it, its value, or a file of it; the caller hands it in, and a request that names only its
+records:read gives it, its value, or a file of it; the caller hands it in, and a request that names only its
 id is refused), and the request's own `settings` object lays over it. The result is laid UNDER the request's other keys with the
 merge above, so a run's paths and any key the run names win.
 """

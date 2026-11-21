@@ -11,7 +11,7 @@ One JSON request on standard input, {"result": ...} as the last line printed. st
 Every step but embed takes data_folder: the show's folder, holding catalog.tsv and voice/ (seeds.npz, <id>.emb.npz and
 the <id>.turns.json the finder writes).
 
-The settings (settings_record: the person's row of the settings table, read by tools/settings) name the character's label in
+The settings (settings_record: the person's row of list:settings, read by tools/settings) name the character's label in
 the seeds and its pitch gates; read-data/settings-keys.json says what each key means. HF_HUB_OFFLINE=1 keeps the model
 local."""
 import os, sys, json, subprocess, numpy as np

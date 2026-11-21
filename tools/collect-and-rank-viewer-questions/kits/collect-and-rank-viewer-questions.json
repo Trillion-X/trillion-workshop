@@ -3,7 +3,7 @@
   "start_here": "Say to your AI: \"Find the questions in the forum posts and video comments saved in ./viewer-questions, using my sample-baker settings row, and rank them into my buckets.\" It runs the candidates script on your computer, then rank with your settings file, and tells you how many questions it found and which bucket each fits.",
   "lists": [
     {
-      "list": "list:tool-settings",
+      "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
       "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON. For this tool the settings hold your buckets, bucket codes, overrides, inferred questions, package readings and reach rules.",
@@ -116,7 +116,7 @@
     "tool:check-copy"
   ],
   "instructions": [
-    "1. Pour the two example settings rows into the settings list you already keep (see pour), or make the settings table from them; replace the buckets with your own topics and words. Keep status active: a retired row is refused.",
+    "1. Pour the two example settings rows into the settings list you already keep (see pour), or make list:settings from them; replace the buckets with your own topics and words. Keep status active: a retired row is refused.",
     "2. Put your forum posts (forum-posts.jsonl, kept by tool:keep-forum-posts-from-a-public-archive) and video comments (youtube-comments/*.info.json, or comments.jsonl kept by tool:keep-channels-latest-videos-and-captions) in one folder, for example ./viewer-questions, with a raw/ folder beside them.",
     "3. Say \"Find the questions my viewers really ask\". The AI reads the row with tools:list {tool: tool:collect-and-rank-viewer-questions}, installs sentence-transformers and numpy, reads your settings row with tool:read-a-tool-setting and writes it to a file.",
     "4. The AI runs the candidates script (python3 tools/collect-and-rank-viewer-questions/do-work/candidates.py <folder> <out.tsv>) and then rank.py with the settings file; read the last JSON line of each: {\"result\": {...}} or {\"error\": what to fix}.",
@@ -145,7 +145,7 @@
     "least_coverage": 0.8,
     "how": "Name the settings list you already keep and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
-      "kit_list": "list:tool-settings",
+      "kit_list": "list:settings",
       "into": {
         "list": "list:my-tool-options",
         "row_type": "record:tool-option",

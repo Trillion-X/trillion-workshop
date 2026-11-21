@@ -53,7 +53,7 @@ def rows_of(value, key):
 
 
 def with_settings(req, step, folder):
-    """The request with the person's settings for this step under it: settings_record (their settings table row
+    """The request with the person's settings for this step under it: settings_record (their list:settings row
     record:setting:<folder>~<scope_kind>~<scope_id>, as selected from the person's database, or a JSON file of it), read by the one
     Workshop reader (tools/settings/read-data/settings.py); with several rows given, settings_scope [kind, id] picks
     one. `settings` may be given inline instead, for a test. The settings' `<step>` object gives every key the request
@@ -73,7 +73,7 @@ def with_settings(req, step, folder):
             raise Refused(str(e))
         if given is None:
             raise Refused(f"settings_record holds no row record:setting:{folder}~...{' for ' + '~'.join(scope) if scope else ''}: "
-                          "give this tool's own row from the person's settings table")
+                          "give this tool's own row from the person's list:settings")
     else:
         given = req["settings"]
     part = given.get(step, {}) if isinstance(given, dict) else None

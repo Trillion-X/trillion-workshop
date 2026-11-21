@@ -2,7 +2,7 @@
   "start_here": "Say to your AI: \"Before I show test-piece, run the delivery gate at stage S5 and tell me which checks are still open.\" It runs tool:gate-a-pieces-delivery-checklist with the gate command.",
   "lists": [
     {
-      "list": "list:tool-settings",
+      "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
       "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON. For the delivery gate the row holds the delivery_gate rules the schema argument can point at.",
@@ -112,7 +112,7 @@
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Have a library with a schema (or a settings table row holding it) whose delivery_gate names the checklist pool, the answers file, the stages and the rules, and a piece folder whose header lists its tags (the made-up film library in the test fixtures is a worked one). Pour the example settings rows into your own settings list (see pour).",
+    "1. Have a library with a schema (or a list:settings row holding it) whose delivery_gate names the checklist pool, the answers file, the stages and the rules, and a piece folder whose header lists its tags (the made-up film library in the test fixtures is a worked one). Pour the example settings rows into your own settings list (see pour).",
     "2. Say to your AI: \"Run the delivery gate on test-piece at S5\". It reads the row with tools:list and runs python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library <library> --schema <schema> gate <piece> --stage S5",
     "3. Read every unanswered_must, failed_must and stale item to the person with the command that answers it (each carries an answer_with line). Exit 1 means something is still open.",
     "4. Answer a check only with evidence you read, under your own name: python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library <library> --schema <schema> answer <piece> --check S5.1 --answer pass --evidence \"<file, number or list>\" --by <name>. Never use a machine's name.",
@@ -139,9 +139,9 @@
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for tool settings and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and the settings table as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
+    "how": "Name the list you already keep for tool settings and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and list:settings as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
-      "kit_list": "list:tool-settings",
+      "kit_list": "list:settings",
       "into": {
         "list": "list:my-settings",
         "row_type": "record:setting",

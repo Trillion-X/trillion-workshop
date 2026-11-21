@@ -61,7 +61,7 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument('--schema', type=Path, help='the schema file')
     ap.add_argument('--input', action='append', default=[], type=pair, metavar='NAME=PATH',
                     help='a file a builder reads that is not in the library, such as a database (repeatable); a builder whose input is not given is not checked')
-    ap.add_argument('--scope', action='append', default=[], type=pair, metavar='KIND=ID', help='when --schema holds several settings table rows: the scope to read, most specific first')
+    ap.add_argument('--scope', action='append', default=[], type=pair, metavar='KIND=ID', help='when --schema holds several list:settings rows: the scope to read, most specific first')
     gate_commands.add_options(ap)
     sub = ap.add_subparsers(dest='cmd', required=True)
     gate_commands.add_commands(sub)

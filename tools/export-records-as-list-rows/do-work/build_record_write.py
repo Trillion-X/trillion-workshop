@@ -10,10 +10,10 @@ Usage: python3 -I do-work/build_record_write.py --mapping FILE --out FILE [--roo
 
 `here` is always the folder of the mapping file; every other folder a mapping names is given with --root NAME=DIR.
 
-A person's own mapping is a setting row of their settings table (tools/settings), id
+A person's own mapping is a setting row of their list:settings (tools/settings), id
 record:setting:export-records-as-list-rows~<scope_kind>~<scope_id>, its `settings` the mapping as text in its own key order (keys
 and compute are worked out in order). A mapping too big for one command is kept in several rows: the first names the others in
-`parts` and they add their sources after its own. --as-setting writes those rows (and the settings table) as a payload to send;
+`parts` and they add their sources after its own. --as-setting writes those rows (and list:settings) as a payload to send;
 --mapping-record reads them back from files of rows the person's AI read from its store (--records-from, which also hold the mapping's lists_read and
 records sources: this builder reads no account itself, the caller hands the records in).
 """
@@ -132,7 +132,7 @@ def mapping_setting_records(mapping: dict, scope_kind: str, scope_id: str, *, na
 
 
 def mapping_from_record(record_id: str, saved: list[dict] | None) -> dict:
-    """The mapping a person keeps as setting rows of the settings table (tools/settings): the row's `settings` is the mapping, and the
+    """The mapping a person keeps as setting rows of list:settings (tools/settings): the row's `settings` is the mapping, and the
     rows its `parts` names add their sources after its own, in order. Read from the saved reads (--records-from) the caller gave."""
     settings = settings_reader()
     folder, _, _ = settings.parse_id(record_id)
@@ -158,7 +158,7 @@ def mapping_from_record(record_id: str, saved: list[dict] | None) -> dict:
 
 
 def write_setting(a) -> int:
-    """--as-setting: the payload (the shape `build` writes) of the settings table and the setting rows that keep the --mapping."""
+    """--as-setting: the payload (the shape `build` writes) of list:settings and the setting rows that keep the --mapping."""
     if a.mapping is None or not a.setting_name or not a.setting_from:
         raise ValueError('--as-setting writes the rows of a --mapping file: give --setting-name and --setting-from too.')
     scope_kind, sep, scope_id = a.as_setting.partition('~')
@@ -166,11 +166,11 @@ def write_setting(a) -> int:
         raise ValueError(f'--as-setting {a.as_setting!r} is not SCOPE_KIND~SCOPE_ID.')
     mapping = json.loads(a.mapping.read_text(encoding='utf-8'))
     rows = mapping_setting_records(mapping, scope_kind, scope_id, name=a.setting_name, source=a.setting_from, most=a.command_bytes)
-    records = rows
+    records = [settings_reader().list_record(), *rows]
     commands = records_write.commands_of(records, {'per_command': 64, 'command_bytes': a.command_bytes})
-    payload = {'_what': f'The setting rows of the settings table that keep the mapping {a.setting_name!r} ({len(rows)} rows).',
+    payload = {'_what': f'The setting rows of list:settings that keep the mapping {a.setting_name!r} ({len(rows)} rows).',
                'built_at': datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z'),
-               'counts': {'records': len(records), 'commands': len(commands), 'views': 0, 'rows': {'settings': len(rows)}},
+               'counts': {'records': len(records), 'commands': len(commands), 'lists': 1, 'views': 0, 'rows': {'settings': len(rows)}},
                'pending': [], 'commands': commands}
     a.out.write_text(json.dumps(payload, ensure_ascii=False, indent=1) + '\n')
     print(json.dumps(payload['counts'], ensure_ascii=False))
@@ -186,7 +186,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument('--records-from', action='append', default=[], type=Path, metavar='FILE',
                     help='files of rows your AI read from the store: the mapping record, lists and records sources are read from them')
     ap.add_argument('--as-setting', metavar='SCOPE_KIND~SCOPE_ID',
-                    help='with --mapping: write the setting rows that keep this mapping in the settings table, to send instead of building')
+                    help='with --mapping: write the setting rows that keep this mapping in list:settings, to send instead of building')
     ap.add_argument('--setting-name', help='with --as-setting: what the mapping makes, in a few words')
     ap.add_argument('--setting-from', help='with --as-setting: where the mapping came from, "<old path>@<sha>"')
     ap.add_argument('--command-bytes', type=int, default=49152, help='with --as-setting: the most bytes one command takes')

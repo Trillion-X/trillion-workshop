@@ -28,7 +28,7 @@ SETTINGS = {
 
 
 def setting_row(settings=None, folder=FOLDER, status='active'):
-    """The person's settings row as the person's own store holds it (settings kept as JSON text, as the settings table does)."""
+    """The person's settings row as the person's own store holds it (settings kept as JSON text, as list:settings does)."""
     return {'id': f'record:setting:{folder}~piece~lighthouse-parrot', 'type': 'record:setting',
             'value': {'name': 'The parrot of the made-up lighthouse show', 'tool': 'tool:find-when-a-character-speaks',
                       'scope_kind': 'piece', 'scope_id': 'lighthouse-parrot',

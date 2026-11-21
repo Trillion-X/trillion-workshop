@@ -37,7 +37,7 @@ export async function settingsOfBook(input) {
   const { setting, settingId, isSettingId } = await import(SETTINGS_READER.href);
   const given = input.settings_record;
   const id = settingId(TOOL_FOLDER, 'piece', input.book_id);
-  if (isSettingId(given)) throw new Error(`settings_record ${given} is a row's id: give the row itself, { id, type, value }, as your AI read it from your settings table.`);
+  if (isSettingId(given)) throw new Error(`settings_record ${given} is a row's id: give the row itself, { id, type, value }, as your AI read it from your list:settings.`);
   if (given === null || typeof given !== 'object') throw new Error(`No settings row given: the book has no export settings, so nothing is exported. Give ${id} as settings_record, the record itself.`);
   const settings = setting(given, { folder: TOOL_FOLDER, scopes: [['piece', input.book_id]], tool: TOOL_ID });
   if (settings === null) throw new Error(`${given.id} is not the settings row of piece ${input.book_id}.`);

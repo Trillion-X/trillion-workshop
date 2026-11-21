@@ -200,7 +200,7 @@
           "properties": {
             "request": {
               "type": "string",
-              "description": "The request JSON file, put where {request} is in the command: {shots, lane_dir, sources, frames_root, world_dir, hedge_phrases, settings_record, settings?, path_map?, check_world?, quiet?}. settings_record is the person's settings table row record:setting:check-every-claim-against-its-facts-and-sources~<scope_kind>~<scope_id> as selected from the person's database ({ id, type, value }) or its value, handed in as the row itself (the tool reads no rows itself); its settings hold rules, subject_name, narrator_name and hedge_row, and the request's own settings object lays over them. README.md: Request and Rules."
+              "description": "The request JSON file, put where {request} is in the command: {shots, lane_dir, sources, frames_root, world_dir, hedge_phrases, settings_record, settings?, path_map?, check_world?, quiet?}. settings_record is the person's list:settings row record:setting:check-every-claim-against-its-facts-and-sources~<scope_kind>~<scope_id> as selected from the person's database ({ id, type, value }) or its value, handed in as the row itself (the tool reads no rows itself); its settings hold rules, subject_name, narrator_name and hedge_row, and the request's own settings object lays over them. README.md: Request and Rules."
             }
           }
         },
