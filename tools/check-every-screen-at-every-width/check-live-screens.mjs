@@ -77,15 +77,65 @@ function httpAddress(url, what) {
   return url;
 }
 
-function cookiesOf(signIn, what) {
+// sign_in is { cookies: [...] } (a session the caller already holds) or { kind: 'email-code', origin, email, code }: the
+// better-auth email code the caller was sent, exchanged here for the session cookie (signInWithEmailCode).
+function signInOf(signIn, what) {
   if (signIn === undefined) return null;
-  if (!signIn || !Array.isArray(signIn.cookies) || signIn.cookies.length === 0) throw refuse(`${what}: sign_in is { cookies: [{ name, value }] }.`);
-  return signIn.cookies.map((cookie, at) => {
+  if (signIn?.kind === 'email-code') {
+    if (typeof signIn.origin !== 'string' || typeof signIn.email !== 'string' || !signIn.email || typeof signIn.code !== 'string' || !/^\d{6}$/.test(signIn.code)) {
+      throw refuse(`${what}: sign_in is { kind: 'email-code', origin, email, code } with a six-digit code.`);
+    }
+    httpAddress(signIn.origin, `${what}: sign_in.origin`);
+    return { kind: 'email-code', origin: signIn.origin, email: signIn.email, code: signIn.code };
+  }
+  if (!signIn || !Array.isArray(signIn.cookies) || signIn.cookies.length === 0) throw refuse(`${what}: sign_in is { cookies: [{ name, value }] } or { kind: 'email-code', origin, email, code }.`);
+  return { kind: 'cookies', cookies: signIn.cookies.map((cookie, at) => {
     if (!cookie || typeof cookie.name !== 'string' || !cookie.name || typeof cookie.value !== 'string') {
       throw refuse(`${what}: sign_in.cookies[${at}] needs a name and a value.`);
     }
     return cookie;
+  }) };
+}
+
+// reach: the steps that take the page to the screen a person measures (sidebar taps, waits), run after load and sign-in.
+function reachOf(reach, what) {
+  if (reach === undefined) return [];
+  if (!Array.isArray(reach)) throw refuse(`${what}: reach is a list of { tap: selector } or { wait: selector }.`);
+  return reach.map((step, at) => {
+    if (step && typeof step.tap === 'string' && step.tap && Object.keys(step).length === 1) return { tap: step.tap };
+    if (step && typeof step.wait === 'string' && step.wait && Object.keys(step).length === 1) return { wait: step.wait };
+    throw refuse(`${what}: reach[${at}] is { tap: selector } or { wait: selector }.`);
   });
+}
+
+// The session cookies of a better-auth email code: the code is posted with the page's own origin, and each Set-Cookie it
+// answers is kept (never printed, logged or returned outside the run). A refused code names only its status.
+export async function signInWithEmailCode({ origin, email, code }, { fetchImpl = fetch } = {}) {
+  const response = await fetchImpl(`${origin}/api/auth/sign-in/email-otp`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', origin },
+    body: JSON.stringify({ email, otp: code }),
+    redirect: 'manual',
+  });
+  const hostname = new URL(origin).hostname;
+  const cookies = response.headers.getSetCookie().map(line => cookieOfSetCookie(line, hostname));
+  if (!response.ok || cookies.length === 0) throw Object.assign(new Error(`The sign-in code was refused (status ${response.status}).`), { code: 'sign_in_refused' });
+  return cookies;
+}
+
+// One Set-Cookie line as Playwright's addCookies takes it.
+export function cookieOfSetCookie(line, hostname) {
+  const [pair, ...attributes] = line.split(';').map(part => part.trim());
+  const at = pair.indexOf('=');
+  const cookie = { name: pair.slice(0, at), value: pair.slice(at + 1), domain: hostname, path: '/' };
+  for (const attribute of attributes) {
+    const [key, value] = attribute.split('=');
+    const word = key.toLowerCase();
+    if (word === 'httponly') cookie.httpOnly = true;
+    if (word === 'secure') cookie.secure = true;
+    if (word === 'path' && value) cookie.path = value;
+  }
+  return cookie;
 }
 
 function tapsOf(taps, what) {
@@ -131,7 +181,8 @@ export function planOf(input) {
       slug,
       url: httpAddress(page.url, `${what}: url`),
       oldUrl: page.old_url === undefined ? null : httpAddress(page.old_url, `${what}: old_url`),
-      cookies: cookiesOf(page.sign_in, what),
+      signIn: signInOf(page.sign_in, what),
+      reach: reachOf(page.reach, what),
       ready: page.ready ?? null,
       taps: tapsOf(page.taps, what),
     };
@@ -171,8 +222,16 @@ function measureInit({ idleMs, ready }) {
     if (/^(IMG|SVG|CANVAS|VIDEO|PICTURE|IFRAME|INPUT|BUTTON|SELECT|TEXTAREA)$/i.test(element.tagName)) return true;
     return [...element.childNodes].some(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '');
   };
+  // A task that keeps the main thread busy shows as a gap between two frames; the observer may report it only later, so the
+  // gap itself counts too (a frame that comes this long after the last one ran a task that long).
+  let lastFrame = performance.now();
   const frame = () => {
     const now = performance.now();
+    if (now - lastFrame > 50) {
+      live.longest = Math.max(live.longest, now - lastFrame);
+      live.lastLongEnd = Math.max(live.lastLongEnd, now);
+    }
+    lastFrame = now;
     if (live.blankAt === null && document.body && [...document.body.querySelectorAll('*')].some(painted)) live.blankAt = now;
     if (live.readyAt === null && ready) {
       try { if ([...document.querySelectorAll(ready)].some(shown)) live.readyAt = now; } catch { /* a selector the page cannot match */ }
@@ -180,7 +239,8 @@ function measureInit({ idleMs, ready }) {
     if (live.loadAt === null && document.readyState === 'complete') live.loadAt = now;
     const settled = ready ? live.readyAt : live.loadAt;
     if (live.usableAt === null && settled !== null && now - live.lastLongEnd >= idleMs) live.usableAt = now;
-    if (live.usableAt === null) requestAnimationFrame(frame);
+    // Frames run until the screen is usable and something is shown, so both times are seen when they come.
+    if (live.usableAt === null || live.blankAt === null) requestAnimationFrame(frame);
   };
   requestAnimationFrame(frame);
 }
@@ -242,7 +302,7 @@ async function expectationsMissed(page, expect, before) {
 
 // One tap: click, then poll what it expects until it holds or tap_within_ms is spent. A tap that moved the address is
 // undone by opening the page again, so the next tap starts from the page.
-async function runTap({ page, startUrl, tap, index, name, run, keep }) {
+async function runTap({ page, startUrl, reach, tap, index, name, run, keep }) {
   const before = { url: page.url(), digest: await digestOf(page) };
   const began = Date.now();
   let missed = [];
@@ -263,17 +323,57 @@ async function runTap({ page, startUrl, tap, index, name, run, keep }) {
   if (page.url() !== before.url) {
     await page.goto(startUrl, { waitUntil: 'commit', timeout: LIVE.navigation_within_ms }).catch(() => {});
     await waitForUsable(page);
+    await reachSteps(page, reach).catch(() => {});
   }
   return { name: tap.name, worked, ms: worked ? elapsed : null, detail: worked ? 'did what it expects' : missed.join('; '), ...shot };
 }
 
-// One side of a view: a cold load in its own context, measured, pictured and (on the new side) tapped.
-async function measureSide({ browser, url, view, cookies, ready, name, run, keep, taps = [] }) {
+// The reach steps in order. A tap clicks; a wait needs its selector visible. Answers the time from each tap to the step's end,
+// and the time the last tap was made (the screen's own clock starts there).
+async function reachSteps(page, reach) {
+  const steps = [];
+  let lastTapAt = null;
+  for (const step of reach) {
+    const began = Date.now();
+    if (step.tap) {
+      await page.locator(step.tap).first().click({ timeout: LIVE.tap_within_ms });
+      lastTapAt = began;
+      steps.push({ tap: clip(step.tap), ms: Date.now() - began });
+    } else {
+      await page.locator(step.wait).first().waitFor({ state: 'visible', timeout: LIVE.navigation_within_ms });
+      steps.push({ wait: clip(step.wait), ms: Date.now() - began });
+    }
+  }
+  return { steps, lastTapAt };
+}
+
+// The screen after its reach steps is usable when its ready selector is visible and the main thread has been idle for
+// usable_idle_ms; measured from the last reach tap (the screen's own time, not the page's load).
+async function usableAfter(page, ready, since) {
+  const deadline = Date.now() + LIVE.usable_within_ms;
+  while (Date.now() < deadline) {
+    const usable = await page.evaluate(({ ready, idle }) => {
+      const shown = element => {
+        const box = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return box.width > 0 && box.height > 0 && style.visibility !== 'hidden' && style.display !== 'none' && Number(style.opacity) > 0;
+      };
+      const seen = !ready || [...document.querySelectorAll(ready)].some(shown);
+      return seen && performance.now() - (window.__live?.lastLongEnd ?? 0) >= idle;
+    }, { ready, idle: LIVE.usable_idle_ms }).catch(() => false);
+    if (usable) return Date.now() - since;
+    await new Promise(done => setTimeout(done, POLL_MS));
+  }
+  return null;
+}
+
+// One side of a view: a cold load in its own context, its reach steps, measured, pictured and (on the new side) tapped.
+async function measureSide({ browser, url, view, signIn, ready, reach = [], name, run, keep, taps = [] }) {
   const context = await browser.newContext({ viewport: view.viewport, isMobile: !!view.mobile, hasTouch: !!view.mobile, deviceScaleFactor: 1 });
   const errors = [];
   const failed = [];
   try {
-    if (cookies) await context.addCookies(cookies.map(cookie => ({ domain: new URL(url).hostname, path: '/', ...cookie })));
+    if (signIn?.cookies) await context.addCookies(signIn.cookies.map(cookie => ({ domain: new URL(url).hostname, path: '/', ...cookie })));
     const page = await context.newPage();
     if (view.throttle) await applyThrottle(await context.newCDPSession(page), view.throttle);
     await page.addInitScript(measureInit, { idleMs: LIVE.usable_idle_ms, ready });
@@ -281,20 +381,36 @@ async function measureSide({ browser, url, view, cookies, ready, name, run, keep
     const began = Date.now();
     let status = null;
     let error = null;
+    let reached = { steps: [], lastTapAt: null };
+    let usable = null;
     try {
       status = (await page.goto(url, { waitUntil: 'commit', timeout: LIVE.navigation_within_ms }))?.status() ?? null;
       await waitForUsable(page);
+      // A screen that shows its content after its page is usable is read until it shows (or the wait is spent).
+      await page.waitForFunction(() => window.__live?.blankAt != null, null, { timeout: LIVE.usable_within_ms, polling: 'raf' }).catch(() => {});
     } catch (caught) {
       error = firstLine(caught);
+    }
+    const loaded = await page.evaluate(() => window.__live ?? null).catch(() => null);
+    if (!error && reach.length > 0) {
+      try {
+        reached = await reachSteps(page, reach);
+        usable = await usableAfter(page, ready, reached.lastTapAt ?? Date.now());
+      } catch (caught) {
+        error = `reach failed: ${firstLine(caught)}`;
+      }
     }
     const live = await page.evaluate(() => window.__live ?? null).catch(() => null);
     const bytes = await page.screenshot({ type: 'png', caret: 'hide' }).catch(() => null);
     const shot = bytes ? await keep(`${SHOT_FOLDER}/${run}/${name}.png`, bytes) : { picture: null, picture_kept: false, reason: 'no_picture' };
     const side = {
       status,
-      first_paint_ms: ms(live?.firstPaint),
-      first_contentful_paint_ms: ms(live?.firstContentful),
-      usable_ms: ms(live?.usableAt),
+      first_paint_ms: ms(loaded?.firstPaint),
+      first_contentful_paint_ms: ms(loaded?.firstContentful),
+      load_usable_ms: ms(loaded?.usableAt),
+      // With reach steps, the screen's own time from its last tap; without, the page's time from its load.
+      usable_ms: reach.length > 0 ? ms(usable) : ms(loaded?.usableAt),
+      ...(reach.length > 0 ? { reach: reached.steps } : {}),
       // A screen that never showed anything is blank for the whole wait.
       blank_ms: ms(live?.blankAt ?? Date.now() - began),
       longest_task_ms: ms(live?.longest),
@@ -307,7 +423,7 @@ async function measureSide({ browser, url, view, cookies, ready, name, run, keep
     };
     const tapped = [];
     if (!error) {
-      for (const [index, tap] of taps.entries()) tapped.push(await runTap({ page, startUrl: url, tap, index, name, run, keep }));
+      for (const [index, tap] of taps.entries()) tapped.push(await runTap({ page, startUrl: url, reach, tap, index, name, run, keep }));
     }
     return { side, taps: tapped };
   } finally {
@@ -324,6 +440,8 @@ export async function checkLiveScreens(input = {}, host, { keep = (name, bytes) 
   try {
     const pages = [];
     for (const page of plan.pages) {
+      // An email code is exchanged once per page; its cookies are then the page's session in every view.
+      const session = page.signIn?.kind === 'email-code' ? { kind: 'cookies', cookies: await signInWithEmailCode(page.signIn) } : page.signIn;
       const views = [];
       for (const view of plan.views) {
         if (plan.until !== null && Date.now() >= plan.until) {
@@ -333,11 +451,11 @@ export async function checkLiveScreens(input = {}, host, { keep = (name, bytes) 
         const name = `${page.slug}-${view.id}`;
         const answer = { view: view.id };
         const shared = { browser, view, ready: page.ready, run, keep };
-        const current = await measureSide({ ...shared, url: page.url, cookies: page.cookies, name: `${name}-new`, taps: page.taps });
+        const current = await measureSide({ ...shared, url: page.url, signIn: session, reach: page.reach, name: `${name}-new`, taps: page.taps });
         answer.new = current.side;
         if (page.taps.length > 0) answer.taps = current.taps;
         if (page.oldUrl) {
-          answer.old = (await measureSide({ ...shared, url: page.oldUrl, cookies: page.cookies, name: `${name}-old` })).side;
+          answer.old = (await measureSide({ ...shared, url: page.oldUrl, signIn: session, reach: page.reach, name: `${name}-old` })).side;
         }
         views.push(answer);
       }

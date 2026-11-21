@@ -8,10 +8,10 @@
     "tool:check-live-screens"
   ],
   "instructions": [
-    "1. Put each page as {id, url}; add old_url for the old address to compare, ready (a CSS selector that must be visible before the page is usable), taps (each { name, selector, expect }) and sign_in (cookies the page needs) when the page needs them.",
+    "1. Put each page as {id, url}; add old_url for the old address to compare, ready (a CSS selector that must be visible before the page is usable), reach (steps after load and sign-in: { tap: selector } for a sidebar link, { wait: selector }), taps (each { name, selector, expect }) and sign_in when the page needs them: cookies the caller holds, or { kind: 'email-code', origin, email, code } for the code the site emailed (the caller sends the request and reads the code; the tool never sends or prints it).",
     "2. Name views (phone, tablet, desktop) to read fewer; all three when left out. The phone is slowed as live-screens.json says.",
     "3. Set window to true to add a picture of the Trillion app's window on this Mac, taken by its window id. Nothing is clicked.",
     "4. Read what comes back: per page and view, new (and old) give status, first_paint_ms, first_contentful_paint_ms, usable_ms, blank_ms, longest_task_ms, console_errors, failed_requests and picture. taps say worked, ms and detail. The tool judges nothing; compare the numbers with your bar.",
-    "5. A view with skipped: until was not begun before the until time; send again without it or with a later one."
+    "5. A view with skipped: until was not begun before the until time; send again without it or with a later one. With reach steps, usable_ms is the screen's own time from its last reach tap; load_usable_ms is the page's time from its load."
   ]
 }
