@@ -188,6 +188,35 @@
         "kind": "ai-tool-descriptor",
         "id": "tool:your-files",
         "label": "Your files",
+        "places_inputs": {
+          "_what": "How a run is handed one of the person's files its input names (trillion-rust src/tool_runs/tools/input_files.rs reads this, and names no format, identity or call of its own): a row's input_schema field whose `format` is this `format` holds a file of the caller's by its content identity (one of `identity.prefixes`, then `identity.hex_digits` lowercase hex digits). Before the run's process starts, the engine asks `find.call` with the identity at `find.argument` for the file's `length_field`, `names_field` and `identity_field`, asks `bounds.call` for the most bytes one span answers (`span_field`), and reads the file in such spans with `read.call` {`name`: identity, `offset`, `length`, `raw`: true}, each answered as a file of its bytes (this row's session.byte_result), into the run's own folder, read-only, removed when the run ends; the file's local path stands where the identity was. Ported from the old harness's fileInputs and inputPlacement (a sealed container read a namespace file at /inputs/<hex>/<name>).",
+          "format": "namespace-file",
+          "identity": {
+            "prefixes": [
+              "1f:",
+              "12:"
+            ],
+            "hex_digits": 64
+          },
+          "find": {
+            "call": "find_file",
+            "argument": "name_or_identity",
+            "identity_field": "identity",
+            "length_field": "byte_length",
+            "names_field": "names"
+          },
+          "bounds": {
+            "call": "bounds",
+            "span_field": "span_most"
+          },
+          "read": {
+            "call": "read_file_span",
+            "name": "name_or_identity",
+            "offset": "offset",
+            "length": "length",
+            "raw": "raw"
+          }
+        },
         "offers_runs": {
           "_what": "What a run of another tool may be granted of these calls (trillion-rust src/account_rights/run_capability/call-rights.json): a row asks for it in its stored list as {files: <folder>, operations: [<call>]}, \"/\" for every name or a folder such as \"/sites/\", and gets exactly those calls, each touching only the names under that folder. Each rule says which argument of a call names a name (`id`, each of them for a move or a copy) or a folder (`id_prefix`); a call by a file's identity, or one that names no name (`{}`), is covered only by \"/\". A call not listed here is never granted to a run.",
           "right": "files",
