@@ -28,7 +28,7 @@ import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
 import { postJson, readFileBytes } from '../../../../workspace-screens/web/src/workspace/api';
 import { runWorkshopTool } from '../../../../workspace-screens/web/src/workspace/workshop-tool-api';
 import pieces from './pieces.json';
-import { decideStatement, shownWords, waitingCountStatement, approvable, waitingPageStatement, type Cursor, type DecisionSource, type Verb } from './decisions';
+import { decideStatement, say, shownWords, waitingCountStatement, approvable, waitingPageStatement, type Cursor, type DecisionSource, type Verb } from './decisions';
 
 type Piece = Record<string, string | null>;
 type Row = Record<string, string | null>;

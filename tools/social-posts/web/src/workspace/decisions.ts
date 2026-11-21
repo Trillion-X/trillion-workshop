@@ -102,6 +102,11 @@ export function approvable(source: DecisionSource, row: Record<string, string | 
   return !isBlank(row[source.yes_needs] ?? null, shown?.as);
 }
 
+/** Fills {name} in a DATA sentence with the values given. */
+export function say(template: string, values: Record<string, string | number>): string {
+  return template.replace(/\{(\w+)\}/g, (_, name: string) => String(values[name] ?? ''));
+}
+
 /** A shown field's words: a list is read from its JSON array, anything else is the text as it is. */
 export function shownWords(text: string | null, as: ShownField['as']): string {
   if (as !== 'list') return text ?? '';
