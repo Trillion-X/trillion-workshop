@@ -14,10 +14,17 @@
 import { readJson } from './api';
 import { moduleSurfaceRequest, moduleSurfaceRequestCanRetry } from '../../../../ui/show/isolated-module-surface/module-surface-requests.mjs';
 import { runAddressedResourceAction } from './resource-target';
+import { runWorkshopTool, newRunKey } from './workshop-tool-api';
+import { isRunRequest, runFor } from './declared-run.mjs';
 
-/** Sends the request `name` that `requests` declares, with `input`, for a screen opened on `surfaceInput`. */
-export function declaredCall(requests: Record<string, unknown> | undefined, surfaceInput: Record<string, unknown>, name: string, input: Record<string, unknown> = {}): Promise<unknown> {
+/** Sends the request `name` that `requests` declares, with `input`, for a screen opened on `surfaceInput`. A `run`
+ *  request (parts screens only) runs `declaringTool`, the tool the shell opened the screen of (declared-run.mjs). */
+export function declaredCall(requests: Record<string, unknown> | undefined, surfaceInput: Record<string, unknown>, name: string, input: Record<string, unknown> = {}, declaringTool?: string): Promise<unknown> {
   const declarations = requests ?? {};
+  if (isRunRequest(declarations[name])) {
+    const run = runFor(declarations[name], declaringTool, input);
+    return runWorkshopTool(run.tool, run.input, newRunKey('screen')).then(ran => ran.result);
+  }
   const request = moduleSurfaceRequest(declarations, name, input, surfaceInput);
   if (typeof (declarations[name] as { resource_operation?: unknown })?.resource_operation === 'string') {
     return runAddressedResourceAction({ input: JSON.parse(String(request.init.body)) });
