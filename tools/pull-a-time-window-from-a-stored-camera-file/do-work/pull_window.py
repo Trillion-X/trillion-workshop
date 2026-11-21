@@ -22,7 +22,7 @@ The request is one JSON object:
   from, to    window seconds (window mode)          at   the second to take a frame at (frame mode)
   out         where to write the wav or the jpg (a relative path is written in --base, the folder the person let this
               tool change)
-What belongs to the person's own storage is their settings: a list:settings row, read from the person's own store and
+What belongs to the person's own storage is their settings: a settings table row, read from the person's own store and
 handed in as `settings_record` (the record itself, read here with request_settings), or the run's own `settings`; the same key at the top of the request wins:
   store       the store the reader is pointed at
   account     the storage account id the store keeps the file under
