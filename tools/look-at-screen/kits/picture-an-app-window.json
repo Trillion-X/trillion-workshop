@@ -1,0 +1,38 @@
+{
+  "drafted_from": "tool:picture-an-app-window row in tools/look-at-screen/tool-rows.json, do-work/look-at-screen.mjs (lookAtWindow), read-data/rules.json and test/look-at-screen.test.mjs",
+  "start_here": "Say to your AI: \"Show me what the Notes window looks like right now.\" It runs tool:picture-an-app-window once with owner_name \"Notes\" and describes the picture.",
+  "lists": [],
+  "no_lists_because": "It names no list: it takes a picture only when run, keeps nothing on the Mac and answers the picture in its reply.",
+  "workflows": [],
+  "tools": [
+    "tool:picture-an-app-window"
+  ],
+  "instructions": [
+    "1. Allow Screen Recording for the app that runs the tool in System Settings, Privacy & Security; without it the tool answers needs_access and captures nothing.",
+    "2. Say which app; your AI calls do_one_thing_in_my_account at @tools with method tools:run and tool tool:picture-an-app-window, with owner_name (the app's name as this Mac lists it) and long_edge (200 to 1600 pixels) if you want a smaller picture.",
+    "3. Read the answer: picture has width and height in pixels, media_type image/jpeg and base64 bytes; window has the window's id and title.",
+    "4. If the answer says no_window, the app has no window on screen: open one and ask again. Nothing is clicked or raised either way."
+  ],
+  "worked_examples": [
+    {
+      "title": "One app's front window, smaller picture",
+      "ask": "Picture the Mail window, 500 pixels on the long side.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:picture-an-app-window",
+            "input": {
+              "owner_name": "Mail",
+              "long_edge": 500
+            }
+          }
+        }
+      },
+      "given": "From tools/look-at-screen/test/look-at-screen.test.mjs (system commands stood in for): Mail lists one ordinary window, id 3, titled Inbox; Screen Recording is allowed. Read from do-work/look-at-screen.mjs: long_edge 500 is under the rules' limit so it is used, and only window 3 is captured.",
+      "hands_back": "window {id 3, name \"Inbox\", owner \"Mail\"}, picture {width, height (as the shrink step reports them), media_type \"image/jpeg\", base64 ...}, said \"This is the app's frontmost window as it is on the screen now; the picture gives its size in pixels.\" and looked_at a time. For an app with no window on screen it answers {no_window: \"Mail\", said: \"That app has no window on the screen now. Open it, or bring one of its windows back from the Dock, and ask again.\"}."
+    }
+  ]
+}

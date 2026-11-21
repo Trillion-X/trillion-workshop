@@ -10,13 +10,19 @@ import assert from 'node:assert/strict';
 import { readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { look, lookAtScreen, rules, systemCommands } from '../do-work/look-at-screen.mjs';
+import { look, lookAtScreen, lookAtWindow, pictureAnAppWindow, rules, systemCommands } from '../do-work/look-at-screen.mjs';
 
 // Stand-in commands that record what they were asked and make real files, as the system would.
-function standIn({ displays = 2, allowed = true, captureError, sizes = [{ width: 1600, height: 900 }, { width: 1200, height: 750 }], bytesAt } = {}) {
-  const calls = { capture: [], shrink: [] };
+function standIn({ windowsOf = () => [], displays = 2, allowed = true, captureError, sizes = [{ width: 1600, height: 900 }, { width: 1200, height: 750 }], bytesAt } = {}) {
+  const calls = { capture: [], shrink: [], windows: [], captureWindow: [] };
   return {
     calls,
+    windows: owner => { calls.windows.push(owner); return { allowed, windows: windowsOf(owner) }; },
+    captureWindow: (id, file) => {
+      calls.captureWindow.push(id);
+      if (captureError) throw captureError;
+      writeFileSync(file, `window ${id}`);
+    },
     screens: () => ({ displays, allowed }),
     capture: (files, cursor) => {
       calls.capture.push({ files, cursor });
@@ -144,4 +150,65 @@ test('the real preflight answers on this Mac with a display count and a yes or n
   assert.ok(Number.isInteger(displays) && displays >= 1);
   assert.equal(typeof allowed, 'boolean');
   assert.equal(typeof lookAtScreen, 'function');
+});
+
+// Windows as the window server lists them, front to back: an app's menu bar item (layer 25) can be in front of its window.
+const twoApps = owner => ({
+  Notes: [{ id: 7, name: '', layer: 25 }, { id: 9, name: 'Shopping', layer: 0 }, { id: 4, name: 'Older', layer: 0 }],
+  Mail: [{ id: 3, name: 'Inbox', layer: 0 }],
+}[owner] ?? []);
+
+test('an app\'s frontmost ordinary window is pictured by its own id, and only the app the request names is asked for', () => {
+  const tmp = scratch();
+  try {
+    const commands = standIn({ windowsOf: twoApps });
+    const answer = lookAtWindow({ owner_name: 'Notes' }, commands, { tmp });
+    assert.deepEqual(commands.calls.windows, ['Notes']);
+    assert.deepEqual(commands.calls.captureWindow, [9]);
+    assert.deepEqual(answer.window, { id: 9, name: 'Shopping', owner: 'Notes' });
+    assert.equal(answer.picture.media_type, 'image/jpeg');
+    assert.match(Buffer.from(answer.picture.base64, 'base64').toString(), /^small .*window\.png$/);
+    assert.equal(answer.said, rules.words.window_done);
+    assert.ok(!Number.isNaN(Date.parse(answer.looked_at)));
+    assert.deepEqual(commands.calls.capture, [], 'no display is captured');
+    assert.deepEqual(leftIn(tmp), []);
+  } finally { rmSync(tmp, { recursive: true, force: true }); }
+});
+
+test('an app with no ordinary window on screen is said in words, and nothing is captured', () => {
+  const tmp = scratch();
+  try {
+    for (const owner of ['Calendar', 'Menus']) {
+      const commands = standIn({ windowsOf: name => (name === 'Menus' ? [{ id: 2, name: '', layer: 25 }] : []) });
+      assert.deepEqual(lookAtWindow({ owner_name: owner }, commands, { tmp }), { no_window: owner, said: rules.words.no_window });
+      assert.deepEqual(commands.calls.captureWindow, []);
+    }
+  } finally { rmSync(tmp, { recursive: true, force: true }); }
+});
+
+test('a window request names its app, may ask for a smaller picture, and Screen Recording off or refused is said in words', () => {
+  const tmp = scratch();
+  try {
+    for (const bad of [{}, { owner_name: '' }, { owner_name: '  ' }, { owner_name: 7 }]) {
+      assert.throws(() => lookAtWindow(bad, standIn(), { tmp }), /owner_name is the name of the app/);
+    }
+    const small = standIn({ windowsOf: twoApps });
+    lookAtWindow({ owner_name: 'Mail', long_edge: 500 }, small, { tmp });
+    assert.equal(small.calls.shrink[0].longEdge, 500);
+    const off = standIn({ windowsOf: twoApps, allowed: false });
+    assert.deepEqual(lookAtWindow({ owner_name: 'Mail' }, off, { tmp }), { needs_access: 'screen-recording', said: rules.words.needs_access });
+    assert.deepEqual(off.calls.captureWindow, []);
+    const refused = Object.assign(new Error('screencapture failed'), { stderr: 'could not create image from window' });
+    assert.equal(lookAtWindow({ owner_name: 'Mail' }, standIn({ windowsOf: twoApps, captureError: refused }), { tmp }).needs_access, 'screen-recording');
+    const huge = standIn({ windowsOf: twoApps, bytesAt: () => 300_000 });
+    assert.deepEqual(lookAtWindow({ owner_name: 'Mail' }, huge, { tmp }), { error: rules.words.too_large });
+    assert.deepEqual(leftIn(tmp), []);
+  } finally { rmSync(tmp, { recursive: true, force: true }); }
+});
+
+test('the real window list answers on this Mac with a yes or no and a list, and takes no picture', { skip: process.platform !== 'darwin' }, () => {
+  const { allowed, windows } = systemCommands.windows('an app that is not running anywhere');
+  assert.equal(typeof allowed, 'boolean');
+  assert.deepEqual(windows, []);
+  assert.equal(typeof pictureAnAppWindow, 'function');
 });
