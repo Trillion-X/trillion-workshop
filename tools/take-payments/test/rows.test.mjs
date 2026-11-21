@@ -45,10 +45,13 @@ test('every row runs the one function runner on a function this folder exports, 
 test('a row can reach the internet only to talk to Stripe with the person\'s own key, and no row holds a key', () => {
   for (const row of rows) {
     const mounts = row.invoke.credential_mounts ?? [];
-    if (row.invoke.internet) assert.equal(mounts.length, 1, `${row.id} reaches Stripe with exactly one held key`);
+    if (row.invoke.internet) assert.equal(new Set(mounts.map(mount => mount.fd)).size, 1, `${row.id} reaches Stripe on one descriptor`);
     if (mounts.length) assert.ok(row.invoke.internet || row.id === 'tool:check-a-stripe-event', `${row.id} mounts a secret only to use it`);
     // The key is the seller's own: the row names a field of the seller's Stripe connection, and the run's input says whose.
-    for (const mount of mounts) assert.match(mount.field_id, /^(?:secret_key|test_secret_key|webhook_secret)$/, `${row.id} names a field of the seller's connection`);
+    for (const mount of mounts) {
+      if (mount.secret_name_from_input) assert.equal(mount.held_suffix, '-stripe-secret-key', `${row.id} names the account's key by its ending`);
+      else assert.match(mount.field_id, /^(?:secret_key|test_secret_key|webhook_secret)$/, `${row.id} names a field of the seller's connection`);
+    }
     if (mounts.length) {
       assert.deepEqual(row.invoke.connection, { vendor: 'stripe', from_input: 'seller_connection' }, `${row.id} takes the seller's connection from its input`);
       assert.ok(row.input_schema.required.includes('seller_connection'), `${row.id} requires seller_connection`);
@@ -58,7 +61,8 @@ test('a row can reach the internet only to talk to Stripe with the person\'s own
     for (const value of held) assert.ok(!/\b(?:sk|rk|whsec)_/.test(value) || /^(?:sk|rk)_test_made_up_[a-z_]+$/.test(value), `${row.id}: a sample's held key is a made-up test key`);
     const withoutHeld = { ...row, verify: (row.verify ?? []).map(({ held: _held, ...item }) => item) };
     assert.doesNotMatch(JSON.stringify(withoutHeld), /\b(?:sk|rk|whsec)_[A-Za-z0-9]/, `${row.id} carries no key`);
-    assert.ok(new Set(mounts.map(mount => mount.fd)).size === mounts.length && mounts.every(mount => mount.fd >= 4), `${row.id} keeps descriptor 3 for the records door`);
+    const fixed = mounts.filter(mount => !mount.only_when);
+    assert.ok(new Set(fixed.map(mount => mount.fd)).size === fixed.length && mounts.every(mount => mount.fd >= 4), `${row.id} keeps descriptor 3 for the records door`);
   }
 });
 
@@ -100,4 +104,15 @@ test('each sample run answers what the row says it should', async () => {
     }
   }
   assert.deepEqual(checked.sort(), ['tool:cancel-prepared-resource-usage-report', 'tool:check-what-a-buyer-paid', 'tool:manage-usage-pricing', 'tool:price-a-sale', 'tool:price-resource-usage', 'tool:read-resource-usage-report', 'tool:read-resource-usage-settlement', 'tool:show-which-offers-a-buyer-may-see']);
+});
+
+test('a seller key is the account the input names, or the seller connection field when the input names none', () => {
+  const seller = rows.filter(row => row.invoke.connection?.from_input === 'seller_connection' && row.invoke.credential_mounts?.some(mount => mount.field_id === 'secret_key'));
+  assert.ok(seller.length > 0);
+  for (const row of seller) {
+    assert.deepEqual(row.invoke.credential_mounts, [
+      { secret_name_from_input: 'account', held_suffix: '-stripe-secret-key', fd: 4, only_when: { input: 'account', present: true } },
+      { fd: 4, field_id: 'secret_key', only_when: { input: 'account', present: false } },
+    ], `${row.id} mounts one key by account, or by the seller connection field`);
+  }
 });

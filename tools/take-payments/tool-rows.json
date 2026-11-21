@@ -781,8 +781,15 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
               "fd": 4,
-              "field_id": "secret_key"
+              "only_when": {"input": "account", "present": true}
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {"input": "account", "present": false}
             }
           ],
           "connection": {
@@ -1236,8 +1243,15 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
               "fd": 4,
-              "field_id": "secret_key"
+              "only_when": {"input": "account", "present": true}
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {"input": "account", "present": false}
             }
           ],
           "connection": {
@@ -1646,8 +1660,15 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
               "fd": 4,
-              "field_id": "secret_key"
+              "only_when": {"input": "account", "present": true}
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {"input": "account", "present": false}
             }
           ],
           "connection": {
@@ -2062,8 +2083,15 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
               "fd": 4,
-              "field_id": "secret_key"
+              "only_when": {"input": "account", "present": true}
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {"input": "account", "present": false}
             }
           ],
           "connection": {
@@ -2457,8 +2485,15 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
               "fd": 4,
-              "field_id": "secret_key"
+              "only_when": {"input": "account", "present": true}
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {"input": "account", "present": false}
             }
           ],
           "connection": {
@@ -2845,8 +2880,15 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
               "fd": 4,
-              "field_id": "secret_key"
+              "only_when": {"input": "account", "present": true}
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {"input": "account", "present": false}
             }
           ],
           "connection": {
@@ -3259,8 +3301,15 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
               "fd": 4,
-              "field_id": "secret_key"
+              "only_when": {"input": "account", "present": true}
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {"input": "account", "present": false}
             }
           ],
           "connection": {
@@ -3648,8 +3697,15 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
               "fd": 4,
-              "field_id": "secret_key"
+              "only_when": {"input": "account", "present": true}
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {"input": "account", "present": false}
             }
           ],
           "connection": {
@@ -4084,8 +4140,15 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
               "fd": 4,
-              "field_id": "secret_key"
+              "only_when": {"input": "account", "present": true}
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {"input": "account", "present": false}
             }
           ],
           "connection": {
@@ -4517,8 +4580,15 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
               "fd": 4,
-              "field_id": "secret_key"
+              "only_when": {"input": "account", "present": true}
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {"input": "account", "present": false}
             }
           ],
           "connection": {
@@ -4922,8 +4992,15 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
               "fd": 4,
-              "field_id": "secret_key"
+              "only_when": {"input": "account", "present": true}
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {"input": "account", "present": false}
             }
           ],
           "connection": {
@@ -5377,8 +5454,15 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
               "fd": 4,
-              "field_id": "secret_key"
+              "only_when": {"input": "account", "present": true}
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {"input": "account", "present": false}
             }
           ],
           "connection": {
@@ -6995,8 +7079,15 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
               "fd": 4,
-              "field_id": "secret_key"
+              "only_when": {"input": "account", "present": true}
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {"input": "account", "present": false}
             }
           ],
           "connection": {
@@ -7420,8 +7511,15 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
               "fd": 4,
-              "field_id": "secret_key"
+              "only_when": {"input": "account", "present": true}
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {"input": "account", "present": false}
             }
           ],
           "connection": {
@@ -12203,8 +12301,15 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
               "fd": 4,
-              "field_id": "secret_key"
+              "only_when": {"input": "account", "present": true}
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {"input": "account", "present": false}
             }
           ],
           "connection": {
@@ -13207,8 +13312,15 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
               "fd": 4,
-              "field_id": "secret_key"
+              "only_when": {"input": "account", "present": true}
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {"input": "account", "present": false}
             }
           ],
           "connection": {
@@ -14300,8 +14412,15 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
               "fd": 4,
-              "field_id": "secret_key"
+              "only_when": {"input": "account", "present": true}
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {"input": "account", "present": false}
             }
           ],
           "connection": {
@@ -15240,8 +15359,15 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
               "fd": 4,
-              "field_id": "secret_key"
+              "only_when": {"input": "account", "present": true}
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {"input": "account", "present": false}
             }
           ],
           "connection": {
@@ -15761,8 +15887,15 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
               "fd": 4,
-              "field_id": "secret_key"
+              "only_when": {"input": "account", "present": true}
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {"input": "account", "present": false}
             }
           ],
           "connection": {
