@@ -1,0 +1,4 @@
+{
+  "_what": "How many connections a Postgres store holds (src/store/mod.rs SqlStore::open_many, opened by src/serve/rows.rs and src/serve/mod.rs): each call takes a free one, so calls that come together are asked of the database together instead of one after another. Until Nov 21 2026 every store held one connection behind one lock: on this Mac's link to the database computer (147 to 555 ms a round trip at 3:58 AM CST), the files session's listings queued behind each other in the names session and waited 120 s and more, and each 32 MiB upload piece took about 6 s. A SQLite store keeps one connection (one writer). The store that hears other processes' changes keeps its listener as one more.",
+  "postgres_connections": 6
+}

@@ -59,7 +59,9 @@ pub fn open(kept: &Kept, state: &Path, hearing: bool) -> Result<SqlStore, Refusa
             let held = Held::from_descriptors(&[(LOGIN.0, LOGIN.1, *fd)])?;
             let name = live_namespace::secrets::held_name(LOGIN.0, LOGIN.1)?;
             let login = held.plain(&name).map_err(|_| "the database login is not attached: attach it to start the run")?;
-            let store = SqlStore::open(Link::postgres(login.as_str())?)?;
+            // Several connections, so calls that come together are asked of the database together (src/store/links.json).
+            let links = (0..live_namespace::store::postgres_connections()).map(|_| Link::postgres(login.as_str())).collect::<Result<Vec<_>, _>>()?;
+            let store = SqlStore::open_many(links)?;
             if hearing { store.hearing(Link::postgres(login.as_str())?)? } else { store }
         }
         Kept::Sqlite { file } => SqlStore::open(Link::sqlite(&state.join(file))?)?,

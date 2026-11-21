@@ -358,10 +358,29 @@ struct Gone {
 /// The person's rows in a SQL database.
 #[derive(Clone)]
 pub struct SqlStore {
-    link: Arc<Mutex<Link>>,
+    links: Arc<Links>,
     dialect: Dialect,
     place: String,
     signal: Arc<Signal>,
+}
+
+/// The connections of one store (src/store/links.json): a call takes the first free one, else waits its turn on the next.
+struct Links {
+    all: Vec<Mutex<Link>>,
+    next: std::sync::atomic::AtomicUsize,
+}
+
+/// The pool size of a Postgres store, from src/store/links.json.
+#[derive(Deserialize)]
+struct LinkSettings {
+    postgres_connections: usize,
+}
+const LINK_SETTINGS: &[u8] = include_bytes!("links.json");
+
+/// How many connections a Postgres store opens (src/store/links.json), at least one.
+pub fn postgres_connections() -> usize {
+    static HELD: OnceLock<usize> = OnceLock::new();
+    *HELD.get_or_init(|| serde_json::from_slice::<LinkSettings>(LINK_SETTINGS).expect("src/store/links.json is read once and is valid").postgres_connections.max(1))
 }
 
 fn unavailable<E>(_: E) -> Error {
@@ -371,10 +390,32 @@ fn unavailable<E>(_: E) -> Error {
 impl SqlStore {
     /// The rows in `link`'s database, its tables made when they are not there.
     pub fn open(link: Link) -> Result<Self, Error> {
-        let (dialect, place) = (link.dialect(), link.place().to_owned());
-        let store = Self { link: Arc::new(Mutex::new(link)), dialect, place, signal: Arc::default() };
+        Self::open_many(vec![link])
+    }
+
+    /// The rows in one database over several connections to it, each call on a free one (src/store/links.json); a SQLite
+    /// store, which has one writer, is refused more than one.
+    pub fn open_many(links: Vec<Link>) -> Result<Self, Error> {
+        let first = links.first().ok_or(Error::Invalid("a store needs a connection", crate::cause!()))?;
+        let (dialect, place) = (first.dialect(), first.place().to_owned());
+        if links.len() > 1 && (dialect != Dialect::Postgres || links.iter().any(|link| link.dialect() != Dialect::Postgres)) {
+            return Err(Error::Invalid("only a Postgres store holds more than one connection", crate::cause!()));
+        }
+        let links = Links { all: links.into_iter().map(Mutex::new).collect(), next: Default::default() };
+        let store = Self { links: Arc::new(links), dialect, place, signal: Arc::default() };
         store.prepare()?;
         Ok(store)
+    }
+
+    /// A free connection, or, when every one is busy, the next in turn once it is free.
+    fn link(&self) -> Result<std::sync::MutexGuard<'_, Link>, Error> {
+        for link in &self.links.all {
+            if let Ok(free) = link.try_lock() {
+                return Ok(free);
+            }
+        }
+        let turn = self.links.next.fetch_add(1, std::sync::atomic::Ordering::Relaxed) % self.links.all.len();
+        self.links.all[turn].lock().map_err(unavailable)
     }
 
     /// The same store, woken by every commit to its database from any process: `listener` is a second connection to the same
@@ -433,7 +474,7 @@ impl SqlStore {
                 sql.push_str(&format!("CREATE INDEX IF NOT EXISTS {t}_{minted} ON {t} (\"{minted}\");\n", t = table.table));
             }
         }
-        self.link.lock().map_err(unavailable)?.batch(&sql)
+        self.link()?.batch(&sql)
     }
 
     fn table_of(scope: &str) -> Option<&'static DeclaredTable> {
@@ -575,7 +616,7 @@ impl SqlStore {
                 return Err(Error::Invalid("a record is at most one mebibyte", crate::cause!()));
             }
         }
-        let mut link = self.link.lock().map_err(unavailable)?;
+        let mut link = self.link()?;
         link.begin()?;
         match self.add_new_in(&mut link, rows, request_key_prefix) {
             Ok(added) => {
@@ -818,13 +859,13 @@ impl SqlStore {
 
 impl Rows for SqlStore {
     fn get(&self, scope: &str, id: &str) -> Result<Read, Error> {
-        let mut link = self.link.lock().map_err(unavailable)?;
+        let mut link = self.link()?;
         let rows = self.read_rows(&mut link, scope, " AND id = ?", &[Cell::text(id)])?;
         Ok(Read { record: rows.into_iter().next().map(|(record, _, _)| record) })
     }
 
     fn get_many(&self, scope: &str, ids: &[&str]) -> Result<Vec<Option<Record>>, Error> {
-        let mut link = self.link.lock().map_err(unavailable)?;
+        let mut link = self.link()?;
         let mut found = std::collections::BTreeMap::new();
         for batch in ids.chunks(IDS_AT_ONCE) {
             let marks = vec!["?"; batch.len()].join(", ");
@@ -837,7 +878,7 @@ impl Rows for SqlStore {
     }
 
     fn get_scoped(&self, pairs: &[(&str, &str)]) -> Result<Vec<Option<Record>>, Error> {
-        let mut link = self.link.lock().map_err(unavailable)?;
+        let mut link = self.link()?;
         // The pairs are grouped by the table their scope is kept in, so each table is read in batches of (scope, id).
         let mut groups: std::collections::BTreeMap<String, (Option<&'static DeclaredTable>, Vec<(&str, &str)>)> = std::collections::BTreeMap::new();
         for &(scope, id) in pairs {
@@ -869,7 +910,7 @@ impl Rows for SqlStore {
     }
 
     fn held_record_with_version(&self, scope: &str, id: &str) -> Result<(i64, Option<Record>), Error> {
-        let mut link = self.link.lock().map_err(unavailable)?;
+        let mut link = self.link()?;
         match self.row_and_tombstone(&mut link, scope, id, "")? {
             (Some((record, _, _)), _) => Ok((record.version, Some(record))),
             (None, gone) => Ok((gone.map_or(0, |gone| gone.version), None)),
@@ -878,7 +919,7 @@ impl Rows for SqlStore {
 
     fn list_page(&self, scope: &str, after: &str, limit: usize) -> Result<Page<Record, String>, Error> {
         let limit = limit.clamp(1, MAX_PAGE_ITEMS);
-        let mut link = self.link.lock().map_err(unavailable)?;
+        let mut link = self.link()?;
         let rows = self.read_rows(&mut link, scope, " AND id > ? ORDER BY id LIMIT ?", &[Cell::text(after), Cell::int(limit as i64 + 1)])?;
         let mut items = Vec::new();
         let (mut bytes, mut more) = (0usize, false);
@@ -897,7 +938,7 @@ impl Rows for SqlStore {
 
     fn ids(&self, scope: &str, after: Option<&str>, limit: usize) -> Result<(Vec<String>, Option<String>), Error> {
         let limit = limit.clamp(1, MAX_PAGE_ITEMS);
-        let mut link = self.link.lock().map_err(unavailable)?;
+        let mut link = self.link()?;
         let table = match Self::table_of(scope) {
             Some(table) => table.table.as_str(),
             None => declared().generic.as_str(),
@@ -917,7 +958,7 @@ impl Rows for SqlStore {
         if input.id.is_empty() {
             return Err(Error::Invalid("a record has an id", crate::cause!()));
         }
-        let mut link = self.link.lock().map_err(unavailable)?;
+        let mut link = self.link()?;
         link.begin()?;
         match self.change(&mut link, scope, &input) {
             Ok(change) => {
@@ -934,11 +975,11 @@ impl Rows for SqlStore {
     }
 
     fn stamp(&self, scope: &str) -> Result<i64, Error> {
-        Self::stamp_in(&mut *self.link.lock().map_err(unavailable)?, scope)
+        Self::stamp_in(&mut *self.link()?, scope)
     }
 
     fn totals(&self) -> Result<Vec<Total>, Error> {
-        let mut link = self.link.lock().map_err(unavailable)?;
+        let mut link = self.link()?;
         let mut totals = Vec::new();
         for declared in &declared().totals {
             match (&declared.table, &declared.scope) {
@@ -984,7 +1025,7 @@ impl Rows for SqlStore {
         }
         tail.push_str(" ORDER BY id LIMIT ?");
         params.push(Cell::int(hits as i64));
-        let mut link = self.link.lock().map_err(unavailable)?;
+        let mut link = self.link()?;
         Ok(self.read_rows(&mut link, "@namespace/files", &tail, &params)?.into_iter().map(|(record, _, _)| record).collect())
     }
 
@@ -993,7 +1034,7 @@ impl Rows for SqlStore {
     }
 
     fn order(&self) -> Result<i64, Error> {
-        let mut link = self.link.lock().map_err(unavailable)?;
+        let mut link = self.link()?;
         Ok(link.query("SELECT last FROM ns_order WHERE one = 1", &[])?.first().and_then(|cells| cells[0].as_int()).unwrap_or(0))
     }
 
@@ -1007,7 +1048,7 @@ impl Rows for SqlStore {
         };
         let tail = format!(" WHERE changed > ? AND {starts} ORDER BY changed LIMIT ?");
         let mut found = Vec::new();
-        let mut link = self.link.lock().map_err(unavailable)?;
+        let mut link = self.link()?;
         let tables: Vec<&DeclaredTable> = declared().tables.iter().filter(|table| prefixes.iter().any(|prefix| table.may_hold(prefix))).collect();
         for table in &tables {
             let text = format!("SELECT scope, {} FROM {}{tail}", table.selected(), table.table);
@@ -1047,7 +1088,7 @@ impl Rows for SqlStore {
     fn minted(&self, prefixes: &[&str], minted: i64) -> Result<Option<(String, Record)>, Error> {
         let (starts, scope_params) = scope_starts(prefixes);
         let mut newest: Option<(String, Record)> = None;
-        let mut link = self.link.lock().map_err(unavailable)?;
+        let mut link = self.link()?;
         for table in declared().tables.iter().filter(|table| table.minted.is_some() && prefixes.iter().any(|prefix| table.may_hold(prefix))) {
             let field = table.minted.as_deref().unwrap_or_default();
             let mut params = vec![Cell::int(minted)];
@@ -1103,6 +1144,16 @@ mod tests {
     }
     fn chunk(bytes: i64, origin: &str) -> Value {
         json!({"kind": "namespace-chunk", "byte_length": bytes, "origin": origin, "key": "k", "stored_at": "2026-11-16T00:00:00.000Z"})
+    }
+
+    /// A SQLite store, which has one writer, refuses a second connection; a pool of one is the store it always was, and the
+    /// Postgres pool size is DATA (src/store/links.json), at least one.
+    #[test]
+    fn a_sqlite_store_keeps_one_connection() {
+        assert!(SqlStore::open_many(vec![Link::memory().unwrap(), Link::memory().unwrap()]).is_err());
+        assert!(SqlStore::open_many(Vec::new()).is_err());
+        assert!(SqlStore::open_many(vec![Link::memory().unwrap()]).is_ok());
+        assert!(postgres_connections() >= 1);
     }
 
     #[test]

@@ -146,7 +146,8 @@ pub(crate) fn open_rows(settings: &Settings, state: &Path) -> Result<(PathBuf, A
         // A second connection hears every other process's commits, so a wait for a change (`list_changes`) wakes at once on any computer.
         Rows::Postgres { connection } => {
             let connection = held.plain(connection).map_err(|_| "the database connection is not attached: attach it to start the run")?;
-            Arc::new(SqlStore::open(Link::postgres(connection.as_str())?)?.hearing(Link::postgres(connection.as_str())?)?)
+            let links = (0..live_namespace::store::postgres_connections()).map(|_| Link::postgres(connection.as_str())).collect::<Result<Vec<_>, _>>()?;
+            Arc::new(SqlStore::open_many(links)?.hearing(Link::postgres(connection.as_str())?)?)
         }
         Rows::Run { tool, fd } => Arc::new(RowsByCalls::new(Door::from_descriptor(*fd, tool)?.sender())),
     };

@@ -29,6 +29,7 @@ implementation, over SQLite (a file of the person's own) or Postgres (the person
 | `Rows::minted` | `(&[prefix], minted) -> Option<(scope, Record)>` | The live row holding a minted id (tables.json `minted`, the stable `item` of names and folders) |
 | `Rows::wait_for_order` | `(after, until) -> i64` | Holds until a change past `after` commits (this process at once; on Postgres any process, by `NOTIFY` heard on the connection `SqlStore::hearing` gives) or `until` |
 | `SqlStore::open` / `memory` | `(Link)` / `()` | Rows in a database, its tables made when they are not there / rows that live as long as the store |
+| `SqlStore::open_many` / `postgres_connections` | `(Vec<Link>)` / `()` | The same rows over several connections to one Postgres database, each call on a free one / how many a store opens (`links.json`, 6); a SQLite store keeps one |
 
 ## How it works
 
