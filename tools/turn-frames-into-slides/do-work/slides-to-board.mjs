@@ -19,19 +19,37 @@ const GAP = 200;
 
 const plain = { fill: 'none', stroke: 'none' };
 
-function lineCount(text, size, width, charWidth = 0.52) {
-  const perLine = Math.max(1, Math.floor(width / (size * charWidth)));
-  return String(text).split('\n').reduce((sum, part) => sum + Math.max(1, Math.ceil(part.length / perLine)), 0);
+// The board's own wrapping (organize-the-sidebar board-svg.ts wrapLines): an 8 px inset each side, a line of
+// floor(inner width / (size x charWidth)) characters broken at the last space. Each text item is sized by the same rule and
+// carries its charWidth, so the drawn words always fit the box this lays out and are never cut short with an ellipsis.
+const INSET = 8;
+const CHAR_WIDTH = 0.55;
+
+function lineCount(text, size, width, charWidth = CHAR_WIDTH) {
+  const perLine = Math.max(1, Math.floor((width - INSET * 2) / (size * charWidth)));
+  let lines = 0;
+  for (const raw of String(text).split('\n')) {
+    let rest = raw.trimEnd();
+    if (!rest) { lines += 1; continue; }
+    while (rest.length) {
+      lines += 1;
+      if (rest.length <= perLine) break;
+      let cut = rest.lastIndexOf(' ', perLine);
+      if (cut <= 0) cut = perLine;
+      rest = rest.slice(cut).trimStart();
+    }
+  }
+  return lines;
 }
 
 function heightOf(text, size, width, lineHeight) {
-  return Math.ceil(lineCount(text, size, width) * size * lineHeight) + 8;
+  return Math.ceil(lineCount(text, size, width) * size * lineHeight) + INSET + 6;
 }
 
 function textItem(memberId, x, y, w, text, size, roles, { weight = 400, display = false, color = roles.ink, lineHeight = 1.35, h } = {}) {
   return {
     memberId, x, y, w, h: h ?? heightOf(text, size, w, lineHeight), text,
-    extra: { fontSize: size, fontWeight: weight, lineHeight, fontFamily: display ? roles.display : roles.body, style: { ...plain, textColor: color } },
+    extra: { fontSize: size, fontWeight: weight, lineHeight, charWidth: CHAR_WIDTH, textInset: INSET, fontFamily: display ? roles.display : roles.body, style: { ...plain, textColor: color } },
   };
 }
 

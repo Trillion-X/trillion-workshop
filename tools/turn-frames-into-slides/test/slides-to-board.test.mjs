@@ -60,6 +60,20 @@ test('a request with slides is judged like a board: a long dash on a slide stops
   assert.match(result.stderr, /no-long-dash/);
 });
 
+test('every text item is tall enough for its words as the board wraps them, so none ends in an ellipsis', () => {
+  const long = 'Your site says you do removal, preparation and installation for general contractors, property managers and restoration teams across four counties.';
+  const { items } = slidesToBoard({ list: [{ title: 'A title long enough to wrap onto a second line on a wide slide, and then some more words', lines: [long, long + ' ' + long] }] });
+  for (const item of items.filter(item => item.text)) {
+    const { fontSize, lineHeight, charWidth, textInset } = item.extra;
+    const perLine = Math.floor((item.w - textInset * 2) / (fontSize * charWidth));
+    const room = Math.floor((item.h - textInset - 4) / (fontSize * lineHeight));
+    let lines = 0;
+    let rest = item.text;
+    while (rest.length) { lines += 1; if (rest.length <= perLine) break; let cut = rest.lastIndexOf(' ', perLine); if (cut <= 0) cut = perLine; rest = rest.slice(cut).trimStart(); }
+    assert.ok(lines <= room, `${item.memberId}: ${lines} lines in room for ${room}`);
+  }
+});
+
 test('a request with both a board and slides is refused', () => {
   const dir = tempFolder(join(tmpdir(), 'slides-to-board-'));
   writeFileSync(join(dir, 'request.json'), JSON.stringify({ slides: deck, board: { items: [] } }));
