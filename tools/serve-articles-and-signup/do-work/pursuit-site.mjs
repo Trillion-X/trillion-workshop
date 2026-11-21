@@ -16,6 +16,7 @@
 //   - Consent provenance is stored as given (the exact wording shown, the page, the time, a digest of the IP, never the IP).
 //   - Article bodies are escaped; no raw HTML from a row is ever written into a page.
 import { createHmac, randomBytes, randomUUID } from 'node:crypto';
+import { withSearchHead } from '../../publish-content-for-discovery/do-work/site-search-head.mjs';
 
 const EMAIL_SHAPE = /^[^\s@<>()[\]\\,;:"]{1,64}@[a-z0-9-]+(\.[a-z0-9-]+)+$/i;
 const SIGNUPS_PER_NETWORK_PER_HOUR = 5;
@@ -23,6 +24,7 @@ const CONFIRM_HOURS = 72;
 
 const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const nowIso = () => new Date().toISOString();
+const isHttpsAddress = (value) => { try { return new URL(value).protocol === 'https:'; } catch { return false; } };
 const json = (text, fallback) => { try { return text ? JSON.parse(text) : fallback; } catch { return fallback; } };
 
 /** An escaped paragraph's [words](https://address) links as anchors: only http and https, so a row never writes a script link. */
@@ -37,7 +39,7 @@ export function bodyHtml(markdown) {
   }).join('\n');
 }
 
-export function createSite({ db, mail, origin, brand, secret, layout, signupText, now = nowIso, draw = null }) {
+export function createSite({ db, mail, origin, brand, secret, layout, signupText, author = null, now = nowIso, draw = null }) {
   if (!secret || secret.length < 32) throw new Error('createSite needs a secret of at least 32 characters (the caller holds it).');
   const keyed = (purpose, value) => createHmac('sha256', secret).update(`${purpose}\n${value}`).digest('base64url');
   const absolute = (path) => new URL(path, origin).toString();
@@ -45,8 +47,9 @@ export function createSite({ db, mail, origin, brand, secret, layout, signupText
   const previewToken = (slug) => keyed('preview', slug);
   const unsubscribeLink = (id) => absolute(`/unsubscribe?s=${encodeURIComponent(id)}&t=${keyed('unsubscribe', id)}`);
 
-  function page({ title, body, status = 200, description = '' }) {
-    return new Response(layout({ title: `${title} | ${brand}`, description, body }), {
+  function page({ title, body, status = 200, description = '', head = null }) {
+    const html = layout({ title: `${title} | ${brand}`, description, body });
+    return new Response(head ? withSearchHead(html, head) : html, {
       status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' },
     });
   }
@@ -77,8 +80,43 @@ export function createSite({ db, mail, origin, brand, secret, layout, signupText
     if (!shown && preview !== previewToken(slug)) return page({ title: 'Not found', body: '<h1>Not found</h1>', status: 404 });
     if (draw) return htmlPage(draw.article(row, { preview: !shown }));
     const body = `<article>\n<h1>${esc(row.title)}</h1>\n${bodyHtml(row.body_markdown)}\n</article>\n${signupBlock(`/articles/${slug}`)}`;
-    return page({ title: row.title, description: row.description, body });
+    return page({ title: row.title, description: row.description, body, head: articleHead(row, url.pathname) });
   }
+
+  // The article's search head: its canonical is the row's own canonical (the home copy of a cross-posted article, per the rule row
+  // canonical-of-a-cross-posted-article), else this page. Open Graph and the JSON-LD Article take the row's words and dates; the
+  // author is the site's, given at createSite. A row with no description gets no search head (the head needs a description).
+  function articleHead(row, pathname) {
+    if (!row.description) return null;
+    const self = absolute(pathname);
+    const canonical = isHttpsAddress(row.canonical) ? row.canonical : self;
+    const picture = row.picture ? absolute(row.picture) : null;
+    const published = row.published_at ? new Date(row.published_at).toISOString() : null;
+    const updated = row.updated_at ? new Date(row.updated_at).toISOString() : published;
+    const jsonld = {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: row.title,
+      description: row.description,
+      mainEntityOfPage: self,
+      url: self,
+      publisher: { '@type': 'Organization', name: brand },
+      ...(author ? { author: { '@type': 'Person', name: author } } : {}),
+      ...(published ? { datePublished: published } : {}),
+      ...(updated ? { dateModified: updated } : {}),
+      ...(picture ? { image: picture } : {}),
+      ...(row.keywords ? { keywords: row.keywords } : {}),
+    };
+    return {
+      title: `${row.title} | ${brand}`,
+      description: row.description,
+      canonical,
+      og: { type: 'article', title: row.title, description: row.description, site_name: brand, ...(picture ? { image: picture } : {}) },
+      twitter: { card: picture ? 'summary_large_image' : 'summary' },
+      jsonld: [jsonld],
+    };
+  }
+
 
   async function feed() {
     const rows = await listedRows();

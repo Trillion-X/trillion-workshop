@@ -65,3 +65,44 @@ test('a paragraph\'s markdown link is an anchor, and only to an http or https ad
   assert.ok(html.includes('[this](javascript:alert(1))'));
   assert.ok(!bodyHtml('[x](https://a.test/"onmouseover=alert(1))').includes('"onmouseover'));
 });
+
+// The article's search head: canonical from its row (else this page), Open Graph, and a JSON-LD Article with the site's author and the row's dates.
+const headed = (row, options = {}) => site({
+  author: 'Example Author',
+  layout: ({ title, description, body }) => `<!doctype html><html><head><meta charset="utf-8"/><title>${title}</title></head><body>${body}</body></html>`,
+  db: async (sql) => (sql.startsWith('SELECT slug, title, description, body_markdown, picture, keywords, status') ? [row] : []),
+  ...options,
+});
+const article = {
+  slug: 'a-guide', title: 'A Guide', description: 'Plain words about a guide.', body_markdown: 'Body.', picture: '/img/guide.png',
+  keywords: 'guide', status: 'published', canonical: null, published_at: '2026-11-01T09:00:00.000Z', updated_at: '2026-11-03T09:00:00.000Z',
+};
+
+test('an article names itself as canonical, with Open Graph and a JSON-LD Article from its row', async () => {
+  const html = await (await headed(article).handle(new Request('https://example.test/articles/a-guide'))).text();
+  assert.match(html, /<link rel="canonical" href="https:\/\/example\.test\/articles\/a-guide"\/>/);
+  assert.match(html, /<meta property="og:type" content="article"\/>/);
+  assert.match(html, /<meta property="og:image" content="https:\/\/example\.test\/img\/guide\.png"\/>/);
+  assert.match(html, /<meta name="twitter:card" content="summary_large_image"\/>/);
+  const jsonld = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+  assert.equal(jsonld['@type'], 'Article');
+  assert.equal(jsonld.author.name, 'Example Author');
+  assert.equal(jsonld.datePublished, '2026-11-01T09:00:00.000Z');
+  assert.equal(jsonld.dateModified, '2026-11-03T09:00:00.000Z');
+});
+
+test('a cross-posted article names the row\'s canonical; a bad canonical falls back to this page', async () => {
+  const home = 'https://home.example/articles/a-guide';
+  const cross = await (await headed({ ...article, canonical: home }).handle(new Request('https://example.test/articles/a-guide'))).text();
+  assert.match(cross, new RegExp(`<link rel="canonical" href="${home}"/>`));
+  const bad = await (await headed({ ...article, canonical: 'javascript:alert(1)' }).handle(new Request('https://example.test/articles/a-guide'))).text();
+  assert.match(bad, /<link rel="canonical" href="https:\/\/example\.test\/articles\/a-guide"\/>/);
+});
+
+test('the author is left out of JSON-LD when the site does not name one, and no head is written without a description', async () => {
+  const noAuthor = await (await headed(article, { author: null }).handle(new Request('https://example.test/articles/a-guide'))).text();
+  assert.equal(noAuthor.includes('"author"'), false);
+  const bare = await (await headed({ ...article, description: '' }).handle(new Request('https://example.test/articles/a-guide'))).text();
+  assert.equal(bare.includes('application/ld+json'), false);
+  assert.match(bare, /<title>A Guide \| Example<\/title>/);
+});
