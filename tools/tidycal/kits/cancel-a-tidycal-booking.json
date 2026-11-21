@@ -1,0 +1,36 @@
+{
+  "start_here": "Say to your AI: \"Cancel TidyCal booking <id>.\" It runs tool:cancel-a-tidycal-booking.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it cancels one booking on your TidyCal account.",
+  "workflows": [],
+  "tools": [
+    "tool:cancel-a-tidycal-booking"
+  ],
+  "instructions": [
+    "1. Say to your AI what to book or cancel, with the TidyCal booking type id or booking id.",
+    "2. The AI calls tools:run with the tool and its input.",
+    "3. Read the answer; the booking is real, so check its time and status."
+  ],
+  "worked_examples": [
+    {
+      "title": "Cancel booking 12345",
+      "ask": "Cancel TidyCal booking 12345.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:cancel-a-tidycal-booking",
+            "input": {
+              "booking_id": 12345,
+              "reason": "Test cleanup"
+            }
+          }
+        }
+      },
+      "given": "Reads tools/tidycal/tool-rows.json: a POST to https://tidycal.com/api/bookings/{booking_id}/cancel with the vault key tidycal-api-token. The cancel cannot be undone.",
+      "hands_back": "It answers the cancelled booking 12345 with cancelled_at set to the time it was cancelled."
+    }
+  ]
+}

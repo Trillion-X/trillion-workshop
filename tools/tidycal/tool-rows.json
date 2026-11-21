@@ -1,67 +1,320 @@
 {
- "kind": "tool-rows",
- "record_set": "tidycal-tool-rows",
- "what_this_is": "The Workshop rows for TidyCal (tidycal.com), the booking service behind a person's booking pages. Each row is one http call to TidyCal's API, with the person's TidyCal key from the vault (tidycal-api-token) placed as a bearer header on tidycal.com only. Reads list booking types (which carry each booking page's address) and bookings; the write rows create and cancel one booking.",
- "records": [
-  {
-   "id": "package::ai-tool-catalog::tool::list-my-tidycal-booking-types",
-   "address": "package::ai-tool-catalog::tool::list-my-tidycal-booking-types",
-   "path": ["current-item", "published-record"],
-   "payload": {
-    "kind": "ai-tool-descriptor",
-    "id": "tool:list-my-tidycal-booking-types",
-    "label": "List my TidyCal booking types",
-    "job": "List the booking types (event types) on my TidyCal account, each with its id, title, duration and public booking address",
-    "description": "Reads the booking types of the person's TidyCal account with their own key from the vault. Reads only; books nothing.",
-    "status": "active",
-    "input_schema": { "type": "object", "additionalProperties": false, "properties": {} },
-    "output_schema": { "type": "object" },
-    "invoke": {
-     "kind": "http",
-     "url": "https://tidycal.com/api/booking-types",
-     "method": "GET",
-     "timeout_seconds": 30,
-     "headers": { "accept": "application/json", "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15" },
-     "credential_injections": [
-      { "hosts": ["tidycal.com"], "secret_name": "tidycal-api-token", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
-     ]
+  "kind": "tool-rows",
+  "record_set": "tidycal-tool-rows",
+  "what_this_is": "The Workshop rows for TidyCal (tidycal.com), the booking service behind a person's booking pages. Each row is one http call to TidyCal's API, with the person's TidyCal key from the vault (tidycal-api-token) placed as a bearer header on tidycal.com only. Reads list booking types (which carry each booking page's address) and bookings; the write rows create and cancel one booking. The create and cancel rows write a real booking or cancel one: their routes are unverified until the first live call.",
+  "records": [
+    {
+      "id": "package::ai-tool-catalog::tool::list-my-tidycal-booking-types",
+      "address": "package::ai-tool-catalog::tool::list-my-tidycal-booking-types",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-my-tidycal-booking-types",
+        "label": "List my TidyCal booking types",
+        "job": "List the booking types (event types) on my TidyCal account, each with its id, title, duration and public booking address",
+        "description": "Reads the booking types of the person's TidyCal account with their own key from the vault. Reads only; books nothing.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://tidycal.com/api/booking-types",
+          "method": "GET",
+          "timeout_seconds": 30,
+          "headers": {
+            "accept": "application/json",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
+          },
+          "credential_injections": [
+            {
+              "hosts": [
+                "tidycal.com"
+              ],
+              "secret_name": "tidycal-api-token",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer "
+              }
+            }
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "read_only": true,
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "provider": "TidyCal",
+          "documentation": "https://help.tidycal.com/article/739-faq",
+          "read_on": "2026-11-21",
+          "verified_live": false
+        }
+      }
     },
-    "result_selector": "$",
-    "needs": { "expected_seconds": 5, "network_egress": true },
-    "read_only": true,
-    "placements": ["placement:your-computer"],
-    "provenance": { "provider": "TidyCal", "documentation": "https://help.tidycal.com/article/739-faq", "read_on": "2026-11-21", "verified_live": false }
-   }
-  },
-  {
-   "id": "package::ai-tool-catalog::tool::list-my-tidycal-bookings",
-   "address": "package::ai-tool-catalog::tool::list-my-tidycal-bookings",
-   "path": ["current-item", "published-record"],
-   "payload": {
-    "kind": "ai-tool-descriptor",
-    "id": "tool:list-my-tidycal-bookings",
-    "label": "List my TidyCal bookings",
-    "job": "List the bookings on my TidyCal account, with each booker's name and email, start and end, cancellation and meeting link",
-    "description": "Reads the person's TidyCal bookings with their own key from the vault, newest first. Reads only; changes nothing.",
-    "status": "active",
-    "input_schema": { "type": "object", "additionalProperties": false, "properties": {} },
-    "output_schema": { "type": "object" },
-    "invoke": {
-     "kind": "http",
-     "url": "https://tidycal.com/api/bookings",
-     "method": "GET",
-     "timeout_seconds": 30,
-     "headers": { "accept": "application/json", "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15" },
-     "credential_injections": [
-      { "hosts": ["tidycal.com"], "secret_name": "tidycal-api-token", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
-     ]
+    {
+      "id": "package::ai-tool-catalog::tool::list-my-tidycal-bookings",
+      "address": "package::ai-tool-catalog::tool::list-my-tidycal-bookings",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-my-tidycal-bookings",
+        "label": "List my TidyCal bookings",
+        "job": "List the bookings on my TidyCal account, with each booker's name and email, start and end, cancellation and meeting link",
+        "description": "Reads the person's TidyCal bookings with their own key from the vault, newest first. Reads only; changes nothing.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://tidycal.com/api/bookings",
+          "method": "GET",
+          "timeout_seconds": 30,
+          "headers": {
+            "accept": "application/json",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
+          },
+          "credential_injections": [
+            {
+              "hosts": [
+                "tidycal.com"
+              ],
+              "secret_name": "tidycal-api-token",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer "
+              }
+            }
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "read_only": true,
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "provider": "TidyCal",
+          "documentation": "https://help.tidycal.com/article/739-faq",
+          "read_on": "2026-11-21",
+          "verified_live": false
+        }
+      }
     },
-    "result_selector": "$",
-    "needs": { "expected_seconds": 5, "network_egress": true },
-    "read_only": true,
-    "placements": ["placement:your-computer"],
-    "provenance": { "provider": "TidyCal", "documentation": "https://help.tidycal.com/article/739-faq", "read_on": "2026-11-21", "verified_live": false }
-   }
-  }
- ]
+    {
+      "id": "package::ai-tool-catalog::tool::create-a-tidycal-booking",
+      "address": "package::ai-tool-catalog::tool::create-a-tidycal-booking",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:create-a-tidycal-booking",
+        "label": "Create a TidyCal booking",
+        "job": "Book one slot on one of my TidyCal booking types for a named person, at a start time that is open",
+        "description": "Makes one booking of the given TidyCal booking type for the given person at the given start time (UTC, ISO 8601). TidyCal refuses a time that is not open. This books a real slot: call it only for a booking the person agreed to.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "booking_type_id",
+            "name",
+            "email",
+            "timezone",
+            "starts_at"
+          ],
+          "properties": {
+            "booking_type_id": {
+              "type": "integer",
+              "description": "The TidyCal booking type id (tool:list-my-tidycal-booking-types answers it)"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "email": {
+              "type": "string",
+              "minLength": 3
+            },
+            "timezone": {
+              "type": "string",
+              "minLength": 1,
+              "description": "IANA zone, for example UTC"
+            },
+            "starts_at": {
+              "type": "string",
+              "description": "Start time, ISO 8601 UTC"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://tidycal.com/api/booking-types/{booking_type_id}/bookings",
+          "method": "POST",
+          "timeout_seconds": 30,
+          "headers": {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
+          },
+          "body": {
+            "name": {
+              "from": "name"
+            },
+            "email": {
+              "from": "email"
+            },
+            "timezone": {
+              "from": "timezone"
+            },
+            "starts_at": {
+              "from": "starts_at"
+            }
+          },
+          "credential_injections": [
+            {
+              "hosts": [
+                "tidycal.com"
+              ],
+              "secret_name": "tidycal-api-token",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer "
+              }
+            }
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": false,
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "provider": "TidyCal",
+          "documentation": "https://help.tidycal.com/article/739-faq",
+          "read_on": "2026-11-21",
+          "verified_live": false,
+          "unverified": "The route and body fields are from the TidyCal FAQ (the API creates and cancels bookings) and the existing waiter; the first live call proves them."
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::cancel-a-tidycal-booking",
+      "address": "package::ai-tool-catalog::tool::cancel-a-tidycal-booking",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:cancel-a-tidycal-booking",
+        "label": "Cancel a TidyCal booking",
+        "job": "Cancel one of my TidyCal bookings by its numeric id, with an optional reason sent to the booker",
+        "description": "Cancels one TidyCal booking by its numeric id. The cancellation cannot be undone. Call it only for a booking the person asked to cancel.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "booking_id"
+          ],
+          "properties": {
+            "booking_id": {
+              "type": "integer",
+              "description": "The numeric TidyCal booking id"
+            },
+            "reason": {
+              "type": "string",
+              "description": "Optional reason sent to the booker"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://tidycal.com/api/bookings/{booking_id}/cancel",
+          "method": "POST",
+          "timeout_seconds": 30,
+          "headers": {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
+          },
+          "body": {
+            "reason": {
+              "from": "reason",
+              "optional": true
+            }
+          },
+          "credential_injections": [
+            {
+              "hosts": [
+                "tidycal.com"
+              ],
+              "secret_name": "tidycal-api-token",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer "
+              }
+            }
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": false,
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "provider": "TidyCal",
+          "documentation": "https://help.tidycal.com/article/739-faq",
+          "read_on": "2026-11-21",
+          "verified_live": false,
+          "unverified": "The route and body fields are from the TidyCal FAQ (the API creates and cancels bookings) and the existing waiter; the first live call proves them."
+        }
+      }
+    }
+  ]
 }
