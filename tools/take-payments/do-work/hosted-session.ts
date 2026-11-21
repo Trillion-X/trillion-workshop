@@ -1,5 +1,7 @@
 import { call } from '../../shared-code/src/build-provider-request.mjs';
 import { paymentScheduleFromTheWire } from '../read-data/when-money-is-taken.ts';
+import webhookEventMap from '../read-data/webhook-event-map.json' with { type: 'json' };
+import { checkoutPaymentIntentMetadata } from './map-webhook-event.mjs';
 import {
   howStripeTakesASchedule,
   whatTheCheckoutDoes,
@@ -295,9 +297,14 @@ export function sessionRequestBody(session: CreateHostedSessionInput['session'])
     // that only collects a card makes one by itself; one that takes money does
     // not unless it is asked to.
     body.customer_creation = 'always';
-    if (stripeMode === 'payment') {
-      body.payment_intent_data = { setup_future_usage: 'off_session' };
-    }
+  }
+  if (stripeMode === 'payment') {
+    // A one-time Checkout's PaymentIntent carries the Checkout marker, so the webhook mapper counts this purchase once,
+    // on the session's completed event (map-webhook-event.mjs, skip_when). Keeping the card for later adds its flag.
+    body.payment_intent_data = {
+      metadata: checkoutPaymentIntentMetadata(webhookEventMap),
+      ...(scheduled?.checkout.keepTheCardForLater ? { setup_future_usage: 'off_session' } : {}),
+    };
   }
   if (session.customer_email) body.customer_email = text(session.customer_email);
   if (clientRef) body.client_reference_id = clientRef;

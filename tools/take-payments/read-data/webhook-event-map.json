@@ -1,11 +1,15 @@
 {
-  "_comment": "Maps Stripe webhook event types to the generic revenue PaymentEvent shape consumed by the selected revenue projection: event_kind plus amount_due_today_cents, currency, recurring_amount_cents, subscription_status, and offer_id. The decoder reads these rows without app-specific branches; amounts are integer cents from Stripe.",
+  "_comment": "Maps Stripe webhook event types to the generic revenue PaymentEvent shape consumed by the selected revenue projection: event_kind plus amount_due_today_cents, currency, recurring_amount_cents, subscription_status, and offer_id. The decoder reads these rows without app-specific branches; amounts are integer cents from Stripe. A rule's optional skip_when {path, equals} drops an event whose value at that path equals the text: the payment_intent.succeeded rule drops the PaymentIntent a Checkout made (stamped by checkoutPaymentIntentMetadata), because the Checkout's completed event is that payment.",
   "kind": "webhook-event-map",
   "id": "stripe.webhook-event-map.default",
   "rules": [
     {
       "stripe_event_type": "payment_intent.succeeded",
       "target_event_kind": "payment.confirmed",
+      "skip_when": {
+        "path": ["data", "object", "metadata", "sold_through"],
+        "equals": "checkout_session"
+      },
       "attribute_map": {
         "amount_due_today_cents": {
           "path": [

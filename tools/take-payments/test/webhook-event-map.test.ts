@@ -10,10 +10,41 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from './expect.mjs';
 // eslint-disable-next-line import/extensions
-import { mapStripeWebhookEvent, loadWebhookEventMap } from '../do-work/map-webhook-event.mjs';
+import { mapStripeWebhookEvent, loadWebhookEventMap, checkoutPaymentIntentMetadata, paymentEventIdOf } from '../do-work/map-webhook-event.mjs';
 
 const packageRoot = join(import.meta.dirname, '..');
 const eventMap = loadWebhookEventMap(join(packageRoot, 'read-data/webhook-event-map.json'));
+
+// One purchase made through Checkout: the session's completed event and the PaymentIntent event Stripe sends for it.
+const checkoutCompleted = {
+  id: 'evt_cs_once',
+  type: 'checkout.session.completed',
+  created: 1782086400,
+  data: { object: { id: 'cs_live_once', amount_total: 50000, currency: 'usd', payment_status: 'paid', payment_intent: 'pi_once', customer_details: { email: 'buyer@example.com' }, metadata: { offer_id: 'offer:once' } } },
+};
+const checkoutPaymentIntent = {
+  id: 'evt_pi_checkout_once',
+  type: 'payment_intent.succeeded',
+  created: 1782086402,
+  data: { object: { id: 'pi_once', amount_received: 50000, currency: 'usd', metadata: { offer_id: 'offer:once', ...checkoutPaymentIntentMetadata(eventMap) } } },
+};
+// A PaymentIntent no Checkout made (a Payment Link or an API charge): no marker on it.
+const barePaymentIntent = {
+  id: 'evt_pi_bare_once',
+  type: 'payment_intent.succeeded',
+  created: 1782086500,
+  data: { object: { id: 'pi_bare_once', amount_received: 2000, currency: 'usd', metadata: { offer_id: 'offer:bare' } } },
+};
+
+/** The revenue rows a stream of Stripe events makes, keyed the way the ledger keys them (event_id). */
+function rowsOf(events) {
+  const rows = new Map();
+  for (const event of events) {
+    const mapped = mapStripeWebhookEvent(event, eventMap);
+    if (mapped) rows.set(mapped.event_id, mapped);
+  }
+  return [...rows.values()];
+}
 
 // Real-shaped Stripe webhook events (trimmed to the fields the map reads).
 const paymentIntentSucceeded = {
@@ -180,6 +211,35 @@ describe('map-webhook-event → generic revenue PaymentEvent (no key)', () => {
       .toBeNull();
     expect(mapStripeWebhookEvent(null, eventMap)).toBeNull();
     expect(mapStripeWebhookEvent({ id: 'e', data: {} }, eventMap)).toBeNull(); // no type
+  });
+
+  it('a Checkout purchase counts once whichever of its two events arrives first', () => {
+    const csThenPi = rowsOf([checkoutCompleted, checkoutPaymentIntent]);
+    const piThenCs = rowsOf([checkoutPaymentIntent, checkoutCompleted]);
+    expect(csThenPi).toHaveLength(1);
+    expect(piThenCs).toHaveLength(1);
+    expect(csThenPi[0]).toMatchObject({ event_id: 'checkout:cs_live_once', event_kind: 'payment.confirmed' });
+    expect(piThenCs[0]).toEqual(csThenPi[0]);
+    // The PaymentIntent is skipped by its own marker, not by what the other event held.
+    expect(mapStripeWebhookEvent(checkoutPaymentIntent, eventMap)).toBeNull();
+    expect(paymentEventIdOf(checkoutCompleted)).toBe('checkout:cs_live_once');
+  });
+
+  it('a PaymentIntent no Checkout made still counts once', () => {
+    const mapped = mapStripeWebhookEvent(barePaymentIntent, eventMap);
+    expect(mapped).toMatchObject({ event_id: 'evt_pi_bare_once', event_kind: 'payment.confirmed', attributes: { amount_due_today_cents: 2000, offer_id: 'offer:bare', provider_object_ref: 'pi_bare_once' } });
+    expect(rowsOf([barePaymentIntent, barePaymentIntent])).toHaveLength(1);
+  });
+
+  it('a replayed Checkout event counts once', () => {
+    expect(rowsOf([checkoutCompleted, checkoutCompleted, checkoutPaymentIntent, checkoutCompleted])).toHaveLength(1);
+    expect(rowsOf([checkoutCompleted, checkoutCompleted])).toEqual(rowsOf([checkoutCompleted]));
+  });
+
+  it('a skip_when with a malformed condition throws instead of silently counting twice', () => {
+    const broken = { ...eventMap, rules: eventMap.rules.map(rule => (rule.stripe_event_type === 'payment_intent.succeeded'
+      ? { ...rule, skip_when: { path: ['data', 'object', 'metadata', 'sold_through'] } } : rule)) };
+    expect(() => mapStripeWebhookEvent(checkoutPaymentIntent, broken)).toThrow(/skip_when/);
   });
 
   it('map carries no secret and names amounts in integer cents (no float math)', () => {

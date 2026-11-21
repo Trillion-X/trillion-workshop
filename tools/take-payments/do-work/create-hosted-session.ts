@@ -2,6 +2,8 @@ import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 import { encodeStripeForm } from '@/packages/stripe-payment-provider/process/stripe-form-encode.mjs';
 import { STRIPE_DOCS_CURRENT_API_VERSION } from '../read-data/capability-records';
 import { paymentScheduleFromTheWire } from '@/packages/payment-adapter/read-data/when-money-is-taken';
+import webhookEventMap from '../read-data/webhook-event-map.json' with { type: 'json' };
+import { checkoutPaymentIntentMetadata } from './map-webhook-event.mjs';
 import {
   howStripeTakesASchedule,
   whatTheCheckoutDoes,
@@ -316,9 +318,14 @@ function sessionRequestBody(session: CreateHostedSessionInput['session']) {
     // that only collects a card makes one by itself; one that takes money does
     // not unless it is asked to.
     body.customer_creation = 'always';
-    if (stripeMode === 'payment') {
-      body.payment_intent_data = { setup_future_usage: 'off_session' };
-    }
+  }
+  if (stripeMode === 'payment') {
+    // A one-time Checkout's PaymentIntent carries the Checkout marker, so the webhook mapper counts this purchase once,
+    // on the session's completed event (map-webhook-event.mjs, skip_when). Keeping the card for later adds its flag.
+    body.payment_intent_data = {
+      metadata: checkoutPaymentIntentMetadata(webhookEventMap),
+      ...(scheduled?.checkout.keepTheCardForLater ? { setup_future_usage: 'off_session' } : {}),
+    };
   }
   if (session.customer_email) body.customer_email = text(session.customer_email);
   if (clientRef) body.client_reference_id = clientRef;

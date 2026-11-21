@@ -18,6 +18,12 @@
 // counts it once. Fail-closed: an
 // event type with no rule returns null (ignored, never a guessed revenue row).
 //
+// One purchase, one row (Stripe sends a Checkout purchase twice: the session's completed event and its PaymentIntent's
+// succeeded event). A rule's `skip_when` ({ path, equals }) drops the event whose value at that path is exactly
+// `equals`. The payment_intent.succeeded rule skips the PaymentIntent a Checkout made, because Checkout stamps that
+// PaymentIntent with the marker `checkoutPaymentIntentMetadata` returns. A bare PaymentIntent has no marker and counts.
+// The decision reads only the one event, so the result does not depend on which of the two arrives first.
+//
 // Pure function, zero I/O, zero secrets, zero network — fixture-provable with no
 // key. Signature verification is a SEPARATE upstream step
 // (capability:stripe.webhook.verify-and-observe); this decoder runs only on an
@@ -43,6 +49,16 @@ function getPath(root, path) {
 function ruleFor(eventMap, stripeEventType) {
   const rules = Array.isArray(eventMap?.rules) ? eventMap.rules : [];
   return rules.find((rule) => rule.stripe_event_type === stripeEventType);
+}
+
+/** A rule's `skip_when` holds when the event's value at its path is exactly `equals`. A malformed condition throws:
+ *  a skip that silently never applies would count a purchase twice. */
+function skipWhenHolds(stripeEvent, condition) {
+  if (condition === undefined) return false;
+  if (!Array.isArray(condition?.path) || typeof condition.equals !== 'string') {
+    throw new Error('webhook-event-map: skip_when needs a path array and a text equals.');
+  }
+  return getPath(stripeEvent, condition.path) === condition.equals;
 }
 
 /** ISO-8601 from a Stripe unix `created` (seconds). The value comes from the
@@ -83,6 +99,7 @@ export function mapStripeWebhookEvent(stripeEvent, eventMap) {
   if (!isRecord(stripeEvent) || typeof stripeEvent.type !== 'string') return null;
   const rule = ruleFor(eventMap, stripeEvent.type);
   if (!rule) return null; // unknown event type → ignored, never guessed
+  if (skipWhenHolds(stripeEvent, rule.skip_when)) return null; // the Checkout that made this PaymentIntent is the payment
 
   const attributes = {};
   for (const [canonicalKey, source] of Object.entries(rule.attribute_map || {})) {
@@ -104,6 +121,21 @@ export function mapStripeWebhookEvent(stripeEvent, eventMap) {
     event_kind: rule.target_event_kind,
     attributes,
   };
+}
+
+/**
+ * The PaymentIntent metadata every one-time Checkout stamps on the PaymentIntent it makes, so the mapper skips that
+ * PaymentIntent (its rule's skip_when). It is read from that rule, so the DATA map is the one place the marker is
+ * written: a session builder that stamps anything else would count its purchase twice again.
+ */
+export function checkoutPaymentIntentMetadata(eventMap) {
+  const condition = ruleFor(eventMap, 'payment_intent.succeeded')?.skip_when;
+  const path = condition?.path;
+  if (!Array.isArray(path) || path.length !== 4 || path[0] !== 'data' || path[1] !== 'object' || path[2] !== 'metadata'
+    || typeof condition.equals !== 'string') {
+    throw new Error('webhook-event-map: payment_intent.succeeded needs skip_when at data.object.metadata.<key> with a text equals.');
+  }
+  return { [path[3]]: condition.equals };
 }
 
 /** Load the DATA map from disk (package-relative). */

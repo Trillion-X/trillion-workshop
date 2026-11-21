@@ -74,7 +74,7 @@ describe('the session body', () => {
     expect(body.mode).toBe('payment');
     expect(body.line_items[0].price_data.unit_amount).toBe(800);
     expect(body.customer_creation).toBe('always');
-    expect(body.payment_intent_data).toEqual({ setup_future_usage: 'off_session' });
+    expect(body.payment_intent_data).toEqual({ metadata: { sold_through: 'checkout_session' }, setup_future_usage: 'off_session' });
   });
 
   it('a schedule with nothing due at signup only collects the card, and one whose first money has no phase before it is refused', () => {
