@@ -1,0 +1,81 @@
+{
+  "records": [
+    {
+      "payload": {
+        "uses_tools": [],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:edit-a-shared-draft",
+        "label": "Edit a shared draft",
+        "status": "active",
+        "job": "Let several people write one draft together: edit it only against the version each person read, freeze it, and count which authors approved the same version",
+        "description": "op edit (the default for a co-author): give draft_id, author (your principal, who must be one of the draft's authors), expect (the content identity 1f:... you read) and changes (title, body, pictures, or only your own entry in sections). Refused with the current identity when the draft changed since you read it, when it is frozen, or when you change someone else's section; nothing is written then. op approve: give draft_id, author and expect; the answer is your approval record for your own store. op freeze and op unfreeze: give draft_id, owner and expect (only the owner). op check: give draft_id and the stored draft and the approvals read back from each author; answers which authors approved the current identity, which approvals were withdrawn by a change, and ready (true only when every author approved it). The tool writes nothing itself: the caller writes each item of writes, in order, only while its store still holds the expect.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["op", "draft_id"],
+          "properties": {
+            "op": { "type": "string", "enum": ["edit", "approve", "freeze", "unfreeze", "check"], "default": "edit" },
+            "draft_id": { "type": "string", "minLength": 1, "maxLength": 200, "description": "The draft's id: the record is draft:<draft_id>" },
+            "author": { "type": "string", "minLength": 1, "maxLength": 200, "description": "The principal making the edit or approval" },
+            "owner": { "type": "string", "minLength": 1, "maxLength": 200, "description": "The owner's principal, for freeze and unfreeze" },
+            "expect": { "type": "string", "pattern": "^1f:[0-9a-f]{64}$", "description": "The content identity (1f:...) the caller read" },
+            "changes": { "type": "object", "description": "title, body, pictures, and sections holding only the author's own entry" },
+            "stored": { "type": "object", "description": "What the caller read from its store: draft, approval (approve), approvals (check)" },
+            "now": { "type": "string", "description": "Optional ISO time for the edit or approval record" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["op", "ok", "writes"],
+          "properties": {
+            "op": { "type": "string" },
+            "ok": { "type": "boolean" },
+            "refused": { "type": "string" },
+            "said": { "type": "string" },
+            "current": { "type": "string" },
+            "identity": { "type": "string" },
+            "ready": { "type": "boolean" },
+            "approved": { "type": "array", "items": { "type": "string" } },
+            "withdrawn": { "type": "array", "items": { "type": "string" } },
+            "missing": { "type": "array", "items": { "type": "string" } },
+            "writes": { "type": "array", "items": { "type": "object" } }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/edit-a-shared-draft",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/edit-a-shared-draft/do-work/edit-a-shared-draft.mjs", "editSharedDraft"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": [
+              { "package": "edit-a-shared-draft", "paths": ["do-work", "read-data"], "at": "/opt/edit-a-shared-draft" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              {
+                "packages": ["node_modules/@noble/hashes"],
+                "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              { "package": "workflows", "paths": ["do-work/run-a-function.mjs"], "at": "/opt/workflows" }
+            ]
+          }
+        },
+        "needs": { "expected_seconds": 2, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:edit-a-shared-draft",
+        "result_selector": "$.result",
+        "provenance": { "source": "new: co-authors on one draft with compare-and-set on its content identity and approvals counted per identity (trillion-workshop tools/share-anything for the write-back shape)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": { "op": "check", "draft_id": "sample", "stored": { "draft": { "owner": "sample-owner", "authors": ["sample-owner"], "title": "t", "body": "b", "pictures": [], "sections": {} }, "approvals": [] } },
+            "output_selector": "$.missing",
+            "contains": "sample-owner"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "start_here": "Say to your AI: \"Change my part of the shared draft d1 to 'My part', against the version I read\", with {\"op\":\"edit\",\"draft_id\":\"d1\",\"author\":\"sample-coauthor-b\",\"expect\":\"1f:f95f6ea2d42e1aac148d4bd6d2e457a8e584277ce6241fcf9990b6c816291c8c\",\"changes\":{\"sections\":{\"sample-coauthor-b\":\"My part\"}}} and the draft you read as stored.draft. It runs tool:edit-a-shared-draft and answers ok true, the new identity 1f:2ab3e7c7b5c3521bb005aa641f4573b85a4087f40d2883cae8a2dde5dc1c66c1 and one write: draft:d1 with your section changed and the edit recorded, to store only while draft:d1 still holds the identity you read.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it takes the draft and approvals the caller read and answers the writes, and the caller keeps them in its own store at draft:<draft_id> and draft-approval:<draft_id>.",
+  "workflows": [],
+  "tools": [
+    "tool:edit-a-shared-draft"
+  ],
+  "instructions": [
+    "1. Read the draft from your own store at draft:<draft_id> and note its content identity (1f:...).",
+    "2. Say to your AI: \"Change my part of shared draft <draft_id> to ...\"; it calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:edit-a-shared-draft, op edit, your principal as author, the identity you read as expect and only the fields you change.",
+    "3. Read what comes back: ok true with writes to store in order, each only while your store still holds its expect; or a refusal naming the current identity, when nothing was written and you read the draft again.",
+    "4. To approve the version you read, run op approve with that identity and keep the approval at draft-approval:<draft_id>; the owner runs op check with every author's approval, and the draft is ready only when every author approved the current identity."
+  ],
+  "worked_examples": [
+    {
+      "title": "A co-author changes their own section of a shared draft",
+      "ask": "Change my part of the shared draft d1 to 'My part', against the version I read",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:edit-a-shared-draft",
+            "input": {
+              "op": "edit",
+              "draft_id": "d1",
+              "author": "sample-coauthor-b",
+              "expect": "1f:f95f6ea2d42e1aac148d4bd6d2e457a8e584277ce6241fcf9990b6c816291c8c",
+              "changes": {
+                "sections": {
+                  "sample-coauthor-b": "My part"
+                }
+              },
+              "stored": {
+                "draft": {
+                  "owner": "sample-owner",
+                  "authors": [
+                    "sample-owner",
+                    "sample-coauthor-b"
+                  ],
+                  "title": "Sample title",
+                  "body": "Sample body",
+                  "pictures": [],
+                  "sections": {
+                    "sample-owner": "Owner part",
+                    "sample-coauthor-b": "B part"
+                  },
+                  "status": "open",
+                  "edits": []
+                }
+              },
+              "now": "2026-11-21T17:00:00Z"
+            }
+          }
+        }
+      },
+      "given": "A two-author sample draft d1 read at identity 1f:f95f6ea2d42e1aac148d4bd6d2e457a8e584277ce6241fcf9990b6c816291c8c.",
+      "hands_back": "It answered {\"op\":\"edit\",\"ok\":true,\"draft_id\":\"d1\",\"identity\":\"1f:2ab3e7c7b5c3521bb005aa641f4573b85a4087f40d2883cae8a2dde5dc1c66c1\",\"writes\":[{\"kind\":\"draft\",\"address\":\"draft:d1\",\"expect\":\"1f:f95f6ea2d42e1aac148d4bd6d2e457a8e584277ce6241fcf9990b6c816291c8c\",\"value\":{\"sections\":{\"sample-owner\":\"Owner part\",\"sample-coauthor-b\":\"My part\"},\"edits\":[{\"by\":\"sample-coauthor-b\",\"at\":\"2026-11-21T17:00:00Z\"}]}}]} (the written draft shortened here)."
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "record_prefix": "draft:",
+  "approval_prefix": "draft-approval:",
+  "fields": ["title", "body", "pictures"],
+  "sections_field": "sections",
+  "words": {
+    "stale": "The draft changed since you read it. Read it again and edit from the new version.",
+    "frozen": "This draft is frozen for approval. Ask its owner to unfreeze it before you change it.",
+    "not_an_author": "This person is not one of the draft's authors.",
+    "not_owner": "Only the draft's owner can do this.",
+    "not_your_section": "You can change only your own section of the draft.",
+    "no_draft": "There is no draft to edit.",
+    "no_change": "Nothing changed, so there is nothing to save.",
+    "bad_field": "Only title, body, pictures and your own section can be changed.",
+    "approval_stale": "Your approval is for an older version of the draft. Read the draft and approve the version you read."
+  }
+}

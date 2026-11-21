@@ -62276,5 +62276,45 @@
    ],
    "at": "/opt/workflows"
   }
+ ],
+ "tool:edit-a-shared-draft": [
+  {
+   "package": "edit-a-shared-draft",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/edit-a-shared-draft"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
  ]
 }
