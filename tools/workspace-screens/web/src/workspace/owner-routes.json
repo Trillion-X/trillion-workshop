@@ -7,5 +7,9 @@
   "previews": {
     "shown": false,
     "waits_for": "a files operation that makes previews on the server (none answers now; the old previews road has no owner)"
+  },
+  "share_destinations": {
+    "shown": false,
+    "waits_for": "a road that answers the person's share list (where a share goes and what their AI does with it); until then the message box sends to every AI on the account, as one seed row (send-to-seeds.json)"
   }
 }

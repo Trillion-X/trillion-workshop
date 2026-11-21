@@ -17,7 +17,7 @@
 //   5. The store is the page's localStorage when it has one; when it cannot be written (full, private mode) the shares
 //      are held in memory so the retries in this page still run.
 //   6. One outbox, any idempotent write: a kept row may name its own `path` and the `key_field` its key travels in
-//      (a message to the AIs: /work/api/messages/send-all with `client_id`, src/workspace/send-message.ts); a row naming
+//      (a message from the composer: its seed route, send-to-seeds.json, with `client_id`, src/workspace/send-message.ts); a row naming
 //      neither is a share. Kept rows can be sent again at once (`resend`) or let go (`cancel`), so a send that is
 //      waiting is never stuck where the person cannot reach it.
 //   7. A kept row may carry `meta`: what a screen needs to show it while it waits (the conversation and words of a
@@ -33,6 +33,7 @@
 //      page a share is sent once and kept nowhere.
 
 import { postJson } from './api';
+import { keepComposerSeed, seedRoute } from './send-to-seeds';
 import { notify } from '../../../../ui/show/coss/notifications';
 import { reasonOf } from './failure';
 import { keptAccount } from '../../../../ui/show/page-storage/page-storage';
@@ -81,7 +82,13 @@ type Options = {
   account?: () => string | null;
 };
 
-export function createShareOutbox({ storage = null, post = (path, body) => postJson<DeliverAnswer>(path, body), now = Date.now, onLetGo = () => {},
+/** Posts one kept write to its road: a message from the composer is kept as its seed row; any other is posted to the account. */
+export const postKept = (path: string, body: unknown): Promise<DeliverAnswer> => path === seedRoute.path
+  // A seed row answers what the person is told (message, message_id, kept_at), which deliver's callers read as `answer`.
+  ? keepComposerSeed(body as Parameters<typeof keepComposerSeed>[0]) as unknown as Promise<DeliverAnswer>
+  : postJson<DeliverAnswer>(path, body);
+
+export function createShareOutbox({ storage = null, post = postKept, now = Date.now, onLetGo = () => {},
   account = () => keptAccount()?.store ?? null }: Options = {}) {
   let held: KeptShare[] = [];
   const listeners = new Set<() => void>();

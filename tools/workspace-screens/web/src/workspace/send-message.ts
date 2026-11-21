@@ -3,16 +3,16 @@
 // PURPOSE
 //   How the web app sends what the person put in the shared composer (tools/ui/show/composer): its files go into the
 //   person's own Files first (src/workspace/upload.ts, one folder per message beneath message-files.json `folder`),
-//   then the message goes once, naming those files by identity, either to every AI on the account (/work/api/messages/
-//   send-all, src/send-to-all-ais.mjs) or into a space (each file shared there, then the message about them).
+//   then the message goes once, naming those files by identity, either to every AI on the account (one seed row,
+//   src/workspace/send-to-seeds.ts) or into a space (each file shared there, then the message about them).
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Bytes move only through the one uploader; the message carries identities, never bytes.
 //   2. Pasted links travel as words: each on its own line after what the person wrote.
 //   3. A failure is thrown in the Worker's words, and nothing is reported sent unless the Worker said so.
 //   4. Every message to the AIs carries a client id made here (`postToAllAis`): the same draft sent again after a failure
-//      keeps its id, so the Worker keeps it once, and words typed again are a new draft with a new id, so the Worker
-//      keeps them as a new message (src/send-to-all-ais.mjs client_id).
+//      keeps its id, so its seed row is written once, and words typed again are a new draft with a new id, so they are a
+//      new row (src/workspace/send-to-seeds.ts).
 //   5. A message to the AIs is written to this device's outbox before it is posted (src/workspace/share-outbox.ts) and
 //      sent again, under the same client id, until the account answers it, so a page closed or a connection lost mid-send
 //      never loses it; the person is told it is kept (message-files.json `kept`), and `resend`/`cancel` there act on it.
@@ -22,6 +22,7 @@ import { momentName } from '../../../../record-audio/show/record-in-the-browser'
 import { uploadFiles } from './upload';
 import { linkPreviewProps, readLink } from './read-link';
 import settings from './message-files.json';
+import { seedRoute } from './send-to-seeds';
 import { admitAttachments } from '../attachment-admission.mjs';
 
 /** What the person wrote, with each pasted link on its own line after it. */
@@ -51,18 +52,18 @@ export type Sent = { said: string; message_id: string | null };
 
 const draftIds = new WeakMap<object, { body: string; id: string }>();
 
-/** The one road a message to the AIs takes (/work/api/messages/send-all), with the client id of the draft it sends: the
- *  same draft object keeps its id across a send that failed and is sent again; a send with no draft gets a new id. */
+/** The one road a message to the AIs takes (the seed route, send-to-seeds.json), with the client id of the draft it sends:
+ *  the same draft object keeps its id across a send that failed and is sent again; a send with no draft gets a new id. */
 export function postToAllAis<T>(body: Record<string, unknown>, draft?: object): Promise<T> {
   const signature = JSON.stringify(body);
   const previous = draft ? draftIds.get(draft) : undefined;
   const id = previous?.body === signature ? previous.id : crypto.randomUUID();
   if (draft) draftIds.set(draft, { body: signature, id });
-  return deliverKept<T>({ ...body, client_id: id });
+  return deliverKept<T>({ ...body, client_id: id, at: new Date().toISOString() });
 }
 
-/** The device outbox route a message to the AIs travels (message-files.json `route`), so it survives a closed page. */
-const SEND_ALL = settings.route;
+/** The device outbox route a message to the AIs travels (send-to-seeds.json), so it survives a closed page. */
+const SEND_ALL = seedRoute;
 
 async function deliverKept<T>(body: Record<string, unknown>): Promise<T> {
   const { shareOutbox } = await import('./share-outbox');

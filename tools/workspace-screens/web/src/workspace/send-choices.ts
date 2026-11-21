@@ -17,6 +17,8 @@
 //   3. Files are kept once in the person's Files and travel by identity.
 //   4. A default send carries no `to`; places are named only after the person opens Choose where.
 //   5. A share the account could not be reached for is said as kept, never as failed, and shows a quiet Waiting to send.
+//   6. While the share list's road is switched off (owner-routes.json share_destinations), no place or action is read or
+//      drawn, and a send goes to every AI on the account as one seed row (send-message.ts sendToAllYourAis).
 
 import React from 'react';
 import type { ComposerDraft, ComposerPicker } from '../../../../ui/show/composer';
@@ -61,11 +63,14 @@ export function useDeadShares() {
 const sending = () => import('./send-message');
 import type { RunRef } from 'trillion-workshop/tools/hand-work-to-ais/web/src/workspace/job-run.tsx';
 import words from './send-choices.json';
+import ownerRoutes from './owner-routes.json';
 import { actionPicker, type Action, type Folder } from './action-picker';
 export { actionPicker, type Action, type Folder };
 
 type Place = { id: string; label: string; depth?: number; others_count?: number; to: { private?: boolean; pursuit_id?: string; space_id?: string; tool_id?: string }; on_by_default: boolean };
 type Choices = { destinations: Place[]; actions: Action[]; folders?: Folder[] };
+/** Whether the person's share list is read and drawn (owner-routes.json share_destinations); off, the box sends to every AI. */
+const shareList = ownerRoutes.share_destinations.shown;
 /** The most jobs a box keeps showing, newest first. */
 const RUNS_SHOWN = 3;
 // The work the person's sends started, newest first, kept outside any one box so a box drawn again (Home reads itself
@@ -106,6 +111,7 @@ export function useSendChoices(): { pickers: ComposerPicker[]; send: (draft: Com
     return answer;
   }, []);
   React.useEffect(() => {
+    if (!shareList) return;
     read().then(answer => setPlaces(answer.destinations.filter(place => place.on_by_default).map(place => place.id)), () => undefined);
   }, [read]);
 
@@ -126,7 +132,7 @@ export function useSendChoices(): { pickers: ComposerPicker[]; send: (draft: Com
     setAction([...saved.actions].reverse().find(row => row.label === name)?.id ?? null);
   }, [read]);
 
-  const pickers: ComposerPicker[] = pickersBehind(choices ? [
+  const pickers: ComposerPicker[] = shareList ? pickersBehind(choices ? [
     {
       id: 'send-to', label: words.send_to.label, icon: words.send_to.icon, many: true, chosen: places, onChange: setPlaces,
       options: choices.destinations.map(place => ({ value: place.id, label: place.label, depth: place.depth ?? 0,
@@ -134,9 +140,10 @@ export function useSendChoices(): { pickers: ComposerPicker[]; send: (draft: Com
       search: { placeholder: words.send_to.search, create: { label: words.send_to.create, onCreate: name => { void makePursuit(name); } } },
     },
     actionPicker(choices, action, setAction, name => { void makeAction(name); }),
-  ] : [], choosing, () => setChoosing(open => !open), waiting);
+  ] : [], choosing, () => setChoosing(open => !open), waiting) : [];
 
   const send = React.useCallback(async (draft: ComposerDraft) => {
+    if (!shareList) return (await sending()).sendToAllYourAis(draft).then(sent => sent.said);
     const kept = await (await sending()).keepFiles(draft);
     const items = [
       ...draft.links.map(url => ({ kind: 'link', url })),

@@ -169,7 +169,6 @@
     "tools/workspace-screens/web/src/workspace/menu-rows.tsx /work/api/share-destinations",
     "tools/workspace-screens/web/src/workspace/menu-rows.tsx /work/api/share-destinations/deliver",
     "tools/workspace-screens/web/src/workspace/menu-rows.tsx /work/api/workshop/for-thing",
-    "tools/workspace-screens/web/src/workspace/message-files.json /work/api/messages/send-all",
     "tools/workspace-screens/web/src/workspace/person-notifications.ts /work/api/notifications",
     "tools/workspace-screens/web/src/workspace/put-sizes-on-board.ts /work/api/spaces/",
     "tools/workspace-screens/web/src/workspace/queue-job.ts /work/api/queue",
@@ -183,7 +182,6 @@
     "tools/workspace-screens/web/src/workspace/resource-presentation-host.mjs /work/api/resources/invoke",
     "tools/workspace-screens/web/src/workspace/say-about-this.tsx /work/api/messages/about",
     "tools/workspace-screens/web/src/workspace/say-about-this.tsx /work/api/spaces/",
-    "tools/workspace-screens/web/src/workspace/search-results.ts /work/api/search",
     "tools/workspace-screens/web/src/workspace/send-actions-tree.ts /work/api/share-destinations",
     "tools/workspace-screens/web/src/workspace/send-choices.ts /work/api/pursuits",
     "tools/workspace-screens/web/src/workspace/send-choices.ts /work/api/share-destinations",
@@ -206,7 +204,6 @@
     "tools/workspace-screens/web/src/workspace/tool-screen.tsx /work/api/spaces/",
     "tools/workspace-screens/web/src/workspace/tour-words.json /work/api/ai-connection",
     "tools/workspace-screens/web/src/workspace/upload.ts /work/api/namespace/growing",
-    "tools/workspace-screens/web/src/workspace/upload.ts /work/api/namespace/growing/",
-    "tools/workspace-screens/web/src/workspace/upload.ts /work/api/namespace/leases"
+    "tools/workspace-screens/web/src/workspace/upload.ts /work/api/namespace/growing/"
   ]
 }
