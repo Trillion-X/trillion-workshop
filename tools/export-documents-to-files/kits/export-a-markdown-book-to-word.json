@@ -1,9 +1,9 @@
 {
-  "drafted_from": "tools/export-documents-to-files/tool-rows.json (tool:export-a-markdown-book-to-word), do-work/export-a-book.mjs, README.md (the book settings row), test/export-a-book.test.mjs, and the real definitions of list:settings and list:checks read from the account",
+  "drafted_from": "tools/export-documents-to-files/tool-rows.json (tool:export-a-markdown-book-to-word), do-work/export-a-book.mjs, README.md (the book settings row), test/export-a-book.test.mjs, and the real definitions of the settings table and list:checks read from the account",
   "start_here": "Say to your AI: \"Export my book rye-cookbook to Word. Its settings row is already in my settings list, and the checks branch bakery-book judges the words first.\" It runs the exporter on your computer and tells you whether the Word file was written or why it was blocked.",
   "lists": [
     {
-      "list": "list:settings",
+      "list": "list:tool-settings",
       "label": "Settings",
       "row_type": "record:setting",
       "holds": "One row per tool and scope; for a book the row names the manuscript, its role, the bytes it must have, the Word template, the output folder and the checks branch.",
@@ -228,7 +228,7 @@
     "least_coverage": 0.8,
     "how": "Name the settings list you already keep and its fields. The tool matches the kit's fields to yours by id, label or alike name, refuses under least_coverage, and otherwise answers the example rows to add, leaving yours untouched.",
     "example": {
-      "kit_list": "list:settings",
+      "kit_list": "list:tool-settings",
       "into": {
         "list": "list:project-settings",
         "row_type": "record:project-setting",

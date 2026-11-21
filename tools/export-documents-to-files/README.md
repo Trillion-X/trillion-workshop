@@ -51,7 +51,7 @@ The old Python writer (`render-structured-file-export.py`, its rules file and te
 
 ## The book's settings row
 
-`record:setting:export-documents-to-files~piece~<book-id>` in `list:settings`, given in the request as `settings_record`, the record itself `{ id, type, value }` as the person's AI read it (an id alone is refused; the tool reads no settings row), read with `tools/settings`; its `settings`:
+`record:setting:export-documents-to-files~piece~<book-id>` in settings table, given in the request as `settings_record`, the record itself `{ id, type, value }` as the person's AI read it (an id alone is refused; the tool reads no settings row), read with `tools/settings`; its `settings`:
 
 | Key | Holds |
 |---|---|
