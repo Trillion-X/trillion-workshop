@@ -1,0 +1,42 @@
+{
+  "start_here": "Say to your AI: \"Switch on workflow:find-workflows-that-can-never-fire with credential_name <the vault name of my own account database>.\" It then checks every workflow condition each day and each time a workflow row changes.",
+  "lists": [],
+  "no_lists_because": "The sweep reads the workflow rows the person's database already keeps and writes its findings as calendar tasks there; no list of the person's is needed.",
+  "workflows": [
+    "workflow:find-workflows-that-can-never-fire"
+  ],
+  "tools": [
+    "tool:run-sql-in-my-database"
+  ],
+  "instructions": [
+    "1. Name the vault connection of the database your workflow rows are kept in (credential_name).",
+    "2. Switch the daily wake on for workflow:find-workflows-that-can-never-fire with that name as the switch input.",
+    "3. The run counts the conditions it cannot judge, opens one calendar task per problem and closes the fixed ones, then answers three counts only.",
+    "4. Read the open findings in your calendar tasks, labelled finding and never-fire."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check every workflow condition once",
+      "ask": "Run workflow:find-workflows-that-can-never-fire with credential_name for my database now",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-sql-in-my-database",
+            "input": {
+              "credential_name": "<my database>",
+              "sql": "<the sweep statement, run once>"
+            }
+          }
+        }
+      },
+      "answer": "Three counts: opened, closed_now and problems_now.",
+      "workflow": "workflow:find-workflows-that-can-never-fire",
+      "step": "sweep",
+      "hands_back": "Three counts, for example {\"opened\":0,\"closed_now\":0,\"problems_now\":0} when nothing new is unjudgeable."
+    }
+  ],
+  "drafted_from": "workflow:find-workflows-that-can-never-fire steps sweep"
+}

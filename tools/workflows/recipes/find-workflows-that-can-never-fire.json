@@ -1,0 +1,178 @@
+{
+  "about": "workflow:find-workflows-that-can-never-fire: a daily and per-row-change sweep for workflow conditions that can never fire. One run-sql step; answers counts only.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:find-workflows-that-can-never-fire",
+        "label": "Find workflow conditions that can never fire",
+        "job": "Each day, and once when any workflow's own row changes: sweep every workflow row's conditions for ones the chooser can never judge (no made_by, or an operator that does not apply to its field kind), open one calendar task per problem, and close the tasks whose condition is fixed.",
+        "produces": "One calendar_tasks finding per unjudgeable condition, idempotent per recipe and condition, and the closed ones marked Done.",
+        "source": {
+          "from": "the workflow-router lane, 2026-11-21: a condition the chooser cannot evaluate is silently never chosen, so a sweep is the only place it is seen",
+          "note": "The sweep runs in the pursuit's own database with one SQL statement; its answer is counts only."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "credential_name"
+          ],
+          "properties": {
+            "credential_name": {
+              "type": "string",
+              "pattern": "-connection$",
+              "description": "The pursuit database the workflow rows are kept in, as the switch's input names it (its vault name)."
+            }
+          }
+        },
+        "fires_when": [
+          {
+            "label": "a workflow's own definition was changed (any workflow_recipes row changed), so check it can still fire",
+            "state": "On",
+            "made_by": "the person's AI, which wrote this workflow (Nov 21 2026)",
+            "condition": {
+              "fields": [
+                {
+                  "id": "place",
+                  "kind": "choice",
+                  "path": [
+                    "place"
+                  ]
+                },
+                {
+                  "id": "change",
+                  "kind": "choice",
+                  "path": [
+                    "change"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "place",
+                    "params": {
+                      "values": [
+                        "workflow_recipes"
+                      ]
+                    },
+                    "operator": "is_any_of"
+                  },
+                  {
+                    "kind": "rule",
+                    "field": "change",
+                    "params": {
+                      "values": [
+                        "changed"
+                      ]
+                    },
+                    "operator": "is_any_of"
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "wakes": [
+          {
+            "id": "daily",
+            "on": {
+              "fact": {
+                "from": [
+                  "run"
+                ],
+                "kind": "due-time",
+                "match": {
+                  "schedule_id": "schedule:workflow:find-workflows-that-can-never-fire:daily"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:find-workflows-that-can-never-fire",
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        },
+                        "owner_dispatch": {
+                          "name": "workflow:find-workflows-that-can-never-fire",
+                          "input": {}
+                        }
+                      },
+                      "cadence": {
+                        "unit": "day"
+                      },
+                      "timezone": "America/Chicago",
+                      "schedule_id": "schedule:workflow:find-workflows-that-can-never-fire:daily",
+                      "local_window": {
+                        "start": "07:00",
+                        "duration_minutes": 1
+                      },
+                      "start_local_date": "2026-11-21",
+                      "schedule_revision": 1,
+                      "source_generation": 1
+                    }
+                  ]
+                }
+              }
+            },
+            "input": {
+              "start_at": "sweep"
+            },
+            "budget": {
+              "steps": 5,
+              "wall_ms": 600000
+            }
+          }
+        ],
+        "steps": [
+          {
+            "id": "sweep",
+            "title": "Open and close the unjudgeable-condition findings",
+            "do": "Run the sweep SQL in the pursuit's own database and return its counts only.",
+            "run_tool": {
+              "tool_id": "tool:run-sql-in-my-database",
+              "input": {
+                "sql": "WITH conds AS (\n  SELECT r.recipe, c.value AS c, c.ordinality AS n FROM workflow_recipes r CROSS JOIN LATERAL jsonb_array_elements(CASE WHEN jsonb_typeof(r.fires_when)='array' THEN r.fires_when ELSE '[]'::jsonb END) WITH ORDINALITY c\n),\nproblems AS (\n  SELECT k.recipe, k.n, k.c ->> 'label' AS label, 'made_by missing' AS why FROM conds k WHERE coalesce(k.c ->> 'made_by','') = ''\n  UNION ALL\n  SELECT k.recipe, k.n, k.c ->> 'label', 'operator ' || (rule ->> 'operator') || ' does not apply to ' || (f ->> 'kind') || ' field ' || (rule ->> 'field')\n  FROM conds k, jsonb_path_query(k.c, 'strict $.condition.tree.**') AS rt(rule), jsonb_array_elements(CASE WHEN jsonb_typeof(k.c #> '{condition,fields}')='array' THEN k.c #> '{condition,fields}' ELSE '[]'::jsonb END) AS ft(f)\n  , rule_operators o\n  WHERE o.operator = rule ->> 'operator' AND rule ->> 'kind' = 'rule' AND f ->> 'id' = rule ->> 'field' AND f ->> 'kind' <> 'fact' AND NOT (o.applies_to ? (f ->> 'kind'))\n)\n,\nwritten AS (\n  INSERT INTO calendar_tasks (id, title, description, labels, placed_by, status, job, plain_title, plain_detail)\n  SELECT 'record:calendar-task:never-fire-' || md5(p.recipe || '|' || coalesce(p.label,'') || '|' || p.why),\n    'A workflow condition can never fire: ' || p.recipe,\n    'Recipe ' || p.recipe || ', condition ' || coalesce(p.label,'(unlabelled)') || '. Problem: ' || p.why || '.',\n    '[\"finding\",\"never-fire\"]'::jsonb, 'find-workflows-that-can-never-fire', 'To do', p.recipe,\n    'A workflow condition can never fire', 'Fix the condition so it can be judged.'\n  FROM problems p\n  ON CONFLICT (id) DO NOTHING\n  RETURNING id\n),\nclosed AS (\n  UPDATE calendar_tasks t SET status = 'Done'\n  WHERE t.id LIKE 'record:calendar-task:never-fire-%' AND t.status <> 'Done'\n    AND t.id NOT IN (SELECT 'record:calendar-task:never-fire-' || md5(p.recipe || '|' || coalesce(p.label,'') || '|' || p.why) FROM problems p)\n  RETURNING id\n)\nSELECT row_to_json(x)::text FROM (SELECT (SELECT count(*) FROM written) AS opened, (SELECT count(*) FROM closed) AS closed_now, (SELECT count(*) FROM problems) AS problems_now) x",
+                "credential_name": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "credential_name"
+                  }
+                }
+              }
+            },
+            "submit": {
+              "type": "object",
+              "required": [
+                "opened",
+                "closed_now",
+                "problems_now"
+              ],
+              "properties": {
+                "opened": {
+                  "type": "integer"
+                },
+                "closed_now": {
+                  "type": "integer"
+                },
+                "problems_now": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
