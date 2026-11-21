@@ -192,19 +192,22 @@ def silenced_stretches(video, agreed_voices, voice_match, model=None):
     follow each other with no pause, so each half second of speech is scored by the 1.5 s windows that cover it and
     takes the lowest of their scores: a boundary between someone who agreed and someone who did not is silenced."""
     voices = voices_module()
-    session = ort.InferenceSession(model or voices.MODEL, providers=['CPUExecutionProvider'])
     rate = voices.RATE
+    audio = voices.audio_from(video, 4 * 3600)
+    if not agreed_voices:
+        # Nobody agreed to be matched, so every stretch of speech is silenced and the speaker model is not needed.
+        return [(first / rate, last / rate) for first, last in speech_regions(voices, audio)], 0
+    session = ort.InferenceSession(model or voices.MODEL, providers=['CPUExecutionProvider'])
     print_of = lambda piece: voices.embed(session, piece.astype(np.float32) / 32768.0)
     agreed = []
     for path in agreed_voices:
-        audio = voices.audio_from(path, 600)
-        prints = [print_of(audio[a:b]) for a, b in speech_regions(voices, audio, rate * 8)]
+        recording = voices.audio_from(path, 600)
+        prints = [print_of(recording[a:b]) for a, b in speech_regions(voices, recording, rate * 8)]
         prints = [vector for vector in prints if vector is not None]
         if prints:
             agreed.append(voices.unit(np.mean(prints, axis=0)))
     agreed = np.array([vector for vector in agreed if vector is not None])
     score = lambda piece: (lambda vector: -1.0 if vector is None or not len(agreed) else float((agreed @ vector).max()))(print_of(piece))
-    audio = voices.audio_from(video, 4 * 3600)
     silenced = []
     for first, last in speech_regions(voices, audio):
         start, end = first / rate, last / rate

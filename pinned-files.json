@@ -4447,6 +4447,18 @@
      "checked_against": "https://github.com/opencv/opencv_zoo/tree/f12e12798e8314f7c074a6656816c048dcc95b7a/models/face_detection_yunet"
     }
    }
+  },
+  "campplus-voice-model": {
+   "version": "200k",
+   "archive": "file",
+   "file_name": "campplus_cn_en_common_200k.onnx",
+   "fetch": {
+    "any": {
+     "url": "https://huggingface.co/welcomyou/campplus-3dspeaker-200k-onnx/resolve/6265ff7af2a104d745b4389026ed9815c6c1c6ff/campplus_cn_en_common_200k.onnx",
+     "blake3": "da1c3e7a3fdf95635f967c4c79e1c0d7e922e5c5eb598f06d39d1b600cbc6f42",
+     "checked_against": "https://huggingface.co/welcomyou/campplus-3dspeaker-200k-onnx/tree/6265ff7af2a104d745b4389026ed9815c6c1c6ff"
+    }
+   }
   }
  },
  "bytecode": {

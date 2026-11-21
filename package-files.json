@@ -4027,6 +4027,12 @@
    "at": "/opt/models/faces"
   },
   {
+   "packages": [
+    "campplus-voice-model"
+   ],
+   "at": "/opt/models/campplus-voice"
+  },
+  {
    "package": "calibrate-a-camera-frame",
    "paths": [
     "src/frame-calibration.mjs"
