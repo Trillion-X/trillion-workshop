@@ -424,3 +424,27 @@ test('a place that signs two requests in one run sends the held key on both, rea
   assert.deepEqual(ran.asked, [`Bearer ${VALUE}`, `Bearer ${VALUE}`]);
   assert.equal(ran.state, 'published');
 });
+test('a thread part is sent as a reply to the part before it, its id in the place\'s request and nowhere else', async () => {
+  const stand = place();
+  await withDoor([post(), connection], async fake => {
+    const sent = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, reply_to: '8000' }, { send: stand.send, held: () => VALUE });
+    assert.equal(sent.status, 'posted', sent.said);
+    assert.equal(stand.sent.length, 1);
+    assert.equal(JSON.parse(stand.sent[0].body).reply.in_reply_to_tweet_id, '8000');
+    assert.equal(fake.kept.get('post:p1').value.deliveries[ACCOUNT].platform_post_id, '9001');
+    assert.ok(!JSON.stringify([...fake.kept.values()]).includes(VALUE), 'the held value is in no record');
+  });
+});
+
+test('a send without reply_to carries no reply, and a reply_to that is not a post id is refused before anything is sent', async () => {
+  const stand = place();
+  await withDoor([post(), connection], async () => {
+    await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { send: stand.send, held: () => VALUE });
+    assert.equal(JSON.parse(stand.sent[0].body).reply, undefined, 'no reply field without reply_to');
+  });
+  const none = place();
+  await withDoor([post(), connection], async () => {
+    await assert.rejects(sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, reply_to: '  ' }, { send: none.send, held: () => VALUE }), /reply_to/);
+    assert.equal(none.sent.length, 0, 'nothing was sent');
+  });
+});

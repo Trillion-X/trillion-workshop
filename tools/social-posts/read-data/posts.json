@@ -175,6 +175,15 @@
       "no_longer_set": "This post is no longer set to go at that time, so nothing was sent."
     }
   },
+  "reply": {
+    "_what": "How a part of a thread is sent as a reply to the part before it (tool:send-a-post's reply_to, the platform post id of that part). platforms are the places whose publisher takes a reply target; any other place is refused before anything is sent. words are its plain answers.",
+    "platforms": [
+      "x"
+    ],
+    "words": {
+      "unsupported": "{platform} cannot take a reply to a post yet, so nothing was sent. Send this part as its own post."
+    }
+  },
   "markup": {
     "_what": "The markups a place may take a post's words in (read-data/publisher-requests.mjs inMarkup, named by a place row's {post: words, markup}). The words are read as Markdown into a post document (headings, paragraphs, lists, quotes, bold, italic, links); each node and mark is then wrapped in its row's opening and closing text ({level} is a heading's level, {href} a link's address), and each character in escape is written as its replacement. A node with no row is written as its contents. This is the wire format a place's API asks for, not anything shown on a screen.",
     "html": {

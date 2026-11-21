@@ -245,7 +245,7 @@ function formatMedia(spec, post, mediaUrl, items) {
  *  ends under `keep`. Given armed_at (the timed run of workflow:send-each-post-at-its-time gives it), it sends nothing once the
  *  post no longer carries it. */
 export async function sendAPost(input = {}, { now = () => new Date(), send = fetch, fetchMedia = fetch, held = null, publishers = PUBLISHERS } = {}) {
-  const { post_id: postId, place: placeSlug, account_id: accountId, resend = false, armed_at: armedAt, media_url: mediaUrl, media_urls: mediaUrls, cover_url: coverUrl } = input;
+  const { post_id: postId, place: placeSlug, account_id: accountId, resend = false, armed_at: armedAt, media_url: mediaUrl, media_urls: mediaUrls, cover_url: coverUrl, reply_to: replyTo } = input;
   if (typeof postId !== 'string' || !postId.trim() || typeof accountId !== 'string' || !accountId.trim()) throw new Error('Give post_id and account_id (one of the post\'s destinations).');
   if (typeof placeSlug !== 'string' || !placeSlug.trim()) throw new Error('Give place (the slug of the place account_id belongs to).');
   const { records, kept } = recordsIn(input);
@@ -273,6 +273,8 @@ export async function sendAPost(input = {}, { now = () => new Date(), send = fet
   const ahead = Boolean(post.scheduled_for) && Date.parse(post.scheduled_for) > now().getTime();
   if (ahead && !place.platform_time) return { post_id: post.post_id, status: post.status, post: shaped(post), said: `Its time has not come: it goes out at ${post.scheduled_for}. Nothing was sent.` };
   const schedule = ahead ? { at: post.scheduled_for } : undefined;
+  if (replyTo !== undefined && (typeof replyTo !== 'string' || !replyTo.trim())) throw new Error('Give reply_to as the platform post id of the part before, or leave it out.');
+  if (replyTo !== undefined && !settings.reply.platforms.includes(place.platform)) return { post_id: post.post_id, status: post.status, post: shaped(post), said: fillWords(settings.reply.words.unsupported, { platform: place.label }) };
   // The post as it ends, written to the rows this run keeps for the caller to store.
   const settle = () => {
     const at = now().toISOString();
@@ -286,6 +288,7 @@ export async function sendAPost(input = {}, { now = () => new Date(), send = fet
     const { social, account, options } = publisherFor(place, connection, { held: held ?? heldFromDescriptors(place), send, publishers });
     const byFormat = formatOf(post.format);
     if (byFormat && byFormat.platform !== place.platform) throw new Refused(`${byFormat.label} posts go to ${byFormat.platform}, not ${place.label}. Nothing was sent.`);
+    if (byFormat && replyTo !== undefined) throw new Refused(`${byFormat.label} posts cannot be sent as a reply yet. Nothing was sent.`);
     const media = byFormat ? null : await mediaFor(post, place, mediaUrl, fetchMedia);
     if (coverUrl !== undefined && !/^https:\/\//.test(String(coverUrl))) throw new Refused('cover_url must be an https address of the cover image. Nothing was sent.');
     const chosen = { ...(place.default_settings ?? {}), ...(post.settings_by_platform?.[place.platform] ?? {}) };
@@ -295,7 +298,7 @@ export async function sendAPost(input = {}, { now = () => new Date(), send = fet
     const outcome = byFormat
       ? await publishByFormat({ format: post.format, options, media: formatMedia(byFormat, post, mediaUrl, mediaUrls), cover: coverUrl, caption: wordsOf(post, place, accountId), send: options.fetch })
       : (await social.posts.publish({
-        targets: [{ account, ...(Object.keys(chosen).length ? { options: chosen } : {}) }],
+        targets: [{ account, ...(Object.keys(chosen).length ? { options: chosen } : {}), ...(replyTo !== undefined ? { replyTo: { version: 1, kind: 'platform-post', platform: account.platform, backend: account.backend, accountId: account.accountId, postId: replyTo.trim() } } : {}) }],
         ...(schedule ? { schedule } : {}),
         content: { text: wordsOf(post, place, accountId), ...(media ? { media: [media] } : {}) },
         idempotencyKey: `${post.post_id}:${accountId}:${attempt}`,

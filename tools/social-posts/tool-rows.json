@@ -5319,6 +5319,10 @@
               },
               "description": "The person's rows this run reads, read by the caller from where the person keeps them (the engine keeps none): each { id, type, value } of a post (type post) and of the destination's connection (type connection), as the caller read them. What is not given is not there."
             },
+            "reply_to": {
+              "type": "string",
+              "description": "For a thread part after the first: the platform post id of the part before it (its delivery's platform_post_id). The part is sent as a reply to it, where the place takes replies (posts.json reply.platforms); nothing else is sent"
+            },
             "media_url": {
               "type": "string",
               "description": "For a post with a file: an https address of that file made where the person keeps it (a share such as a signed link, which ranges), valid until the place has fetched it"
