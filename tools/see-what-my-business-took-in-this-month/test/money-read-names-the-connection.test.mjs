@@ -1,7 +1,7 @@
 // The Stripe money read names the connection it reads with: the handle the person's connections list gives for that
 // vendor (input.connection.connection_id), so the read finds the key that account holds. A service whose connections
-// are unknown is read with the service named and no account (service_connection:stripe), for the engine to find the
-// account the vault holds; one of which several accounts are listed is refused, naming them.
+// are unknown is read with the service named and no account (service_connection:stripe) unless the account was found
+// (business-screen.test.mjs); one of which several accounts are listed is refused, naming them.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { moneyServices, readMoney } from '../do-work/business-screen.mjs';

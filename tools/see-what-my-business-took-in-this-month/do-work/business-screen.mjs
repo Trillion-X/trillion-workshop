@@ -19,9 +19,11 @@
 //       owned by tools/connections (the person's connection records and the vault's held names). So a service the
 //       person did not connect is drawn "<service> is not connected", live. When that list cannot be read (the run
 //       fails or takes too long), `connections` is null (unknown) and an unknown connection is never said to be
-//       connected or not: its money is read with the service named and no account (`service_connection:<vendor>`), and the
-//       engine finds the account the vault holds of it (one held: that one; several: refused, naming them; none: the
-//       key is not held), so a read that fails is drawn as old Business drew a failed read, "could not be read just now", with
+//       connected or not: the account its money is read with is asked of tool:find-the-account-of-a-service (tools/connections)
+//       from the held_connections handed in (one held: that one; several: refused, naming them; none: not read), and with
+//       no held_connections it is read with the service named and no account (`service_connection:<vendor>`), which only a
+//       key the vault holds under that bare id answers (the engine chose the account until the engine boundary audit moved
+//       the choice to tools/connections, Nov 21 2026), so a read that fails is drawn as old Business drew a failed read, "could not be read just now", with
 //       no number. A money read from a known list names the account it reads (`connection: {connection_id}`, as every
 //       connection-taking row is handed one); a person who holds more than one account of a service is refused, naming
 //       them, and a read that fails (no key held, a refusal, too slow) is drawn the same way.
@@ -99,7 +101,7 @@ export function moneyWords(minor, currency) {
  * connected it. A service's name and vendor come from the read tool's own connection and that service's connect row.
  * rows: the Workshop's tool rows ({ tools }); connections: the person's connections ([{ connection_id, vendor, ... }]), or
  * null when they cannot be read (then `connected` is null: unknown, and the read names the service with no account,
- * `service_connection:<vendor>`, for the engine to find the account the vault holds). `accounts` are the ids of the
+ * `service_connection:<vendor>`, until readBusiness's `findAccount` says which account that is). `accounts` are the ids of the
  * person's accounts of the service; `connection_id` is the one to read when there is exactly one.
  */
 export function moneyServices(rows, connections) {
@@ -139,8 +141,8 @@ export function tallyMoney(read, answer) {
 
 /**
  * Read this month's money on every connected payment service, with the one account of it the person holds named in the
- * read's input. A service whose connection is unknown is read with the service named and no account, which the engine
- * answers with the one account the vault holds of it, or refuses naming several; a person's own list that shows several
+ * read's input. A service whose connection is unknown is read with the account `findAccount` found (readBusiness), or with
+ * the service named and no account when none could be asked; a person's own list, or a found answer, that shows several
  * accounts is refused here, naming them, since the person has not said which. `run(tool_id, input)` runs a tool with the person's own connection and
  * answers its output, or null when it failed or took too long.
  */
@@ -205,10 +207,27 @@ export function businessFacts(facts) {
  * connection through `run(tool_id, input)` (the account's tool runner; a failed or slow read is unread). `connections`
  * null: they could not be read just now (see PURPOSE). The operator's part is not read (no owner today, see PURPOSE).
  */
-export async function readBusiness({ rows = workshopRows(), connections, run, now = new Date() }) {
+export async function readBusiness({ rows = workshopRows(), connections, run, now = new Date(), findAccount }) {
   const since = monthStart(now);
-  const services = await readMoney({ services: moneyServices(rows, connections), since, run: (toolId, input) => optionalRead(() => run(toolId, input), null) });
-  return businessFacts({ since: since.toISOString(), services, operator: undefined });
+  const listed = moneyServices(rows, connections);
+  const services = findAccount ? await Promise.all(listed.map(async service => (service.connected === null ? { ...service, ...(await findAccount(service.connection_id)) } : service))) : listed;
+  return businessFacts({ since: since.toISOString(), services: await readMoney({ services, since, run: (toolId, input) => optionalRead(() => run(toolId, input), null) }), operator: undefined });
+}
+
+// The row that finds which of the person's accounts of a service a read means (tools/connections), run nested.
+export const FIND_ACCOUNT = 'tool:find-the-account-of-a-service';
+
+/**
+ * The account of an unknown service to read with, from a nested run of tool:find-the-account-of-a-service over the
+ * vault's held names: { connection_id, accounts } (one held: that one; several: none chosen and all named, so readMoney
+ * refuses naming them; none: no read). An answer that cannot be had just now leaves the service as it was.
+ */
+export function accountFinder(run, heldConnections) {
+  return async service => {
+    const found = await optionalRead(() => run(FIND_ACCOUNT, { service, held_connections: heldConnections }), null);
+    if (!found || !Array.isArray(found.accounts)) return {};
+    return { accounts: found.accounts, connection_id: typeof found.connection_id === 'string' ? found.connection_id : undefined };
+  };
 }
 
 // The row that lists the person's connections (tools/connections), run nested like the money reads.
@@ -241,5 +260,7 @@ export async function readBusinessForScreen(input = {}, host = {}) {
   if (input.connection_records !== undefined && !Array.isArray(input.connection_records)) throw new Error('connection_records is a list of the person\'s connection records, each { id, value }.');
   if (input.held_connections !== undefined && !Array.isArray(input.held_connections)) throw new Error('held_connections is a list of the connections the account\'s vault holds, each { connection_id, fields }.');
   const run = (toolId, given) => host.run(toolId, given, { key: `${toolId}:${JSON.stringify(given)}` });
-  return readBusiness({ connections: await connectionsOf(run, input), now, run });
+  const connections = await connectionsOf(run, input);
+  const findAccount = connections === null && Array.isArray(input.held_connections) ? accountFinder(run, input.held_connections) : undefined;
+  return readBusiness({ connections, now, run, findAccount });
 }

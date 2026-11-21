@@ -1,0 +1,5 @@
+{
+  "_what": "How a vault's held names write a connection (read-data/held-connections-of-names.mjs): `prefix`, the hex of the connection id's bytes and, for one field of it, `field_separator` and the hex of the field id (tools/connect-a-service-and-seal-its-key do-work/connect-service.ts, its work contract's secret.name_prefix). A page reads the names alone (secrets:names at the account's door) and hands the connections they write to tool:list-connections or tool:find-the-account-of-a-service as held_connections; no value is read.",
+  "prefix": "service-connection-",
+  "field_separator": "-field-"
+}

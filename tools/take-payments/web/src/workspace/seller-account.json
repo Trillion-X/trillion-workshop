@@ -1,0 +1,5 @@
+{
+  "_what": "How a payment screen finds which of the seller's accounts its named connection means (seller-account.ts): a screen that names the service with no account (service_connection:stripe) reads the names the account's vault holds at `names_method` (names only; a buyer, who is not the account's owner, is refused there and the connection is used as named) and asks `tool` which account that is. One account held: that one. Several: the run is not started and the tool's words name them. None: the connection is used as named, so the run's own credential refusal speaks. The engine made this choice inside every run until the engine boundary audit moved it to tools/connections (Nov 21 2026).",
+  "tool": "tool:find-the-account-of-a-service",
+  "names_method": "/work/api/door/secrets:names"
+}

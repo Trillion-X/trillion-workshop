@@ -8,10 +8,11 @@
     "tool:read-business",
     "tool:business",
     "tool:list-connections",
-    "tool:stripe-events-read_money_since"
+    "tool:stripe-events-read_money_since",
+    "tool:find-the-account-of-a-service"
   ],
   "instructions": [
-    "1. Say to your AI: \"Read what this account's business took in this month on the payment services it connected\", and give it nothing more: every input is optional.",
+    "1. Say to your AI: \"Read what this account's business took in this month on the payment services it connected\", and give it nothing more: every input is optional. To have each service read with your own account of it, also give held_connections: the names of the connections your vault holds (each {connection_id, fields}, never a value), so tool:read-business asks tool:find-the-account-of-a-service which account to read.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-business and its input (the worked example shows one).",
     "3. Read what comes back: The one read of the Business screen (tool:business)."
   ],

@@ -21,8 +21,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import { LIST_CONNECTIONS, businessFacts, moneyServices, moneyWords, monthStart, readBusiness, readBusinessForScreen, workshopRows } from '../do-work/business-screen.mjs';
+import { FIND_ACCOUNT, LIST_CONNECTIONS, businessFacts, moneyServices, moneyWords, monthStart, readBusiness, readBusinessForScreen, workshopRows } from '../do-work/business-screen.mjs';
 import { listConnections } from '../../connections/do-work/list-connections.mjs';
+import { findTheAccountOfAService } from '../../connections/do-work/find-the-account-of-a-service.mjs';
 import { catalogueRows, drawCatalogueScreen } from './draw-catalogue-screen.mjs';
 
 const SCREENS = { connections: 'trillion.connections' };
@@ -217,7 +218,7 @@ test('with no list of connections, a money read that fails is drawn as a failed 
 });
 
 test('a list left out is never taken as no connections: the listing is not run, and each service\'s money is read with the service named and no account', async () => {
-  for (const given of [{ connection_records: [] }, { held_connections: HELD }, {}]) {
+  for (const given of [{ connection_records: [] }, {}]) {
     const { runs, host } = runAnswering(listing(new Error('no listing without both lists'), () => ({ object: 'list', has_more: false, data: MONTH })));
     const shown = drawCatalogueScreen('tool:business', { business: await readBusinessForScreen({ now: '2026-10-15T12:00:00.000Z', ...given }, host) });
     assert.deepEqual(runs.map(run => [run.tool, run.input.connection]), [[MONEY_READ, { connection_id: 'service_connection:stripe' }]], JSON.stringify(given));
@@ -226,9 +227,26 @@ test('a list left out is never taken as no connections: the listing is not run, 
   }
 });
 
-test('the read row runs only the connections list and the money read, holds no records right, and packs every file it imports', () => {
+test('with held connections but no records, the account is asked of tool:find-the-account-of-a-service and the money read with it', async () => {
+  const shop = 'service_connection:stripe:shop';
+  for (const [held, read, title] of [
+    [[{ connection_id: shop, fields: ['secret_key'] }], shop, undefined],
+    [[{ connection_id: 'service_connection:stripe:a', fields: [] }, { connection_id: 'service_connection:stripe:b', fields: [] }], null, /more than one/],
+    [[], null, 'unread'],
+  ]) {
+    const { runs, host } = runAnswering((tool, input) => (tool === FIND_ACCOUNT ? findTheAccountOfAService(input) : { object: 'list', has_more: false, data: MONTH }));
+    const reading = readBusinessForScreen({ now: '2026-10-15T12:00:00.000Z', held_connections: held }, host);
+    if (title instanceof RegExp) { await assert.rejects(reading, title); continue; }
+    const facts = await reading;
+    assert.deepEqual(runs[0], { tool: FIND_ACCOUNT, input: { service: 'service_connection:stripe', held_connections: held }, options: { key: `${FIND_ACCOUNT}:${JSON.stringify({ service: 'service_connection:stripe', held_connections: held })}` } });
+    assert.deepEqual(runs.slice(1).map(run => run.input.connection), read ? [{ connection_id: read }] : [], JSON.stringify(held));
+    if (title) assert.equal(facts.connected[0].state, title);
+  }
+});
+
+test('the read row runs only the connections list, the money read and the account finder, holds no records right, and packs every file it imports', () => {
   const read = rows.tools.find(row => row.id === 'tool:read-business');
-  assert.deepEqual(read.invoke.records, { fd: 3, runs: [LIST_CONNECTIONS, MONEY_READ] });
+  assert.deepEqual(read.invoke.records, { fd: 3, runs: [LIST_CONNECTIONS, MONEY_READ, FIND_ACCOUNT] });
   assert.equal(read.invoke.internet, false, 'the money is read by the nested run, which alone reaches Stripe');
   for (const { package: folder, paths } of read.invoke.files.package_files.filter(files => files.package)) {
     for (const path of paths) assert.ok(existsSync(new URL(`../../${folder}/${path}`, import.meta.url)), `${folder}/${path}`);

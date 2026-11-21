@@ -29,6 +29,8 @@ export type RunTool = (tool: string, input: Record<string, unknown>) => Promise<
 export type CheckoutContext = {
   /** The seller's Stripe connection the paid steps use (service_connection:stripe is the person's own). */
   sellerConnection: string;
+  /** Which of the seller's accounts that connection means, asked once before a paid step runs (seller-account.ts); none: as named. */
+  sellerAccount?: () => Promise<string>;
   /** Where the buyer's browser is: its origin and the path of this screen. */
   origin: string;
   path: string;
@@ -60,6 +62,8 @@ const zero = (cents: unknown) => { try { return BigInt(String(cents ?? '0')) ===
 
 const routeKey = (sessionId: string) => `checkout-route:${sessionId}`;
 
+const sellerOf = (context: CheckoutContext) => context.sellerAccount?.() ?? Promise.resolve(context.sellerConnection);
+
 /** checkout.prepare-checkout: the material (amount due today, what repeats, access refs, code notice) for one choice. */
 export async function prepareAnswer(payload: unknown, run: RunTool, context?: CheckoutContext): Promise<Row> {
   const { tool, takes } = targets.prepare;
@@ -81,7 +85,7 @@ export async function startAnswer(payload: unknown, run: RunTool, context: Check
   const session = resultOf(await run(start.tool, {
     ...pick(payload, start.takes),
     ...(await context.rows?.()),
-    seller_connection: context.sellerConnection,
+    seller_connection: await sellerOf(context),
     success_url: `${here}?${query}`,
     cancel_url: here,
   }), start.tool);
@@ -96,7 +100,7 @@ export async function completeAnswer(payload: unknown, run: RunTool, context: Ch
   const sessionId = isRow(payload) && typeof payload.session_id === 'string' ? payload.session_id.trim() : '';
   if (!sessionId) throw new Error('A checkout needs its session id.');
   const complete = targets.complete;
-  const seen = resultOf(await run(complete.tool, { provider_session_id: sessionId, seller_connection: context.sellerConnection }), complete.tool);
+  const seen = resultOf(await run(complete.tool, { provider_session_id: sessionId, seller_connection: await sellerOf(context) }), complete.tool);
   if (seen.payment_status !== complete.paid_status) return { completed: false, status: String(seen.payment_status ?? 'open') };
   const route = context.store?.getItem(routeKey(sessionId)) ?? '';
   return { completed: true, granted: false, grantedCount: 0, status: 'completed', paymentRecorded: !route, ...(route ? { postPurchaseRoutePath: route } : {}) };

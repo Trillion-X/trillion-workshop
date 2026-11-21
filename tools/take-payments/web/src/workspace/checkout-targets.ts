@@ -21,6 +21,8 @@ import { readCheckoutOffers, type CheckoutOffer, type SuggestionLists } from '..
 import { suggestionListsFrom } from '../../../read-data/suggestion-lists.mjs';
 import targets from './checkout-targets.json' with { type: 'json' };
 import { completeAnswer, heldRefsAnswer, prepareAnswer, startAnswer, type CheckoutContext, type RunTool } from './checkout-answers';
+import { sellerAccountOf } from './seller-account';
+import { readHeldNames } from './seller-account-names';
 
 type Row = Record<string, unknown>;
 
@@ -57,8 +59,11 @@ async function heldRows(): Promise<Row> {
 
 /** Answer the checkout targets this page serves, for the buyer and seller connection the screen names. */
 export function answerCheckoutTargets(input: { sellerConnection?: string; subject?: string } = {}) {
+  const sellerConnection = input.sellerConnection || targets.seller_connection;
+  let account: Promise<string> | undefined;
   context = {
-    sellerConnection: input.sellerConnection || targets.seller_connection,
+    sellerConnection,
+    sellerAccount: () => (account ??= sellerAccountOf(sellerConnection, run, readHeldNames)),
     origin: window.location.origin,
     path: window.location.pathname,
     ...(input.subject ? { subject: input.subject } : {}),

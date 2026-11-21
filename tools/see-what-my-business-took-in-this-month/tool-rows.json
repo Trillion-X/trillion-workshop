@@ -200,7 +200,7 @@
     "licence_class": "licence:maker-own",
     "label": "Read this account's business this month",
     "job": "Read what this account's business took in this month on the payment services it connected",
-    "description": "The one read of the Business screen (tool:business). Returns since_words (the first of this month), service_names (the payment services whose money can be read), connected ([{label, state: read | none | unread, currencies: [{currency, code, multi, service_label, money_in, fees, refunded, net}] written in each currency, payments, more, at_most}], one per payment service, each read with the person's own account of it by running its money read, tool:stripe-events-read_money_since; a read that fails is unread, with no number) and operator (null: the operator's part has no owner here). Which services this account connected is read by running tool:list-connections with the connection_records and held_connections it is handed: a service it did not connect is not read and is drawn as not connected; when either list is not handed in or the listing cannot be read, no account is known to name, so each service is read with the service named and no account (service_connection:<service>) and the engine finds the account the vault holds of it (one held: that one; several: refused, naming them; none: not held, said as could not be read). A person who holds more than one account of a service is refused, with the accounts named. Reads only.",
+    "description": "The one read of the Business screen (tool:business). Returns since_words (the first of this month), service_names (the payment services whose money can be read), connected ([{label, state: read | none | unread, currencies: [{currency, code, multi, service_label, money_in, fees, refunded, net}] written in each currency, payments, more, at_most}], one per payment service, each read with the person's own account of it by running its money read, tool:stripe-events-read_money_since; a read that fails is unread, with no number) and operator (null: the operator's part has no owner here). Which services this account connected is read by running tool:list-connections with the connection_records and held_connections it is handed: a service it did not connect is not read and is drawn as not connected; when either list is not handed in or the listing cannot be read, the account of each service is asked of tool:find-the-account-of-a-service from the held_connections it is handed (one held: that one; several: refused, naming them; none: said as could not be read); with no held_connections each service is read with the service named and no account (service_connection:<service>), which only a key the vault holds under that bare id answers, so hand in held_connections (the vault's names, never a value). A person who holds more than one account of a service is refused, with the accounts named. Reads only.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -336,7 +336,8 @@
       "fd": 3,
       "runs": [
        "tool:list-connections",
-       "tool:stripe-events-read_money_since"
+       "tool:stripe-events-read_money_since",
+       "tool:find-the-account-of-a-service"
       ]
      }
     },
