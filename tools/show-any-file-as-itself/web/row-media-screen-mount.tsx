@@ -56,6 +56,7 @@ function RowMedia({ input }: { input: RowMediaInput }) {
   const [failed, setFailed] = React.useState(false);
   const [now, setNow] = React.useState(0);
   const [seek, setSeek] = React.useState<MediaPlaybackSeekRequest | null>(null);
+  const [transcriptChoice, setTranscriptChoice] = React.useState<boolean | null>(null);
   const rowId = input.record_id ?? '';
   const rowType = input.record_type ?? '';
   React.useEffect(() => {
@@ -80,6 +81,10 @@ function RowMedia({ input }: { input: RowMediaInput }) {
   const title = value && input.title_field ? value[input.title_field] : undefined;
   const loading = !input.file && value === undefined && !failed && Boolean(rowId);
   const withTranscript = source?.kind === 'media' && timed.length > 0;
+  // The transcript is the viewer's to open and close with the player's transcript button. A sound opens with its words shown,
+  // a video with its transcript closed, until the viewer chooses.
+  const soundSource = source?.kind === 'media' && source.media.source_kind === 'audio';
+  const transcriptOpen = transcriptChoice ?? soundSource;
   return (
     <ErrorBoundary zoneName="row media">
       {/* A pane at least 56rem wide holds the transcript beside the picture; a narrower one puts it below, so the picture
@@ -96,13 +101,15 @@ function RowMedia({ input }: { input: RowMediaInput }) {
             ) : null}
             {source?.kind === 'media' ? (
               <MediaPlaybackSurface
-                media={source.media}
+                media={{ ...source.media, transcript_ref: identity }}
                 allowEmbeddedDocument
                 showFrameChrome={false}
                 captionsStartOn={timed.length > 0}
                 timedTextSegments={timed.length ? timed : undefined}
                 captionPlacement="over-picture"
                 transcriptPlacement="beside-media"
+                transcriptVisible={transcriptOpen}
+                onSelectTranscript={visible => setTranscriptChoice(Boolean(visible))}
                 onTimeChange={currentTime => setNow(currentTime)}
                 seekRequest={seek}
               />
@@ -129,7 +136,7 @@ function RowMedia({ input }: { input: RowMediaInput }) {
             {body ? <Container maxWidth="prose"><MarkdownWords words={body} /></Container> : null}
             {!loading && !failed && !source && !files.length && !body ? <Text variant="body" color="secondary">Nothing to show yet.</Text> : null}
           </Container>
-          {withTranscript ? (
+          {withTranscript && transcriptOpen ? (
             <Container layout="vertical" minWidth="0" className="h-[28rem] w-full shrink-0 px-4 pb-4 @[56rem]:h-full @[56rem]:min-h-0 @[56rem]:w-[22rem] @[56rem]:p-4 @[56rem]:pl-0">
               <TranscriptReaderSurface
                 framed={false}

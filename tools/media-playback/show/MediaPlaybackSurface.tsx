@@ -623,6 +623,10 @@ function useTimedTextSeek(onSeek: ((seconds: number) => void) | undefined, pause
 const timedSegmentKey = (segment: TimedTextSegment) => segment.id;
 const EMPTY_TIMED_SEGMENTS: readonly TimedTextSegment[] = [];
 
+/** Caption preferences belong to the viewer on this device, not to one media: a size, background or colour chosen in one lesson
+ * holds in the next. */
+const CAPTION_PREFERENCE_SCOPE = 'viewer';
+
 function captionStorageKey(scope: string, key: string) {
   return `bitfield-caption-reader:${scope}:${key}`;
 }
@@ -750,38 +754,38 @@ export function TimedTextCaptionOverlay({
   };
 
   React.useLayoutEffect(() => {
-    setWidthRatio(storedCaptionValue(storageScope, 'width-ratio', 0.5));
-    setHeightRatio(storedCaptionValue(storageScope, 'height-ratio', 0.15));
-    setFontSize(storedCaptionValue(storageScope, 'font-size', 14));
-    setShowBackground(storedCaptionValue(storageScope, 'show-background', true));
-    setTextColor(storedCaptionValue(storageScope, 'text-color', 'white'));
+    setWidthRatio(storedCaptionValue(CAPTION_PREFERENCE_SCOPE, 'width-ratio', 0.5));
+    setHeightRatio(storedCaptionValue(CAPTION_PREFERENCE_SCOPE, 'height-ratio', 0.15));
+    setFontSize(storedCaptionValue(CAPTION_PREFERENCE_SCOPE, 'font-size', 14));
+    setShowBackground(storedCaptionValue(CAPTION_PREFERENCE_SCOPE, 'show-background', true));
+    setTextColor(storedCaptionValue(CAPTION_PREFERENCE_SCOPE, 'text-color', 'white'));
     setMounted(true);
-  }, [storageScope]);
+  }, []);
 
   React.useEffect(() => {
     if (!mounted) return;
-    setStoredCaptionValue(storageScope, 'width-ratio', widthRatio);
-  }, [mounted, storageScope, widthRatio]);
+    setStoredCaptionValue(CAPTION_PREFERENCE_SCOPE, 'width-ratio', widthRatio);
+  }, [mounted, widthRatio]);
 
   React.useEffect(() => {
     if (!mounted) return;
-    setStoredCaptionValue(storageScope, 'height-ratio', heightRatio);
-  }, [heightRatio, mounted, storageScope]);
+    setStoredCaptionValue(CAPTION_PREFERENCE_SCOPE, 'height-ratio', heightRatio);
+  }, [heightRatio, mounted]);
 
   React.useEffect(() => {
     if (!mounted) return;
-    setStoredCaptionValue(storageScope, 'font-size', fontSize);
-  }, [fontSize, mounted, storageScope]);
+    setStoredCaptionValue(CAPTION_PREFERENCE_SCOPE, 'font-size', fontSize);
+  }, [fontSize, mounted]);
 
   React.useEffect(() => {
     if (!mounted) return;
-    setStoredCaptionValue(storageScope, 'show-background', showBackground);
-  }, [mounted, showBackground, storageScope]);
+    setStoredCaptionValue(CAPTION_PREFERENCE_SCOPE, 'show-background', showBackground);
+  }, [mounted, showBackground]);
 
   React.useEffect(() => {
     if (!mounted) return;
-    setStoredCaptionValue(storageScope, 'text-color', textColor);
-  }, [mounted, storageScope, textColor]);
+    setStoredCaptionValue(CAPTION_PREFERENCE_SCOPE, 'text-color', textColor);
+  }, [mounted, textColor]);
 
   // Measure the real frame before mounting a positioned reader. Its next
   // layout pass measures the newly attached toolbar before the first paint.
@@ -977,7 +981,7 @@ export function TimedTextCaptionOverlay({
             <ExpandableTabs
               mode="action"
               size={docked ? 'md' : 'sm'}
-              frame="none"
+              frame="group"
               labelDisplay="tooltip"
               ariaLabel="Caption controls"
               items={[
@@ -1759,7 +1763,7 @@ export function BrowserMediaPlayer({
           onSpeedChange={changeSpeed}
           onToggleMute={toggleMute}
           onTogglePlay={() => void togglePlay()}
-          onToggleTranscript={hasTimedText && transcriptPlacement !== 'beside-media' ? () => void toggleTranscript() : undefined}
+          onToggleTranscript={hasTimedText && (transcriptPlacement !== 'beside-media' || onSelectTranscript) ? () => void toggleTranscript() : undefined}
           onVolumeChange={changeVolume}
           peaks={peaks}
           playbackSpeed={playbackSpeed}
