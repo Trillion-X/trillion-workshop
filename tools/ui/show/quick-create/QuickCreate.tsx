@@ -50,8 +50,10 @@ export function QuickCreate({ label, placeholder, submitLabel, busyLabel, errorL
 
   return <Container layout="vertical" gap="xs" className="quick-create" data-compact={compact}>
     <Container layout="horizontal" gap="xs" alignItems="center" wrap data-quick-create-fields>
-      <Input ref={field} aria-label={label} placeholder={placeholder} value={value} disabled={disabled || busy} autoComplete="off"
-        onChange={event => setValue(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.nativeEvent.isComposing && event.keyCode !== 229) { event.preventDefault(); void submit().catch(() => {}); } }} />
+      <Container className="min-w-0 flex-1 basis-40" data-quick-create-field>
+        <Input ref={field} aria-label={label} placeholder={placeholder} value={value} disabled={disabled || busy} autoComplete="off"
+          onChange={event => setValue(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.nativeEvent.isComposing && event.keyCode !== 229) { event.preventDefault(); void submit().catch(() => {}); } }} />
+      </Container>
       <Button size={compact ? "icon" : "sm"} variant={compact ? "ghost" : "primary"} aria-label={busy ? busyLabel : submitLabel} disabled={disabled || busy || !value.trim()} onClick={() => submit()}>{compact ? <NamedIcon name="CornerDownLeft" size="sm" /> : busy ? busyLabel : submitLabel}</Button>
       <Button size="sm" variant="ghost" className="quick-create-secondary" disabled={disabled} onClick={onSecondaryAction}>{secondaryLabel}</Button>
       {onExpand && expandLabel ? <Button size="icon" variant="ghost" aria-label={expandLabel} disabled={disabled || busy} onClick={onExpand}><NamedIcon name="Plus" size="sm" /></Button> : null}
