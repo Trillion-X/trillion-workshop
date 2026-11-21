@@ -38,6 +38,9 @@ test('a run with its own until, another method, or no --timeout is sent as given
   assert.equal(withUntil('wake:switch', write, { requestKey: 'k', timeoutSeconds: 60, state }), write);
   const plain = { tool: 'tool:x', input: {} };
   assert.equal(withUntil(RUN, plain, { requestKey: 'k', state }), plain);
+  // A session call takes no until: the engine refuses one that names it.
+  const call = { tool: 'tool:your-files', call: { name: 'read_file', arguments: { name_or_identity: '/a.txt' } } };
+  assert.equal(withUntil(RUN, call, { requestKey: 'k', timeoutSeconds: 60, state }), call);
 });
 
 test('op tools:run --timeout sends until in the request, the same on a second command under its key', async () => {

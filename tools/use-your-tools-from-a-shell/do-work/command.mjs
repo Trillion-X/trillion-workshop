@@ -1619,9 +1619,12 @@ const timeoutOf = value => {
  * hearings of a 1.18 GB recording were cut there after 2 minutes although --timeout said 1300. The `until` is kept per
  * request key (`stateOf().untilOf`), so the same command asked again under its key sends the same request and the run's
  * journal sees one run. The engine ends the run at `until` too, so the wait asked for is also the run's limit.
+ * A session call (`call` beside `tool`) is sent as given: the engine takes `until` only on a run, and a call that names it is
+ * refused as tools_run_input_refused (trillion-rust src/tool_runs/tools.rs, a call names tool, input, call and byte_upload
+ * alone). From 3:59 PM CST Nov 21 2026 every `op tools:run {tool: tool:your-files, call}` with --timeout was refused so.
  */
 export function withUntil(method, input, { requestKey = null, timeoutSeconds, state = null, rules = settings, now = Date.now } = {}) {
-  if (method !== rules.engine.tools_run || timeoutSeconds === undefined || !input || typeof input !== 'object' || Array.isArray(input) || input.until !== undefined) return input;
+  if (method !== rules.engine.tools_run || timeoutSeconds === undefined || !input || typeof input !== 'object' || Array.isArray(input) || input.until !== undefined || input.call !== undefined) return input;
   const make = () => now() + timeoutSeconds * 1000;
   return { ...input, until: typeof state?.untilOf === 'function' ? state.untilOf(requestKey, make) : make() };
 }
