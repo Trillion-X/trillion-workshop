@@ -80,7 +80,7 @@ def load_config(film: Path, stored: list[dict], record_id: str | None = None) ->
         sys.exit(f"pick-gate: {problem}")
     missing = [key for key in NEEDED if key not in cfg]
     if missing:
-        sys.exit(f"pick-gate: the film's settings lack {', '.join(missing)}; put them in its list:settings row")
+        sys.exit(f"pick-gate: the film's settings lack {', '.join(missing)}; put them in its settings table row")
     return cfg
 
 
@@ -181,7 +181,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--film", default=os.environ.get("PICK_GATE_FILM"), help="the film's folder; its name picks the settings row")
     parser.add_argument("--stored", required=True, help="JSON {records: [...]}: the film's settings row and the stance rows on its options, read from the person's store")
-    parser.add_argument("--settings-record", help="the id of the film's list:settings row, when it is not the one the folder name gives")
+    parser.add_argument("--settings-record", help="the id of the film's settings table row, when it is not the one the folder name gives")
     sub = parser.add_subparsers(dest="cmd", required=True)
     sub.add_parser("check").add_argument("option_id")
     sub.add_parser("rows")

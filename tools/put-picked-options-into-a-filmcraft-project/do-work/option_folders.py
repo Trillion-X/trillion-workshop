@@ -8,7 +8,7 @@ The lock is the settings' `lock`: {file (relative to the film), wait_while?: {fi
 
 Also the one road to filmcraft-cli and to ffmpeg/ffprobe (run_program), and the request every command of this folder
 reads: one JSON object, in the file named as the first argument or on standard input; the settings are, weakest first,
-DEFAULTS, the film's row of list:settings (`settings_record`: the record, its value or a file of it, handed in by the
+DEFAULTS, the film's row of the settings table (`settings_record`: the record, its value or a file of it, handed in by the
 caller, who reads the row from the person's list), then the request's own `settings`. These tools read no records. With `plan` true, nothing
 that writes is run: every command is recorded instead (planning(), plan_steps())."""
 import contextlib, fcntl, os, re, shutil, subprocess, sys, tempfile, json
@@ -218,7 +218,7 @@ def read_settings(req):
     import settings as reader  # tools/settings/read-data/settings.py
     given = req.get('settings_record')
     if isinstance(given, str) and given.startswith(reader.ID_PREFIX):
-        raise SystemExit('settings_record is the film\'s row itself (or its value, or a file of it), not its id: read it from the person\'s list:settings and hand it in, or give settings')
+        raise SystemExit('settings_record is the film\'s row itself (or its value, or a file of it), not its id: read it from the person\'s settings table and hand it in, or give settings')
     if given is not None:
         try:
             found = reader.chosen(given, FOLDER)
