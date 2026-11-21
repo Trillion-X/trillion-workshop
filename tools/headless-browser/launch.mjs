@@ -9,12 +9,21 @@ export const quietSwitches = JSON.parse(readFileSync(new URL('./quiet-switches.j
 
 const quiet = (options = {}) => ({ ...options, args: [...quietSwitches, ...(options.args ?? [])] });
 
+// A run told a proxy (HTTPS_PROXY, as the engine tells every internet:true run) sends the browser's traffic through it,
+// loopback included: Chromium does not read that setting itself, and the engine's sandbox lets the run reach nothing
+// else, so without this every page fails with net::ERR_NAME_NOT_RESOLVED. The same rule devtools.mjs applies.
+export function proxied(options = {}, env = process.env) {
+  const server = env.HTTPS_PROXY || env.https_proxy;
+  if (!server || options.proxy) return options;
+  return { ...options, proxy: { server, bypass: '<-loopback>' } };
+}
+
 async function launchWithAdmission(start, options, closeEvent) {
   const { admission: requestedAdmission, ...playwrightOptions } = options ?? {};
   const guardPriority = Number(process.env.TRILLION_BROWSER_ADMISSION_PRIORITY ?? 0);
   const release = await acquireBrowserAdmission({ priority: guardPriority, ...requestedAdmission });
   try {
-    const opened = await start(quiet(playwrightOptions));
+    const opened = await start(quiet(proxied(playwrightOptions)));
     let released = false;
     const finish = () => {
       if (released) return;
