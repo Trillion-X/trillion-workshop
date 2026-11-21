@@ -1,8 +1,12 @@
 {
-  "about": "The words the billing screen shows when it has no purchase to draw or when a read fails. Changing a word is an edit here, not in the screen.",
-  "no_purchase": {
-    "title": "No plan yet",
-    "line": "A plan shows here after you join."
-  },
-  "read_error": "This purchase could not be read right now."
+  "about": "The words the billing screen shows for its plans, its reads and its parts. The screen never says there is nothing here: a part with nothing to show is not drawn. Changing a word is an edit here, not in the screen.",
+  "your_plan": "Your plan",
+  "free_plan": "Free",
+  "free_price": "$0",
+  "other_plans": "Other plans",
+  "card": "Card",
+  "receipts": "Receipts",
+  "loading": "Reading your billing",
+  "read_error": "This purchase could not be read right now.",
+  "try_again": "Try again"
 }

@@ -10,17 +10,27 @@
 
 import React from 'react';
 import { mountReactSurface } from '../../../../ui';
-import { BillingScreen } from '../../../packages/billing/show/BillingScreen';
+import { BillingScreen, type HeldPlan, type OtherPlan } from '../../../packages/billing/show/BillingScreen';
 import { openBillingFlow, readBillingPage } from './billing-targets';
 
-type BillingScreenInput = { subscription_id?: string; subject_email?: string; seller_connection?: string; [key: string]: unknown };
+type BillingScreenInput = {
+  subscription_id?: string;
+  subject_email?: string;
+  seller_connection?: string;
+  plan: HeldPlan;
+  other_plans: OtherPlan[];
+  [key: string]: unknown;
+};
 
 // subject_email is the signed-in buyer's verified email, given by the host that mounts the screen; the purchase must be theirs.
-export function mount(element: HTMLElement, props: BillingScreenInput = {}) {
-  const { subscription_id: subscriptionId = '', subject_email: subjectEmail = '', seller_connection: sellerConnection } = props;
+// plan and other_plans are the host's own answer (the member's offers and held access), so a person with no purchase still sees their plan.
+export function mount(element: HTMLElement, props: BillingScreenInput) {
+  const { subscription_id: subscriptionId = '', subject_email: subjectEmail = '', seller_connection: sellerConnection, plan, other_plans: otherPlans } = props;
   return mountReactSurface(element, (
     <BillingScreen
       hasPurchase={subscriptionId !== ''}
+      plan={plan}
+      otherPlans={otherPlans}
       readPage={() => readBillingPage(subscriptionId, subjectEmail, sellerConnection)}
       openFlow={flow => openBillingFlow(subscriptionId, subjectEmail, flow, sellerConnection)}
     />
