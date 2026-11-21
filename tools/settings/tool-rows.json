@@ -239,9 +239,6 @@
             "make": {
               "type": "object",
               "description": "{folder, scope_kind, scope_id, settings, name, tool, from, status?}: make the row instead of reading one."
-            },
-            "with_list": {
-              "type": "boolean"
             }
           }
         },

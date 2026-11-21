@@ -110,7 +110,7 @@ test('a row handed back without a version is refused before any write', () => {
 
 test('the carry inserts only the setting rows handed in, and changes no row that exists', () => {
   const rows = [{ id: 'record:setting:make-a-sample~film~f1', name: 'kept', tool: 'tool:make-a-sample', scope_kind: 'film', scope_id: 'f1', settings: { pace: 5 }, source: 'x@0', status: 'active', version: 1 }];
-  const stored = [make('film', 'f1', { pace: 2 }), make('account', 'main', { pace: 1 }), { id: 'list:settings', type: 'list', value: {} }];
+  const stored = [make('film', 'f1', { pace: 2 }), make('account', 'main', { pace: 1 }), { id: 'list:another-list', type: 'list', value: {} }];
   const requests = carryRequests(role, stored);
   assert.equal(requests.length, 3);
   const fake = standIn(rows);
