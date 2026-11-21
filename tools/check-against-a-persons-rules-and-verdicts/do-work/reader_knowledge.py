@@ -15,7 +15,7 @@ Purpose
       (b) label-colon-command: a named concept is credited with an abstract result ("keeps the claim honest"), then a
           command ends in a colon ("State the domain:") instead of an explanation of how the method works.
     Each rule's wording, outcome (fail or uncertain), the kinds of copy it reads, the word classes it uses and the parser
-    it pins are the person's DATA: the `reader_knowledge` block of their settings row for this tool (list:settings,
+    it pins are the person's DATA: the `reader_knowledge` block of their settings row for this tool (the settings table,
     record:setting:check-against-a-persons-rules-and-verdicts~<scope>), read through tools/settings by the caller and
     handed in. None of it is in this file. Moved from source-repo-a tools/copy-gate/reader_knowledge.py; what
     changed is that the rules are handed in instead of read from a file beside the code, and the JSON request mode.

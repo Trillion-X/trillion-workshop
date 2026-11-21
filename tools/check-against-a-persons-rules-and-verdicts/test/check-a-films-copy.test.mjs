@@ -19,7 +19,7 @@ import { build, contextFromSpec, contextFromText, holding } from '../do-work/uni
 const here = new URL('..', import.meta.url).pathname;
 const SETTINGS_ID = 'record:setting:check-against-a-persons-rules-and-verdicts~person~made-up-person';
 
-// A made-up person's layouts: the shape of their settings row (list:settings), never theirs.
+// A made-up person's layouts: the shape of their settings row (the settings table), never theirs.
 const LAYOUTS = {
   table_first_header_in: ['#', 'c'], table_skip_if_header_has: ['views'],
   files: { 'SCRIPT.md': { line: { kind: 'voiceover' }, 'big words': { kind: 'onscreen', quotes_are_units: true }, text: { kind: 'onscreen' } },

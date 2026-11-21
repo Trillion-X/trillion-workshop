@@ -135,7 +135,7 @@
       ]
     },
     {
-      "list": "list:settings",
+      "list": "list:tool-settings",
       "label": "Settings (one row per tool and scope)",
       "row_type": "record:setting",
       "holds": "The values one Workshop tool reads at run time for one person, film or piece, kept as JSON text.",
@@ -244,7 +244,7 @@
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Pour the example rows into your own lists (see pour for list:checks), or make list:checks and list:settings from them. Keep the settings row under the record id record:setting:check-against-a-persons-rules-and-verdicts~person~made-up. Your AI reads that row and gives it to the tool as settings_record, the record itself; the tool reads no store. Your AI also reads the rows of the branch from your store (its check rows, the list rows it names, and your writing-voice rows) and gives them as records.",
+    "1. Pour the example rows into your own lists (see pour for list:checks), or make list:checks and the settings table from them. Keep the settings row under the record id record:setting:check-against-a-persons-rules-and-verdicts~person~made-up. Your AI reads that row and gives it to the tool as settings_record, the record itself; the tool reads no store. Your AI also reads the rows of the branch from your store (its check rows, the list rows it names, and your writing-voice rows) and gives them as records.",
     "2. Read your film's copy files into text: for a script table, the name SCRIPT.md and its Markdown text.",
     "3. Say \"Check my film's script against made-up-base.\" The AI calls tools:run at @tools with tool tool:check-a-films-copy and { branch, settings_record, files: [{ name, text }], records }. It reads only; nothing is written.",
     "4. Read status and exit_code (0 passed, 1 failed, 2 unqualified, 3 uncertain), then results line by line (text, kind, where, verdict, breaks) and lines. Fix each failing line and run it again; send any questions it lists back in answers."

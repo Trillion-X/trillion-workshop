@@ -90,7 +90,7 @@ function readSourceBytes(path) {
 }
 
 /**
- * The person's settings for this tool: their list:settings row (tools/settings) as the record itself, { id, type, value },
+ * The person's settings for this tool: their settings table row (tools/settings) as the record itself, { id, type, value },
  * as the person's AI reads it from its own store and hands it in. The tool reads no row: an id alone, a retired row or a row for another tool
  * is refused.
  */
