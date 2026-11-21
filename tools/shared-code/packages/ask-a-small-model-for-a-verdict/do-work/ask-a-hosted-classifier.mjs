@@ -48,7 +48,7 @@ const model = () => process.env.CLASSIFIER_MODEL || 'jev-latest'
 export async function useVaultSecret(secretName) {
   if (!secretName) return false
   try {
-    const {heldByTheVault} = await import('../../credentials-vault/read-data/ask-the-vault-for-one-secret.mjs')
+    const {heldByTheVault} = await import('../../../../connect-a-service-and-seal-its-key/read-data/ask-the-vault-for-one-secret.mjs')
     const held = await heldByTheVault(secretName)
     const value = typeof held === 'string' ? held : held?.api_key ?? held?.value ?? null
     if (!value) return false
