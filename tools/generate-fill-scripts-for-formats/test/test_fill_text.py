@@ -212,7 +212,7 @@ class Command(unittest.TestCase):
 
 
 def split_settings(request, scope=('account', 'main'), status='active'):
-    """The sample request with its settings, all but `fetched`, moved to a made-up list:settings row."""
+    """The sample request with its settings, all but `fetched`, moved to a made-up the settings table row."""
     kept = {k: v for k, v in request['settings'].items() if k != 'fetched'}
     record = settings.make_record('generate-fill-scripts-for-formats', scope[0], scope[1], kept, name='Tea shop fill pages',
                                   tool='tool:generate-fill-scripts-for-formats', source='made-up@0', status=status)

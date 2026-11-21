@@ -9,7 +9,7 @@ index), and the answer gives each page's path instead of its text. With --rows-o
 the rows that hold it (see read-data/fill_records.py; a setting the settings row gives with the same value is left out) and nothing is filled. The last line printed is the answer.
 
 The person's settings (the page layout, over_budget, standard_holes and any value the layout names) can come as their
-`settings_record` (in the request, or --settings-record FILE): a list:settings row read through tools/settings
+`settings_record` (in the request, or --settings-record FILE): a settings table row read through tools/settings
 (record:setting:generate-fill-scripts-for-formats~<scope_kind>~<scope_id>, the first of `settings_scopes` that has a row,
 default the account `main`). The request's own `settings` (or the batch row's) are laid over it, key by key.
 """
@@ -44,7 +44,7 @@ def with_settings_record(request: dict, given, scopes) -> dict:
     if held is None:
         named = ', '.join(f'{k}~{i}' for k, i in scopes)
         raise fill_text.TemplateError(f'settings_record has no {FOLDER} row for {named}: give the row '
-                                      f'record:setting:{FOLDER}~<scope_kind>~<scope_id> from list:settings, or the settings themselves.')
+                                      f'record:setting:{FOLDER}~<scope_kind>~<scope_id> from the settings table, or the settings themselves.')
     if not isinstance(held, dict):
         raise fill_text.TemplateError(f'The {FOLDER} settings row holds {type(held).__name__}, not an object of settings.')
     return {**request, 'settings': {**held, **(request.get('settings') or {})}, 'row_settings': held}
@@ -57,7 +57,7 @@ def main() -> int:
     ap.add_argument('--batch')
     ap.add_argument('--out', type=Path)
     ap.add_argument('--rows-out', type=Path, help='write the rows that hold the request (batch --batch) and fill nothing')
-    ap.add_argument('--settings-record', type=Path, help='a JSON file of the list:settings row(s) to read the settings from')
+    ap.add_argument('--settings-record', type=Path, help='a JSON file of the settings table row(s) to read the settings from')
     a = ap.parse_args()
     try:
         if a.records:

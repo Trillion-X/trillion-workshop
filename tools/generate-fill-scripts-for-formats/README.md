@@ -2,7 +2,7 @@
 
 Fills every video format's script template with every capability of a product: one draft page per format and capability, with each filled line's words counted against the format's measured budget, the shots, the filming notes, and every fact the script cannot know yet listed as an open hole with what would fill it. An index page puts every fill in one matrix.
 
-The formats, their lines and budgets, the capabilities' words, the page layout and the index's words are the person's own DATA, given in the request or read from their list rows; their page layout and over-budget rule are a row of their `list:settings`, read through `tools/settings`. The tool holds none of them: it fills templates and counts words. It invents nothing.
+The formats, their lines and budgets, the capabilities' words, the page layout and the index's words are the person's own DATA, given in the request or read from their list rows; their page layout and over-budget rule are a row of their settings table, read through `tools/settings`. The tool holds none of them: it fills templates and counts words. It invents nothing.
 
 ## Files
 
@@ -73,7 +73,7 @@ In a list whose rows have `kind` and `detail` (for example a generic library lis
 
 ## The person's settings row
 
-The settings a person keeps for every batch (their page layout `fill_page`, `over_budget`, `standard_holes`, and values the layout names such as a listing address) are one row of their generic list `list:settings`: `record:setting:generate-fill-scripts-for-formats~<scope_kind>~<scope_id>` (usually `account~main`), its `settings` field the JSON of those keys. Pass it as `settings_record` (as their own store holds it, or a list of rows with `settings_scopes` to pick one); it is read with `tools/settings/read-data/settings.py`, which refuses a retired row or one written for another tool. The request's own `settings`, or the batch row's, are laid over it key by key, so a batch row keeps only what is its own (for example when its catalog was fetched). With `--rows-out` and a settings row, a setting the row already gives with the same value is left out of the batch row.
+The settings a person keeps for every batch (their page layout `fill_page`, `over_budget`, `standard_holes`, and values the layout names such as a listing address) are one row of their settings table: `record:setting:generate-fill-scripts-for-formats~<scope_kind>~<scope_id>` (usually `account~main`), its `settings` field the JSON of those keys. Pass it as `settings_record` (as their own store holds it, or a list of rows with `settings_scopes` to pick one); it is read with `tools/settings/read-data/settings.py`, which refuses a retired row or one written for another tool. The request's own `settings`, or the batch row's, are laid over it key by key, so a batch row keeps only what is its own (for example when its catalog was fetched). With `--rows-out` and a settings row, a setting the row already gives with the same value is left out of the batch row.
 
 ## The answer
 
