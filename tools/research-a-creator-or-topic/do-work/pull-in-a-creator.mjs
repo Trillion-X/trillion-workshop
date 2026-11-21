@@ -7,6 +7,7 @@
 // the rows go to rows.jsonl for the person's AI to keep (one line {table, row}).
 //
 //   node pull-in-a-creator.mjs --creator FILE.json --out FOLDER [--only list|words|frames] [--newest N] [--media none|video]
+//                              [--platforms youtube,x,instagram] [--tag NAME]   (--tag names this run's items-NAME.jsonl and rows-NAME.jsonl)
 //
 // FILE.json is {slug, name, accounts: [{platform: youtube|x|instagram, handle}]}. Re-running is safe: an item whose
 // files are already in FOLDER is not asked for again, and rows carry fixed ids.
@@ -26,16 +27,19 @@ const out = args.out;
 const newest = args.newest ? Number(args.newest) : Infinity;
 const only = args.only ?? 'all';
 const wantMedia = (args.media ?? 'video') !== 'none';
+const platforms = args.platforms ? args.platforms.split(',') : null;
+const tag = args.tag ? `-${args.tag}` : '';
 mkdirSync(out, { recursive: true });
 
 const sleep = s => new Promise(r => setTimeout(r, s * 1000));
 const polite = () => sleep(settings.seconds_between_requests[0] + Math.random() * (settings.seconds_between_requests[1] - settings.seconds_between_requests[0]));
 const run = (cmd, argv, timeout = 600_000) => spawnSync(cmd, argv, { encoding: 'utf8', timeout, maxBuffer: 512 * 1024 * 1024 });
-const at = (obj, path) => path.split('.').reduce((o, k) => (o == null ? undefined : o[k]), obj);
+const at = (obj, path) => Array.isArray(path) ? path.map(p => at(obj, p)).find(v => v != null)
+  : path.split('.').reduce((o, k) => (o == null ? undefined : o[k]), obj);
 const b3 = file => run('b3sum', ['--no-names', file]).stdout.trim();
 const say = (...words) => console.error(new Date().toISOString(), ...words);
 
-const rowsFile = join(out, 'rows.jsonl');
+const rowsFile = join(out, `rows${tag}.jsonl`);
 const keep = (table, row) => appendFileSync(rowsFile, JSON.stringify({ table, row }) + '\n');
 
 // ---------- listing ----------
@@ -111,13 +115,13 @@ function captions(it) {
   const done = join(dir, 'words.json');
   if (existsSync(done)) return JSON.parse(readFileSync(done, 'utf8'));
   mkdirSync(dir, { recursive: true });
-  const got = run('yt-dlp', ['--skip-download', '--write-subs', '--write-auto-subs', '--sub-langs', settings.words.caption_languages,
-    '--sub-format', 'json3', '--write-info-json', '--write-thumbnail', '--convert-thumbnails', 'jpg', '-o', join(dir, 'source'), it.url], 180_000);
-  const capFile = readdirSync(dir).find(f => f.endsWith('.json3'));
-  if (!capFile) return null;
-  const j = JSON.parse(readFileSync(join(dir, capFile), 'utf8'));
-  const lines = (j.events ?? []).filter(e => e.segs).map(e => [Math.round(e.tStartMs) / 1000, e.segs.map(s => s.utf8).join('').replace(/\s+/g, ' ').trim()]).filter(l => l[1]);
-  const words = { origin: 'site captions (json3)', lines };
+  if (!existsSync(join(dir, 'thumbnail.jpg'))) run('curl', ['-sSfL', '--max-time', '60', '-o', join(dir, 'thumbnail.jpg'), `https://i.ytimg.com/vi/${it.id}/maxresdefault.jpg`]);
+  const s = settings.words.youtube_transcript;
+  let answer = null;
+  try { answer = treg(s.endpoint, 'GET', { url: it.url, language: s.language }); } catch (error) { say('transcript failed', it.id, error.message); }
+  const lines = (at(answer ?? {}, s.lines) ?? []).map(l => [Number(l.startMs) / 1000, String(l.text ?? '').replace(/\s+/g, ' ').trim()]).filter(l => l[1]);
+  if (!lines.length) return null;
+  const words = { origin: `site captions via treg ${s.endpoint}`, lines };
   writeFileSync(done, JSON.stringify(words));
   return words;
 }
@@ -172,7 +176,7 @@ const textOf = words => words?.lines?.map(l => l[1]).join(' ').replace(/\s+/g, '
 function rowsFor(it, words, video, frameList) {
   const key = `${it.platform === 'youtube' ? 'yt' : it.platform === 'x' ? 'x' : 'ig'}-${it.id}`;
   const folder = `creators/${creator.slug}/${it.platform}/${it.id}`;
-  keep('inspiration_videos', { id: key, kind: it.platform === 'youtube' ? (it.tab === 'shorts' ? 'short' : 'video') : (it.is_video ? 'post video' : 'post'),
+  keep('inspiration_videos', { id: `record:inspiration-videos:${key}`, kind: it.platform === 'youtube' ? (it.tab === 'shorts' ? 'short' : 'video') : (it.is_video ? 'post video' : 'post'),
     title: it.title ?? (it.text ?? '').split('\n')[0].slice(0, 200), url: it.url, source: `${creator.name} (${it.platform} ${it.account})`,
     video_id: it.id, views: it.views == null ? null : String(it.views), length_seconds: it.duration == null ? null : String(it.duration),
     transcript_words: words ? String(textOf(words).split(' ').length) : null, transcript_from: words?.origin ?? null,
@@ -198,10 +202,10 @@ function rowsFor(it, words, video, frameList) {
 }
 
 // ---------- main ----------
-const listFile = join(out, 'items.jsonl');
+const listFile = join(out, `items${tag}.jsonl`);
 let items = [];
 if (only === 'all' || only === 'list' || !existsSync(listFile)) {
-  for (const account of creator.accounts) {
+  for (const account of creator.accounts.filter(a => !platforms || platforms.includes(a.platform))) {
     say('listing', account.platform, account.handle);
     const got = account.platform === 'youtube' ? await listYoutube(account) : await listPaged(account.platform, account);
     items.push(...got.slice(0, newest));

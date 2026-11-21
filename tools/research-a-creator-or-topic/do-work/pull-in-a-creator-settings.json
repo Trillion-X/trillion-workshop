@@ -1,5 +1,5 @@
 {
-  "_what": "Every number and address tool:pull-in-a-creator (do-work/pull-in-a-creator.mjs) uses. `lists` says, per platform, how a creator's whole post list is asked for: `youtube.tabs` are the channel tabs listed with yt-dlp; `x` and `instagram` are treg catalog endpoints (`endpoint`, the body or query field the handle goes in, the cursor field sent back and the answer paths of items, next cursor and whether more exist). `pages_at_most` bounds one account's listing per run. `media.video_height_at_most` is the tallest picture downloaded for frames (frames need shapes and words on screen, not full quality). `frames.scene_change` is ffmpeg's scene score above which a frame is kept, `frames.at_most_per_video` caps them, `frames.width` scales them, and `frames.sheet_columns` lays one contact sheet per video. `words.whisper_model` is the mlx Whisper model used when a video has no captions of its own. `seconds_between_requests` is the polite wait between site requests.",
+  "_what": "Every number and address tool:pull-in-a-creator (do-work/pull-in-a-creator.mjs) uses. `lists` says, per platform, how a creator's whole post list is asked for: `youtube.tabs` are the channel tabs listed with yt-dlp; `x` and `instagram` are treg catalog endpoints (`endpoint`, the body or query field the handle goes in, the cursor field sent back and the answer paths of items, next cursor and whether more exist). `pages_at_most` bounds one account's listing per run. `media.video_height_at_most` is the tallest picture downloaded for frames (frames need shapes and words on screen, not full quality). `frames.scene_change` is ffmpeg's scene score above which a frame is kept, `frames.at_most_per_video` caps them, `frames.width` scales them, and `frames.sheet_columns` lays one contact sheet per video. `words.youtube_transcript` is the treg endpoint that answers a YouTube video's own timed captions (YouTube refuses repeated caption downloads from one computer with HTTP 429, Nov 21 2026), its language and the answer path of its lines; `words.whisper_model` is the mlx Whisper model used when a video has no captions of its own. `seconds_between_requests` is the polite wait between site requests.",
   "seconds_between_requests": [
     1.5,
     4
@@ -19,9 +19,13 @@
       "handle_field": "handle",
       "cursor_field": "cursor",
       "page_size": 100,
-      "items": "output.data.tweets",
+      "items": [
+        "output.data.tweets",
+        "data.tweets"
+      ],
       "next": [
         "output.data.nextCursor",
+        "data.nextCursor",
         "output.nextCursor"
       ]
     },
@@ -30,11 +34,18 @@
       "method": "GET",
       "handle_field": "handle",
       "cursor_field": "next_max_id",
-      "items": "output.items",
-      "next": [
-        "output.next_max_id"
+      "items": [
+        "output.items",
+        "items"
       ],
-      "more": "output.more_available"
+      "next": [
+        "output.next_max_id",
+        "next_max_id"
+      ],
+      "more": [
+        "output.more_available",
+        "more_available"
+      ]
     }
   },
   "media": {
@@ -48,6 +59,13 @@
   },
   "words": {
     "whisper_model": "mlx-community/whisper-large-v3-turbo",
-    "caption_languages": "en,en-orig,en.*"
+    "youtube_transcript": {
+      "endpoint": "scrapecreators.x.v1-youtube-video-transcript",
+      "language": "en",
+      "lines": [
+        "transcript",
+        "output.transcript"
+      ]
+    }
   }
 }
