@@ -238,7 +238,9 @@
         "invoke": {
           "kind": "computer",
           "capabilities": [
-            "close-apps-and-switch-focus"
+            "close-apps",
+            "run-shortcuts",
+            "read-processes"
           ],
           "workdir": "/opt/hold-a-computer-quiet",
           "stdout": "json",
@@ -527,7 +529,7 @@
         "invoke": {
           "kind": "computer",
           "capabilities": [
-            "close-apps-and-switch-focus"
+            "run-shortcuts"
           ],
           "workdir": "/opt/hold-a-computer-quiet",
           "stdout": "json",
@@ -811,9 +813,7 @@
         },
         "invoke": {
           "kind": "computer",
-          "capabilities": [
-            "close-apps-and-switch-focus"
-          ],
+          "capabilities": [],
           "workdir": "/opt/hold-a-computer-quiet",
           "stdout": "json",
           "argv": [
@@ -1101,7 +1101,7 @@
         "invoke": {
           "kind": "computer",
           "capabilities": [
-            "close-apps-and-switch-focus"
+            "run-shortcuts"
           ],
           "workdir": "/opt/hold-a-computer-quiet",
           "stdout": "json",

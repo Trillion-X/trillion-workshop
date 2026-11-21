@@ -852,7 +852,7 @@
         },
         "invoke": {
           "kind": "computer",
-          "capabilities": ["use-the-messages-app"],
+          "capabilities": ["automate-an-app"],
           "workdir": "/opt/send-messages",
           "stdout": "json",
           "argv": ["node", "/opt/send-messages/do-work/send-a-message.mjs", "messages-on-this-mac"],
