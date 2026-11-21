@@ -14,12 +14,26 @@ import { decisionId, decisionOrRefuse, methodViewOf } from './decisions.mjs';
 import { recordsIn } from './decision-records.mjs';
 import { workedSteps } from './answer-words.mjs';
 import { isLegacyDecision } from './legacy-decision.mjs';
+import { decisionRecordsOfStore } from './store-decision.mjs';
+
+// The store's rows of one decision, shaped into its records (read-data/store-decision.mjs), with any records the caller handed
+// in beside them. A call with no store rows keeps its records as they are.
+function recordsOfCall(input) {
+  if (input?.decision_row === undefined) return input;
+  if (input.decision_row?.id !== input.decision_id) throw new Error('decision_row is not the decision named by decision_id.');
+  if (!input.method_list_row) throw new Error('decision_row needs method_list_row: the old store list row of the method rows.');
+  const shaped = decisionRecordsOfStore({ decision: input.decision_row, refs: input.refs_row ?? null, evidence: input.evidence_rows ?? [],
+    answers: input.answer_rows ?? [], methodList: input.method_list_row, methodRows: input.method_rows ?? [], method: input.method_row ?? null });
+  return { ...input, records: [...shaped, ...(input.records ?? [])] };
+}
 
 /**
- * tool:read-a-decisions-worked-steps. input { decision_id, records }: the decision's records as the caller read them. Answers
- * { case_id, steps }: each step { step_id, question, rows, checks }, the legacy steps first, then the current ones.
+ * tool:read-a-decisions-worked-steps. input { decision_id, records }, or the store's rows of the decision (decision_row,
+ * refs_row, evidence_rows, answer_rows, method_list_row, method_rows, method_row): the decision's records as the caller read
+ * them. Answers { case_id, steps }: each step { step_id, question, rows, checks }, the legacy steps first, then the current ones.
  */
-export function readWorkedSteps(input) {
+export function readWorkedSteps(call) {
+  const input = recordsOfCall(call);
   const held = recordsIn(input);
   const id = decisionId(input);
   if (isLegacyDecision(held.get('decision', id))) return { case_id: id, steps: workedSteps(held, id) };

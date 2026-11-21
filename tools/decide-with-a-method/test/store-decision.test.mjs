@@ -37,3 +37,15 @@ test('a decision with no answers yet reads no steps', () => {
   const records = decisionRecordsOfStore({ decision, answers: [], methodList, methodRows, method });
   assert.deepEqual(readWorkedSteps({ decision_id: decision.id, records }).steps, []);
 });
+
+test('the tool takes the store rows themselves and shapes them in the call', () => {
+  const { steps } = readWorkedSteps({
+    decision_id: decision.id, decision_row: decision, method_list_row: methodList, method_rows: methodRows, method_row: method, answer_rows: answers,
+  });
+  assert.deepEqual(steps.map(step => step.step_id), ['record:method-row:the-test-steps~%2Ffirst']);
+  assert.equal(steps[0].rows[0].text, 'Take the short road.');
+});
+
+test('a decision_row that is not the decision named is refused', () => {
+  assert.throws(() => readWorkedSteps({ decision_id: 'other', decision_row: decision, method_list_row: methodList }), /not the decision named/);
+});

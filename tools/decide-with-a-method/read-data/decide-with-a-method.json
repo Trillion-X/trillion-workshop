@@ -1251,6 +1251,43 @@
               "value": {}
             }
           }
+        },
+        "decision_row": {
+          "type": "object",
+          "description": "The old store's row of the decision (old_store.w_decision), its columns as stored. With it, the decision's records are shaped here (read-data/store-decision.mjs) and records is optional."
+        },
+        "refs_row": {
+          "type": "object",
+          "description": "The old store's row of the decision's refs (old_store.w_decision_refs), named by the root's refs."
+        },
+        "evidence_rows": {
+          "type": "array",
+          "description": "The old store's rows of the decision's evidence (old_store.w_decision_evidence).",
+          "items": {
+            "type": "object"
+          }
+        },
+        "answer_rows": {
+          "type": "array",
+          "description": "The old store's answer rows of the decision (old_store.w_method_answer), one per answered method row.",
+          "items": {
+            "type": "object"
+          }
+        },
+        "method_list_row": {
+          "type": "object",
+          "description": "The old store's list row the method rows are (old_store.w_list, the method rows' list)."
+        },
+        "method_rows": {
+          "type": "array",
+          "description": "The old store's method rows the method names (old_store.method_row).",
+          "items": {
+            "type": "object"
+          }
+        },
+        "method_row": {
+          "type": "object",
+          "description": "The old store's method row whose steps give the rows' order (old_store.method)."
         }
       }
     }
