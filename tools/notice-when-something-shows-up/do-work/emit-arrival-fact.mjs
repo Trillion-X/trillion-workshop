@@ -466,6 +466,20 @@ export function makeCarrier({ url, appId, partition, fetchImpl, loadOwner = () =
     return text.trim() ? JSON.parse(text) : {};
   }
 
+  function writeRecord({ addressLabel, pathLabels, payload }) {
+    return operate({
+      operation_label: "engine.operation.write-batch",
+      partition_label: partition,
+      writes: [{
+        partition_label: partition,
+        address_label: addressLabel,
+        address_mode: "identity_text",
+        path_labels: pathLabels,
+        payload,
+      }],
+    });
+  }
+
   return {
     refreshBasis,
     scanUnderPath(pathLabels) {
@@ -485,21 +499,30 @@ export function makeCarrier({ url, appId, partition, fetchImpl, loadOwner = () =
         address_mode: "identity_text",
       });
     },
-    writeRecord({ addressLabel, pathLabels, payload }) {
-      return operate({
-        operation_label: "engine.operation.write-batch",
-        partition_label: partition,
-        writes: [{
-          partition_label: partition,
-          address_label: addressLabel,
-          address_mode: "identity_text",
-          path_labels: pathLabels,
-          payload,
-        }],
+    writeRecord,
+    // A waiter's kept place lives at an address of its own (one per waiter, so waiters that share an address never
+    // overwrite each other's place), and is written after every told change, so a restart resumes where it stopped.
+    keepState({ addressLabel, pathLabels, waiterRef, state }) {
+      return writeRecord({
+        addressLabel: keptPlaceAddress(addressLabel, waiterRef),
+        pathLabels,
+        payload: { kind: "kept-place", waiter_ref: waiterRef, state },
       });
+    },
+    async readKeptPlace({ addressLabel, waiterRef }) {
+      const current = await operate({
+        operation_label: "engine.operation.read-current",
+        partition_label: partition,
+        address_label: keptPlaceAddress(addressLabel, waiterRef),
+        address_mode: "identity_text",
+      });
+      const payload = current?.payload ?? current;
+      return payload?.kind === "kept-place" && payload.waiter_ref === waiterRef ? payload.state ?? null : null;
     },
   };
 }
+
+export const keptPlaceAddress = (addressLabel, waiterRef) => `${addressLabel}::kept-place::${waiterRef}`;
 
 /** Load a mechanism leaf by its plain filename, from this file's own folder.
  *
@@ -656,9 +679,9 @@ async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, c
     nextSequence: sequence,
     // What this waiter kept with its last fact (a carrier with a kept folder keeps it across restarts), and a way to
     // keep more before anything is told: a mechanism's own memory, never a second store.
-    state: current?.state ?? null,
+    state: await carrier.readKeptPlace?.({ addressLabel: emitted.address_label, waiterRef: declared.waiter_ref }).catch(() => null) ?? null,
     credentialFd: declared.credential_name ? declared.credential_fd : null,
-    keepState: (state) => carrier.keepState?.(emitted.address_label, state, declared.waiter_ref),
+    keepState: (state) => carrier.keepState?.({ addressLabel: emitted.address_label, pathLabels: emitted.path_labels, waiterRef: declared.waiter_ref, state }),
     // A folder of this waiter's own that outlasts the run, when the carrier keeps one (a linked device's session lives
     // there); null otherwise.
     folder: carrier.folderFor ? carrier.folderFor(declared.waiter_ref) : null,
