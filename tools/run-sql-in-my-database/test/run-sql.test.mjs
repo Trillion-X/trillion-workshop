@@ -55,7 +55,7 @@ test('the row mounts one held connection by the name the input gives and reaches
   assert.equal(row.invoke.internet, true);
   assert.deepEqual(row.invoke.credential_mounts, [
     { secret_name_from_input: 'credential_name', fd: 3, only_when: { input: 'credential_name', present: true } },
-    { secret_name_from_database: 'database', fd: 3, only_when: { input: 'database', present: true }, under_use: { use_from_input: 'use', ticket_fd: 5 } },
+    { secret_name_from_database: 'database', held_suffix: '-connection', fd: 3, only_when: { input: 'database', present: true }, under_use: { use_from_input: 'use', ticket_fd: 5 } },
     { secret_name_from_input: 'role_credential_name', fd: 4, only_when: { input: 'role_credential_name', present: true } },
     { secret_name_from_input: 'value_credential_name', fd: 6, only_when: { input: 'value_credential_name', present: true } },
   ], 'the login is the person\'s: the run names its vault name or, by database, the computer maps it (its reader login and a ticket of the use when the input declares one); the row lists none');

@@ -700,6 +700,7 @@
           "credential_mounts": [
             {
               "secret_name_from_database": "dbs[].database",
+              "held_suffix": "-connection",
               "fd": 3
             }
           ],

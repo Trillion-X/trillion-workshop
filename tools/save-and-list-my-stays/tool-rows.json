@@ -373,6 +373,7 @@
           "credential_mounts": [
             {
               "secret_name_from_database": "database",
+              "held_suffix": "-connection",
               "fd": 3,
               "only_when": {
                 "input": "database",
@@ -709,6 +710,7 @@
           "credential_mounts": [
             {
               "secret_name_from_database": "database",
+              "held_suffix": "-connection",
               "fd": 3,
               "only_when": {
                 "input": "database",
