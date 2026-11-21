@@ -25,6 +25,7 @@ import { ViewerAccessRefsProvider } from '../../ui/show/placeable-surface-intent
 import { AppSidebar, type AppSidebarProps } from './AppSidebar';
 import { CONTENT_HOST_ATTRIBUTE } from './content-host';
 import { controlShown, useShowChange } from '../../ui/show/show-rules/show-of';
+import { useShownTab } from '../../ui/show/shown-tab/shown-tab';
 
 /** The element a panel at the top of the sidebar mounts into (the app's `header_content_host`): the control
  *  `sidebar.content.<host>`, as every list's hosted panel is (AppSidebar.tsx placeContentHosts). */
@@ -139,6 +140,8 @@ function SidebarRoot({
   // Same DATA seam as the catalog address above: the value says which surfaces
   // this browsing surface offers, and an app that says nothing offers all.
   const resolvedVisiblePlaceableSurfaceIds = useBrowsingSurfacePresentationValue(visiblePlaceableSurfaceIds);
+  // The row of the screen the person is looking at is the one drawn as open (its tab's id is its row id).
+  const shownTab = useShownTab();
   return (
     <div
       ref={containerRef}
@@ -174,6 +177,7 @@ function SidebarRoot({
           instanceId={instanceId}
           containerRef={contained ? containerRef : undefined}
           presentation={contained ? 'embedded' : 'app-rail'}
+          currentSelectionId={shownTab ?? ''}
           capabilities={capabilities}
           sections={sections}
           contentHostBySectionId={contentHostBySectionId}

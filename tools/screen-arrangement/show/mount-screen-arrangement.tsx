@@ -39,7 +39,8 @@ import { readStarterLayouts } from 'trillion-workshop/tools/arrange-screens-in-p
 import type { ChromeVisibilityMap } from '../read-data/chrome-visibility';
 import { createBrowserLocalDestinationRef } from './surface-intent-destination-ref';
 import { readSurfaceIntentReaderConfig, ViewerAccessRefsProvider } from '../../ui/show/placeable-surface-intent';
-import { ArrangementHostDataContext, LayoutOwnerProviderView, type ArrangementHostData } from './screen-arrangement-context';
+import { ArrangementHostDataContext, LayoutOwnerProviderView, LayoutStateContext, type ArrangementHostData } from './screen-arrangement-context';
+import { publishShownTab } from '../../ui/show/shown-tab/shown-tab';
 import { CompanionMounts } from '../../arrange-screens-in-panes/show/CompanionMounts';
 import { readAlwaysMountCompanions } from '../read-data/always-mount-companions';
 import { validateApplicationLayoutState } from '../read-data/application-layout-state-contribution';
@@ -231,6 +232,7 @@ function ScreenArrangementRoot({ applicationRef, persistence, initialLayoutState
             placeableSurfaceListAddressLabel={placeableSurfaceListAddressLabel}
             visiblePlaceableSurfaceIds={visibleSurfaceIds}
           >
+            <ShownTabPublisher />
             <EmptyContainerSourcesContext.Provider value={emptyContainerSources}>
               <ArrangementHostDataContext.Provider value={hostData}>
                 <LayoutEngine surfaceIntentReader={surfaceIntentReader} surfaceIntentDestinationRef={destinationRef} />
@@ -245,6 +247,18 @@ function ScreenArrangementRoot({ applicationRef, persistence, initialLayoutState
       <AlwaysMountCompanions />
     </div>
   );
+}
+
+// Publishes the tab the person is looking at (the active tab of the focused pane, ui/show/shown-tab) so the sidebar
+// highlights that screen's row. Only this top-level arrangement publishes; a screen's own nested arrangement does not.
+function ShownTabPublisher(): null {
+  const layoutState = React.useContext(LayoutStateContext);
+  const focused = layoutState.focusedContainerId ? layoutState.containers[layoutState.focusedContainerId] : undefined;
+  const tabId = focused ? layoutState.tabGroups[focused.groupId]?.activeTabId ?? null : null;
+  React.useEffect(() => { publishShownTab(tabId); }, [tabId]);
+  // Leaving the workspace shows no tab: the sidebar must not keep one highlighted.
+  React.useEffect(() => () => publishShownTab(null), []);
+  return null;
 }
 
 // The host's arrangement DATA from its mount props: `tabsOutsideCatalog` ('close' | 'keep', default 'keep') and
