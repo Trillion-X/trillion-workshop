@@ -648,6 +648,7 @@
           },
           {
             "id": "keep-noticing-row-changes",
+            "needs_input": ["credential_name"],
             "on": {
               "running": {}
             },
