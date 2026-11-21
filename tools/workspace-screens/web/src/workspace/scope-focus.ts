@@ -3,9 +3,10 @@
 // PURPOSE
 //   The person's saved focus, kept in their workspace record `rule-filter::focus-chain` (FOCUS_CHAIN_LABEL, read and
 //   written through /work/api/records like every saved record, records.ts), as the app and screen levels of the shared
-//   filter chain (tools/ui/show/rule-filter/focus-chain.ts). No dimension is offered: the values a focus picks from
-//   (/work/api/scope/values) and the saved scope views (/work/api/scope/filters) have no owner in the engine
-//   (macos/release.json route_owner_gate.retired), so neither is asked. The Focus editor edits the app level with the same rule filter every
+//   filter chain (tools/ui/show/rule-filter/focus-chain.ts). The one dimension offered is the pursuits (space-kinds.json
+//   focus_param), listed from the names the vault holds with the pursuit runs suffix (focus.json `pursuits`); the saved
+//   scope views (/work/api/scope/filters) have no owner in the engine (macos/release.json route_owner_gate.retired), so
+//   they are not asked. The Focus editor edits the app level with the same rule filter every
 //   list uses; each list reads its rows with `?scope={"saved":"<screen>"}`, so these levels are applied where records
 //   are read and the lists only show them as chips (appliedAtSource).
 //   Three levels live in the saved scope: the app's (the global scope over every screen), the arrangement's (the global
@@ -17,13 +18,16 @@
 //   2. A level's rule is one `has_any_of` rule per dimension (its `param`), values the chosen ids; any other rule a
 //      person builds is kept as the ids it names, since a saved scope is ids per dimension (all across dimensions, any
 //      within one), which is exactly an All group of has_any_of rules.
-//   3. No dimension, screen or value is named here: they would come from a scope values answer, which no owner gives.
+//   3. No pursuit is named here: each one is a vault connection name ending with focus.json `pursuits.runs_suffix`, and
+//      its words are focus.json DATA. No screen or other value is named here.
 
 import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json';
 import { allOf, FOCUS_CHAIN_LABEL, withNodeRule, type NodeRules, type NodeRuleStore } from '../../../../ui/show/rule-filter/focus-chain';
 import type { RuleFacet, RuleFieldView } from '../../../../ui/show/rule-filter/RuleFilter';
 import type { RuleGroup, RuleNode, RuleOperatorData } from '../../../../ui/show/rule-filter/rule-tree';
-import { narrowListsBy } from './api';
+import { narrowListsBy, postJson } from './api';
+import focusWords from './focus.json';
+import spaceKinds from './space-kinds.json';
 import { readEveryScreenAgain } from './store-changes';
 import { readSavedRecordFromOwner, updateSavedLabelValueDurably } from './records';
 
@@ -75,8 +79,20 @@ const keep = (nodeId: string, rule: Parameters<NodeRuleStore['write']>[1]) =>
 /** Read what can be chosen and what is saved, once a page; the answer includes the level the global focus is kept at. */
 export const loadScopeFocus = () => (loading ??= readScopeFocus());
 let loading: Promise<{ nodeId: string; fields: RuleFieldView[]; facets: Record<string, RuleFacet> }> | null = null;
+/** The pursuits a focus can be set to: the connection names the vault holds with the runs suffix (names only, never values). */
+async function pursuitDimension(): Promise<Dimension> {
+  const answer = await postJson<{ names?: unknown }>(focusWords.pursuits.names_method, {});
+  if (!Array.isArray(answer?.names)) throw new Error(focusWords.pursuits.unreadable);
+  const suffix = focusWords.pursuits.runs_suffix;
+  const values = (answer.names as string[]).filter(name => name.endsWith(suffix)).sort().map(name => {
+    const plain = name.slice(0, -suffix.length).replace(/_/g, ' ');
+    return { id: name, title: plain.charAt(0).toUpperCase() + plain.slice(1) };
+  });
+  return { id: spaceKinds.focus_param, param: spaceKinds.focus_param, label: focusWords.pursuits.label, icon: focusWords.pursuits.icon, values };
+}
+
 async function readScopeFocus(): Promise<{ nodeId: string; fields: RuleFieldView[]; facets: Record<string, RuleFacet> }> {
-  dimensions = [];
+  dimensions = [await pursuitDimension()];
   // The first account read may have started before a view applied its saved
   // configuration. Hydrate other nodes, while retaining each locally edited
   // node's current value (including a clear) until its own write settles.
