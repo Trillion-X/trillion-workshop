@@ -12,6 +12,8 @@
 //   3. The input is a plain object of at most MAX_INPUT_BYTES, naming no `tool` or `tool_id` key, with no key its input
 //      schema does not list (when it declares one) and with each required key present.
 //   4. A declaration with no `run` key is not a run request; the module kind keeps its own checks (module-surface-requests.mjs).
+//   5. The surface input (the tab's input: the route's trailing part, the row's own fields) reaches the run only for the fields
+//      the input schema names; `tool` and `tool_id` never come from it. A call's own input wins over the surface input.
 
 const MAX_INPUT_BYTES = 32768;
 const refused = () => new Error('This screen request is unavailable.');
@@ -19,6 +21,15 @@ const plain = value => Boolean(value) && typeof value === 'object' && !Array.isA
 
 /** Whether a declaration is a `run` request (its `run` key is the whole declaration's kind). */
 export const isRunRequest = declaration => plain(declaration) && Object.hasOwn(declaration, 'run');
+
+/** The input a `run` request is sent with: the surface input's fields the declared input schema names (none when it declares
+ *  no schema), overlaid by the call's own input. A field the surface holds for `tool` or `tool_id` is never carried. */
+export function runInputFor(declaration, surfaceInput = {}, input = {}) {
+  const properties = plain(declaration?.run?.input_schema?.properties) ? declaration.run.input_schema.properties : {};
+  const carried = Object.entries(plain(surfaceInput) ? surfaceInput : {}).filter(([name, value]) => value !== undefined
+    && Object.hasOwn(properties, name) && name !== 'tool' && name !== 'tool_id');
+  return { ...Object.fromEntries(carried), ...(plain(input) ? input : {}) };
+}
 
 /** The tool run a parts screen's `run` request makes: `{ tool, input }`, with `tool` the declaring tool id. */
 export function runFor(declaration, declaringTool, input = {}) {

@@ -3,7 +3,7 @@
 // screen's code gets no door call from its declarations.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { isRunRequest, runFor } from '../web/src/workspace/declared-run.mjs';
+import { isRunRequest, runFor, runInputFor } from '../web/src/workspace/declared-run.mjs';
 import { validateModuleSurfaceRequests } from '../../ui/show/isolated-module-surface/module-surface-requests.mjs';
 
 const DECLARING = 'tool:hello-from-elsewhere';
@@ -34,4 +34,19 @@ test('the saved-module validator still refuses the door', () => {
   const door = { call: { method: 'POST', path: '/work/api/door/tools:run', body: { tool: 'tool:anything' } } };
   assert.throws(() => validateModuleSurfaceRequests(door));
   assert.throws(() => validateModuleSurfaceRequests({ call: { method: 'GET', path: '/work/api/door/tools:list' } }));
+});
+
+test('a run request carries the surface input fields its input schema names, and the call\'s own input wins', () => {
+  const declaration = { run: { input_schema: { type: 'object', properties: { piece: { type: 'string' }, credential_name: { type: 'string' }, words: { type: 'string' } }, required: ['piece', 'credential_name'] } } };
+  const surface = { piece: 'phrase-7', credential_name: 'vault-key-x', tab: 'open' };
+  assert.deepEqual(runFor(declaration, DECLARING, runInputFor(declaration, surface, {})).input, { piece: 'phrase-7', credential_name: 'vault-key-x' });
+  assert.deepEqual(runInputFor(declaration, surface, { piece: 'other', words: 'hi' }), { piece: 'other', credential_name: 'vault-key-x', words: 'hi' });
+  assert.deepEqual(runInputFor(declaration, { ...surface, tool_id: 'tool:someone-else' }, {}).tool_id, undefined, 'tool_id is never carried');
+  assert.equal(runInputFor(declaration, { piece: undefined }, {}).piece, undefined, 'an unset surface field is not sent');
+});
+
+test('a run request with no input schema carries no surface input, and a non-run request is untouched by the run input', () => {
+  assert.deepEqual(runInputFor({ run: {} }, { piece: 'phrase-7' }, {}), {});
+  assert.deepEqual(runInputFor({ run: {} }, { piece: 'phrase-7' }, { words: 'hi' }), { words: 'hi' });
+  assert.equal(isRunRequest({ method: 'GET', path: '/work/api/records' }), false);
 });
