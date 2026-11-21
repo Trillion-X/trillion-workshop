@@ -12,22 +12,23 @@
 //      order, write_file_finish, files-door.mjs putFile), the same operations an AI asks;
 //      the door names the file by the identity it works out itself. Every piece is sent (the door keeps a piece it
 //      already holds once, but the page no longer skips sending it).
-//   3. The account itself is reached only through this page's signed-in session (/work/api/...). The growing files and
-//      saved text versions below still ask the retired hosted lease and growing routes, which the engine does not answer.
+//   3. The account itself is reached only through this page's signed-in session (/work/api/...). The growing files below
+//      (a recording still being made) still ask the retired growing routes; record-audio owns that path.
 //   4. A refusal is shown as the Worker's words; nothing is reported as uploaded unless the Worker said it is stored.
-//   5. A refused lease is thrown before the first byte, never retried.
+//   5. A text document is saved only at the version the editor opened (saveTextVersion): a name changed since is never
+//      overwritten, and the save says so in words.
 //   6. A recording still being made goes in through `growingFiles` (the person's own session, the namespace's growing
 //      files whose length is not known yet), and every refusal reaches the sender as a SendProblem saying whether to
 //      send again, start again from the device copy, or stop and say why.
 
-import { sendFile } from '../../../../live-namespace/do-work/send-a-file-to-namespace-browser.mjs';
 import { loadChunking } from '../../../../live-namespace/do-work/content-chunks-browser.mjs';
-import { PlanNeeded, files, postJson, readJson } from './api';
+import { PlanNeeded, files, postJson, readFileLookup, readJson } from './api';
 import { putFile } from './files-door.mjs';
 import { needsPlanTitle } from '../plan-needs.mjs';
 import { SendProblem, type GrowingClient } from '../../../../record-audio/do-work/send-while-recording';
 import { readOrMakePreview } from '../../../../ui/show/media-preview';
 import { previewStore } from './made-previews';
+import documents from './documents-words.json';
 // The chunker's compiled bytes, served under their content name (scripts/build-workspace.mjs).
 import chunkingBytesAddress from 'trillion-workshop/tools/browse-and-upload-my-files/built-stored-bytes/content-chunks/content_chunks_bg.wasm';
 
@@ -38,21 +39,6 @@ import { sendProblemKind } from './send-problem-kind.mjs';
 let chunker: ReturnType<typeof loadChunking> | null = null;
 let chunking: Promise<ReturnType<typeof loadChunking>> | null = null;
 const loadChunker = () => (chunking ??= WebAssembly.compileStreaming(fetch(chunkingBytesAddress)).then(module => (chunker = loadChunking({ module }))));
-
-type Lease = { lease: string; expires_at: string };
-let writeLease: Lease | null = null;
-async function lease(): Promise<string> {
-  if (writeLease && Date.parse(writeLease.expires_at) - Date.now() > 10 * 60 * 1000) return writeLease.lease;
-  writeLease = await postJson<Lease>('/work/api/namespace/leases', { scope: 'write', seconds: 6 * 3600 });
-  return writeLease.lease;
-}
-
-// The verbs the shared sender needs, with the write lease: requests under /namespace/growing, and small whole files
-// many to a request (/namespace/whole-files).
-const client = {
-  grow: async (path: string, init: RequestInit) => fetch(`/namespace/growing${path ? `/${path}` : ''}`, { ...init, headers: { ...(init.headers ?? {}), authorization: `Bearer ${await lease()}` } }),
-  keepWholeFiles: async (body: Uint8Array, { signal }: { signal?: AbortSignal } = {}) => fetch('/namespace/whole-files', { method: 'POST', body, ...(signal ? { signal } : {}), headers: { authorization: `Bearer ${await lease()}`, 'content-type': 'application/octet-stream' } }),
-};
 
 const sourceOf = (file: File) => ({
   size: file.size,
@@ -130,49 +116,34 @@ export const growingFiles: GrowingClient = {
 /** Keeps `text` in the person's Files under `name` (a path), replacing what the name pointed at. */
 export const keepText = (name: string, text: string) => files.change('write_file', { name, text, media_type: 'text/plain; charset=utf-8' }) as Promise<{ identity: string }>;
 
-/** Saves a text document as new immutable bytes, replacing only the exact name version the editor opened. */
+/** The version of one name (the row's own number every write's expected_version names; 0: not made yet), read from its
+ *  folder's list. Nothing is written by it. */
+async function versionOf(name: string): Promise<number | null> {
+  const folder = name.slice(0, name.lastIndexOf('/')) || '/';
+  for (let after: string | undefined; ;) {
+    const page = await files.read('list_files', { folder, limit: 500, ...(after ? { after } : {}) }) as { names?: { name: string; version: number }[]; next_after?: string | null };
+    const found = page.names?.find(row => row.name === name);
+    if (found) return found.version;
+    if (!page.next_after) return null;
+    after = page.next_after;
+  }
+}
+
+/** Saves a text document as new immutable bytes, at the version the editor opened: a name changed since it was opened
+ *  is never overwritten; the save says so in words (documents-words.json) and changes nothing. */
 export async function saveTextVersion(name: string, text: string, expectedIdentity: string | null, mediaType = 'text/plain; charset=utf-8') {
+  const current = await readFileLookup<{ identity: string }>(name).catch(() => null);
+  const version = await versionOf(name);
+  if (current ? current.identity !== expectedIdentity : expectedIdentity !== null) throw new Error(documents.changed_elsewhere);
   // Namespace files have at least one byte; a visually empty document is kept as one line break.
   const file = new Blob([text || '\n'], { type: mediaType });
-  const loaded = chunker ?? await loadChunker();
-  let growing = '';
-  const guardedClient = {
-    ...client,
-    grow: async (path: string, init: RequestInit) => {
-      if (!path.endsWith('/finish')) return client.grow(path, init);
-      const body = JSON.parse(String(init.body ?? '{}')) as Record<string, unknown>;
-      const response = await client.grow(path, { ...init, body: JSON.stringify({ ...body, name, expected_identity: expectedIdentity }) });
-      const answer = await response.clone().json().catch(() => null) as { conflicts?: unknown[] } | null;
-      if (answer?.conflicts?.length) return new Response(JSON.stringify({ error: 'This file changed while you were editing it. Your draft is still here.' }), { status: 409, headers: { 'content-type': 'application/json' } });
-      return response;
-    },
-  };
-  const source = { size: file.size, readAt: async (offset: number, length: number, into?: Uint8Array) => {
-    const bytes = new Uint8Array(await file.slice(offset, offset + length).arrayBuffer());
-    into?.set(bytes);
-    return into ? into.subarray(0, bytes.length) : bytes;
-  } };
   try {
-    const result = await sendFile({
-      client: {
-        ...guardedClient,
-        grow: async (path: string, init: RequestInit) => {
-          if (path === '') {
-            const response = await guardedClient.grow(path, init);
-            const answer = await response.clone().json().catch(() => null) as { growing?: string } | null;
-            growing = answer?.growing ?? '';
-            return response;
-          }
-          return guardedClient.grow(path, init);
-        },
-      },
-      source,
-      mediaType,
-      chunking: loaded,
-    });
-    return { identity: result.identity, previous_identity: expectedIdentity };
+    const kept = await putFile(files.change, { source: sourceOf(file), name, mediaType, expectedVersion: version ?? 0, onBytes: () => {} }) as { identity: string };
+    return { identity: kept.identity, previous_identity: expectedIdentity };
   } catch (error) {
-    if (growing) await client.grow(growing, { method: 'DELETE' }).catch(() => {});
+    // Refused or failed: when the name no longer holds what the editor opened, someone changed it since.
+    const after = await readFileLookup<{ identity: string }>(name).catch(() => null);
+    if (after ? after.identity !== expectedIdentity : expectedIdentity !== null) throw new Error(documents.changed_elsewhere);
     throw error;
   }
 }

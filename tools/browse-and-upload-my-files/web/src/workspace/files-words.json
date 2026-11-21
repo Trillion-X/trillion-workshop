@@ -1,0 +1,58 @@
+{
+  "_what": "Every visible word of the Files screen (web/src/workspace/files-screen.tsx), kept here as data. Icon names stay in code: they are identifiers, not words.",
+  "columns": {
+    "preview": "Preview",
+    "name": "Name",
+    "kind": "Kind",
+    "extension": "Extension",
+    "size": "Size",
+    "modified": "Modified",
+    "stored": "Stored",
+    "version": "Version",
+    "versions": "Versions",
+    "also_kept_in": "Also kept in"
+  },
+  "states": {
+    "still_uploading": "Still uploading",
+    "latest": "Latest",
+    "older_version": "Older version"
+  },
+  "loading": "Loading your files",
+  "root": "Files",
+  "search": {
+    "placeholder": "Search your files, GitHub and Trillion",
+    "failed": "Search could not finish",
+    "failed_try": "Try again to search your files and connected sources.",
+    "unavailable": "Some places could not be searched",
+    "unavailable_try": "The search may be incomplete. Try again to check those places.",
+    "nothing_found": "Nothing found",
+    "try_another": "Try another search.",
+    "incomplete": "These results may be incomplete.",
+    "still_here": "Your results are still here. Try again to finish the search.",
+    "still_looking": "Still looking.",
+    "nothing_found_dot": "Nothing found.",
+    "searching": "Searching."
+  },
+  "upload": {
+    "stopped": "Upload stopped",
+    "choose": "Upload files",
+    "drop_here": "Drop to upload here",
+    "first_files": "Upload your first files",
+    "folder_empty": "This folder is empty",
+    "drop_files": "Drop files here, or click to choose them. They are kept in your own Trillion space.",
+    "field_not_added": "The field could not be added"
+  },
+  "failed": "Your files could not load",
+  "details_failed": "File details could not load",
+  "retry": "Try again",
+  "content": "Content",
+  "open": "Open",
+  "more": "More",
+  "nothing_matches": "Nothing matches.",
+  "recently_deleted": "Recently Deleted",
+  "views": {
+    "list": "List",
+    "cards": "Cards",
+    "board": "Board"
+  }
+}

@@ -11,6 +11,7 @@
 //   /workspace/heif/, loaded only when such a photo's tile is first made; either way it is kept, so it is decoded once.
 import { PREVIEW_MAKERS, documentPageMaker, heifPictureMaker, type MadePreview } from '../../../../ui/show/media-preview';
 import { readJson } from './api';
+import ownerRoutes from './owner-routes.json';
 import './pdf-reader-served';
 import { previewStore } from './preview-store';
 
@@ -125,7 +126,8 @@ export function installMissingPreviewRequester(
   })).then(entries => Object.fromEntries(entries));
 }
 
-installMissingPreviewRequester(identities => readJson<EnsuredPreviews>('/work/api/namespace/previews/ensure', {
-  method: 'POST',
-  body: JSON.stringify({ identities }),
-}));
+// The server's preview request is switched off (owner-routes.json previews): a file with no kept preview is answered as
+// having none, so the screen draws the file's own picture instead of waiting.
+installMissingPreviewRequester(identities => ownerRoutes.previews.shown
+  ? readJson<EnsuredPreviews>('/work/api/namespace/previews/ensure', { method: 'POST', body: JSON.stringify({ identities }) })
+  : Promise.resolve({ previews: Object.fromEntries(identities.map(identity => [identity, null])), queued: [] }));

@@ -39,6 +39,7 @@ import { postJson, readJson } from './api';
 import { refusal } from './failure';
 import { AI_WORK, onStoreChange } from './store-changes';
 import { queuedJobDone, sendQueuedJob } from './queue-job';
+import ownerRoutes from './owner-routes.json';
 import { ChooseScreenLook } from '../../../../screen-look/show/ChooseScreenLook';
 import { PaneSizeSettings } from '../../../../screen-arrangement/show/PaneSizeSettings';
 import {CurrentFeelSettings} from './feel-settings';
@@ -152,7 +153,9 @@ export function mountGuideScreen(element: HTMLElement, props: { surfaceInput?: R
     if (action.share) { (await import('./sharing-sheet')).openSharing(action.share.record, { title: action.share.title, anchor: document.activeElement }); return; }
     // A tour asked for by name, in place of any tour already running.
     if (action.tour) { emitWalkthroughEvent({ event_kind: 'walkthrough-requested', walkthrough_id: action.tour }); return; }
+    // The queue road is switched off (owner-routes.json queue): a queue action sends nothing and says nothing.
     if (action.queue) {
+      if (!ownerRoutes.queue.shown) return;
       try {
         const sent = await sendQueuedJob({ job_id: action.queue.job, context: action.queue.context, press_key: crypto.randomUUID() });
         notify(sent.said || queuedJobDone, { kind: 'done' });

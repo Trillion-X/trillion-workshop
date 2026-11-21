@@ -1,0 +1,12 @@
+{
+  "_what": "Which road the Files screen draws, as DATA. A road with shown: false is switched off: its control is not drawn and its code stays, so switching it on restores it.",
+  "search": {
+    "shown": false,
+    "waits_for": "the screens owner hides Files search for this build by DATA; its code stays, and switching shown back on restores it",
+    "covers": "file names only: the files tool's search operation answers the words of the names; the places it does not answer are not drawn"
+  },
+  "tidy": {
+    "shown": false,
+    "waits_for": "a road that carries a job to the person's AIs and an owner answers (/work/api/queue has no owner now)"
+  }
+}

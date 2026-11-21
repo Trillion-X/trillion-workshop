@@ -7,7 +7,7 @@
 //   filters to it, opening a result where it lives, and asking again while a place is still working.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Places and sources come from the answer (search.json DATA); nothing here names one.
+//   1. Places come from the answer; the files search answers its one place, named by search-words.json.
 //   2. Every result drawn came back from the search owner; nothing is matched or guessed here.
 //   3. A place still working (a picture model starting) is asked again a few times, then the answer stands as it is.
 //   4. Every control is a shared component: record views draw the list, MediaPreview the pictures.
@@ -16,7 +16,8 @@ import { fileTab } from './open-screen';
 import type { FieldDescriptor } from '../../../../ui/show/record-views/record-views';
 import { mediaPreviewContent } from '../../../../ui/show/media-preview';
 import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
-import { readJson } from './api';
+import { files } from './api';
+import searchWords from './search-words.json';
 import { filePicture } from './file-picture';
 
 export type SearchPlace = { place: string; label: string; start?: number; said: string | null; score: number };
@@ -72,17 +73,19 @@ export function openResult(result: SearchResult) {
   if (result.url) window.open(result.url, '_blank', 'noopener');
 }
 
+const FILE_SEARCH_LIMIT = 60;
+
 /**
- * Asks the one search and hands each answer to `onAnswer`; while a place is still working it asks again
- * (every `everyMs`, at most `times`). Answers a stop function.
+ * Asks the files search (tool:your-files `search`: the words of the person's file names, one question) and hands its answer
+ * to `onAnswer` in the shape a screen draws. The files search has no places or sources of its own, so the one place it
+ * answers is named by search-words.json. Answers a stop function (a stop before the answer lands drops it).
  */
-export function askSearch(question: string, onAnswer: (answer: SearchAnswer) => void, onFailure: (error: unknown) => void, { sources = null as string[] | null, everyMs = 4000, times = 8 } = {}) {
-  let stopped = false, timer = 0;
-  const ask = (left: number) => readJson<SearchAnswer>(`/work/api/search?q=${encodeURIComponent(question)}${sources ? `&sources=${encodeURIComponent(sources.join(','))}` : ''}`).then(answer => {
+export function askSearch(question: string, onAnswer: (answer: SearchAnswer) => void, onFailure: (error: unknown) => void) {
+  let stopped = false;
+  files.read('search', { question, limit: FILE_SEARCH_LIMIT }).then(found => {
     if (stopped) return;
-    onAnswer(answer);
-    if (answer.pending.length && left > 0) timer = window.setTimeout(() => void ask(left - 1), everyMs);
+    const answer = found as { question: string; results: SearchResult[]; unavailable?: Lane[]; pending?: Lane[] };
+    onAnswer({ question: answer.question, places: [{ id: 'name', label: searchWords.file_names }], sources: [], results: answer.results, unavailable: answer.unavailable ?? [], pending: answer.pending ?? [] });
   }, error => { if (!stopped) onFailure(error); });
-  void ask(times);
-  return () => { stopped = true; clearTimeout(timer); };
+  return () => { stopped = true; };
 }

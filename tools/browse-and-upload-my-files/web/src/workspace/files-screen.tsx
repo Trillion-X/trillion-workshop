@@ -57,6 +57,8 @@ import { askSearch, openResult, placeViews, searchFields, type SearchAnswer, typ
 import { openScreen, fileTab as openingFile } from './open-screen';
 import { queuedJobDone, queuedJobLabel, sendQueuedJob } from './queue-job';
 import tidySettings from '../file-tidy.json';
+import words from './files-words.json';
+import ownerRoutes from './files-routes.json';
 import { editedFact, factFields, findFactField, personFieldKinds } from './file-facts.mjs';
 import { addPersonField, personFields, readFacts, readFactsFromFiles, setFacts, type Facts } from './file-facts-store';
 
@@ -74,13 +76,13 @@ const TIDY_JOB = 'tidy-files';
 const TIDY_SCREEN = 'tool:list-file-tidy';
 // What the person deleted or archived, with the days each has left (records/workshop-recently-deleted-tool-records.json).
 const RECENTLY_DELETED_SCREEN = 'tool:recently-deleted';
-const LATEST = 'Latest';
-const OLDER = 'Older version';
+const LATEST = words.states.latest;
+const OLDER = words.states.older_version;
 
 const FIELDS: FieldDescriptor[] = [
   // The picture: a video's still (with frames to scrub), a sound's waveform, a picture made small, anything else its
   // type's icon and name (shared MediaPreview).
-  { id: 'preview', label: 'Preview', icon: 'Image', kind: 'thumbnail', width: 72, read: () => '',
+  { id: 'preview', label: words.columns.preview, icon: 'Image', kind: 'thumbnail', width: 72, read: () => '',
     pictureUrl: (row: Row) => (row.bytes && row.contentType.startsWith('image/') ? row.bytes : null),
     render: (row: Row) => {
       const tile = { renderer: row.preview.renderer, title: row.name, icon: row.preview.icon, typeLabel: row.preview.type_label };
@@ -88,20 +90,20 @@ const FIELDS: FieldDescriptor[] = [
         ? madeMediaPreviewContent({ ...tile, identity: row.identity, url: row.bytes, contentType: row.contentType, store: previewStore })
         : mediaPreviewContent(tile);
     } },
-  { id: 'name', label: 'Name', icon: 'FileText', ruleKind: 'text', filterable: true, sortable: true, width: 320 },
-  { id: 'kind', label: 'Kind', icon: 'Shapes', kind: 'tag', ruleKind: 'choice', filterable: true, groupable: true, sortable: true, width: 120 },
-  { id: 'extension', label: 'Extension', icon: 'FileType', ruleKind: 'choice', filterable: true, groupable: true, sortable: true, width: 100, hiddenByDefault: true, read: (row: Row) => row.extension.toUpperCase() },
-  { id: 'size', label: 'Size', icon: 'HardDrive', ruleKind: 'bytes', filterable: true, sortable: true, width: 110, read: (row: Row) => (row.size === null ? '' : formatBytes(row.size)), factValue: (row: Row) => row.size, sortValue: (row: Row) => row.size ?? -1 },
-  { id: 'modified', label: 'Modified', icon: 'CalendarClock', kind: 'date', ruleKind: 'date', filterable: true, groupable: true, sortable: true, width: 170, read: (row: Row) => (row.modified ? new Date(row.modified).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : ''), factValue: (row: Row) => row.modified, sortValue: (row: Row) => row.modified ?? 0 },
-  { id: 'stored', label: 'Stored', icon: 'CloudCheck', kind: 'tag', ruleKind: 'choice', filterable: true, groupable: true, width: 130, hiddenByDefault: true, values: { Stored: { tone: 'success' }, 'Still uploading': { tone: 'warning' } } },
+  { id: 'name', label: words.columns.name, icon: 'FileText', ruleKind: 'text', filterable: true, sortable: true, width: 320 },
+  { id: 'kind', label: words.columns.kind, icon: 'Shapes', kind: 'tag', ruleKind: 'choice', filterable: true, groupable: true, sortable: true, width: 120 },
+  { id: 'extension', label: words.columns.extension, icon: 'FileType', ruleKind: 'choice', filterable: true, groupable: true, sortable: true, width: 100, hiddenByDefault: true, read: (row: Row) => row.extension.toUpperCase() },
+  { id: 'size', label: words.columns.size, icon: 'HardDrive', ruleKind: 'bytes', filterable: true, sortable: true, width: 110, read: (row: Row) => (row.size === null ? '' : formatBytes(row.size)), factValue: (row: Row) => row.size, sortValue: (row: Row) => row.size ?? -1 },
+  { id: 'modified', label: words.columns.modified, icon: 'CalendarClock', kind: 'date', ruleKind: 'date', filterable: true, groupable: true, sortable: true, width: 170, read: (row: Row) => (row.modified ? new Date(row.modified).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : ''), factValue: (row: Row) => row.modified, sortValue: (row: Row) => row.modified ?? 0 },
+  { id: 'stored', label: words.columns.stored, icon: 'CloudCheck', kind: 'tag', ruleKind: 'choice', filterable: true, groupable: true, width: 130, hiddenByDefault: true, values: { Stored: { tone: 'success' }, [words.states.still_uploading]: { tone: 'warning' } } },
   // Several versions of the same file (a copy number, a version number, an export time or a backup on the name): the
   // latest is marked, and the older ones are hidden by the starting filter below and one tap away (the Worker decides
   // which is which, src/file-versions.mjs).
-  { id: 'version', label: 'Version', icon: 'History', kind: 'tag', ruleKind: 'choice', filterable: true, groupable: true, width: 130, values: { [LATEST]: { tone: 'success' }, [OLDER]: { tone: 'grey' } } },
-  { id: 'versions', label: 'Versions', icon: 'Layers', ruleKind: 'number', filterable: true, sortable: true, width: 100, hiddenByDefault: true, read: (row: Row) => (row.versions === null ? '' : String(row.versions)), factValue: (row: Row) => row.versions },
+  { id: 'version', label: words.columns.version, icon: 'History', kind: 'tag', ruleKind: 'choice', filterable: true, groupable: true, width: 130, values: { [LATEST]: { tone: 'success' }, [OLDER]: { tone: 'grey' } } },
+  { id: 'versions', label: words.columns.versions, icon: 'Layers', ruleKind: 'number', filterable: true, sortable: true, width: 100, hiddenByDefault: true, read: (row: Row) => (row.versions === null ? '' : String(row.versions)), factValue: (row: Row) => row.versions },
   // The same bytes kept under other names too (in another folder, or twice): one stored file, several names.
   // It names where: the other folder (or name) first, then how many more.
-  { id: 'also_named', label: 'Also kept in', icon: 'Copy', ruleKind: 'number', filterable: true, sortable: true, width: 220, read: (row: Row) => alsoKeptIn(row), factValue: (row: Row) => row.alsoNamed },
+  { id: 'also_named', label: words.columns.also_kept_in, icon: 'Copy', ruleKind: 'number', filterable: true, sortable: true, width: 220, read: (row: Row) => alsoKeptIn(row), factValue: (row: Row) => row.alsoNamed },
 ];
 
 // Where else a file's bytes are kept: its other name's folder (its own name when that differs), then how many more.
@@ -135,7 +137,7 @@ function rowsOf(listing: Listing): Row[] {
       bytes: item.identity && item.stored ? bytesAddress(item.identity) : undefined,
       contentType: contentTypeOf(name, item.media_type),
       size: item.byte_length, modified: item.modified_at_ms,
-      stored: item.stored === false ? 'Still uploading' : item.stored ? 'Stored' : '',
+      stored: item.stored === false ? words.states.still_uploading : item.stored ? words.columns.stored : '',
       version: item.version ? (item.version.latest ? LATEST : OLDER) : '',
       versions: item.version?.versions ?? null,
       alsoNamed: item.also_named ?? null,
@@ -146,7 +148,7 @@ function rowsOf(listing: Listing): Row[] {
   return [...folders, ...files];
 }
 
-const LOADING = { label: 'Loading your files', layout: 'rows' as const };
+const LOADING = { label: words.loading, layout: 'rows' as const };
 
 async function listFolder(collection: string): Promise<Listing> {
   const first = await readListing<Listing>(collection, { limit: 1000 });
@@ -162,7 +164,7 @@ async function listFolder(collection: string): Promise<Listing> {
 // The folders from Files down to the one on screen, as breadcrumb steps.
 function pathSteps(collection: string) {
   const parts = collection === '/' ? [] : collection.slice(1).split('/');
-  return [{ id: '/', label: 'Files' }, ...parts.map((part, index) => ({ id: `/${parts.slice(0, index + 1).join('/')}`, label: part }))];
+  return [{ id: '/', label: words.root }, ...parts.map((part, index) => ({ id: `/${parts.slice(0, index + 1).join('/')}`, label: part }))];
 }
 
 export function mountFilesScreen(element: HTMLElement, props: { surfaceInput?: Record<string, unknown> }): () => void {
@@ -178,7 +180,7 @@ export function mountFilesScreen(element: HTMLElement, props: { surfaceInput?: R
 
   // The search box is the one search (src/search.mjs): files, GitHub and Trillion at once, each result saying where it
   // matched. Its words are handed over on Enter; clearing it shows the folder again.
-  const SEARCH_WORDS = 'Search your files, GitHub and Trillion';
+  const SEARCH_WORDS = words.search.placeholder;
   let question = '';
   let found: SearchAnswer | null = null;
   let searchFailed = false;
@@ -211,12 +213,12 @@ export function mountFilesScreen(element: HTMLElement, props: { surfaceInput?: R
       note.finish({ title: named.length === 1 ? `${baseName(named[0].name)} is in your files` : `${named.length} files are in your files`, progress: null, timeout: 5000 });
       await screen.reload();
     } catch (error) {
-      note.finish({ title: 'Upload stopped', detail: errorWords(error), kind: 'error', progress: null, timeout: 0 });
+      note.finish({ title: words.upload.stopped, detail: errorWords(error), kind: 'error', progress: null, timeout: 0 });
       throw error;
     }
   };
-  const chooser = mountFileDropzone(picker, { label: 'Upload files', description: '', accept: {}, onFiles: upload });
-  const dropTarget = mountWorkspaceFileDropzone(element, { label: 'Drop to upload here', accept: {}, onFiles: upload });
+  const chooser = mountFileDropzone(picker, { label: words.upload.choose, description: '', accept: {}, onFiles: upload });
+  const dropTarget = mountWorkspaceFileDropzone(element, { label: words.upload.drop_here, accept: {}, onFiles: upload });
   const onUploadAction = () => chooser.open();
   window.addEventListener('trillion-upload-files', onUploadAction);
 
@@ -244,7 +246,7 @@ export function mountFilesScreen(element: HTMLElement, props: { surfaceInput?: R
   const screen = loadScreen(list, {
     loading: LOADING,
     read: () => listFolder(collection),
-    failed: refusal('Your files could not load'),
+    failed: refusal(words.failed),
     clear: () => { stopDetails(); redraw = null; views?.destroy(); views = null; shownMode = null; },
     draw: listing => {
       stopDetails();
@@ -271,7 +273,7 @@ export function mountFilesScreen(element: HTMLElement, props: { surfaceInput?: R
         });
       }).catch(() => {
         // A missing details response must not hide names that the namespace has already listed.
-        if (mine === drawing) notify('File details could not load', { kind: 'error' });
+        if (mine === drawing) notify(words.details_failed, { kind: 'error' });
       });
     },
   });
@@ -282,22 +284,22 @@ export function mountFilesScreen(element: HTMLElement, props: { surfaceInput?: R
     const results = answer?.results ?? [];
     const still = answer?.pending.length ? answer.places.filter(place => answer.pending.some(item => item.place === place.id)).map(place => place.label.toLowerCase()) : [];
     const unavailable = answer?.unavailable.length ?? 0;
-    const retrySearch = { label: 'Try again', run: () => commitSearch(question) };
+    const retrySearch = { label: words.retry, run: () => commitSearch(question) };
     const emptyContent = searchFailed
-      ? <ScreenState state={{ status: 'failed', title: 'Search could not finish', description: 'Try again to search your files and connected sources.', retry: retrySearch }} />
+      ? <ScreenState state={{ status: 'failed', title: words.search.failed, description: words.search.failed_try, retry: retrySearch }} />
       : !answer && question
         ? <ScreenState state={{ status: 'loading', label: `Searching for “${question}”`, layout: 'rows' }} />
         : answer && !results.length && still.length
           ? <ScreenState state={{ status: 'loading', label: `Still looking for “${question}”`, layout: 'rows' }} />
           : answer && !results.length && unavailable
-            ? <ScreenState state={{ status: 'unavailable', title: 'Some places could not be searched', description: 'The search may be incomplete. Try again to check those places.', retry: retrySearch }} />
+            ? <ScreenState state={{ status: 'unavailable', title: words.search.unavailable, description: words.search.unavailable_try, retry: retrySearch }} />
             : answer && !results.length
-              ? <ScreenState state={{ status: 'empty', title: 'Nothing found', description: 'Try another search.', icon: 'SearchX' }} />
+              ? <ScreenState state={{ status: 'empty', title: words.search.nothing_found, description: words.search.try_another, icon: 'SearchX' }} />
               : undefined;
     const status = answer && results.length && unavailable
-      ? <ScreenState state={{ status: 'unavailable', inline: true, title: 'Some places could not be searched', description: 'These results may be incomplete.', retry: retrySearch }} />
+      ? <ScreenState state={{ status: 'unavailable', inline: true, title: words.search.unavailable, description: words.search.incomplete, retry: retrySearch }} />
       : searchFailed && results.length
-        ? <ScreenState state={{ status: 'failed', inline: true, title: 'Search could not finish', description: 'Your results are still here. Try again to finish the search.', retry: retrySearch }} />
+        ? <ScreenState state={{ status: 'failed', inline: true, title: words.search.failed, description: words.search.still_here, retry: retrySearch }} />
         : undefined;
     const byId = new Map(results.map(result => [result.id, result] as const));
     const options = {
@@ -306,14 +308,14 @@ export function mountFilesScreen(element: HTMLElement, props: { surfaceInput?: R
       records: results,
       identify: (result: SearchResult) => result.id,
       preferenceKey: 'trillion-search',
-      views: [{ id: 'table', label: 'List', icon: 'List' }, { id: 'gallery', label: 'Cards', icon: 'LayoutGrid' }],
+      views: [{ id: 'table', label: words.views.list, icon: words.views.list }, { id: 'gallery', label: words.views.cards, icon: 'LayoutGrid' }],
       ...recordFilter,
-      search: search(),
+      search: ownerRoutes.search.shown ? search() : undefined,
       savedViews: answer ? placeViews(answer) : [],
       onOpen: (id: string) => { const result = byId.get(id); if (result) openResult(result); },
-      previewFields: [{ id: 'content', label: 'Content', kind: 'media', read: (result: SearchResult) => (result.bytes ? { url: result.bytes, type: result.media_type ?? '', label: result.path?.slice(result.path.lastIndexOf('/') + 1) || result.name, ...(result.identity ? madeParts(settledPreview(result.identity)) : {}) } : null) }],
-      rowActions: [{ id: 'open', label: 'Open', icon: 'SquareArrowOutUpRight', lead: true, run: (ids: string[]) => ids.forEach(id => { const result = byId.get(id); if (result) openResult(result); }) }],
-      emptyMessage: answer ? (still.length ? 'Still looking.' : 'Nothing found.') : 'Searching.',
+      previewFields: [{ id: 'content', label: words.content, kind: 'media', read: (result: SearchResult) => (result.bytes ? { url: result.bytes, type: result.media_type ?? '', label: result.path?.slice(result.path.lastIndexOf('/') + 1) || result.name, ...(result.identity ? madeParts(settledPreview(result.identity)) : {}) } : null) }],
+      rowActions: [{ id: 'open', label: words.open, icon: 'SquareArrowOutUpRight', lead: true, run: (ids: string[]) => ids.forEach(id => { const result = byId.get(id); if (result) openResult(result); }) }],
+      emptyMessage: answer ? (still.length ? words.search.still_looking : words.search.nothing_found_dot) : words.search.searching,
       emptyContent,
       status,
     };
@@ -328,7 +330,7 @@ export function mountFilesScreen(element: HTMLElement, props: { surfaceInput?: R
         views?.destroy();
         views = null;
         shownMode = null;
-        mountFileDropzone(list, { label: collection === '/' ? 'Upload your first files' : 'This folder is empty', description: 'Drop files here, or click to choose them. They are kept in your own Trillion space.', accept: {}, onFiles: upload });
+        mountFileDropzone(list, { label: collection === '/' ? words.upload.first_files : words.upload.folder_empty, description: words.upload.drop_files, accept: {}, onFiles: upload });
         return;
       }
       const openRecord = (id: string) => {
@@ -343,7 +345,7 @@ export function mountFilesScreen(element: HTMLElement, props: { surfaceInput?: R
       };
       // Ask my AI to tidy these: the chosen files go to the person's own AI, whose title and folder suggestions wait on
       // the Tidy up screen for the person to accept or reject.
-      const tidyLabel = queuedJobLabel(TIDY_JOB);
+      const tidyLabel = ownerRoutes.tidy.shown ? queuedJobLabel(TIDY_JOB) : null;
       const tidy = tidyLabel ? [{ id: 'tidy', label: tidyLabel, icon: 'Sparkles', appliesTo: (row: Row) => !row.id.startsWith(FOLDER) && Boolean(row.identity), run: (ids: string[]) => {
         const names = records.filter(row => ids.includes(row.id) && !row.id.startsWith(FOLDER)).map(row => row.path);
         if (!names.length) return;
@@ -351,18 +353,18 @@ export function mountFilesScreen(element: HTMLElement, props: { surfaceInput?: R
           .then(sent => notify(sent.said || queuedJobDone, { kind: 'done' }), error => notify(errorWords(error), { kind: 'error' }));
       } }] : [];
       // Delete and Archive: a folder with everything in it, or one file once it has finished uploading.
-      const takeAway = setAsideActions((row: Row) => (row.stored === 'Still uploading' ? null : { name: row.path }), (id: string) => records.find(record => record.id === id), () => { void screen.reload(); });
+      const takeAway = setAsideActions((row: Row) => (row.stored === words.states.still_uploading ? null : { name: row.path }), (id: string) => records.find(record => record.id === id), () => { void screen.reload(); });
       const rowOf = (id: string) => records.find(row => row.id === id);
       const shareRecord = (row: Row) => row.identity ? `file:${row.identity}` : null;
       const share = shareAction(rowOf, shareRecord, (row: Row) => row.name);
       const addToTray = addSelectedToTrayAction(list, rowOf, shareRecord, (row: Row) => row.name);
       const options = {
-        label: collection === '/' ? 'Files' : baseName(collection),
+        label: collection === '/' ? words.root : baseName(collection),
         // The Version column shows only in a folder that holds versions of the same file.
         fields: [...FIELDS.filter(field => (field.id === 'version' ? records.some(record => record.version) : field.id === 'also_named' ? records.some(record => record.alsoNamed !== null) : true)), ...(factFields(records, personFields()) as FieldDescriptor[])],
         // A field of the person's own, and a fact changed in place: kept beside the file for every AI to read.
         customFieldKinds: personFieldKinds(),
-        onAddField: (field: { id: string; label: string; kind?: string }) => { void addPersonField(field).then(() => redraw?.(), error => notify('The field could not be added', { kind: 'error', detail: errorWords(error) })); },
+        onAddField: (field: { id: string; label: string; kind?: string }) => { void addPersonField(field).then(() => redraw?.(), error => notify(words.upload.field_not_added, { kind: 'error', detail: errorWords(error) })); },
         onEditFieldValue: (id: string, fieldId: string, typed: string) => void editFact(records, id, fieldId, typed),
         records,
         identify: (row: Row) => row.id,
@@ -371,25 +373,25 @@ export function mountFilesScreen(element: HTMLElement, props: { surfaceInput?: R
         aboutRecord: (row: Row) => (row.identity ? { kind: 'file', id: row.identity, title: row.name, name: row.name, media_type: row.contentType, path: row.path, share: { kind: 'file', file: row.identity, name: row.name } } : null),
         preferenceKey: 'trillion-files',
         // A file list reads first as rows (Shopify Files, Descript); cards and a board are a switch away.
-        views: [{ id: 'table', label: 'List', icon: 'List' }, { id: 'gallery', label: 'Cards', icon: 'LayoutGrid' }, { id: 'board', label: 'Board', icon: 'Columns3' }],
+        views: [{ id: 'table', label: words.views.list, icon: words.views.list }, { id: 'gallery', label: words.views.cards, icon: 'LayoutGrid' }, { id: 'board', label: words.views.board, icon: 'Columns3' }],
         // Cards read as a photo library: stretches of time by when each file was last changed, pinch or zoom to step.
         timeline: { fieldId: 'modified', levels: timelineLevels as never },
         ...recordFilter,
         initialRules: records.some(record => record.version === OLDER) ? (LATEST_ONLY as never) : undefined,
         toolbarStart: placePath,
-        primaryAction: { label: 'Upload files', onSelect: () => chooser.open() },
+        primaryAction: { label: words.upload.choose, onSelect: () => chooser.open() },
         // A folder opens in this tab; a file opens in its own tab, where a video or sound plays (file-screen.tsx).
         onOpen: openRecord,
         // Resting the pointer on a file shows it (the shared hover preview); its small pictures, once made, come along.
-        previewFields: [{ id: 'content', label: 'Content', kind: 'media', read: (row: Row) => row.bytes ? { url: row.bytes, type: row.contentType, label: row.name, icon: row.preview.icon, typeLabel: row.preview.type_label, open: fileTab(row), ...(row.identity ? madeParts(settledPreview(row.identity)) : {}) } : null }],
+        previewFields: [{ id: 'content', label: words.content, kind: 'media', read: (row: Row) => row.bytes ? { url: row.bytes, type: row.contentType, label: row.name, icon: row.preview.icon, typeLabel: row.preview.type_label, open: fileTab(row), ...(row.identity ? madeParts(settledPreview(row.identity)) : {}) } : null }],
         onDragOut: dragOut,
         // Each file in a hover preview (and each screen of a carousel over several) offers these.
-        rowActions: [{ id: 'open', label: 'Open', icon: 'SquareArrowOutUpRight', lead: true, appliesTo: (row: Row) => !row.id.startsWith(FOLDER), run: (ids: string[]) => ids.forEach(openRecord) },
+        rowActions: [{ id: 'open', label: words.open, icon: 'SquareArrowOutUpRight', lead: true, appliesTo: (row: Row) => !row.id.startsWith(FOLDER), run: (ids: string[]) => ids.forEach(openRecord) },
           ...tidy, ...takeAway],
         bulkActions: [share, addToTray, ...tidy, ...takeAway],
-        moreActions: { label: 'More', icon: 'Ellipsis', items: [{ id: 'tidy-up', label: tidySettings.screen.title, icon: 'Sparkles' }, { id: 'recently-deleted', label: 'Recently Deleted', icon: 'Trash2' }], onAction: (id: string) => { if (id === 'tidy-up') openScreen(TIDY_SCREEN); if (id === 'recently-deleted') openScreen(RECENTLY_DELETED_SCREEN); } },
-        search: search(),
-        emptyMessage: 'Nothing matches.',
+        moreActions: { label: words.more, icon: 'Ellipsis', items: [{ id: 'tidy-up', label: tidySettings.screen.title, icon: 'Sparkles' }, { id: 'recently-deleted', label: words.recently_deleted, icon: 'Trash2' }], onAction: (id: string) => { if (id === 'tidy-up') openScreen(TIDY_SCREEN); if (id === 'recently-deleted') openScreen(RECENTLY_DELETED_SCREEN); } },
+        search: ownerRoutes.search.shown ? search() : undefined,
+        emptyMessage: words.nothing_matches,
       };
       if (views && shownMode === 'folder') views.update(options as never); else { views?.destroy(); views = mountRecordViews(list, options as never); }
       shownMode = 'folder';

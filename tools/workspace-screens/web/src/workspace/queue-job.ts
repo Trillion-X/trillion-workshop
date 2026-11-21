@@ -19,6 +19,7 @@ import { recentSteps } from '../../../../ui/show/recent-steps';
 import { postJson } from './api';
 import { followWork } from './person-notifications';
 import queued from '../queued-work.json';
+import ownerRoutes from './owner-routes.json';
 
 import { errorWords } from 'trillion-workshop/tools/ui/show/safe-error-card/sanitize-error-text.ts';
 /** Sends one press to the person's store; resolves with its answer. */
@@ -34,6 +35,8 @@ export const queuedJobDone = queued.words.done;
 
 /** The button's props for one job about one thing, or null when no row offers that job. */
 export function queueJobProps(jobId: string, context: Record<string, string>): QueueJobButtonProps | null {
+  // The queue road is switched off (owner-routes.json queue): no button is drawn for it.
+  if (!ownerRoutes.queue.shown) return null;
   const label = queuedJobLabel(jobId);
   if (!label) return null;
   return {

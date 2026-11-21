@@ -47,12 +47,14 @@ export function uploadId() {
 }
 
 /**
- * Put one file in under `name` through `change` (filesDoor(...).change): `source` is { size, readAt(offset, length) }.
+ * Put one file in under `name` through `change` (filesDoor(...).change): `source` is { size, readAt(offset, length) }; with
+ * `expectedVersion` the write is refused, and nothing changes, when the name is no longer at that version.
  * `onBytes(n)` hears each piece kept. Answers the door's write_file_finish answer ({ identity, name, ... }).
  */
-export async function putFile(change, { source, name, mediaType = null, onBytes = () => {} }) {
+export async function putFile(change, { source, name, mediaType = null, expectedVersion, onBytes = () => {} }) {
   const upload_id = uploadId();
-  await change('write_file_start', { upload_id, name, byte_length: source.size, media_type: mediaType || 'application/octet-stream' });
+  // expectedVersion (the name's version the caller read; 0: the name must not exist yet) makes the write a compare-and-set.
+  await change('write_file_start', { upload_id, name, byte_length: source.size, media_type: mediaType || 'application/octet-stream', ...(expectedVersion === undefined ? {} : { expected_version: expectedVersion }) });
   try {
     for (let offset = 0; offset < source.size; offset += PIECE_BYTES) {
       const bytes = await source.readAt(offset, Math.min(PIECE_BYTES, source.size - offset));
