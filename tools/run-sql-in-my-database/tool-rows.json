@@ -9,7 +9,7 @@
         "id": "tool:run-sql-in-my-database",
         "label": "Run SQL in my database",
         "job": "Run one SQL statement in my own database and see its rows",
-        "description": "Runs exactly one SQL statement as written (sql, with params for $1, $2 and so on) in the person's own database, as the login the connection string names: the server refuses text holding more than one command, and a login that may only read (the read connection) cannot write, because the database says so. Give database, the name of one of the person's databases (the computer opens it with the login its vault holds as that name and -connection), or credential_name, the vault name the person saved the connection under (a login that may only read, for a share that may only read), and optionally statement_timeout_ms. Answers columns, rows and row_count, or the database's own error text. It adds no shape, no list names and no record types. With recipe instead of sql it runs a role recipe (read-data/role-recipes.json, the SQL that makes, grants and takes away a kind of login) as the owner login, in one transaction unless the recipe says otherwise: create with role_credential_name makes that standing login with the password the person holds under that name; create with recipe.valid_until mints a login that stops working then and answers its connection once; drop takes a role away. The connection may name any server that speaks the Postgres wire protocol that this computer reaches on a local port it reports as own-rows-postgres.",
+        "description": "Runs exactly one SQL statement as written (sql, with params for $1, $2 and so on) in the person's own database, as the login the connection string names: the server refuses text holding more than one command, and a login that may only read (the read connection) cannot write, because the database says so. Give database, the name of one of the person's databases (the computer opens it with the login its vault holds as that name and -connection), or credential_name, the vault name the person saved the connection under (a login that may only read, for a share that may only read), and optionally statement_timeout_ms (how long its statements may run: 120000 ms when absent, at most 598000; the database ends a statement or an open transaction past what is left of the run, so nothing runs on after the run ends). Answers columns, rows and row_count, or the database's own error text. It adds no shape, no list names and no record types. With recipe instead of sql it runs a role recipe (read-data/role-recipes.json, the SQL that makes, grants and takes away a kind of login) as the owner login, in one transaction unless the recipe says otherwise: create with role_credential_name makes that standing login with the password the person holds under that name; create with recipe.valid_until mints a login that stops working then and answers its connection once; drop takes a role away. The connection may name any server that speaks the Postgres wire protocol that this computer reaches on a local port it reports as own-rows-postgres.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -27,7 +27,7 @@
             "statement_timeout_ms": {
               "type": "integer",
               "minimum": 1,
-              "description": "The statement's time limit in milliseconds; the database's own limit when absent."
+              "description": "How long the call's statements may run, in milliseconds: 120000 when absent, at most 598000 (the run ends at 600000). The database itself ends a statement or an open transaction past it, less the time the run has used (read-data/time-limits.json)."
             },
             "sql": {
               "type": "string",
@@ -206,6 +206,7 @@
         },
         "invoke": {
           "kind": "container",
+          "max_run_ms": 600000,
           "internet": true,
           "workdir": "/opt/run-sql-in-my-database",
           "stdout": "json",
@@ -224,7 +225,8 @@
                 "package": "run-sql-in-my-database",
                 "paths": [
                   "do-work",
-                  "read-data"
+                  "read-data",
+                  "tool-rows.json"
                 ],
                 "at": "/opt/run-sql-in-my-database"
               },

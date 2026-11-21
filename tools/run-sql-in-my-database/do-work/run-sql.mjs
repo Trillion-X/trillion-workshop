@@ -31,6 +31,10 @@
 // statement's own transaction first claims the ticket (use_binding.claim_use, role recipe may-read-under-row-rules), which
 // binds the use to that transaction once, so the row rules read it and nothing the statement does can change it. A use with
 // no ticket is refused here: only the engine binds a use.
+//
+// Every connection ends its own statements and open transactions server-side at what is left of the run
+// (read-data/time-limits.json, the row's invoke.max_run_ms): the engine kills this process at its ceiling, but a statement
+// it had sent runs on in the database unless the database itself is told when to stop.
 import { randomBytes } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -47,6 +51,9 @@ const MIN_PASSWORD_LENGTH = 43;
 // role's password unchanged, so the password itself never reaches this computer. Fewer than 4096 iterations is refused.
 const VERIFIER = /^SCRAM-SHA-256\$(\d+):[A-Za-z0-9+/]+={0,2}\$[A-Za-z0-9+/]{43}=:[A-Za-z0-9+/]{43}=$/;
 const RECIPES = JSON.parse(readFileSync(new URL('../read-data/role-recipes.json', import.meta.url), 'utf8')).recipes;
+const TIME_LIMITS = JSON.parse(readFileSync(new URL('../read-data/time-limits.json', import.meta.url), 'utf8'));
+const ROW = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records
+  .map(record => record.payload).find(payload => payload?.id === 'tool:run-sql-in-my-database');
 
 const rowAddingRecipes = Object.keys(RECIPES).filter(name => RECIPES[name].adds_rows === true);
 const perTableRecipes = Object.keys(RECIPES).filter(name => RECIPES[name].per_table !== undefined);
@@ -236,14 +243,12 @@ const runRecipe = async (client, shape, connection, roleConnection, heldValue) =
 // Runs the request as the connection's login. `connect` makes a connected client (a test hands its own); the client is
 // always closed. A server error is the server's own text; the connection string is removed from any text first. `ticket` is
 // the engine's use ticket (descriptor 5) and `heldValue` a recipe's held value (descriptor 6).
-export async function runSql({ connection, roleConnection = '', ticket = '', heldValue = '', input, connect = connectTo }) {
+export async function runSql({ connection, roleConnection = '', ticket = '', heldValue = '', input, usedMs, connect = connectTo }) {
   if (typeof connection !== 'string' || connection === '') throw new Error('No database connection was handed to this run. Hold the connection string under the name credential_name gives.');
   const shape = shapeOf(input);
   if (shape.kind === 'sql' && shape.use && !ticket) throw new Error("A use is bound only by the engine's ticket: give database, so the computer opens it with the database's reader login and hands this run the ticket of its use.");
   if (shape.kind === 'recipe') heldValueOf(shape, heldValue);
-  const timeout = input.statement_timeout_ms;
-  if (timeout !== undefined && !(Number.isInteger(timeout) && timeout > 0)) throw new Error('statement_timeout_ms must be a whole number of milliseconds above zero.');
-  const client = await connect(connection, timeout);
+  const client = await connect(connection, timeLimitOf(input.statement_timeout_ms, usedMs));
   try {
     if (shape.kind === 'sql') return ticket ? await runUnderTicket(client, shape, ticket) : await runOne(client, shape.sql, shape.params);
     return await runRecipe(client, shape, connection, roleConnection, heldValue);
@@ -252,11 +257,36 @@ export async function runSql({ connection, roleConnection = '', ticket = '', hel
   }
 }
 
-async function connectTo(connection, statementTimeout) {
+/**
+ * How long this run's statements and open transactions may last in the database, in milliseconds: the time asked (or
+ * time-limits.json `default_ms`), never past the row's own ceiling (invoke.max_run_ms), less `margin_ms` and the time this
+ * process has already run (`usedMs`). A run with no time left is refused before it connects.
+ */
+export function timeLimitOf(asked, usedMs = Math.ceil(process.uptime() * 1000), { limits = TIME_LIMITS, ceilingMs = ROW?.invoke?.max_run_ms } = {}) {
+  if (asked !== undefined && !(Number.isInteger(asked) && asked > 0)) throw new Error('statement_timeout_ms must be a whole number of milliseconds above zero.');
+  if (!(Number.isInteger(ceilingMs) && ceilingMs > 0)) throw new Error('This tool\'s row declares no invoke.max_run_ms, so it cannot say how long a statement may run.');
+  if (asked !== undefined && asked > ceilingMs - limits.margin_ms) throw new Error(`statement_timeout_ms may be at most ${ceilingMs - limits.margin_ms} (this tool's run ends at ${ceilingMs}).`);
+  const left = Math.min(asked ?? limits.default_ms, ceilingMs) - limits.margin_ms - usedMs;
+  if (left <= 0) throw new Error('This run has no time left to send a statement.');
+  return left;
+}
+
+// The two settings the server ends a statement and an open transaction by, each lowered to the run's time and never raised
+// past a shorter one the login or its database already holds (a recipe's per-login statement_timeout stays the login's).
+const ENDS_BY = ['statement_timeout', 'idle_in_transaction_session_timeout'];
+
+async function connectTo(connection, timeLimit) {
   // A run the engine sandboxes reaches its database by address through the run's own proxy (through-the-run-proxy.mjs).
+  // The server ends a statement or an open transaction past the run's time itself (timeLimitOf), so nothing outlives the run.
   const proxy = process.env.HTTPS_PROXY;
-  const client = new pg.Client({ connectionString: connection, ...(proxy ? { stream: throughProxy(proxy) } : {}), ...(statementTimeout ? { statement_timeout: statementTimeout } : {}) });
+  const client = new pg.Client({ connectionString: connection, ...(proxy ? { stream: throughProxy(proxy) } : {}) });
   await client.connect();
+  try {
+    await runOne(client, "SELECT set_config(name, LEAST(COALESCE(NULLIF(setting::bigint, 0), $1::bigint), $1::bigint)::text, false) FROM pg_settings WHERE name = ANY($2::text[])", [timeLimit, ENDS_BY]);
+  } catch (error) {
+    await client.end().catch(() => {});
+    throw error;
+  }
   return client;
 }
 

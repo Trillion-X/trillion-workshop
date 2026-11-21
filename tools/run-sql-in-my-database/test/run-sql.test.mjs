@@ -10,7 +10,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import EmbeddedPostgres from 'embedded-postgres';
 import pg from 'pg';
-import { runSql, sayWithout, shapeOf } from '../do-work/run-sql.mjs';
+import { runSql, sayWithout, shapeOf, timeLimitOf } from '../do-work/run-sql.mjs';
 import { passwordOf, verifierOf } from '../do-work/make-a-login-verifier.mjs';
 
 // A real PostgreSQL server in a temp folder (no sudo), with an owner that may make roles of its own (as set-up-postgres-role.sh
@@ -25,6 +25,7 @@ const connectionFor = (user, password) => `postgres://${user}:${password}@127.0.
 const ownerConnection = connectionFor(OWNER, OWNER_PW);
 const readerConnection = connectionFor(READER, READER_PW);
 const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records[0].payload;
+const TIME_LIMITS = JSON.parse(readFileSync(new URL('../read-data/time-limits.json', import.meta.url), 'utf8'));
 let server;
 
 before(async () => {
@@ -111,8 +112,26 @@ test('the read login reads and cannot write, create or drop: the database refuse
 });
 
 test('statement_timeout_ms cuts a long statement with the database\'s own text', async () => {
-  await assert.rejects(runSql({ connection: ownerConnection, input: { sql: 'SELECT pg_sleep(5)', statement_timeout_ms: 200 } }), /statement timeout/);
+  const margin = TIME_LIMITS.margin_ms;
+  await assert.rejects(runSql({ connection: ownerConnection, input: { sql: 'SELECT pg_sleep(5)', statement_timeout_ms: margin + 200 }, usedMs: 0 }), /statement timeout/);
   await assert.rejects(runSql({ connection: ownerConnection, input: { sql: 'SELECT 1', statement_timeout_ms: 0 } }), /whole number of milliseconds/);
+});
+
+test('every connection ends its statements and open transactions at what is left of the run, from the row and time-limits.json', async () => {
+  const { default_ms: byDefault, margin_ms: margin } = TIME_LIMITS;
+  const ceiling = row.invoke.max_run_ms;
+  assert.ok(Number.isInteger(ceiling) && ceiling > byDefault, 'the row declares its own ceiling, above the default');
+  assert.deepEqual(row.invoke.files.package_files[0].paths, ['do-work', 'read-data', 'tool-rows.json'], 'the run reads its own row');
+  assert.equal(timeLimitOf(undefined, 500), byDefault - margin - 500, 'a call that asks none: the default, less the margin and the time used');
+  assert.equal(timeLimitOf(ceiling - margin, 0), ceiling - 2 * margin, 'a longer time within the ceiling is given');
+  assert.throws(() => timeLimitOf(ceiling, 0), /at most/);
+  assert.throws(() => timeLimitOf(undefined, byDefault), /no time left/);
+  assert.throws(() => timeLimitOf(undefined, 0, { ceilingMs: null }), /declares no invoke.max_run_ms/);
+  // What the server is told, read back on the connection the run opens.
+  const set = await runSql({ connection: ownerConnection, input: { sql: "SELECT current_setting('statement_timeout') AS statement, current_setting('idle_in_transaction_session_timeout') AS idle" } });
+  for (const value of Object.values(set.rows[0])) assert.ok(Number.parseInt(value, 10) > 0 && Number.parseInt(value, 10) <= byDefault - margin, value);
+  const longer = await runSql({ connection: ownerConnection, input: { sql: "SELECT current_setting('statement_timeout') AS statement", statement_timeout_ms: ceiling - margin } });
+  assert.ok(Number.parseInt(longer.rows[0].statement, 10) > byDefault, `a longer time asked is given: ${longer.rows[0].statement}`);
 });
 
 test('a request that is neither shape, or both, or has no connection, is refused before any connection', () => {

@@ -1,0 +1,5 @@
+{
+  "_what": "How long a run's statements may run in the database (do-work/run-sql.mjs timeLimitOf). The run's own ceiling is its row's invoke.max_run_ms (tool-rows.json, read here as it ships beside this file): the engine kills the run's process there, but the database does not see that and runs on. So every connection sets statement_timeout and idle_in_transaction_session_timeout to what is left of the run: the time the call asks (input statement_timeout_ms) or `default_ms` when it asks none, never past the row's ceiling, less `margin_ms` (time kept to connect, end and answer) and less what the run has already used. A statement or an open transaction past that is ended by the server itself. Why: a Media library query a page sent through this tool ran about 50 minutes twice from 4:37 AM CST Nov 21 2026 after its run had ended at 120 s, and stalled every files call until it was cancelled by hand at 5:28 AM.",
+  "default_ms": 120000,
+  "margin_ms": 2000
+}

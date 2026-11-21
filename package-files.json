@@ -48476,7 +48476,8 @@
    "package": "run-sql-in-my-database",
    "paths": [
     "do-work",
-    "read-data"
+    "read-data",
+    "tool-rows.json"
    ],
    "at": "/opt/run-sql-in-my-database"
   },
