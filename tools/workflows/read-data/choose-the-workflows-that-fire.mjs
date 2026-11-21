@@ -7,8 +7,8 @@
 // conditions keep which parts. Nothing here names a workflow, a branch or a tag: a workflow added, or a kit installed,
 // is a candidate at once.
 //
-//   chooseTheWorkflowsThatFire({ parts, own?: [{ id, value: { recipe?, title, fires_when, definition? } }], operators?, within?, installed?, over_installed? })
-//     -> { workflows, own, catalog_only, chosen: [{ workflow, label, part, condition, made_by, from, input, definition? }],
+//   chooseTheWorkflowsThatFire({ parts, own?: [{ id, value: { recipe?, title, fires_when, definition?, kept_in? } }], operators?, within?, installed?, over_installed? })
+//     -> { workflows, own, catalog_only, chosen: [{ workflow, label, part, condition, made_by, from, input, installed, definition?, kept_in? }],
 //          unfinished: [{ workflow, condition, incomplete }], unconditioned: [{ workflow, label }], unmatched_parts,
 //          within: [{ workflow, part, condition }] }
 //
@@ -20,6 +20,11 @@
 // candidates are only the person's rows that exist nowhere else (while another caller still chooses the installed ones),
 // and the ids over_installed lists, whose own rows are candidates even though an installed recipe holds them too.
 // A chosen own row that carries its definition hands it on, so whoever starts the run starts it from the row.
+//
+// installed says an installed recipe holds the chosen id, so the installed workflow's own wakes can start it. kept_in is
+// where an own row says its definition is kept (the caller's name for that store, given when the caller read only the
+// row's conditions): a choice made by that row's own conditions names it when no installed recipe holds the id, or
+// over_installed lists it, so the caller starts that one from the row it reads there.
 //
 // A condition that is Off, unfinished (a rule the engine cannot evaluate) or has no rule at all chooses nothing; the
 // last two are named so the run can fix them. A workflow with no condition is named in unconditioned, so the run can
@@ -54,7 +59,8 @@ function ownWorkflows(rows = []) {
   for (const row of [...rows].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))) {
     const value = row.value ?? {};
     const id = typeof value.recipe === 'string' && value.recipe ? value.recipe : `workflow:${row.id}`;
-    byId.set(id, { label: value.title, conditions: parsed(value[FIRES_WHEN.field], `${row.id} ${FIRES_WHEN.field}`), definition: parsed(value.definition, `${row.id} definition`) });
+    if (value.kept_in !== undefined && (typeof value.kept_in !== 'string' || !value.kept_in)) throw new Error(`${row.id} kept_in must name where the row is kept.`);
+    byId.set(id, { label: value.title, conditions: parsed(value[FIRES_WHEN.field], `${row.id} ${FIRES_WHEN.field}`), definition: parsed(value.definition, `${row.id} definition`), keptIn: value.kept_in });
   }
   return byId;
 }
@@ -133,7 +139,8 @@ export async function chooseTheWorkflowsThatFire(input = {}) {
     const weight = typeof item.weight === 'number' ? item.weight : 1;
     const score = weight * matched.reduce((sum, key) => sum + Math.log(conditioned / (holders.get(key) ?? conditioned)), 0);
     const definition = from === 'own' ? own.get(workflow)?.definition : undefined;
-    return { workflow, label, part, condition: item.label, made_by: item.made_by, from, matched, weight, score: Number(score.toFixed(6)), input: item.input ?? {}, ...(definition ? { definition } : {}) };
+    const keptIn = from === 'own' && (!shipped.has(workflow) || overInstalled.includes(workflow)) ? own.get(workflow)?.keptIn : undefined;
+    return { workflow, label, part, condition: item.label, made_by: item.made_by, from, matched, weight, score: Number(score.toFixed(6)), input: item.input ?? {}, installed: shipped.has(workflow), ...(definition ? { definition } : {}), ...(keptIn ? { kept_in: keptIn } : {}) };
   }).sort((a, b) => a.part - b.part || b.score - a.score || (a.workflow < b.workflow ? -1 : 1));
   // A condition that keeps more than half of the parts it is shown says nothing about which work a part is: it is named in
   // broad so learn-and-prune rewrites it around the one situation its workflow is for.

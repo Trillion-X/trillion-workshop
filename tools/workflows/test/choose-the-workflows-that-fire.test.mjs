@@ -151,6 +151,20 @@ test('installed false leaves out the installed recipes and every own row that sh
   await assert.rejects(chooseTheWorkflowsThatFire({ parts, installed: false, over_installed: 'x' }), /over_installed must be a list/);
 });
 
+test('a choice says whether an installed recipe holds it, and a row that says where it is kept is started from there only when nothing installed holds it or over_installed names it', async () => {
+  const shipped = installed.find(recipe => recipe.fires_when);
+  const kept = (slug, recipe) => ({ slug, value: { recipe, fires_when: [condition('a member joined', ['member-joined'])], kept_in: 'home-connection' } });
+  const rows = [kept('greet-a-new-member', 'workflow:greet-a-new-member'), kept(shipped.id.replace(/^workflow:/, ''), shipped.id)];
+  const parts = [{ kinds: ['member-joined'] }];
+  const plain = await chooseTheWorkflowsThatFire({ parts, ...handedIn(rows) });
+  const of = (answer, id) => answer.chosen.find(item => item.workflow === id);
+  assert.deepEqual([of(plain, 'workflow:greet-a-new-member').installed, of(plain, 'workflow:greet-a-new-member').kept_in], [false, 'home-connection']);
+  assert.deepEqual([of(plain, shipped.id).installed, of(plain, shipped.id).kept_in], [true, undefined], 'an installed id is started by its own wakes');
+  const over = await chooseTheWorkflowsThatFire({ parts, ...handedIn(rows), over_installed: [shipped.id] });
+  assert.deepEqual([of(over, shipped.id).installed, of(over, shipped.id).kept_in], [true, 'home-connection']);
+  await assert.rejects(chooseTheWorkflowsThatFire({ parts, own: [{ id: 'x', value: { kept_in: 7 } }] }), /x kept_in must name where the row is kept/);
+});
+
 test('parts are required', async () => {
   await assert.rejects(chooseTheWorkflowsThatFire({ parts: [], ...handedIn([]) }), /parts must be a list/);
 });
