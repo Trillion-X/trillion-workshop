@@ -493,6 +493,13 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "keep-goals-and-focus",
+   "paths": [
+    "read-data/pursuit-hierarchy-view.mjs"
+   ],
+   "at": "/opt/keep-goals-and-focus"
   }
  ],
  "tool:add-reviewed-videos-to-a-packaging-ledger": [],
@@ -10811,6 +10818,13 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "keep-goals-and-focus",
+   "paths": [
+    "read-data/pursuit-hierarchy-view.mjs"
+   ],
+   "at": "/opt/keep-goals-and-focus"
   }
  ],
  "tool:correct-when-a-message-was-written": [
@@ -12279,6 +12293,13 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "keep-goals-and-focus",
+   "paths": [
+    "read-data/pursuit-hierarchy-view.mjs"
+   ],
+   "at": "/opt/keep-goals-and-focus"
   }
  ],
  "tool:decide-the-replies": [
@@ -13744,6 +13765,33 @@
     "do-work/run-a-function.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
   }
  ],
  "tool:edit-a-transcript": [
@@ -14152,6 +14200,13 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "keep-goals-and-focus",
+   "paths": [
+    "read-data/pursuit-hierarchy-view.mjs"
+   ],
+   "at": "/opt/keep-goals-and-focus"
   }
  ],
  "tool:end-shares-whose-condition-failed": [
@@ -16487,6 +16542,13 @@
     "split2"
    ],
    "at": "/opt/node_modules/split2"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "tool-rows.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   }
  ],
  "tool:find-new-or-changed-files": [
@@ -23480,6 +23542,13 @@
     "split2"
    ],
    "at": "/opt/node_modules/split2"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "tool-rows.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   }
  ],
  "tool:label-video-frames-with-small-local-models": [],
@@ -29377,6 +29446,13 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "keep-goals-and-focus",
+   "paths": [
+    "read-data/pursuit-hierarchy-view.mjs"
+   ],
+   "at": "/opt/keep-goals-and-focus"
   }
  ],
  "tool:make-tracked-link": [
@@ -32252,6 +32328,13 @@
     "split2"
    ],
    "at": "/opt/node_modules/split2"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "tool-rows.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   }
  ],
  "tool:notice-messages-on-this-mac": [
@@ -33271,6 +33354,13 @@
     "split2"
    ],
    "at": "/opt/node_modules/split2"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "tool-rows.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   }
  ],
  "tool:open-a-paid-file-for-a-buyer": [
@@ -39281,6 +39371,13 @@
     "split2"
    ],
    "at": "/opt/node_modules/split2"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "tool-rows.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   }
  ],
  "tool:read-a-page-in-a-scriptable-browser": [
@@ -42723,6 +42820,47 @@
     "do-work/run-a-function.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
   }
  ],
  "tool:read-public-web-page": [
@@ -43506,6 +43644,13 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "keep-goals-and-focus",
+   "paths": [
+    "read-data/pursuit-hierarchy-view.mjs"
+   ],
+   "at": "/opt/keep-goals-and-focus"
   }
  ],
  "tool:read-sharing-state": [
@@ -45263,6 +45408,13 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "keep-goals-and-focus",
+   "paths": [
+    "read-data/pursuit-hierarchy-view.mjs"
+   ],
+   "at": "/opt/keep-goals-and-focus"
   }
  ],
  "tool:record-a-publishing-step": [
@@ -45729,6 +45881,13 @@
     "node_modules/tldts-core"
    ],
    "at": "/opt/node_modules/tldts-core"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "tool-rows.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   }
  ],
  "tool:record-checklist-gate-changes": [
@@ -47811,6 +47970,13 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "keep-goals-and-focus",
+   "paths": [
+    "read-data/pursuit-hierarchy-view.mjs"
+   ],
+   "at": "/opt/keep-goals-and-focus"
   }
  ],
  "tool:report-on-accrual-or-cash": [
@@ -49491,6 +49657,13 @@
     "sales-contract-builder.json"
    ],
    "at": "/opt/build-and-send-a-sales-contract"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "tool-rows.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   }
  ],
  "tool:sample-shots-and-frames-from-my-format-library": [],
@@ -50613,6 +50786,13 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "keep-goals-and-focus",
+   "paths": [
+    "read-data/pursuit-hierarchy-view.mjs"
+   ],
+   "at": "/opt/keep-goals-and-focus"
   }
  ],
  "tool:say-where-file-sync-stands": [
@@ -55844,6 +56024,13 @@
     "blake3"
    ],
    "at": "/opt/ask-a-small-model-for-a-verdict/do-work"
+  },
+  {
+   "package": "keep-goals-and-focus",
+   "paths": [
+    "read-data/pursuit-hierarchy-view.mjs"
+   ],
+   "at": "/opt/keep-goals-and-focus"
   }
  ],
  "tool:share-a-kept-show-type": [
@@ -57300,6 +57487,13 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  },
+  {
+   "package": "keep-goals-and-focus",
+   "paths": [
+    "read-data/pursuit-hierarchy-view.mjs"
+   ],
+   "at": "/opt/keep-goals-and-focus"
   }
  ],
  "tool:start-a-stripe-checkout": [
@@ -61989,6 +62183,13 @@
     "tokenizers"
    ],
    "at": "/opt/words-as-picture-vector/do-work"
+  },
+  {
+   "package": "words-as-picture-vector",
+   "paths": [
+    "do-work/words-as-picture-vector.py"
+   ],
+   "at": "/opt/words-as-picture-vector"
   }
  ],
  "tool:work-a-piece-through-a-question-bank": [],
@@ -62742,5 +62943,17 @@
  ],
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:your-files": [],
- "tool:your-files-names": []
+ "tool:your-files-names": [],
+ "tool:check-a-spoken-line-reads-back": [],
+ "tool:read-a-message-attachment-on-this-mac": [
+  {
+   "package": "read-a-message-attachment-on-this-mac",
+   "paths": [
+    "do-work/read-a-message-attachment.mjs",
+    "read-data/attachment-read.mjs",
+    "read-data/words.json"
+   ],
+   "at": "/opt/read-a-message-attachment-on-this-mac"
+  }
+ ]
 }
