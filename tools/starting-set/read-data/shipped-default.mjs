@@ -121,22 +121,8 @@ export function shippedOff(label, after, before) {
     const { on: _flag, ...rest } = object(switches[id]) ? switches[id] : {};
     if (listOf(after[field]).includes(id)) { if (Object.keys(rest).length) switches[id] = rest; else delete switches[id]; }
     else switches[id] = { ...rest, on: false };
-    next[off_in] = switches;
-  }
-  if (rules?.field) {
-    for (const entry of lists.find(([field]) => field === rules.field)?.[1] ?? []) {
-      const current = listOf(after[rules.field]).find(one => object(one) && one.id === entry.id);
-      if (!current || keptIds.has(entry.id)) continue; // a shipped entry the person no longer keeps, or keeps their own copy of
-      const removed = listOf(entry[rules.list]).filter(rule => !listOf(current[rules.list]).some(one => object(one) && one.id === rule.id));
-      const switches = object(next[rules.off_in]) ? { ...next[rules.off_in] } : {};
-      const { switches: _was, ...state } = object(switches[entry.id]) ? switches[entry.id] : {};
-      const off = Object.fromEntries(removed.map(rule => [switchOf(rule), { on: false }]));
-      if (Object.keys(off).length) switches[entry.id] = { ...state, switches: off };
-      else if (Object.keys(state).length) switches[entry.id] = state;
-      else delete switches[entry.id];
-      if (Object.keys(switches).length) next[rules.off_in] = switches;
-      else delete next[rules.off_in];
-    }
+    if (Object.keys(switches).length) next[off_in] = switches;
+    else delete next[off_in];
   }
   return next;
 }

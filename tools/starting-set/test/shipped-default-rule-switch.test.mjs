@@ -7,6 +7,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { shippedUnder, shippedOff } from '../read-data/shipped-default.mjs';
+import { changedRecord } from '../../set-up-my-account/read-data/show-rules.mjs';
+import showRulesData from '../../set-up-my-account/read-data/show-rules.json' with { type: 'json' };
 
 const LABEL = 'show-rules';
 const SIMPLE = 'simple-workspace';
@@ -47,4 +49,14 @@ test('the switch is written as the record names it, the shipped type is not writ
   // Turned on again: the switch is removed from the record, so the laid type has every rule and the record holds no switch.
   const restored = shippedOff(LABEL, shippedUnder(LABEL, null), { ...switchedOff('one-pane-at-a-time') });
   assert.equal(restored.starting, undefined, 'turned on again, nothing is left switched off');
+});
+
+test('a switch the store writes through use { type, switch, on } is kept by the record writer', () => {
+  const laid = shippedUnder(LABEL, null);
+  const next = changedRecord(showRulesData, laid, { use: { type: SIMPLE, switch: 'one-pane-at-a-time', on: false } }, Date.parse('2026-11-21T21:00:00Z'), 'personal');
+  const kept = shippedOff(LABEL, next, null);
+  assert.deepEqual(kept.starting, switchedOff('one-pane-at-a-time').starting);
+  assert.deepEqual(kept.in_use, undefined, 'the shipped in_use is not written: it is on by default');
+  const back = changedRecord(showRulesData, shippedUnder(LABEL, kept), { use: { type: SIMPLE, switch: 'one-pane-at-a-time', on: true } }, Date.parse('2026-11-21T21:00:00Z'), 'personal');
+  assert.equal(shippedOff(LABEL, back, kept).starting, undefined, 'turned on again, the record holds no switch');
 });
