@@ -16,15 +16,15 @@
 //      and failed states); this file writes no markup.
 
 import * as React from 'react';
-import { Button, Container, Input, Text, Textarea } from '../../parts/ui';
-import { LinkPreview } from '../../parts/ui/show/link-preview';
-import { RecordViews, type BulkAction, type FieldDescriptor, type RecordView } from '../../parts/ui/show/record-views/record-views';
-import { ScreenState, useScreenLoad } from '../../parts/ui/show/screen-state';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { postJson, readJson } from './api';
-import { refusal } from './failure';
-import { recordFilter } from './record-filter';
-import { linkInPaste, linkPreviewProps, readLink, type LinkCard } from './read-link';
+import { Button, Container, Input, Text, Textarea } from '../../../../ui';
+import { LinkPreview } from '../../../../ui/show/link-preview';
+import { RecordViews, type BulkAction, type FieldDescriptor, type RecordView } from '../../../../ui/show/record-views/record-views';
+import { ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { postJson, readJson } from '../../../../workspace-screens/web/src/workspace/api';
+import { refusal } from '../../../../workspace-screens/web/src/workspace/failure';
+import { recordFilter } from '../../../../workspace-screens/web/src/workspace/record-filter';
+import { linkInPaste, linkPreviewProps, readLink, type LinkCard } from '../../../../workspace-screens/web/src/workspace/read-link';
 
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
 type Example = {
