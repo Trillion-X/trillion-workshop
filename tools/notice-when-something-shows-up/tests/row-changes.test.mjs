@@ -24,6 +24,17 @@ function client(changes) {
         if (next instanceof Error) throw next;
         return { rows: [next] };
       }
+      if (sql.includes('at >= $1')) {
+        // The first change committed at or after a replay time.
+        const first = [...changes].filter(row => Date.parse(row.at) >= Date.parse(params[0])).sort((a, b) => Number(BigInt(a.txid) - BigInt(b.txid)) || Number(a.position) - Number(b.position))[0];
+        return { rows: first ? [{ txid: first.txid, position: first.position }] : [] };
+      }
+      if (sql.includes('(txid, position) <')) {
+        // The change just before a place.
+        const [txid, position] = params;
+        const before = [...changes].filter(row => BigInt(row.txid) < BigInt(txid) || (row.txid === txid && BigInt(row.position) < BigInt(position))).sort((a, b) => Number(BigInt(b.txid) - BigInt(a.txid)) || Number(b.position) - Number(a.position))[0];
+        return { rows: before ? [{ txid: before.txid, position: before.position }] : [] };
+      }
       if (sql.includes('ORDER BY txid DESC')) {
         // The newest committed change: where a reader with no kept place starts.
         const newest = [...changes].sort((a, b) => Number(BigInt(b.txid) - BigInt(a.txid)) || Number(b.position) - Number(a.position))[0];
@@ -55,8 +66,10 @@ const run = async (stand, { state = null, tell = async () => true, stopAfter = 1
 
 test('it declares its fields and reads its settings, refusing a table name that is not a plain name', () => {
   assert.deepEqual(describeMechanism().conditions, ['became-reachable']);
-  assert.deepEqual(readSettings({}), { connection_fd: 4, table: 'row_changes', channel: 'row_changes', look_again_ms: 30000, most_per_read: 500, held_back_ms: 120000, from_the_start: false });
+  assert.deepEqual(readSettings({}), { connection_fd: 4, table: 'row_changes', channel: 'row_changes', look_again_ms: 30000, most_per_read: 500, held_back_ms: 120000, from_the_start: false, replay_from: null });
   assert.equal(readSettings({ from_the_start: 'yes' }).from_the_start, false, 'only true replays the table');
+  assert.equal(readSettings({ replay_from: '2026-11-21T05:00:00-06:00' }).replay_from, '2026-11-21T05:00:00-06:00');
+  assert.equal(readSettings({ replay_from: 'this morning' }).replay_from, null, 'a time that does not parse is no replay');
   assert.equal(readSettings({ held_back_seconds: 5 }).held_back_ms, 5000);
   assert.equal(readSettings({ table: 'x; DROP TABLE y' }).table, 'row_changes');
   assert.match(readSql('row_changes'), /WHERE txid < coalesce\(\(SELECT min\(x\) FROM pg_snapshot_xip\(pg_current_snapshot\(\)\) x/, 'the horizon is this database\'s own');
@@ -64,6 +77,32 @@ test('it declares its fields and reads its settings, refusing a table name that 
   assert.doesNotMatch(readSql('row_changes'), /pg_snapshot_xmin/, 'never the server\'s horizon');
   assert.match(readSql('row_changes'), /ORDER BY txid, position/);
   assert.match(readSql('row_changes'), /to_jsonb\(c\) ->> 'changed_by' AS by/, 'a change table with no changed_by is read the same: by is null');
+});
+
+test('a replay from a time tells again each change at or after it, under the same event key it had at first', async () => {
+  const timed = (txid, position, at) => ({ ...change(txid, position), at });
+  const stand = client([timed(9, 1, '2026-11-18T14:00:00Z'), timed(9, 2, '2026-11-18T15:00:00Z'), timed(9, 3, '2026-11-18T15:30:00Z'), timed(10, 1, '2026-11-18T16:00:00Z')]);
+  const { done, told } = await run(stand, { settings: { replay_from: '2026-11-18T15:00:00Z' }, stopAfter: 3 });
+  await done;
+  assert.deepEqual(told.map(item => item.event_key), ['p_made_up:9:2', 'p_made_up:9:3', 'p_made_up:10:1']);
+});
+
+test('a replay over changes the engine already holds admits none of them', async () => {
+  const timed = (txid, position, at) => ({ ...change(txid, position), at });
+  const changes = [timed(9, 1, '2026-11-18T14:00:00Z'), timed(9, 2, '2026-11-18T15:00:00Z'), timed(9, 3, '2026-11-18T15:30:00Z'), timed(10, 1, '2026-11-18T16:00:00Z')];
+  const engine = new Set();
+  const admitted = [];
+  // A stand-in engine: a fact is admitted once under its event key, and a key it holds is answered as already told.
+  const tell = async ({ event_key }) => { if (!engine.has(event_key)) { engine.add(event_key); admitted.push(event_key); } return true; };
+  const settings = { replay_from: '2026-11-18T15:00:00Z' };
+  const once = await run(client(changes), { settings, tell, stopAfter: 3 });
+  await once.done;
+  assert.deepEqual(admitted, ['p_made_up:9:2', 'p_made_up:9:3', 'p_made_up:10:1']);
+  admitted.length = 0;
+  const again = await run(client(changes), { settings, tell, stopAfter: 3 });
+  await again.done;
+  assert.deepEqual(again.told.map(item => item.event_key), ['p_made_up:9:2', 'p_made_up:9:3', 'p_made_up:10:1'], 'the same keys are told again');
+  assert.deepEqual(admitted, [], 'and the engine admits none of them');
 });
 
 test('who made a change is told as by, and a change table that keeps no one tells null', async () => {

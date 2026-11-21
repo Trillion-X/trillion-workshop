@@ -61,6 +61,9 @@
  *   most_per_read       the most changes one read takes (default 500)
  *   from_the_start      true to tell every change already in the table when
  *                       there is no kept place (default false: start from now)
+ *   replay_from         an ISO time: tell again every change committed at or after it, from the change before the first
+ *                       one (the kept place is not used). Each is told under its usual event key, so the engine admits
+ *                       only the ones it has not told. Remove the setting once the replay is done.
  *   held_back_seconds   how long committed changes may wait behind a running
  *                       transaction before that is told (default 120: longer
  *                       than the one minute after which the server ends a
@@ -68,7 +71,7 @@
  *                       idle_in_transaction_session_timeout, so a hold the server
  *                       ends itself is never told)
  */
-import { readGivenCredential } from "./given-credential.mjs";
+import { readFileSync } from "node:fs";
 
 export const MECHANISM_REF = "package::notice-when-something-shows-up::mechanism::row-changes";
 const NAME = /^[a-z_][a-z0-9_]*$/;
@@ -94,6 +97,7 @@ export function readSettings(settings = {}) {
   const number = (value, fallback) => (Number.isInteger(Number(value)) && Number(value) > 0 ? Number(value) : fallback);
   const table = typeof settings.table === "string" && NAME.test(settings.table) ? settings.table : "row_changes";
   const channel = typeof settings.channel === "string" && NAME.test(settings.channel) ? settings.channel : table;
+  const replayFrom = typeof settings.replay_from === "string" && !Number.isNaN(Date.parse(settings.replay_from)) ? settings.replay_from : null;
   return {
     connection_fd: number(settings.connection_fd, 4),
     table,
@@ -102,6 +106,7 @@ export function readSettings(settings = {}) {
     most_per_read: number(settings.most_per_read, 500),
     held_back_ms: number(settings.held_back_seconds, 120) * 1000,
     from_the_start: settings.from_the_start === true,
+    replay_from: replayFrom,
   };
 }
 
@@ -140,6 +145,26 @@ export const horizonSql = `coalesce((SELECT min(x) FROM pg_snapshot_xip(pg_curre
  *  table holds none yet). */
 export const nowSql = (table) => `SELECT txid::text AS txid, position::text AS position FROM ${table}
   WHERE txid < ${horizonSql} ORDER BY txid DESC, position DESC LIMIT 1`;
+
+/** The first change committed at or after a replay time ($1), the change a replay tells first. */
+export const firstSinceSql = (table) => `SELECT txid::text AS txid, position::text AS position FROM ${table}
+  WHERE txid < ${horizonSql} AND at >= $1::timestamptz ORDER BY txid, position LIMIT 1`;
+
+/** The change just before a place ($1 txid, $2 position), or none: a replay reads from there, so that place is told too. */
+export const beforeSql = (table) => `SELECT txid::text AS txid, position::text AS position FROM ${table}
+  WHERE txid < ${horizonSql} AND (txid, position) < ($1::xid8, $2::bigint) ORDER BY txid DESC, position DESC LIMIT 1`;
+
+/** The place a replay starts after: the change before the first one at or after `replay_from`. With none at or after it,
+ *  the newest change (nothing to replay); with no change before it, null (read from the table's start). */
+async function replayStart(client, own) {
+  const first = (await client.query(firstSinceSql(own.table), [own.replay_from])).rows?.[0];
+  if (!first) {
+    const newest = (await client.query(nowSql(own.table))).rows?.[0];
+    return { after: newest ? { txid: newest.txid, position: newest.position } : null };
+  }
+  const before = (await client.query(beforeSql(own.table), [first.txid, first.position])).rows?.[0];
+  return { after: before ? { txid: before.txid, position: before.position } : null };
+}
 
 /** The read that takes the next changes after `after` ({txid, position} or null), oldest first. */
 export const readSql = (table) => `SELECT position::text AS position, txid::text AS txid, at, table_name, op, before, after, to_jsonb(c) ->> 'changed_by' AS by, current_database() AS database
@@ -203,7 +228,7 @@ export async function watchForTransitions(settings, handlers) {
   const own = readSettings(settings);
   const signal = handlers.signal;
   const keepState = handlers.keepState ?? (async () => {});
-  const connection = handlers.connection ?? readGivenCredential(handlers, own.connection_fd);
+  const connection = handlers.connection ?? readFileSync(handlers.credentialFd ?? own.connection_fd, "utf8").trim();
   let client;
   try {
     client = await (handlers.connect ?? connectWithPg)(connection);
@@ -217,7 +242,9 @@ export async function watchForTransitions(settings, handlers) {
   client.on?.("notification", (message) => { if (message.channel === own.channel) wake(); });
   try {
     await client.query(`LISTEN ${own.channel}`);
-    if (state.after === null && !own.from_the_start) {
+    if (own.replay_from !== null) {
+      state = await replayStart(client, own);
+    } else if (state.after === null && !own.from_the_start) {
       const newest = (await client.query(nowSql(own.table))).rows?.[0];
       if (newest) {
         state = { after: { txid: newest.txid, position: newest.position } };
