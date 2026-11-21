@@ -341,7 +341,7 @@ function WaitingSection({ held, again, more }: { held: Read<WaitingGroup[]>; aga
           : groups.length === 0 ? <Text as="p" variant="body" color="secondary">{words.waiting_none}</Text>
             : groups.map(group => (
               group.source.one_at_a_time
-                ? <OneWaiting key={`${group.credential}:${group.source.table}`} group={group} row={group.rows[0]!} left={group.left} again={again} listening={group === listening} />
+                ? <OneWaiting key={`${group.credential}:${group.source.table}:${group.rows[0]?.[group.source.id] ?? ''}`} group={group} row={group.rows[0]!} left={group.left} again={again} listening={group === listening} />
                 : (
                   <Container key={`${group.credential}:${group.source.table}`} layout="vertical" gap="sm">
                     <Text as="h3" variant="label" color="secondary">{group.source.label}</Text>
