@@ -942,7 +942,7 @@
             },
             "settings_record": {
               "type": "string",
-              "description": "--settings-record: the JSON file holding the person's list:settings row for this folder (record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id>) as records:read gives it; read by tools/settings (this film's row, else the person's, else the account's; --film names the film). Without it the defaults are used."
+              "description": "--settings-record: the JSON file holding the person's settings table row for this folder (record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id>) as the settings table read gives it; read by tools/settings (this film's row, else the person's, else the account's; --film names the film). Without it the defaults are used."
             },
             "film": {
               "type": "string",
@@ -1201,7 +1201,7 @@
             },
             "settings_record": {
               "type": "string",
-              "description": "--settings-record: the JSON file holding the person's list:settings row for this folder (record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id>) as records:read gives it; read by tools/settings (this film's row, else the person's, else the account's; --film names the film). Without it the defaults are used."
+              "description": "--settings-record: the JSON file holding the person's settings table row for this folder (record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id>) as the settings table read gives it; read by tools/settings (this film's row, else the person's, else the account's; --film names the film). Without it the defaults are used."
             },
             "film": {
               "type": "string",
@@ -1459,7 +1459,7 @@
             },
             "settings_record": {
               "type": "string",
-              "description": "--settings-record: the JSON file holding the person's list:settings row for this folder (record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id>) as records:read gives it; read by tools/settings (this film's row, else the person's, else the account's; --film names the film). Without it the defaults are used."
+              "description": "--settings-record: the JSON file holding the person's settings table row for this folder (record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id>) as the settings table read gives it; read by tools/settings (this film's row, else the person's, else the account's; --film names the film). Without it the defaults are used."
             },
             "film": {
               "type": "string",
@@ -1703,7 +1703,7 @@
             },
             "settings_record": {
               "type": "string",
-              "description": "The JSON file of the person's list:settings row (takes, clean_command, master_command, ticks_command, measure_glob), the third word."
+              "description": "The JSON file of the person's settings table row (takes, clean_command, master_command, ticks_command, measure_glob), the third word."
             },
             "film": {
               "type": "string",

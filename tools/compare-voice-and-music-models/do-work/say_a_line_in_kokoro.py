@@ -15,7 +15,7 @@ Run with python3 (mlx-audio 0.5.8, misaki 0.9.4).
 
 This module is also the one definition the other voice A/B scripts share (say_a_line_in_a_cloned_voice.py and
 measure_takes.py import it): the line, units, pauses and silence handling; the person's settings (`--settings-record`,
-a list:settings row read by the one reader, tools/settings/read-data/settings.py, for --film, the person or the account, over DEFAULTS); the speech-to-text engine;
+a settings table row read by the one reader, tools/settings/read-data/settings.py, for --film, the person or the account, over DEFAULTS); the speech-to-text engine;
 and refusals, printed as a last line {"error": "what to change"}. A take made prints {"result": {...}} last.
 `--take-rows <settings record>` prints the A/B takes of the settings as render_takes.sh reads them.
 """
@@ -73,8 +73,8 @@ def scopes_for(film=None):
 
 
 def settings(given=None, film=None):
-    """DEFAULTS with the person's settings over them. `given` is the settings_record: the list:settings row
-    record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id> as records:read gives it, its value, a list of
+    """DEFAULTS with the person's settings over them. `given` is the settings_record: the settings table row
+    record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id> as the settings table read gives it, its value, a list of
     them, or the path of a JSON file of any of those. It is read by the one settings reader, tools/settings/read-data/
     settings.py: the first of this film, the person and the account that has a row; a lone value with no id is read as given."""
     if given is None:

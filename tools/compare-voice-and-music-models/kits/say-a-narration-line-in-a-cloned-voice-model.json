@@ -3,7 +3,7 @@
   "start_here": "Say to your AI: \"Try the qwen3 voice-cloning model on my narration line in line.json, cloned from ref.wav and ref.txt, keeping the best of 3 tries per sentence.\"",
   "lists": [
     {
-      "list": "list:settings",
+      "list": "list:tool-settings",
       "label": "Settings",
       "row_type": "record:setting",
       "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
@@ -118,7 +118,7 @@
   ],
   "instructions": [
     "1. Check ref.wav is your own voice or one you have consent to clone; put its exact words in ref.txt (qwen3 needs them).",
-    "2. Pour the example settings rows into your list:settings (see pour) if you want your own takes, models and reference. If you keep a list:settings row for this folder (record:setting:compare-voice-and-music-models~film~<film>) your AI reads it with tool:read-a-tool-setting, saves it to a file and adds --settings-record that file --film <film>; its values go over the defaults.",
+    "2. Pour the example settings rows into your settings table (see pour) if you want your own takes, models and reference. If you keep a settings table row for this folder (record:setting:compare-voice-and-music-models~film~<film>) your AI reads it with tool:read-a-tool-setting, saves it to a file and adds --settings-record that file --film <film>; its values go over the defaults.",
     "3. Say the line in start_here. Your AI reads the row with tools:list {tool: \"tool:say-a-narration-line-in-a-cloned-voice-model\"}, installs mlx-audio, mlx-whisper, numpy and soundfile if missing and runs the command in given.",
     "4. Read the last line: {\"result\": {take, engine, model, sample_rate, units, word_errors}}. Tell the person the licence: Pocket TTS is CC-BY-4.0 (credit Kyutai); Chatterbox output carries an inaudible watermark."
   ],
@@ -145,7 +145,7 @@
     "least_coverage": 0.8,
     "how": "Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
-      "kit_list": "list:settings",
+      "kit_list": "list:tool-settings",
       "into": {
         "list": "list:my-tool-options",
         "row_type": "record:tool-option",
