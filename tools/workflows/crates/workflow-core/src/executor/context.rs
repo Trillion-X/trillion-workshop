@@ -1511,8 +1511,28 @@ pub fn compile_steps_and_edges(
             })?;
         }
     } else {
-        // Add all explicit edges — store condition as raw Value (EdgeHandler parses at eval time)
+        // Add all explicit edges — store condition as raw Value (EdgeHandler parses at eval time).
+        // The graph keeps one edge per (from, to) pair, so a second edge between the same two steps replaced the first
+        // one's kind and condition without a word: on Nov 21 2026 a definition with `parse -> judge` once `always` and
+        // once `on_failure` kept only `on_failure`, so a parse that succeeded skipped the judge, and the run ended
+        // completed with nothing judged. Each pair is one edge; what should open the step is said in its one condition.
+        let mut pairs = std::collections::HashSet::with_capacity(edges.len());
         for edge in edges {
+            for end in [&edge.from, &edge.to] {
+                if !step_map.contains_key(end) {
+                    return Err(WorkflowError::InvalidWorkflow {
+                        reason: format!("Edge {} -> {} names step '{}', which the definition does not have", edge.from, edge.to, end),
+                        hint: "An edge joins two steps of the same definition, named by their ids.".to_string(),
+                    });
+                }
+            }
+            if !pairs.insert((edge.from.as_str(), edge.to.as_str())) {
+                return Err(WorkflowError::InvalidWorkflow {
+                    reason: format!("Two edges join step '{}' to step '{}'", edge.from, edge.to),
+                    hint: "Keep one edge per pair of steps and say in its one kind and condition everything that should open the next step."
+                        .to_string(),
+                });
+            }
             let condition = if edge.config.is_null() || edge.config == serde_json::json!({}) {
                 None
             } else {

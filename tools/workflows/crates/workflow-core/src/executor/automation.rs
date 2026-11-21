@@ -1291,16 +1291,32 @@ async fn execute_dag_concurrent(
         }
     }
 
-    match waiting {
-        Some(error) => Err(error),
-        None => Ok(()),
+    if let Some(error) = waiting {
+        return Err(error);
     }
+    // A walk that ends with no step waiting has run or skipped every step. One left neither is a walk that lost its
+    // way, and the run says so by name instead of ending completed with that step's work never done.
+    let unrun: Vec<&String> = all_indices
+        .iter()
+        .filter(|idx| !skipped.contains(idx))
+        .filter_map(|&idx| compiled.dag.get_key(idx))
+        .filter(|key| !outcomes_str.contains_key(*key))
+        .collect();
+    if !unrun.is_empty() {
+        let mut names: Vec<&str> = unrun.iter().map(|key| key.as_str()).collect();
+        names.sort_unstable();
+        return Err(WorkflowError::ExecutionFailed {
+            reason: format!("The run ended with steps that neither ran nor were skipped: {}", names.join(", ")),
+            hint: "Every step must either run or be skipped by its edges; read the edges into these steps.".to_string(),
+        });
+    }
+    Ok(())
 }
 
 fn skipped_step_output(reason: &str) -> StepOutput {
     StepOutput {
         output: Value::Null,
-        status: ExecutionStatus::Completed,
+        status: ExecutionStatus::Skipped,
         error: Some(reason.to_string()),
         duration_ms: 0,
     }
@@ -1594,8 +1610,9 @@ async fn execute_cached_definition_in_current_workflow(
 }
 
 /// What a used workflow (an action, or one loop iteration) answers: the output of the last step that actually ran,
-/// preferring a step nothing follows. A branch that was not taken is recorded as completed with no output and a
-/// "Skipped" error, so taking the last listed step answered nothing whenever that step was a skipped branch: a
+/// preferring a step nothing follows. A branch that was not taken is recorded `skipped` with no output (before Nov 21
+/// 2026, completed with a "Skipped" error), so taking the last listed step answered nothing whenever that step was a
+/// skipped branch: a
 /// workflow that ends `held` then `refused` answered null after `held` ran (Nov 20 2026: the owner's voice step handed
 /// a carousel null pages, and the format judge's verdict reached its queue empty).
 fn action_answer(action: &Definition, exec_ctx: &ExecutionContext) -> Value {
@@ -1603,7 +1620,7 @@ fn action_answer(action: &Definition, exec_ctx: &ExecutionContext) -> Value {
     let ran = |index: usize, step: &crate::domain::types::Step| {
         exec_ctx
             .step_output(&canonical_step_id(step, index))
-            .filter(|output| !output.error.as_deref().is_some_and(|error| error.starts_with("Skipped")))
+            .filter(|output| output.status != ExecutionStatus::Skipped)
             .map(|output| output.output.clone())
     };
     let steps = || action.steps.iter().enumerate().rev();
@@ -5563,6 +5580,72 @@ mod tests {
                 .contains("Skipped"),
             "scan branch should be skipped without killing the merge"
         );
+        assert_eq!(instance.execution_context.steps["scan"].status, ExecutionStatus::Skipped);
+    }
+
+    fn edge(from: &str, to: &str, kind: &str, config: Value) -> StepEdge {
+        StepEdge { from: from.to_string(), to: to.to_string(), kind: kind.to_string(), config }
+    }
+
+    fn refusal(steps: Vec<Step>, edges: Vec<StepEdge>) -> String {
+        match compile_definition(&Definition { steps, edges, ..Default::default() }) {
+            Err(WorkflowError::InvalidWorkflow { reason, .. }) => reason,
+            Err(other) => panic!("refused as {other:?}"),
+            Ok(_) => panic!("the definition compiled"),
+        }
+    }
+
+    // Nov 21 2026: `parse -> judge` written once `always` and once `on_failure` kept only the last, so a parse that
+    // succeeded skipped the judge and the run ended completed with nothing judged.
+    #[test]
+    fn two_edges_between_the_same_two_steps_are_refused() {
+        let steps = || vec![Step::return_value(json!({"parsed": true})).with_id("parse"), Step::return_value(json!(99)).with_id("judge")];
+        let reason = refusal(steps(), vec![edge("parse", "judge", "always", Value::Null), edge("parse", "judge", "on_failure", Value::Null)]);
+        assert!(reason.contains("Two edges join step 'parse' to step 'judge'"), "{reason}");
+        let when = |value: &str| json!({"$kind": "binding", "select": {"from": "input", "path": "output.status"},
+            "transform": [{"op": "op:core.equals", "args": {"value": value}}]});
+        let reason = refusal(steps(), vec![edge("parse", "judge", "on_result", when("a")), edge("parse", "judge", "on_result", when("b"))]);
+        assert!(reason.contains("Two edges join"), "two conditions to the same step are refused too: {reason}");
+    }
+
+    #[test]
+    fn an_edge_to_a_step_the_definition_lacks_is_refused_by_name() {
+        let reason = refusal(vec![Step::return_value(json!(1)).with_id("a")], vec![edge("a", "judge", "always", Value::Null)]);
+        assert!(reason.contains("names step 'judge'"), "{reason}");
+        let reason = refusal(vec![Step::return_value(json!(1)).with_id("a")], vec![edge("parse", "a", "always", Value::Null)]);
+        assert!(reason.contains("names step 'parse'"), "{reason}");
+    }
+
+    #[test]
+    fn an_edge_loop_is_refused() {
+        let steps = vec![Step::return_value(json!(1)).with_id("a"), Step::return_value(json!(2)).with_id("b")];
+        let reason = refusal(steps, vec![edge("a", "b", "always", Value::Null), edge("b", "a", "always", Value::Null)]);
+        assert!(reason.contains("Cycle detected"), "{reason}");
+    }
+
+    #[tokio::test]
+    async fn a_recovery_branch_not_taken_is_skipped_and_the_run_completes() {
+        let definition = Definition {
+            id: "action:recovery-not-taken".to_string(),
+            steps: vec![
+                Step::return_value(json!({"parsed": true})).with_id("parse"),
+                Step::return_value(json!({"verdict": 99})).with_id("judge"),
+                Step::return_value(json!({"recovered": true})).with_id("recover"),
+            ],
+            edges: vec![edge("parse", "judge", "always", Value::Null), edge("parse", "recover", "on_failure", Value::Null)],
+            is_active: true,
+            ..Default::default()
+        };
+        let run = make_executor()
+            .execute_definition(definition, make_start(), make_actor(), &RetryPolicy::default())
+            .await
+            .expect("the run executes");
+        assert_eq!(run.status, ExecutionStatus::Completed, "{:?}", run.error_message);
+        let steps = &run.execution_context.steps;
+        assert_eq!(steps["judge"].status, ExecutionStatus::Completed);
+        assert_eq!(steps["judge"].output, json!({"verdict": 99}));
+        assert_eq!(steps["recover"].status, ExecutionStatus::Skipped);
+        assert_eq!(serde_json::to_value(steps["recover"].status).unwrap(), json!("skipped"));
     }
 
     #[test]

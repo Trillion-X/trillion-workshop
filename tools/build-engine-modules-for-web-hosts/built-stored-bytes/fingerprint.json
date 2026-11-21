@@ -23,20 +23,20 @@
   "source_files": [
     "tools/workflows/ask-rights.json"
   ],
-  "fingerprint": "7070c46596e2cc4d0beda165d4d300d21d9a9006e6e490428830c2fa8a59fd3a",
+  "fingerprint": "2804a849ed439e2157792327c8124b65bcad9a787a91256b74da991ad3926908",
   "workspace_commits": {
     "../../trillion-rust/crates": "c2913a1e2cab8c0223c7d16006e17ccc9a86e6ca"
   },
   "files": {
     "held-values/http_client.js": "b943aae9882afe502dc46d8c135ccddb649512a49e6af0849e3428b8184ecb83",
-    "held-values/http_client_bg.wasm": "a37e3961dd4887a3030fe08a8b659f3a9f9c5d9052425c8c0b1262267758d912",
-    "workflow-engine/workflow_engine.js": "25d5c881817d08615572de3787806b1e7690fe115618e093360d5a96c94a6ccb",
-    "workflow-engine/workflow_engine_bg.wasm": "601992dd1349236115bbe3427ab190122233b04a23eb775562592e5de04401db",
+    "held-values/http_client_bg.wasm": "3559a3480a01e78ba8456e9bbd14df9bc435c4058a4da2a0f8e13975929eb6c5",
+    "workflow-engine/workflow_engine.js": "6cfa3ecf6c81b3b87d05abd2b842b85a414c1d960fe94b10751b67730d868f79",
+    "workflow-engine/workflow_engine_bg.wasm": "570f963342494c4080810a4ab39f75bc68d3e9f4ab8ed2f9bafa763b7b97ea8f",
     "screen-arrangement/screen_arrangement.js": "fdba8dd41246d911f133d038775ae1a564d22dac551e6ba54db757bdc3e1e573",
     "screen-arrangement/screen_arrangement_bg.wasm": "fe021c7de8ab0c6db1c8c9256b92e921f1cff8a9a7c261cdae6c0a6c09835ead",
-    "composition-engine/composition_engine.wasm": "7cc1dccb8b257ead6bd8c77a774e898bc5e07ffa777c65aa13491e73ebbf6fe2",
+    "composition-engine/composition_engine.wasm": "a435e8246a03867c2621c166750bc72a43148983cb1fd0c72d0d39f369708617",
     "composition-engine/composition_engine.js": "e77c96be89e4b4c3286febf0c83952300200a89b103b953153c773ae41c462f4",
-    "composition-engine/composition_engine_bg.wasm": "1aa3536b57f96a9e3bc971a2a80bce6fd6da20f2157233625f3104e7cba0993c",
-    "workflow-component/workflow_component.wasm": "2801ab6c08c74457430bb29b0632ec81f5b56d04f75a5fe57206aed067a11676"
+    "composition-engine/composition_engine_bg.wasm": "1c43838e9ffe631500901a05c6c9d967af78296f1f263ef55f5e5c871f3e7ac2",
+    "workflow-component/workflow_component.wasm": "5c6163f6eef2c13c9d4b7f1f6731fe965f511acdf7ea3becd8e2de7a8242aaa9"
   }
 }

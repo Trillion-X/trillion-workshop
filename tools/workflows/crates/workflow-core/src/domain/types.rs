@@ -877,6 +877,9 @@ pub enum ExecutionStatus {
     Cancelled,
     /// Paused (can be resumed)
     Paused,
+    /// A step on a branch not taken: every edge into it was unsatisfied, so it never ran. Before Nov 21 2026 such a step
+    /// was recorded `completed` with a "Skipped" error, and a run whose every unrun step said `completed` read as done.
+    Skipped,
 }
 
 impl std::fmt::Display for ExecutionStatus {
@@ -888,6 +891,7 @@ impl std::fmt::Display for ExecutionStatus {
             ExecutionStatus::Failed => write!(f, "failed"),
             ExecutionStatus::Cancelled => write!(f, "cancelled"),
             ExecutionStatus::Paused => write!(f, "paused"),
+            ExecutionStatus::Skipped => write!(f, "skipped"),
         }
     }
 }
@@ -903,6 +907,7 @@ impl std::str::FromStr for ExecutionStatus {
             "failed" => Ok(ExecutionStatus::Failed),
             "cancelled" => Ok(ExecutionStatus::Cancelled),
             "paused" => Ok(ExecutionStatus::Paused),
+            "skipped" => Ok(ExecutionStatus::Skipped),
             _ => Err(format!("Unknown execution status: {}", s)),
         }
     }
