@@ -16,6 +16,11 @@
 #
 # RUNS is what the computer's row says it runs (request.computer_row `runs`, read at run time) as JSON; SET_UP is settings.json `machine` with the row's own `machine` fields over it (the node release is the row's own).
 set -eu
+# It runs at the lowest CPU and disk priority, and every program it starts inherits that, so the programs this computer
+# serves keep answering while it works (Nov 21 2026, 3:58-4:01 PM CST: a site's npm ci on a 2-core computer slowed every site
+# it served to 1.07-1.54 s).
+renice -n 19 -p $$ >/dev/null 2>&1 || true
+ionice -c 2 -n 7 -p $$ >/dev/null 2>&1 || true
 RUNS=$1
 SET_UP=$2
 command -v apt-get >/dev/null 2>&1 || { echo "This machine has no apt-get; start-a-computer sets up Debian and Ubuntu machines." >&2; exit 3; }

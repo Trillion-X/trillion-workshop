@@ -5,6 +5,10 @@
 // (Nov 21 2026: a probe run on a Mac at load 54 counted 64 requests over 1 s during an apply that restarted nothing the probe
 // reached), so a request sent while the prober lagged more than `lag-ms` (250) is kept but counted apart (`slow_while_lagging`)
 // and never as the served computer's slowness. `answered_by` is the response's `x-answered-by` header, when its server says.
+// A GET whose connection the server closed before any answer is asked once more on a new connection, as a browser does
+// (Nov 21 2026, 4:02:26 PM CST: a front door's graceful reload closed the kept-alive connections idle at that instant, and a
+// request sent on one just then failed in 71 ms; a browser would have asked again). The request keeps `retried` (the first
+// error) and its `ms` covers both tries, so the summary counts the retries and their wait.
 import { appendFileSync, realpathSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
@@ -27,6 +31,24 @@ export function parseArgs(argv) {
   return given;
 }
 
+const CLOSED_BEFORE_ANSWER = new Set(['UND_ERR_SOCKET', 'ECONNRESET', 'EPIPE']);
+
+/** One GET of `url` as the probe keeps it ({status, ms, answered_by} or {error, ms}, with `retried` when asked twice). */
+export async function askOnce(url, fetchImpl = fetch) {
+  const t = performance.now(), kept = {};
+  for (let tries = 1; ; tries++) {
+    try {
+      const r = await fetchImpl(url, { redirect: 'manual', signal: AbortSignal.timeout(5000) });
+      await r.arrayBuffer();
+      return Object.assign(kept, { status: r.status, ms: Math.round(performance.now() - t), answered_by: r.headers.get('x-answered-by') });
+    } catch (error) {
+      const code = String(error.cause?.code ?? error.name ?? error).slice(0, 80);
+      if (tries === 1 && CLOSED_BEFORE_ANSWER.has(code)) { kept.retried = code; continue; }
+      return Object.assign(kept, { error: code, ms: Math.round(performance.now() - t) });
+    }
+  }
+}
+
 /** The summary of every request kept: counts, percentiles of the ones sent while the prober kept time, and each slow one. */
 export function summarize(requests, { slow_ms, lag_ms }, started, stopped) {
   const timely = requests.filter(r => r.lag_ms <= lag_ms);
@@ -36,6 +58,7 @@ export function summarize(requests, { slow_ms, lag_ms }, started, stopped) {
   const slow = timely.filter(r => r.ms > slow_ms);
   return {
     started, stopped, sent: requests.length, ok: requests.length - failed.length, failed: failed.length,
+    retried: requests.filter(r => r.retried).length,
     slow_over_ms: slow_ms, slow: slow.length, slow_while_lagging: requests.filter(r => r.lag_ms > lag_ms && r.ms > slow_ms).length,
     p50_ms: at(0.5), p99_ms: at(0.99), max_ms: ms.length ? Math.round(ms[ms.length - 1]) : null,
     most_lag_ms: requests.reduce((most, r) => Math.max(most, r.lag_ms), 0),
@@ -48,15 +71,7 @@ async function main() {
   const started = new Date().toISOString(), requests = [], inFlight = new Set();
   let i = 0, due = performance.now();
   const once = async (url, lag) => {
-    const t = performance.now(), at = new Date().toISOString();
-    const kept = { at, url, lag_ms: Math.round(lag) };
-    try {
-      const r = await fetch(url, { redirect: 'manual', signal: AbortSignal.timeout(5000) });
-      await r.arrayBuffer();
-      Object.assign(kept, { status: r.status, ms: Math.round(performance.now() - t), answered_by: r.headers.get('x-answered-by') });
-    } catch (error) {
-      Object.assign(kept, { error: String(error.cause?.code ?? error.name ?? error).slice(0, 80), ms: Math.round(performance.now() - t) });
-    }
+    const kept = { at: new Date().toISOString(), url, lag_ms: Math.round(lag), ...await askOnce(url) };
     requests.push(kept);
     if (given.log) appendFileSync(given.log, `${JSON.stringify(kept)}\n`);
   };

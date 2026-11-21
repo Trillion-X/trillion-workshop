@@ -15,6 +15,11 @@
 # file; the fetch's ssh reads no ssh_config, uses only that agent, and accepts only host_keys (the host's known_hosts lines). The build's own folders (its target
 # and cache) are the row's to name in environment; a target kept in the builds is reused by the next commit.
 set -eu
+# It runs at the lowest CPU and disk priority, and every program it starts inherits that, so the programs this computer
+# serves keep answering while it works (Nov 21 2026, 3:58-4:01 PM CST: a site's npm ci on a 2-core computer slowed every site
+# it served to 1.07-1.54 s).
+renice -n 19 -p $$ >/dev/null 2>&1 || true
+ionice -c 2 -n 7 -p $$ >/dev/null 2>&1 || true
 SOURCE=$1
 field() { printf '%s' "$SOURCE" | jq -r ".$1"; }
 user=$(field user); builds=$(field builds); commit=$(field commit); program=$(field program); output=$(field output)

@@ -9,7 +9,10 @@ import { createServer } from 'node:http';
 import { mkdtempSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { parseArgs, summarize } from '../do-work/probe-while-applying.mjs';
+import { createServer as createTcpServer } from 'node:net';
+import { execFileSync } from 'node:child_process';
+import { writeFileSync } from 'node:fs';
+import { askOnce, parseArgs, summarize } from '../do-work/probe-while-applying.mjs';
 
 const at = '2026-11-21T18:00:00.000Z';
 const settings = { slow_ms: 1000, lag_ms: 250 };
@@ -72,4 +75,70 @@ test('run through a linked path, the probe asks until SIGTERM and prints its sum
   server.close();
   const summary = JSON.parse(said);
   assert.ok(summary.sent > 0 && summary.ok === summary.sent, `asked ${summary.sent}, ok ${summary.ok}`);
+});
+
+// A server that answers the first request on each connection and keeps it open; a request on a reused connection is a reload:
+// that one is dropped unanswered and every kept connection is closed, as a front door's graceful reload closes its idle
+// kept-alive connections the instant a request goes out on one.
+const dropsReused = () => {
+  const open = new Set();
+  return createTcpServer(socket => {
+    let asked = 0;
+    open.add(socket);
+    socket.on('close', () => open.delete(socket));
+    socket.on('data', () => {
+      if (++asked > 1) { for (const each of open) each.destroy(); return; }
+      socket.write('HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: keep-alive\r\n\r\nok');
+    });
+  });
+};
+const listening = server => new Promise(resolve => server.listen(0, '127.0.0.1', () => resolve(`http://127.0.0.1:${server.address().port}/`)));
+
+test('a request whose kept-alive connection closes before any answer is asked again, as a browser does, and keeps that it was', async () => {
+  const server = dropsReused(), url = await listening(server);
+  // The client reuses a connection on its own schedule (Node's fetch: from the third request), so four are asked.
+  const kept = [];
+  for (let i = 0; i < 4; i++) kept.push(await askOnce(url));
+  server.close();
+  assert.deepEqual(kept.map(r => r.status), [200, 200, 200, 200], 'each one dropped is asked again on a new connection');
+  assert.equal(kept[0].retried, undefined);
+  assert.ok(kept.some(r => ['UND_ERR_SOCKET', 'ECONNRESET', 'EPIPE'].includes(r.retried)), 'a reused connection was dropped and asked again');
+  const summary = summarize(kept.map(r => ({ at, url, lag_ms: 0, ...r })), settings, at, at);
+  assert.equal(summary.failed, 0);
+  assert.equal(summary.retried, kept.filter(r => r.retried).length);
+});
+
+test('a server that drops every request still fails, after one more try', async () => {
+  const server = createTcpServer(socket => socket.on('data', () => socket.destroy())), url = await listening(server);
+  const kept = await askOnce(url);
+  server.close();
+  assert.ok(kept.error, 'a failure is never hidden by the retry');
+  assert.equal(summarize([{ at, url, lag_ms: 0, ...kept }], settings, at, at).failed, 1);
+});
+
+// The front door's own reload, when this computer has Caddy: requests every 10 ms through five graceful reloads all answer.
+const caddy = (() => { try { execFileSync('caddy', ['version'], { stdio: 'ignore' }); return true; } catch { return false; } })();
+test('requests asked through a Caddy front door while it reloads five times all answer', { skip: !caddy && 'no caddy on this computer' }, async () => {
+  const free = () => new Promise(resolve => { const s = createTcpServer().listen(0, '127.0.0.1', () => { const { port } = s.address(); s.close(() => resolve(port)); }); });
+  const [port, admin] = [await free(), await free()];
+  const folder = mkdtempSync(join(tmpdir(), 'reload-')), file = join(folder, 'Caddyfile');
+  const write = n => writeFileSync(file, `{\n\tadmin 127.0.0.1:${admin}\n\tgrace_period 10s\n\tstorage file_system ${folder}/data\n}\nhttp://127.0.0.1:${port} {\n\theader x-gen ${n}\n\trespond "ok"\n}\n`);
+  const caddyArgs = verb => [verb, '--config', file, '--adapter', 'caddyfile', ...(verb === 'reload' ? ['--address', `127.0.0.1:${admin}`] : [])];
+  write(0);
+  const running = spawn('caddy', caddyArgs('run'), { stdio: 'ignore' });
+  try {
+    for (let i = 0; i < 50 && !(await askOnce(`http://127.0.0.1:${port}/`)).status; i++) await new Promise(resolve => setTimeout(resolve, 100));
+    const kept = [];
+    let asking = true;
+    const ask = (async () => { while (asking) { kept.push(await askOnce(`http://127.0.0.1:${port}/`)); await new Promise(resolve => setTimeout(resolve, 10)); } })();
+    for (let n = 1; n <= 5; n++) {
+      write(n);
+      execFileSync('caddy', caddyArgs('reload'), { stdio: 'ignore' });
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+    asking = false;
+    await ask;
+    assert.ok(kept.length > 20, `asked ${kept.length}`);
+    assert.deepEqual(kept.filter(r => r.status !== 200), [], 'every request answered');
+  } finally { running.kill('SIGTERM'); }
 });
