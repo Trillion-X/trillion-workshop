@@ -3,7 +3,7 @@
   "start_here": "Say to your AI: \"Work out the nutrients in my recipe, per batch and per 100 g, against the daily intakes an adult needs\", with {\"id\":\"made-up-smoothie\",\"title\":\"Made-up smoothie\",\"built\":\"2026-01-01T00:00:00+00:00\",\"datasets\":{\"made_up\":{\"food_nutrient\":\"id,fdc_id,nutrient_id,amount\\n1,101,1008,60\\n2,101,1003,3\\n3,101,1087,120\\n4,102,2047,90\\n5,102,1003,1\\n6,102,1093,\\n\",\"food_portion\":\"id,fdc_id,seq_num,amount,measure_unit_id,portion_description,modifier,gram_weight\\n1,101,1,1,1,,cup,240\\n\",\"food\":\"fdc_id .... It runs tool:work-out-a-recipes-nutrients-from-fooddata-central and answers {\"profile\":{\"id\":\"made-up-smoothie\",\"built\":\"2026-01-01T00:00:00+00:00\",\"basis\":\"per_batch = the whole batch; per_100g over mix mass\",\"mix_mass_g\":340,\"cross_check\":{\"this_model\":{\"kcal\":234,\"protein_g\":8.2}},\"nutrients\":[{\"key\":\"energy\",\"nutrient\":\"Energy\",\"unit\":\"kcal\",\"per_batch\":234,\"per_100g\":68.824,\"ingredients_without_data\":[]},{\"key\":\"protein\",\"nutrient\":\"Protein\",\"unit\":\"g\" ...",
   "lists": [
     {
-      "list": "list:settings",
+      "list": "list:tool-settings",
       "label": "Settings",
       "row_type": "record:setting",
       "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
@@ -174,7 +174,7 @@
     "least_coverage": 0.8,
     "how": "Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
-      "kit_list": "list:settings",
+      "kit_list": "list:tool-settings",
       "into": {
         "list": "list:my-settings",
         "row_type": "record:setting",
