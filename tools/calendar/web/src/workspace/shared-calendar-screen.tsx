@@ -62,7 +62,7 @@ import { shownChord } from './keymap.mjs';
 import { calendarKeyActions, shortcutOfAction } from './calendar-key-actions';
 import { TASK_KEY, VerbList, VerbPanel, taskVerbs, verbForKey, verbsAsNodeActions, type Verb, type VerbContext } from './task-verbs';
 import { formatElapsed, useElapsedSeconds } from '../../../../organize-the-sidebar/show/use-elapsed';
-import { readCalendar, readCalendarAccounts, readCalendarTasks } from './calendar-owners';
+import { createCalendarTask, readCalendar, readCalendarAccounts, readCalendarTasks } from './calendar-owners';
 import { CalendarControls, calendarFormatChoice, calendarZoneGutters, type CalendarAccount, type CalendarControlPreferences, type CalendarSelection } from './calendar-controls';
 import { itemsOf } from '../calendar.mjs';
 import { EmailSurface, type MailMessageFacts } from './email-screen';
@@ -548,7 +548,6 @@ export function mountSharedCalendarScreen(element: HTMLElement, props: { surface
   let mailDetailOpen = false;
   function mailDetailChanged(open: boolean) { if (open !== mailDetailOpen) { mailDetailOpen = open; redraw(); } }
   let mailComposeRequest = 0;
-  let quickTaskRequest = { value: '', key: '' };
   const duplicateTaskRequests = new Map<string, string>();
   let planning = false;
   let applyingPlan = false;
@@ -692,23 +691,14 @@ export function mountSharedCalendarScreen(element: HTMLElement, props: { surface
   async function quickAddTask(text: string): Promise<boolean> {
     const parsed = parseQuickTask(text, { lists: placeLists(), now: Date.now() });
     if (!parsed.title) return false;
-    const raw = text.trim();
-    if (quickTaskRequest.value !== raw) quickTaskRequest = { value: raw, key: crypto.randomUUID() };
     // A list named in the words wins; otherwise the todo goes in the list the tabs have open, when that list takes tasks.
     const place = moveTarget(parsed.list?.id ?? activeList);
-    let created: { task?: Task } = {};
     try {
-      created = await postJson('/work/api/calendar/tasks', { action: 'create', title: parsed.title, duration_minutes: screenData.task_minutes, request_key: quickTaskRequest.key,
+      await createCalendarTask({ title: parsed.title, duration_minutes: screenData.task_minutes,
         ...(place ? { collection_id: place.collection_id, ...(place.smart_list ? { smart_list: place.smart_list } : {}) } : {}) });
     } catch (error) {
       notify(errorWords(error), { kind: 'error' });
       return false;
-    }
-    quickTaskRequest = { value: '', key: '' };
-    if (parsed.day !== null && parsed.minute !== null && created.task) {
-      const start = instantOf(parsed.day, parsed.minute);
-      try { await postJson('/work/api/calendar/tasks', { action: 'schedule', task_id: created.task.id, start, end: new Date(Date.parse(start) + screenData.task_minutes * 60_000).toISOString() }); }
-      catch (error) { notify(errorWords(error), { kind: 'error' }); }
     }
     try { await screen.reload(); }
     catch (error) { notify(errorWords(error), { kind: 'error' }); }

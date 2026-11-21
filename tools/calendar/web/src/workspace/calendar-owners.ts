@@ -18,7 +18,10 @@
 import { runWorkshopTool } from '../../../../workspace-screens/web/src/workspace/workshop-tool-api';
 import type { Item, SourceState, Task } from './calendar-screen-core';
 import type { CalendarAccount } from './calendar-controls';
+import { pass } from '../../../../workspace-screens/web/src/workspace/account-pass';
 import owners from './calendar-owners.json';
+import { createTaskQuery, personOfToken, personTasksQuery, taskOfRow } from './calendar-task-rows.mjs';
+import type { TaskOwner, TaskQuery } from './calendar-task-rows.d.mts';
 
 type Account = { id: string; user_id: string | null; toolkit: string | null; alias: string | null; status: string | null };
 type Block = { id: string; interval?: { start?: string; end?: string; allDay?: boolean }; display?: { title?: string }; relations?: { linkedRecord?: string[] } };
@@ -70,10 +73,37 @@ export async function readCalendarAccounts(): Promise<{ accounts: CalendarAccoun
   return { accounts: accounts.map(account => ({ source_id: sourceOf(account), connection_id: account.id, connected_at: '', account_label: labelOf(account), calendars: [{ id: 'primary', summary: labelOf(account), primary: true, writable: false }] })), selections: null };
 }
 
-/** The person's timed tasks. No owner of them is named yet (calendar-owners.json), so the list is empty, said as
- *  complete, never a failure. */
+const tasksOwner = owners.tasks as TaskOwner;
+
+/** One statement on the task owner's table, through the SQL tool with its timeout. */
+async function runTaskSql(query: TaskQuery): Promise<Record<string, unknown>[]> {
+  const ran = await runWorkshopTool<{ rows?: Record<string, unknown>[] }>(tasksOwner.tool, { database: tasksOwner.database, sql: query.sql, params: query.params, statement_timeout_ms: tasksOwner.statement_timeout_ms });
+  return ran.result?.rows ?? [];
+}
+
+/** The signed-in person's id: the subject of his pass. Null when the pass names none, so nothing is read for him. */
+const signedInPerson = async (): Promise<string | null> => personOfToken(await pass());
+
+/** The person's open tasks: the rows that name him as an assignee or that he sent, newest first, at most `most_tasks`.
+ *  No signed-in id answers the empty list, said as complete. */
 export async function readCalendarTasks(): Promise<{ tasks: Task[]; page: { complete: boolean; next_cursor: null }; collections: []; collections_page: { complete: boolean; next_cursor: null } }> {
-  return { tasks: [], page: { complete: true, next_cursor: null }, collections: [], collections_page: { complete: true, next_cursor: null } };
+  const person = await signedInPerson();
+  const rows = person ? await runTaskSql(personTasksQuery(tasksOwner, person)) : [];
+  return {
+    tasks: rows.map(row => taskOfRow(row, tasksOwner) as Task),
+    page: { complete: rows.length < tasksOwner.most_tasks, next_cursor: null },
+    collections: [], collections_page: { complete: true, next_cursor: null },
+  };
+}
+
+/** A task the person typed: written sent by him and assigned to him, so the list shows it at once. */
+export async function createCalendarTask(input: { title: string; duration_minutes?: number; collection_id?: string | null; smart_list?: string | null }): Promise<{ task: Task }> {
+  const person = await signedInPerson();
+  if (!person) throw new Error(tasksOwner.signed_out);
+  const id = `record:calendar-task:${crypto.randomUUID()}`;
+  const [row] = await runTaskSql(createTaskQuery(tasksOwner, person, input, id, new Date().toISOString()));
+  if (!row) throw new Error(tasksOwner.not_kept);
+  return { task: taskOfRow(row, tasksOwner) as Task };
 }
 
 /** A mail account the Mail screen can open: its Composio connection, and the user id Composio asks with it. */

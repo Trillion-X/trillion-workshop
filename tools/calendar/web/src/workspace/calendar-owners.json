@@ -1,5 +1,5 @@
 {
-  "_what": "Where the Calendar screen (shared-calendar-screen.tsx, read through calendar-owners.ts) reads the person's calendar now that the Worker's /work/api/calendar routes are retired. Events: every account `accounts_tool` lists for `accounts_toolkit` whose status is `working_status`, each read by `events_tool` with `provider` over the range shown, at most `most_events` per account; an account whose read fails stays listed with its words. Tasks: no owner of a person's own timed tasks is named yet (a shared tool names no person's database), so the task list answers empty. Reading only: nothing here writes.",
+  "_what": "Where the Calendar screen (shared-calendar-screen.tsx, read through calendar-owners.ts) reads the person's calendar now that the Worker's /work/api/calendar routes are retired. Events: every account `accounts_tool` lists for `accounts_toolkit` whose status is `working_status`, each read by `events_tool` with `provider` over the range shown, at most `most_events` per account; an account whose read fails stays listed with its words. Tasks: the person's rows of calendar_tasks (see `_tasks`), read and written by SQL; with no signed-in person id the list answers empty.",
   "accounts_tool": "tool:list-my-connected-accounts",
   "accounts_toolkit": "googlecalendar",
   "working_status": "ACTIVE",
@@ -8,5 +8,26 @@
   "most_events": 250,
   "_mail": "Mail accounts: every account `accounts_tool` lists for `mail_toolkit` whose status is `working_status`, each one a mail account on `mail_provider` (a row of tools/read-and-write-mail/read-data/mail-providers.json). Its mail tools take the account's connection id with the user id Composio asks for (`connection.user_id`).",
   "mail_toolkit": "gmail",
-  "mail_provider": "gmail-via-composio"
+  "mail_provider": "gmail-via-composio",
+  "_tasks": "The person's tasks: the owner's table public.calendar_tasks in his database, read and written through tool:run-sql-in-my-database. Rows are his when assignees names his signed-in id or sent_by is that id (calendar-task-rows.mjs). Every statement carries statement_timeout_ms and a row limit; the table's indexes are the owner's to make (see the calendar README).",
+  "tasks": {
+    "tool": "tool:run-sql-in-my-database",
+    "database": "trillion_for_who_runs_it",
+    "table": "calendar_tasks",
+    "statement_timeout_ms": 5000,
+    "most_tasks": 200,
+    "hidden_statuses": ["Done"],
+    "default_status": "To do",
+    "new_status": "To do",
+    "default_minutes": 30,
+    "signed_out": "Sign in to keep a task.",
+    "not_kept": "The task could not be kept. Try again.",
+    "columns": {
+      "id": "id", "title": "title", "description": "description", "priority": "priority", "labels": "labels",
+      "duration_minutes": "duration_minutes", "minimum_duration_minutes": "minimum_duration_minutes", "due": "due",
+      "starts_at": "starts_at", "ends_at": "ends_at", "status": "status", "collection_id": "collection_id",
+      "parent_id": "parent_id", "manual_order": "manual_order", "source_id": "source_id", "made_at": "made_at",
+      "changed_at": "changed_at", "smart_list": "smart_list", "assignees": "assignees", "sent_by": "sent_by"
+    }
+  }
 }
