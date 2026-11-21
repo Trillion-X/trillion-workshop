@@ -26,6 +26,23 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 /** The shipped default read under `label`, or null when none ships. */
 export const shippedFor = label => shippedDefaults.records.map(row => row.payload).find(one => one?.kind === 'shipped-default' && one.record === label) ?? null;
 
+// A rule of a shipped entry (merge.rules_switched: { field, off_in, list }) belongs to a switch: its `switch` id, or its own
+// id when it names none. Rules that share a switch switch together. The person's record names a switch under the entry's
+// off_in map: starting.<entry id>.switches.<switch id>.on false. The rules of a switched-off switch are taken out of the
+// entry where the entry is laid, and where the entry is unchanged they are kept out of the person's record.
+const ruleSwitchOf = shipped => (object(shipped?.merge?.rules_switched) && word(shipped.merge.rules_switched.field) && word(shipped.merge.rules_switched.off_in) && word(shipped.merge.rules_switched.list)
+  ? shipped.merge.rules_switched : null);
+const switchOf = rule => (word(rule?.switch) ? rule.switch : rule?.id);
+const switchedOff = (own, off_in, id, rule) => own[off_in]?.[id]?.switches?.[switchOf(rule)]?.on === false;
+
+// The shipped entry with the rules of the switches the person switched off taken out.
+const withRulesSwitched = (entry, own, rules) => {
+  if (!rules || !object(own)) return entry;
+  const { list, off_in } = rules;
+  if (!Array.isArray(entry?.[list])) return entry;
+  return { ...entry, [list]: entry[list].filter(rule => !(object(rule) && switchedOff(own, off_in, entry.id, rule))) };
+};
+
 const parts = shipped => {
   const byId = shipped ? listOf(shipped.merge?.by_id) : [];
   // Each by_id field's shipped entries, kept as [field, entries].
@@ -37,13 +54,16 @@ const parts = shipped => {
 
 /** The person's record with the default shipped for `label` laid under it; the record itself when nothing ships. */
 export function shippedUnder(label, record) {
-  const { lists, on } = parts(shippedFor(label));
+  const shipped = shippedFor(label);
+  const { lists, on } = parts(shipped);
   if (!lists.some(([, entries]) => entries.length) && !on.length) return record ?? null;
   const own = object(record) ? record : {};
   const laid = { ...own };
+  const rules = ruleSwitchOf(shipped);
   for (const [field, entries] of lists) {
     const owned = listOf(own[field]);
-    const merged = [...entries.filter(entry => !owned.some(one => object(one) && one.id === entry.id)), ...owned];
+    const shownEntries = field === rules?.field ? entries.map(entry => withRulesSwitched(entry, own, rules)) : entries;
+    const merged = [...shownEntries.filter(entry => !owned.some(one => object(one) && one.id === entry.id)), ...owned];
     if (merged.length) laid[field] = merged;
   }
   for (const field of new Set(on.map(one => one.field))) {
@@ -57,7 +77,12 @@ export function shippedUnder(label, record) {
   // The switches were read into their fields, so the off_in maps keep only what is not a shipped switch.
   for (const off_in of new Set(on.map(one => one.off_in))) {
     if (!object(own[off_in])) continue;
-    laid[off_in] = Object.fromEntries(Object.entries(own[off_in]).filter(([id]) => !on.some(one => one.id === id && one.off_in === off_in)));
+    // A shipped switch's on flag is read into its field; its switches of rules stay where the person keeps them.
+    laid[off_in] = Object.fromEntries(Object.entries(own[off_in]).flatMap(([id, state]) => {
+      if (!on.some(one => one.id === id && one.off_in === off_in)) return [[id, state]];
+      const { on: _flag, ...rest } = object(state) ? state : {};
+      return Object.keys(rest).length ? [[id, rest]] : [];
+    }));
   }
   return laid;
 }
@@ -70,10 +95,15 @@ export function shippedOff(label, after, before) {
   const own = object(before) ? before : {};
   const next = { ...after };
   const keptIds = new Set();
+  const rules = ruleSwitchOf(shippedFor(label));
+  // A shipped entry the person kept but whose rules they removed is unchanged: the removed rules are switches, not a copy.
+  const unlessRulesRemoved = (shipped, entry) => (rules && rules.field && Array.isArray(entry?.[rules.list])
+    ? { ...shipped, [rules.list]: listOf(shipped[rules.list]).filter(rule => entry[rules.list].some(one => object(one) && one.id === rule.id)) }
+    : shipped);
   for (const [field, entries] of lists) {
     const kept = listOf(after[field]).filter(entry => {
       const shipped = entries.find(one => one.id === entry?.id);
-      return !shipped || listOf(own[field]).some(one => object(one) && one.id === entry.id) || !same(entry, shipped);
+      return !shipped || listOf(own[field]).some(one => object(one) && one.id === entry.id) || !same(entry, unlessRulesRemoved(shipped, entry));
     });
     for (const entry of kept) if (object(entry)) keptIds.add(entry.id);
     delete next[field];
@@ -88,9 +118,25 @@ export function shippedOff(label, after, before) {
   for (const { field, id, off_in } of on) {
     if (keptIds.has(id)) continue; // the person keeps their own copy: their own list says
     const switches = object(next[off_in]) ? { ...next[off_in] } : {};
-    if (listOf(after[field]).includes(id)) delete switches[id];
-    else switches[id] = { on: false };
+    const { on: _flag, ...rest } = object(switches[id]) ? switches[id] : {};
+    if (listOf(after[field]).includes(id)) { if (Object.keys(rest).length) switches[id] = rest; else delete switches[id]; }
+    else switches[id] = { ...rest, on: false };
     next[off_in] = switches;
+  }
+  if (rules?.field) {
+    for (const entry of lists.find(([field]) => field === rules.field)?.[1] ?? []) {
+      const current = listOf(after[rules.field]).find(one => object(one) && one.id === entry.id);
+      if (!current || keptIds.has(entry.id)) continue; // a shipped entry the person no longer keeps, or keeps their own copy of
+      const removed = listOf(entry[rules.list]).filter(rule => !listOf(current[rules.list]).some(one => object(one) && one.id === rule.id));
+      const switches = object(next[rules.off_in]) ? { ...next[rules.off_in] } : {};
+      const { switches: _was, ...state } = object(switches[entry.id]) ? switches[entry.id] : {};
+      const off = Object.fromEntries(removed.map(rule => [switchOf(rule), { on: false }]));
+      if (Object.keys(off).length) switches[entry.id] = { ...state, switches: off };
+      else if (Object.keys(state).length) switches[entry.id] = state;
+      else delete switches[entry.id];
+      if (Object.keys(switches).length) next[rules.off_in] = switches;
+      else delete next[rules.off_in];
+    }
   }
   return next;
 }

@@ -399,11 +399,23 @@ export function changedRecord(data, record, change, now, authority = null) {
   }
   // A profile is switched on or off only while the person keeps it (record.types), so an operator's given type never is.
   if (change.use) {
-    const { type, on } = change.use;
+    const { type, on, switch: name } = change.use;
     if (typeof type !== 'string' || !type) throw new Error('use names type, the id of a profile you keep, and on: true to switch it on, false to switch it off.');
     if (typeof on !== 'boolean') throw new Error('use.on is true or false.');
     if (!types.some(one => one.id === type)) throw new Error(`No profile ${type} is kept here; keep it with { type } first. Kept profiles: ${types.map(one => one.id).join(', ') || 'none'}.`);
-    inUse = on ? [...new Set([...inUse, type])] : inUse.filter(id => id !== type);
+    if (name === undefined) {
+      inUse = on ? [...new Set([...inUse, type])] : inUse.filter(id => id !== type);
+    } else {
+      // With a switch: the rules of this profile that share the switch (a rule's `switch`, or its own id) switch on or off
+      // together; starting.<type>.switches.<switch>.on false while off, removed when on.
+      if (typeof name !== 'string' || !name.trim()) throw new Error('use.switch is the switch of the profile\'s rules, a word.');
+      const entry = object(starting[type]) ? starting[type] : {};
+      const switches = object(entry.switches) ? { ...entry.switches } : {};
+      if (on) delete switches[name]; else switches[name] = { on: false };
+      const { switches: _was, ...others } = entry;
+      const next = { ...others, ...(Object.keys(switches).length ? { switches } : {}) };
+      if (Object.keys(next).length) starting[type] = next; else delete starting[type];
+    }
   }
   if (change.save) {
     const problem = ruleProblem(data, change.save, authority);

@@ -238,6 +238,13 @@ export function makeShowRules({ held = {}, filterRows, authority = 'personal', n
       if (!object(value.starting)) throw new Error('Starting-rule state must be a map of ids to { on }.');
       const known = new Set((data.starting_rules ?? []).map(rule => rule.id));
       for (const [id, state] of Object.entries(value.starting)) {
+        // A kept type's rules switched off by their switch: starting.<type id>.switches.<switch>.on false (a shipped type's
+        // rules a person turns off; the type's own switch, when it has one, is its on flag).
+        if (object(state) && state.switches !== undefined) {
+          if (typeof id !== 'string' || !id.trim() || !object(state.switches) || Object.values(state.switches).some(one => !object(one) || one.on !== false)
+            || (state.on !== undefined && typeof state.on !== 'boolean')) throw new Error(`Rule switches for ${id} are not valid.`);
+          continue;
+        }
         if (!known.has(id) || !object(state) || typeof state.on !== 'boolean') throw new Error(`Starting-rule state for ${id} is not valid.`);
         const starting = data.starting_rules.find(rule => rule.id === id);
         const problem = ruleProblem(data, starting, authority);

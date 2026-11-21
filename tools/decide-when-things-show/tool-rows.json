@@ -2491,6 +2491,10 @@
                 },
                 "on": {
                   "type": "boolean"
+                },
+                "switch": {
+                  "type": "string",
+                  "description": "Optional. Names the switch the profile's rules share (a rule's switch, or its own id): the rules that share it switch off or on together, and the record keeps starting.<type>.switches.<switch>.on. Left out, the whole profile switches."
                 }
               }
             },
