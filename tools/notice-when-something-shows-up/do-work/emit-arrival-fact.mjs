@@ -565,7 +565,9 @@ export async function runResidentEmitter({
           console.log(
             `${consecutiveFailures} appends in a row failed; exiting so the supervisor restarts this with a fresh environment`,
           );
-          process.exit(0);
+          // 75 (EX_TEMPFAIL): restart me. Never 0, which says the waiter is done: the engine kept a noticer that exited 0
+          // here ended until it was switched again (Nov 21 2026, 4:11 PM CST on the Mac).
+          process.exit(75);
         }
       },
     }).catch(async (error) => {
@@ -624,7 +626,13 @@ async function recordRefusal(carrier, row, error, nowMs) {
   }
 }
 
+/** How long a waiter first waits when the door has no room for its fact (owed_full), and the longest it waits. */
+const ROOM_FULL_FIRST_WAIT_MS = 1000;
+const ROOM_FULL_MOST_WAIT_MS = 60_000;
+
 async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, connection: runs }) {
+  /** Full-door refusals in a row for this waiter (`ROOM_FULL_FIRST_WAIT_MS`). */
+  let roomFullWaits = 0;
   const { declared, mechanism } = resolved;
   // A waiter's own credential is the place it watches; one without reads with the run's one credential, if any.
   const connection = declared.credential_name ?? runs;
@@ -720,6 +728,7 @@ async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, c
         });
         previousObservedAt = observedAt;
         sequence += 1;
+        roomFullWaits = 0;
         onWriteOutcome(true);
         return true;
       } catch (error) {
@@ -727,6 +736,14 @@ async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, c
           `notice-when-something-shows-up: could not append the fact for ${declared.waiter_ref}:`,
           error?.message ?? error,
         );
+        // No room at the door now (owed_full): the fact is fine. It is not a failed append; the waiter waits, longer each
+        // time up to ROOM_FULL_MOST_WAIT_MS, and tells it again (its mechanism keeps its place until a fact is taken).
+        if (error?.roomFull) {
+          roomFullWaits += 1;
+          const wait = Math.min(ROOM_FULL_FIRST_WAIT_MS * 2 ** (roomFullWaits - 1), ROOM_FULL_MOST_WAIT_MS);
+          await new Promise((resolve) => setTimeout(resolve, wait));
+          return false;
+        }
         onWriteOutcome(false);
         return false;
       }

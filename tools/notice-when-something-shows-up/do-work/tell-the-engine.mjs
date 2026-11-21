@@ -88,13 +88,24 @@ export async function operateOverDoor(door, method, input, requestKey, { fetchIm
   return { response, result: answer.result ?? {} };
 }
 
+/** The door's code for a fact it had no room for now (its waiting facts, its owed facts or its book are full,
+ *  trillion-rust src/wake.rs `Failure::Full`): the fact is fine and is told again later. */
+export const ROOM_FULL_CODE = 'owed_full';
+
+/** The error a refused fact throws: the engine's words, and `roomFull` when the door had no room for it now, so a teller
+ *  waits and tells it again instead of counting a broken fact (Nov 21 2026, 4:11 and 4:47 PM CST on the Mac: the row changes
+ *  noticer counted ten full-owed refusals as failures and stopped). */
+export function refusedFact(why, code) {
+  return Object.assign(new Error(`the engine refused the fact: ${why}`), { code: code ?? null, roomFull: code === ROOM_FULL_CODE });
+}
+
 /** Tells one fact to the engine at its door's `wake:arrive`. Resolves when the engine took it; throws with the engine's
  *  words when it refused it, so a caller can answer the service "not taken" and be called again. */
 export async function arriveOverDoor(door, fact, { fetchImpl = fetch } = {}) {
   const { response, result } = await operateOverDoor(door, ARRIVE, fact, `fact:${fact.event_id}`, { fetchImpl });
   if (!response.ok || result.isError) {
     const why = result.structuredContent?.detail ?? result.structuredContent?.code ?? `HTTP ${response.status}`;
-    throw new Error(`the engine refused the fact: ${why}`);
+    throw refusedFact(why, result.structuredContent?.code);
   }
   return fact;
 }
@@ -142,7 +153,7 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
       const why = result.structuredContent?.detail ?? result.structuredContent?.code ?? `HTTP ${response.status}`;
       say(JSON.stringify({ refused: fact.kind, event_id: fact.event_id, why }));
       answer.refused.push({ ...fact, why });
-      throw new Error(`the engine refused the fact: ${why}`);
+      throw refusedFact(why, result.structuredContent?.code);
     }
     say(JSON.stringify({ told: fact.kind, event_id: fact.event_id }));
     answer.told.push(fact);
