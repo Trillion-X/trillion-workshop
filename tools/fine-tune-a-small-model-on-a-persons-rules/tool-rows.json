@@ -282,7 +282,7 @@
               "description": "{spoken_goods, other_goods, short_goods}: how many of each kind of good line each law trains on."
             },
             "settings_record": {
-              "description": "The person's settings row record:setting:fine-tune-a-small-model-on-a-persons-rules~<scope_kind>~<scope_id> from their list:settings, exactly as selected from their database with plain SQL (or as tool:read-a-tool-setting answers it), or the path of a JSON file holding it. Its settings' build object gives every request key the request does not give (an object both give is merged key by key). Read by tools/settings/read-data/settings.py; a list of rows, or a JSON file of them, is read too."
+              "description": "The person's settings row record:setting:fine-tune-a-small-model-on-a-persons-rules~<scope_kind>~<scope_id> from their settings table, exactly as selected from their database with plain SQL (or as tool:read-a-tool-setting answers it), or the path of a JSON file holding it. Its settings' build object gives every request key the request does not give (an object both give is merged key by key). Read by tools/settings/read-data/settings.py; a list of rows, or a JSON file of them, is read too."
             },
             "settings": {
               "type": "object",
@@ -573,7 +573,7 @@
               "description": "CPU threads (default 2)."
             },
             "settings_record": {
-              "description": "The person's settings row record:setting:fine-tune-a-small-model-on-a-persons-rules~<scope_kind>~<scope_id> from their list:settings, exactly as selected from their database with plain SQL (or as tool:read-a-tool-setting answers it), or the path of a JSON file holding it. Its settings' train object gives every request key the request does not give (an object both give is merged key by key). Read by tools/settings/read-data/settings.py; a list of rows, or a JSON file of them, is read too."
+              "description": "The person's settings row record:setting:fine-tune-a-small-model-on-a-persons-rules~<scope_kind>~<scope_id> from their settings table, exactly as selected from their database with plain SQL (or as tool:read-a-tool-setting answers it), or the path of a JSON file holding it. Its settings' train object gives every request key the request does not give (an object both give is merged key by key). Read by tools/settings/read-data/settings.py; a list of rows, or a JSON file of them, is read too."
             },
             "settings": {
               "type": "object",
@@ -858,7 +858,7 @@
               "type": "integer"
             },
             "settings_record": {
-              "description": "The person's settings row record:setting:fine-tune-a-small-model-on-a-persons-rules~<scope_kind>~<scope_id> from their list:settings, exactly as selected from their database with plain SQL (or as tool:read-a-tool-setting answers it), or the path of a JSON file holding it. Its settings' score object gives every request key the request does not give (an object both give is merged key by key). Read by tools/settings/read-data/settings.py; a list of rows, or a JSON file of them, is read too."
+              "description": "The person's settings row record:setting:fine-tune-a-small-model-on-a-persons-rules~<scope_kind>~<scope_id> from their settings table, exactly as selected from their database with plain SQL (or as tool:read-a-tool-setting answers it), or the path of a JSON file holding it. Its settings' score object gives every request key the request does not give (an object both give is merged key by key). Read by tools/settings/read-data/settings.py; a list of rows, or a JSON file of them, is read too."
             },
             "settings": {
               "type": "object",
