@@ -20,7 +20,7 @@ Moved from a film's tools folder (`package_lines.py`). The overlap rule and the 
 |---|---|
 | `archive` | The archive index: a JSON list of `{id, recording, start_line, end_line, text}`, one item per window. A path inside the granted folder. |
 | `ranges` | Line ranges `first-last`: a list, or one string with spaces between them. |
-| `settings_record` | The person's `list:settings` row for this folder, `record:setting:name-the-recording-behind-transcript-lines~<scope_kind>~<scope_id>`, as the record itself `{ id, type, value }`; an id alone is refused. |
+| `settings_record` | The person's settings table row for this folder, `record:setting:name-the-recording-behind-transcript-lines~<scope_kind>~<scope_id>`, as the record itself `{ id, type, value }`; an id alone is refused. |
 | `settings` | Settings for this run, laid over the row's. |
 
 Settings (defaults in `do-work/name_recording.py`): `archive` (used when the request names none; `null`) and `preview_chars` (how many first characters of a window to show; 120).
