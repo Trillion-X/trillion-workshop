@@ -1,9 +1,9 @@
 {
-  "drafted_from": "tools/cite-principles-from-captions/tool-rows.json, do-work/cite_principles.py, read-data/captions.py, ../settings/read-data/settings.mjs, the list definition list:settings (read only) and test/cite-principles.test.mjs; the corpus and find commands were run here on 2026-11-13 on the test's own made-up fixture (test/make_fixture.py)",
+  "drafted_from": "tools/cite-principles-from-captions/tool-rows.json, do-work/cite_principles.py, read-data/captions.py, ../settings/read-data/settings.mjs, the list definition the settings table (read only) and test/cite-principles.test.mjs; the corpus and find commands were run here on 2026-11-13 on the test's own made-up fixture (test/make_fixture.py)",
   "start_here": "Say to your AI: \"Build a corpus from my folder of captions at ./captions, with my views table ./views.tsv, and prove this quote is really said in video vidA1: The secret is patience.\" It runs the tool's corpus and find commands on your computer.",
   "lists": [
     {
-      "list": "list:settings",
+      "list": "list:tool-settings",
       "label": "Settings",
       "row_type": "record:setting",
       "holds": "One row per tool and scope with the values the tool reads at run time: what the principles are about, caps, lanes, merge groups and the index template.",
@@ -113,7 +113,7 @@
   "instructions": [
     "1. Save each video's captions and details into one folder with yt-dlp (--write-subs --write-auto-subs --write-info-json --skip-download): <id>.en.json3 and <id>.info.json per video. Optionally keep a views.tsv with columns channel, kind and views.",
     "2. Say \"Build a corpus from ./captions\". The AI reads the row with tools:list and runs python3 trillion-workshop/tools/cite-principles-from-captions/do-work/cite_principles.py corpus --captions ./captions --views-table ./views.tsv --out ./work/corpus.jsonl.",
-    "3. Tell your AI what the principles should be about. It keeps that as a terms file or as your list:settings row (pour the two example rows, see pour), then runs candidates, reads the passages and writes working rows with exact quotes.",
+    "3. Tell your AI what the principles should be about. It keeps that as a terms file or as your settings table row (pour the two example rows, see pour), then runs candidates, reads the passages and writes working rows with exact quotes.",
     "4. Run verify on the rows and fix every BAD, TOFF or MISSING line (find gives the second a quote is said at), then run registry for the ranked principles and index for the page.",
     "5. Read how many principles there are, the strongest by evidence and any only one channel backs."
   ],
@@ -156,7 +156,7 @@
     "least_coverage": 0.8,
     "how": "Name the list where you already keep per-project settings and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than least_coverage match, and otherwise answers the records:write that adds the example rows to your list, leaving your own rows untouched.",
     "example": {
-      "kit_list": "list:settings",
+      "kit_list": "list:tool-settings",
       "into": {
         "list": "list:project-preferences",
         "row_type": "record:project-preference",

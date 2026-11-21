@@ -11,8 +11,8 @@ videos they came from.
   cite_principles.py registry    --corpus FILE --rows GLOB --out principles.jsonl [--id-map FILE] [--lanes FILE] [--merge FILE]
   cite_principles.py index       --registry principles.jsonl --corpus FILE --out INDEX.md [--views-table FILE.tsv] [--id-map FILE] [--template FILE.md]
 
-candidates, registry and index also take --settings-record FILE [--scope KIND:ID ...]: the person's list:settings row(s) for this
-tool as records:read gives them (record:setting:cite-principles-from-captions~<scope_kind>~<scope_id>), read through
+candidates, registry and index also take --settings-record FILE [--scope KIND:ID ...]: the person's settings table row(s) for this
+tool as the settings table read gives them (record:setting:cite-principles-from-captions~<scope_kind>~<scope_id>), read through
 tools/settings. Its settings object holds any of "terms", "caps", "lanes", "merge" (the JSON each file flag takes) and
 "index-template" (the Markdown --template takes). A file flag given beside it wins for that one setting.
 
@@ -79,7 +79,7 @@ def scopes_of(given):
 
 
 def settings_from_record(args):
-    """The settings object of the person's list:settings row for this tool (an empty object when none is given)."""
+    """The settings object of the person's settings table row for this tool (an empty object when none is given)."""
     given = getattr(args, "settings_record", None)
     if not given:
         return {}
@@ -635,7 +635,7 @@ def command_extract(args):
 
 
 def settings_arguments(s):
-    s.add_argument("--settings-record", help="the person's list:settings row(s) for this tool as records:read gives them (a JSON file, or the JSON itself): "
+    s.add_argument("--settings-record", help="the person's settings table row(s) for this tool as the settings table read gives them (a JSON file, or the JSON itself): "
                    'settings {"terms", "caps", "lanes", "merge", "index-template"}; a file flag beside it wins for that setting')
     s.add_argument("--scope", nargs="*", help="KIND:ID scopes to choose the row by, most specific first (default account:main)")
 

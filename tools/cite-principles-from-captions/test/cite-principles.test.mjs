@@ -203,7 +203,7 @@ test('registry without a lanes or merge file keeps each row on its own with no s
   assert.ok(lines(join(work, 'plain.jsonl')).every(p => p.stages.length === 0 && !p.merged_from));
 });
 
-test('one list:settings row gives candidates, registry and index the same terms, caps, lanes, merge and template as the files', () => {
+test('one settings table row gives candidates, registry and index the same terms, caps, lanes, merge and template as the files', () => {
   const read = name => readFileSync(join(work, name), 'utf8');
   const template = '# Garden principles\n\n{count:principles} principles.\n\n<!-- cite-principles:lanes 2 -->\n<!-- /cite-principles:lanes -->\n';
   const settings = { terms: JSON.parse(read('terms.json')), caps: { 'Channel Beta': 0 }, lanes: JSON.parse(read('lanes.json')),
