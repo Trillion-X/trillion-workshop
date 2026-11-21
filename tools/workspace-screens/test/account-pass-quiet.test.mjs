@@ -22,7 +22,7 @@ function page({ landAt }) {
     asked.push({ url: String(url), init });
     if (String(url).startsWith(`${ORIGIN}${flow.authorize}`)) {
       const state = new URL(url).searchParams.get('state');
-      return { ok: true, url: landAt(state), body: { cancel: async () => {} } };
+      return { ok: true, url: landAt(state), headers: new Headers(), body: { cancel: async () => {} } };
     }
     return { ok: true, json: async () => ({ access_token: 'pass-1', refresh_token: 'renew-1', expires_in: 3600 }) };
   };

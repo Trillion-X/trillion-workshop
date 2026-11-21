@@ -53,20 +53,41 @@ const retryAfterOf = (response: Response): number => {
   return Number.isFinite(seconds) && seconds > 0 ? Math.ceil(seconds) : 0;
 };
 
+/** The code a callback address carries for this page's own callback and state, or null when it is not that callback. */
+function codeAt(href: string, state: string): string | null {
+  const url = new URL(href, location.origin);
+  if (url.origin !== location.origin || url.pathname !== flow.callback) return null;
+  // The issuer, when the callback names one, is this page's own origin: the sign-in tool is served from it.
+  const issuer = url.searchParams.get('iss');
+  if (issuer !== null && new URL(issuer, location.origin).origin !== location.origin) return null;
+  return url.searchParams.get('state') === state ? url.searchParams.get('code') : null;
+}
+
 /** The code the authorize address answers this page without leaving it, or null when the person must sign in or confirm.
- *  A busy answer (429, 5xx) or a request that never arrives throws PassBusy: the page shows it and does not navigate. */
+ *  The server answers a person already signed in with 200 JSON `{ redirect: true, url }` (the callback with the code), or
+ *  with a redirect the browser follows to the callback. A busy answer (429, 5xx) or a request that never arrives throws
+ *  PassBusy: the page shows it and does not navigate. */
 async function quietCode(asked: string, state: string): Promise<string | null> {
   let response: Response;
   try {
-    response = await fetch(asked, { credentials: 'same-origin', redirect: 'follow', headers: { accept: 'text/html' } });
+    response = await fetch(asked, { credentials: 'same-origin', redirect: 'follow', headers: { accept: 'application/json, text/html' } });
   } catch {
     throw new PassBusy(0);
   }
+  if (response.status === 429 || response.status >= 500) {
+    void response.body?.cancel();
+    throw new PassBusy(retryAfterOf(response));
+  }
+  if (!response.ok) {
+    void response.body?.cancel();
+    return null;
+  }
+  if (/application\/json/i.test(response.headers.get('content-type') ?? '')) {
+    const answer = await response.json().catch(() => null) as { redirect?: unknown; url?: unknown } | null;
+    return answer?.redirect === true && typeof answer.url === 'string' ? codeAt(answer.url, state) : null;
+  }
   void response.body?.cancel();
-  if (response.status === 429 || response.status >= 500) throw new PassBusy(retryAfterOf(response));
-  const landed = new URL(response.url);
-  if (!response.ok || landed.origin !== location.origin || landed.pathname !== flow.callback) return null;
-  return landed.searchParams.get('state') === state ? landed.searchParams.get('code') : null;
+  return codeAt(response.url, state);
 }
 
 /** The pass from the sign-in tool: with no redirect when the person is signed in there (quietCode), else the page goes
