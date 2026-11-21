@@ -215,7 +215,8 @@ transition:opacity .15s,transform .15s;-webkit-mask:var(--page-tick) center/cont
 .page-layout--auth .page-main{width:100%;max-width:24rem;min-width:0;display:flex;flex-direction:column;margin-block:auto}
 .page-layout--auth .page-section{box-sizing:border-box;width:100%;max-width:none;margin:0;padding:0;border:0;border-radius:0;box-shadow:none;background:transparent}
 .page-layout--auth .page-section--welcome{text-align:center}
-.page-layout--auth .page-section--welcome .page-mark{width:2.5rem;height:2.5rem;margin:0 auto 1.25rem;border-radius:.7rem}
+/* The site's own mark (settings.site.mark_svg) is drawn as the site draws it: no tile, shadow or crop behind it (the tile is for a space's letters). */
+.page-layout--auth .page-section--welcome .page-mark{width:2.5rem;height:2.5rem;margin:0 auto 1.25rem;border-radius:0;background:none;box-shadow:none;object-fit:contain}
 .page-layout--auth .page-section--welcome .page-heading{font-size:1.625rem;line-height:1.25;font-weight:600;margin:0}
 .page-layout--auth .page-section--welcome .page-body{margin:.5rem auto 0;max-width:22rem;font-size:.9375rem;line-height:1.5}
 .page-layout--auth .page-section--welcome .page-image{max-width:14rem;margin:1.5rem auto 0}
