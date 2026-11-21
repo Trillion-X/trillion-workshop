@@ -1,0 +1,15 @@
+{
+  "recipe": "workflow:stub-keep-a-note",
+  "title": "Keep a note",
+  "job": "Keep each note the owner gives as one row of their notes table.",
+  "produces": "One notes row per note.",
+  "input_schema": {"type": "object", "required": ["note"], "properties": {"note": {"type": "string"}}},
+  "source": {"from": "a stub row for tests"},
+  "kept_at": "2026-11-21 22:00:00+00",
+  "fires_when": null,
+  "wakes": [{"id": "on-note", "on": {"fact": {"kind": "note-given"}}, "budget": {"steps": 4, "wall_ms": 60000}, "input": {"start_at": "keep"}, "switched_on": true}],
+  "definition": {"steps": [
+    {"id": "keep", "kind": "ask", "config": {"name": "tool:run-sql-in-my-database", "input": {"sql": "insert into notes (body) values ($1)"}}},
+    {"id": "done", "kind": "return", "config": {}}
+  ], "edges": [{"from": "keep", "to": "done", "kind": "always"}]}
+}
