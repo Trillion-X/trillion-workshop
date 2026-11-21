@@ -12,8 +12,17 @@
  * startWaiter). When it was not, this refuses before any read, naming what to change; the refusal is told as the
  * waiter's unreachable fact and the run ends non-zero (`noCredential`), so the wake shows it failed. A caller that says
  * nothing (`credentialMounted` undefined, as a test that hands a descriptor in) reads as before.
+ *
+ * A descriptor is read once per process and its text kept: the engine mounts a credential as a pipe, so a second read of
+ * the same descriptor gets nothing. On Nov 21 2026 at 3:37 PM CST seven service-lists waiters of one switch shared the run's
+ * credential_name on 4; the first waiter read the key and the other six sent an empty key and were refused (treg: 401).
  */
-import { readFileSync } from "node:fs";
+import { fstatSync, readFileSync } from "node:fs";
+
+/** Each descriptor's text, read once: a mounted credential is a pipe that answers only its first read. Kept by the
+ * descriptor and the identity of what it is open on (device and inode), so a number closed and opened again on another
+ * file is read anew. */
+const readOnce = new Map();
 
 export const NO_CREDENTIAL = "no credential named: switch this wake on with credential_name";
 
@@ -22,5 +31,9 @@ export function readGivenCredential(handlers, fallbackFd) {
   if (handlers.credentialFd == null && handlers.credentialMounted === false) {
     throw Object.assign(new Error(NO_CREDENTIAL), { reason: "no-credential", noCredential: true });
   }
-  return readFileSync(handlers.credentialFd ?? fallbackFd, "utf8").trim();
+  const fd = handlers.credentialFd ?? fallbackFd;
+  const { dev, ino } = fstatSync(fd);
+  const key = `${fd}:${dev}:${ino}`;
+  if (!readOnce.has(key)) readOnce.set(key, readFileSync(fd, "utf8").trim());
+  return readOnce.get(key);
 }
