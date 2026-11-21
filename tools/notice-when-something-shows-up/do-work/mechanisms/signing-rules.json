@@ -1,0 +1,43 @@
+{
+  "_what": "The signing rules services use, as verify rows (the format signed-service-calls.mjs reads). A waiter row names one in its mechanism_settings as \"verify\": \"<rule name>\", or gives its own verify object. A rule here is DATA: a new service is a new entry, never an edit to the mechanism. Each rule was checked against the vectors its service publishes (tests/signed-service-calls.test.mjs). The secret is never in a rule: the waiter names it by its vault name (credential_name).",
+  "rules": {
+    "stripe-signature": {
+      "parts": {
+        "t": { "header": "stripe-signature", "match": "(?:^|,)t=(\\d+)" },
+        "v1": { "header": "stripe-signature", "match": "(?:^|,)v1=([0-9a-fA-F]+)" }
+      },
+      "signed": "{t}.{body}",
+      "signature": "v1",
+      "hash": "sha256",
+      "encoding": "hex",
+      "timestamp": "t",
+      "tolerance_seconds": 300
+    },
+    "standard-webhooks": {
+      "parts": {
+        "id": { "header": "webhook-id" },
+        "ts": { "header": "webhook-timestamp" },
+        "sig": { "header": "webhook-signature", "match": "(?:^| )v1,([A-Za-z0-9+/=]+)" }
+      },
+      "signed": "{id}.{ts}.{body}",
+      "signature": "sig",
+      "hash": "sha256",
+      "encoding": "base64",
+      "secret_prefix": "whsec_",
+      "secret_encoding": "base64",
+      "timestamp": "ts",
+      "tolerance_seconds": 300
+    },
+    "twilio-request-signature": {
+      "parts": {
+        "sig": { "header": "x-twilio-signature" }
+      },
+      "signed": "{url}{form}",
+      "signature": "sig",
+      "form": "sorted",
+      "url_ports": "either",
+      "hash": "sha1",
+      "encoding": "base64"
+    }
+  }
+}

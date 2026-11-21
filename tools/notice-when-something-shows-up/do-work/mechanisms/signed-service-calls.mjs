@@ -36,12 +36,20 @@
  *   listen_host, listen_port, body_byte_ceiling   as inbound-http-delivery
  *   where       the connection's name (no secret)
  *   secret_fd   the descriptor holding the signing secret (default 4; a waiter that names its own credential_name reads it from the descriptor the run gave it instead)
- *   verify      { parts: { <name>: { header, match? } }, signed: "<text with {name} and {body}>",
- *                 signature: "<part name>", hash: "sha256", encoding: "hex" | "base64",
+ *   url         the address the service signed the call at (for `{url}` in `signed`)
+ *   refusal_status?  the status a refused call is answered with (absent: 401)
+ *   secret_missing_status?  the status of a call while its secret is not held (absent: refusal_status)
+ *   reply?      { content_type, body }: the answer to a verified call (a TwiML document, say); absent: a JSON count
+ *   verify      either a rule name in signing-rules.json, or an object:
+ *               { parts: { <name>: { header, match? } }, signed: "<text with {name}, {body}, {url} and {form}>",
+ *                 signature: "<part name>", hash: "sha1" | "sha256" | "sha512", encoding: "hex" | "base64",
+ *                 form?: "sorted" (a form body, signed as Twilio signs it), url_ports?: "exact" | "either",
  *                 secret_prefix?: "<prefix the secret starts with>", secret_encoding?: "utf8" | "base64",
  *                 timestamp?: "<part name holding seconds>", tolerance_seconds?: 300 }
  *               A part's `match` is a regular expression; every capture of its first group is a candidate
- *               (a service rotating its secret sends several signatures).
+ *               (a service rotating its secret sends several signatures). `url_ports: "either"` tries the url
+ *               with its port removed and with its default port added (Twilio's SDK accepts either).
+ *               A key this file does not know is refused when the waiter starts.
  *   shape       { changes?: "<path to a list of changes, else the body is one change>",
  *                 place: "<path>" | { value } | { path, map, otherwise? }, change: { path, map: { <value>: "added"|"changed"|"removed" }, otherwise? },
  *                 key: "<path>" | ["<path>", ...], at: "<path>", at_unit?: "seconds" | "ms" | "iso",
@@ -56,6 +64,14 @@ export const MECHANISM_REF = "package::notice-when-something-shows-up::mechanism
 // A told fact holds at most 1,024 bytes a field (the engine's fact inbox, trillion-rust src/wake/host-events.json).
 export const CARRIED_BYTES = 1000;
 const CHANGES = new Set(["added", "changed", "removed"]);
+const RULES = JSON.parse(readFileSync(new URL("./signing-rules.json", import.meta.url), "utf8")).rules;
+/** The signing rule a waiter row names in signing-rules.json, or null when there is none by that name. */
+export const signingRuleNamed = (name) => (Object.hasOwn(RULES, name) ? RULES[name] : null);
+const VERIFY_KEYS = new Set(["parts", "signed", "signature", "form", "url_ports", "hash", "encoding", "secret_prefix", "secret_encoding", "timestamp", "tolerance_seconds"]);
+const PART_KEYS = new Set(["header", "match"]);
+const REPLY_KEYS = new Set(["content_type", "body"]);
+const BASE64 = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+const HEX = /^(?:[0-9a-fA-F]{2})*$/;
 
 export const carried = (value) => {
   if (value === null || value === undefined) return null;
@@ -71,6 +87,11 @@ export function describeMechanism() {
   };
 }
 
+const statusOf = (value) => {
+  const code = Number(value);
+  return Number.isInteger(code) && code >= 100 && code <= 599 ? code : null;
+};
+
 export function readSettings(settings = {}) {
   const port = Number(settings.listen_port);
   const ceiling = Number(settings.body_byte_ceiling);
@@ -81,9 +102,27 @@ export function readSettings(settings = {}) {
     body_byte_ceiling: Number.isFinite(ceiling) && ceiling > 0 ? ceiling : 1048576,
     where: typeof settings.where === "string" ? settings.where : "",
     secret_fd: Number.isInteger(fd) && fd >= 0 ? fd : 4,
-    verify: settings.verify ?? null,
+    url: typeof settings.url === "string" && settings.url ? settings.url : null,
+    refusal_status: statusOf(settings.refusal_status) ?? 401,
+    secret_missing_status: statusOf(settings.secret_missing_status),
+    reply: settings.reply ?? null,
+    verify: typeof settings.verify === "string" ? signingRuleNamed(settings.verify) : settings.verify ?? null,
     shape: settings.shape ?? null,
   };
+}
+
+/** A waiter row whose verify, reply or rule name this file cannot read is refused when the waiter starts. */
+function assertRows(settings, own) {
+  const refuse = (reason) => { throw Object.assign(new Error(reason), { reason }); };
+  if (typeof settings?.verify === "string" && !signingRuleNamed(settings.verify)) refuse("unknown-signing-rule");
+  if (own.verify !== null && typeof own.verify === "object") {
+    if (Object.keys(own.verify).some((key) => !VERIFY_KEYS.has(key))) refuse("unknown-verify-key");
+    for (const spec of Object.values(own.verify.parts ?? {})) {
+      if (spec === null || typeof spec !== "object" || Object.keys(spec).some((key) => !PART_KEYS.has(key))) refuse("unknown-part-key");
+    }
+  }
+  if (own.reply !== null && (typeof own.reply !== "object" || Object.keys(own.reply).some((key) => !REPLY_KEYS.has(key))
+    || typeof own.reply.content_type !== "string" || typeof own.reply.body !== "string")) refuse("bad-reply-row");
 }
 
 /** The value at a dot path, or the first present of several paths. */
@@ -113,45 +152,135 @@ function partsOf(verify, headers) {
   return parts;
 }
 
+const refusal = (reason) => ({ ok: false, reason });
+
 function secretBytes(secret, verify) {
   let text = secret;
   if (verify.secret_prefix && text.startsWith(verify.secret_prefix)) text = text.slice(verify.secret_prefix.length);
-  return verify.secret_encoding === "base64" ? Buffer.from(text, "base64") : Buffer.from(text, "utf8");
+  const encoding = verify.secret_encoding ?? "utf8";
+  if (encoding === "utf8") return { bytes: Buffer.from(text, "utf8") };
+  if (encoding !== "base64") return { reason: "unknown-secret-encoding" };
+  if (!BASE64.test(text)) return { reason: "bad-secret-encoding" };
+  return { bytes: Buffer.from(text, "base64") };
 }
 
-/**
- * Check one call against the row's `verify`. Answers {ok:true} or {ok:false, reason}; never says why beyond a code.
- * @param {{verify:object, headers:object, body:string, secret:string, nowSeconds?:number}} args
- */
-export function checkSignature({ verify, headers, body, secret, nowSeconds = Math.floor(Date.now() / 1000) }) {
-  if (!verify || typeof verify !== "object") return { ok: false, reason: "no-verify-row" };
-  if (typeof secret !== "string" || !secret) return { ok: false, reason: "no-signing-secret" };
-  if (!["sha256", "sha512", "sha1"].includes(verify.hash ?? "sha256")) return { ok: false, reason: "unknown-hash" };
-  if (!["hex", "base64"].includes(verify.encoding ?? "hex")) return { ok: false, reason: "unknown-encoding" };
-  const parts = partsOf(verify, headers);
-  const candidates = parts[verify.signature] ?? [];
-  if (candidates.length === 0) return { ok: false, reason: "no-signature" };
+/** A signature candidate's bytes in the row's encoding, or null when it is not that encoding. */
+function decodeSignature(text, encoding) {
+  if (encoding === "base64") return BASE64.test(text) ? Buffer.from(text, "base64") : null;
+  return HEX.test(text) ? Buffer.from(text, "hex") : null;
+}
+
+/** The address a call may have been signed at (`url_ports`). `exact` (the default) is the declared url alone; `either` is
+ *  the url with its port removed and the url with its default port added (443 for https, else 80), as Twilio's SDK signs. */
+function urlVariants(url, mode) {
+  if (mode === undefined || mode === null || mode === "exact") return { variants: [url] };
+  if (mode !== "either") return { reason: "unknown-url-ports" };
+  if (url === null) return { variants: [null] };
+  const [without, withPort] = portVariants(url);
+  return { variants: without === withPort ? [without] : [without, withPort] };
+}
+
+/** A url with its port removed, and the same url with its port (or its default port when it has none). */
+function portVariants(url) {
+  const start = url.indexOf("://");
+  if (start < 0) return [url, url];
+  const scheme = url.slice(0, start + 3);
+  const after = url.slice(start + 3);
+  const endAt = after.search(/[/?#]/);
+  const end = endAt < 0 ? after.length : endAt;
+  const authority = after.slice(0, end);
+  const tail = after.slice(end);
+  let host = authority;
+  let port;
+  if (authority.startsWith("[")) {
+    const close = authority.indexOf("]");
+    const hostEnd = close < 0 ? authority.length : close + 1;
+    host = authority.slice(0, hostEnd);
+    port = authority.slice(hostEnd).startsWith(":") ? authority.slice(hostEnd + 1) : undefined;
+  } else if (authority.includes(":")) {
+    host = authority.slice(0, authority.lastIndexOf(":"));
+    port = authority.slice(authority.lastIndexOf(":") + 1);
+  }
+  const fallback = scheme.startsWith("https") ? "443" : "80";
+  return [`${scheme}${host}${tail}`, `${scheme}${host}:${port ?? fallback}${tail}`];
+}
+
+/** A form body as Twilio signs it: each name in sorted order, followed by each of its distinct values in sorted order, with
+ *  no separator. A duplicated value is signed once. */
+function sortedForm(body) {
+  const pairs = new Map();
+  for (const [name, value] of new URLSearchParams(body)) {
+    if (!pairs.has(name)) pairs.set(name, new Set());
+    pairs.get(name).add(value);
+  }
+  let out = "";
+  for (const name of [...pairs.keys()].sort()) {
+    for (const value of [...pairs.get(name)].sort()) out += name + value;
+  }
+  return out;
+}
+
+/** The text the HMAC covers: the template with each {part}, {body}, {url} and {form} put in. A value that is absent is refused. */
+function signedText(verify, parts, body, url) {
+  let form = null;
+  if (verify.form !== undefined && verify.form !== null) {
+    if (verify.form !== "sorted") return { reason: "unknown-form" };
+    form = sortedForm(body);
+  }
   let missing = false;
-  const signed = String(verify.signed ?? "{body}").replace(/\{([a-z_]+)\}/g, (_, name) => {
+  const text = String(verify.signed ?? "{body}").replace(/\{([a-z_]+)\}/g, (_, name) => {
     if (name === "body") return body;
+    if (name === "url") { if (url === null) missing = true; return url ?? ""; }
+    if (name === "form") { if (form === null) missing = true; return form ?? ""; }
     const value = parts[name]?.[0];
     if (value === undefined) missing = true;
     return value ?? "";
   });
-  if (missing) return { ok: false, reason: "missing-signed-part" };
-  if (verify.timestamp) {
-    const sent = Number(parts[verify.timestamp]?.[0]);
-    const window = Number.isFinite(Number(verify.tolerance_seconds)) ? Number(verify.tolerance_seconds) : 300;
-    if (!Number.isFinite(sent)) return { ok: false, reason: "no-timestamp" };
-    if (window > 0 && Math.abs(nowSeconds - sent) > window) return { ok: false, reason: "outside-replay-window" };
+  return missing ? { reason: "missing-signed-part" } : { text };
+}
+
+/**
+ * Check one call against the row's `verify`. Answers {ok:true} or {ok:false, reason}; never says why beyond a code.
+ * The refusals are checked in the order the engine's Rust check uses (src/signed_calls.rs `check`), so one call gets one word.
+ * @param {{verify:object, headers:object, body:string, secret:string, nowSeconds?:number, url?:string|null}} args
+ */
+export function checkSignature({ verify, headers, body, secret, nowSeconds = Math.floor(Date.now() / 1000), url = null }) {
+  if (!verify || typeof verify !== "object") return refusal("no-verify-row");
+  if (typeof secret !== "string" || !secret) return refusal("no-signing-secret");
+  if (!["sha256", "sha512", "sha1"].includes(verify.hash ?? "sha256")) return refusal("unknown-hash");
+  if (!["hex", "base64"].includes(verify.encoding ?? "hex")) return refusal("unknown-encoding");
+  let parts;
+  try {
+    parts = partsOf(verify, headers);
+  } catch {
+    return refusal("bad-part-match");
   }
-  const expected = createHmac(verify.hash ?? "sha256", secretBytes(secret, verify)).update(signed, "utf8").digest();
-  const matched = candidates.some((candidate) => {
-    let given;
-    try { given = Buffer.from(candidate.replace(/^0x/i, ""), verify.encoding ?? "hex"); } catch { return false; }
-    return given.length === expected.length && timingSafeEqual(given, expected);
+  const candidates = parts[verify.signature] ?? [];
+  if (candidates.length === 0) return refusal("no-signature");
+  const variants = urlVariants(url, verify.url_ports);
+  if (variants.reason) return refusal(variants.reason);
+  const texts = [];
+  for (const variant of variants.variants) {
+    const signed = signedText(verify, parts, body, variant);
+    if (signed.reason) return refusal(signed.reason);
+    texts.push(signed.text);
+  }
+  if (verify.timestamp) {
+    const sent = parts[verify.timestamp]?.[0] ?? "";
+    const window = verify.tolerance_seconds ?? 300;
+    if (!/^-?\d+$/.test(sent)) return refusal("no-timestamp");
+    if (window > 0 && Math.abs(nowSeconds - Number(sent)) > window) return refusal("outside-replay-window");
+  }
+  const key = secretBytes(secret, verify);
+  if (key.reason) return refusal(key.reason);
+  const matched = texts.some((signed) => {
+    const expected = createHmac(verify.hash ?? "sha256", key.bytes).update(signed, "utf8").digest();
+    return candidates.some((candidate) => {
+      const given = decodeSignature(candidate.replace(/^0x/i, ""), verify.encoding ?? "hex");
+      return given !== null && given.length === expected.length && timingSafeEqual(given, expected);
+    });
   });
-  return matched ? { ok: true } : { ok: false, reason: "signature-mismatch" };
+  return matched ? { ok: true } : refusal("signature-mismatch");
 }
 
 function isoOf(value, unit) {
@@ -207,6 +336,7 @@ export function changesOf({ shape, where, body, receivedAt = new Date() }) {
  */
 export async function watchForTransitions(settings, handlers) {
   const own = readSettings(settings);
+  assertRows(settings, own);
   const signal = handlers.signal;
   const secret = handlers.secret ?? readFileSync(handlers.credentialFd ?? own.secret_fd, "utf8").trim();
   const answer = (response, status, value) => { response.writeHead(status, { "Content-Type": "application/json" }); response.end(JSON.stringify(value)); };
@@ -220,8 +350,11 @@ export async function watchForTransitions(settings, handlers) {
     }
     const body = Buffer.concat(chunks).toString("utf8");
     const nowSeconds = Math.floor((handlers.now?.() ?? Date.now()) / 1000);
-    const checked = checkSignature({ verify: own.verify, headers: request.headers, body, secret, nowSeconds });
-    if (!checked.ok) return answer(response, 401, { recorded: false, reason: checked.reason });
+    const checked = checkSignature({ verify: own.verify, headers: request.headers, body, secret, nowSeconds, url: own.url });
+    if (!checked.ok) {
+      const status = checked.reason === "no-signing-secret" && own.secret_missing_status !== null ? own.secret_missing_status : own.refusal_status;
+      return answer(response, status, { recorded: false, reason: checked.reason });
+    }
     const read = changesOf({ shape: own.shape, where: own.where, body, receivedAt: new Date(nowSeconds * 1000) });
     // A verified call whose changes this row's shape cannot read is still the service's: answered 200 so it is not
     // sent forever, and reported as one refused-shape fact so the person sees the row needs widening.
@@ -236,6 +369,7 @@ export async function watchForTransitions(settings, handlers) {
     } catch (error) {
       return answer(response, 503, { recorded: false, reason: String(error?.message ?? error) });
     }
+    if (own.reply) { response.writeHead(200, { "Content-Type": own.reply.content_type }); return response.end(own.reply.body); }
     return answer(response, 200, { recorded: true, changes: changes.length });
   });
   await new Promise((resolve) => server.listen(own.listen_port, own.listen_host, resolve));
