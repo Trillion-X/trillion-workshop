@@ -61651,5 +61651,153 @@
  ],
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:your-files": [],
- "tool:your-files-names": []
+ "tool:your-files-names": [],
+ "tool:check-live-screens": [
+  {
+   "package": "check-every-screen-at-every-width",
+   "paths": [
+    "check-given-pages.mjs",
+    "check-live-screens.mjs",
+    "check-screens.mjs",
+    "in-page.mjs",
+    "views.json",
+    "live-screens.json",
+    "allowlist.json",
+    "vendor",
+    "window-picture.mjs",
+    "list-windows.py"
+   ],
+   "at": "/opt/check-every-screen-at-every-width"
+  },
+  {
+   "package": "headless-browser",
+   "paths": [
+    "launch.mjs",
+    "admission.mjs",
+    "quiet-switches.json"
+   ],
+   "at": "/opt/headless-browser"
+  },
+  {
+   "package": "process-session",
+   "paths": [
+    "do-work/process-admission.mjs",
+    "do-work/computer-cache-folder.mjs"
+   ],
+   "at": "/opt/process-session"
+  },
+  {
+   "package": "page-critic",
+   "paths": [
+    "do-work/measure-page-craft.mjs",
+    "do-work/collect-control-names.mjs",
+    "do-work/measure-rendered-label-size.mjs",
+    "read-data/page-craft-rules.json"
+   ],
+   "at": "/opt/page-critic"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs",
+    "read-data/host-actions.mjs",
+    "read-data/whole-file.mjs",
+    "read-data/large-file.json"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/playwright"
+   ],
+   "paths": [
+    "LICENSE",
+    "NOTICE",
+    "package.json",
+    "index.js",
+    "index.mjs",
+    "cli.js",
+    "lib"
+   ],
+   "at": "/opt/node_modules/playwright"
+  },
+  {
+   "packages": [
+    "node_modules/playwright-core"
+   ],
+   "paths": [
+    "LICENSE",
+    "NOTICE",
+    "package.json",
+    "index.js",
+    "index.mjs",
+    "cli.js",
+    "browsers.json",
+    "bin",
+    "lib"
+   ],
+   "at": "/opt/node_modules/playwright-core"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work",
+    "built-stored-bytes",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/raw-pieces.mjs",
+    "read-data/large-file.json"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "read-data/capability-edges.mjs",
+    "read-data/expected-current-from-content-hash.mjs",
+    "read-data/identical-snapshot-ab-plan.mjs",
+    "read-data/namespace-records-from-a-name-and-identity-table.mjs",
+    "read-data/operation-pair-cases.mjs",
+    "read-data/operation-pair-outcome.mjs",
+    "read-data/reconcile-namespace-corpus.mjs",
+    "read-data/residual-read-demand-from-receiver-facts.mjs"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "send-requests-to-an-engine",
+   "paths": [
+    "read-data/find-the-running-app-and-send-requests-to-it.mjs"
+   ],
+   "at": "/opt/send-requests-to-an-engine"
+  }
+ ]
 }

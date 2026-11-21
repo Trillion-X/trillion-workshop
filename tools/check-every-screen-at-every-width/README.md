@@ -13,7 +13,11 @@ One headless check both Trillion deploys run before going live: every screen, in
 | `vendor/darkreader.js`, `vendor/LICENSE` | Dark Reader 4.9.133 (MIT), taken unchanged from `npm pack darkreader`; injected with an init script and enabled with the options the mode row names. |
 | `part.json` | The files code outside this part may import. |
 | `check-given-pages.mjs` | `checkGivenPages({ screens, widths, modes, allowlist, pool })`: `runMatrix` over pages given as HTML, each answered inside the browser at its route on a made-up origin, every other request aborted (what `tool-rows.json` runs) |
-| `tool-rows.json` | The row `tool:check-given-pages-at-every-width`, with a sample whose made-up notice page has one faint line that fails contrast |
+| `tool-rows.json` | The rows `tool:check-given-pages-at-every-width` and `tool:check-live-screens`, with a sample whose made-up notice page has one faint line that fails contrast |
+| `check-live-screens.mjs` | `checkLiveScreens({ pages, views, until, window })`: each live page opened at its own address the way a phone or computer opens it, one cold load per view in its own browser context (the phone slowed as `live-screens.json` says). It measures when the screen first paints, shows anything (`blank_ms`), is usable (`usable_ms`: the ready selector visible and the main thread idle), its longest task, console errors and failed requests, keeps a picture of each screen in the person's Files, and reports taps as worked or not. It judges nothing. |
+| `live-screens.json` | DATA: the phone's throttle (CPU rate, latency, download and upload kilobits), the usable idle time, the timings, and the inline picture size limit. |
+| `window-picture.mjs`, `list-windows.py` | `windowPicture({ owner, name, keep })`: the Trillion app's main window on this Mac, captured by its window id (`screencapture -x -o -l`). Passive: nothing is clicked, typed or raised. The window list comes from the window server through `list-windows.py`, which reads only. |
+| `kits/check-live-screens.json` | The kit for `tool:check-live-screens`: what to say, and what comes back. |
 
 ## Probes
 
