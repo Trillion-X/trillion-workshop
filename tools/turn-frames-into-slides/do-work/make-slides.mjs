@@ -4,10 +4,14 @@
 // with a browser, one PDF and a picture of every page. Run by the Workshop row `tool:turn-frames-into-slides` on the
 // person's own computer:
 //
-//   node tools/turn-frames-into-slides/do-work/make-slides.mjs <request.json> --out <folder>
-//        [--browser <chromium>, or BROWSER_EXECUTABLE] [--pdf] [--pictures]
+//   node tools/turn-frames-into-slides/do-work/make-slides.mjs <request.json> [--out <folder>]
+//        [--browser <chromium>, or BROWSER_EXECUTABLE] [--pdf] [--pictures] [--keep]
 //
-// request.json (paths relative to it):
+// The request is either the file's own object, or a workflow step's input { request, out? }: request is that object
+// inline or a path to a file of it (paths inside it are relative to the file), out is the folder (--out wins).
+// --keep also keeps the PDF in the person's Files under /Slides and prints its Files name as pdf (see keepInFiles).
+//
+// request (paths relative to the request file):
 //   board          the board's items (a JSON file of [BoardItem] or { items }). A presentation frame is an item with
 //                  extra.presentationFrame.order; every item centred inside it is on that slide.
 //   slides         instead of board: the deck as slides (what each says and shows), laid out onto a board by
@@ -28,10 +32,13 @@
 //                  that breaks a row stops the run with each finding, so no deck leaves this tool with those words.
 //
 // Writes slides/<NN>.svg, deck.html (pages of the frame size), and with --pdf deck.pdf, with --pictures
-// pages/<NN>.png. Prints one JSON line { slides: [{ order, label, items, svg }], html, pdf?, pictures? }.
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+// pages/<NN>.png. Prints one JSON line { slides: [{ order, label, items, svg }], html, pdf?, pictures? }, where pdf is
+// the PDF's name in the person's Files with --keep.
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, extname, isAbsolute, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { boardToDeck, deckToHtml } from '../../organize-the-sidebar/do-work/board-deck.ts';
 import { exportFillOf } from '../../organize-the-sidebar/do-work/board-svg.ts';
 import { boardFrames, itemsInsideFrame } from '../../organize-the-sidebar/do-work/board-frames.ts';
@@ -56,9 +63,11 @@ function argsOf(argv) {
     else if (argv[i] === '--browser') args.browser = argv[++i];
     else if (argv[i] === '--pdf') args.pdf = true;
     else if (argv[i] === '--pictures') args.pictures = true;
+    else if (argv[i] === '--keep') args.keep = true;
     else fail(`unknown argument ${argv[i]}.`);
   }
-  if (!args.request || !args.out) fail('give the request and the output folder: make-slides.mjs <request.json> --out <folder>.');
+  if (!args.request) fail('give the request: make-slides.mjs <request.json> [--out <folder>].');
+  if (args.keep) args.pdf = true;
   return args;
 }
 
@@ -201,10 +210,50 @@ async function printDeck(htmlPath, browserPath, page, slideCount, { pdf, picture
   }
 }
 
+const FILES_FOLDER = '/Slides';
+const PIECE_MOST_BYTES = 33554432;
+
+/** Keeps a local file in the person's Files as /Slides/<title>-<identity>.pdf, the way the other on-your-computer tools keep
+ *  theirs (tools/track-and-compare-movement/do-work/files_road.py): write_file_start, one raw piece (op --upload),
+ *  write_file_finish, then find_file, whose identity and length must be the file's. The name carries the identity, so a
+ *  retried keep finds the same file. `call` is the command that runs one engine operation: WORKSHOP_CLI names it when `call` is absent (the run fails without it); WF_PIN, when
+ *  a workflow run set it, names the computer that holds the Files right. Returns the name. */
+export function keepInFiles(path, { title, call = [process.env.WORKSHOP_CLI], pin = process.env.WF_PIN } = {}) {
+  if (!call[0]) fail('keep needs the signed-in command: set WORKSHOP_CLI to it.');
+  const bytes = readFileSync(path);
+  if (bytes.length > PIECE_MOST_BYTES) fail(`${path} is ${bytes.length} bytes; one piece holds at most ${PIECE_MOST_BYTES}.`);
+  const identity = makeHashCodeHexFromBytes(bytes);
+  const slug = String(title ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'deck';
+  const name = `${FILES_FOLDER}/${slug}-${identity.slice(3, 15)}.pdf`;
+  const upload_id = identity.slice(3, 35);
+  const op = (structured, upload) => {
+    const args = [...call.slice(1), 'op', 'tools:run', JSON.stringify({ tool: 'tool:your-files', call: { name: structured.name, arguments: structured.arguments } })];
+    if (pin) args.push('--pin', pin);
+    if (upload) args.push('--upload', upload);
+    const reply = JSON.parse(execFileSync(call[0], args, { encoding: 'utf8', maxBuffer: 1 << 20 }));
+    return reply.result?.structuredContent ?? {};
+  };
+  const started = op({ name: 'write_file_start', arguments: { upload_id, name, byte_length: bytes.length, media_type: 'application/pdf', app: 'tool:turn-frames-into-slides' } });
+  if (started.state === 'open') {
+    const piece = op({ name: 'write_file_piece', arguments: { upload_id, name, offset: 0 } }, path);
+    if (piece.next_offset !== bytes.length) fail(`the Files store took ${piece.next_offset} of ${bytes.length} bytes of ${name}; nothing is kept.`);
+    op({ name: 'write_file_finish', arguments: { upload_id, name, identity } });
+  } else if (started.state !== 'finished') {
+    fail(`the Files store did not open ${name} (state ${started.state ?? 'unknown'}).`);
+  }
+  const found = op({ name: 'find_file', arguments: { name_or_identity: name } });
+  if (found.identity !== identity || found.byte_length !== bytes.length) fail(`${name} does not read back as ${identity}.`);
+  return name;
+}
+
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = argsOf(process.argv.slice(2));
   const base = dirname(resolve(args.request));
-  const request = readJson(base, args.request);
+  const given = readJson(base, args.request);
+  // A workflow step's input is the whole file: { request, out }, with request inline or a path; a request file is itself the request.
+  const envelope = given.request !== undefined;
+  const request = envelope ? readJson(base, given.request) : given;
+  if (!request || typeof request !== 'object') fail('request is the request object, or a path to a file of it.');
   if (Boolean(request.board) === Boolean(request.slides)) fail('give the deck as a board or as slides, one of the two.');
   const laidOut = request.slides ? slidesToBoard(readJson(base, request.slides)) : null;
   const board = laidOut ?? readJson(base, request.board);
@@ -235,7 +284,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     .filter(item => typeof item.text === 'string' && item.text.trim())
     .map(item => ({ id: item.memberId, text: item.text, slide: index + 1 })));
   const css = request.look_css ? readFileSync(resolve(base, request.look_css), 'utf8') : '';
-  const out = resolve(args.out);
+  const out = args.out ? resolve(args.out) : resolve(base, (envelope && given.out) || 'deck');
   mkdirSync(join(out, 'slides'), { recursive: true });
   const slides = deck.slides.map(slide => {
     const file = join(out, 'slides', `${String(slide.order).padStart(2, '0')}.svg`);
@@ -247,5 +296,6 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const made = args.pdf || args.pictures
     ? await printDeck(html, args.browser || process.env.BROWSER_EXECUTABLE || 'chromium', page, slides.length, args, out)
     : {};
+  if (args.keep) made.pdf = keepInFiles(made.pdf, { title: request.title });
   console.log(JSON.stringify({ slides, html, ...made }));
 }

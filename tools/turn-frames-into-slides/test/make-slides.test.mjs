@@ -5,9 +5,12 @@ import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+
+import { keepInFiles } from '../do-work/make-slides.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const command = resolve(import.meta.dirname, '../do-work/make-slides.mjs');
 const frame = (id, order) => ({ memberId: id, x: (order - 1) * 2000, y: 0, w: 1280, h: 720, text: '', extra: { presentationFrame: { order }, style: { fill: '--paper', stroke: '--paper' } } });
@@ -89,6 +92,58 @@ test('a look variable the look does not have, an unknown asset or a frame of ano
   const sizes = setUp();
   writeFileSync(join(sizes, 'board.json'), JSON.stringify([frame('a', 1), { ...frame('b', 2), w: 800 }]));
   assert.throws(() => run(sizes), /every slide is 1280 x 720/);
+});
+
+const runStep = file => JSON.parse(execFileSync(process.execPath, [command, file], { encoding: 'utf8' }).trim().split('\n').pop());
+
+test('a workflow step\'s input carries the request inline or as a path, and makes the same slides as the file', () => {
+  const dir = setUp();
+  const fromFile = run(dir);
+  const inline = { board, look_values: { palette: values }, look_css: 'look.css', assets: { mark: 'mark.svg' }, title: 'Example deck' };
+  writeFileSync(join(dir, 'inline.json'), JSON.stringify({ request: inline, out: 'inline' }));
+  writeFileSync(join(dir, 'by-path.json'), JSON.stringify({ request: 'request.json', out: 'by-path' }));
+  for (const [step, folder] of [['inline.json', 'inline'], ['by-path.json', 'by-path']]) {
+    const made = runStep(join(dir, step));
+    assert.deepEqual(made.slides.map(slide => slide.order), [1, 2]);
+    assert.ok(made.slides[0].svg.startsWith(join(dir, folder)), `${step} writes to its out folder`);
+    assert.equal(readFileSync(made.slides[0].svg, 'utf8'), readFileSync(fromFile.slides[0].svg, 'utf8'));
+    assert.equal(readFileSync(made.slides[1].svg, 'utf8'), readFileSync(fromFile.slides[1].svg, 'utf8'));
+  }
+});
+
+// A stand-in for the signed-in command: it answers the Files operations the keep makes and logs each call.
+function fakeCli(dir, { identity, size, log }) {
+  const file = join(dir, 'fake-cli.mjs');
+  writeFileSync(file, `#!/usr/bin/env node
+import { appendFileSync, statSync } from 'node:fs';
+const args = process.argv.slice(2);
+const op = JSON.parse(args[args.indexOf('tools:run') + 1]).call;
+const upload = args.indexOf('--upload');
+appendFileSync(${JSON.stringify(log)}, JSON.stringify({ name: op.name, pin: args[args.indexOf('--pin') + 1], upload: upload < 0 ? null : args[upload + 1] }) + '\\n');
+const answers = {
+  write_file_start: { state: 'open' },
+  write_file_piece: { next_offset: upload < 0 ? 0 : statSync(args[upload + 1]).size },
+  write_file_finish: { state: 'finished' },
+  find_file: { identity: ${JSON.stringify(identity)}, byte_length: ${size} },
+};
+process.stdout.write(JSON.stringify({ tool: 'tool:your-files', result: { structuredContent: answers[op.name] } }));
+`);
+  chmodSync(file, 0o755);
+  return file;
+}
+
+test('the PDF is kept in Files under /Slides with its identity, through the signed-in command', () => {
+  const dir = setUp();
+  const pdf = join(dir, 'deck.pdf');
+  writeFileSync(pdf, '%PDF-1.4 stand-in');
+  const identity = makeHashCodeHexFromBytes(readFileSync(pdf));
+  const log = join(dir, 'calls.jsonl');
+  const name = keepInFiles(pdf, { title: 'Example deck', call: [process.execPath, fakeCli(dir, { identity, size: 17, log })], pin: 'pin-1' });
+  assert.equal(name, `/Slides/example-deck-${identity.slice(3, 15)}.pdf`);
+  const calls = readFileSync(log, 'utf8').trim().split('\n').map(line => JSON.parse(line));
+  assert.deepEqual(calls.map(call => call.name), ['write_file_start', 'write_file_piece', 'write_file_finish', 'find_file']);
+  assert.deepEqual(calls[1], { name: 'write_file_piece', pin: 'pin-1', upload: pdf });
+  assert.ok(calls.every(call => call.pin === 'pin-1'));
 });
 
 // The Chromium the browser tools' tests drive (test-helpers/chromium.mjs), or BROWSER_EXECUTABLE.
