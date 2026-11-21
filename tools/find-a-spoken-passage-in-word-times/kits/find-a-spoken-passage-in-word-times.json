@@ -3,7 +3,7 @@
   "start_here": "Say to your AI: \"Tell me the exact seconds a passage I quote starts and ends in a recording, read a recording's words back as timed sentences, or keep its word times in the one file shape my plans cut from\", with {\"step\":\"span\",\"words\":\"take.words.json\",\"first\":\"then\",\"last\":\"wait\"}. It runs tool:find-a-spoken-passage-in-word-times and answers {\"step\":\"span\",\"words\":\"/granted-jNUzLv/take.words.json\",\"start\":1,\"end\":2.4,\"text\":\"Then we wait.\"}",
   "lists": [
     {
-      "list": "list:settings",
+      "list": "list:tool-settings",
       "label": "Settings",
       "row_type": "record:setting",
       "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
@@ -167,7 +167,7 @@
     "least_coverage": 0.8,
     "how": "Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
-      "kit_list": "list:settings",
+      "kit_list": "list:tool-settings",
       "into": {
         "list": "list:my-settings",
         "row_type": "record:setting",
