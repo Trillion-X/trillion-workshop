@@ -31,7 +31,7 @@
 //   3. A POST is accepted only from this service's own pages (its Origin header).
 //   4. Nothing here names a kind of record; abilities are drawn by their id from ABILITY_SECTIONS.
 //
-import { availabilityPageSections } from '../parts/calendar-booker/read-data/availability-page-sections.mjs';
+import { availabilityPageSections } from '../../../calendar-booker/read-data/availability-page-sections.mjs';
 import { htmlPage } from './html-page.mjs';
 import { sharedSiteViewResponse } from './shared-site-view.mjs';
 import { nativeShareOwnerFor } from './native-record-sharing.mjs';
