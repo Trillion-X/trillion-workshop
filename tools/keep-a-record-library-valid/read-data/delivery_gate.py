@@ -775,7 +775,7 @@ def spoken_lines(voice: str) -> list[str]:
 
 
 def copy_check_settings(store: Store) -> dict:
-    """delivery_gate.copy_check: { branch, settings_record } (the person's branch of list:checks, and the copy check's own list:settings row id)."""
+    """delivery_gate.copy_check: { branch, settings_record } (the person's branch of list:checks, and the copy check's own settings table row id)."""
     held = gate_cfg(store).get('copy_check') or {}
     if not held.get('branch') or not held.get('settings_record'):
         raise ValueError('delivery_gate.copy_check needs branch and settings_record')

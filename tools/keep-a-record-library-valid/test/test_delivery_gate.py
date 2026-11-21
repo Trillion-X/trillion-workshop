@@ -958,7 +958,7 @@ class Audition(Base):
 
 @needs_tools
 class SettingsAndHelpers(unittest.TestCase):
-    """The schema as a list:settings row, the branch helper and the measure-reference command (new with the port)."""
+    """The schema as a settings table row, the branch helper and the measure-reference command (new with the port)."""
 
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp(prefix='delivery-gate-helpers-'))
