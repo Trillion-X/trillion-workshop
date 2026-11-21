@@ -1,255 +1,203 @@
 // src/workspace/messages-screen.tsx
 //
-// The Messages screen is the chat part brought over from bitfield-packages packages/chat (tools/chat): one
-// conversation, its message list and its composer. The conversations themselves are rows of Trillion's sidebar
-// (conversation-navigation-rows.mjs), like every other screen's things (The maker 2026-09-29: it was not using the
-// sidebar), so the chat draws no list of its own. This file only starts the records the chat reads
-// (src/workspace/chat-records.ts: every conversation with the person's AIs, All your AIs and each Space, each
-// conversation's pages, and the front door each conversation sends through) and mounts the chat on All your AIs, or on
-// the conversation a sidebar row or an address names.
-// One conversation's messages are also one list like any other (The maker 2026-10-06: the same data is any view): the chat
-// is its first view, and every view any list is offered draws the same messages, an email thread or a chat alike: Draw
-// (each message a card on the board, a line from each message to the one answering it), the Document, the Sheet, the
-// Board, the Inbox and the rest. Each message is its words, who said it and when, and sits under the message it answers
-// (the one said before it); words written in a view that takes them go through the conversation's own front door.
+// The Messages screen: the person's conversations in a list beside the one open. A conversation is the messages their
+// apps told (iMessage, WhatsApp) or the conversation kept with one of their AIs. Its messages are bubbles, the person's
+// on the right and the other side's on the left, grouped by day, by who said them and by time; a photo shows as a tile
+// with its name, since its picture is not reachable from here. Each conversation's app picture (activity-providers.json)
+// or initials stand for who it is with. The words are messages-words.json and the rows come from the owners' tables
+// through chat-records.ts. Replying is not built here yet, so the composer is shown and says so.
+// This file only starts the records the screen reads (chat-records.ts: the conversation list and each open conversation's
+// lines) and mounts the screen on the conversation a sidebar row or an address names, or the newest one.
 
 import React from 'react';
-import { Container, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text, notify } from '../../../../ui';
+import { MessageSquare } from 'lucide-react';
+import { Button, Card, Container, EmptyPlaceholder, Text, notify } from '../../../../ui';
+import { Composer } from '../../../../ui/show/composer';
+import { DisplayMark } from '../../../../ui/show/display-mark';
+import { HoverRevealGroup, HoverRevealItem } from '../../../../ui/show/hover-reveal';
+import { SearchField } from '../../../../ui/show/search-field/SearchField';
 import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
 import { canRetainAfterReadFailure, ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
-import { RecordViews, type FieldDescriptor, type RecordNesting, type RecordView } from '../../../../ui/show/record-views/record-views';
-import { addMember, emptyGraph, ensureGroup } from '../../../../turn-frames-into-slides/read-data/group-graph.ts';
-import { ChatView } from '../../../../chat/show/ChatView';
-import type { MessageActionDescriptor, MessageIntent } from '../../../read-data/chat-message-types';
-import recordModel from '../record-model.json' with { type: 'json' };
-import pendingWords from './pending-sends.json';
-import { aiPresenceWords, conversationPresence, presenceWords, type Person } from './conversation-presence';
-import { contextOfRecordId } from './conversation-navigation-rows.mjs';
-import { pendingKeyOf } from './pending-lines';
-import { CONVERSATIONS_ADDRESS, aiPresenceOf, cancelPending, correctInConversation, resendPending, canonicalConversationId, conversationChoices, everyoneConversationId, storeNewestWords, openConversation, sendInConversation, windowAddressOf, type Line } from './chat-records';
+import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
+import { CONVERSATIONS_ADDRESS, canonicalConversationId, forgetInConversation, openConversation, startChatRecords, windowAddressOf, type Line } from './chat-records';
 import { readRecordAt, showRecords, subscribeRecordLabel } from './records';
-import { recordFilter } from './record-filter';
 import { refusal } from './failure';
 import liveScopes from '../live-scopes.json';
 import { AI_MESSAGES, onStoreChange, watchWindow } from './store-changes';
-import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
+import { daysOf, type Turn } from './messages-turns';
+import words from './messages-words.json';
 
-// How much of a message names it where a view shows one line for it (a card, a heading, a row).
-const NAME_CHARS = 80;
 // How many of the newest messages the screen holds as a window the store keeps current (src/live-scopes.json).
 const MESSAGE_WINDOW = liveScopes.windows.find(window => window.list === 'messages')?.watch ?? 50;
-// The chat fills the screen under the list's view bar.
-const CHAT_HEIGHT = 'max(420px, calc(100dvh - 120px))';
-
-type MessageRecord = { id: string; title: string; words: string; author: string; when: string; replies_to: string | null };
-type Conversations = { rows?: { recordId: string; title: string }[] } | null;
-type Window = { lines?: Line[]; anchor_message_id?: string } | null;
-
-const nameOf = (words: string) => {
-  const line = words.split('\n').map(part => part.trim()).find(Boolean) ?? '';
-  return line.length > NAME_CHARS ? `${line.slice(0, NAME_CHARS - 1)}…` : line;
-};
-
-/** A conversation's lines, oldest first, as records: each answers the message said before it. */
-function messagesOf(lines: Line[], them: string): MessageRecord[] {
-  return lines.map((line, index) => ({
-    id: line.atomRef,
-    title: nameOf(line.content) || line.atomRef,
-    words: line.content,
-    author: line.author ?? (line.role === 'human' ? 'You' : them),
-    when: line.timestamp,
-    replies_to: index ? lines[index - 1].atomRef : null,
-  }));
-}
-
-const MESSAGE_FIELDS = (titleOf: Map<string, string>): FieldDescriptor[] => [
-  { id: 'title', label: 'Message', icon: 'MessageSquare', ruleKind: 'text', filterable: true, width: 320, role: 'title', editable: false },
-  { id: 'words', label: 'Words', icon: 'AlignLeft', kind: 'excerpt', ruleKind: 'text', filterable: true, width: 420, role: 'body', editable: true },
-  { id: 'author', label: 'From', icon: 'User', kind: 'tag', ruleKind: 'choice', filterable: true, groupable: true, width: 160, role: 'author', editable: false },
-  { id: 'when', label: 'When', icon: 'CalendarClock', kind: 'date', ruleKind: 'date', filterable: true, sortable: true, width: 180, role: 'when', editable: false,
-    factValue: (message: MessageRecord) => Date.parse(message.when), sortValue: (message: MessageRecord) => Date.parse(message.when) },
-  { id: 'replies_to', label: 'Answers', icon: 'Reply', ruleKind: 'text', width: 240, hiddenByDefault: true, editable: false,
-    read: (message: MessageRecord) => (message.replies_to ? titleOf.get(message.replies_to) ?? '' : '') },
-];
-
-/** How the messages nest: each under the message it answers, so a thread reads as one conversation to any depth and a
- *  board draws a line from each message to its answer. */
-function nestingOf(messages: MessageRecord[]): RecordNesting {
-  const ref = (id: string) => ({ family: 'conversation-message', parts: { id } });
-  return {
-    field: 'replies_to',
-    graph: messages.reduce((graph, message) => (message.replies_to
-      ? addMember(ensureGroup(graph, ref(message.replies_to)), ref(message.replies_to), ref(message.id), { memberId: message.id })
-      : graph), emptyGraph()),
-  };
-}
-
-// The message kind's erase action (DATA: src/record-model.json `erase_action`), offered on each message the person's
-// store keeps: one secondary action that asks once in place, then erases the message through erase_record.
-type EraseAction = { label: string; glyph: string; confirm: string };
-const ERASE_ACTION = (recordModel.kinds as Array<{ type: string; erase_action?: EraseAction }>).find(kind => kind.type === 'message')?.erase_action;
-// A message still waiting on this device offers Send again and Don't send (pending-sends.json), on its own line only.
-const RECORD_ACTIONS: readonly MessageActionDescriptor[] = [
-  ...(ERASE_ACTION ? [{ intentKind: 'erase', label: ERASE_ACTION.label, glyph: ERASE_ACTION.glyph, confirm: ERASE_ACTION.confirm, forRefs: 'message:' }] : []),
-  { intentKind: pendingWords.resend.intent, label: pendingWords.resend.label, glyph: pendingWords.resend.glyph, forRefs: pendingWords.ref_prefix, always: true, note: pendingWords.author },
-  { intentKind: pendingWords.cancel.intent, label: pendingWords.cancel.label, glyph: pendingWords.cancel.glyph, confirm: pendingWords.cancel.confirm, forRefs: pendingWords.ref_prefix, always: true },
-];
-async function eraseRecord(record: string): Promise<void> {
-  const reply = await fetch('/work/api/records/erase', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ record }) });
-  if (!reply.ok) throw new Error(((await reply.json().catch(() => ({}))) as { error?: string }).error ?? 'Could not forget it.');
-}
-
 const useRecord = <T,>(label: string) => React.useSyncExternalStore(React.useCallback((listener: () => void) => subscribeRecordLabel(label, listener), [label]), () => readRecordAt<T>(label), () => readRecordAt<T>(label));
 
-// The others in a Space's conversation: watched only while this is on screen, told typing and away (conversation-presence.ts).
-function useOthers(room: string | null): Person[] {
-  const [others, setOthers] = React.useState<Person[]>([]);
-  React.useEffect(() => {
-    if (!room) { setOthers([]); return undefined; }
-    const stop = conversationPresence.watch(room, setOthers);
-    const shown = () => conversationPresence.visible(room, document.visibilityState === 'visible');
-    document.addEventListener('visibilitychange', shown);
-    return () => { document.removeEventListener('visibilitychange', shown); stop(); };
-  }, [room]);
-  return others;
-}
+/** The mark a name is drawn with: the app's picture, the initials of a name, or a person glyph when the name is only a
+ *  number or a handle (initials of a phone number mean nothing). */
+const markOf = (name: string, image: string | null) => (image ? { name, image } : /\p{L}/u.test(name) ? { name } : { name, glyph: 'User' });
 
-// The AI a direct conversation is with, whether it has said it is present: read when the conversation opens and again whenever the store changes.
-function useAiPresence(focus: string): string {
-  const [words, setWords] = React.useState('');
-  React.useEffect(() => {
-    let live = true;
-    const read = () => aiPresenceOf(focus).then(ai => { if (live) setWords(aiPresenceWords(ai)); }, () => undefined);
-    void read();
-    const stop = onStoreChange(read);
-    return () => { live = false; stop(); };
-  }, [focus]);
-  return words;
-}
-
-function Conversation({ focus, message }: { focus: string; message?: string }) {
-  const context = contextOfRecordId(focus) as { kind?: string; space_id?: string } | null;
-  const room = context?.kind === 'space' && context.space_id ? context.space_id : null;
-  const others = useOthers(room);
-  const onTyping = React.useCallback(() => { if (room) conversationPresence.typing(room); }, [room]);
-  const aiWords = useAiPresence(focus);
-  const presence = presenceWords(others) || aiWords;
-  const conversations = useRecord<Conversations>(CONVERSATIONS_ADDRESS);
-  const window = useRecord<Window>(windowAddressOf(focus, message));
-  const title = conversations?.rows?.find(row => row.recordId === focus)?.title ?? 'Messages';
-  const records = React.useMemo(() => messagesOf(window?.lines ?? [], title), [window, title]);
-  const fields = React.useMemo(() => MESSAGE_FIELDS(new Map(records.map(message => [message.id, message.title]))), [records]);
-  const nesting = React.useMemo(() => nestingOf(records), [records]);
-  // The erase action answered here: the message is erased, then the window read again without it.
-  const onRecordAction = React.useCallback((intent: MessageIntent) => {
-    if (!intent.targetAtomRef) return;
-    if (intent.intentKind === pendingWords.resend.intent) { void resendPending(intent.targetAtomRef).then(said => notify(said)); return; }
-    if (intent.intentKind === pendingWords.cancel.intent) { cancelPending(intent.targetAtomRef); return; }
-    if (intent.intentKind !== 'erase') return;
-    eraseRecord(intent.targetAtomRef)
-      .then(() => openConversation(focus, message, false))
-      .catch((error: unknown) => notify(errorWords(error, 'Could not forget it.'), { kind: 'error' }));
-  }, [focus, message]);
-  const views = React.useMemo<RecordView[]>(() => [{
-    id: 'chat', label: 'Chat', icon: 'MessagesSquare', fadeEdges: [],
-    render: () => (
-      <Container layout="vertical" heightPx={CHAT_HEIGHT} minHeight="0">
-        <ChatView key={`${focus}:${message ?? ''}`} surfaceInput={{ focusConversation: focus, navigationSections: [],
-          ...(message ? { transcriptSessionId: windowAddressOf(focus, message) } : {}) }}
-          recordActions={RECORD_ACTIONS} onRecordAction={onRecordAction} onTyping={room ? onTyping : undefined} />
-        {presence ? <Text variant="caption" color="muted" aria-live="polite" data-conversation-presence="">{presence}</Text> : null}
-      </Container>
-    ),
-  }], [focus, message, onRecordAction, onTyping, presence]);
-  const compose = React.useMemo(() => ({ send: ({ text }: { text: string }) => sendInConversation(focus, text) }), [focus]);
-  // A changed words cell corrects that message in its row, through the same outbox a send uses (correctInConversation).
-  const onEditWords = React.useCallback((messageId: string, fieldId: string, value: string) => {
-    if (fieldId !== 'words') return;
-    if (pendingKeyOf(messageId) !== null) { notify(pendingWords.correct_waiting, { kind: 'error' }); return; }
-    correctInConversation(focus, messageId, value).catch((error: unknown) => notify(errorWords(error, 'Could not correct it.'), { kind: 'error' }));
-  }, [focus]);
+const clockOf = (time: number) => new Date(time).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+function FileTile({ name, contentType }: { name: string; contentType: string }) {
+  const photo = contentType.startsWith('image/');
   return (
-    <RecordViews
-      label={title}
-      fields={fields}
-      records={records}
-      identify={(message: MessageRecord) => message.id}
-      identity={message ? windowAddressOf(focus, message) : focus}
-      nesting={nesting}
-      views={views}
-      defaultView="chat"
-      preferenceKey="trillion-conversation-views"
-      compose={compose}
-      onEditFieldValue={onEditWords}
-      {...recordFilter}
-      emptyMessage="Nothing said here yet."
-    />
+    <Card variant="nested" radius="lg" padding="sm">
+      <Text variant="caption" color="muted">{photo ? words.photo : words.file}</Text>
+      {name ? <Text variant="body-xs">{name}</Text> : null}
+    </Card>
   );
 }
-export const messagesFocus = (props?: { surfaceInput?: { conversation?: string } }): string => canonicalConversationId(props?.surfaceInput?.conversation ?? everyoneConversationId);
 
-function MessagesLoad({ focus, message }: { focus: string; message?: string }) {
-  // Read the addressed content inside its keyed lifecycle. No view may call an unresolved or
-  // refused target empty. A previously verified window of this exact target stays visible during a return read.
-  const initialRead = React.useMemo(() => ({ pending: true }), [focus, message]);
-  const window = useRecord<Window>(windowAddressOf(focus, message));
-  const cached = initialRead.pending && message && window?.anchor_message_id !== message ? null : window;
-  const loaded = useScreenLoad(windowAddressOf(focus, message), {
-    loading: { label: 'Loading your messages', layout: 'rows' },
+function ForgetButton({ onForget }: { onForget: () => void }) {
+  const [armed, setArmed] = React.useState(false);
+  return (
+    <Button variant="ghost" size="sm" onBlur={() => setArmed(false)} onClick={() => (armed ? onForget() : setArmed(true))}>
+      {armed ? words.forget_confirm : words.forget}
+    </Button>
+  );
+}
+
+function BubbleLine({ line, mine, onForget }: { line: Line; mine: boolean; onForget: (atomRef: string) => void }) {
+  return (
+    <Container layout="vertical" gap="xs" alignItems={mine ? 'end' : 'start'}>
+      {line.files?.map(file => <FileTile key={file.key || file.name} name={file.name} contentType={file.contentType} />)}
+      {line.content ? (
+        <HoverRevealGroup layout="horizontal" gap="xs" alignItems="center" justifyContent={mine ? 'end' : 'start'}>
+          {mine && line.forgettable ? <HoverRevealItem><ForgetButton onForget={() => onForget(line.atomRef)} /></HoverRevealItem> : null}
+          <Card variant={mine ? 'solid' : 'bubble'} radius="pill" padding="sm">
+            <Text variant="body">{line.content}</Text>
+          </Card>
+          {!mine && line.forgettable ? <HoverRevealItem><ForgetButton onForget={() => onForget(line.atomRef)} /></HoverRevealItem> : null}
+        </HoverRevealGroup>
+      ) : null}
+    </Container>
+  );
+}
+
+function TurnView({ turn, title, logoUrl, onForget }: { turn: Turn; title: string; logoUrl: string | null; onForget: (atomRef: string) => void }) {
+  // In a one-to-one conversation the author is the conversation itself, so only a group names who is talking.
+  const speaker = turn.author && turn.author !== title ? turn.author : null;
+  return (
+    <Container layout="horizontal" gap="sm" alignItems="end" justifyContent={turn.mine ? 'end' : 'start'}>
+      {!turn.mine && speaker ? <DisplayMark spec={markOf(speaker, null)} size="sm" /> : null}
+      {!turn.mine && !speaker ? <DisplayMark spec={markOf(title, logoUrl)} size="sm" /> : null}
+      <Container layout="vertical" gap="xs" alignItems={turn.mine ? 'end' : 'start'} width="min(72%, 34rem)">
+        {speaker ? <Text variant="caption" color="muted">{speaker}</Text> : null}
+        {turn.lines.map(line => <BubbleLine key={line.atomRef} line={line} mine={turn.mine} onForget={onForget} />)}
+        <Text variant="caption" color="faint">{clockOf(turn.time)}</Text>
+      </Container>
+    </Container>
+  );
+}
+
+/** The open conversation: its header, its messages as turns of talk, and the composer (not built yet, so it says so). */
+function OpenConversation({ focus, row }: { focus: string; row: ConversationRow }) {
+  const window = useRecord<Window>(windowAddressOf(focus));
+  const loaded = useScreenLoad(windowAddressOf(focus), {
+    loading: { label: words.loading, layout: 'rows' },
     read: async () => {
-      const restoreAnchor = initialRead.pending;
-      initialRead.pending = false;
-      try { await openConversation(focus, message, restoreAnchor); return true; }
+      try { await openConversation(focus); return true; }
       catch (error) {
-        if (!canRetainAfterReadFailure(error)) showRecords({ [windowAddressOf(focus, message)]: null });
+        if (!canRetainAfterReadFailure(error)) showRecords({ [windowAddressOf(focus)]: null });
         throw error;
       }
     },
-    failed: refusal('This conversation could not load', { label: 'Open Messages', run: () => location.assign('/messages') }),
+    failed: refusal(words.failed_title, { label: words.failed_action, run: () => location.assign('/messages') }),
   });
   React.useEffect(() => onStoreChange(loaded.reload, AI_MESSAGES), [loaded.reload]);
   // The newest messages are a window the store keeps up to date by ops: a change in them reads this screen again.
   React.useEffect(() => watchWindow('messages', MESSAGE_WINDOW).stop, []);
-  const state = loaded.state?.status === 'loading' && cached ? null : loaded.state;
+  const state = loaded.state?.status === 'loading' && window ? null : loaded.state;
+  const lines = window?.lines ?? [];
+  const days = React.useMemo(() => daysOf(lines, new Date(), words), [lines]);
+  const onForget = React.useCallback((atomRef: string) => {
+    forgetInConversation(focus, atomRef)
+      .then(() => notify(words.forgotten))
+      .catch((error: unknown) => notify(errorWords(error, words.forget_failed), { kind: 'error' }));
+  }, [focus]);
+  const name = row.title;
   return (
-    <Container as="main" layout="vertical" height="full" minHeight="0" overflow="y-auto" aria-label="Messages" aria-busy={state?.status === 'loading' ? 'true' : 'false'}>
-      {state ? <ScreenState state={cached && state.status === 'failed' ? { ...state, inline: true } : state} /> : null}
-      {!state || cached ? <Conversation key={`${focus}:${message ?? ''}`} focus={focus} message={message} /> : null}
-    </Container>
-  );
-}
-
-// The conversation shown, and a choice of every other above it. With none named, the newest conversation the person's
-// owners hold opens (messages-owner.json); while the list is read, or when it cannot be, the named or shared one opens.
-function MessagesChooser({ given, message }: { given?: string; message?: string }) {
-  const [choices, setChoices] = React.useState<{ id: string; label: string; at: string }[]>([]);
-  const [chosen, setChosen] = React.useState<string | null>(given ? canonicalConversationId(given) : null);
-  React.useEffect(() => {
-    let live = true;
-    conversationChoices().then(list => {
-      if (!live) return;
-      setChoices(list);
-      setChosen(current => current ?? list.find(one => one.at)?.id ?? everyoneConversationId);
-    }, () => { if (live) setChosen(current => current ?? everyoneConversationId); });
-    return () => { live = false; };
-  }, []);
-  if (!chosen) return <ScreenState state={{ status: 'loading', label: 'Loading your messages', layout: 'rows' }} />;
-  return (
-    <Container layout="vertical" height="full" minHeight="0">
-      {choices.length > 1 ? (
-        <Container layout="horizontal" padding="sm" gap="sm" alignItems="center">
-          <Select items={choices.map(one => ({ value: one.id, label: one.label }))} value={chosen} onValueChange={next => { if (typeof next === 'string') setChosen(next); }}>
-            <SelectTrigger size="sm" aria-label="Conversation"><SelectValue /></SelectTrigger>
-            <SelectPopup>{choices.map(one => <SelectItem key={one.id} value={one.id}>{one.label}</SelectItem>)}</SelectPopup>
-          </Select>
-          {storeNewestWords().map(words => <Text key={words} as="span" variant="caption" color="secondary">{words}</Text>)}
+    <Container layout="vertical" flex="1" minWidth="0" minHeight="0" aria-label={name}>
+      <Container layout="horizontal" gap="sm" alignItems="center" padding="sm">
+        <DisplayMark spec={markOf(name, row.logoUrl)} size="md" />
+        <Container layout="vertical" minWidth="0">
+          <Text variant="heading-xs">{name}</Text>
+          <Text variant="caption" color="muted">{words.source_names[row.source as keyof typeof words.source_names] ?? row.source}</Text>
+        </Container>
+      </Container>
+      {state ? <ScreenState state={window && state.status === 'failed' ? { ...state, inline: true } : state} /> : null}
+      {!state || window ? (
+        <Container layout="vertical" flex="1" minHeight="0" overflow="y-auto" padding="md" gap="md">
+          {days.length ? days.map(day => (
+            <Container key={day.key} layout="vertical" gap="sm">
+              <Container layout="horizontal" justifyContent="center"><Text variant="caption" color="muted">{day.label}</Text></Container>
+              {day.turns.map((turn, index) => <TurnView key={turn.lines[0].atomRef || index} turn={turn} title={name} logoUrl={row.logoUrl} onForget={onForget} />)}
+            </Container>
+          )) : <Container layout="horizontal" justifyContent="center"><Text variant="caption" color="muted">{words.empty_thread}</Text></Container>}
         </Container>
       ) : null}
-      <MessagesLoad key={chosen} focus={chosen} message={chosen === given ? message : undefined} />
+      <Container layout="vertical" padding="sm">
+        <Composer disabled onSend={() => Promise.reject(new Error(words.no_reply))} words={{ placeholder: words.composer_placeholder }} />
+      </Container>
     </Container>
   );
 }
 
-export function mountMessagesScreen(element: HTMLElement, props?: { surfaceInput?: { conversation?: string; message?: string } }): () => void {
-  return mountReactSurface(element, <MessagesChooser given={props?.surfaceInput?.conversation} message={props?.surfaceInput?.message} />);
+/** The conversation list (search, newest first) beside the open conversation. Until the owners' tables are read, or when
+ *  none of them holds a conversation yet, the list says Trillion is connecting to the person's messages. */
+function MessagesChooser({ given }: { given?: string }) {
+  const [picked, setPicked] = React.useState<string | null>(null);
+  const [query, setQuery] = React.useState('');
+  const [read, setRead] = React.useState(false);
+  const conversations = useRecord<Conversations>(CONVERSATIONS_ADDRESS);
+  const rows = conversations?.rows ?? [];
+  React.useEffect(() => {
+    let live = true;
+    const done = () => { if (live) setRead(true); };
+    startChatRecords().then(done, done);
+    return () => { live = false; };
+  }, []);
+  const requested = picked ?? (given ? canonicalConversationId(given) : null);
+  const focus = rows.some(row => row.recordId === requested) ? requested : rows[0]?.recordId ?? null;
+  const shown = rows.filter(row => {
+    const match = query.trim().toLocaleLowerCase();
+    return !match || row.title.toLocaleLowerCase().includes(match) || (row.lastMessagePreview ?? '').toLocaleLowerCase().includes(match);
+  });
+  const open = rows.find(row => row.recordId === focus);
+  return (
+    <Container as="main" layout="horizontal" height="full" minHeight="0" aria-label={words.title}>
+      <Container layout="vertical" width="320px" minHeight="0" padding="sm" gap="sm" overflow="y-auto">
+        <Container layout="vertical" padding="xs">
+          <Text variant="heading-xs">{words.title}</Text>
+        </Container>
+        <SearchField label={words.search} placeholder={words.search} value={query} onChange={event => setQuery(event.currentTarget.value)} />
+        {!read && !rows.length ? <ScreenState state={{ status: 'loading', label: words.loading, layout: 'rows' }} /> : null}
+        {read && !rows.length ? <EmptyPlaceholder icon={MessageSquare} title={words.connecting_title} message={words.connecting_body} /> : null}
+        {rows.length && !shown.length ? <Text variant="caption" color="muted">{words.no_matches}</Text> : null}
+        <Container layout="vertical" gap="xs" aria-label={words.conversations}>
+          {shown.map(row => {
+            const preview = row.lastMessagePreview === null ? '' : row.lastMessagePreview || words.photo;
+            const mine = row.lastMessageRole === 'human';
+            return (
+              <Card as="button" type="button" key={row.recordId} variant="ghost" interactive selected={row.recordId === focus} className="text-left"
+                aria-current={row.recordId === focus ? 'true' : undefined} onClick={() => setPicked(row.recordId)} padding="sm">
+                <Container layout="horizontal" gap="sm" alignItems="center">
+                  <DisplayMark spec={markOf(row.title, row.logoUrl)} size="md" />
+                  <Container layout="vertical" minWidth="0" flex="1">
+                    <Text variant="body" color="strong">{row.title}</Text>
+                    <Text variant="caption" color="muted">{`${mine ? words.you_prefix : ''}${preview}`}</Text>
+                  </Container>
+                </Container>
+              </Card>
+            );
+          })}
+        </Container>
+      </Container>
+      {open ? <OpenConversation key={open.recordId} focus={open.recordId} row={open} /> : (
+        read ? <EmptyPlaceholder icon={MessageSquare} title={words.connecting_title} message={words.connecting_body} fill /> : null
+      )}
+    </Container>
+  );
+}
+
+export function mountMessagesScreen(element: HTMLElement, props?: { surfaceInput?: { conversation?: string } }): () => void {
+  return mountReactSurface(element, <MessagesChooser given={props?.surfaceInput?.conversation} />);
 }

@@ -1,0 +1,29 @@
+{
+  "title": "Messages",
+  "conversations": "Conversations",
+  "search": "Search conversations",
+  "no_matches": "No matching conversations",
+  "loading": "Loading your messages",
+  "connecting_title": "Connecting your messages",
+  "connecting_body": "Your messages show here once your apps have told them to Trillion.",
+  "failed_title": "This conversation could not load",
+  "not_found": "This conversation could not be found. Open Messages to choose another conversation.",
+  "failed_action": "Open Messages",
+  "empty_thread": "Nothing said here yet.",
+  "photo": "Photo",
+  "file": "File",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "you_prefix": "You: ",
+  "forget": "Forget",
+  "forget_confirm": "Forget it?",
+  "forgotten": "Forgotten.",
+  "forget_gone": "This message is already forgotten.",
+  "forget_failed": "Could not forget it.",
+  "no_reply": "Replying from here is not built yet. Reply in the app it came from.",
+  "composer_placeholder": "Replying from here is not built yet.",
+  "source_names": {
+    "imessage": "iMessage",
+    "whatsapp": "WhatsApp"
+  }
+}
