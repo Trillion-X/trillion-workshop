@@ -1,0 +1,9 @@
+{
+  "_what": "How tool:find-the-account-of-a-service (do-work/find-the-account-of-a-service.mjs) reads a connection id and what it says. connection_id_prefix is how a connection id begins: `service_connection:<vendor>` names a service, `service_connection:<vendor>:<account>` one account of it (tools/connect-a-service-and-seal-its-key read-data/read-service-connection-options.ts deriveConnectionInstanceId). The words are what a caller is told; `which` lists the accounts the vault holds of that service in place of {accounts}, the same words the engine said before the policy moved here (trillion-rust src/tool_runs/tools/computer/words.json, tools_tool_connection_needs_an_account).",
+  "connection_id_prefix": "service_connection:",
+  "words": {
+    "send": "Send { service, held_connections }: the service's connection id, such as service_connection:stripe, and the connections the account's vault holds, each { connection_id, fields }, read from the vault's names.",
+    "not_a_service": "service must be a connection id: service_connection:<service>, or service_connection:<service>:<account>.",
+    "which": "This account holds more than one account of this service: {accounts}. Run the tool again with the connection set to one of them, written service_connection:<service>:<account>."
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "drafted_from": "tools/connections/tool-rows.json, do-work/find-the-account-of-a-service.mjs, test/find-the-account-of-a-service.test.mjs",
+  "start_here": "Say to your AI: \"Which of my Stripe accounts should this payment use?\" It reads the names of the connections your vault holds and runs tool:find-the-account-of-a-service with {\"service\": \"service_connection:stripe\", \"held_connections\": [...]}, and hands back the one account to use, or names them all when you hold several.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it works from the connection id and the held connection names you hand it, and changes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:find-the-account-of-a-service"
+  ],
+  "instructions": [
+    "1. Connect at least one account of the service first (for example Stripe through tool:connect-an-account-by-signing-in-to-the-service).",
+    "2. Before starting a tool whose connection is one account of a service, your AI reads the names of the connections your vault holds (each {connection_id, fields}, never a value) and runs tool:find-the-account-of-a-service with {\"service\": \"service_connection:<service>\", \"held_connections\": [...]}.",
+    "3. connection_id is the account to name in that tool's input; when it is null and which is given, say which of the listed accounts to use.",
+    "4. An id that already names an account (service_connection:<service>:<account>) is answered as given."
+  ],
+  "worked_examples": [
+    {
+      "title": "One Stripe account held is the one used",
+      "ask": "Which of my Stripe accounts should this payment use?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-the-account-of-a-service",
+            "input": {
+              "service": "service_connection:stripe",
+              "held_connections": [
+                {
+                  "connection_id": "service_connection:stripe:sample",
+                  "fields": [
+                    "secret_key"
+                  ]
+                },
+                {
+                  "connection_id": "service_connection:resend:other",
+                  "fields": [
+                    "secret_key"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "From tools/connections/test/find-the-account-of-a-service.test.mjs (first test): the vault holds one Stripe account, sample, and one Resend account. The answer below is the one that test asserts.",
+      "hands_back": "{\"connection_id\":\"service_connection:stripe:sample\",\"accounts\":[\"service_connection:stripe:sample\"]}"
+    },
+    {
+      "title": "Two Stripe accounts held: both are named and none is chosen",
+      "ask": "Which Stripe account should I use?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-the-account-of-a-service",
+            "input": {
+              "service": "service_connection:stripe",
+              "held_connections": [
+                {
+                  "connection_id": "service_connection:stripe:b",
+                  "fields": [
+                    "secret_key"
+                  ]
+                },
+                {
+                  "connection_id": "service_connection:stripe:a",
+                  "fields": [
+                    "secret_key"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "From tools/connections/test/find-the-account-of-a-service.test.mjs (second test): the vault holds two Stripe accounts, a and b.",
+      "hands_back": "{\"connection_id\":null,\"accounts\":[\"service_connection:stripe:a\",\"service_connection:stripe:b\"],\"which\":\"This account holds more than one account of this service: service_connection:stripe:a, service_connection:stripe:b. Run the tool again with the connection set to one of them, written service_connection:<service>:<account>.\"}"
+    }
+  ]
+}

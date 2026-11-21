@@ -10,6 +10,7 @@ tools (trillion-rust `src/tool_runs/tools/http/refresh.rs`); connecting, checkin
 | Tool | What it does | Runs |
 |------|--------------|------|
 | `tool:list-connections` | `{ connection_records, held_connections }` → `{ connections }`: one row a connection in connection id order (`connection_id, service, vendor, account_label?, status?, can_send, connected_at?, grant_scopes_known, grant_scopes?, capabilityChoices?, last_checked?, connected_by?`) | in a small container, no internet; reads no store, both lists come in the input |
+| `tool:find-the-account-of-a-service` | `{ service, held_connections }` → `{ connection_id, accounts, which? }`: which of the person's accounts of a service a call means when it names the service with no account (`service_connection:stripe`); one held is the answer, several are named and none chosen. Moved from the engine (trillion-rust tools.rs `connection_found`) by the engine boundary audit, Nov 21 2026: a caller asks it before starting a tool | in a small container, no internet; reads only what it is handed |
 
 ## Where a connection lives on today's engine
 
