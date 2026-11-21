@@ -4098,14 +4098,6 @@
       "-v",
       "error",
       "-y",
-      "-reconnect",
-      "1",
-      "-reconnect_on_network_error",
-      "1",
-      "-reconnect_on_http_error",
-      "4xx,5xx",
-      "-reconnect_delay_max",
-      "60",
       "-i",
       {
        "from": "video"
