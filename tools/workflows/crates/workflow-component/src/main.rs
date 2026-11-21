@@ -31,6 +31,9 @@ const TELL: &str = "wake:arrive";
 /// (trillion-rust src/wake.rs `Effect::Door`), which makes it as the run's party and tells its answer back as a tool's is.
 /// `wake:arrive` among them is answered here (`TELL`).
 const ASK_RIGHTS: &str = include_str!("../../../ask-rights.json");
+/// The fields of an ask's input that hold words for whoever answers it, as DATA (tools/workflows/ask-words.json `keys`,
+/// fingerprinted like `ASK_RIGHTS`): a {key} in them is filled before the ask goes out (`fill_ask_words`).
+const ASK_WORDS: &str = include_str!("../../../ask-words.json");
 /// The most bytes (as JSON) the run may be when a step's answer is held with it: every later envelope carries the whole run
 /// (its definition and every held answer), so a step whose answer takes the run past this is refused at that step. The run's
 /// input or definition `most_answer_bytes` overrides it.
@@ -43,6 +46,53 @@ fn most_answer_bytes(run: &Map<String, Value>) -> usize {
         .or_else(|| definition.and_then(|definition| definition.get("most_answer_bytes")))
         .and_then(Value::as_u64)
         .map_or(MOST_ANSWER_BYTES, |bytes| bytes as usize)
+}
+
+/// The fields `ASK_WORDS` names.
+fn words_keys() -> BTreeSet<String> {
+    let words: Value = serde_json::from_str(ASK_WORDS).unwrap_or_else(|error| fail(format!("ask-words.json does not read: {error}")));
+    words["keys"].as_array().into_iter().flatten().filter_map(Value::as_str).map(str::to_owned).collect()
+}
+
+/// An ask's input with each {key} in a text under a words field (at any depth) filled from the ask's own `key`, else
+/// the run input's: a text as it is, any other value as its JSON. A {key} neither holds stays as written and is listed.
+/// Nothing outside a words field is touched.
+fn fill_ask_words(asks: &Value, run_input: &Value, keys: &BTreeSet<String>) -> (Value, Vec<String>) {
+    fn value_of(asks: &Value, run_input: &Value, key: &str) -> Option<String> {
+        [&asks[key], &run_input[key]].into_iter().find(|value| !value.is_null())
+            .map(|value| value.as_str().map_or_else(|| value.to_string(), str::to_owned))
+    }
+    fn filled(text: &str, asks: &Value, run_input: &Value, unfilled: &mut BTreeSet<String>) -> String {
+        let mut out = String::with_capacity(text.len());
+        let mut rest = text;
+        while let Some(open) = rest.find('{') {
+            out.push_str(&rest[..open]);
+            let after = &rest[open + 1..];
+            let name_end = after.find(|c: char| !(c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_')).unwrap_or(after.len());
+            let name = &after[..name_end];
+            let named = !name.is_empty() && !name.starts_with(|c: char| c.is_ascii_digit()) && after[name_end..].starts_with('}');
+            if !named { out.push('{'); rest = after; continue; }
+            match value_of(asks, run_input, name) {
+                Some(value) => out.push_str(&value),
+                None => { unfilled.insert(name.to_string()); out.push_str(&rest[open..open + name_end + 2]); }
+            }
+            rest = &after[name_end + 1..];
+        }
+        out.push_str(rest);
+        out
+    }
+    fn walk(value: &Value, words: bool, asks: &Value, run_input: &Value, keys: &BTreeSet<String>, unfilled: &mut BTreeSet<String>) -> Value {
+        match value {
+            Value::Object(fields) => Value::Object(fields.iter()
+                .map(|(field, inner)| (field.clone(), walk(inner, words || keys.contains(field), asks, run_input, keys, unfilled))).collect()),
+            Value::Array(items) => Value::Array(items.iter().map(|inner| walk(inner, words, asks, run_input, keys, unfilled)).collect()),
+            Value::String(text) if words => Value::String(filled(text, asks, run_input, unfilled)),
+            other => other.clone(),
+        }
+    }
+    let mut unfilled = BTreeSet::new();
+    let filled = walk(asks, false, asks, run_input, keys, &mut unfilled);
+    (filled, unfilled.into_iter().collect())
 }
 
 /// The names in `ASK_RIGHTS` the door makes for a run: every declared ask but `TELL`.
@@ -65,13 +115,17 @@ fn effect_of(waiting: &Value, told: Value, doors: &BTreeSet<String>, workflow: &
     if doors.contains(name) {
         return json!({ "door": { "name": name, "input": waiting["asks"], "reply": told } });
     }
-    json!({ "arrive": { "source": WAITING, "event_id": told["event_id"], "payload": { "workflow": workflow, "step": waiting["step"], "for": name, "asks": waiting["asks"], "told_as": told } } })
+    let mut payload = json!({ "workflow": workflow, "step": waiting["step"], "for": name, "asks": waiting["asks"], "told_as": told });
+    if let Some(unfilled) = waiting.get("unfilled") { payload["unfilled"] = unfilled.clone(); }
+    json!({ "arrive": { "source": WAITING, "event_id": told["event_id"], "payload": payload } })
 }
 
 /// The fields of a run that are the run's own, not the workflow's input.
 const KEPT: [&str; 8] = ["row", "definition", "definitions", "answers", "start_at", "started_at", "run", "refused"];
 
-struct Held { run: String, answers: BTreeMap<String, Value>, refused: BTreeMap<String, String>, waiting: Mutex<Vec<Value>>, told: Mutex<Vec<(String, Value, Value)>> }
+struct Held { run: String, answers: BTreeMap<String, Value>, refused: BTreeMap<String, String>, waiting: Mutex<Vec<Value>>, told: Mutex<Vec<(String, Value, Value)>>,
+    /// The run's own input, which an ask's words are filled from after the ask's own input (`fill_ask_words`).
+    run_input: Value, words: BTreeSet<String> }
 
 /// The step an ask is answered under: its place in the run (`_runtime_identity`, which the engine makes distinct for
 /// each loop iteration and nested workflow, and the same on every replay) when it is nested, else its own step id. So
@@ -108,7 +162,11 @@ impl Host for Held {
             self.told.lock().unwrap().push((step, answer.clone(), fact));
             return Ok(serde_json::to_vec(&answer).unwrap());
         }
-        self.waiting.lock().unwrap().push(json!({ "step": step, "for": name, "asks": input }));
+        // The engine starts runs itself (a fact, a schedule, the router), so no hand harness fills an ask's {key} words.
+        let (input, unfilled) = fill_ask_words(&input, &self.run_input, &self.words);
+        let mut waiting = json!({ "step": step, "for": name, "asks": input });
+        if !unfilled.is_empty() { waiting["unfilled"] = json!(unfilled); }
+        self.waiting.lock().unwrap().push(waiting);
         Ok(serde_json::to_vec(&json!({ "$kind": workflow_core::executor::context::NOT_ANSWERED_YET, "step_id": step, "asked": name })).unwrap())
     }
     // This run holds no store, so a read step is refused in plain words (its declared fallback answers, else it fails):
@@ -233,7 +291,8 @@ fn main() {
     let id = definitions[0].id.clone();
     let answers: BTreeMap<String, Value> = serde_json::from_value(run.get("answers").cloned().unwrap_or(json!({}))).unwrap_or_default();
     let run_id = run.get("run").and_then(Value::as_str).unwrap_or("run").to_string();
-    let host = Arc::new(Held { run: run_id.clone(), answers, refused: refused.clone(), waiting: Mutex::new(vec![]), told: Mutex::new(vec![]) });
+    let host = Arc::new(Held { run: run_id.clone(), answers, refused: refused.clone(), waiting: Mutex::new(vec![]), told: Mutex::new(vec![]),
+        run_input: run.get("input").cloned().unwrap_or(json!({})), words: words_keys() });
     // Who the run acts for: the task's actor, else its account; what a step no tool runs names as its answerer.
     let actor = given["context"]["actor"].as_str().or(given["context"]["account_id"].as_str()).or(run.get("actor").and_then(Value::as_str)).unwrap_or("person").to_string();
     run.insert("actor".into(), json!(actor));
@@ -282,7 +341,8 @@ mod tests {
     use super::*;
 
     fn held() -> Arc<Held> {
-        Arc::new(Held { run: "r".into(), answers: BTreeMap::new(), refused: BTreeMap::new(), waiting: Mutex::new(vec![]), told: Mutex::new(vec![]) })
+        Arc::new(Held { run: "r".into(), answers: BTreeMap::new(), refused: BTreeMap::new(), waiting: Mutex::new(vec![]), told: Mutex::new(vec![]),
+            run_input: json!({}), words: words_keys() })
     }
 
     // A check that a row exists can never pass on a row this run could not read: the read is refused, and the walk fails.
@@ -312,7 +372,8 @@ mod tests {
             let (run, refused) = the_run(&given);
             let mut all = definitions_of(&run);
             let definitions: Vec<workflow_core::Definition> = all.drain(..).map(|d| serde_json::from_value(d).unwrap()).collect();
-            let host = Arc::new(Held { run: "k".into(), answers: serde_json::from_value(run["answers"].clone()).unwrap_or_default(), refused, waiting: Mutex::new(vec![]), told: Mutex::new(vec![]) });
+            let host = Arc::new(Held { run: "k".into(), answers: serde_json::from_value(run["answers"].clone()).unwrap_or_default(), refused, waiting: Mutex::new(vec![]), told: Mutex::new(vec![]),
+                run_input: run["input"].clone(), words: words_keys() });
             futures::executor::block_on(workflow_engine::run_definition_with_started_at(definitions, "two", run["input"].clone(), "someone", "workflow", "2026-11-20T00:00:00Z", host.clone())).unwrap();
             let waiting = host.waiting.lock().unwrap().clone();
             waiting
@@ -387,5 +448,42 @@ mod tests {
         let nested = json!({ "step_id": "tell", "_runtime_identity": [json!({ "iteration": "each_iter_1", "definition_id": "x" }).to_string(), "tell"] });
         assert_eq!(step_of(&nested), "each_iter_1/tell");
         assert_eq!(step_of(&json!({ "step_id": "pick" })), "pick");
+    }
+
+    // Nov 21 2026: give-paid-buyers-access asked with the literal {people}, handle-every-inbox-daily with {connection_id}.
+    #[test]
+    fn an_asks_words_are_filled_from_its_own_input_then_the_runs() {
+        let keys = words_keys();
+        let run_input = json!({ "people": ["ana", "bo"], "connection_id": "ca_1", "name": "from the run" });
+        let asks = json!({ "name": "from the step", "do": "Give {people} access through {connection_id} as {name}; {missing} too",
+            "sql": "select '{people}' as kept, json_build_object('a', 1)", "nested": { "question": "{connection_id}?", "rows": "{people}" },
+            "steps": [{ "prompt": "{name} {0} {Name} {} {people" }] });
+        let (filled, unfilled) = fill_ask_words(&asks, &run_input, &keys);
+        assert_eq!(filled["do"], "Give [\"ana\",\"bo\"] access through ca_1 as from the step; {missing} too",
+            "a key from the run input, a key from the step input winning over the run's, a value that is not text as its JSON");
+        assert_eq!(unfilled, vec!["missing".to_string()]);
+        assert_eq!(filled["sql"], asks["sql"], "a field that is not a words field is never touched");
+        assert_eq!(filled["nested"]["question"], "ca_1?", "a words field at any depth is filled");
+        assert_eq!(filled["nested"]["rows"], "{people}");
+        assert_eq!(filled["steps"][0]["prompt"], "from the step {0} {Name} {} {people", "only {{key}} with key [a-z_][a-z_0-9]* is a name");
+    }
+
+    // The whole way out: a run the engine started holds its input, and the waiting fact carries the filled words and what
+    // stayed unfilled.
+    #[test]
+    fn a_waiting_fact_carries_the_filled_words_and_what_stayed_unfilled() {
+        let definition = json!({ "id": "give", "name": "give", "kind": "workflow", "is_active": true, "version": 1, "edges": [],
+            "steps": [{ "id": "ask", "kind": "ask", "config": { "name": "ai", "context": { "step_id": "ask" },
+                "input": { "do": "Give {people} access ({why})", "sql": "{people}" } } }] });
+        let given = json!({ "input": { "definition": definition, "people": "ana" }, "cause": { "key": "k" }, "context": {} });
+        let (run, refused) = the_run(&given);
+        let definitions: Vec<workflow_core::Definition> = definitions_of(&run).into_iter().map(|d| serde_json::from_value(d).unwrap()).collect();
+        let host = Arc::new(Held { run: "k".into(), answers: BTreeMap::new(), refused, waiting: Mutex::new(vec![]), told: Mutex::new(vec![]),
+            run_input: run["input"].clone(), words: words_keys() });
+        futures::executor::block_on(workflow_engine::run_definition_with_started_at(definitions, "give", run["input"].clone(), "someone", "workflow", "2026-11-21T00:00:00Z", host.clone())).unwrap();
+        let waiting = host.waiting.lock().unwrap()[0].clone();
+        let fact = effect_of(&waiting, json!({ "event_id": "k:ask" }), &door_asks(), "give");
+        assert_eq!(fact["arrive"]["payload"]["asks"], json!({ "do": "Give ana access ({why})", "sql": "{people}" }));
+        assert_eq!(fact["arrive"]["payload"]["unfilled"], json!(["why"]));
     }
 }

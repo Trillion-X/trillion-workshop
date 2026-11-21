@@ -18,6 +18,7 @@ serde_json.workspace = true
 futures.workspace = true
 chrono.workspace = true
 
-# ask-rights.json is read into the component (main.rs `ASK_RIGHTS`), so a change to it builds the component again.
+# ask-rights.json and ask-words.json are read into the component (main.rs `ASK_RIGHTS`, `ASK_WORDS`), so a change to
+# either builds the component again.
 [package.metadata.compiled-module]
-source-files = ["../../ask-rights.json"]
+source-files = ["../../ask-rights.json", "../../ask-words.json"]

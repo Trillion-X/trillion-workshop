@@ -1,0 +1,4 @@
+{
+  "_what": "The fields of a step's ask input that hold words for whoever answers it (crates/workflow-component/src/main.rs `ASK_WORDS`). An ask's words often name its inputs as {key}; before the ask goes out, each {key} (key: a lower-case letter or _, then lower-case letters, digits or _) in a text value under one of these fields, at any depth, is filled from the ask's own input field of that name, else from the run's input: a text as it is, any other value as its JSON. A {key} neither holds stays as written, and the ask's waiting fact lists it in `unfilled`. Every other field is left as it is, so braces in SQL or a template are never touched. Why: on Nov 21 2026, 11 live workflows' asks reached their answerer with the literal {people} and {connection_id} when the engine started the run itself (a fact, a schedule, the router); only the hand harness (wf) filled them.",
+  "keys": ["do", "words", "ask", "question", "prompt"]
+}
