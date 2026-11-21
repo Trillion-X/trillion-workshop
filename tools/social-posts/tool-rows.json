@@ -5311,7 +5311,11 @@
               "type": "array",
               "items": {
                 "type": "object",
-                "required": ["id", "type", "value"]
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ]
               },
               "description": "The person's rows this run reads, read by the caller from where the person keeps them (the engine keeps none): each { id, type, value } of a post (type post) and of the destination's connection (type connection), as the caller read them. What is not given is not there."
             },
@@ -5419,7 +5423,8 @@
             ]
           },
           "workdir": "/opt/social-posts",
-          "internet": true, "public_read": true,
+          "internet": true,
+          "public_read": true,
           "stdout": "json",
           "argv": [
             "node",
