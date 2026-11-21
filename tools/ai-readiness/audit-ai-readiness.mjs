@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Audits public addresses for AI answer engines: node scripts/audit-ai-readiness.mjs <url> [<url>...] [--json]
 // Reads each page's served HTML (no script run), its host's robots.txt and, up to the limit in the checks DATA, its links.
-import { auditServedHtml } from '../parts/ai-readiness/do-work/audit-served-html.mjs';
+import { auditServedHtml } from './do-work/audit-served-html.mjs';
 
 const args = process.argv.slice(2);
 const json = args.includes('--json');
