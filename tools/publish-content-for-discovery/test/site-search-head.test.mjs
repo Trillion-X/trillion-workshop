@@ -2,7 +2,8 @@
 // Made-up pages on invalid hosts.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { llmsTxt, robotsTxt, searchHeadMarkup, searchMetaProblems, withSearchHead } from '../do-work/site-search-head.mjs';
+import { llmsTxt, robotsTxt, searchHeadMarkup, searchMetaProblems, serializeSitemapXml, withSearchHead } from '../do-work/site-search-head.mjs';
+import { serializeSitemapXml as reExported } from '../do-work/serve-content-for-discovery.mjs';
 
 const meta = {
   title: 'Cedar Field Lab',
@@ -71,4 +72,13 @@ test('llms.txt has the name, a summary, and sections of links', () => {
     sections: [{ title: 'Articles', links: [{ title: 'Pine', url: 'https://cedar.invalid/pine', note: 'on pine' }, { title: 'Oak', url: 'https://cedar.invalid/oak' }] }],
   });
   assert.equal(body, '# Cedar Field Lab\n\n> Notes on cedar.\n\n## Articles\n\n- [Pine](https://cedar.invalid/pine): on pine\n- [Oak](https://cedar.invalid/oak)\n');
+});
+
+test('sitemap.xml lists each https page with its date, escapes, refuses a bad address, and is the one copy serve-content re-exports', () => {
+  const body = serializeSitemapXml({ urls: [{ loc: 'https://cedar.invalid/', lastmod: '2026-11-01' }, { loc: 'https://cedar.invalid/a?b=1&c=2' }] });
+  assert.match(body, /<loc>https:\/\/cedar\.invalid\/<\/loc><lastmod>2026-11-01<\/lastmod>/);
+  assert.match(body, /<loc>https:\/\/cedar\.invalid\/a\?b=1&amp;c=2<\/loc>/);
+  assert.throws(() => serializeSitemapXml({ urls: [{ loc: 'ftp://cedar.invalid/' }] }), /HTTPS/);
+  assert.throws(() => serializeSitemapXml({ urls: [{ loc: 'https://cedar.invalid/', lastmod: 'soon' }] }), /dates/);
+  assert.equal(reExported, serializeSitemapXml);
 });

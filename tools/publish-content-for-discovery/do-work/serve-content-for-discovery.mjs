@@ -1,4 +1,5 @@
 import { prepareContentForDiscovery } from './prepare-content-for-discovery.mjs';
+import { serializeSitemapXml } from './site-search-head.mjs';
 import { prefersMarkdown } from '../../ai-readiness/do-work/negotiate-markdown.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
@@ -10,16 +11,8 @@ const isHttps = value => { try { const url = new URL(value); return url.protocol
 const digest = text => makeHashCodeHexFromBytes(new TextEncoder().encode(text));
 const unavailable = () => new Response('Current public content is unavailable.', { status: 503, headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' } });
 
-/** Serializes a page model returned by prepareContentForDiscovery. */
-export function serializeSitemapXml(sitemapPage) {
-  if (!sitemapPage || !Array.isArray(sitemapPage.urls)) throw new TypeError('A sitemap page model is required.');
-  const urls = sitemapPage.urls.map(url => {
-    if (!isHttps(url.loc)) throw new TypeError('Every sitemap location must be an HTTPS URL.');
-    if (url.lastmod && !Number.isFinite(Date.parse(url.lastmod))) throw new TypeError('Sitemap dates must be valid.');
-    return `${LT}url${GT}${tag('loc', url.loc)}${url.lastmod ? tag('lastmod', url.lastmod) : ''}${LT}/url${GT}`;
-  }).join('');
-  return `<?xml version="1.0" encoding="UTF-8"?>${LT}urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"${GT}${urls}${LT}/urlset${GT}`;
-}
+/** serializeSitemapXml lives in site-search-head.mjs (no imports), so a site can serve a sitemap without this file's imports. */
+export { serializeSitemapXml };
 
 /** Serializes an explicit index of sitemap page URLs, including a continuation page when supplied. */
 export function serializeSitemapIndexXml({ pages }) {

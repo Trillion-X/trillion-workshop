@@ -126,6 +126,23 @@ export function withSearchHead(html, meta) {
   return html.slice(0, start) + head.replace('<head>', `<head>${markup}`) + html.slice(end);
 }
 
+const SITEMAP_LT = String.fromCharCode(60);
+const SITEMAP_GT = String.fromCharCode(62);
+const sitemapText = (value) => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&apos;');
+const sitemapTag = (name, value) => `${SITEMAP_LT}${name}${SITEMAP_GT}${sitemapText(value)}${SITEMAP_LT}/${name}${SITEMAP_GT}`;
+
+/** A sitemap.xml body from { urls: [{ loc, lastmod? }] }: every loc an https address, every lastmod a valid date (the page model
+ *  prepareContentForDiscovery returns, or a site's own list). serve-content-for-discovery.mjs re-exports it. */
+export function serializeSitemapXml(sitemapPage) {
+  if (!sitemapPage || !Array.isArray(sitemapPage.urls)) throw new TypeError('A sitemap page model is required.');
+  const urls = sitemapPage.urls.map(url => {
+    if (!isHttps(url.loc)) throw new TypeError('Every sitemap location must be an HTTPS URL.');
+    if (url.lastmod && !Number.isFinite(Date.parse(url.lastmod))) throw new TypeError('Sitemap dates must be valid.');
+    return `${SITEMAP_LT}url${SITEMAP_GT}${sitemapTag('loc', url.loc)}${url.lastmod ? sitemapTag('lastmod', url.lastmod) : ''}${SITEMAP_LT}/url${SITEMAP_GT}`;
+  }).join('');
+  return `<?xml version="1.0" encoding="UTF-8"?>${SITEMAP_LT}urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"${SITEMAP_GT}${urls}${SITEMAP_LT}/urlset${SITEMAP_GT}`;
+}
+
 /** A robots.txt body. Each group names its agents and the paths it allows or disallows; the sitemap is one absolute https address. */
 export function robotsTxt({ sitemap, groups }) {
   if (!isHttps(sitemap)) throw new TypeError('robots.txt needs its sitemap as an absolute https address.');
