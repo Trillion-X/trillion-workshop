@@ -1585,6 +1585,140 @@
           }
         ]
       }
+    },
+    {
+      "address": "package::notice-when-something-shows-up::tool::read-a-page-of-messages-on-this-mac",
+      "id": "package::notice-when-something-shows-up::tool::read-a-page-of-messages-on-this-mac",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "id": "tool:read-a-page-of-messages-on-this-mac",
+        "listed_on": "2026-11-21T10:50:00Z",
+        "label": "Read one page of the messages already on this Mac, newest first",
+        "job": "Read the next page of the messages already in the Messages database on the person's own Mac, newest first, as the facts a watcher tells for a new message, so a backfill can keep a person's history of messages it was not running for. It only reads: it never sends a message and tells the engine nothing.",
+        "description": "The page reader beside tool:notice-messages-on-this-mac, run on the person's own Mac with the same one capability, read-messages (granted to this tool by the person; macOS allows it only once the app that runs the engine has Full Disk Access). It copies the Messages database with its -wal file and reads below before_row (left out: from the newest message), newest first, at most max_facts facts or max_bytes bytes of facts, so each answer stays a few kilobytes. Each fact has the eight fields the watcher tells (where, place, change added, at, key, by, after, kinds) and is the same fact the watcher makes for that message: the same key, the same time, the same after. It answers next_before_row (the lowest row it passed: give it as before_row for the next page) and done (no row is left below). A tapback, an empty message and, unless include_own, the person's own sends pass without a fact. database names the Messages database; inside a Mac sandbox it must be absolute, since the sandbox's home folder is not the person's.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "where": {
+              "type": "string",
+              "description": "The source's name, told as each fact's where (default imessage)"
+            },
+            "database": {
+              "type": "string",
+              "description": "The Messages database, absolute or under the home folder (default Library/Messages/chat.db)"
+            },
+            "before_row": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Read the rows below this one; left out, from the newest message"
+            },
+            "max_facts": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "description": "Most facts in the page (default 40)"
+            },
+            "max_bytes": {
+              "type": "integer",
+              "minimum": 500,
+              "maximum": 60000,
+              "description": "Most bytes of facts in the page (default 12000)"
+            },
+            "include_own": {
+              "type": "boolean",
+              "description": "True to take the person's own sends too (default false)"
+            },
+            "kinds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The kinds each fact carries (default none)"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "facts": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "next_before_row": {
+              "type": "integer"
+            },
+            "done": {
+              "type": "boolean"
+            },
+            "bytes": {
+              "type": "integer"
+            },
+            "error": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-messages"
+          ],
+          "workdir": "/opt/notice-when-something-shows-up",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "--no-warnings",
+            "/opt/notice-when-something-shows-up/do-work/read-a-page-of-messages.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "notice-when-something-shows-up",
+                "paths": [
+                  "do-work/read-a-page-of-messages.mjs",
+                  "do-work/mechanisms/imessage-chat-database.mjs"
+                ],
+                "at": "/opt/notice-when-something-shows-up"
+              },
+              {
+                "package": "bring-in-new-items-from-this-computer",
+                "paths": [
+                  "computer/connections/imessage.mjs"
+                ],
+                "at": "/opt/bring-in-new-items-from-this-computer"
+              }
+            ]
+          }
+        },
+        "provenance": {
+          "source": "tools/notice-when-something-shows-up/do-work/mechanisms/imessage-chat-database.mjs: its readDatabase and changeOf make the facts, pageBefore takes a page of them from below a row"
+        },
+        "result_selector": "$",
+        "verify": []
+      }
     }
   ]
 }

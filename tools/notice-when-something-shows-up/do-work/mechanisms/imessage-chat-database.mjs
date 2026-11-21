@@ -151,6 +151,10 @@ export function readDatabase(db) {
     added(afterRow) {
       return all(`SELECT ${columnsFor} ${MESSAGE_FROM} WHERE m.ROWID > ? ORDER BY m.ROWID`, afterRow).map((row) => ({ ...row, attachments: attachmentsOf(row.row) }));
     },
+    /** Up to `count` message rows below `beforeRow`, newest first. */
+    before(beforeRow, count) {
+      return all(`SELECT ${columnsFor} ${MESSAGE_FROM} WHERE m.ROWID < ? ORDER BY m.ROWID DESC LIMIT ?`, beforeRow, count).map((row) => ({ ...row, attachments: attachmentsOf(row.row) }));
+    },
     changed(editedMark, retractedMark) {
       if (!edits) return [];
       return all(`SELECT ${columnsFor} ${MESSAGE_FROM}
@@ -225,6 +229,36 @@ export function changesSince(own, reader, state) {
   }
   const last_row = added.length ? Math.max(state.last_row, ...added.map((row) => Number(row.row))) : state.last_row;
   return { changes, state: { ...state, last_row, edited_mark: edited, retracted_mark: retracted } };
+}
+
+/**
+ * One page of the messages already in the database, newest first, as the same facts a watcher tells for a new message
+ * (change added), read without telling the engine anything. `before_row` is where the page starts (rows below it are read;
+ * left out, from the newest). The page stops at `max_facts` facts or when the next fact would take it past `max_bytes`
+ * (a fact is always taken when the page is empty), and answers the position the next page starts from: `next_before_row`,
+ * the lowest row it passed, and `done` when no row is left below it. A tapback, an empty message and (unless include_own)
+ * the person's own send pass without a fact.
+ */
+export function pageBefore(own, reader, { before_row, max_facts = 40, max_bytes = 12000 } = {}) {
+  const start = Number.isInteger(before_row) && before_row > 0 ? before_row : reader.newest().row + 1;
+  const facts = [];
+  let bytes = 0;
+  let next = start;
+  let done = false;
+  for (;;) {
+    const rows = reader.before(next, Math.max(max_facts, 50));
+    if (!rows.length) { done = true; break; }
+    let full = false;
+    for (const row of rows) {
+      const change = changeOf(own, row, "added");
+      const size = change ? Buffer.byteLength(JSON.stringify(change.detail)) : 0;
+      if (change && facts.length && (facts.length >= max_facts || bytes + size > max_bytes)) { full = true; break; }
+      next = Number(row.row);
+      if (change) { facts.push(change.detail); bytes += size; }
+    }
+    if (full || facts.length >= max_facts) break;
+  }
+  return { facts, next_before_row: next, done, bytes };
 }
 
 /** The fact a refused database is told as: the setting to change, and the program macOS asks about. */

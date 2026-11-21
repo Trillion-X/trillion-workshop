@@ -1,0 +1,40 @@
+{
+  "drafted_from": "tool:read-a-page-of-messages-on-this-mac's own row and tools/notice-when-something-shows-up/tests/read-a-page-of-messages.test.mjs (a real SQLite file with the Messages tables, made-up numbers); read it before relying on it",
+  "start_here": "Say to your AI: \"Read the 40 newest messages on this Mac that my history does not hold yet, without telling anyone\". It runs tool:read-a-page-of-messages-on-this-mac once with max_facts 40 and gives back each message as the same fact the watcher tells for a new one, with next_before_row to start the next page from.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it only reads Messages and answers facts, and the workflow that calls it keeps the statements.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-page-of-messages-on-this-mac",
+    "tool:notice-messages-on-this-mac"
+  ],
+  "instructions": [
+    "1. Give the app that runs your engine on this Mac Full Disk Access: System Settings > Privacy & Security > Full Disk Access. macOS lets no program read Messages without it.",
+    "2. Grant tool:read-a-page-of-messages-on-this-mac the read-messages capability at your engine's grants door, as tool:notice-messages-on-this-mac holds it; a run without the grant is refused before it starts.",
+    "3. Run it with the Messages database as an absolute path (inside a Mac sandbox the home folder is not yours): input {database: \"<your home folder>/Library/Messages/chat.db\", max_facts: 40}. Left out, before_row starts from the newest message.",
+    "4. Read what comes back: facts (newest first; each has where, place message, change added, at, key, by, after, kinds), next_before_row and done. Give next_before_row as before_row for the next page; done true means no message is left below it.",
+    "5. It only reads and tells the engine nothing. To keep the facts in your history, use workflow:backfill-a-message-source-from-a-position, which calls it page by page and keeps each fact once."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the two newest messages",
+      "ask": "Read the two newest messages on this Mac without telling anyone",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-page-of-messages-on-this-mac",
+            "input": {
+              "database": "<your home folder>/Library/Messages/chat.db",
+              "max_facts": 2
+            }
+          }
+        }
+      },
+      "given": "The input {\"database\": \"<your home folder>/Library/Messages/chat.db\", \"max_facts\": 2} on a Mac whose newest messages are rows 12 and 11.",
+      "hands_back": "It answered {\"facts\": [{\"where\": \"imessage\", \"place\": \"message\", \"change\": \"added\", \"at\": \"2026-11-20T07:31:05.000Z\", \"key\": \"iMessage;-;+15555550101/9F1C2A7E-0012\", \"by\": \"+15555550101\", \"after\": \"{\\\"chat\\\":\\\"iMessage;-;+15555550101\\\",\\\"words\\\":\\\"are we still on for 6?\\\"}\", \"kinds\": \"[]\"}, {\"where\": \"imessage\", \"place\": \"message\", \"change\": \"added\", \"at\": \"2026-11-20T07:29:40.000Z\", \"key\": \"iMessage;-;+15555550101/9F1C2A7E-0011\", \"by\": \"+15555550101\", \"after\": \"{\\\"chat\\\":\\\"iMessage;-;+15555550101\\\",\\\"words\\\":\\\"made up\\\"}\", \"kinds\": \"[]\"}], \"next_before_row\": 11, \"done\": false, \"bytes\": 640}"
+    }
+  ]
+}
