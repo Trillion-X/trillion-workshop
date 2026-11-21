@@ -26,6 +26,14 @@
  *     schedule then lives once, on the row whose wake wants it.
  *   - look_again_seconds: with from_wakes, the longest wait before the wakes are
  *     read again, so a wake switched on later is watched (60 when left out).
+ *   - from_rows: {table?, column?}: also watch what each kept workflow row asks
+ *     for, read on every pass from the database the waiter's own credential_name
+ *     opens: every entry of the row's `column` (default `wakes`, a JSON list, in
+ *     `table`, default `workflow_recipes`) that says `switched_on: true` is read as
+ *     a listening wake, its `on.fact.watch` watched. So a kept workflow's times
+ *     live once, on its own row: a row switched on, changed or taken away is
+ *     watched, rewatched or let go at the next look, with no hand-kept list.
+ *     A row that is no list, or an entry with no watch, names nothing.
  *
  * Non-negotiable invariants
  *   - Exactly once. Each occurrence is told under its own event key (timed-
@@ -45,11 +53,23 @@
  *     occurrence's start; per one-off, only the receipts of actions still named.
  *
  * Security
- *   No credential, no network, no filesystem access. Hostile settings can only
+ *   No credential, no network, no filesystem access, but with from_rows: then
+ *   one read-only SELECT of the named table over the waiter's own credential,
+ *   through the run's proxy (row-changes.mjs `clientOptions`); the table and
+ *   column are plain names checked before use, never text put in the query. Hostile settings can only
  *   change when it tells; timed-action refuses a schedule it cannot read
  *   (rejected_schedules), said on standard error.
  */
+import { readFileSync } from "node:fs";
 import { whenToWake } from "../../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs";
+import { clientOptions } from "./row-changes.mjs";
+
+async function connectWithPg(connection) {
+  const { default: pg } = await import("pg");
+  const client = new pg.Client(await clientOptions(connection));
+  await client.connect();
+  return client;
+}
 
 export const MECHANISM_REF = "package::notice-when-something-shows-up::mechanism::due-time";
 
@@ -73,7 +93,8 @@ export function readSettings(settings = {}) {
   const schedules = rows(settings.schedules);
   const actions = rows(settings.actions);
   const fromWakes = typeof settings.from_wakes?.kind === "string" && settings.from_wakes.kind !== "" ? settings.from_wakes.kind : null;
-  if (schedules.length === 0 && actions.length === 0 && fromWakes === null) return null;
+  const fromRows = rowsSource(settings.from_rows);
+  if (schedules.length === 0 && actions.length === 0 && fromWakes === null && fromRows === null) return null;
   return {
     schedules,
     time_windows: rows(settings.time_windows),
@@ -81,8 +102,32 @@ export function readSettings(settings = {}) {
     spread: settings.spread ?? null,
     retry_ms: seconds(settings.retry_seconds, 60),
     from_wakes: fromWakes,
+    from_rows: fromRows,
     look_again_ms: seconds(settings.look_again_seconds, 60),
   };
+}
+
+/** A plain SQL name: lower-case letters, digits and `_`, not starting with a digit. */
+const PLAIN_NAME = /^[a-z_][a-z0-9_]{0,62}$/;
+
+/** `from_rows` as {table, column}, or null when it is not asked for; a name that is not plain refuses the settings. */
+export function rowsSource(value) {
+  if (value === undefined || value === null || value === false) return null;
+  const table = value?.table ?? "workflow_recipes";
+  const column = value?.column ?? "wakes";
+  if (!PLAIN_NAME.test(table) || !PLAIN_NAME.test(column)) throw new Error(`due-time from_rows names a table or column that is not a plain name: ${table}.${column}`);
+  return { table, column };
+}
+
+/** The query that reads every switched-on wake entry of the kept rows, one per row of the answer. */
+export const keptWakesSql = ({ table, column }) => `SELECT w AS wake FROM ${table} r,
+  jsonb_array_elements(CASE WHEN jsonb_typeof(r.${column}) = 'array' THEN r.${column} ELSE '[]'::jsonb END) w
+  WHERE jsonb_typeof(w) = 'object' AND w ->> 'switched_on' = 'true'`;
+
+/** The switched-on wake entries of the kept rows, read once through `client` ({query(sql) -> {rows}}). */
+export async function keptWakes(client, source) {
+  const answer = await client.query(keptWakesSql(source));
+  return (answer?.rows ?? []).map((row) => row.wake).filter((wake) => wake && typeof wake === "object");
 }
 
 /** The rule with what the listening wakes ask to be watched (each wake's `watch`) added; a schedule or action two
@@ -150,7 +195,7 @@ function provenOneOff(state, rule, fire) {
  */
 export async function watchForTransitions(settings, handlers) {
   const own = readSettings(settings);
-  if (own === null) throw new Error("due-time settings name no schedules, no actions and no from_wakes (timed-action's own rows)");
+  if (own === null) throw new Error("due-time settings name no schedules, no actions, no from_wakes and no from_rows (timed-action's own rows)");
   const nowMs = handlers.nowMs ?? (() => Date.now());
   const sleep = handlers.sleep ?? defaultSleep;
   const signal = handlers.signal;
@@ -168,6 +213,17 @@ export async function watchForTransitions(settings, handlers) {
   };
   const listening = handlers.listening ?? (async () => []);
   let listeners = [];
+  let rowWakes = [];
+  // The kept rows' own database, opened once with the waiter's own credential (`from_rows`); a read that fails keeps the
+  // wakes the last read found, and is said once.
+  let rowsClient = null;
+  const readRows = async () => {
+    if (rowsClient === null) {
+      const connection = handlers.connection ?? readFileSync(handlers.credentialFd ?? 4, "utf8").trim();
+      rowsClient = await (handlers.connect ?? connectWithPg)(connection);
+    }
+    return keptWakes(rowsClient, own.from_rows);
+  };
 
   while (!signal?.aborted) {
     if (own.from_wakes !== null) {
@@ -177,7 +233,15 @@ export async function watchForTransitions(settings, handlers) {
         tellOnce(`due-time: ${error?.message ?? error}`);
       }
     }
-    const rule = withListeners(own, listeners);
+    if (own.from_rows !== null) {
+      try {
+        rowWakes = await readRows();
+      } catch (error) {
+        rowsClient = null;
+        tellOnce(`due-time: the kept rows could not be read: ${error?.message ?? error}`);
+      }
+    }
+    const rule = withListeners(own, [...listeners, ...rowWakes]);
     const now = nowMs();
     // A schedule seen for the first time (a wake switched on since) starts at its first time from now, kept before
     // anything of it is told.
@@ -214,7 +278,7 @@ export async function watchForTransitions(settings, handlers) {
     }
     if (due.recurring.length + due.oneOff.length > 0 && !refused) continue; // what was told may have made the next due
     let until = refused ? now + rule.retry_ms : due.next_ms;
-    if (own.from_wakes !== null) until = Math.min(until ?? Infinity, now + own.look_again_ms);
+    if (own.from_wakes !== null || own.from_rows !== null) until = Math.min(until ?? Infinity, now + own.look_again_ms);
     await waitUntil(until, { nowMs, sleep, signal });
   }
 }

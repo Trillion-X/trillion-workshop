@@ -167,3 +167,65 @@ test('from_wakes: a wake the engine could not list is said once, and the leaf ke
   assert.equal(told.length, 0);
   assert.deepEqual(said, ['due-time: the door said no']);
 });
+
+// Kept workflow rows (`from_rows`): each pass reads the rows' switched-on wake entries through the waiter's own database,
+// here a stand-in whose answer the test changes between passes.
+const kept = (id, cadence, extra = {}) => ({ id, switched_on: true, on: { fact: { kind: 'due-time', from: ['run'], match: { schedule_id: `schedule:${id}` },
+  watch: { schedules: [schedule({ schedule_id: `schedule:${id}`, timezone: 'UTC', start_local_date: '1970-01-01', cadence, local_window: { start: '00:00', duration_minutes: 1 } })] } } }, ...extra });
+
+/** Watch `from_rows` with a database whose rows answer `rowsAt(now)` (a list of wake entries, or an Error to throw). */
+async function watchRows(rowsAt, { start, jumps }) {
+  let now = Date.parse(start);
+  const told = [];
+  const said = [];
+  const asked = [];
+  const controller = new AbortController();
+  await watchForTransitions({ from_rows: {}, look_again_seconds: 60 }, {
+    signal: controller.signal,
+    nowMs: () => now,
+    sleep: async () => {
+      if (jumps.length === 0) controller.abort();
+      else now = Date.parse(jumps.shift());
+    },
+    say: (line) => said.push(line),
+    connection: 'postgres://stand-in',
+    connect: async () => ({ query: async (sql) => {
+      asked.push(sql);
+      const rows = rowsAt(now);
+      if (rows instanceof Error) throw rows;
+      return { rows: rows.map((wake) => ({ wake })) };
+    } }),
+    onTransition: async (transition) => { told.push(transition); return true; },
+  });
+  return { told, said, asked };
+}
+
+test('a kept row switched on is watched from its own wakes, and a row changed or taken away is rewatched or let go', async () => {
+  const every = (minutes) => ({ unit: 'minute', interval: minutes });
+  const { told, asked } = await watchRows((now) => {
+    if (now < Date.parse('2026-11-21T10:20:30Z')) return [kept('a', every(10))];
+    if (now < Date.parse('2026-11-21T10:40:30Z')) return [kept('a', every(10)), kept('b', every(5))];
+    return [kept('a', every(30))];
+  }, { start: '2026-11-21T10:00:30Z', jumps: ['2026-11-21T10:10:00Z', '2026-11-21T10:20:30Z', '2026-11-21T10:25:00Z', '2026-11-21T10:30:00Z',
+    '2026-11-21T10:40:30Z', '2026-11-21T10:50:00Z', '2026-11-21T11:00:00Z'] });
+  assert.ok(asked.every((sql) => /FROM workflow_recipes r/.test(sql) && /switched_on/.test(sql)), 'the default table and column, switched-on entries only');
+  const seen = told.map((fact) => `${fact.detail.schedule_id}@${fact.detail.start.slice(11, 16)}`);
+  assert.deepEqual(seen, ['schedule:a@10:10', 'schedule:a@10:20', 'schedule:b@10:25', 'schedule:a@10:30', 'schedule:b@10:30', 'schedule:a@11:00'],
+    'b is watched once its row says so and let go once it does not; a at 30 minutes skips 10:50');
+});
+
+test('kept rows that name nothing, a malformed cadence, a failed read and a name that is not plain', async () => {
+  const empty = await watchRows(() => [{ id: 'x', switched_on: true }, { id: 'y', switched_on: true, on: { fact: { kind: 'due-time' } } }],
+    { start: '2026-11-21T10:00:30Z', jumps: ['2026-11-21T10:10:00Z'] });
+  assert.deepEqual(empty.told, [], 'an entry with no watch names no time');
+  const bad = await watchRows(() => [kept('bad', { unit: 'fortnight' })], { start: '2026-11-21T10:00:30Z', jumps: ['2026-11-21T10:10:00Z'] });
+  assert.deepEqual(bad.told, []);
+  assert.ok(bad.said.some((line) => /refused schedule schedule:bad/.test(line)), `timed-action's refusal is said: ${bad.said}`);
+  let calls = 0;
+  const flaky = await watchRows(() => (calls++ === 1 ? new Error('connection lost') : [kept('a', { unit: 'minute', interval: 10 })]),
+    { start: '2026-11-21T10:00:30Z', jumps: ['2026-11-21T10:05:00Z', '2026-11-21T10:10:00Z'] });
+  assert.ok(flaky.said.some((line) => /kept rows could not be read: connection lost/.test(line)));
+  assert.deepEqual(flaky.told.map((fact) => fact.detail.start.slice(11, 16)), ['10:10'], 'a failed read keeps what the last read found');
+  assert.throws(() => readSettings({ from_rows: { table: 'workflow_recipes; drop table x' } }), /not a plain name/);
+  assert.notEqual(readSettings({ from_rows: {} }), null, 'from_rows alone is something to wait for');
+});
