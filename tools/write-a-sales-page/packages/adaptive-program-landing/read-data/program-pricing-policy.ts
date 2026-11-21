@@ -95,3 +95,11 @@ export function parsePatronAmount(rawValue: string, minCents: number, maxCents: 
   if (maxCents != null && amountCents > maxCents) return { kind: 'above-max', amountCents };
   return { kind: 'valid', amountCents };
 }
+
+// The booking card's before-booking address: the landing DATA's template with the offer's id in place of {offer_id}. The card's form
+// posts there first (the host keeps the booker's email, then answers with the booking address). No template in DATA means the card
+// keeps its bare link to the booking address.
+export function beforeBookingHrefOf(template: unknown, offerId: string): string | null {
+  if (typeof template !== 'string' || !template) return null;
+  return template.replace('{offer_id}', encodeURIComponent(offerId));
+}

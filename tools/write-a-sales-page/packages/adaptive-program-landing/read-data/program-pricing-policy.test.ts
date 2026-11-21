@@ -2,7 +2,7 @@
 // Anything the card does not prove (another offer's card, a bad address, an amount outside its own range) is no next step.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readOfferNextStep, parsePatronAmount } from './program-pricing-policy.ts';
+import { beforeBookingHrefOf, readOfferNextStep, parsePatronAmount } from './program-pricing-policy.ts';
 
 const policy = { currency: 'usd', min_cents: 9900, max_cents: 99999999, allow_free: false, allow_custom: true, suggested_cents: [9900, 20000] };
 
@@ -38,4 +38,14 @@ test('the amount the buyer types is refused below the minimum and above the maxi
   assert.equal(parsePatronAmount('50', 9900, null).kind, 'below-min');
   assert.equal(parsePatronAmount('120.5', 9900, 100000).amountCents, 12050);
   assert.equal(parsePatronAmount('5000', 9900, 100000).kind, 'above-max');
+});
+
+test('a booking card with no before-booking template in DATA keeps its bare link (no before-booking address)', () => {
+  assert.equal(beforeBookingHrefOf(undefined, 'offer:c'), null);
+  assert.equal(beforeBookingHrefOf('', 'offer:c'), null);
+  assert.equal(beforeBookingHrefOf(42, 'offer:c'), null);
+});
+
+test('a before-booking template takes the offer id, encoded, in place of {offer_id}', () => {
+  assert.equal(beforeBookingHrefOf('/before-booking/{offer_id}', 'offer:call-booking'), '/before-booking/offer%3Acall-booking');
 });

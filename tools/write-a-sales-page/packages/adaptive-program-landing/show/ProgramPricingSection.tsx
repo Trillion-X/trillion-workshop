@@ -10,7 +10,9 @@ import { CtaButton, Text, Button, Container, ShowcaseStrip } from '../../../../u
 import { LANDING_PRICING_SECTION_ID } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
 import { PROGRAM_HERO_ENGRAVED_HEADING_STYLE } from './programHeroTypography';
 import { useProgramLandingData } from './ProgramLandingData';
+import { BeforeBookingForm } from './BeforeBookingForm';
 import {
+  beforeBookingHrefOf,
   parsePatronAmount,
   readOfferNextStep,
   type OfferNextStep,
@@ -183,6 +185,9 @@ export function ProgramPricingSection({ flatSurfaces, instanceId, embedded = fal
           -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
           mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
         }
+        .program-booking-form { display: grid; gap: 12px; margin-top: 8px; }
+        .program-booking-field { display: grid; gap: 6px; font-size: 15px; line-height: 1.5; }
+        .program-booking-field input { border: 1px solid rgba(15,23,42,.14); border-radius: 12px; padding: 10px 12px; font: inherit; background: transparent; }
         .program-pricing-footnote { text-align: center; letter-spacing: -0.01em; }
         .program-pricing-choices { border: 0; margin: 0; min-width: 0; padding: 0; }
         .program-pricing-choices legend { padding: 0 0 4px; }
@@ -236,6 +241,7 @@ function OfferCard({ offerId, copy, card, idSuffix, flatSurfaces }: {
   offerId: string;
 }) {
   const next: OfferNextStep | null = readOfferNextStep(card, offerId);
+  const beforeBooking = beforeBookingHrefOf(useProgramLandingData().pricing.before_booking_path, offerId);
   const policy = next?.kind === 'voluntary' ? next.policy : null;
   const nameId = `program-offer-${offerId.replace(/[^a-zA-Z0-9]+/g, '-')}-name${idSuffix}`;
   const [customEditing, setCustomEditing] = React.useState(false);
@@ -456,7 +462,8 @@ function OfferCard({ offerId, copy, card, idSuffix, flatSurfaces }: {
       )}
       {next?.kind === 'voluntary' ? payButton : null}
       {next?.kind === 'checkout' ? payButton : null}
-      {next?.kind === 'booking' ? <CtaButton href={next.bookingUrl} label={copy.ctaLabel ?? 'Book a call'} /> : null}
+      {next?.kind === 'booking' && beforeBooking ? <BeforeBookingForm action={beforeBooking} label={copy.ctaLabel ?? 'Book a call'} /> : null}
+      {next?.kind === 'booking' && !beforeBooking ? <CtaButton href={next.bookingUrl} label={copy.ctaLabel ?? 'Book a call'} /> : null}
       {checkoutError ? (
         <p className="m-0 rounded-xl border border-red-700/25 bg-red-50 p-3 text-[15px] leading-[1.5] text-red-800" role="alert">
           {checkoutError}
