@@ -223,12 +223,56 @@ test('legacy admission reads argv only for browser candidates and bounds every p
   assert.equal(calls.length, 1);
 });
 
-test('failed process inspection keeps browser admission closed', () => {
-  const timeout = () => { throw Object.assign(new Error('process probe timed out'), { code: 'ETIMEDOUT' }); };
-  assert.equal(legacyHeadlessRoots({ run: timeout }), null);
-  assert.equal(outsideBrowserBlocks(legacyHeadlessRoots({ run: timeout })), true);
+const fresh = () => ({ logged: new Set(), deniedLogged: false, unreadableSince: null, unreadableLogged: false });
+const failing = code => () => { throw Object.assign(new Error(`process probe failed: ${code}`), { code }); };
+
+test('an unreadable process list is named by its code, not read as a busy browser', () => {
+  assert.deepEqual(legacyHeadlessRoots({ run: failing('ETIMEDOUT') }), { unreadable: 'ETIMEDOUT' });
   let count = 0;
-  assert.equal(legacyHeadlessRoots({ run: () => ++count === 1 ? '921 /opt/chrome-headless-shell\n' : timeout() }), null);
+  assert.deepEqual(legacyHeadlessRoots({ run: () => ++count === 1 ? '921 /opt/chrome-headless-shell\n' : failing('EPERM')() }), { unreadable: 'EPERM' });
+});
+
+test('a sandbox that is denied the process list does not wait for outside browsers: granted at once, logged once', () => {
+  const logs = [];
+  const log = line => logs.push(line);
+  const denied = legacyHeadlessRoots({ run: failing('EPERM') });
+  const state = fresh();
+  assert.equal(outsideBrowserBlocks(denied, { now: 1000, log, state }), false);
+  assert.equal(outsideBrowserBlocks(denied, { now: 2000, log, state }), false);
+  assert.deepEqual(logs, ['process list denied in this sandbox (EPERM); outside browsers not checked']);
+  assert.equal(outsideBrowserBlocks({ unreadable: 'EACCES' }, { now: 3000, log, state: fresh() }), false);
+});
+
+test('a process list that times out holds admission for 60 seconds, then grants with the reason logged', () => {
+  const logs = [];
+  const log = line => logs.push(line);
+  const timedOut = { unreadable: 'ETIMEDOUT' };
+  const state = fresh();
+  const t0 = Date.parse('2026-11-21T13:00:00Z');
+  assert.equal(outsideBrowserBlocks(timedOut, { now: t0, log, state }), true, 'holds at once');
+  assert.equal(outsideBrowserBlocks(timedOut, { now: t0 + 59000, log, state }), true, 'still holds inside the bound');
+  assert.deepEqual(logs, []);
+  assert.equal(outsideBrowserBlocks(timedOut, { now: t0 + 60000, log, state }), false, 'grants after the bound');
+  assert.equal(outsideBrowserBlocks(timedOut, { now: t0 + 90000, log, state }), false);
+  assert.deepEqual(logs, ['process list unreadable (ETIMEDOUT) for 60 s; granting local browser work without it']);
+});
+
+test('a readable list starts the bound again when it next fails', () => {
+  const state = fresh();
+  const t0 = Date.parse('2026-11-21T13:00:00Z');
+  assert.equal(outsideBrowserBlocks({ unreadable: 'EIO' }, { now: t0, log: () => {}, state }), true);
+  assert.equal(outsideBrowserBlocks([], { now: t0 + 30000, log: () => {}, state }), false);
+  assert.equal(outsideBrowserBlocks({ unreadable: 'EIO' }, { now: t0 + 61000, log: () => {}, state }), true, 'the bound starts again from the new failure');
+});
+
+test('a queued browser is granted at once when the process list is denied', async () => {
+  const root = tempFolder(join(tmpdir(), 'trillion-browser-denied-list-'));
+  try {
+    const denied = legacyHeadlessRoots({ run: failing('EPERM') });
+    const queue = createBrowserAdmissionQueue(root, { inspectProcess: pid => pid === process.pid ? 'this process' : null, isBlocked: () => outsideBrowserBlocks(denied, { log: () => {}, state: fresh() }) });
+    const release = await queue.acquire({ timeoutMs: 3000 });
+    await release();
+  } finally { await rm(root, { recursive: true, force: true }); }
 });
 
 // A fake process list: the ps lines an agent-browser daemon's Chrome and a new Chrome would print, with their start times.
@@ -316,7 +360,7 @@ test('a browser wait that runs out names the outside browser that holds it: pid,
   const named = namedHolderError(timeout, [{ pid: 53510, process_started: OLD_START, command: '/Users/example/.agent-browser/Google Chrome for Testing --headless=new' }]);
   assert.equal(named.code, 'browser_held');
   assert.match(named.message, /^Timed out after 600000 ms waiting for the local browser\. Held by: pid 53510 since Sat Nov 21 03:47:33 2026: \/Users\/example/);
-  assert.match(namedHolderError(timeout, null).message, /process list could not be read/);
+  assert.match(namedHolderError(timeout, { unreadable: 'EPERM' }).message, /process list could not be read \(EPERM\)/);
   const other = new Error('something else');
   assert.equal(namedHolderError(other, []), other, 'an error that is not a timeout is passed on as it is');
 });
