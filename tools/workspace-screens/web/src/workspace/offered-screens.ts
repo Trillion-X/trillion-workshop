@@ -21,6 +21,7 @@ import { oneRowPerId } from './one-row-per-id.mjs';
 import { pursuitNavigationRows } from './pursuit-navigation-rows.mjs';
 import { conversationNavigationRows } from './conversation-navigation-rows.mjs';
 import { partsOf } from './pursuit-parts';
+import { focusNow } from './scope-focus';
 
 export type ScreenRow = Record<string, unknown> & { id: string };
 
@@ -34,7 +35,7 @@ export function offeredScreens(viewer: { access_refs: string[] }, toolScreens: S
   return oneRowPerId([
     ...(surfaces.surfaces as ScreenRow[]),
     ...toolScreens.filter(screen => screen.in_pursuit !== true),
-    ...pursuitNavigationRows(pursuits, surfaces.surfaces, pursuit => partsOf(pursuit, inPursuit)),
+    ...pursuitNavigationRows(pursuits, surfaces.surfaces, pursuit => partsOf(pursuit, inPursuit, focusNow())),
     ...conversationNavigationRows(conversations, surfaces.surfaces),
   ]).filter(surface => !('audience' in surface) || viewer.access_refs.includes(`audience:${String(surface.audience)}`));
 }

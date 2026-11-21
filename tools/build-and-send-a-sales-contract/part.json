@@ -1,0 +1,41 @@
+{
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "status": "active",
+      "licence_class": "licence:maker-own",
+      "maker": "maker:build-and-send-a-sales-contract",
+      "listed_on": "2026-11-21T00:00:00Z",
+      "id": "tool:screen-sales-contracts",
+      "label": "Sales contracts",
+      "job": "Build a deal and send it to one person, a list, or each new person who joins one.",
+      "description": "Build a deal from your own offers, prices and customers, edit its template text and every price line on the spot, then send it. After they pay, the follow-ups you choose become your own rules and schedules.",
+      "screen": {
+        "kind": "module",
+        "group": "business",
+        "module": {
+          "package": "build-and-send-a-sales-contract",
+          "entry": "web/src/workspace/sales-contract-builder-mount.tsx"
+        },
+        "icon": "FileSignature",
+        "about": "Build a deal and send it to one person, a list, or each new person who joins one.",
+        "surface": {
+          "id": "sales-contracts.screen",
+          "surface_id": "sales-contracts.screen",
+          "kind": "placeable-surface",
+          "sidebar_collection": "things-you-do-as-input",
+          "order": 150,
+          "placement_labels": [],
+          "placement_order_key": "000000150:sales-contracts.screen",
+          "wrap_material": false,
+          "material_target": "component:sales-contracts-screen",
+          "route_paths": [
+            "/sales-contracts"
+          ],
+          "actions": [],
+          "in_pursuit": true
+        }
+      }
+    }
+  ]
+}
