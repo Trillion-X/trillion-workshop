@@ -2,7 +2,7 @@
 
 Scripts a person's AI runs on the person's own computer to study one recurring character of a show: find when the character speaks in every recording (a speaker embedding plus pitch, from a few stretches the person labels, so a cast member's own voice pitched up is told from every other high voice), list what it says, measure how the show stages its turns, sum its time per video against how the videos did, count the show's running jokes in the captions, and collect and code the viewer comments that name it.
 
-The tool holds no show, character, number or word of its own. The character's label and pitch gates, the show's formats, the stripped episodes, the running terms, the mention pattern and the codebook are the person's settings: a row of their `list:settings` (`record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>`), read by the one settings reader, `tools/settings` (`read-data/settings.py` `setting`). `read-data/settings-keys.json` says what each key means.
+The tool holds no show, character, number or word of its own. The character's label and pitch gates, the show's formats, the stripped episodes, the running terms, the mention pattern and the codebook are the person's settings: a row of their settings table (`record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>`), read by the one settings reader, `tools/settings` (`read-data/settings.py` `setting`). `read-data/settings-keys.json` says what each key means.
 
 ## Layout a run reads
 
