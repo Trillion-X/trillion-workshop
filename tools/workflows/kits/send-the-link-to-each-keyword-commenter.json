@@ -1,0 +1,43 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:send-the-link-to-each-keyword-commenter.\" The wake runs it every ten minutes once its store names and account are given as its input.",
+  "lists": [],
+  "no_lists_because": "The workflow reads the owner's reply rules and writes the owner's replies-kept rows through their database tools; it needs no list of its own.",
+  "workflows": [
+    "workflow:send-the-link-to-each-keyword-commenter",
+    "workflow:put-words-in-the-owners-voice-and-judge-them"
+  ],
+  "tools": [
+    "tool:run-sql-in-my-database",
+    "tool:run-a-composio-action",
+    "tool:tag-the-links-in-words"
+  ],
+  "instructions": [
+    "1. Give the wake its input when you switch it on: the store the reply rules live in, the store the replies are kept in, and the account's handle and media endpoints. The file carries only the start step.",
+    "2. Say \"Run workflow:send-the-link-to-each-keyword-commenter\" (the wake does this every ten minutes).",
+    "3. Read the replies it sent; a comment already in the replies-kept rows is never sent twice."
+  ],
+  "worked_examples": [
+    {
+      "title": "A comment with a keyword gets the link once",
+      "ask": "Run workflow:send-the-link-to-each-keyword-commenter.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:send-the-link-to-each-keyword-commenter"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:send-the-link-to-each-keyword-commenter",
+      "step": "who",
+      "given": "A comment on one of the 10 newest posts contains a reply rule's keyword and no reply has been kept for it.",
+      "hands_back": "A quoted \"message_id\" comes back from the send, and the replies-kept row for that comment reads state \"sent\"."
+    }
+  ],
+  "drafted_from": "workflow:send-the-link-to-each-keyword-commenter steps who, read, pick, each"
+}

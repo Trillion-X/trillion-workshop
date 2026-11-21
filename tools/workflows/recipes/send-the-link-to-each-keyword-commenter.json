@@ -1,0 +1,564 @@
+{
+  "about": "workflow:send-the-link-to-each-keyword-commenter: rendered from its workflow_recipes row.",
+  "records": [
+    {
+      "payload": {
+        "source_kept_at": "2026-11-21 22:02:51.872913+00",
+        "kind": "workflow-recipe",
+        "id": "workflow:send-the-link-to-each-keyword-commenter",
+        "label": "Send the link to each keyword commenter",
+        "job": "Every hour, read the comments on the account's 10 newest posts, match each to the word-to-link rows in the owner's reply rules, and send each matching commenter the link once as a private-reply DM (within Instagram's 7-day window).",
+        "produces": "One private-reply DM per matching comment, recorded in replies_kept as sent or failed; never twice for one comment.",
+        "source": {
+          "from": "the owner's voice note, Nov 20 2026 12:30 PM CST via the coordinator; proven by hand at 3:20 PM CST to the owner's own account",
+          "reuses": "tool:run-a-composio-action proxy, tool:run-sql-in-my-database; Workshop tools/reply-by-keyword-rule rule shape"
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "start_at",
+            "store",
+            "kept_store",
+            "account"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "credential_name"
+              ],
+              "properties": {
+                "credential_name": {
+                  "type": "string"
+                }
+              }
+            },
+            "account": {
+              "type": "object",
+              "required": [
+                "handle",
+                "bare",
+                "media_endpoint",
+                "messages_endpoint"
+              ],
+              "properties": {
+                "bare": {
+                  "type": "string"
+                },
+                "handle": {
+                  "type": "string"
+                },
+                "media_endpoint": {
+                  "type": "string"
+                },
+                "messages_endpoint": {
+                  "type": "string"
+                }
+              }
+            },
+            "start_at": {
+              "type": "string"
+            },
+            "kept_store": {
+              "type": "object",
+              "required": [
+                "credential_name"
+              ],
+              "properties": {
+                "credential_name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "definition": {
+          "uses": [
+            {
+              "id": "workflow:send-the-link-to-each-keyword-commenter#each",
+              "kind": "action",
+              "name": "Send one private reply and mark it",
+              "edges": [
+                {
+                  "to": "mark",
+                  "from": "send",
+                  "kind": "always"
+                },
+                {
+                  "to": "tag",
+                  "from": "voice",
+                  "kind": "always"
+                },
+                {
+                  "to": "send",
+                  "from": "tag",
+                  "kind": "always"
+                }
+              ],
+              "steps": [
+                {
+                  "id": "voice",
+                  "kind": "action",
+                  "config": {
+                    "inputs": {
+                      "kind": "text",
+                      "piece": {
+                        "pages": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "item.reply"
+                          }
+                        }
+                      },
+                      "store": {
+                        "credential_name": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "kept_store.credential_name"
+                          }
+                        }
+                      },
+                      "called_from": "workflow:send-the-link-to-each-keyword-commenter step send"
+                    },
+                    "definition_id": "workflow:put-words-in-the-owners-voice-and-judge-them"
+                  }
+                },
+                {
+                  "id": "tag",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:tag-the-links-in-words",
+                    "input": {
+                      "words": {
+                        "$kind": "binding",
+                        "select": {
+                          "key": "voice",
+                          "from": "steps",
+                          "path": "output.pages"
+                        }
+                      },
+                      "medium": "dm",
+                      "source": "instagram",
+                      "content": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "item.comment_id"
+                        }
+                      },
+                      "campaign": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "item.rule_id"
+                        }
+                      }
+                    },
+                    "context": {
+                      "title": "Tag the links in the reply with its medium, campaign and comment",
+                      "step_id": "tag",
+                      "done_when": "words and links answered"
+                    }
+                  }
+                },
+                {
+                  "id": "send",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-a-composio-action",
+                    "input": {
+                      "proxy": {
+                        "body": {
+                          "message": {
+                            "text": {
+                              "$kind": "binding",
+                              "select": {
+                                "key": "tag",
+                                "from": "steps",
+                                "path": "output.result.words"
+                              }
+                            }
+                          },
+                          "recipient": {
+                            "comment_id": {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "loop",
+                                "path": "item.comment_id"
+                              }
+                            }
+                          }
+                        },
+                        "method": "POST",
+                        "endpoint": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "account.messages_endpoint"
+                          }
+                        }
+                      },
+                      "user_id": {
+                        "$kind": "binding",
+                        "select": {
+                          "key": "who",
+                          "from": "steps",
+                          "path": "output.rows.0.composio.user_id"
+                        }
+                      },
+                      "account_id": {
+                        "$kind": "binding",
+                        "select": {
+                          "key": "who",
+                          "from": "steps",
+                          "path": "output.rows.0.composio.account_id"
+                        }
+                      },
+                      "project_id": {
+                        "$kind": "binding",
+                        "select": {
+                          "key": "who",
+                          "from": "steps",
+                          "path": "output.rows.0.composio.project_id"
+                        }
+                      }
+                    },
+                    "context": {
+                      "title": "Send the link as a private reply to the comment",
+                      "step_id": "send",
+                      "done_when": "message_id in the answer"
+                    }
+                  }
+                },
+                {
+                  "id": "mark",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-sql-in-my-database",
+                    "input": {
+                      "sql": "UPDATE replies_kept SET state = CASE WHEN $2 <> '' THEN 'sent' ELSE 'failed' END, sent_at = now(), answer = jsonb_build_object('message_id', $2), links = $3::jsonb WHERE comment_id = $1 RETURNING comment_id, state",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "item.comment_id"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "literal",
+                            "value": ""
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.coalesce",
+                              "args": {
+                                "values": [
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "key": "send",
+                                      "from": "steps",
+                                      "path": "output.data.message_id"
+                                    }
+                                  },
+                                  ""
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "key": "tag",
+                            "from": "steps",
+                            "path": "output.result.links"
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.stringify",
+                              "args": {
+                                "format": "json"
+                              }
+                            }
+                          ]
+                        }
+                      ],
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "store.credential_name"
+                        }
+                      }
+                    },
+                    "context": {
+                      "title": "Mark the reply sent",
+                      "step_id": "mark",
+                      "done_when": "state sent"
+                    }
+                  }
+                }
+              ],
+              "is_active": true
+            }
+          ],
+          "edges": [
+            {
+              "to": "read",
+              "from": "who",
+              "kind": "always"
+            },
+            {
+              "to": "pick",
+              "from": "read",
+              "kind": "always"
+            },
+            {
+              "to": "each",
+              "from": "pick",
+              "kind": "on_result",
+              "config": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "output.rows"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.array_length"
+                  },
+                  {
+                    "op": "op:core.gt",
+                    "args": {
+                      "value": 0
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "steps": [
+            {
+              "id": "who",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "SELECT account, composio FROM posting_rules WHERE account = $1",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account.handle"
+                      }
+                    }
+                  ],
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  }
+                },
+                "context": {
+                  "title": "Read the account's Composio connection",
+                  "step_id": "who",
+                  "done_when": "one row with composio"
+                }
+              }
+            },
+            {
+              "id": "read",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-a-composio-action",
+                "input": {
+                  "proxy": {
+                    "method": "GET",
+                    "endpoint": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account.media_endpoint"
+                      }
+                    },
+                    "parameters": [
+                      {
+                        "name": "fields",
+                        "type": "query",
+                        "value": "id,timestamp,comments.limit(100){id,text,username,timestamp,from}"
+                      },
+                      {
+                        "name": "limit",
+                        "type": "query",
+                        "value": "10"
+                      }
+                    ]
+                  },
+                  "user_id": {
+                    "$kind": "binding",
+                    "select": {
+                      "key": "who",
+                      "from": "steps",
+                      "path": "output.rows.0.composio.user_id"
+                    }
+                  },
+                  "account_id": {
+                    "$kind": "binding",
+                    "select": {
+                      "key": "who",
+                      "from": "steps",
+                      "path": "output.rows.0.composio.account_id"
+                    }
+                  },
+                  "project_id": {
+                    "$kind": "binding",
+                    "select": {
+                      "key": "who",
+                      "from": "steps",
+                      "path": "output.rows.0.composio.project_id"
+                    }
+                  }
+                },
+                "context": {
+                  "title": "Read up to 100 comments on each of the 10 newest posts",
+                  "step_id": "read",
+                  "done_when": "data is the list of posts with comments"
+                }
+              }
+            },
+            {
+              "id": "pick",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "WITH c AS (SELECT cm FROM jsonb_array_elements($1::text::jsonb) m, jsonb_array_elements(coalesce(m->'comments'->'data','[]'::jsonb)) cm),\nx AS (SELECT cm->>'id' AS cid, upper(coalesce(cm->>'text','')) AS t, coalesce(cm->>'username', cm->'from'->>'username') AS u, (cm->>'timestamp')::timestamptz AS ts FROM c),\npick AS (SELECT DISTINCT ON (x.cid) x.cid, x.ts, r.id AS rid FROM x JOIN reply_rules r ON r.enabled = 'on' AND CASE WHEN r.mode = 'all' THEN (SELECT bool_and(x.t ~ ('\\m' || upper(w) || '\\M')) FROM unnest(r.words) w) ELSE (SELECT bool_or(x.t ~ ('\\m' || upper(w) || '\\M')) FROM unnest(r.words) w) END\n  WHERE x.u IS DISTINCT FROM $2 AND x.ts > now() - interval '7 days' AND NOT EXISTS (SELECT 1 FROM replies_kept k WHERE k.comment_id = x.cid) ORDER BY x.cid, r.\"order\"),\nlate AS (UPDATE replies_kept SET state = 'past-7-days' WHERE account = $2 AND state = 'waiting' AND commented_at <= now() - interval '7 days' RETURNING comment_id),\nretry AS (UPDATE replies_kept SET state = 'waiting' WHERE account = $2 AND state IN ('sending','failed') AND sent_at < now() - interval '30 minutes' AND coalesce(tries, 0) < 3 AND commented_at > now() - interval '7 days' RETURNING comment_id),\nqueue AS (SELECT cid, rid, ts FROM pick UNION ALL SELECT comment_id, rule_id, commented_at FROM replies_kept WHERE account = $2 AND state = 'waiting' AND commented_at > now() - interval '7 days'),\nroom AS (SELECT greatest(0, coalesce((SELECT most_per_hour FROM reply_caps WHERE account = $2), 0) - (SELECT count(*) FROM replies_kept k WHERE k.account = $2 AND k.state IN ('sending','sent') AND k.sent_at > now() - interval '1 hour')) AS n),\ngo AS (SELECT cid FROM queue ORDER BY ts, cid LIMIT (SELECT n FROM room)),\nadded AS (INSERT INTO replies_kept (comment_id, rule_id, account, commented_at, state, sent_at, tries)\n  SELECT cid, rid, $2, ts, CASE WHEN cid IN (SELECT cid FROM go) THEN 'sending' ELSE 'waiting' END, CASE WHEN cid IN (SELECT cid FROM go) THEN now() END, CASE WHEN cid IN (SELECT cid FROM go) THEN 1 ELSE 0 END FROM pick\n  ON CONFLICT DO NOTHING RETURNING comment_id, rule_id, state),\nmoved AS (UPDATE replies_kept k SET state = 'sending', sent_at = now(), tries = coalesce(k.tries, 0) + 1 WHERE k.account = $2 AND k.state = 'waiting' AND k.comment_id IN (SELECT cid FROM go) RETURNING k.comment_id, k.rule_id)\nSELECT s.comment_id, s.rule_id, (SELECT reply FROM reply_rules r WHERE r.id = s.rule_id) || CASE WHEN s.delayed THEN coalesce(' ' || (SELECT delay_ack FROM reply_caps WHERE account = $2), '') ELSE '' END AS reply FROM (SELECT comment_id, rule_id, false AS delayed FROM added WHERE state = 'sending' UNION ALL SELECT comment_id, rule_id, true AS delayed FROM moved) s",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "key": "read",
+                        "from": "steps",
+                        "path": "output.data.data"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account.bare"
+                      }
+                    }
+                  ],
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  }
+                },
+                "context": {
+                  "title": "Queue each new keyword comment once and take the oldest the hour has room for",
+                  "step_id": "pick",
+                  "done_when": "every matching comment has a replies_kept row; rows are the oldest waiting comments, at most reply_caps.most_per_hour sent in the last hour (Meta's 750 private replies per hour); the rest stay 'waiting' for the next run; any still waiting 7 days after the comment are marked past-7-days; a comment still 'sending' or 'failed' 30 minutes after its try goes back to waiting, at most 3 tries (Instagram allows one private reply per comment, so a retry never sends twice)"
+                }
+              }
+            },
+            {
+              "id": "each",
+              "kind": "loop",
+              "config": {
+                "source": {
+                  "$kind": "binding",
+                  "select": {
+                    "key": "pick",
+                    "from": "steps",
+                    "path": "output.rows"
+                  }
+                },
+                "item_var": "item",
+                "definition_id": "workflow:send-the-link-to-each-keyword-commenter#each",
+                "max_iterations": 50
+              }
+            }
+          ]
+        },
+        "wakes": [
+          {
+            "id": "every-10-minutes",
+            "on": {
+              "fact": {
+                "from": [
+                  "run"
+                ],
+                "kind": "due-time",
+                "match": {
+                  "schedule_id": "schedule:workflow:send-the-link-to-each-keyword-commenter:every-10-minutes"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:send-the-link-to-each-keyword-commenter",
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        },
+                        "owner_dispatch": {
+                          "name": "workflow:send-the-link-to-each-keyword-commenter",
+                          "input": {}
+                        }
+                      },
+                      "cadence": {
+                        "unit": "minute",
+                        "interval": 10
+                      },
+                      "timezone": "UTC",
+                      "schedule_id": "schedule:workflow:send-the-link-to-each-keyword-commenter:every-10-minutes",
+                      "local_window": {
+                        "start": "00:00",
+                        "duration_minutes": 1
+                      },
+                      "start_local_date": "1970-01-01",
+                      "schedule_revision": 2,
+                      "source_generation": 2
+                    }
+                  ]
+                }
+              }
+            },
+            "budget": {
+              "steps": 160,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "who"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
