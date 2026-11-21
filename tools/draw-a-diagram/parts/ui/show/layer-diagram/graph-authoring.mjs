@@ -23,9 +23,9 @@
 // `authorGraphDocument({ ask, request, host })`.
 
 import authoring from './graph-authoring.json' with { type: 'json' };
-import contract from '../../../../../shared-code/parts/ui/show/layer-diagram/graph-contract.json' with { type: 'json' };
-import { validateGraphDocument } from '../../../../../shared-code/parts/ui/show/layer-diagram/graph-contract.mjs';
-import { boundAuthorInput, outboundList } from '../../../../../shared-code/parts/ui/show/layer-diagram/author-input.mjs';
+import contract from '../../../../../ui/show/layer-diagram/graph-contract.json' with { type: 'json' };
+import { validateGraphDocument } from '../../../../../ui/show/layer-diagram/graph-contract.mjs';
+import { boundAuthorInput, outboundList } from '../../../../../ui/show/layer-diagram/author-input.mjs';
 
 const isObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 const fill = (template, values) => template.replace(/\{(\w+)\}/gu, (whole, name) => (name in values ? String(values[name]) : whole));

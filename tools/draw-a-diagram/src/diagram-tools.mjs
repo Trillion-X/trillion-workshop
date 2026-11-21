@@ -13,8 +13,8 @@
 //   2. The page block returned is the document itself, which the document page already draws; the SVG files are exports of it.
 //   3. Read-only: nothing is stored or posted (picture_a_change posts).
 import { authorGraphDocument, graphAuthoringBrief, graphIdentifiers } from '../parts/ui/show/layer-diagram/graph-authoring.mjs';
-import { graphIdentity } from '../../shared-code/parts/ui/show/layer-diagram/graph-contract.mjs';
-import { graphSvgAssets } from '../../shared-code/parts/ui/show/layer-diagram/graph-svg.mjs';
+import { graphIdentity } from '../../ui/show/layer-diagram/graph-contract.mjs';
+import { graphSvgAssets } from '../../ui/show/layer-diagram/graph-svg.mjs';
 import { resolveLiveCommand } from '../parts/ui/show/layer-diagram/graph-live.mjs';
 
 export const diagramTools = () => [

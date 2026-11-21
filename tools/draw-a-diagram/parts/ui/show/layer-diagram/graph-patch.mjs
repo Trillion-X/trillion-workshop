@@ -26,9 +26,9 @@
 // Key concepts: `applyGraphPatch(document, patch)`, `applyGraphOps(document, ops)`, `applyGraphCorrections(document, corrections)`.
 
 import patchRules from './graph-patch.json' with { type: 'json' };
-import contract from '../../../../../shared-code/parts/ui/show/layer-diagram/graph-contract.json' with { type: 'json' };
-import { graphIdentity, validateGraphDocument } from '../../../../../shared-code/parts/ui/show/layer-diagram/graph-contract.mjs';
-import { selectorTest } from '../../../../../shared-code/parts/ui/show/layer-diagram/select-glob.mjs';
+import contract from '../../../../../ui/show/layer-diagram/graph-contract.json' with { type: 'json' };
+import { graphIdentity, validateGraphDocument } from '../../../../../ui/show/layer-diagram/graph-contract.mjs';
+import { selectorTest } from '../../../../../ui/show/layer-diagram/select-glob.mjs';
 
 const isObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 const fill = (template, values) => template.replace(/\{(\w+)\}/gu, (whole, name) => (name in values ? String(values[name]) : whole));

@@ -17,8 +17,8 @@
 //
 // Key concepts: `graphAddresses(document)`, `resolveLiveCommand(document, command)`.
 import live from './graph-live.json' with { type: 'json' };
-import contract from '../../../../../shared-code/parts/ui/show/layer-diagram/graph-contract.json' with { type: 'json' };
-import { renderGraphDocument, validateGraphDocument } from '../../../../../shared-code/parts/ui/show/layer-diagram/graph-contract.mjs';
+import contract from '../../../../../ui/show/layer-diagram/graph-contract.json' with { type: 'json' };
+import { renderGraphDocument, validateGraphDocument } from '../../../../../ui/show/layer-diagram/graph-contract.mjs';
 import { applyGraphOps } from './graph-patch.mjs';
 
 const isObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
