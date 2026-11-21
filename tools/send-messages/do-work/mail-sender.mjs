@@ -152,11 +152,12 @@ function mailAdmission(door, settings, dayKey) {
   return { reserveMail, settleMail, mailSentTo };
 }
 
-/** The account's mail row as the caller handed it in (`mail_settings`), or the shipped row, which names no sender. */
+/** The account's mail row: the shipped row (which names no sender) with the fields the caller handed in (`mail_settings`,
+ * read from the account's own sender row) over it. */
 export function mailSettings(handedIn, shipped = SHIPPED) {
   if (handedIn === undefined || handedIn === null) return shipped;
   if (typeof handedIn !== 'object' || Array.isArray(handedIn)) throw new Error('mail_settings is the account\'s mail row, read from the person\'s store.');
-  return handedIn;
+  return { ...shipped, ...handedIn };
 }
 
 /** The provider's sending binding: one composed email through the sending seam, answering the provider's message id,
@@ -352,7 +353,9 @@ export function mailSender({ row, door, binding, provider, readLook }) {
    * is exactly what the binding was given: { to, from, reply_to, bcc, subject, preheader, markdown,
    * sent_at, provider }. Refuses, in words a person reads, an address that is not one or a message with no words.
    */
-  async function sendWrittenEmail(env, { to, subject, markdown, preheader = null, action = null, reply_to: replyTo = null, subscription = null, idempotencyKey = null }, { owner = settings.owner ?? null, now = () => new Date() } = {}) {
+  /** One written email as the binding would be given it: validated, its words drawn, its BCC copy and subscription
+   * headers set. Sends nothing. → { composed, subscribed, address } or { error } when the look cannot be read. */
+  async function composeWritten({ to, subject, markdown, preheader = null, action = null, reply_to: replyTo = null, subscription = null, idempotencyKey = null }, owner) {
     const address = typeof to === 'string' ? to.trim() : '';
     if (!EMAIL_SHAPE.test(address)) throw new Error(`${to} is not an email address.`);
     if (typeof subject !== 'string' || !subject.trim()) throw new Error('An email needs a subject.');
@@ -361,25 +364,49 @@ export function mailSender({ row, door, binding, provider, readLook }) {
     const bcc = writtenCopies(address, owner);
     const sender = senderFor(owner), subscribed = subscriptionMail(subscription, sender);
     const look = await currentPalette(readLook);
-    if (look.error) return { sent: false, error: look.error, said: `The email to ${address} did not go out: ${look.error}` };
+    if (look.error) return { address, error: look.error };
     const composed = composeMail({ from: sender, ...(replyTo ? { reply_to: String(replyTo).trim() } : {}) }, {
       to: address, subject: subject.trim(), markdown, bcc, ...subscribed, ...(preheader ? { preheader } : {}), ...(action?.href && action?.label ? { action } : {}),
       ...(idempotencyKey ? { idempotencyKey } : {}),
     }, look.palette);
+    return { address, composed, subscribed };
+  }
+
+  async function sendWrittenEmail(env, message, { owner = settings.owner ?? null, now = () => new Date() } = {}) {
+    const { address, composed, subscribed, error } = await composeWritten(message, owner);
+    if (error) return { sent: false, error, said: `The email to ${address} did not go out: ${error}` };
     const result = await deliver(env, composed);
     if (!result.sent) return { ...result, said: `The email to ${address} did not go out: ${result.error}` };
     const sent_copy = {
       to: [composed.to], from: `${composed.from.name} <${composed.from.email}>`, reply_to: composed.replyTo ?? null, bcc: composed.bcc ?? [],
-      subject: composed.subject, preheader: preheader ?? null, markdown,
-      ...(subscription ? { headers: composed.headers, footer_lines: subscribed.footer_lines, footer_links: subscribed.footer_links } : {}),
+      subject: composed.subject, preheader: message.preheader ?? null, markdown: message.markdown,
+      ...(message.subscription ? { headers: composed.headers, footer_lines: subscribed.footer_lines, footer_links: subscribed.footer_links } : {}),
       sent_at: now().toISOString(), provider,
     };
     return { ...result, said: `Emailed ${address} from ${composed.from.email}.`, sent_copy };
   }
 
+  /** The written email exactly as sendWrittenEmail would give the binding, and nothing sent: no allowance is taken and
+   * the provider is not asked. → { sent: false, dry_run: true, composed } or { sent: false, error }. */
+  async function previewWrittenEmail(message, { owner = settings.owner ?? null } = {}) {
+    const sender = senderFor(owner);
+    if (!sender?.email || !sender?.name) return { sent: false, dry_run: true, error: settings.no_sender };
+    const { address, composed, error } = await composeWritten(message, owner);
+    if (error) return { sent: false, dry_run: true, error, said: `The email to ${address} would not go out: ${error}` };
+    return {
+      sent: false, dry_run: true,
+      composed: {
+        from: `${composed.from.name} <${composed.from.email}>`, reply_to: composed.replyTo ?? null, to: composed.to, bcc: composed.bcc ?? [],
+        subject: composed.subject, text: composed.text, html: composed.html ?? null, ...(composed.headers ? { headers: composed.headers } : {}),
+      },
+      said: `Would email ${address} from ${composed.from.email}. Nothing was sent.`,
+    };
+  }
+
   return {
     sendMail: (mail, message) => sendMail(env, mail, message),
     sendWrittenEmail: (message, options) => sendWrittenEmail(env, message, options),
+    previewWrittenEmail,
     sentTo: (to, now) => sentTo(env, to, now),
     limitReached, isProofAddress, senderFor,
   };
@@ -393,18 +420,24 @@ export async function sendAnEmail(request, { provider, sender }) {
   const recipients = Array.isArray(request.recipients) ? request.recipients : [request.to];
   const sent = [];
   for (const recipient of recipients) {
-    const { recipients: _all, ...one } = { ...request, to: recipient };
+    const { recipients: _all, dry_run: _dry, ...one } = { ...request, to: recipient };
     let result;
     try {
-      result = typeof one.markdown === 'string' ? await sender.sendWrittenEmail(one) : await sender.sendMail(null, one);
+      if (request.dry_run) result = typeof one.markdown === 'string' ? await sender.previewWrittenEmail(one) : { sent: false, error: 'A dry run takes written email, its words in markdown.' };
+      else result = typeof one.markdown === 'string' ? await sender.sendWrittenEmail(one) : await sender.sendMail(null, one);
     } catch (error) {
       result = { sent: false, error: error.message };
+    }
+    if (request.dry_run) {
+      sent.push(result.composed ? { recipient, composed: result.composed } : { recipient, error: result.error });
+      continue;
     }
     sent.push(result.sent
       ? { recipient, messageId: result.id, ...(result.kept_for_proof ? { kept_for_proof: result.kept_for_proof } : {}), ...(result.sent_copy ? { sent_copy: result.sent_copy } : {}) }
       : { recipient, error: result.error, ...Object.fromEntries(['limited', 'unknown', 'suppressed'].filter(flag => result[flag]).map(flag => [flag, true])) });
   }
   const failed = sent.filter(item => item.error);
+  if (request.dry_run) return { provider, dry_run: true, sent, said: `Would send ${sent.length - failed.length} of ${sent.length} through ${provider}. Nothing was sent.` };
   const said = `Sent to ${sent.length - failed.length} of ${sent.length} through ${provider}.${failed.length ? ` Not sent: ${failed.map(item => `${item.recipient} (${item.error})`).join('; ')}` : ''}`;
   return { provider, sent, said };
 }
@@ -412,11 +445,12 @@ export async function sendAnEmail(request, { provider, sender }) {
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   try {
     const { saved, mail_settings: handedSettings, mail_sent: sentRows = [], mail_day: dayRows = [], ...request } = JSON.parse(readFileSync(0, 'utf8') || '{}');
+    const row = mailSettings(handedSettings);
     const provider = providerOf(process.argv[2] ?? request.provider);
     if (provider.channel !== 'email') throw new Error(`${provider.id} is not an email provider.`);
     const rows = rowsHandedIn([...sentRows, ...dayRows]);
-    const row = mailSettings(handedSettings);
-    const binding = bindingFor(provider, heldKeys(provider), row);
+    // A dry run composes the message and never reaches the provider, so it reads no key.
+    const binding = request.dry_run ? null : bindingFor(provider, heldKeys(provider), row);
     const sender = mailSender({ row, door: rows, binding, provider: provider.id, readLook: wornLookReader(saved) });
     console.log(JSON.stringify({ result: { ...await sendAnEmail(request, { provider: provider.id, sender }), keep: rows.keep() } }));
   } catch (error) {

@@ -15,7 +15,7 @@ import { rowsHandedIn } from '../read-data/rows-handed-in.mjs';
 import { providerOf } from '../do-work/send-a-message.mjs';
 
 // The shipped row with a sender, as an account names its own.
-const settingsWith = (change = {}) => ({ ...structuredClone(SHIPPED), from: { email: 'hello@example.com', name: 'Example' }, owner: 'owner@example.com', ...change });
+const settingsWith = (change = {}) => ({ ...structuredClone(SHIPPED), from: { email: 'hello@example.test', name: 'Example' }, owner: 'owner@example.com', ...change });
 
 // The rows a send works over, handed in as the caller's AI read them from the person's store.
 const doorFor = (records = []) => ({ door: rowsHandedIn(records) });
@@ -188,7 +188,7 @@ describe('the mail row and the email rows', () => {
     assert.deepEqual(mailSettings(undefined), SHIPPED);
     assert.deepEqual(mailSettings(null), SHIPPED);
     const changed = settingsWith();
-    assert.deepEqual(mailSettings(changed), changed);
+    assert.deepEqual(mailSettings(changed), { ...SHIPPED, ...changed });
     assert.throws(() => mailSettings('hello'), /mail_settings is the account's mail row/);
   });
 
@@ -315,5 +315,32 @@ describe('every email is drawn in the look (older owner: test/mail-sender.test.m
     await sender.sendMail(null, { to: 'own@example.org', subject: 'Own', html: '<p>Own</p>', text: 'Own' });
     assert.equal(binding.sends[0].html, '<p>Own</p>');
     assert.equal(binding.sends[0].text, 'Own');
+  });
+});
+
+describe('a dry run composes the message the provider would be given, and sends nothing', () => {
+  it('answers the composed message, takes no allowance and never asks the provider', async () => {
+    const { sender, binding, door } = await senderWith(settingsWith());
+    const answer = await sendAnEmail({ dry_run: true, to: 'customer@example.test', subject: 'Your offer', markdown: 'Hello.\n\nTotal: $650.00' }, { provider: 'resend', sender });
+    assert.equal(answer.dry_run, true);
+    assert.equal(binding.sends.length, 0);
+    assert.deepEqual(door.keep(), []);
+    const [only] = answer.sent;
+    assert.equal(only.recipient, 'customer@example.test');
+    assert.equal(only.composed.to, 'customer@example.test');
+    assert.equal(only.composed.from, 'Example <hello@example.test>');
+    assert.equal(only.composed.subject, 'Your offer');
+    assert.match(only.composed.text, /Total: \$650\.00/);
+    assert.match(only.composed.html, /Total/);
+    assert.match(answer.said, /Nothing was sent/);
+  });
+
+  it('answers in words when the account has no sender, and when the words are not markdown', async () => {
+    const { sender } = await senderWith({ ...structuredClone(SHIPPED) });
+    const none = await sendAnEmail({ dry_run: true, to: 'customer@example.test', subject: 'x', markdown: 'y' }, { provider: 'resend', sender });
+    assert.equal(none.sent[0].error, SHIPPED.no_sender);
+    const { sender: withSender } = await senderWith(settingsWith());
+    const plain = await sendAnEmail({ dry_run: true, to: 'customer@example.test', subject: 'x', text: 'y' }, { provider: 'resend', sender: withSender });
+    assert.equal(plain.sent[0].error, 'A dry run takes written email, its words in markdown.');
   });
 });

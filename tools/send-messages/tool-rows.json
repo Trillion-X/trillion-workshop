@@ -197,7 +197,8 @@
           "additionalProperties": false,
           "required": ["provider"],
           "properties": {
-            "mail_settings": { "type": "object", "description": "The account's mail row (its `settings:mail` row of kind mail-settings: the sender, limits, proof names and site), read from the person's store; left out, the shipped row, which names no sender, so nothing is sent" },
+            "dry_run": { "type": "boolean", "description": "true: compose the written email exactly as it would go and answer it under sent[].composed, sending nothing (no allowance is taken and the provider is not asked)" },
+            "mail_settings": { "type": "object", "description": "The account's mail row (its `settings:mail` row of kind mail-settings: the sender, limits, proof names and site), read from the person's store; the fields given are read over the shipped row, which names no sender, so nothing is sent without a sender" },
             "mail_sent": { "type": "array", "items": { "type": "object" }, "description": "The person's `mail-sent` rows ({ id, type, value }) the limits count, read from their store" },
             "mail_day": { "type": "array", "items": { "type": "object" }, "description": "The day's `mail-day` row ({ id, type, value }), read from the person's store" },
             "recipients": { "type": "array", "minItems": 1, "items": { "type": "string" } },
