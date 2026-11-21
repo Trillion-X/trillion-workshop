@@ -15,7 +15,9 @@
         "input_schema": {
           "type": "object",
           "required": [
-            "store"
+            "store",
+            "judge_store",
+            "notices_store"
           ],
           "properties": {
             "store": {
@@ -38,7 +40,34 @@
                   "type": "string",
                   "description": "The vault name of the login the run uses to read and write the posts"
                 }
-              }
+              },
+              "description": "The person's own posts store: read and write the posts, and read the connections"
+            },
+            "judge_store": {
+              "type": "object",
+              "required": [
+                "credential_name"
+              ],
+              "properties": {
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of a login this run uses"
+                }
+              },
+              "description": "The login the voice judge reads the person's words with"
+            },
+            "notices_store": {
+              "type": "object",
+              "required": [
+                "credential_name"
+              ],
+              "properties": {
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of a login this run uses"
+                }
+              },
+              "description": "The login the held-back notice is written with"
             }
           }
         },
@@ -283,7 +312,632 @@
             },
             "checks": []
           }
-        ]
+        ],
+        "definition": {
+          "id": "workflow:send-each-post-at-its-time",
+          "name": "Send each post at its time",
+          "kind": "workflow",
+          "is_active": true,
+          "version": 1,
+          "steps": [
+            {
+              "id": "read-due-posts",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "select post_id as address, extract(epoch from date_trunc('second', updated_at))::bigint as version, value from post where status = any($1::text[]) and value ? 'armed_at' and (value->>'scheduled_for')::timestamptz <= now() order by (value->>'scheduled_for')",
+                  "params": [
+                    [
+                      "scheduled",
+                      "partial",
+                      "failed"
+                    ]
+                  ],
+                  "database": "ethos_for_who_runs_it"
+                },
+                "context": {
+                  "use": {
+                    "purpose": "publish",
+                    "surface": "social/instagram"
+                  },
+                  "title": "Read the posts whose time has come",
+                  "step_id": "read-due-posts"
+                }
+              }
+            },
+            {
+              "id": "give-cta",
+              "kind": "action",
+              "config": {
+                "inputs": {
+                  "posts": {
+                    "$kind": "binding",
+                    "select": {
+                      "key": "read-due-posts",
+                      "from": "steps",
+                      "path": "output.rows"
+                    }
+                  },
+                  "store": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store"
+                    }
+                  }
+                },
+                "definition_id": "workflow:give-each-post-its-cta-before-it-goes-out"
+              }
+            },
+            {
+              "id": "done",
+              "kind": "return",
+              "config": {
+                "value": {
+                  "posts_read": {
+                    "$kind": "binding",
+                    "select": {
+                      "key": "read-due-posts",
+                      "from": "steps",
+                      "path": "output.row_count"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": "read-connections",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "WITH dests AS (\n  SELECT DISTINCT d.dest\n    FROM jsonb_array_elements($1::jsonb) p,\n         jsonb_array_elements_text(coalesce(p->'value'->'destinations', '[]'::jsonb)) AS d(dest)\n   WHERE d.dest ~ '^[A-Za-z0-9_.!~*''():-]+$')\nSELECT 'connection:' || replace(dests.dest, ':', '%3A') AS address,\n       to_jsonb(sc) || jsonb_build_object('place', pp.slug) AS value\n  FROM dests\n  JOIN service_connection sc ON sc.connection_id = dests.dest\n  LEFT JOIN post_place pp ON pp.connection_vendor = sc.vendor",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "key": "give-cta",
+                        "from": "steps",
+                        "path": "output.rows"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "database": "ethos_for_who_runs_it"
+                },
+                "context": {
+                  "use": {
+                    "purpose": "publish",
+                    "surface": "social/instagram"
+                  },
+                  "title": "Read the connection each destination sends through",
+                  "step_id": "read-connections"
+                }
+              }
+            },
+            {
+              "id": "check-who-is-in-it",
+              "kind": "action",
+              "config": {
+                "inputs": {
+                  "posts": {
+                    "$kind": "binding",
+                    "select": {
+                      "key": "give-cta",
+                      "from": "steps",
+                      "path": "output.rows"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.filter_where",
+                        "args": {
+                          "predicate": [
+                            {
+                              "op": "op:core.get_path",
+                              "args": {
+                                "path": "allowed"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "store": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store"
+                    }
+                  },
+                  "purpose": "publish"
+                },
+                "definition_id": "workflow:check-who-is-in-it-before-it-goes-out"
+              }
+            },
+            {
+              "id": "send-list",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "WITH posts AS (\n  SELECT x->>'address' AS post_id, (x->>'version')::int AS version,\n         (x->>'allowed')::boolean AS allowed, x->'value' AS v\n    FROM jsonb_array_elements($1::jsonb) x),\ndests AS (\n  SELECT p.post_id, p.version, p.allowed, p.v, d.dest\n    FROM posts p CROSS JOIN LATERAL jsonb_array_elements_text(coalesce(p.v->'destinations', '[]'::jsonb)) AS d(dest)),\ncons AS (\n  SELECT x->>'post_id' AS post_id, x->>'destination' AS dest, (x->>'allowed')::boolean AS ok\n    FROM jsonb_array_elements($2::jsonb) x),\nconn AS (\n  SELECT x->>'address' AS address, x->'value' AS value\n    FROM jsonb_array_elements($3::jsonb) x)\nSELECT d.post_id, d.version, d.dest AS account_id, d.v->>'armed_at' AS armed_at,\n       c.value->>'place' AS place,\n       jsonb_build_object('id', d.post_id, 'type', 'post', 'value', d.v) AS record_post,\n       jsonb_build_object('id', 'connection:' || replace(d.dest, ':', '%3A'), 'type', 'connection', 'value', c.value) AS record_connection,\n       (d.allowed AND coalesce(cs.ok, false) AND c.value IS NOT NULL AND c.value->>'place' IS NOT NULL\n         AND coalesce(d.v->'deliveries'->d.dest->>'status', 'not sent') NOT IN ('posted', 'not known')) AS sendable,\n       CASE WHEN NOT d.allowed THEN 'the gate refused this post (no product fits)'\n            WHEN NOT coalesce(cs.ok, false) THEN 'the consent check refused this destination'\n            WHEN c.value IS NULL THEN 'no connection record for this destination'\n            WHEN c.value->>'place' IS NULL THEN 'no place takes this connection'\n            WHEN coalesce(d.v->'deliveries'->d.dest->>'status', 'not sent') IN ('posted', 'not known') THEN 'already sent or not known'\n            ELSE NULL END AS why\n  FROM dests d\n  LEFT JOIN cons cs ON cs.post_id = d.post_id AND cs.dest = d.dest\n  LEFT JOIN conn c ON c.address = 'connection:' || replace(d.dest, ':', '%3A')\n ORDER BY d.post_id, d.dest",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "key": "give-cta",
+                        "from": "steps",
+                        "path": "output.rows"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "key": "check-who-is-in-it",
+                        "from": "steps",
+                        "path": "output"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "key": "read-connections",
+                        "from": "steps",
+                        "path": "output.rows"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "database": "ethos_for_who_runs_it"
+                },
+                "context": {
+                  "use": {
+                    "purpose": "publish",
+                    "surface": "social/instagram"
+                  },
+                  "title": "List each destination: its place, its records and whether it may be sent",
+                  "step_id": "send-list"
+                }
+              }
+            },
+            {
+              "id": "each-destination",
+              "kind": "loop",
+              "config": {
+                "source": {
+                  "$kind": "binding",
+                  "select": {
+                    "key": "send-list",
+                    "from": "steps",
+                    "path": "output.rows"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.filter_where",
+                      "args": {
+                        "predicate": [
+                          {
+                            "op": "op:core.get_path",
+                            "args": {
+                              "path": "sendable"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "item_var": "item",
+                "definition_id": "workflow:send-each-post-at-its-time#each-destination",
+                "max_iterations": 200
+              }
+            },
+            {
+              "id": "keep-sent-posts",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "WITH ans AS (SELECT x AS a FROM jsonb_array_elements($1::jsonb) x),\nkeeps AS (SELECT k AS kv FROM ans, jsonb_array_elements(coalesce(ans.a->'keep', '[]'::jsonb)) k WHERE k->>'type' = 'post'),\nmerged AS (SELECT kv->>'id' AS post_id, (array_agg(kv->'value'))[1] AS base FROM keeps GROUP BY kv->>'id'),\ndl AS (SELECT k.kv->>'id' AS post_id, jsonb_object_agg(e.key, e.value) AS deliveries\n         FROM keeps k, jsonb_each(coalesce(k.kv->'value'->'deliveries', '{}'::jsonb)) e GROUP BY k.kv->>'id'),\nsv AS (SELECT DISTINCT ON (x->>'post_id') x->>'post_id' AS post_id, (x->>'version')::int AS version\n         FROM jsonb_array_elements($2::jsonb) x)\nUPDATE post p SET status = m.base->>'status', value = m.base || jsonb_build_object('deliveries', coalesce(dl.deliveries, '{}'::jsonb)), updated_at = now()\n  FROM merged m\n  LEFT JOIN dl ON dl.post_id = m.post_id\n  JOIN sv ON sv.post_id = m.post_id\n WHERE p.post_id = m.post_id\n   AND extract(epoch FROM date_trunc('second', p.updated_at))::bigint = sv.version\nRETURNING p.post_id",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "key": "each-destination",
+                        "from": "steps",
+                        "path": "output"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "key": "send-list",
+                        "from": "steps",
+                        "path": "output.rows"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "database": "ethos_for_who_runs_it"
+                },
+                "context": {
+                  "use": {
+                    "purpose": "publish",
+                    "surface": "social/instagram"
+                  },
+                  "title": "Write each post as its sends answered it",
+                  "step_id": "keep-sent-posts"
+                }
+              }
+            }
+          ],
+          "edges": [
+            {
+              "to": "give-cta",
+              "from": "read-due-posts",
+              "kind": "on_result",
+              "config": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "output.rows"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.array_length"
+                  },
+                  {
+                    "op": "op:core.gt",
+                    "args": {
+                      "value": 0
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "to": "done",
+              "from": "read-due-posts",
+              "kind": "on_result",
+              "config": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "output.rows"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.array_length"
+                  },
+                  {
+                    "op": "op:core.gt",
+                    "args": {
+                      "value": 0
+                    }
+                  },
+                  {
+                    "op": "op:core.not"
+                  }
+                ]
+              }
+            },
+            {
+              "to": "read-connections",
+              "from": "give-cta",
+              "kind": "always"
+            },
+            {
+              "to": "check-who-is-in-it",
+              "from": "read-connections",
+              "kind": "always"
+            },
+            {
+              "to": "send-list",
+              "from": "check-who-is-in-it",
+              "kind": "always"
+            },
+            {
+              "to": "each-destination",
+              "from": "send-list",
+              "kind": "always"
+            },
+            {
+              "to": "keep-sent-posts",
+              "from": "each-destination",
+              "kind": "always"
+            }
+          ],
+          "uses": [
+            {
+              "id": "workflow:send-each-post-at-its-time#each-destination",
+              "kind": "action",
+              "name": "Judge the post in his voice, then send one destination of it",
+              "edges": [
+                {
+                  "to": "send",
+                  "from": "voice",
+                  "kind": "always"
+                },
+                {
+                  "to": "mark-refused",
+                  "from": "voice",
+                  "kind": "on_failure"
+                },
+                {
+                  "to": "answer",
+                  "from": "send",
+                  "kind": "always"
+                },
+                {
+                  "to": "notify",
+                  "from": "mark-refused",
+                  "kind": "always"
+                }
+              ],
+              "steps": [
+                {
+                  "id": "voice",
+                  "kind": "action",
+                  "config": {
+                    "inputs": {
+                      "kind": "post",
+                      "piece": {
+                        "pages": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "item.record_post.value.caption"
+                          }
+                        },
+                        "caption": ""
+                      },
+                      "store": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "judge_store"
+                        }
+                      },
+                      "judge_only": true,
+                      "called_from": "workflow:send-each-post-at-its-time step each-destination"
+                    },
+                    "definition_id": "workflow:put-words-in-the-owners-voice-and-judge-them"
+                  }
+                },
+                {
+                  "id": "send",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:send-a-post",
+                    "input": {
+                      "place": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "item.place"
+                        }
+                      },
+                      "post_id": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "item.post_id"
+                        }
+                      },
+                      "records": [
+                        {
+                          "id": {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "loop",
+                              "path": "item.record_post.id"
+                            }
+                          },
+                          "type": "post",
+                          "value": {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "loop",
+                              "path": "item.record_post.value"
+                            },
+                            "transform": [
+                              {
+                                "op": "op:core.merge",
+                                "args": {
+                                  "value": {
+                                    "caption": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "key": "voice",
+                                        "from": "steps",
+                                        "path": "output.pages"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ],
+                            "resolve_nested_bindings": true
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "item.record_connection"
+                          }
+                        }
+                      ],
+                      "armed_at": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "item.armed_at"
+                        }
+                      },
+                      "account_id": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "item.account_id"
+                        }
+                      }
+                    },
+                    "context": {
+                      "title": "Send one destination by its place",
+                      "step_id": "send"
+                    }
+                  }
+                },
+                {
+                  "id": "answer",
+                  "kind": "return",
+                  "config": {
+                    "value": {
+                      "$kind": "binding",
+                      "select": {
+                        "key": "send",
+                        "from": "steps",
+                        "path": "output"
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "mark-refused",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-sql-in-my-database",
+                    "input": {
+                      "sql": "UPDATE post SET status = 'refused', value = value || jsonb_build_object('refused_why', $2::text), updated_at = now()\n WHERE post_id = $1 AND status IN ('scheduled', 'partial', 'failed') RETURNING post_id, status",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "item.post_id"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "key": "voice",
+                            "from": "steps",
+                            "path": "error"
+                          }
+                        }
+                      ],
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "store.credential_name"
+                        }
+                      }
+                    },
+                    "context": {
+                      "title": "Mark a post the voice judge refused",
+                      "step_id": "mark-refused"
+                    }
+                  }
+                },
+                {
+                  "id": "notify",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-sql-in-my-database",
+                    "input": {
+                      "sql": "INSERT INTO notices (title, body, kind, key, url)\nSELECT 'Post held back: ' || $1::text,\n       'Destination ' || $2::text || ' was not sent. The voice judge found these lines under the bar: ' || $3::text,\n       'needs-you', 'post-refused:' || $1::text, NULL\n WHERE NOT EXISTS (SELECT 1 FROM notices WHERE key = 'post-refused:' || $1::text)\nRETURNING id",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "item.post_id"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "item.account_id"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "key": "voice",
+                            "from": "steps",
+                            "path": "error"
+                          }
+                        }
+                      ],
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "notices_store.credential_name"
+                        }
+                      }
+                    },
+                    "context": {
+                      "title": "Tell him a post was held back",
+                      "step_id": "notify"
+                    }
+                  }
+                }
+              ],
+              "is_active": true
+            }
+          ]
+        }
       }
     }
   ]

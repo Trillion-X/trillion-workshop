@@ -1,16 +1,19 @@
 {
-  "start_here": "Switch on the at-its-time wake of workflow:send-each-post-at-its-time with store {\"where\": \"the person's own database\", \"language\": \"SQL (PostgreSQL)\", \"credential_name\": \"the name the person saved their database login under\"}. From then on a post set to go at its time is sent at that time, within five minutes, to each of its destinations not yet sent or failed.",
+  "start_here": "Switch on the at-its-time wake of workflow:send-each-post-at-its-time with store {where, language, credential_name} for the person's own posts, judge_store {credential_name} for the login the voice judge reads with, and notices_store {credential_name} for the login the held-back notice is written with. From then on a post set to go at its time is sent at that time, within five minutes, to each of its destinations not yet sent or failed.",
   "lists": [],
   "no_lists_because": "It names no list: it reads the person's posts and connections from their own database with run-sql, and writes each post back as its send answered it.",
   "workflows": [
-    "workflow:send-each-post-at-its-time"
+    "workflow:send-each-post-at-its-time",
+    "workflow:give-each-post-its-cta-before-it-goes-out",
+    "workflow:check-who-is-in-it-before-it-goes-out",
+    "workflow:put-words-in-the-owners-voice-and-judge-them"
   ],
   "tools": [
     "tool:run-sql-in-my-database",
     "tool:send-a-post"
   ],
   "instructions": [
-    "1. Say to your AI: \"Switch on the at-its-time wake of workflow:send-each-post-at-its-time with store {where, language, credential_name} for the person's own database\", and give it the store: where the person keeps their posts, the language that store is spoken in, and the name of the database login in the vault.",
+    "1. Say to your AI: \"Switch on the at-its-time wake of workflow:send-each-post-at-its-time with store, judge_store and notices_store\", and give it the three: the store where the person keeps their posts (where, language and the database login's vault name), the login name for the voice judge, and the login name for the held-back notice.",
     "2. The AI switches the wake on through the workflow engine. Each minute the run reads the posts whose time has come (status scheduled, partial or failed, armed, scheduled_for passed) with tool:run-sql-in-my-database.",
     "3. For each due destination not yet sent or failed, the run calls tool:send-a-post with the post and its connection rows, and writes each post back as its answer came, with a version check: a post changed since it was read is a conflict, not an overwrite.",
     "4. It is given only the rows of the person's own store that the run reads: post (reads and writes); connection (reads)."
