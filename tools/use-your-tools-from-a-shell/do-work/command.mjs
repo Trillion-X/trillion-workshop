@@ -1229,6 +1229,16 @@ export function stateOf({ rules = settings, home = homedir() } = {}) {
   const read = name => { try { return JSON.parse(readFileSync(path(name), 'utf8')); } catch { return null; } };
   const write = (name, value) => { mkdirSync(folder, { recursive: true, mode: 0o700 }); writeFileSync(`${path(name)}.new`, `${JSON.stringify(value, null, 2)}\n`, { mode: 0o600 }); renameSync(`${path(name)}.new`, path(name)); };
   return {
+    // The `until` a tool run asked under `key` was sent with (`withUntil`), made by `make` the first time and kept, so the same
+    // key asked again sends the same request; the newest `direct_calls.until_most` keys are kept.
+    untilOf(key, make) {
+      if (!key) return make();
+      const kept = read(rules.direct_calls.until_file) ?? {};
+      if (Number.isInteger(kept[key])) return kept[key];
+      const until = make();
+      write(rules.direct_calls.until_file, Object.fromEntries([...Object.entries(kept).filter(([name]) => name !== key), [key, until]].slice(-rules.direct_calls.until_most)));
+      return until;
+    },
     held: () => read(rules.held_file)?.held ?? {},
     // Kept per agent and task, so a task is moved as the id that took it, and this AI's record can say what it is doing.
     hold(agentId, task) {
@@ -1600,6 +1610,21 @@ const timeoutOf = value => {
   if (!Number.isInteger(number) || number < 1) throw new CommandError(settings.words.timeout_range, { status: 2 });
   return number;
 };
+
+/**
+ * The run request a command sends: `input` with `until` (UTC milliseconds) added when it asks a tool run (`engine.tools_run`)
+ * with --timeout and names no `until` of its own: now plus that wait. A door that carries the call to another computer (the
+ * gateway's meeting point, trillion-rust src/native_entry/meeting.rs `answer_wait`) waits for its computer's answer until
+ * then, at most its own longest call, and without it only its default (120 s): at 12:07-12:12 PM CST Nov 21 2026 two
+ * hearings of a 1.18 GB recording were cut there after 2 minutes although --timeout said 1300. The `until` is kept per
+ * request key (`stateOf().untilOf`), so the same command asked again under its key sends the same request and the run's
+ * journal sees one run. The engine ends the run at `until` too, so the wait asked for is also the run's limit.
+ */
+export function withUntil(method, input, { requestKey = null, timeoutSeconds, state = null, rules = settings, now = Date.now } = {}) {
+  if (method !== rules.engine.tools_run || timeoutSeconds === undefined || !input || typeof input !== 'object' || Array.isArray(input) || input.until !== undefined) return input;
+  const make = () => now() + timeoutSeconds * 1000;
+  return { ...input, until: typeof state?.untilOf === 'function' ? state.untilOf(requestKey, make) : make() };
+}
 
 async function signedInClient(context) {
   const credential = await credentialFor({ env: context.env, store: context.store, grants: context.grants, fetchImpl: context.fetchImpl });
@@ -1998,9 +2023,14 @@ export async function main(argv, seams = {}) {
     if (command === 'call') {
       const tool = need(words[0], `Name the tool: ${cliName()} call TOOL JSON, with an id from ${cliName()} tools.`);
       const input = await readJson(words[1], '{"text": "..."}');
-      return whole(await opWhole(client, null, engine.tools_run, { tool, input }, { requestKey: flags['request-key'], route: await routeOf(client, tool), upload: uploadOf(flags.upload) }));
+      const timeoutSeconds = flags.timeout === undefined ? undefined : timeoutOf(flags.timeout);
+      const request = withUntil(engine.tools_run, { tool, input }, { requestKey: flags['request-key'] ?? null, timeoutSeconds, state: context.state });
+      return whole(await opWhole(client, null, engine.tools_run, request, { requestKey: flags['request-key'], route: await routeOf(client, tool), upload: uploadOf(flags.upload) }));
     }
-    return whole(await opWhole(client, flags.address ?? null, opMethod(words[0]), await readJson(words[1], '{"id": "..."}'), { requestKey: flags['request-key'], route: pinned, upload: uploadOf(flags.upload) }));
+    const method = opMethod(words[0]);
+    const timeoutSeconds = flags.timeout === undefined ? undefined : timeoutOf(flags.timeout);
+    const request = withUntil(method, await readJson(words[1], '{"id": "..."}'), { requestKey: flags['request-key'] ?? null, timeoutSeconds, state: context.state });
+    return whole(await opWhole(client, flags.address ?? null, method, request, { requestKey: flags['request-key'], route: pinned, upload: uploadOf(flags.upload) }));
   }
   if (command === 'who') {
     const now = Date.now();
