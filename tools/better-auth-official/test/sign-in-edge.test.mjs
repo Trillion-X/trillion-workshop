@@ -86,6 +86,16 @@ test('a code lives as long as the pages say, has the tries settings give, and se
   for (let n = 0; n < settings.email_code.sends_per_window + 1; n++) sends.push((await call('/email-otp/send-verification-otp', { body: { email: 'capped@example.test', type: 'sign-in' }, from: '203.0.113.7' })).status);
   assert.deepEqual(sends.slice(0, -1).every(status => status === 200), true);
   assert.equal(sends.at(-1), 429, 'one more send in the window is refused');
+  // Nov 21 2026: testers at one home address filled its bucket and the owner's phone, on the same Wi-Fi, was refused. The cap is per
+  // address and email, so another person at the same address still gets a code; the address alone has its own, larger cap.
+  const other = await call('/email-otp/send-verification-otp', { body: { email: 'neighbour@example.test', type: 'sign-in' }, from: '203.0.113.7' });
+  assert.equal(other.status, 200, 'another email at the same address is not held by the first one\'s sends');
+  const behind = await call('/email-otp/send-verification-otp', { body: { email: 'Capped@Example.test ', type: 'sign-in' }, from: '203.0.113.7, 127.0.0.1' });
+  assert.equal(behind.status, 429, 'the same email written another way, behind the front door, is the same person');
+  const total = [];
+  for (let n = 0; n < settings.email_code.sends_per_address_per_window + 1; n++) total.push((await call('/email-otp/send-verification-otp', { body: { email: `many-${n}@example.test`, type: 'sign-in' }, from: '203.0.113.9' })).status);
+  assert.equal(total.at(-1), 429, 'one address sending to many emails meets the address cap');
+  assert.ok(total.slice(0, -1).every(status => status === 200), 'every send under the address cap goes');
 });
 
 test('a stranger cannot take an address with a password: it does not sign in, and the owner\'s first code clears it', async () => {

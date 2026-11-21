@@ -117,7 +117,9 @@
     "expires_in_seconds": 600,
     "attempts": 5,
     "sends_per_window": 10,
-    "window_seconds": 900
+    "sends_per_address_per_window": 60,
+    "window_seconds": 900,
+    "_sends_why": "sends_per_window is per client address AND email address, so one person's tries (or a tester's) never use up another person's codes at the same address: on Nov 21 2026 about 6:4x AM CST test sign-ins from a Mac filled the shared 10-per-15-min bucket of its home address and the owner's own phone, on the same Wi-Fi, was told 'too many requests'. sends_per_address_per_window bounds what one address sends to all emails together."
   },
   "add_passkey_link": {
     "expires_in_seconds": 86400

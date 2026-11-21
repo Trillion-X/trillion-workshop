@@ -50,6 +50,45 @@ async function sendEmail(message) {
     throw error;
   }
 }
+// The code sends one person may ask for: settings.email_code.sends_per_window per window_seconds for each client address and email
+// together, so a tester at the same address (the same home Wi-Fi) never uses up another person's codes. The plugin's own limit stays,
+// per address alone, at sends_per_address_per_window. Kept in this process's memory, like the plugin's.
+const codeSends = new Map();
+// Whether `address` is in `range` (an IPv4 a.b.c.d/n, or an IPv6 range whose prefix is matched as written, such as ::1/128).
+function inRange(address, range) {
+  const [base, bits = '128'] = range.split('/');
+  const four = text => text.split('.').reduce((sum, part) => sum * 256 + Number(part), 0);
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(address) && /^\d+\.\d+\.\d+\.\d+$/.test(base)) {
+    const keep = Number(bits) >= 32 ? 0 : 2 ** (32 - Number(bits));
+    return keep === 0 ? four(address) === four(base) : Math.floor(four(address) / keep) === Math.floor(four(base) / keep);
+  }
+  return Number(bits) >= 128 && address.toLowerCase() === base.toLowerCase();
+}
+// The client address the front door forwarded: the first of settings.rate_limit.client_ip_headers present, and in a forwarded list the
+// nearest entry that is not one of the front door's own addresses (settings.rate_limit.trusted_proxies).
+function clientAddress(headers) {
+  for (const name of settings.rate_limit.client_ip_headers ?? []) {
+    const listed = headers?.get(name)?.split(',').map(one => one.trim()).filter(Boolean) ?? [];
+    const found = listed.reverse().find(one => !(settings.rate_limit.trusted_proxies ?? []).some(range => inRange(one, range)));
+    if (found) return found;
+  }
+  return '';
+}
+function limitCodeSends(ctx) {
+  const email = typeof ctx.body?.email === 'string' ? ctx.body.email.trim().toLowerCase() : '';
+  if (!mailPaths.has(ctx.path) || !email) return;
+  const now = Date.now(), window = settings.email_code.window_seconds * 1000;
+  const address = clientAddress(ctx.request?.headers) || 'no-address';
+  const key = `${address}|${email}`;
+  const recent = (codeSends.get(key) ?? []).filter(at => now - at < window);
+  if (recent.length >= settings.email_code.sends_per_window) {
+    codeSends.set(key, recent);
+    throw new APIError('TOO_MANY_REQUESTS', { message: 'Too many requests. Please try again later.' });
+  }
+  recent.push(now);
+  codeSends.set(key, recent);
+  if (codeSends.size > 10000) for (const [held, times] of codeSends) if (!times.some(at => now - at < window)) codeSends.delete(held);
+}
 async function refuseWhenNotSent(ctx) {
   if (!mailPaths.has(ctx.path)) return;
   const now = Date.now();
@@ -289,6 +328,7 @@ export const auth = betterAuth({
     // A new API key gets the settings prefix, never one the request asks for (the plugin lets a client choose its own). The body
     // is changed in place: a hook's returned context is merged over the request (defu), which never takes a key away.
     before: createAuthMiddleware(async ctx => {
+      limitCodeSends(ctx);
       if (ctx.path === '/sign-in/email-otp') return clearWhatWasNotProven(ctx);
       if (ctx.path === '/oauth2/authorize') { await holdLoopbackResources(ctx.context.adapter, settings.mcp.loopback_resources, settings.mcp.resource_scopes, ctx.query?.resource); return shapeAuthorize(ctx); }
       if (ctx.path === '/oauth2/token') return holdLoopbackResources(ctx.context.adapter, settings.mcp.loopback_resources, settings.mcp.resource_scopes, ctx.body?.resource);
@@ -306,7 +346,7 @@ export const auth = betterAuth({
       otpLength: settings.email_code.digits,
       expiresIn: settings.email_code.expires_in_seconds,
       allowedAttempts: settings.email_code.attempts,
-      rateLimit: { window: settings.email_code.window_seconds, max: settings.email_code.sends_per_window },
+      rateLimit: { window: settings.email_code.window_seconds, max: settings.email_code.sends_per_address_per_window },
       async sendVerificationOTP({ email, otp, type }) { await sendEmail({ kind: `otp-${type}`, to: email, otp }); },
     }),
     // The one-time link that adds a passkey on another device: valid settings.add_passkey_link.expires_in_seconds, used once.
