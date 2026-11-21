@@ -76,6 +76,11 @@
      "url": "https://files.pythonhosted.org/packages/b2/72/01e49f032bb346e5aaf06c10c74fe8aeec847173adbadd66eb7c53054bf2/tokenizers-0.23.3-cp310-abi3-macosx_11_0_arm64.whl",
      "blake3": "e51cbf944ce90a93b614679c56a92aa38d373c7bcbaf9536c5a411cef606186f",
      "checked_against": "https://pypi.org/pypi/tokenizers/0.23.3/json"
+    },
+    "linux-x86_64": {
+     "url": "https://files.pythonhosted.org/packages/3a/40/6706b82693715581457c6d5423eaa7faae576bb0526c5738a57085eb4449/tokenizers-0.23.3-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+     "blake3": "d92b2549f1e82cf53e8b564c0ca9d277ca0e626149905a9df7664d197483a024",
+     "checked_against": "https://pypi.org/pypi/tokenizers/0.23.3/json"
     }
    }
   },
@@ -4335,6 +4340,11 @@
      "url": "https://files.pythonhosted.org/packages/22/f2/07bb754eb2ede9073f4054f7c0286b0d9d2e23982e090a80d478b26d35ca/numpy-2.3.3-cp312-cp312-macosx_14_0_arm64.whl",
      "blake3": "ffac82fe681dda30e2126993ab13d148357947528dce181e066eb6614299ee08",
      "checked_against": "https://pypi.org/pypi/numpy/2.3.3/json"
+    },
+    "linux-x86_64": {
+     "url": "https://files.pythonhosted.org/packages/51/64/7de3c91e821a2debf77c92962ea3fe6ac2bc45d0778c1cbe15d4fce2fd94/numpy-2.3.3-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+     "blake3": "f362cf2ec894f93989b67ee637e7f7da78f1aaee695c1312968581a93ce076dd",
+     "checked_against": "https://pypi.org/pypi/numpy/2.3.3/json"
     }
    }
   },
@@ -4345,6 +4355,11 @@
     "macos-aarch64": {
      "url": "https://files.pythonhosted.org/packages/1b/9e/f748cd64161213adeef83d0cb16cb8ace1e62fa501033acdd9f9341fff57/onnxruntime-1.23.2-cp312-cp312-macosx_13_0_arm64.whl",
      "blake3": "652903ef9e88ce12ea33144c14db0de7af2e306e0167587cb41896e4f04bd728",
+     "checked_against": "https://pypi.org/pypi/onnxruntime/1.23.2/json"
+    },
+    "linux-x86_64": {
+     "url": "https://files.pythonhosted.org/packages/ef/88/9cc25d2bafe6bc0d4d3c1db3ade98196d5b355c0b273e6a5dc09c5d5d0d5/onnxruntime-1.23.2-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+     "blake3": "537bf485691faa435e9ec80a863cb456b896e0f5d6ec3507decf4c49e62d47b4",
      "checked_against": "https://pypi.org/pypi/onnxruntime/1.23.2/json"
     }
    }
@@ -4378,6 +4393,11 @@
     "macos-aarch64": {
      "url": "https://files.pythonhosted.org/packages/32/72/98342feb672507c8f3a69e34b4fa8961f608edba5c1a48a6f47156d92cb5/protobuf-7.36.2-cp310-abi3-macosx_10_9_universal2.whl",
      "blake3": "4f0f51ab57a60340d713ed924c9bba2d33cdc78ca08ccf9160d8927c39baac8e",
+     "checked_against": "https://pypi.org/pypi/protobuf/7.36.2/json"
+    },
+    "linux-x86_64": {
+     "url": "https://files.pythonhosted.org/packages/db/f3/3996583dd2906297a637af12114deddf7658af6e683fedb83be061983fb5/protobuf-7.36.2-cp310-abi3-manylinux2014_x86_64.whl",
+     "blake3": "dcad06af3175e0b6290c4849984c55617f800ca8524f1a817ed18b616740084d",
      "checked_against": "https://pypi.org/pypi/protobuf/7.36.2/json"
     }
    }
