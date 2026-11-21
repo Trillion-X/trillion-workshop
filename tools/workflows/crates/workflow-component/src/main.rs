@@ -31,6 +31,19 @@ const TELL: &str = "wake:arrive";
 /// (trillion-rust src/wake.rs `Effect::Door`), which makes it as the run's party and tells its answer back as a tool's is.
 /// `wake:arrive` among them is answered here (`TELL`).
 const ASK_RIGHTS: &str = include_str!("../../../ask-rights.json");
+/// The most bytes (as JSON) the run may be when a step's answer is held with it: every later envelope carries the whole run
+/// (its definition and every held answer), so a step whose answer takes the run past this is refused at that step. The run's
+/// input or definition `most_answer_bytes` overrides it.
+const MOST_ANSWER_BYTES: usize = 32 * 1024;
+
+/// The bound on one held answer: the run's input's `most_answer_bytes`, else its definition's, else `MOST_ANSWER_BYTES`.
+fn most_answer_bytes(run: &Map<String, Value>) -> usize {
+    let definition = run.get("definition").or_else(|| run.get("definitions").and_then(|all| all.get(0)));
+    run.get("input").and_then(|input| input.get("most_answer_bytes"))
+        .or_else(|| definition.and_then(|definition| definition.get("most_answer_bytes")))
+        .and_then(Value::as_u64)
+        .map_or(MOST_ANSWER_BYTES, |bytes| bytes as usize)
+}
 
 /// The names in `ASK_RIGHTS` the door makes for a run: every declared ask but `TELL`.
 fn door_asks() -> BTreeSet<String> {
@@ -127,7 +140,18 @@ fn the_run(given: &Value) -> (Map<String, Value>, BTreeMap<String, String>) {
                 let said = told["said"].as_str().map(|said| format!(": {said}")).unwrap_or_default();
                 refused.insert(step, format!("{} failed ({}){said}", told["for"].as_str().unwrap_or("its tool"), why.as_str().unwrap_or_default()));
             }
-            None => { run.entry("answers").or_insert_with(|| json!({}))[&step] = told["result"].clone(); }
+            None => {
+                // The envelope every later step carries is the whole run, so the bound counts the run with this answer held.
+                let most = most_answer_bytes(&run);
+                let mut held = run.clone();
+                held.entry("answers").or_insert_with(|| json!({}))[&step] = told["result"].clone();
+                let bytes = Value::Object(held.clone()).to_string().len();
+                if bytes > most {
+                    refused.insert(step, format!("the run would carry {bytes} bytes with this step's answer; filter the answer to what the next step needs (at most {most} bytes are carried)"));
+                } else {
+                    run = held;
+                }
+            }
         }
         return (run, refused);
     }
@@ -296,6 +320,51 @@ mod tests {
         assert_eq!(pass(json!({})).len(), 2, "the walk reaches both items");
         assert_eq!(pass(json!({ "each_iter_0/ask": 1 })).len(), 1, "an answered item stops waiting");
         assert!(pass(json!({ "each_iter_0/ask": 1, "each_iter_1/ask": 2 })).is_empty());
+    }
+
+    // A step's answer that takes the run (its definition and every held answer) past its bound is refused at that step in
+    // plain words and is not held, so no later envelope carries it; an answer within the bound is held as before.
+    fn told_answer(run: Value, result: Value) -> Value {
+        json!({ "input": { "definition": {}, "answers": {} }, "cause": { "key": "k", "detail": { "kind": ANSWERED, "payload": {
+            "workflow": "w", "run": run, "step": "fetch", "for": "tool:run-a-composio-action", "result": result } } }, "context": {} })
+    }
+
+    #[test]
+    fn a_held_answer_over_its_bound_is_refused_at_its_step_and_not_carried() {
+        let big = json!({ "text": "x".repeat(MOST_ANSWER_BYTES) });
+        let (run, refused) = the_run(&told_answer(json!({ "input": {} }), big));
+        assert!(refused["fetch"].contains("filter the answer to what the next step needs"), "{refused:?}");
+        assert!(run.get("answers").is_none_or(|answers| answers.get("fetch").is_none()), "{run:?}");
+    }
+
+    // Each answer is within the bound on its own, but the run with all of them is not: the last one is refused, so the
+    // envelope never carries more than the bound.
+    #[test]
+    fn many_small_answers_together_past_the_bound_refuse_the_step_that_takes_the_run_over() {
+        let small = json!({ "text": "y".repeat(300) });
+        let run = json!({ "input": { "most_answer_bytes": 1000 }, "answers": { "one": small.clone(), "two": small.clone() } });
+        let (held, refused) = the_run(&told_answer(run.clone(), small.clone()));
+        assert!(refused["fetch"].contains("the run would carry") && refused["fetch"].contains("at most 1000 bytes"), "{refused:?}");
+        assert!(held.get("answers").is_some_and(|answers| answers.get("fetch").is_none()), "{held:?}");
+        let (held, refused) = the_run(&told_answer(json!({ "input": { "most_answer_bytes": 2000 }, "answers": { "one": small.clone(), "two": small.clone() } }), small));
+        assert!(refused.is_empty(), "{refused:?}");
+        assert!(held["answers"]["fetch"].is_object(), "{held:?}");
+    }
+
+    #[test]
+    fn an_answer_within_its_bound_is_held_with_the_run() {
+        let (run, refused) = the_run(&told_answer(json!({ "input": {} }), json!({ "rows": [1, 2] })));
+        assert!(refused.is_empty(), "{refused:?}");
+        assert_eq!(run["answers"]["fetch"], json!({ "rows": [1, 2] }));
+    }
+
+    #[test]
+    fn the_bound_is_read_from_the_run_input_or_its_definition_when_given() {
+        let small = json!({ "rows": "0123456789012345678901234567890123456789" });
+        let by_input = the_run(&told_answer(json!({ "input": { "most_answer_bytes": 10 } }), small.clone())).1;
+        assert!(by_input["fetch"].contains("at most 10 bytes"), "{by_input:?}");
+        let by_definition = the_run(&told_answer(json!({ "input": {}, "definition": { "most_answer_bytes": 10 } }), small)).1;
+        assert!(by_definition["fetch"].contains("at most 10 bytes"), "{by_definition:?}");
     }
 
     // A step that asks a door operation the run's door answers (tools:list) is handed back as the door effect with its
