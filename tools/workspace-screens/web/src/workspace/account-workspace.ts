@@ -34,7 +34,8 @@ import { answerTargets } from './targets';
 import { installScreenRunner } from './screen-runner';
 import { screens } from './screen-mounts';
 import { offeredScreens, startScreenRecords, type ScreenRow } from './offered-screens';
-import { mountWorkspace, newWorkspaceRoot } from './mount-workspace';
+import { mountWorkspace, newWorkspaceRoot, openSurface } from './mount-workspace';
+import { openRouted, routedRequests } from './routed-open.mjs';
 import { readStartupRecords, showRecords } from './records';
 import { keepShowRules } from './show-rules-live';
 import surfaces from './screens.mjs';
@@ -119,6 +120,9 @@ async function readCatalogue(): Promise<void> {
 }
 const firstPath = listPath(null);
 onKeptAnswerReplaced(path => { if (path === firstPath) void readCatalogue(); });
+// The screens this page's address names open once the arrangement takes them: a screen the catalogue offers later still
+// opens at its address (routed-open.mjs).
+openRouted(() => routedRequests(offered, location.pathname, location.search), openSurface, () => catalogueComplete);
 
 // The opening cover (thread-cover.mjs, drawn by the page's first bytes) lifts once the first catalogue page is drawn, or
 // at the latest COVER_MOST_MS after the page started, whatever the reads are doing.
