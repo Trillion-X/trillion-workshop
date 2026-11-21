@@ -8,7 +8,7 @@
 //   1. The token syntax lives only in the documents part; this file only reads its runs.
 //   2. Each mention is listed once, in the order it was first written, as { kind, value, label }.
 
-import { parseInlineRuns, type Ref } from '../../../documents/read-data/inline-tokens.ts';
+import { parseInlineRuns, type Ref } from '../../../edit-a-document-together/read-data/inline-tokens.ts';
 
 export type Mention = Pick<Ref, 'kind' | 'value' | 'label'>;
 

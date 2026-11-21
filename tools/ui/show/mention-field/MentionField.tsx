@@ -19,7 +19,7 @@ import React from 'react';
 
 import { Container } from '../container';
 import { MentionPicker, pickMentions } from '../mention-picker';
-import { composerKeyAction } from '../../../documents/read-data/composer-key-action.ts';
+import { composerKeyAction } from '../../../edit-a-document-together/read-data/composer-key-action.ts';
 import { makeRefChip, readBlockText, renderBlockRuns } from '../../../documents/read-data/inline-chip-dom.ts';
 
 // A message box keeps words as written: no inline marks are drawn from them.
