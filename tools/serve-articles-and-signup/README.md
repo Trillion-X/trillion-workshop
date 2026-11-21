@@ -6,8 +6,12 @@ Articles and a double opt-in newsletter signup for one pursuit's site, drawn at 
 
 | File | Purpose |
 |------|---------|
-| `do-work/pursuit-site.mjs` | `createSite({ db, mail, origin, brand, secret, layout, signupText })`: `handle(request)` answers `/articles`, `/articles/<slug>`, `/articles/rss.xml`, `POST /subscribe`, `/subscribe/confirm`, `/unsubscribe`, or returns null. Drafts answer only with `previewToken(slug)`. |
+| `do-work/pursuit-site.mjs` | `createSite({ db, mail, origin, brand, secret, layout, signupText })`: `handle(request)` answers `/articles`, `/articles/<slug>`, `/articles/rss.xml`, `POST /subscribe`, `/subscribe/confirm`, `/unsubscribe`, or returns null. Drafts answer only with `previewToken(slug)`. An article page carries its search head (canonical from the row's `canonical` when it is https, else the page itself; Open Graph; JSON-LD Article, naming the person given as `author` to createSite). |
 | `test/pursuit-site.test.mjs` | Escaping, route dispatch, 404 and draft preview. |
+
+## Dependencies
+
+- `do-work/pursuit-site.mjs` imports `../../publish-content-for-discovery/do-work/site-search-head.mjs` (the one search-head renderer). A site that vendors this module copies both files at the same relative paths; copying only this folder fails at start.
 
 ## Known gaps
 
