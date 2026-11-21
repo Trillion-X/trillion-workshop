@@ -51,3 +51,30 @@ export function wireLabels(provider, names = []) {
   const back = Object.fromEntries(Object.entries(provider.labels ?? {}).map(([wire, neutral]) => [neutral, wire]));
   return (Array.isArray(names) ? names : []).map(name => back[name] ?? name);
 }
+
+const MOST_LINKS = 50;
+const NAMED_ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
+
+/** The http and https addresses in a text, each once, at most MOST_LINKS. */
+export function linksIn(text) {
+  const found = [...String(text ?? '').matchAll(/https?:\/\/[^\s<>"]+/g)].map(match => match[0].replace(/[)\].,;:!?'"]+$/, ''));
+  return [...new Set(found)].filter(link => {
+    try { return ['http:', 'https:'].includes(new URL(link).protocol); } catch { return false; }
+  }).slice(0, MOST_LINKS);
+}
+
+/** An HTML body as plain text: scripts and styles dropped, line breaks kept at breaks and block ends, tags removed,
+ *  entities decoded. Used only where a message has no plain-text part. */
+export function htmlToText(html) {
+  const text = String(html ?? '')
+    .replace(/<(script|style|head)\b[\s\S]*?<\/\1\s*>/gi, '')
+    .replace(/<br\b[^>]*>/gi, '\n')
+    .replace(/<\/(p|div|li|tr|h[1-6]|table|blockquote)\s*>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (whole, code) => {
+      if (code[0] !== '#') return NAMED_ENTITIES[code.toLowerCase()] ?? whole;
+      const point = code[1] === 'x' || code[1] === 'X' ? parseInt(code.slice(2), 16) : parseInt(code.slice(1), 10);
+      return Number.isFinite(point) && point <= 0x10ffff ? String.fromCodePoint(point) : whole;
+    });
+  return text.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+}

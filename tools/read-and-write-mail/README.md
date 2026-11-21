@@ -25,6 +25,7 @@ A new provider is a row in `mail-providers.json` and an adapter file. No tool id
 | `read-data/neutral.mjs` | `neutralMessage`, `HEADER_FIELDS`, the neutral/wire label words. |
 | `read-data/adapters/gmail.mjs` | Gmail's requests, MIME decoding (plain text only, links, attachments, drafts that need the original) and composing (UTF-8 headers, header newlines stripped, reply references). |
 | `read-data/adapters/outlook.mjs` | Microsoft Graph's mail requests. No signature operations (Graph keeps none), and a draft cannot carry In-Reply-To or References lines. |
+| `read-data/adapters/agentmail.mjs` | AgentMail's REST requests for the reads (inboxes, messages, search, threads). The provider's key is a plain vault key (`secret_name`, no connection, no renewal). A neutral id carries its inbox first: `<inbox_id>/<message_id>`. Sends, drafts and label changes are not offered. |
 | `kits/<tool>.json` | One kit per tool, each worked example naming the MCP call and the neutral answer. |
 | `test/mail-adapters.test.mjs` | Both adapters through stand-in providers: the same operation giving the same neutral row, the key only in the Authorization header to the provider's own host, a refusal and a missing operation said in words, Gmail's wire rules. |
 | `test/mail-tools.test.mjs` | The rows against the provider file; no vendor in a tool id or label. |

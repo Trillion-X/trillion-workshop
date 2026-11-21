@@ -15,7 +15,7 @@
 // 2. A paging address Graph handed over is followed only inside the provider's base_url (mail.mjs `call`).
 // 3. A conversation operation touches exactly the messages Graph lists for that conversation id.
 
-import { neutralMessage } from '../neutral.mjs';
+import { linksIn, neutralMessage } from '../neutral.mjs';
 
 const enc = encodeURIComponent;
 const LABELLED = ['inbox', 'sent', 'trash'];
@@ -41,9 +41,6 @@ function folderIds(ctx) {
     return [neutral, folder?.id];
   })).then(pairs => Object.fromEntries(pairs)));
 }
-
-const urls = text => [...new Set([...String(text ?? '').matchAll(/https?:\/\/[^\s<>"]+/g)].map(match => match[0].replace(/[)\].,;:!?'"]+$/, '')))]
-  .filter(link => { try { return ['http:', 'https:'].includes(new URL(link).protocol); } catch { return false; } }).slice(0, 50);
 
 async function toNeutral(ctx, ids, message, { draft = false, full = false } = {}) {
   const where = await ids();
@@ -83,7 +80,7 @@ async function toNeutral(ctx, ids, message, { draft = false, full = false } = {}
     },
     has_calendar_invite: false,
     text,
-    links: urls(text),
+    links: linksIn(text),
     attachments,
     needs_original: Boolean(message.hasAttachments) || (message.bccRecipients ?? []).length > 0,
   });

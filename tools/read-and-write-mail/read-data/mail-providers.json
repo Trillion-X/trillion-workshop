@@ -1,5 +1,5 @@
 {
-  "_what": "The mail providers a person's mailbox can be on, one row each: the connection kind that reaches the account (connection_vendor: a connection `service_connection:<vendor>` or `service_connection:<vendor>:<name>`), the one host family a held key may go to (hosts, base_url), how its key is renewed (refresh, the engine's own descriptor), which wire adapter turns its requests and replies into the neutral mail rows (adapter: read-data/adapters/<adapter>.mjs), which operations it offers, the words of its labels and folders, and how its web page for one message is written. Read by read-data/mail.mjs, by the screens that choose a provider for an account, and by test/mail-tools.test.mjs, which derives each tool row's by_input variants from these rows so this file is the only owner of what differs between providers. A new provider is a row and an adapter file; no tool id, row or screen names one.",
+  "_what": "The mail providers a person's mailbox can be on, one row each: the connection kind that reaches the account (connection_vendor: a connection `service_connection:<vendor>` or `service_connection:<vendor>:<name>`), or for a key the vault holds by name and no connection renews (secret_name, the vault name the run mounts at descriptor 4), the one host family a held key may go to (hosts, base_url), how its key is renewed (refresh, the engine's own descriptor), which wire adapter turns its requests and replies into the neutral mail rows (adapter: read-data/adapters/<adapter>.mjs), which operations it offers, the words of its labels and folders, and how its web page for one message is written. Read by read-data/mail.mjs, by the screens that choose a provider for an account, and by test/mail-tools.test.mjs, which derives each tool row's by_input variants from these rows so this file is the only owner of what differs between providers. A new provider is a row and an adapter file; no tool id, row or screen names one.",
   "operations": [
     "find-my-mailbox",
     "list-new-mail",
@@ -92,6 +92,7 @@
       "adapter": "gmail",
       "connection_vendor": "composio-account",
       "transport": "composio-proxy",
+      "secret_name": "composio-api-key",
       "hosts": ["backend.composio.dev"],
       "base_url": "https://gmail.googleapis.com/gmail/v1/users/me",
       "refresh": null,
@@ -166,6 +167,37 @@
         "message": "https://outlook.office.com/mail/id/{id}",
         "draft": "https://outlook.office.com/mail/id/{id}"
       }
+    },
+    {
+      "id": "agentmail",
+      "label": "AgentMail",
+      "channel": "mail",
+      "adapter": "agentmail",
+      "transport": "vault-key",
+      "secret_name": "agentmail-api-key",
+      "hosts": ["api.agentmail.to"],
+      "base_url": "https://api.agentmail.to/v0",
+      "refresh": null,
+      "operations": [
+        "find-my-mailbox", "list-new-mail", "find-mail", "read-mail-headers", "read-a-mail", "read-a-conversation",
+        "list-send-as-addresses"
+      ],
+      "labels": {
+        "received": "inbox",
+        "unread": "unread",
+        "sent": "sent",
+        "draft": "draft",
+        "trash": "trash",
+        "spam": "spam"
+      },
+      "folders": {
+        "inbox": "received",
+        "sent": "sent",
+        "trash": "trash",
+        "all": null
+      },
+      "page_size": 50,
+      "history_page_size": 100
     }
   ]
 }

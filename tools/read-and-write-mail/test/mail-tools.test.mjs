@@ -16,7 +16,7 @@ const camel = operation => operation.replace(/-([a-z])/g, (_, letter) => letter.
 
 test('one row per operation of the provider file, named for its job, with no vendor in its id or label', () => {
   assert.deepEqual(rows.map(row => row.id).sort(), providers.operations.map(operation => `tool:${operation}`).sort());
-  const vendors = providers.providers.flatMap(row => [row.id, row.label, row.connection_vendor, row.adapter]).map(word => word.toLowerCase());
+  const vendors = providers.providers.flatMap(row => [row.id, row.label, row.connection_vendor, row.adapter]).filter(Boolean).map(word => word.toLowerCase());
   for (const row of rows) for (const word of vendors) {
     assert.ok(!row.id.toLowerCase().includes(word), `${row.id} names ${word}`);
     assert.ok(!`${row.label} ${row.job}`.toLowerCase().includes(word), `${row.id}'s words name ${word}`);
@@ -24,10 +24,10 @@ test('one row per operation of the provider file, named for its job, with no ven
 });
 
 test('each row\'s by_input variants are exactly the provider rows\' connection kind and key renewal', () => {
-  // A provider whose requests Composio sends takes its key from the Composio secret, not the person's own connection (as the
-  // calendar row does); every other provider takes the connection's key and renews it.
-  const expected = Object.fromEntries(providers.providers.map(row => [row.id, row.transport === 'composio-proxy'
-    ? { connection: null, credential_mounts: [{ secret_name: 'composio-api-key', fd: 4 }] }
+  // A provider whose key is held in the vault under its secret_name (Composio, AgentMail) takes that key, not the person's own
+  // connection (as the calendar row does); every other provider takes the connection's key and renews it.
+  const expected = Object.fromEntries(providers.providers.map(row => [row.id, row.secret_name
+    ? { connection: null, credential_mounts: [{ secret_name: row.secret_name, fd: 4 }] }
     : { connection: { vendor: row.connection_vendor, from_input: 'connection' }, refresh: row.refresh }]));
   for (const row of rows) {
     assert.equal(row.invoke.by_input.input, 'provider', row.id);
@@ -59,7 +59,7 @@ test('each row runs the export of its operation, and every provider offers only 
 });
 
 test('the provider file is the only place a vendor is named, apart from the adapters', () => {
-  const vendors = providers.providers.flatMap(row => [row.id, row.connection_vendor, ...row.hosts]).filter(word => word.length > 3);
+  const vendors = providers.providers.flatMap(row => [row.id, row.connection_vendor, ...row.hosts]).filter(word => word && word.length > 3);
   for (const name of ['../read-data/mail.mjs', '../read-data/neutral.mjs']) {
     const text = readFileSync(here(name), 'utf8').toLowerCase();
     for (const vendor of vendors) assert.ok(!text.includes(vendor), `${name} names ${vendor}`);
