@@ -6,7 +6,7 @@
 // address (invoke.pages); it calls this session through the door's /mcp with the person's own sign-in.
 //
 // Every call names `dbs`, the databases the session was started with ([{ database }], the run's start input): the engine
-// hands element i's login on descriptor 3 + i (secret_name_from_database), for the account's owner only. The session opens
+// hands element i's login on descriptor 3 + i (secret_name_from_input with the row's held_suffix), for the account's owner only. The session opens
 // each once and keeps it. `pages_database` is the one of them whose task_pages table says which pursuits have a page:
 // (pursuit, label, database, tables, place); a row that still names `connection_name` is read as its database (the name
 // without `-connection`). A pursuit is answered only from a database the session holds.

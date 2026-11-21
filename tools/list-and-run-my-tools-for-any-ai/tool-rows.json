@@ -529,7 +529,7 @@
           },
           "credential_mounts": [
             {
-              "secret_name_from_database": "database",
+              "secret_name_from_input": "database",
               "held_suffix": "-connection",
               "fd": 3,
               "only_when": {
@@ -1129,7 +1129,7 @@
           },
           "credential_mounts": [
             {
-              "secret_name_from_database": "database",
+              "secret_name_from_input": "database",
               "held_suffix": "-connection",
               "fd": 3,
               "only_when": {
@@ -1680,7 +1680,7 @@
           },
           "credential_mounts": [
             {
-              "secret_name_from_database": "database",
+              "secret_name_from_input": "database",
               "held_suffix": "-connection",
               "fd": 3,
               "only_when": {

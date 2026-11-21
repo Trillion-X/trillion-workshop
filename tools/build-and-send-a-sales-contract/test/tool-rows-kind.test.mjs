@@ -20,6 +20,6 @@ test('the sales contract row mounts its database connection on descriptor 3', ()
   const sales = rows.records.map(record => record.payload).find(payload => payload.id === 'tool:sales-contracts');
   assert.ok(sales, 'tool:sales-contracts is in tool-rows.json');
   const mounts = sales.invoke.credential_mounts ?? [];
-  assert.ok(mounts.some(mount => mount.fd === 3 && mount.secret_name_from_database === 'database'));
+  assert.ok(mounts.some(mount => mount.fd === 3 && mount.secret_name_from_input === 'database'));
   assert.equal(sales.invoke.argv.at(-1), '/opt/build-and-send-a-sales-contract/do-work/sales-contract-sql.mjs');
 });
