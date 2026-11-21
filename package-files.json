@@ -13630,6 +13630,46 @@
  ],
  "tool:edit-a-copy-of-a-premiere-project": [],
  "tool:edit-a-presentations-text": [],
+ "tool:edit-a-shared-draft": [
+  {
+   "package": "edit-a-shared-draft",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/edit-a-shared-draft"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
  "tool:edit-a-transcript": [
   {
    "package": "transcript-reader",
@@ -62099,6 +62139,17 @@
    "at": "/opt/lessons-and-learning-paths"
   }
  ],
+ "tool:workflow-run-cancel": [
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/cancel-a-workflow-run.mjs",
+    "read-data/workflow-run-holder.mjs",
+    "read-data/engine-door.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
  "tool:workflow-run-find": [
   {
    "package": "workflows",
@@ -62169,6 +62220,27 @@
     "node_modules/@noble/hashes"
    ],
    "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
+ "tool:workflow-run-show": [
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/show-a-workflow-run.mjs",
+    "read-data/show-a-workflow-run.mjs",
+    "read-data/engine-door.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
+ "tool:workflow-run-start": [
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/start-a-workflow-run.mjs",
+    "read-data/engine-door.mjs"
+   ],
+   "at": "/opt/workflows"
   }
  ],
  "tool:write-a-message-body-from-a-document": [],

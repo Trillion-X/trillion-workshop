@@ -2813,19 +2813,15 @@
             "rights": [
               {
                 "at": "@own-records",
-                "id": "tool:run-sql-in-my-database",
-                "operations": [
-                  "tools:run"
-                ]
-              },
-              {
-                "at": "@own-records",
                 "id": "workflow-chosen-from-rows",
                 "operations": [
                   "wake:list",
                   "wake:arrive"
                 ]
               }
+            ],
+            "runs": [
+              "tool:run-sql-in-my-database"
             ]
           }
         },
@@ -2903,14 +2899,8 @@
           },
           "records": {
             "fd": 3,
-            "rights": [
-              {
-                "at": "@own-records",
-                "id": "tool:run-sql-in-my-database",
-                "operations": [
-                  "tools:run"
-                ]
-              }
+            "runs": [
+              "tool:run-sql-in-my-database"
             ]
           }
         },
@@ -2997,21 +2987,8 @@
           },
           "records": {
             "fd": 3,
-            "rights": [
-              {
-                "at": "@own-records",
-                "id": "tool:run-sql-in-my-database",
-                "operations": [
-                  "tools:run"
-                ]
-              },
-              {
-                "at": "@own-records",
-                "id": "tool:run-a-workflow",
-                "operations": [
-                  "tools:cancel"
-                ]
-              }
+            "runs": [
+              "tool:run-sql-in-my-database"
             ]
           }
         },

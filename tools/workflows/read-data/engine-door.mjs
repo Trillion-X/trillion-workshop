@@ -2,8 +2,9 @@
 //
 // The door the workflow-run programs reach the person's engine through: the run's own capability on fd 3 ({url, resource,
 // capability}), the same reader the noticer's tell-the-engine.mjs uses. Each call is one operation of the engine's one MCP
-// tool, sent with the capability as a bearer token; the run reaches only the operations its row names as rights
-// ({at, id, operations}). Nothing here holds a key, a connection string or a command name.
+// tool, sent with the capability as a bearer token. A wake operation goes to the person's own records (the row names it as a
+// right {at, id, operations}); a tool run goes to the Workshop's address, which the engine tells only a row whose records name
+// the tool in `runs` (as tools_resource on fd 3). Nothing here holds a key, a connection string or a command name.
 import { readFileSync } from 'node:fs';
 
 export const DESCRIPTOR_FD = 3;
@@ -18,10 +19,10 @@ export function readDoor(descriptor = DESCRIPTOR_FD) {
 }
 
 /** One operation `method` with `input`, under `requestKey`. Returns the call's result; throws, saying why, when the engine refuses. */
-export async function operate(door, method, input, requestKey, fetchImpl = fetch) {
+export async function operate(door, method, input, requestKey, fetchImpl = fetch, address = door.resource ?? '@own-records') {
   if (Buffer.byteLength(requestKey) > REQUEST_KEY_BYTES) throw new Error(`the request key for ${method} is over ${REQUEST_KEY_BYTES} bytes`);
   const body = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'do_one_thing_in_my_account',
-    arguments: { address: door.resource ?? '@own-records', method, request_key: requestKey, input } } });
+    arguments: { address, method, request_key: requestKey, input } } });
   const response = await fetchImpl(door.url, { method: 'POST', body, headers: { authorization: `Bearer ${door.capability}`,
     'content-type': 'application/json', accept: 'application/json, text/event-stream', 'mcp-protocol-version': '2025-06-18' } });
   const raw = await response.text();
@@ -38,7 +39,8 @@ export async function operate(door, method, input, requestKey, fetchImpl = fetch
 
 /** One Workshop tool run through the door (tools:run), its answer as the tool gave it. */
 export function runTool(door, tool, input, requestKey, fetchImpl) {
-  return operate(door, 'tools:run', { tool, input }, requestKey, fetchImpl);
+  if (typeof door.tools_resource !== 'string') throw new Error(`This run was not told the Workshop's address, so it cannot run ${tool}: its row names no runs.`);
+  return operate(door, 'tools:run', { tool, input }, requestKey, fetchImpl, door.tools_resource);
 }
 
 /** The rows of one statement in the named database, through the database's own SQL tool; refused statements throw. */

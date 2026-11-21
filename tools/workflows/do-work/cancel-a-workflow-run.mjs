@@ -1,7 +1,8 @@
 // tools/workflows/do-work/cancel-a-workflow-run.mjs
 //
 // Stop a run for good: its waiting tasks are withdrawn (details.withdrawn and status Withdrawn), so an answer that comes later is
-// refused by the answer-back recipe, and a live waiting step is cancelled on the engine (tools:cancel). Only the one run's tasks
+// refused by the answer-back recipe. The engine's own cancel is never a tool run's to make (a run may only start, list and
+// install at the Workshop), so the run stays paused on the engine with nothing left to answer it. Only the one run's tasks
 // are touched: the run key (run.run) selects them, because one fact can start several runs. The holder check runs first; nothing
 // changes when it refuses. Reached through the run's door on fd 3 (read-data/engine-door.mjs); names no store and no command.
 //
@@ -9,7 +10,7 @@
 import { pathToFileURL } from 'node:url';
 import { readFileSync } from 'node:fs';
 import { holderCheck } from '../read-data/workflow-run-holder.mjs';
-import { operate, readDoor, sqlRows } from '../read-data/engine-door.mjs';
+import { readDoor, sqlRows } from '../read-data/engine-door.mjs';
 
 const RUN_KEY = /^[0-9a-f]{64}$/;
 const WHY_BYTES = 512;
@@ -25,7 +26,7 @@ async function runOf(door, database, runKey, fetchImpl) {
   return { actor: run.actor ?? null, started_by: run.started_by ?? null };
 }
 
-/** input: { run_key, caller, database, why? }. Returns { run_key, withdrawn: n, cancelled: true|false }; refused before any change when the holder check fails. */
+/** input: { run_key, caller, database, why? }. Returns { run_key, withdrawn: n }; refused before any change when the holder check fails. */
 export async function cancelWorkflowRun(input, { door = readDoor(), fetchImpl = fetch } = {}) {
   const { run_key: runKey, caller, database, why = 'cancelled by the door' } = input;
   if (typeof runKey !== 'string' || !RUN_KEY.test(runKey)) throw new Error('run_key is the 64-hex run key (run.run) of the run.');
@@ -38,13 +39,7 @@ export async function cancelWorkflowRun(input, { door = readDoor(), fetchImpl = 
     where details->'told_as'->'payload'->'run'->>'run' = $1
       and status not in ('Done', 'Withdrawn', 'Not needed')
     returning id`, [runKey, caller, why], `cancel-withdraw:${runKey}:${Date.now()}`, fetchImpl);
-  let cancelled = false;
-  try {
-    cancelled = (await operate(door, 'tools:cancel', { run: runKey }, `cancel-run:${runKey}:${Date.now()}`, fetchImpl)).cancelled === true;
-  } catch {
-    cancelled = false;
-  }
-  return { run_key: runKey, withdrawn: withdrawn.length, cancelled };
+  return { run_key: runKey, withdrawn: withdrawn.length };
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

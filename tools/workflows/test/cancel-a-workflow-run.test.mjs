@@ -25,22 +25,15 @@ test('cancel refuses before any change while the starter is not recorded', async
   assert.equal(fake.calls.filter(call => call.input?.input?.sql?.includes("set status = 'Withdrawn'")).length, 0);
 });
 
-test('cancel withdraws only this run\'s waiting tasks, then cancels the run on the engine, when the starter matches', async () => {
+test('cancel withdraws only this run\'s waiting tasks when the starter matches, and asks the engine for no cancel', async () => {
   const fake = fakeDoor({ rows: envelope('me') });
   const done = await cancel(fake, { why: 'stop' });
-  assert.equal(done.withdrawn, 0);
-  assert.equal(done.cancelled, true);
+  assert.deepEqual(done, { run_key: RUN, withdrawn: 0 });
   const update = fake.calls.find(call => call.input?.input?.sql?.includes("set status = 'Withdrawn'"));
   assert.match(update.input.input.sql, /payload'->'run'->>'run' = \$1/);
   assert.match(update.input.input.sql, /not in \('Done', 'Withdrawn', 'Not needed'\)/);
   assert.deepEqual(update.input.input.params, [RUN, 'me', 'stop']);
-  assert.deepEqual(fake.calls.find(call => call.method === 'tools:cancel').input, { run: RUN });
-});
-
-test('cancel reports the run as not cancelled when the engine says so, and keeps the withdrawal', async () => {
-  const fake = fakeDoor({ rows: envelope('me'), cancelled: false });
-  const done = await cancel(fake);
-  assert.equal(done.cancelled, false);
+  assert.equal(fake.calls.some(call => call.method === 'tools:cancel'), false);
 });
 
 test('cancel refuses a run key that is not a 64-hex key, and a database name that is not plain', async () => {
