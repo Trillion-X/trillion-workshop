@@ -10,7 +10,7 @@
   "instructions": [
     "1. Install whisper-cli and ffmpeg on your computer and keep one ggml Whisper model file in the models folder you granted.",
     "2. Say \"Hear my recording /Recordings/sample-talk.wav\", and give the model file as model_path.",
-    "3. The AI runs tool:hear-a-recording with {file, model_path}; the run reads the recording by name through its files right, hears it in its own folder and removes the copy.",
+    "3. The AI runs tool:hear-a-recording with {file, model_path}; the engine reads the recording, named by its identity (1f: or 12: and 64 hex digits, from tool:your-files find_file), into the run's own folder in large raw spans; the run hears it there, and the copy goes with the run.",
     "4. Read what comes back: text, segments (start, end, text), language, heard_whole and produced_by. Without file or model_path it refuses before reading anything."
   ],
   "worked_examples": [

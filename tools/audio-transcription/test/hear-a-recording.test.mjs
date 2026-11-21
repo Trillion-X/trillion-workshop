@@ -1,6 +1,7 @@
 // tools/audio-transcription/test/hear-a-recording.test.mjs
 //
-// read-data/hear-here.mjs (tool:hear-a-recording): a recording is read by name through the run's host (host.readWholeFile),
+// read-data/hear-here.mjs (tool:hear-a-recording): a file the engine placed in the run's folder is heard where it is; a
+// recording named in the person's files is read through the run's host (host.readWholeFile),
 // heard in the run's own folder and removed; the seam's transcript answers as { text, segments, language }; a request
 // without a file or a model is refused before anything is read, and a file above the size the run reads is refused.
 import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
@@ -27,6 +28,19 @@ test('a recording read by name through the host is heard in the run folder, and 
   assert.equal(host.calls[0].name, '/Recordings/a-talk.m4a');
   assert.match(heardAt, /recording\.m4a$/);
   assert.equal(existsSync(heardAt), false);
+});
+
+test('a file the engine placed in the run folder is heard where it is, and nothing is read through the door', async () => {
+  const folder = tempFolder(join(tmpdir(), 'placed-'));
+  const placed = join(folder, 'C8572.MP4');
+  writeFileSync(placed, 'placed sound bytes');
+  const host = hostWith({ title: 'x', size: 1, bytes: Buffer.from('x') });
+  let heardAt = null;
+  const answer = await hearARecording({ file: placed }, host, { hear: async file => { heardAt = file; return { text: 'hi', segments: [], language: 'en', produced_by: 'ears' }; } });
+  assert.equal(heardAt, placed);
+  assert.equal(answer.heard_whole, true);
+  assert.equal(host.calls.length, 0);
+  assert.equal(readFileSync(placed, 'utf8'), 'placed sound bytes', 'the placed file is left for the engine to remove');
 });
 
 test('without a file or a model nothing is read', async () => {

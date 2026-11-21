@@ -21,7 +21,7 @@
 //   4. A recording is read by the run's host into the run's own folder and removed there once heard; the person's file is
 //      never changed.
 import { execFile } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
@@ -90,11 +90,23 @@ const hearingOf = (input, words) => {
  * heard_whole, produced_by }: a recording from the person's files (`file`, its name or identity), read by the run's host,
  * heard free on the person's computer.
  */
+/** Whether `file` is a file on this computer already: an absolute path to a regular file (one the engine placed). */
+export function placedHere(file) {
+  const given = String(file ?? '');
+  if (!path.isAbsolute(given)) return false;
+  try { return statSync(given).isFile(); } catch { return false; }
+}
+
 export async function hearARecording(input, host, { hear = hearFile } = {}) {
   const settings = linkSettings();
   const words = settings.words;
   if (!String(input?.file ?? '').trim()) throw said(words.needs_file, {}, 400);
   const hearing = hear === hearFile ? hearingOf(input, words) : {};
+  // A file the engine placed in the run's own folder (its input names it by identity at a namespace-file field, the engine
+  // reads it there in raw spans and hands its local path, trillion-rust src/tool_runs/tools/input_files.rs) is heard where
+  // it is: nothing is read through the door and nothing is copied. Anything else is a name in the person's files, read
+  // through the run's own files right, as a row that holds one asks (tool:transcribe-file).
+  if (placedHere(input.file)) return { ...(await hear(input.file, hearing, words)), heard_whole: true };
   const { title, size, bytes } = await host.readWholeFile(input.file, { mostBytes: settings.most_bytes });
   if (!bytes) throw said(words.too_large, { file: input.file, size });
   const folder = mkdtempSync(path.join(os.tmpdir(), 'heard-'));

@@ -81,11 +81,14 @@ test('the tool row requires the granted program, so a run cannot start without o
   assert.doesNotMatch(JSON.stringify(row.invoke), /python3/);
 });
 
-test('the tool row declares the stored reads its run needs, as tool:hear-a-recording does', () => {
+test('the tool row declares the stored reads its run needs; tool:hear-a-recording holds none and is handed its file', () => {
   const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records;
   const payload = id => rows.find(record => record.payload.id === id).payload;
   assert.deepEqual(payload('tool:transcribe-file').stored, [{ files: '/', operations: ['find_file', 'read_file'] }]);
-  assert.deepEqual(payload('tool:transcribe-file').stored, payload('tool:hear-a-recording').stored);
+  // A row with no files right of its own is handed the file its namespace-file input names, placed in its run's folder by
+  // the engine in large raw spans (trillion-rust input_files.rs), so it reads no file through the door.
+  assert.equal(payload('tool:hear-a-recording').stored, undefined);
+  assert.equal(payload('tool:hear-a-recording').input_schema.properties.file.format, 'namespace-file');
 });
 
 test('the tool row sets its run deadline, so a 512 MB recording is not cut off by the default 120 s', () => {
