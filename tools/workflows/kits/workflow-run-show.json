@@ -1,0 +1,40 @@
+{
+  "start_here": "Say to your AI: \"Show me where my run from the event id stands.\" It asks tool:workflow-run-show with that event id and hands back the run and its waiting tasks.",
+  "lists": [],
+  "no_lists_because": "It reads the person's calendar tasks and writes nothing: no list of its own.",
+  "workflows": [],
+  "tools": [
+    "tool:workflow-run-show",
+    "tool:run-sql-in-my-database"
+  ],
+  "instructions": [
+    "1. Give the event_id the start answered (or any event id a waiting task was made from).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:workflow-run-show and input {event_id, database}.",
+    "3. Read result.runs: each run's cause key, its workflow and its tasks with their status and step.",
+    "4. A run with no tasks has not reached a waiting step yet; the answer does not show task details."
+  ],
+  "worked_examples": [
+    {
+      "title": "Show a run by the event id its start answered",
+      "ask": "Show me where my run from event workflow-run-start:0000 stands.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:workflow-run-show",
+            "input": {
+              "event_id": "workflow-run-start:0000",
+              "database": "person_database_name"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:do-a-job-no-workflow-fits-yet",
+      "step": "say-the-job",
+      "given": "The event id a start answered.",
+      "hands_back": "result {event_id, runs: [{run_key, workflow, tasks: [{id, status, step}]}]}; a task in To do at say-the-job is the run waiting for an answer."
+    }
+  ]
+}

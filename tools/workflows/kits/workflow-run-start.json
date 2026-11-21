@@ -1,0 +1,44 @@
+{
+  "start_here": "Say to your AI: \"Start the workflow that makes short vertical videos from my footage.\" It asks tool:workflow-run-start for that recipe and keeps the event_id it answers, which is how the run is found afterwards.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: the run's rows are the engine's, and the recipe is read from the person's workflow recipes.",
+  "workflows": [],
+  "tools": [
+    "tool:workflow-run-start",
+    "tool:workflow-run-show",
+    "tool:run-sql-in-my-database"
+  ],
+  "instructions": [
+    "1. Name the recipe id (workflow), your AI's record id (caller: the starter, such as ai:claude-code-...), the database the recipe is in (database) and the input the run takes (input, optional). If you do not know the id, find it first with tool:workflow-run-find.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:workflow-run-start and input {workflow, caller, database, input?}. The program runs on the person's own computer through the run's door.",
+    "3. Keep result.event_id. Start refuses, and sends nothing, when the recipe is not in that database, the engine will not list its wakes, or no waiter is alive."
+  ],
+  "worked_examples": [
+    {
+      "title": "A start of the short-video workflow answers its event id",
+      "ask": "Start the workflow that makes short vertical videos from my footage.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:workflow-run-start",
+            "input": {
+              "workflow": "workflow:make-short-videos-from-footage",
+              "input": {
+                "request": "make short vertical videos from my footage"
+              },
+              "caller": "ai:claude-code-5eb1e845821f-on-macbook-pro-4",
+              "database": "person_database_name"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:make-short-videos-from-footage",
+      "step": "none (the start only sends the fact)",
+      "given": "The recipe id and a request in words.",
+      "hands_back": "result {event_id: workflow-run-start:<uuid>, workflow, database}; the event id is what show takes."
+    }
+  ]
+}

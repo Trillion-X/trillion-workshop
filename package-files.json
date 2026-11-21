@@ -62244,5 +62244,37 @@
  ],
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:your-files": [],
- "tool:your-files-names": []
+ "tool:your-files-names": [],
+ "tool:workflow-run-start": [
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/start-a-workflow-run.mjs",
+    "read-data/engine-door.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
+ "tool:workflow-run-show": [
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/show-a-workflow-run.mjs",
+    "read-data/show-a-workflow-run.mjs",
+    "read-data/engine-door.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
+ "tool:workflow-run-cancel": [
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/cancel-a-workflow-run.mjs",
+    "read-data/workflow-run-holder.mjs",
+    "read-data/engine-door.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ]
 }

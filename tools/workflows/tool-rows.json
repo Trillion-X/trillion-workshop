@@ -2740,6 +2740,299 @@
         "licence_class": "licence:maker-own",
         "result_selector": "$.result"
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:workflow-run-start",
+        "label": "Start a run of one of my workflows",
+        "status": "active",
+        "job": "Start a run of one of the person's workflows from its recipe: check that the waiter that starts runs is alive on the computer named, then send the start fact with a unique event id",
+        "description": "Give workflow (the recipe id, as workflow-run-find names it), caller (your AI's record id, such as ai:claude-code-...: the starter, which cancel and answer check), database (the person's database the recipe is in) and input (the run's input object, optional). Answers result {event_id, workflow, database}: keep event_id, it is how show finds the run. Refused before anything is sent when the recipe is not in that database, the engine will not list its wakes, the waiter is not alive, or a field is too big. Runs on the person's own computer through the run's door.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "workflow",
+            "caller",
+            "database"
+          ],
+          "properties": {
+            "workflow": {
+              "type": "string",
+              "description": "The recipe id"
+            },
+            "caller": {
+              "type": "string",
+              "description": "Your AI's record id (ai:...), the one that starts the run; cancel checks it against the starter"
+            },
+            "database": {
+              "type": "string",
+              "description": "The person's database the recipe is in"
+            },
+            "input": {
+              "type": "object",
+              "description": "The run's input"
+            }
+          },
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "result"
+          ]
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "start-a-program"
+          ],
+          "workdir": "/opt/workflows",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/start-a-workflow-run.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/start-a-workflow-run.mjs",
+                  "read-data/engine-door.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "at": "@own-records",
+                "id": "tool:run-sql-in-my-database",
+                "operations": [
+                  "tools:run"
+                ]
+              },
+              {
+                "at": "@own-records",
+                "id": "workflow-chosen-from-rows",
+                "operations": [
+                  "wake:list",
+                  "wake:arrive"
+                ]
+              }
+            ]
+          }
+        },
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 30,
+          "memory_mb": 256
+        },
+        "uses_tools": [],
+        "maker": "maker:workflows",
+        "licence_class": "licence:maker-own",
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:workflow-run-show",
+        "label": "Show where a run of my workflows stands",
+        "status": "active",
+        "job": "Show where the run started by an event id stands: its waiting-step tasks, grouped by run",
+        "description": "Give event_id (the one the start answered) and database (the person's database the run's tasks are in). Answers result {event_id, runs: [{run_key, workflow, tasks: [{id, status, step}]}]}. Read only: it writes nothing and shows no task's details.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "event_id",
+            "database"
+          ],
+          "properties": {
+            "event_id": {
+              "type": "string",
+              "description": "The event id the start answered"
+            },
+            "database": {
+              "type": "string",
+              "description": "The person's database the run's tasks are in"
+            }
+          },
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "result"
+          ]
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "start-a-program"
+          ],
+          "workdir": "/opt/workflows",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/show-a-workflow-run.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/show-a-workflow-run.mjs",
+                  "read-data/show-a-workflow-run.mjs",
+                  "read-data/engine-door.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "at": "@own-records",
+                "id": "tool:run-sql-in-my-database",
+                "operations": [
+                  "tools:run"
+                ]
+              }
+            ]
+          }
+        },
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 30,
+          "memory_mb": 256
+        },
+        "uses_tools": [],
+        "maker": "maker:workflows",
+        "licence_class": "licence:maker-own",
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:workflow-run-cancel",
+        "label": "Stop a run of my workflows for good",
+        "status": "active",
+        "job": "Stop a run for good: its waiting tasks are withdrawn, so a later answer is refused, and its live step is cancelled on the engine",
+        "description": "Give run_key (the run's key, from show), caller (your AI's record id: the run's starter) and database (the person's database the run is in), and why (optional). Answers result {run_key, withdrawn: the number of tasks withdrawn, cancelled: whether the run was cancelled on the engine}. Refused, and nothing changed, when the run does not record its starter or caller is not the starter. Runs on the person's own computer through the run's door.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "run_key",
+            "caller",
+            "database"
+          ],
+          "properties": {
+            "run_key": {
+              "type": "string",
+              "description": "The run's key, from show"
+            },
+            "caller": {
+              "type": "string",
+              "description": "Your AI's record id (ai:...), the run's starter"
+            },
+            "database": {
+              "type": "string",
+              "description": "The person's database the run is in"
+            },
+            "why": {
+              "type": "string",
+              "description": "Why it is stopped"
+            }
+          },
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "result"
+          ]
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "start-a-program"
+          ],
+          "workdir": "/opt/workflows",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/cancel-a-workflow-run.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/cancel-a-workflow-run.mjs",
+                  "read-data/workflow-run-holder.mjs",
+                  "read-data/engine-door.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "at": "@own-records",
+                "id": "tool:run-sql-in-my-database",
+                "operations": [
+                  "tools:run"
+                ]
+              },
+              {
+                "at": "@own-records",
+                "id": "tool:run-a-workflow",
+                "operations": [
+                  "tools:cancel"
+                ]
+              }
+            ]
+          }
+        },
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 30,
+          "memory_mb": 256
+        },
+        "uses_tools": [],
+        "maker": "maker:workflows",
+        "licence_class": "licence:maker-own",
+        "result_selector": "$.result"
+      }
     }
   ]
 }

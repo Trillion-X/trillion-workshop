@@ -1,0 +1,44 @@
+{
+  "start_here": "Say to your AI: \"Stop that run of my workflow, it is not needed.\" It asks tool:workflow-run-cancel with the run's key, and its waiting tasks are withdrawn so a later answer is refused.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it withdraws the run's own waiting tasks and cancels its schedule.",
+  "workflows": [],
+  "tools": [
+    "tool:workflow-run-cancel",
+    "tool:workflow-run-show",
+    "tool:run-sql-in-my-database",
+    "tool:run-a-workflow"
+  ],
+  "instructions": [
+    "1. Find the run's key: tool:workflow-run-show returns each run's run_key with its tasks.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:workflow-run-cancel and input {run_key, caller, database, why?}; caller is your AI's record id (the run's starter).",
+    "3. Read result: withdrawn is the number of waiting tasks stopped; cancelled says whether the live step was cancelled on the engine.",
+    "4. Refused, and nothing is changed, when the run does not record who started it or caller is not that starter."
+  ],
+  "worked_examples": [
+    {
+      "title": "Stop a run that is waiting for an answer",
+      "ask": "Stop the run that is waiting on the port-old-code step, it is not needed.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:workflow-run-cancel",
+            "input": {
+              "run_key": "9b357f53d38e15ee20d55934bdf64ba7bb20dba0f0722f5fbf285e5785da9c62",
+              "why": "not needed",
+              "caller": "ai:claude-code-5eb1e845821f-on-macbook-pro-4",
+              "database": "person_database_name"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:port-old-code-without-losing-anything",
+      "step": "inventory",
+      "given": "The run key from show.",
+      "hands_back": "result {run_key, withdrawn: 1, cancelled: true}; the step's task reads Withdrawn and a later answer is refused."
+    }
+  ]
+}
