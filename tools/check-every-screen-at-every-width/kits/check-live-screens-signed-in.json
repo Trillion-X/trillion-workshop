@@ -1,0 +1,51 @@
+{
+ "drafted_from": "tools/check-every-screen-at-every-width/check-live-screens.mjs, held-session.mjs and tool-rows.json (tool:check-live-screens-signed-in, group 9); run on the Mac Nov 21 2026 (runs a41cdad3, 31ddb68f)",
+ "start_here": "Say to your AI: \"Check my workspace's Record screen signed in, on a phone and a desktop.\" It runs tool:check-live-screens-signed-in with sign_in {kind: 'held-session'} on each page.",
+ "lists": [],
+ "no_lists_because": "Its only state is vault values (proof-sessions, proof-sign-in-code), never rows; the proof accounts are the Workshop DATA proof-accounts.json.",
+ "workflows": [
+  "workflow:keep-the-proof-sessions-signed-in"
+ ],
+ "tools": [
+  "tool:check-live-screens-signed-in",
+  "tool:read-when-the-proof-session-ends"
+ ],
+ "instructions": [
+  "1. The vault holds proof-sessions with a session for each page's origin; workflow:keep-the-proof-sessions-signed-in keeps it fresh.",
+  "2. Give pages as {id, url, sign_in: {kind: 'held-session'}, ready?, reach?, taps?} and views.",
+  "3. Read per page and view: status, first_paint_ms, first_contentful_paint_ms (on the document the page lands on), usable_ms, blank_ms, documents (the addresses a sign-in hop went through), errors, failed requests and a picture in your Files under /live-screens/<run>/.",
+  "4. An origin the session does not hold refuses the run before a browser starts."
+ ],
+ "worked_examples": [
+  {
+   "title": "Check the Record screen signed in",
+   "ask": "Check my workspace Record screen signed in on a desktop",
+   "mcp": {
+    "server": "{cli}",
+    "tool": "do_one_thing_in_my_account",
+    "input": {
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:check-live-screens-signed-in",
+      "input": {
+       "pages": [
+        {
+         "id": "trillion-record",
+         "url": "https://app.gettrillion.ai/record",
+         "sign_in": {
+          "kind": "held-session"
+         }
+        }
+       ],
+       "views": [
+        "desktop"
+       ]
+      }
+     }
+    }
+   },
+   "answer": "Its times, the documents it went through and its picture.",
+   "hands_back": "{\"status\":200,\"first_contentful_paint_ms\":2818,\"usable_ms\":2855,\"documents\":[\"https://app.gettrillion.ai/record\",\"https://app.gettrillion.ai/workspace/callback\",\"https://app.gettrillion.ai/record\"]}"
+  }
+ ]
+}

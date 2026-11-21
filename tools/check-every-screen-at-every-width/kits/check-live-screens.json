@@ -1,17 +1,48 @@
 {
-  "drafted_from": "tools/check-every-screen-at-every-width/check-live-screens.mjs, window-picture.mjs, live-screens.json and tool-rows.json (tool:check-live-screens), written by lane-live-tool (group 9); not yet run on the Mac",
-  "start_here": "Say to your AI: \"Check my members page on the real address on a phone and a desktop, and tell me how long each takes to show and be usable.\" It runs tool:check-live-screens with the page's address.",
-  "lists": [],
-  "no_lists_because": "It takes the pages in its input and keeps only the pictures of the run, in your Files under /live-screens/<run>/. Nothing is written to a list.",
-  "workflows": [],
-  "tools": [
-    "tool:check-live-screens"
-  ],
-  "instructions": [
-    "1. Put each page as {id, url}; add old_url for the old address to compare, ready (a CSS selector that must be visible before the page is usable), reach (steps after load and sign-in: { tap: selector } for a sidebar link, { wait: selector }), taps (each { name, selector, expect }) and sign_in when the page needs them: cookies the caller holds, or { kind: 'email-code', origin, email } for a site that emails a sign-in code (the tool requests the code, reads it from the test inbox and signs in; the code and cookies are never printed).",
-    "2. Name views (phone, tablet, desktop) to read fewer; all three when left out. The phone is slowed as live-screens.json says.",
-    "3. Set window to true to add a picture of the Trillion app's window on this Mac, taken by its window id. Nothing is clicked.",
-    "4. Read what comes back: per page and view, new (and old) give status, first_paint_ms, first_contentful_paint_ms, usable_ms, blank_ms, longest_task_ms, console_errors, failed_requests and picture. taps say worked, ms and detail. The tool judges nothing; compare the numbers with your bar.",
-    "5. A view with skipped: until was not begun before the until time; send again without it or with a later one. With reach steps, usable_ms is the screen's own time from its last reach tap; load_usable_ms is the page's time from its load."
-  ]
+ "drafted_from": "tools/check-every-screen-at-every-width/check-live-screens.mjs, window-picture.mjs, live-screens.json and tool-rows.json (tool:check-live-screens), written by lane-live-tool (group 9); not yet run on the Mac",
+ "start_here": "Say to your AI: \"Check my members page on the real address on a phone and a desktop, and tell me how long each takes to show and be usable.\" It runs tool:check-live-screens with the page's address.",
+ "lists": [],
+ "no_lists_because": "It takes the pages in its input and keeps only the pictures of the run, in your Files under /live-screens/<run>/. Nothing is written to a list.",
+ "workflows": [],
+ "tools": [
+  "tool:check-live-screens",
+  "tool:check-live-screens-signed-in"
+ ],
+ "instructions": [
+  "1. Put each page as {id, url}; add old_url for the old address to compare, ready (a CSS selector that must be visible before the page is usable), reach (steps after load: { tap: selector } for a sidebar link, { wait: selector }) and taps (each { name, selector, expect }). This tool holds no key and signs nobody in; a signed-in page is checked by tool:check-live-screens-signed-in.",
+  "2. Name views (phone, tablet, desktop) to read fewer; all three when left out. The phone is slowed as live-screens.json says.",
+  "3. Set window to true to add a picture of the Trillion app's window on this Mac, taken by its window id. Nothing is clicked.",
+  "4. Read what comes back: per page and view, new (and old) give status, first_paint_ms, first_contentful_paint_ms, usable_ms, blank_ms, longest_task_ms, console_errors, failed_requests and picture. taps say worked, ms and detail. The tool judges nothing; compare the numbers with your bar.",
+  "5. A view with skipped: until was not begun before the until time; send again without it or with a later one. With reach steps, usable_ms is the screen's own time from its last reach tap; load_usable_ms is the page's time from its load."
+ ],
+ "worked_examples": [
+  {
+   "title": "Check the Ethos home page on a phone and a desktop",
+   "ask": "Check the Ethos home page on a phone and a desktop",
+   "mcp": {
+    "server": "{cli}",
+    "tool": "do_one_thing_in_my_account",
+    "input": {
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:check-live-screens",
+      "input": {
+       "pages": [
+        {
+         "id": "ethos-home",
+         "url": "https://ethosschooloftennis.com/"
+        }
+       ],
+       "views": [
+        "phone",
+        "desktop"
+       ]
+      }
+     }
+    }
+   },
+   "answer": "Each view's status, paint and usable times, errors and picture.",
+   "hands_back": "{\"pages\":[{\"id\":\"ethos-home\",\"views\":[{\"view\":\"phone\",\"new\":{\"status\":200}},{\"view\":\"desktop\",\"new\":{\"status\":200}}]}]}"
+  }
+ ]
 }

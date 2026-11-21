@@ -1,0 +1,177 @@
+{
+  "_what": "workflow:keep-the-proof-sessions-signed-in: every morning, mint the proof accounts' sign-ins again before they end, so the signed-in live check (tool:check-live-screens-signed-in) never stops on an expired session. Its four tools are tools/check-every-screen-at-every-width/proof-session-mint.mjs and held-session.mjs; the person's own copy of this row is workflow_recipes in their database.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-the-proof-sessions-signed-in",
+        "label": "Keep the proof sessions signed in",
+        "job": "Every morning (9 AM CST), read when each proof account's session ends; when one has none or ends within renew_when_days_left (proof-accounts.json), ask the sites for codes, keep the codes in the vault, sign in with them and keep the sessions as proof-sessions, so the signed-in live check never stops for an expired sign-in. No code or cookie passes through a step answer.",
+        "produces": "proof-sessions in the Mac vault, renewed before it ends",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "wakes": [
+          {
+            "id": "every-morning",
+            "on": {
+              "fact": {
+                "from": [
+                  "run"
+                ],
+                "kind": "due-time",
+                "match": {
+                  "schedule_id": "schedule:workflow:keep-the-proof-sessions-signed-in:every-morning"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:keep-the-proof-sessions-signed-in",
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        },
+                        "owner_dispatch": {
+                          "name": "workflow:keep-the-proof-sessions-signed-in",
+                          "input": {}
+                        }
+                      },
+                      "cadence": {
+                        "unit": "day"
+                      },
+                      "timezone": "UTC",
+                      "schedule_id": "schedule:workflow:keep-the-proof-sessions-signed-in:every-morning",
+                      "local_window": {
+                        "start": "15:00",
+                        "duration_minutes": 1
+                      },
+                      "start_local_date": "1970-01-01",
+                      "schedule_revision": 1,
+                      "source_generation": 1
+                    }
+                  ]
+                }
+              }
+            },
+            "input": {
+              "start_at": "when"
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 600000
+            }
+          }
+        ],
+        "definition": {
+          "id": "workflow:keep-the-proof-sessions-signed-in",
+          "kind": "workflow",
+          "name": "Keep the proof sessions signed in",
+          "edges": [
+            {
+              "to": "ask",
+              "from": "when",
+              "kind": "on_result",
+              "config": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "output.result.renew"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": true
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "to": "keep",
+              "from": "ask",
+              "kind": "always"
+            },
+            {
+              "to": "sign",
+              "from": "keep",
+              "kind": "always"
+            }
+          ],
+          "steps": [
+            {
+              "id": "when",
+              "kind": "ask",
+              "config": {
+                "name": "tool:read-when-the-proof-session-ends",
+                "input": {},
+                "context": {
+                  "step_id": "when"
+                }
+              }
+            },
+            {
+              "id": "ask",
+              "kind": "ask",
+              "config": {
+                "name": "tool:ask-the-proof-accounts-for-sign-in-codes",
+                "input": {},
+                "context": {
+                  "step_id": "ask"
+                }
+              }
+            },
+            {
+              "id": "keep",
+              "kind": "ask",
+              "config": {
+                "name": "tool:keep-the-proof-accounts-sign-in-codes",
+                "input": {
+                  "asked_at": {
+                    "$kind": "binding",
+                    "select": {
+                      "key": "ask",
+                      "from": "steps",
+                      "path": "output.result.asked_at"
+                    }
+                  }
+                },
+                "context": {
+                  "step_id": "keep"
+                }
+              }
+            },
+            {
+              "id": "sign",
+              "kind": "ask",
+              "config": {
+                "name": "tool:sign-the-proof-accounts-in-with-their-kept-codes",
+                "input": {},
+                "context": {
+                  "step_id": "sign"
+                }
+              }
+            }
+          ],
+          "version": 1,
+          "is_active": true
+        },
+        "records": {
+          "runs": [
+            "tool:read-when-the-proof-session-ends",
+            "tool:ask-the-proof-accounts-for-sign-in-codes",
+            "tool:keep-the-proof-accounts-sign-in-codes",
+            "tool:sign-the-proof-accounts-in-with-their-kept-codes"
+          ]
+        }
+      }
+    }
+  ]
+}

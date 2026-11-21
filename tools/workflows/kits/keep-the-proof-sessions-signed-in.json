@@ -1,0 +1,42 @@
+{
+  "drafted_from": "workflow:keep-the-proof-sessions-signed-in's own file, tools/workflows/recipes/keep-the-proof-sessions-signed-in.json (its wake every-morning and four steps), and tools/check-every-screen-at-every-width/proof-accounts.json.",
+  "start_here": "Say to your AI: \"Keep my proof accounts signed in for the live screen check.\" The AI switches on workflow:keep-the-proof-sessions-signed-in's wake every-morning.",
+  "lists": [],
+  "no_lists_because": "The sessions and the codes are vault values (proof-sessions, proof-sign-in-code), never rows; the proof accounts are the Workshop DATA proof-accounts.json.",
+  "workflows": [
+    "workflow:keep-the-proof-sessions-signed-in"
+  ],
+  "tools": [
+    "tool:read-when-the-proof-session-ends",
+    "tool:ask-the-proof-accounts-for-sign-in-codes",
+    "tool:keep-the-proof-accounts-sign-in-codes",
+    "tool:sign-the-proof-accounts-in-with-their-kept-codes"
+  ],
+  "instructions": [
+    "1. The vault owner puts proof-sessions and proof-sign-in-code once, each bound to the sites' hosts (a run never creates a name or widens its hosts).",
+    "2. Switch on the wake every-morning of workflow:keep-the-proof-sessions-signed-in.",
+    "3. Each morning at 9 AM CST it reads when each session ends; only when one ends within renew_when_days_left does it ask the sites for codes, keep them in the vault, and sign in with them.",
+    "4. Read the result with tool:read-when-the-proof-session-ends: each origin's expires_at and days_left, and renew."
+  ],
+  "worked_examples": [
+    {
+      "title": "Renew the proof sessions once, by hand",
+      "ask": "Renew my proof accounts' sign-ins now",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:ask-the-proof-accounts-for-sign-in-codes",
+            "input": {}
+          }
+        }
+      },
+      "answer": "Codes asked for both accounts; then keep and sign run in turn.",
+      "hands_back": "Steps ask, keep and sign answered at 3:01:09-3:01:22 PM CST Nov 21 2026; tool:read-when-the-proof-session-ends then read both ends as Nov 28 3:01 PM CST, renew false.",
+      "workflow": "workflow:keep-the-proof-sessions-signed-in",
+      "step": "ask"
+    }
+  ]
+}

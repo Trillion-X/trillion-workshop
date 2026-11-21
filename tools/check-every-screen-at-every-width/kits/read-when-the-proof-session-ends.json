@@ -1,0 +1,38 @@
+{
+ "drafted_from": "tools/check-every-screen-at-every-width/proof-session-mint.mjs, held-session.mjs, proof-accounts.json and tool-rows.json (group 9, Nov 21 2026); run for real on the Mac 3:01 PM CST Nov 21 2026",
+ "start_here": "Say to your AI: \"When do my proof accounts' sign-ins end?\" It runs tool:read-when-the-proof-session-ends.",
+ "lists": [],
+ "no_lists_because": "Its only state is vault values (proof-sessions, proof-sign-in-code), never rows; the proof accounts are the Workshop DATA proof-accounts.json.",
+ "workflows": [
+  "workflow:keep-the-proof-sessions-signed-in"
+ ],
+ "tools": [
+  "tool:read-when-the-proof-session-ends"
+ ],
+ "instructions": [
+  "1. The vault holds proof-sessions (JSON keyed by origin), put once by the vault owner and kept by workflow:keep-the-proof-sessions-signed-in.",
+  "2. Run the tool with no input.",
+  "3. Read renew (true when an account has no session or one that ends within renew_when_days_left) and each origin's expires_at, days_left and cookie names. No cookie value is ever answered."
+ ],
+ "worked_examples": [
+  {
+   "title": "Read when each proof sign-in ends",
+   "ask": "When do my proof accounts' sign-ins end?",
+   "mcp": {
+    "server": "{cli}",
+    "tool": "do_one_thing_in_my_account",
+    "input": {
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:read-when-the-proof-session-ends",
+      "input": {}
+     }
+    }
+   },
+   "answer": "renew and each origin with its end and days left.",
+   "hands_back": "{\"renew\":false,\"origins\":[{\"origin\":\"https://app.gettrillion.ai\",\"expires_at\":\"2026-11-28T21:01:20.000Z\",\"days_left\":6.9},{\"origin\":\"https://app.ethosschooloftennis.com\",\"expires_at\":\"2026-11-28T21:01:21.000Z\",\"days_left\":6.9}]}",
+   "workflow": "workflow:keep-the-proof-sessions-signed-in",
+   "step": "when"
+  }
+ ]
+}

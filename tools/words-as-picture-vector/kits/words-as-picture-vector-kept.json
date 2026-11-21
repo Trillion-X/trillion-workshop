@@ -1,0 +1,42 @@
+{
+ "drafted_from": "tools/words-as-picture-vector/tool-rows.json (tool:words-as-picture-vector-kept, landed 659a23b9d by group 9); called on the Mac Nov 21 2026 at 1.2-2.2 s per call",
+ "start_here": "Say to your AI: \"Turn the words tennis serve into a picture vector, quickly\". It calls tool:words-as-picture-vector-kept, whose model stays loaded between calls.",
+ "lists": [],
+ "no_lists_because": "It keeps nothing: it answers one vector per text, for the caller to compare with picture vectors it keeps.",
+ "workflows": [],
+ "tools": [
+  "tool:words-as-picture-vector-kept",
+  "tool:words-as-picture-vector"
+ ],
+ "instructions": [
+  "1. Call the kept session tool with call {name: 'words-as-picture-vector', arguments: {texts: [...]}}.",
+  "2. The first call loads the model; later calls answer in about 1-2 seconds.",
+  "3. Read structuredContent: model, dims (512) and one vector per text, in the same space as the picture vectors kept for recordings."
+ ],
+ "worked_examples": [
+  {
+   "title": "One text as a picture vector",
+   "ask": "Turn the words tennis serve into a picture vector",
+   "mcp": {
+    "server": "{cli}",
+    "tool": "do_one_thing_in_my_account",
+    "input": {
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:words-as-picture-vector-kept",
+      "call": {
+       "name": "words-as-picture-vector",
+       "arguments": {
+        "texts": [
+         "tennis serve"
+        ]
+       }
+      }
+     }
+    }
+   },
+   "answer": "One 512-number vector for the text.",
+   "hands_back": "{\"model\":{\"name\":\"ViT-B-32\"},\"dims\":512,\"vectors\":[[0.045,0.043,...]]}"
+  }
+ ]
+}
