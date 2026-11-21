@@ -86,9 +86,25 @@ export function blockOf(provider, { calendarId, connectionRef }, event) {
   };
 }
 
-/** Reads the events of one calendar in a range. The second argument is the run's host actions, which this tool never uses
- * (touching them would load host-actions.mjs, which this row does not pack); `io` is only for tests: the descriptor reader
- * and the fetch. */
+/** The connections one run reads: `connections` (a list, for a provider whose connection is a Composio one: every
+ *  account in one run) or the single `connection`. */
+export function connectionsOf(input, provider) {
+  if (input.connections !== undefined) {
+    if (provider.connection?.kind !== 'composio') throw new Refused(fill(rows.words.one_connection, { label: provider.label }));
+    if (!Array.isArray(input.connections) || input.connections.length < 1 || input.connections.length > 25
+      || !input.connections.every(row => isRecord(row) && typeof row.connection_id === 'string' && row.connection_id)) {
+      throw new Refused('connections must be a list of 1 to 25 objects, each with a connection_id.');
+    }
+    return input.connections;
+  }
+  if (!isRecord(input.connection)) throw new Refused('Give connection, or connections for a Composio provider.');
+  return [input.connection];
+}
+
+/** Reads the events of one calendar in a range, for each connection of the run. One connection that fails keeps its own
+ *  words in `reads` and does not hide the others; a run of one connection throws its failure as before. The second
+ *  argument is the run's host actions, which this tool never uses (touching them would load host-actions.mjs, which this
+ *  row does not pack); `io` is only for tests: the descriptor reader and the fetch. */
 export async function readCalendarEvents(input = {}, _host = undefined, io = {}) {
   if (!isRecord(input)) throw new Refused('Give { provider, connection, range_start, range_end }.');
   const provider = providerFor(input);
@@ -96,26 +112,41 @@ export async function readCalendarEvents(input = {}, _host = undefined, io = {})
   if (!provider.operations.includes(operation) || !/^[a-z-]+$/.test(provider.adapter)) throw new Refused(fill(rows.words.not_offered, { label: provider.label, job: jobOf(operation) }));
   const problems = rangeProblems(input);
   if (problems.length) throw new Refused(problems.join('; '));
+  const connections = connectionsOf(input, provider);
   const adapter = await import(`./adapters/${provider.adapter}.mjs`);
   const calendarId = input.calendar_id ?? null;
-  // A Composio connection kind reaches the account through one execute call (composio-connection); any other kind is the
-  // provider's own host with the held key as a bearer token.
-  const reach = provider.connection?.kind === 'composio'
-    ? { execute: makeComposioCall(io), accountId: input.connection?.connection_id, userId: input.connection?.user_id, projectId: input.connection?.project_id }
-    : { call: makeCall(provider, io) };
-  const events = await adapter.readEvents(reach, {
+  const range = {
     calendarId,
     rangeStart: new Date(input.range_start).toISOString(),
     rangeEnd: new Date(input.range_end).toISOString(),
     maxResults: input.max_results ?? 50,
-  });
+  };
+  // A Composio connection kind reaches the account through one execute call (composio-connection); any other kind is the
+  // provider's own host with the held key as a bearer token.
+  const composio = provider.connection?.kind === 'composio' ? makeComposioCall(io) : null;
+  const call = composio ? null : makeCall(provider, io);
+  const readOne = connection => adapter.readEvents(composio
+    ? { execute: composio, accountId: connection.connection_id, userId: connection.user_id, projectId: connection.project_id }
+    : { call }, range);
   const listed = calendarId ?? 'primary';
-  const blocks = events.filter(event => event.id && event.start).map(event => blockOf(provider, { calendarId: listed, connectionRef: input.connection?.connection_id }, event));
+  const reads = await Promise.all(connections.map(async connection => {
+    try {
+      const events = await readOne(connection);
+      const blocks = events.filter(event => event.id && event.start).map(event => blockOf(provider, { calendarId: listed, connectionRef: connection.connection_id }, event));
+      return { connection_id: connection.connection_id, read: true, blocks };
+    } catch (error) {
+      if (connections.length === 1) throw error;
+      return { connection_id: connection.connection_id, read: false, said: error instanceof Error ? error.message : String(error), blocks: [] };
+    }
+  }));
+  const blocks = reads.flatMap(read => read.blocks);
+  const failed = reads.filter(read => !read.read).map(read => ({ id: `read-failed:${read.connection_id}`, tone: 'warning', label: fill(rows.words.account_failed, { label: provider.label, said: read.said }), detail: read.connection_id }));
   return {
     blocks,
-    issues: blocks.length ? [] : [{ id: 'sync-empty', tone: 'info', label: 'No events found.', detail: fill(rows.words.empty, { label: provider.label }) }],
-    range_start: new Date(input.range_start).toISOString(),
-    range_end: new Date(input.range_end).toISOString(),
+    issues: [...failed, ...(blocks.length || failed.length ? [] : [{ id: 'sync-empty', tone: 'info', label: 'No events found.', detail: fill(rows.words.empty, { label: provider.label }) }])],
+    range_start: range.rangeStart,
+    range_end: range.rangeEnd,
+    reads: reads.map(({ connection_id, read, said, blocks: own }) => (read ? { connection_id, read, event_count: own.length } : { connection_id, read, said })),
     source: { provider: provider.id, event_count: blocks.length },
   };
 }

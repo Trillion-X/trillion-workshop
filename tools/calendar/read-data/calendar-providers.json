@@ -10,7 +10,9 @@
     "host": "A connection's key goes only to {hosts}, so nothing was sent to {host}.",
     "no_provider": "Give provider: one of {providers}.",
     "no_such_provider": "{provider} is not a calendar provider here; the providers are {providers}.",
-    "empty": "{label} answered, but no events were returned for the range."
+    "empty": "{label} answered, but no events were returned for the range.",
+    "one_connection": "{label} reads one connection per run: give connection.",
+    "account_failed": "{label} could not read one account: {said}"
   },
   "providers": [
     {

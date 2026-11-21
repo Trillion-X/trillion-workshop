@@ -140,8 +140,13 @@ export function TabsList({ children, className, borderless = false, moreLabel = 
   }, [value]);
   React.useEffect(() => {
     const tabs = [...(scroller.current?.querySelectorAll<HTMLElement>('[role="tab"]') ?? [])];
-    // A tab's parts (its label, its count) are separate elements; their text runs together unless it is joined.
-    setRows(tabs.map((tab, index) => ({ id: String(index), label: [...tab.children].map(part => part.textContent?.trim() ?? '').filter(Boolean).join(' ') || (tab.textContent?.trim() ?? ''), icon: { glyph: <span className="size-1.5 rounded-full bg-current opacity-50" /> }, checked: tab.getAttribute('aria-selected') === 'true' })));
+    // A tab's parts (its label, its count) are separate elements: the label is the words, the count a badge at the row's end.
+    setRows(tabs.map((tab, index) => {
+      const parts = [...tab.children].map(part => part.textContent?.trim() ?? '').filter(Boolean);
+      const count = parts.length > 1 && /^\d+\+?$/.test(parts[parts.length - 1]!) ? parts[parts.length - 1] : undefined;
+      const words = count ? parts.slice(0, -1) : parts;
+      return { id: String(index), label: words.join(' ') || (tab.textContent?.trim() ?? ''), badge: count, icon: { glyph: <span className="size-1.5 rounded-full bg-current opacity-50" /> }, checked: tab.getAttribute('aria-selected') === 'true' };
+    }));
   }, [open, value, children, edges.start, edges.end]);
   const fade = edges.start && edges.end ? '[mask-image:linear-gradient(to_right,transparent,#000_1.25rem,#000_calc(100%-1.25rem),transparent)]'
     : edges.start ? '[mask-image:linear-gradient(to_right,transparent,#000_1.25rem)]'

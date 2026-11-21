@@ -17,6 +17,7 @@
     "statement_timeout_ms": 5000,
     "most_tasks": 200,
     "hidden_statuses": ["Done"],
+    "excluded_source_kinds": ["chat"],
     "default_status": "To do",
     "new_status": "To do",
     "default_minutes": 30,
@@ -27,7 +28,7 @@
       "duration_minutes": "duration_minutes", "minimum_duration_minutes": "minimum_duration_minutes", "due": "due",
       "starts_at": "starts_at", "ends_at": "ends_at", "status": "status", "collection_id": "collection_id",
       "parent_id": "parent_id", "manual_order": "manual_order", "source_id": "source_id", "made_at": "made_at",
-      "changed_at": "changed_at", "smart_list": "smart_list", "assignees": "assignees", "sent_by": "sent_by"
+      "changed_at": "changed_at", "smart_list": "smart_list", "assignees": "assignees", "sent_by": "sent_by", "details": "details"
     }
   }
 }

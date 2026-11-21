@@ -7,6 +7,7 @@ export type TaskOwner = {
   statement_timeout_ms: number;
   most_tasks: number;
   hidden_statuses: string[];
+  excluded_source_kinds: string[];
   default_status: string;
   new_status: string;
   default_minutes: number;

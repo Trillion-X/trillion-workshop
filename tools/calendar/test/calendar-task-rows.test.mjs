@@ -35,7 +35,7 @@ before(async () => {
   await run(`create table public.calendar_tasks (id text primary key, title text, description text, priority text, labels jsonb,
     duration_minutes numeric, minimum_duration_minutes numeric, due date, starts_at date, ends_at date, status text,
     collection_id jsonb, parent_id jsonb, manual_order text, source_id text, made_at timestamptz, changed_at timestamptz,
-    smart_list text, assignees jsonb, sent_by text)`, []);
+    smart_list text, assignees jsonb, sent_by text, details jsonb)`, []);
   const row = (id, fields) => run(`insert into public.calendar_tasks (id, title, status, made_at, assignees, sent_by) values ($1, $2, $3, $4, $5::jsonb, $6)`,
     [id, id, fields.status ?? 'To do', fields.made_at, JSON.stringify(fields.assignees ?? []), fields.sent_by ?? null]);
   await row('for-him-assigned', { assignees: [PERSON], sent_by: 'ai:turn-judge', made_at: '2026-11-21T10:00:00Z' });
@@ -43,6 +43,10 @@ before(async () => {
   await row('ai-row', { sent_by: 'ai:turn-judge', made_at: '2026-11-21T12:00:00Z' });
   await row('other-person', { assignees: [OTHER], made_at: '2026-11-21T12:30:00Z' });
   await row('done-for-him', { assignees: [PERSON], status: 'Done', made_at: '2026-11-21T13:00:00Z' });
+  await run(`insert into public.calendar_tasks (id, title, status, made_at, sent_by, details) values ('chat-turn', 'chat-turn', 'To do', '2026-11-21T14:00:00Z', $1, $2::jsonb)`,
+    [PERSON, JSON.stringify({ source: { kind: 'chat' } })]);
+  await run(`insert into public.calendar_tasks (id, title, status, made_at, sent_by, details) values ('typed-kind', 'typed-kind', 'To do', '2026-11-21T09:30:00Z', $1, $2::jsonb)`,
+    [PERSON, JSON.stringify({ source: { kind: 'composer' } })]);
 });
 after(async () => { await server?.stop(); });
 
@@ -56,7 +60,15 @@ test('a token with a subject names its person; an opaque token or one with no su
 test('the person sees the rows he is assigned or sent, not AI rows or other people, not done ones', async () => {
   const query = personTasksQuery(owner, PERSON);
   const ids = (await run(query.sql, query.params)).map(row => row.id).sort();
-  assert.deepEqual(ids, ['for-him-assigned', 'for-him-sent']);
+  assert.deepEqual(ids, ['for-him-assigned', 'for-him-sent', 'typed-kind']);
+});
+
+test('chat turns he sent to an AI stay out of his Tasks; other sources he sent stay in', async () => {
+  const query = personTasksQuery(owner, PERSON);
+  const ids = (await run(query.sql, query.params)).map(row => row.id);
+  assert.ok(!ids.includes('chat-turn'), 'a chat turn (details.source.kind = chat) is not a task of his');
+  assert.ok(ids.includes('typed-kind'));
+  assert.deepEqual(owner.excluded_source_kinds, ['chat']);
 });
 
 test('a task he types is kept assigned and sent by him, and the list shows it at once', async () => {
@@ -77,6 +89,6 @@ test('a task he types is kept assigned and sent by him, and the list shows it at
 
 test('the list is limited to the owner JSON limit and carries its timeout', () => {
   const query = personTasksQuery(owner, PERSON);
-  assert.equal(query.params.at(-1), owner.most_tasks);
+  assert.equal(query.params[3], owner.most_tasks);
   assert.equal(owners.tasks.statement_timeout_ms, 5000);
 });

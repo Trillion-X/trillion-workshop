@@ -30,7 +30,7 @@ test('the row offers exactly the providers the rows name, each with its own conn
   const expected = Object.fromEntries(providers.providers.map(p => [p.id, variantOf(p)]));
   assert.deepEqual(row.invoke.by_input, { input: 'provider', variants: expected });
   assert.deepEqual(row.invoke.credential_mounts, [{ field_id: 'access_token', fd: 4 }]);
-  assert.deepEqual(row.input_schema.required, ['provider', 'connection', 'range_start', 'range_end']);
+  assert.deepEqual(row.input_schema.required, ['provider', 'range_start', 'range_end'], 'one of connection or connections is required at run time');
 });
 
 test('Google: every occurrence in start order inside the range, read into blocks; a date is all day, a cancelled event is marked', async () => {

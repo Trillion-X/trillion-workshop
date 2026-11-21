@@ -701,7 +701,6 @@
           "additionalProperties": false,
           "required": [
             "provider",
-            "connection",
             "range_start",
             "range_end"
           ],
@@ -735,6 +734,13 @@
                   "description": "The Composio project id, when the connection names one (a person's own Composio key needs it)"
                 }
               }
+            },
+            "connections": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 25,
+              "description": "For a Composio provider only: every account to read in one run, each read in parallel; an account that fails keeps its own words in reads and does not hide the others. One of connection or connections is required.",
+              "items": {"type": "object", "required": ["connection_id"], "additionalProperties": true, "properties": {"connection_id": {"type": "string"}, "user_id": {"type": "string"}, "project_id": {"type": "string"}, "connected_at": {"type": "string"}}}
             },
             "range_start": {
               "type": "string",

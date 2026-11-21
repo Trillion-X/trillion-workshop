@@ -71,6 +71,7 @@ import { Button } from '../coss/ui/button';
 import { SearchField } from '../search-field/SearchField';
 import { resolveNamedIcon } from '../icon/NamedIcon';
 import { Kbd } from '../kbd/Kbd';
+import { Badge } from '../badge';
 import { SortableRows } from '../drag-reorder-list/SortableRows';
 import { menuRowSource, rowIds, useMenuRows, type MenuThing } from './menu-rows';
 import { runCommand } from '../action-feedback/action-feedback';
@@ -104,6 +105,8 @@ export interface ActionMenuItem {
   readonly checked?: boolean;
   /** Quiet words at the row's end: a count, the current choice inside its submenu. */
   readonly hint?: string;
+  /** A count drawn as the Screen Look badge at the row's end (a list's number of items). */
+  readonly badge?: number | string;
   /** How far the row sits in under the row above it (0 at the top): rows given in tree order draw as a tree, the
    *  way the sidebar shows its lists, without opening a submenu. */
   readonly depth?: number;
@@ -328,6 +331,7 @@ export function ActionMenu({
   const rowEnd = (item: ActionMenuItem, isConfirming: boolean) => (
     <>
       {item.hint && !isConfirming && <span data-slot="menu-item-hint">{item.hint}</span>}
+      {item.badge !== undefined && !isConfirming && <Badge tone="neutral" data-slot="menu-item-badge">{item.badge}</Badge>}
       {item.checked && !isConfirming && <Check aria-hidden="true" data-slot="menu-item-check" />}
       {item.shortcut && !isConfirming && (
         <span data-slot="menu-item-shortcut" aria-hidden="true">

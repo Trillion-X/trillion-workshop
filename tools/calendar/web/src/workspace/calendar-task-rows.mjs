@@ -36,9 +36,10 @@ export function personTasksQuery(owner, person) {
     c.due, c.starts_at, c.ends_at, c.status, c.collection_id, c.parent_id, c.manual_order, c.source_id, c.made_at, c.assignees, c.sent_by].join(', ')}
     from public.${owner.table}
     where (${c.assignees} @> $1::jsonb or ${c.sent_by} = $2) and (${c.status} is null or ${c.status} <> all($3::text[]))
+      and not (coalesce(${c.details}->'source'->>'kind', '') = any($5::text[]))
     order by ${c.made_at} desc nulls last
     limit $4`;
-  return { sql, params: [JSON.stringify([person]), person, owner.hidden_statuses, owner.most_tasks] };
+  return { sql, params: [JSON.stringify([person]), person, owner.hidden_statuses, owner.most_tasks, owner.excluded_source_kinds] };
 }
 
 /** The INSERT of a task the person typed: sent by him and assigned to him, so the list shows it at once. */

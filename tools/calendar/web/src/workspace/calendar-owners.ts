@@ -24,7 +24,9 @@ import { createTaskQuery, personOfToken, personTasksQuery, taskOfRow } from './c
 import type { TaskOwner, TaskQuery } from './calendar-task-rows.d.mts';
 
 type Account = { id: string; user_id: string | null; toolkit: string | null; alias: string | null; status: string | null };
-type Block = { id: string; interval?: { start?: string; end?: string; allDay?: boolean }; display?: { title?: string }; relations?: { linkedRecord?: string[] } };
+type Block = { id: string; interval?: { start?: string; end?: string; allDay?: boolean }; display?: { title?: string }; relations?: { account?: string[]; linkedRecord?: string[] } };
+/** What tool:read-calendar-events answers for a list of connections: the blocks, and each connection's own read. */
+type EventsAnswer = { blocks?: Block[]; reads?: { connection_id: string; read: boolean; said?: string }[] };
 
 const accountsRead = new Map<string, Promise<Account[]>>();
 /** The person's working accounts of one Composio toolkit, read once per page and again after a failed read. */
@@ -44,24 +46,37 @@ const labelOf = (account: Account) => account.alias ?? account.id;
 /** The events of every working account over [from, to), with one source per account. */
 export async function readCalendar(from: string, to: string): Promise<{ from: string; to: string; items: Item[]; sources: SourceState[] }> {
   const accounts = await calendarAccounts();
-  const reads = await Promise.allSettled(accounts.map(account => runWorkshopTool<{ blocks?: Block[] }>(owners.events_tool, {
-    provider: owners.provider, connection: { connection_id: account.id, ...(account.user_id ? { user_id: account.user_id } : {}) },
-    range_start: from, range_end: to, max_results: owners.most_events,
-  })));
-  const items: Item[] = [];
-  const sources: SourceState[] = accounts.map((account, at) => {
-    const read = reads[at]!;
-    const source = sourceOf(account);
-    if (read.status === 'rejected') return { id: source, label: labelOf(account), read: false, connected: true, said: read.reason instanceof Error ? read.reason.message : '' };
-    for (const block of read.value.result?.blocks ?? []) {
-      const start = block.interval?.start;
-      if (!start) continue;
-      items.push({
-        id: `${source}:${block.id}`, source, source_id: block.id, title: block.display?.title ?? '', about: null,
-        starts_at: start, ends_at: block.interval?.end ?? null, all_day: block.interval?.allDay === true,
-        space_id: null, space_title: null, going: null, may_move: false, status: null, link: block.relations?.linkedRecord?.[0] ?? null,
-      });
+  // One run reads every account (the events tool takes the list); each account's events come back on its own connection.
+  let answer: EventsAnswer | null = null;
+  let failure = '';
+  if (accounts.length) {
+    try {
+      answer = (await runWorkshopTool<EventsAnswer>(owners.events_tool, {
+        provider: owners.provider, connections: accounts.map(account => ({ connection_id: account.id, ...(account.user_id ? { user_id: account.user_id } : {}) })),
+        range_start: from, range_end: to, max_results: owners.most_events,
+      })).result ?? null;
+    } catch (error) {
+      failure = error instanceof Error ? error.message : '';
     }
+  }
+  const readOf = new Map((answer?.reads ?? []).map(read => [read.connection_id, read]));
+  const items: Item[] = [];
+  for (const block of answer?.blocks ?? []) {
+    const start = block.interval?.start;
+    const account = block.relations?.account?.[0];
+    if (!start || !account) continue;
+    const source = `${owners.provider}:${account}`;
+    items.push({
+      id: `${source}:${block.id}`, source, source_id: block.id, title: block.display?.title ?? '', about: null,
+      starts_at: start, ends_at: block.interval?.end ?? null, all_day: block.interval?.allDay === true,
+      space_id: null, space_title: null, going: null, may_move: false, status: null, link: block.relations?.linkedRecord?.[0] ?? null,
+    });
+  }
+  const sources: SourceState[] = accounts.map(account => {
+    const source = sourceOf(account);
+    const read = readOf.get(account.id);
+    if (!answer) return { id: source, label: labelOf(account), read: false, connected: true, said: failure };
+    if (!read?.read) return { id: source, label: labelOf(account), read: false, connected: true, said: read?.said ?? '' };
     return { id: source, label: labelOf(account), read: true, connected: true, complete: true, writable: false };
   });
   return { from, to, items, sources };
