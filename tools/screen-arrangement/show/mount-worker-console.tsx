@@ -40,7 +40,7 @@ import { EmbeddedScreenArrangement } from './EmbeddedScreenArrangement';
 import {
   buildWorkerConsoleLayout,
   type WorkerConsoleTabSpec,
-} from '../read-data/worker-console-arrangement';
+} from '../../arrange-screens-in-panes/read-data/worker-console-arrangement';
 
 type MountArgs = { el: HTMLElement; props?: Record<string, unknown> };
 

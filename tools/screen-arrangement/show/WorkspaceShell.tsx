@@ -46,7 +46,7 @@ import { useBitfieldData } from '#workspace-records';
 import { Container, Dropdown, Text, NamedIcon } from '../../ui';
 import { EmbeddedScreenArrangement } from './EmbeddedScreenArrangement';
 import { createBrowserLocalDestinationRef } from './surface-intent-destination-ref';
-import { normalizeLayoutState } from '../read-data/read-screen-arrangement';
+import { normalizeLayoutState } from '../../arrange-screens-in-panes/read-data/read-screen-arrangement';
 import type { LayoutState, SplitTreeNode, TabMeta } from '../read-data/layout-types';
 
 interface DiscoveredPanel {
