@@ -1,0 +1,42 @@
+{
+  "drafted_from": "tool:read-a-page-in-a-scriptable-browser's own row and its do-work script (tools/run-tools-in-my-signed-in-browser/do-work/read-a-page-in-a-scriptable-browser.mjs), whose tests run on a stand-in osascript; the Arc dictionary (tab URL, loading, execute, close) was read with sdef and the generated script compiled with osacompile; a live run on the person's Mac is not yet proved",
+  "start_here": "Say to your AI: \"Read the page at an address in my scriptable browser, signed in as I am, and give me its title, words and links\", with {\"url\":\"https://example.com/\",\"computer\":{\"automate-an-app\":{\"app\":\"company.thebrowser.Browser\"}}}. It runs tool:read-a-page-in-a-scriptable-browser and answers the page's title, text, links and images. It is the route for when no browser extension is connected to your computer.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input, asks the browser app on your computer and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-page-in-a-scriptable-browser"
+  ],
+  "instructions": [
+    "1. Make sure the browser app (Arc, company.thebrowser.Browser) is open on your computer, and that the Mac app that runs tools is allowed to control it in System Settings, Privacy & Security, Automation.",
+    "2. Say to your AI: \"Read the page at an address in my scriptable browser, signed in as I am, and give me its title, words and links\", and give it the input.",
+    "3. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-a-page-in-a-scriptable-browser and its input (the worked example shows one).",
+    "4. Read what comes back: the page in result, or needs_access \"automation\" with what to allow, or error \"app_not_running\" when the browser is not open (this run does not start it)."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read a page in my scriptable browser on its own sample",
+      "ask": "Read the page at an address in my scriptable browser, signed in as I am, and give me its title, words and links",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-page-in-a-scriptable-browser",
+            "input": {
+              "url": "https://example.com/",
+              "computer": {
+                "automate-an-app": {
+                  "app": "company.thebrowser.Browser"
+                }
+              }
+            }
+          }
+        }
+      },
+      "given": "The input {\"url\":\"https://example.com/\",\"computer\":{\"automate-an-app\":{\"app\":\"company.thebrowser.Browser\"}}}.",
+      "hands_back": "On a stand-in browser (the test page) it answered {\"title\":\"Bookmarks\",\"text\":\"a post\",\"links\":[{\"text\":\"open\",\"href\":\"https://x.com/a/status/1\"}],\"images\":[\"https://pbs.twimg.com/media/1.jpg\"]}, with the tab closed. A live run on the Mac is not yet proved."
+    }
+  ]
+}

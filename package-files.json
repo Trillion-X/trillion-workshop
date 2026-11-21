@@ -39283,6 +39283,15 @@
    "at": "/opt/node_modules/split2"
   }
  ],
+ "tool:read-a-page-in-a-scriptable-browser": [
+  {
+   "package": "run-tools-in-my-signed-in-browser",
+   "paths": [
+    "do-work/read-a-page-in-a-scriptable-browser.mjs"
+   ],
+   "at": "/opt/run-tools-in-my-signed-in-browser"
+  }
+ ],
  "tool:read-a-page-in-my-browser": [
   {
    "package": "run-tools-in-my-signed-in-browser",

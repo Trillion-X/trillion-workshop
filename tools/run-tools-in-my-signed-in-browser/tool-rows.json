@@ -337,6 +337,149 @@
           "source": "a browser extension's page-reading code, whose runs reached the browser over an account route that is retired; now relayed through the person's own computer (browser-relay.mjs)"
         }
       }
+    },
+    {
+      "id": "package::run-tools-in-my-signed-in-browser::tool::read-a-page-in-a-scriptable-browser",
+      "address": "package::run-tools-in-my-signed-in-browser::tool::read-a-page-in-a-scriptable-browser",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-page-in-a-scriptable-browser",
+        "label": "Read a page in a scriptable browser",
+        "status": "active",
+        "job": "Open a page in the person's own scriptable browser app, signed in as they are, read what it shows and close the tab, when no browser extension is connected to this computer",
+        "description": "Opens the page at url as a new tab in the browser app named by computer[\"automate-an-app\"].app (its bundle id; Arc is company.thebrowser.Browser), waits for it to load, reads its title, visible text, links and image urls with one fixed read-only script, and closes the tab. It never types, clicks, submits or sets anything on the page, and never starts the app: a browser that is not open is refused in words. If the Mac has not allowed this to control the browser, it answers needs_access \"automation\" with what to allow.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "The page's address (http or https)"
+            },
+            "computer": {
+              "type": "object",
+              "description": "The computer's capability: { \"automate-an-app\": { \"app\": \"<bundle id of the browser>\" } }",
+              "required": [
+                "automate-an-app"
+              ],
+              "properties": {
+                "automate-an-app": {
+                  "type": "object",
+                  "required": [
+                    "app"
+                  ],
+                  "properties": {
+                    "app": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": [
+            "url",
+            "computer"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "links": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string"
+                  },
+                  "href": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "images": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "needs_access": {
+              "type": "string"
+            },
+            "error": {
+              "type": "string"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "automate-an-app"
+          ],
+          "workdir": "/opt/run-tools-in-my-signed-in-browser",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/run-tools-in-my-signed-in-browser/do-work/read-a-page-in-a-scriptable-browser.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "run-tools-in-my-signed-in-browser",
+                "paths": [
+                  "do-work/read-a-page-in-a-scriptable-browser.mjs"
+                ],
+                "at": "/opt/run-tools-in-my-signed-in-browser"
+              }
+            ]
+          },
+          "max_run_ms": 150000
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "a computer whose browser app (bundle id named in computer[\"automate-an-app\"].app) is open and allowed to be controlled by the Mac app that runs the tool (System Settings, Privacy & Security, Automation); proved by reading a public page and the bookmarks page read-only",
+            "proved_on": null
+          }
+        ],
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:run-tools-in-my-signed-in-browser",
+        "listed_on": "2026-11-21T00:00:00Z",
+        "provenance": {
+          "source": "Made 2026-11-21 as the second route for reading a page when no browser extension is connected: the Chromium-style AppleScript dictionary of a scriptable browser (tab URL, loading, execute javascript, close) driven through osascript, the way tool:send-a-message-on-this-mac drives Messages with automate-an-app"
+        }
+      }
     }
   ]
 }

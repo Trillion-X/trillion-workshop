@@ -10,6 +10,7 @@ Lets a tool run on the person's own computer read a page, act on one and drive a
 | `ask-my-browser.mjs` | The command the three rows run: asks the door for a nonce, has the run's own vault door sign it (`secrets:sign`, the row's one right), posts the request and prints `{ result }` or `{ error }`. |
 | `computer-relay.mjs` | For the extension: holds one `chrome.runtime.connectNative` connection while the person has allowed the computer, asks the host for the door (`relay_open`), answers each request with the function the extension gives and sends it back with the same `request_key`. Retried on an alarm (`check_every_minutes`). `startComputerRelay` is what the extension calls. |
 | `tool-rows.json` | The rows `tool:read-a-page-in-my-browser`, `tool:act-in-my-browser` and `tool:drive-my-browser`. Each lists the local door `browser-relay` and the one vault right it needs. |
+| `do-work/read-a-page-in-a-scriptable-browser.mjs`, `test/read-a-page-in-a-scriptable-browser.test.mjs` | The second route, for when no browser extension is connected: osascript opens the page in a new tab of a scriptable browser app (Arc), reads it read-only and closes the tab (`tool:read-a-page-in-a-scriptable-browser`). |
 | `kits/` | One kit per tool. |
 | `test/browser-relay.test.mjs` | The door, the proof, the limits and the extension's side, on a real loopback port with a fake extension. The host's framing is tested beside the host. |
 
