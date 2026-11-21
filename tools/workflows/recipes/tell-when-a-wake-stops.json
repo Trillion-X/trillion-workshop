@@ -47,7 +47,8 @@
                 "kind": "wake-failed",
                 "from": [
                   "wake"
-                ]
+                ],
+                "fold": true
               }
             },
             "budget": {
@@ -71,6 +72,10 @@
               "from_input": {
                 "credential_name": "store.credential_name"
               }
+            },
+            "rate": {
+              "most": 1,
+              "per_ms": 900000
             }
           },
           {
@@ -191,7 +196,7 @@
                       "path": "store.credential_name"
                     }
                   },
-                  "sql": "insert into notices (title, body, kind, key) select coalesce($2::text, ''), coalesce('It stopped because: ' || $5::text || '.', $3::text, ''), $1::text, $4::text where $4::text is null or not exists (select 1 from notices where key = $4::text)",
+                  "sql": "insert into notices (title, body, kind, key) select coalesce($2::text, ''), coalesce('It stopped because: ' || $5::text || '.', $3::text, '') || coalesce(' And ' || $6::text || ' more stopped since. The newest: ' || $7::text || ' ' || $8::text || ' stopped: ' || $9::text || '. wake:list shows each.', ''), $1::text, $4::text where $4::text is null or not exists (select 1 from notices where key = $4::text)",
                   "params": [
                     "needs-you",
                     {
@@ -294,6 +299,34 @@
                       "select": {
                         "from": "input",
                         "path": "fact.said"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "folded"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "last.payload.tool"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "last.payload.wake"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "last.payload.cause"
                       }
                     }
                   ]

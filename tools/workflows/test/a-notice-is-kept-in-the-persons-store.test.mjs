@@ -95,3 +95,23 @@ test('the same findings in one archive are one notice however many hours they st
   await hour(); await hour();
   assert.deepEqual((await kept(db)).map(row => row.body), ['1 finding over 107 file(s)', '1 finding over 128 file(s)'], 'a new finding is told once');
 });
+
+// Nov 21 2026, 3:11 to 3:57 AM CST: 38 wake-failed notices reached the person's phone in 46 minutes after the Mac rebooted.
+// The alarm's wake now folds the stops told while one waits into it and runs at most once in 15 minutes (`rate`), so
+// one notice says the first stop and how many more came, naming the newest; wake:list keeps each.
+test('stops folded into one alarm run are one notice that counts them and names the newest', async () => {
+  const stops = recipe('tell-when-a-wake-stops');
+  const wake = stops.wakes.find(row => row.id === 'a-wake-stopped');
+  assert.equal(wake.on.fact.fold, true);
+  assert.deepEqual(wake.rate, { most: 1, per_ms: 900000 });
+  const db = new PGlite();
+  const fact = { tool: 'workflow:route-each-row-change', wake: 'a-row-changed', cause: 'wake-unfunded' };
+  const last = { event_id: 'later', payload: { tool: 'workflow:keep-the-tools-i-used', wake: 'a-tool-ran', cause: 'engine::c@src/c.rs:1:1:condition: process_exit_unsuccessful#unknown' } };
+  const folded = await runWorkflow({ recipe: stops, input: { ...wake.input, store: STORE, fact, fact_id: 'first', folded: 12, last } }, door(db));
+  assert.equal(folded.status, 'completed', folded.error_message ?? JSON.stringify(folded.waiting));
+  const alone = await runWorkflow({ recipe: stops, input: { ...wake.input, store: STORE, fact, fact_id: 'alone' } }, door(db));
+  assert.equal(alone.status, 'completed', alone.error_message ?? JSON.stringify(alone.waiting));
+  assert.deepEqual((await kept(db)).map(row => row.body), [
+    'It stopped because: wake-unfunded. And 12 more stopped since. The newest: workflow:keep-the-tools-i-used a-tool-ran stopped: engine::c@src/c.rs:1:1:condition: process_exit_unsuccessful#unknown. wake:list shows each.',
+    'It stopped because: wake-unfunded.']);
+});
