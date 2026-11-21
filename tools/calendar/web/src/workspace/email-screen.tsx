@@ -17,7 +17,8 @@ import type { Ran } from './workshop-tool-api';
 import { forwardBody, mailAddress, mailParticipants, mailRecipients, mailThreadView, mailWebLink, replyAllRecipients, splitEmailAddresses, type MailMessage, type MailThreadView } from './mail-message';
 import { fill, MailActionBar, MailCardActions, type MailBarProps, type MailPanel, type MailPlan } from './mail-action-bar';
 import { useMailSignature } from './mail-settings';
-import { connectionTrouble, mailAccountKey, providerOf, readMailAccounts, runAsAccount, type MailAccount } from './mail-accounts';
+import { connectionTrouble, mailAccountKey, providerOf } from './mail-accounts';
+import { readCalendarMailAccounts, runCalendarMail, type CalendarMailAccount } from './calendar-owners';
 import { openScreenOn } from './open-screen';
 import { useMailKeyOf, useMailKeys } from './mail-keys';
 import { changeMailTask, completeMailTask, duplicateMailTask, ensureMailTask, findMailTask, mailSourceId, readTaskLists, scheduleMailTask, unscheduleMailTask, type MailTask } from './mail-task';
@@ -99,18 +100,18 @@ function EmailScreen(props: EmailSurfaceProps) {
 }
 
 function MailWithAccounts(props: EmailSurfaceProps) {
-  const loaded = useScreenLoad<MailAccount[]>('mail-accounts', { loading: { label: 'Opening your mail', layout: 'rows' }, read: readMailAccounts, failed: refusal('Your mail accounts could not be read') });
+  const loaded = useScreenLoad<CalendarMailAccount[]>('mail-accounts', { loading: { label: 'Opening your mail', layout: 'rows' }, read: readCalendarMailAccounts, failed: refusal('Your mail accounts could not be read') });
   if (loaded.state) return <ScreenState state={loaded.state} />;
   return <Mail {...props} first={loaded.value} />;
 }
 
-function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCountChange, onInboxMessages, first }: EmailSurfaceProps & { first: MailAccount[] | null }) {
+function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCountChange, onInboxMessages, first }: EmailSurfaceProps & { first: CalendarMailAccount[] | null }) {
   const compact = presentation === 'calendar';
-  const [accounts, setAccounts] = React.useState<MailAccount[]>(first ?? []);
-  const [account, setAccount] = React.useState<MailAccount | null>(first?.length === 1 ? first[0] : null);
+  const [accounts, setAccounts] = React.useState<CalendarMailAccount[]>(first ?? []);
+  const [account, setAccount] = React.useState<CalendarMailAccount | null>(first?.length === 1 ? first[0] : null);
   const requester = React.useCallback((toolId: string, input: Record<string, unknown>, requestKey?: string) => {
     if (!account) return Promise.reject(new Error('Choose a connected mail account first.'));
-    return runAsAccount(account, toolId, input, requestKey);
+    return runCalendarMail(account, toolId, input, requestKey);
   }, [account?.connection_id, account?.connected_at]);
   const [optionsOpen, setOptionsOpen] = React.useState(false);
   const optionsAnchor = React.useRef<HTMLButtonElement | null>(null);
@@ -251,7 +252,7 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
     setAccountReadFailed(false);
     setError('');
     try {
-      const connected = await readMailAccounts();
+      const connected = await readCalendarMailAccounts();
       if (generation !== accountReadGeneration.current) return;
       setAccounts(connected);
       setAccount(current => connected.length === 1 ? connected[0]

@@ -5,5 +5,8 @@
   "working_status": "ACTIVE",
   "events_tool": "tool:read-calendar-events",
   "provider": "google-calendar-via-composio",
-  "most_events": 250
+  "most_events": 250,
+  "_mail": "Mail accounts: every account `accounts_tool` lists for `mail_toolkit` whose status is `working_status`, each one a mail account on `mail_provider` (a row of tools/read-and-write-mail/read-data/mail-providers.json). Its mail tools take the account's connection id with the user id Composio asks for (`connection.user_id`).",
+  "mail_toolkit": "gmail",
+  "mail_provider": "gmail-via-composio"
 }

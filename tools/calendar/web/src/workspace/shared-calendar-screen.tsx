@@ -1548,7 +1548,7 @@ export function mountSharedCalendarScreen(element: HTMLElement, props: { surface
                 title={selectingEvents ? words.calendar_selection_finish : words.calendar_selection_start}
                 disabled={batchRemovalBusy || duplicateQueue.length > 0}
                 onClick={() => { selectingEvents = !selectingEvents; selectedEventIds = []; confirmingBatchRemoval = false; redraw(); }}>
-                <NamedIcon name={screenData.selection_icon} size={14} />
+                <NamedIcon name={screenData.selection_icon} size="sm" />
               </Button> : null}
               {toolbar.primaryActions ?? toolbar.actions}</Container>}
             trayHeader={
@@ -1708,7 +1708,7 @@ export function mountSharedCalendarScreen(element: HTMLElement, props: { surface
   const options = () => ({
     label: words.screen, fields: FIELDS, records: loaded.items.filter(item => !hidden.includes(item.source)).map(rowOf), identify: (row: Row) => row.id, preferenceKey: 'trillion-shared-calendar', showToolbar: !settingsOnly && !taskOnly && viewId !== screenData.calendar.id,
     toolbarEnd: settingsOnly || viewId !== screenData.calendar.id ? null : <>
-      <Button size="icon-sm" variant="ghost" aria-label={words.settings} title={words.settings} aria-expanded={settingsOpen} onClick={() => { settingsOpen = !settingsOpen; redraw(); if (settingsOpen) void readConnections(); }}><NamedIcon name="Settings2" size={14} /></Button>
+      <Button size="icon-sm" variant="ghost" aria-label={words.settings} title={words.settings} aria-expanded={settingsOpen} onClick={() => { settingsOpen = !settingsOpen; redraw(); if (settingsOpen) void readConnections(); }}><NamedIcon name="Settings2" size="sm" /></Button>
     </>,
     // The calendar shows its whole window and its own week, month and day, so no count beside the name and no zoom.
     views: [calendarView, screenData.table], view: viewId, count: false, detailLevels: null,

@@ -2,8 +2,9 @@
 //
 // PURPOSE
 //   The Calendar screen's reads from the person's own owners, called from the screen's own code (no /work/api route):
-//   their calendar accounts and events through their connected accounts and the calendar events tool, as
-//   calendar-owners.json says (no owner of their own timed tasks is named yet, so that list is empty). Answers in the
+//   their calendar accounts and events through their connected accounts and the calendar events tool, and their Gmail
+//   accounts for the Mail panel through the same accounts tool, as calendar-owners.json says (no owner of their own
+//   timed tasks is named yet, so that list is empty). Answers in the
 //   shapes the screen already draws
 //   (calendar-screen-core.ts Item, SourceState, Task; CalendarControls CalendarAccount).
 //
@@ -22,15 +23,17 @@ import owners from './calendar-owners.json';
 type Account = { id: string; user_id: string | null; toolkit: string | null; alias: string | null; status: string | null };
 type Block = { id: string; interval?: { start?: string; end?: string; allDay?: boolean }; display?: { title?: string }; relations?: { linkedRecord?: string[] } };
 
-let accountsRead: Promise<Account[]> | null = null;
-/** The person's working calendar accounts, read once per page and again after a failed read. */
-function calendarAccounts(): Promise<Account[]> {
-  accountsRead ??= runWorkshopTool<{ accounts?: Account[] }>(owners.accounts_tool, { toolkit: owners.accounts_toolkit }).then(ran => {
+const accountsRead = new Map<string, Promise<Account[]>>();
+/** The person's working accounts of one Composio toolkit, read once per page and again after a failed read. */
+function workingAccounts(toolkit: string): Promise<Account[]> {
+  if (!accountsRead.has(toolkit)) accountsRead.set(toolkit, runWorkshopTool<{ accounts?: Account[] }>(owners.accounts_tool, { toolkit }).then(ran => {
     if (!Array.isArray(ran.result?.accounts)) throw new Error('');
     return ran.result.accounts.filter(account => account.status === owners.working_status);
-  }, error => { accountsRead = null; throw error; });
-  return accountsRead;
+  }, error => { accountsRead.delete(toolkit); throw error; }));
+  return accountsRead.get(toolkit)!;
 }
+/** The person's working calendar accounts. */
+const calendarAccounts = () => workingAccounts(owners.accounts_toolkit);
 
 const sourceOf = (account: Account) => `${owners.provider}:${account.id}`;
 const labelOf = (account: Account) => account.alias ?? account.id;
@@ -72,3 +75,16 @@ export async function readCalendarAccounts(): Promise<{ accounts: CalendarAccoun
 export async function readCalendarTasks(): Promise<{ tasks: Task[]; page: { complete: boolean; next_cursor: null }; collections: []; collections_page: { complete: boolean; next_cursor: null } }> {
   return { tasks: [], page: { complete: true, next_cursor: null }, collections: [], collections_page: { complete: true, next_cursor: null } };
 }
+
+/** A mail account the Mail screen can open: its Composio connection, and the user id Composio asks with it. */
+export type CalendarMailAccount = { connection_id: string; connected_at: string; account_label: string; status: string; can_send: boolean; provider: string; user_id: string | null };
+
+/** The person's Gmail accounts through Composio, as the Mail screen opens them (read only). */
+export async function readCalendarMailAccounts(): Promise<CalendarMailAccount[]> {
+  const accounts = await workingAccounts(owners.mail_toolkit);
+  return accounts.map(account => ({ connection_id: account.id, connected_at: '', account_label: labelOf(account), status: 'connected', can_send: true, provider: owners.mail_provider, user_id: account.user_id }));
+}
+
+/** Runs one mail tool as this Composio account, on its provider; the connection carries the user id Composio asks with it. */
+export const runCalendarMail = (account: CalendarMailAccount, toolId: string, input: Record<string, unknown>, requestKey?: string) =>
+  runWorkshopTool(toolId, { ...input, provider: account.provider, connection: { connection_id: account.connection_id, ...(account.user_id ? { user_id: account.user_id } : {}) } }, requestKey);
