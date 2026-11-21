@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import test, { after, before } from 'node:test';
 import { writeFile } from 'node:fs/promises';
-import { addressOf, checkLiveScreens, cookieOfSetCookie, keepPicture, planOf, signInWithEmailCode } from '../check-live-screens.mjs';
+import { addressOf, checkLiveScreens, keepPicture, planOf } from '../check-live-screens.mjs';
 import { windowPicture } from '../window-picture.mjs';
 
 const pageOf = (body, script = '') => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>fixture</title></head><body style="margin:0;padding:16px;font:16px sans-serif"><main id="app">${body}</main><script>${script}</script></body></html>`;
@@ -181,38 +181,15 @@ test('an owner with no window on screen is answered as no_window', async () => {
   assert.deepEqual(await windowPicture({ owner: 'Trillion' }, { exec }).then(answer => answer.error), 'no_window');
 });
 
-test('sign_in is a list of cookies or one email code; reach is a list of taps and waits', () => {
+test('sign_in is a list of cookies or one email code with no code field; reach is a list of taps and waits', () => {
   const page = (extra) => planOf({ pages: [{ id: 'a', url: origin, ...extra }] }).pages[0];
-  assert.deepEqual(page({ sign_in: { kind: 'email-code', origin: 'https://app.ethosschooloftennis.com', email: 'x@agentmail.to', code: '123456' } }).signIn,
-    { kind: 'email-code', origin: 'https://app.ethosschooloftennis.com', email: 'x@agentmail.to', code: '123456' });
-  assert.throws(() => page({ sign_in: { kind: 'email-code', origin: 'https://a.example', email: 'x@agentmail.to', code: '12' } }), /six-digit code/);
-  assert.throws(() => page({ sign_in: { kind: 'email-code', origin: 'file:///x', email: 'x@agentmail.to', code: '123456' } }), /full address/);
+  assert.deepEqual(page({ sign_in: { kind: 'email-code', origin: 'https://app.ethosschooloftennis.com', email: 'x@agentmail.to' } }).signIn,
+    { kind: 'email-code', origin: 'https://app.ethosschooloftennis.com', email: 'x@agentmail.to' });
+  assert.throws(() => page({ sign_in: { kind: 'email-code', origin: 'https://a.example', email: 'x@agentmail.to', code: '123456' } }), /not given/);
+  assert.throws(() => page({ sign_in: { kind: 'email-code', origin: 'file:///x', email: 'x@agentmail.to' } }), /full address/);
   assert.equal(page({ sign_in: { cookies: [{ name: 'session', value: 'v' }] } }).signIn.kind, 'cookies');
   assert.deepEqual(page({ reach: [{ tap: '#billing' }, { wait: '#billing-panel' }] }).reach, [{ tap: '#billing' }, { wait: '#billing-panel' }]);
   assert.deepEqual(page({}).reach, []);
   assert.throws(() => page({ reach: [{ tap: '#a', wait: '#b' }] }), /reach\[0\] is/);
   assert.throws(() => page({ reach: 'billing' }), /reach is a list/);
-});
-
-test('a Set-Cookie line becomes a cookie for the origin host, with its path and flags', () => {
-  assert.deepEqual(cookieOfSetCookie('__Secure-session=abc.def; Path=/; HttpOnly; Secure; SameSite=Lax', 'app.ethosschooloftennis.com'),
-    { name: '__Secure-session', value: 'abc.def', domain: 'app.ethosschooloftennis.com', path: '/', httpOnly: true, secure: true });
-});
-
-test('an email code is exchanged for the session cookies with the page origin, and a refused code names only its status', async () => {
-  const seen = [];
-  const cookieLines = ['sid=one; Path=/; HttpOnly', 'other=two; Path=/'];
-  const okFetch = async (url, init) => { seen.push({ url, init }); return { ok: true, status: 200, headers: { getSetCookie: () => cookieLines } }; };
-  const cookies = await signInWithEmailCode({ origin: 'https://app.ethosschooloftennis.com', email: 'x@agentmail.to', code: '654321' }, { fetchImpl: okFetch });
-  assert.equal(cookies.length, 2);
-  assert.equal(seen[0].url, 'https://app.ethosschooloftennis.com/api/auth/sign-in/email-otp');
-  assert.equal(seen[0].init.headers.origin, 'https://app.ethosschooloftennis.com');
-  assert.deepEqual(JSON.parse(seen[0].init.body), { email: 'x@agentmail.to', otp: '654321' });
-  const refused = async () => ({ ok: false, status: 400, headers: { getSetCookie: () => [] } });
-  await assert.rejects(signInWithEmailCode({ origin: 'https://app.ethosschooloftennis.com', email: 'x@agentmail.to', code: '654321' }, { fetchImpl: refused }), error => {
-    assert.equal(error.code, 'sign_in_refused');
-    assert.ok(!error.message.includes('654321'), 'the code is never in a message');
-    assert.match(error.message, /status 400/);
-    return true;
-  });
 });

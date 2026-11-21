@@ -16,7 +16,14 @@ test('the live row runs checkLiveScreens through the plain function runner, in a
   assert.equal(row.invoke.programs['chrome-headless-shell'].fetch['macos-aarch64'].version, '153.0.8010.12');
 });
 
-test('the live row packs the DATA the check reads and the pictures\' keep path, and no window picture', () => {
+test('the live row mounts the AgentMail key on descriptor 4 and reaches the mailbox and the site', () => {
+  assert.deepEqual(row.invoke.credential_mounts, [{ secret_name: 'agentmail-api-key', fd: 4 }]);
+  assert.equal(row.invoke.internet, true);
+  assert.equal(row.invoke.public_read, true);
+});
+
+test('the live row packs the DATA the check reads, the sign-in module and the pictures\' keep path, and no window picture', () => {
+  assert.ok(packed('check-every-screen-at-every-width').includes('email-code.mjs'));
   assert.ok(packed('check-every-screen-at-every-width').includes('live-screens.json'));
   assert.ok(!packed('check-every-screen-at-every-width').includes('window-picture.mjs'));
   assert.ok(packed('headless-browser').includes('admission.json'));
@@ -26,5 +33,6 @@ test('the live row packs the DATA the check reads and the pictures\' keep path, 
 test('the live row takes the reach, sign-in and until inputs and names its picture output', () => {
   assert.ok(row.input_schema.properties.pages.items.properties.reach);
   assert.ok(row.input_schema.properties.pages.items.properties.sign_in.oneOf);
+  assert.equal(row.input_schema.properties.pages.items.properties.sign_in.oneOf[1].properties.code, undefined);
   assert.equal(row.input_schema.properties.window, undefined);
 });

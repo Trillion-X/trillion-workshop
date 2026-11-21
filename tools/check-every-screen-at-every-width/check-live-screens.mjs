@@ -38,6 +38,7 @@ import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { launchChromium, onThisPath } from '../headless-browser/launch.mjs';
 import { readViews } from './check-screens.mjs';
+import { emailCodeSession } from './email-code.mjs';
 import { makeHashCodeHexFromBytes } from '../content-identity/read-data/identity.mjs';
 import { writeWholeFile } from '../workflows/read-data/whole-file.mjs';
 
@@ -75,18 +76,18 @@ function httpAddress(url, what) {
   return url;
 }
 
-// sign_in is { cookies: [...] } (a session the caller already holds) or { kind: 'email-code', origin, email, code }: the
-// better-auth email code the caller was sent, exchanged here for the session cookie (signInWithEmailCode).
+// sign_in is { cookies: [...] } (a session the caller already holds) or { kind: 'email-code', origin, email }: the site's
+// one-time code is requested, read from the test inbox and exchanged for the session here (email-code.mjs emailCodeSession).
 function signInOf(signIn, what) {
   if (signIn === undefined) return null;
   if (signIn?.kind === 'email-code') {
-    if (typeof signIn.origin !== 'string' || typeof signIn.email !== 'string' || !signIn.email || typeof signIn.code !== 'string' || !/^\d{6}$/.test(signIn.code)) {
-      throw refuse(`${what}: sign_in is { kind: 'email-code', origin, email, code } with a six-digit code.`);
+    if (typeof signIn.origin !== 'string' || typeof signIn.email !== 'string' || !signIn.email || Object.keys(signIn).length !== 3) {
+      throw refuse(`${what}: sign_in is { kind: 'email-code', origin, email }; the code is read from the test inbox, not given.`);
     }
     httpAddress(signIn.origin, `${what}: sign_in.origin`);
-    return { kind: 'email-code', origin: signIn.origin, email: signIn.email, code: signIn.code };
+    return { kind: 'email-code', origin: signIn.origin, email: signIn.email };
   }
-  if (!signIn || !Array.isArray(signIn.cookies) || signIn.cookies.length === 0) throw refuse(`${what}: sign_in is { cookies: [{ name, value }] } or { kind: 'email-code', origin, email, code }.`);
+  if (!signIn || !Array.isArray(signIn.cookies) || signIn.cookies.length === 0) throw refuse(`${what}: sign_in is { cookies: [{ name, value }] } or { kind: 'email-code', origin, email }.`);
   return { kind: 'cookies', cookies: signIn.cookies.map((cookie, at) => {
     if (!cookie || typeof cookie.name !== 'string' || !cookie.name || typeof cookie.value !== 'string') {
       throw refuse(`${what}: sign_in.cookies[${at}] needs a name and a value.`);
@@ -104,36 +105,6 @@ function reachOf(reach, what) {
     if (step && typeof step.wait === 'string' && step.wait && Object.keys(step).length === 1) return { wait: step.wait };
     throw refuse(`${what}: reach[${at}] is { tap: selector } or { wait: selector }.`);
   });
-}
-
-// The session cookies of a better-auth email code: the code is posted with the page's own origin, and each Set-Cookie it
-// answers is kept (never printed, logged or returned outside the run). A refused code names only its status.
-export async function signInWithEmailCode({ origin, email, code }, { fetchImpl = fetch } = {}) {
-  const response = await fetchImpl(`${origin}/api/auth/sign-in/email-otp`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', origin },
-    body: JSON.stringify({ email, otp: code }),
-    redirect: 'manual',
-  });
-  const hostname = new URL(origin).hostname;
-  const cookies = response.headers.getSetCookie().map(line => cookieOfSetCookie(line, hostname));
-  if (!response.ok || cookies.length === 0) throw Object.assign(new Error(`The sign-in code was refused (status ${response.status}).`), { code: 'sign_in_refused' });
-  return cookies;
-}
-
-// One Set-Cookie line as Playwright's addCookies takes it.
-export function cookieOfSetCookie(line, hostname) {
-  const [pair, ...attributes] = line.split(';').map(part => part.trim());
-  const at = pair.indexOf('=');
-  const cookie = { name: pair.slice(0, at), value: pair.slice(at + 1), domain: hostname, path: '/' };
-  for (const attribute of attributes) {
-    const [key, value] = attribute.split('=');
-    const word = key.toLowerCase();
-    if (word === 'httponly') cookie.httpOnly = true;
-    if (word === 'secure') cookie.secure = true;
-    if (word === 'path' && value) cookie.path = value;
-  }
-  return cookie;
 }
 
 function tapsOf(taps, what) {
@@ -436,8 +407,8 @@ export async function checkLiveScreens(input = {}, host, { keep = (name, bytes) 
   try {
     const pages = [];
     for (const page of plan.pages) {
-      // An email code is exchanged once per page; its cookies are then the page's session in every view.
-      const session = page.signIn?.kind === 'email-code' ? { kind: 'cookies', cookies: await signInWithEmailCode(page.signIn) } : page.signIn;
+      // An email code is sent, read and exchanged once per page; its cookies are then the page's session in every view.
+      const session = page.signIn?.kind === 'email-code' ? { kind: 'cookies', cookies: await emailCodeSession(page.signIn) } : page.signIn;
       const views = [];
       for (const view of plan.views) {
         if (plan.until !== null && Date.now() >= plan.until) {

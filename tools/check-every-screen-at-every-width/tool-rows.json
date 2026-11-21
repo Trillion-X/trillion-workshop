@@ -888,7 +888,7 @@
         },
         "label": "Check live screens on a phone and a computer",
         "job": "Open each live page at its real address the way a person's phone and computer open it, and measure how long it takes to first show, to be usable, its longest task, its console errors and failed requests; tap the controls named and say whether each did what it expects; keep a picture of each screen in the person's Files",
-        "description": "Opens each of pages (each { id, url, old_url?, sign_in?, ready?, taps? }) in a headless Chromium through Playwright (headless-browser/launch.mjs, with its quiet switches and one-browser-at-a-time admission) at each view of views.json (phone 390x844, tablet, desktop; all when left out, or the views asked for). Each view is a cold load in its own browser context. The phone has its CPU and network slowed as live-screens.json names (DATA); the desktop has none. For each page and view it answers: status, first_paint_ms, first_contentful_paint_ms, usable_ms (the ready selector is visible and the main thread has been idle for usable_idle_ms), blank_ms (until the screen first shows any text, picture or control), longest_task_ms, console_errors, failed_requests, and picture (the full screen as PNG, kept in the person's Files under /live-screens/<run>/ and returned by its 1f: identity; a picture the Files right cannot keep is returned as base64 when small). The same for old_url when given. taps are made on the new side after its load, one after another; each reports worked, ms, detail and a picture. It judges nothing: the caller compares the numbers with its own bar. A sign_in is either cookies the caller already holds, or { kind: 'email-code', origin, email, code }: the code the site emailed (the caller sent the request for it), exchanged here for the session cookie. Cookies and codes are never printed or returned. reach steps (taps and waits) run after load and sign-in; the screen's usable time is then measured from the last reach tap, and load_usable_ms keeps the time from the page's load. A URL in the answer has its query removed. A view not begun by until is answered as skipped. Refuses a page without an id or url, a non-http address, a view views.json does not name, and an expect with no known key.",
+        "description": "Opens each of pages (each { id, url, old_url?, sign_in?, ready?, taps? }) in a headless Chromium through Playwright (headless-browser/launch.mjs, with its quiet switches and one-browser-at-a-time admission) at each view of views.json (phone 390x844, tablet, desktop; all when left out, or the views asked for). Each view is a cold load in its own browser context. The phone has its CPU and network slowed as live-screens.json names (DATA); the desktop has none. For each page and view it answers: status, first_paint_ms, first_contentful_paint_ms, usable_ms (the ready selector is visible and the main thread has been idle for usable_idle_ms), blank_ms (until the screen first shows any text, picture or control), longest_task_ms, console_errors, failed_requests, and picture (the full screen as PNG, kept in the person's Files under /live-screens/<run>/ and returned by its 1f: identity; a picture the Files right cannot keep is returned as base64 when small). The same for old_url when given. taps are made on the new side after its load, one after another; each reports worked, ms, detail and a picture. It judges nothing: the caller compares the numbers with its own bar. A sign_in is either cookies the caller already holds, or { kind: 'email-code', origin, email }: the tool asks the site for a code to that address, reads it from the test inbox (AgentMail, with the vault's agentmail-api-key mounted on descriptor 4) and exchanges it for the session cookie. Cookies and codes are never printed or returned. reach steps (taps and waits) run after load and sign-in; the screen's usable time is then measured from the last reach tap, and load_usable_ms keeps the time from the page's load. A URL in the answer has its query removed. A view not begun by until is answered as skipped. Refuses a page without an id or url, a non-http address, a view views.json does not name, and an expect with no known key.",
         "read_only": false,
         "input_schema": {
           "type": "object",
@@ -968,8 +968,7 @@
                         "required": [
                           "kind",
                           "origin",
-                          "email",
-                          "code"
+                          "email"
                         ],
                         "additionalProperties": false,
                         "properties": {
@@ -982,11 +981,6 @@
                           },
                           "email": {
                             "type": "string"
-                          },
-                          "code": {
-                            "type": "string",
-                            "pattern": "^[0-9]{6}$",
-                            "description": "the six-digit code the site emailed; the caller sent the request for it"
                           }
                         }
                       }
@@ -1219,6 +1213,7 @@
                 "paths": [
                   "check-given-pages.mjs",
                   "check-live-screens.mjs",
+                  "email-code.mjs",
                   "check-screens.mjs",
                   "in-page.mjs",
                   "views.json",
@@ -1340,7 +1335,13 @@
               }
             ]
           },
-          "public_read": true
+          "public_read": true,
+          "credential_mounts": [
+            {
+              "secret_name": "agentmail-api-key",
+              "fd": 4
+            }
+          ]
         },
         "result_selector": "$.result",
         "provenance": {

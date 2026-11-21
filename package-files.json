@@ -8363,6 +8363,7 @@
    "paths": [
     "check-given-pages.mjs",
     "check-live-screens.mjs",
+    "email-code.mjs",
     "check-screens.mjs",
     "in-page.mjs",
     "views.json",
