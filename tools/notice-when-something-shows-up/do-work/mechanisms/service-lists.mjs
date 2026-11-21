@@ -35,13 +35,16 @@
  *   shape               { items: "<path to the list>", place: "<path>" | { value }, key: "<path>" | [..],
  *                         at?: "<path>", at_unit?: "seconds" | "ms" | "iso", next?: "<path to the next page's url>",
  *                         kinds?: [{ change?: "added" | "changed" | "removed", has?: "<path>", lacks?: "<path>", kinds: [..] }],
- *                         carry?: ["<path>", ..] | { <name>: "<path>" | ["<path>", ..] } }
+ *                         carry?: ["<path>", ..] | { <name>: "<path>" | ["<path>", ..] },
+ *                         print?: ["<path>", ..] }
  *                       kinds: every rule whose change, has (a value is there) and lacks (no value is there) hold
  *                         adds its kinds; the fact's `kinds` is their list as JSON text, null when none holds.
  *                       carry: the values that make the fact's `after`, so a thing too large for one fact field still
  *                         carries the parts its readers need: a list of paths (each kept under its own path), or names
  *                         to paths, so a service's own field names become the words its readers read (a booking's start
  *                         under starts_at whatever the service calls it); left out, the whole thing.
+ *                       print: the paths whose values make a thing's fingerprint, so a field that moves on
+ *                         every read (a post's view count) does not tell the thing as changed; left out, the whole thing.
  *   list_is_whole       true when one read returns every thing that exists
  *   most_pages          the most pages one read follows (default 10)
  *   look_again_seconds  how long between reads (default 300)
@@ -146,7 +149,7 @@ export function compare({ own, seen, items, whole, readAt = new Date() }) {
     const key = at(item, own.shape.key);
     if (key === undefined || key === null) continue;
     const id = String(key);
-    const print = fingerprint(item);
+    const print = fingerprint(Array.isArray(own.shape.print) ? own.shape.print.map((path) => at(item, path) ?? null) : item);
     now[id] = print;
     if (seen[id] === print) continue;
     const place = typeof own.shape.place === "object" && own.shape.place !== null && "value" in own.shape.place ? own.shape.place.value : at(item, own.shape.place);

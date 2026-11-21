@@ -84,3 +84,14 @@ test('no rule that holds gives no kinds, and a booking made already cancelled is
   assert.equal(kindsOf([{ change: 'removed', kinds: ['x'] }], 'added', {}), null);
   assert.equal(kindsOf(KINDS, 'added', { cancelled_at: '2026-11-18T23:00:00Z' }), JSON.stringify(['a-booking-moved']));
 });
+
+test('with print, a field that moves on every read does not tell a thing as changed; a named field does', () => {
+  const post = (id, views, text = 'made-up words') => ({ id, text, views, updated_at: '2026-11-21T19:00:00Z' });
+  const own = readSettings({ ...ROW, list_is_whole: false, shape: { ...ROW.shape, print: ['id', 'text'] } });
+  const first = compare({ own, seen: {}, items: [post(1, 10), post(2, 10)], whole: false }).now;
+  assert.deepEqual(compare({ own, seen: first, items: [post(1, 99), post(2, 500)], whole: false }).changes, [], 'views moved, nothing told');
+  const { changes } = compare({ own, seen: first, items: [post(1, 99, 'edited words'), post(3, 1)], whole: false });
+  assert.deepEqual(changes.map((one) => [one.detail.key, one.detail.change]).sort(), [['1', 'changed'], ['3', 'added']]);
+  const whole = readSettings({ ...ROW, list_is_whole: false });
+  assert.equal(compare({ own: whole, seen: compare({ own: whole, seen: {}, items: [post(1, 10)], whole: false }).now, items: [post(1, 11)], whole: false }).changes.length, 1, 'without print the whole thing is the fingerprint');
+});
