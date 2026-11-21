@@ -33,17 +33,40 @@ async function exchange(fields: Record<string, string>): Promise<Pass> {
   return { access: answer.access_token, refresh: answer.refresh_token ?? null, ends: Date.now() + 1000 * (Number(answer.expires_in) || 0) };
 }
 
-/** The code the authorize address answers this page without leaving it, or null when the person must sign in or confirm. */
-async function quietCode(asked: string, state: string): Promise<string | null> {
-  try {
-    const response = await fetch(asked, { credentials: 'same-origin', redirect: 'follow', headers: { accept: 'text/html' } });
-    void response.body?.cancel();
-    const landed = new URL(response.url);
-    if (!response.ok || landed.origin !== location.origin || landed.pathname !== flow.callback) return null;
-    return landed.searchParams.get('state') === state ? landed.searchParams.get('code') : null;
-  } catch {
-    return null;
+/** A pass the sign-in server could not give now (busy, or the request did not reach it): said in words with the time to
+ *  wait, never by leaving the page for the server's own answer. */
+export class PassBusy extends Error {
+  readonly busy: string;
+  readonly retry_after_s: number;
+  constructor(seconds: number) {
+    const shown = seconds > 0 ? seconds : flow.busy_seconds;
+    super(flow.busy.replace('{seconds}', String(shown)));
+    this.busy = this.message;
+    this.retry_after_s = shown;
+    this.name = 'PassBusy';
   }
+}
+
+/** The seconds a busy answer asks the page to wait (its Retry-After, in seconds), 0 when it asks for none. */
+const retryAfterOf = (response: Response): number => {
+  const seconds = Number(response.headers.get('retry-after'));
+  return Number.isFinite(seconds) && seconds > 0 ? Math.ceil(seconds) : 0;
+};
+
+/** The code the authorize address answers this page without leaving it, or null when the person must sign in or confirm.
+ *  A busy answer (429, 5xx) or a request that never arrives throws PassBusy: the page shows it and does not navigate. */
+async function quietCode(asked: string, state: string): Promise<string | null> {
+  let response: Response;
+  try {
+    response = await fetch(asked, { credentials: 'same-origin', redirect: 'follow', headers: { accept: 'text/html' } });
+  } catch {
+    throw new PassBusy(0);
+  }
+  void response.body?.cancel();
+  if (response.status === 429 || response.status >= 500) throw new PassBusy(retryAfterOf(response));
+  const landed = new URL(response.url);
+  if (!response.ok || landed.origin !== location.origin || landed.pathname !== flow.callback) return null;
+  return landed.searchParams.get('state') === state ? landed.searchParams.get('code') : null;
 }
 
 /** The pass from the sign-in tool: with no redirect when the person is signed in there (quietCode), else the page goes

@@ -39,6 +39,9 @@ export const planNeededTitle = (needed: UpgradeNeeded): string => needsPlanTitle
 
 /** Why a read was refused, in plain words: the Worker's (or a reason's) own words when they were written for a person. */
 export function reasonOf(error: unknown): string {
+  // The sign-in server is busy: its words name how long to wait (account-pass.ts PassBusy).
+  const busy = (error as { busy?: string } | null)?.busy;
+  if (busy) return busy;
   if ((error as { slow?: boolean } | null)?.slow === true) return words.slow;
   // Only a request that never reached Trillion is "could not be reached": api.ts marks it, and a direct fetch refuses
   // with the browser's own network words. Any other TypeError is a mistake in the page, said as a problem answering.

@@ -9,5 +9,7 @@
   "scope": "openid profile email offline_access tools:list tools:* sharing.*",
   "kept": "workspace-sign-in",
   "renew_before_ms": 30000,
-  "refused": "Signing in did not finish. Sign in again."
+  "refused": "Signing in did not finish. Sign in again.",
+  "busy": "Sign-in is busy right now. Try again in {seconds} seconds.",
+  "busy_seconds": 30
 }
