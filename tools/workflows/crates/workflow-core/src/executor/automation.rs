@@ -5846,17 +5846,26 @@ mod tests {
     /// the condition reads is missing, the edge must not traverse: an admission decision that
     /// treats "no measurement" as "passed" is worse than one that never ran.
     #[test]
-    fn test_dag_on_result_threshold_does_not_traverse_when_the_value_is_absent() {
+    fn test_dag_on_result_threshold_fails_naming_the_step_when_the_value_is_absent() {
+        // A missing measurement neither satisfies a threshold nor quietly skips everything after it (Nov 21 2026 4:14 PM CST,
+        // workflow_newsletter-for-a-pursuit): the condition comes to null, and the run fails, naming the step and the value.
         let absent = StepOutput {
             status: ExecutionStatus::Completed,
             output: json!({}),
             error: None,
             duration_ms: 1,
         };
-        assert!(
-            !edge_traverses(threshold_edge(0.75), absent),
-            "a missing measurement must not satisfy a threshold"
-        );
+        let def = Definition {
+            steps: vec![make_step("A", "primitive"), make_step("B", "primitive")],
+            edges: vec![threshold_edge(0.75)],
+            ..Default::default()
+        };
+        let compiled = compile_definition(&def).unwrap();
+        let mut outcomes = std::collections::HashMap::new();
+        outcomes.insert("A".to_string(), absent);
+        let refused = is_node_ready("B", &compiled.step_map["B"], &compiled.dag, &outcomes, &default_edge_registry(), &default_join_registry())
+            .err().expect("an absent value is a type error, never a quiet not-taken");
+        assert!(refused.to_string().contains("'A' came to null, not true or false"), "{refused}");
     }
 
     // -- Test: invalid on_result conditions fail loudly instead of silently traversing. --

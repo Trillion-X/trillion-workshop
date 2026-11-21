@@ -273,7 +273,20 @@ fn evaluate_step_output_condition(
             hint: "Use workflow Binding AST over input.output/input.status/input.error/input.duration_ms; edge conditions do not use string templates or target-specific mini-languages.".to_string(),
         }
     })?;
-    Ok(ops_core::OpValue::from(resolved).is_truthy())
+    // A condition that comes to anything but true or false is a type error, never a quiet false: on Nov 21 2026 (4:14 PM CST,
+    // run workflow_newsletter-for-a-pursuit) a step's `pass` was not a boolean, neither of its two on_result edges was taken,
+    // every later step was skipped, and the run ended "completed".
+    match resolved {
+        Value::Bool(taken) => Ok(taken),
+        other => {
+            let shown: String = other.to_string().chars().take(200).collect();
+            Err(WorkflowError::ConditionEvaluationFailed {
+                step_id: source_id.to_string(),
+                reason: format!("An edge condition leaving '{source_id}' came to {shown}, not true or false"),
+                hint: "An on_result or on_failure condition must come to a boolean: compare the value with an op (op:core.eq, op:core.gte, ...) rather than using it as it is.".to_string(),
+            })
+        }
+    }
 }
 
 // ============================================================================
@@ -339,6 +352,16 @@ mod tests {
         let condition = serde_json::json!({ "$kind": "binding", "select": { "from": "input", "path": "output.posts" }, "transform": [{ "op": "op:core.gte", "args": { "value": 10 } }] });
         assert!(OnResultEdgeHandler.evaluate("days", &outcome(serde_json::json!({ "posts": 12 })), &Some(condition.clone())).unwrap());
         assert!(!OnResultEdgeHandler.evaluate("days", &outcome(serde_json::json!({ "posts": 3 })), &Some(condition)).unwrap());
+    }
+
+    #[test]
+    fn a_condition_that_is_not_a_boolean_fails_naming_the_step_and_its_value() {
+        let condition = serde_json::json!({ "$kind": "binding", "select": { "from": "input", "path": "output.pass" } });
+        let refused = OnResultEdgeHandler.evaluate("judge", &outcome(serde_json::json!({ "pass": "yes" })), &Some(condition.clone())).unwrap_err();
+        assert!(refused.to_string().contains("'judge' came to \"yes\", not true or false"), "{refused}");
+        assert!(OnResultEdgeHandler.evaluate("judge", &outcome(serde_json::json!({})), &Some(condition.clone())).is_err(), "a missing value is not false");
+        assert!(OnResultEdgeHandler.evaluate("judge", &outcome(serde_json::json!({ "pass": true })), &Some(condition.clone())).unwrap());
+        assert!(!OnResultEdgeHandler.evaluate("judge", &outcome(serde_json::json!({ "pass": false })), &Some(condition)).unwrap(), "a real false is a normal not-taken");
     }
 
     #[test]

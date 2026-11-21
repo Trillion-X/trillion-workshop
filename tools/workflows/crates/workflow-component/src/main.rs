@@ -183,11 +183,27 @@ fn set_at(value: &mut Value, path: &str, put: Value) {
     }
 }
 
-/// The ask the reader is handed: its input with the recipe id at `recipe_at`.
-fn reader_ask(reader: &Value, recipe: &str) -> Value {
+/// The ask the reader is handed: its input with the recipe id at `recipe_at`, and each of the run's values its `with` names
+/// ({path in the reader's input: dotted path in the run}, such as the chosen condition or the run's id) set where it says.
+fn reader_ask(reader: &Value, recipe: &str, run: &Map<String, Value>) -> Value {
     let mut input = reader.get("input").cloned().unwrap_or(json!({}));
     if let Some(path) = reader["recipe_at"].as_str() { set_at(&mut input, path, json!(recipe)); }
+    let run = Value::Object(run.clone());
+    for (to, from) in reader["with"].as_object().into_iter().flatten() {
+        let value = from.as_str().and_then(|from| at_path(&run, from)).cloned().unwrap_or(Value::Null);
+        set_at(&mut input, to, value);
+    }
     input
+}
+
+/// Why the reader's answer says the run is not to run (a text, or true, at the reader's `skip_at`), such as its row being
+/// switched off between the choosing and the start: the run then ends skipped, with no step run.
+fn skipped_by(reader: &Value, answer: &Value) -> Option<String> {
+    match reader["skip_at"].as_str().and_then(|path| at_path(answer, path)) {
+        Some(Value::String(why)) if !why.is_empty() => Some(why.clone()),
+        Some(Value::Bool(true)) => Some("skipped".to_string()),
+        _ => None,
+    }
 }
 
 /// The definition the reader answered, held to the run's pin: the first read holds the BLAKE3 of its JSON (and its version,
@@ -326,6 +342,16 @@ fn the_run(given: &Value) -> (Map<String, Value>, BTreeMap<String, String>) {
                 run.entry(field.to_string()).or_insert(value);
             }
         }
+        // A run that names a reader reads its row when it starts, never the copy the fact carries: a row switched off or
+        // changed between the choosing and the start (4:48-3:54 PM CST Nov 21 2026: a run chosen before
+        // workflow:publish-each-clip-that-clears-its-gates was switched off and fixed still ran its old definition) runs
+        // as the row is now. The fact's `workflow` names the recipe.
+        if run.get("read_definition").is_some_and(Value::is_object) {
+            if !run.contains_key("recipe") {
+                if let Some(workflow) = fact.get("workflow").filter(|workflow| workflow.is_string()) { run.insert("recipe".into(), workflow.clone()); }
+            }
+            if run.contains_key("recipe") { run.remove("definition"); run.remove("definitions"); }
+        }
         if let Some(Value::Object(settings)) = fact.remove("input") {
             for (field, value) in settings { own.insert(field, value); }
         }
@@ -348,7 +374,9 @@ fn the_run(given: &Value) -> (Map<String, Value>, BTreeMap<String, String>) {
 fn definitions_of(run: &Map<String, Value>) -> Vec<Value> {
     if let Some(Value::Array(all)) = run.get("definitions") { if !all.is_empty() { return all.clone(); } }
     if let Some(definition) = run.get("definition").filter(|d| d.is_object()) { return with_used(definition.clone()); }
-    fail("the run carries no definition: whatever starts it hands in the workflow's definition from where the person keeps it")
+    // A wake's switch that hands in neither (its input lost, or never given) is named, with what it needs.
+    fail("the run carries no definition and names no recipe: whatever starts it hands in the workflow's definition, or its `recipe` with \
+          `read_definition` (the reader of the row the person keeps it in); a wake's switch gives them as its input")
 }
 
 fn with_used(definition: Value) -> Vec<Value> {
@@ -391,6 +419,12 @@ fn main() {
                 .filter(|answer| answer.get("blake3").is_none()).cloned();
             if given_read.is_some() { run["answers"].as_object_mut().unwrap().remove(&step); }
             match run.remove(READ).or(given_read) {
+                Some(answer) if skipped_by(&run["read_definition"], &answer).is_some() => {
+                    let why = skipped_by(&run["read_definition"], &answer).unwrap_or_default();
+                    let run_id = run.get("run").and_then(Value::as_str).unwrap_or("run").to_string();
+                    println!("{}", json!({ "result": { "status": "skipped", "why": why, "workflow": recipe, "run": run_id, "steps": {} } }));
+                    return;
+                }
                 Some(answer) => with_used(pinned_definition(&mut run, &recipe, &step, &answer).unwrap_or_else(|why| fail(why))),
                 None => {
                     // Nothing walks until the definition is read: the reader is the one step handed out this pass.
@@ -399,7 +433,7 @@ fn main() {
                     let run_id = run.get("run").and_then(Value::as_str).unwrap_or("run").to_string();
                     let told = json!({ "source": ANSWERED, "event_id": format!("{run_id}:{step}"),
                         "payload": { "workflow": recipe, "run": run, "step": step, "for": tool } });
-                    let waiting = json!({ "step": step, "for": tool, "asks": reader_ask(&reader, &recipe) });
+                    let waiting = json!({ "step": step, "for": tool, "asks": reader_ask(&reader, &recipe, &run) });
                     let effect = effect_of(&waiting, told.clone(), &door_asks(), &recipe);
                     let mut shown = waiting.clone();
                     shown["told_as"] = told;
@@ -631,7 +665,7 @@ mod tests {
     // The reader is handed the recipe id where it asks for it, and a listed row's id reads the same way.
     #[test]
     fn a_run_named_by_its_recipe_or_listed_row_asks_its_reader_with_that_id() {
-        let asks = reader_ask(&reader(), "workflow:x");
+        let asks = reader_ask(&reader(), "workflow:x", &Map::new());
         assert_eq!(asks["params"], json!(["workflow:x"]));
         assert_eq!(asks["credential_name"], "rows-connection");
         let mut by_row = Map::new();
@@ -675,6 +709,64 @@ mod tests {
         run.insert("definition_may_move".into(), json!(true));
         assert!(pinned_definition(&mut run, "workflow:x", READ_STEP, &read_answer(one_step("workflow:x", "tool:y"), "v2")).is_ok());
         assert_eq!(run["answers"][READ_STEP]["version"], "v2", "the pin moved with it");
+    }
+
+    // A wake copy woken by a row change (3:54 PM CST Nov 21 2026: a-row-changed/answer-finished-tasks lost its switch input and
+    // failed every run) is switched with the recipe, its reader and its own settings: the run reads the row, carrying no
+    // definition, and the row change and the settings are the workflow's input.
+    #[test]
+    fn a_run_woken_by_a_row_change_reads_its_recipe_through_the_switchs_reader() {
+        let given = json!({ "input": { "database": "own", "recipe": "workflow:answer-a-finished-step-back", "read_definition": reader() },
+            "cause": { "key": "k", "detail": { "kind": "something-changed", "event_id": "where::something-changed@own:1:2",
+                "payload": { "place": "calendar_tasks", "key": "own:1:2", "change": "changed" } } }, "context": {} });
+        let (run, refused) = the_run(&given);
+        assert!(refused.is_empty(), "{refused:?}");
+        assert!(!carries_definition(&run));
+        assert_eq!(recipe_of(&run).as_deref(), Some("workflow:answer-a-finished-step-back"));
+        assert_eq!(reader_step(&run).as_deref(), Some(READ_STEP));
+        assert_eq!(run["input"]["database"], "own");
+        assert_eq!(run["input"]["fact"]["place"], "calendar_tasks");
+        assert!(run["input"].get("recipe").is_none() && run["input"].get("read_definition").is_none(), "the run's own fields are not the workflow's input");
+        assert_eq!(reader_ask(&run["read_definition"], recipe_of(&run).as_deref().unwrap(), &run)["params"], json!(["workflow:answer-a-finished-step-back"]));
+    }
+
+    // A run chosen from a fact reads its row at start: the definition the fact carries is dropped and the fact's workflow
+    // is the recipe, so an edit between the choosing and the start runs the row as it is now; the reader is handed the
+    // chosen condition and the run's id, where its `with` says.
+    #[test]
+    fn a_chosen_run_that_names_a_reader_reads_its_row_at_start_not_the_carried_copy() {
+        let mut read = reader();
+        read["with"] = json!({ "params.1": "input.fact.condition", "params.2": "run" });
+        let carried = one_step("workflow:clip", "tool:old");
+        let given = json!({ "input": { "read_definition": read },
+            "cause": { "key": "k1", "detail": { "kind": "workflow-chosen-from-rows", "event_id": "e",
+                "payload": { "workflow": "workflow:clip", "condition": "a clip clears its gates", "definition": carried } } }, "context": {} });
+        let (run, _) = the_run(&given);
+        assert!(!carries_definition(&run), "the carried copy is dropped");
+        assert_eq!(recipe_of(&run).as_deref(), Some("workflow:clip"));
+        assert_eq!(reader_ask(&run["read_definition"], "workflow:clip", &run)["params"], json!(["workflow:clip", "a clip clears its gates", "k1"]));
+        let mut run = run;
+        let now = pinned_definition(&mut run, "workflow:clip", READ_STEP, &read_answer(one_step("workflow:clip", "tool:new"), "v2")).unwrap();
+        assert_eq!(now["steps"][0]["config"]["name"], "tool:new", "the row as it is now runs");
+    }
+
+    // A row switched off between the choosing and the start: the reader says so at its skip_at, and the run is skipped.
+    #[test]
+    fn a_row_switched_off_before_the_start_skips_the_run() {
+        let mut read = reader();
+        read["skip_at"] = json!("rows.0.skipped");
+        assert_eq!(skipped_by(&read, &json!({ "rows": [{ "definition": null, "skipped": "switched off" }] })).as_deref(), Some("switched off"));
+        assert_eq!(skipped_by(&read, &json!({ "rows": [{ "definition": {}, "skipped": null }] })), None);
+        assert_eq!(skipped_by(&reader(), &json!({ "rows": [{ "skipped": "switched off" }] })), None, "a reader with no skip_at never skips");
+    }
+
+    // A run whose switch names no reader keeps the definition its fact carries, as before.
+    #[test]
+    fn a_chosen_run_with_no_reader_keeps_the_carried_definition() {
+        let given = json!({ "input": {}, "cause": { "key": "k", "detail": { "kind": "workflow-chosen-from-rows", "event_id": "e",
+            "payload": { "workflow": "workflow:clip", "definition": one_step("workflow:clip", "tool:x") } } }, "context": {} });
+        let (run, _) = the_run(&given);
+        assert!(carries_definition(&run));
     }
 
     // A reader that found no row fails the run, naming the recipe.
