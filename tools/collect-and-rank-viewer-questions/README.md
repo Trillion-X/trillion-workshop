@@ -2,7 +2,7 @@
 
 Scripts a person's AI runs on the person's own computer. They find the real questions people ask in the forums and video comments the person's audience reads, sort them into the person's own buckets, measure how often each question recurs, and find the moments of the person's own recordings that answer each one. A question is always the asker's sentence word for word, with the link to where it was said; nothing is rewritten or invented. Nothing leaves the computer and nothing is paid for.
 
-Nothing about any person, show, audience or drive is in this folder. The buckets and their codes, the asker lines the person chose, the inferred questions, how each research package is read, the reach rules and the words of the library are the person's settings row `record:setting:collect-and-rank-viewer-questions~<scope_kind>~<scope_id>` in their `list:settings`, read through `tools/settings` from a file holding the row as the door read it (`tool:read-a-tool-setting` reads it). A file of the settings themselves is read too. Their picks are their own file. What a run makes (the questions, with their frequency and answers) goes back as rows of their library.
+Nothing about any person, show, audience or drive is in this folder. The buckets and their codes, the asker lines the person chose, the inferred questions, how each research package is read, the reach rules and the words of the library are the person's settings row `record:setting:collect-and-rank-viewer-questions~<scope_kind>~<scope_id>` in their settings table, read through `tools/settings` from a file holding the row as the door read it (`tool:read-a-tool-setting` reads it). A file of the settings themselves is read too. Their picks are their own file. What a run makes (the questions, with their frequency and answers) goes back as rows of their library.
 
 Fetching is not here: forum posts are `tool:keep-forum-posts-from-a-public-archive` and video comments are `tool:keep-channels-latest-videos-and-captions` (a seed may be one video's own link), both in `tools/research-a-creator-or-topic`.
 
@@ -23,7 +23,7 @@ Fetching is not here: forum posts are `tool:keep-forum-posts-from-a-public-archi
 | `do-work/remap_picks.py` | Keeps the picks and asker overrides on their questions after the candidates are found again. |
 | `do-work/reports.py` | The views: `shortlist`, `answers`, `review`, `top30`, `brief`, `comments`, `vectors`. |
 | `ports/*.json` | The port contracts: each script's first commit here was the byte copy of its old script (names redacted), then adapted. |
-| `test/viewer-questions.test.mjs` | Every script run for real on made-up files, with the settings as a made-up list:settings row and stand-in models; `apply_gate` runs tool:check-copy for real. |
+| `test/viewer-questions.test.mjs` | Every script run for real on made-up files, with the settings as a made-up the settings table row and stand-in models; `apply_gate` runs tool:check-copy for real. |
 | `test/stand-in/` | Stand-ins for `sentence_transformers` (vectors that count words, a cross-encoder that scores shared words), `torch` (`nn.Sigmoid`, `from_numpy`) and a gate program of the older command line. |
 
 ## How to run it

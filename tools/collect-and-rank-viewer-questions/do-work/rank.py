@@ -20,7 +20,7 @@ TOOL = "tool:collect-and-rank-viewer-questions"
 
 
 def settings_from(path):
-    """The person's settings for this tool, read through tools/settings: a JSON file holding their list:settings row as
+    """The person's settings for this tool, read through tools/settings: a JSON file holding their settings table row as
     the door read it ({id, type: "record:setting", value}, id record:setting:collect-and-rank-viewer-questions~<scope_kind>~
     <scope_id>), or a JSON file of the settings themselves."""
     given = json.load(open(path))
