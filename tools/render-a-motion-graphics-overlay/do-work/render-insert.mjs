@@ -1,7 +1,7 @@
 // tools/render-a-motion-graphics-overlay/do-work/render-insert.mjs
 //
 // The command of tool:render-an-overlay-insert-for-a-cut. Reads the request on stdin; the rows it works from come in the
-// request itself, read by the person's AI from their list:settings and given as the rows (no records door is opened,
+// request itself, read by the person's AI from their settings table and given as the rows (no records door is opened,
 // nothing is kept):
 //   - spec (one) or specs (a batch): the shots, each a piece row's settings.spec;
 //   - settings_record: the film's look row as { id, type, value };

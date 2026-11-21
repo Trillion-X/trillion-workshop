@@ -198,7 +198,7 @@
         "status": "active",
         "label": "Draw a motion-graphics overlay for a video from a timed list of paper cut-outs, type, cards, charts and marks",
         "job": "Draw the animated graphics that go over a piece of my video (paper cut-outs, typed words, cards, charts, marker marks) as a see-through overlay with its sound, from a list of what appears when",
-        "description": "Draws one spec, a list of timed events ({type, at, ...}: torn paper strips and cards, typed and kinetic words, count-ups, charts and labels, marker circles and underlines, cut-out photos, footage insets, endcards and many more, one module per event type in do-work/overlay/events/), into overlay.mov (ProRes 4444 with alpha), its sound stem sound.wav (every placed sound, plus the voice when the spec mixes one; sfx-only.wav then holds the sounds alone) and timeline.json (every element, sound and placed box with its time), or, with stills, single frames over the spec's still background. The look (colours, faces, paper textures, motion, sound table, title-safe margin) is the person's settings: a row of their list:settings named by settings_record, or settings, or settings_files. The spec is the request's spec (a piece row's settings.spec, which your AI reads from your list). Times are seconds from the overlay's first frame, or [word, offset] against the voice's word times. A render stops, saying where, when an element leaves the title-safe area or the last frame still shows something. The crumple exit needs Blender; a citation card read by OCR needs tesseract.",
+        "description": "Draws one spec, a list of timed events ({type, at, ...}: torn paper strips and cards, typed and kinetic words, count-ups, charts and labels, marker circles and underlines, cut-out photos, footage insets, endcards and many more, one module per event type in do-work/overlay/events/), into overlay.mov (ProRes 4444 with alpha), its sound stem sound.wav (every placed sound, plus the voice when the spec mixes one; sfx-only.wav then holds the sounds alone) and timeline.json (every element, sound and placed box with its time), or, with stills, single frames over the spec's still background. The look (colours, faces, paper textures, motion, sound table, title-safe margin) is the person's settings: a row of their settings table named by settings_record, or settings, or settings_files. The spec is the request's spec (a piece row's settings.spec, which your AI reads from your list). Times are seconds from the overlay's first frame, or [word, offset] against the voice's word times. A render stops, saying where, when an element leaves the title-safe area or the last frame still shows something. The crumple exit needs Blender; a citation card read by OCR needs tesseract.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -208,7 +208,7 @@
           "properties": {
             "settings_record": {
               "type": "object",
-              "description": "The person's look row of list:settings as { id, type, value } (id record:setting:render-a-motion-graphics-overlay~<scope_kind>~<scope_id>, usually ~film~<film>), as your AI read it from your list; the tool reads no store"
+              "description": "The person's look row of the settings table as { id, type, value } (id record:setting:render-a-motion-graphics-overlay~<scope_kind>~<scope_id>, usually ~film~<film>), as your AI read it from your list; the tool reads no store"
             },
             "settings": {
               "type": "object",
@@ -640,7 +640,7 @@
           "properties": {
             "settings_record": {
               "type": "object",
-              "description": "The person's look row of list:settings as { id, type, value } (id record:setting:render-a-motion-graphics-overlay~<scope_kind>~<scope_id>, usually ~film~<film>), as your AI read it from your list; the tool reads no store"
+              "description": "The person's look row of the settings table as { id, type, value } (id record:setting:render-a-motion-graphics-overlay~<scope_kind>~<scope_id>, usually ~film~<film>), as your AI read it from your list; the tool reads no store"
             },
             "settings": {
               "type": "object",

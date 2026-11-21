@@ -22,7 +22,7 @@ export class OverlayRequestError extends Error {}
 /** Refuses a row named by its id: the row itself is what the request carries. */
 export function refuseRowIds(request, names) {
   for (const name of names) {
-    if (isSettingId(request?.[name])) throw new OverlayRequestError(`${name} is a row's id: give the row itself, { id, type, value }, as your AI read it from your list:settings.`);
+    if (isSettingId(request?.[name])) throw new OverlayRequestError(`${name} is a row's id: give the row itself, { id, type, value }, as your AI read it from your settings table.`);
   }
 }
 
