@@ -20,10 +20,21 @@
   "forgotten": "Forgotten.",
   "forget_gone": "This message is already forgotten.",
   "forget_failed": "Could not forget it.",
-  "no_reply": "Replying from here is not built yet. Reply in the app it came from.",
-  "composer_placeholder": "Replying from here is not built yet.",
   "source_names": {
     "imessage": "iMessage",
     "whatsapp": "WhatsApp"
-  }
+  },
+  "back": "Back",
+  "message": "Message",
+  "no_reply_here": "Replies from here are not on yet. Reply in Messages on your Mac for now.",
+  "sending": "Sending…",
+  "send_failed": "Not sent.",
+  "try_again": "Try again",
+  "dont_send": "Don't send",
+  "send_refused": "Replies from here go out as iMessage, one person at a time.",
+  "send_error": "Could not send it.",
+  "places_invalid": "Where your data lives names a table that is not a plain table name.",
+  "no_places_title": "Your messages are not connected yet",
+  "no_places_body": "Set where your data lives in Settings, and your conversations will show here.",
+  "no_conversations": "No conversations yet."
 }
