@@ -67,7 +67,7 @@
       },
       "folder": {
        "type": "string",
-       "description": "An absolute folder for the drawn pages"
+       "description": "An absolute folder for the drawn pages and pages.pdf, the deck as one file to send or print"
       }
      }
     },
@@ -562,7 +562,8 @@
            "from": "input",
            "path": "folder"
           }
-         }
+         },
+         "pdf": true
         },
         "context": {
          "step_id": "draw"

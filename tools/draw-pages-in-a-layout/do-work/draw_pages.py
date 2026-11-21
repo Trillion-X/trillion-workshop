@@ -8,8 +8,10 @@ heading or a bullet is refused by name. The layout (`layout.css`) is the caller'
 
 One JSON request, from the file named as the first argument or from standard input:
   {"pages": "PAGE 1\\nA title with *marked words*\\n## ...", "layout": {"css": "...", "width": 1080, "height": 1350},
-   "folder": "/absolute/folder"}
-Output: the last line on standard output is {"files": [absolute NN.jpg paths in page order], "pages": N}, or
+   "folder": "/absolute/folder", "pdf": false}
+Output: the last line on standard output is {"files": [absolute NN.jpg paths in page order], "pages": N}, with
+"pdf": "<folder>/pages.pdf" when the request asked for one (every page, one PDF page each at the page size, its words
+kept as text so they print sharp), or
 {"error": what to change} with exit status 1 (the same error is written to standard error).
 """
 import glob
@@ -94,7 +96,7 @@ def title_html(title):
     return "".join(f"<mark>{html.escape(part)}</mark>" if index % 2 else html.escape(part) for index, part in enumerate(parts))
 
 
-def page_html(page, css, width, height):
+def page_body(page):
     body = []
     if page["title"] is not None:
         body.append(f'<div class="t">{title_html(page["title"])}</div>')
@@ -103,8 +105,30 @@ def page_html(page, css, width, height):
             body.append(f'<h2>{html.escape(block["h2"])}</h2>')
         else:
             body.append("<ul>" + "".join(f"<li>{html.escape(item)}</li>" for item in block["ul"]) + "</ul>")
+    return f'<div class="p">{"".join(body)}</div>'
+
+
+def page_html(page, css, width, height):
     structure = f"html,body{{margin:0;width:{width}px}}.p{{position:relative;width:{width}px;height:{height}px}}"
-    return f"<!doctype html><meta charset=utf-8><style>{structure}\n{css}</style><div class=\"p\">{''.join(body)}</div>"
+    return f"<!doctype html><meta charset=utf-8><style>{structure}\n{css}</style>{page_body(page)}"
+
+
+def print_pdf(chrome, pages, css, width, height, folder):
+    """Every page in one PDF, one PDF page each at the page size, drawn from the same page HTML as the pictures."""
+    structure = (f"html,body{{margin:0;width:{width}px}}.p{{position:relative;width:{width}px;height:{height}px;overflow:hidden}}"
+                 f".p:not(:last-child){{break-after:page}}")
+    sheet = folder / "pages.html"
+    sheet.write_text(f"<!doctype html><meta charset=utf-8><style>{structure}\n{css}\n@page{{size:{width}px {height}px;margin:0}}</style>"
+                     + "".join(page_body(page) for page in pages), encoding="utf-8")
+    pdf = folder / "pages.pdf"
+    command = [chrome, "--headless", "--no-pdf-header-footer", f"--print-to-pdf={pdf}", sheet.as_uri()]
+    try:
+        subprocess.run(command, check=True, capture_output=True, timeout=600)
+    except subprocess.CalledProcessError as error:
+        raise Refusal(f"Chromium could not print the PDF: {error.stderr.decode(errors='replace')[-300:]}") from error
+    if not pdf.exists():
+        raise Refusal("Chromium wrote no PDF")
+    return str(pdf)
 
 
 def layout_of(request):
@@ -211,7 +235,10 @@ def draw(request):
             screenshot(chrome, page_file, png, width, height)
             to_jpeg(png, jpg)
             files.append(str(jpg))
-        return {"files": files, "pages": len(pages)}
+        answer = {"files": files, "pages": len(pages)}
+        if request.get("pdf") is True:
+            answer["pdf"] = print_pdf(chrome, pages, css, width, height, out)
+        return answer
     finally:
         shutil.rmtree(scratch, ignore_errors=True)
 

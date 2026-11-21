@@ -21,6 +21,7 @@ One JSON object, in a file named as the first argument (or on standard input):
 | `pages` | the judged text in the form above, one string |
 | `layout` | `{css, width?, height?}`: `css` is the CSS from the person's format row (CSS only: a `<` in it is refused); `width` and `height` default to 1080 and 1350 |
 | `folder` | an absolute path; made when missing |
+| `pdf` | `true` to also print every page into `folder/pages.pdf`, one PDF page each at the page size, words kept as text (for print and for sending as one file) |
 
 The tool styles only its structure: `.p` is the page (sized from `width` and `height`), `.t` the title, `h2` the headings,
 and `ul`/`li` the bullets. Everything else about how a page looks is the layout's CSS.
@@ -28,7 +29,8 @@ and `ul`/`li` the bullets. Everything else about how a page looks is the layout'
 ## The answer
 
 The last line on standard output is `{"files": [absolute NN.jpg paths, in page order], "pages": N}`. Each page is also
-written as `NN.html` and `NN.png` beside its JPEG. Nothing is written when any page is refused.
+written as `NN.html` and `NN.png` beside its JPEG. With `"pdf": true` the answer also has `"pdf": "<folder>/pages.pdf"`,
+printed from `pages.html` (every page in one sheet). Nothing is written when any page is refused.
 
 A refusal is `{"error": "..."}` with exit status 1, and the same text on standard error. Refusals:
 

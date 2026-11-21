@@ -102,6 +102,23 @@ class Drawing(unittest.TestCase):
             self.assertTrue(os.path.exists(os.path.join(self.folder('deck'), f'{number:02d}.html')))
             self.assertTrue(os.path.exists(os.path.join(self.folder('deck'), f'{number:02d}.png')))
 
+    def test_a_pdf_asked_for_holds_every_page_at_the_page_size_with_its_words_as_text(self):
+        code, answer, run = run_tool({**request(DECK, self.folder('pdf'), width=825, height=1125), 'pdf': True})
+        self.assertEqual(code, 0, run.stderr)
+        self.assertEqual(answer['pdf'], os.path.join(self.folder('pdf'), 'pages.pdf'))
+        with open(answer['pdf'], 'rb') as handle:
+            data = handle.read()
+        self.assertTrue(data.startswith(b'%PDF'))
+        self.assertEqual(len(re.findall(rb'/Type\s*/Page[^s]', data)), 2)
+        boxes = {tuple(round(float(n)) for n in box.split()) for box in re.findall(rb'/MediaBox\s*\[([^\]]+)\]', data)}
+        self.assertEqual(boxes, {(0, 0, 619, 844)})  # 825 x 1125 CSS px = 618.75 x 843.75 pt
+
+    def test_no_pdf_unless_asked(self):
+        code, answer, run = run_tool(request(DECK, self.folder('no-pdf')))
+        self.assertEqual(code, 0, run.stderr)
+        self.assertNotIn('pdf', answer)
+        self.assertFalse(os.path.exists(os.path.join(self.folder('no-pdf'), 'pages.pdf')))
+
     def test_a_line_that_is_not_title_heading_or_bullet_is_refused_by_name(self):
         pages = 'PAGE 1\nA player on how to *stay calm*\nHeading\nA loose sentence with no dash'
         code, answer, _ = run_tool(request(pages, self.folder('loose')))
