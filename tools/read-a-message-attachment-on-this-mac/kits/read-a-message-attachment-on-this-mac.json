@@ -1,0 +1,37 @@
+{
+  "start_here": "Say to your AI: \"Read the photo attached to message 7 in my Messages, as a JPEG no wider or taller than 1600 pixels.\" It runs tool:read-a-message-attachment-on-this-mac on this Mac and answers the picture's bytes with its media type and length, so the Messages screen can show it inline.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it reads one attachment of this Mac's Messages database and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-message-attachment-on-this-mac"
+  ],
+  "instructions": [
+    "1. Give the attachment as its row id in Messages (a whole number, such as 7) or its guid, and say whether to answer it as original or as a jpeg.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-a-message-attachment-on-this-mac and its input (the worked example shows one).",
+    "3. Read what comes back: attachment with id, media_type and byte_length, and bytes_base64 for the picture; or refused with a code and said, which names the setting or the step to change. A file over 700 KiB is refused as too_big: ask again with as jpeg and a smaller most_px."
+  ],
+  "worked_examples": [
+    {
+      "title": "Show a photo from a message as a JPEG",
+      "ask": "Read the photo attached to message 7 in my Messages, as a JPEG no wider or taller than 1600 pixels.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-message-attachment-on-this-mac",
+            "input": {
+              "attachment": 7,
+              "as": "jpeg",
+              "most_px": 1600
+            }
+          }
+        }
+      },
+      "given": "The input {\"attachment\":7,\"as\":\"jpeg\",\"most_px\":1600} for an attachment row that holds a HEIC photo.",
+      "hands_back": "{\"said\":\"Read attachment 7 as image/jpeg, <bytes> bytes.\",\"attachment\":{\"id\":7,\"media_type\":\"image/jpeg\",\"byte_length\":<bytes>,\"as\":\"jpeg\"},\"bytes_base64\":\"...\"}."
+    }
+  ]
+}

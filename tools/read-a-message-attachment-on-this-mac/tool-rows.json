@@ -1,0 +1,80 @@
+{
+  "kind": "tool-rows",
+  "record_set": "read-a-message-attachment-on-this-mac-tool-rows",
+  "what_this_is": "The Workshop row for reading one attachment of the Messages database on the person's Mac, run at that computer's local door (tools:run) over the home folder the person granted for reading. The reader is do-work/read-a-message-attachment.mjs, which answers the bytes of one attachment for the Messages screen to show inline.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:read-a-message-attachment-on-this-mac",
+        "id": "tool:read-a-message-attachment-on-this-mac",
+        "placements": ["placement:your-computer"],
+        "needs": { "expected_seconds": 5, "network_egress": false },
+        "label": "Read a message attachment on this Mac",
+        "job": "Answer the bytes of one attachment of the person's Messages database on this Mac, so a photo in a conversation can be shown inline",
+        "description": "Given attachment (the row id of the attachment in Messages' chat.db, as a whole number or a string of digits, or its guid), read that row, find the file its filename names under the person's Library/Messages/Attachments folder, and answer the file's bytes as base64 with its media type and length. chat.db is copied with its -wal into a private folder and the copy is read read-only, then the copy is removed. A file is read only when its path, symlinks resolved, is inside the attachments folder; a file over 700 KiB is refused with too_big so the answer stays under the 1 MiB JSON limit. With as jpeg, a picture is answered as a JPEG that macOS sips makes with its largest side at most_px (default 2048, 64 to 4096). No message text is read or returned. Needs Full Disk Access for the engine on this Mac (the messages source gate); without it the answer is refused with messages_not_readable. Returns said and either attachment with bytes_base64, or refused with its code.",
+        "input_schema": {
+          "type": "object",
+          "required": ["attachment"],
+          "additionalProperties": false,
+          "properties": {
+            "attachment": { "description": "The attachment's row id in chat.db (a whole number, or digits as text), or its guid", "oneOf": [{ "type": "integer", "minimum": 1 }, { "type": "string", "minLength": 1, "maxLength": 200 }] },
+            "as": { "enum": ["original", "jpeg"], "default": "original", "description": "original answers the file as it is; jpeg answers a picture converted by macOS sips" },
+            "most_px": { "type": "integer", "minimum": 64, "maximum": 4096, "default": 2048, "description": "With as jpeg: the largest side of the JPEG in pixels" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["said"],
+          "properties": {
+            "said": { "type": "string" },
+            "refused": { "enum": ["bad_attachment", "bad_options", "messages_not_readable", "not_found", "not_on_this_mac", "outside_attachments", "not_an_image", "convert_failed", "too_big"] },
+            "byte_length": { "type": "integer" },
+            "limit_bytes": { "type": "integer" },
+            "attachment": {
+              "type": "object",
+              "required": ["id", "media_type", "byte_length", "as"],
+              "properties": {
+                "id": { "type": "integer" },
+                "guid": { "type": "string" },
+                "media_type": { "type": "string" },
+                "byte_length": { "type": "integer" },
+                "transfer_name": { "type": ["string", "null"] },
+                "as": { "enum": ["original", "jpeg"] }
+              }
+            },
+            "bytes_base64": { "type": "string" }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["read-a-folder"],
+          "workdir": "/opt/read-a-message-attachment-on-this-mac",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "--no-warnings",
+            "/opt/read-a-message-attachment-on-this-mac/do-work/read-a-message-attachment.mjs",
+            { "fill": { "from": "task", "field": "grants.read-a-folder.folder" } }
+          ],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": {
+              "package": "read-a-message-attachment-on-this-mac",
+              "paths": [
+                "do-work/read-a-message-attachment.mjs",
+                "read-data/attachment-read.mjs",
+                "read-data/words.json"
+              ],
+              "at": "/opt/read-a-message-attachment-on-this-mac"
+            }
+          }
+        },
+        "result_selector": "$"
+      }
+    }
+  ]
+}

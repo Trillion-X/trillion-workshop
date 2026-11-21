@@ -1,0 +1,12 @@
+{
+  "about": "What the attachment reader says. Each refusal code of read-data/attachment-read.mjs names its words here; the tool's answer carries them as said.",
+  "bad_attachment": "Give the attachment as its row id (a whole number) or its guid (letters, digits, colon, underscore, dot or dash).",
+  "bad_options": "Give as as original or jpeg, and most_px as a whole number from 64 to 4096.",
+  "messages_not_readable": "The engine cannot read the Messages database on this Mac. Turn on Full Disk Access for the engine in System Settings, Privacy & Security, then ask again.",
+  "not_found": "No attachment with that row id or guid is in the Messages database on this Mac.",
+  "not_on_this_mac": "This attachment's file is not on this Mac. Messages keeps some attachments only in iCloud, or the file was removed.",
+  "outside_attachments": "This attachment names a file outside the Messages attachments folder, so it is not read.",
+  "not_an_image": "Only a picture can be answered as a JPEG. Ask for this attachment as original.",
+  "convert_failed": "macOS could not make a JPEG from this picture.",
+  "too_big": "This file is larger than one answer can carry. Ask again with as jpeg and a smaller most_px."
+}
