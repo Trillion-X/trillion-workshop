@@ -404,6 +404,13 @@ export function keyFromCredential(name, folder = process.env.CREDENTIALS_DIRECTO
   return readFileSync(join(folder, name), 'utf8').trim();
 }
 
+// The account address the helper talks to, named by its start command (`--origin ADDRESS`, the computer's row names it for its
+// unit). Absent or without a value, the caller keeps the origin its settings name. A trailing slash is dropped.
+export function originFlag(argv) {
+  const at = argv.indexOf('--origin');
+  return at > 0 && typeof argv[at + 1] === 'string' && argv[at + 1] ? argv[at + 1].replace(/\/$/, '') : null;
+}
+
 const isEntryScript = () => {
   try {
     return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
@@ -423,6 +430,8 @@ if (isEntryScript()) {
     process.stdout.write(`${JSON.stringify(answer, null, 2)}\n`); process.exit(0);
   }
   if (process.argv.includes('--keep-running') || process.argv.includes('--stop-running')) { process.stdout.write(`${keepRunning(process.argv.includes('--keep-running'))}\n`); process.exit(0); }
+  const flaggedOrigin = originFlag(process.argv);
+  if (flaggedOrigin) settings.origin = flaggedOrigin;
   const skipped = process.argv.flatMap((arg, at) => (arg === '--skip' && process.argv[at + 1] ? [process.argv[at + 1]] : []));
   const handlerRules = { ...settings, handlers: settings.handlers.filter(path => !skipped.includes(path)) };
   const credential = process.argv.indexOf('--key-credential');

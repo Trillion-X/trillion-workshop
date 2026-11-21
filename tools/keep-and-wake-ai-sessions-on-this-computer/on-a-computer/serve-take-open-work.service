@@ -20,7 +20,8 @@ Group={user}
 ExecStartPre=/bin/sh -c 'test -d {workshop}/.git || git init -q {workshop}'
 ExecStartPre=/bin/sh -c 'git -C {workshop} fetch -q --depth 1 {repository} {workshop_commit} && git -C {workshop} checkout -q --detach {workshop_commit}'
 ExecStartPre=/bin/sh -c 'lock=$$(git -C {workshop} rev-parse {workshop_commit}:package-lock.json) && if [ "$$(cat {workshop}/.git/npm-lock-id 2>/dev/null)" != "$$lock" ]; then cd {workshop} && npm ci --omit=dev --no-audit --no-fund && echo "$$lock" > {workshop}/.git/npm-lock-id; fi'
-ExecStart=/bin/sh -c 'cd {workshop} && exec node tools/keep-and-wake-ai-sessions-on-this-computer/harness/wake-sessions.mjs --key-credential {secret_name}'
+# The account address the helper talks to is the row's origin, named on the start command (wake-sessions originFlag).
+ExecStart=/bin/sh -c 'cd {workshop} && exec node tools/keep-and-wake-ai-sessions-on-this-computer/harness/wake-sessions.mjs --key-credential {secret_name} --origin {origin}'
 Restart=on-failure
 RestartSec=3
 KillSignal=SIGTERM
