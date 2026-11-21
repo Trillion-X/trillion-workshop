@@ -143,3 +143,12 @@ export function autoOf(rows) {
   if (!row || row.mode !== 'auto' || typeof row.decision_id !== 'string' || !row.decision_id) return null;
   return { decision_id: row.decision_id, setting_id: `approval_setting:${row.person}:${row.scope}`, mode: row.mode };
 }
+
+/** The owner's notice for a grant kept under auto-approve: who may now use which tools on which computer, and the address of
+ * the grants screen there. One row of their notices table, keyed by the label so the same grant tells once. */
+export const KEPT_NOTICE_SQL = `insert into notices (title, body, url, made_at, kind, key) values ($1, $2, $3, now(), 'info', $4)`;
+export function keptNoticeParams(input, computer) {
+  const people = input?.sharing?.people ?? [];
+  const values = { who: people.map(whoWords).join('; '), tools: (input?.sharing?.grant?.tools ?? []).join(', '), computer };
+  return [words.kept_notice.title, fill(words.kept_notice.body, values), `/grants?computer=${encodeURIComponent(computer)}`, `grant-kept:${String(input?.label)}`];
+}

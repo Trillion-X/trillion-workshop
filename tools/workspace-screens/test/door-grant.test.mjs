@@ -5,7 +5,7 @@
 // and last use, who, and refusals read as their own words.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { APPROVAL_SCOPE, APPROVAL_SQL, approvalParams, autoOf, KEEP, LIST, WITHDRAW, doorPath, doorRequest, endsWords, isKept, lastUsedWords, problemOf, refusalWords, requestOf, whoWords, withdrawInput } from '../web/src/workspace/door-grant.mjs';
+import { APPROVAL_SCOPE, APPROVAL_SQL, approvalParams, autoOf, KEEP, LIST, WITHDRAW, doorPath, doorRequest, endsWords, isKept, lastUsedWords, problemOf, refusalWords, requestOf, whoWords, withdrawInput, KEPT_NOTICE_SQL, keptNoticeParams } from '../web/src/workspace/door-grant.mjs';
 
 const digest = 'a'.repeat(64);
 const grant = (overrides = {}) => ({
@@ -133,4 +133,16 @@ test('an auto setting with its decision row is an auto decision; anything else a
   assert.equal(autoOf([{ person: 'p', scope: 'door-grant', mode: 'auto', decision_id: null }]), null, 'auto with no decision row asks');
   assert.equal(autoOf([]), null, 'no setting asks');
   assert.equal(autoOf(undefined), null, 'an unreadable answer asks');
+});
+
+test('a grant kept under auto-approve leaves the owner one notice: who may use which tools on which computer, keyed by its label', () => {
+  const input = { label: 'coach', on: true, sharing: { grant: { tools: ['tool:a', 'tool:b'], identity: 'self', journal: 'input' }, people: [{ principal: 'students', team: 'everyone', issuer: 'https://signin.example.test' }] } };
+  const [title, body, url, key] = keptNoticeParams(input, 'box-1');
+  assert.match(KEPT_NOTICE_SQL, /^insert into notices \(title, body, url, made_at, kind, key\)/);
+  assert.ok(title.length > 0);
+  assert.match(body, /students, everyone at https:\/\/signin\.example\.test/);
+  assert.match(body, /tool:a, tool:b/);
+  assert.match(body, /box-1/);
+  assert.equal(url, '/grants?computer=box-1');
+  assert.equal(key, 'grant-kept:coach');
 });

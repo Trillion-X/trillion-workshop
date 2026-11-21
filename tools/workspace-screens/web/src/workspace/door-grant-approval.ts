@@ -12,7 +12,7 @@
 
 import { runWorkshopTool } from './workshop-tool-api';
 import kept from './account-records.json' with { type: 'json' };
-import { APPROVAL_SQL, approvalParams, autoOf } from './door-grant.mjs';
+import { APPROVAL_SQL, KEPT_NOTICE_SQL, approvalParams, autoOf, keptNoticeParams } from './door-grant.mjs';
 
 /** The auto decision for one grant label, or null when the person must press Allow (or the check cannot be read). */
 export async function autoDecisionFor(label: string) {
@@ -22,4 +22,11 @@ export async function autoDecisionFor(label: string) {
   } catch {
     return null;
   }
+}
+
+/** Tells the owner, as one notice row, about a grant kept under auto-approve. A notice that cannot be written is not a failed keep. */
+export async function tellKept(input: unknown, computer: string) {
+  try {
+    await runWorkshopTool(kept.tool, { credential_name: kept.credential_name, sql: KEPT_NOTICE_SQL, params: keptNoticeParams(input, computer) });
+  } catch { /* the grant stands; the grants screen lists it */ }
 }

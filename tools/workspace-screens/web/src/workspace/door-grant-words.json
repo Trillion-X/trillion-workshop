@@ -1,5 +1,5 @@
 {
-  "_what": "Words of the door grant screen (door-grant-screen.tsx, door-grant.mjs): the owner keeps, lists and stops a grant that lets people or AIs run some of their tools on one of their own computers. A `{name}` in a text is filled from the values the screen has; nothing here names a product, a tool or a person. Refusals are keyed by the engine's refusal code (`refused.code`), never by its message.",
+  "_what": "Words of the door grant screen (door-grant-screen.tsx, door-grant.mjs): the owner keeps, lists and stops a grant that lets people or AIs run some of their tools on one of their own computers. A `{name}` in a text is filled from the values the screen has; nothing here names a product, a tool or a person. Refusals are keyed by the engine's refusal code (`refused.code`), never by its message. `kept_notice` is the notice an auto-kept grant leaves the owner (a row of their notices table), saying who got which tools.",
   "title": "Grants to use your tools",
   "loading": "Reading the grants on this computer",
   "request_heading": "Someone asks to use your tools",
@@ -54,5 +54,9 @@
     "input": "The computer did not accept this grant as it was written. Nothing was kept.",
     "vault": "The computer could not open its keys, so nothing was kept. Try again later.",
     "other": "The computer did not keep it. Try again."
+  },
+  "kept_notice": {
+    "title": "A grant was kept for you",
+    "body": "{who} may now use {tools} on {computer}, under your auto-approve setting. Open Grants to stop it."
   }
 }

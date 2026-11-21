@@ -12,15 +12,13 @@
 //   2. A keep is shown as kept only when the engine's own list of that computer names it again.
 //   3. Every control is a shared part (Button, Card, Container, Text) and the states are the shared screen state.
 //   4. A refusal is shown by the engine's code in words; nothing is kept on a refusal.
-//   5. A request that came in an address is never kept without the person's press, whatever their auto-approve says:
-//      anyone can send a link, and a link opened in the owner's signed-in page would otherwise keep a grant to whoever made
-//      it. Auto-approve (door-grant-approval.ts) is for requests the owner's own side wrote down, read from their rows.
 
 import * as React from 'react';
 import { Button, Card, Container, Text } from '../../../../ui';
 import { loadScreen } from '../../../../ui/show/screen-state';
 import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
 import { readJson } from './api';
+import { autoDecisionFor, tellKept } from './door-grant-approval';
 import { refusal } from './failure';
 import words from './door-grant-words.json';
 import { KEEP, LIST, WITHDRAW, doorRequest, endsWords, isKept, lastUsedWords, refusalWords, requestOf, whoWords, withdrawInput } from './door-grant.mjs';
@@ -80,8 +78,9 @@ function DoorGrant({ first, computer, request }: { first: Grants; computer: stri
   const [grants, setGrants] = React.useState<Grant[]>(first.grants);
   const [busy, setBusy] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState<string | null>(null);
-  // A request in the address always waits for the person's press (invariant 5).
-  const checking = false;
+  // A grant someone asks for is kept without a press only when the person's master setting says so (door-grant-approval.ts).
+  const [checking, setChecking] = React.useState(Boolean(request?.ok && computer));
+  const checked = React.useRef(false);
 
   // The engine's own list of this computer, read again after every change.
   const reread = async () => {
@@ -101,12 +100,25 @@ function DoorGrant({ first, computer, request }: { first: Grants; computer: stri
       await call(KEEP, input, crypto.randomUUID());
       const list = await reread();
       setMessage(isKept(list, input.label) ? (auto ? words.auto_kept : words.kept) : words.not_listed_yet);
+      // A grant kept with no press tells the owner who got which tools (the press is the owner's own knowing).
+      if (auto && isKept(list, input.label)) void tellKept(input, computer);
     } catch (error) {
       setMessage(refusalWords(codeOf(error)));
     } finally {
       setBusy(null);
     }
   };
+
+  // Once per opened request: the setting for this kind of grant decides whether it is kept now or the person presses Allow.
+  React.useEffect(() => {
+    if (!request?.ok || !computer || checked.current) return;
+    checked.current = true;
+    const asked = request.input;
+    void autoDecisionFor(asked.label).then(auto => {
+      setChecking(false);
+      if (auto) void keep(asked, true);
+    });
+  }, []);
 
   const stop = async (label: string) => {
     setBusy(label); setMessage(null);
