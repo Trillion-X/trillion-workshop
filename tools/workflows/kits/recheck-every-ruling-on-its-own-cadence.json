@@ -1,0 +1,42 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:recheck-every-ruling-on-its-own-cadence with credential_name <the vault name of my own account database>.\" It re-measures each ruling that is due and reports three counts; the daily audit runs the same step.",
+  "lists": [],
+  "no_lists_because": "The rulings are the person's principles rows, read and written in place; no list of the person's is needed.",
+  "workflows": [
+    "workflow:recheck-every-ruling-on-its-own-cadence",
+    "workflow:audit-every-chat-and-client-work-daily"
+  ],
+  "tools": [
+    "tool:run-sql-in-my-database"
+  ],
+  "instructions": [
+    "1. Name the vault connection of the database your principles rows are kept in (credential_name).",
+    "2. Run the workflow; it measures each ruling with a regression_sql and a ceiling whose cadence is due, and moves its cadence.",
+    "3. Read the answer: checked, clean, regressed and unmeasured. A regressed ruling has a calendar task for its owner lane and a last_regressed_why on its row."
+  ],
+  "worked_examples": [
+    {
+      "title": "Re-measure once now",
+      "ask": "Run workflow:recheck-every-ruling-on-its-own-cadence with credential_name for my database now",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-sql-in-my-database",
+            "input": {
+              "credential_name": "<my database>",
+              "sql": "<the step's sql, run once>"
+            }
+          }
+        }
+      },
+      "answer": "Three counts with their names: checked, clean and regressed, and unmeasured.",
+      "hands_back": "{\"checked\": 0, \"clean\": 0, \"regressed\": 0, \"unmeasured\": 0} when no ruling has a regression_sql yet.",
+      "workflow": "workflow:recheck-every-ruling-on-its-own-cadence",
+      "step": "recheck"
+    }
+  ],
+  "drafted_from": "workflow:recheck-every-ruling-on-its-own-cadence step recheck"
+}

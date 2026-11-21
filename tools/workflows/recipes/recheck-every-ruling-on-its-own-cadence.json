@@ -1,0 +1,58 @@
+{
+  "about": "workflow:recheck-every-ruling-on-its-own-cadence: rendered from its workflow_recipes row.",
+  "records": [
+    {
+      "payload": {
+        "source_kept_at": "2026-11-21 20:43:58.067119+00",
+        "kind": "workflow-recipe",
+        "id": "workflow:recheck-every-ruling-on-its-own-cadence",
+        "label": "Recheck every ruling on its own cadence",
+        "job": "Re-measure every ruling in the person's principles list that is due, by running its regression_sql with a 5 second timeout. A clean measure counts a pass; after widen_after_clean passes (3) the cadence steps 1, 2, 3, then 7 days. A measure over its ceiling is a regression: the cadence snaps back to 1 day, the number and the time are recorded as last_regressed_why, and one calendar task is opened for the owner lane. A ruling with no regression_sql is not measured and is not counted.",
+        "produces": "Counts only (checked, clean, regressed, unmeasured). Rulings are updated in principles; a regression opens one calendar task per ruling per day.",
+        "source": {
+          "from": "team lead, regression watcher job, Nov 21 2026",
+          "note": "Every ruling is a principles row; this watcher is the one place cadence and snap-back are decided."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "credential_name"
+          ],
+          "properties": {
+            "credential_name": {
+              "type": "string",
+              "pattern": "-connection$",
+              "description": "The person's own database, as the switch's input names it (its vault name)."
+            }
+          }
+        },
+        "definition": {
+          "edges": [],
+          "steps": [
+            {
+              "id": "recheck",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "SELECT row_to_json(x)::text FROM (SELECT count(*) AS checked, count(*) FILTER (WHERE outcome = 'clean') AS clean, count(*) FILTER (WHERE outcome = 'regressed') AS regressed, count(*) FILTER (WHERE outcome = 'unmeasured') AS unmeasured FROM recheck_due_rulings()) x",
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "credential_name"
+                    }
+                  }
+                },
+                "context": {
+                  "title": "Re-measure the due rulings",
+                  "step_id": "recheck"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
