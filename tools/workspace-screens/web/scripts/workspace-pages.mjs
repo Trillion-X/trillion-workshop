@@ -8,10 +8,12 @@
 //
 //   workspacePages(origin, site) -> [{ page, bytes }]   page relative to the pages folder (workspace.html, workspace/...)
 //
-//   A screen shown alone at its own address (a surface with shown_alone and route_paths outside /workspace in
-//   src/workspace/native-screen-program.json, such as the Mac menu bar panel's /menu-bar) is the same page at that address,
-//   so the front door answers it: until Nov 20 2026 /menu-bar had no page there, and the panel's reload every 31 s got 404.
-//
+//   Every screen at its own address (a surface's route_paths outside /workspace: the program's own surfaces in
+//   src/workspace/native-screen-program.json and each tool's screen offers in tools/*/part.json) is the same page at that
+//   address, so the front door answers it and the page opens that screen (addresses.mjs). Until Nov 20 2026 /menu-bar had no
+//   page there and the panel's reload every 31 s got 404; until Nov 21 2026 only screens shown alone had one, so a link to
+//   /grants (the owner's grants screen) or a reload of /calendar answered 404.
+
 //   A tool's own screen (a row's screen.kind "module") is built into a bundle the page imports from
 //   /workshop/modules/<bundle>/<file> (src/workspace/screen-module-address.mjs). A front door serving files has no server to
 //   open a bundle by its identity, so each bundle's files are pages at that address.
@@ -31,11 +33,21 @@ import { untarGz } from '../../../keep-and-wake-ai-sessions-on-this-computer/src
 const BUILD = join(dirname(fileURLToPath(import.meta.url)), 'build-workspace.mjs');
 const PROGRAM = join(dirname(fileURLToPath(import.meta.url)), '../src/workspace/native-screen-program.json');
 
-/** The addresses outside /workspace where a screen is shown alone, each one plain path segment deep or more. */
-export function aloneAddresses(program = JSON.parse(readFileSync(PROGRAM, 'utf8'))) {
-  return [...new Set((program.surfaces ?? []).filter(surface => surface.shown_alone === true)
-    .flatMap(surface => surface.route_paths ?? [])
-    .filter(path => /^\/[a-z0-9][a-z0-9-]*(\/[a-z0-9][a-z0-9-]*)*$/.test(path) && path !== '/workspace' && !path.startsWith('/workspace/')))];
+const TOOLS = join(dirname(fileURLToPath(import.meta.url)), '../../..');
+const PLAIN = /^\/[a-z0-9][a-z0-9-]*(\/[a-z0-9][a-z0-9-]*)*$/;
+
+/** Each tool's screen surfaces, from its part.json `offers[].screen.surface`. */
+export function toolScreenSurfaces(tools = TOOLS) {
+  return readdirSync(tools, { withFileTypes: true }).filter(entry => entry.isDirectory()).flatMap(entry => {
+    let part; try { part = JSON.parse(readFileSync(join(tools, entry.name, 'part.json'), 'utf8')); } catch { return []; }
+    return (part.offers ?? []).map(offer => offer?.screen?.surface).filter(Boolean);
+  });
+}
+
+/** The addresses outside /workspace where a screen opens, each one plain path segment deep or more. */
+export function screenAddresses(program = JSON.parse(readFileSync(PROGRAM, 'utf8')), surfaces = toolScreenSurfaces()) {
+  return [...new Set([...(program.surfaces ?? []), ...surfaces].flatMap(surface => surface.route_paths ?? [])
+    .filter(path => typeof path === 'string' && PLAIN.test(path) && path !== '/workspace' && !path.startsWith('/workspace/')))];
 }
 
 /** The workspace's pages for `origin` and its site `{ name }`. */
@@ -55,6 +67,6 @@ export function workspacePages(origin, site) {
   const modules = [...readScreenModules(dirname(out)).values()].flatMap(({ bundle, bytes }) =>
     untarGz(bytes, { withBytes: true }).map(file => ({ page: decodeURIComponent(moduleAddress(bundle, file.name)).slice(1), bytes: Buffer.from(file.bytes) })));
   const workspace = pages.find(({ page }) => page === 'workspace.html');
-  const alone = workspace ? aloneAddresses().map(path => ({ page: `${path.slice(1)}.html`, bytes: workspace.bytes })) : [];
+  const alone = workspace ? screenAddresses().map(path => ({ page: `${path.slice(1)}.html`, bytes: workspace.bytes })) : [];
   return [...pages, ...alone, ...modules].sort((a, b) => (a.page < b.page ? -1 : 1));
 }
