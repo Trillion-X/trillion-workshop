@@ -217,6 +217,48 @@
             "raw": "raw"
           }
         },
+        "keeps_outputs": {
+          "_what": "How the files a run makes are kept in the person's own files (trillion-rust src/tool_runs/tools/output_files.rs reads this, and names no word, call or field of its own): a row's `invoke.outputs` item whose `keep_in` is this `keep_in` is written here after the run's process exits 0, as the run's caller. The engine asks `bounds.call` for the most bytes one piece carries (`piece_field`), starts one upload with `start.call` {`upload_id`: 32 hex from the run's key, the output and the name, `name`: under `under`, then the row's label, then the name the input asks for or the run's start time, `length`, `media_type`, `app`: the row's id}, sends the file from the start's `next_field` on in pieces with `piece.call` {`upload_id`, `name`, `offset`}, each piece's bytes sent raw (this row's session.byte_argument), finishes with `finish.call` and keeps the output's results with `results.call`; the run's answer holds files.<output> = {identity, name, bytes, media_type}. A start asked again answers the same upload (open, or finished with its identity), so nothing is written twice. Ported from the old harness's keepOutput, keptName and keptResults (tools/shared-code/src/repo-explorer.mjs).",
+          "keep_in": "files",
+          "under": "/Made by tools",
+          "bounds": {
+            "call": "bounds",
+            "piece_field": "piece_most"
+          },
+          "start": {
+            "call": "write_file_start",
+            "upload_id": "upload_id",
+            "name": "name",
+            "length": "byte_length",
+            "media_type": "media_type",
+            "app": "app",
+            "state_field": "state",
+            "finished": "finished",
+            "next_field": "next_offset",
+            "identity_field": "identity"
+          },
+          "piece": {
+            "call": "write_file_piece",
+            "upload_id": "upload_id",
+            "name": "name",
+            "offset": "offset",
+            "next_field": "next_offset"
+          },
+          "finish": {
+            "call": "write_file_finish",
+            "upload_id": "upload_id",
+            "name": "name",
+            "identity_field": "identity"
+          },
+          "results": {
+            "call": "record_file_results",
+            "results": "results",
+            "identity": "identity",
+            "kind": "kind",
+            "value": "value",
+            "produced_by": "produced_by"
+          }
+        },
         "offers_runs": {
           "_what": "What a run of another tool may be granted of these calls (trillion-rust src/account_rights/run_capability/call-rights.json): a row asks for it in its stored list as {files: <folder>, operations: [<call>]}, \"/\" for every name or a folder such as \"/sites/\", and gets exactly those calls, each touching only the names under that folder. Each rule says which argument of a call names a name (`id`, each of them for a move or a copy) or a folder (`id_prefix`); a call by a file's identity, or one that names no name (`{}`), is covered only by \"/\". A call not listed here is never granted to a run.",
           "right": "files",
