@@ -9,22 +9,41 @@
 import net from 'node:net';
 import { Duplex } from 'node:stream';
 
+// Opening the tunnel is asked again only while it has not opened: a proxy that answers 502, 503 or 504 (right after a reboot or an
+// engine restart the proxy's own way out is not ready yet), or a proxy port that refuses or resets the connection, has carried no
+// byte of the database's protocol, so no statement was sent and asking again cannot repeat one. The waits between the tries are
+// DATA: five tries over about a minute. A 200 ends the asking for good; a refusal (403) and every failure after the tunnel opened
+// are the connection's failure as before.
+export const OPEN_WAITS_MS = [4000, 8000, 16000, 32000];
+const NOT_READY_STATUSES = new Set(['502', '503', '504']);
+const NOT_READY_CODES = new Set(['ECONNREFUSED', 'ECONNRESET']);
+
 /** pg's `stream` option for the proxy at `proxy` (an http:// address): a new tunnel for each connection. */
-export const throughProxy = proxy => {
+export const throughProxy = (proxy, { waits = OPEN_WAITS_MS } = {}) => {
   const { hostname, port } = new URL(proxy);
-  return () => new Tunnel(hostname, Number(port));
+  return () => new Tunnel(hostname, Number(port), waits);
 };
 
 class Tunnel extends Duplex {
-  constructor(proxyHost, proxyPort) {
+  constructor(proxyHost, proxyPort, waits) {
     super();
     this.proxy = { host: proxyHost, port: proxyPort };
+    this.waits = waits;
     this.noDelay = false;
   }
 
-  connect(port, host) {
+  connect(port, host, tried = 0) {
     const socket = net.connect(this.proxy.port, this.proxy.host);
     this.socket = socket;
+    let opened = false;
+    // The try failed before the tunnel opened: ask again after the next wait, or fail with the try's own error when none is left.
+    const notReady = error => {
+      if (opened || tried >= this.waits.length) return this.destroy(error);
+      socket.removeAllListeners();
+      socket.on('error', () => {});
+      socket.destroy();
+      setTimeout(() => { if (!this.destroyed) this.connect(port, host, tried + 1); }, this.waits[tried]);
+    };
     socket.setNoDelay(this.noDelay);
     socket.once('connect', () => socket.write(`CONNECT ${host}:${port} HTTP/1.1\r\nHost: ${host}:${port}\r\n\r\n`));
     let head = Buffer.alloc(0);
@@ -34,7 +53,11 @@ class Tunnel extends Duplex {
       if (end < 0) return;
       socket.off('data', answer);
       const status = head.subarray(0, end).toString('latin1').split(' ')[1];
-      if (status !== '200') return this.destroy(new Error(`the run's proxy did not open ${host}:${port} (answered ${status})`));
+      if (status !== '200') {
+        const error = new Error(`the run's proxy did not open ${host}:${port} (answered ${status})`);
+        return NOT_READY_STATUSES.has(status) ? notReady(error) : this.destroy(error);
+      }
+      opened = true;
       socket.on('data', data => { if (!this.push(data)) socket.pause(); });
       socket.on('end', () => this.push(null));
       const rest = head.subarray(end + 4);
@@ -42,7 +65,7 @@ class Tunnel extends Duplex {
       if (rest.length) this.push(rest);
     };
     socket.on('data', answer);
-    socket.on('error', error => this.destroy(error));
+    socket.on('error', error => (NOT_READY_CODES.has(error.code) ? notReady(error) : this.destroy(error)));
     socket.on('close', () => this.destroy());
     return this;
   }
