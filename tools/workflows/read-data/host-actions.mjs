@@ -171,16 +171,21 @@ export function resultOfRun(tool, answer) {
 }
 
 // The engine's answer to one call of the Files session tool, read in this one place (see SESSION_CALL above): its
-// structuredContent, or its refusal as a HostActionError with the tool's own code.
-export function resultOfCall(answer) {
+// structuredContent, or its refusal as a HostActionError with the tool's own code. The refusal's words name the call that
+// was refused and the store's own words for it (its `detail.words`), and keep the store's reference when it gives one: from
+// 3:58 PM CST Nov 21 2026 two keeps of page screenshots said only "The files tool refused the request.", so no one could tell
+// which call or why.
+export function resultOfCall(answer, method = null) {
   const reply = answer && typeof answer === 'object' ? answer[TOOL_RUN_RESULT] : null;
   if (!reply || typeof reply !== 'object' || Array.isArray(reply) || Object.hasOwn(answer, TOOL_RUN_ERROR)) {
     throw new HostActionError('rpc_error', 'The files tool returned an error.', 'unknown');
   }
   if (reply.isError) {
-    const { code, outcome } = reply.structuredContent ?? {};
-    throw new HostActionError(typeof code === 'string' && code ? code : 'refused', 'The files tool refused the request.',
-      outcome === 'not_started' ? 'not_started' : 'unknown');
+    const { code, outcome, detail, reference } = reply.structuredContent ?? {};
+    const words = typeof detail?.words === 'string' ? detail.words : typeof detail === 'string' ? detail : null;
+    const said = `The files tool refused ${method ? `${method}` : 'the request'}${words ? `: ${words}` : ''}.`;
+    throw Object.assign(new HostActionError(typeof code === 'string' && code ? code : 'refused', said,
+      outcome === 'not_started' ? 'not_started' : 'unknown'), { call: method, ...(typeof reference === 'string' ? { reference } : {}) });
   }
   return reply.structuredContent;
 }
@@ -205,7 +210,7 @@ export function openHostActions({ descriptor = 3, fetchImpl = fetch, wait = ms =
     const address = current().tools_resource ?? WORKSHOP_TOOLS;
     const answer = await ask(current(), fetchImpl, wait,
       { address, method: 'tools:run', input: { tool, [SESSION_CALL]: { name: method, arguments: input } }, retry: true });
-    return resultOfCall(answer);
+    return resultOfCall(answer, method);
   };
   return {
     // One operation on the person's Files through the run's files right (find_file, read_file, write_file_start ...).

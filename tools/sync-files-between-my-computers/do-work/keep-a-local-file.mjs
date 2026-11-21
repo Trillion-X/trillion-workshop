@@ -21,6 +21,7 @@ import { readFileSync } from 'node:fs';
 import { isAbsolute } from 'node:path';
 import { keepLocalFile } from '../../workflows/read-data/whole-file.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import { readFile } from 'node:fs/promises';
 
 const SETTINGS = JSON.parse(readFileSync(new URL('./keep-a-local-file.json', import.meta.url), 'utf8'));
 
@@ -44,8 +45,29 @@ async function keepOne({ path, name, media_type = 'application/octet-stream' } =
   // ends partway, as a run past its deadline does, is gone on with from where the upload stands by the next run of the
   // same file, never sent from the start again (a 3,020,837,328-byte card file was cut at 2 minutes on Nov 21 2026).
   const uploadId = makeHashCodeHexFromBytes(Buffer.from(`keep-a-local-file\0${name}\0${info.size}\0${info.mtimeMs}\0${info.ino}`)).slice(3, 35);
-  const finished = await keepLocalFile(context, name, path, { mediaType: media_type, uploadId });
+  let finished;
+  try {
+    finished = await keepLocalFile(context, name, path, { mediaType: media_type, uploadId });
+  } catch (error) {
+    const held = await sameBytesHeld(context, name, path, info.size);
+    if (!held) throw error;
+    finished = held;
+  }
   return { name, bytes: info.size, media_type, finished };
+}
+
+// A keep the files tool refused, onto a name that already holds exactly this file's bytes (the same length and the same
+// content identity), is that file kept: it answers the name's file, `already_kept`, never a refusal. A keep sent again after
+// its first answer was lost found its name taken and was refused (two page screenshots, 3:58-4:12 PM CST Nov 21 2026), and the
+// person kept it again under a second name. Only a file below the whole-file threshold is read to compare; a larger one keeps
+// its refusal.
+async function sameBytesHeld(context, name, path, size) {
+  if (size > SETTINGS.compare_most_bytes) return null;
+  let found;
+  try { found = await context.files('find_file', { name_or_identity: name }); } catch { return null; }
+  if (found?.byte_length !== size || typeof found?.identity !== 'string') return null;
+  const identity = makeHashCodeHexFromBytes(await readFile(path));
+  return identity === found.identity ? { state: 'finished', already_kept: true, identity, name, byte_length: size } : null;
 }
 
 export async function keepALocalFile(input = {}, context = {}) {

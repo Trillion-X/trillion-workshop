@@ -85,6 +85,11 @@ test('a refusal of the Files tool throws its own code, and an answer that is no 
   const refused = nativeSide(() => ({ structuredContent: { tool: 'tool:synthetic-files', result: { isError: true, structuredContent: { code: 'file_not_found', outcome: 'not_started' } } } }));
   const host = openHostActions({ descriptor: descriptorWith({ files_resource: 'tool:synthetic-files' }), wait: noWait, fetchImpl: refused.fetchImpl });
   await assert.rejects(host.files('find_file', { name_or_identity: '/none' }), { code: 'file_not_found', outcome: 'not_started' });
+  // The refusal names the call refused and the store's words for it.
+  const said = nativeSide(() => ({ structuredContent: { tool: 'tool:synthetic-files', result: { isError: true, structuredContent: { code: 'original_input_refused', outcome: 'not_started', detail: { words: 'upload id cannot be reused' }, reference: 'ref-1' } } } }));
+  const saying = openHostActions({ descriptor: descriptorWith({ files_resource: 'tool:synthetic-files' }), wait: noWait, fetchImpl: said.fetchImpl });
+  await assert.rejects(saying.files('write_file_start', { upload_id: 'a', name: '/a' }),
+    { code: 'original_input_refused', message: 'The files tool refused write_file_start: upload id cannot be reused.', call: 'write_file_start', reference: 'ref-1' });
   assert.equal(refused.sent[0].arguments.address, '@tools', 'the Workshop tools address when the descriptor names none');
   const broken = nativeSide(() => ({ structuredContent: { tool: 'tool:synthetic-files', error: { message: 'no' } } }));
   const other = openHostActions({ descriptor: descriptorWith({ files_resource: 'tool:synthetic-files' }), wait: noWait, fetchImpl: broken.fetchImpl });

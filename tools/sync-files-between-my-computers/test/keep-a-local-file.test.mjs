@@ -120,3 +120,26 @@ test('a run over the most files is refused before anything is sent', async () =>
   await assert.rejects(keepALocalFile({ files }, door), { code: 'refused' });
   assert.equal(door.calls.length, 0);
 });
+
+
+test('a refused keep onto a name that holds the same bytes answers that file as kept; other bytes keep the refusal', async () => {
+  const dir = tempFolder(join(tmpdir(), 'keep-local-'));
+  const path = join(dir, 'shot.png');
+  const bytes = Buffer.from('the same shot');
+  await writeFile(path, bytes);
+  const { makeHashCodeHexFromBytes } = await import('../../content-identity/read-data/identity.mjs');
+  const refusing = held => ({
+    async files(op) {
+      if (op === 'find_file') return held;
+      throw Object.assign(new Error('The files tool refused write_file_start: upload id cannot be reused.'), { code: 'original_input_refused' });
+    },
+  });
+  const same = await keepALocalFile({ path, name: '/shots/shot.png', media_type: 'image/png' },
+    refusing({ identity: makeHashCodeHexFromBytes(bytes), byte_length: bytes.length }));
+  assert.deepEqual(same.refused, []);
+  assert.deepEqual(same.kept[0].finished, { state: 'finished', already_kept: true, identity: makeHashCodeHexFromBytes(bytes), name: '/shots/shot.png', byte_length: bytes.length });
+  const other = await keepALocalFile({ path, name: '/shots/shot.png', media_type: 'image/png' },
+    refusing({ identity: makeHashCodeHexFromBytes(Buffer.from('another shot!')), byte_length: bytes.length }));
+  assert.equal(other.refused[0].code, 'original_input_refused');
+  assert.match(other.refused[0].reason, /write_file_start: upload id cannot be reused/);
+});
