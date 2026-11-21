@@ -1,13 +1,17 @@
 {
-  "_what": "One workflow every change the person's store tells wakes. Whatever tells a change (a Postgres table the person's AI attached record_row_change() to, read by the noticer; or any store the person's AI taught to tell its changes, workflow:tell-me-when-something-changes) tells a something-changed fact that carries the change itself: where (the vault name of what is watched), place (what changed, in the store's own name), change (added, changed or removed), at, key (the change's own key in the store's words), before and after as JSON text when each fits a fact field, and kinds (a JSON list of the kinds of change the teller's own rules gave it, for example a booking waiter row's shape.kinds). This run first reads the person's own workflow rows that could follow the change: from the store their switch names (input own.credential_name) and from the changed store itself when its vault name says it is a database connection (ends in -connection), each with one SELECT of workflow_recipes through tool:run-sql-in-my-database. The SELECT keeps only the conditions the change could meet, judged as the formula engine judges the change's part {place, change, where, kinds, after}: a group whose 'and' rules hold one it cannot meet, or whose 'or' rules are all such, is left in the store (a rule it cannot meet: is_any_of on a choice field whose value is not listed, has_any_of on a tags field that holds none of the values, is_not_empty on a value that is empty; a rule on before, on another kind of field, or of another operator is never judged there) and hands back only each row's recipe, its kept conditions and kept_in (the store, when the row keeps its own definition), so the answer stays a few KB however many rows the store holds; a store that cannot be read (no workflow_recipes table, unreachable) reads as no rows, so the installed workflows are still chosen. It makes the change one part (where, place, change, before, after and kinds as a list) and asks tool:choose-the-workflows-that-fire which workflows' fires_when conditions keep that part, the person's own row winning over an installed recipe of the same id (an installed workflow whose own row was left in the store is judged by its installed conditions). For each choice an installed recipe holds, it tells one workflow-chosen fact {workflow, condition, where, place, change, key, at}: seven fields, and no row state (before or after stays out); a chosen workflow that needs the row reads it by key from its row_changes; that workflow starts from its own wake, under its own switch and its own rights, with the input its condition names. For each choice that is the person's row alone (or one own.over_installed lists), it reads that row's definition where it is kept and tells one workflow-chosen-from-rows fact carrying the definition and the condition's input, which tool:run-a-workflow's wake a-workflow-was-chosen runs. The event id is the event id the engine admitted the change under (input.fact_id: one per change its teller told, so a second change of the same row is a second choice), or the change's own key when the change is handed in directly, plus the workflow and the condition, so a retried run tells each choice once. Its wake keeps no facts while it is switched off (replay names only within_ms, so while_off_ms is 0): this wake hears every change a computer's noticers tell, and an engine keeps at most 64 owed facts for all its wakes together, so a switched-off router that kept six hours of changes filled them in about twenty minutes and the computer admitted no fact for any wake (the Mac, 6:07-6:27 AM CST Nov 21 2026); a change on a computer whose router is off is not routed there. Unfunded facts are still owed for a day while it is on.",
+  "about": "workflow:route-each-row-change: rendered from its workflow_recipes row.",
   "records": [
     {
       "payload": {
+        "source_kept_at": "2026-11-21 22:48:31.252821+00",
         "kind": "workflow-recipe",
         "id": "workflow:route-each-row-change",
         "label": "Tell the workflows a row change calls for",
         "job": "When a row of the person's own database is added, changed or removed, tell every workflow whose conditions say it follows that kind of change, so each starts from its own wake with that change",
         "produces": "one workflow-chosen fact for each workflow a row change calls for",
+        "source": {
+          "note": "Wall budget 120000 ms is an UNMEASURED interim (16:50 CST Nov 21): the wake book keeps no per-run actual ms, so no p95 exists. Re-measure once the ledger keeps per-run actual ms; finding filed."
+        },
         "input_schema": {
           "type": "object",
           "properties": {
@@ -17,120 +21,162 @@
             }
           }
         },
-        "wakes": [
-          {
-            "id": "a-row-changed",
-            "on": {
-              "fact": {
-                "kind": "something-changed",
-                "from": [
-                  "run"
-                ]
-              }
-            },
-            "budget": {
-              "steps": 40,
-              "wall_ms": 3600000
-            },
-            "replay": {
-              "within_ms": 86400000
-            },
-            "input": {
-              "start_at": "plan"
-            }
-          }
-        ],
         "definition": {
           "id": "workflow:route-each-row-change",
-          "name": "Tell the workflows a row change calls for",
           "kind": "workflow",
-          "is_active": true,
-          "version": 1,
-          "steps": [
+          "name": "Tell the workflows a row change calls for",
+          "uses": [
             {
-              "id": "plan",
-              "kind": "return",
-              "config": {
-                "value": {
-                  "stores": [
-                    {
-                      "$kind": "binding",
-                      "select": {
-                        "from": "input",
-                        "path": "own.credential_name"
-                      }
-                    },
-                    {
-                      "$kind": "binding",
-                      "select": {
-                        "from": "input",
-                        "path": "fact.where"
-                      },
-                      "resolve_nested_bindings": true,
-                      "transform": [
-                        {
-                          "op": "op:core.if_null",
-                          "args": {
-                            "fallback": ""
+              "id": "workflow:route-each-row-change:tell-one",
+              "kind": "workflow",
+              "name": "Tell that one chosen workflow its change",
+              "edges": [],
+              "steps": [
+                {
+                  "id": "tell",
+                  "kind": "ask",
+                  "config": {
+                    "name": "wake:arrive",
+                    "input": {
+                      "kind": "workflow-chosen",
+                      "payload": {
+                        "at": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "fact.at"
                           }
                         },
-                        {
-                          "op": "op:core.ends_with",
-                          "args": {
-                            "suffix": "-connection"
+                        "key": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "fact.key"
                           }
                         },
-                        {
-                          "op": "op:core.if",
-                          "args": {
-                            "then": {
-                              "$kind": "binding",
-                              "select": {
-                                "from": "input",
-                                "path": "fact.where"
-                              }
-                            },
-                            "else": null
+                        "after": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "fact.after"
+                          }
+                        },
+                        "place": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "fact.place"
+                          }
+                        },
+                        "where": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "fact.where"
+                          }
+                        },
+                        "change": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "fact.change"
+                          }
+                        },
+                        "workflow": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "chosen.workflow"
+                          }
+                        },
+                        "condition": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "chosen.condition"
                           }
                         }
-                      ]
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "id": "read-own",
-              "kind": "loop",
-              "config": {
-                "source": {
-                  "$kind": "binding",
-                  "select": {
-                    "from": "steps",
-                    "key": "plan",
-                    "path": "output.stores"
-                  },
-                  "transform": [
-                    {
-                      "op": "op:core.filter_where",
-                      "args": {
-                        "predicate": [
+                      },
+                      "event_id": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "fact_id"
+                        },
+                        "transform": [
                           {
-                            "op": "op:core.is_not_null"
+                            "op": "op:core.concat",
+                            "args": {
+                              "values": [
+                                {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "input",
+                                    "path": "fact_id"
+                                  },
+                                  "transform": [
+                                    {
+                                      "op": "op:core.coalesce",
+                                      "args": {
+                                        "values": [
+                                          {
+                                            "$kind": "binding",
+                                            "select": {
+                                              "from": "input",
+                                              "path": "fact_id"
+                                            }
+                                          },
+                                          {
+                                            "$kind": "binding",
+                                            "select": {
+                                              "from": "input",
+                                              "path": "fact.key"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ],
+                                  "resolve_nested_bindings": true
+                                },
+                                ":",
+                                {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "loop",
+                                    "path": "chosen.workflow"
+                                  }
+                                },
+                                ":",
+                                {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "loop",
+                                    "path": "chosen.condition"
+                                  }
+                                }
+                              ]
+                            }
                           }
-                        ]
+                        ],
+                        "resolve_nested_bindings": true
                       }
-                    },
-                    {
-                      "op": "op:core.array_unique"
                     }
-                  ]
-                },
-                "item_var": "store",
-                "parallel": false,
-                "definition_id": "workflow:route-each-row-change:read-one-store"
-              }
-            },
+                  }
+                }
+              ],
+              "version": 1,
+              "is_active": true
+            }
+          ],
+          "edges": [
+            {
+              "to": "start-each",
+              "from": "choose",
+              "kind": "always"
+            }
+          ],
+          "steps": [
             {
               "id": "choose",
               "kind": "ask",
@@ -139,39 +185,6 @@
                 "input": {
                   "parts": [
                     {
-                      "where": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "fact.where"
-                        }
-                      },
-                      "place": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "fact.place"
-                        }
-                      },
-                      "change": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "fact.change"
-                        }
-                      },
-                      "before": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "fact.before"
-                        },
-                        "transform": [
-                          {
-                            "op": "op:core.json_parse"
-                          }
-                        ]
-                      },
                       "after": {
                         "$kind": "binding",
                         "select": {
@@ -195,579 +208,92 @@
                             "op": "op:core.json_parse"
                           }
                         ]
+                      },
+                      "place": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "fact.place"
+                        }
+                      },
+                      "where": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "fact.where"
+                        }
+                      },
+                      "before": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "fact.before"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.json_parse"
+                          }
+                        ]
+                      },
+                      "change": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "fact.change"
+                        }
                       }
                     }
                   ],
-                  "own": {
-                    "$kind": "binding",
-                    "select": {
-                      "from": "steps",
-                      "key": "read-own",
-                      "path": "output"
-                    },
-                    "transform": [
-                      {
-                        "op": "op:core.flat_map",
-                        "args": {
-                          "transform": [
-                            {
-                              "op": "op:core.get_path",
-                              "args": {
-                                "path": "rows"
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    ]
-                  },
-                  "over_installed": {
-                    "$kind": "binding",
-                    "select": {
-                      "from": "input",
-                      "path": "own.over_installed"
-                    },
-                    "transform": [
-                      {
-                        "op": "op:core.if_null",
-                        "args": {
-                          "fallback": []
-                        }
-                      }
-                    ]
-                  },
                   "within": [
                     "workflow:route-each-row-change"
                   ]
+                },
+                "context": {
+                  "step_id": "choose"
                 }
               }
             },
             {
-              "id": "tell-installed",
+              "id": "start-each",
               "kind": "loop",
               "config": {
                 "source": {
                   "$kind": "binding",
                   "select": {
-                    "from": "steps",
                     "key": "choose",
-                    "path": "output.chosen"
-                  },
-                  "transform": [
-                    {
-                      "op": "op:core.filter_where",
-                      "args": {
-                        "predicate": [
-                          {
-                            "op": "op:core.get_path",
-                            "args": {
-                              "path": "installed"
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                },
-                "item_var": "chosen",
-                "definition_id": "workflow:route-each-row-change:tell-one",
-                "parallel": true
-              }
-            },
-            {
-              "id": "start-from-rows",
-              "kind": "loop",
-              "config": {
-                "source": {
-                  "$kind": "binding",
-                  "select": {
                     "from": "steps",
-                    "key": "choose",
                     "path": "output.chosen"
-                  },
-                  "transform": [
-                    {
-                      "op": "op:core.filter_where",
-                      "args": {
-                        "predicate": [
-                          {
-                            "op": "op:core.get_path",
-                            "args": {
-                              "path": "kept_in"
-                            }
-                          },
-                          {
-                            "op": "op:core.is_not_null"
-                          }
-                        ]
-                      }
-                    }
-                  ]
+                  }
                 },
                 "item_var": "chosen",
                 "parallel": true,
-                "definition_id": "workflow:route-each-row-change:start-one-from-its-row"
+                "definition_id": "workflow:route-each-row-change:tell-one"
               }
             }
           ],
-          "edges": [
-            {
-              "from": "plan",
-              "to": "read-own",
-              "kind": "always"
-            },
-            {
-              "from": "read-own",
-              "to": "choose",
-              "kind": "always"
-            },
-            {
-              "from": "choose",
-              "to": "tell-installed",
-              "kind": "always"
-            },
-            {
-              "from": "tell-installed",
-              "to": "start-from-rows",
-              "kind": "always"
-            }
-          ],
-          "uses": [
-            {
-              "id": "workflow:route-each-row-change:read-one-store",
-              "name": "Read the workflow rows of one store whose conditions could keep the change",
-              "kind": "workflow",
-              "is_active": true,
-              "version": 1,
-              "steps": [
-                {
-                  "id": "read",
-                  "kind": "ask",
-                  "config": {
-                    "name": "tool:run-sql-in-my-database",
-                    "input": {
-                      "credential_name": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "loop",
-                          "path": "store"
-                        }
-                      },
-                      "sql": "WITH part AS (SELECT jsonb_build_object('place', $1::text, 'change', $2::text, 'where', $3::text, 'kinds', nullif($4::text, '')::jsonb, 'after', nullif($6::text, '')::jsonb) AS p),\nconditions AS (\n  SELECT r.recipe, r.definition, c.value AS c, c.ordinality AS n\n  FROM workflow_recipes r CROSS JOIN LATERAL jsonb_array_elements(CASE WHEN jsonb_typeof(r.fires_when) = 'array' THEN r.fires_when ELSE '[]'::jsonb END) WITH ORDINALITY c),\njudged AS (\n  SELECT k.recipe, k.definition, k.c, k.n, k.c #>> '{condition,tree,combinator}' AS combinator, array_agg(m.misses) FILTER (WHERE m.misses IS NOT NULL) AS misses\n  FROM conditions k\n  LEFT JOIN LATERAL (\n    SELECT CASE\n      WHEN rule ->> 'kind' IS DISTINCT FROM 'rule' OR coalesce(rule ->> 'negate', 'false') <> 'false' OR field IS NULL OR path[1] = 'before' THEN false\n      WHEN rule ->> 'operator' = 'is_any_of' AND field ->> 'kind' = 'choice' AND jsonb_typeof(rule #> '{params,values}') = 'array'\n        THEN coalesce(jsonb_typeof(v), 'null') IN ('string', 'number', 'boolean', 'null') AND NOT rule #> '{params,values}' @> jsonb_build_array(coalesce(v, 'null'::jsonb))\n      WHEN rule ->> 'operator' = 'has_any_of' AND field ->> 'kind' = 'tags' AND jsonb_typeof(rule #> '{params,values}') = 'array'\n        THEN coalesce(jsonb_typeof(v), 'null') IN ('null', 'string')\n          OR (jsonb_typeof(v) = 'array' AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements(v) e WHERE jsonb_typeof(e) <> 'string' OR rule #> '{params,values}' @> jsonb_build_array(e)))\n      WHEN rule ->> 'operator' = 'is_not_empty' AND field ->> 'kind' IN ('text', 'tags', 'choice')\n        THEN v IS NULL OR v IN ('null'::jsonb, '\"\"'::jsonb, '[]'::jsonb)\n      ELSE false END AS misses\n    FROM jsonb_array_elements(CASE WHEN k.c #>> '{condition,tree,kind}' = 'group' AND coalesce(k.c #>> '{condition,tree,negate}', 'false') = 'false' AND jsonb_typeof(k.c #> '{condition,tree,rules}') = 'array' THEN k.c #> '{condition,tree,rules}' ELSE '[]'::jsonb END) rule\n    LEFT JOIN LATERAL (SELECT f FROM jsonb_array_elements(CASE WHEN jsonb_typeof(k.c #> '{condition,fields}') = 'array' THEN k.c #> '{condition,fields}' ELSE '[]'::jsonb END) f WHERE f ->> 'id' = rule ->> 'field' LIMIT 1) fd(field) ON true\n    CROSS JOIN LATERAL (SELECT ARRAY(SELECT jsonb_array_elements_text(CASE WHEN jsonb_typeof(field -> 'path') = 'array' THEN field -> 'path' ELSE jsonb_build_array(field ->> 'id') END)) AS path) pa\n    CROSS JOIN LATERAL (SELECT (SELECT p FROM part) #> pa.path AS v) va) m ON true\n  GROUP BY k.recipe, k.definition, k.c, k.n),\ncan_hold AS (\n  SELECT * FROM judged\n  WHERE NOT ((combinator = 'and' AND true = ANY(coalesce(misses, '{}'))) OR (combinator = 'or' AND cardinality(coalesce(misses, '{}')) > 0 AND false <> ALL(misses))))\nSELECT recipe AS id, jsonb_strip_nulls(jsonb_build_object('recipe', recipe,\n  'fires_when', jsonb_agg(jsonb_strip_nulls(jsonb_build_object('label', c -> 'label', 'condition', c -> 'condition', 'made_by', c -> 'made_by', 'state', c -> 'state', 'weight', c -> 'weight', 'input', c -> 'input')) ORDER BY n),\n  'kept_in', CASE WHEN jsonb_typeof(min(definition::text)::jsonb) = 'object' THEN $5::text END)) AS value\nFROM can_hold GROUP BY recipe ORDER BY recipe",
-                      "params": [
-                        {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "input",
-                            "path": "fact.place"
-                          }
-                        },
-                        {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "input",
-                            "path": "fact.change"
-                          }
-                        },
-                        {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "input",
-                            "path": "fact.where"
-                          }
-                        },
-                        {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "input",
-                            "path": "fact.kinds"
-                          }
-                        },
-                        {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "loop",
-                            "path": "store"
-                          }
-                        },
-                        {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "input",
-                            "path": "fact.after"
-                          }
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "id": "unread",
-                  "kind": "return",
-                  "config": {
-                    "value": {
-                      "rows": []
-                    }
-                  }
-                }
-              ],
-              "edges": [
-                {
-                  "from": "read",
-                  "to": "unread",
-                  "kind": "on_failure"
-                }
-              ]
-            },
-            {
-              "id": "workflow:route-each-row-change:tell-one",
-              "name": "Tell that one chosen workflow its change",
-              "kind": "workflow",
-              "is_active": true,
-              "version": 1,
-              "steps": [
-                {
-                  "id": "tell",
-                  "kind": "ask",
-                  "config": {
-                    "name": "wake:arrive",
-                    "input": {
-                      "kind": "workflow-chosen",
-                      "event_id": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "fact_id"
-                        },
-                        "resolve_nested_bindings": true,
-                        "transform": [
-                          {
-                            "op": "op:core.concat",
-                            "args": {
-                              "values": [
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "input",
-                                    "path": "fact_id"
-                                  },
-                                  "resolve_nested_bindings": true,
-                                  "transform": [
-                                    {
-                                      "op": "op:core.coalesce",
-                                      "args": {
-                                        "values": [
-                                          {
-                                            "$kind": "binding",
-                                            "select": {
-                                              "from": "input",
-                                              "path": "fact_id"
-                                            }
-                                          },
-                                          {
-                                            "$kind": "binding",
-                                            "select": {
-                                              "from": "input",
-                                              "path": "fact.key"
-                                            }
-                                          }
-                                        ]
-                                      }
-                                    }
-                                  ]
-                                },
-                                ":",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "chosen.workflow"
-                                  }
-                                },
-                                ":",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "chosen.condition"
-                                  }
-                                }
-                              ]
-                            }
-                          }
-                        ]
-                      },
-                      "payload": {
-                        "workflow": {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "loop",
-                            "path": "chosen.workflow"
-                          }
-                        },
-                        "condition": {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "loop",
-                            "path": "chosen.condition"
-                          }
-                        },
-                        "where": {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "input",
-                            "path": "fact.where"
-                          }
-                        },
-                        "place": {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "input",
-                            "path": "fact.place"
-                          }
-                        },
-                        "change": {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "input",
-                            "path": "fact.change"
-                          }
-                        },
-                        "key": {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "input",
-                            "path": "fact.key"
-                          }
-                        },
-                        "at": {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "input",
-                            "path": "fact.at"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              ],
-              "edges": []
-            },
-            {
-              "id": "workflow:route-each-row-change:start-one-from-its-row",
-              "name": "Start that one chosen workflow from its own row",
-              "kind": "workflow",
-              "is_active": true,
-              "version": 1,
-              "steps": [
-                {
-                  "id": "read-definition",
-                  "kind": "ask",
-                  "config": {
-                    "name": "tool:run-sql-in-my-database",
-                    "input": {
-                      "credential_name": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "loop",
-                          "path": "chosen.kept_in"
-                        }
-                      },
-                      "sql": "SELECT jsonb_build_object('id', recipe, 'name', coalesce(title, recipe), 'kind', 'workflow', 'is_active', true, 'version', 1) || definition AS definition, coalesce($2::jsonb, '{}'::jsonb) || jsonb_build_object('kept_in', jsonb_build_object('database', current_database())) AS input FROM workflow_recipes WHERE recipe = $1::text AND jsonb_typeof(definition) = 'object'",
-                      "params": [
-                        {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "loop",
-                            "path": "chosen.workflow"
-                          }
-                        },
-                        {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "loop",
-                            "path": "chosen.input"
-                          }
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "id": "tell",
-                  "kind": "ask",
-                  "config": {
-                    "name": "wake:arrive",
-                    "input": {
-                      "kind": "workflow-chosen-from-rows",
-                      "event_id": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "input",
-                          "path": "fact_id"
-                        },
-                        "resolve_nested_bindings": true,
-                        "transform": [
-                          {
-                            "op": "op:core.concat",
-                            "args": {
-                              "values": [
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "input",
-                                    "path": "fact_id"
-                                  },
-                                  "resolve_nested_bindings": true,
-                                  "transform": [
-                                    {
-                                      "op": "op:core.coalesce",
-                                      "args": {
-                                        "values": [
-                                          {
-                                            "$kind": "binding",
-                                            "select": {
-                                              "from": "input",
-                                              "path": "fact_id"
-                                            }
-                                          },
-                                          {
-                                            "$kind": "binding",
-                                            "select": {
-                                              "from": "input",
-                                              "path": "fact.key"
-                                            }
-                                          }
-                                        ]
-                                      }
-                                    }
-                                  ]
-                                },
-                                ":",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "chosen.workflow"
-                                  }
-                                },
-                                ":",
-                                {
-                                  "$kind": "binding",
-                                  "select": {
-                                    "from": "loop",
-                                    "path": "chosen.condition"
-                                  }
-                                }
-                              ]
-                            }
-                          }
-                        ]
-                      },
-                      "payload": {
-                        "workflow": {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "loop",
-                            "path": "chosen.workflow"
-                          }
-                        },
-                        "condition": {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "loop",
-                            "path": "chosen.condition"
-                          }
-                        },
-                        "where": {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "input",
-                            "path": "fact.where"
-                          }
-                        },
-                        "place": {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "input",
-                            "path": "fact.place"
-                          }
-                        },
-                        "change": {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "input",
-                            "path": "fact.change"
-                          }
-                        },
-                        "key": {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "input",
-                            "path": "fact.key"
-                          }
-                        },
-                        "at": {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "input",
-                            "path": "fact.at"
-                          }
-                        },
-                        "input": {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "steps",
-                            "key": "read-definition",
-                            "path": "output.rows.0.input"
-                          }
-                        },
-                        "definition": {
-                          "$kind": "binding",
-                          "select": {
-                            "from": "steps",
-                            "key": "read-definition",
-                            "path": "output.rows.0.definition"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              ],
-              "edges": [
-                {
-                  "from": "read-definition",
-                  "to": "tell",
-                  "kind": "always"
-                }
-              ]
-            }
-          ]
+          "version": 1,
+          "is_active": true
         },
-        "records": {
-          "rights": [
-            {
-              "at": "@own-records",
-              "id": "workflow-chosen",
-              "operations": [
-                "wake:arrive"
-              ]
+        "wakes": [
+          {
+            "id": "a-row-changed",
+            "on": {
+              "fact": {
+                "from": [
+                  "run"
+                ],
+                "kind": "something-changed"
+              }
             },
-            {
-              "at": "@own-records",
-              "id": "workflow-chosen-from-rows",
-              "operations": [
-                "wake:arrive"
-              ]
+            "budget": {
+              "steps": 40,
+              "wall_ms": 120000
+            },
+            "input": {
+              "start_at": "choose"
             }
-          ],
-          "runs": [
-            "tool:choose-the-workflows-that-fire",
-            "tool:run-sql-in-my-database"
-          ]
-        }
+          }
+        ]
       }
     }
   ]

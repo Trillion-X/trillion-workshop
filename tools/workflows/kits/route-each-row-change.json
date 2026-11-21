@@ -46,7 +46,7 @@
         }
       },
       "workflow": "workflow:route-each-row-change",
-      "step": "tell-installed",
+      "step": "choose",
       "given": "The store told something-changed {where own-rows-postgres-connection, place lesson_request, change added, key p_x:901:42, after {\"id\":7,\"topic\":\"tides\"}}; the run made that one part, and the chooser kept it with the explainer-video workflow's condition \"a lesson_request row is added\".",
       "hands_back": "One wake:arrive of kind workflow-chosen with event_id \"p_x:901:42:workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner:a lesson_request row is added\" and payload {\"workflow\":\"workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner\",\"condition\":\"a lesson_request row is added\",\"where\":\"own-rows-postgres-connection\",\"place\":\"lesson_request\",\"change\":\"added\",\"key\":\"p_x:901:42\",\"after\":\"{\\\"id\\\":7,\\\"topic\\\":\\\"tides\\\"}\"}; that workflow's own wake then starts it at plan-the-lesson."
     }
