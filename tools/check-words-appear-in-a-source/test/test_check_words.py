@@ -55,14 +55,20 @@ class Checks(unittest.TestCase):
         for _ in range(3): cw.check_one({'id': 'x', 'url': 'https://example.test/a', 'words': 'A letter'}, fetch=fetch, pages=pages)
         self.assertEqual(len(calls), 1)
 
-    def test_command_answers_on_the_last_line_and_refuses_an_empty_request(self):
+    def test_command_answers_on_the_last_line_and_refuses_a_request_with_no_list(self):
         script = os.path.join(HERE, '..', 'do-work', 'check_words.py')
         req = os.path.join(self.dir, 'r.json'); json.dump({'checks': [{'id': 'a', 'file': self.essay, 'words': 'A letter'}]}, open(req, 'w'))
         out = subprocess.run([sys.executable, script, req], capture_output=True, text=True)
         self.assertEqual(out.returncode, 0); self.assertTrue(json.loads(out.stdout.strip().splitlines()[-1])['result']['checks'][0]['verified'])
-        bad = os.path.join(self.dir, 'b.json'); json.dump({'checks': []}, open(bad, 'w'))
+        bad = os.path.join(self.dir, 'b.json'); json.dump({'words': 'A letter'}, open(bad, 'w'))
         out = subprocess.run([sys.executable, script, bad], capture_output=True, text=True)
         self.assertEqual(out.returncode, 1); self.assertIn('error', json.loads(out.stdout.strip().splitlines()[-1]))
+
+    def test_an_empty_batch_answers_no_checks(self):
+        script = os.path.join(HERE, '..', 'do-work', 'check_words.py')
+        req = os.path.join(self.dir, 'e.json'); json.dump({'checks': []}, open(req, 'w'))
+        out = subprocess.run([sys.executable, script, req], capture_output=True, text=True)
+        self.assertEqual(out.returncode, 0); self.assertEqual(json.loads(out.stdout.strip().splitlines()[-1]), {'result': {'checks': []}})
 
 
 if __name__ == '__main__':

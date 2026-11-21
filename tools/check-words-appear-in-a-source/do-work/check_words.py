@@ -72,7 +72,8 @@ def main(argv):
     try:
         request = json.load(open(argv[1]) if len(argv) > 1 else sys.stdin)
         checks = request.get('checks')
-        if not isinstance(checks, list) or not checks:
+        # An empty list is a batch with nothing in it (a workflow whose search found nothing new): it answers no checks.
+        if not isinstance(checks, list):
             raise ValueError('the request needs checks: a list of {id, words, url or file, speaker_label?}')
         pages = {}
         print(json.dumps({'result': {'checks': [check_one({'id': i, **c}, pages=pages) for i, c in enumerate(checks)]}}))
