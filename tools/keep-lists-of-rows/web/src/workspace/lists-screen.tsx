@@ -35,6 +35,9 @@ import { addMember, emptyGraph, ensureGroup, type GroupGraph } from '../../../..
 import { deriveValues, fieldsFromRows, type RecordSetField } from '../../../../ui/show/record-views/record-set';
 import { recordActionsFromRows, runRecordAction } from '../../../do-work/run-record-action.ts';
 import { loadScreen, mountScreenState } from '../../../../ui/show/screen-state';
+import words from './lists-words.json';
+
+const fill = (template: string, values: Record<string, string>) => template.replace(/\{(\w+)\}/g, (whole, name) => values[name] ?? whole);
 import { notify } from '../../../../ui/show/coss/notifications';
 import { readFileLookup } from './api';
 import {recordConfigurationSource} from './record-configurations';
@@ -70,17 +73,17 @@ export function mountListsScreen(element: HTMLElement): () => void {
   host.className = 'trillion-decisions';
   element.replaceChildren(host);
   const newList = async () => {
-    openList(await makeList(`Untitled list ${new Date().toLocaleDateString()}`, [{ id: 'name', label: 'Name', kind: 'text' }]));
+    openList(await makeList(fill(words.untitled, { date: new Date().toLocaleDateString() }), [{ id: 'name', label: words.name_field, kind: 'text' }]));
   };
   const screen = loadScreen(host, {
-    loading: { label: 'Loading your lists', layout: loadingLayoutFor('trillion-lists') },
+    loading: { label: words.loading_lists, layout: loadingLayoutFor('trillion-lists') },
     read: readLists,
     empty: lists => (lists.length ? null : {
-      status: 'empty', icon: 'List', title: 'No lists yet',
-      description: 'A list keeps anything in rows and columns: the people you work with, your customers, the AIs in a space. Your AI can make one and fill it, or start one here.',
-      action: { label: 'New list', run: () => void newList().catch(failed('The list could not be made')) },
+      status: 'empty', icon: 'List', title: words.no_lists_title,
+      description: words.no_lists_detail,
+      action: { label: words.new_list, run: () => void newList().catch(failed(words.make_failed)) },
     }),
-    failed: refusal('Your lists could not load'),
+    failed: refusal(words.lists_failed),
     clear: () => { views?.destroy(); views = null; },
     draw: lists => {
       const rowOf = (id: string) => lists.find(list => list.id === id);
@@ -93,8 +96,8 @@ export function mountListsScreen(element: HTMLElement): () => void {
         bulkActions: [addSelectedToTrayAction(host, rowOf, recordOf, (list: List) => list.label)],
         views: [{ id: 'table', label: 'Table' }], view: 'table',
         onOpen: (id: string) => openList(lists.find(list => list.id === id) ?? { id, label: id }),
-        primaryAction: { label: 'New list', icon: 'Plus', onSelect: () => void newList().catch(failed('The list could not be made')) },
-        emptyMessage: 'Nothing matches.',
+        primaryAction: { label: words.new_list, icon: 'Plus', onSelect: () => void newList().catch(failed(words.make_failed)) },
+        emptyMessage: words.nothing_matches,
       };
       if (views) views.update(options); else views = mountRecordViews(host, options);
     },
@@ -172,7 +175,7 @@ export function mountListScreen(element: HTMLElement, props: { surfaceInput?: Re
   const id = typeof props.surfaceInput?.id === 'string' ? props.surfaceInput.id : '';
   // The one row the address names (`/lists/<list>/<row>`, a notice about it): scrolled to and marked when it draws.
   const row = typeof props.surfaceInput?.row === 'string' ? props.surfaceInput.row : '';
-  if (!id) { mountScreenState(element, { status: 'empty', icon: 'List', title: 'No list was named', description: 'Open a list from Lists.', action: goTo('Open Lists', 'trillion.lists') }); return () => element.replaceChildren(); }
+  if (!id) { mountScreenState(element, { status: 'empty', icon: 'List', title: words.no_list_title, description: words.no_list_detail, action: goTo(words.open_lists, 'trillion.lists') }); return () => element.replaceChildren(); }
   let views: ReturnType<typeof mountRecordViews> | null = null;
   const host = document.createElement('div');
   host.className = 'trillion-decisions';
@@ -230,14 +233,14 @@ export function mountListScreen(element: HTMLElement, props: { surfaceInput?: Re
       })();
     }
   };
-  const fileName = (file: FileLook) => baseName(file.names?.[0] ?? '') || 'Unnamed file';
+  const fileName = (file: FileLook) => baseName(file.names?.[0] ?? '') || words.unnamed_file;
   const fileType = (file: FileLook) => contentTypeOf(fileName(file), file.media_type);
   const pictureOf = (file: FileLook | null | undefined) => file ? file.poster ?? (chooseFileViewer({ name: fileName(file), contentType: fileType(file) }) === 'picture' ? bytesAddress(file.identity) : null) : null;
   const fileLook = (ref: string) => {
     if (!ref) return null;
     const file = fileLooks.get(ref);
-    if (file === undefined) return React.createElement(ScreenState, { state: { status: 'loading', label: 'Loading the file', layout: 'preview' } });
-    if (!file) return React.createElement(ScreenState, { state: { status: 'unavailable', title: 'The file could not load', inline: true } });
+    if (file === undefined) return React.createElement(ScreenState, { state: { status: 'loading', label: words.loading_file, layout: 'preview' } });
+    if (!file) return React.createElement(ScreenState, { state: { status: 'unavailable', title: words.file_failed, inline: true } });
     const look = previewFor(familyOf(fileName(file), file.media_type));
     const picture = pictureOf(file);
     return mediaPreviewContent({ renderer: picture ? 'image' : 'type-icon', source: picture ?? undefined, title: fileName(file), icon: look.icon, typeLabel: look.type_label });
@@ -269,7 +272,7 @@ export function mountListScreen(element: HTMLElement, props: { surfaceInput?: Re
       const grown = { ...read, rows: [...read.rows, ...page.rows], next: page.next };
       drawList(grown);
       titleDrawn(grown, page.rows);
-    }, error => { readingMore = false; failed('More rows could not be read')(error); });
+    }, error => { readingMore = false; failed(words.more_failed)(error); });
   };
   // A page's links are titled once it is drawn (list-records.ts invariant 5); the titles go on the rows still drawn from
   // that read (a reload reads a new list record, and its own titles).
@@ -280,7 +283,7 @@ export function mountListScreen(element: HTMLElement, props: { surfaceInput?: Re
       if (disposed || !now || now.list !== read.list) return;
       const byId = new Map(titled.map(row => [row.id, row]));
       drawList({ ...now, rows: now.rows.map(row => byId.get(row.id) ?? row) });
-    }, failed('Linked rows could not be named'));
+    }, failed(words.links_failed));
   };
   const drawList = (read: Read) => {
     currentRead = read;
@@ -375,13 +378,13 @@ export function mountListScreen(element: HTMLElement, props: { surfaceInput?: Re
     const reread = () => readList(list, rows.length, read.where).then(fresh => titleLinks(fresh.list, fresh.rows)).then(fresh => ({ records: fresh, nesting: nestingOf(fresh, nestId) }));
     const rowOf = (id: string) => rows.find(row => row.id === id);
     const recordOf = (row: Row) => list.managed_rows?.share_record ? `record:${list.row_type}:${row.id}` : `list:${list.id}:rows:${row.id}`;
-    const fileActions = mediaFields.flatMap(field => [{ appliesTo: (row: Row) => Boolean(fileLooks.get(mediaRef(row, field))), id: `open-${field.id}`, label: `Open ${field.label}`, icon: 'ArrowUpRight', run: (ids: string[]) => {
+    const fileActions = mediaFields.flatMap(field => [{ appliesTo: (row: Row) => Boolean(fileLooks.get(mediaRef(row, field))), id: `open-${field.id}`, label: fill(words.open_field, { label: field.label }), icon: 'ArrowUpRight', run: (ids: string[]) => {
         for (const id of ids) {
           const row = rows.find(row => row.id === id);
           const file = row && fileLooks.get(mediaRef(row, field));
           if (file) openFile({ id: file.identity, name: fileName(file), type: fileType(file) });
         }
-      } }, { id: `reload-${field.id}`, label: `Reload ${field.label}`, icon: 'RotateCw', appliesTo: (row: Row) => fileLooks.get(mediaRef(row, field)) === null, run: (ids: string[]) => {
+      } }, { id: `reload-${field.id}`, label: fill(words.reload_field, { label: field.label }), icon: 'RotateCw', appliesTo: (row: Row) => fileLooks.get(mediaRef(row, field)) === null, run: (ids: string[]) => {
         for (const id of ids) { const row = rows.find(row => row.id === id); const ref = row && mediaRef(row, field); if (ref) { fileLooks.delete(ref); waitingFiles.add(ref); } }
         void readMedia();
       } }]);
@@ -395,7 +398,7 @@ export function mountListScreen(element: HTMLElement, props: { surfaceInput?: Re
       // Each row's ⋯ shares that one row (record-sharing.json parts: the list narrowed to it), by link or email.
       shareRecord: recordOf,
       aboutRecord: (row: Row) => ({ kind: 'record', id: `record:${list.row_type}:${row.id}`, record: `record:${list.row_type}:${row.id}`, title: row.title ?? list.label }),
-      bulkActions: [addSelectedToTrayAction(host, rowOf, recordOf, (row: Row) => row.title ?? `Row in ${list.label}`)],
+      bulkActions: [addSelectedToTrayAction(host, rowOf, recordOf, (row: Row) => row.title ?? fill(words.row_in_list, { label: list.label }))],
       // Opening any row inspects its canonical record; editing and sharing retain their own owners.
       // The common record menu supplies the same inspection action on every other surface.
       rowActions: fileActions,
@@ -409,8 +412,8 @@ export function mountListScreen(element: HTMLElement, props: { surfaceInput?: Re
       // A list longer than the pages read so far draws them and reads its next page when the shared views ask. Both are
       // given every time (undefined once every row is read): an update keeps any option it is not given.
       onReadMore: read.next ? readMore : undefined,
-      status: !read.next ? undefined : readingEvery ? `Read ${rows.length.toLocaleString()} rows so far; reading the rest for the search, filter, sort or selection.`
-        : `Showing the first ${rows.length.toLocaleString()} rows. More are read as you scroll.`,
+      status: !read.next ? undefined : readingEvery ? fill(words.reading_rest, { n: rows.length.toLocaleString() })
+        : fill(words.showing_first, { n: rows.length.toLocaleString() }),
       views: [{ id: 'table', label: 'Table' }, { id: 'board', label: 'Board' }, { id: 'gallery', label: 'Gallery' }], view: named ?? drawnAs,
       // The views this list's own row names (none named: every view its fields can draw, as before).
       offeredViewIds: list.offered_views,
@@ -418,7 +421,7 @@ export function mountListScreen(element: HTMLElement, props: { surfaceInput?: Re
       // A kind that carries how its value is worked out (a formula, a button) is added by the person's AI (save_list), which
       // writes what it carries; the add-field form offers the kinds a name alone makes.
       customFieldKinds: kinds.filter(kind => !kind.links && !kind.carries && !kind.record_pick).map(kind => ({ id: kind.id, label: kind.label, kind: kind.id, ruleKind: kind.ruleKind })),
-      onAddField: (added: { id: string; label: string; kind?: string }) => change('The field could not be added', () => writing(() => changeList(list, { fields: [...list.fields, { id: added.id, label: added.label, kind: added.kind ?? 'text' }] }))),
+      onAddField: (added: { id: string; label: string; kind?: string }) => change(words.field_not_added, () => writing(() => changeList(list, { fields: [...list.fields, { id: added.id, label: added.label, kind: added.kind ?? 'text' }] }))),
       onEditFieldValue: (rowId: string, fieldId: string, typed: string) => {
         const kind = fieldId === notesId && !notesField ? NOTES_FIELD.kind : list.fields.find(field => field.id === fieldId)?.kind ?? '';
         const save = async () => {
@@ -428,7 +431,7 @@ export function mountListScreen(element: HTMLElement, props: { surfaceInput?: Re
         // The picker retains a refused choice and its inline retry. Its caller must receive the actual write promise;
         // the other editors keep their existing screen error handling.
         if (kindOf.get(kind)?.record_pick) return save().then(() => { void screen.reload(); });
-        return change('The change could not be saved', save);
+        return change(words.change_failed, save);
       },
       // Customers, Leads, "opened the email": saved slices of these same rows, kept on the list.
       ...configurationOptions,
@@ -471,7 +474,7 @@ export function mountListScreen(element: HTMLElement, props: { surfaceInput?: Re
       onShareSavedView: async (viewId: string) => {
         if (configurations.has(viewId)) {await configurations.share(viewId); return;}
         const legacy = list.views?.find(view => view.id === viewId);
-        if (!legacy) throw new Error('This saved view is no longer available.');
+        if (!legacy) throw new Error(words.view_gone);
         // Sharing an older embedded view makes an explicit reusable copy, while
         // its original list and existing saved-view links remain usable.
         const copy = await configurations.save({...legacy, label: `${legacy.label} (shared configuration)`} as Partial<SavedRecordView>);
@@ -480,10 +483,10 @@ export function mountListScreen(element: HTMLElement, props: { surfaceInput?: Re
       onCopySavedViewLink: async (viewId: string) => {
         if (configurations.has(viewId)) {await configurations.copyLink(viewId); return;}
         const link = new URL(`/lists/${encodeURIComponent(id)}`, location.origin); link.searchParams.set('saved_view', viewId);
-        await navigator.clipboard.writeText(link.href); notify('Saved view link copied', {kind: 'done'});
+        await navigator.clipboard.writeText(link.href); notify(words.link_copied, {kind: 'done'});
       },
-      primaryAction: list.managed_rows?.create_on_screen ? undefined : { label: list.add_label ?? 'Add row', icon: 'Plus', onSelect: () => change('The row could not be added', () => keep([{ values: list.title_field ? { [list.title_field]: 'New row' } : {} }])) },
-      emptyMessage: 'No rows yet. Add one, or ask your AI to fill this list.',
+      primaryAction: list.managed_rows?.create_on_screen ? undefined : { label: list.add_label ?? words.add_row, icon: 'Plus', onSelect: () => change(words.row_failed, () => keep([{ values: list.title_field ? { [list.title_field]: words.new_row } : {} }])) },
+      emptyMessage: words.no_rows,
     };
     if (views) views.update(options); else views = mountRecordViews(host, options);
     if (!configurationsStarted) {configurationsStarted = true; void configurations.load();}
@@ -540,7 +543,7 @@ export function mountListScreen(element: HTMLElement, props: { surfaceInput?: Re
     void runPaste(plan, pasted, read).catch(failed(clipboardWords('failed')));
   });
   const screen = loadScreen(host, {
-    loading: { label: 'Loading the list', layout: loadingLayoutFor(`trillion-list-${id}`) },
+    loading: { label: words.loading_list, layout: loadingLayoutFor(`trillion-list-${id}`) },
     // A reload reads again as many rows as are drawn, so a change never takes away the pages already read.
     read: () => {
       const where = whereOf(inForce().rules).where;
@@ -549,9 +552,13 @@ export function mountListScreen(element: HTMLElement, props: { surfaceInput?: Re
       readingEvery = false;
       return readList(currentRead?.list ?? id, drawn, where).then(answer => { depends = answer.depends; return answer; });
     },
-    failed: refusal('This list could not load'),
+    failed: refusal(words.list_failed),
     clear: () => { views?.destroy(); views = null; },
-    draw: read => { drawList(read); titleDrawn(read, read.rows); },
+    draw: read => {
+      // A table the fence does not allow this use of is said so in words, never drawn as an empty list.
+      if (read.refused) { views?.destroy(); views = null; mountScreenState(host, { status: 'unavailable', title: words.not_allowed, inline: true }); return; }
+      drawList(read); titleDrawn(read, read.rows);
+    },
   });
   const stopListening = onRecordsChange(() => screen.reload(), () => depends, writeKey);
   return () => { stopListening(); found.stop(); disposed = true; configurations.dispose(); currentRead = null; waitingFiles.clear(); screen.dispose(); element.replaceChildren(); };

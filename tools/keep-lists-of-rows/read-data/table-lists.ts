@@ -23,13 +23,14 @@ import type { ReadDepends } from '../../workspace-screens/web/src/workspace/stor
 import type { RuleNode } from '../../ui/show/rule-filter/rule-tree';
 import lists from '../../keep-and-wake-ai-sessions-on-this-computer/src/lists.json';
 import data from './table-lists.json';
+import { fencedReadOf, NO_USE_BINDING } from './consent-fence.mjs';
 
 export type Field = { id: string; label: string; kind: string; links_to?: string; choices?: string[] } & Record<string, unknown>;
 export type Kind = { id: string; label: string; icon?: string; kind: string; ruleKind: string; value: string; record_pick?: boolean; links?: boolean; document?: boolean; media?: boolean; carries?: { key: string } };
 export type View = { id: string; label: string; search: string; rules?: unknown; sort?: { field: string; direction: 'asc' | 'desc' }[]; groups?: { field: string; bucket?: string }[]; columns?: { order?: string[]; hidden?: string[] }; time?: { field: string; after?: unknown; before?: unknown }; display?: { as: string; settings?: Record<string, unknown> } };
 export type List = { scope?: undefined; context?: undefined; managed_rows?: { open_field?: string; create_on_screen?: boolean; share_record?: boolean }; id: string; label: string; icon?: string; about?: string; row_type: string; title_field: string | null; fields: Field[]; views?: View[]; offered_views?: string[]; add_label?: string; key: string[] };
 export type Row = { scope?: undefined; context?: undefined; id: string; title: string | null; values: Record<string, unknown>; links: Record<string, { id: string; title: string }[]> };
-export type Read = { list: List; rows: Row[]; next: string | null; where: Record<string, unknown> | null; field_kinds: Kind[]; depends: ReadDepends | null };
+export type Read = { list: List; rows: Row[]; next: string | null; refused: boolean; where: Record<string, unknown> | null; field_kinds: Kind[]; depends: ReadDepends | null };
 export type RowPut = { id?: string; values: Record<string, unknown> };
 
 export const fieldKinds = lists.field_kinds as Kind[];
@@ -46,9 +47,26 @@ const placeOf = (id: string) => {
 };
 
 async function sql<T = Record<string, unknown>>(credential: string, statement: string, params: unknown[] = []): Promise<T[]> {
-  const ran = await runWorkshopTool<{ rows?: T[] }>(data.tool, { credential_name: credential, sql: statement, params });
+  const ran = await runWorkshopTool<{ rows?: T[] }>(data.tool, { credential_name: credential, sql: statement, params, statement_timeout_ms: data.statement_timeout_ms });
   if (!Array.isArray(ran.result?.rows)) throw say(data.words.not_read);
   return ran.result.rows;
+}
+
+// Databases with no use_binding schema, so no table in them is fenced: read as they are from then on.
+const unfenced = new Set<string>();
+/** One page of a table's rows, asked of the fence in the same statement (consent-fence.mjs); a fenced table this use is not allowed for is refused. */
+async function pageOf(credential: string, name: string, order: string, limit: number, offset: number): Promise<{ refused: boolean; values: Record<string, unknown>[] }> {
+  if (!unfenced.has(credential)) {
+    try {
+      const [answer] = await sql<Record<string, unknown>>(credential, `with f as (select * from use_binding.fenced($1::regclass)) select f.fenced, f.allowed, (select coalesce(json_agg(r), '[]') from (select * from ${name} order by ${order} limit $2 offset $3) r) as rows from f`, [name, limit, offset]);
+      const page = fencedReadOf(answer);
+      return { refused: page.refused, values: page.rows as Record<string, unknown>[] };
+    } catch (error) {
+      if (!NO_USE_BINDING.test(String((error as Error)?.message ?? error))) throw error;
+      unfenced.add(credential);
+    }
+  }
+  return { refused: false, values: await sql(credential, `select * from ${name} order by ${order} limit $1 offset $2`, [limit, offset]) };
 }
 
 const kindOf = (type: string) => (data.kinds.find(kind => kind.types.includes(type)) ?? data.kinds.at(-1)!).kind;
@@ -108,14 +126,15 @@ export function whereOf(rules: RuleNode | null | undefined): { where: Record<str
 }
 
 /** One page of rows from `after` (the offset a previous page answered), newest key first (invariant 5). */
-export async function readRows(list: List, after: string | null, { every = false, most }: { every?: boolean; most?: number; where?: Record<string, unknown> | null } = {}): Promise<{ rows: Row[]; next: string | null }> {
+export async function readRows(list: List, after: string | null, { every = false, most }: { every?: boolean; most?: number; where?: Record<string, unknown> | null } = {}): Promise<{ rows: Row[]; next: string | null; refused: boolean }> {
   const { credential, name } = placeOf(list.id);
   const asked = most ?? (every ? lists.limits.rows_per_read : lists.limits.read_page_rows);
   const offset = Number(after ?? 0) || 0;
   const order = list.key.length ? list.key.map(column => `${quote(column)} desc`).join(', ') : '1';
-  const values = await sql(credential, `select * from ${name} order by ${order} limit $1 offset $2`, [asked + 1, offset]);
-  const rows = values.slice(0, asked).map((row, at) => ({ id: rowIdOf(list, row, offset + at), title: titleOf(list, row), values: row, links: {} }));
-  return { rows, next: values.length > asked ? String(offset + asked) : null };
+  const page = await pageOf(credential, name, order, asked + 1, offset);
+  if (page.refused) return { rows: [], next: null, refused: true };
+  const rows = page.values.slice(0, asked).map((row, at) => ({ id: rowIdOf(list, row, offset + at), title: titleOf(list, row), values: row, links: {} }));
+  return { rows, next: page.values.length > asked ? String(offset + asked) : null, refused: false };
 }
 
 /** The list's saved views, rows of the views table (none while it is not made yet). */

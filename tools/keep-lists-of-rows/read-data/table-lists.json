@@ -4,6 +4,7 @@
   "names_method": "/work/api/door/secrets:names",
   "credential_suffix": "-connection",
   "skip_schemas": ["pg_catalog", "information_schema"],
+  "statement_timeout_ms": 5000,
   "new_lists_in": "own-rows-postgres-connection",
   "views_table": "list_views",
   "kinds": [
