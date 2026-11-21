@@ -1327,6 +1327,7 @@
               }
             ]
           },
+          "capabilities": [],
           "public_read": true
         },
         "result_selector": "$.result",

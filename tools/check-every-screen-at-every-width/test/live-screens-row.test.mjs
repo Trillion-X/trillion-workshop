@@ -9,6 +9,7 @@ const packed = package_ => row.invoke.files.package_files.find(files => files.pa
 
 test('the live row runs checkLiveScreens through the plain function runner, on the computer', () => {
   assert.equal(row.invoke.kind, 'computer');
+  assert.deepEqual(row.invoke.capabilities, []);
   assert.deepEqual(row.placements, ['placement:your-computer']);
   assert.equal(row.invoke.argv[2], '/opt/check-every-screen-at-every-width/check-live-screens.mjs');
   assert.equal(row.invoke.argv[3], 'checkLiveScreens');
