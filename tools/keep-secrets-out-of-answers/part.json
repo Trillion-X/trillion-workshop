@@ -1,0 +1,6 @@
+{
+  "exports": {
+    "strip-secrets": "read-data/strip-secrets.mjs"
+  },
+  "public": ["package.json", "read-data/strip-secrets.mjs"]
+}

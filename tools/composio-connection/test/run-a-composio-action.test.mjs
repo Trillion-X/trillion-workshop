@@ -63,3 +63,14 @@ test('a user key goes as x-user-api-key with the project its connections live in
   assert.deepEqual(answer.data, { username: 'someone' });
   assert.equal(s.sent.length, 1);
 });
+
+test('a token the app writes into its answer (a Graph paging link) is removed before the answer is handed back', async () => {
+  const token = 'stand-in-graph-token-not-real-0123456789';
+  const s = stub(reply(200, { successful: true, status: 200, data: { data: [{ id: 'm1', message: 'hi' }],
+    paging: { cursors: { after: 'QVFI' }, next: `https://graph.instagram.com/v21.0/c1/messages?access_token=${token}&after=QVFI` } } }));
+  const answer = await runAComposioAction({ account_id: 'ca_1', proxy: { endpoint: '/c1/messages', method: 'GET' } },
+    { proxy: makeComposioProxy({ read: () => STAND_IN_KEY, send: s.send }) });
+  assert.ok(!JSON.stringify(answer).includes(token));
+  assert.equal(answer.data.paging.next, 'https://graph.instagram.com/v21.0/c1/messages?access_token=[removed]&after=QVFI');
+  assert.deepEqual(answer.data.data, [{ id: 'm1', message: 'hi' }]);
+});
