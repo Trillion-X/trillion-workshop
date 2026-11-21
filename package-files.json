@@ -59011,6 +59011,76 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:tag-the-links-in-words": [
+  {
+   "package": "social-posts",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/social-posts"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "social-posts",
+   "paths": [
+    "records/post-place-records.json"
+   ],
+   "at": "/opt/social-posts"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/@opencoredev/social-sdk"
+   ],
+   "at": "/opt/node_modules/@opencoredev/social-sdk"
+  }
+ ],
  "tool:take-a-request": [
   {
    "package": "take-requests",

@@ -1,0 +1,40 @@
+{
+  "drafted_from": "tool:tag-the-links-in-words's own row (its words, input schema, sample run and output) and the answer its run gave on the owner's tagger (read-data/posts.mjs); read it before relying on it",
+  "start_here": "Say to your AI: \"Tag the links in this direct message with its source, medium, campaign and content\", with {\"words\": \"Here is the step by step: https://example.test/swing\", \"source\": \"instagram\", \"medium\": \"dm\", \"campaign\": \"reply-rule:swing-link\", \"content\": \"comment-1\"}. It runs tool:tag-the-links-in-words and answers the words with each link tagged, and the tagged links in order. Send the words it answers, not the ones you wrote.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes the words and the four tag values and answers them, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:tag-the-links-in-words"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Tag the links in this direct message with its source, medium, campaign and content\", and give it words (the text to send, with any links in it), source (the platform, such as instagram), medium (the kind of send, such as dm), campaign (the campaign, such as a reply rule's id) and content (the piece, such as a comment's id).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:tag-the-links-in-words and its input (the worked example shows one).",
+    "3. Read what comes back: words is what to send, and links lists each tagged link in order. A call that names no value is refused with the value it lacks; give it again with that value."
+  ],
+  "worked_examples": [
+    {
+      "title": "Tag the link in a direct message",
+      "ask": "Tag the links in this direct message with its source, medium, campaign and content",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:tag-the-links-in-words",
+            "input": {
+              "words": "Here is the step by step: https://example.test/swing",
+              "source": "instagram",
+              "medium": "dm",
+              "campaign": "reply-rule:swing-link",
+              "content": "comment-1"
+            }
+          }
+        }
+      },
+      "given": "The words \"Here is the step by step: https://example.test/swing\", source instagram, medium dm, campaign reply-rule:swing-link, content comment-1.",
+      "hands_back": "It answered {\"words\": \"Here is the step by step: https://example.test/swing?utm_source=instagram&utm_medium=dm&utm_content=comment-1&utm_campaign=reply-rule%3Aswing-link\", \"links\": [\"https://example.test/swing?utm_source=instagram&utm_medium=dm&utm_content=comment-1&utm_campaign=reply-rule%3Aswing-link\"]}. The link carries utm_source, utm_medium, utm_content and utm_campaign as given; the words after the link are unchanged."
+    }
+  ]
+}

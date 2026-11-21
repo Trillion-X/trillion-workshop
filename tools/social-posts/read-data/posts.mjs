@@ -159,22 +159,37 @@ function reachesOf(value, rules) {
   return people.every(Boolean) ? people : null;
 }
 
-// The link tagged for one destination: the link_tags query parameters, from the post and the place. A link written in HTML
-// (its ampersands as &amp;) is read with plain ampersands and written back the same way.
-function taggedLink(href, from) {
+// The query parameters a link gets: each link_tags row's fixed value, or the value its `from` names in `from`; a value in
+// `overrides` (by parameter name) wins over both, as a caller's own medium, source, campaign or content does.
+export function linkTagsOf(from, overrides = {}) {
+  return Object.fromEntries(settings.link_tags.map(tag => [tag.param, overrides[tag.param] ?? tag.value ?? from[tag.from] ?? '']));
+}
+
+// The link tagged with those parameters. A link written in HTML (its ampersands as &amp;) is read with plain ampersands and
+// written back the same way.
+function taggedLink(href, tags) {
   const html = href.includes('&amp;');
   const address = new URL(html ? href.replaceAll('&amp;', '&') : href);
-  for (const tag of settings.link_tags) address.searchParams.set(tag.param, tag.value ?? from[tag.from] ?? '');
+  for (const [param, value] of Object.entries(tags)) address.searchParams.set(param, value);
   return html ? address.href.replaceAll('&', '&amp;') : address.href;
+}
+
+// The words with every http(s) link in them tagged, and the tagged links in order.
+export function tagWords(words, tags) {
+  return words.replace(LINK_IN_WORDS, href => taggedLink(href, tags));
+}
+
+export function taggedLinksIn(words, tags) {
+  return (words.match(LINK_IN_WORDS) ?? []).map(href => taggedLink(href, tags));
 }
 
 // The words one destination is sent with: its own caption or the post's, every link in them tagged for it (the call to
 // action's link is written there), then the post's own link tagged for it.
 export function wordsOf(post, place, accountId) {
-  const from = { post_id: post.post_id, platform: place.platform, account_id: accountId };
-  const words = (post.caption_by_platform?.[place.platform] ?? post.caption ?? '').replace(LINK_IN_WORDS, href => taggedLink(href, from));
+  const tags = linkTagsOf({ post_id: post.post_id, platform: place.platform, post_id_and_account_id: `${post.post_id}::${accountId}` });
+  const words = tagWords(post.caption_by_platform?.[place.platform] ?? post.caption ?? '', tags);
   if (!post.link) return words;
-  return [words, taggedLink(post.link, from)].filter(Boolean).join(settings.link_joiner);
+  return [words, taggedLink(post.link, tags)].filter(Boolean).join(settings.link_joiner);
 }
 
 // Whether the post is ready for each place it is going: the words and settings exactly as each place is sent them,
