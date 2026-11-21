@@ -99,7 +99,7 @@ class Registry:
     def load(cls, path=None):
         if isinstance(path, str) and path.startswith(SETTING_MARK):
             raise WTError(f"this piece was measured with the registry kept in the settings row {path[len(SETTING_MARK):]}",
-                          "give that row with --settings-record (the record records:read returns), or a registry file with --registry")
+                          "give that row with --settings-record (the record the settings table read returns), or a registry file with --registry")
         p = expand(path) if path else DEFAULT_REGISTRY
         return cls(load_json(p, "registry"), p)
 
@@ -129,7 +129,7 @@ class Registry:
 
 
 # ---------------------------------------------------------------- settings
-# A person keeps this tool's settings as one row of their list:settings (record:setting:<this folder>~<scope_kind>~<scope_id>),
+# A person keeps this tool's settings as one row of their settings table (record:setting:<this folder>~<scope_kind>~<scope_id>),
 # read with the shared reader tools/settings/read-data/settings.py. The row's settings may hold:
 #   registry   the person's dimensions registry (the same shape as read-data/dimensions.json)
 #   discovery  what build.py reads from a discovery file (its "films" may be the films object itself)
@@ -168,13 +168,13 @@ def tool_settings(settings_record, scopes=None):
         found = reader.chosen(settings_record, SETTINGS_FOLDER, scopes)
         if found is None:
             raise WTError(f"no settings row for {SETTINGS_FOLDER} at {scopes or 'the scope given'} is in the settings record",
-                          f"give the record:setting:{SETTINGS_FOLDER}~<scope_kind>~<scope_id> row records:read returns")
+                          f"give the record:setting:{SETTINGS_FOLDER}~<scope_kind>~<scope_id> row the settings table read returns")
         values = reader.settings_of(found)
         held = found["value"] if isinstance(found.get("value"), dict) else found
         row_id = found.get("id") if isinstance(found.get("value"), dict) else None
         row_id = row_id or reader.setting_id(SETTINGS_FOLDER, held.get("scope_kind"), held.get("scope_id"))
     except reader.SettingError as e:
-        raise WTError(str(e), "give the settings row as records:read returns it (a record, its value, a list, or a JSON file)") from None
+        raise WTError(str(e), "give the settings row as the settings table read returns it (a record, its value, a list, or a JSON file)") from None
     if not isinstance(values, dict):
         raise WTError(f"{row_id}: its settings are not an object", "keep the settings as JSON text of an object: {\"registry\": {...}}")
     return values, row_id

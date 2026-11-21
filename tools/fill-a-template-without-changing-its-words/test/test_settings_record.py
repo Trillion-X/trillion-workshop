@@ -1,4 +1,4 @@
-"""The person's registry and discovery read from their list:settings row (--settings-record), through tools/settings.
+"""The person's registry and discovery read from their settings table row (--settings-record), through tools/settings.
 
 Made-up data only: an invented tasting-note registry and an invented launch line.
 Run: python3 -I test/test_settings_record.py (from the tool folder).

@@ -42,7 +42,7 @@ def main(argv=None):
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--lines", default="all", choices=["all", "worst"])
     ap.add_argument("--root")
-    ap.add_argument("--settings-record", help="this tool's row of the person's list:settings (a JSON file of the record records:read returns); its settings.registry is the registry")
+    ap.add_argument("--settings-record", help="this tool's row of the person's settings table (a JSON file of the record the settings table read returns); its settings.registry is the registry")
     ap.add_argument("--scope", action="append", help="KIND:ID, most specific first, when the settings record holds several rows")
     ap.add_argument("--column", default="line", help="for a markdown script without dim fences: the table column to read (header starts with this)")
     a = ap.parse_args(argv)

@@ -2,7 +2,7 @@
   "start_here": "Say to your AI: \"Write a word template for my 2.5 second opening line: Meet the, then the baker as a slot, who rose early, then Two days ago as a slot.\" It runs tool:write-a-word-template-from-the-words-i-keep-and-the-slots.",
   "lists": [
     {
-      "list": "list:settings",
+      "list": "list:tool-settings",
       "label": "Settings",
       "row_type": "record:setting",
       "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON. For this folder the account row holds your own dimensions registry.",
@@ -118,7 +118,7 @@
     "2. Say to your AI: \"Write the word template from bakery/parts-request.json\". It reads the row with tools:list and runs python3 -I tools/fill-a-template-without-changing-its-words/do-work/token_table_from_parts.py --request bakery/parts-request.json",
     "3. Read the last line: {\"result\":{\"written\":[{\"file\",\"tokens\",\"slots\"}]}} lists each template written; {\"error\": ...} says what to change (for example a slot part naming a slot that is not in slots).",
     "4. Take the template to tool:fill-a-word-template, then judge rewrites with tool:check-words-against-a-word-template.",
-    "5. Keep your own words, slots and ids in a list:settings row and pass it as settings_record in the request; never write them into the tool's folder."
+    "5. Keep your own words, slots and ids in a settings table row and pass it as settings_record in the request; never write them into the tool's folder."
   ],
   "worked_examples": [
     {
@@ -141,9 +141,9 @@
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for tool settings and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and list:settings as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
+    "how": "Name the list you already keep for tool settings and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and the settings table as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
-      "kit_list": "list:settings",
+      "kit_list": "list:tool-settings",
       "into": {
         "list": "list:my-settings",
         "row_type": "record:setting",

@@ -21,7 +21,7 @@ def main(argv=None):
     ap.add_argument("transcript")
     ap.add_argument("out")
     ap.add_argument("--report", action="store_true", help="list every bound token and where it went")
-    ap.add_argument("--settings-record", help="this tool's row of the person's list:settings (a JSON file of the record records:read returns); its settings.registry is the registry")
+    ap.add_argument("--settings-record", help="this tool's row of the person's settings table (a JSON file of the record the settings table read returns); its settings.registry is the registry")
     ap.add_argument("--scope", action="append", help="KIND:ID, most specific first, when the settings record holds several rows")
     a = ap.parse_args(argv)
     try:

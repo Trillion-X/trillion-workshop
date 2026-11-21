@@ -137,7 +137,7 @@ class VaryTest(unittest.TestCase):
         return done.returncode, json.loads(done.stdout.strip().splitlines()[-1])
 
     def record(self, settings, tool='tool:make-spoken-line-candidates-one-slot-at-a-time', status='active'):
-        """A list:settings row as records:read gives it: settings as compact JSON text, the way make_record writes it."""
+        """A settings table row as the settings table read gives it: settings as compact JSON text, the way make_record writes it."""
         return {'id': 'record:setting:fill-a-template-without-changing-its-words~piece~sample-opening', 'type': 'record:setting',
                 'value': {'name': 'sample opening', 'tool': tool, 'scope_kind': 'piece', 'scope_id': 'sample-opening',
                           'settings': json.dumps(settings, sort_keys=True, separators=(',', ':')), 'from': 'made up', 'status': status}}
