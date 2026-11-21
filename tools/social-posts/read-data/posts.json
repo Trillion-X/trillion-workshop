@@ -104,7 +104,8 @@
   },
   "resend_states": [
     "failed",
-    "not sent"
+    "not sent",
+    "waiting"
   ],
   "outcome_words": [
     {
@@ -203,6 +204,12 @@
       "escape": { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }
     }
   },
+  "waiting_words": [
+    {
+      "contains_any": ["credit", "http 402"],
+      "says": "{platform} has no credits left for this post, so it stays queued and goes when they return."
+    }
+  ],
   "outcome_fallback": "{platform} did not publish it: {detail}",
   "not_known_words": "It is not known whether {platform} took the post. Look on {platform}; if it is not there, send it to this account again with resend: true."
 }

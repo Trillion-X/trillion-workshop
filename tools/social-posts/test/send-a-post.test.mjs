@@ -448,3 +448,19 @@ test('a send without reply_to carries no reply, and a reply_to that is not a pos
     assert.equal(none.sent.length, 0, 'nothing was sent');
   });
 });
+
+test('a send the place refuses for its credits waits with the reason, stays queued, and goes on the next send once they return', async () => {
+  const refused = [];
+  const out = async (url, init) => { refused.push(url); return new Response(JSON.stringify({ title: 'Payment Required', detail: 'Your account has run out of credits' }), { status: 402, headers: { 'content-type': 'application/json' } }); };
+  await withDoor([post(), connection], async fake => {
+    const waiting = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { send: out, held: () => VALUE });
+    assert.equal(refused.length, 1);
+    assert.equal(fake.kept.get('post:p1').value.deliveries[ACCOUNT].status, 'waiting', waiting.said);
+    assert.match(fake.kept.get('post:p1').value.deliveries[ACCOUNT].error, /credits/);
+    assert.equal(fake.kept.get('post:p1').value.status, 'scheduled', 'the post stays queued');
+    const back = place();
+    const sent = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { send: back.send, held: () => VALUE });
+    assert.equal(sent.status, 'posted', sent.said);
+    assert.equal(back.sent.length, 1, 'the next send goes once');
+  });
+});

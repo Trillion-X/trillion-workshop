@@ -165,15 +165,22 @@ function wordsFor(place, { code = '', message = '', retry = null }) {
   const row = settings.outcome_words.find(item => (item.retry && item.retry === retry) || (item.contains_any ?? []).some(word => lower.includes(word)));
   return fillWords(row?.says ?? settings.outcome_fallback, { platform: place.label, detail });
 }
+// A place that refused a send for its credits: the destination waits with the reason, and the post stays queued for when they return.
+function waitingFor(place, error) {
+  const lower = `${error?.code ?? ''} ${error?.message ?? ''} ${(error?.issues ?? []).map(issue => issue.message).join(' ')}`.toLowerCase();
+  const row = settings.waiting_words.find(item => (item.contains_any ?? []).some(word => lower.includes(word)));
+  return row ? fillWords(row.says, { platform: place.label }) : null;
+}
 function fromOutcome(place, outcome, attempt) {
   const status = settings.outcome_states[outcome?.state] ?? 'not known';
   const detail = outcome?.message ?? outcome?.diagnostic ?? ((outcome?.issues ?? []).map(issue => issue.message).join(' ') || outcome?.reason);
+  const waiting = status === 'failed' ? waitingFor(place, { code: outcome?.code ?? outcome?.reason, message: detail }) : null;
   return {
-    platform: place.platform, label: place.label, status, attempt,
+    platform: place.platform, label: place.label, status: waiting ? 'waiting' : status, attempt,
     ...(outcome?.url ? { url: String(outcome.url) } : {}),
     ...(outcome?.post?.postId ? { platform_post_id: String(outcome.post.postId) } : {}),
     ...(outcome?.delivery ? { delivery_ref: outcome.delivery } : outcome?.job ? { delivery_ref: outcome.job } : {}),
-    ...(status === 'failed' ? { error: wordsFor(place, { code: outcome?.code ?? outcome?.reason, message: detail, retry: outcome?.retryDisposition?.kind }) } : {}),
+    ...(waiting ? { error: waiting } : status === 'failed' ? { error: wordsFor(place, { code: outcome?.code ?? outcome?.reason, message: detail, retry: outcome?.retryDisposition?.kind }) } : {}),
     ...(status === 'not known' ? { error: fillWords(settings.not_known_words, { platform: place.label }) } : {}),
   };
 }
@@ -309,7 +316,9 @@ export async function sendAPost(input = {}, { now = () => new Date(), send = fet
     // it stays not known (invariant 3).
     const refusedHere = ours(error);
     const beforeSending = deliveries[accountId]?.status !== 'not known' || refusedHere || error?.issues?.length || error?.retryDisposition?.kind === 'never';
-    if (beforeSending) deliveries[accountId] = { platform: place.platform, label: place.label, status: 'failed', attempt, error: refusedHere?.message ?? wordsFor(place, { code: error?.code, message: error?.issues?.map(issue => issue.message).join(' ') || error?.message, retry: error?.retryDisposition?.kind }) };
+    const waiting = beforeSending && !refusedHere ? waitingFor(place, error) : null;
+    if (waiting) deliveries[accountId] = { platform: place.platform, label: place.label, status: 'waiting', attempt, error: waiting };
+    else if (beforeSending) deliveries[accountId] = { platform: place.platform, label: place.label, status: 'failed', attempt, error: refusedHere?.message ?? wordsFor(place, { code: error?.code, message: error?.issues?.map(issue => issue.message).join(' ') || error?.message, retry: error?.retryDisposition?.kind }) };
   }
   keepRows(kept, settle());
   const shown = shaped(post);
