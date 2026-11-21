@@ -22,22 +22,22 @@
 //   4. Tools and runs change outside this page, so each screen reads again when the page is shown again.
 
 import React, { useMemo, useState } from 'react';
-import { RecordViews, type FieldDescriptor } from '../../parts/ui/show/record-views/record-views';
-import type { Listing } from '../../parts/ui/show/listing-card';
-import { Container, RunCard, SchemaValueView, Text, type JsonSchema, type StatusTone } from '../../parts/ui';
-import { ActionForm, DEFAULT_FIELD_RENDERERS } from '../../parts/ui/show/action-affordance';
-import { Button } from '../../parts/ui/show/coss/ui/button';
-import { mountSharedContent } from '../../parts/ui/show/coss/shared-content';
-import { loadScreen, mountScreenState } from '../../parts/ui/show/screen-state';
-import type { GuideRow, GuideSection } from '../../parts/ui/show/coss/guide';
-import { PLACEABLE_SURFACE_MIME } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
-import { recordFilter } from './record-filter';
-import { readJson, postJsonByKey } from './api';
-import { askFor, refusal } from './failure';
-import { goTo, openFile } from './open-screen';
-import { guideScreen, LOCAL, type Act } from './guide-screen';
-import { inputFields, inputOf, type ToolInput, type ToolInputSchema } from './tool-inputs';
-import looks from '../workshop-looks.json';
+import { RecordViews, type FieldDescriptor } from '../../../../ui/show/record-views/record-views';
+import type { Listing } from '../../../../ui/show/listing-card';
+import { Container, RunCard, SchemaValueView, Text, type JsonSchema, type StatusTone } from '../../../../ui';
+import { ActionForm, DEFAULT_FIELD_RENDERERS } from '../../../../ui/show/action-affordance';
+import { Button } from '../../../../ui/show/coss/ui/button';
+import { mountSharedContent } from '../../../../ui/show/coss/shared-content';
+import { loadScreen, mountScreenState } from '../../../../ui/show/screen-state';
+import type { GuideRow, GuideSection } from '../../../../ui/show/coss/guide';
+import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
+import { recordFilter } from '../../../../workspace-screens/web/src/workspace/record-filter';
+import { readJson, postJsonByKey } from '../../../../workspace-screens/web/src/workspace/api';
+import { askFor, refusal } from '../../../../workspace-screens/web/src/workspace/failure';
+import { goTo, openFile } from '../../../../workspace-screens/web/src/workspace/open-screen';
+import { guideScreen, LOCAL, type Act } from '../../../../workspace-screens/web/src/workspace/guide-screen';
+import { inputFields, inputOf, type ToolInput, type ToolInputSchema } from '../../../../workspace-screens/web/src/workspace/tool-inputs';
+import looks from '../../../../workspace-screens/web/src/workshop-looks.json';
 
 const own = looks.own_tool;
 
@@ -137,7 +137,7 @@ export function mountWorkshopToolScreen(element: HTMLElement, props: { surfaceIn
         actions: [
           // Its own screen opens as its sidebar row does: the placeable screen whose id is the tool's id (toolSurfaces).
           ...(tool.has_screen ? [act({ label: 'Open', tone: 'quiet', icon: 'ArrowUpRight' }, async () => { open(id, tool.title, { tool_id: id }); return LOCAL; })] : []),
-          ...(tool.shareable ? [act({ label: 'Share', tone: 'quiet', icon: 'Share2' }, async () => { (await import('./sharing-sheet')).openSharing(id, { title: tool.title, anchor: document.activeElement }); return LOCAL; })] : []),
+          ...(tool.shareable ? [act({ label: 'Share', tone: 'quiet', icon: 'Share2' }, async () => { (await import('../../../../workspace-screens/web/src/workspace/sharing-sheet')).openSharing(id, { title: tool.title, anchor: document.activeElement }); return LOCAL; })] : []),
           ...(tool.own ? [
             act({ label: own.rename, tone: 'quiet', icon: 'Pencil', send: { path: '', ask: { name: 'label', label: own.rename_ask, value: tool.title } } }, async values => {
               await readJson(`${API}/tool/${encodeURIComponent(id)}/rename`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ label: values.label }) });
