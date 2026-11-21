@@ -6,7 +6,7 @@
   | check-a-rendered-video pins --limits <file> [--reviewed <pins.json>]
   | check-a-rendered-video inspect settle|type-sync|eyes|placement ...   (rendercheck/inspect_<what>.py)
   | check-a-rendered-video export-spans <specs dir> --limits <file> --bases-key REGEX ...   (rendercheck/spans.py)
-  | check-a-rendered-video request < {"argv": [...], "settings_record": <list:settings row>}   (under tools/settings run-with-settings.mjs)
+  | check-a-rendered-video request < {"argv": [...], "settings_record": <the settings table row>}   (under tools/settings run-with-settings.mjs)
 
 Checks a rendered video's frames, joins and audio and prints PASS / WARN / FAIL per check with the times."""
 import argparse
@@ -81,7 +81,7 @@ NEEDS_LIMITS = {'check', 'batch', 'pins', 'variety', 'review-pack', 'export-span
 
 
 def request_argv(request, folder):
-    """`request`: one JSON request on standard input, {"argv": [command...], "settings_record": <the list:settings row>, "settings"?: {...}}, as
+    """`request`: one JSON request on standard input, {"argv": [command...], "settings_record": <the settings table row>, "settings"?: {...}}, as
     the caller hands it (or the row's id with the row in stored.records). The settings are read by the shared reader (request_settings: the row, then the
     request's own settings over it); settings.limits and settings.reviewed_pins are written to files in `folder` and named by --limits/--reviewed."""
     argv = list(request.get('argv') or [])
@@ -97,7 +97,7 @@ def request_argv(request, folder):
     for key, flag, name in (('limits', '--limits', 'limits.json'), ('reviewed_pins', '--reviewed', 'reviewed-pins.json')):
         wanted = argv[0] in NEEDS_LIMITS and not argv[1:2] in (['eyes'], ['placement']) if key == 'limits' else argv[0] == 'pins'
         if wanted and not isinstance(settings.get(key), dict) and key == 'limits':
-            raise ValueError(f"{argv[0]} needs the person's limits: hand their list:settings row in settings_record (the record, or its id with the row in stored.records), or give settings.limits")
+            raise ValueError(f"{argv[0]} needs the person's limits: hand their settings table row in settings_record (the record, or its id with the row in stored.records), or give settings.limits")
         if wanted and isinstance(settings.get(key), dict):
             jsonio.write(os.path.join(folder, name), settings[key])
             argv += [flag, os.path.join(folder, name)]
@@ -131,8 +131,8 @@ def main(argv=None):
     ap = argparse.ArgumentParser(prog='check-a-rendered-video', description=__doc__)
     sub = ap.add_subparsers(dest='cmd', required=True)
     pp = sub.add_parser('pins', help="each check's pin now, and which differ from the person's reviewed pins")
-    pp.add_argument('--limits', required=True, help="the person's limits file, or their list:settings row for this tool")
-    pp.add_argument('--reviewed', help='JSON {check: pin} of the pins the person reviewed, or their list:settings row (its settings.reviewed_pins)')
+    pp.add_argument('--limits', required=True, help="the person's limits file, or their settings table row for this tool")
+    pp.add_argument('--reviewed', help='JSON {check: pin} of the pins the person reviewed, or their settings table row (its settings.reviewed_pins)')
     vp = sub.add_parser('variety', help='judge the whole variety ledger at once (exit 1 on any breach)')
     vp.add_argument('target', help='the folder holding the ledger and the technique map')
     vp.add_argument('--limits', required=True, help='the person\'s limits file (its variety section)')

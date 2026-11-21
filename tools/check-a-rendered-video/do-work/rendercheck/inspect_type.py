@@ -43,7 +43,7 @@ def main(argv):
     ap = argparse.ArgumentParser(prog='check-a-rendered-video inspect type-sync', description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('video')
     ap.add_argument('--spec', required=True)
-    ap.add_argument('--limits', required=True, help="the person's limits, or their list:settings row for this tool")
+    ap.add_argument('--limits', required=True, help="the person's limits, or their settings table row for this tool")
     ap.add_argument('--overlay')
     ap.add_argument('--timeline')
     a = ap.parse_args(argv)

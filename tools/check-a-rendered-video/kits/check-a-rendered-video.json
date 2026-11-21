@@ -1,9 +1,9 @@
 {
-  "drafted_from": "tool row in tools/check-a-rendered-video/tool-rows.json, do-work/check_a_rendered_video.py and test/test_settings_row.py; the run was made on an ffmpeg test video with the test fixture limits; list:settings fields read from the account's list definition",
-  "start_here": "Say to your AI: \"Check my finished video /work/film.mp4 against my limits for the film sample-film and tell me every FAIL and WARN with the seconds it happens at.\" It reads your limits row from list:settings, writes it to a file and runs check_a_rendered_video.py check on your computer.",
+  "drafted_from": "tool row in tools/check-a-rendered-video/tool-rows.json, do-work/check_a_rendered_video.py and test/test_settings_row.py; the run was made on an ffmpeg test video with the test fixture limits; the settings table fields read from the account's list definition",
+  "start_here": "Say to your AI: \"Check my finished video /work/film.mp4 against my limits for the film sample-film and tell me every FAIL and WARN with the seconds it happens at.\" It reads your limits row from the settings table, writes it to a file and runs check_a_rendered_video.py check on your computer.",
   "lists": [
     {
-      "list": "list:settings",
+      "list": "list:tool-settings",
       "label": "Settings",
       "row_type": "record:setting",
       "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON. For tool:check-a-rendered-video the settings hold limits, the numbers and word lists each check uses, and the row id is record:setting:check-a-rendered-video~<scope_kind>~<scope_id>.",
@@ -113,7 +113,7 @@
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Pour the two example rows into your own settings list (see pour), or make list:settings from them, then fill in your own limits: the numbers and word lists each check uses. The tool has no defaults: a check with no limits says so instead of passing.",
+    "1. Pour the two example rows into your own settings list (see pour), or make the settings table from them, then fill in your own limits: the numbers and word lists each check uses. The tool has no defaults: a check with no limits says so instead of passing.",
     "2. Say which video to check and which film or person the limits are for. The AI reads the row record:setting:check-a-rendered-video~film~<slug> from your records, writes it to a file, and reads the tool's row with tools:list {tool: tool:check-a-rendered-video}.",
     "3. The AI runs `run` from the Workshop checkout: python3 tools/check-a-rendered-video/do-work/check_a_rendered_video.py check <video> --limits <file> --json <output>, adding --spec <file> when it has the JSON spec of the cuts and graphics.",
     "4. Read the last line {\"result\": {verdict, videos: [{video, verdict, failed, warned, not_measured}]}} and the lines above it; for each FAIL and WARN say the check, the seconds it happens at and what it found, then which checks could not run (not_measured). Do not edit the video: say what to change."
@@ -141,7 +141,7 @@
     "least_coverage": 0.8,
     "how": "Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
-      "kit_list": "list:settings",
+      "kit_list": "list:tool-settings",
       "into": {
         "list": "list:my-settings",
         "row_type": "record:setting",
