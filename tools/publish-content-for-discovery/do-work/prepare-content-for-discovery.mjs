@@ -110,13 +110,23 @@ export function sectionsFromMarkdown(markdown) {
   let paragraph = [];
   let quote = [];
   let list = [];
-  let code = false;
+  let code = null;
   const flushParagraph = () => { if (paragraph.length) { const text = plainMarkdownInline(paragraph.join(' ')); if (text) result.push({ kind: 'paragraph', text }); paragraph = []; } };
   const flushQuote = () => { if (quote.length) { const text = plainMarkdownInline(quote.join(' ')); if (text) result.push({ kind: 'quote', text }); quote = []; } };
   const flushList = () => { if (list.length) { const items = list.map(plainMarkdownInline).filter(Boolean); if (items.length) result.push({ kind: 'list', items }); list = []; } };
   for (const line of lines) {
-    if (/^\s*(```|~~~)/.test(line)) { flushParagraph(); flushQuote(); flushList(); code = !code; continue; }
-    if (code) { paragraph.push(line); continue; }
+    // A fenced block keeps its lines as written; it is code, never paragraph prose.
+    if (/^\s*(```|~~~)/.test(line)) {
+      flushParagraph(); flushQuote(); flushList();
+      if (code === null) code = [];
+      else { if (code.join('').trim()) result.push({ kind: 'code', text: code.join('\n') }); code = null; }
+      continue;
+    }
+    if (code !== null) { code.push(line.replace(/<[^>]*>/g, '')); continue; }
+    // A line that is only a picture of this same site (a path from its root) is a picture block; any other picture
+    // stays its alt text, so the projection never points a reader at another site's file.
+    const picture = line.match(/^\s*!\[([^\]]*)\]\((\/(?!\/)[A-Za-z0-9._~\/-]+)\)\s*$/);
+    if (picture) { flushParagraph(); flushQuote(); flushList(); result.push({ kind: 'image', src: picture[2], alt: plainMarkdownInline(picture[1]) }); continue; }
     const heading = line.match(/^\s*(#{1,6})\s+(.+?)\s*#*\s*$/);
     const quoteLine = line.match(/^\s*>\s?(.*)$/);
     const listLine = line.match(/^\s*(?:[-+*]|\d+[.)])\s+(.+)$/);
@@ -127,7 +137,15 @@ export function sectionsFromMarkdown(markdown) {
     flushQuote(); flushList(); paragraph.push(line.trim());
   }
   flushParagraph(); flushQuote(); flushList();
+  if (code !== null && code.join('').trim()) result.push({ kind: 'code', text: code.join('\n') });
   return result;
+}
+
+/** A picture's address on this same site: a path from the root with plain characters, never another host. */
+function sitePicturePath(src) {
+  const path = requiredText(src, 'image src');
+  if (!/^\/(?!\/)[A-Za-z0-9._~\/-]+$/.test(path)) throw new TypeError('An image section names a path on this site.');
+  return path;
 }
 
 const markdownEscape = text => String(text).replace(/([\\`*_{}\[\]()#+!>|~])/g, '\\$1');
@@ -149,6 +167,8 @@ export function sectionsToMarkdown(sections) {
       if (!Array.isArray(section.items) || !section.items.length) throw new TypeError('List sections need items.');
       return section.items.map(item => `- ${markdownEscape(requiredText(item, 'list item'))}`).join('\n');
     }
+    if (section.kind === 'image') return `![${markdownEscape(section.alt ?? '')}](${sitePicturePath(section.src)})`;
+    if (section.kind === 'code') return `\`\`\`\n${String(requiredText(section.text, 'code text')).replaceAll('```', '\'\'\'')}\n\`\`\``;
     throw new TypeError(`Unsupported section kind: ${section.kind}`);
   }).join('\n\n');
 }
@@ -222,12 +242,14 @@ function safeSections(sections) {
       if (!Array.isArray(section.items) || !section.items.length) throw new TypeError('List sections need items.');
       return { kind: 'list', items: section.items.map(item => publicText(item, 'list item')) };
     }
+    if (section.kind === 'image') return { kind: 'image', src: sitePicturePath(section.src), alt: typeof section.alt === 'string' ? section.alt : '' };
+    if (section.kind === 'code') return { kind: 'code', text: requiredText(section.text, 'code text') };
     throw new TypeError(`Unsupported section kind: ${section.kind}`);
   });
   const materializedValues = { sections: semantic.map(section => section.kind === 'list' ? section.items : []) };
   const operations = semantic.map((section, index) => section.kind === 'list'
     ? { operation: 'list', items: { from: 'materialized_values', path: `sections.${index}` } }
-    : { operation: section.kind === 'heading' ? 'heading' : section.kind === 'quote' ? 'quote' : 'paragraph', text: section.text });
+    : { operation: section.kind === 'heading' ? 'heading' : section.kind === 'quote' ? 'quote' : 'paragraph', text: section.kind === 'image' ? section.alt || 'Picture' : section.text });
   return { semantic, operations, materializedValues };
 }
 

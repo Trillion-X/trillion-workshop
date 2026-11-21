@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { prepareContentForDiscovery } from '../do-work/prepare-content-for-discovery.mjs';
+import { prepareContentForDiscovery, sectionsFromMarkdown, sectionsToMarkdown } from '../do-work/prepare-content-for-discovery.mjs';
 import { createContentDiscoveryHandler } from '../do-work/serve-content-for-discovery.mjs';
 
 function inputFor({ name, origin, title = 'A public guide', version = 'edition:1', schemaType = 'Thing', openGraphType = 'website', schemaProperties = {}, text = 'Useful information', complete = true, requestedCursor = null, nextCursor = null } = {}) {
@@ -202,4 +202,14 @@ test('a site declares its trailing-slash policy and every output follows it', ()
   const invalid = structuredClone(base);
   invalid.site.trailingSlash = 'yes';
   assert.throws(() => prepareContentForDiscovery(invalid), /trailingSlash/);
+});
+
+test('a picture of this same site and a fenced block keep their form in the body Markdown', () => {
+  const sections = sectionsFromMarkdown('Before.\n\n![The grid](/articles/a/grid.jpg)\n\n```json\n{ "a": [1] }\n```\n\n![Elsewhere](https://example.com/x.png)\n\nAfter.');
+  assert.deepEqual(sections.map(s => s.kind), ['paragraph', 'image', 'code', 'paragraph', 'paragraph']);
+  assert.equal(sections[3].text, 'Elsewhere');
+  const markdown = sectionsToMarkdown(sections);
+  assert.match(markdown, /!\[The grid\]\(\/articles\/a\/grid\.jpg\)/);
+  assert.match(markdown, /```\n\{ "a": \[1\] \}\n```/);
+  assert.throws(() => sectionsToMarkdown([{ kind: 'image', src: '//evil.example/x.png', alt: '' }]));
 });
