@@ -1,0 +1,10 @@
+{
+  "_what": "DATA for proof-session-mint.mjs: the proof accounts the signed-in live check signs in as, one per site origin. Each is a test person, not a real member and not the owner, whose sign-in code reaches an AgentMail proof inbox (the address without its +tag). A code is asked only for the addresses named here, so no run can send a code to anyone else. code_value and session_value are the vault names the mint writes (both must already exist and be bound to these origins' hosts: a run never creates a name or widens its hosts). renew_when_days_left is how close to its end a session is minted again.",
+  "accounts": [
+    { "origin": "https://app.gettrillion.ai", "email": "trillion-proofs+gateway-live-check@agentmail.to" },
+    { "origin": "https://app.ethosschooloftennis.com", "email": "trillion+ethos-live-check@agentmail.to" }
+  ],
+  "code_value": "proof-sign-in-code",
+  "session_value": "proof-sessions",
+  "renew_when_days_left": 2
+}

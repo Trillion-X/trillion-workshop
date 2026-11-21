@@ -46,7 +46,11 @@ test('the expiries answer each origin\'s session end, the latest of its cookies,
     ['https://app.gettrillion.ai', [{ name: 'a', value: VALUE, expires: now / 1000 + 3 * 86400 }, { name: 'b', value: VALUE, expires: now / 1000 + 86400 }]],
     ['https://app.ethosschooloftennis.com', [{ name: 'a', value: VALUE, expires: -1 }]],
   ]);
-  const answer = await heldSessionExpiries({}, undefined, { readHeld, now });
+  const accounts = { renew_when_days_left: 2, accounts: [{ origin: 'https://app.gettrillion.ai' }, { origin: 'https://app.ethosschooloftennis.com' }] };
+  const answer = await heldSessionExpiries({}, undefined, { readHeld, now, accounts });
+  assert.equal(answer.renew, false);
+  assert.equal((await heldSessionExpiries({}, undefined, { readHeld, now: now + 2 * 86400000, accounts })).renew, true, 'within 2 days of its end');
+  assert.equal((await heldSessionExpiries({}, undefined, { readHeld, now, accounts: { ...accounts, accounts: [...accounts.accounts, { origin: 'https://new.example' }] } })).renew, true, 'an account with no session');
   assert.deepEqual(answer.origins, [
     { origin: 'https://app.gettrillion.ai', expires_at: '2026-11-24T00:00:00.000Z', days_left: 3, cookies: [
       { name: 'a', expires_at: '2026-11-24T00:00:00.000Z' }, { name: 'b', expires_at: '2026-11-22T00:00:00.000Z' }] },

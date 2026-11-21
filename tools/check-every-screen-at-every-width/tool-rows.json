@@ -1147,6 +1147,7 @@
                   "check-given-pages.mjs",
                   "check-live-screens.mjs",
                   "held-session.mjs",
+                  "proof-accounts.json",
                   "check-screens.mjs",
                   "in-page.mjs",
                   "views.json",
@@ -1778,6 +1779,7 @@
                   "check-given-pages.mjs",
                   "check-live-screens.mjs",
                   "held-session.mjs",
+                  "proof-accounts.json",
                   "check-screens.mjs",
                   "in-page.mjs",
                   "views.json",
@@ -1941,7 +1943,7 @@
         },
         "label": "Read when the proof account's sign-in ends",
         "job": "Say, for each site the proof account is signed in to, when its sign-in ends and how many days are left, so it is minted again before the signed-in live check stops working",
-        "description": "Reads the vault's proof-sessions (JSON keyed by origin, mounted on descriptor 4) and answers, for each origin, when its sign-in ends: expires_at (ISO, UTC), the latest end of its cookies (the session cookie outlives the short cache cookies the server issues again), and days_left (one decimal), with each cookie's name and its own expires_at; a cookie with no end counts as none (null). It answers names and times only: no cookie value is ever in the answer. The refresh workflow reads it daily and mints the session again before it ends.",
+        "description": "Reads the vault's proof-sessions (JSON keyed by origin, mounted on descriptor 4) and answers, for each origin, when its sign-in ends: expires_at (ISO, UTC), the latest end of its cookies (the session cookie outlives the short cache cookies the server issues again), and days_left (one decimal), with each cookie's name and its own expires_at; a cookie with no end counts as none (null). It also answers renew: true when an account of proof-accounts.json has no session, or one that ends within its renew_when_days_left (the refresh workflow mints again only then). It answers names and times only: no cookie value is ever in the answer. The refresh workflow reads it daily and mints the session again before it ends.",
         "read_only": true,
         "input_schema": {
           "type": "object",
@@ -2011,7 +2013,8 @@
               {
                 "package": "check-every-screen-at-every-width",
                 "paths": [
-                  "held-session.mjs"
+                  "held-session.mjs",
+                  "proof-accounts.json"
                 ],
                 "at": "/opt/check-every-screen-at-every-width"
               },
@@ -2030,6 +2033,409 @@
           "source": "group 9: held-session.mjs heldSessionExpiries, for the proof session's refresh workflow (tools/check-every-screen-at-every-width)."
         },
         "verify": []
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:check-every-screen-at-every-width",
+        "listed_on": "2026-11-21T00:00:00Z",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "read_only": false,
+        "result_selector": "$.result",
+        "verify": [],
+        "id": "tool:ask-the-proof-accounts-for-sign-in-codes",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true,
+          "memory_mb": 128
+        },
+        "label": "Ask each site to send its proof account a sign-in code",
+        "job": "Ask each site the signed-in live check uses to email its proof account a one-time sign-in code, so the proof session can be minted again",
+        "description": "Step 1 of workflow:keep-the-proof-sessions-signed-in. For each proof account of proof-accounts.json (DATA: an origin and a test address whose mail reaches an AgentMail proof inbox), posts the site's better-auth send-verification-otp for that address. It holds no key and asks only for the addresses proof-accounts.json names. Answers asked_at (epoch ms, for step 2) and each origin's sent and status; refuses when no site sent a code.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "origins": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^https://"
+              },
+              "minItems": 1,
+              "description": "The proof accounts' origins to work on; all of proof-accounts.json when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "asked_at",
+            "origins"
+          ],
+          "properties": {
+            "asked_at": {
+              "type": "number"
+            },
+            "origins": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "origin": {
+                    "type": "string"
+                  },
+                  "sent": {
+                    "type": "boolean"
+                  },
+                  "status": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "max_run_ms": 120000,
+          "workdir": "/opt/check-every-screen-at-every-width",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/check-every-screen-at-every-width/proof-session-mint.mjs",
+            "askForSignInCodes"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "check-every-screen-at-every-width",
+                "paths": [
+                  "proof-session-mint.mjs",
+                  "proof-accounts.json",
+                  "email-code.mjs",
+                  "held-session.mjs"
+                ],
+                "at": "/opt/check-every-screen-at-every-width"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          },
+          "internet": true,
+          "public_read": true
+        },
+        "provenance": {
+          "source": "group 9: proof-session-mint.mjs, from main dude's hand path mint-proof-sessions.mjs (Nov 21 2026), split in three runs by the key-host rule."
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:check-every-screen-at-every-width",
+        "listed_on": "2026-11-21T00:00:00Z",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "read_only": false,
+        "result_selector": "$.result",
+        "verify": [],
+        "id": "tool:keep-the-proof-accounts-sign-in-codes",
+        "needs": {
+          "expected_seconds": 40,
+          "network_egress": true,
+          "memory_mb": 128
+        },
+        "label": "Keep the proof accounts' sign-in codes in the vault",
+        "job": "Read each proof account's newest sign-in code from its proof inbox and keep the codes in the vault, never in an answer",
+        "description": "Step 2 of workflow:keep-the-proof-sessions-signed-in. With the vault's agentmail-api-key mounted on descriptor 4 (it reaches only the mailbox), reads each proof account's newest sign-in code sent after asked_at (email-code.mjs latestSignInCode, polled up to 30 s), and puts the codes as the vault value proof-sign-in-code (JSON keyed by origin), with the accounts' hosts, through the records door's secrets:put that its row names. Answers the origins kept and those whose code did not come; never a code.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "asked_at"
+          ],
+          "properties": {
+            "asked_at": {
+              "type": "number"
+            },
+            "origins": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^https://"
+              },
+              "minItems": 1,
+              "description": "The proof accounts' origins to work on; all of proof-accounts.json when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "kept",
+            "missing"
+          ],
+          "properties": {
+            "kept": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "missing": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "origin": {
+                    "type": "string"
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "max_run_ms": 120000,
+          "workdir": "/opt/check-every-screen-at-every-width",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/check-every-screen-at-every-width/proof-session-mint.mjs",
+            "keepSignInCodes"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "check-every-screen-at-every-width",
+                "paths": [
+                  "proof-session-mint.mjs",
+                  "proof-accounts.json",
+                  "email-code.mjs",
+                  "held-session.mjs"
+                ],
+                "at": "/opt/check-every-screen-at-every-width"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          },
+          "internet": true,
+          "credential_mounts": [
+            {
+              "secret_name": "agentmail-api-key",
+              "fd": 4
+            }
+          ],
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "at": "@secrets",
+                "id": "proof-sign-in-code",
+                "operations": [
+                  "secrets:put"
+                ]
+              }
+            ]
+          }
+        },
+        "provenance": {
+          "source": "group 9: proof-session-mint.mjs, from main dude's hand path mint-proof-sessions.mjs (Nov 21 2026), split in three runs by the key-host rule."
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:check-every-screen-at-every-width",
+        "listed_on": "2026-11-21T00:00:00Z",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "read_only": false,
+        "result_selector": "$.result",
+        "verify": [],
+        "id": "tool:sign-the-proof-accounts-in-with-their-kept-codes",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true,
+          "memory_mb": 128
+        },
+        "label": "Sign the proof accounts in with their kept codes",
+        "job": "Exchange each kept sign-in code for its proof account's session at its site, check the session is that account's, and keep the sessions in the vault for the signed-in live check",
+        "description": "Step 3 of workflow:keep-the-proof-sessions-signed-in. With proof-sign-in-code on descriptor 4 and proof-sessions on descriptor 5 (both bound to the sites' hosts, so the run reaches only the sites), posts each code to the site's better-auth sign-in/email-otp, keeps the Set-Cookie session only when the site's get-session answers the proof account's address, puts the merged sessions as proof-sessions with the accounts' hosts, and marks proof-sign-in-code spent ({}). Answers each origin's signed_in, its cookies' names and ends, and its expires_at; never a code or a cookie value.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "origins"
+          ],
+          "properties": {
+            "origins": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "origin": {
+                    "type": "string"
+                  },
+                  "signed_in": {
+                    "type": "boolean"
+                  },
+                  "reason": {
+                    "type": "string"
+                  },
+                  "expires_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "cookies": {
+                    "type": "array"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "max_run_ms": 120000,
+          "workdir": "/opt/check-every-screen-at-every-width",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/check-every-screen-at-every-width/proof-session-mint.mjs",
+            "signInWithKeptCodes"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "check-every-screen-at-every-width",
+                "paths": [
+                  "proof-session-mint.mjs",
+                  "proof-accounts.json",
+                  "email-code.mjs",
+                  "held-session.mjs"
+                ],
+                "at": "/opt/check-every-screen-at-every-width"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          },
+          "internet": true,
+          "credential_mounts": [
+            {
+              "secret_name": "proof-sign-in-code",
+              "fd": 4
+            },
+            {
+              "secret_name": "proof-sessions",
+              "fd": 5
+            }
+          ],
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "at": "@secrets",
+                "id": "proof-sign-in-code",
+                "operations": [
+                  "secrets:put"
+                ]
+              },
+              {
+                "at": "@secrets",
+                "id": "proof-sessions",
+                "operations": [
+                  "secrets:put"
+                ]
+              }
+            ]
+          }
+        },
+        "provenance": {
+          "source": "group 9: proof-session-mint.mjs, from main dude's hand path mint-proof-sessions.mjs (Nov 21 2026), split in three runs by the key-host rule."
+        }
       }
     }
   ]

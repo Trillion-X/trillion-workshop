@@ -14,26 +14,35 @@
 // SHAPE
 //   readHeldSessions({ fd? }) -> Map(origin -> [cookie])   (cookie: { name, value, domain?, path?, secure?, httpOnly?, expires? })
 //   sessionFor(sessions, url) -> [cookie]
-//   heldSessionExpiries({}, host) -> { origins: [{ origin, expires_at, days_left, cookies: [{ name, expires_at }] }] }   (times only; the refresh workflow reads it)
-import { createReadStream } from 'node:fs';
+//   heldSessionExpiries({}, host) -> { renew, origins: [{ origin, expires_at, days_left, cookies: [{ name, expires_at }] }] }   (times only; the refresh workflow reads it)
+import { createReadStream, readFileSync } from 'node:fs';
 
 export const HELD = Object.freeze({ descriptor: 4, limit: 65536 });
+const ACCOUNTS = JSON.parse(readFileSync(new URL('./proof-accounts.json', import.meta.url), 'utf8'));
 
 function refuse(code, message) {
   return Object.assign(new Error(message), { code });
 }
 
-// The mounted value, read whole (the engine writes the mount once and closes it) and checked; the text is dropped after parsing.
-export async function readHeldSessions({ fd = HELD.descriptor } = {}) {
+// A held value a row mounts on a descriptor, read whole (the engine writes the mount once and closes it); null when nothing is
+// mounted there or it is longer than limit. Never printed.
+export async function readMounted(fd, limit = HELD.limit) {
   let text = '';
   try {
     for await (const bytes of createReadStream(null, { fd, autoClose: false })) {
       text += bytes;
-      if (text.length > HELD.limit) throw new Error('too long');
+      if (text.length > limit) throw new Error('too long');
     }
   } catch {
-    throw refuse('no_held_session', `No proof session is mounted on descriptor ${fd} (the signed-in row names proof-sessions).`);
+    return null;
   }
+  return text;
+}
+
+// The mounted proof session, checked; the text is dropped after parsing.
+export async function readHeldSessions({ fd = HELD.descriptor } = {}) {
+  const text = await readMounted(fd);
+  if (text === null) throw refuse('no_held_session', `No proof session is mounted on descriptor ${fd} (the signed-in row names proof-sessions).`);
   let value;
   try { value = JSON.parse(text); } catch { throw refuse('no_held_session', 'The mounted proof session is not JSON keyed by origin.'); }
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw refuse('no_held_session', 'The mounted proof session is not JSON keyed by origin.');
@@ -60,7 +69,9 @@ export function sessionFor(sessions, url) {
 // short cache cookies the server issues again on every visit (better-auth.session_data lasts 5 minutes), so the latest end is the
 // session's. A cookie with no expires, or -1, ends with the browser and counts as no end. Answers each cookie's name and end, and
 // never a value, so the refresh workflow can mint the session again in time.
-export async function heldSessionExpiries(input = {}, host, { readHeld = readHeldSessions, now = Date.now() } = {}) {
+// renew is true when a proof account of proof-accounts.json has no session or one that ends within renew_when_days_left: the
+// refresh workflow mints again only then.
+export async function heldSessionExpiries(input = {}, host, { readHeld = readHeldSessions, now = Date.now(), accounts = ACCOUNTS } = {}) {
   const sessions = await readHeld();
   const origins = [...sessions].map(([origin, cookies]) => {
     const endOf = cookie => (Number.isFinite(cookie.expires) && cookie.expires > 0 ? cookie.expires * 1000 : null);
@@ -70,5 +81,9 @@ export async function heldSessionExpiries(input = {}, host, { readHeld = readHel
     const at = Math.max(...ends);
     return { origin, expires_at: new Date(at).toISOString(), days_left: Math.floor(((at - now) / 86400000) * 10) / 10, cookies: named };
   });
-  return { origins };
+  const soon = origin => {
+    const held = origins.find(one => one.origin === origin);
+    return !held || (held.days_left !== null && held.days_left < accounts.renew_when_days_left);
+  };
+  return { renew: accounts.accounts.some(account => soon(account.origin)), origins };
 }

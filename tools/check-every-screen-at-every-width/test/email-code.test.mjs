@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
-import { AGENTMAIL, cookieOfSetCookie, emailCodeSession, latestSignInCode, readAgentMailKey, signInWithEmailCode } from '../email-code.mjs';
+import { AGENTMAIL, cookieOfSetCookie, emailCodeSession, inboxOf, latestSignInCode, readAgentMailKey, signInWithEmailCode } from '../email-code.mjs';
 
 const EMAIL = 'trillion+ethos-live-check@agentmail.to';
 const ORIGIN = 'https://app.ethosschooloftennis.com';
@@ -149,4 +149,16 @@ test('signInWithEmailCode posts the code with the page origin and refuses with i
   };
   assert.equal((await signInWithEmailCode({ origin: ORIGIN, email: EMAIL, code: '123456' }, { fetchImpl })).length, 1);
   await assert.rejects(signInWithEmailCode({ origin: ORIGIN, email: EMAIL, code: '123456' }, { fetchImpl: async () => answer(401, {}) }), error => error.code === 'sign_in_refused' && !error.message.includes('123456'));
+});
+
+test('a Set-Cookie line keeps its end in seconds: Max-Age from now, else Expires', () => {
+  const now = Date.UTC(2026, 10, 21);
+  assert.equal(cookieOfSetCookie('__Host-s=v; Path=/; Max-Age=604800; Expires=Thu, 01 Jan 2026 00:00:00 GMT', 'h', now).expires, now / 1000 + 604800);
+  assert.equal(cookieOfSetCookie('a=v; Expires=Sat, 28 Nov 2026 00:00:00 GMT', 'h', now).expires, Date.UTC(2026, 10, 28) / 1000);
+  assert.equal(cookieOfSetCookie('a=v; Path=/', 'h', now).expires, undefined);
+});
+
+test('an address with a +tag is read from its inbox without the tag', () => {
+  assert.equal(inboxOf('trillion-proofs+gateway-live-check@agentmail.to'), 'trillion-proofs@agentmail.to');
+  assert.equal(inboxOf('trillion@agentmail.to'), 'trillion@agentmail.to');
 });

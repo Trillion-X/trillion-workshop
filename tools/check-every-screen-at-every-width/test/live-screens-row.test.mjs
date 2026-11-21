@@ -52,3 +52,24 @@ test('the expiry row mounts the proof session, reaches nothing, and runs heldSes
   assert.equal(expiry.invoke.internet, false);
   assert.equal(expiry.invoke.argv[3], 'heldSessionExpiries');
 });
+
+test('every row that packs held-session.mjs packs the proof-accounts.json it reads', () => {
+  for (const payload of rows.records.map(record => record.payload)) {
+    const paths = payload.invoke.files.package_files.find(files => files.package === 'check-every-screen-at-every-width')?.paths ?? [];
+    if (paths.includes('held-session.mjs')) assert.ok(paths.includes('proof-accounts.json'), payload.id);
+  }
+});
+
+test('the three refresh rows hold only what their step needs: no key, the mailbox key, then the code and the sessions', () => {
+  const of = id => rows.records.map(record => record.payload).find(payload => payload.id === id).invoke;
+  const ask = of('tool:ask-the-proof-accounts-for-sign-in-codes');
+  const keep = of('tool:keep-the-proof-accounts-sign-in-codes');
+  const sign = of('tool:sign-the-proof-accounts-in-with-their-kept-codes');
+  assert.equal(ask.credential_mounts, undefined);
+  assert.equal(ask.records, undefined);
+  assert.deepEqual(keep.credential_mounts, [{ secret_name: 'agentmail-api-key', fd: 4 }]);
+  assert.deepEqual(keep.records.rights, [{ at: '@secrets', id: 'proof-sign-in-code', operations: ['secrets:put'] }]);
+  assert.deepEqual(sign.credential_mounts, [{ secret_name: 'proof-sign-in-code', fd: 4 }, { secret_name: 'proof-sessions', fd: 5 }]);
+  assert.deepEqual(sign.records.rights.map(right => right.id), ['proof-sign-in-code', 'proof-sessions']);
+  assert.ok(sign.records.rights.every(right => right.at === '@secrets' && right.operations.join() === 'secrets:put'));
+});

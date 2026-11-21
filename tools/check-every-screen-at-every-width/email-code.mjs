@@ -66,10 +66,14 @@ async function mcpCall({ apiKey, session, method, params, id }, fetchImpl) {
 
 // The threads of the test inbox: the server's list, which comes back as the JSON text of its one text part (threads: { threadId,
 // subject, recipients, timestamp, updatedAt, ... }).
-async function listThreads({ apiKey }, fetchImpl) {
+// The inbox an address reaches: the address without its +tag (trillion-proofs+gateway-live-check@agentmail.to is delivered to
+// trillion-proofs@agentmail.to).
+export const inboxOf = email => String(email).replace(/\+[^@]*@/, '@').toLowerCase();
+
+async function listThreads({ apiKey, inbox = AGENTMAIL.inbox }, fetchImpl) {
   const opened = await mcpCall({ apiKey, session: null, method: 'initialize', id: 1, params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'live-screens', version: '1' } } }, fetchImpl);
   await mcpCall({ apiKey, session: opened.session, method: 'notifications/initialized', id: 2, params: {} }, fetchImpl).catch(() => {});
-  const { body } = await mcpCall({ apiKey, session: opened.session, method: 'tools/call', id: 3, params: { name: 'list_threads', arguments: { inboxId: AGENTMAIL.inbox } } }, fetchImpl);
+  const { body } = await mcpCall({ apiKey, session: opened.session, method: 'tools/call', id: 3, params: { name: 'list_threads', arguments: { inboxId: inbox } } }, fetchImpl);
   const result = body.result ?? {};
   if (result.isError) throw refuse('agentmail_refused', 'AgentMail refused the thread list.');
   const listed = result.structuredContent ?? JSON.parse(result.content?.find(part => part.type === 'text')?.text ?? '{}');
@@ -92,7 +96,7 @@ function codeIn(threads, email, sentAt) {
 export async function latestSignInCode({ apiKey, email, sentAt }, { fetchImpl = fetch, wait = sleep, now = Date.now, waitMs = AGENTMAIL.wait_ms, pollMs = AGENTMAIL.poll_ms } = {}) {
   const deadline = now() + waitMs;
   for (;;) {
-    const code = codeIn(await listThreads({ apiKey }, fetchImpl), email, sentAt);
+    const code = codeIn(await listThreads({ apiKey, inbox: inboxOf(email) }, fetchImpl), email, sentAt);
     if (code) return code;
     if (now() >= deadline) throw refuse('code_not_found', `No sign-in code reached ${email} within ${Math.round(waitMs / 1000)} seconds.`);
     await wait(pollMs);
@@ -101,7 +105,7 @@ export async function latestSignInCode({ apiKey, email, sentAt }, { fetchImpl = 
 
 // The session cookies of a one-time code: the code is posted with the page's own origin, and each Set-Cookie it answers is kept.
 // A refused code names only its status.
-export async function signInWithEmailCode({ origin, email, code }, { fetchImpl = fetch } = {}) {
+export async function signInWithEmailCode({ origin, email, code }, { fetchImpl = fetch, at = Date.now() } = {}) {
   const response = await fetchImpl(`${origin}/api/auth/sign-in/email-otp`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', origin },
@@ -109,13 +113,13 @@ export async function signInWithEmailCode({ origin, email, code }, { fetchImpl =
     redirect: 'manual',
   });
   const hostname = new URL(origin).hostname;
-  const cookies = response.headers.getSetCookie().map(line => cookieOfSetCookie(line, hostname));
+  const cookies = response.headers.getSetCookie().map(line => cookieOfSetCookie(line, hostname, at));
   if (!response.ok || cookies.length === 0) throw refuse('sign_in_refused', `The sign-in code was refused (status ${response.status}).`);
   return cookies;
 }
 
-// One Set-Cookie line as Playwright's addCookies takes it.
-export function cookieOfSetCookie(line, hostname) {
+// One Set-Cookie line as Playwright's addCookies takes it; expires is in seconds (Max-Age wins over Expires, as in a browser).
+export function cookieOfSetCookie(line, hostname, now = Date.now()) {
   const [pair, ...attributes] = line.split(';').map(part => part.trim());
   const at = pair.indexOf('=');
   const cookie = { name: pair.slice(0, at), value: pair.slice(at + 1), domain: hostname, path: '/' };
@@ -125,6 +129,10 @@ export function cookieOfSetCookie(line, hostname) {
     if (word === 'httponly') cookie.httpOnly = true;
     if (word === 'secure') cookie.secure = true;
     if (word === 'path' && value) cookie.path = value;
+    if (word === 'max-age' && Number.isFinite(Number(value))) cookie.expires = Math.floor(now / 1000) + Number(value);
+    if (word === 'expires' && cookie.expires === undefined && Number.isFinite(Date.parse(attribute.slice(attribute.indexOf('=') + 1)))) {
+      cookie.expires = Math.floor(Date.parse(attribute.slice(attribute.indexOf('=') + 1)) / 1000);
+    }
   }
   return cookie;
 }

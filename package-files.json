@@ -3643,6 +3643,65 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:ask-the-proof-accounts-for-sign-in-codes": [
+  {
+   "package": "check-every-screen-at-every-width",
+   "paths": [
+    "proof-session-mint.mjs",
+    "proof-accounts.json",
+    "email-code.mjs",
+    "held-session.mjs"
+   ],
+   "at": "/opt/check-every-screen-at-every-width"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:ask-what-was-said": [
   {
    "package": "listen-for-a-while",
@@ -8370,6 +8429,7 @@
     "check-given-pages.mjs",
     "check-live-screens.mjs",
     "held-session.mjs",
+    "proof-accounts.json",
     "check-screens.mjs",
     "in-page.mjs",
     "views.json",
@@ -8518,6 +8578,7 @@
     "check-given-pages.mjs",
     "check-live-screens.mjs",
     "held-session.mjs",
+    "proof-accounts.json",
     "check-screens.mjs",
     "in-page.mjs",
     "views.json",
@@ -22679,6 +22740,65 @@
     "read-data/whole-file.mjs"
    ],
    "at": "/opt/workflows"
+  }
+ ],
+ "tool:keep-the-proof-accounts-sign-in-codes": [
+  {
+   "package": "check-every-screen-at-every-width",
+   "paths": [
+    "proof-session-mint.mjs",
+    "proof-accounts.json",
+    "email-code.mjs",
+    "held-session.mjs"
+   ],
+   "at": "/opt/check-every-screen-at-every-width"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
   }
  ],
  "tool:keep-the-shared-checkout-current": [
@@ -44297,7 +44417,8 @@
   {
    "package": "check-every-screen-at-every-width",
    "paths": [
-    "held-session.mjs"
+    "held-session.mjs",
+    "proof-accounts.json"
    ],
    "at": "/opt/check-every-screen-at-every-width"
   },
@@ -56524,6 +56645,65 @@
     "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
+  }
+ ],
+ "tool:sign-the-proof-accounts-in-with-their-kept-codes": [
+  {
+   "package": "check-every-screen-at-every-width",
+   "paths": [
+    "proof-session-mint.mjs",
+    "proof-accounts.json",
+    "email-code.mjs",
+    "held-session.mjs"
+   ],
+   "at": "/opt/check-every-screen-at-every-width"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
   }
  ],
  "tool:silence-the-ticks-in-a-generated-voice-takes-pauses": [],
