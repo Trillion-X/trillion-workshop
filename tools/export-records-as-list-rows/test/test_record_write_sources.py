@@ -248,7 +248,7 @@ class Expressions(unittest.TestCase):
 
 
 class MappingAsASetting(unittest.TestCase):
-    """The mapping a person keeps in their account as a setting row of list:settings (tools/settings), read from saved reads."""
+    """The mapping a person keeps in their account as a setting row of the settings table (tools/settings), read from saved reads."""
 
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp(prefix='record-write-setting-'))
@@ -291,8 +291,8 @@ class MappingAsASetting(unittest.TestCase):
 
     def test_one_setting_row_keeps_the_mapping_text_in_its_own_key_order(self):
         records = self.keep(49152)
-        self.assertEqual([r['id'] for r in records], ['list:settings', 'record:setting:export-records-as-list-rows~account~orchard'])
-        value = records[1]['value']
+        self.assertEqual([r['id'] for r in records], ['record:setting:export-records-as-list-rows~account~orchard'])
+        value = records[0]['value']
         self.assertEqual((value['tool'], value['scope_kind'], value['scope_id'], value['status']),
                          ('tool:build-records-to-write', 'account', 'orchard', 'active'))
         self.assertEqual(list(json.loads(value['settings'])['sources'][0]['keys']), ['tree_id', 'id'])  # not sorted: id needs tree_id
@@ -300,9 +300,9 @@ class MappingAsASetting(unittest.TestCase):
 
     def test_a_mapping_too_big_for_one_command_is_kept_in_parts_and_read_back_whole(self):
         records = self.keep(2600)
-        ids = [r['id'] for r in records[1:]]
+        ids = [r['id'] for r in records]
         self.assertGreater(len(ids), 1)
-        first = json.loads(records[1]['value']['settings'])
+        first = json.loads(records[0]['value']['settings'])
         self.assertEqual(first['parts'], ids[1:])
         self.assertTrue(all(len(json.dumps({'records': [r]}, separators=(',', ':')).encode()) <= 2600 for r in records))
         self.built_from_the_setting()

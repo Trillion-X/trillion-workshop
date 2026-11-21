@@ -69,7 +69,7 @@ A transform is a one-key object, used in `compute` and in `map`.
 
 **Depends on:** Python 3.10+; a records mapping that uses the `identity` expression also needs Node 22.6+ and the declared `tools/content-identity` files. The write planner's request keys need the `blake3` module or the `b3sum` command.
 
-**Depended on by:** nothing in this repository. A library's own mapping lives with the library, or as a setting row of the person's `list:settings`; `--mapping-record` reads it with `tools/settings/read-data/settings.py`.
+**Depended on by:** nothing in this repository. A library's own mapping lives with the library, or as a setting row of the person's `the settings table`; `--mapping-record` reads it with `tools/settings/read-data/settings.py`.
 
 ## Write commands for the person's store
 
@@ -97,7 +97,7 @@ When `tool:build-records-to-write` runs through Workshop, it is a `computer` row
 - The mapping's `at` (an expression over a row's record, for example the staged file's `_generated`) is the time each basis says it was made, so building the same files again gives byte-identical records.
 - The `identity` expression calls the declared content-identity owner on the exact UTF-8 bytes of its text; it needs Node 22.6+. Other expressions need only Python.
 - A basis may give its own `confidence`, instead of the mapping's.
-- A person's own mapping is kept as a setting row of their `list:settings` (read with `tools/settings`): `--as-setting SCOPE_KIND~SCOPE_ID --setting-name TEXT --setting-from TEXT` with `--mapping FILE` writes the payload of those rows (one, or a first row naming the others in `parts` when the mapping is bigger than one command; the text keeps the mapping's key order, which `keys` and `compute` depend on), and `--mapping-record record:setting:export-records-as-list-rows~<scope_kind>~<scope_id>` builds from them. `--records-from FILE` answers the mapping record, `lists_read` and `kind: records` sources from the records the AI read, so a build can be repeated on the same account state.
+- A person's own mapping is kept as a setting row of their `the settings table` (read with `tools/settings`): `--as-setting SCOPE_KIND~SCOPE_ID --setting-name TEXT --setting-from TEXT` with `--mapping FILE` writes the payload of those rows (one, or a first row naming the others in `parts` when the mapping is bigger than one command; the text keeps the mapping's key order, which `keys` and `compute` depend on), and `--mapping-record record:setting:export-records-as-list-rows~<scope_kind>~<scope_id>` builds from them. `--records-from FILE` answers the mapping record, `lists_read` and `kind: records` sources from the records the AI read, so a build can be repeated on the same account state.
 - Several `rows` sources may feed one list; each builds the records its own file holds. A `rows` source for a list that is never emitted is a lookup table other sources read with `row_of`.
 
 ## Planning the writes into the person's store
