@@ -1,13 +1,15 @@
 // give-a-site-program-slots.mjs COMPUTER_JSON SITE [start|retire] [--slots a,b]: makes the program that serves SITE on its socket
-// (the unit whose runtime_directory is sites/<SITE>) into slots, each on its own socket, so a release starts beside the running
-// one and the front door sends SITE to the first socket that answers. It edits the computer row file (its `runs`) in place and
-// prints each change; run again, it changes nothing.
-//   start   The unit gets `slots` (each slot's environment and check_command with the unit's socket made the slot's own,
-//           /run/sites/<SITE>-slots/http-<slot>.sock), that folder (`sites/<SITE>-slots`, kept whole: runtime_preserve yes),
-//           and the front door's `site_sockets` sends SITE to every slot's socket, then to the old one. The old unit leaves the
-//           row but keeps running, untouched, as the last socket tried until a slot answers.
+// (the unit whose runtime_directory lists sites/<SITE>) into slots, each on its own socket for every name the unit serves, so a
+// release starts beside the running one and the front door sends each name to the first socket that answers. A unit may serve
+// more than one name (runtime_directory "sites/<A> sites/<B>", SOCKET listing one socket per name). It edits the computer row
+// file (its `runs`) in place and prints each change; run again, it changes nothing.
+//   start   The unit gets `slots` (each slot's environment and check_command with the unit's sockets made the slot's own:
+//           /run/sites/<SITE>-slots/http-<slot>.sock for SITE, /run/sites/<SITE>-slots/<name>-http-<slot>.sock for each other
+//           name), that folder (`sites/<SITE>-slots`, kept whole: runtime_preserve yes), and the front door's `site_sockets`
+//           sends each name to every slot's socket, then to the old one. The old unit leaves the row but keeps running,
+//           untouched, as the last socket tried until a slot answers.
 //   retire  Once start's apply has switched: the old unit's file goes in runs.absent (the apply stops, disables and removes it),
-//           and site_sockets drops its socket. A slot answers first the whole time, so its stop costs no request.
+//           and site_sockets drops every name's old socket. A slot answers first the whole time, so its stop costs no request.
 // Why two applies and a folder of the slots' own (Nov 21 2026): the apply removes what runs.absent names before it switches
 // slots and before the front door reloads, so one apply would leave SITE with no program while a slot starts; and the old
 // unit's stop removes its /run folder (RuntimeDirectoryPreserve=restart) with every socket in it.
@@ -15,7 +17,7 @@ import { readFileSync, writeFileSync, realpathSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
 const SLOT = /^[a-z0-9]{1,8}$/;
-const swapped = (value, from, to) => (value === undefined ? undefined : JSON.parse(JSON.stringify(value).replaceAll(from, to)));
+const swapped = (value, pairs) => (value === undefined ? undefined : JSON.parse(pairs.reduce((text, [from, to]) => text.replaceAll(from, to), JSON.stringify(value))));
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 /** `runs` with SITE's program made into slots (`start`) or its old unit retired (`retire`), and each change in words. */
@@ -25,8 +27,16 @@ export function giveASiteProgramSlots(given, { site, slots = ['a', 'b'], phase =
     throw new Error('slots are two or more different short words of small letters and digits');
   }
   const runs = structuredClone(given), changed = [];
-  const folder = `sites/${site}`, slotFolder = `${folder}-slots`, oldSocket = `/run/${folder}/http.sock`;
-  const serving = runs.units.filter(unit => [folder, slotFolder].includes(unit.runtime_directory));
+  const folder = `sites/${site}`, slotFolder = `${folder}-slots`, slotPath = slotFolder.replace(/\./g, '\\.');
+  const oldSocket = name => `/run/sites/${name}/http.sock`;
+  const socketOf = (name, slot) => `/run/${slotFolder}/${name === site ? '' : `${name}-`}http-${slot}.sock`;
+  const socketsIn = text => [...String(text ?? '').matchAll(new RegExp(`/run/${slotPath}/[^"\\s,]+\\.sock`, 'g'))].map(match => match[0]);
+  const nameOf = path => {
+    const name = path.match(new RegExp(`^/run/${slotPath}/(?:(.+)-)?http-[a-z0-9]{1,8}\\.sock$`));
+    if (!name) throw new Error(`${path} is not a slot socket of /run/${slotFolder}`);
+    return name[1] ?? site;
+  };
+  const serving = runs.units.filter(unit => (unit.runtime_directory ?? '').split(' ').some(dir => [folder, slotFolder].includes(dir)));
   if (serving.length !== 1) throw new Error(`${serving.length} units serve ${site} from /run/${folder} or /run/${slotFolder}; one is needed`);
   const [unit] = serving, oldFile = `/etc/systemd/system/${unit.unit}`;
   const set = (on, key, value, where) => {
@@ -36,22 +46,33 @@ export function giveASiteProgramSlots(given, { site, slots = ['a', 'b'], phase =
   };
   if (unit.slots === undefined) {
     if (phase === 'retire') throw new Error(`${unit.unit} has no slots yet: run start, and apply it, first`);
-    if (!JSON.stringify(unit.environment ?? '').includes(oldSocket)) throw new Error(`${unit.unit}'s environment names no ${oldSocket}`);
-    const socket = slot => `/run/${slotFolder}/http-${slot}.sock`;
+    const dirs = unit.runtime_directory.split(' ');
+    if (!dirs.every(dir => dir.startsWith('sites/'))) throw new Error(`${unit.unit} runtime_directory lists sites/<name> folders only`);
+    const names = dirs.map(dir => dir.slice('sites/'.length));
+    for (const name of names) {
+      if (!JSON.stringify(unit.environment ?? '').includes(oldSocket(name))) throw new Error(`${unit.unit}'s environment names no ${oldSocket(name)}`);
+    }
     set(unit, 'slots', Object.fromEntries(slots.map(slot => [slot, Object.fromEntries(['environment', 'check_command']
-      .filter(key => unit[key] !== undefined).map(key => [key, swapped(unit[key], oldSocket, socket(slot))]))])), unit.unit);
+      .filter(key => unit[key] !== undefined).map(key => [key, swapped(unit[key], names.map(name => [oldSocket(name), socketOf(name, slot)]))]))])), unit.unit);
     set(unit, 'environment', undefined, unit.unit);
     set(unit, 'check_command', undefined, unit.unit);
   }
   set(unit, 'runtime_directory', slotFolder, unit.unit);
   set(unit, 'runtime_preserve', 'yes', unit.unit);
-  // Each slot's socket, read from the slots themselves, so a later run (retire) needs no slot names.
-  const sockets = Object.values(unit.slots).map(values => JSON.stringify(values.environment).match(new RegExp(`/run/${slotFolder.replace(/\./g, '\\.')}/[^"\\s]+\\.sock`))?.[0]);
-  if (sockets.some(socket => !socket)) throw new Error(`every slot of ${unit.unit} names its socket in /run/${slotFolder}`);
+  // Each name's socket in every slot, read from the slots themselves, so a later run (retire) needs no slot names.
+  const socketsOfName = new Map();
+  for (const values of Object.values(unit.slots)) {
+    for (const socket of socketsIn(values.environment)) socketsOfName.set(nameOf(socket), [...(socketsOfName.get(nameOf(socket)) ?? []), socket]);
+  }
+  if (!socketsOfName.size || [...socketsOfName.values()].some(list => list.length !== Object.keys(unit.slots).length)) {
+    throw new Error(`every slot of ${unit.unit} names its socket in /run/${slotFolder}`);
+  }
   const doors = runs.units.filter(door => door.site?.site_file);
   if (doors.length !== 1) throw new Error(`${doors.length} front doors with a site_file in this row; one is needed`);
   const door = doors[0].site;
-  set(door.site_sockets ??= {}, site, [...sockets, ...(phase === 'start' ? [oldSocket] : [])], `${doors[0].unit} site.site_sockets`);
+  for (const [name, sockets] of socketsOfName) {
+    set(door.site_sockets ??= {}, name, [...sockets, ...(phase === 'start' ? [oldSocket(name)] : [])], `${doors[0].unit} site.site_sockets`);
+  }
   const absent = runs.absent ?? [];
   if (phase === 'retire' && !absent.includes(oldFile)) set(runs, 'absent', [...absent, oldFile], 'runs');
   if (phase === 'start' && absent.includes(oldFile)) set(runs, 'absent', absent.filter(path => path !== oldFile), 'runs');
