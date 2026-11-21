@@ -14,7 +14,8 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import { runWorkshopTool } from '../../../../workspace-screens/web/src/workspace/workshop-tool-api';
-import { files } from '../../../../workspace-screens/web/src/workspace/api';
+import { files, readJson } from '../../../../workspace-screens/web/src/workspace/api';
+import failureWords from '../../../../workspace-screens/web/src/workspace/failure-words.json' with { type: 'json' };
 import owner from './media-library-owner.json' with { type: 'json' };
 
 const SLOTS = 2;
@@ -34,11 +35,24 @@ export async function atTheDoor<T>(call: () => Promise<T>): Promise<T> {
   }
 }
 
-/** The rows of one SQL read of the person's own database. */
+/** The rows of one SQL read of the person's own database, under the statement time limit (media-library-owner.json). */
 export async function sqlRows<T>(sql: string, params: unknown[]): Promise<T[]> {
-  const ran = await atTheDoor(() => runWorkshopTool<{ rows?: T[] }>(owner.tool, { credential_name: owner.credential_name, sql, params }));
+  const ran = await atTheDoor(() => runWorkshopTool<{ rows?: T[] }>(owner.tool, { credential_name: owner.credential_name, sql, params, statement_timeout_ms: owner.statement_timeout_ms }));
   if (!Array.isArray(ran.result?.rows)) throw new Error(ran.error || '');
   return ran.result.rows;
+}
+
+/** One operation of a tool, asked the way the page asks an AI's tool: its name and arguments under `call`, answered as the operation's own structured answer. */
+export async function toolCall<T>(tool: string, name: string, args: Record<string, unknown>): Promise<T> {
+  return atTheDoor(async () => {
+    const ran = await readJson<{ result?: { isError?: boolean; structuredContent?: unknown; content?: { text?: string }[] } }>('/work/api/door/tools:run', {
+      method: 'POST', headers: { 'content-type': 'application/json', 'idempotency-key': `media:${crypto.randomUUID()}` },
+      body: JSON.stringify({ tool, call: { name, arguments: args } }),
+    }, true);
+    const result = ran.result ?? {};
+    if (result.isError) throw new Error(String((result.structuredContent as { message?: string } | undefined)?.message ?? result.content?.[0]?.text ?? failureWords.refused));
+    return result.structuredContent as T;
+  });
 }
 
 /** One of the files owner's operations (tool:your-files), answered as its own structured answer. */

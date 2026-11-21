@@ -36,23 +36,22 @@ import { recordFilter } from '../../../../workspace-screens/web/src/workspace/re
 import noteList from '../../../../workspace-screens/web/src/workspace/note-list-menu.json' with { type: 'json' };
 import { downloadTranscriptPdf } from './note-list';
 import { recencyGroup, recencyValues } from './recency-group.mjs';
-import { previewStore } from '../../../../workspace-screens/web/src/workspace/made-previews';
 import { contentTypeOf, familyOf, filePicture, previewFor } from '../../../../workspace-screens/web/src/workspace/file-picture';
 import { fileResults } from '../../../../workspace-screens/web/src/workspace/api';
 import { readMediaLibrary } from './media-library-read';
 import { searchPictures } from './media-search';
 import { pictureOf } from './media-pictures';
-import { playableUrl } from './media-playback';
+import { canPlay, playableUrl } from './media-playback';
+import { MediaPlayer } from './media-player';
 import { mountSharedContent } from '../../../../ui/show/coss/shared-content';
 import { releaseNode } from '../../../../ui/show/one-owner-per-node';
 import { DockedComposer } from '../../../../workspace-screens/web/src/workspace/global-composer';
 import { refusal } from '../../../../workspace-screens/web/src/workspace/failure';
 import type { SearchAnswer } from '../../../../workspace-screens/web/src/workspace/search-results';
 import { setAsideActions } from '../../../../workspace-screens/web/src/workspace/set-aside';
-import { canTranscribe, transcribeRecordings } from '../../../../workspace-screens/web/src/workspace/media-transcribe';
 import { editedFact, factFields, findFactField, personFieldKinds } from '../../../../workspace-screens/web/src/workspace/file-facts.mjs';
 import { addPersonField, personFields, readFactsFromFiles, setFacts } from '../../../../workspace-screens/web/src/workspace/file-facts-store';
-import { copyPublicLink, openShareVia, shareAction } from '../../../../workspace-screens/web/src/workspace/sharing-sheet';
+import { copyPublicLink } from '../../../../workspace-screens/web/src/workspace/sharing-sheet';
 import { addSelectedToTrayAction } from '../../../../workspace-screens/web/src/workspace/tray';
 import { observedMediaKind, observedMediaType } from '../../../../workspace-screens/web/src/file-type.mjs';
 
@@ -85,9 +84,6 @@ function folderTree(rows: Row[]) {
 // The request that opens a recording in its own tab at a second (file-screen.tsx), by click, drag or preview.
 const fileTab = (item: { file: string | null; identity: string; name: string; path?: string | null; media_type: string | null; media_kind: string | null }, at = 0) =>
   openingFile({ id: item.file ?? item.identity, name: item.path || item.name, type: typeOf(item), at });
-// The editor, opened through the arrangement with the clips and the stretch of each it uses.
-const editTab = (title: string, clips: { identity: string; file: string | null; name: string; in: number; out: number; duration: number | null; bytes: string | null; media_type: string | null }[]) =>
-  ({ id: 'trillion.media-edit', title, surfaceInput: { editId: crypto.randomUUID(), title, clips } });
 const open = (surface: Record<string, unknown>) => { const request = new CustomEvent(PLACEABLE_SURFACE_MIME, { cancelable: true, detail: surface }); window.dispatchEvent(request); return request.defaultPrevented; };
 
 export function mountMediaScreen(element: HTMLElement, _props: { surfaceInput?: Record<string, unknown> }): () => void {
@@ -108,11 +104,17 @@ export function mountMediaScreen(element: HTMLElement, _props: { surfaceInput?: 
   let stopAsking = () => {};
   let views: ReturnType<typeof mountRecordViews> | null = null;
   const list = document.createElement('div');
+  // The player, in place above the list (showPlayer): one recording at a second.
+  const player = document.createElement('section');
+  player.className = 'media-player';
+  player.hidden = true;
+  let unmountPlayer: (() => void) | null = null;
+  let pendingPlay: { item: Row | Moment; at: number } | null = null;
   list.className = 'trillion-media';
   // The Ask bar docked under the list (DockedComposer in global-composer.tsx).
   const askBar = document.createElement('div');
   askBar.className = 'trillion-media-ask sticky bottom-0 z-10';
-  element.replaceChildren(list, askBar);
+  element.replaceChildren(player, list, askBar);
   mountSharedContent(askBar, <DockedComposer />);
 
   const readMore = async () => {
@@ -157,12 +159,27 @@ export function mountMediaScreen(element: HTMLElement, _props: { surfaceInput?: 
     return filePicture({ name: item.name, kind: item.media_kind, mediaType: item.media_type, title: item.title ?? item.name, ...(item.stored ? {} : { typeLabel: 'Original elsewhere' }) });
   };
   // A recording's bytes are read by range the first time it is asked for; the list redraws when they are in hand.
+  // The player, in place: one recording, from its own bytes, at the second asked for; Close takes it away.
+  const hidePlayer = () => { unmountPlayer?.(); unmountPlayer = null; player.hidden = true; pendingPlay = null; };
+  const showPlayer = (url: string, item: Row | Moment, at: number) => {
+    unmountPlayer?.();
+    player.hidden = false;
+    unmountPlayer = mountReactSurface(player, <><MediaPlayer url={url} mediaType={typeOf(item)} label={item.title ?? item.name} at={at}/><Button size="sm" variant="ghost" onClick={hidePlayer}>Close</Button></>);
+  };
+  const playInPlace = (item: Row | Moment, at: number) => {
+    if (!canPlay(item.identity)) return;
+    const url = playing.get(item.identity);
+    if (url) { showPlayer(url, item, at); return; }
+    pendingPlay = { item, at };
+    requestPlayable(item);
+  };
   const requestPlayable = (item: Row | Moment) => {
     if (playAsked.has(item.identity)) return;
     playAsked.add(item.identity);
     playableUrl(item.identity, typeOf(item)).then(url => {
       if (disposed) return;
       playing.set(item.identity, url);
+      if (pendingPlay?.item.identity === item.identity) { showPlayer(url, pendingPlay.item, pendingPlay.at); pendingPlay = null; }
       const row = library?.rows?.find(found => found.identity === item.identity);
       if (row) readFromFiles([row]);
       void drawList();
@@ -194,6 +211,7 @@ export function mountMediaScreen(element: HTMLElement, _props: { surfaceInput?: 
   ];
 
   const recordPreview = (item: Row | Moment) => {
+    if (!canPlay(item.identity)) return null;
     const url = playing.get(item.identity);
     if (!url) { requestPlayable(item); return null; }
     return { url, type: typeOf(item), label: item.title ?? item.name };
@@ -202,6 +220,7 @@ export function mountMediaScreen(element: HTMLElement, _props: { surfaceInput?: 
     if (!library?.rows) return;
     // A photo library opens on recent pictures, even when its catalog also has undated entries.
     // Keep the server's order within one date; the shared timeline preserves the order it receives.
+    const total = library.total;
     const rows = [...library.rows].sort((left, right) => (right.captured_ms ?? -1) - (left.captured_ms ?? -1));
     const searching = Boolean(question.trim());
     const answer = found?.question === question ? found : null;
@@ -213,25 +232,8 @@ export function mountMediaScreen(element: HTMLElement, _props: { surfaceInput?: 
     const byId = new Map<string, Row | Moment>([...rows.map(row => [row.identity, row] as const), ...moments.map(moment => [moment.id, moment] as const)]);
     for (const item of [...rows, ...moments]) requestPicture(item.identity);
     const shareRecord = (item: Row | Moment) => item.file ? `file:${item.file}` : null;
-    const share = shareAction((id: string) => byId.get(id), shareRecord, (item: Row | Moment) => item.title ?? item.name);
     const addToTray = addSelectedToTrayAction(list, (id: string) => byId.get(id), shareRecord, (item: Row | Moment) => item.title ?? item.name);
-    const openItem = (id: string) => { const item = byId.get(id); if (!item) return; open(fileTab(item, 'start' in item ? item.start : 0)); };
-    const editItems = async (ids: string[]) => {
-      // Only what can play and whose end is known goes into an edit: every clip's `out` is a real second.
-      const items = ids.map(id => byId.get(id)).filter((item): item is Row | Moment => item !== undefined && ('start' in item || Number(item.duration) > 0));
-      if (!items.length) return;
-      let clips;
-      try {
-        clips = await Promise.all(items.map(async item => {
-          const bytes = await playableUrl(item.identity, typeOf(item));
-          return 'start' in item
-            ? { identity: item.identity, file: item.file, name: item.name, in: item.start, out: item.end, duration: item.duration, bytes, media_type: item.media_type }
-            : { identity: item.identity, file: item.file, name: item.name, in: 0, out: item.duration!, duration: item.duration, bytes, media_type: item.media_type };
-        }));
-      } catch (error) { notify('The recording could not open for editing', { kind: 'error', detail: errorWords(error) }); return; }
-      open(editTab(items.length === 1 ? (items[0].title ?? items[0].name) : `${items.length} clips`, clips));
-    };
-    const editable = (item: Row | Moment) => Boolean(item.identity) && ('start' in item || Number(item.duration) > 0);
+    const openItem = (id: string) => { const item = byId.get(id); if (!item) return; playInPlace(item, 'start' in item ? item.start : 0); };
     const copyTranscripts = async (ids: string[]) => {
       try {
         const items = ids.map(id => byId.get(id)).filter((item): item is Row | Moment => Boolean(item));
@@ -244,10 +246,6 @@ export function mountMediaScreen(element: HTMLElement, _props: { surfaceInput?: 
         notify(transcripts.length === 1 ? 'Transcript copied' : 'Transcripts copied');
       } catch (error) { notify('Transcripts could not copy', { kind: 'error', detail: errorWords(error) }); }
     };
-    // A recording with no words yet: the account's transcription tool works them out, the card shows them, the rows count them.
-    const untranscribed = (item: Row | Moment) => 'words' in item && !(Number(item.words) > 0) && canTranscribe(item);
-    const transcribe = (ids: string[]) => void transcribeRecordings(ids.map(id => byId.get(id)).filter((item): item is Row => Boolean(item && 'words' in item && item.file))
-      .map(item => ({ file: item.file!, title: item.title ?? item.name })), () => { if (!disposed) void load(); });
     const showFiles = (ids: string[]) => {
       const folders = new Set(ids.map(id => byId.get(id)).filter((item): item is Row => Boolean(item && 'path' in item)).map(folderOf));
       for (const collection of folders) open({ id: 'trillion.files', surfaceInput: { collection: collection || '/' } });
@@ -272,8 +270,8 @@ export function mountMediaScreen(element: HTMLElement, _props: { surfaceInput?: 
         focusPath: ['app', 'trillion-media-availability'],
         toolbarStart: (host: HTMLElement) => {
           host.classList.add('trillion-media-availability');
-          host.textContent = `Showing ${rows.length.toLocaleString()} of ${library.total.toLocaleString()} media`;
-          if (!library.next_after) return () => host.classList.remove('trillion-media-availability');
+          host.textContent = `Showing ${rows.length.toLocaleString()} of ${total.toLocaleString()} media`;
+          if (!library?.next_after) return () => host.classList.remove('trillion-media-availability');
           const buttonHost = document.createElement('span');
           host.append(buttonHost);
           const unmount = mountReactSurface(buttonHost, <Button size="sm" variant="ghost" disabled={loadingMore} onClick={() => readMore()}>{loadingMore ? 'Loading more' : 'Show more'}</Button>);
@@ -312,24 +310,17 @@ export function mountMediaScreen(element: HTMLElement, _props: { surfaceInput?: 
       onDragOut: (ids: string[], event: { dataTransfer: DataTransfer }) => { const item = byId.get(ids[0]); if (item) setPlaceableSurfaceDragData(event.dataTransfer, fileTab(item, 'start' in item ? item.start : 0), item.title ?? item.name); },
       previewFields: [{ id: 'content', label: 'Content', kind: 'media', read: recordPreview }],
       rowActions: [
-        { id: 'play', label: 'Play', icon: 'Play', lead: true, appliesTo: (item: Row | Moment) => Boolean(item.identity), run: (ids: string[]) => ids.forEach(openItem) },
-        { id: 'edit', label: 'Put in a new edit', icon: 'Scissors', appliesTo: editable, run: editItems },
+        { id: 'play', label: 'Play', icon: 'Play', lead: true, appliesTo: (item: Row | Moment) => canPlay(item.identity), run: (ids: string[]) => ids.forEach(openItem) },
         { id: 'copy-transcripts', label: 'Copy transcript', icon: 'Copy', appliesTo: (item: Row | Moment) => 'words' in item && Number(item.words) > 0, run: (ids: string[]) => void copyTranscripts(ids) },
         { id: 'copy-public-link', label: noteList.public_link.label, icon: 'Link', appliesTo: (item: Row | Moment) => !('start' in item) && Boolean(item.file), run: (ids: string[]) => ids.forEach(id => { const item = byId.get(id); if (item?.file) void copyPublicLink(`file:${item.file}`, noteList.public_link); }) },
-        { id: 'send-webhook', label: noteList.webhook.label, icon: 'Webhook', appliesTo: (item: Row | Moment) => !('start' in item) && Boolean(item.file), run: (ids: string[]) => { const item = byId.get(ids[0]); if (item?.file) openShareVia(`file:${item.file}`, item.title ?? item.name, { first: noteList.webhook.destination }); } },
         { id: 'download-pdf', label: noteList.pdf.label, icon: 'FileDown', appliesTo: (item: Row | Moment) => 'words' in item && Number(item.words) > 0, run: (ids: string[]) => ids.forEach(id => { const item = byId.get(id); if (item) void downloadTranscriptPdf(item.identity, item.title ?? item.name); }) },
-        { id: 'transcribe', label: 'Transcribe', icon: 'AudioLines', appliesTo: untranscribed, run: transcribe },
         { id: 'show-files', label: 'Show in Files', icon: 'FolderSearch', appliesTo: (item: Row | Moment) => 'path' in item && Boolean(item.path), run: showFiles },
         ...takeAway,
       ],
       bulkActions: [
-        share,
         addToTray,
-        { id: 'edit', label: 'Edit these', icon: 'Scissors', appliesTo: editable, run: editItems },
-        { id: 'edit-each', label: 'One edit per recording', icon: 'CopyPlus', appliesTo: editable, run: (ids: string[]) => ids.forEach(id => editItems([id])) },
-        { id: 'play', label: 'Open selected', icon: 'Play', appliesTo: (item: Row | Moment) => Boolean(item.identity), run: (ids: string[]) => ids.forEach(openItem) },
+        { id: 'play', label: 'Open selected', icon: 'Play', appliesTo: (item: Row | Moment) => canPlay(item.identity), run: (ids: string[]) => ids.forEach(openItem) },
         { id: 'copy-transcripts', label: 'Copy transcripts', icon: 'Copy', appliesTo: (item: Row | Moment) => 'words' in item && Number(item.words) > 0, run: (ids: string[]) => void copyTranscripts(ids) },
-        { id: 'transcribe', label: 'Transcribe', icon: 'AudioLines', appliesTo: untranscribed, run: transcribe },
         { id: 'show-files', label: 'Show in Files', icon: 'FolderSearch', appliesTo: (item: Row | Moment) => 'path' in item && Boolean(item.path), run: showFiles },
         ...takeAway,
       ],
@@ -414,6 +405,7 @@ export function mountMediaScreen(element: HTMLElement, _props: { surfaceInput?: 
     disposed = true;
     stopAsking();
     stopReading();
+    hidePlayer();
     if (redrawSoon) clearTimeout(redrawSoon);
     document.removeEventListener('visibilitychange', onVisible);
     releaseNode(askBar);

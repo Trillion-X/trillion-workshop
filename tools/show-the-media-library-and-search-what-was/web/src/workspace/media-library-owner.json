@@ -1,17 +1,41 @@
 {
-  "_what": "Where the Media screen reads its library, search and pictures (media-library-read.ts, media-search.ts, media-pictures.ts, media-playback.ts): the person's own files, as their files owner keeps them. The library is one row per media file of ns_file (a file whose media type's first part is one of `kinds`), named by its newest name from ns_name, newest first, `limit` at a time; a page after the first starts after the last row of the one before. `total` counts every such file. `views` says, for each saved view of the screen, which files it asks for: `stored` true or false, or every file when absent. Read by `tool` with `credential_name` (SQL on the person's own database). `files_tool` is the files owner (tool:your-files) for pictures (thumbnail) and playback (read_file_span, `span_bytes` a window). `search` is the picture search: `embed_tool` turns the words into a picture-space vector, the nearest `pool` frames are read from media_index_vectors, and the best frame of each file is kept, the `results` best files shown.",
+  "_what": "Where the Media screen reads its library, search and pictures (media-library-read.ts, media-search.ts, media-pictures.ts, media-playback.ts): the person's own files, as their files owner keeps them. Every SQL statement carries `statement_timeout_ms` (the run-sql tool's own limit). The library starts from the newest names (ns_name by modified time, a sequential read once), takes one page of `limit` media files, and joins only those files' longest kept second; `total` is its own bounded count. Read by `tool` with `credential_name`. `files_tool` is the files owner (tool:your-files) for thumbnails and byte ranges (read_file_span, `span_bytes` a window: 128 KiB, the door refuses a reply over about 1 MiB). `search` is the picture search: `embed_tool` and `embed_operation` turn the words into a picture-space vector (the kept tool, a few seconds), the nearest `pool` frames are read from media_index_vectors, and the best frame of each file is kept, the `results` best files shown.",
   "tool": "tool:run-sql-in-my-database",
   "credential_name": "own-rows-postgres-connection",
-  "kinds": ["video", "audio", "image"],
+  "kinds": [
+    "video",
+    "audio",
+    "image"
+  ],
   "limit": 60,
-  "views": { "all-media": {}, "ready": { "stored": true }, "elsewhere": { "stored": false } },
+  "views": {
+    "all-media": {},
+    "ready": {
+      "stored": true
+    },
+    "elsewhere": {
+      "stored": false
+    }
+  },
   "files_tool": "tool:your-files",
   "thumbnail_size": 480,
-  "span_bytes": 8388608,
-  "most_playable_bytes": 1073741824,
+  "thumbnail_retry_seconds": 300,
+  "span_bytes": 131072,
+  "most_playable_bytes": 268435456,
   "search": {
-    "embed_tool": "tool:words-as-picture-vector",
+    "embed_tool": "tool:words-as-picture-vector-kept",
+    "embed_operation": "words-as-picture-vector",
     "pool": 400,
     "results": 60
+  },
+  "statement_timeout_ms": 5000,
+  "raw_spans": false,
+  "raw_span": {
+    "route": "/mcp",
+    "door_tool": "do_one_thing_in_my_account",
+    "method": "tools:run",
+    "window_bytes": 4194304,
+    "most_bytes": 8388608,
+    "_about": "The raw byte path (media-raw-span.ts), used only when raw_spans is true: a tools/call of door_tool at route, its arguments {method, input} with input the read_file_span call and bytes {offset, length}, sent with Accept application/octet-stream; the answer is the span's raw body with X-Total-Bytes and X-Offset. Until the gateway passes the raw body through, raw_spans stays false and playback reads the JSON windows (span_bytes)."
   }
 }
