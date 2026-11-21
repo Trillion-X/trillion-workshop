@@ -6,12 +6,16 @@
 //   pieces.json `database_suffix` (secrets:names, names only); each one's pieces are its `table` rows, read by the SQL
 //   tool as the page opens. A switch picks the pursuit; each piece shows its title, its stage, what it waits on and why,
 //   where it goes, its words, its slides and its pictures.
+//   Above them, "Waiting on your yes": the rows of every decision source in pieces.json (an email draft, a post) that
+//   wait on the person, each with Approve and Skip. One owner answers for every kind of row; decisions.ts makes the SQL.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Nothing here names a pursuit, a database, a stage or a column: all are pieces.json DATA or the person's own names.
-//   2. Only real rows: every piece is a row its pursuit's database answered. A read still going, a read that failed and
-//      a pursuit with nothing in it are three different states; a failed read can be tried again.
-//   3. Reading only: no row is written from this screen.
+//   1. Nothing here names a pursuit, a database, a table, a stage, a status or a column: all are pieces.json DATA or the
+//      person's own names.
+//   2. Only real rows: every piece and every waiting row is a row its database answered. A read still going, a read that
+//      failed and a source with nothing in it are three different states; a failed read can be tried again.
+//   3. A row is written only by the decision the person presses on it (Approve or Skip), as decideStatement makes it: the
+//      row must still wait, and only its status and decided_at change. No other row is written from this screen.
 //   4. A picture is read through the files owner (api.ts files); a path that names one computer's disk is said to be
 //      there, never drawn as a broken picture.
 //   5. Every element is a shared part (Container, Text, Badge, Card, Button, SegmentedControl, ImageBlock).
@@ -24,17 +28,26 @@ import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
 import { postJson, readFileBytes } from '../../../../workspace-screens/web/src/workspace/api';
 import { runWorkshopTool } from '../../../../workspace-screens/web/src/workspace/workshop-tool-api';
 import pieces from './pieces.json';
+import { decideStatement, shownWords, waitingRowsStatement, type DecisionSource, type Verb } from './decisions';
 
 type Piece = Record<string, string | null>;
+type Row = Record<string, string | null>;
+/** The rows one decision source read from one of the person's databases, with the connection they came from. */
+type WaitingGroup = { source: DecisionSource; credential: string; rows: Row[] };
 type Slide = { head: string; body: string };
 type Read<T> = { state: 'reading' } | { state: 'failed'; why: string } | { state: 'read'; value: T };
 const words = pieces.words;
 
-/** The pursuits: each database connection the vault names with the suffix, labelled by its own name. */
-async function readPursuits(): Promise<{ id: string; label: string }[]> {
+/** The names of the connections the vault holds (names only, never values). */
+async function readNames(): Promise<string[]> {
   const answer = await postJson<{ names?: unknown }>(pieces.names_method, {});
   if (!Array.isArray(answer?.names)) throw new Error('');
-  return (answer.names as string[]).filter(name => name.endsWith(pieces.database_suffix)).sort().map(name => {
+  return answer.names as string[];
+}
+
+/** The pursuits: each database connection the vault names with the suffix, labelled by its own name. */
+async function readPursuits(): Promise<{ id: string; label: string }[]> {
+  return (await readNames()).filter(name => name.endsWith(pieces.database_suffix)).sort().map(name => {
     const plain = name.slice(0, -pieces.database_suffix.length).replace(/_/g, ' ');
     return { id: name, label: plain.charAt(0).toUpperCase() + plain.slice(1) };
   });
@@ -143,17 +156,106 @@ async function readAll(): Promise<Made[]> {
   });
 }
 
-function Failed({ why, retry }: { why?: string; retry: () => void }) {
+function Failed({ message, why, retry }: { message: string; why?: string; retry: () => void }) {
   return (
     <Container layout="vertical" gap="sm">
-      <Text as="p" variant="body" color="secondary">{words.failed}{why ? ` ${why}` : ''}</Text>
+      <Text as="p" variant="body" color="secondary">{message}{why ? ` ${why}` : ''}</Text>
       <Container layout="horizontal"><Button variant="ghost" onClick={retry}>{words.retry}</Button></Container>
+    </Container>
+  );
+}
+
+const sources = pieces.decisions.sources as DecisionSource[];
+/** The rows that wait on the person's yes: each decision source read from every database the vault names with its suffix
+ *  that has its table (one without it makes no such rows and is left out). decisions.ts makes the SQL. */
+async function readWaiting(): Promise<WaitingGroup[]> {
+  const names = await readNames();
+  const reads = sources.flatMap(source => names.filter(name => name.endsWith(source.database_suffix)).map(async (credential): Promise<WaitingGroup | null> => {
+    const { sql, params } = waitingRowsStatement(source);
+    try {
+      const ran = await runWorkshopTool<{ rows?: Row[] }>(pieces.tool, { credential_name: credential, sql, params });
+      if (!Array.isArray(ran.result?.rows)) throw new Error('');
+      return { source, credential, rows: ran.result.rows };
+    } catch (error) {
+      if (error instanceof Error && NO_TABLE.test(error.message)) return null;
+      throw error;
+    }
+  }));
+  return (await Promise.all(reads)).filter((group): group is WaitingGroup => group !== null);
+}
+
+/** Sets one row's decision in the database it was read from. The answer is read again either way: a row decided elsewhere
+ *  no longer waits and leaves. */
+async function decide(group: WaitingGroup, rowId: string, verb: Verb): Promise<void> {
+  const { sql, params } = decideStatement(group.source, verb, rowId);
+  const ran = await runWorkshopTool<{ rows?: Row[] }>(pieces.tool, { credential_name: group.credential, sql, params });
+  if (!Array.isArray(ran.result?.rows)) throw new Error('');
+}
+
+/** The waiting rows, read as the screen opens and again after each decision. A refresh keeps the rows on screen until
+ *  its answer comes, so a decision never blanks the list. */
+function useWaiting(): { held: Read<WaitingGroup[]>; again: () => void } {
+  const [held, setHeld] = React.useState<Read<WaitingGroup[]>>({ state: 'reading' });
+  const [attempt, setAttempt] = React.useState(0);
+  React.useEffect(() => {
+    let live = true;
+    readWaiting().then(value => { if (live) setHeld({ state: 'read', value }); }, (error: unknown) => { if (live) setHeld({ state: 'failed', why: error instanceof Error ? error.message : '' }); });
+    return () => { live = false; };
+  }, [attempt]);
+  return { held, again: () => setAttempt(count => count + 1) };
+}
+
+function WaitingCard({ group, row, again }: { group: WaitingGroup; row: Row; again: () => void }) {
+  const { source } = group;
+  const [busy, setBusy] = React.useState<Verb | null>(null);
+  const [failed, setFailed] = React.useState(false);
+  const title = row[source.title] || words.untitled;
+  const press = (verb: Verb) => {
+    setBusy(verb);
+    setFailed(false);
+    decide(group, row[source.id] ?? '', verb).then(again, () => { setBusy(null); setFailed(true); });
+  };
+  return (
+    <Card variant="nested" padding="md" data-waiting={row[source.id]} aria-busy={busy ? true : undefined}>
+      <Container layout="vertical" gap="sm">
+        <Text as="h2" variant="heading" className="m-0">{title}</Text>
+        {source.shows.map(shown => {
+          const value = shownWords(row[shown.field] ?? null, shown.as);
+          return value ? <Container key={shown.field} layout="vertical" gap="xs"><Text variant="label" color="secondary">{shown.label}</Text><Text as="p" variant="body" className="whitespace-pre-wrap">{value}</Text></Container> : null;
+        })}
+        <Container layout="horizontal" gap="sm" alignItems="center">
+          <Button variant="primary" size="sm" disabled={busy !== null} aria-label={`${source.yes.label}: ${title}`} onClick={() => press(source.yes)}>{source.yes.label}</Button>
+          <Button variant="ghost" size="sm" disabled={busy !== null} aria-label={`${source.skip.label}: ${title}`} onClick={() => press(source.skip)}>{source.skip.label}</Button>
+          {busy ? <Text as="span" variant="caption" color="secondary" role="status">{words.waiting_saving}</Text> : null}
+          {failed ? <Text as="span" variant="caption" color="secondary" role="alert">{words.waiting_save_failed}</Text> : null}
+        </Container>
+      </Container>
+    </Card>
+  );
+}
+
+function WaitingSection({ held, again }: { held: Read<WaitingGroup[]>; again: () => void }) {
+  const groups = held.state === 'read' ? held.value : [];
+  const count = groups.reduce((total, group) => total + group.rows.length, 0);
+  return (
+    <Container layout="vertical" gap="sm" data-section="waiting">
+      <Text as="h2" variant="heading-lg" className="m-0">{words.waiting_title}</Text>
+      {held.state === 'reading' ? <Text as="p" variant="body" color="secondary">{words.waiting_reading}</Text>
+        : held.state === 'failed' ? <Failed message={words.waiting_failed} why={held.why} retry={again} />
+          : count === 0 ? <Text as="p" variant="body" color="secondary">{words.waiting_none}</Text>
+            : groups.filter(group => group.rows.length).map(group => (
+              <Container key={`${group.credential}:${group.source.table}`} layout="vertical" gap="sm">
+                <Text as="h3" variant="label" color="secondary">{group.source.label}</Text>
+                {group.rows.map(row => <WaitingCard key={row[group.source.id] ?? ''} group={group} row={row} again={again} />)}
+              </Container>
+            ))}
     </Container>
   );
 }
 
 function Pieces() {
   const [made, retry] = useRead(readAll, 'pursuits');
+  const waiting = useWaiting();
   const [chosen, setChosen] = React.useState<string | null>(null);
   const list = made.state === 'read' ? made.value : [];
   const current = list.find(one => one.id === chosen) ?? list[0] ?? null;
@@ -161,13 +263,14 @@ function Pieces() {
     <Container layout="vertical" gap="md" padding="lg" className="h-full min-h-0 overflow-y-auto" data-screen="pieces">
       <Text as="h1" variant="heading-lg" className="page-title m-0">{words.title}</Text>
       <Text as="p" variant="body" color="secondary">{words.body}</Text>
+      {sources.length ? <WaitingSection held={waiting.held} again={waiting.again} /> : null}
       {made.state === 'reading' ? <Text as="p" variant="body" color="secondary">{words.reading}</Text>
-        : made.state === 'failed' ? <Failed retry={retry} />
+        : made.state === 'failed' ? <Failed message={words.failed} retry={retry} />
           : !current ? <Text as="p" variant="body" color="secondary">{words.none}</Text> : (
             <>
               <SegmentedControl ariaLabel={words.pursuits} value={current.id} onValueChange={setChosen}
                 items={list.map(one => ({ id: one.id, label: one.label, note: one.read.state === 'read' ? String(one.read.value.length) : undefined }))} />
-              {current.read.state === 'failed' ? <Failed why={current.read.why} retry={retry} />
+              {current.read.state === 'failed' ? <Failed message={words.failed} why={current.read.why} retry={retry} />
                 : current.read.state === 'read' && current.read.value.length
                   ? <Container layout="vertical" gap="sm">{current.read.value.map(piece => <PieceCard key={piece.id} piece={piece} />)}</Container>
                   : <Text as="p" variant="body" color="secondary">{words.empty}</Text>}
