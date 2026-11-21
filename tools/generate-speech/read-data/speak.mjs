@@ -139,8 +139,8 @@ export async function sayHere({ text, voice = null, place = null, out }, { setti
   throw said(settings.words.no_voice, { why: passed.map(item => `${item.voice}: ${item.why}`).join('; ') });
 }
 
-/** The run's speech program as an `ask`: the one the person gave as `speech_python`, else the settings' program. */
-const askWith = (input, ask) => ask ?? ((request, options) => askSpeaker(request, { ...options, python: input?.speech_python ?? null }));
+/** The run's speech program as an `ask`: the one the person granted (computer.start-a-program), else the settings' program. */
+const askWith = (input, ask) => ask ?? ((request, options) => askSpeaker(request, { ...options, python: input?.computer?.['start-a-program']?.program ?? input?.speech_python ?? null }));
 
 /**
  * Hands the sound `source` to the run's declared private output folder under its bound (`keep`): its byte identity and
