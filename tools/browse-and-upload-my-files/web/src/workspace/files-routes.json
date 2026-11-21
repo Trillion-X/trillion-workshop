@@ -5,6 +5,11 @@
     "waits_for": "the screens owner hides Files search for this build by DATA; its code stays, and switching shown back on restores it",
     "covers": "file names only: the files tool's search operation answers the words of the names; the places it does not answer are not drawn"
   },
+  "link": {
+    "shown": true,
+    "seconds": 86400,
+    "covers": "one file at a time: the files tool's share_file answers an address that opens the file without other credentials, for `seconds` (1 up to 604800) and until the person stops it"
+  },
   "tidy": {
     "shown": false,
     "waits_for": "a road that carries a job to the person's AIs and an owner answers (/work/api/queue has no owner now)"

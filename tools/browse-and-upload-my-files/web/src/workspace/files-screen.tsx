@@ -51,6 +51,7 @@ import { readListing } from './api';
 import { refusal } from './failure';
 import { uploadFiles } from './upload';
 import { shareAction } from './sharing-sheet';
+import { openFileLink } from './file-link';
 import { addSelectedToTrayAction } from './tray';
 import { setAsideActions } from './set-aside';
 import { askSearch, openResult, placeViews, searchFields, type SearchAnswer, type SearchResult } from './search-results';
@@ -357,6 +358,11 @@ export function mountFilesScreen(element: HTMLElement, props: { surfaceInput?: R
       const rowOf = (id: string) => records.find(row => row.id === id);
       const shareRecord = (row: Row) => row.identity ? `file:${row.identity}` : null;
       const share = shareAction(rowOf, shareRecord, (row: Row) => row.name);
+      // A link to one file (share_file, file-link.tsx); the space sharing above stays as its own choice.
+      const linkFile = ownerRoutes.link.shown ? [{ id: 'link', label: words.link.action, icon: 'Link2', appliesTo: (row: Row) => !row.id.startsWith(FOLDER) && Boolean(row.identity), run: (ids: string[]) => {
+        const row = records.find(record => record.id === ids[0] && !record.id.startsWith(FOLDER));
+        if (row?.identity) openFileLink(row.identity, row.name);
+      } }] : [];
       const addToTray = addSelectedToTrayAction(list, rowOf, shareRecord, (row: Row) => row.name);
       const options = {
         label: collection === '/' ? words.root : baseName(collection),
@@ -387,7 +393,7 @@ export function mountFilesScreen(element: HTMLElement, props: { surfaceInput?: R
         onDragOut: dragOut,
         // Each file in a hover preview (and each screen of a carousel over several) offers these.
         rowActions: [{ id: 'open', label: words.open, icon: 'SquareArrowOutUpRight', lead: true, appliesTo: (row: Row) => !row.id.startsWith(FOLDER), run: (ids: string[]) => ids.forEach(openRecord) },
-          ...tidy, ...takeAway],
+          ...linkFile, ...tidy, ...takeAway],
         bulkActions: [share, addToTray, ...tidy, ...takeAway],
         moreActions: { label: words.more, icon: 'Ellipsis', items: [{ id: 'tidy-up', label: tidySettings.screen.title, icon: 'Sparkles' }, { id: 'recently-deleted', label: words.recently_deleted, icon: 'Trash2' }], onAction: (id: string) => { if (id === 'tidy-up') openScreen(TIDY_SCREEN); if (id === 'recently-deleted') openScreen(RECENTLY_DELETED_SCREEN); } },
         search: ownerRoutes.search.shown ? search() : undefined,

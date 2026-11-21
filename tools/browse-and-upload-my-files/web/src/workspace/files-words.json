@@ -54,5 +54,19 @@
     "list": "List",
     "cards": "Cards",
     "board": "Board"
+  },
+  "link": {
+    "action": "Get a link",
+    "panel_title": "Link to",
+    "preview": "What people with the link see",
+    "places": "Places",
+    "make": "Make link",
+    "copy": "Copy link",
+    "copied": "Link copied.",
+    "copy_failed": "Could not copy the link.",
+    "failed": "The link could not be made.",
+    "label": "Anyone with this link",
+    "once": "Shown once",
+    "until": "Anyone with the link can open this file until {until}."
   }
 }
