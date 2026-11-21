@@ -1,11 +1,11 @@
 // One person's tool settings, read the way old Trillion's decision store read a `setting` record (Trillion-X/trillion
 // src/decision-store.mjs before 4ffa1dc4a2, lines 751-753: `setting(name)` gives the value or null). The same reader
-// as settings.py, for tools written in JavaScript. A setting is a row of the generic list `list:settings`: type
-// `record:setting`, id `record:setting:<workshop-folder>~<scope_kind>~<scope_id>`, fields name, tool, scope_kind,
-// scope_id, settings (JSON text or an object), from and status. Node's standard library only.
+// as settings.py, for tools written in JavaScript. A setting is a row of the person's settings table (the owner-places
+// role `settings`, made by settings-store.mjs): type `record:setting`, id `record:setting:<workshop-folder>~<scope_kind>~<scope_id>`,
+// fields name, tool, scope_kind, scope_id, settings (JSON text or an object), from and status. Node's standard library only.
 import { readFileSync } from 'node:fs';
 
-export const LIST_ID = 'list:settings';
+export const SETTINGS_ROLE = 'settings';
 export const RECORD_TYPE = 'record:setting';
 export const ID_PREFIX = 'record:setting:';
 export const SCOPE_KINDS = ['piece', 'film', 'person', 'account'];
@@ -123,9 +123,9 @@ export function handedRecord(stored, id, { folder } = {}) {
 function givenRows({ settings_record: given, stored } = {}, folder) {
   if (stored !== undefined && stored !== null && !Array.isArray(stored?.records)) throw new SettingError('stored, when given, is { records: [{ id, type, value }, ...] }: the rows read from the person\'s store.');
   if (isSettingId(given)) {
-    if (!stored) throw new SettingError(`settings_record names ${given}, but no rows were handed in: read it from ${LIST_ID} in the person's store and hand it in stored.records, or hand the record itself.`);
+    if (!stored) throw new SettingError(`settings_record names ${given}, but no rows were handed in: read it from the settings table (owner-places role ${SETTINGS_ROLE}) in the person's store and hand it in stored.records, or hand the record itself.`);
     const record = handedRecord(stored, given, { folder });
-    if (!record) throw new SettingError(`No ${given} in ${LIST_ID}: write the row first, or leave settings_record out to run on the defaults.`);
+    if (!record) throw new SettingError(`No ${given} in the settings table: write the row first, or leave settings_record out to run on the defaults.`);
     return record;
   }
   if (given === undefined && stored) return stored.records.filter(record => isSettingRow(record) && isPlain(record.value));

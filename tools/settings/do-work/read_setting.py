@@ -7,9 +7,9 @@ One JSON request on standard input, one JSON answer as the last line of standard
          "folder": "<workshop folder>", "scopes": [{"kind": "film", "id": "..."}, ...], "default": <any>, "tool": "tool:..."}
         -> {"found": bool, "id": <record id or null>, "settings": <the settings or the default>}
         A row id is looked up in stored.records; with settings_record left out, the rows in stored.records are read.
-  make: {"make": {"folder", "scope_kind", "scope_id", "settings", "name", "tool", "from", "status"?}, "with_list": bool,
+  make: {"make": {"folder", "scope_kind", "scope_id", "settings", "name", "tool", "from", "status"?},
          "stored": {"records": [<the rows as the person's store holds them now, when they exist>]}}
-        -> {"keep": [<list:settings when with_list>, <the record:setting>], each {id, type, value, expected}}
+        -> {"keep": [<the record:setting>], each {id, type, value, expected}}
         expected is the row as handed in stored.records ({type, value}), or null when it was not there: the store
         refuses a keep whose expected row has moved.
 
@@ -34,7 +34,7 @@ def answer(request: dict) -> dict:
             raise S.SettingError(f'make needs {", ".join(missing)}.')
         record = S.make_record(m['folder'], m['scope_kind'], m['scope_id'], m['settings'], name=m['name'],
                                tool=m['tool'], source=m['from'], status=m.get('status', 'active'))
-        return {'keep': S.keep(([S.list_record()] if request.get('with_list') else []) + [record], request.get('stored'))}
+        return {'keep': S.keep([record], request.get('stored'))}
     scopes = request.get('scopes')
     if scopes is not None:
         if not isinstance(scopes, list) or not all(isinstance(s, dict) and 'kind' in s and 'id' in s for s in scopes):

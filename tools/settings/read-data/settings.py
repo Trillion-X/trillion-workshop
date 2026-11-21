@@ -1,6 +1,6 @@
 """One person's tool settings, read the way old Trillion's decision store read a `setting` record.
 
-A setting is a row of the person's generic list `list:settings`: record type `record:setting`, id
+A setting is a row of the person's settings table (the owner-places role `settings`, made by settings-store.mjs): record type `record:setting`, id
 `record:setting:<workshop-folder>~<scope_kind>~<scope_id>`, fields name, tool, scope_kind (person, film, piece or
 account), scope_id, settings (JSON, as text or as an object), from ("<old path>@<sha>") and status.
 
@@ -19,7 +19,7 @@ import json
 from pathlib import Path
 from typing import Any, Iterable
 
-LIST_ID = 'list:settings'
+SETTINGS_ROLE = 'settings'
 RECORD_TYPE = 'record:setting'
 ID_PREFIX = 'record:setting:'
 SCOPE_KINDS = ('piece', 'film', 'person', 'account')
@@ -65,31 +65,6 @@ def make_record(folder: str, scope_kind: str, scope_id: str, settings: Any, *, n
             'settings': json.dumps(settings, ensure_ascii=False, sort_keys=True, separators=(',', ':')),
             'from': source,
             'status': status,
-        },
-    }
-
-
-def list_record() -> dict:
-    """The generic list the setting rows belong to (written once; writing it again changes nothing)."""
-    return {
-        'id': LIST_ID,
-        'type': 'list',
-        'value': {
-            'label': 'Settings',
-            'about': 'The settings each Workshop tool reads at run time, one row per tool and scope (a person, a film, '
-                     'a piece or the whole account). The settings field holds the values as JSON; from says where '
-                     'they came from.',
-            'row_type': 'setting',
-            'title_field': 'name',
-            'fields': [
-                {'id': 'name', 'label': 'Setting', 'kind': 'text'},
-                {'id': 'tool', 'label': 'Tool', 'kind': 'text'},
-                {'id': 'scope_kind', 'label': 'For a', 'kind': 'text'},
-                {'id': 'scope_id', 'label': 'For', 'kind': 'text'},
-                {'id': 'settings', 'label': 'Settings (JSON)', 'kind': 'long-text'},
-                {'id': 'from', 'label': 'From', 'kind': 'text'},
-                {'id': 'status', 'label': 'Status', 'kind': 'text'},
-            ],
         },
     }
 
@@ -215,11 +190,11 @@ def given_rows(request: dict, folder: str | None = None) -> Any:
     handed = _handed_records(request.get('stored'))
     if isinstance(given, str) and given.startswith(ID_PREFIX):
         if handed is None:
-            raise SettingError(f'settings_record names {given}, but no rows were handed in: read it from {LIST_ID} in the '
-                               "person's store and hand it in stored.records, or hand the record itself.")
+            raise SettingError(f'settings_record names {given}, but no rows were handed in: read it from the settings table '
+                               f"(owner-places role {SETTINGS_ROLE}) in the person's store and hand it in stored.records, or hand the record itself.")
         record = handed_record(request['stored'], given, folder)
         if record is None:
-            raise SettingError(f'No {given} in {LIST_ID}: write the row first, or leave settings_record out to run on the defaults.')
+            raise SettingError(f'No {given} in the settings table: write the row first, or leave settings_record out to run on the defaults.')
         return record
     if given is None and handed is not None:
         return [r for r in handed if _is_setting_row(r) and isinstance(r.get('value'), dict)]

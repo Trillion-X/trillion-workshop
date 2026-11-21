@@ -1,0 +1,8 @@
+{
+  "_what": "The settings table: where the one reader's rows are kept in the person's own database (tools/settings/read-data/settings-store.mjs makes every statement from this file and the owner-places role `settings`). The role gives the connection name and the table (schema.table); this file gives the statements, with {table} where the table's name goes. One row per tool and scope: id is record:setting:<workshop-folder>~<scope_kind>~<scope_id>, source is the old path and sha the row came from, status active or retired, and version counts every change, so a write names the version it was made over (compare-and-set). The create statement runs before the first write and does nothing once the table is there. A read before the table exists finds no settings.",
+  "statement_timeout_ms": 5000,
+  "create": "CREATE TABLE IF NOT EXISTS {table} (id text PRIMARY KEY, name text NOT NULL, tool text NOT NULL, scope_kind text NOT NULL, scope_id text NOT NULL, settings jsonb NOT NULL, source text NOT NULL, status text NOT NULL DEFAULT 'active', version bigint NOT NULL DEFAULT 1, changed_at timestamptz NOT NULL DEFAULT now())",
+  "select": "SELECT id, name, tool, scope_kind, scope_id, settings::text AS settings, source, status, version FROM {table} WHERE starts_with(id, $1) ORDER BY id",
+  "insert": "INSERT INTO {table} (id, name, tool, scope_kind, scope_id, settings, source, status) VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8) ON CONFLICT (id) DO NOTHING",
+  "update": "UPDATE {table} SET name = $2, tool = $3, scope_kind = $4, scope_id = $5, settings = $6::jsonb, source = $7, status = $8, version = version + 1, changed_at = now() WHERE id = $1 AND version = $9"
+}

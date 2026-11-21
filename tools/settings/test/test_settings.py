@@ -111,11 +111,9 @@ class Command(unittest.TestCase):
 
     def test_read_and_make(self):
         code, out = self.run_cli({'make': {'folder': 'make-a-sample', 'scope_kind': 'film', 'scope_id': 'f1',
-                                           'settings': {'b': 1, 'a': 2}, 'name': 'n', 'tool': 'tool:t', 'from': 'x@1'},
-                                  'with_list': True})
+                                           'settings': {'b': 1, 'a': 2}, 'name': 'n', 'tool': 'tool:t', 'from': 'x@1'}})
         self.assertEqual(code, 0)
-        listed, record = out['result']['keep']
-        self.assertEqual((listed['id'], listed['expected']), ('list:settings', None))
+        [record] = out['result']['keep']
         self.assertEqual((record['value']['settings'], record['expected']), ('{"a":2,"b":1}', None))
         record = {k: v for k, v in record.items() if k != 'expected'}
         code, out = self.run_cli({'settings_record': [record], 'folder': 'make-a-sample',

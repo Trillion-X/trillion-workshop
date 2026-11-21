@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "settings-tool-rows",
-  "what_this_is": "The Workshop row for the settings folder: the one reader every Workshop tool uses to read the settings a person keeps for it as rows of their list:settings, by person, film, piece or account.",
+  "what_this_is": "The Workshop row for the settings folder: the one reader every Workshop tool uses to read the settings a person keeps for it as rows of their the settings table, by person, film, piece or account.",
   "records": [
     {
       "payload": {
@@ -189,7 +189,7 @@
         "id": "tool:read-a-tool-setting",
         "label": "Read the settings a person keeps for a tool, for one person, film, piece or their whole account (runs on your computer)",
         "job": "Read the settings a person keeps for one of their tools, choosing the row for this piece, else this film, else this person, else their whole account, or make the settings row to write",
-        "description": "A tool's settings are rows of the person's list:settings (record:setting:<workshop-folder>~<scope_kind>~<scope_id>; fields name, tool, scope_kind, scope_id, settings as JSON, from, status). read: give the records your AI read from the person's own store (or the path of the file holding them), the tool's folder and the scopes to try, most specific first; the answer is the settings of the first scope that has an active row, or the default given when none does. A row id given as settings_record is looked up in the rows handed in stored.records; with settings_record left out, the setting rows in stored.records are read. make: give the folder, scope, settings, name, tool and where the values came from, and the current rows in stored.records when they exist; the answer is keep: the row your AI keeps in the person's own store, with the list:settings row when asked, each with expected (the row as handed, or null when it was not there), so the store refuses a write made from a stale read. The same reader is a library for Python (read-data/settings.py) and JavaScript (read-data/settings.mjs) tools.",
+        "description": "A tool's settings are rows of the person's settings table (owner-places role settings) (record:setting:<workshop-folder>~<scope_kind>~<scope_id>; fields name, tool, scope_kind, scope_id, settings as JSON, from, status). read: give the records your AI read from the person's own store (or the path of the file holding them), the tool's folder and the scopes to try, most specific first; the answer is the settings of the first scope that has an active row, or the default given when none does. A row id given as settings_record is looked up in the rows handed in stored.records; with settings_record left out, the setting rows in stored.records are read. make: give the folder, scope, settings, name, tool and where the values came from, and the current rows in stored.records when they exist; the answer is keep: the row your AI keeps in the person's own store, with the the settings table row when asked, each with expected (the row as handed, or null when it was not there), so the store refuses a write made from a stale read. The same reader is a library for Python (read-data/settings.py) and JavaScript (read-data/settings.mjs) tools.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -259,7 +259,7 @@
           "needs": [
             "python"
           ],
-          "say": "Read the person's list:settings rows for the tool from the person's own store (the rows of list:settings, or the row record:setting:<folder>~<scope_kind>~<scope_id>), and hand them in as stored.records (or write them to a file and pass that file as settings_record) with the folder and the scopes to try. A tool that takes settings_record in its own request reads it with read-data/settings.py or read-data/settings.mjs itself."
+          "say": "Read the person's settings table (owner-places role settings) rows for the tool from the person's own store (the rows of the settings table, or the row record:setting:<folder>~<scope_kind>~<scope_id>), and hand them in as stored.records (or write them to a file and pass that file as settings_record) with the folder and the scopes to try. A tool that takes settings_record in its own request reads it with read-data/settings.py or read-data/settings.mjs itself."
         },
         "maker": "maker:settings",
         "licence_class": "licence:maker-own",
