@@ -17,7 +17,7 @@
 // next steps gate on ok / the empty compare result), never throws past main().
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { parseStripeSignature } from '../../process/parse-stripe-signature.mjs';
+import { parseStripeSignature } from '../parse-webhook-signature.mjs';
 
 function parseArgs(argv) {
   const flags = {};

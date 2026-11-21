@@ -1,5 +1,5 @@
-import { mapCapabilityRequest } from './stripe-request-mapper.mjs';
-import { redactStripeResponse } from './stripe-response-redactor.mjs';
+import { mapCapabilityRequest } from '../../shared-code/src/provider-request-mapper.mjs';
+import { redactStripeResponse } from '../do-work/stripe-response-redactor.mjs';
 // Re-exported so existing importers (tests) keep `readCliInput` from this module.
 export { readCliInput } from './read-cli-input.mjs';
 import { readCliInput } from './read-cli-input.mjs';

@@ -14,7 +14,7 @@
 // Output JSON: { writes: PaymentEvent[] }   (empty on any verification/decode/map failure)
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { compareAndMapStripeWebhook } from '../../process/compare-and-map-stripe-webhook.mjs';
+import { compareAndMapStripeWebhook } from '../admit-a-webhook.mjs';
 
 function parseArgs(argv) {
   const flags = {};
