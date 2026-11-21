@@ -2,34 +2,75 @@
   "what_this_is": "The treg endpoints the measure calls, and the body each one takes. A body value of \"{name}\" takes that input (query, keywords, question, location); a key whose value is \"{location}\" is left out when no location is given. parse names the reader of the answer: organic-serp, keyword-volume, cloro-answer (text and sources) or perplexity-answer (message and search results).",
   "organic": {
     "endpoint": "treg.google.serp.organic",
-    "body": { "q": "{query}", "country": "us", "limit": 100 },
+    "body": {
+      "q": "{query}",
+      "country": "us",
+      "limit": 100
+    },
     "parse": "organic-serp"
   },
   "volume": {
     "endpoint": "treg.google.keywords.volume",
-    "body": { "keywords": "{keywords}", "country": "us", "language": "en" },
+    "body": {
+      "keywords": "{keywords}",
+      "country": "us",
+      "language": "en"
+    },
     "parse": "keyword-volume"
   },
   "engines": {
     "chatgpt": {
       "endpoint": "cloro.ai-search.chatgpt.scrape",
-      "body": { "prompt": "{question}", "country": "US", "include": { "markdown": true } },
+      "body": {
+        "prompt": "{question}",
+        "country": "US",
+        "include": {
+          "markdown": true
+        }
+      },
       "parse": "cloro-answer"
     },
     "gemini": {
       "endpoint": "cloro.ai-search.gemini.scrape",
-      "body": { "prompt": "{question}", "country": "US", "include": { "markdown": true } },
+      "body": {
+        "prompt": "{question}",
+        "country": "US",
+        "include": {
+          "markdown": true
+        }
+      },
       "parse": "cloro-answer"
     },
     "google-ai-mode": {
       "endpoint": "cloro.google.serp.ai_mode",
-      "body": { "prompt": "{question}", "gl": "US", "location": "{location}", "include": { "markdown": true } },
+      "body": {
+        "prompt": "{question}",
+        "gl": "US",
+        "location": "{location}",
+        "include": {
+          "markdown": true
+        }
+      },
       "parse": "cloro-answer"
     },
     "perplexity": {
       "endpoint": "perplexity.web.answer.fast",
-      "body": { "input": "{question}", "max_output_tokens": 512, "max_steps": 1, "preset": "fast" },
+      "body": {
+        "input": "{question}",
+        "max_output_tokens": 512,
+        "max_steps": 1,
+        "preset": "fast"
+      },
       "parse": "perplexity-answer"
     }
+  },
+  "maps": {
+    "endpoint": "treg.google.serp.maps",
+    "body": {
+      "q": "{query}",
+      "country": "us",
+      "limit": 20
+    },
+    "parse": "maps-places"
   }
 }

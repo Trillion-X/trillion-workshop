@@ -52,8 +52,13 @@ export function requestProblems(request, engineNames) {
   if (typeof request.store !== 'string' || !request.store.trim()) {
     problems.push('store must name the database the rows go to, the name the person saved its connection under.');
   }
-  if (!Array.isArray(request.keywords) || request.keywords.length === 0 || request.keywords.some((k) => typeof k !== 'string' || !k.trim())) {
-    problems.push('keywords must list at least one search term, each a non-empty text.');
+  const termsOk = (list) => Array.isArray(list) && list.every((k) => typeof k === 'string' && k.trim());
+  const searchTerms = request.keywords ?? [];
+  const localTerms = request.local_keywords ?? [];
+  if (!termsOk(searchTerms)) problems.push('keywords must be a list of search terms, each a non-empty text.');
+  if (!termsOk(localTerms)) problems.push('local_keywords must be a list of local search terms for the map pack, each a non-empty text.');
+  if (termsOk(searchTerms) && termsOk(localTerms) && !searchTerms.length && !localTerms.length) {
+    problems.push('give at least one search term in keywords or local_keywords.');
   }
   if (request.questions !== undefined && (!Array.isArray(request.questions) || request.questions.some((q) => typeof q !== 'string' || !q.trim()))) {
     problems.push('questions must be a list of question texts (may be empty).');
@@ -125,7 +130,8 @@ export async function measure(request, { call = callTreg, now = new Date() } = {
   const client = request.client ?? null;
   const keptBy = request.kept_by ?? KEPT_BY_DEFAULT;
   const engines = request.engines ?? engineNames;
-  const keywords = request.keywords;
+  const keywords = request.keywords ?? [];
+  const localKeywords = request.local_keywords ?? [];
   const questions = request.questions ?? [];
   const measuredAt = now.toISOString();
   const nameRe = request.name_pattern ? new RegExp(request.name_pattern, 'i') : null;
@@ -176,6 +182,26 @@ export async function measure(request, { call = callTreg, now = new Date() } = {
       }
     }
   }
+
+  // 2b. local map pack, one call per local term: the place's order among the returned places, and its rating, reviews, photos and category beside the first place's
+  const placeFields = (p) => ({ rating: p.rating?.value ?? null, reviews: p.rating?.votes_count ?? null, photos: p.total_photos ?? null, category: p.category ?? null });
+  await pool(localKeywords, 4, async (term) => {
+    let envelope;
+    try { envelope = await call(data.maps.endpoint, fill(data.maps.body, { query: term })); } catch (error) { return failed('local-map', term, 'google-maps', error); }
+    const places = Array.isArray(envelope.result?.output?.places) ? envelope.result.output.places : [];
+    const readable = places.length > 0 && places.every((p) => p.title);
+    const hitIndex = places.findIndex((p) => onSite(p.domain) || onSite(p.url) || (nameRe && nameRe.test(p.title ?? '')));
+    const hit = hitIndex >= 0 ? places[hitIndex] : null;
+    const top = places[0] ?? null;
+    const raw = withClient({ measured: readable, places_returned: places.length, ...(hit ? placeFields(hit) : { rating: null, reviews: null, photos: null, category: null }), top1: top ? { title: top.title ?? null, ...placeFields(top) } : null });
+    if (!readable) raw.note = 'Maps response had no readable places; not measured, not a confirmed absence';
+    rows.push({
+      kind: 'local-map', engine: 'google-maps', query: term, location,
+      position: readable && hit ? (hit.rank_absolute ?? hitIndex + 1) : null, ranking_url: readable && hit ? (hit.url ?? null) : null, search_volume: null,
+      named: null, cited: null, cited_addresses: null,
+      source: `${data.maps.endpoint}#${envelope._treg?.call_id ?? 'none'}`, raw,
+    });
+  });
 
   // 3. answer engines, every question on every chosen engine
   const jobs = questions.flatMap((question) => engines.map((engine) => ({ question, engine })));

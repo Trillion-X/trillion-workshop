@@ -72,7 +72,7 @@ test('a request with several faults names every one at once', () => {
   assert.equal(problems.length, 5);
   assert.match(problems.join(' '), /bare host/);
   assert.match(problems.join(' '), /store must name/);
-  assert.match(problems.join(' '), /keywords must list/);
+  assert.match(problems.join(' '), /give at least one search term/);
   assert.match(problems.join(' '), /engines must be/);
   assert.match(problems.join(' '), /phase must be/);
 });
@@ -206,4 +206,80 @@ test('the replay caller refuses a question with no recorded reply', async () => 
   await assert.rejects(call('cloro.ai-search.chatgpt.scrape', { prompt: 'an unrecorded question' }), /no replay reply/);
   const endpoints = readData('endpoints.json');
   assert.equal(endpoints.organic.endpoint, 'treg.google.serp.organic');
+});
+
+test('local-map rows: the place order, its rating, reviews, photos and category, beside the first place', async () => {
+  const mapsReply = (term, places) => ({ result: { output: { places } }, _treg: { call_id: `c-maps-${term.replace(/ /g, '-')}` } });
+  const place = (rank, title, domain, rating, reviews, photos, category) => ({
+    rank_absolute: rank, title, domain, url: `https://${domain}/`, rating: { value: rating, votes_count: reviews }, total_photos: photos, category,
+  });
+  const replies = {
+    'treg.google.serp.maps sample local flooring': mapsReply('a', [
+      place(1, 'Sample Floors Store', 'sample-floors.test', 4.9, 440, 135, 'Flooring store'),
+      place(2, 'Other Floor Shop', 'other-shop.test', 4.2, 80, 20, 'Flooring store'),
+      place(3, 'Example Flooring Co', 'example-flooring.test', 5.0, 7, 22, 'Flooring contractor'),
+    ]),
+    'treg.google.serp.maps sample floor removal': mapsReply('b', [
+      place(1, 'Sample Floors Store', 'sample-floors.test', 4.9, 440, 135, 'Flooring store'),
+      place(2, 'Other Floor Shop', 'other-shop.test', 4.2, 80, 20, 'Flooring store'),
+    ]),
+    'treg.google.serp.maps sample flooring install': { result: { output: { places: [] } }, _treg: { call_id: 'c-maps-empty' } },
+  };
+  const call = async (endpoint, body) => {
+    if (endpoint === 'treg.google.serp.maps') {
+      const reply = replies[`${endpoint} ${body.q}`];
+      if (!reply) throw new Error(`fake treg has no maps answer for ${body.q}`);
+      return reply;
+    }
+    return fakeCall()(endpoint, body);
+  };
+  const result = await measure({
+    site: 'example-flooring.test', store: 'sample_store_for_who_runs_it', client: 'sample-client', location: 'Sample Town, ST',
+    keywords: [], local_keywords: ['sample local flooring', 'sample floor removal', 'sample flooring install'],
+    name_pattern: 'Example Flooring',
+  }, { call, now: NOW });
+  const local = Object.fromEntries(result.rows.filter((r) => r.kind === 'local-map').map((r) => [r.query, r]));
+  assert.equal(Object.keys(local).length, 3, 'one row per local term, the absent and empty ones too');
+  const found = local['sample local flooring'];
+  assert.equal(found.position, 3, 'the place order among the returned places');
+  assert.equal(found.engine, 'google-maps');
+  assert.equal(found.ranking_url, 'https://example-flooring.test/');
+  assert.deepEqual(found.raw.top1, { title: 'Sample Floors Store', rating: 4.9, reviews: 440, photos: 135, category: 'Flooring store' });
+  assert.equal(found.raw.rating, 5.0);
+  assert.equal(found.raw.reviews, 7);
+  assert.equal(found.raw.photos, 22);
+  assert.equal(found.raw.category, 'Flooring contractor');
+  assert.equal(found.raw.client, 'sample-client');
+  const absent = local['sample floor removal'];
+  assert.equal(absent.position, null, 'a returned list without the business is measured as absent');
+  assert.equal(absent.raw.measured, true);
+  assert.equal(absent.raw.rating, null);
+  const empty = local['sample flooring install'];
+  assert.equal(empty.position, null);
+  assert.equal(empty.raw.measured, false, 'an empty Maps answer is not measured, not a confirmed absence');
+  assert.equal(result.counts['local-map'], 3);
+});
+
+test('a request with only local terms is valid; no terms at all is refused', () => {
+  assert.deepEqual(requestProblems({ site: 'example.test', store: 's', local_keywords: ['sample local flooring'] }, ['chatgpt']), []);
+  assert.match(requestProblems({ site: 'example.test', store: 's' }, ['chatgpt']).join(' '), /at least one search term/);
+  assert.match(requestProblems({ site: 'example.test', store: 's', local_keywords: [''] }, ['chatgpt']).join(' '), /local_keywords must be/);
+});
+
+test('the kind constraint is replaced, so a table made before local-map accepts it, on PGlite', async () => {
+  const db = new PGlite();
+  try {
+    await db.exec("CREATE TABLE public.search_visibility_measures (id bigserial primary key, site text not null, measured_at timestamptz not null, phase text not null check (phase in ('before','after','check')), kind text not null check (kind in ('ranking','answer-engine','keyword-volume')), query text not null, engine text not null, location text, position int, ranking_url text, search_volume int, named boolean, cited boolean, cited_addresses text[], source text not null, raw jsonb, kept_by text not null)");
+    const local = await measure({ site: 'example-flooring.test', store: 's', local_keywords: ['sample local flooring'], name_pattern: 'Example Flooring' }, {
+      call: async (endpoint) => ({ result: { output: { places: [{ rank_absolute: 1, title: 'Example Flooring Co', domain: 'example-flooring.test', rating: { value: 4.8, votes_count: 9 }, total_photos: 3, category: 'Flooring store' }] } }, _treg: { call_id: 'c' } }),
+      now: NOW,
+    });
+    await assert.rejects(db.query(local.sql.insert, local.sql.inserts[0]), /check constraint|violates/);
+    for (const statement of local.sql.statements) await db.exec(statement);
+    await db.query(local.sql.insert, local.sql.inserts[0]);
+    const back = await db.query("select kind, position from public.search_visibility_measures where kind = 'local-map'");
+    assert.deepEqual(back.rows, [{ kind: 'local-map', position: 1 }]);
+  } finally {
+    await db.close();
+  }
 });

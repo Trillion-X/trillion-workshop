@@ -16,14 +16,13 @@
         "label": "Measure how my site shows up in Google and AI answers (runs on your computer)",
         "status": "active",
         "job": "Measure where my site ranks in Google for my words, what those words are searched for, and whether AI answers name or cite my site, then record it",
-        "description": "Takes one site (its bare host), the words a buyer types and the questions a buyer asks an AI, and measures each one: the site's position in Google's top 100 organic results (or a plain not-ranking when it is not in them), the monthly search volume where the provider has one, and for each question whether the answer from ChatGPT, Gemini, Google AI Mode or Perplexity names the site and cites one of its addresses. A search that cannot be read is said to be not measured, never a zero. Search Console rows the person already read can be passed in and are kept as ranking rows of their own engine. It does not call Google itself and it never writes to a database: the answer carries the rows and the SQL plan (the table statements and one insert per row), which the person's AI runs with the SQL tool against the database the store names. Each row is tagged with the site, the phase (before, after or check), the client when one is given, and who kept it.",
+        "description": "Takes one site (its bare host), the words a buyer types and the questions a buyer asks an AI, and measures each one: the site's position in Google's top 100 organic results (or a plain not-ranking when it is not in them), the monthly search volume where the provider has one, and for each question whether the answer from ChatGPT, Gemini, Google AI Mode or Perplexity names the site and cites one of its addresses. A search that cannot be read is said to be not measured, never a zero. Local search terms run on Google Maps give the local-map rows. Search Console rows the person already read can be passed in and are kept as ranking rows of their own engine. It does not call Google itself and it never writes to a database: the answer carries the rows and the SQL plan (the table statements and one insert per row), which the person's AI runs with the SQL tool against the database the store names. Each row is tagged with the site, the phase (before, after or check), the client when one is given, and who kept it.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
           "required": [
             "site",
-            "store",
-            "keywords"
+            "store"
           ],
           "properties": {
             "site": {
@@ -36,7 +35,11 @@
             },
             "phase": {
               "type": "string",
-              "enum": ["before", "after", "check"],
+              "enum": [
+                "before",
+                "after",
+                "check"
+              ],
               "description": "Which measure this is: before a change, after it, or a check. Default before."
             },
             "keywords": {
@@ -60,12 +63,20 @@
               "type": "array",
               "items": {
                 "type": "string",
-                "enum": ["chatgpt", "gemini", "google-ai-mode", "perplexity"]
+                "enum": [
+                  "chatgpt",
+                  "gemini",
+                  "google-ai-mode",
+                  "perplexity"
+                ]
               },
               "description": "The answer engines to ask. Default all four."
             },
             "location": {
-              "type": ["string", "null"],
+              "type": [
+                "string",
+                "null"
+              ],
               "description": "The place the business serves, such as Huntsville, AL. Sent to the engines that take one and recorded on every row. Null or absent when there is no place."
             },
             "client": {
@@ -115,6 +126,14 @@
             "replay": {
               "type": "string",
               "description": "Only for a sample run: the name of a replies file in data/, answered in place of treg. Never set for a real measure."
+            },
+            "local_keywords": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Local search terms for the Google Maps pack, such as flooring huntsville al. Each is one Maps search; the row records the business's place among the places returned (its rating, reviews, photos and category, beside the first place's), as kind local-map. Matched by the site's domain or by name_pattern."
             }
           }
         },

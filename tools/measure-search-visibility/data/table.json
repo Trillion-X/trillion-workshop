@@ -1,10 +1,29 @@
 {
-  "what_this_is": "The table every measure writes to, in the person's own Postgres database. The statements create it when it is absent; insert writes one row, with $1 to $16 in the order of the columns. Read by the tool to build its SQL plan; the caller runs it with tool:run-sql-in-my-database.",
+  "what_this_is": "The table every measure writes to, in the person's own Postgres database. The statements create it when it is absent; insert writes one row, with $1 to $16 in the order of the columns. Read by the tool to build its SQL plan; the caller runs it with tool:run-sql-in-my-database. The kind check is replaced by every statement run, so a table made before a kind was added gets it.",
   "table": "public.search_visibility_measures",
   "statements": [
-    "CREATE TABLE IF NOT EXISTS public.search_visibility_measures (id bigserial primary key, site text not null, measured_at timestamptz not null, phase text not null check (phase in ('before','after','check')), kind text not null check (kind in ('ranking','answer-engine','keyword-volume')), query text not null, engine text not null, location text, position int, ranking_url text, search_volume int, named boolean, cited boolean, cited_addresses text[], source text not null, raw jsonb, kept_by text not null)",
+    "CREATE TABLE IF NOT EXISTS public.search_visibility_measures (id bigserial primary key, site text not null, measured_at timestamptz not null, phase text not null check (phase in ('before','after','check')), kind text not null check (kind in ('ranking','answer-engine','keyword-volume','local-map')), query text not null, engine text not null, location text, position int, ranking_url text, search_volume int, named boolean, cited boolean, cited_addresses text[], source text not null, raw jsonb, kept_by text not null)",
+    "ALTER TABLE public.search_visibility_measures DROP CONSTRAINT IF EXISTS search_visibility_measures_kind_check",
+    "ALTER TABLE public.search_visibility_measures ADD CONSTRAINT search_visibility_measures_kind_check CHECK (kind in ('ranking','answer-engine','keyword-volume','local-map'))",
     "CREATE INDEX IF NOT EXISTS search_visibility_measures_site_kind_query_engine_measured_at_idx ON public.search_visibility_measures (site, kind, query, engine, measured_at)"
   ],
   "insert": "INSERT INTO public.search_visibility_measures (site, measured_at, phase, kind, query, engine, location, position, ranking_url, search_volume, named, cited, cited_addresses, source, raw, kept_by) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15::jsonb,$16)",
-  "columns": ["site", "measured_at", "phase", "kind", "query", "engine", "location", "position", "ranking_url", "search_volume", "named", "cited", "cited_addresses", "source", "raw", "kept_by"]
+  "columns": [
+    "site",
+    "measured_at",
+    "phase",
+    "kind",
+    "query",
+    "engine",
+    "location",
+    "position",
+    "ranking_url",
+    "search_volume",
+    "named",
+    "cited",
+    "cited_addresses",
+    "source",
+    "raw",
+    "kept_by"
+  ]
 }
