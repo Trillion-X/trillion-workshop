@@ -33,13 +33,13 @@ import { buildPageSelectWinnerFn } from '../../public-sales-page/read-data/page-
 import { SalesPageView } from '../../public-sales-page/show/SalesPageView.tsx';
 import { PUBLIC_EDITORIAL_PAGE_CSS } from '../../screen-look/show/public-editorial-page-style.mjs';
 import { LANDING_FILM_GRAIN_TEXTURE } from '../../ui/show/marketing-page/MarketingPagePrimitives.tsx';
-import { findCheckoutOfferBySelector, readCheckoutOffers } from '../../checkout/read-data/read-offers.ts';
+import { findCheckoutOfferBySelector, readCheckoutOffers } from '../../funnels-and-offers/read-data/read-offers.ts';
 import { pageCtaPrice } from '../read-data/page-cta-price.mjs';
 import { createOfferPriceObservations, offersWithPriceDiscovery, withObservedCounts } from './offer-price-observations.mjs';
-import { resolveFunnelFlow, advanceFunnel, funnelStepAtCursor, resolveCtaLinks } from '../../funnel-offer-graph/read-data/resolve-funnel-flow.ts';
-import { scopeRecordsForObserver } from '../../choose-per-observer/read-data/scope-records.ts';
-import { applyOfferEligibility } from '../../checkout/read-data/offer-eligibility.ts';
-import { CheckoutFlow } from '../../checkout/show/CheckoutFlow.tsx';
+import { resolveFunnelFlow, advanceFunnel, funnelStepAtCursor, resolveCtaLinks } from '../../funnels-screen/funnel-offer-graph/read-data/resolve-funnel-flow.ts';
+import { scopeRecordsForObserver } from '../../run-experiments/packages/choose-per-observer/read-data/scope-records.ts';
+import { applyOfferEligibility } from '../../take-payments/read-data/offer-eligibility.ts';
+import { CheckoutFlow } from '../../take-payments/packages/checkout/show/CheckoutFlow.tsx';
 // The absolute machine path that used to sit here is GONE (T2, 2026-09-05). It read:
 //   import { PUBLIC_SALES_PAGE_CHROME } from '/Users/<someone>/.bitfield/runtime-kit/package-sets/<one-set>/scripts/public-sales-page-chrome.mjs'
 // Package source reaching into one machine's runtime folder, so this package built on exactly
@@ -64,7 +64,7 @@ import {
 import {
   finalizeHostedSessionCarrierEffect,
   materializeHostedSessionCarrierEffect,
-} from '../../stripe-payment-provider/do-work/create-hosted-session.ts';
+} from '../../take-payments/do-work/create-hosted-session.ts';
 
 // Three defaults naming one tenant used to sit here. They are gone, for the reason the
 // pageDescriptionFile comment below already gives: a default lets a host boot as somebody,
