@@ -61852,5 +61852,28 @@
    ],
    "at": "/opt/composio-connection"
   }
- ]
+ ],
+  "tool:workflow-run-find": [
+   {
+    "package": "workflows",
+    "paths": [
+     "do-work/run-a-function.mjs",
+     "read-data/workflow-run-find.mjs",
+     "read-data/choose-the-workflows-that-fire.mjs",
+     "read-data/public-recipes.mjs",
+     "read-data/fires-when.mjs",
+     "recipes",
+     "branches"
+    ],
+    "at": "/opt/workflows"
+   },
+   {
+    "package": "formula-engine",
+    "paths": [
+     "rules",
+     "built-stored-bytes/formula-engine"
+    ],
+    "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+   }
+  ]
 }

@@ -1,0 +1,39 @@
+{
+  "start_here": "Say to your AI: \"Find the workflow for making short vertical videos from my recorded footage.\" It asks tool:workflow-run-find with those words and hands back the workflows that fit, each with the exact input that starts it.",
+  "lists": [],
+  "no_lists_because": "It keeps nothing and names no list: it reads the shipped workflows and the workflow rows the caller hands in as own, and answers the matches.",
+  "workflows": [],
+  "tools": [
+    "tool:workflow-run-find",
+    "tool:choose-the-workflows-that-fire"
+  ],
+  "instructions": [
+    "1. Say the job in a few words (words), and name the kinds of moment it is, if you know them (kinds), from the kinds a workflow waits for.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:workflow-run-find and input {words, kinds?, own?}; own is the person's own workflow rows, each {id, value}, read from wherever the person keeps them.",
+    "3. Read matches: each names the workflow, its job, why it matched, and next, the exact input for wf start (the start op is not built yet) that starts it.",
+    "4. If unknown_kinds lists a kind, no workflow waits for it: drop it or use another from the kinds the matches name."
+  ],
+  "worked_examples": [
+    {
+      "title": "A job in words finds the workflow that makes short videos",
+      "ask": "Find the workflow for making short vertical videos from my recorded footage.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:workflow-run-find",
+            "input": {
+              "words": "make short vertical videos from my recorded footage"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:make-short-videos-from-footage",
+      "step": "none (a find only reads)",
+      "given": "The words above, and no kinds and no own rows.",
+      "hands_back": "matches[0].workflow is workflow:make-short-videos-from-footage with why \"words 20.0\" and next {tool: workflow-run-start, input: {workflow: workflow:make-short-videos-from-footage, input: {request: ...}}}; chooser \"not asked: no kinds given\"."
+    }
+  ]
+}

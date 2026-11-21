@@ -2601,6 +2601,145 @@
           }
         }
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:workflow-run-find",
+        "label": "Find the workflows for a job: by words, and by the kinds of moment they wait for",
+        "status": "active",
+        "job": "Find which of the person's workflows fit a job: rank the shipped workflows and the person's own by the words of the job, and with kinds of moment let the chooser pick by those kinds; each match names the exact input its start takes",
+        "description": "Give words (the job in a few words) and optionally kinds (the kinds of moment a workflow waits for, from the kinds it names) and own (the person's own workflow rows, each { id, value: { title, job?, steps?, fires_when? } }, read by the caller from wherever the person keeps them). Returns matches (at most eight, each with workflow, label, job, kinds, own, why and next: the input for the start op (wf start: the start op is not built yet)), unknown_kinds (kinds no workflow waits for) and chooser (whether the kinds were answered). Reaches no database and keeps nothing; a find is a read.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "words": {
+              "type": "string",
+              "description": "The job in a few words"
+            },
+            "kinds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The kinds of moment to choose by, as the kinds the workflows name"
+            },
+            "own": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "object"
+                  }
+                }
+              },
+              "description": "The person's own workflow rows (id and value), read by the caller"
+            }
+          },
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "matches",
+            "unknown_kinds",
+            "chooser"
+          ],
+          "properties": {
+            "matches": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "workflow",
+                  "label",
+                  "job",
+                  "kinds",
+                  "own",
+                  "why",
+                  "next"
+                ]
+              }
+            },
+            "unknown_kinds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "chooser": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/workflows/read-data/workflow-run-find.mjs",
+            "workflowRunFind"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs",
+                  "read-data/workflow-run-find.mjs",
+                  "read-data/choose-the-workflows-that-fire.mjs",
+                  "read-data/public-recipes.mjs",
+                  "read-data/fires-when.mjs",
+                  "recipes",
+                  "branches"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes/formula-engine"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              }
+            ]
+          }
+        },
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "words": "make short vertical videos from my recorded footage"
+            }
+          }
+        ],
+        "uses_tools": [],
+        "maker": "maker:workflows",
+        "licence_class": "licence:maker-own",
+        "result_selector": "$.result"
+      }
     }
   ]
 }
