@@ -149,6 +149,17 @@ export const readSql = (table) => `SELECT position::text AS position, txid::text
 
 // A run the engine sandboxes reaches the database only through the run's own proxy, which the engine names in HTTPS_PROXY:
 // a direct connect is refused (EPERM). The tunnel is run-sql-in-my-database's, laid beside this tool by the row.
+/** A connection that is refused, or a read that fails while the waiter watches, is a crash, not the end of the waiter: the
+ *  caller exits non-zero so the supervisor restarts it with backoff. A clean return from watchForTransitions means only
+ *  that the waiter is done (its signal ended). Nov 20 2026, 4:24:35 PM CST: a proxy answering 502 made the one waiter that
+ *  watched the person's own pursuit database return cleanly, the process exited 0, and no row change was told after that. */
+export function crashed(error, why) {
+  const failure = new Error(`${why}: ${error?.message ?? error}`, { cause: error });
+  failure.crash = true;
+  failure.reason = "connection-failed";
+  return failure;
+}
+
 export async function clientOptions(connection, proxy = process.env.HTTPS_PROXY) {
   if (!proxy) return { connectionString: connection };
   const { throughProxy } = await import("../../../run-sql-in-my-database/do-work/through-the-run-proxy.mjs");
@@ -193,7 +204,12 @@ export async function watchForTransitions(settings, handlers) {
   const signal = handlers.signal;
   const keepState = handlers.keepState ?? (async () => {});
   const connection = handlers.connection ?? readFileSync(handlers.credentialFd ?? own.connection_fd, "utf8").trim();
-  const client = await (handlers.connect ?? connectWithPg)(connection);
+  let client;
+  try {
+    client = await (handlers.connect ?? connectWithPg)(connection);
+  } catch (error) {
+    throw crashed(error, `row-changes could not connect to ${own.table}`);
+  }
   let state = handlers.state?.after !== undefined ? handlers.state : { after: null };
   let wake = () => {};
   // The horizon changes wait behind, since when, and whether that hold was told.
@@ -236,6 +252,9 @@ export async function watchForTransitions(settings, handlers) {
       });
       wake = () => {};
     }
+  } catch (error) {
+    if (signal?.aborted) return;
+    throw crashed(error, `row-changes lost ${own.table}`);
   } finally {
     await keepState(state).catch(() => {});
     await client.end?.().catch?.(() => {});

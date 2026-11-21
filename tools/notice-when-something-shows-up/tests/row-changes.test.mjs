@@ -251,3 +251,25 @@ test('an empty table starts at its beginning, a kept place is resumed, and from_
   await all.done;
   assert.deepEqual(all.told.map(item => item.event_key), ['p_made_up:1:1', 'p_made_up:2:2'], 'from_the_start tells every change');
 });
+
+test('a connection refused at start is a crash, not a clean end, so the caller exits non-zero', async () => {
+  const control = new AbortController();
+  await assert.rejects(
+    watchForTransitions({}, { connection: 'postgresql://made-up', connect: async () => { throw new Error('proxy answered 502'); }, signal: control.signal, onTransition: async () => true }),
+    error => error.crash === true && error.reason === 'connection-failed' && /proxy answered 502/.test(error.message),
+  );
+});
+
+test('a read that fails while it watches is a crash too; a waiter ended by its signal is not', async () => {
+  const stand = client([change(1, 1)]);
+  stand.query = async (sql) => {
+    if (sql.startsWith('LISTEN')) return { rows: [] };
+    if (sql.includes('AS waiting')) return { rows: [{ xmin: '1', waiting: 0, database: 'p_made_up', holder: null }] };
+    throw new Error('connection terminated unexpectedly');
+  };
+  const { done } = await run(stand, { settings: { from_the_start: true } });
+  await assert.rejects(done, error => error.crash === true && /connection terminated unexpectedly/.test(error.message));
+  const ended = await run(client([]), { stopAfter: 1 });
+  ended.control.abort();
+  await ended.done;
+});

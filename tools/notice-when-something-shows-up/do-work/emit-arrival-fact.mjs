@@ -571,6 +571,9 @@ export async function runResidentEmitter({
       // is not watching.
       await recordRefusal(carrier, row, Object.assign(error, { reason: error?.reason ?? "mechanism-cannot-wait" }), nowMs);
       onRefusal?.(error);
+      // A waiter that broke while it watched (flagged crash by its mechanism) is not an ended waiter: it rethrows, so the
+      // process exits non-zero and the supervisor restarts it with backoff. A clean return means only that the waiter is done.
+      if (error?.crash) throw error;
     }));
   }
 

@@ -342,6 +342,27 @@ test("a mechanism that cannot wait becomes a recorded fact and does not take the
   assert.ok(carrier.writes.some((write) => write.addressLabel === "clock::tick"), "the clock still ticked");
 });
 
+test("a waiter that breaks while it watches is recorded and rethrown, so the process exits non-zero and restarts", async () => {
+  const carrier = fakeCarrier({ waiters: [VOLUME_ROW] });
+  const broke = Object.assign(new Error("row-changes could not connect: proxy answered 502"), { crash: true, reason: "connection-failed" });
+  const volume = {
+    describeMechanism: volumeAttachment.describeMechanism,
+    async watchForTransitions() { throw broke; },
+  };
+  await assert.rejects(
+    runResidentEmitter({
+      env: {},
+      carrier,
+      loadModule: loadModuleFrom({ "filesystem-volume-attachment.mjs": volume }),
+      signal: new AbortController().signal,
+      nowMs: () => 1_800_000_000_000,
+    }),
+    (error) => error === broke,
+  );
+  const refusalFact = carrier.writes.find((write) => write.payload.observed_identity?.waiter_refused === true);
+  assert.equal(refusalFact.payload.observed_identity.refusal_reason, "connection-failed");
+});
+
 test("a listing the process is forbidden to make is an error, never an empty healthy answer", () => {
   const forbidden = () => { const error = new Error("EPERM"); error.code = "EPERM"; throw error; };
   assert.throws(() => volumeAttachment.listReachableNames("/place", { readdir: forbidden }), /cannot list \/place: EPERM/);
