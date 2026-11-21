@@ -1,29 +1,41 @@
 // tools/referral-codes-and-rewards/web/invite-a-friend-screen-mount.tsx
 //
 // PURPOSE
-//   The "invite a friend" screen as a screen module: the one file the screen's row names (`screen.module.entry` of
+//   The "Refer a friend" screen as a screen module: the one file the screen's row names (`screen.module.entry` of
 //   tool:make-a-referral-code), whose single export, `mount(element, props)`, is the contract of the module kind
-//   (web/src/workspace/tool-screen.tsx). The surface is ../show/InviteAFriend.tsx. This file reads the person's own
-//   referral answer from the address the host passes (`referral_address`, which answers { code, link }) and gives the
-//   surface the host's words and that link.
+//   (web/src/workspace/tool-screen.tsx). This file reads the person's own referral answer from the address the host passes
+//   (`referral_address`, which answers { code, link }) and draws it with the shared guide (tools/ui/show/coss/guide.tsx): the
+//   same section the Invite friends screen drew before, with the link sheet and its places. The section is built by
+//   ../read-data/invite-share.mjs.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. The link is the host's answer from its address, never built here; this file writes nothing.
 //   2. Every word is the host's (`words`); a read that fails draws the host's `unavailable` words, never a half link.
+//   3. The link sheet and its places are the shared sheet and the DATA rows in read-data/share-places.json.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import React from 'react';
 import { ErrorBoundary, Text, mountReactSurface } from '../../ui';
 import { ScreenState } from '../../ui/show/screen-state';
-import { InviteAFriend, type InviteAFriendWords } from '../show/InviteAFriend';
+import { Guide } from '../../ui/show/coss/guide';
+import { inviteSection } from '../read-data/invite-share.mjs';
 
-type InviteScreenInput = { referral_address?: string; words?: InviteAFriendWords & { unavailable: string } };
-type ReferralAnswer = { link?: unknown };
+export type InviteWords = {
+  heading: string; body: string; link: string; share: string; share_title: string; share_text: string; copy: string; copied: string; failed: string;
+  unavailable: string; empty: string; person: string; joined_on: string; paid_on: string; credit_added: string;
+  stats: { joined: string; paying: string; earned: string };
+  status: { joined: string; paying: string; credited: string };
+};
+type InviteScreenInput = { referral_address?: string; words?: InviteWords };
+type Stats = { joined: number; paying: number; credit_given_cents: number; people: { joined_at: string; paid_at: string | null; reward: 'given' | 'none'; amount_cents: number | null; currency: string | null }[] };
+type ReferralAnswer = { link?: unknown; stats?: Stats };
 type NotForPersonAnswer = { not_for_person?: { title?: unknown; description?: unknown } };
 
-function InviteScreen({ address, words }: { address: string; words: InviteAFriendWords & { unavailable: string } }) {
-  const [link, setLink] = React.useState<string | null>(null);
+const noAction = () => undefined;
+
+function InviteScreen({ address, words }: { address: string; words: InviteWords }) {
+  const [reply, setReply] = React.useState<{ link: string; stats: Stats } | null>(null);
   const [failed, setFailed] = React.useState(false);
   // The host says when the link is not for this person (its own words, in the answer): a plain state with no retry.
   const [notForPerson, setNotForPerson] = React.useState<{ title: string; description?: string } | null>(null);
@@ -41,18 +53,19 @@ function InviteScreen({ address, words }: { address: string; words: InviteAFrien
       })
       .then(answer => {
         if (gone || answer === null) return;
-        if (typeof answer.link === 'string' && answer.link) setLink(answer.link);
+        if (typeof answer.link === 'string' && answer.link && answer.stats) setReply({ link: answer.link, stats: answer.stats });
         else setFailed(true);
       })
       .catch(() => { if (!gone) setFailed(true); });
     return () => { gone = true; };
   }, [address]);
+  const description = React.useMemo(() => reply === null ? null : { title: words.heading, hide_header: true, sections: [inviteSection({ ...reply, words })] }, [reply, words]);
   if (notForPerson) return <ScreenState state={{ status: 'empty', icon: 'Lock', ...notForPerson }} />;
   if (failed) return <Text variant="body-sm" color="secondary">{words.unavailable}</Text>;
-  if (link === null) return null;
+  if (description === null) return null;
   return (
     <ErrorBoundary zoneName="invite a friend">
-      <InviteAFriend words={words} link={link} />
+      <Guide description={description} onAction={noAction} />
     </ErrorBoundary>
   );
 }

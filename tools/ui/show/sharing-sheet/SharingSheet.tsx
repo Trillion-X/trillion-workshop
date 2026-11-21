@@ -106,7 +106,7 @@ export type SharingSheetProps = {
 const same = (a: string[], b: string[]) => a.length === b.length && a.every(item => b.includes(item));
 
 function Mark({ place }: { place: SharingPlace }) {
-  return place.logo ? <Logo src={place.logo} name={place.label} className="sharing-sheet-mark" /> : <NamedIcon name={place.icon ?? 'Send'} className="sharing-sheet-mark" aria-hidden />;
+  return place.logo ? <Logo src={place.logo} name={place.label} className="sharing-sheet-mark" /> : <NamedIcon name={place.icon ?? 'Send'} size="xl" className="sharing-sheet-mark size-6" aria-hidden />;
 }
 
 /** One shared copy under its heading: a picture, or its title and each field with its label. The sheet shows the
@@ -236,7 +236,10 @@ function LockRow({ lock, busy, run }: { lock: SharingLock; busy: boolean; run: (
   );
 }
 
-export function SharingSheet({ preview, places, fields = [], chain = null, words, previewFor, onSave, onOpen, actions = [], proposed = [], invite, access = [], general, options = [], lock = null, history = null }: SharingSheetProps) {
+// One empty list for every sheet without fields: a new [] each render would make the reset below run again and again.
+const NO_FIELDS: SharingField[] = [];
+
+export function SharingSheet({ preview, places, fields = NO_FIELDS, chain = null, words, previewFor, onSave, onOpen, actions = [], proposed = [], invite, access = [], general, options = [], lock = null, history = null }: SharingSheetProps) {
   const pickable = places.filter(place => !place.href);
   const opening = places.filter(place => place.href);
   const startPicked = useMemo(() => places.filter(place => !place.href && place.picked).map(place => place.id), [places]);
