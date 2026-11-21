@@ -1,0 +1,55 @@
+{
+  "ported_from": {
+    "file": "src/awareness.json",
+    "commit": "b6ae0ebf8",
+    "lines": {
+      "every_minutes": 11,
+      "native_results_check_minutes": 13,
+      "waiting_longest_minutes": 14,
+      "readings_per_day": 15,
+      "max_tokens": 16,
+      "incremental": 17,
+      "incremental_limits": "18-22",
+      "inputs": "23-41",
+      "kept": "42-48"
+    },
+    "not_ported": "stages, traits, recording, pursuit_judgements, right_now, questions, consolidate, words, instructions, model: the text values are held back (a privacy gate matched the stage ask text against a private stance file)"
+  },
+  "every_minutes": 5,
+  "native_results_check_minutes": 30,
+  "waiting_longest_minutes": 60,
+  "readings_per_day": 288,
+  "max_tokens": 900,
+  "incremental": true,
+  "incremental_limits": {
+    "pursuits": 3,
+    "observations": 2,
+    "questions": 2
+  },
+  "inputs": {
+    "chars": 1800,
+    "messages": 4,
+    "message_chars": 250,
+    "speaker_chars": {
+      "person": 500
+    },
+    "result_kinds": [
+      "transcript",
+      "summary"
+    ],
+    "results": 3,
+    "result_chars": 800,
+    "activity": 20,
+    "page": 200,
+    "stated_pursuits": 20,
+    "stated_chars": 140,
+    "picture_chars": 160
+  },
+  "kept": {
+    "pursuits": 12,
+    "per_trait": 10,
+    "observations": 8,
+    "evidence": 3,
+    "chars": 600
+  }
+}
