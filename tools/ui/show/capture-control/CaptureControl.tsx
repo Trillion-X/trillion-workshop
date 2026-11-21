@@ -156,10 +156,10 @@ function CaptureControl({
       className={cn('flex flex-col items-center justify-center gap-3', className)}
       data-capture-control={state}
     >
-      {/* Timer pill — only while recording; red dot + mm:ss (CapCut/Slack/YouTube). */}
+      {/* Timer pill — only while recording; the look's accent dot + mm:ss. The colour is the Screen Look's, light or dark. */}
       {recording && (
-        <Badge variant="error" className="flex items-center gap-1.5">
-          <Text variant="caption" color="error" aria-hidden>
+        <Badge variant="accent" className="flex items-center gap-1.5">
+          <Text variant="caption" color="accent" aria-hidden>
             ●
           </Text>
           {readElapsedMs
@@ -169,9 +169,9 @@ function CaptureControl({
       )}
 
       {/* The one giant circular control. Variant carries color; className is
-          layout-only (size + perfect circle). */}
+          layout-only (size + perfect circle). Stopping is the look's strong action, not a destructive one. */}
       <Button
-        variant={recording ? 'danger' : 'accent'}
+        variant={recording ? 'primary' : 'accent'}
         onClick={recording ? onStop : onStart}
         disabled={disabled}
         aria-label={verb}
@@ -179,7 +179,7 @@ function CaptureControl({
       >
         {recording
           ? <Icon icon={Square} size="xl" />
-          : <Icon icon={Circle} size="xl" color="error" fill="currentColor" />}
+          : <Icon icon={Circle} size="xl" color="accent" fill="currentColor" />}
       </Button>
 
       {/* Self-describing verb. No helper subcopy. */}

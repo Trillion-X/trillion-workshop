@@ -5,13 +5,13 @@
 //   voice or a video of yourself in the browser with the one recorder every Trillion screen uses
 //   (tools/record-audio/show/record-in-the-browser.ts), and read what you say while you are still saying it. A script
 //   from Formats is read as a teleprompter that follows the reader's voice (the tab opens with the format's id and the
-//   thought as its input), read in full, as its structure or as its ideas (recording.json script_views), with Have my
-//   AI write it beside it. Every piece of the recording is kept on this device the moment it is made and then sent
-//   into the person's Files, so the recording and the words said so far can be read by name (and by their AIs) while
-//   it is still being recorded. Done finishes the recording and its transcript in the person's Files, one folder per
-//   day under recording.json's folder, and hands both to their AIs. Pause holds the recording and the words; a paused
+//   thought as its input), read in full, as its structure or as its ideas (recording.json script_views). Every piece of
+//   the recording is kept on this device the moment it is made, and the words said so far are kept in the person's Files
+//   while it is still being recorded. Done writes the whole recording and its transcript into the person's Files, one
+//   folder per day under recording.json's folder, through the files tool; that is where Record's job ends (a transcript
+//   or any other follow-on is the files owner's to notice). Pause holds the recording and the words; a paused
 //   voice recording shows its sound as a timeline to scrub, zoom, play, cut a part from, and record into at any point.
-//   Once kept, the words can be corrected and the corrected words are kept and handed on too. The words can be copied
+//   Once kept, the words can be corrected and the corrected words are kept too. The words can be copied
 //   at any time.
 //
 //   Each thing shows only when it is needed: before recording, the choice of voice or video, the camera's picture (for
@@ -21,25 +21,23 @@
 //   recording itself to play back, where it was kept, and its words to correct.
 //
 //   Opened about something shared (/record/about/<share>, the iPhone share sheet's Record), it shows what was shared and
-//   what was asked of it, offers the person's formats to read it as (a teleprompter about the share), and Done hands the
-//   recording on with the share's own record, which says what to do with both, where it goes and which AI takes it.
+//   what was asked of it, and offers the person's formats to read it as (a teleprompter about the share).
 //
-//   A recording this device holds that was never finished (the tab was closed or reloaded while recording or sending)
-//   finishes saving by itself when the screen opens, from the device copy, and is handed on; nothing needs pressing.
+//   A recording this device holds that was never finished (the tab was closed or reloaded while recording) is saved
+//   into Files by itself when the screen opens, from the device copy; nothing needs pressing.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Every piece is on this device before it is sent anywhere (tools/record-audio/do-work/recording-on-device.ts and
-//      send-while-recording.ts); a dropped connection, a refusal or a reload never loses what was recorded.
+//   1. Every piece is on this device before anything else may read it (tools/record-voice-and-meetings/do-work/
+//      recording-on-device.ts); a dropped connection, a refusal or a reload never loses what was recorded.
 //   2. Discard throws the recording away everywhere: the device copy, the file in Files and the words written so far.
-//   3. A failed save keeps the recording and offers Try again; a save waiting for the connection says so and finishes by
-//      itself.
+//   3. A failed save keeps the recording and offers Try again; nothing is reported as saved until Files says it is.
 //   4. The words never gate the recording: a browser that cannot show them says so in plain words, and the
 //      recording still saves and still reaches the person's AI.
 //   5. A recording that cannot start, or a microphone that hears nothing, is said in the recorder in plain words (what
 //      happened and what to do), from the recorder's DATA; nothing is half-started.
-//   6. Files go in through the one browser uploader (upload.ts); the AIs are asked through the one button road
-//      (/work/api/queue, the rows recording.json names in src/queued-work.json), once, at Done.
-//   7. The script comes from the account's formats (GET /work/api/content-formats), read through the shared
+//   6. Files go in through the one browser uploader (upload.ts), which writes through tool:your-files; Record asks no AI
+//      for anything (no queue): a kept recording is the end of its job.
+//   7. The script comes from the account's formats (tool:answer-the-content-formats-page), read through the shared
 //      screen-state part; nothing here names a format or a way of reading one.
 //   8. A recording that was cut or added to is kept as its edit (recording.mjs), made from the recording on the device;
 //      the recording as it was made is kept beside it.
@@ -54,7 +52,7 @@ import { codeFailureNotice, lazyPart } from '../../../../ui/show/load-later/late
 import { CodeLoadFailure, loadCode, whenOnline } from '../../../../ui/show/load-later/load-code';
 import * as React from 'react';
 import { useFocusContainerWhile } from '../../../../arrange-screens-in-panes/show/use-focus-container-while';
-import { Button, CaptionScroll, CaptureControl, Card, Container, RecordingBar, SchemaValueView, SegmentedControl, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text, Textarea, type CaptureControlState } from '../../../../ui';
+import { Button, CaptionScroll, CaptureControl, Card, Container, RecordingBar, SegmentedControl, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text, Textarea, type CaptureControlState } from '../../../../ui';
 import { CopyButton } from '../../../../ui/show/copy-button/CopyButton';
 import { ListenHere } from './listen-here';
 import { ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
@@ -63,21 +61,22 @@ import { notify } from '../../../../ui/show/coss/notifications';
 import { loopFreeWords } from '../../../read-data/heard-words.mjs';
 import { canCapture, captureSource, openSource, problemWords, startCapture, type Capture, type CaptureSource, type Recorded } from '../../../../record-audio/show/record-in-the-browser';
 import { keepOnDevice, reopenOnDevice, unfinishedRecordings, type DeviceRecording, type UnfinishedRecording } from '../../../do-work/recording-on-device';
-import { sendWhileRecording, type Sending, type SendState } from '../../../../record-audio/do-work/send-while-recording';
 import { isFeedPiece } from '../../../../record-audio/do-work/always-recording';
 import { deviceAccount, PlanNeeded, postJson, readFileJson, readJson } from './api';
+import { runWorkshopTool } from './workshop-tool-api';
+import failureWords from './failure-words.json' with { type: 'json' };
 import { planNeededTitle, refusal, reasonOf } from './failure';
 import { goTo } from './open-screen';
 import { useWorkspacePreference, writeWorkspacePreference } from './records';
 import ownPart from '../../../part.json' with { type: 'json' };
-import { growingFiles, keepText, removeNames, uploadFiles } from './upload';
+import features from './record-features.json' with { type: 'json' };
+import { keepText, removeNames, uploadFiles } from './upload';
 import {
-  calendarRecordingContext, correctedTranscriptJob, cutFrom, editedName, editLength, follow, heardWords, insertInto, isWholeRecording, keptNames, liveStretch, liveWorkJob, meetingTurns, recordingJob, scriptFor,
+  calendarRecordingContext, cutFrom, editedName, editLength, follow, heardWords, insertInto, isWholeRecording, keptNames, meetingTurns, scriptFor,
   scriptWords, scriptSegments, START, teleprompterInView, teleprompterIsLive, timeNewWords, transcriptFileText,
   wordsOfEdit,
 } from './recording.mjs';
 import { useScriptView } from './script-view';
-import { useWriteWithMyAI } from './write-with-my-ai';
 import settings from './recording.json';
 
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
@@ -87,6 +86,8 @@ import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-t
 // screen is offered by its tool, so it is never read from there.
 const RECORD_ROW = (ownPart.offers.find(offer => offer.id === 'tool:screen-record')?.screen?.surface ?? { route_paths: ['/record'], route_query: {} }) as { route_paths: string[]; route_query: Record<string, string> };
 const MEETING_FIELD = Object.keys(RECORD_ROW.route_query).find(field => RECORD_ROW.route_query[field] === 'meeting') as string;
+// Record with others (a shared meeting space) is on only when record-features.json says so; off, it draws and calls nothing.
+const WITH_OTHERS_SHOWN = features.record_with_others.shown;
 
 // The live picture, the recording made and the timeline are fetched the first time they show, never with the screen.
 const MediaFrame = lazyPart(() => import('../../../../ui/show/media-frame/MediaFrame'), module => module.MediaFrame);
@@ -112,24 +113,22 @@ type Opened = { script: Script | null; shared: Shared | null; formats: Format[];
 // Where a recording is kept: the day's folder and its names there (recording.mjs keptNames).
 type Names = { folder: string; audio: string; transcript: string };
 // A recording once kept: where, its two files, and the words kept in its transcript.
-type Kept = { folder: string; audioFile: string; transcriptFile: string; transcriptName: string; words: string; source?: SourceReference | null; queueSaid?: string };
+type Kept = { folder: string; transcriptFile: string; transcriptName: string; words: string; source?: SourceReference | null };
 // Where a recording is after Done: being kept, waiting for the connection (kept on this device), kept, or refused.
-type Saving = { state: 'idle' } | { state: 'working' } | { state: 'waiting' } | { state: 'saved'; kept: Kept } | { state: 'failed'; reason: string };
+type Saving = { state: 'idle' } | { state: 'working' } | { state: 'saved'; kept: Kept } | { state: 'failed'; reason: string };
 // Where corrected words are: not being kept, being kept, or refused (and why), with the correction held.
 type Correcting = { state: 'idle' } | { state: 'working' } | { state: 'failed'; reason: string };
 // The recording made, held to play back in this tab.
 type Made = { file: File; url: string };
-// One stretch of words handed to the person's AIs while recording, and where that work is.
 // One meeting recorded from several devices: its space, whether this device started it, and the link others open.
 type Meeting = { space_id: string; mine: boolean; link: string };
-type Moment = { key: string; heading: string; state: 'pending' | 'sent' | 'done' | 'error'; note: string; result?: unknown };
 // A word heard, with the second of the recording it was heard at.
 type TimedWord = { word: string; at: number };
 type Span = { from: number; to: number };
 // What a device copy carries so it can be finished after a reload.
 type KeptWith = { names: Names; script: Script | null; share: string | null; words: string; calendarEvent?: CalendarEvent; source?: SourceReference | null };
-// One recording on its way: the recorder, its device copy, its sending, and where it is kept.
-type Session = { capture: Capture; device: DeviceRecording; sending: Sending; names: Names };
+// One recording on its way: the recorder, its device copy, and where it is kept.
+type Session = { capture: Capture; device: DeviceRecording; names: Names };
 // A paused voice recording opened as a timeline: its decoded sound, the edit as heard, and its peaks.
 type Opening = { state: 'loading' } | { state: 'ready'; recorded: AudioBuffer; heard: AudioBuffer; peaks: Float32Array } | { state: 'failed'; reason: string; code?: CodeLoadFailure };
 
@@ -169,7 +168,7 @@ async function readOpened(input: Input): Promise<Opened> {
   const calendarEvent = calendarRecordingContext(input.calendar_event);
   const formatId = text(input.format_id);
   const shareId = text(input.share);
-  const formats = formatId || shareId ? (await readJson<{ formats: Format[] }>('/work/api/content-formats')).formats : [];
+  const formats = formatId || shareId ? (await ownerRoute<{ formats: Format[] }>(FORMATS_TOOL, 'GET', '/content-formats')).formats : [];
   const shared = shareId ? await readShared(shareId) : null;
   let source: SourceReference | null = null;
   let sourceMaterial: string | null = null;
@@ -177,7 +176,7 @@ async function readOpened(input: Input): Promise<Opened> {
     if (typeof input.source !== 'object' || Array.isArray(input.source)) throw new Error('That source reference could not be read. Choose it again in Formats.');
     const candidate = input.source as Partial<SourceReference>;
     if (typeof candidate.kind !== 'string' || typeof candidate.id !== 'string' || !candidate.id) throw new Error('That source is no longer available in this account. Choose it again in Formats.');
-    const checked = await postJson<{ source: SourceReference | null; material: string }>('/work/api/content-formats/shape', { source: { kind: candidate.kind, id: candidate.id } });
+    const checked = await ownerRoute<{ source: SourceReference | null; material: string }>(FORMATS_TOOL, 'POST', '/content-formats/shape', { source: { kind: candidate.kind, id: candidate.id } });
     if (!checked.source) throw new Error('That source is no longer available in this account. Choose it again in Formats.');
     source = checked.source;
     sourceMaterial = checked.material;
@@ -188,32 +187,46 @@ async function readOpened(input: Input): Promise<Opened> {
   return { script: scriptFor(format, text(input.about), sourceMaterial ?? text(input.material)), shared, formats, calendarEvent, source };
 }
 
-/** Finishes keeping a recording whose sound is in Files (or on its way there): the edited recording when it was cut
- *  or added to, the transcript, and the job that hands both to the person's AIs. */
-async function keep(sending: Sending, names: Names, said: string, seconds: number, script: Script | null, shareFile: string | null, edited: File | null, calendarEvent: CalendarEvent = null, source: SourceReference | null = null): Promise<Kept> {
-  await sending.whenKept();
-  const canonicalSource = source ? (await postJson<{ source: SourceReference | null }>('/work/api/content-formats/shape', { source: { kind: source.kind, id: source.id } })).source : null;
-  if (source && !canonicalSource) throw new Error('That source is no longer available in this account. The recording is still on this device.');
-  const words = new File([transcriptFileText(said, script, calendarEvent, canonicalSource)], names.transcript, { type: 'text/plain', lastModified: Date.now() });
-  const kept = await uploadFiles(edited ? [edited, words] : [words], names.folder);
-  const wordsKept = kept[kept.length - 1];
-  const audioFile = edited && kept.length === 2 ? kept[0].name : pathOf(names, names.audio);
-  if (!wordsKept) throw new Error('This recording is empty. Record again and press Done when you finish.');
-  const job = recordingJob({ audioFile, transcriptFile: wordsKept.name, seconds, script, shareFile, calendarEvent, source: canonicalSource });
-  const queue = await postJson<{ waiting_for_ai?: boolean; said?: string }>('/work/api/queue', { ...job, press_key: `record:${names.folder}/${names.audio}`, delivery: 'when-connected' });
-  return { folder: names.folder, audioFile, transcriptFile: wordsKept.name, transcriptName: names.transcript, words: said, source: canonicalSource,
-    ...(queue.waiting_for_ai && queue.said ? { queueSaid: queue.said } : {}) };
+
+/** The owner's answer to one of its page routes: the route's own status and body, as the owner's tool answers them. */
+type RouteAnswer<T> = { status: number; body: T & { error?: string } };
+/** Asks the owner of a page route (its tool answers the route's status and body) and gives the body; a refused route
+ *  says why in the owner's words. */
+async function ownerRoute<T>(tool: string, method: 'GET' | 'POST', path: string, body?: unknown): Promise<T> {
+  const ran = await runWorkshopTool<RouteAnswer<T>>(tool, body === undefined ? { method, path } : { method, path, body });
+  const answer = ran.result;
+  if (!answer || answer.status >= 400) throw new Error(answer?.body?.error ?? failureWords.refused);
+  return answer.body;
+}
+/** The formats the account has, and the one that shapes a source: the Formats page's owner answers both. */
+const FORMATS_TOOL = 'tool:answer-the-content-formats-page';
+/** The source as the account names it now, or null when the account no longer has it. */
+async function canonicalSourceOf(source: SourceReference | null): Promise<SourceReference | null> {
+  if (!source) return null;
+  return (await ownerRoute<{ source: SourceReference | null }>(FORMATS_TOOL, 'POST', '/content-formats/shape', { source: { kind: source.kind, id: source.id } })).source;
 }
 
-/** Keeps corrected words in place of a kept recording's transcript, then tells the person's AIs where they are. */
+/** Writes a recording and its transcript into the person's Files, one folder per day: the recording as it was made, the
+ *  edit kept beside it when it was cut or added to, and the words. Answers where they were kept. */
+async function keep(recording: File, names: Names, said: string, script: Script | null, edited: File | null, calendarEvent: CalendarEvent = null, source: SourceReference | null = null): Promise<Kept> {
+  const canonicalSource = await canonicalSourceOf(source);
+  if (source && !canonicalSource) throw new Error('That source is no longer available in this account. The recording is still on this device.');
+  const original = new File([recording], names.audio, { type: recording.type, lastModified: recording.lastModified });
+  const words = new File([transcriptFileText(said, script, calendarEvent, canonicalSource)], names.transcript, { type: 'text/plain', lastModified: Date.now() });
+  const kept = await uploadFiles(edited ? [original, edited, words] : [original, words], names.folder);
+  const wordsKept = kept[kept.length - 1];
+  if (!wordsKept) throw new Error('This recording is empty. Record again and press Done when you finish.');
+  return { folder: names.folder, transcriptFile: wordsKept.name, transcriptName: names.transcript, words: said, source: canonicalSource };
+}
+
+/** Keeps corrected words in place of a kept recording's transcript. */
 async function keepCorrection(kept: Kept, words: string, script: Script | null, calendarEvent: CalendarEvent, source: SourceReference | null): Promise<Kept> {
-  const canonicalSource = source ? (await postJson<{ source: SourceReference | null }>('/work/api/content-formats/shape', { source: { kind: source.kind, id: source.id } })).source : null;
+  const canonicalSource = await canonicalSourceOf(source);
   if (source && !canonicalSource) throw new Error('That source is no longer available in this account.');
   const file = new File([transcriptFileText(words, script, calendarEvent, canonicalSource)], kept.transcriptName, { type: 'text/plain', lastModified: Date.now() });
   const [corrected] = await uploadFiles([file], kept.folder);
   if (!corrected) throw new Error('Write the words before saving them.');
-  const queue = await postJson<{ waiting_for_ai?: boolean; said?: string }>('/work/api/queue', { ...correctedTranscriptJob({ audioFile: kept.audioFile, transcriptFile: corrected.name, source: canonicalSource }), press_key: `correct:${corrected.identity}`, delivery: 'when-connected' });
-  return { ...kept, transcriptFile: corrected.name, words, source: canonicalSource, queueSaid: queue.waiting_for_ai ? queue.said : undefined };
+  return { ...kept, transcriptFile: corrected.name, words, source: canonicalSource };
 }
 
 /** The camera's picture while the Record control waits: opened when video is chosen, let go when it is not. */
@@ -238,17 +251,6 @@ function usePreview(source: CaptureSource | null, wanted: boolean, audioDeviceId
 }
 const handedOver = new WeakSet<MediaStream>();
 
-/** How the sending of a recording stands, redrawn as it changes. */
-function useSendState(sending: Sending | null): SendState | null {
-  const [state, setState] = React.useState<SendState | null>(null);
-  React.useEffect(() => {
-    if (!sending) { setState(null); return undefined; }
-    setState(sending.state());
-    return sending.onChange(() => setState(sending.state()));
-  }, [sending]);
-  return state;
-}
-
 /** Recordings this device holds for this account that were never finished; asked again once a reloaded tab's hold on
  *  its recording has run out. */
 function useUnfinished(): [UnfinishedRecording[], (id: string) => void] {
@@ -272,27 +274,24 @@ function keptWithOf(found: UnfinishedRecording): KeptWith {
   return { names: keptNames(found.startedAt, { extension: endingOf(found.name) }), script: null, share: null, words: '' };
 }
 
-/** One recording found on this device that was never finished: it finishes saving by itself from the device copy as
- *  soon as the screen opens (sending only the pieces Files does not have yet) and is handed to the person's AIs. A save
- *  that cannot reach Files waits and goes on when the connection comes back; one refused says why, with Try again. */
+/** One recording found on this device that was never finished: it is saved into Files by itself from the device copy as
+ *  soon as the screen opens. A save that fails says why, with Try again. */
 function Unfinished({ found, onDone }: { found: UnfinishedRecording; onDone: () => void }) {
-  const [state, setState] = React.useState<{ kind: 'working' | 'waiting' } | { kind: 'failed'; reason: string }>({ kind: 'working' });
+  const [state, setState] = React.useState<{ kind: 'working' } | { kind: 'failed'; reason: string }>({ kind: 'working' });
   const [attempt, setAttempt] = React.useState(0);
   React.useEffect(() => {
     let gone = false;
     const keptWith = keptWithOf(found);
     setState({ kind: 'working' });
     const device = reopenOnDevice(found);
-    const sending = sendWhileRecording(device, growingFiles, found.upload?.name ?? pathOf(keptWith.names, keptWith.names.audio));
-    const unhear = sending.onChange(() => { if (!gone) setState(sending.state().waiting ? { kind: 'waiting' } : { kind: 'working' }); });
-    void keep(sending, keptWith.names, keptWith.words, found.seconds, keptWith.script, keptWith.share, null, keptWith.calendarEvent, keptWith.source ?? null).then(
+    void device.file().then(recording => keep(recording, keptWith.names, keptWith.words, keptWith.script, null, keptWith.calendarEvent, keptWith.source ?? null)).then(
       async () => {
         await device.forget();
-        notify('A recording that had not finished saving is in your Files and with your AI', { kind: 'done' });
+        notify('A recording that had not finished saving is in your Files', { kind: 'done' });
         if (!gone) onDone();
       },
-      error => { sending.stop(); if (!gone) setState({ kind: 'failed', reason: refusedBecause(error) }); },
-    ).finally(unhear);
+      error => { if (!gone) setState({ kind: 'failed', reason: refusedBecause(error) }); },
+    );
     return () => { gone = true; };
     // One save per found recording and per Try again.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -302,7 +301,7 @@ function Unfinished({ found, onDone }: { found: UnfinishedRecording; onDone: () 
     <Card variant="nested" padding="md" role="status" data-unfinished-recording="" data-unfinished-state={state.kind}>
       <Container layout="horizontal" gap="sm" alignItems="center" justifyContent="between" wrap="wrap">
         <Text variant="body">
-          {state.kind === 'failed' ? `${said} did not finish saving.` : state.kind === 'waiting' ? `${said} is saving as soon as you are back online.` : `Saving ${said.charAt(0).toLowerCase()}${said.slice(1)} that had not finished…`}
+          {state.kind === 'failed' ? `${said} did not finish saving.` : `Saving ${said.charAt(0).toLowerCase()}${said.slice(1)} that had not finished…`}
         </Text>
         {state.kind === 'failed' ? <Button variant="primary" size="sm" onClick={() => setAttempt(count => count + 1)}>Try again</Button> : null}
       </Container>
@@ -337,10 +336,6 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
   const [correcting, setCorrecting] = React.useState<Correcting>({ state: 'idle' });
   const [heard, setHeard] = React.useState({ final: '', hearing: '' });
   const [wordsNote, setWordsNote] = React.useState('');
-  // Work handed to the person's AIs while recording: each finished stretch of words goes to them at once, through the
-  // same queue every button uses (recording.json jobs.live_words, live_work), and its progress shows beside the words.
-  const [moments, setMoments] = React.useState<Moment[]>([]);
-  const handed = React.useRef({ words: 0, started: '' });
   // One meeting recorded from several devices (recording.json meeting): the space their turns meet in, whether this
   // device started it (only that one hands words to the AIs), its join link, and everyone's turns read back.
   const [meeting, setMeeting] = React.useState<Meeting | null>(null);
@@ -348,17 +343,13 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
   const [together, setTogether] = React.useState<ReturnType<typeof meetingTurns>>([]);
   const device = React.useMemo(() => crypto.randomUUID(), []);
   const posted = React.useRef(0);
-  // Seconds since the words last changed while recording, so what gathered goes once the speaker pauses (live_work.quiet_seconds).
-  const [quietFor, setQuietFor] = React.useState(0);
   const [problem, setProblem] = React.useState('');
   const [saving, setSaving] = React.useState<Saving>({ state: 'idle' });
-  const write = useWriteWithMyAI(script);
   const [made, setMade] = React.useState<Made | null>(null);
   const [session, setSession] = React.useState<Session | null>(null);
   const sessionRef = React.useRef<Session | null>(null);
   const startingCapture = React.useRef(false);
   sessionRef.current = session;
-  const sendState = useSendState(session?.sending ?? null);
   const [unfinished, forgetUnfinished] = useUnfinished();
   const transcriptEnd = React.useRef<HTMLDivElement | null>(null);
   const preview = usePreview(source, control === 'idle' && !made, audioDeviceId, setProblem);
@@ -452,7 +443,7 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
   // Leaving the screen while recording keeps what was recorded on this device: the microphone and camera are let go,
   // and the recording is offered again the next time Record opens.
   React.useEffect(() => {
-    const leave = () => { const running = sessionRef.current; if (!running) return; running.sending.stop(); void running.device.release(); };
+    const leave = () => { const running = sessionRef.current; if (!running) return; void running.device.release(); };
     window.addEventListener('pagehide', leave);
     return () => { window.removeEventListener('pagehide', leave); const running = sessionRef.current; if (running) { leave(); running.capture.discard(); } };
   }, []);
@@ -518,10 +509,6 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
 
   const save = async (running: Session, recorded: Recorded, said: string, finalEdit: Span[]) => {
     setControl('working'); setSaving({ state: 'working' });
-    const unhear = running.sending.onChange(() => {
-      const state = running.sending.state();
-      setSaving(current => (current.state === 'working' && state.waiting ? { state: 'waiting' } : current.state === 'waiting' && !state.waiting ? { state: 'working' } : current));
-    });
     try {
       let edited: File | null = null;
       let words = said;
@@ -534,15 +521,15 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
         words = wordsOfEdit(finalEdit, timed.current) || said;
         setMade(current => { if (current) URL.revokeObjectURL(current.url); return { file: edited as File, url: URL.createObjectURL(edited as File) }; });
       }
-      const saved = await keep(running.sending, running.names, words, editLength(finalEdit) || recorded.seconds, script, shared?.identity ?? null, edited, calendarEvent, opened.source);
+      const saved = await keep(recorded.file, running.names, words, script, edited, calendarEvent, opened.source);
       await running.device.forget();
       setCorrection(saved.words);
       setSaving({ state: 'saved', kept: saved });
-      notify(saved.queueSaid ? `Recording saved. ${saved.queueSaid}` : 'Recording saved and sent to your AI', { kind: 'done' });
+      notify('Recording saved in your Files', { kind: 'done' });
     } catch (error) {
       // A recording discarded while it waited is gone on purpose; only the recording still being kept can fail.
       if (keeping.current?.running === running) setSaving({ state: 'failed', reason: refusedBecause(error) });
-    } finally { unhear(); setControl('idle'); }
+    } finally { setControl('idle'); }
   };
   // The part being recorded now joins the edit where it was started (the end, or the place Record here was pressed).
   const settledEdit = (current: Span[], until: number) => insertInto(current, run.current.at, { from: run.current.from, to: until });
@@ -586,7 +573,7 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
         onProblem: setProblem,
         onQuietRecovered: () => setProblem(current => current === problemWords({ name: 'silent' }, source) ? '' : current),
         onEnded: (recorded, said) => { setProblem(said); if (startedSession) finished(startedSession, recorded, heardSoFar.current); },
-        // Each piece goes to this device first; the sender sends only what the device holds.
+        // Each piece goes to this device first, and is kept there until the recording is saved.
         onPiece: piece => { if (startedSession) void startedSession.device.add(piece); else held.push(piece); },
       });
       const names = keptNames(running.startedAt, { formatLabel: script?.format_label ?? calendarEvent?.title ?? null, extension: endingOf(running.fileName) });
@@ -595,7 +582,7 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
         startedAt: running.startedAt, account: deviceAccount(), keptWith: { names, script, share: shared?.identity ?? null, words: '', calendarEvent, source: opened.source } satisfies KeptWith,
       });
       for (const piece of held.splice(0)) void device.add(piece);
-      startedSession = { capture: running, device, sending: sendWhileRecording(device, growingFiles, pathOf(names, names.audio)), names };
+      startedSession = { capture: running, device, names };
       sessionRef.current = startedSession;
       setSession(startedSession);
       setControl('recording');
@@ -625,12 +612,12 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
     stopPlayback();
     if (running) {
       running.capture.discard();
-      void running.sending.cancel().then(() => running.device.forget());
+      void running.device.forget();
       if (heard.final.trim()) void removeNames([pathOf(running.names, running.names.transcript)]).catch(() => undefined);
     }
     const last = keeping.current;
     if (!running && last) {
-      void last.running.sending.cancel().then(() => last.running.device.forget());
+      void last.running.device.forget();
       void removeNames([pathOf(last.running.names, last.running.names.transcript)]).catch(() => undefined);
     }
     keeping.current = null;
@@ -658,7 +645,6 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
   const retry = () => {
     const last = keeping.current;
     if (!last) return;
-    last.running.sending.retry();
     void save(last.running, last.recorded, last.said, last.edit);
   };
   const saveCorrection = async () => {
@@ -668,7 +654,7 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
       const corrected = await keepCorrection(saving.kept, correction.trim(), script, calendarEvent, opened.source);
       setSaving({ state: 'saved', kept: corrected });
       setCorrecting({ state: 'idle' });
-      notify(corrected.queueSaid ? `Corrected words saved. ${corrected.queueSaid}` : 'Corrected words saved and sent to your AI', { kind: 'done' });
+      notify('Corrected words saved in your Files', { kind: 'done' });
     } catch (error) {
       setCorrecting({ state: 'failed', reason: refusedBecause(error) });
     }
@@ -731,11 +717,7 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
   const listening = paused ? 'Paused. Press Resume to go on.' : wordsNote ? 'Recording. Your words will be in the transcript your AI reads.' : 'Listening…';
   const edited = saving.state === 'saved' && correction.trim() !== saving.kept.words.trim();
   const live = session?.capture.stream ?? preview;
-  const kept = session ? session.device : null;
-  const keptLine = !recording || !sendState ? null
-    : sendState.problem ? `Saved on this device. ${sendState.problem}`
-      : sendState.waiting ? 'Saved on this device. It goes to your Files when you are back online.'
-        : sendState.sent > 0 ? `In your Files as you speak: ${kept?.name ?? ''}` : 'Saved on this device as you speak.';
+  const keptLine = recording ? 'Saved on this device as you speak.' : null;
 
   // While recording: the script (when there is one) and the live words, over the picture for video. The script shows
   // only while the recording runs: a pause, or a camera that stopped, takes it away at once (teleprompterIsLive).
@@ -761,35 +743,10 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
       <SegmentedControl ariaLabel="How to read the script" items={views.map(({ id, label }) => ({ id, label }))} value={view.id} onValueChange={chooseView} />
     </Container>
   ) : null;
-  React.useEffect(() => {
-    setQuietFor(0);
-    if (!recording) return;
-    const timer = window.setTimeout(() => setQuietFor(settings.live_work.quiet_seconds), settings.live_work.quiet_seconds * 1000);
-    return () => window.clearTimeout(timer);
-  }, [recording, heard.final, heard.hearing]);
-  React.useEffect(() => {
-    if (!recording) { handed.current = { words: 0, started: '' }; setMoments(list => (list.length ? [] : list)); return; }
-    if (!handed.current.started) handed.current.started = new Date().toISOString();
-    if (meeting && !meeting.mine) return;
-    const final = meeting ? together.map(turn => turn.text).join(' ') : heard.final;
-    const stretch = liveStretch({ final, hearing: meeting ? '' : heard.hearing, handed: handed.current.words, quiet: quietFor });
-    if (!stretch) return;
-    const { start } = stretch;
-    handed.current.words = stretch.end;
-    // One line on repeat (a speaker playing it near the microphone) is not something said for work: it is passed over.
-    if (stretch.repeated) return;
-    const job = liveWorkJob(stretch, handed.current.started, moments.flatMap(item => item.state === 'error' || item.note === 'nothing to act on' ? [] : [item.state === 'done' ? item.note : `Being worked on now: ${item.heading}`]));
-    const heading = job.context.heading;
-    const key = `live:${handed.current.started}:${start}`;
-    setMoments(list => [...list, { key, heading, state: 'pending', note: '' }]);
-    const mark = (state: Moment['state'], note: string) => setMoments(list => list.map(item => item.key === key ? { ...item, state, note } : item));
-    postJson('/work/api/queue', { ...job, press_key: key })
-      .then(() => mark('sent', 'Sent to your AI'), error => mark('error', refusedBecause(error)));
-  }, [recording, heard.final, heard.hearing, meeting, together, quietFor]);
   // A meeting link (Record's `route_query`, on any address) opens Record with the meeting's invite code, joined to it.
   React.useEffect(() => {
     const code = meetingCode;
-    if (!code || meeting) return;
+    if (!WITH_OTHERS_SHOWN || !code || meeting) return;
     setJoining('working');
     postJson<{ space_id?: string; space?: { space_id?: string } }>(`/work/api/spaces/join/${encodeURIComponent(code)}`, {})
       .then(answer => { const id = answer.space_id ?? answer.space?.space_id; if (!id) throw new Error('That meeting link did not open a meeting.'); setMeeting({ space_id: id, mine: false, link: '' }); setJoining('idle'); })
@@ -830,40 +787,7 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
     const timer = window.setInterval(() => { void read(); }, settings.meeting.read_every_ms);
     return () => window.clearInterval(timer);
   }, [recording, meeting]);
-  // While recording, what the AIs did with each stretch is read back from AI work (the jobs' `said` names them).
-  React.useEffect(() => {
-    if (!recording || !moments.length) return;
-    const check = async () => {
-      const rows: { said?: string | null; state?: string; summary?: string | null; result?: unknown }[] = [];
-      const collect = (value: unknown) => {
-        if (Array.isArray(value)) value.forEach(collect);
-        else if (value && typeof value === 'object') {
-          const row = value as Record<string, unknown>;
-          if (typeof row.handoff_id === 'string') rows.push(row as typeof rows[number]); else Object.values(row).forEach(collect);
-        }
-      };
-      collect(await readJson<unknown>('/work/api/ai-work').catch(() => null));
-      setMoments(list => list.map(item => {
-        if (item.state === 'error') return item;
-        const row = rows.find(one => one.said === `Act on "${item.heading}"`);
-        if (!row) return item;
-        if (row.state === 'finished') {
-          const outcome = row.result && typeof row.result === 'object' ? (row.result as Record<string, unknown>) : null;
-          const result = typeof row.summary === 'string' && row.summary ? row.summary
-            : typeof row.result === 'string' ? row.result
-            : typeof outcome?.outcome === 'string' ? outcome.outcome : typeof outcome?.summary === 'string' ? outcome.summary : 'Done';
-          const shown = row.result ?? result;
-          const summary = row.summary && row.summary !== shown && row.summary !== outcome?.summary && row.summary !== outcome?.outcome
-            ? row.summary : null;
-          return { ...item, state: 'done', note: result, result: summary ? { summary, result: shown } : shown };
-        }
-        return { ...item, state: 'sent', note: row.state === 'taken' ? 'Your AI is on it' : 'Sent to your AI' };
-      }));
-    };
-    const timer = window.setInterval(() => { void check(); }, settings.live_work.check_every_ms);
-    return () => window.clearInterval(timer);
-  }, [recording, moments.length]);
-  const meetingBar = !recording && !made ? (
+  const meetingBar = WITH_OTHERS_SHOWN && !recording && !made ? (
     meeting ? (
       <Card variant="nested" padding="md" aria-label="Recording with others">
         <Container layout="horizontal" gap="sm" alignItems="center">
@@ -881,7 +805,7 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
       </Container>
     )
   ) : null;
-  const everyone = recording && meeting && together.length ? (
+  const everyone = WITH_OTHERS_SHOWN && recording && meeting && together.length ? (
     <Card variant="nested" padding="lg" aria-label="Everyone in this meeting" aria-live="polite">
       <Container layout="vertical" gap="sm">
         <Text as="p" variant="body" color="muted">Everyone in this meeting</Text>
@@ -889,23 +813,6 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
           <Container key={`${turn.at}:${turn.devices.join(',')}`} layout="vertical" gap="xs">
             <Text as="p" variant="body" color="muted">{turn.who.join(' and ') || 'Someone'}{turn.devices.length > 1 ? ` · heard on ${turn.devices.length} devices` : ''}</Text>
             <Text as="p" variant="body">{turn.text}</Text>
-          </Container>
-        ))}
-      </Container>
-    </Card>
-  ) : null;
-  const liveWork = recording && moments.length ? (
-    <Card variant="nested" padding="lg" aria-label="What your AI is doing" aria-live="polite">
-      <Container layout="vertical" gap="sm">
-        <Text as="p" variant="body" color="muted">What your AI is doing</Text>
-        {moments.map(item => (
-          <Container key={item.key} layout="vertical" gap="xs">
-            <Text as="p" variant="body">{item.heading}</Text>
-            {item.state === 'done' ? <SchemaValueView value={item.result ?? item.note} /> : (
-              <Text as="p" variant="body" color={item.state === 'error' ? 'error' : 'muted'}>
-                {item.state === 'pending' ? 'Sending to your AI…' : item.note}
-              </Text>
-            )}
           </Container>
         ))}
       </Container>
@@ -971,7 +878,7 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
       actions={[
         { id: 'pause', label: paused ? 'Resume' : 'Pause', icon: paused ? 'Mic' : 'Pause', onPress: paused ? () => resumeAt(null) : pause },
         { id: 'discard', label: 'Discard', icon: 'X', onPress: discard },
-        { id: 'done', label: 'Done', icon: 'Check', main: true, onPress: () => void done(), disabled: saving.state === 'failed' || saving.state === 'waiting' },
+        { id: 'done', label: 'Done', icon: 'Check', main: true, onPress: () => void done(), disabled: saving.state === 'failed' },
       ]}
     />
   ) : (
@@ -979,7 +886,7 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
       <CaptureControl
         state={control}
         onStart={() => void start()}
-        disabled={saving.state === 'failed' || saving.state === 'waiting' || !source}
+        disabled={saving.state === 'failed' || !source}
         startLabel={made ? 'Record again' : 'Record'}
         workingLabel="Saving your recording…"
       />
@@ -996,9 +903,7 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
           {shared && !script && shared.about ? <Text variant="body" color="muted" truncate>{shared.about}</Text> : null}
           {shared?.asked ? <Text variant="caption" color="muted" truncate>Your AI will: {shared.asked}</Text> : null}
         </Container>
-        {!recording ? write.button : null}
       </Container>
-      {write.run}
 
       {unfinished.map(found => <Unfinished key={found.id} found={found} onDone={() => forgetUnfinished(found.id)} />)}
 
@@ -1057,7 +962,6 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
         </Container>
       ) : null}
       {video ? everyone : null}
-      {video ? liveWork : null}
 
       {!video && recording ? (
         <>
@@ -1065,7 +969,6 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
           {timeline}
           {liveWords}
           {everyone}
-          {liveWork}
         </>
       ) : null}
 
@@ -1094,15 +997,9 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
       {recording && keptLine ? <Text as="p" variant="caption" color="muted" role="status" data-recording-kept="">{keptLine}</Text> : null}
       {recording && wordsNote ? <Text as="p" variant="caption" color="muted" role="status">{wordsNote}</Text> : null}
       {problem ? <Text as="p" variant="body" color="error" role="alert">{problem}</Text> : null}
-      {saving.state === 'waiting' ? (
-        <Container layout="horizontal" gap="sm" alignItems="center" justifyContent="center" wrap="wrap" role="status">
-          <Text variant="body">Saved on this device. It goes to your Files when you are back online.</Text>
-          <Button variant="ghost" size="sm" onClick={discard}>Discard</Button>
-        </Container>
-      ) : null}
       {saving.state === 'saved' ? (
         <Container layout="horizontal" gap="sm" alignItems="center" justifyContent="center" wrap="wrap" role="status">
-          <Text variant="body">{saving.kept.queueSaid ? `Saved in Files under ${saving.kept.folder}. ${saving.kept.queueSaid}` : `Saved in Files under ${saving.kept.folder} and sent to your AI.`}</Text>
+          <Text variant="body">{`Saved in Files under ${saving.kept.folder}.`}</Text>
           {edited ? (
             <Button variant="primary" size="sm" disabled={correcting.state === 'working'} onClick={() => saveCorrection()}>
               {correcting.state === 'working' ? 'Saving…' : 'Save corrected words'}

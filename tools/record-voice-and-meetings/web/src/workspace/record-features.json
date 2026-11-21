@@ -1,0 +1,7 @@
+{
+  "_what": "Which parts of Record are on. A part that is off draws nothing and calls nothing; its code stays here, so turning it on needs no new code.",
+  "record_with_others": {
+    "shown": false,
+    "waits_for": "A spaces read path through the person's door: the space row, its member rows and its item rows read for tool:list-a-spaces-posts, tool:list-a-spaces-members, tool:post-in-a-space, tool:join-a-space and tool:create-a-space. Until it exists, the meeting's calls to the old spaces routes have no owner, so the part stays off."
+  }
+}

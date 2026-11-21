@@ -6,10 +6,9 @@
 //
 // PURPOSE
 //   A recording kept on this device first, piece by piece, while it is made. Each piece the recorder hands out is
-//   written to the device before anything else may read it: the sender (send-while-recording.ts) only ever sends
-//   pieces this file says are stored, so whatever reaches the person's Files is already safe on the device. The journal
-//   says how far the recording is stored, whose it is, who is recording it now and how far it has been sent, so a
-//   reload or a lost connection finds it again (`unfinishedRecordings`) and finishes it from the device copy.
+//   written to the device before anything else may read it, and the whole recording is written to Files from this copy
+//   when it is saved. The journal says how far the recording is stored and whose it is, so a reload finds it again
+//   (`unfinishedRecordings`) and saves it from the device copy.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Pieces are stored strictly in the order they are handed in; `stored` counts a piece only once its write
