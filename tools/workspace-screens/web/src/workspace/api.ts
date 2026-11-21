@@ -327,6 +327,12 @@ async function keptOf(path: string): Promise<Kept | null> {
   return kept;
 }
 
+/** The last good answer this computer kept for a read (null when none): read with no network, for a page that draws
+ *  from what it kept before the Worker or the door has answered. */
+export async function keptAnswerOf(path: string): Promise<PageAnswer | null> {
+  return (await keptOf(path))?.answer ?? null;
+}
+
 /** A read on its way: its answer, when it started, and the answer once it has come. */
 type Asked = { answer: Promise<PageAnswer>; started: number; came?: PageAnswer };
 function asked(path: string, answer: Promise<PageAnswer>, started = Date.now()): Asked {

@@ -10,14 +10,14 @@
 //    everything): nothing behind it shows until it dissolves.
 // 2. It is drawn from the page's first bytes: `threadCoverHtml()` writes its element, its rules and its script inline,
 //    so it paints before any script file arrives and the page waits on nothing for it. The app lifts it with
-//    `window.trillionCover.lift()` the moment it is ready, so it shows only while Trillion is genuinely opening.
+//    `liftOpeningCover()` the moment it is ready, so it shows only while Trillion is genuinely opening.
 // 3. The drawing is the landing page's: the ball and the curve are ../scroll-thread/thread-geometry.mjs, the needle is
 //    the logo's needle (public/brand/trillion-needle.svg). Words, timing and colours are DATA (./thread-cover.json).
 // 4. `runThreadCover` is whole in itself (it reads only its arguments), so it travels into the page as text.
 // 5. A host app that draws the cover itself (the iPhone app, before its page has any bytes) sets
 //    `window.__trillionCoverHost` before the page runs: the page then draws nothing and `lift()` tells the host
 //    (webkit message `trillionCover`), which dissolves its own cover, so one cover plays from launch to ready; the host
-//    calls `window.trillionCover.lifted()` once its cover is gone, which settles `lift()`, as on every other surface.
+//    calls `lifted()` on the cover once its cover is gone, which settles `lift()`, as on every other surface.
 // 6. With reduced motion the thread lies straight and still, and the cover fades instead of dissolving.
 // 7. The cover element is the custom element `trillion-cover`: one name every surface styles and finds.
 // 8. Once lift is requested, its dissolve ends within its configured duration even when the host suspends animation
@@ -363,4 +363,11 @@ export function mountThreadCover(doc = document, settings = setup) {
   const root = doc.createElement('trillion-cover');
   doc.body.append(root);
   return runThreadCover({ random, tangle, curve }, root, settings);
+}
+
+/** Lifts the cover the page drew from its first bytes (threadCoverHtml) once the page is ready. A page with no cover
+ *  (a host app drew its own, or none was drawn) has nothing to lift. */
+export function liftOpeningCover() {
+  const cover = window.trillionCover;
+  return cover ? cover.lift() : Promise.resolve();
 }

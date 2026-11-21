@@ -35,6 +35,7 @@ import { useWindowArrangement } from './screen-own-arrangement';
 import focusWords from './focus.json';
 import starterLayouts from './starter-layouts.json';
 import surfaces from './screens.mjs';
+import { startingScreenIds } from './starting-screens.mjs';
 import { showRecords } from './records';
 import { createScreenCatalogPresence } from './screen-catalog.mjs';
 
@@ -147,7 +148,7 @@ export function mountWorkspace(root: HTMLElement, offered: Row[], options: { cat
     surface_collections_scope: HOST_PACKAGE,
     surface_collections_graph: lists,
     persist_collection_edits: true,
-    visiblePlaceableSurfaceIds: { default: surfaces.open_at_start },
+    visiblePlaceableSurfaceIds: { default: startingScreenIds(surfaces.open_at_start, offered) },
     surface_intent_destination_ref: `destination:${HOST_PACKAGE}`,
     // Unknown saved tabs wait for complete tool pages and conversations; explicitly withdrawn owners close at once.
     tabsOutsideCatalog: 'close',
