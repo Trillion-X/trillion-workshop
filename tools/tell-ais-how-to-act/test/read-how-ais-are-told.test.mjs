@@ -46,13 +46,19 @@ test('the first three rows fit in 512 characters', () => {
   assert.match(opening, /tools:list.*tools:run.*secrets:put\/remove\/sign.*wake:\*.*sharing\.\*/);
   assert.match(opening, /address @own-records, method instructions:read/);
   assert.match(opening, /Old names.*not call IDs/);
+  // Nov 21 2026: the find comes first, in the bytes every app reads and in the one tool's description, so no AI says it
+  // cannot before it has searched (a fresh Codex made 21 calls and gave up; ChatGPT spent an hour).
+  assert.match(opening, /For any job, first tools:list \{words:/);
+  assert.match(opening, /never say you can't before it/);
+  assert.ok(instructionRows()[0].reaches.includes('tool-description'), 'the find reaches the tool description too');
 });
 
 test('tool instructions use discovered Workshop IDs and the current door schemas', () => {
   const byId = new Map(instructionRows().map(item => [item.id, item]));
   const details = byId.get('current-resource-tool-entrypoint')?.text;
   assert.ok(details, 'the current entrypoint and schemas are documented');
-  assert.match(details, /tools:list input \{after\?,runs_here\?\}/);
+  assert.match(details, /tools:list input \{words\?,after\?,runs_here\?\}/);
+  assert.match(details, /best matches come first/);
   assert.match(details, /tools:list \{tool:ID\} returns that row.s \{id,label,job,description,input_schema,output_schema,runs_here\}/);
   assert.match(details, /tools:run input \{tool:ID,input:\{\.\.\.\}\}/);
   assert.match(details, /their own stores .* in each store's own language/);
