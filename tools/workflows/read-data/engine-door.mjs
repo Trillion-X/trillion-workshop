@@ -18,6 +18,9 @@ export function readDoor(descriptor = DESCRIPTOR_FD) {
   return door;
 }
 
+// A refusal's words as text: the engine may give an object where words are expected, which must not print as [object Object].
+const said = why => (typeof why === 'string' ? why : JSON.stringify(why));
+
 /** One operation `method` with `input`, under `requestKey`. Returns the call's result; throws, saying why, when the engine refuses. */
 export async function operate(door, method, input, requestKey, fetchImpl = fetch, address = door.resource ?? '@own-records') {
   if (Buffer.byteLength(requestKey) > REQUEST_KEY_BYTES) throw new Error(`the request key for ${method} is over ${REQUEST_KEY_BYTES} bytes`);
@@ -28,11 +31,11 @@ export async function operate(door, method, input, requestKey, fetchImpl = fetch
   const raw = await response.text();
   const json = raw.trim().startsWith('{') ? raw : raw.split('\n').filter(line => line.startsWith('data:')).map(line => line.slice(5).trim()).join('');
   const reply = JSON.parse(json || '{}');
-  if (reply.error) throw new Error(`the engine refused ${method}: ${reply.error.message ?? reply.error.code ?? 'no reason given'}`);
+  if (reply.error) throw new Error(`the engine refused ${method}: ${said(reply.error.message ?? reply.error.code ?? reply.error)}`);
   const result = reply.result ?? {};
   if (result.isError || !response.ok) {
-    const why = result.structuredContent?.detail ?? result.structuredContent?.code ?? `HTTP ${response.status}`;
-    throw new Error(`the engine refused ${method}: ${why}`);
+    const why = result.structuredContent?.detail ?? result.structuredContent?.code ?? result.content?.[0]?.text ?? `HTTP ${response.status}`;
+    throw new Error(`the engine refused ${method}: ${said(why)}`);
   }
   return result.structuredContent ?? {};
 }

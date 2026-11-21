@@ -33,7 +33,7 @@ export async function startWorkflowRun(input, { door = readDoor(), fetchImpl = f
   if (!recipes.length) throw new Error(`no workflow ${workflow} in the person's workflow_recipes; the run was not started.`);
   let wakes;
   try {
-    wakes = (await operate(door, 'wake:list', {}, `wake-list:${workflow}:${Date.now()}`, fetchImpl)).wakes ?? [];
+    wakes = (await operate(door, 'wake:list', { kind: KIND }, `wake-list:${workflow}:${Date.now()}`, fetchImpl)).wakes ?? [];
   } catch (error) {
     throw new Error(`the engine would not list its wakes (wake:list), so the waiter ${WAITER} could not be checked; the run was not started. ${error.message}`);
   }

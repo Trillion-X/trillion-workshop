@@ -18,6 +18,7 @@ export function fakeDoor({ recipe = true, waiterOn = true, wakeListRefusal = nul
     if (method === 'tools:run' && args.address !== DOOR.tools_resource) throw new Error(`a tool run went to ${args.address}, not the Workshop's address`);
     if (method.startsWith('wake:') && args.address !== '@own-records') throw new Error(`a wake operation went to ${args.address}, not the person's records`);
     if (method === 'wake:list') {
+      if (input?.kind !== 'workflow-chosen-from-rows') throw new Error(`wake:list must name the kind its row's right names, got ${JSON.stringify(input)}`);
       if (wakeListRefusal) return reply({ code: 'resource_envelope_exceeds_limit', detail: wakeListRefusal }, { ok: false, status: 422 });
       return reply({ wakes: [{ id: 'a-workflow-was-chosen', tool: 'tool:run-a-workflow', switched_on: waiterOn }] });
     }
