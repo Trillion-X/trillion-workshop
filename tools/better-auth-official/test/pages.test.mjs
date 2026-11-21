@@ -227,6 +227,16 @@ test('the logo is served by the tool itself, and every page names that address',
   for (const name of readdirSync(new URL('sections/', dir))) assert.doesNotMatch(readFileSync(new URL(`sections/${name}`, dir), 'utf8'), /\/site\/current\//, name);
 });
 
+test('/sign-in/assets/brand.json is the site block\'s own name, link-preview words, theme and mark address, for a native app before sign-in', () => {
+  const served = pageAnswer('/sign-in/assets/brand.json');
+  assert.equal(served.status, 200);
+  assert.equal(served.headers['content-type'], 'application/json');
+  const brand = JSON.parse(String(served.body));
+  assert.deepEqual(Object.keys(brand), ['name', 'share', 'theme', 'mark']);
+  assert.equal(brand.mark, '/sign-in/assets/mark.svg');
+  assert.ok(!('look_css' in brand) && !('email' in brand), 'only what a page head already shows');
+});
+
 test('/sign-in/done says the person is signed in and can close the tab and go back to the terminal, in the site look, with no sign-in form', () => {
   const answer = pageAnswer('/sign-in/done');
   assert.equal(answer.status, 200);

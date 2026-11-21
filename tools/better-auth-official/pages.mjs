@@ -45,14 +45,19 @@ export function assetOf(url) {
   const { pathname } = new URL(url, 'http://page');
   if (!pathname.startsWith(table.assets_path)) return null;
   const name = pathname.slice(table.assets_path.length);
-  if (!/^[a-z0-9-]+\.(js|svg|png)$/.test(name)) return null;
+  if (!/^[a-z0-9-]+\.(js|svg|png|json)$/.test(name)) return null;
   // The site's own pictures come from its block, never from this tool's files.
   if (name === 'mark.svg') return site.mark_svg ? Buffer.from(site.mark_svg) : null;
   if (name === 'wordmark.png') return site.wordmark_png ? Buffer.from(site.wordmark_png, 'base64') : null;
+  // What a native app shows of the site before anyone signs in: its name, link-preview words, theme and mark address, so
+  // the app's words and mark change with this block, never with a copy built into the app.
+  if (name === 'brand.json') return Buffer.from(JSON.stringify({ name: site.name, share: site.share ?? null, theme: site.theme,
+    mark: site.mark_svg ? `${table.assets_path}mark.svg` : null }));
   try { return readFileSync(new URL(`${table.assets}/${name}`, pages)); } catch { return null; }
 }
 
-const assetType = path => (path.endsWith('.svg') ? 'image/svg+xml' : path.endsWith('.png') ? 'image/png' : 'text/javascript; charset=utf-8');
+const assetType = path => (path.endsWith('.svg') ? 'image/svg+xml' : path.endsWith('.png') ? 'image/png'
+  : path.endsWith('.json') ? 'application/json' : 'text/javascript; charset=utf-8');
 
 /** The answer for a GET or HEAD of `url` that is a page or an asset: { status, headers, body }, or null. */
 export function pageAnswer(url) {

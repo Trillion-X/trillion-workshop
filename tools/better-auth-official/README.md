@@ -194,7 +194,8 @@ pages, routes and email words, `{name}` in email words, the passkey relying part
 `storage_prefix` (every key the pages keep in the browser, and the session cookie `__Host-<prefix>_session` unless `session_cookie_name` is
 set), `theme` (`data_theme`, `scheme`, `theme_color`: the Screen Look theme the pages wear), `look_css` (that theme's resolved tokens),
 `share` (link-preview title and description, or null), `links` (head links: manifest, icons, font sheets), `mark_svg` (text) and
-`wordmark_png` (base64), served as `mark.svg` and `wordmark.png` under the assets path, and `email` (`palette`, `made_with_label`: the look
+`wordmark_png` (base64), served as `mark.svg` and `wordmark.png` under the assets path (with `brand.json` there: `name`,
+`share`, `theme` and the mark's address, which a native app reads before sign-in for its words and mark), and `email` (`palette`, `made_with_label`: the look
 email-message-html.mjs draws every email in). `settings.json` ships a neutral "Example" stand-in. test/site-blind.test.mjs fails when a
 source file of this tool names a product.
 
