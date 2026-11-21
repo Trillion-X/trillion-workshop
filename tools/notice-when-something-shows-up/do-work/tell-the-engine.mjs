@@ -71,6 +71,34 @@ export function keptFolderOf(argv = process.argv.slice(2)) {
   return at >= 0 && typeof argv[at + 1] === 'string' && argv[at + 1] !== '' ? argv[at + 1] : null;
 }
 
+/** One door operation `method` with `input` on the run's door (`door`: {url, resource, capability}): {response, result}. A
+ *  JSON-RPC error carries no result: it is a refusal, never an empty success. Shared by the carrier and the signed-call
+ *  receiver (do-work/signed-webhook-receiver.mjs), so both reach the engine one way. */
+export async function operateOverDoor(door, method, input, requestKey, { fetchImpl = fetch, id = 1 } = {}) {
+  const body = JSON.stringify({ jsonrpc: '2.0', id, method: 'tools/call', params: { name: 'do_one_thing_in_my_account',
+    // A fact's own key (a due time's occurrence key names its schedule, its zone and four times) can be longer than the
+    // door takes; content-identity gives a longer one a fixed-length name of its own, so the same fact keeps one key.
+    arguments: { address: door.resource ?? '@own-records', method, request_key: requestKeyForEngine(requestKey), input } } });
+  const response = await fetchImpl(door.url, { method: 'POST', body, headers: { authorization: `Bearer ${door.capability}`,
+    'content-type': 'application/json', accept: 'application/json, text/event-stream', 'mcp-protocol-version': '2025-06-18' } });
+  const raw = await response.text();
+  const json = raw.trim().startsWith('{') ? raw : raw.split('\n').filter(line => line.startsWith('data:')).map(line => line.slice(5).trim()).join('');
+  const answer = JSON.parse(json || '{}');
+  if (answer.error) return { response, result: { isError: true, structuredContent: { code: answer.error.code, detail: answer.error.message } } };
+  return { response, result: answer.result ?? {} };
+}
+
+/** Tells one fact to the engine at its door's `wake:arrive`. Resolves when the engine took it; throws with the engine's
+ *  words when it refused it, so a caller can answer the service "not taken" and be called again. */
+export async function arriveOverDoor(door, fact, { fetchImpl = fetch } = {}) {
+  const { response, result } = await operateOverDoor(door, ARRIVE, fact, `fact:${fact.event_id}`, { fetchImpl });
+  if (!response.ok || result.isError) {
+    const why = result.structuredContent?.detail ?? result.structuredContent?.code ?? `HTTP ${response.status}`;
+    throw new Error(`the engine refused the fact: ${why}`);
+  }
+  return fact;
+}
+
 /** The emitter's carrier over the engine's door: its waiter rows are `waiters`, each record it writes is told as a
  *  fact, and each waiter's last fact and state are kept in `keep` (a folder) when it names one. */
 export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => console.log(line), startedAt = Date.now(), keep = null }) {
@@ -102,21 +130,11 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
   }
   const answer = { told: [], refused: [] };
   /** One door operation `method` with `input`: the response and the call's result. */
+  // A JSON-RPC error (the door refusing the call itself, such as a request key over its bound) is a refusal, never an
+  // empty success, or an occurrence the engine never took would be kept as told.
   async function operate(method, input, requestKey) {
     calls += 1;
-    const body = JSON.stringify({ jsonrpc: '2.0', id: calls, method: 'tools/call', params: { name: 'do_one_thing_in_my_account',
-      // A fact's own key (a due time's occurrence key names its schedule, its zone and four times) can be longer than the
-      // door takes; content-identity gives a longer one a fixed-length name of its own, so the same fact keeps one key.
-      arguments: { address: door.resource ?? '@own-records', method, request_key: requestKeyForEngine(requestKey), input } } });
-    const response = await fetchImpl(door.url, { method: 'POST', body, headers: { authorization: `Bearer ${door.capability}`,
-      'content-type': 'application/json', accept: 'application/json, text/event-stream', 'mcp-protocol-version': '2025-06-18' } });
-    const raw = await response.text();
-    const json = raw.trim().startsWith('{') ? raw : raw.split('\n').filter(line => line.startsWith('data:')).map(line => line.slice(5).trim()).join('');
-    // A JSON-RPC error (the door refusing the call itself, such as a request key over its bound) carries no result: it
-    // is a refusal, never an empty success, or an occurrence the engine never took would be kept as told.
-    const answer = JSON.parse(json || '{}');
-    if (answer.error) return { response, result: { isError: true, structuredContent: { code: answer.error.code, detail: answer.error.message } } };
-    return { response, result: answer.result ?? {} };
+    return operateOverDoor(door, method, input, requestKey, { fetchImpl, id: calls });
   }
   async function arrive(fact) {
     const { response, result } = await operate(ARRIVE, fact, `fact:${fact.event_id}`);

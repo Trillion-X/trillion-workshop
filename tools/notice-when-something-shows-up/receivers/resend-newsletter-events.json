@@ -1,0 +1,34 @@
+{
+  "listen_host": "127.0.0.1",
+  "listen_port": 8893,
+  "path": "/webhooks/resend",
+  "secret_credential": "resend-webhook-signing-secret",
+  "verify": "standard-webhooks",
+  "shape": {
+    "place": {
+      "path": "type"
+    },
+    "change": {
+      "path": "type",
+      "map": {
+        "email.delivered": "changed",
+        "email.opened": "changed",
+        "email.clicked": "changed",
+        "email.bounced": "changed",
+        "email.complained": "changed"
+      }
+    },
+    "key": [
+      "data.email_id"
+    ],
+    "at": [
+      "data.created_at",
+      "created_at"
+    ],
+    "at_unit": "iso"
+  },
+  "where": "resend",
+  "kind": "resend-email-event",
+  "body_byte_ceiling": 262144,
+  "door_file": "<the engine door JSON the computer row names>"
+}
