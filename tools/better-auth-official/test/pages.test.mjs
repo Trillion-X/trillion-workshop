@@ -212,6 +212,13 @@ test('the consent page: Read only is a switch, an unknown AI is called unknown w
   assert.match(client, /button\.dataset\.disconnect|data-disconnect/);
 });
 
+test('the product\'s own program is never called unknown: the consent page asks first-party before the return-address rule (a native app returns to its own scheme)', () => {
+  const client = readFileSync(new URL('sign-in-client.mjs', dir), 'utf8');
+  const asked = client.indexOf('/first-party?client_id='), unknown = client.indexOf("[data-unknown]').hidden = false");
+  assert.ok(asked > 0 && unknown > asked);
+  assert.doesNotMatch(client, /known && \(await json\(`\$\{authBase\}\/first-party/, 'the first-party answer does not wait on the return address');
+});
+
 test('the logo is served by the tool itself, and every page names that address', async () => {
   const served = pageAnswer('/sign-in/assets/mark.svg');
   assert.equal(served.status, 200);

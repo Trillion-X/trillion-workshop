@@ -306,8 +306,11 @@ async function consentPage() {
   const asked = (query.get('scope') ?? '').split(' ').filter(Boolean);
   listOf('scopes', scopeLines(asked.filter(scope => !Object.values(rules.read_only_swaps).includes(scope)).join(' ')));
   const known = Boolean(clientHost) && (related(returnHost, clientHost) || isLoopback(returnHost));
-  // Our own program: the connect goes straight back to it; the person sees only that they are signed in.
-  if (known && (await json(`${authBase}/first-party?client_id=${encodeURIComponent(id)}`)).data?.first_party) { show('signedin'); return void consent(document.querySelector('[data-step="review"] [data-consent="allow"]')).then(done => done || show('review')); }
+  // Our own program: the connect goes straight back to it; the person sees only that they are signed in. It is asked before `known`:
+  // a native app returns to its own app address (an iPhone app's scheme), never its document's host, and Better Auth has already
+  // checked that address against the document's redirect_uris at authorize. On Nov 21 2026 (3:19 AM CST) the iPhone app was shown
+  // "We don't know this app" with Allow and Deny.
+  if ((await json(`${authBase}/first-party?client_id=${encodeURIComponent(id)}`)).data?.first_party) { show('signedin'); return void consent(document.querySelector('[data-step="review"] [data-consent="allow"]')).then(done => done || show('review')); }
   const before = ((await json(`${authBase}/oauth2/get-consents`)).data ?? []).find(row => row.clientId === id);
   const again = before && known ? rememberedAs(before.scopes ?? [], asked) : null;
   if (again) {
