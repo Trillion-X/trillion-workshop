@@ -1,0 +1,411 @@
+{
+  "about": "workflow:run-one-piece: rendered from its workflow_recipes row.",
+  "records": [
+    {
+      "payload": {
+        "source_kept_at": "2026-11-21 22:36:35.10989+00",
+        "kind": "workflow-recipe",
+        "id": "workflow:run-one-piece",
+        "label": "Run one product piece: choose its branch workflows by kind, start each, cite it",
+        "job": "Run one product piece: choose its branch workflows from its branch kinds, start each chosen branch, and cite it in piece_citations.",
+        "produces": "piece_citations rows (product, piece, chosen workflow, run reference) and one wake fact per chosen branch.",
+        "source": {},
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "fact",
+            "store"
+          ],
+          "properties": {
+            "fact": {
+              "type": "object",
+              "required": [
+                "event_id",
+                "product_key",
+                "piece",
+                "words",
+                "branch_kinds"
+              ],
+              "properties": {
+                "piece": {
+                  "type": "string"
+                },
+                "words": {
+                  "type": "string"
+                },
+                "event_id": {
+                  "type": "string"
+                },
+                "position": {
+                  "type": "string"
+                },
+                "product_key": {
+                  "type": "string"
+                },
+                "branch_kinds": {
+                  "type": "string",
+                  "description": "JSON array text of branch kind tags"
+                }
+              }
+            },
+            "store": {
+              "type": "object",
+              "required": [
+                "credential_name"
+              ],
+              "properties": {
+                "credential_name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "definition": {
+          "id": "workflow:run-one-piece",
+          "kind": "workflow",
+          "name": "Run one product piece: choose its branch workflows by kind, start each, cite it",
+          "uses": [
+            {
+              "id": "workflow:run-one-piece:start-one-chosen",
+              "kind": "workflow",
+              "name": "Start one chosen branch with its definition and cite it",
+              "edges": [
+                {
+                  "to": "tell",
+                  "from": "read-definition",
+                  "kind": "always"
+                },
+                {
+                  "to": "cite",
+                  "from": "tell",
+                  "kind": "always"
+                }
+              ],
+              "steps": [
+                {
+                  "id": "read-definition",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-sql-in-my-database",
+                    "input": {
+                      "sql": "SELECT recipe AS workflow, kept_at::text AS kept_at, current_database()::text AS kept_in FROM workflow_recipes WHERE recipe = $1::text",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "chosen.workflow"
+                          }
+                        }
+                      ],
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "store.credential_name"
+                        }
+                      }
+                    },
+                    "context": {
+                      "step_id": "read-definition"
+                    }
+                  }
+                },
+                {
+                  "id": "tell",
+                  "kind": "ask",
+                  "config": {
+                    "name": "wake:arrive",
+                    "input": {
+                      "kind": "workflow-chosen-from-rows",
+                      "payload": {
+                        "piece": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "fact.piece"
+                          }
+                        },
+                        "kept_at": {
+                          "$kind": "binding",
+                          "select": {
+                            "key": "read-definition",
+                            "from": "steps",
+                            "path": "output.rows.0.kept_at"
+                          }
+                        },
+                        "kept_in": {
+                          "$kind": "binding",
+                          "select": {
+                            "key": "read-definition",
+                            "from": "steps",
+                            "path": "output.rows.0.kept_in"
+                          }
+                        },
+                        "workflow": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "chosen.workflow"
+                          }
+                        },
+                        "condition": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "chosen.condition"
+                          }
+                        },
+                        "product_key": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "fact.product_key"
+                          }
+                        }
+                      },
+                      "event_id": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "fact.event_id"
+                        }
+                      }
+                    },
+                    "context": {
+                      "step_id": "tell"
+                    }
+                  }
+                },
+                {
+                  "id": "cite",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-sql-in-my-database",
+                    "input": {
+                      "sql": "INSERT INTO piece_citations (product_id, piece, chosen_workflow, run_ref, output_ref) VALUES ($1::text, $2::text, $3::text, $4::text, $5::text)",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "fact.product_key"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "fact.piece"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "chosen.workflow"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "fact.event_id"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "fact.event_id"
+                          }
+                        }
+                      ],
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "store.credential_name"
+                        }
+                      }
+                    },
+                    "context": {
+                      "step_id": "cite"
+                    }
+                  }
+                }
+              ],
+              "version": 1,
+              "is_active": true
+            }
+          ],
+          "edges": [
+            {
+              "to": "choose",
+              "from": "read-candidates",
+              "kind": "always"
+            },
+            {
+              "to": "start-each",
+              "from": "choose",
+              "kind": "always"
+            }
+          ],
+          "steps": [
+            {
+              "id": "read-candidates",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "WITH c AS (\n  SELECT w.recipe, e.value AS cond\n  FROM workflow_recipes w CROSS JOIN LATERAL jsonb_array_elements(CASE WHEN jsonb_typeof(w.fires_when) = 'array' THEN w.fires_when ELSE '[]'::jsonb END) e\n  WHERE w.fires_when IS NOT NULL),\nkept AS (\n  SELECT recipe, cond FROM c\n  WHERE EXISTS (SELECT 1 FROM jsonb_array_elements(coalesce(cond #> '{condition,fields}', '[]'::jsonb)) f WHERE coalesce(f -> 'path', jsonb_build_array(f -> 'id')) <> '[\"kinds\"]'::jsonb)\n     OR EXISTS (SELECT 1 FROM jsonb_path_query(cond, 'strict $.condition.tree.** ? (@.field == \"kinds\").params.values[*]') v WHERE v #>> '{}' IN (SELECT jsonb_array_elements_text(coalesce(nullif($1::text, '')::jsonb, '[]'::jsonb))))\n     OR jsonb_array_length(coalesce(cond #> '{condition,fields}', '[]'::jsonb)) = 0)\nSELECT recipe AS id, jsonb_build_object('recipe', recipe, 'fires_when', jsonb_agg(jsonb_strip_nulls(jsonb_build_object('label', cond->'label', 'condition', cond->'condition', 'made_by', cond->'made_by', 'state', cond->'state', 'weight', cond->'weight', 'input', cond->'input')))) AS value\nFROM kept GROUP BY recipe\n",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.branch_kinds"
+                      }
+                    }
+                  ],
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  }
+                },
+                "context": {
+                  "step_id": "read-candidates"
+                }
+              }
+            },
+            {
+              "id": "choose",
+              "kind": "ask",
+              "config": {
+                "name": "tool:choose-the-workflows-that-fire",
+                "input": {
+                  "own": {
+                    "$kind": "binding",
+                    "select": {
+                      "key": "read-candidates",
+                      "from": "steps",
+                      "path": "output.rows"
+                    }
+                  },
+                  "parts": [
+                    {
+                      "kinds": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "fact.branch_kinds"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.json_parse"
+                          }
+                        ]
+                      },
+                      "piece": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "fact.piece"
+                        }
+                      },
+                      "place": "product-piece",
+                      "words": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "fact.words"
+                        }
+                      },
+                      "product_key": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "fact.product_key"
+                        }
+                      }
+                    }
+                  ],
+                  "within": [
+                    "workflow:run-one-piece"
+                  ],
+                  "installed": true
+                },
+                "context": {
+                  "step_id": "choose"
+                }
+              }
+            },
+            {
+              "id": "start-each",
+              "kind": "loop",
+              "config": {
+                "source": {
+                  "$kind": "binding",
+                  "select": {
+                    "key": "choose",
+                    "from": "steps",
+                    "path": "output.chosen"
+                  }
+                },
+                "item_var": "chosen",
+                "parallel": true,
+                "definition_id": "workflow:run-one-piece:start-one-chosen"
+              }
+            }
+          ],
+          "wakes": [
+            {
+              "id": "a-piece-to-run",
+              "on": {
+                "fact": {
+                  "from": [
+                    "run"
+                  ],
+                  "kind": "piece-to-run"
+                }
+              },
+              "input": {
+                "start_at": "read-candidates"
+              },
+              "budget": {
+                "steps": 60,
+                "wall_ms": 3600000
+              }
+            }
+          ],
+          "version": 1,
+          "is_active": false
+        },
+        "wakes": [
+          {
+            "id": "a-piece-to-run",
+            "on": {
+              "fact": {
+                "from": [
+                  "run"
+                ],
+                "kind": "piece-to-run"
+              }
+            },
+            "budget": {
+              "steps": 60,
+              "wall_ms": 600000
+            },
+            "input": {
+              "start_at": "read-candidates"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

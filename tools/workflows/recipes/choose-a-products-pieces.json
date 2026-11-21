@@ -1,0 +1,163 @@
+{
+  "about": "workflow:choose-a-products-pieces: rendered from its workflow_recipes row.",
+  "records": [
+    {
+      "payload": {
+        "source_kept_at": "2026-11-21 22:36:59.285424+00",
+        "kind": "workflow-recipe",
+        "id": "workflow:choose-a-products-pieces",
+        "label": "Choose a product's pieces from rows by its kind, then tell each piece to run",
+        "job": "Choose the pieces of one product from rows by its kind (or its spawn list), and send one piece-to-run fact per piece for run-one-piece to run.",
+        "produces": "One wake:arrive piece-to-run fact per chosen piece, with event id product-key colon piece.",
+        "source": {},
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "product",
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "credential_name"
+              ],
+              "properties": {
+                "credential_name": {
+                  "type": "string"
+                }
+              }
+            },
+            "product": {
+              "type": "object",
+              "required": [
+                "key",
+                "kind"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "stage": {
+                  "type": "string",
+                  "description": "accepted but not read by the piece query yet"
+                }
+              }
+            }
+          }
+        },
+        "definition": {
+          "id": "workflow:choose-a-products-pieces",
+          "kind": "workflow",
+          "name": "Choose a product's pieces from rows by its kind, then tell each piece to run",
+          "uses": [
+            {
+              "id": "workflow:choose-a-products-pieces:tell-one",
+              "kind": "workflow",
+              "name": "Tell one chosen piece to run with its branch kinds",
+              "edges": [],
+              "steps": [
+                {
+                  "id": "tell",
+                  "kind": "ask",
+                  "config": {
+                    "name": "wake:arrive",
+                    "input": {
+                      "kind": "piece-to-run",
+                      "payload": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "piece"
+                        }
+                      },
+                      "event_id": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "piece.event_id"
+                        }
+                      }
+                    },
+                    "context": {
+                      "step_id": "tell"
+                    }
+                  }
+                }
+              ],
+              "version": 1,
+              "is_active": true
+            }
+          ],
+          "edges": [
+            {
+              "to": "tell-each",
+              "from": "read-pieces",
+              "kind": "always"
+            }
+          ],
+          "steps": [
+            {
+              "id": "read-pieces",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "WITH spawn AS (SELECT unnest(s.pieces) AS piece FROM product_spawns s WHERE s.product_id = $1::text AND cardinality(s.pieces) > 0),\nchosen AS (\n  SELECT p.* FROM product_pieces p\n  WHERE CASE WHEN EXISTS (SELECT 1 FROM spawn)\n    THEN p.piece IN (SELECT piece FROM spawn)\n    ELSE ((p.applies_when -> 'product_kinds') IS NULL OR (p.applies_when -> 'product_kinds') ? $2::text) END)\nSELECT $1::text || ':' || piece AS event_id, $1::text AS product_key, piece, position::text AS position, to_json(branch_kinds)::text AS branch_kinds, coalesce(nullif(search_words, ''), fills) AS words\nFROM chosen ORDER BY position\n",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "product.key"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "product.kind"
+                      }
+                    }
+                  ],
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  }
+                },
+                "context": {
+                  "step_id": "read-pieces"
+                }
+              }
+            },
+            {
+              "id": "tell-each",
+              "kind": "loop",
+              "config": {
+                "source": {
+                  "$kind": "binding",
+                  "select": {
+                    "key": "read-pieces",
+                    "from": "steps",
+                    "path": "output.rows"
+                  }
+                },
+                "item_var": "piece",
+                "parallel": true,
+                "definition_id": "workflow:choose-a-products-pieces:tell-one"
+              }
+            }
+          ],
+          "version": 1,
+          "is_active": false
+        }
+      }
+    }
+  ]
+}

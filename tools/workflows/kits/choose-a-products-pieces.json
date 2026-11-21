@@ -1,0 +1,40 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:choose-a-products-pieces.\" The wake starts it once its switch input is set.",
+  "lists": [],
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
+  "workflows": [
+    "workflow:choose-a-products-pieces"
+  ],
+  "tools": [
+    "tool:run-sql-in-my-database"
+  ],
+  "instructions": [
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:choose-a-products-pieces\".",
+    "3. Read the answer the run hands back."
+  ],
+  "worked_examples": [
+    {
+      "title": "Choose a product's pieces from rows by its kind, then tell each piece to run",
+      "ask": "Run workflow:choose-a-products-pieces.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:choose-a-products-pieces"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:choose-a-products-pieces",
+      "step": "read-pieces",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
+    }
+  ],
+  "drafted_from": "workflow:choose-a-products-pieces rendered from its row"
+}
