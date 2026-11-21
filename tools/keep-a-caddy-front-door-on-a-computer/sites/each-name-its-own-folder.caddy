@@ -53,6 +53,9 @@ https:// {
 	}
 	@www header_regexp Host ^www\.
 	redir @www https://{site}{uri} 308
+	# Every answer, a page or a program's, is sent compressed when the browser takes it (Nov 21 2026: a 15.3 MB members
+	# script went whole, 3.4 MB as gzip, on a phone that waited 79 s).
+	encode zstd gzip
 {{routes}}
 	@page {
 		method GET HEAD

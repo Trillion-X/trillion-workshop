@@ -171,6 +171,8 @@ test('each name its own folder: the site file names no site, asks before each ce
   assert.match(text, /http\.sock \{\n\t+lb_try_duration 15s\n\t+lb_try_interval 250ms\n/);
   assert.doesNotMatch(text, /place\.example\.test|\{\{/, 'no site is named in the file');
   assert.ok(files.some(file => file.path === '/var/lib/example-sites/place.example.test/index.html'), 'a site is its folder');
+  const https = text.slice(text.indexOf('https:// {'));
+  assert.match(https, /^\tencode zstd gzip$/m, 'every page and program answer is sent compressed');
 });
 
 test('each name its own folder: the engine answers some paths of some names first, and every other path stays the site\'s', async () => {
