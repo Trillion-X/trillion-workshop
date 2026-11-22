@@ -62,7 +62,9 @@ export const handle = ({ event }) => {
 
 // The helper also takes work that was already waiting before this computer connected, and looks again on a timer.
 export const start = ({ rules, log }) => {
-  if (!chosenAi(rules)) return null;
+  // No AI chosen here (neither by hand nor in the computer's row): nothing is taken, and the log says so, so a computer
+  // that never takes work is seen at once rather than after hours of silence.
+  if (!chosenAi(rules)) { log?.(readSettings().words.no_chosen_ai); return null; }
   // Started again (the person chose another AI): the earlier timer stops, so one timer runs.
   clearTimeout(timer);
   const settings = readSettings();
