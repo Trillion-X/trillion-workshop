@@ -8,6 +8,7 @@ import { offeredRows } from '../../keep-and-wake-ai-sessions-on-this-computer/sr
 import { surfaceOfScreenTool } from '../../keep-and-wake-ai-sessions-on-this-computer/src/workspace/screens.mjs';
 import screens from '../../keep-and-wake-ai-sessions-on-this-computer/src/workspace/screens.mjs';
 import { screenAt } from '../web/src/workspace/addresses.mjs';
+import { readFileSync } from 'node:fs';
 
 const root = fileURLToPath(new URL('../../../', import.meta.url));
 const offered = offeredRows(root).filter(row => row.screen?.surface && typeof row.screen.surface === 'object');
@@ -39,4 +40,17 @@ test('no two offered screens claim the same address', () => {
     }
   }
   assert.deepEqual(clashes, []);
+});
+
+// The page opens an offered row by its screen.kind through tool-screen.tsx SHOWS; a kind a tool may offer that SHOWS
+// does not draw would open as "This tool has no screen here" (a parts board did, 9:05 PM Nov 21).
+test('every kind a tool offers is one the page draws straight from its row', () => {
+  const source = readFileSync(new URL('../web/src/workspace/tool-screen.tsx', import.meta.url), 'utf8');
+  const table = source.match(/const SHOWS: Record<string, Show> = \{([^}]*)\}/);
+  assert.ok(table, 'tool-screen.tsx has no SHOWS table');
+  assert.doesNotMatch(source, /own\??\.screen\??\.kind\s*[!=]==/, 'tool-screen.tsx filters offered rows by a kind list of its own');
+  const drawn = new Set([...table[1].matchAll(/'?([a-z-]+)'?\s*:/g)].map(match => match[1]));
+  const kinds = new Set(offeredRows(root).map(row => row.screen?.kind).filter(Boolean));
+  assert.ok(kinds.has('parts'), 'no parts screen is offered to check');
+  assert.deepEqual([...kinds].filter(kind => !drawn.has(kind)), []);
 });

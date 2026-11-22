@@ -309,11 +309,11 @@ export function mountToolScreen(element: HTMLElement, props: Props, screens: Rec
   const id = named && !named.includes(':') ? `tool:${named}` : named;
   if (!id) return unavailable(element);
   // A screen row the page holds (one a tool offers in its part.json, offered-rows.ts) opens straight away from its row,
-  // on every plan and in every space, with no Workshop read: its module, or the workspace screen it names.
+  // on every plan and in every space, with no Workshop read: its module, the workspace screen it names, or the shared
+  // parts its spec declares. The kinds it can open are SHOWS' own, so a kind a tool may offer is never refused here.
   const offered = offeredRow(id);
   const own = (SCREEN_TOOL_ROWS.find(row => row.id === id) ?? offered) as Descriptor | undefined;
-  if (own?.screen && own.screen.kind !== 'module' && own.screen.kind !== 'app-entry') return unavailable(element);
-  if (own?.screen) return SHOWS[own.screen.kind](element, own, own.screen, props, screens);
+  if (own?.screen) return SHOWS[own.screen.kind] ? SHOWS[own.screen.kind](element, own, own.screen, props, screens) : unavailable(element);
   let unmount: Unmount = letGo(element);
   let gone = false;
   let readNumber = 0;
