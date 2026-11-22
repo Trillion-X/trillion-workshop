@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { lstatSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, realpathSync, symlinkSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { applyARow, applyEdits, heldNamesOf, hostsOf, parsePath, runFolder, setLinks, sqlRowStore } from '../do-work/apply-a-computer-row.mjs';
 
@@ -207,6 +207,13 @@ test('setLinks puts every link back to its old target, or removes one that was n
   put();
   assert.equal(readlinkSync(join(folder, 'x')), 'a');
   assert.throws(() => lstatSync(join(folder, 'y')), { code: 'ENOENT' });
+});
+
+test('a link target may name {home}, this computer\'s home, as the folder may', async () => {
+  const folder = mkdtempSync(join(tmpdir(), 'apply-row-links-'));
+  const { deps } = world({ exit: 0 });
+  await applyARow(request({ links: { folder, set: { 'home.example.com': '{home}/pages' } } }), {}, deps);
+  assert.equal(readlinkSync(join(folder, 'home.example.com')), join(homedir(), 'pages'));
 });
 
 test('the row store writes only a row still as it was read, and answers what the database holds', async () => {

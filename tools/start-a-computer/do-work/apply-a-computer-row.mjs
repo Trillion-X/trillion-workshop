@@ -9,7 +9,8 @@
 //    or by position, runs.units[0]. `from` is compared (deep equal) with what is at `at` before `to` is written or `remove` deletes
 //    it; `add` appends its value to the array at `at` unless an equal element is there. One edit that cannot be made, a `from`
 //    that does not match, a selector that matches none or several, refuses the whole request before anything is written.
-//  - `links.set` names the symlinks of `links.folder` an apply carries (a site's pages folder): they are set after the row is
+//  - `links.set` names the symlinks of `links.folder` an apply carries (a site's pages folder; `{home}` in the folder or a target is this
+//    computer's home): they are set after the row is
 //    written, before the apply reads them, and put back as they were when the apply fails.
 //  - A failed apply puts the row back to exactly what was read, by the same compare-and-set (it changes the row only while it still
 //    is what this run wrote): the computer keeps serving what it served, so the row must keep saying so. The summary says
@@ -235,7 +236,7 @@ export async function applyARow(rawRequest, { dryRun = false }, deps) {
     ...(machine.pages_folder && { pages_folder: placed(machine.pages_folder) }),
   }, null, 1)}\n`);
 
-  const put = request.links ? setLinks(placed(request.links.folder), request.links.set) : () => {};
+  const put = request.links ? setLinks(placed(request.links.folder), Object.fromEntries(Object.entries(request.links.set).map(([name, target]) => [name, placed(target)]))) : () => {};
   const hosts = hostsOf(row).slice(0, deps.targets.probe?.max_urls ?? 6);
   const urls = hosts.length ? hosts.map(host => `https://${host}/`) : [`https://${row.address}/`];
   const probe = await deps.startProbe({ tree, urls, log: join(log, 'probe-requests.jsonl') });
