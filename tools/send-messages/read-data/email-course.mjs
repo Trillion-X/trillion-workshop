@@ -4,6 +4,7 @@
 // stores one-update consent without sending, while enrolled lessons use the contact, send and lesson-schedule targets
 // the caller hands in (do-work/keep-who-agreed.mjs gives them from the person's records and the sending tool).
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import defaults from './email-course.json' with { type: 'json' };
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TOKEN = /^[A-Za-z0-9_-]{40,100}$/;
@@ -87,12 +88,21 @@ function assertCourse(course) {
     const article = new URL(lesson.article_url, origin);
     if (article.origin !== origin.origin) throw new Error('Email course lesson link is outside this site.');
   }
+  // The stop page a lesson links to: the course's own (stop_path), else the default; one {token}, on this site.
+  const stopPath = course.stop_path ?? defaults.stop_path;
+  if (typeof stopPath !== 'string' || stopPath.split('{token}').length !== 2
+    || new URL(stopPath.replace('{token}', 'token'), origin).origin !== origin.origin) throw new Error('Email course stop link is invalid or outside this site.');
   if (typeof course.checkout_url !== 'string' || !course.checkout_url.trim()
     || new URL(course.checkout_url, origin).origin !== origin.origin) throw new Error('Email course checkout link is outside this site.');
   if (course.lessons[0].delay_hours !== 0 || typeof course.from !== 'string' || !course.from.trim()
     || typeof course.mailing_address !== 'string' || !course.mailing_address.trim()
     || typeof course.consent_text !== 'string' || !course.consent_text.trim()) throw new Error('Email course consent or sender is incomplete.');
   return origin;
+}
+
+/** The stop (unsubscribe) link of one person's lessons: the course's stop_path (else the default) under its public_origin. */
+export function stopUrl(course, token) {
+  return new URL((course.stop_path ?? defaults.stop_path).replace('{token}', encodeURIComponent(token)), course.public_origin).href;
 }
 
 function messageFor(course, lesson) {
@@ -145,7 +155,7 @@ export function createPublicEmailCourse({ readCurrent, writeBatch, invokeTarget,
     const resolved = await invokeTarget('contact-points.resolve', { account_id: state.account_id });
     const email = resolved?.address;
     if (typeof email !== 'string' || !EMAIL.test(email)) throw new Error('Subscriber email could not be resolved.');
-    const unsubscribeUrl = `${state.course.public_origin}email-course/unsubscribe?token=${encodeURIComponent(token)}`;
+    const unsubscribeUrl = stopUrl(state.course, token);
     const latest = currentPayload(await readCurrent(address));
     if (!isActive(latest) || latest.unsubscribe_token !== token) return { status: 'unsubscribed' };
     let sent;

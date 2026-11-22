@@ -1,0 +1,4 @@
+{
+  "_what": "Defaults for read-data/email-course.mjs, used only where a course names none. stop_path: the page, under the course's public_origin, that a lesson's stop (unsubscribe) link opens; {token} is the person's stop token. A site with its own stop page gives course.stop_path.",
+  "stop_path": "email-course/unsubscribe?token={token}"
+}

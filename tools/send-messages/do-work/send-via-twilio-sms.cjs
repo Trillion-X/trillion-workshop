@@ -1,7 +1,7 @@
-async function sendViaTwilioSms(input) {
-  const accountSid = process.env.TWILIO_ACCOUNT_SID;
-  const authToken = process.env.TWILIO_AUTH_TOKEN;
-  const fromNumber = process.env.TWILIO_FROM_NUMBER;
+async function sendViaTwilioSms(input, env = process.env) {
+  const accountSid = env.TWILIO_ACCOUNT_SID;
+  const authToken = env.TWILIO_AUTH_TOKEN;
+  const fromNumber = env.TWILIO_FROM_NUMBER;
 
   if (!accountSid || !authToken || !fromNumber) {
     throw new Error(
@@ -86,10 +86,7 @@ async function sendViaTwilioSms(input) {
     results.push({ recipient, messageId: parsed.sid });
   }
 
-  console.log(JSON.stringify({ sent: results }, null, 2));
-  if (results.some((result) => result.error)) {
-    process.exit(1);
-  }
+  return results;
 }
 
 async function main() {
@@ -120,11 +117,18 @@ async function main() {
   }
 
   try {
-    await sendViaTwilioSms(input);
+    const results = await sendViaTwilioSms(input);
+    console.log(JSON.stringify({ sent: results }, null, 2));
+    if (results.some((result) => result.error)) process.exit(1);
   } catch (error) {
     console.error("Error sending broadcast:", error);
     process.exit(1);
   }
 }
 
-main();
+// Run as a script (the provider's adapter process), or imported, when `send(input, env)` sends in the caller's own process
+// with the keys and settings handed in env (a site program bundled into one file cannot start this file as a process).
+if (require.main === module) {
+  main();
+}
+module.exports = { send: sendViaTwilioSms };

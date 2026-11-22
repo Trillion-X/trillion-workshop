@@ -117,6 +117,22 @@ export async function runAdapter(provider, input, env) {
   }
 }
 
+/**
+ * The run for a program that cannot start an adapter as its own process (a site bundled into one file): the caller imports
+ * the adapters it may use and hands them in by the file name a provider row names (`adapter`), and each send runs in this
+ * process through the adapter's `send(input, env)` with only the settings and keys of that send. Which provider is still the
+ * row's choice; an adapter the caller did not hand in is refused by name, never looked for on disk.
+ *   sendMessage(request, { providerId: 'resend', credentials, run: inProcess({ 'send-via-resend.cjs': resend }) })
+ */
+export function inProcess(adapters) {
+  return async (provider, input, env) => {
+    const adapter = adapters?.[provider.adapter];
+    if (typeof adapter?.send !== 'function') throw new Error(`${provider.label} needs its adapter ${provider.adapter}, which this program was not handed.`);
+    try { return { code: 0, stdout: JSON.stringify({ sent: await adapter.send(input, { ...env }) }), stderr: '' }; }
+    catch (error) { return { code: 1, stdout: '', stderr: error?.message ?? String(error) }; }
+  };
+}
+
 /** Runs one command with a time limit, argv as given (never through a shell). */
 export function runProcess(argv, timeoutMs) {
   return new Promise(done => {

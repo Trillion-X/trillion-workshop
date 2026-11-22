@@ -166,6 +166,26 @@ test('a non-receipt lesson is sent with its unsubscribe headers and copy variabl
   assert.equal(lessonSend.input.variables.mailingAddress, course.mailing_address);
 });
 
+test('a course with its own stop page links every lesson there, and a stop page with no token or on another site is refused', async () => {
+  const h = harness();
+  await h.service.enroll({ email: 'reader@example.com', consent: true, course: { ...course, stop_path: 'courses/stop/{token}?from=email' } });
+  const [lessonSend] = h.asks.filter((ask) => ask.target === 'send-email');
+  const token = [...h.records.values()].find((row) => row.kind === 'email-course-subscription').unsubscribe_token;
+  assert.equal(lessonSend.input.variables.unsubscribeUrl, `https://example.com/courses/stop/${token}?from=email`);
+  assert.equal(lessonSend.input.headers['List-Unsubscribe'], `<https://example.com/courses/stop/${token}?from=email>`);
+  for (const stop_path of ['courses/stop', 'stop/{token}/{token}', 'https://elsewhere.example/stop/{token}', '//elsewhere.example/{token}', 42]) {
+    await assert.rejects(harness().service.enroll({ email: 'reader@example.com', consent: true, course: { ...course, stop_path } }), /stop link is invalid/, String(stop_path));
+  }
+});
+
+test('a course that names no stop page keeps the default one, as before', async () => {
+  const h = harness();
+  await h.service.enroll({ email: 'reader@example.com', consent: true, course });
+  const token = [...h.records.values()].find((row) => row.kind === 'email-course-subscription').unsubscribe_token;
+  const [lessonSend] = h.asks.filter((ask) => ask.target === 'send-email');
+  assert.equal(lessonSend.input.variables.unsubscribeUrl, `https://example.com/email-course/unsubscribe?token=${token}`);
+});
+
 const receiptCourse = {
   ...course,
   lessons: [

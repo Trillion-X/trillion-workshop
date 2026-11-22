@@ -14,9 +14,9 @@
 //   and Twilio adapters so send-broadcast's output contract stays
 //   provider-agnostic.
 
-async function sendViaResend(input) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const fromAddress = process.env.EMAIL_FROM;
+async function sendViaResend(input, env = process.env) {
+  const apiKey = env.RESEND_API_KEY;
+  const fromAddress = env.EMAIL_FROM;
 
   if (!apiKey || !fromAddress) {
     throw new Error(
@@ -89,11 +89,7 @@ async function sendViaResend(input) {
     }
   }
 
-  console.log(JSON.stringify({ sent: results }, null, 2));
-  const failures = results.filter((result) => result.error);
-  if (failures.length > 0) {
-    process.exit(1);
-  }
+  return results;
 }
 
 async function main() {
@@ -126,11 +122,18 @@ async function main() {
   }
 
   try {
-    await sendViaResend(input);
+    const results = await sendViaResend(input);
+    console.log(JSON.stringify({ sent: results }, null, 2));
+    if (results.some((result) => result.error)) process.exit(1);
   } catch (error) {
     console.error("Error sending broadcast:", error);
     process.exit(1);
   }
 }
 
-main();
+// Run as a script (the provider's adapter process), or imported, when `send(input, env)` sends in the caller's own process
+// with the keys and settings handed in env (a site program bundled into one file cannot start this file as a process).
+if (require.main === module) {
+  main();
+}
+module.exports = { send: sendViaResend };

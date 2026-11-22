@@ -56,11 +56,11 @@ function sendEmailForm({ fromAddress, recipient, subject, html, text, bcc = [], 
   return form.toString();
 }
 
-async function sendViaSES(input) {
-  const region = process.env.AWS_REGION;
-  const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
-  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
-  const fromAddress = process.env.EMAIL_FROM;
+async function sendViaSES(input, env = process.env) {
+  const region = env.AWS_REGION;
+  const accessKeyId = env.AWS_ACCESS_KEY_ID;
+  const secretAccessKey = env.AWS_SECRET_ACCESS_KEY;
+  const fromAddress = env.EMAIL_FROM;
 
   if (!region || !accessKeyId || !secretAccessKey || !fromAddress) {
     throw new Error(
@@ -93,8 +93,7 @@ async function sendViaSES(input) {
     }
   }
 
-  console.log(JSON.stringify({ sent: results }, null, 2));
-  if (results.some((result) => result.error)) process.exit(1);
+  return results;
 }
 
 async function main() {
@@ -117,15 +116,18 @@ async function main() {
   }
 
   try {
-    await sendViaSES(input);
+    const results = await sendViaSES(input);
+    console.log(JSON.stringify({ sent: results }, null, 2));
+    if (results.some((result) => result.error)) process.exit(1);
   } catch (error) {
     console.error("Error sending broadcast:", error);
     process.exit(1);
   }
 }
 
+// Run as a script (the provider's adapter process), or imported, when `send(input, env)` sends in the caller's own process
+// with the keys and settings handed in env (a site program bundled into one file cannot start this file as a process).
 if (require.main === module) {
   main();
-} else {
-  module.exports = { signV4, sendEmailForm };
 }
+module.exports = { send: sendViaSES, signV4, sendEmailForm };
