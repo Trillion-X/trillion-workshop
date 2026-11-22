@@ -1,6 +1,6 @@
 ---
 name: {command}-cli
-description: See the person's AIs and their tasks, run their Workshop tools, and give a task to an AI or a person, take a task handed to you, or hand one on, with the {command} command. Use when the person asks to give a task to another AI (Claude Code, Codex, Cursor, a phone or web chat) or to a person, asks what their AIs or people are doing, or says a task is waiting for you.
+description: See the person's AIs and their tasks, run their Workshop tools, talk to any of their AIs on any of their computers, and give a task to an AI or a person, take a task handed to you, or hand one on, with the {command} command. Use when the person asks to talk to, ask or tell another AI something (Claude Code or Codex on another computer, a server, any AI they have), to give a task to another AI (Claude Code, Codex, Cursor, a phone or web chat) or to a person, asks what their AIs or people are doing, or says a task is waiting for you.
 ---
 
 # {command}
@@ -14,6 +14,7 @@ The `{command}` command reaches the person's account from any shell. Each comman
 - `{command} publish [HELD_JSON]`: your own AI record (your facts and that you were seen now) as a `keep` row; keep it in the person's own store. HELD_JSON is the value the store holds for it now.
 - `{command} tasks`: the newest tasks (`--status S`, `--from ID`, `--taken-by ID`, `--assignee ID`, `--limit N`). `{command} tasks ID` reads one; `{command} tasks ID --result` prints its whole result.
 - `{command} give WORDS` gives a task (`--to ID`, repeat for each record that may take it; none means anyone; `--title`, `--priority urgent|high|medium|low`, `--outcome "DONE WHEN"`, `--wait SECONDS` for it to finish).
+- `{command} give "WORDS" --in CHAT --to ID --wait 300` says WORDS to an AI and prints its reply, as it said it. CHAT is `claude-code:new` or `codex:new` (or any chat kind the person's runner rows name) for a new conversation, and ID is the runner of the computer it should run on (`ai:take-open-work-<computer>`, as `{command} who` shows). To go on in the same conversation, `{command} give "WORDS" --after TASK_ID --wait 300`, where TASK_ID is the turn the last reply came from: it goes to the same chat on the same computer. A reply that has not come within the wait comes later: `{command} tasks TASK_ID --result`. Pass the person's words as they said them; the AI that answers is another AI, so say whose words they are when that matters.
 - `{command} who-can-take [--can WORD] [--live]`: the people and AIs that can take a task, live first, with how many tasks each holds.
 - `{command} take [ID] [--only-mine]`: take the oldest waiting task you may take, or that one. If someone took it first you are told so; do not try again.
 - `{command} hand-on ID --to ID [--to ID]... [--because WHY]`: hand a task you hold, or gave, to whoever is named; it waits for them.
