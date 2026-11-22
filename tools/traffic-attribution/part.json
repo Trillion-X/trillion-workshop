@@ -97,7 +97,9 @@
                 "label-sales",
                 "value-sales",
                 "label-revenue_cents",
-                "value-revenue_cents"
+                "value-revenue_cents",
+                "label-visit_steps",
+                "value-visit_steps"
               ]
             },
             "source": {
@@ -250,6 +252,22 @@
               "props": {
                 "text": {
                   "$item": "revenue_cents"
+                },
+                "variant": "body"
+              }
+            },
+            "label-visit_steps": {
+              "type": "Text",
+              "props": {
+                "text": "Visits (all, including people we don't track)",
+                "variant": "label"
+              }
+            },
+            "value-visit_steps": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "visit_steps"
                 },
                 "variant": "body"
               }
@@ -385,7 +403,9 @@
                 "label-sales",
                 "value-sales",
                 "label-revenue_cents",
-                "value-revenue_cents"
+                "value-revenue_cents",
+                "label-visit_steps",
+                "value-visit_steps"
               ]
             },
             "source": {
@@ -538,6 +558,22 @@
               "props": {
                 "text": {
                   "$item": "revenue_cents"
+                },
+                "variant": "body"
+              }
+            },
+            "label-visit_steps": {
+              "type": "Text",
+              "props": {
+                "text": "Visits (all, including people we don't track)",
+                "variant": "label"
+              }
+            },
+            "value-visit_steps": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "visit_steps"
                 },
                 "variant": "body"
               }

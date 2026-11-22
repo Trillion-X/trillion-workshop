@@ -1,7 +1,12 @@
 // The funnel-by-source read: one fixed statement, its columns and rows as answered, and no connection opened without a held one.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { PGlite } from '@electric-sql/pglite';
 import { funnelBySource, FUNNEL_SQL } from '../do-work/show-funnel-by-source.mjs';
+
+const journeySql = readFileSync(resolve(import.meta.dirname, '../read-data/journey-steps.sql'), 'utf8');
 
 test('reads the view once with the fixed statement and answers its columns and rows', async () => {
   const sent = [];
@@ -24,8 +29,29 @@ test('refuses a run with no held connection before opening one', async () => {
   assert.equal(opened, false);
 });
 
-test('the statement reads the view only, with a row limit and the visitor-first order', () => {
-  assert.match(FUNNEL_SQL, /FROM funnel_by_source /);
+test('the statement reads the two views only, with a row limit and the visitor-first order', () => {
+  assert.match(FUNNEL_SQL, /FROM funnel_by_source f FULL JOIN visit_steps_by_source v ON COALESCE/);
   assert.match(FUNNEL_SQL, /LIMIT 500$/);
   assert.doesNotMatch(FUNNEL_SQL, /\*/);
+});
+
+test('visits with no kept person still count by their source; the people counts are the same as before', async () => {
+  const db = new PGlite();
+  await db.exec(journeySql);
+  await db.query("INSERT INTO journey_touches (id, destination, source) VALUES ('t1', 'https://x.example/a', $1::jsonb)", [JSON.stringify({ utm_source: 'instagram', utm_medium: 'social', utm_campaign: 'post-a' })]);
+  await db.query("INSERT INTO journey_steps (visitor, touch_id, step) VALUES (NULL, 't1', 'visit')");
+  await db.query("INSERT INTO journey_steps (visitor, touch_id, step) VALUES ('p1', 't1', 'visit')");
+  await db.query("INSERT INTO journey_steps (step, source) VALUES ('visit', $1::jsonb)", [JSON.stringify({ utm_source: 'newsletter', utm_medium: 'email', utm_campaign: 'letter' })]);
+  await db.query("INSERT INTO journey_steps (step) VALUES ('visit')");
+  const rows = (await db.query(FUNNEL_SQL)).rows;
+  const by = source => rows.find(row => row.source === source);
+  const instagram = by('instagram');
+  assert.equal(Number(instagram.visit_steps), 2, 'both instagram visits count, with or without a kept person');
+  assert.equal(Number(instagram.visitors), 2, 'the anonymous visit is keyed by its touch, as funnel_by_source has always keyed it');
+  const newsletter = by('newsletter');
+  assert.equal(Number(newsletter.visit_steps), 1, 'a visit with a source and no person still counts');
+  assert.equal(Number(newsletter.visitors), 0, 'and no person is counted for it');
+  const unknown = rows.find(row => row.source === null);
+  assert.equal(Number(unknown.visit_steps), 1, 'a visit with no source is counted under the unknown source');
+  assert.equal(Number(unknown.visitors), 0);
 });

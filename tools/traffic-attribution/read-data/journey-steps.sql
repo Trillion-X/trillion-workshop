@@ -119,3 +119,16 @@ SELECT
   sum(revenue_cents) AS revenue_cents
 FROM tagged
 GROUP BY utm_source, utm_medium, utm_campaign;
+
+-- Every visit step counted by the source it carries: the step's own UTM fields, or the tracked link's (journey_touches) when the
+-- step has none. A visit with no person (a visitor who did not consent and came without a touch) counts here and nowhere else,
+-- so a post's visits show even when no person is kept. The people counts in funnel_by_source are unchanged.
+CREATE OR REPLACE VIEW visit_steps_by_source AS
+  SELECT COALESCE(s.source->>'utm_source', t.source->>'utm_source') AS utm_source,
+         COALESCE(s.source->>'utm_medium', t.source->>'utm_medium') AS utm_medium,
+         COALESCE(s.source->>'utm_campaign', t.source->>'utm_campaign') AS utm_campaign,
+         count(*) AS visit_steps
+    FROM journey_steps s
+    LEFT JOIN journey_touches t ON t.id = s.touch_id
+   WHERE s.step = 'visit'
+   GROUP BY 1, 2, 3;
