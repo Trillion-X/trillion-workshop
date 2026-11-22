@@ -23,6 +23,7 @@
 pub mod answer_shape;
 mod approval;
 pub mod fill_input;
+pub mod uses;
 
 use std::sync::Arc;
 
@@ -133,7 +134,9 @@ pub async fn run_definition_with_started_at<H: Host + 'static>(definitions: Vec<
         store.insert_definition(definition);
     }
     let definition = chosen.ok_or_else(|| format!("There is no definition {id} among those given."))?;
-    let executor = AsyncWorkflowExecutor::new(partition, slot_protocol::PartitionKey::hash_from(partition), Arc::new(Access(host)), store, product_word);
+    // Every workflow a step asked for and did not find is answered as `definitions_missed`, so the starter can read it.
+    let noted = Arc::new(uses::Noted::new(store));
+    let executor = AsyncWorkflowExecutor::new(partition, slot_protocol::PartitionKey::hash_from(partition), Arc::new(Access(host)), noted.clone(), product_word);
     let start = StartData { start_type: "host".into(), input, started_at: started_at.to_string(), start_id: None };
     let run = executor
         .execute_definition(definition, start, slot_protocol::ActorContext::new(partition), &RetryPolicy::default())
@@ -142,6 +145,8 @@ pub async fn run_definition_with_started_at<H: Host + 'static>(definitions: Vec<
     let runtime_outputs = serde_json::to_value(&run.execution_context.runtime_outputs).map_err(|error| error.to_string())?;
     let mut value = serde_json::to_value(run).map_err(|error| error.to_string())?;
     value["runtime_outputs"] = runtime_outputs;
+    let missed = noted.missed();
+    if !missed.is_empty() { value["definitions_missed"] = serde_json::json!(missed); }
     Ok(value)
 }
 

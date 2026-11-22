@@ -112,6 +112,21 @@ use crate::loader::load_definition_by_id_shared;
 /// every site. A genuine miss (the closure walk could not reach the record, or
 /// the record does not exist) returns `None` → the caller reports the ordinary
 /// `DefinitionNotFound`, exactly as a non-slot/library embed would.
+/// Where a run looks for a workflow a step names, said in every refusal: everything the run was handed is in its
+/// definition store (the running workflow's own uses and each enclosing workflow's uses, at any depth, and the person's
+/// workflow rows its starter read for it).
+const LOOKED_IN: &str = "looked in the running workflow's own uses, each enclosing workflow's uses, and the person's workflow \
+    rows its starter read for this run";
+const LOOK_HINT: &str = "Keep it in a uses of a workflow the run reaches, or as a workflow row the run's starter reads (the \
+    workflow component's read_definition with uses_ids_at and uses_at; wf start reads the person's own stores)";
+
+/// Whether a dynamically chosen workflow is one a step's `definition_refs` admits: named exactly, or of a family the
+/// step names as an id prefix ending in `*` (`workflow:write-cold-emails-*`).
+fn admitted<S: AsRef<str>>(refs: &[S], definition_id: &str) -> bool {
+    refs.iter().map(AsRef::as_ref).any(|candidate| candidate == definition_id
+        || candidate.strip_suffix('*').is_some_and(|family| !family.is_empty() && definition_id.starts_with(family)))
+}
+
 fn resolve_sub_definition(
     deps: &ExecutorDeps,
     definition_id: &str,
@@ -1489,8 +1504,10 @@ async fn execute_action_step(
 
     // Dynamic selection cannot escape the closure the owning slot pre-hydrated.
     // The candidate list is DATA, so adding a new publication/output/action
-    // mode remains a record change rather than a code branch.
-    if step.definition_id().is_none() && !step.definition_refs().contains(&definition_id) {
+    // mode remains a record change rather than a code branch; a candidate ending
+    // in `*` admits every workflow whose id starts with the rest (a family), so a
+    // new member is added by its row alone.
+    if step.definition_id().is_none() && !admitted(&step.definition_refs(), definition_id) {
         return Err(WorkflowError::InvalidStep {
             step_id: step_id.clone(),
             reason: format!(
@@ -1507,10 +1524,10 @@ async fn execute_action_step(
         WorkflowError::DefinitionNotFound {
             definition_id: definition_id.to_string(),
             reason: format!(
-                "Definition '{}' referenced by step '{}' not found in partition '{}'",
-                definition_id, step_id, deps.partition_key
+                "Definition '{}' referenced by step '{}' was not found: {}",
+                definition_id, step_id, LOOKED_IN
             ),
-            hint: "Verify the definition_id exists in the target partition".to_string(),
+            hint: LOOK_HINT.to_string(),
         }
     })?;
 
@@ -2218,7 +2235,7 @@ async fn execute_action_step_inner(
             hint: "Set definition_id to a literal or an admitted binding-selected definition"
                 .to_string(),
         })?;
-    if step.definition_id().is_none() && !step.definition_refs().contains(&definition_id) {
+    if step.definition_id().is_none() && !admitted(&step.definition_refs(), definition_id) {
         return Err(WorkflowError::InvalidStep {
             step_id: iter_step_id.to_string(),
             reason: format!(
@@ -2233,11 +2250,10 @@ async fn execute_action_step_inner(
         WorkflowError::DefinitionNotFound {
             definition_id: definition_id.to_string(),
             reason: format!(
-                "Definition '{}' referenced by loop/parallel iteration '{}' not found",
-                definition_id, iter_step_id
+                "Definition '{}' referenced by loop/parallel iteration '{}' was not found: {}",
+                definition_id, iter_step_id, LOOKED_IN
             ),
-            hint: "Verify the definition_id exists in the partition and has not been deleted"
-                .to_string(),
+            hint: LOOK_HINT.to_string(),
         }
     })?;
 
@@ -3296,6 +3312,56 @@ mod tests {
             !instance.execution_context.steps.contains_key("return"),
             "an unadmitted definition must never execute"
         );
+    }
+
+    // A step may admit a family of workflows (`prefix*`), so a new member is added by its row alone; an id outside
+    // the family is still refused and never runs.
+    #[tokio::test]
+    async fn data_selected_action_admits_a_member_of_a_named_family_only() {
+        let mut store = TestDefinitionStore::new();
+        store.register(make_action(
+            "action:method-new",
+            vec![Step::return_value(json!({"selected": "new"})).with_id("return")],
+        ));
+        store.register(make_action(
+            "action:other",
+            vec![Step::return_value(json!({"escaped": true})).with_id("escaped")],
+        ));
+        let dynamic_step: Step = serde_json::from_value(json!({
+            "id": "publish",
+            "kind": "action",
+            "config": {
+                "definition_id": {
+                    "$kind": "binding",
+                    "select": {"from": "input", "path": "publication_action"}
+                },
+                "definition_refs": ["action:method-*"],
+                "inputs": {}
+            }
+        }))
+        .expect("DATA-selected action step should deserialize");
+        store.register(make_workflow("wf:family", vec![dynamic_step]));
+        let executor = make_executor_with_store(store);
+        let run = |chosen: &str| StartData {
+            start_type: "test_event".to_string(),
+            input: json!({"publication_action": chosen}),
+            started_at: "1234567890".to_string(),
+            start_id: Some(format!("evt-family-{chosen}")),
+        };
+        let member = executor
+            .execute_workflow("wf:family", run("action:method-new"), make_actor(), &RetryPolicy::default())
+            .await
+            .expect("a member of the family runs");
+        assert_eq!(member.status, ExecutionStatus::Completed);
+        assert_eq!(member.execution_context.steps["publish"].output, json!({"selected": "new"}));
+        let outside = executor
+            .execute_workflow("wf:family", run("action:other"), make_actor(), &RetryPolicy::default())
+            .await
+            .expect("workflow failures are returned as failed instances");
+        assert_eq!(outside.status, ExecutionStatus::Failed);
+        assert!(outside.error_message.as_deref().is_some_and(|message| message.contains("outside definition_refs")));
+        assert!(!outside.execution_context.steps.contains_key("escaped"));
+        assert!(admitted(&["workflow:a"], "workflow:a") && !admitted(&["*"], "workflow:a"), "a bare * admits nothing");
     }
 
     #[tokio::test]

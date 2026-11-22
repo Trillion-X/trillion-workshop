@@ -129,8 +129,9 @@ fn effect_of(waiting: &Value, told: Value, doors: &BTreeSet<String>, workflow: &
 
 /// The fields of a run that are the run's own, not the workflow's input.
 /// `fill_input` is the reader of what a bare start leaves out (workflow_engine::fill_input), and `filled_from` what it filled.
-const KEPT: [&str; 14] = ["row", "definition", "definitions", "answers", "start_at", "started_at", "run", "refused", "recipe",
-    "read_definition", "definition_may_move", "started_by", "fill_input", "filled_from"];
+/// `uses_missing` lists the workflows the run names that no `uses` holds, which its reader reads too.
+const KEPT: [&str; 15] = ["row", "definition", "definitions", "answers", "start_at", "started_at", "run", "refused", "recipe",
+    "read_definition", "definition_may_move", "started_by", "fill_input", "filled_from", "uses_missing"];
 
 /// The step a definition is read under when its reader names none.
 const READ_STEP: &str = "read-definition";
@@ -215,11 +216,14 @@ fn set_at(value: &mut Value, path: &str, put: Value) {
     }
 }
 
-/// The ask the reader is handed: its input with the recipe id at `recipe_at`, and each of the run's values its `with` names
-/// ({path in the reader's input: dotted path in the run}, such as the chosen condition or the run's id) set where it says.
+/// The ask the reader is handed: its input with the recipe id at `recipe_at`, the workflows the run names that no `uses`
+/// holds at `uses_ids_at` (the run's `uses_missing`, empty until the definition is first read), and each of the run's
+/// values its `with` names ({path in the reader's input: dotted path in the run}, such as the chosen condition or the
+/// run's id) set where it says.
 fn reader_ask(reader: &Value, recipe: &str, run: &Map<String, Value>) -> Value {
     let mut input = reader.get("input").cloned().unwrap_or(json!({}));
     if let Some(path) = reader["recipe_at"].as_str() { set_at(&mut input, path, json!(recipe)); }
+    if let Some(path) = reader["uses_ids_at"].as_str() { set_at(&mut input, path, run.get("uses_missing").cloned().unwrap_or(json!([]))); }
     let run = Value::Object(run.clone());
     for (to, from) in reader["with"].as_object().into_iter().flatten() {
         let value = from.as_str().and_then(|from| at_path(&run, from)).cloned().unwrap_or(Value::Null);
@@ -421,10 +425,71 @@ fn definitions_of(run: &Map<String, Value>) -> Vec<Value> {
           `read_definition` (the reader of the row the person keeps it in); a wake's switch gives them as its input")
 }
 
+/// The workflow and every workflow in its `uses` at any depth (workflow_engine::uses), so a body kept in a sub-workflow's
+/// own uses is found; one id with two definitions fails the run naming both places.
 fn with_used(definition: Value) -> Vec<Value> {
-    let mut all = vec![definition.clone()];
-    all.extend(definition["uses"].as_array().cloned().unwrap_or_default());
-    all
+    workflow_engine::uses::with_uses(definition).unwrap_or_else(|why| fail(why))
+}
+
+/// The workflows the reader's answer holds besides the run's own (rows at `uses_at`, each its id at `uses_id_at`, default
+/// `recipe`, and its definition at `uses_definition_at`, default `definition`), each held to the run's pin as its
+/// definition is (`held`: the pins of the uses read before): a later read that differs fails the run unless it says
+/// `definition_may_move`. Their pins are added to the reader step's held answer.
+fn read_uses(run: &mut Map<String, Value>, step: &str, answer: &Value, held: &Value) -> Result<Vec<Value>, String> {
+    let reader = run.get("read_definition").cloned().unwrap_or(Value::Null);
+    let Some(rows) = reader["uses_at"].as_str().and_then(|path| at_path(answer, path)).and_then(Value::as_array).cloned() else { return Ok(vec![]) };
+    let id_at = reader["uses_id_at"].as_str().unwrap_or("recipe");
+    let definition_at = reader["uses_definition_at"].as_str().unwrap_or("definition");
+    let may_move = run.get("definition_may_move") == Some(&Value::Bool(true));
+    let mut read = vec![];
+    let mut pins = Map::new();
+    for row in rows {
+        let (Some(id), Some(definition)) = (at_path(&row, id_at).and_then(Value::as_str), at_path(&row, definition_at).filter(|d| d.is_object())) else { continue };
+        let mut definition = definition.clone();
+        if definition.get("id").is_none() { definition["id"] = json!(id); }
+        let pin = blake3::hash(definition.to_string().as_bytes()).to_hex().to_string();
+        if let Some(before) = held.get(id).and_then(Value::as_str).filter(|before| *before != pin && !may_move) {
+            return Err(format!("the workflow {id} that this run uses changed while it ran: it started on {before} and reads {pin} now"));
+        }
+        pins.insert(id.to_string(), json!(pin));
+        read.push(definition);
+    }
+    if let Some(answers) = run.get_mut("answers").and_then(|answers| answers.get_mut(step)) { answers["uses"] = Value::Object(pins); }
+    Ok(read)
+}
+
+/// The definitions a read run walks: the one its reader answered (held to its pin), every workflow in its uses at any
+/// depth, and the workflows the run names that no uses holds, read from the person's rows by the same reader in the same
+/// ask. None when the answer shows workflows not yet asked for: the run then names them (`uses_missing`) and its reader is
+/// asked again with them. A workflow no place holds is left to the step that names it, which fails naming where it looked.
+fn read_definitions(run: &mut Map<String, Value>, recipe: &str, step: &str, answer: &Value) -> Result<Option<Vec<Value>>, String> {
+    let held_uses = run.get("answers").and_then(|answers| answers.get(step)).map(|held| held["uses"].clone()).unwrap_or(Value::Null);
+    let mut definition = pinned_definition(run, recipe, step, answer)?;
+    let read = read_uses(run, step, answer, &held_uses)?;
+    let own: BTreeSet<String> = workflow_engine::uses::with_uses(definition.clone())?.iter().filter_map(|d| d["id"].as_str().map(str::to_owned)).collect();
+    if !definition["uses"].is_array() { definition["uses"] = json!([]); }
+    for used in read.into_iter().filter(|d| !d["id"].as_str().is_some_and(|id| own.contains(id))) {
+        definition["uses"].as_array_mut().unwrap().push(used);
+    }
+    let all = workflow_engine::uses::with_uses(definition)?;
+    let asked: BTreeSet<String> = run.get("uses_missing").and_then(Value::as_array).into_iter().flatten().filter_map(Value::as_str).map(str::to_owned).collect();
+    let missing = workflow_engine::uses::missing(&all);
+    if run.get("read_definition").is_some_and(|reader| reader["uses_ids_at"].is_string()) && !missing.is_subset(&asked) {
+        run.insert("uses_missing".into(), json!(asked.union(&missing).collect::<Vec<_>>()));
+        return Ok(None);
+    }
+    Ok(Some(all))
+}
+
+/// Whether a failed walk missed workflows (the engine's `definitions_missed`) that the run's reader has not been asked for
+/// yet and can read (`uses_ids_at`): they are added to `uses_missing`, so the next ask reads them with the definition.
+fn missed_to_read(run: &mut Map<String, Value>, walked: &Value) -> bool {
+    let readable = recipe_of(run).is_some() && run.get("read_definition").is_some_and(|reader| reader["uses_ids_at"].is_string());
+    let missed: BTreeSet<String> = walked["definitions_missed"].as_array().into_iter().flatten().filter_map(Value::as_str).map(str::to_owned).collect();
+    let asked: BTreeSet<String> = run.get("uses_missing").and_then(Value::as_array).into_iter().flatten().filter_map(Value::as_str).map(str::to_owned).collect();
+    if !readable || missed.is_subset(&asked) { return false; }
+    run.insert("uses_missing".into(), json!(asked.union(&missed).collect::<Vec<_>>()));
+    true
 }
 
 /// A definition started at a later step (`start_at`) is the part of it reachable from that step.
@@ -473,7 +538,15 @@ fn main() {
                     println!("{}", json!({ "result": { "status": "skipped", "why": why, "workflow": recipe, "run": run_id, "steps": {} } }));
                     return;
                 }
-                Some(answer) => with_used(pinned_definition(&mut run, &recipe, &step, &answer).unwrap_or_else(|why| fail(why))),
+                Some(answer) => match read_definitions(&mut run, &recipe, &step, &answer).unwrap_or_else(|why| fail(why)) {
+                    Some(all) => all,
+                    None => {
+                        let reader = run["read_definition"].clone();
+                        let tool = reader["tool"].as_str().unwrap_or_default().to_string();
+                        hand_out(&run, &recipe, &step, &tool, reader_ask(&reader, &recipe, &run));
+                        return;
+                    }
+                },
                 None => {
                     // Nothing walks until the definition is read: the reader is the one step handed out this pass.
                     let reader = run["read_definition"].clone();
@@ -532,6 +605,16 @@ fn main() {
     if let Some(filled) = run.get("filled_from") { result["filled_from"] = filled.clone(); }
     // A walk that failed is a failed run: it ends with exit 1 and the engine's words, so the wake that started it is
     // marked failed (and tells its failed fact) instead of ran, and whoever waits on its told answer hears the failure.
+    // A walk that failed on a workflow a step chose at run time and nothing held (a family member added by its row) reads
+    // it with the definition, by the same reader, and walks again from the held answers, instead of failing.
+    if walked["status"] == "failed" && missed_to_read(&mut run, &walked) {
+        let recipe = recipe_of(&run).unwrap_or_else(|| id.clone());
+        let reader = run["read_definition"].clone();
+        let tool = reader["tool"].as_str().unwrap_or_default().to_string();
+        let step = reader_step(&run).unwrap_or_else(|| READ_STEP.to_string());
+        hand_out(&run, &recipe, &step, &tool, reader_ask(&reader, &recipe, &run));
+        return;
+    }
     if walked["status"] == "failed" {
         let why = walked["error_message"].as_str().unwrap_or("the workflow failed");
         println!("{}", json!({ "error": format!("{id}: {why}"), "result": result }));
@@ -897,5 +980,97 @@ mod tests {
         let refused = BTreeMap::from([(workflow_engine::fill_input::STEP.to_string(), "tool:reader failed (no table)".to_string())]);
         let why = pending_fill(&run, &refused, &json!({ "account_id": "acct-1" })).unwrap_err();
         assert!(why.contains("not filled") && why.contains("no table"), "{why}");
+    }
+
+    // A body kept in a sub-workflow's own uses is among the definitions the run walks.
+    #[test]
+    fn a_body_in_a_sub_workflows_uses_is_found() {
+        let mut sub = json!({ "id": "workflow:sub", "name": "sub", "kind": "workflow", "is_active": true, "version": 1, "edges": [],
+            "steps": [{ "id": "each", "kind": "loop", "config": { "definition_id": "workflow:body", "source": [], "item_var": "x" } }],
+            "uses": [one_step("workflow:body", "tool:x")] });
+        sub["uses"][0]["name"] = json!("body");
+        let mut top = one_step("workflow:top", "tool:y");
+        top["uses"] = json!([sub]);
+        let given = json!({ "input": { "definition": top }, "cause": { "key": "k" }, "context": {} });
+        let (run, _) = the_run(&given);
+        let ids: Vec<String> = definitions_of(&run).iter().map(|d| d["id"].as_str().unwrap().to_string()).collect();
+        assert_eq!(ids, ["workflow:top", "workflow:sub", "workflow:body"]);
+    }
+
+    fn uses_reader() -> Value {
+        let mut reader = reader();
+        reader["input"]["sql"] = json!("select recipe, definition, kept_at from workflow_recipes where recipe = $1 or recipe = any($2)");
+        reader["uses_ids_at"] = json!("params.1");
+        reader["uses_at"] = json!("rows");
+        reader
+    }
+
+    // A workflow the run names that no uses holds (one chosen by a row) is read by the same reader, in the same ask as
+    // the definition, once the first read shows it is needed; it is held to the run's pin like the definition.
+    #[test]
+    fn a_workflow_named_by_a_row_is_read_with_the_definition() {
+        let mut top = one_step("workflow:top", "tool:y");
+        top["steps"] = json!([{ "id": "pick", "kind": "action", "config": { "definition_id": "workflow:by-a-row" } }]);
+        let mut run = json!({ "recipe": "workflow:top", "read_definition": uses_reader(), "input": {}, "answers": {} }).as_object().unwrap().clone();
+        assert_eq!(reader_ask(&run["read_definition"].clone(), "workflow:top", &run)["params"], json!(["workflow:top", []]));
+        let first = json!({ "rows": [{ "recipe": "workflow:top", "definition": top, "kept_at": "v1" }] });
+        assert!(read_definitions(&mut run, "workflow:top", READ_STEP, &first).unwrap().is_none(), "asked again, naming it");
+        assert_eq!(run["uses_missing"], json!(["workflow:by-a-row"]));
+        assert_eq!(reader_ask(&run["read_definition"].clone(), "workflow:top", &run)["params"], json!(["workflow:top", ["workflow:by-a-row"]]));
+        let mut second = first.clone();
+        second["rows"].as_array_mut().unwrap().push(json!({ "recipe": "workflow:by-a-row", "definition": one_step("workflow:by-a-row", "tool:z"), "kept_at": "v1" }));
+        let all = read_definitions(&mut run, "workflow:top", READ_STEP, &second).unwrap().expect("walks now");
+        let ids: Vec<&str> = all.iter().map(|d| d["id"].as_str().unwrap()).collect();
+        assert_eq!(ids, ["workflow:top", "workflow:by-a-row"]);
+        assert_eq!(run["answers"][READ_STEP]["uses"]["workflow:by-a-row"].as_str().unwrap().len(), 64);
+        let mut changed = second.clone();
+        changed["rows"][1]["definition"] = one_step("workflow:by-a-row", "tool:other");
+        let why = read_definitions(&mut run, "workflow:top", READ_STEP, &changed).unwrap_err();
+        assert!(why.contains("workflow:by-a-row") && why.contains("changed"), "{why}");
+    }
+
+    // A workflow chosen at run time from a family the step admits (`prefix*`) and held by no uses is read by the reader
+    // once (the walk notes it as missed), then the run walks with it.
+    #[test]
+    fn a_family_member_added_by_a_row_is_read_when_chosen() {
+        let mut top = one_step("workflow:top", "tool:y");
+        top["steps"] = json!([{ "id": "each", "kind": "loop", "config": { "source": { "$kind": "binding", "select": { "from": "input", "path": "methods" } },
+            "item_var": "method", "definition_id": { "$kind": "binding", "select": { "from": "loop", "path": "method" } }, "definition_refs": ["workflow:method-*"] } }]);
+        let mut run = json!({ "recipe": "workflow:top", "read_definition": uses_reader(), "input": { "methods": ["workflow:method-new"] }, "answers": {} }).as_object().unwrap().clone();
+        let walk = |all: Vec<Value>, run: &Map<String, Value>| {
+            let definitions: Vec<workflow_core::Definition> = all.into_iter().map(|d| serde_json::from_value(d).unwrap()).collect();
+            futures::executor::block_on(workflow_engine::run_definition_with_started_at(
+                definitions, "workflow:top", run["input"].clone(), "someone", "workflow", "2026-11-21T00:00:00Z", held())).unwrap()
+        };
+        let first = json!({ "rows": [{ "recipe": "workflow:top", "definition": top, "kept_at": "v1" }] });
+        let all = read_definitions(&mut run, "workflow:top", READ_STEP, &first).unwrap().expect("no literal id is missing");
+        let walked = walk(all, &run);
+        assert_eq!(walked["definitions_missed"], json!(["workflow:method-new"]), "{walked}");
+        assert!(missed_to_read(&mut run, &walked), "read it");
+        assert_eq!(run["uses_missing"], json!(["workflow:method-new"]));
+        assert!(!missed_to_read(&mut run, &walked), "asked once, never again");
+        let mut second = first.clone();
+        second["rows"].as_array_mut().unwrap().push(json!({ "recipe": "workflow:method-new", "definition": one_step("workflow:method-new", "tool:z"), "kept_at": "v1" }));
+        let all = read_definitions(&mut run, "workflow:top", READ_STEP, &second).unwrap().expect("walks");
+        let walked = walk(all, &run);
+        assert_ne!(walked["status"], "failed", "{walked}");
+        assert!(walked.get("definitions_missed").is_none());
+    }
+
+    // A workflow no place holds is not asked for forever: once asked for and still missing, the run walks and the step that
+    // names it fails, naming where the engine looked.
+    #[test]
+    fn a_workflow_no_place_holds_fails_its_step_naming_where_it_looked() {
+        let mut top = one_step("workflow:top", "tool:y");
+        top["steps"] = json!([{ "id": "pick", "kind": "action", "config": { "definition_id": "workflow:nowhere" } }]);
+        let mut run = json!({ "recipe": "workflow:top", "read_definition": uses_reader(), "input": {}, "answers": {}, "uses_missing": ["workflow:nowhere"] }).as_object().unwrap().clone();
+        let answer = json!({ "rows": [{ "recipe": "workflow:top", "definition": top, "kept_at": "v1" }] });
+        let all = read_definitions(&mut run, "workflow:top", READ_STEP, &answer).unwrap().expect("walks");
+        let definitions: Vec<workflow_core::Definition> = all.into_iter().map(|d| serde_json::from_value(d).unwrap()).collect();
+        let walked = futures::executor::block_on(workflow_engine::run_definition_with_started_at(
+            definitions, "workflow:top", json!({}), "someone", "workflow", "2026-11-21T00:00:00Z", held())).unwrap();
+        assert_eq!(walked["status"], "failed", "{walked}");
+        let why = walked["error_message"].as_str().unwrap_or_default();
+        assert!(why.contains("workflow:nowhere") && why.contains("uses") && why.contains("rows"), "{why}");
     }
 }
