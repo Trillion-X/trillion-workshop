@@ -33,6 +33,17 @@ const PROTOCOL = '2025-06-18';
 const READ_RETRIES = 5;
 const FIRST_WAIT_MS = 200;
 const MAX_WAIT_MS = 30_000;
+// A Files call the store said it could not answer (its byte or record store did not answer, or the store is not open yet) is
+// asked again, at most READ_RETRIES times, waiting STORE_FIRST_WAIT_MS and then twice as long each time up to MAX_WAIT_MS,
+// when asking again writes nothing twice: a read, or a step of a write whose upload id is its own (a start asked again answers
+// the same upload, a piece at an offset already taken is answered only for the same bytes, a finish answers the finished
+// file). Any other call keeps its refusal. Nov 21 2026, 5:32-5:39 PM CST: three publish_site runs were refused
+// namespace_source_unavailable while the store's writes came back minutes later, and a run sent again at 5:46 published.
+const STORE_UNANSWERED = new Set(['namespace_source_unavailable', 'namespace_unavailable']);
+const ASKED_AGAIN_SAFELY = new Set(['list_files', 'find_file', 'show_file', 'read_file', 'read_file_span', 'find_names', 'bounds',
+  'search', 'recent_files', 'read_file_results', 'read_file_result_fields', 'read_file_results_many', 'list_file_results',
+  'write_file_start', 'write_file_piece', 'write_file_finish', 'write_file_cancel']);
+const STORE_FIRST_WAIT_MS = 1_000;
 const READ_BYTES = 4 * 1024 * 1024;
 const MOST_BYTES = 512 * 1024 * 1024;
 const NOT_STARTED_CODES = ['computer_action_refused', 'current_workspace_rights_refused', 'original_input_refused', 'capability_gone'];
@@ -208,9 +219,16 @@ export function openHostActions({ descriptor = 3, fetchImpl = fetch, wait = ms =
     const tool = current().files_resource;
     if (typeof tool !== 'string' || !tool) throw new HostActionError('no_files', 'This run was not handed a files right.', 'not_started');
     const address = current().tools_resource ?? WORKSHOP_TOOLS;
-    const answer = await ask(current(), fetchImpl, wait,
-      { address, method: 'tools:run', input: { tool, [SESSION_CALL]: { name: method, arguments: input } }, retry: true });
-    return resultOfCall(answer, method);
+    for (let attempt = 0; ; attempt += 1) {
+      const answer = await ask(current(), fetchImpl, wait,
+        { address, method: 'tools:run', input: { tool, [SESSION_CALL]: { name: method, arguments: input } }, retry: true });
+      try {
+        return resultOfCall(answer, method);
+      } catch (error) {
+        if (!STORE_UNANSWERED.has(error.code) || !ASKED_AGAIN_SAFELY.has(method) || attempt >= READ_RETRIES) throw error;
+        await wait(Math.min(STORE_FIRST_WAIT_MS * 2 ** attempt, MAX_WAIT_MS));
+      }
+    }
   };
   return {
     // One operation on the person's Files through the run's files right (find_file, read_file, write_file_start ...).

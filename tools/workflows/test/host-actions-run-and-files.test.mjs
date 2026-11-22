@@ -102,3 +102,21 @@ test('a file above the piece bound with no raw-piece road is refused before anyt
   await assert.rejects(writeWholeFile(host, 'big.bin', Buffer.alloc(LARGE_FILE.threshold_bytes + 1)), { code: 'large_file_route_unavailable' });
   assert.equal(sent.length, 0);
 });
+
+test('a Files call the store could not answer is asked again when that writes nothing twice; any other call keeps its refusal', async () => {
+  let refusals = 2;
+  const unanswered = { code: 'namespace_source_unavailable', outcome: 'unknown' };
+  const side = nativeSide(args => {
+    const refuse = refusals > 0 ? (refusals -= 1, true) : false;
+    return { structuredContent: { tool: 'tool:synthetic-files', result: refuse ? { isError: true, structuredContent: unanswered } : { isError: false, structuredContent: { upload_id: 'u', state: 'open', next_offset: 0, call: args.input.call.name } } } };
+  });
+  const host = openHostActions({ descriptor: descriptorWith({ files_resource: 'tool:synthetic-files' }), wait: noWait, fetchImpl: side.fetchImpl });
+  assert.deepEqual(await host.files('write_file_start', { upload_id: 'u', name: '/a' }), { upload_id: 'u', state: 'open', next_offset: 0, call: 'write_file_start' });
+  assert.equal(side.sent.length, 3, 'two refusals asked again, then answered');
+  const moving = nativeSide(() => ({ structuredContent: { tool: 'tool:synthetic-files', result: { isError: true, structuredContent: unanswered } } }));
+  const mover = openHostActions({ descriptor: descriptorWith({ files_resource: 'tool:synthetic-files' }), wait: noWait, fetchImpl: moving.fetchImpl });
+  await assert.rejects(mover.files('move_names', { from: '/a', to: '/b' }), { code: 'namespace_source_unavailable' });
+  assert.equal(moving.sent.length, 1, 'a move is asked once');
+  await assert.rejects(mover.files('read_file', { name_or_identity: '/a' }), { code: 'namespace_source_unavailable' });
+  assert.equal(moving.sent.length, 1 + 6, 'a read is asked at most six times in all');
+});
