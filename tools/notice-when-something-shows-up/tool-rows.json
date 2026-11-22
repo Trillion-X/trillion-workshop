@@ -235,6 +235,10 @@
             "credential_name": {
               "type": "string",
               "description": "The vault name of what the waiters read with, when one credential serves them all, handed to the run on descriptor 4: a database connection a row-changes waiter reads, a key a service-lists waiter asks a service's list with, or a signing secret a signed-service-calls waiter checks calls with. Only that credential's hosts are reached. A waiter that names its own credential_name reads with that one instead, held on descriptor 5 plus its place in waiters, so one run watches many places, each with its own credential."
+            },
+            "conditions_from": {
+              "type": "string",
+              "description": "The vault name of the database whose workflow_recipes rows hold the conditions workflow:route-each-row-change judges (its switch's own.credential_name). A row-changes waiter that reads that database tells a change only when some wake that hears its kind has a match the change meets, or some workflow's fires_when condition (that database's rows, or an installed recipe's) could keep it, judged by tool:choose-the-workflows-that-fire; a change no one could take passes without a fact and stays in the change table for a replay. A condition that cannot be judged keeps every change told and is named. Left out, or naming another database, every change is told."
             }
           },
           "required": [
@@ -273,6 +277,25 @@
                   "do-work/through-the-run-proxy.mjs"
                 ],
                 "at": "/opt/run-sql-in-my-database"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "read-data/choose-the-workflows-that-fire.mjs",
+                  "read-data/public-recipes.mjs",
+                  "read-data/fires-when.mjs",
+                  "recipes",
+                  "branches"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes/formula-engine"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
                 "packages": [
@@ -435,7 +458,8 @@
                 "at": "@own-records",
                 "id": "something-changed",
                 "operations": [
-                  "wake:arrive"
+                  "wake:arrive",
+                  "wake:list"
                 ]
               }
             ]

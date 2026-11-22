@@ -33574,6 +33574,25 @@
    "at": "/opt/run-sql-in-my-database"
   },
   {
+   "package": "workflows",
+   "paths": [
+    "read-data/choose-the-workflows-that-fire.mjs",
+    "read-data/public-recipes.mjs",
+    "read-data/fires-when.mjs",
+    "recipes",
+    "branches"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
    "packages": [
     "node_modules/@noble/hashes"
    ],
@@ -33675,6 +33694,14 @@
     "computer/connections/whatsapp.mjs"
    ],
    "at": "/opt/bring-in-new-items-from-this-computer"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+   ],
+   "at": "/opt/formula-engine"
   },
   {
    "package": "run-on-a-persons-computer",

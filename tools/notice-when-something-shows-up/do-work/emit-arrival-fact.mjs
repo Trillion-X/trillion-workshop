@@ -521,6 +521,9 @@ export async function runResidentEmitter({
   // The run's one credential's vault name, null when the run was given none; left out by a caller that does not know
   // (the retired shell host), whose mechanisms read as before.
   connection = undefined,
+  // The vault name of the database whose workflow rows hold the conditions the router judges (the run's input
+  // conditions_from), null when the run names none: a mechanism that reads that database tells only what could be taken.
+  conditionsFrom = null,
 } = {}) {
   const waiterPathLabels = (env.BITFIELD_ARRIVAL_WAITER_PATH
     || "packages,notice-when-something-shows-up,waiter-descriptor")
@@ -558,6 +561,7 @@ export async function runResidentEmitter({
       signal,
       nowMs,
       connection,
+      conditionsFrom,
       onWriteOutcome(ok) {
         if (ok) consecutiveFailures = 0;
         else consecutiveFailures += 1;
@@ -630,7 +634,7 @@ async function recordRefusal(carrier, row, error, nowMs) {
 const ROOM_FULL_FIRST_WAIT_MS = 1000;
 const ROOM_FULL_MOST_WAIT_MS = 60_000;
 
-async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, connection: runs }) {
+async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, connection: runs, conditionsFrom = null }) {
   /** Full-door refusals in a row for this waiter (`ROOM_FULL_FIRST_WAIT_MS`). */
   let roomFullWaits = 0;
   const { declared, mechanism } = resolved;
@@ -683,6 +687,13 @@ async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, c
     folder: carrier.folderFor ? carrier.folderFor(declared.waiter_ref) : null,
     // Which switched-on wakes hear a kind of fact, as the engine lists them (a carrier over the engine's door).
     listening: (kind) => (carrier.listening ? carrier.listening(kind) : Promise.resolve([])),
+    // Every wake that hears a kind, on or off, as the engine lists them; null when this carrier cannot list them, so a
+    // mechanism that tells only what some wake could hear tells everything.
+    hearing: (kind) => (carrier.hearing ? carrier.hearing(kind) : Promise.resolve(null)),
+    // The kind this waiter's facts are told as, the vault name they name as `where`, and the run's conditions_from.
+    kind: emitted.change_kind,
+    where: connection ?? declared.where ?? null,
+    conditionsFrom,
     // A mechanism that cannot see what it watches (changes held back by a transaction it cannot end) says so here: told
     // once under its own event key, at an address of its own, so the waiter's kept place and sequence are not touched.
     async onTrouble(trouble) {

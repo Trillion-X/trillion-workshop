@@ -46,6 +46,20 @@
  *     This leaf is one way a Postgres database tells its changes, one transport
  *     among many: nothing shared names it, and another store tells its changes
  *     its own way (workflow:tell-me-when-something-changes).
+ *   - A change no one could take is not told, when the run names where the workflow rows are kept (the switch's
+ *     conditions_from, the vault name of the database this waiter reads): it is told only when some wake that hears
+ *     the waiter's kind has a match its fact meets (wake:list, every wake, on or off), or some workflow's condition
+ *     could keep its part, judged by tool:choose-the-workflows-that-fire itself over the part
+ *     workflow:route-each-row-change makes ({where, place, change, before, after, kinds}) with the workflow rows of
+ *     this database and the installed recipes (each judged alone too, as the router judges an installed recipe whose
+ *     row it left in the store). A wake with no match is a router, whose choice is those conditions. A condition the
+ *     chooser cannot judge (no tree, an unfinished rule) could take anything, so while one is On every change is
+ *     told, and it is named. Rows, recipes and wakes are read once a pass (a pass reads until it is caught up), and
+ *     a pass that cannot read them tells every change. A change not told is passed like one told (the kept place
+ *     moves on, so nothing is told twice) and stays in the change table, so a replay can tell it. Each pass says
+ *     how many it told and did not tell. Nov 22 2026, 6:08 to 6:10 AM CST: a backfill changed 1,567 seeds rows
+ *     and removed 57, each was told, and the router's wake sat full at 64 owed facts for 11 minutes, so every
+ *     other wake on the Mac waited behind changes no workflow takes.
  *   - Changes held back are told, once: committed changes that wait behind one
  *     transaction still running in this database for held_back_seconds are
  *     told as the waiter's trouble
@@ -64,6 +78,10 @@
  *   replay_from         an ISO time: tell again every change committed at or after it, from the change before the first
  *                       one (the kept place is not used). Each is told under its usual event key, so the engine admits
  *                       only the ones it has not told. Remove the setting once the replay is done.
+ *   (run input) conditions_from  the vault name of the database whose workflow_recipes rows hold the conditions the
+ *                       router judges (its switch's own.credential_name): when it is the database this waiter reads, only
+ *                       a change some wake or condition could take is told (above). Any other name tells every change
+ *                       and says why once: this waiter can read only its own database.
  *   held_back_seconds   how long committed changes may wait behind a running
  *                       transaction before that is told (default 120: longer
  *                       than the one minute after which the server ends a
@@ -140,6 +158,48 @@ export const horizonSql = `coalesce((SELECT min(x) FROM pg_snapshot_xip(pg_curre
     WHERE (x::text::bigint % 4294967296) NOT IN (SELECT l.transactionid::text::bigint FROM pg_locks l JOIN pg_stat_activity a ON a.pid = l.pid
       WHERE l.locktype = 'transactionid' AND l.mode = 'ExclusiveLock' AND l.granted AND a.datname IS NOT NULL AND a.datname <> current_database())),
   pg_snapshot_xmax(pg_current_snapshot()))`;
+
+/** The person's workflow rows that hold conditions, in this database, as tool:choose-the-workflows-that-fire takes them
+ *  (`own`: {id, value: {recipe, fires_when}}). A row with no condition is left out, as the router's own read leaves it. */
+export const conditionRowsSql = `SELECT recipe AS id, jsonb_build_object('recipe', recipe, 'fires_when', fires_when) AS value
+  FROM workflow_recipes WHERE jsonb_typeof(fires_when) = 'array' AND jsonb_array_length(fires_when) > 0 ORDER BY recipe`;
+
+/** A change as workflow:route-each-row-change makes it one part: where, place and change, before and after as the fact
+ *  carries them (JSON text when it fits, read back as JSON), and kinds, which a database's change never carries. */
+export function partOf(change, where) {
+  const read = (value) => {
+    const text = carried(value);
+    if (text === null) return null;
+    try { return JSON.parse(text); } catch { return text; }
+  };
+  return { where, place: change.table_name, change: changeOf(change.op), before: read(change.before), after: read(change.after), kinds: null };
+}
+
+/** Whether a wake's match is met by a fact's fields: the engine compares each match value with the fact's field, and a
+ *  fact carries its fields as text (tell-the-engine.mjs factOf), so only a text value equal to the field's text is met. A
+ *  wake with no match meets nothing here: it hears every change and chooses by the workflows' conditions. */
+export function matchMet(wake, fields) {
+  const match = wake?.on?.fact?.match;
+  if (!match || typeof match !== "object" || Object.keys(match).length === 0) return false;
+  return Object.entries(match).every(([field, want]) => typeof want === "string" && fields[field] !== null && fields[field] !== undefined && String(fields[field]) === want);
+}
+
+/** Which of `parts` (each one change's part, beside `fields`, its fact's fields) some taker could take: a wake's match
+ *  the fact meets, or a condition the chooser keeps the part by, judged with the person's rows (`rows`) and with the
+ *  installed recipes alone. A condition the chooser cannot judge at all (unfinished with no part named) could take
+ *  any part: every part is taken and it is named in `open`. */
+export async function takenParts(parts, fields, { rows, wakes, choose }) {
+  const taken = parts.map((_, at) => wakes.some((wake) => matchMet(wake, fields[at])));
+  const open = new Map();
+  for (const own of [rows, []]) {
+    const answer = await choose({ parts, own });
+    for (const item of answer.unfinished ?? []) {
+      if (item.part === undefined) open.set(`${item.workflow}\u0000${item.condition}`, { workflow: item.workflow, condition: item.condition, incomplete: item.incomplete });
+    }
+    for (const chosen of answer.chosen ?? []) taken[chosen.part] = true;
+  }
+  return { taken: open.size ? parts.map(() => true) : taken, open: [...open.values()] };
+}
 
 /** The place a reader with no kept place starts from: the newest change already committed below the horizon (none when the
  *  table holds none yet). */
@@ -222,7 +282,9 @@ async function lookForHeldBack(client, own, held, handlers) {
 /**
  * Wait for row changes and report each once.
  * @param {object} settings the descriptor row's mechanism_settings
- * @param {object} handlers onTransition, onTrouble, signal, state (last kept {after}), keepState, and for tests: connect, connection, now
+ * @param {object} handlers onTransition, onTrouble, signal, state (last kept {after}), keepState, where (the vault name its
+ *   facts name), conditionsFrom, kind (the kind its facts are told as), hearing (every wake that hears a kind), say, and for
+ *   tests: connect, connection, now, choose
  */
 export async function watchForTransitions(settings, handlers) {
   const own = readSettings(settings);
@@ -236,6 +298,28 @@ export async function watchForTransitions(settings, handlers) {
     throw crashed(error, `row-changes could not connect to ${own.table}`);
   }
   let state = handlers.state?.after !== undefined ? handlers.state : { after: null };
+  const say = handlers.say ?? ((line) => console.error(line));
+  const where = handlers.where ?? null;
+  const conditionsFrom = handlers.conditionsFrom ?? null;
+  // Whether this waiter tells only the changes some wake or condition could take (conditions_from names its own database).
+  const judging = conditionsFrom !== null && conditionsFrom === where;
+  if (conditionsFrom !== null && !judging) say(`row-changes: conditions_from ${conditionsFrom} is not the database this waiter reads (${where}); every change is told.`);
+  const choose = handlers.choose ?? (judging
+    ? (await import("../../../workflows/read-data/choose-the-workflows-that-fire.mjs")).chooseTheWorkflowsThatFire
+    : null);
+  /** What could take a change this pass: the workflow rows of this database and every wake that hears this waiter's
+   *  kind, or null (every change is told) when either cannot be read. */
+  const readTakers = async () => {
+    try {
+      const wakes = await (handlers.hearing ?? (async () => null))(handlers.kind ?? "something-changed");
+      if (!Array.isArray(wakes)) throw new Error("the wakes that hear its facts could not be listed");
+      const { rows } = await client.query(conditionRowsSql);
+      return { rows, wakes, choose };
+    } catch (error) {
+      say(`row-changes: every change of this pass is told: ${error?.message ?? error}`);
+      return null;
+    }
+  };
   let wake = () => {};
   // The horizon changes wait behind, since when, and whether that hold was told.
   let held = null;
@@ -251,12 +335,29 @@ export async function watchForTransitions(settings, handlers) {
         await keepState(state);
       }
     }
+    // One pass reads until it is caught up; what could take a change is read once a pass, and its counts are said at its end.
+    let takers;
+    let pass = { told: 0, not_told: 0 };
     while (!signal?.aborted) {
       const { rows } = await client.query(readSql(own.table), [state.after?.txid ?? null, state.after?.position ?? null, own.most_per_read]);
+      if (judging && takers === undefined && rows.length) takers = await readTakers();
+      let judged = null;
+      if (judging && takers && rows.length) {
+        try {
+          judged = await takenParts(rows.map((change) => partOf(change, where)),
+            rows.map((change) => ({ where, place: change.table_name, change: changeOf(change.op), by: change.by ?? null })), takers);
+          for (const item of judged.open) say(`row-changes: ${item.workflow}'s condition "${item.condition}" cannot be judged (${(item.incomplete ?? []).join("; ")}), so it could take any change and every change is told.`);
+        } catch (error) {
+          say(`row-changes: every change of this pass is told: the conditions could not be judged: ${error?.message ?? error}`);
+          takers = null;
+        }
+      }
       let refused = false;
-      for (const change of rows) {
+      let passedUntold = false;
+      for (const [at, change] of rows.entries()) {
         if (signal?.aborted) return;
         const next = { after: { txid: change.txid, position: change.position } };
+        if (judged && !judged.taken[at]) { state = next; pass.not_told += 1; passedUntold = true; continue; }
         const told = await handlers.onTransition({
           condition: "became-reachable",
           observed_identity: { where: change.database, place: change.table_name },
@@ -268,8 +369,15 @@ export async function watchForTransitions(settings, handlers) {
         });
         if (told === false) { refused = true; break; }
         state = next;
+        passedUntold = false;
+        pass.told += 1;
       }
+      // A batch that ended on changes not told keeps its place now: a told change keeps it with its fact.
+      if (passedUntold) await keepState(state);
       if (rows.length === own.most_per_read && !refused) continue;
+      if (judging && pass.told + pass.not_told > 0) say(JSON.stringify({ "row-changes": where, told: pass.told, not_told: pass.not_told, judged: Boolean(takers) }));
+      takers = undefined;
+      pass = { told: 0, not_told: 0 };
       if (signal?.aborted) return;
       held = await lookForHeldBack(client, own, held, handlers);
       await new Promise((resolve) => {

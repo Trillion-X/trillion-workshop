@@ -26,6 +26,9 @@ import { realpathSync } from 'node:fs';
 // - One line per fact told goes to standard error, so the session's output says what was told and what was refused.
 // - A mechanism may ask which switched-on wakes hear a kind of fact (`listening`, the door's `wake:list`, a right
 //   {at, id: <kind>, operations: ["wake:list"]}): the due-time leaf watches the schedules those wakes name in `watch`.
+//   `hearing` is the same list with the wakes that are off too (a wake's copies hear with its own `on`, and the list does
+//   not say which copies are on): the row-changes leaf tells a change only when some wake's match, or some workflow's
+//   condition, could take it, when the run's input names conditions_from (mechanisms/row-changes.mjs).
 // - Kept open (its wake `running`), it watches until it is stopped. Given `for_seconds`, it watches that long, then
 //   answers {told, refused, not_started}: every fact it told, every one the engine refused, and every one the engine kept
 //   false because no wake that is on hears it (nothing started; it is not told again), as its last line.
@@ -198,6 +201,15 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
     say(JSON.stringify({ told: fact.kind, event_id: fact.event_id }));
     answer.told.push(fact);
   }
+  /** Every wake that hears facts of `kind` (wake:list), switched on or not, each as the engine lists it. */
+  async function hearing(kind) {
+    const { response, result } = await operate(LIST, { kind }, `list:${kind}:${Date.now()}`);
+    if (!response.ok || result.isError) {
+      const why = result.structuredContent?.detail ?? result.structuredContent?.code ?? `HTTP ${response.status}`;
+      throw new Error(`the engine did not list the wakes that hear ${kind}: ${why}`);
+    }
+    return result.structuredContent?.wakes ?? [];
+  }
   return {
     answer,
     async scanUnderPath() { return { entries: waiters }; },
@@ -211,15 +223,10 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
       const state = record.state === undefined ? kept(as)?.state ?? null : record.state;
       remember(as, { payload: record.payload, state });
     },
+    hearing,
     /** The switched-on wakes that hear facts of `kind` (wake:list), each as the engine lists it. */
     async listening(kind) {
-      const { response, result } = await operate(LIST, { kind }, `list:${kind}:${Date.now()}`);
-      if (!response.ok || result.isError) {
-        const why = result.structuredContent?.detail ?? result.structuredContent?.code ?? `HTTP ${response.status}`;
-        throw new Error(`the engine did not list the wakes that hear ${kind}: ${why}`);
-      }
-      const wakes = result.structuredContent?.wakes ?? [];
-      return wakes.filter(wake => wake.switched_on === true);
+      return (await hearing(kind)).filter(wake => wake.switched_on === true);
     },
     /** A folder of the waiter's own inside the kept folder, made on first ask; null without a kept folder. */
     folderFor(waiterRef) {
@@ -261,7 +268,10 @@ if (startedAsProgram) {
     const carrier = engineCarrier({ door: readDoor(), waiters, keep: keptFolderOf(), say: line => process.stderr.write(`${line}\n`) });
     // The vault name the run reads its watched thing with; a fact may name it so a reader fetches what the fact cannot hold.
     const connection = typeof input.credential_name === 'string' && input.credential_name ? input.credential_name : null;
-    await runResidentEmitter({ carrier, signal: controller.signal, connection });
+    // The vault name of the database whose workflow rows hold the conditions the router judges (the switch's own input): a
+    // row-changes waiter that reads that database tells only the changes some wake or condition could take.
+    const conditionsFrom = typeof input.conditions_from === 'string' && input.conditions_from ? input.conditions_from : null;
+    await runResidentEmitter({ carrier, signal: controller.signal, connection, conditionsFrom });
     console.log(JSON.stringify({ result: carrier.answer }));
   } catch (error) {
     console.log(JSON.stringify({ error: error.message }));
