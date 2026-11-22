@@ -3,7 +3,7 @@
   "records": [
     {
       "payload": {
-        "source_kept_at": "2026-11-21 22:36:59.285424+00",
+        "source_kept_at": "2026-11-22 03:42:51.175406+00",
         "kind": "workflow-recipe",
         "id": "workflow:choose-a-products-pieces",
         "label": "Choose a product's pieces from rows by its kind, then tell each piece to run",
@@ -94,6 +94,11 @@
           ],
           "edges": [
             {
+              "to": "read-pieces",
+              "from": "read-state",
+              "kind": "always"
+            },
+            {
               "to": "tell-each",
               "from": "read-pieces",
               "kind": "always"
@@ -101,12 +106,41 @@
           ],
           "steps": [
             {
+              "id": "read-state",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "SELECT coalesce((SELECT jsonb_agg(u) FROM product_spawns s, unnest(s.pieces) u WHERE s.product_id = $1::text), '[]'::jsonb)::text AS spawn_pieces, coalesce((SELECT jsonb_agg(st.piece) FROM product_stage st WHERE st.product_id = $1::text AND st.state = 'done'), '[]'::jsonb)::text AS done_pieces",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "product.key"
+                      }
+                    }
+                  ],
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  }
+                },
+                "context": {
+                  "step_id": "read-state"
+                }
+              }
+            },
+            {
               "id": "read-pieces",
               "kind": "ask",
               "config": {
                 "name": "tool:run-sql-in-my-database",
                 "input": {
-                  "sql": "WITH spawn AS (SELECT unnest(s.pieces) AS piece FROM product_spawns s WHERE s.product_id = $1::text AND cardinality(s.pieces) > 0),\nchosen AS (\n  SELECT p.* FROM product_pieces p\n  WHERE CASE WHEN EXISTS (SELECT 1 FROM spawn)\n    THEN p.piece IN (SELECT piece FROM spawn)\n    ELSE ((p.applies_when -> 'product_kinds') IS NULL OR (p.applies_when -> 'product_kinds') ? $2::text) END)\nSELECT $1::text || ':' || piece AS event_id, $1::text AS product_key, piece, position::text AS position, to_json(branch_kinds)::text AS branch_kinds, coalesce(nullif(search_words, ''), fills) AS words\nFROM chosen ORDER BY position\n",
+                  "sql": "WITH spawn AS (SELECT jsonb_array_elements_text($2::jsonb) AS piece),\ndone AS (SELECT jsonb_array_elements_text($3::jsonb) AS piece),\nchosen AS (\n  SELECT p.* FROM product_pieces p\n  WHERE (CASE WHEN jsonb_array_length($2::jsonb) > 0 THEN p.piece IN (SELECT piece FROM spawn)\n    ELSE ((p.applies_when -> 'product_kinds') IS NULL OR (p.applies_when -> 'product_kinds') ? $4::text) END)\n    AND NOT (p.piece IN (SELECT piece FROM done))\n    AND (jsonb_array_length($5::jsonb) = 0 OR p.piece IN (SELECT jsonb_array_elements_text($5::jsonb))))\nSELECT $1::text || ':' || piece AS event_id, $1::text AS product_key, piece, position::text AS position, to_json(branch_kinds)::text AS branch_kinds, coalesce(nullif(search_words, ''), fills) AS words\nFROM chosen ORDER BY position\n",
                   "params": [
                     {
                       "$kind": "binding",
@@ -118,8 +152,31 @@
                     {
                       "$kind": "binding",
                       "select": {
+                        "key": "read-state",
+                        "from": "steps",
+                        "path": "output.rows.0.spawn_pieces"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "key": "read-state",
+                        "from": "steps",
+                        "path": "output.rows.0.done_pieces"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
                         "from": "input",
                         "path": "product.kind"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "product.only"
                       }
                     }
                   ],
@@ -127,7 +184,7 @@
                     "$kind": "binding",
                     "select": {
                       "from": "input",
-                      "path": "store.credential_name"
+                      "path": "pieces_store.credential_name"
                     }
                   }
                 },
@@ -156,7 +213,8 @@
           ],
           "version": 1,
           "is_active": false
-        }
+        },
+        "fires_when": []
       }
     }
   ]

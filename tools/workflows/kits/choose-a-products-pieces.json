@@ -6,7 +6,8 @@
     "workflow:choose-a-products-pieces"
   ],
   "tools": [
-    "tool:run-sql-in-my-database"
+    "tool:run-sql-in-my-database",
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Set the wake's switch input with the owner's store names.",
@@ -31,7 +32,7 @@
         }
       },
       "workflow": "workflow:choose-a-products-pieces",
-      "step": "read-pieces",
+      "step": "read-state",
       "given": "The owner's own rows are in place.",
       "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
