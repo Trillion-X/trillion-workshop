@@ -26,7 +26,7 @@ import { extname, isAbsolute, join, resolve, sep } from 'node:path';
 import { text } from 'node:stream/consumers';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { arcTab } from './arc-tab.mjs';
+import { arcSaid, arcTab } from './arc-tab.mjs';
 import {
   base64PieceScript,
   downloadStateScript,
@@ -198,7 +198,7 @@ async function prepareFolder(folder, s) {
 
 function failure(error) {
   if (error instanceof Refused) return error.message;
-  return `Arc did not answer: ${String(error.stderr || error.message).trim().slice(0, 300)}`;
+  return `Arc did not answer: ${arcSaid(error)}`;
 }
 
 async function withTab(tab, address, job) {

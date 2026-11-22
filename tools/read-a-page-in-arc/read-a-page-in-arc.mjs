@@ -18,7 +18,7 @@ import { realpathSync } from 'node:fs';
 //   4. A tab that lands on another host is refused, not read.
 //   5. The visible text is capped at `most_text_chars`; the wait for the page is bounded by `most_wait_seconds`.
 import { text } from 'node:stream/consumers';
-import { arcTab } from './arc-tab.mjs';
+import { arcSaid, arcTab } from './arc-tab.mjs';
 import { readyStateScript, stashPageScript, textPieceScript } from './page-scripts.mjs';
 
 const most_text_chars = 20000;
@@ -47,7 +47,7 @@ export async function readPageInArc(input, { exec } = {}) {
     const body = cap > 0 ? await tab.evaluate(textPieceScript(0, cap)) : '';
     return { title: page.title, url: page.url, text: body };
   } catch (error) {
-    return { error: `Arc did not answer: ${String(error.stderr || error.message).trim().slice(0, 300)}` };
+    return { error: `Arc did not answer: ${arcSaid(error)}` };
   } finally {
     await tab.close().catch(() => {});
   }

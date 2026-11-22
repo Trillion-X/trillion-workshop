@@ -43,6 +43,24 @@ const CONNECTION_INVALID = /-609|Connection is invalid/i;
 /** Arc's own words for this Mac not allowing the run to control Arc (-1743): never retried. */
 const NOT_ALLOWED = /-1743|not allowed to send Apple events|Not authorized to send Apple events/i;
 
+/** The most characters of osascript's own error line an answer carries. */
+const MOST_SAID_CHARS = 500;
+
+/**
+ * What a failed osascript call said, in one line: its last non-empty line of standard error (osascript's own
+ * "<start>:<end>: <kind> error: <message> (<code>)"), never the first characters. Under the engine's sandbox the
+ * system frameworks write several lines before it ("Connection Invalid error for service
+ * com.apple.hiservices-xpcservice", "Error received in message reply handler"), and a first-300-characters cut answered
+ * only those, hiding -2741 (Nov 22 2026, a read whose grant named Messages). The line's own error code is kept; a line
+ * without one gets the process's exit code.
+ */
+export function arcSaid(error) {
+  const lines = String(error?.stderr || error?.message || '').split('\n').map(line => line.trim()).filter(Boolean);
+  const line = (lines.at(-1) || 'no words').slice(0, MOST_SAID_CHARS);
+  if (/\(-?\d+\)$/.test(line) || typeof error?.code !== 'number') return line;
+  return `${line} (exit ${error.code})`;
+}
+
 /**
  * The Arc tab of one read: { open(address), evaluate(javascript), close() }. `open` answers the tab's place: { window, tab }.
  * Each call is bounded by timeout_ms; a tab that has only just opened may not answer scripts yet, so a call can time out.
