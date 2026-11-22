@@ -1,7 +1,12 @@
 // tools/ui/show/consent-banner/consent-banner.test.mjs: the consent default, the bar and its cookie, and the stylesheet's focus and motion rules.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import esbuild from 'esbuild';
+import { copyFileSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { consentBannerScript, consentBannerStyle, consentDefaultScript } from './consent-banner.mjs';
+import { styleModuleOf } from './build-style.mjs';
 
 const consent = {
   default: 'denied',
@@ -65,4 +70,22 @@ test('the stylesheet shows a visible focus ring and drops motion under reduced m
   assert.ok(css.includes('var(--focus-ring-color'));
   assert.ok(css.includes('@media (prefers-reduced-motion: no-preference)'));
   assert.ok(!css.includes('transition: all'));
+});
+
+test('the generated stylesheet module is the .css, byte for byte, and the part returns it', () => {
+  const css = readFileSync(new URL('./consent-banner.css', import.meta.url), 'utf8');
+  assert.equal(readFileSync(new URL('./consent-banner-style.mjs', import.meta.url), 'utf8'), styleModuleOf(css));
+  assert.equal(consentBannerStyle(), css);
+});
+
+test('a bundle of the part with no .css beside it returns the same stylesheet', async () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'consent-banner-bundle-'));
+  try {
+    for (const file of ['consent-banner.mjs', 'consent-banner-style.mjs']) copyFileSync(new URL(`./${file}`, import.meta.url), path.join(dir, file));
+    const built = await esbuild.build({ entryPoints: [path.join(dir, 'consent-banner.mjs')], bundle: true, format: 'esm', platform: 'node', write: false });
+    const bundled = await import(`data:text/javascript;base64,${Buffer.from(built.outputFiles[0].text).toString('base64')}`);
+    assert.equal(bundled.consentBannerStyle(), readFileSync(new URL('./consent-banner.css', import.meta.url), 'utf8'));
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });

@@ -16,7 +16,7 @@
 //   - Nothing is granted before Accept. Decline writes "denied" and sends no update.
 //   - No inline styles: the bar takes its look from the class names in consent-banner.css.
 //   - Words and names are written with JSON that cannot close the script or open a comment (see inScript).
-import { readFileSync } from 'node:fs';
+import { CONSENT_BANNER_CSS } from './consent-banner-style.mjs';
 
 const MAX_AGE_LIMIT_SECONDS = 395 * 24 * 60 * 60;
 const COOKIE_NAME = /^[A-Za-z0-9_]+$/;
@@ -67,8 +67,7 @@ export function consentBannerScript(consent) {
   );
 }
 
-const STYLE_PATH = new URL('./consent-banner.css', import.meta.url);
-
+// The stylesheet is a string in consent-banner-style.mjs (generated from consent-banner.css), so a bundle needs no file beside it.
 export function consentBannerStyle() {
-  return readFileSync(STYLE_PATH, 'utf8');
+  return CONSENT_BANNER_CSS;
 }
