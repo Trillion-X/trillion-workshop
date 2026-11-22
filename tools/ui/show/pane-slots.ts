@@ -23,6 +23,8 @@ export function slotOf(host: HTMLElement, kind: string): HTMLElement {
     host.appendChild(slot);
     slots.set(kind, slot);
   }
+  // A writer that empties the pane by hand (mountReactSurface's replaceChildren) takes the slots out with it: they go back in.
+  if (slot.parentNode !== host) host.appendChild(slot);
   for (const [name, other] of slots) other.hidden = name !== kind;
   return slot;
 }

@@ -39,7 +39,10 @@ test('two copies of the shared mount share one pane through its slots, with no e
       a.release(pane, 'state');
       b.mount(pane, 'screen', 'Your list again');
       await frame(); const again = read();
-      return { loading, screen, failure, again };
+      pane.replaceChildren();
+      a.mount(pane, 'state', 'Back after a hand empty');
+      await frame(); const emptied = read();
+      return { loading, screen, failure, again, emptied };
     });
     assert.deepEqual(errors, []);
     assert.equal(seen.loading.find(s => s.kind === 'state').words, 'Opening your list');
@@ -50,6 +53,8 @@ test('two copies of the shared mount share one pane through its slots, with no e
     assert.equal(seen.failure.find(s => s.kind === 'screen').hidden, true);
     assert.equal(seen.again.find(s => s.kind === 'screen').words, 'Your list again');
     assert.equal(seen.again.find(s => s.kind === 'screen').hidden, false);
+    assert.equal(seen.emptied.find(s => s.kind === 'state').words, 'Back after a hand empty');
+    assert.equal(seen.emptied.find(s => s.kind === 'state').hidden, false);
   } finally {
     await browser.close();
   }
