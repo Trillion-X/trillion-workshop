@@ -1903,3 +1903,50 @@ fn facts_are_the_results_merge_of_kind_facts_and_any_identity_of_a_file_reaches_
         "facts are an object"
     );
 }
+
+/// The reported case (Nov 21 2026): a 200 KB picture read through the door, whose answer must fit one MCP message
+/// (`tool_answer_fits`, the bound the served door gives every read), with the default length. Each answer is the whole
+/// rest of the file or says truncated with the next offset, and reading on from each next offset gives back exactly the
+/// file's bytes (BLAKE3 equal).
+#[test]
+fn a_200_kb_file_read_through_the_doors_message_bound_comes_back_whole_by_next_offset() {
+    use base64::Engine as _;
+    use live_namespace::mcp::tool_answer_fits;
+    let (mut account_files, _held, _) = kept();
+    let name = "/Pictures/two-hundred-kb.png";
+    let bytes: Vec<u8> = (0..200 * 1024u32).map(|n| (n.wrapping_mul(2_654_435_761) >> 13) as u8).collect();
+    let upload_id = "d".repeat(32);
+    call(&mut account_files, "write_file_start",
+        json!({"upload_id": upload_id, "name": name, "byte_length": bytes.len(), "media_type": "image/png"})).unwrap();
+    for (index, piece) in bytes.chunks(32 * 1024).enumerate() {
+        call(&mut account_files, "write_file_piece", json!({"upload_id": upload_id, "name": name, "offset": index * 32 * 1024,
+            "content_base64": base64::engine::general_purpose::STANDARD.encode(piece)})).unwrap();
+    }
+    call(&mut account_files, "write_file_finish", json!({"upload_id": upload_id, "name": name})).unwrap();
+
+    let (mut rebuilt, mut offset, mut reads) = (Vec::new(), 0u64, 0);
+    loop {
+        let read = account_files
+            .call_fitting("read_file", &json!({"name_or_identity": name, "offset": offset}), &tool_answer_fits)
+            .unwrap()
+            .unwrap();
+        reads += 1;
+        let returned = read["bytes_returned"].as_u64().unwrap();
+        assert!(returned > 0, "{}", read["bytes_returned"]);
+        assert_eq!(read["encoding"], "base64");
+        rebuilt.extend(base64::engine::general_purpose::STANDARD.decode(read["content"].as_str().unwrap()).unwrap());
+        offset += returned;
+        match read["truncated"].as_bool() {
+            Some(true) => assert_eq!(read["next_offset"].as_u64(), Some(offset)),
+            Some(false) => {
+                assert!(read.get("next_offset").is_none());
+                break;
+            }
+            other => panic!("a read answer says whether it is part of the file, not {other:?}"),
+        }
+        assert!(reads < 100, "reading on from next_offset reaches the end");
+    }
+    assert!(reads > 1, "200 KB does not fit one message");
+    assert_eq!(rebuilt.len(), bytes.len());
+    assert_eq!(blake3::hash(&rebuilt), blake3::hash(&bytes));
+}
