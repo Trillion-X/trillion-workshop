@@ -13,6 +13,11 @@ const nonempty = value => typeof value === 'string' && value.trim().length > 0;
 // Who an ask asks is a literal or a binding the engine resolves (a step no tool runs asks the run's own actor).
 const toolNamed = name => typeof name === 'string' && name.startsWith('tool:');
 const named = name => nonempty(name) || (object(name) && name.$kind === 'binding');
+// A run-sql step names its connection: credential_name (a held connection) or database (one of the person's databases). A step
+// that names neither has no connection and waits out its deadline, so the recipe check names it before any run.
+const RUN_SQL_TOOL = 'tool:run-sql-in-my-database';
+const hasConnectionName = input => object(input) && ['credential_name', 'database'].some(key => named(input[key]));
+const noConnectionProblem = name => name + ' names no connection: give credential_name (the held connection) or database (one of their databases), as text or a binding.';
 export const STEP_ANATOMY = JSON.parse(readFileSync(new URL('./step-anatomy.json', import.meta.url), 'utf8'));
 
 // Syntax only: references and extension keywords remain the execution owner's
@@ -162,6 +167,7 @@ export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY, { stepAnat
     if (!(object(step.submit) && step.submit.type === 'object')) problems.push(`${name}.submit must be a JSON Schema with "type": "object" for what the step hands back.`);
     if (step.run_tool !== undefined && !(object(step.run_tool) && /^tool:/.test(step.run_tool.tool_id ?? '') && (step.run_tool.input === undefined || object(step.run_tool.input)))) problems.push(`${name}.run_tool must be { tool_id: "tool:...", input: { field: value, or { "from": path } } }.`);
     else if (step.run_tool !== undefined) problems.push(...pinProblems(step.run_tool.pinned, `${name}.run_tool.pinned`));
+    if (step.run_tool?.tool_id === RUN_SQL_TOOL && !hasConnectionName(step.run_tool.input)) problems.push(noConnectionProblem(`${name}.run_tool.input`));
     problems.push(...checkProblems(step.checks, name, step.id, seen, vocabulary, { this: step.submit, input: recipe.input_schema, steps: submits }));
     // Several agents on one step, lanes and where an output is kept were the recipe layer's (its job queue and tables,
     // deleted 2026-11-18): several agents are a loop with parallel: true in the recipe's own definition, and what a run
@@ -185,6 +191,7 @@ function definitionProblems(definition, vocabulary) {
     if (ids.has(step.id)) problems.push(`${name}.id "${step.id}" is used twice.`);
     ids.add(step.id);
     if (step.kind === 'ask' && !named(step.config?.name)) problems.push(`${name}.config.name must say who answers: a tool id, or a binding such as the run's own actor {"$kind":"binding","select":{"from":"context","path":"actor.user_id"}}.`);
+    if (step.kind === 'ask' && step.config?.name === RUN_SQL_TOOL && !hasConnectionName(step.config.input)) problems.push(noConnectionProblem(`${name}.config.input`));
     if (step.kind === 'ask') problems.push(...pinProblems(step.config?.context?.pinned, `${name}.config.context.pinned`));
     if (step.kind === 'ask' && !toolNamed(step.config?.name) && !(nonempty(step.config.input?.do) && object(step.config.input?.submit) && step.config.input.submit.type === 'object')) problems.push(`${name}.config.input must say what is done (do) and the shape it hands back (submit, a JSON Schema with "type": "object").`);
     if (step.kind === 'check') {
