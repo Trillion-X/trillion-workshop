@@ -43,6 +43,11 @@
             "node",
             "/opt/read-a-page-in-arc/read-a-page-in-arc.mjs"
           ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
           "max_run_ms": 60000,
           "files": {
             "package_files": [
@@ -187,6 +192,11 @@
             "node",
             "/opt/read-a-page-in-arc/pull-a-page-in-arc.mjs"
           ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
           "max_run_ms": 900000,
           "files": {
             "package_files": [
