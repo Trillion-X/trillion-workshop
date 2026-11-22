@@ -1,7 +1,9 @@
 // A row is refused when a start it has cannot give a run-input key one of its steps reads. Stub rows only.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { unresolvedInputBindings } from '../read-data/input-bindings.mjs';
+import { unresolvedInputBindings as found } from '../read-data/input-bindings.mjs';
+
+const unresolvedInputBindings = row => found(row).map(({ line }) => line);
 import { planRender } from '../read-data/render.mjs';
 
 const fromInput = path => ({ $kind: 'binding', select: { from: 'input', path } });
@@ -101,4 +103,14 @@ test('a row its owner marked inputs-checked refuses it, with the flags as a list
     assert.ok(plan.problems.includes(`REFUSED: ${line}`));
     assert.deepEqual(plan.findings, []);
   }
+});
+
+test('a key the row declares in its input_schema is a lower-grade finding, never refused', () => {
+  const row = { ...unfixed(['inputs-checked']), definition: { steps: [sqlStep('act', fromInput('answer_to'))], edges: [] },
+    wakes: [{ id: 'asked-from-an-app', on: { fact: { from: ['run'], kind: 'asked-from-an-app' } }, input: null }], fires_when: null,
+    input_schema: { type: 'object', properties: { answer_to: { type: 'string' } } } };
+  assert.deepEqual(found(row), [{ declared: true, line: 'workflow:keep-a-thing step act reads input.answer_to, which wake asked-from-an-app (asked-from-an-app) does not give, which its input_schema declares (a dispatcher may give it)' }]);
+  const plan = planRender(row);
+  assert.ok(!plan.problems.some(problem => problem.includes('reads input.')));
+  assert.equal(plan.findings.length, 1);
 });

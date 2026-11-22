@@ -8,7 +8,7 @@
 // runs failed 32% of tool:run-sql-in-my-database runs with "no credential_name" (read 5:57 AM CST Nov 22 2026): the store
 // a router-started run reads is input.fact.where.
 //
-// unresolvedInputBindings(row) -> ["<recipe> step <id> reads input.<path>, which <start> does not give", ...]
+// unresolvedInputBindings(row) -> [{ line: "<recipe> step <id> reads input.<path>, which <start> does not give", declared }]
 // A start's input is not all readable here: an engine switch's own input (wake:list hides it) can give a key the row does
 // not name, so these are findings. A row refuses them only once its owner has fixed or confirmed it and set the flag
 // "inputs-checked" (inputsChecked(row)).
@@ -102,17 +102,22 @@ export function startsOf(row) {
   return starts;
 }
 
+// A key the row declares in its own input_schema properties is a lower grade: a dispatcher may give it (the app-ask
+// dispatcher gives every app-asked row answer_to), so it is never refused.
 export function unresolvedInputBindings(row) {
   const steps = asObject(row.definition)?.steps ?? [];
-  const problems = [];
+  const declares = new Set(Object.keys(asObject(row.input_schema)?.properties ?? {}));
+  const found = [];
   for (const start of startsOf(row)) {
     for (const step of steps) {
       for (const path of new Set(unresolvedIn(step?.config, start.gives))) {
-        problems.push(`${row.recipe} step ${step.id} reads input.${path}, which ${start.at} does not give`);
+        const declared = declares.has(path.split('.')[0]);
+        const why = declared ? ', which its input_schema declares (a dispatcher may give it)' : '';
+        found.push({ line: `${row.recipe} step ${step.id} reads input.${path}, which ${start.at} does not give${why}`, declared });
       }
     }
   }
-  return problems;
+  return found;
 }
 
 const CHECKED = 'inputs-checked';

@@ -286,9 +286,11 @@ export function planRender(row, { origin = null, originKit = null, parent = null
   }
   // A step that reads a run-input key no start of the row gives fails every run that start makes. It is a finding, and the
   // file is written; a row its owner has fixed or confirmed (flag inputs-checked) is refused instead.
-  const unresolved = unresolvedInputBindings(row);
-  if (inputsChecked(row)) plan.problems.push(...unresolved.map((line) => `REFUSED: ${line}`));
-  else plan.findings.push(...unresolved.map((line) => `FINDING: ${line}`));
+  const refuses = inputsChecked(row);
+  for (const { line, declared } of unresolvedInputBindings(row)) {
+    if (refuses && !declared) plan.problems.push(`REFUSED: ${line}`);
+    else plan.findings.push(`FINDING: ${line}`);
+  }
   if (!asObject(row.definition)?.steps?.length) {
     plan.problems.push('definition has no steps');
     return plan;
