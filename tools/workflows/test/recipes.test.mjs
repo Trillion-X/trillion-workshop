@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
-import { recipeProblems, CHECK_VOCABULARY, stepAnatomyProblems, STEP_ANATOMY } from '../read-data/recipe-problems.mjs';
+import { recipeProblems, CHECK_VOCABULARY, sharedBlocks, stepAnatomyProblems, STEP_ANATOMY } from '../read-data/recipe-problems.mjs';
 import { measureStepExplicitness } from '../do-work/measure-step-explicitness.mjs';
 import { spawnSync } from 'node:child_process';
 import { RUN_ACTOR } from '../../write-a-job-done-in-several-steps-have/read-data/workflows.mjs';
@@ -14,11 +14,14 @@ test('the recipes folder holds recipes', () => {
   assert.ok(files.length > 0);
 });
 
+// The shared blocks among every shipped recipe: a shipped step that writes one out again is refused like any other problem.
+const blocks = sharedBlocks(files.flatMap(file => JSON.parse(readFileSync(new URL(file, recipesFolder), 'utf8')).records ?? []).map(record => record?.payload));
+
 for (const file of files) {
   test(`every row in ${file} is a valid recipe`, () => {
     const { records } = JSON.parse(readFileSync(new URL(file, recipesFolder), 'utf8'));
     assert.ok(Array.isArray(records) && records.length > 0, `${file} has records`);
-    for (const record of records) assert.deepEqual(recipeProblems(record.payload), [], `${file}: ${record.id}`);
+    for (const record of records) assert.deepEqual(recipeProblems(record.payload, CHECK_VOCABULARY, { blocks }), [], `${file}: ${record.id}`);
   });
 }
 

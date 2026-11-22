@@ -70,6 +70,16 @@ test('a recipe written as steps rows is checked the same way, its tool rows left
   assert.match(repeats[0], /^steps\.look /);
 });
 
+test('a block whose copies open like other steps names how many words tell them apart', () => {
+  const facts = 'Call tool:run-sql-in-my-database with { credential_name: input.business.credential_name, sql: "SELECT facts FROM setup", params: [] }. Keep the returned facts object ({} when no row comes back) and say whether it holds every field.';
+  const other = 'Call tool:run-sql-in-my-database with { credential_name: input.business.credential_name, sql: "SELECT id FROM library", params: [] }. If rows come back, submit covered true and the row ids.';
+  const longer = sharedBlocks([{ recipe: 'workflow:read-the-setup-facts', definition: { stands_for: [facts], stands_for_words: 20 } }]);
+  assert.equal(longer[0].words, 20);
+  assert.equal(recipeBlockRepeats(recipe([ask('read-facts', facts.replace('SELECT facts FROM setup', 'SELECT more FROM setup'))]), { blocks: longer }).length, 1);
+  assert.deepEqual(recipeBlockRepeats(recipe([ask('read-library', other)]), { blocks: longer }), []);
+  assert.equal(recipeBlockRepeats(recipe([ask('read-library', other)]), { blocks: sharedBlocks([{ recipe: 'workflow:read-the-setup-facts', definition: { stands_for: [facts] } }]) }).length, 1);
+});
+
 test('a new block is found from its row alone', () => {
   const more = sharedBlocks([block, { recipe: 'workflow:read-the-setup-facts', definition: { stands_for: ['Call tool:run-sql-in-my-database with { credential_name: input.business.credential_name, sql: "SELECT facts FROM setup" }. Keep the returned facts object and say whether it holds every field.'] } }]);
   const repeats = recipeBlockRepeats(recipe([ask('read-facts', 'Call tool:run-sql-in-my-database with { credential_name: input.business.credential_name, sql: "SELECT other FROM setup" }. Keep the facts.')]), { blocks: more });

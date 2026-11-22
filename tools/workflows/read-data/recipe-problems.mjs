@@ -113,19 +113,22 @@ export function stepWords(text) {
     .split(/\s+/).filter(Boolean);
 }
 
-const opening = text => {
+const opening = (text, count = BLOCK_OPENING_WORDS) => {
   const words = stepWords(text);
-  return words.length >= BLOCK_OPENING_WORDS ? words.slice(0, BLOCK_OPENING_WORDS).join(' ') : null;
+  return words.length >= count ? words.slice(0, count).join(' ') : null;
 };
 
 /** The blocks among workflow rows ({ recipe, definition } as kept, or payloads with id): each row whose definition lists
- *  `stands_for`, with the openings of those words. */
+ *  `stands_for`, with the openings of those words. A block whose copies share their first words with other steps says
+ *  how many words tell its copies apart (`stands_for_words`, more than the default ten). */
 export function sharedBlocks(rows) {
   return (Array.isArray(rows) ? rows : []).flatMap(row => {
     const id = row?.recipe ?? row?.id;
     const standsFor = row?.definition?.stands_for;
-    const openings = [...new Set((Array.isArray(standsFor) ? standsFor : []).map(opening).filter(Boolean))];
-    return typeof id === 'string' && openings.length ? [{ id, openings }] : [];
+    const asked = row?.definition?.stands_for_words;
+    const words = Number.isInteger(asked) && asked > BLOCK_OPENING_WORDS ? asked : BLOCK_OPENING_WORDS;
+    const openings = [...new Set((Array.isArray(standsFor) ? standsFor : []).map(text => opening(text, words)).filter(Boolean))];
+    return typeof id === 'string' && openings.length ? [{ id, words, openings }] : [];
   });
 }
 
@@ -142,9 +145,10 @@ export function recipeBlockRepeats(recipe, { blocks = [] } = {}) {
     : Array.isArray(recipe?.steps) ? recipe.steps.filter(step => step?.run_tool === undefined).map(step => ({ id: step?.id, words: step?.do, at: 'steps' })) : [];
   const repeats = [];
   for (const step of steps) {
-    const words = opening(step.words);
-    if (!words) continue;
-    const block = blocks.find(item => item.id !== recipe?.id && item.openings.includes(words));
+    const block = blocks.find(item => {
+      const words = opening(step.words, item.words ?? BLOCK_OPENING_WORDS);
+      return words && item.id !== recipe?.id && item.openings.includes(words);
+    });
     if (block) repeats.push(`${step.at}.${step.id} writes out ${block.id} again: run it as one step, { "kind": "action", "config": { "definition_id": "${block.id}", "inputs": { ... } } }, binding its input from this run, instead of copying its words.`);
   }
   return repeats;
