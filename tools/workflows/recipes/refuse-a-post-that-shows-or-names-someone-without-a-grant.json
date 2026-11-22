@@ -1,0 +1,274 @@
+{
+  "about": "workflow:refuse-a-post-that-shows-or-names-someone-without-a-grant: rendered from its workflow_recipes row.",
+  "records": [
+    {
+      "payload": {
+        "source_kept_at": "2026-11-22 00:50:25.899054+00",
+        "kind": "workflow-recipe",
+        "id": "workflow:refuse-a-post-that-shows-or-names-someone-without-a-grant",
+        "label": "Refuse a post that shows or names someone without a grant",
+        "job": "refuse-post-without-consent",
+        "produces": "For each post: allowed true with no one missing a grant, or the run stops with consent refused listing who and how. Deterministic first (media subjects, names, handles and emails matched to people); an AI step only adds suspects, never clears one.",
+        "source": {},
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "posts",
+            "store"
+          ],
+          "properties": {
+            "posts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "media": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "caption": {
+                    "type": "string"
+                  },
+                  "channel": {
+                    "type": "string"
+                  },
+                  "purpose": {
+                    "type": "string"
+                  }
+                }
+              },
+              "description": "Each post: {address, caption, media: [material ids], channel, purpose (default publish)}"
+            },
+            "store": {
+              "type": "object",
+              "required": [
+                "credential_name"
+              ],
+              "properties": {
+                "credential_name": {
+                  "type": "string",
+                  "description": "The credential name of that pursuit store"
+                }
+              },
+              "description": "The pursuit store that holds the grants and material rows the check reads"
+            }
+          }
+        },
+        "definition": {
+          "edges": [
+            {
+              "to": "check",
+              "from": "suspects",
+              "kind": "always"
+            },
+            {
+              "to": "refuse",
+              "from": "check",
+              "kind": "always"
+            },
+            {
+              "to": "suspects-failed",
+              "from": "suspects",
+              "kind": "on_failure"
+            },
+            {
+              "to": "done",
+              "from": "refuse",
+              "kind": "always"
+            },
+            {
+              "to": "refused",
+              "from": "refuse",
+              "kind": "on_failure"
+            }
+          ],
+          "steps": [
+            {
+              "id": "suspects",
+              "kind": "ask",
+              "config": {
+                "name": "tool:ask-a-model",
+                "input": {
+                  "job": "do-a-task-step",
+                  "messages": [
+                    {
+                      "role": "system",
+                      "content": "Do the task. Answer with one JSON object only, the fields this JSON schema describes, never the schema itself. {\"type\":\"object\",\"required\":[\"posts\"],\"properties\":{\"posts\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"address\",\"people\",\"none_found\"],\"properties\":{\"address\":{\"type\":\"string\"},\"people\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"name_or_description\",\"where\",\"evidence\"],\"properties\":{\"name_or_description\":{\"type\":\"string\"},\"where\":{\"type\":\"string\",\"enum\":[\"caption\",\"media\"]},\"evidence\":{\"type\":\"string\"}}}},\"none_found\":{\"type\":\"boolean\"}}}}}}. List every person a post shows or names: a full name, a first name alone, a handle, or a description such as \"my coach\". For media, list only people the media names in its file name or description; you cannot see pictures. Set none_found to true exactly when people is empty. A name is a person's name: never a single letter, a word of the post's own text, or a label such as a test or draft title. Never decide whether a post may go out."
+                    },
+                    {
+                      "role": "user",
+                      "content": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "literal",
+                          "value": 0
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.concat",
+                            "args": {
+                              "values": [
+                                "Posts (caption and media names):\n",
+                                {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "input",
+                                    "path": "posts"
+                                  },
+                                  "transform": [
+                                    {
+                                      "op": "op:core.stringify",
+                                      "args": {
+                                        "format": "json"
+                                      }
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "resolve_nested_bindings": true
+                      }
+                    }
+                  ]
+                },
+                "context": {
+                  "title": "Name every person a post may show or name, as a model answer checked by the refuse step",
+                  "step_id": "suspects"
+                }
+              }
+            },
+            {
+              "id": "check",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "WITH p AS (SELECT x->>'address' AS address, coalesce(x->>'caption', '') AS cap, coalesce(x->>'channel', '') AS ch, coalesce(nullif(x->>'purpose', ''), 'publish') AS pu, coalesce(ARRAY(SELECT jsonb_array_elements_text(CASE WHEN jsonb_typeof(x->'media') = 'array' THEN x->'media' ELSE '[]'::jsonb END)), '{}') AS media FROM jsonb_array_elements(CASE WHEN jsonb_typeof($1::jsonb) = 'array' THEN $1::jsonb ELSE jsonb_build_array($1::jsonb) END) x),\nent AS (SELECT e->>'address' AS address, e->'people' AS people, e->'none_found' AS nf FROM jsonb_array_elements(coalesce(consent_model_answer($2::text)->'posts', '[]'::jsonb)) e),\nvalid AS (SELECT address, people FROM ent WHERE jsonb_typeof(people) = 'array' AND jsonb_typeof(nf) = 'boolean' AND (nf = 'true'::jsonb) = (jsonb_array_length(people) = 0)),\ns AS (SELECT v.address, ARRAY(SELECT x->>'name_or_description' FROM jsonb_array_elements(v.people) x) AS names FROM valid v)\nSELECT p.address,\n  (p.address IN (SELECT address FROM valid) AND count(r.refused_subject) = 0) AS allowed,\n  CASE WHEN p.address NOT IN (SELECT address FROM valid) THEN 'refused: the model answer for this post is missing or not valid'\n       WHEN count(r.refused_subject) > 0 THEN 'refused: someone shown or named here holds no grant for this use' END AS says,\n  CASE WHEN p.address NOT IN (SELECT address FROM valid) THEN jsonb_build_array(jsonb_build_object('refused_subject', 'model answer', 'refused_how', 'unusable', 'via', 'model'))\n       ELSE coalesce(jsonb_agg(jsonb_build_object('refused_subject', r.refused_subject, 'refused_how', r.refused_how, 'via', r.via)) FILTER (WHERE r.refused_subject IS NOT NULL), '[]'::jsonb) END AS refused\nFROM p LEFT JOIN s ON s.address = p.address\nLEFT JOIN LATERAL post_refusals(p.cap, p.media, p.pu, p.ch, coalesce(s.names, '{}')) r ON true\nGROUP BY p.address ORDER BY p.address\n",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "posts"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "key": "suspects",
+                        "from": "steps",
+                        "path": "output.choices.0.message.content"
+                      }
+                    }
+                  ],
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  }
+                },
+                "context": {
+                  "title": "Find every person shown or named and check each grant",
+                  "step_id": "check"
+                }
+              }
+            },
+            {
+              "id": "refuse",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "SELECT consent_gate($1::jsonb) AS stopped",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "key": "check",
+                        "from": "steps",
+                        "path": "output.rows"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  }
+                },
+                "context": {
+                  "title": "Stop the post when anyone has no grant",
+                  "step_id": "refuse"
+                }
+              }
+            },
+            {
+              "id": "done",
+              "kind": "return",
+              "config": {
+                "value": {
+                  "rows": {
+                    "$kind": "binding",
+                    "select": {
+                      "key": "check",
+                      "from": "steps",
+                      "path": "output.rows"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": "suspects-failed",
+              "kind": "fail",
+              "config": {
+                "error": "consent refused: the model that names the people in a post did not answer, so nothing is posted"
+              }
+            },
+            {
+              "id": "refused",
+              "kind": "fail",
+              "config": {
+                "error": {
+                  "$kind": "binding",
+                  "select": {
+                    "key": "refuse",
+                    "from": "steps",
+                    "path": "error"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
