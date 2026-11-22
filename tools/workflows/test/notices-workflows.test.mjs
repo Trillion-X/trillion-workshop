@@ -26,6 +26,8 @@ before(async () => {
   const render = statements(READ, 'render');
   // The render step runs on every use; it must be harmless to run it again.
   for (let pass = 0; pass < 2; pass += 1) for (const name of ['devices', 'notices']) await db.exec(render[name]);
+  // The act recipe's render adds the reply columns to a table that already exists; it runs on every use too.
+  for (let pass = 0; pass < 2; pass += 1) await db.exec(statements(ACT, 'render').answers);
   // The app lane's device registrations, and notices made by the Workshop, as the rows the recipes read.
   for (const [id, platform, at] of [
     ['device-a', 'live', '2026-01-01T00:00:00Z'], ['browser-a', 'web-push', '2026-01-01T00:00:00Z'],
@@ -114,4 +116,30 @@ test('the act recipe opens a local path, refuses every other action, and refuses
   assert.equal((await notice(5)).url, 'https://example.invalid/', 'a link to another site is refused: its source owner must act');
   assert.equal((await notice(6)).url, '//elsewhere.example/', 'a protocol-relative url is not a path on this site');
   assert.equal((await notice(99)), undefined, 'a notice that does not exist is refused');
+});
+
+test('a typed reply is kept once on its notice: its words and the time, a retry of the same words writes nothing, other words are refused', async () => {
+  const act = statements(ACT, 'act');
+  // The act step's answer for a reply, as the recipe words it.
+  const reply = async (n, text) => {
+    const trimmed = text.trim();
+    if (trimmed === '') return { refused: 'Write the reply to send.' };
+    const row = (await run(act.notice, [n])).rows[0];
+    if (!row) return { refused: 'There is no such notice.' };
+    if (row.answered_at !== null) return row.answer_text === trimmed ? { done: true, said: 'Reply kept.' } : { refused: 'This notice was already answered.' };
+    await run(act.reply, [n, trimmed]);
+    return { done: true, said: 'Reply kept.' };
+  };
+  assert.deepEqual(await reply(2, '   '), { refused: 'Write the reply to send.' });
+  assert.deepEqual(await reply(2, '  the blue one  '), { done: true, said: 'Reply kept.' });
+  const kept = (await run('SELECT answer_text, answered_at, read_at FROM notices WHERE id = $1', [2])).rows[0];
+  assert.equal(kept.answer_text, 'the blue one');
+  assert.ok(kept.answered_at !== null && kept.read_at !== null);
+  assert.deepEqual(await reply(2, 'the blue one'), { done: true, said: 'Reply kept.' });
+  assert.deepEqual(await reply(2, 'the red one'), { refused: 'This notice was already answered.' });
+  await run(act.reply, [2, 'overwritten']);
+  const after = (await run('SELECT answer_text, answered_at FROM notices WHERE id = $1', [2])).rows[0];
+  assert.equal(after.answer_text, 'the blue one', 'the reply statement writes only a notice not yet answered');
+  assert.equal(after.answered_at.getTime(), kept.answered_at.getTime());
+  assert.deepEqual(await reply(99, 'hello'), { refused: 'There is no such notice.' });
 });

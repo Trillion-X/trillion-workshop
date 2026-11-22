@@ -11,7 +11,7 @@
   "instructions": [
     "1. Name the database your account keeps its rows in.",
     "2. Say \"Run workflow:act-on-my-notice\" with database, the notice id and the action it offered (open).",
-    "3. A local open answers the path to open and marks the notice read; any other action is refused with the owner that must act."
+    "3. A local open answers the path to open and marks the notice read; a reply (action reply with text) is kept on the notice once as answer_text; any other action is refused with the owner that must act."
   ],
   "worked_examples": [
     {
@@ -38,5 +38,5 @@
       "hands_back": "done true, said \"Opening the notice.\", open \"/work/reports/1\"; told:1 is now read and acted."
     }
   ],
-  "drafted_from": "workflow:act-on-my-notice steps render, act"
+  "drafted_from": "workflow:act-on-my-notice steps render, act (reply added)"
 }

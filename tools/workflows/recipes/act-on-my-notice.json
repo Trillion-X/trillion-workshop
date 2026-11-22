@@ -33,7 +33,15 @@
             "action": {
               "type": "string",
               "minLength": 1,
-              "description": "The id of the action the notice offered (open)"
+              "description": "The id of the action the notice offered: open (its url) or reply (text typed on the device)"
+            },
+            "text": {
+              "type": "string",
+              "description": "The words of a reply; required for reply, kept on the notice as answer_text"
+            },
+            "submission_id": {
+              "type": "string",
+              "description": "The device's id for one reply; a retry of the same words is answered done and written once"
             }
           }
         },
@@ -41,7 +49,7 @@
           {
             "id": "render",
             "title": "Make the notice tables if they are absent",
-            "do": "Run the statements of this step's sql, in order, through tool:run-sql-in-my-database with database = input.database. They only create what is missing, so a run where both tables exist changes nothing. Submit {rendered: true}.",
+            "do": "Run the statements of this step's sql, in order, through tool:run-sql-in-my-database with database = input.database. They only create or add what is missing, so a run where the tables and columns exist changes nothing. Submit {rendered: true}.",
             "sql": [
               {
                 "name": "devices",
@@ -52,6 +60,11 @@
                 "name": "notices",
                 "params": [],
                 "text": "CREATE TABLE IF NOT EXISTS notices (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, device_id text REFERENCES devices (id), title text NOT NULL DEFAULT '', body text NOT NULL DEFAULT '', url text, made_at timestamptz NOT NULL DEFAULT now(), read_at timestamptz, acted_at timestamptz)"
+              },
+              {
+                "name": "answers",
+                "params": [],
+                "text": "ALTER TABLE notices ADD COLUMN IF NOT EXISTS answer_text text, ADD COLUMN IF NOT EXISTS answered_at timestamptz"
               }
             ],
             "submit": {
@@ -70,14 +83,14 @@
           {
             "id": "act",
             "title": "Carry out the offered action, or refuse it",
-            "do": "Check the input: id must be \"told:<number>\" and action must be non-empty text; otherwise refuse with \"Name the notice id and one offered action id.\". Make the notice number: the number after \"told:\". Run the statement named notice with params [notice number]. When it returns no row, refuse with \"There is no such notice.\". When action is not \"open\", or the notice's url is null, refuse with \"That action was not offered by this notice.\". When url is not a path on this site (it must begin with a single / and hold no backslash), refuse with \"This action needs its source owner to act; it was not performed.\". Otherwise run the statement named act with the same params: it marks the notice read and sets acted_at. Answer {done: true, said: \"Opening the notice.\", open: url}. A refused action writes nothing.",
+            "do": "Check the input: id must be \"told:<number>\" and action must be non-empty text; otherwise refuse with \"Name the notice id and one offered action id.\". Make the notice number: the number after \"told:\". Run the statement named notice with params [notice number]. When it returns no row, refuse with \"There is no such notice.\". When action is \"reply\": trim text; when the trimmed text is empty, refuse with \"Write the reply to send.\"; when answered_at is set and answer_text equals the trimmed text, answer {done: true, said: \"Reply kept.\"} and write nothing (a retry of the same reply); when answered_at is set with other words, refuse with \"This notice was already answered.\"; otherwise run the statement named reply with params [notice number, trimmed text] and answer {done: true, said: \"Reply kept.\"}. When action is not \"open\" or \"reply\", refuse with \"That action was not offered by this notice.\". When action is \"open\" and the notice's url is null, refuse with \"That action was not offered by this notice.\". When action is \"open\" and url is not a path on this site (it must begin with a single / and hold no backslash), refuse with \"This action needs its source owner to act; it was not performed.\". Otherwise run the statement named act with the same params: it marks the notice read and sets acted_at. Answer {done: true, said: \"Opening the notice.\", open: url}. A refused action writes nothing.",
             "sql": [
               {
                 "name": "notice",
                 "params": [
                   "notice number"
                 ],
-                "text": "SELECT id, url FROM notices WHERE id = $1::bigint"
+                "text": "SELECT id, url, answer_text, answered_at FROM notices WHERE id = $1::bigint"
               },
               {
                 "name": "act",
@@ -85,6 +98,14 @@
                   "notice number"
                 ],
                 "text": "UPDATE notices SET read_at = coalesce(read_at, now()), acted_at = now() WHERE id = $1::bigint"
+              },
+              {
+                "name": "reply",
+                "params": [
+                  "notice number",
+                  "trimmed reply text"
+                ],
+                "text": "UPDATE notices SET answer_text = $2, answered_at = now(), read_at = coalesce(read_at, now()), acted_at = now() WHERE id = $1::bigint AND answered_at IS NULL"
               }
             ],
             "submit": {
