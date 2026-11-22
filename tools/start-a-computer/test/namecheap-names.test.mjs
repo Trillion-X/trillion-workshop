@@ -69,3 +69,26 @@ test('a refusal that is not silence still ends the apply', async () => {
   const w = namecheapWorld([{ type: 'A', name: 'files', address: OLD, ttl: 60 }]);
   await assert.rejects(keepTheNames(request(names), { call: w.call, apply: true, waits: [1] }), /does not own/);
 });
+
+const PARKING = '192.0.2.50';
+const adopting = [{ host_name: 'files.example.org', provider: 'tools/start-a-computer/providers/namecheap.json', adopt: true }];
+
+test('a name the row adopts takes the name over: the parking record is removed and named in removed, the others stay', async () => {
+  const w = namecheapWorld([{ type: 'A', name: 'files', address: PARKING, ttl: 60 }, { type: 'A', name: 'other', address: OLD, ttl: 60 }, { type: 'MX', name: '@', exchange: 'mx1.example.net', preference: 10, ttl: 3600 }]);
+  const kept = await keepTheNames(request(adopting), { call: w.call, apply: true });
+  assert.deepEqual(kept, [{ host_name: 'files.example.org', address: ROW, added: [ROW], removed: [PARKING] }]);
+  assert.deepEqual(w.state.records.map(x => [x.type, x.name, x.address ?? x.exchange]), [['A', 'other', OLD], ['MX', '@', 'mx1.example.net'], ['A', 'files', ROW]]);
+});
+
+test('an adopted name whose redirect record the listing omits names it unremovable, and it is not sent to a delete', async () => {
+  const w = namecheapWorld([], { omitted: [{ type: 'URL', name: 'files' }] });
+  const kept = await keepTheNames(request(adopting), { call: w.call, apply: true });
+  assert.deepEqual(kept, [{ host_name: 'files.example.org', address: ROW, added: [ROW], removed: [], unremovable: [{ type: 'URL', host_name: 'files.example.org' }] }]);
+  assert.deepEqual(w.state.deletes, []);
+});
+
+test('a name the row does not adopt is refused while the parking record is there, and left as it is', async () => {
+  const w = namecheapWorld([{ type: 'A', name: 'files', address: PARKING, ttl: 60 }]);
+  await assert.rejects(keepTheNames(request(names), { call: w.call, apply: true }), /does not own/);
+  assert.deepEqual(w.state.records, [{ type: 'A', name: 'files', address: PARKING, ttl: 60 }]);
+});

@@ -41,7 +41,7 @@ test('a record at the name that the row does not own is refused and left alone, 
   await assert.rejects(keepHealthyRecords({ hostname: host, candidates: [{ address: ROW }], check: () => true, request: w.client(), provider }), /does not own/);
   assert.deepEqual([w.state.saves, w.state.deletes, w.state.records.length], [[], [], 2]);
   const adopted = await keepHealthyRecords({ hostname: host, candidates: [{ address: ROW }], check: () => true, request: w.client(), provider, adopt: true });
-  assert.deepEqual(adopted.removed.map(x => x.address), [OLD]);
+  assert.deepEqual(adopted.removed.map(x => x.content), [OLD]);
   assert.deepEqual(w.state.deletes, [[{ type: 'A', name: 'files', address: OLD }]], 'removal sends the record body, the name as the zone names it');
   assert.deepEqual(w.state.records.map(x => [x.type, x.name]), [['TXT', 'files'], ['A', 'files']], 'the other record of the name stays; the row address is the only address');
 });
@@ -79,10 +79,48 @@ test('an apply that adds, keeps and removes the row own A records leaves every f
     hostname: host, candidates: [{ address: ROW }, { address: NEW }, { address: DOWN }],
     check: candidate => candidate.address !== DOWN, request: w.client(), provider,
   });
-  assert.deepEqual([kept.added.map(x => x.address), kept.removed.map(x => x.address)], [[NEW], [DOWN]], 'one own record added, one removed, the kept one untouched');
+  assert.deepEqual([kept.added.map(x => x.address), kept.removed.map(x => x.content)], [[NEW], [DOWN]], 'one own record added, one removed, the kept one untouched');
   assert.deepEqual(w.state.records.filter(row => row.name === 'files' && row.type === 'A').map(row => row.address).sort(), [NEW, ROW].sort());
   const after = JSON.stringify(w.state.records.filter(row => !(row.type === 'A' && row.name === 'files')));
   assert.equal(after, before, 'the MX, TXT and foreign A records are byte for byte as they were, in the same order');
   assert.deepEqual(foreign.map(row => JSON.stringify(row)), w.state.records.filter(row => !(row.type === 'A' && row.name === 'files')).map(row => JSON.stringify(row)));
   assert.ok(w.state.calls.every(name => ['domains_list', 'dns_records_get', 'dns_records_save', 'dns_records_delete'].includes(name)), 'only the per-record save and delete change the zone; setHosts is never sent');
+});
+
+const PARKING = '192.0.2.50', OTHER = '192.0.2.60', MAIL = 'mx1.example.net';
+const mx = { type: 'MX', name: '@', exchange: MAIL, preference: 10, ttl: 3600 };
+const cname = (name, cnameTarget) => ({ type: 'CNAME', name, cname: cnameTarget, ttl: 1800 });
+const placement = (w, adopt) => keepHealthyRecords({ hostname: host, candidates: [{ address: ROW }], check: () => true, request: w.client(), provider, adopt });
+
+test('adopt takes the name over: the parking A is removed, the row address is the only A, and the other records are untouched', async () => {
+  const w = world([aRecord('files', PARKING), aRecord('other', OTHER), mx]);
+  await assert.rejects(placement(w, false), /does not own/);
+  assert.equal(w.state.deletes.length, 0, 'refused before any change');
+  const adopted = await placement(w, true);
+  assert.deepEqual([adopted.added.map(x => x.address), adopted.removed.map(x => x.content), adopted.unremovable], [[ROW], [PARKING], []]);
+  assert.deepEqual(w.state.deletes, [[{ type: 'A', name: 'files', address: PARKING }]]);
+  assert.deepEqual(w.state.records.map(x => [x.type, x.name, x.address ?? x.exchange]), [['A', 'other', OTHER], ['MX', '@', MAIL], ['A', 'files', ROW]]);
+});
+
+test('adopt removes a CNAME at the exact name, sent by its cname, and leaves a CNAME at another name', async () => {
+  const w = world([cname('files', 'parking.example.net.'), cname('mail', 'mail.example.net.')]);
+  await assert.rejects(placement(w, false), /does not own/);
+  const adopted = await placement(w, true);
+  assert.deepEqual([adopted.added.map(x => x.address), adopted.removed.map(x => x.content)], [[ROW], ['parking.example.net.']]);
+  assert.deepEqual(w.state.deletes, [[{ type: 'CNAME', name: 'files', cname: 'parking.example.net.' }]]);
+  assert.deepEqual(w.state.records.map(x => [x.type, x.name, x.address ?? x.cname]), [['CNAME', 'mail', 'mail.example.net.'], ['A', 'files', ROW]]);
+});
+
+test('a redirect record the typed list omits is reported unremovable on adopt, refused without it, and never sent to a delete', async () => {
+  const w = world([], { omitted: [{ type: 'URL', name: 'files' }] });
+  await assert.rejects(placement(w, false), /does not own/);
+  const adopted = await placement(w, true);
+  assert.deepEqual([adopted.added.map(x => x.address), adopted.removed, adopted.unremovable], [[ROW], [], [{ type: 'URL', host_name: host }]]);
+  assert.deepEqual(w.state.deletes, [], 'the delete contract has no redirect type, so nothing is sent');
+});
+
+test('adopt where only the row address exists removes nothing', async () => {
+  const w = world([aRecord('files', ROW), aRecord('other', OTHER), mx]);
+  const adopted = await placement(w, true);
+  assert.deepEqual([adopted.added, adopted.removed, adopted.unremovable, w.state.deletes, w.state.saves], [[], [], [], [], []]);
 });

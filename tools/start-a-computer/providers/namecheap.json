@@ -50,7 +50,7 @@
       }
     },
     "remove_record": {
-      "notes": "Remove one record, matched by its type, name and address (the provider keeps no ids).",
+      "notes": "Remove one record, matched by its type, name and content (address; cname for a CNAME). The provider keeps no ids. Its contract has no redirect (URL, URL301, FRAME) type, so those records cannot be removed here.",
       "url": "https://mcp.namecheap.com/mcp",
       "method": "POST",
       "body_template": {
@@ -87,8 +87,16 @@
     "name_at": "name",
     "type_at": "type",
     "content_at": "address",
+    "content_at_by_type": {
+      "CNAME": "cname"
+    },
+    "omitted_at": "omittedRecords",
     "address_types": [
-      "A"
+      "A",
+      "CNAME",
+      "URL",
+      "URL301",
+      "FRAME"
     ],
     "editable_types": [
       "A"

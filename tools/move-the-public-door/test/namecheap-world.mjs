@@ -9,9 +9,12 @@ export const provider = JSON.parse(readFileSync(new URL('../../start-a-computer/
 export const zone = 'example.org', host = 'files.example.org';
 export const ROW = '198.51.100.4', OLD = '203.0.113.7';
 
-// The zone's records as the provider lists them (relative names); `text` answers the tool's result as text instead of structure.
-export function namecheapWorld(records, { text = false } = {}) {
-  const state = { records, calls: [], saves: [], deletes: [] };
+// The zone's records as the provider lists them (relative names); `omitted` are the redirect records its typed list leaves out
+// (listed by type and name in omittedRecords, as the provider answers); `text` answers the tool's result as text instead of structure.
+// The delete contract takes the record types the provider declares for dns_records_delete, and no others.
+const DELETABLE = ['A', 'AAAA', 'CNAME', 'ALIAS', 'NS', 'PTR', 'TXT', 'MX', 'CAA', 'SRV', 'TLSA', 'HTTPS', 'SVCB'];
+export function namecheapWorld(records, { text = false, omitted = [] } = {}) {
+  const state = { records, omitted, calls: [], saves: [], deletes: [] };
   const call = async run => {
     assert.equal(run.address, provider.base, 'the engine call names the provider address');
     const name = run.tool.slice('mcp.namecheap.com/'.length), args = run.input;
@@ -19,13 +22,15 @@ export function namecheapWorld(records, { text = false } = {}) {
     state.calls.push(name);
     let result;
     if (name === 'domains_list') result = { items: args.domain === zone ? [{ name: zone }] : [], total: args.domain === zone ? 1 : 0 };
-    else if (name === 'dns_records_get') result = { items: state.records.slice(args.skip, args.skip + args.take), total: state.records.length };
+    else if (name === 'dns_records_get') result = { items: state.records.slice(args.skip, args.skip + args.take), total: state.records.length + state.omitted.length, omittedRecords: state.omitted };
     else if (name === 'dns_records_save') { state.saves.push(args.records); state.records.push(...args.records); result = { saved: args.records.length, failed: [] }; }
     else if (name === 'dns_records_delete') {
       state.deletes.push(args.records);
       let deleted = 0;
       for (const wanted of args.records) {
-        const at = state.records.findIndex(row => row.type === wanted.type && row.name === wanted.name && row.address === wanted.address);
+        if (!DELETABLE.includes(wanted.type)) throw Error(`dns_records_delete refused the record type ${wanted.type}`);
+        const content = row => row.address ?? row.cname;
+        const at = state.records.findIndex(row => row.type === wanted.type && row.name === wanted.name && content(row) === content(wanted));
         if (at >= 0) { state.records.splice(at, 1); deleted += 1; }
       }
       result = { deleted, notFound: [] };

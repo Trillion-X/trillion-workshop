@@ -699,7 +699,9 @@ export async function computerRowDifferences(request, { run = onMachine, held = 
  * under this tool's providers/) and its key is the value descriptor 5 holds under the description's
  * `vault_key`. The name is kept answering with the row's `address` alone (tools/move-the-public-door keepHealthyRecords): the
  * address is added when missing, records this row made for other addresses are removed, and a record nobody marked is left
- * untouched and refused unless the row says `adopt` (the name is the row's). Nothing here names a provider or a domain. */
+ * untouched and refused unless the row says `adopt`; with `adopt` the name is the row's, so every other address record of the
+ * name is removed too (named in `removed`), and a record the provider cannot list or remove is named in `unremovable`.
+ * Nothing here names a provider or a domain. */
 export function namesOf(request) {
   const row = request.computer_row ?? {}, names = row.runs?.names ?? [];
   if (!Array.isArray(names)) throw refused('runs.names is a list of { host_name, provider, adopt? }.');
@@ -756,7 +758,7 @@ export async function keepTheNames(request, { held = {}, fetchImpl = fetch, appl
           outcome = { host_name: name.host_name, address: name.address, answers, matches: answers.length === 1 && answers[0] === name.address };
         } else {
           const answer = await keepHealthyRecords({ hostname: name.host_name, candidates: [{ address: name.address }], check: () => true, request: dns, provider: name.provider, adopt: name.adopt });
-          outcome = { host_name: name.host_name, address: name.address, added: answer.added.map(row => row.address), removed: answer.removed.map(row => row.address) };
+          outcome = { host_name: name.host_name, address: name.address, added: answer.added.map(row => row.address), removed: answer.removed.map(row => row.content), ...(answer.unremovable.length ? { unremovable: answer.unremovable } : {}) };
         }
         break;
       } catch (error) {

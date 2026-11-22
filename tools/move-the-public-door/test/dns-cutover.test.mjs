@@ -113,7 +113,7 @@ const healthyWhen = ok => async candidate => ok.includes(candidate.address);
 test('health-checked records: the name answers with exactly the healthy computers, adds first, never empty', async () => {
   const w = world({ records: [member('c0000001', '192.0.2.10'), member('c0000002', '192.0.2.99'), record('c0000000', 'example.com', 'unrelated', { kind: 'TXT' })] });
   const answer = await keepHealthyRecords({ hostname: c.hostname, candidates: front, check: healthyWhen(['192.0.2.11', '192.0.2.10']), request: w.client(), provider: DNS });
-  assert.deepEqual([answer.healthy, answer.unhealthy, answer.added.map(x => x.address), answer.removed.map(x => x.address)], [['192.0.2.10', '192.0.2.11'], ['192.0.2.12'], ['192.0.2.11'], ['192.0.2.99']]);
+  assert.deepEqual([answer.healthy, answer.unhealthy, answer.added.map(x => x.address), answer.removed.map(x => x.content)], [['192.0.2.10', '192.0.2.11'], ['192.0.2.12'], ['192.0.2.11'], ['192.0.2.99']]);
   assert.deepEqual(w.state.events, ['create-address', 'remove-address'], 'the new address is made before the old one goes');
   assert.deepEqual(w.state.records.filter(x => x.host === c.hostname).map(x => x.value).sort(), ['192.0.2.10', '192.0.2.11']);
   assert.equal(w.state.records.at(-1).value, 'unrelated');
@@ -130,7 +130,7 @@ test('health-checked records refuse when nothing is healthy, and leave records t
   await assert.rejects(keepHealthyRecords({ hostname: c.hostname, candidates: front, check: healthyWhen(['192.0.2.10']), request: other.client(), provider: DNS }), /does not own/);
   assert.deepEqual(other.state.events, []);
   const taken = await keepHealthyRecords({ hostname: c.hostname, candidates: front, check: healthyWhen(['192.0.2.10']), request: other.client(), provider: DNS, adopt: true });
-  assert.deepEqual([taken.added.length, taken.removed.map(x => x.address)], [1, ['192.0.2.77']]);
+  assert.deepEqual([taken.added.length, taken.removed.map(x => x.content)], [1, ['192.0.2.77']]);
   await assert.rejects(keepHealthyRecords({ hostname: c.hostname, candidates: [{ address: 'not-an-address' }], check: healthyWhen([]), request: other.client(), provider: DNS }), /public IPv4/);
 });
 

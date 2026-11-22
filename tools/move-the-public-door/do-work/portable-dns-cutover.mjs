@@ -6,7 +6,11 @@
 //   zone    { find, list_at, id_is, id_pattern, id_at, account_at, guards: [{ request, list_at }] }
 //           find a zone by name; its account; lists that must not change while a cutover runs (routes and the like)
 //   record  { list, list_at, pages_at?, create, create_given, update, remove, id_is, id_pattern, id_at, name_at, type_at,
-//             content_at, address_types, editable_types, fields, desired, read_only_at?, binding_at?, owner_at, owner_is }
+//             content_at, content_at_by_type?, address_types, editable_types, fields, desired, read_only_at?, binding_at?,
+//             owner_at, owner_is, omitted_at? }
+//           `content_at_by_type` names the key a type's content sits under where it is not `content_at` (a CNAME's target, say);
+//           `omitted_at` is the list a list answer carries beside its items: records the typed contract cannot represent, each
+//           { type, name }, which no remove call can name, so an adopt reports them as unremovable.
 //           `desired` is what a placement writes into the record ({host_name}, {address} filled); `fields` are the keys
 //           compared; `create` makes one more record of a health-checked set (its body carries the owner mark); `create_given`
 //           and `update` send the record body as given ({record_body})
@@ -63,8 +67,10 @@ function engineClient({ provider, call }) {
 
 /** The relative name a record of `zone` takes for `hostname` ('@' for the apex); the hostname itself when the zone names full hosts. */
 const labelOf = (provider, zone, hostname) => !provider.zone?.name_relative ? hostname : hostname === zone ? '@' : hostname.slice(0, -(zone.length + 1));
-/** The record body a provider removes a record by (its id_is_fields), the name as the zone names it. */
-const bodyOf = (provider, zone, row) => Object.fromEntries(provider.record.id_is_fields.map(key => [key, key === provider.record.name_at ? labelOf(provider, zone, nameOf(provider, row)) : at(row, key)]));
+/** The record body a provider removes a record by (its id_is_fields), the name as the zone names it; the content goes under the key its type takes. */
+const bodyOf = (provider, zone, row) => Object.fromEntries(provider.record.id_is_fields.map(key => key === provider.record.content_at
+  ? [contentKeyOf(provider, row), contentOf(provider, row)]
+  : [key, key === provider.record.name_at ? labelOf(provider, zone, nameOf(provider, row)) : at(row, key)]));
 /** Remove one record: by its id, or by its body where the provider keeps no ids. */
 const removeRow = (request, provider, zone, row) => provider.record.id_is_fields
   ? ask(request, provider, provider.record, 'remove', { zone_id: zone, record_body: bodyOf(provider, zone, row) })
@@ -83,17 +89,21 @@ const has = (row, want) => Object.keys(want).every(key => JSON.stringify(row[key
 const stable = (rows, project = x => x) => JSON.stringify(rows.map(project).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))));
 const nameOf = (provider, row) => at(row, provider.record.name_at ?? 'name');
 const typeOf = (provider, row) => at(row, provider.record.type_at ?? 'type');
-const contentOf = (provider, row) => at(row, provider.record.content_at ?? 'content');
+/** The key a record's content (address, target or value) sits under: its type's own key where the provider names one. */
+const contentKeyOf = (provider, row) => provider.record.content_at_by_type?.[typeOf(provider, row)] ?? provider.record.content_at ?? 'content';
+const contentOf = (provider, row) => at(row, contentKeyOf(provider, row));
 const idOf = (part, row) => at(row, part.id_at ?? 'id');
 const addressRows = (provider, state, hostname) => state.records.filter(row => nameOf(provider, row) === hostname && provider.record.address_types.includes(typeOf(provider, row)));
 
+/** Every listed record of the zone, and the records the list answer omits (`omitted_at`), each once. */
 async function pages(request, provider, ctx) {
-  const part = provider.record, result = [];
+  const part = provider.record, result = [], omitted = new Map();
   for (let page = 1; ; page += 1) {
     const size = part.page_size, answer = await ask(request, provider, part, 'list', { ...ctx, page, skip: size ? (page - 1) * size : undefined, take: size });
     const rows = at(answer, part.list_at);
     result.push(...rows);
-    if (size ? rows.length < size : !part.pages_at || page >= (at(answer, part.pages_at) ?? 1)) return result;
+    for (const row of (part.omitted_at ? at(answer, part.omitted_at) : undefined) ?? []) omitted.set(JSON.stringify(row), row);
+    if (size ? rows.length < size : !part.pages_at || page >= (at(answer, part.pages_at) ?? 1)) return { rows: result, omitted: [...omitted.values()] };
   }
 }
 async function snapshot(c, request, provider, zone, account) {
@@ -110,8 +120,8 @@ async function snapshot(c, request, provider, zone, account) {
   for (const guard of z.guards ?? []) guards.push(at(await ask(request, provider, guard, 'request', ctx), guard.list_at));
   const bindings = provider.binding ? at(await ask(request, provider, provider.binding, 'list', ctx), provider.binding.list_at) : [];
   const listed = await pages(request, provider, ctx);
-  const records = z.name_relative ? listed.map(row => ({ ...row, [provider.record.name_at ?? 'name']: fullNameOf(zone, at(row, provider.record.name_at ?? 'name')) })) : listed;
-  return { zone, account, records, guards, bindings };
+  const full = rows => z.name_relative ? rows.map(row => ({ ...row, [provider.record.name_at ?? 'name']: fullNameOf(zone, at(row, provider.record.name_at ?? 'name')) })) : rows;
+  return { zone, account, records: full(listed.rows), omitted: full(listed.omitted), guards, bindings };
 }
 
 /** The cutover receipt `file` names, or an error saying none is kept under that name. */
@@ -259,8 +269,11 @@ export function probeHealthy({ hostname, address, path = '/', timeoutMs = 10000,
 /** Keep one hostname answering with exactly the front-door computers that pass their health check: `candidates` are
  * { address, health_path? }; `check(candidate)` answers true when that computer is healthy. Healthy addresses missing
  * from the name are added first, then unhealthy ones this call owns are removed, so the name is never empty; when no
- * candidate is healthy nothing changes and the call refuses. A record at the name that this set does not own is left
- * untouched and refused unless `adopt` says the existing address records are this set's. */
+ * candidate is healthy nothing changes and the call refuses. Without `adopt`, a record at the name that this set does not own
+ * (or one the list omits) is left untouched and refused. With `adopt` the name is the healthy set's: after the healthy records
+ * are added, every other address record of the name (any type in address_types: A, CNAME, redirect) is removed, and each
+ * record the provider omits from its list is reported in `unremovable`, since no remove call can name it. Other names and
+ * the rest of the zone are never touched. */
 export async function keepHealthyRecords({ hostname, candidates, check, request, provider, adopt = false }) {
   const p = provider.record, owner = { lease_label_key: provider.lease_label_key, name: hostname };
   checked({ hostname, address: '192.0.2.1' });
@@ -269,23 +282,25 @@ export async function keepHealthyRecords({ hostname, candidates, check, request,
   const healthy = health.filter(x => x.healthy).map(x => x.candidate.address);
   if (!healthy.length) throw Error('No front-door computer is healthy; the name was left as it is.');
   const state = await snapshot({ hostname }, request, provider), here = addressRows(provider, state, hostname);
+  const omittedHere = state.omitted.filter(row => nameOf(provider, row) === hostname && p.address_types.includes(typeOf(provider, row)));
   const ownedHere = row => adopt || (p.owner_at ? at(row, p.owner_at) === fill(p.owner_is, owner) : p.owner_by === 'address' && candidates.some(x => x.address === contentOf(provider, row)));
   const foreign = here.filter(row => !ownedHere(row));
-  if (foreign.length) throw Error(`${hostname} already holds ${foreign.length} address record(s) this set does not own; they were left untouched (adopt them to take the name over).`);
-  const sameType = row => typeOf(provider, row) === 'A';
-  const mine = here.filter(sameType);
-  if (here.length !== mine.length) throw Error(`${hostname} holds an address record that is not an A record; it was left untouched.`);
-  const have = new Set(mine.map(row => contentOf(provider, row)));
+  if (!adopt && (foreign.length || omittedHere.length)) throw Error(`${hostname} already holds ${foreign.length + omittedHere.length} address record(s) this set does not own; they were left untouched (adopt them to take the name over).`);
+  const isA = row => typeOf(provider, row) === 'A';
+  if (!adopt && here.some(row => !isA(row))) throw Error(`${hostname} holds an address record that is not an A record; it was left untouched.`);
+  const kept = row => isA(row) && healthy.includes(contentOf(provider, row));
+  const have = new Set(here.filter(isA).map(row => contentOf(provider, row)));
   const added = [], removed = [];
   for (const address of healthy) if (!have.has(address)) {
     const answer = await ask(request, provider, p, 'create', { zone_id: state.zone, host_name: hostname, host_label: labelOf(provider, state.zone, hostname), address, ...owner });
     added.push({ address, id: idOf(p, at(answer, p.created_at ?? 'result')) });
   }
-  for (const row of mine) if (!healthy.includes(contentOf(provider, row))) {
+  for (const row of here) if (!kept(row)) {
     await removeRow(request, provider, state.zone, row);
-    removed.push({ address: contentOf(provider, row), id: idOf(p, row) });
+    removed.push({ type: typeOf(provider, row), content: contentOf(provider, row), id: idOf(p, row) });
   }
   const after = addressRows(provider, await snapshot({ hostname }, request, provider, state.zone, state.account), hostname).map(row => contentOf(provider, row)).sort();
   if (JSON.stringify(after) !== JSON.stringify([...healthy].sort())) throw Error('The name does not answer with the healthy computers after the change; read it back and investigate.');
-  return { hostname, healthy, unhealthy: health.filter(x => !x.healthy).map(x => x.candidate.address), added, removed };
+  const unremovable = omittedHere.map(row => ({ type: typeOf(provider, row), host_name: hostname }));
+  return { hostname, healthy, unhealthy: health.filter(x => !x.healthy).map(x => x.candidate.address), added, removed, unremovable };
 }
