@@ -130,7 +130,8 @@ export async function chooseTheWorkflowsThatFire(input = {}) {
   for (const workflow of ids) {
     const mine = own.get(workflow), shipped = catalog.get(workflow);
     const label = mine?.label ?? shipped?.label;
-    const [conditions, from] = mine?.conditions !== undefined ? [mine.conditions, 'own'] : [shipped?.conditions, mine ? 'catalog-condition' : 'catalog'];
+    // The person's own row for an id shadows the installed copy of that id, whatever its conditions: a row with none is unconditioned.
+    const [conditions, from] = mine ? [mine.conditions, 'own'] : [shipped?.conditions, 'catalog'];
     const live = (Array.isArray(conditions) ? conditions : []).filter(item => !FIRES_WHEN.off_states.includes(item?.state));
     if (!live.length) { unconditioned.push({ workflow, label }); continue; }
     const keys = new Set();

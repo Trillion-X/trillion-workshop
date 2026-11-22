@@ -195,6 +195,20 @@ test('on a blank account a message that needs an answer starts the installed inb
   assert.doesNotMatch(text, /record:mailbox|person's own store/);
 });
 
+test('the person\'s own row for an id shadows the installed copy of that id; an id with no row of the person\'s still uses the installed copy', async () => {
+  const claim = { words: 'Most teams skip the plan.', kinds: ['claim'] };
+  const installedCopy = await chooseTheWorkflowsThatFire({ parts: [claim], ...handedIn([]) });
+  assert.ok(installedCopy.chosen.some(item => item.workflow === 'workflow:research-what-everyone-says' && item.from === 'catalog'), 'with no row of the person\'s, the installed copy chooses');
+  const shadowed = ownRow('research-what-everyone-says', { title: 'Research what everyone says', fires_when: JSON.stringify([condition('a shadow-only kind arrives', ['shadow-only'])]) });
+  const onlyOwn = await chooseTheWorkflowsThatFire({ parts: [claim, { words: 'x', kinds: ['shadow-only'] }], ...handedIn([shadowed]) });
+  assert.ok(!onlyOwn.chosen.some(item => item.workflow === 'workflow:research-what-everyone-says' && item.part === 0), 'the installed condition no longer chooses it');
+  assert.ok(onlyOwn.chosen.some(item => item.workflow === 'workflow:research-what-everyone-says' && item.part === 1 && item.from === 'own'), 'the own condition chooses it');
+  const bare = ownRow('research-what-everyone-says', { title: 'Research what everyone says' });
+  const noConditions = await chooseTheWorkflowsThatFire({ parts: [claim], ...handedIn([bare]) });
+  assert.ok(!noConditions.chosen.some(item => item.workflow === 'workflow:research-what-everyone-says'), 'an own row with no conditions shadows the installed one');
+  assert.ok(noConditions.unconditioned.some(item => item.workflow === 'workflow:research-what-everyone-says'));
+});
+
 test('a condition on a field a part does not carry is named as unfinished, never dropped silently', async () => {
   const stage = { fields: [{ id: 'place', kind: 'choice', path: ['place'] }, { id: 'state', kind: 'choice', path: ['state'] }], tree: { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'place', operator: 'is_any_of', params: { values: ['product_stage'] } }, { kind: 'rule', field: 'state', operator: 'is_any_of', params: { values: ['ready'] } }] } };
   const row = ownRow('ready-piece-filler', { title: 'Fill a ready piece', fires_when: JSON.stringify([{ label: 'a piece is ready to be filled', condition: stage, made_by: 'the person', state: 'On' }]) });
