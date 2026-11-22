@@ -245,8 +245,6 @@
     "wakes": [
      {
       "id": "weekly",
-      "tool": "workflow:watch-the-law-for-each-niche",
-      "switched_on": false,
       "budget": {
        "steps": 6,
        "wall_ms": 900000
@@ -256,7 +254,6 @@
        "within_ms": 86400000
       },
       "until": null,
-      "mark": {},
       "on": {
        "fact": {
         "from": [
@@ -277,9 +274,7 @@
             "operation": "tell-the-engine",
             "owner_dispatch": {
              "input": {
-              "connection": null,
-              "table": null,
-              "niche_key": null
+              "start_at": "read-the-law-sources"
              },
              "name": "workflow:watch-the-law-for-each-niche"
             },
@@ -306,6 +301,9 @@
          ]
         }
        }
+      },
+      "input": {
+       "start_at": "read-the-law-sources"
       }
      }
     ]
