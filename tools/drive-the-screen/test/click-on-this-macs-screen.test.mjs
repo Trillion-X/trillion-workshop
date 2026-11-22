@@ -125,4 +125,5 @@ test('the four actions map onto the driver rows, and a click needs its target an
   assert.throws(() => clickInput(settings, { action: 'click', app: 'Notes' }), /target/);
   assert.throws(() => clickInput(settings, { action: 'click', target: 'x' }), /app/);
   assert.throws(() => clickInput(settings, { action: 'drag', app: 'Notes' }), /drag/);
+  assert.deepEqual(clickInput(settings, { action: 'open', app: 'Notes', computer: { 'drive-the-screen': {} } }), { action: 'activate', app: 'Notes', record_captures: true }, 'the engine\'s grant targets are not a tool input');
 });

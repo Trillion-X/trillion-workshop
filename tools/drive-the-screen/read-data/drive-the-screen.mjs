@@ -754,7 +754,8 @@ export function makeScreenTools({ settings = screenSettings(), driver = home => 
   scratch = () => mkdtempSync(join(tmpdir(), 'drive-the-screen-home-')) } = {}) {
   const opened = input => {
     if (input !== undefined && (input === null || typeof input !== 'object' || Array.isArray(input))) throw Object.assign(new Error(hostWords(settings).not_an_object), { status: 400, retry: false });
-    const { settings_folder: folder, ...rest } = input ?? {};
+    // `computer` is the engine's grant targets for the run (computer.<capability>), never a tool input.
+    const { settings_folder: folder, computer: _grants, ...rest } = input ?? {};
     if (folder !== undefined && (typeof folder !== 'string' || !folder.startsWith('/'))) throw refuse(settings, 'bad_input', { name: 'settings_folder', type: 'a full folder path' }, 400);
     // No folder: a fresh empty one, so nothing the person has not written limits the run (invariant 2).
     const home = folder ?? scratch();
@@ -791,7 +792,7 @@ export const driveTheScreen = input => toolsHere().drive(input);
 // the hard deny list judged on the resolved target. The words of each action are ./drive-the-screen.json `click_actions`.
 export function clickInput(settings, input) {
   if (input === null || typeof input !== 'object' || Array.isArray(input)) throw Object.assign(new Error(hostWords(settings).not_an_object), { status: 400, retry: false });
-  const { action, app, target, text, keys, expect, dry_run: dryRun, settings_folder: folder, ...rest } = input;
+  const { action, app, target, text, keys, expect, dry_run: dryRun, settings_folder: folder, computer: _grants, ...rest } = input;
   const extra = Object.keys(rest)[0];
   const row = settings.click_actions[action];
   if (!row) throw refuse(settings, 'unknown_action', { action }, 404);
