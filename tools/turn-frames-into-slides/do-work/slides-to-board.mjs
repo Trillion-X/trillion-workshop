@@ -5,7 +5,8 @@
 // this, then judges and draws the board as it does any other.
 //
 // slides: { size?: { width, height } (default 1920 x 1080), roles?: { paper, ink, accent, card, display, body }
-//           (look variable names; defaults --paper, --ink, --accent, --card, --font-display, --font-primary),
+//           (look variable names; defaults --bg-primary, --ink, --accent-primary, --bg-surface, --font-display,
+//           --font-primary: the names the Screen Look's palette has, read-data/resolve-screen-look-palette.js),
 //           list: [slide] }
 // slide, by its kind:
 //   words    { title, lines?: [text], dark?, cover? }         a title and its lines; cover sets the title larger
@@ -14,7 +15,7 @@
 //   table    { title, head: [text], rows: [[text]], widths?: [parts], lines?: [text] }
 // A picture that is not "asset:<name>" is added to the request's assets under the slide's own name.
 const KINDS = new Set(['words', 'compare', 'picture', 'table']);
-const DEFAULT_ROLES = { paper: '--paper', ink: '--ink', accent: '--accent', card: '--card', display: '--font-display', body: '--font-primary' };
+const DEFAULT_ROLES = { paper: '--bg-primary', ink: '--ink', accent: '--accent-primary', card: '--bg-surface', display: '--font-display', body: '--font-primary' };
 const GAP = 200;
 
 const plain = { fill: 'none', stroke: 'none' };

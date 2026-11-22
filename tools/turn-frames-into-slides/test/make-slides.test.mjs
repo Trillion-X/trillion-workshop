@@ -94,6 +94,18 @@ test('a look variable the look does not have, an unknown asset or a frame of ano
   assert.throws(() => run(sizes), /every slide is 1280 x 720/);
 });
 
+test('a deck written as slides, with no roles, draws in the names the Screen Look has', () => {
+  const dir = setUp();
+  writeFileSync(join(dir, 'request.json'), JSON.stringify({ slides: { list: [
+    { kind: 'words', title: 'Example deck', lines: ['One line.'] },
+    { kind: 'compare', title: 'Two columns', columns: [{ head: 'First', body: 'A.' }, { head: 'Second', body: 'B.' }] },
+  ] }, title: 'Example deck', look_values: { '--bg-primary': '#f5f1ea', '--bg-surface': '#ffffff', '--ink': '#202020', '--accent-primary': '#0f7a6b', '--font-display': 'Georgia, serif', '--font-primary': 'Helvetica, sans-serif' } }));
+  const out = run(dir);
+  assert.deepEqual(out.slides.map(slide => slide.order), [1, 2]);
+  assert.match(readFileSync(out.slides[0].svg, 'utf8'), /fill="#f5f1ea"/);
+  assert.match(readFileSync(out.slides[1].svg, 'utf8'), /fill="#ffffff"/);
+});
+
 const runStep = file => JSON.parse(execFileSync(process.execPath, [command, file], { encoding: 'utf8' }).trim().split('\n').pop());
 
 test('a workflow step\'s input carries the request inline or as a path, and makes the same slides as the file', () => {

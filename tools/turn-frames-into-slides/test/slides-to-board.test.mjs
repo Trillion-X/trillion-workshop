@@ -35,7 +35,7 @@ test('one frame per slide, in order, the same size, side by side', () => {
 test('a dark slide swaps paper and ink; a compare slide has a card per column', () => {
   const { items } = slidesToBoard(deck);
   assert.equal(items.find(item => item.memberId === 's1').extra.style.fill, '--ink');
-  assert.equal(items.find(item => item.memberId === 's1-title').extra.style.textColor, '--paper');
+  assert.equal(items.find(item => item.memberId === 's1-title').extra.style.textColor, '--bg-primary');
   assert.equal(items.filter(item => /^s2-col-\d-card$/.test(item.memberId)).length, 3);
 });
 
@@ -54,7 +54,7 @@ test('a slide of an unknown kind, with no title, or one column to compare is ref
 test('a request with slides is judged like a board: a long dash on a slide stops it', () => {
   const dir = tempFolder(join(tmpdir(), 'slides-to-board-'));
   writeFileSync(join(dir, 'request.json'), JSON.stringify({ slides: { list: [{ title: 'One crew does it all — removal and prep' }] }, font: 'sans-serif',
-    look_values: { '--paper': '#ffffff', '--ink': '#000000', '--accent': '#ff0000', '--card': '#eeeeee', '--font-display': 'serif', '--font-primary': 'sans-serif' } }));
+    look_values: { '--bg-primary': '#ffffff', '--ink': '#000000', '--accent-primary': '#ff0000', '--bg-surface': '#eeeeee', '--font-display': 'serif', '--font-primary': 'sans-serif' } }));
   const result = spawnSync(process.execPath, [command, join(dir, 'request.json'), '--out', join(dir, 'out')], { encoding: 'utf8' });
   assert.equal(result.status, 2, result.stdout);
   assert.match(result.stderr, /no-long-dash/);
