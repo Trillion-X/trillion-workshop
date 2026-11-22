@@ -1,11 +1,12 @@
 {
-  "_what": "The asks a workflow step may name that the run's own door answers (the door method itself, its input the door's whole input, bound like any input), and the right each needs, so a workflow row's `records` (the rights its runs hold when tool:run-workflow-definition takes them from the row, trillion-rust from_listed_row) is made from its steps (read-data/derived-records.mjs). An entry with `at` is a right at that door over the thing its input's `id_from` field names; one with `runs_from` adds the tool its input's field names to `runs` (with `host_from`, a tool of the server at that address, keyed `<host>/<tool>` as the engine keys it, trillion-rust ad16db22f); one with neither needs no right (tools:list: every run may list). A right is made only from a value given in the step; one named from the run's input gets none, so the door refuses it and the ask waits for the person's AI. A tool:... ask needs only the tool's id in `runs`. Every other ask (ai, the person) waits.",
+  "_what": "The asks a workflow step may name that the run's own door answers (the door method itself, its input the door's whole input, bound like any input), and the right each needs, so a workflow row's `records` (the rights its runs hold when tool:run-workflow-definition takes them from the row, trillion-rust from_listed_row) is made from its steps (read-data/derived-records.mjs). An entry with `at` is a right at that door over the thing its input's `id_from` field names; one with `runs_from` adds the tool its input's field names to `runs` (with `host_from`, a tool of the server at that address, keyed `<host>/<tool>` as the engine keys it, trillion-rust ad16db22f); one with neither needs no right (tools:list: every run may list; tools:read: every run may read its own account's runs, as a sweep of stranded runs reads their summaries, Nov 22 2026). A right is made only from a value given in the step; one named from the run's input gets none, so the door refuses it and the ask waits for the person's AI. A tool:... ask needs only the tool's id in `runs`. Every other ask (ai, the person) waits.",
   "asks": {
     "wake:arrive": {
       "at": "@own-records",
       "id_from": "kind"
     },
     "tools:list": {},
+    "tools:read": {},
     "tools:run": {
       "runs_from": "tool",
       "host_from": "address"
