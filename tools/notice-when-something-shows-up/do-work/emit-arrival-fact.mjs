@@ -737,8 +737,9 @@ async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, c
           error?.message ?? error,
         );
         // No room at the door now (owed_full): the fact is fine. It is not a failed append; the waiter waits, longer each
-        // time up to ROOM_FULL_MOST_WAIT_MS, and tells it again (its mechanism keeps its place until a fact is taken).
-        if (error?.roomFull) {
+        // time up to ROOM_FULL_MOST_WAIT_MS, and tells it again (its mechanism keeps its place until a fact is taken). A door
+        // that did not answer in time is the same (`tellAgain`, tell-the-engine.mjs door-call.json tell_again_codes).
+        if (error?.roomFull || error?.tellAgain) {
           roomFullWaits += 1;
           const wait = Math.min(ROOM_FULL_FIRST_WAIT_MS * 2 ** (roomFullWaits - 1), ROOM_FULL_MOST_WAIT_MS);
           await new Promise((resolve) => setTimeout(resolve, wait));

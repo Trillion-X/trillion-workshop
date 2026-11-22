@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
-import { engineCarrier, factOf, waitersWithTheirCredentials, EACH_WAITER_FD } from '../do-work/tell-the-engine.mjs';
+import { engineCarrier, factOf, operateOverDoor, refusedFact, waitersWithTheirCredentials, EACH_WAITER_FD } from '../do-work/tell-the-engine.mjs';
 import { runResidentEmitter } from '../do-work/emit-arrival-fact.mjs';
 
 const clock = { kind: 'notice-when-something-shows-up.waiter-descriptor', id: 'waiter:elapsed-time', is_active: true,
@@ -109,4 +109,35 @@ test('one run watches many places, each waiter reading with its own credential o
   await runResidentEmitter({ carrier, signal: controller.signal, loadModule, connection: 'the-runs-one-credential' });
   assert.deepEqual(told.map(fact => [fact.payload.where, fact.payload.read]).sort(),
     [['my-booking-service', '7'], ['my-database', '5'], ['the-runs-one-credential', 'null']]);
+});
+
+test('a door that never answers is given up after its time limit and refused door_timeout, so the fact is told again', { timeout: 10_000 }, async () => {
+  // wake-engine, Nov 22 2026, 3:2x AM CST: fetch with no signal held a waiter's pass for ever when the door did not answer.
+  let calls = 0;
+  const fetchImpl = (url, { signal }) => {
+    calls += 1;
+    if (calls === 1) {
+      // The first call hangs until its signal ends it, as a door that never answers does.
+      return new Promise((resolve, reject) => signal?.addEventListener('abort', () => reject(signal.reason), { once: true }));
+    }
+    return Promise.resolve(new Response(JSON.stringify({ result: { structuredContent: { kept: true } } }), { status: 200 }));
+  };
+  const door = { url: 'http://door.test/mcp', capability: 'run-capability' };
+  const started = Date.now();
+  const gaveUp = await operateOverDoor(door, 'wake:arrive', { kind: 'due-time' }, 'fact:x', { fetchImpl, timeoutMs: 50 });
+  assert.ok(Date.now() - started < 5000, 'given up near its limit, not held');
+  assert.equal(gaveUp.response.ok, false);
+  assert.equal(gaveUp.result.isError, true);
+  assert.equal(gaveUp.result.structuredContent.code, 'door_timeout');
+  const lines = [];
+  const carrier = engineCarrier({ door, waiters: [], fetchImpl, say: line => lines.push(line), doorTimeoutMs: 50 });
+  calls = 0;
+  const refused = await carrier.writeRecord({ addressLabel: 'due', payload: { kind: 'due-time' }, eventKey: 'x' }).catch(error => error);
+  assert.equal(refused.tellAgain, true, 'a door that did not answer is told again, never counted as a broken fact');
+  assert.equal(refused.roomFull, false);
+  assert.equal(carrier.answer.told.length, 0, 'nothing is kept as told');
+  await carrier.writeRecord({ addressLabel: 'due', payload: { kind: 'due-time' }, eventKey: 'x' });
+  assert.equal(carrier.answer.told.length, 1, 'told again, it is taken');
+  assert.equal(refusedFact('no room', 'owed_full').tellAgain, true);
+  assert.equal(refusedFact('bad', 'not_this_kind').tellAgain, false);
 });

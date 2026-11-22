@@ -43,6 +43,10 @@ const ARRIVE = 'wake:arrive';
 const LIST = 'wake:list';
 /** The most payload fields one fact carries (the engine's fact inbox, trillion-rust src/wake/host-events.json max_fields). */
 const MOST_FIELDS = 8;
+/** How long one door call may take and which refusals are told again: DATA, each with its why (door-call.json). */
+const DOOR_CALL = JSON.parse(readFileSync(new URL('./door-call.json', import.meta.url), 'utf8'));
+/** The code a door call that did not answer within `DOOR_CALL.timeout_ms` is refused with. */
+export const DOOR_TIMEOUT_CODE = 'door_timeout';
 
 /** The run's door, from the descriptor the engine wrote on fd 3. */
 export function readDoor(descriptor = DESCRIPTOR_FD) {
@@ -76,15 +80,27 @@ export function keptFolderOf(argv = process.argv.slice(2)) {
 
 /** One door operation `method` with `input` on the run's door (`door`: {url, resource, capability}): {response, result}. A
  *  JSON-RPC error carries no result: it is a refusal, never an empty success. Shared by the carrier and the signed-call
- *  receiver (do-work/signed-webhook-receiver.mjs), so both reach the engine one way. */
-export async function operateOverDoor(door, method, input, requestKey, { fetchImpl = fetch, id = 1 } = {}) {
+ *  receiver (do-work/signed-webhook-receiver.mjs), so both reach the engine one way.
+ *  A call, its answer read whole, that takes longer than `timeoutMs` (DATA door-call.json timeout_ms) is given up and
+ *  answered as refused `door_timeout`, which a teller tells again (`tellAgain`): fetch has no time limit of its own, so a
+ *  door that never answered held the waiter's pass for ever (wake-engine, Nov 22 2026, 3:2x AM CST). */
+export async function operateOverDoor(door, method, input, requestKey, { fetchImpl = fetch, id = 1, timeoutMs = DOOR_CALL.timeout_ms } = {}) {
   const body = JSON.stringify({ jsonrpc: '2.0', id, method: 'tools/call', params: { name: 'do_one_thing_in_my_account',
     // A fact's own key (a due time's occurrence key names its schedule, its zone and four times) can be longer than the
     // door takes; content-identity gives a longer one a fixed-length name of its own, so the same fact keeps one key.
     arguments: { address: door.resource ?? '@own-records', method, request_key: requestKeyForEngine(requestKey), input } } });
-  const response = await fetchImpl(door.url, { method: 'POST', body, headers: { authorization: `Bearer ${door.capability}`,
-    'content-type': 'application/json', accept: 'application/json, text/event-stream', 'mcp-protocol-version': '2025-06-18' } });
-  const raw = await response.text();
+  const signal = AbortSignal.timeout(timeoutMs);
+  let response;
+  let raw;
+  try {
+    response = await fetchImpl(door.url, { method: 'POST', body, signal, headers: { authorization: `Bearer ${door.capability}`,
+      'content-type': 'application/json', accept: 'application/json, text/event-stream', 'mcp-protocol-version': '2025-06-18' } });
+    raw = await response.text();
+  } catch (error) {
+    if (!signal.aborted) throw error;
+    const detail = `the door did not answer ${method} within ${timeoutMs} ms`;
+    return { response: { ok: false, status: 0 }, result: { isError: true, structuredContent: { code: DOOR_TIMEOUT_CODE, detail } } };
+  }
   const json = raw.trim().startsWith('{') ? raw : raw.split('\n').filter(line => line.startsWith('data:')).map(line => line.slice(5).trim()).join('');
   const answer = JSON.parse(json || '{}');
   if (answer.error) return { response, result: { isError: true, structuredContent: { code: answer.error.code, detail: answer.error.message } } };
@@ -97,9 +113,12 @@ export const ROOM_FULL_CODE = 'owed_full';
 
 /** The error a refused fact throws: the engine's words, and `roomFull` when the door had no room for it now, so a teller
  *  waits and tells it again instead of counting a broken fact (Nov 21 2026, 4:11 and 4:47 PM CST on the Mac: the row changes
- *  noticer counted ten full-owed refusals as failures and stopped). */
+ *  noticer counted ten full-owed refusals as failures and stopped). `tellAgain` when its code is one DATA names
+ *  (door-call.json tell_again_codes: no room now, or a door that did not answer in time): the teller keeps its place and
+ *  tells it again after a wait. */
 export function refusedFact(why, code) {
-  return Object.assign(new Error(`the engine refused the fact: ${why}`), { code: code ?? null, roomFull: code === ROOM_FULL_CODE });
+  return Object.assign(new Error(`the engine refused the fact: ${why}`), { code: code ?? null, roomFull: code === ROOM_FULL_CODE,
+    tellAgain: DOOR_CALL.tell_again_codes.includes(code) });
 }
 
 /** Tells one fact to the engine at its door's `wake:arrive`. Resolves when the engine took it; throws with the engine's
@@ -126,7 +145,8 @@ export function notStartedWhy(answer) {
 
 /** The emitter's carrier over the engine's door: its waiter rows are `waiters`, each record it writes is told as a
  *  fact, and each waiter's last fact and state are kept in `keep` (a folder) when it names one. */
-export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => console.log(line), startedAt = Date.now(), keep = null }) {
+export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => console.log(line), startedAt = Date.now(), keep = null,
+  doorTimeoutMs = DOOR_CALL.timeout_ms }) {
   let calls = 0;
   const told = new Map();
   /** Each waiter's {payload, state}, by address. */
@@ -159,7 +179,7 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
   // empty success, or an occurrence the engine never took would be kept as told.
   async function operate(method, input, requestKey) {
     calls += 1;
-    return operateOverDoor(door, method, input, requestKey, { fetchImpl, id: calls });
+    return operateOverDoor(door, method, input, requestKey, { fetchImpl, id: calls, timeoutMs: doorTimeoutMs });
   }
   async function arrive(fact) {
     const { response, result } = await operate(ARRIVE, fact, `fact:${fact.event_id}`);

@@ -1,0 +1,6 @@
+{
+  "timeout_ms": 30000,
+  "timeout_ms_why": "The longest one call to the run's door (tell-the-engine.mjs operateOverDoor: wake:arrive, wake:list) may take, its answer read whole, before it is given up as not taken and told again. Without one, a door call that never answers holds that waiter's pass for ever: fetch has no time limit of its own, and the waiter never looks again (wake-engine, Nov 22 2026, 3:2x AM CST). A door answers in milliseconds when it has room and refuses at once when it has none (owed_full), so 30 s is far past a slow answer and short beside a waiter's own wait between looks (60 s for kept workflow times, 300 s for TidyCal bookings).",
+  "tell_again_codes": ["owed_full", "door_timeout"],
+  "tell_again_codes_why": "The refusal codes whose fact is fine and is told again after a wait, never counted as a failed append: owed_full (the door had no room now, trillion-rust src/wake.rs Failure::Full) and door_timeout (the door did not answer within timeout_ms, so whether it kept the fact is unknown; the engine admits one fact once by its event id, so telling it again is safe)."
+}

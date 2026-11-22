@@ -33369,6 +33369,7 @@
       "package": "notice-when-something-shows-up",
       "paths": [
         "do-work/tell-the-engine.mjs",
+        "do-work/door-call.json",
         "do-work/emit-arrival-fact.mjs",
         "do-work/mechanisms/imessage-chat-database.mjs"
       ],
