@@ -960,9 +960,12 @@ export function engineClient({ door, credential, fetchImpl = fetch, rules = sett
       const words = code ? rules.words.codes[code] ?? rules.words.refused_code_named : null;
       // The engine names the step that refused in `cause` (file, line, and the error); the message names the door and the code.
       const cause = typeof answer?.cause === 'string' ? ` Cause: ${answer.cause}` : '';
-      const said = words ? fill(words, { which: door.name, code, tool: args?.input?.tool ?? name }) : null;
+      // A code with no plain words of its own is said with the engine's cause too, so the line names the step that refused.
+      const said = words ? `${fill(words, { which: door.name, code, tool: args?.input?.tool ?? name })}${rules.words.codes[code] ? '' : cause}` : null;
       // The engine's own words for its code (`detail`, its words.json) come first; this command's table is for an engine that sends none.
-      const told = typeof answer?.detail === 'string' && answer.detail ? answer.detail : null;
+      // A detail that is an object says its words in `words` (the engine's pin_not_this_computer, wake_not_declared).
+      const detailWords = typeof answer?.detail === 'string' ? answer.detail : answer?.detail?.words;
+      const told = typeof detailWords === 'string' && detailWords ? detailWords : null;
       throw Object.assign(new CommandError(error.message ?? told ?? said ?? answer?.text ?? fill(rules.words.refused_code, { which: door.name }), { answer, detail: `${fill(rules.words.details.refused_code, { mcp: door.mcp, tool: name, code: code ?? 'no code' })}${cause}` }), { code });
     }
   }
