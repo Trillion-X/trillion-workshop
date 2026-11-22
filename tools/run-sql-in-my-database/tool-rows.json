@@ -9,7 +9,7 @@
         "id": "tool:run-sql-in-my-database",
         "label": "Run SQL in my database",
         "job": "Run one SQL statement in my own database and see its rows",
-        "description": "Runs exactly one SQL statement as written (sql, with params for $1, $2 and so on) in the person's own database, as the login the connection string names: the server refuses text holding more than one command, and a login that may only read (the read connection) cannot write, because the database says so. Give database, the name of one of the person's databases (the computer opens it with the login its vault holds as that name and -connection), or credential_name, the vault name the person saved the connection under (a login that may only read, for a share that may only read), and optionally statement_timeout_ms (how long its statements may run: 120000 ms when absent, at most 598000; the database ends a statement or an open transaction past what is left of the run, so nothing runs on after the run ends). Answers columns, rows and row_count, or the database's own error text. It adds no shape, no list names and no record types. With recipe instead of sql it runs a role recipe (read-data/role-recipes.json, the SQL that makes, grants and takes away a kind of login) as the owner login, in one transaction unless the recipe says otherwise: create with role_credential_name makes that standing login with the password the person holds under that name; create with recipe.valid_until mints a login that stops working then and answers its connection once; drop takes a role away. The connection may name any server that speaks the Postgres wire protocol that this computer reaches on a local port it reports as own-rows-postgres.",
+        "description": "Runs exactly one SQL statement as written (sql, with params for $1, $2 and so on), or several in one transaction (statements, ending in a rollback unless then is commit, each behind its own savepoint so a refused one answers its words and the rest still run) in the person's own database, as the login the connection string names: the server refuses text holding more than one command, and a login that may only read (the read connection) cannot write, because the database says so. Give database, the name of one of the person's databases (the computer opens it with the login its vault holds as that name and -connection), or credential_name, the vault name the person saved the connection under (a login that may only read, for a share that may only read), and optionally statement_timeout_ms (how long its statements may run: 120000 ms when absent, at most 598000; the database ends a statement or an open transaction past what is left of the run, so nothing runs on after the run ends). Answers columns, rows and row_count, or the database's own error text. It adds no shape, no list names and no record types. With recipe instead of sql it runs a role recipe (read-data/role-recipes.json, the SQL that makes, grants and takes away a kind of login) as the owner login, in one transaction unless the recipe says otherwise: create with role_credential_name makes that standing login with the password the person holds under that name; create with recipe.valid_until mints a login that stops working then and answers its connection once; drop takes a role away. The connection may name any server that speaks the Postgres wire protocol that this computer reaches on a local port it reports as own-rows-postgres.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -144,6 +144,39 @@
                   "description": "For a recipe that grants per table (may-read-under-row-rules), with create or drop: each table the login may read, as schema.table (consent_proof.clip). Each gets SELECT and its schema USAGE, and nothing else in that schema; use_binding may not be named. A table not named here is not granted."
                 }
               }
+            },
+            "statements": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 200,
+              "description": "Several statements run in one transaction, in order, each behind its own savepoint: one the database refuses answers its words and the rest still run. The answer has one row per statement ({ statement, columns, rows, row_count } or { statement, error }) and refused, how many were refused.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "sql"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "sql": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "params": {
+                    "type": [
+                      "array",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "then": {
+              "type": "string",
+              "enum": [
+                "rollback",
+                "commit"
+              ],
+              "description": "With statements: how the transaction ends. rollback (when absent) keeps nothing the statements did, so writes are tried and their reads answered without changing the database; commit keeps them."
             }
           },
           "oneOf": [
@@ -162,6 +195,11 @@
             {
               "required": [
                 "recipe"
+              ]
+            },
+            {
+              "required": [
+                "statements"
               ]
             }
           ],

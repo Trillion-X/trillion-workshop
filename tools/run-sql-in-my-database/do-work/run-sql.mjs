@@ -11,6 +11,10 @@
 // prepared statement), which the server refuses when the text holds more than one command. What a login may do is that
 // login's rule in the database (a SELECT-only role cannot write); nothing here checks it, wraps it or adds a flag.
 //
+// A third shape runs several statements in one transaction that ends in a rollback unless it says commit ({ statements:
+// [{ sql, params }], then }): each statement behind its own savepoint, so a refused one answers the database's words and the
+// rest still run, and a trial of writes answers its reads while the database keeps nothing.
+//
 // A second shape runs a role recipe (read-data/role-recipes.json) as the connection's login: { recipe: { name, action, role?,
 // valid_until?, limits? } }. `create` with a held role connection (role_credential_name, handed on descriptor 4) makes that standing
 // login with the password the person holds; `create` with a password_verifier makes a login for someone else whose password
@@ -100,6 +104,36 @@ const runUnderTicket = async (client, shape, ticket) => {
   }
 };
 
+// Several statements in one transaction, in order, each behind its own savepoint: a statement the database refuses answers
+// { error } with the database's own text and the next statement still runs, so a run of expected refusals reads in one call.
+// The transaction then ends as `then` says: rollback (the default) keeps nothing the statements did, so writes can be tried
+// and their reads answered without changing the database; commit keeps it. Under a use, the transaction claims the ticket first.
+// The answer keeps the one answer shape: one row per statement, in order ({ statement, columns, rows, row_count } or
+// { statement, error }), and `refused`, how many the database refused.
+const MAX_STATEMENTS = 200;
+const runInOneTransaction = async (client, shape, ticket) => {
+  await runOne(client, 'BEGIN');
+  try {
+    if (ticket) await runOne(client, 'SELECT * FROM use_binding.claim_use($1)', [ticket]);
+    const rows = [];
+    for (const [statement, { sql, params }] of shape.statements.entries()) {
+      await runOne(client, 'SAVEPOINT each_statement');
+      try {
+        rows.push({ statement, ...await runOne(client, sql, params) });
+        await runOne(client, 'RELEASE SAVEPOINT each_statement');
+      } catch (error) {
+        await runOne(client, 'ROLLBACK TO SAVEPOINT each_statement');
+        rows.push({ statement, error: error.message });
+      }
+    }
+    await runOne(client, shape.then === 'commit' ? 'COMMIT' : 'ROLLBACK');
+    return { columns: ['statement', 'columns', 'rows', 'row_count', 'error'], rows, row_count: rows.length, then: shape.then, refused: rows.filter(row => row.error !== undefined).length };
+  } catch (error) {
+    await runOne(client, 'ROLLBACK').catch(() => {});
+    throw error;
+  }
+};
+
 // The names a request gives for its connection: credential_name (the held connection) or database (one of the person's
 // databases). An absent, null or empty name is not given: the engine mounts the connection only for a request that names one.
 export const namesTarget = input => ['credential_name', 'database'].some(name => input?.[name] !== undefined && input[name] !== null && input[name] !== '');
@@ -113,7 +147,20 @@ export function shapeOf(input) {
   }
   const hasSql = Object.hasOwn(asked, 'sql');
   const hasRecipe = Object.hasOwn(asked, 'recipe');
-  if (hasSql + hasRecipe > 1) throw new Error('Give one of: sql (with params), or recipe.');
+  const hasStatements = Object.hasOwn(asked, 'statements');
+  if (hasSql + hasRecipe + hasStatements > 1) throw new Error('Give one of: sql (with params), statements, or recipe.');
+  if (hasStatements) {
+    const { statements, then = 'rollback' } = asked;
+    if (!Array.isArray(statements) || statements.length === 0 || statements.length > MAX_STATEMENTS) throw new Error(`statements must be a list of 1 to ${MAX_STATEMENTS} statements, each { sql, params }.`);
+    const each = statements.map((given, index) => {
+      if (given === null || typeof given !== 'object' || Array.isArray(given) || typeof given.sql !== 'string' || given.sql.trim() === '') throw new Error(`statements[${index}].sql must be a statement as text.`);
+      if (given.params !== undefined && given.params !== null && !Array.isArray(given.params)) throw new Error(`statements[${index}].params must be a list of values.`);
+      return { sql: given.sql, params: given.params ?? [] };
+    });
+    if (!['rollback', 'commit'].includes(then)) throw new Error('then must be rollback (nothing the statements did is kept) or commit.');
+    if (asked.fence !== undefined) throw new Error('fence is answered for one statement: give sql with it.');
+    return { kind: 'statements', statements: each, then, use: usedOf(asked.use) };
+  }
   if (hasRecipe) {
     const { name, action, role, valid_until: validUntil, password_verifier: verifier, limits = {}, table, columns, fixed, tables: tablesGiven } = asked.recipe ?? {};
     // A workflow input that is not given binds null: no tables named, the same as leaving them out.
@@ -158,7 +205,7 @@ export function shapeOf(input) {
     if (asked.fence !== undefined && (typeof asked.fence !== 'string' || !TABLE_NAME.test(asked.fence) && !/^[A-Za-z_][A-Za-z0-9_]*$/.test(asked.fence))) throw new Error('fence must be a table name, as schema.table or table.');
     return { kind: 'sql', sql: asked.sql, params: asked.params ?? [], use: usedOf(asked.use), fence: asked.fence };
   }
-  throw new Error('Give sql (with params), or recipe.');
+  throw new Error('Give sql (with params), statements, or recipe.');
 }
 
 // A held connection's login: { role, password }.
@@ -264,11 +311,12 @@ export async function runSql({ connection, roleConnection = '', ticket = '', hel
   if (typeof connection !== 'string' || connection === '') throw new Error('No database connection was handed to this run. Hold the connection string under the name credential_name gives.');
   const shape = shapeOf(input);
   if (shape.kind === 'sql' && shape.fence !== undefined && !shape.use) throw new Error('fence is answered under a use: give use with it, so the claim the fence reports is the run\'s own.');
-  if (shape.kind === 'sql' && shape.use && !ticket) throw new Error("A use is bound only by the engine's ticket: give database, so the computer opens it with the database's reader login and hands this run the ticket of its use.");
+  if (shape.kind !== 'recipe' && shape.use && !ticket) throw new Error("A use is bound only by the engine's ticket: give database, so the computer opens it with the database's reader login and hands this run the ticket of its use.");
   if (shape.kind === 'recipe') heldValueOf(shape, heldValue);
   const client = await connect(connection, timeLimitOf(input.statement_timeout_ms, usedMs));
   try {
     if (shape.kind === 'sql') return ticket ? await runUnderTicket(client, shape, ticket) : await runOne(client, shape.sql, shape.params);
+    if (shape.kind === 'statements') return await runInOneTransaction(client, shape, ticket);
     return await runRecipe(client, shape, connection, roleConnection, heldValue);
   } finally {
     await client.end().catch(() => {});

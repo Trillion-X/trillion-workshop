@@ -525,3 +525,41 @@ test('may-only-add-rows-for-a-login: the login adds a row naming only its column
   await runSql({ connection: ownerConnection, input: { recipe: { name: 'a-login', action: 'drop', role: member } } });
   assert.deepEqual(await roles(), []);
 });
+
+test('statements are one request, one transaction or nothing: a list of statements, a known ending, never with sql or a fence', () => {
+  assert.throws(() => shapeOf({ sql: 'SELECT 1', statements: [{ sql: 'SELECT 1' }] }), /Give one of/);
+  assert.throws(() => shapeOf({ statements: [] }), /list of 1 to 200/);
+  assert.throws(() => shapeOf({ statements: [{ sql: ' ' }] }), /statements\[0\]\.sql/);
+  assert.throws(() => shapeOf({ statements: [{ sql: 'SELECT 1', params: 'x' }] }), /statements\[0\]\.params/);
+  assert.throws(() => shapeOf({ statements: [{ sql: 'SELECT 1' }], then: 'keep' }), /then must be rollback/);
+  assert.throws(() => shapeOf({ statements: [{ sql: 'SELECT 1' }], fence: 'public.tasks' }), /fence is answered for one statement/);
+  assert.deepEqual(shapeOf({ statements: [{ sql: 'SELECT 1', params: null }] }), { kind: 'statements', statements: [{ sql: 'SELECT 1', params: [] }], then: 'rollback', use: undefined });
+});
+
+test('statements run in order in one transaction that keeps nothing unless it says commit, and a refused one answers its words while the rest run', async () => {
+  await runSql({ connection: ownerConnection, input: { sql: 'CREATE TABLE trial_rows (id text PRIMARY KEY, score int CHECK (score BETWEEN 1 AND 5))' } });
+  const tried = await runSql({ connection: ownerConnection, input: { statements: [
+    { sql: 'INSERT INTO trial_rows VALUES ($1, $2)', params: ['r1', 5] },
+    { sql: 'INSERT INTO trial_rows VALUES ($1, $2)', params: ['r2', 9] },
+    { sql: 'INSERT INTO trial_rows VALUES ($1, $2)', params: ['r1', 3] },
+    { sql: 'SELECT id, score FROM trial_rows ORDER BY id' },
+  ] } });
+  assert.equal(tried.then, 'rollback');
+  assert.equal(tried.row_count, 4);
+  assert.equal(tried.refused, 2);
+  assert.deepEqual(tried.rows.map(row => row.statement), [0, 1, 2, 3]);
+  assert.equal(tried.rows[0].row_count, 1);
+  assert.match(tried.rows[1].error, /violates check constraint/);
+  assert.match(tried.rows[2].error, /duplicate key value/);
+  assert.deepEqual(tried.rows[3].rows, [{ id: 'r1', score: 5 }], 'the read sees the write that held, inside the transaction');
+  const after = await runSql({ connection: ownerConnection, input: { sql: 'SELECT count(*)::int AS n FROM trial_rows' } });
+  assert.equal(after.rows[0].n, 0, 'the rollback kept nothing');
+  const kept = await runSql({ connection: ownerConnection, input: { then: 'commit', statements: [{ sql: "INSERT INTO trial_rows VALUES ('r3', 4)" }] } });
+  assert.equal(kept.refused, 0);
+  const now = await runSql({ connection: ownerConnection, input: { sql: 'SELECT id FROM trial_rows' } });
+  assert.deepEqual(now.rows, [{ id: 'r3' }], 'commit keeps what the statements did');
+  const read = await runSql({ connection: readerConnection, input: { statements: [{ sql: "INSERT INTO trial_rows VALUES ('r4', 2)" }, { sql: 'SELECT count(*)::int AS n FROM trial_rows' }] } });
+  assert.match(read.rows[0].error, /permission denied/, 'the login\'s own rights still decide');
+  assert.deepEqual(read.rows[1].rows, [{ n: 1 }]);
+  await runSql({ connection: ownerConnection, input: { sql: 'DROP TABLE trial_rows' } });
+});
