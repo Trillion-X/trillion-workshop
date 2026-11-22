@@ -13,6 +13,8 @@
 //   3. A refusal names its rule id and says its words; it never says how to get around it.
 //   4. When a part cannot be judged (no window titles, no target), only the conditions whose parts are all known can match;
 //      the second check, on the resolved target, judges the rest.
+//   5. A rule marked `unless_saved_login` lets a saved_login reference through (the person's own switched-on saved login, read
+//      from the vault at the moment of action and never seen by the AI); text the call supplies is refused.
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -45,7 +47,8 @@ function conditionMatches(list, condition, known) {
 
 /** The first rule that matches, or null. */
 export function firstRule(list, known) {
-  return list.rules.find(rule => rule.when.some(condition => conditionMatches(list, condition, known))) ?? null;
+  return list.rules.find(rule => !(rule.unless_saved_login === true && known.savedLogin === true)
+    && rule.when.some(condition => conditionMatches(list, condition, known))) ?? null;
 }
 
 const refusal = (list, rule) => Object.assign(new Error(list.words.refused.replace('{rule}', rule.id).replace('{said}', rule.said)),
@@ -65,18 +68,18 @@ const targetRoles = target => {
 };
 
 /** Before the screen is read: the app the call names and the target it describes. Throws the refusal, or returns. */
-export function requestRefusal(list, { app, target, to, writes }) {
-  const known = { apps: app ? [[lower(app)]] : [], labels: [...targetWords(target), ...targetWords(to)], roles: [...targetRoles(target), ...targetRoles(to)], writes: writes === true };
+export function requestRefusal(list, { app, target, to, writes, savedLogin = false }) {
+  const known = { apps: app ? [[lower(app)]] : [], labels: [...targetWords(target), ...targetWords(to)], roles: [...targetRoles(target), ...targetRoles(to)], writes: writes === true, savedLogin };
   const rule = firstRule(list, known);
   if (rule) throw refusal(list, rule);
 }
 
 /** Before anything is done: the resolved targets, the app driven and the app in front, the app's window titles. */
-export function targetRefusal(list, { app, frontmost, windows = [], targets = [], writes = false, credentialSurface = false }) {
+export function targetRefusal(list, { app, frontmost, windows = [], targets = [], writes = false, credentialSurface = false, savedLogin = false }) {
   const apps = [identities(list, app), identities(list, frontmost)].filter(ids => ids.length);
   const roles = targets.flatMap(element => [element?.fields?.role, element?.fields?.subrole, element?.raw?.subrole, element?.raw?.role]).filter(Boolean).map(stripRole);
   const labels = targets.flatMap(element => [element?.fields?.label, element?.fields?.title, element?.fields?.description, element?.fields?.text, element?.raw?.title, element?.raw?.description]).filter(value => typeof value === 'string' && value);
-  const known = { apps, windows: windows.filter(Boolean), roles, labels, writes, untargeted: targets.length === 0, credentialSurface };
+  const known = { apps, windows: windows.filter(Boolean), roles, labels, writes, untargeted: targets.length === 0, credentialSurface, savedLogin };
   const rule = firstRule(list, known);
   if (rule) throw refusal(list, rule);
 }

@@ -562,7 +562,9 @@ export function makeScreenDriver({ settings = screenSettings(), home = homedir()
     if (extra) throw refuse(settings, 'takes_not', { action: input.action, name: extra }, 400);
     // The hard deny list on what is asked, before the screen is read (invariant 9).
     const judged = !hardDeny.not_acting.includes(input.action);
-    if (judged) requestRefusal(hardDeny, { app: input.app, target: input.target, to: input.to, writes: action.writes === true });
+    // A saved_login reference (the person's switched-on saved login, read from the vault at the moment of action) is not text the AI supplies.
+    const savedLogin = Object.entries(action.inputs ?? {}).some(([name, spec]) => spec.reference === true && objectLike(input[name]));
+    if (judged) requestRefusal(hardDeny, { app: input.app, target: input.target, to: input.to, writes: action.writes === true, savedLogin });
     if (input.record_captures !== undefined && typeof input.record_captures !== 'boolean') throw refuse(settings, 'bad_input', { name: 'record_captures', type: 'true or false' }, 400);
     if (input.background !== undefined && typeof input.background !== 'boolean') throw refuse(settings, 'bad_input', { name: 'background', type: 'true or false' }, 400);
     const inBackground = input.background === true;
@@ -632,7 +634,7 @@ export function makeScreenDriver({ settings = screenSettings(), home = homedir()
     // The hard deny list on the resolved targets, before anything is done or rehearsed (invariant 9).
     if (judged) targetRefusal(hardDeny, { app: before.app, frontmost: before.frontmost, targets: Object.values(located).map(row => row.element),
       windows: before.elements.filter(element => element.source === 'ax' && element.ref?.path?.length === 1).map(element => element.raw?.title ?? element.fields.title),
-      writes: action.writes === true, credentialSurface: before.credential_surface === true });
+      writes: action.writes === true, credentialSurface: before.credential_surface === true, savedLogin });
     const events = stepsFor({ ...values, ...located });
     if (events.length > limits.max_events) throw refuse(settings, 'too_many_steps', { action: input.action, count: events.length, limit: limits.max_events }, 400);
     const captures = captureBefore ? { captures: { before: captureBefore } } : {};

@@ -22,7 +22,7 @@ function pretendMac({ failAct = false } = {}) {
       return { readiness: { ax_trusted: true, screen_capture: true }, displays: [DISPLAY], frontmost: APP, app: APP, truncated: false,
         elements: request.max_nodes === 0 ? [] : [
           { path: [0], depth: 1, role: 'AXWindow', title: 'Probe', frame: { x: 100, y: 100, width: 400, height: 300 } },
-          { path: [0, 0], depth: 2, role: 'AXTextField', description: 'Account field', value: state.field, enabled: true, frame: { x: 120, y: 220, width: 200, height: 20 } },
+          { path: [0, 0], depth: 2, role: 'AXTextField', description: 'Password field', value: state.field, enabled: true, frame: { x: 120, y: 220, width: 200, height: 20 } },
         ] };
     }
     state.acts.push(request.events);
@@ -39,7 +39,7 @@ const reader = (reads, { values = [{ label: 'Password', value: PASSWORD }], user
   reads.push({ tool, args, origin: account.origin });
   return { login_id: args.login_id, title: 'Bank', site: 'bank.example', user_name, values };
 };
-const field = { action: 'set_value', target: { match: { description: 'Account field' } } };
+const field = { action: 'set_value', target: { match: { description: 'Password field' } } };
 
 test('a reference types the saved value, the AI sees only the mask, and the read goes through the account with the Mac\'s key', async () => {
   const mac = pretendMac();
@@ -87,10 +87,18 @@ test('only a text input marked reference takes one, and a reference must be one 
   assert.equal(masked({ a: ['xx secret xx'], b: 'secret' }, ['secret'], '#').a[0], 'xx # xx');
 });
 
-test('a saved login is never typed into a password field: the hard deny list refuses it before anything is read from the account', async () => {
+test('the hard deny list lets the person\'s switched-on saved login into a password field, and refuses text the call supplies there', async () => {
+  // Side 1: a saved_login reference is read from the account at the moment of action and typed; the AI sees only the mask.
+  const reads = [];
   const mac = pretendMac();
+  const typed = await driverOn(mac, reader(reads)).drive({ ...field, value: { saved_login: { login_id: 'login-1', field: 'password' } } }, { origin: 'https://app.example.com', key: 'k' });
+  assert.equal(typed.dispatched, true);
+  assert.equal(reads.length, 1, 'the vault-held value was read once');
+  assert.doesNotMatch(JSON.stringify(typed), new RegExp(PASSWORD));
+  // Side 2: the same field given text by the call is refused by rule, before the account is read and before anything is done.
+  const plain = pretendMac();
   const calls = [];
-  await assert.rejects(driverOn(mac, async (...args) => { calls.push(args); return {}; }).drive({ action: 'set_value', target: 'Password', value: { saved_login: { login_id: 'l', field: 'password' } } }, {}),
+  await assert.rejects(driverOn(plain, async (...args) => { calls.push(args); return {}; }).drive({ ...field, value: 'hunter2' }, {}),
     error => error.rule === 'password-and-passkey-fields' && /Refused by rule password-and-passkey-fields/.test(error.message));
-  assert.deepEqual(calls, [], 'the account was not read');
+  assert.deepEqual(calls, [], 'nothing was read');
 });
