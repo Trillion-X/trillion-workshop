@@ -349,7 +349,8 @@ test('a path unit that is not active is started, with nothing written', async ()
 const slotted = { ...built, units: [{ ...built.units[0], stop_seconds: 170, health: { path: '/readyz', status: 200, host: 'place.example.test' }, health_listen: '127.0.0.1:7199',
   slots: { a: { 'settings.listen': '127.0.0.1:7199', health_listen: '127.0.0.1:7199' }, b: { 'settings.listen': '127.0.0.1:7198', health_listen: '127.0.0.1:7198' } } }] };
 const MiB = 1024 ** 2;
-// `memory` is what the computer reports: MemAvailable, and the MemoryCurrent every running slot shows (bytes).
+// `memory` is what the computer reports: MemAvailable, and the MemoryCurrent every running slot shows (bytes); `kept` is the start
+// peak a switch measured before (start-peak-bytes), and `peak` the MemoryPeak a new slot shows once it passes its checks.
 const slotComputer = ({ active, links, answers = {}, memory = { available: 4096 * MiB, current: 1260 * MiB } }) => {
   const live = Object.fromEntries(renderWhatItRuns(slotted).map(({ path, text }) => [path, text]));
   const base = computer(live);
@@ -360,6 +361,8 @@ const slotComputer = ({ active, links, answers = {}, memory = { available: 4096 
     if (link) return links[link[1]] ?? '';
     if (command.startsWith('systemctl show -p MemoryCurrent')) { base.commands.push({ command }); return `${memory.current}\n`; }
     if (command.startsWith("awk '/^MemAvailable")) { base.commands.push({ command }); return `${memory.available}\n`; }
+    if (command.startsWith('cat ') && command.includes('start-peak-bytes')) { base.commands.push({ command }); return memory.kept === undefined ? '' : `${memory.kept}\n`; }
+    if (command.startsWith('systemctl show -p MemoryPeak')) { base.commands.push({ command }); return memory.peak === undefined ? '' : `${memory.peak}\n`; }
     if (command.startsWith('pid=$(systemctl show')) return '';
     if (command.startsWith('sh -c ')) { base.commands.push({ command, input }); return `${SOURCE_COMMIT}\n`; }
     const health = command.match(/^curl .*'http:\/\/([^/]+)\/readyz'/);
@@ -452,6 +455,27 @@ test('with no start_headroom_bytes, the running slot\'s MemoryCurrent is the hea
   assert.ok(short.commands.some(({ command }) => command === "systemctl show -p MemoryCurrent --value 'example-place-a.service'"), 'the running slot\'s memory is read');
   const enough = bootsAt({ available: 1600 * MiB, current: 1260 * MiB });
   assert.deepEqual((await applyWhatItRuns(machine, slotted, enough.run, {}, { wait: async () => {} })).switched, [{ to: 'example-place-b.service', from: ['example-place-a.service'] }]);
+});
+
+test('the start peak the last switch measured is the headroom when it is more than the running slot uses', async () => {
+  const short = bootsAt({ available: 1700 * MiB, current: 1260 * MiB, kept: 1500 * MiB });
+  const failure = await applyWhatItRuns(machine, slotted, short.run, {}, { wait: async () => {} }).then(() => null, error => error);
+  assert.match(failure?.message ?? '', new RegExp(`needs ${(1500 + 256) * MiB} bytes of MemAvailable and the computer has ${1700 * MiB}\\. example-place-a\\.service kept serving\\.$`));
+  assert.equal(short.commands.some(({ command }) => command === "systemctl restart 'example-place-b.service'"), false, 'the new slot is not started');
+  const smaller = bootsAt({ available: 1600 * MiB, current: 1260 * MiB, kept: 900 * MiB });
+  assert.deepEqual((await applyWhatItRuns(machine, slotted, smaller.run, {}, { wait: async () => {} })).switched, [{ to: 'example-place-b.service', from: ['example-place-a.service'] }], 'a smaller kept peak leaves the running slot\'s memory as the need');
+});
+
+test('a switch that passes keeps the new slot\'s MemoryPeak as the start peak, and one the computer cannot report keeps nothing', async () => {
+  const measured = bootsAt({ available: 4096 * MiB, current: 1260 * MiB, peak: 1320 * MiB });
+  await applyWhatItRuns(machine, slotted, measured.run, {}, { wait: async () => {} });
+  const at = text => measured.commands.findIndex(({ command }) => command.startsWith(text));
+  const kept = measured.commands.find(({ command }) => command.startsWith("printf '%s\\n'") && command.includes('start-peak-bytes'));
+  assert.equal(kept?.command, `printf '%s\\n' '${1320 * MiB}' > '/var/lib/example-place/start-peak-bytes'`);
+  assert.ok(at("systemctl show -p MemoryPeak --value 'example-place-b.service'") > at("curl -s -o /dev/null -w '%{http_code}' -H 'Host: place.example.test' 'http://127.0.0.1:7198/readyz'"), 'read once the new slot answers');
+  const silent = bootsAt({ available: 4096 * MiB, current: 1260 * MiB });
+  assert.deepEqual((await applyWhatItRuns(machine, slotted, silent.run, {}, { wait: async () => {} })).switched, [{ to: 'example-place-b.service', from: ['example-place-a.service'] }]);
+  assert.equal(silent.commands.some(({ command }) => command.includes('start-peak-bytes') && command.startsWith('printf')), false);
 });
 
 test('a unit without slots reads no memory and is applied as before', async () => {

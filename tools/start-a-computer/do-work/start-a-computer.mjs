@@ -493,8 +493,10 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   // the slot that ran stopped: that one stops taking calls and finishes those it holds (its stop_seconds). A slot that never
   // answers is stopped again, and the slot that ran keeps serving.
   // A slot boots beside the one that runs only when the computer has the memory for both (settings.json `slot_start`): the
-  // unit's `start_headroom_bytes` (what a new slot takes to start), else the memory the running slots use now (their MemoryCurrent),
-  // and the margin over it, against the computer's MemAvailable. Too little is refused before anything stops, so the slot that
+  // unit's `start_headroom_bytes` (what a new slot takes to start), else the larger of the memory the running slots use now
+  // (their MemoryCurrent) and the start peak the last switch measured (the new slot's MemoryPeak once it passed its checks, kept
+  // in the unit's state folder as `start-peak-bytes`: a release can outgrow the one it replaces while it starts), and the margin
+  // over it, against the computer's MemAvailable. Too little is refused before anything stops, so the slot that
   // runs keeps serving (Nov 21 2026, 9:47 PM CST: the kernel's global out-of-memory killer ended a new slot that had reached 1.32 GB
   // beside an old one holding 1.26 GB on a 4 GB computer, and every site on the box timed out).
   const memoryForASlot = async (group, target) => {
@@ -508,6 +510,8 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
         if (!/^[0-9]+$/.test(current)) throw refused(`${target.unit} needs the memory ${unit.unit} uses (MemoryCurrent: ${current || 'nothing'}), or its row's start_headroom_bytes, before it can start beside it.`);
         need += Number(current);
       }
+      const measured = target.state ? (await run(machine, `cat ${q(`${target.state}/start-peak-bytes`)} 2>/dev/null || true`)).trim() : '';
+      if (/^[0-9]+$/.test(measured)) need = Math.max(need, Number(measured));
     }
     const available = Number((await run(machine, "awk '/^MemAvailable:/ { print $2 * 1024 }' /proc/meminfo")).trim());
     if (!Number.isSafeInteger(available)) throw refused(`${target.unit} cannot be checked: the computer's MemAvailable in /proc/meminfo is not a number.`);
@@ -533,6 +537,12 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
       throw Object.assign(error, { message: `${error.message} ${group.active.length ? `${group.active.map(unit => unit.unit).join(' and ')} kept serving.` : 'No slot of it serves.'}` });
     }
     booted.push(target.unit);
+    // The new slot's peak since its start, now that it passed its checks, is the start peak the next switch must find room for.
+    // A peak the computer cannot report or keep never fails a switch that worked.
+    if (target.state) {
+      const peak = (await run(machine, `systemctl show -p MemoryPeak --value ${q(target.unit)}`).catch(() => '')).trim();
+      if (/^[0-9]+$/.test(peak)) await run(machine, `printf '%s\\n' ${q(peak)} > ${q(`${target.state}/start-peak-bytes`)}`).catch(() => {});
+    }
     await run(machine, `systemctl enable ${q(target.unit)} >/dev/null 2>&1`);
     const stopped = group.units.filter(unit => unit !== target);
     for (const unit of stopped) await run(machine, `systemctl disable --now ${q(unit.unit)} >/dev/null 2>&1`);
