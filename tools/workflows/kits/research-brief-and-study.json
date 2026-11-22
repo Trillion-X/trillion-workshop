@@ -1,25 +1,23 @@
 {
-  "drafted_from": "workflow row in tools/workflows/recipes/workflows.json (input_schema and the research, briefing, study, insight, share steps with their submit shapes); read from the row's words, no test runs it",
-  "start_here": "Say to your AI: \"Run workflow:research-brief-and-study on the subject: how small bakeries get repeat customers, for pursuit:example-bakery; write me a briefing, quiz me, and share nothing until I approve the words.\"",
+  "start_here": "Say to your AI: \"Run workflow:research-brief-and-study.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:research-brief-and-study"
   ],
   "tools": [
-    "tool:read-public-web-page"
+    "tool:read-public-web-page",
+    "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Pick the subject in plain words (a goal's title, a topic, a person or a place); add pursuit_id when it serves one of your goals, space_id for the community where an approved insight may go, and since_briefing (like /Briefings/<subject>/2026-11-06.md) to get only what changed.",
-    "2. Say \"Run workflow:research-brief-and-study\". The AI starts it with tool:run-workflow-definition and works the steps research, briefing, study, insight, share.",
-    "3. At research, at least 5 sources actually read come back, each with its address, kind, title, an exact quote and when it was read; sources it could not read are listed as unread, never guessed.",
-    "4. Read the briefing saved at /Briefings/<subject>/<today>.md, then answer the 3 to 5 questions from memory in your own words; an unanswered question is kept and asked again in the next briefing.",
-    "5. Say whether the one insight holds; only if you approve its exact words is it shared in your community or published as a public page."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:research-brief-and-study\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Five sources read, each with an exact quote",
-      "ask": "Research how small bakeries get repeat customers and brief me.",
+      "title": "Research, brief and study",
+      "ask": "Run workflow:research-brief-and-study.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -28,17 +26,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:research-brief-and-study",
-              "subject": "How small bakeries get repeat customers",
-              "pursuit_id": "pursuit:example-bakery"
+              "row": "workflow:research-brief-and-study"
             }
           }
         }
       },
       "workflow": "workflow:research-brief-and-study",
       "step": "research",
-      "given": "Read from tools/workflows/recipes/workflows.json (step research): at least 5 sources the AI actually read; tool:read-public-web-page reads a public page it cannot open itself; each source carries url, kind, title, an exact quote of 20 or more characters and read_at.",
-      "hands_back": "{\"sources\":[{\"url\":\"https://example.com/loyalty-cards\",\"kind\":\"an article\",\"title\":\"Why punch cards still work\",\"quote\":\"Shops that stamped the first visit saw returns double within a month.\",\"read_at\":\"2026-11-13T09:15:00-06:00\"}, ... 4 more, each with its own url, kind, title, quote and read_at],\"unread\":[{\"url\":\"https://example.com/paywalled-study\",\"why\":\"paywall, only the first paragraph was shown\"}]}"
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:research-brief-and-study rendered from its row"
 }
