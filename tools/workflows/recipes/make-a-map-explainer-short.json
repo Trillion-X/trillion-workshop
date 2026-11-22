@@ -1,0 +1,1280 @@
+{
+  "about": "workflow:make-a-map-explainer-short: rendered from its workflow_recipes row.",
+  "records": [
+    {
+      "payload": {
+        "source_kept_at": "2026-11-22 07:27:15.571198+00",
+        "kind": "workflow-recipe",
+        "id": "workflow:make-a-map-explainer-short",
+        "label": "Make a map-explainer short",
+        "job": "Make one map-explainer Short in the format record:content-formats:github~geo-kit-map-explainer-short with the Geo Kit: idea, a script the person approves, the narrator voice, the beat list, the render with real sound, then the measured style and camera check; nothing is delivered until the check passes.",
+        "produces": "One rendered map-explainer Short (the render step's final, a file name) from a script the person approved, and the last answer, check#answer: qa_results, a list of {check (text), value (text), passed (true or false)} with every check of the format's style and camera check passed.",
+        "source": {
+          "from": "https://github.com/Caesarscales/Geography-Map-Style-Animations",
+          "files": [
+            "CLAUDE.md",
+            "RULEBOOK.md",
+            "STUDY.md"
+          ],
+          "commit": "0487fcd570dc91480d7dfd0039314dd14a185e5e",
+          "restored_from": "old_store.workflow_recipe record:workflow-recipe:make-a-map-explainer-short and its old_store.workflow_step rows, restored 2026-11-22 after the move to workflow_recipes (about Nov 20 2026) left it out by accident; steps rendered by definitionOf + withCorrections"
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "kit_folder"
+          ],
+          "properties": {
+            "topic": {
+              "type": "string",
+              "description": "The idea, if the person has one"
+            },
+            "voice": {
+              "type": "string",
+              "description": "The person's own recording, or the voice to use"
+            },
+            "kit_folder": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Where the Geo Kit is set up on the computer that renders"
+            }
+          }
+        },
+        "definition": {
+          "edges": [
+            {
+              "to": "script",
+              "from": "idea",
+              "kind": "always"
+            },
+            {
+              "to": "voice",
+              "from": "script",
+              "kind": "always"
+            },
+            {
+              "to": "beats",
+              "from": "voice",
+              "kind": "always"
+            },
+            {
+              "to": "render",
+              "from": "beats",
+              "kind": "always"
+            },
+            {
+              "to": "check",
+              "from": "render",
+              "kind": "always"
+            },
+            {
+              "to": "check#checks",
+              "from": "check",
+              "kind": "always"
+            },
+            {
+              "to": "check#wrong",
+              "from": "check#checks",
+              "kind": "on_result",
+              "config": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "output.held"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.array_contains",
+                    "args": {
+                      "value": false
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "to": "check#refused",
+              "from": "check#wrong",
+              "kind": "always"
+            },
+            {
+              "to": "check#answer",
+              "from": "check#checks",
+              "kind": "on_result",
+              "config": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "output.held"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.array_contains",
+                    "args": {
+                      "value": false
+                    }
+                  },
+                  {
+                    "op": "op:core.not"
+                  }
+                ]
+              }
+            },
+            {
+              "to": "check#again",
+              "from": "check#refused",
+              "kind": "on_failure"
+            },
+            {
+              "to": "check#again#checks",
+              "from": "check#again",
+              "kind": "always"
+            },
+            {
+              "to": "check#again#wrong",
+              "from": "check#again#checks",
+              "kind": "on_result",
+              "config": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "output.held"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.array_contains",
+                    "args": {
+                      "value": false
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "to": "check#again#refused",
+              "from": "check#again#wrong",
+              "kind": "always"
+            },
+            {
+              "to": "check#answer",
+              "from": "check#again#checks",
+              "kind": "on_result",
+              "config": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "output.held"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.array_contains",
+                    "args": {
+                      "value": false
+                    }
+                  },
+                  {
+                    "op": "op:core.not"
+                  }
+                ]
+              }
+            }
+          ],
+          "steps": [
+            {
+              "id": "idea",
+              "kind": "ask",
+              "config": {
+                "name": "anyone",
+                "input": {
+                  "do": "Ask for the person's idea. If they have none, propose 3 in this format (a map-shaped mystery or 'why/how did X' history) from the person's audience and library rows, and let them pick.",
+                  "checks": [],
+                  "submit": {
+                    "type": "object",
+                    "required": [
+                      "idea"
+                    ],
+                    "properties": {
+                      "idea": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                "context": {
+                  "do": "Ask for the person's idea. If they have none, propose 3 in this format (a map-shaped mystery or 'why/how did X' history) from the person's audience and library rows, and let them pick.",
+                  "title": "Choose the idea",
+                  "checks": [],
+                  "submit": {
+                    "type": "object",
+                    "required": [
+                      "idea"
+                    ],
+                    "properties": {
+                      "idea": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  "step_id": "idea",
+                  "done_when": "The person picked one idea."
+                }
+              }
+            },
+            {
+              "id": "script",
+              "kind": "ask",
+              "config": {
+                "name": "anyone",
+                "input": {
+                  "do": "Write the script by the format's formula (map hook in sentence 1, question, 'You see/Well' backstory, dated chapters, twist, end on a map image), 60-85 s at 2.5-2.8 words/s. Show it and wait for the person's yes; nothing after this step starts without it.",
+                  "checks": [],
+                  "submit": {
+                    "type": "object",
+                    "required": [
+                      "script",
+                      "words",
+                      "approved_by_person"
+                    ],
+                    "properties": {
+                      "words": {
+                        "type": "number"
+                      },
+                      "script": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "approved_by_person": {
+                        "type": "boolean",
+                        "const": true
+                      }
+                    }
+                  }
+                },
+                "context": {
+                  "do": "Write the script by the format's formula (map hook in sentence 1, question, 'You see/Well' backstory, dated chapters, twist, end on a map image), 60-85 s at 2.5-2.8 words/s. Show it and wait for the person's yes; nothing after this step starts without it.",
+                  "title": "Write the script and get the person's yes",
+                  "checks": [],
+                  "submit": {
+                    "type": "object",
+                    "required": [
+                      "script",
+                      "words",
+                      "approved_by_person"
+                    ],
+                    "properties": {
+                      "words": {
+                        "type": "number"
+                      },
+                      "script": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "approved_by_person": {
+                        "type": "boolean",
+                        "const": true
+                      }
+                    }
+                  },
+                  "step_id": "script",
+                  "done_when": "The person approved this exact script."
+                }
+              }
+            },
+            {
+              "id": "voice",
+              "kind": "ask",
+              "config": {
+                "name": "anyone",
+                "input": {
+                  "do": "Use the person's own recording, or a local voice model they chose; a paid voice service (the kit's ElevenLabs default) only with their key and their yes, one take. Make voice.mp3 and words.json with the kit (make_video.py voice --file for a recording). Never generate audio unasked.",
+                  "checks": [],
+                  "submit": {
+                    "type": "object",
+                    "required": [
+                      "voice_file",
+                      "words_file"
+                    ],
+                    "properties": {
+                      "voice_file": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "words_file": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                "context": {
+                  "do": "Use the person's own recording, or a local voice model they chose; a paid voice service (the kit's ElevenLabs default) only with their key and their yes, one take. Make voice.mp3 and words.json with the kit (make_video.py voice --file for a recording). Never generate audio unasked.",
+                  "title": "Get the narrator voice with word timestamps",
+                  "checks": [],
+                  "submit": {
+                    "type": "object",
+                    "required": [
+                      "voice_file",
+                      "words_file"
+                    ],
+                    "properties": {
+                      "voice_file": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "words_file": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  "step_id": "voice",
+                  "done_when": "voice.mp3 and words.json exist for the approved script."
+                }
+              }
+            },
+            {
+              "id": "beats",
+              "kind": "ask",
+              "config": {
+                "name": "anyone",
+                "input": {
+                  "do": "Write projects/<name>/beats.json (docs/BEATS.md): camera keys and beats tied to word ids, copying the reference's devices and timing from studies/; add new characters only through the kit's chibi renderer in the approved style, never an image generator; ask before any painted background (generated from a prompt the person runs, or code-made and less real).",
+                  "checks": [],
+                  "submit": {
+                    "type": "object",
+                    "required": [
+                      "beats_file"
+                    ],
+                    "properties": {
+                      "beats_file": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                "context": {
+                  "do": "Write projects/<name>/beats.json (docs/BEATS.md): camera keys and beats tied to word ids, copying the reference's devices and timing from studies/; add new characters only through the kit's chibi renderer in the approved style, never an image generator; ask before any painted background (generated from a prompt the person runs, or code-made and less real).",
+                  "title": "Write the beat list",
+                  "checks": [],
+                  "submit": {
+                    "type": "object",
+                    "required": [
+                      "beats_file"
+                    ],
+                    "properties": {
+                      "beats_file": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  "step_id": "beats",
+                  "done_when": "Every narrated sentence has at least one beat and every new character is in cast.json."
+                }
+              }
+            },
+            {
+              "id": "render",
+              "kind": "ask",
+              "config": {
+                "name": "anyone",
+                "input": {
+                  "do": "Run make_video.py all <name>: captions, regions, cast, render, real sound effects and an unused music bed, mastering. If no real sound or unused music exists, stop and ask for files.",
+                  "checks": [],
+                  "submit": {
+                    "type": "object",
+                    "required": [
+                      "final"
+                    ],
+                    "properties": {
+                      "final": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                "context": {
+                  "do": "Run make_video.py all <name>: captions, regions, cast, render, real sound effects and an unused music bed, mastering. If no real sound or unused music exists, stop and ask for files.",
+                  "title": "Render with real sound",
+                  "checks": [],
+                  "submit": {
+                    "type": "object",
+                    "required": [
+                      "final"
+                    ],
+                    "properties": {
+                      "final": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  "step_id": "render",
+                  "done_when": "projects/<name>/out/final.mp4 exists with real sound."
+                }
+              }
+            },
+            {
+              "id": "check",
+              "kind": "ask",
+              "config": {
+                "name": "anyone",
+                "input": {
+                  "do": "Run tools/qa.py on the render and read qa_sheet.jpg beside the reference frames. Every item of the format's checks must pass (camera moving on at least 97% of frames, captions at 76-79% height and within 0.05 s of each word, 2.4-2.9 words/s, 60-85 s, loudness -14 to -19 LUFS, no stock footage, something new every 1.5 s). Fix and re-render until all pass, then hand the person the video.",
+                  "checks": [
+                    "At least 8 measured checks are reported"
+                  ],
+                  "submit": {
+                    "type": "object",
+                    "required": [
+                      "qa_results"
+                    ],
+                    "properties": {
+                      "qa_results": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "check",
+                            "value",
+                            "passed"
+                          ],
+                          "properties": {
+                            "check": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "value": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "passed": {
+                              "type": "boolean"
+                            }
+                          }
+                        },
+                        "minItems": 1
+                      }
+                    }
+                  }
+                },
+                "context": {
+                  "do": "Run tools/qa.py on the render and read qa_sheet.jpg beside the reference frames. Every item of the format's checks must pass (camera moving on at least 97% of frames, captions at 76-79% height and within 0.05 s of each word, 2.4-2.9 words/s, 60-85 s, loudness -14 to -19 LUFS, no stock footage, something new every 1.5 s). Fix and re-render until all pass, then hand the person the video.",
+                  "title": "Run the style and camera check and fix every failure",
+                  "checks": [
+                    {
+                      "kind": "distinct-at-least",
+                      "path": [
+                        "this",
+                        "qa_results",
+                        "*",
+                        "check"
+                      ],
+                      "says": "At least 8 measured checks are reported",
+                      "count": 8
+                    }
+                  ],
+                  "submit": {
+                    "type": "object",
+                    "required": [
+                      "qa_results"
+                    ],
+                    "properties": {
+                      "qa_results": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "check",
+                            "value",
+                            "passed"
+                          ],
+                          "properties": {
+                            "check": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "value": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "passed": {
+                              "type": "boolean"
+                            }
+                          }
+                        },
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  "step_id": "check",
+                  "done_when": "Every QA check passed on the delivered render."
+                }
+              }
+            },
+            {
+              "id": "check#checks",
+              "kind": "return",
+              "config": {
+                "value": {
+                  "held": [
+                    {
+                      "take": "all",
+                      "$kind": "binding",
+                      "values": [
+                        "steps",
+                        "check",
+                        "qa_results",
+                        "*",
+                        "check"
+                      ],
+                      "transform": [
+                        {
+                          "op": "op:core.map_to_nodes",
+                          "args": {
+                            "item_var": "$v",
+                            "template": {
+                              "$kind": "binding",
+                              "select": {
+                                "key": "$v",
+                                "from": "vars"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.type_of"
+                                },
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": "string"
+                                  }
+                                },
+                                {
+                                  "op": "op:core.if",
+                                  "args": {
+                                    "else": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "key": "$v",
+                                        "from": "vars"
+                                      }
+                                    },
+                                    "then": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "key": "$v",
+                                        "from": "vars"
+                                      },
+                                      "transform": [
+                                        {
+                                          "op": "op:core.to_string"
+                                        },
+                                        {
+                                          "op": "op:core.trim"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "op": "op:core.array_unique"
+                        },
+                        {
+                          "op": "op:core.array_length"
+                        },
+                        {
+                          "op": "op:core.ge",
+                          "args": {
+                            "value": 8
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "check#wrong",
+              "kind": "return",
+              "config": {
+                "value": {
+                  "problems": [
+                    {
+                      "held": {
+                        "$kind": "binding",
+                        "select": {
+                          "key": "check#checks",
+                          "from": "steps",
+                          "path": "output.held.0"
+                        }
+                      },
+                      "says": "At least 8 measured checks are reported",
+                      "wrong": {
+                        "take": "all",
+                        "$kind": "binding",
+                        "values": [
+                          "steps",
+                          "check",
+                          "qa_results",
+                          "*",
+                          "check"
+                        ],
+                        "transform": [
+                          {
+                            "op": "op:core.map_to_nodes",
+                            "args": {
+                              "item_var": "$v",
+                              "template": {
+                                "$kind": "binding",
+                                "select": {
+                                  "key": "$v",
+                                  "from": "vars"
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.type_of"
+                                  },
+                                  {
+                                    "op": "op:core.equals",
+                                    "args": {
+                                      "value": "string"
+                                    }
+                                  },
+                                  {
+                                    "op": "op:core.if",
+                                    "args": {
+                                      "else": {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "key": "$v",
+                                          "from": "vars"
+                                        }
+                                      },
+                                      "then": {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "key": "$v",
+                                          "from": "vars"
+                                        },
+                                        "transform": [
+                                          {
+                                            "op": "op:core.to_string"
+                                          },
+                                          {
+                                            "op": "op:core.trim"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "op": "op:core.array_unique"
+                          },
+                          {
+                            "op": "op:core.take",
+                            "args": {
+                              "count": 8
+                            }
+                          },
+                          {
+                            "op": "op:core.map_to_nodes",
+                            "args": {
+                              "item_var": "$value",
+                              "template": {
+                                "$kind": "binding",
+                                "select": {
+                                  "key": "$value",
+                                  "from": "vars"
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.stringify",
+                                    "args": {
+                                      "format": "json"
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "check#refused",
+              "kind": "fail",
+              "config": {
+                "error": {
+                  "$kind": "binding",
+                  "select": {
+                    "key": "check#wrong",
+                    "from": "steps",
+                    "path": "output.problems"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.filter_where",
+                      "args": {
+                        "predicate": [
+                          {
+                            "op": "op:core.get_path",
+                            "args": {
+                              "path": "held"
+                            }
+                          },
+                          {
+                            "op": "op:core.not"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "op": "op:core.map_to_nodes",
+                      "args": {
+                        "template": {
+                          "$kind": "binding",
+                          "select": {
+                            "key": "$item",
+                            "from": "vars"
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.concat",
+                              "args": {
+                                "values": [
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "key": "$item",
+                                      "from": "vars",
+                                      "path": "says"
+                                    }
+                                  },
+                                  " (",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "key": "$item",
+                                      "from": "vars",
+                                      "path": "wrong"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.join",
+                                        "args": {
+                                          "delimiter": "; "
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  ")"
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "op": "op:core.join",
+                      "args": {
+                        "delimiter": "; "
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "check#again",
+              "kind": "ask",
+              "config": {
+                "name": "anyone",
+                "input": {
+                  "do": "Run tools/qa.py on the render and read qa_sheet.jpg beside the reference frames. Every item of the format's checks must pass (camera moving on at least 97% of frames, captions at 76-79% height and within 0.05 s of each word, 2.4-2.9 words/s, 60-85 s, loudness -14 to -19 LUFS, no stock footage, something new every 1.5 s). Fix and re-render until all pass, then hand the person the video.",
+                  "checks": [
+                    "At least 8 measured checks are reported"
+                  ],
+                  "submit": {
+                    "type": "object",
+                    "required": [
+                      "qa_results"
+                    ],
+                    "properties": {
+                      "qa_results": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "check",
+                            "value",
+                            "passed"
+                          ],
+                          "properties": {
+                            "check": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "value": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "passed": {
+                              "type": "boolean"
+                            }
+                          }
+                        },
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  "refused": {
+                    "$kind": "binding",
+                    "select": {
+                      "key": "check#wrong",
+                      "from": "steps",
+                      "path": "output.problems"
+                    }
+                  }
+                },
+                "context": {
+                  "do": "Run tools/qa.py on the render and read qa_sheet.jpg beside the reference frames. Every item of the format's checks must pass (camera moving on at least 97% of frames, captions at 76-79% height and within 0.05 s of each word, 2.4-2.9 words/s, 60-85 s, loudness -14 to -19 LUFS, no stock footage, something new every 1.5 s). Fix and re-render until all pass, then hand the person the video.",
+                  "title": "Run the style and camera check and fix every failure: correct the answer the checks refused",
+                  "checks": [
+                    {
+                      "kind": "distinct-at-least",
+                      "path": [
+                        "this",
+                        "qa_results",
+                        "*",
+                        "check"
+                      ],
+                      "says": "At least 8 measured checks are reported",
+                      "count": 8
+                    }
+                  ],
+                  "submit": {
+                    "type": "object",
+                    "required": [
+                      "qa_results"
+                    ],
+                    "properties": {
+                      "qa_results": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "check",
+                            "value",
+                            "passed"
+                          ],
+                          "properties": {
+                            "check": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "value": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "passed": {
+                              "type": "boolean"
+                            }
+                          }
+                        },
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  "step_id": "check#again",
+                  "corrects": "check",
+                  "done_when": "Every QA check passed on the delivered render."
+                }
+              }
+            },
+            {
+              "id": "check#again#checks",
+              "kind": "return",
+              "config": {
+                "value": {
+                  "held": [
+                    {
+                      "take": "all",
+                      "$kind": "binding",
+                      "values": [
+                        "steps",
+                        "check#again",
+                        "qa_results",
+                        "*",
+                        "check"
+                      ],
+                      "transform": [
+                        {
+                          "op": "op:core.map_to_nodes",
+                          "args": {
+                            "item_var": "$v",
+                            "template": {
+                              "$kind": "binding",
+                              "select": {
+                                "key": "$v",
+                                "from": "vars"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.type_of"
+                                },
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": "string"
+                                  }
+                                },
+                                {
+                                  "op": "op:core.if",
+                                  "args": {
+                                    "else": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "key": "$v",
+                                        "from": "vars"
+                                      }
+                                    },
+                                    "then": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "key": "$v",
+                                        "from": "vars"
+                                      },
+                                      "transform": [
+                                        {
+                                          "op": "op:core.to_string"
+                                        },
+                                        {
+                                          "op": "op:core.trim"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "op": "op:core.array_unique"
+                        },
+                        {
+                          "op": "op:core.array_length"
+                        },
+                        {
+                          "op": "op:core.ge",
+                          "args": {
+                            "value": 8
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "check#again#wrong",
+              "kind": "return",
+              "config": {
+                "value": {
+                  "problems": [
+                    {
+                      "held": {
+                        "$kind": "binding",
+                        "select": {
+                          "key": "check#again#checks",
+                          "from": "steps",
+                          "path": "output.held.0"
+                        }
+                      },
+                      "says": "At least 8 measured checks are reported",
+                      "wrong": {
+                        "take": "all",
+                        "$kind": "binding",
+                        "values": [
+                          "steps",
+                          "check#again",
+                          "qa_results",
+                          "*",
+                          "check"
+                        ],
+                        "transform": [
+                          {
+                            "op": "op:core.map_to_nodes",
+                            "args": {
+                              "item_var": "$v",
+                              "template": {
+                                "$kind": "binding",
+                                "select": {
+                                  "key": "$v",
+                                  "from": "vars"
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.type_of"
+                                  },
+                                  {
+                                    "op": "op:core.equals",
+                                    "args": {
+                                      "value": "string"
+                                    }
+                                  },
+                                  {
+                                    "op": "op:core.if",
+                                    "args": {
+                                      "else": {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "key": "$v",
+                                          "from": "vars"
+                                        }
+                                      },
+                                      "then": {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "key": "$v",
+                                          "from": "vars"
+                                        },
+                                        "transform": [
+                                          {
+                                            "op": "op:core.to_string"
+                                          },
+                                          {
+                                            "op": "op:core.trim"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "op": "op:core.array_unique"
+                          },
+                          {
+                            "op": "op:core.take",
+                            "args": {
+                              "count": 8
+                            }
+                          },
+                          {
+                            "op": "op:core.map_to_nodes",
+                            "args": {
+                              "item_var": "$value",
+                              "template": {
+                                "$kind": "binding",
+                                "select": {
+                                  "key": "$value",
+                                  "from": "vars"
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.stringify",
+                                    "args": {
+                                      "format": "json"
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "check#again#refused",
+              "kind": "fail",
+              "config": {
+                "error": {
+                  "$kind": "binding",
+                  "select": {
+                    "key": "check#again#wrong",
+                    "from": "steps",
+                    "path": "output.problems"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.filter_where",
+                      "args": {
+                        "predicate": [
+                          {
+                            "op": "op:core.get_path",
+                            "args": {
+                              "path": "held"
+                            }
+                          },
+                          {
+                            "op": "op:core.not"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "op": "op:core.map_to_nodes",
+                      "args": {
+                        "template": {
+                          "$kind": "binding",
+                          "select": {
+                            "key": "$item",
+                            "from": "vars"
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.concat",
+                              "args": {
+                                "values": [
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "key": "$item",
+                                      "from": "vars",
+                                      "path": "says"
+                                    }
+                                  },
+                                  " (",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "key": "$item",
+                                      "from": "vars",
+                                      "path": "wrong"
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.join",
+                                        "args": {
+                                          "delimiter": "; "
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  ")"
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "op": "op:core.join",
+                      "args": {
+                        "delimiter": "; "
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "check#answer",
+              "kind": "return",
+              "config": {
+                "value": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "literal",
+                    "value": 0
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.coalesce",
+                      "args": {
+                        "values": [
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "key": "check#again",
+                              "from": "steps",
+                              "path": "output"
+                            }
+                          },
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "key": "check",
+                              "from": "steps",
+                              "path": "output"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "resolve_nested_bindings": true
+                }
+              }
+            }
+          ]
+        },
+        "wakes": [],
+        "fires_when": [
+          {
+            "label": "someone wants a map or geography/history explainer short",
+            "state": "Off",
+            "made_by": "lead session 385f0ec5",
+            "condition": {
+              "tree": {
+                "kind": "group",
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "params": {
+                      "values": [
+                        "map-explainer",
+                        "geography-video",
+                        "history-explainer"
+                      ]
+                    },
+                    "operator": "has_any_of"
+                  }
+                ],
+                "negate": false,
+                "combinator": "and"
+              },
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

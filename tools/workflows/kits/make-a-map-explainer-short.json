@@ -1,0 +1,40 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:make-a-map-explainer-short.\" The wake starts it once its switch input is set.",
+  "lists": [],
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
+  "workflows": [
+    "workflow:make-a-map-explainer-short"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:make-a-map-explainer-short\".",
+    "3. Read the answer the run hands back."
+  ],
+  "worked_examples": [
+    {
+      "title": "Make a map-explainer short",
+      "ask": "Run workflow:make-a-map-explainer-short.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:make-a-map-explainer-short"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:make-a-map-explainer-short",
+      "step": "idea",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
+    }
+  ],
+  "drafted_from": "workflow:make-a-map-explainer-short rendered from its row"
+}
