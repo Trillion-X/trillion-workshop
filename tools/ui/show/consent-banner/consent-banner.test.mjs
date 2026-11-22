@@ -46,7 +46,8 @@ test('a kept answer is never asked for again', () => {
 
 test('the bar draws with classes only, never inline styles', () => {
   const out = consentBannerScript(consent);
-  assert.ok(!out.includes('.style.'), 'no element.style writes');
+  assert.ok(!out.includes('bar.style'), 'the bar takes no inline style');
+  assert.ok(out.includes("root.style.setProperty('--consent-banner-reserve'"), 'the only style write is the page reserve property');
   assert.ok(!out.includes('cssText'));
   assert.ok(out.includes("bar.className='consent-banner'"));
 });

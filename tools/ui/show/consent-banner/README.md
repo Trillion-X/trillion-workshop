@@ -10,7 +10,7 @@ own consent block (its rows) and gets the same bar, the same first-party cookie 
   `prefers-reduced-motion: reduce` removes.
 - `consent-banner.test.mjs`: `node --test tools/ui/show/consent-banner/consent-banner.test.mjs`.
 
-Words and names are the site's data: `consent.banner` (label, message, accept, decline), `consent.cookie` (name, max_age_seconds up
+Words and names are the site's data: `consent.banner.label` is the bar's accessible name (its `aria-label`), not visible text; `consent.banner` (label, message, accept, decline), `consent.cookie` (name, max_age_seconds up
 to 395 days) and `consent.storage_types`. The cookie is first-party, `SameSite=Lax`, `Secure`, `Path=/`. Nothing is granted before
 Accept. A kept answer ("granted" or "denied") is never asked for again.
 

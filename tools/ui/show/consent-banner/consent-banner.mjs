@@ -58,11 +58,16 @@ export function consentBannerScript(consent) {
       `function show(){var bar=document.createElement('div');bar.className='consent-banner';bar.setAttribute('role','region');bar.setAttribute('aria-label',WORDS.label);` +
       `var words=document.createElement('p');words.className='consent-banner-message';words.textContent=WORDS.message;bar.appendChild(words);` +
       `var row=document.createElement('div');row.className='consent-banner-actions';` +
-      `function leave(){var main=document.querySelector('main')||document.body;if(!main.hasAttribute('tabindex'))main.setAttribute('tabindex','-1');main.focus();bar.remove();}` +
+      `function leave(){var main=document.querySelector('main')||document.body;if(!main.hasAttribute('tabindex'))main.setAttribute('tabindex','-1');main.focus();bar.remove();release();}` +
       `function choose(value){document.cookie=NAME+'='+value+'; Max-Age='+MAX+'; Path=/; SameSite=Lax; Secure';if(value==='granted')gtag('consent','update',GRANTED);leave();}` +
       `[['accept','granted'],['decline','denied']].forEach(function(pair){var b=document.createElement('button');b.type='button';b.className='consent-banner-button';b.textContent=WORDS[pair[0]];` +
       `b.addEventListener('click',function(){choose(pair[1]);});row.appendChild(b);});` +
-      `bar.appendChild(row);document.body.appendChild(bar);}` +
+      `bar.appendChild(row);document.body.appendChild(bar);` +
+      `var root=document.documentElement,observer=null;` +
+      `function reserve(){root.style.setProperty('--consent-banner-reserve',bar.offsetHeight+'px');}` +
+      `function release(){if(observer)observer.disconnect();window.removeEventListener('resize',reserve);root.style.removeProperty('--consent-banner-reserve');document.body.classList.remove('consent-banner-open');}` +
+      `document.body.classList.add('consent-banner-open');reserve();window.addEventListener('resize',reserve);` +
+      `if(typeof ResizeObserver==='function'){observer=new ResizeObserver(reserve);observer.observe(bar);}}` +
       `if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',show);else show();})();`,
   );
 }

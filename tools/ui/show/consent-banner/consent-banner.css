@@ -60,3 +60,11 @@
     transform: none;
   }
 }
+
+/* While the bar is open the page keeps its last content above it: a spacer as tall as the bar (measured by the script into
+   --consent-banner-reserve) ends the page. The class and the property are removed when the visitor chooses. */
+body.consent-banner-open::after {
+  content: '';
+  display: block;
+  height: var(--consent-banner-reserve, 4.5rem);
+}
