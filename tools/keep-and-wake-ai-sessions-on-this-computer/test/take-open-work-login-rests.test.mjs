@@ -5,13 +5,13 @@
 // The logins are values a run was handed (vault `run mounts`), so no vault command and no secret is used.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { acquireAiAuth, restingLogins } from '../harness/ai-auth.mjs';
 import { keepRunValues } from '../harness/vault-value.mjs';
-import { chosenAi, restOf, restsByLogin, runPass, takerCard } from '../harness/take-open-work.mjs';
+import { chosenAi, restOf, restsByLogin, runPass, startedRecords, takerCard } from '../harness/take-open-work.mjs';
 import settingsFile from '../harness/take-open-work.json' with { type: 'json' };
 
 const NOW = '2026-11-22T11:00:00.000Z';
@@ -111,9 +111,26 @@ test('a run that hits its limit rests the login it used, gives the work back nam
   assert.deepEqual(Object.keys(kept), ['login-5']);
   assert.equal(kept['login-5'].until, LATER);
   assert.match(calls.find(([path]) => path === '/handoffs/release')[1].because, new RegExp(`login-5 reached its usage limit and rests until ${LATER}`));
+  // A run that only met a spent limit did no work: it is not one of the task's attempts, and the work is not parked.
+  assert.equal(startedRecords(folder).all().get('h1').executor_starts, 0);
+  assert.equal(calls.find(([path]) => path === '/handoffs/release')[1].park, undefined);
   // The given-back work is tried again after its retry wait (retry_unfinished_minutes), on the login that is not resting.
   const retryAt = new Date(Date.parse(NOW) + (settings.retry_unfinished_minutes[1] + 1) * 60_000);
   const next = await runPass({ locate: located, settings: { ...settings, state_folder: folder, resting: { 'login-5': LATER }, resting_because: {} }, call, computer: 'Mac', spawnRun, now: () => retryAt });
   await Promise.all(next.runs);
   assert.deepEqual(environments, ['value-five', 'value-one']);
+});
+
+test('a job already started here lets go of the login it was given at once, so the login is free for the next run', async () => {
+  const folder = tempFolder(join(tmpdir(), 'login-rests-held-'));
+  const records = startedRecords(folder);
+  records.claim({ handoff_id: 'h1', mode: 'claim', agent_id: 'take-open-work-mac', started_at: NOW, attempt: 1, executor_starts: 0 });
+  records.update('h1', { ended_at: NOW, limit_hit: true });
+  const lines = [];
+  const call = async path => (path === '/handoffs/open-page' ? { work: [job('h1')], agents: [], next_after: null } : {});
+  const pass = await runPass({ locate: located, settings: { ...settings, state_folder: folder, resting: {}, resting_because: {} }, call, computer: 'Mac', spawnRun: () => { throw new Error('must not start'); }, now: () => new Date(NOW), log: entry => lines.push(entry) });
+  await Promise.all(pass.runs);
+  assert.ok(lines.some(entry => entry.did === 'already started here'));
+  const locks = join(folder, 'auth-locks');
+  assert.deepEqual(existsSync(locks) ? readdirSync(locks) : [], [], 'no login stays locked');
 });

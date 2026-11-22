@@ -59,35 +59,6 @@ import { answerIssue, UnsupportedSchema } from './answer-shape.mjs';
 import { acquireAiAuth, loginsOf, restingLogins } from './ai-auth.mjs';
 
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (whole, name) => (Object.hasOwn(values, name) ? String(values[name]) : whole));
-// The value at a dotted path of a task ('told_as.source', 'asks.submit'), or undefined.
-const valueAt = (item, path) => String(path).split('.').reduce((at, key) => (at && typeof at === 'object' ? at[key] : undefined), item);
-const holdsSomething = value => value !== undefined && value !== null && value !== ''
-  && !(Array.isArray(value) && value.length === 0) && !(typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0);
-/**
- * Whether a task that names nobody is one this computer takes: it fits one of the shapes this computer declares in
- * settings.tasks.take_unassigned_when. A shape is { path: wanted }, each path a dotted field of the task (a details field
- * such as told_as.source, for or asks.submit): wanted is the list of values the task may hold there, true (it holds
- * something) or false (it holds nothing: absent, null or empty). A task fits a shape when every path holds; an empty shape
- * fits every task, and an empty list fits none, so a computer takes no unassigned task until its own input names a shape.
- * Two computers whose shapes fit the same task race for it, and the shared take's conditional write lets one win. Pure.
- */
-export function takesUnassigned(item, shapes = []) {
-  if (!Array.isArray(shapes)) throw new Error('tasks.take_unassigned_when must be a list of task shapes.');
-  return shapes.some(shape => Object.entries(shape ?? {}).every(([path, wanted]) => {
-    if (!Array.isArray(wanted) && typeof wanted !== 'boolean') throw new Error(`tasks.take_unassigned_when: ${path} must be a list of values, true or false.`);
-    const value = valueAt(item, path);
-    return Array.isArray(wanted) ? wanted.includes(value) : wanted === holdsSomething(value);
-  }));
-}
-// Why this computer could not finish a step task however its AI answers, or null: the step names checks, which this
-// computer does not evaluate. The one rule plan() (before any claim, so no AI run is spent on it) and finishFromAnswer apply.
-const unevaluatedChecks = read => (Array.isArray(read?.asks?.checks) && read.asks.checks.length ? 'the task names checks, which this computer does not evaluate' : null);
-// The step's own input as its workflow gave it (every asks field but do, submit and checks), as the task prompt carries it.
-const ASKED = new Set(['do', 'submit', 'checks']);
-const givenOf = item => {
-  const given = Object.fromEntries(Object.entries(item.asks ?? {}).filter(([key]) => !ASKED.has(key)));
-  return Object.keys(given).length ? JSON.stringify(given) : 'none';
-};
 // The receipt field keeps its name (job_contract): a receipt written before this change keeps its attempt count.
 const taskContract = (task, settings) => Object.fromEntries((settings.tasks?.revision_fields ?? []).map(field => [field, task?.[field] ?? null]));
 const home = path => String(path).replace(/^~(?=\/|$)/, homedir());
@@ -432,11 +403,10 @@ export function plan({ open, agents, settings, started, today, running, chats, a
     const source_id = item.input?.arrived?.source_id;
     const turn = turnOf(settings, item);
     // A task names its assignees (record ids of anyone; none means anyone may take it). A chat's work names one AI in to_agent.
-    // A task that names nobody is this worker's only when it fits a shape this computer declares (tasks.take_unassigned_when,
-    // DATA; takesUnassigned); otherwise it is left, so only the tasks that name this worker's own id are taken. A turn that
-    // names nobody is taken where its chat is (the session's own computer is its address), or, for a new chat, by whichever
-    // computer takes it first.
-    if (item.task && item.assignees.length === 0 && !turn && !takesUnassigned(item, settings.tasks?.take_unassigned_when ?? [])) { leave('handed to nobody'); continue; }
+    // With tasks.take_unassigned false (DATA), a task that names nobody is not this worker's: it is left for whoever it is
+    // handed to, so only the tasks that name this worker's own id are taken. A turn that names nobody is taken where its
+    // chat is (the session's own computer is its address), or, for a new chat, by whichever computer takes it first.
+    if (item.task && item.assignees.length === 0 && settings.tasks?.take_unassigned === false && !turn) { leave('handed to nobody'); continue; }
     const named = item.task ? item.assignees.length > 0 && !item.assignees.includes(agent_id) : Boolean(item.to_agent) && sourceOwners.get(source_id) !== item.to_agent;
     if (named) { leave('handed to a named agent'); continue; }
     // With a triage step (settings.triage, harness/triage-open-work.mjs), only work it sorted as real work is run.
@@ -489,10 +459,8 @@ export function plan({ open, agents, settings, started, today, running, chats, a
       }
     }
     if (!job) {
-      const unchecked = item.task ? unevaluatedChecks(item) : null;
-      if (unchecked) { leave(unchecked); continue; }
       if (!ai) { leave('no chosen AI is installed here'); continue; }
-      const prompt = fill(item.task ? settings.prompts.task : settings.prompts.claim, { handoff_id: item.handoff_id, agent_id, computer, take_tool: settings.tasks?.take_tool, move_tool: settings.tasks?.move_tool, finish_tool: settings.tasks?.finish_tool, continuation: item.continuation ? JSON.stringify(item.continuation) : 'none', do: item.asks?.do ?? requestedOutcome(item) ?? '', given: givenOf(item), submit: JSON.stringify(item.asks?.submit ?? null), result_file: resultFileOf(settings, item.handoff_id) });
+      const prompt = fill(item.task ? settings.prompts.task : settings.prompts.claim, { handoff_id: item.handoff_id, agent_id, computer, take_tool: settings.tasks?.take_tool, move_tool: settings.tasks?.move_tool, finish_tool: settings.tasks?.finish_tool, continuation: item.continuation ? JSON.stringify(item.continuation) : 'none', do: item.asks?.do ?? requestedOutcome(item) ?? '', submit: JSON.stringify(item.asks?.submit ?? null), result_file: resultFileOf(settings, item.handoff_id) });
       job = { handoff_id: item.handoff_id, mode: 'claim', agent_id, cwd: home(settings.working_folder), prompt,
         command: ai.command.map(part => fill(part, { prompt })), ai_id: ai.id, work_mcp: ai.work_mcp };
     }
@@ -667,8 +635,7 @@ export async function finishFromAnswer(call, settings, { job, read, logPath, at 
   if (!written || typeof written !== 'object' || Array.isArray(written) || typeof evidence !== 'string' || !evidence.trim()) return fill(words.answer_missing, { log: logPath });
   if (written.result === null || written.result === undefined) return fill(words.answer_refused, { why: evidence.trim().slice(0, 400) });
   if (!read.asks?.submit) return fill(words.answer_refused, { why: 'the task names no submit shape to check the answer against' });
-  const unchecked = unevaluatedChecks(read);
-  if (unchecked) return fill(words.answer_refused, { why: unchecked });
+  if (Array.isArray(read.asks.checks) && read.asks.checks.length) return fill(words.answer_refused, { why: 'the task names checks, which this computer does not evaluate' });
   let issue;
   try { issue = answerIssue(written.result, read.asks.submit); }
   catch (error) { if (error instanceof UnsupportedSchema) return fill(words.answer_refused, { why: error.message }); throw error; }
@@ -706,6 +673,14 @@ export async function finishWithAnswer(call, settings, { job, read, answer, evid
 // for or run, and its card says so (see the invariant 7 above).
 // Ends one run's use of its login: a refreshed login is written back to the vault first; if that fails the task says so and
 // the login stays locked (it goes stale and is taken back later), so the new token is never lost.
+/** A run that ended at its login's usage limit did no work, so it is not one of the task's attempts (tasks.max_attempts):
+ * a pool whose logins hit their limits in turn never parks the task for review (Nov 22 2026: two tasks were parked at
+ * 5:07 and 5:32 AM CST after runs that only met spent limits). Its record keeps the count it had before the run. */
+function notAnAttempt(job, records) {
+  job.executor_starts = Math.max(0, (job.executor_starts ?? 0) - 1);
+  records.update(job.handoff_id, { executor_starts: job.executor_starts });
+}
+
 function endLogin(auth, job, log, records) {
   try { auth.done(); }
   catch (error) {
@@ -929,7 +904,9 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
     }
     // The login a limit rests is the one this run used; an AI on its own sign-in rests under its own id.
     job.rests_as = auth.login ?? job.ai_id;
-    if (!records.claim({ handoff_id: job.handoff_id, mode: job.mode, source_id: job.fresh ? null : job.source_id ?? null, agent_id: job.agent_id, started_at: nowIso, attempt: attempts.get(job.handoff_id) ?? 1, request_key: randomUUID(), ...(job.job_contract ? { job_contract: job.job_contract } : {}), executor_starts: job.executor_starts, ...(job.own ? { own: true } : {}) })) { log({ did: 'already started here', handoff_id: job.handoff_id }); continue; }
+    // A job this computer already started keeps its record; the login taken for it is let go at once, never held until it
+    // goes stale (Nov 22 2026, 5:45 AM CST: one such login stayed locked with no run for its whole stale time).
+    if (!records.claim({ handoff_id: job.handoff_id, mode: job.mode, source_id: job.fresh ? null : job.source_id ?? null, agent_id: job.agent_id, started_at: nowIso, attempt: attempts.get(job.handoff_id) ?? 1, request_key: randomUUID(), ...(job.job_contract ? { job_contract: job.job_contract } : {}), executor_starts: job.executor_starts, ...(job.own ? { own: true } : {}) })) { log({ did: 'already started here', handoff_id: job.handoff_id }); endLogin(auth, job, log, records); continue; }
     // A claim and a turn are taken by this computer before they run; a chat's handed work is taken by the chat itself.
     if (job.mode === 'claim' || job.mode === 'turn') {
       let taken;
@@ -1022,7 +999,7 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
       // the reset they name. Otherwise why it was stopped is kept and shown on the card.
       if (stoppedTimeout) {
         const limited = reachedLimit(settings, said);
-        if (limited) rest(job.rests_as, restUntil(settings, said, now().getTime()), fill(settings.words.rested_because, { said: limitLine() }));
+        if (limited) { rest(job.rests_as, restUntil(settings, said, now().getTime()), fill(settings.words.rested_because, { said: limitLine() })); notAnAttempt(job, records); }
         else trouble(job.ai_id, fill(settings.words.timed_out_trouble, { minutes: settings.run_timeout_minutes ?? 30 }));
         const released = await releaseHeld(call, settings, job, limited
           ? fill(settings.words.released_limit, { ai: job.rests_as, until: settings.resting[job.rests_as] })
@@ -1041,6 +1018,7 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
       // An AI that reached its usage limit rests until the reset its words name (limit_reset; else limit_rest_hours from
       // now); its task is given back and planned again, and the next of the person's chosen AIs runs work meanwhile (chosenAi).
       if (code !== 0 && reachedLimit(settings, said)) {
+        notAnAttempt(job, records);
         rest(job.rests_as, restUntil(settings, said, now().getTime()), fill(settings.words.rested_because, { said: limitLine() }));
         const released = await releaseHeld(call, settings, job, fill(settings.words.released_limit, { ai: job.rests_as, until: settings.resting[job.rests_as] }));
         records.update(job.handoff_id, { limit_hit: true, ...(released ? {} : { release_pending: true }) });
