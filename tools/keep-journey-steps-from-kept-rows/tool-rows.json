@@ -381,6 +381,109 @@
             "requires": "the pursuit's Postgres database, holding statements, payment_events and offers, reached through the run's proxy (a made-up connection cannot answer it)",
             "proved_on": null
           }
+        ],
+        "wakes": [
+          {
+            "id": "keep-steps-when-bookings-change",
+            "needs_input": [
+              "credential_name"
+            ],
+            "on": {
+              "fact": {
+                "from": [
+                  "run"
+                ],
+                "kind": "something-changed",
+                "match": {
+                  "table_name": "statements"
+                }
+              }
+            },
+            "budget": {
+              "steps": 1,
+              "wall_ms": 600000
+            },
+            "why": "A row changed in statements of the database named by credential_name (the notice-when-something-shows-up row-changes waiter tells it as something-changed). Reads the new rows and keeps their steps once."
+          },
+          {
+            "id": "keep-steps-when-payments-change",
+            "needs_input": [
+              "credential_name"
+            ],
+            "on": {
+              "fact": {
+                "from": [
+                  "run"
+                ],
+                "kind": "something-changed",
+                "match": {
+                  "table_name": "payment_events"
+                }
+              }
+            },
+            "budget": {
+              "steps": 1,
+              "wall_ms": 600000
+            },
+            "why": "A row changed in payment_events of the database named by credential_name (the notice-when-something-shows-up row-changes waiter tells it as something-changed). Reads the new rows and keeps their steps once."
+          },
+          {
+            "id": "keep-steps-every-fifteen-minutes",
+            "needs_input": [
+              "credential_name"
+            ],
+            "on": {
+              "fact": {
+                "fold": true,
+                "from": [
+                  "run"
+                ],
+                "kind": "due-time",
+                "match": {
+                  "schedule_id": "schedule:tool:keep-journey-steps-from-kept-rows:every-fifteen-minutes"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:tool:keep-journey-steps-from-kept-rows:every-fifteen-minutes",
+                      "schedule_revision": 1,
+                      "source_generation": 1,
+                      "start_local_date": "1970-01-01",
+                      "timezone": "UTC",
+                      "cadence": {
+                        "interval": 15,
+                        "unit": "minute"
+                      },
+                      "local_window": {
+                        "start": "00:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "fold": "earlier",
+                        "gap": "next-valid"
+                      },
+                      "action": {
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        },
+                        "operation": "tell-the-engine",
+                        "owner_dispatch": {
+                          "input": {},
+                          "name": "tool:keep-journey-steps-from-kept-rows"
+                        },
+                        "owner_ref": "tool:keep-journey-steps-from-kept-rows"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "budget": {
+              "steps": 1,
+              "wall_ms": 600000
+            },
+            "why": "A slow fallback every 15 minutes, so a missed row-change notice still gets its steps kept."
+          }
         ]
       }
     }
