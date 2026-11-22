@@ -1,22 +1,22 @@
 {
-  "drafted_from": "tools/workflows/recipes/workflows.json (the workflow:start-from-the-persons-own-work row: input_schema and steps search and gather with their submit shapes); no test names it",
-  "start_here": "Say to your AI: \"Run workflow:start-from-the-persons-own-work for this request: plan my autumn bakery menu, starting from my own notes and principles.\"",
+  "start_here": "Say to your AI: \"Run workflow:start-from-the-persons-own-work.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "The workflow searches the places the person already keeps their own work in and writes new learnings back where the next AI reads first; it names no list of its own.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:start-from-the-persons-own-work"
   ],
-  "tools": [],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
   "instructions": [
-    "1. Say the plan, design or advice you want, in your words, as request (came_from is optional).",
-    "2. Say \"Run workflow:start-from-the-persons-own-work\". Step search looks in your files, notes, recordings, your AIs' past conversations, your pursuits and any framework rows, and says what it searched and what came back in each place, including nothing.",
-    "3. Step gather lists each framework or principle you yourself put in words, quoted exactly with where it is kept; it adds none you did not write or say. Step apply says whether each fits and what it changes.",
-    "4. Step answer gives the plan, design or advice citing your own words and where each is kept, and writes anything new it learned about your thinking back where the next AI reads first."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:start-from-the-persons-own-work\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Two of the person's own principles are found for a menu plan",
-      "ask": "Plan my autumn bakery menu from my own notes and principles.",
+      "title": "Plan, design or advise from the person's own work",
+      "ask": "Run workflow:start-from-the-persons-own-work.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -25,16 +25,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:start-from-the-persons-own-work",
-              "request": "Plan my autumn bakery menu from my own notes and principles"
+              "row": "workflow:start-from-the-persons-own-work"
             }
           }
         }
       },
       "workflow": "workflow:start-from-the-persons-own-work",
-      "step": "gather",
-      "given": "Read from the step in tools/workflows/recipes/workflows.json. Synthetic search results: the note notes/baking-principles.md holds the line \"Never sell what I would not eat the next morning\" and the note notes/menu-rules.md holds \"Three breads, never more, so every loaf sells out\".",
-      "hands_back": "{\"frameworks\":[{\"name\":\"Next-morning test\",\"their_words\":\"Never sell what I would not eat the next morning\",\"kept_at\":\"notes/baking-principles.md\"},{\"name\":\"Three breads\",\"their_words\":\"Three breads, never more, so every loaf sells out\",\"kept_at\":\"notes/menu-rules.md\"}],\"none_because\":\"\"}"
+      "step": "search",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:start-from-the-persons-own-work rendered from its row"
 }

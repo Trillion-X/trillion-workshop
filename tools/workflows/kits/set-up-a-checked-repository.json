@@ -1,24 +1,23 @@
 {
-  "drafted_from": "tools/workflows/recipes/workflows.json (the workflow:set-up-a-checked-repository row: input_schema and steps read-the-repository and pin-the-data with their submit shapes); no test names it",
-  "start_here": "Say to your AI: \"Run workflow:set-up-a-checked-repository on the folder bakery-site with my registry file checks/registry.json and my check command ./run-checks.sh.\"",
+  "start_here": "Say to your AI: \"Run workflow:set-up-a-checked-repository.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "The workflow writes files inside the repository (capabilities.json, a pin file, retired-paths.json) and entries in the person's own registry files; it names no Trillion list.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:set-up-a-checked-repository"
   ],
   "tools": [
-    "tool:pin-files-by-content"
+    "tool:pin-files-by-content",
+    "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Have your repository folder, your check registry file or files, and the command that runs your commit checks on staged files; optionally your hook installer command, the product folder of DATA files a program reads, and its pin file.",
-    "2. Say \"Run workflow:set-up-a-checked-repository\" with repository, registries and check_command.",
-    "3. It reads the repository's READMEs, writes capabilities.json (one row per folder, only from what each folder's README says; it asks you about any folder with no README line), pins the DATA files with tool:pin-files-by-content, writes retired-paths.json, and adds the repository to each registry in that file's own schema.",
-    "4. It stages those files and runs your check command; a refusal is fixed in the repository's own files, never by changing a check, and it reports passed true only when every check passed."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:set-up-a-checked-repository\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Reading a small repository before anything is written",
-      "ask": "Set up the bakery-site repository with checks.",
+      "title": "Set up a repository whose rules are checked",
+      "ask": "Run workflow:set-up-a-checked-repository.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -27,48 +26,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:set-up-a-checked-repository",
-              "repository": "bakery-site",
-              "registries": [
-                "checks/registry.json"
-              ],
-              "check_command": "./run-checks.sh"
+              "row": "workflow:set-up-a-checked-repository"
             }
           }
         }
       },
       "workflow": "workflow:set-up-a-checked-repository",
       "step": "read-the-repository",
-      "given": "Read from the step in tools/workflows/recipes/workflows.json (it writes nothing yet). Synthetic repository: folder site/ whose README line 3 says \"Builds the public pages from the menu data\", folder orders/ whose README line 3 says \"Takes pre-orders and emails the receipts\", and folder scratch/ with no README.",
-      "hands_back": "{\"folders\":[{\"path\":\"site\",\"job\":\"Builds the public pages from the menu data\"},{\"path\":\"orders\",\"job\":\"Takes pre-orders and emails the receipts\"}],\"unsaid\":[\"scratch\"]}"
-    },
-    {
-      "title": "Pinning the menu data by content",
-      "ask": "Pin the menu data folder.",
-      "mcp": {
-        "server": "{cli}",
-        "tool": "do_one_thing_in_my_account",
-        "input": {
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:run-workflow-definition",
-            "input": {
-              "row": "workflow:set-up-a-checked-repository",
-              "repository": "bakery-site",
-              "product_folder": "data",
-              "pin_file": "data/pins.json",
-              "registries": [
-                "checks/registry.json"
-              ],
-              "check_command": "./run-checks.sh"
-            }
-          }
-        }
-      },
-      "workflow": "workflow:set-up-a-checked-repository",
-      "step": "pin-the-data",
-      "given": "Read from the step: the input names product_folder data and pin_file data/pins.json, so the step runs tool:pin-files-by-content with action check, then write, then check again, which must answer ok true. Synthetic: 12 files in data/ are pinned.",
-      "hands_back": "{\"skipped\":false,\"pinned\":12,\"ok\":true}"
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:set-up-a-checked-repository rendered from its row"
 }
