@@ -57,7 +57,15 @@ test('create: the event is made with the local times, the attendee and a video r
   assert.deepEqual(made, { status: 'created', external_event_id: 'evt_1', html_link: 'https://calendar.example/evt_1', video_link: 'https://meet.example/abc' });
   const [call] = transport.calls;
   assert.equal(call.url, 'https://backend.composio.dev/api/v3/tools/execute/GOOGLECALENDAR_CREATE_EVENT');
-  assert.deepEqual(call.body.arguments, { summary: 'Intro call', start_datetime: '2026-08-12T09:00', end_datetime: '2026-08-12T09:15', timezone: 'America/Chicago', attendees: ['guest@example.test'], create_meeting_room: true, send_updates: 'all' });
+  assert.deepEqual(call.body.arguments, { summary: 'Intro call', start_datetime: '2026-08-12T09:00', end_datetime: '2026-08-12T09:15', timezone: 'America/Chicago', attendees: ['guest@example.test'], create_meeting_room: true, send_updates: true });
+});
+
+test('create: a Composio refusal names the reason it gives, without the key', async () => {
+  const transport = composio(null, { text: JSON.stringify({ successful: false, error: 'Input should be a valid boolean, unable to interpret input on parameter `send_updates`' }) });
+  const made = await createExternalCalendarEvent(conn, booking, transport.fn);
+  assert.equal(made.status, 'error');
+  assert.match(made.error, /valid boolean, unable to interpret input on parameter/);
+  assert.equal(made.error.includes(KEY), false);
 });
 
 test('create: a video call that was asked for and not made is an error, not a made event', async () => {
@@ -77,7 +85,7 @@ test('a user key (uak_) goes as x-user-api-key with the project named', async ()
 test('cancel: the event id goes to DELETE_EVENT; changed on success, an error with no key on refusal', async () => {
   const ok = composio({});
   assert.deepEqual(await cancelExternalCalendarEvent(conn, 'evt_1', ok.fn), { status: 'changed' });
-  assert.deepEqual(ok.calls[0].body.arguments, { event_id: 'evt_1', calendar_id: 'primary', send_updates: 'all' });
+  assert.deepEqual(ok.calls[0].body.arguments, { event_id: 'evt_1', calendar_id: 'primary', send_updates: true });
   const refused = composio(null, { ok: false, status: 500, text: 'nope' });
   const answer = await cancelExternalCalendarEvent(conn, 'evt_1', refused.fn);
   assert.deepEqual(answer, { status: 'error', error: 'composio-GOOGLECALENDAR_DELETE_EVENT-500' });

@@ -38,7 +38,7 @@ async function runTool(connection: ComposioCalendarConnection, slug: string, arg
   if (!res.ok) throw new Error(`composio-${slug}-${res.status}`);
   let parsed: any;
   try { parsed = JSON.parse(text); } catch { throw new Error(`composio-${slug}-no-json`); }
-  if (parsed?.successful === false || parsed?.error) throw new Error(`composio-${slug}-unsuccessful`);
+  if (parsed?.successful === false || parsed?.error) throw new Error(`composio-${slug}-unsuccessful: ${String(parsed.error ?? parsed.data?.message ?? '').replace(/\s+/g, ' ').slice(0, 200)}`);
   return parsed?.data?.response_data ?? parsed?.data ?? null;
 }
 
@@ -71,7 +71,7 @@ export async function composioCreate(connection: ComposioCalendarConnection, boo
       timezone: booking.timezone,
       attendees,
       create_meeting_room: booking.video_call !== undefined,
-      send_updates: 'all',
+      send_updates: true,
     }, doFetch);
     if (!event?.id) return { status: 'error', error: 'composio-event-not-made' };
     const videoLink: string | undefined = event.hangoutLink ?? undefined;
@@ -84,7 +84,7 @@ export async function composioCreate(connection: ComposioCalendarConnection, boo
 
 export async function composioCancel(connection: ComposioCalendarConnection, eventId: string, doFetch: FetchLike): Promise<ExternalChangeResult> {
   try {
-    await runTool(connection, 'GOOGLECALENDAR_DELETE_EVENT', { event_id: eventId, calendar_id: CALENDAR, send_updates: 'all' }, doFetch);
+    await runTool(connection, 'GOOGLECALENDAR_DELETE_EVENT', { event_id: eventId, calendar_id: CALENDAR, send_updates: true }, doFetch);
     return { status: 'changed' };
   } catch (error) {
     return { status: 'error', error: (error as Error).message };
