@@ -1,7 +1,7 @@
 {
-  "start_here": "Say to your AI: \"Run workflow:keep-a-date-from-going-quiet-or-cancelling for the person who said Friday at 7 and has not answered since Wednesday.\" It goes step by step, handing back what it found with where each thing came from, and what is still open.",
+  "start_here": "Say to your AI: \"Run workflow:keep-a-date-from-going-quiet-or-cancelling.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the last step keeps them wherever the person keeps the pursuit's rows, in that store's own way.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:keep-a-date-from-going-quiet-or-cancelling"
   ],
@@ -9,34 +9,32 @@
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Say what the run is for in plain words, and what is already known, as the input: {\"about\": \"the person who said Friday at 7 and has not answered since Wednesday\", \"known\": \"what you already know or decided\"}.",
-    "2. Run workflow:keep-a-date-from-going-quiet-or-cancelling with tools:run, tool tool:run-workflow-definition, input {row: \"workflow:keep-a-date-from-going-quiet-or-cancelling\", about, known}. Each step waits for its answer: what was found, each with where it came from, in found, and what is not settled yet in open with what would settle it.",
-    "3. Answer a step by giving its answer under answers by its step id and running again.",
-    "4. Read what the run kept and what is open; the last step says what matters most next, and choosing what runs next is up to you or your AI."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:keep-a-date-from-going-quiet-or-cancelling\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Start to keep a date from going quiet or cancelling for the person who said Friday at 7 and has not answered since Wednesday",
-      "ask": "Run keep a date from going quiet or cancelling for the person who said Friday at 7 and has not answered since Wednesday.",
+      "title": "Keep a date from going quiet or cancelling",
+      "ask": "Run workflow:keep-a-date-from-going-quiet-or-cancelling.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:keep-a-date-from-going-quiet-or-cancelling",
-              "about": "the person who said Friday at 7 and has not answered since Wednesday"
+              "row": "workflow:keep-a-date-from-going-quiet-or-cancelling"
             }
           }
         }
       },
       "workflow": "workflow:keep-a-date-from-going-quiet-or-cancelling",
       "step": "speak-before-the-day",
-      "given": "No answers yet; run on the workflow engine on 2026-11-18 with this input.",
-      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"speak-before-the-day\",\"asks\":\"ai\"}]}: the run waits at 'Speak before the day' for what was found (found) and what is still open (open)."
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
   ],
-  "drafted_from": "workflow:keep-a-date-from-going-quiet-or-cancelling's own rows in published/workflows.json and published/workflow-steps.json, and its run on the workflow engine on 2026-11-18"
+  "drafted_from": "workflow:keep-a-date-from-going-quiet-or-cancelling rendered from its row"
 }

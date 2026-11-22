@@ -1,25 +1,23 @@
 {
-  "drafted_from": "workflow:keep-each-told-change-in-the-history's own file (tools/workflows/recipes/keep-each-told-change-in-the-history.json) and its run in the change-chain proof: a made-up booking service told booking 101 added, changed and cancelled, and each became one statement of a history on PGlite.",
-  "start_here": "Say to your AI: \"Keep every change my sources tell in my history.\" The AI switches on this workflow's wake (chosen--a-change-a-source-told) with your own input {history: {credential_name: <your history's vault name>}}, and workflow:route-each-row-change's wake a-row-changed; then each change a source's waiter row gives kinds to is kept once in your history.",
+  "start_here": "Say to your AI: \"Run workflow:keep-each-told-change-in-the-history.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "It writes one row of the person's own history (the statements table of the history-and-identity mechanism), in the person's own database, with one statement; it keeps no list of its own.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
-    "workflow:route-each-row-change",
-    "workflow:tell-the-owner-what-changed-for-each-person"
+    "workflow:keep-each-told-change-in-the-history"
   ],
   "tools": [
-    "tool:run-sql-in-my-database"
+    "tool:run-sql-in-my-database",
+    "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Have the history in your own database (statements, mentions and their rule rows) and its connection in your vault; switch this wake on with {history: {credential_name: <that vault name>}}.",
-    "2. Give your history a meaning or mention rule for each source it keeps (meaning_rules and mention_rules, source = the source's vault name, place = its table or list): a told change is kept only when a rule names its source and place, or names none. Give a service's waiter row shape.kinds rules too when other workflows should be chosen by its kinds, and shape.carry for the values your readers need (a booking's starts_at, email, cancelled_at).",
-    "3. Add meaning_rules and mention_rules rows to your history for that source, so a kept change gets its meaning (booked, moved, cancelled) and the addresses it names.",
-    "4. Switch on chosen--a-change-a-source-told here and a-row-changed on workflow:route-each-row-change."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:keep-each-told-change-in-the-history\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "A booking made is kept once as a booked statement",
-      "ask": "(the noticer told booking 101 added, kinds [\"call-booked\"]; the router chose this workflow)",
+      "title": "Keep each change a source told in my history",
+      "ask": "Run workflow:keep-each-told-change-in-the-history.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -28,29 +26,20 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:keep-each-told-change-in-the-history",
-              "start_at": "keep",
-              "history": {
-                "credential_name": "my-history-connection"
-              },
-              "fact": {
-                "workflow": "workflow:keep-each-told-change-in-the-history",
-                "condition": "a change a source told",
-                "where": "my-booking-service-key",
-                "place": "booking",
-                "change": "added",
-                "key": "101",
-                "after": "{\"id\":101,\"email\":\"ana@example.com\",\"name\":\"Booker 101\",\"starts_at\":\"2026-11-21T13:00:01.000Z\",\"ends_at\":\"2026-11-21T13:15:01.000Z\",\"cancelled_at\":null}",
-                "kinds": "[\"call-booked\"]"
-              }
+              "row": "workflow:keep-each-told-change-in-the-history"
             }
           }
         }
       },
       "workflow": "workflow:keep-each-told-change-in-the-history",
       "step": "keep",
-      "given": "A history on PGlite with the meaning rule (place booking, change added) -> booked and the mention rule $.after.email -> email.",
-      "hands_back": "One tool:run-sql-in-my-database call that inserts statement 1 (source my-booking-service-key, place booking, change added, key 101) and answers {id: 1, meaning: booked}; the same fact told again inserts nothing (ON CONFLICT (source, told) DO NOTHING)."
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
+  ],
+  "drafted_from": "workflow:keep-each-told-change-in-the-history rendered from its row",
+  "see_also": [
+    "workflow:route-each-row-change",
+    "workflow:tell-the-owner-what-changed-for-each-person"
   ]
 }

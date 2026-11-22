@@ -1,44 +1,41 @@
 {
- "start_here": "Say to your AI: \"Run workflow:hold-us-to-it for our shared pursuit pursuit:example-bakery-team since yesterday: find what Sam and Alex agreed to, put it on the calendar and tell the group who kept it.\"",
- "lists": [],
- "no_lists_because": "It keeps no list of its own: the agreements are kept, calendared and scored by tool:hold-to-it in the shared pursuit.",
- "workflows": [
-  "workflow:hold-us-to-it"
- ],
- "tools": [
-  "tool:run-workflow-definition",
-  "tool:hold-to-it"
- ],
- "instructions": [
-  "1. Name the shared pursuit (space_id) and, if you like, since (the default is the last day) and about (one thing someone said); none are required.",
-  "2. Say \"Run workflow:hold-us-to-it\". The AI reads the meetings, messages, voice memos and transcripts since then and lists every agreement with who agreed, how often and a quote.",
-  "3. It keeps each one with tool:hold-to-it (operation keep): posted in the space, the next meeting booked, a reminder before and a check after.",
-  "4. After a meeting has happened it runs operation check, marks each person came, missed or not arranged, says it in the pursuit, and gives the scorecard."
- ],
- "worked_examples": [
-  {
-   "title": "A weekly meeting is found in the words",
-   "ask": "Hold us to what we agreed yesterday.",
-   "mcp": {
-    "server": "{cli}",
-    "tool": "do_one_thing_in_my_account",
-    "input": {
-     "method": "tools:run",
-     "input": {
-      "tool": "tool:run-workflow-definition",
-      "input": {
-       "row": "workflow:hold-us-to-it",
-       "space_id": "pursuit:example-bakery-team",
-       "since": "2026-11-12T00:00:00"
-      }
-     }
+  "start_here": "Say to your AI: \"Run workflow:hold-us-to-it.\" The wake starts it once its switch input is set.",
+  "lists": [],
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
+  "workflows": [
+    "workflow:hold-us-to-it"
+  ],
+  "tools": [
+    "tool:hold-to-it",
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:hold-us-to-it\".",
+    "3. Read the answer the run hands back."
+  ],
+  "worked_examples": [
+    {
+      "title": "Hold us to it",
+      "ask": "Run workflow:hold-us-to-it.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:hold-us-to-it"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:hold-us-to-it",
+      "step": "find",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-   },
-   "workflow": "workflow:hold-us-to-it",
-   "step": "find",
-   "given": "Read from the find step in tools/workflows/recipes/workflows.json: in yesterday's call Sam said \"let us meet every Monday at 9:00 about the order sheet\" and Alex said \"yes\".",
-   "hands_back": "{\"space_id\": \"pursuit:example-bakery-team\", \"agreements\": [{\"what\": \"Weekly meeting about the order sheet\", \"agreed_by\": [\"Sam\", \"Alex\"], \"cadence\": {\"every\": \"week\", \"day\": \"Monday\", \"time\": \"09:00\"}, \"quote\": \"let us meet every Monday at 9:00 about the order sheet\", \"heard_in\": \"Thursday call\"}]}"
-  }
- ],
- "drafted_from": "tools/workflows/recipes/workflows.json row of workflow:hold-us-to-it (input schema, steps and submit shapes)"
+  ],
+  "drafted_from": "workflow:hold-us-to-it rendered from its row"
 }
