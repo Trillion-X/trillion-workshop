@@ -181,3 +181,31 @@ test('the port-contract row refuses a commit of a feature file no contract claim
   git('add', 'notes.md');
   assert.deepEqual(await allowed(where, { cwd: root, tool_name: 'Bash', tool_input: { command: 'git commit -m notes' } }, 'made-up-key', runner), {});
 });
+
+test('a refused refresh is asked again only once per window, not once per tool call', async (t) => {
+  let asked = 0;
+  const server = createServer((request, response) => {
+    asked += 1;
+    response.writeHead(401, { 'content-type': 'application/json' });
+    response.end('{}');
+  });
+  await new Promise((done) => server.listen(0, '127.0.0.1', done));
+  t.after(() => server.close());
+  const where = settings(t, `http://127.0.0.1:${server.address().port}/mcp`);
+  // What the dispatcher does on every tool call: start a refresh if the snapshot is stale. Five calls, a moment apart.
+  const script = [
+    'import json, os, sys, time',
+    `sys.path.insert(0, ${JSON.stringify(dirname(RUNNER))})`,
+    'import check_switches',
+    `os.environ['CHECK_LIST_SETTINGS'] = ${JSON.stringify(where.file)}`,
+    'rules = check_switches.settings()',
+    'for _ in range(5):',
+    `    check_switches.start_refresh_if_stale(${JSON.stringify(where.state)}, rules)`,
+    '    time.sleep(0.6)',
+  ].join('\n');
+  // Spawned, not run synchronously: this process must keep answering at the made-up door while the calls run.
+  const child = spawn('python3', ['-c', script], { env: { ...process.env, EXAMPLE_CHECK_LIST_KEY: 'made-up-key' }, stdio: 'ignore' });
+  await new Promise((done) => child.on('close', done));
+  await new Promise((done) => setTimeout(done, 1000));
+  assert.equal(asked, 1, 'one refused refresh, then none until failed_retry_seconds');
+});

@@ -22,6 +22,8 @@ Non-negotiable invariants
     1. Off only on an exact "Off". Absent, "On", any other value, a missing row, an unreadable list, a failed refresh or
        a missing snapshot all mean ON: nothing here can switch every check off.
     2. A failed refresh keeps the previous snapshot. The snapshot is replaced whole (written beside it, then renamed).
+       A failed refresh is not tried again until `snapshot.failed_retry_seconds` (default `refresh_seconds`) after it
+       failed: the old snapshot stays stale, so without this every tool call of every session started one more refresh.
     3. The tool call never waits for the door: reading is one local file; refreshing is a detached process.
     4. Honouring is DATA (`honour_off` in the settings). While it is false, a guard marked Off
        still runs and the dispatcher reports the mark, because any agent key can write "Off" until the engine
@@ -172,12 +174,19 @@ def _unreachable(path: str, why: str) -> str:
 
 
 def start_refresh_if_stale(state, rules: dict) -> None:
-    """Start a detached refresh when the snapshot is missing or older than refresh_seconds; never waits for it."""
+    """Start a detached refresh when the snapshot is missing or older than refresh_seconds, and no refresh failed within
+    `failed_retry_seconds`; never waits for it. Nov 22 2026, 2:00-4:25 AM CST on the Mac: the records door refused this
+    refresh (401) and the snapshot (read 2026-11-16) stayed stale, so every tool call started another refresh, about one
+    a second, each one more call at the door (computer_events door-refused-caller agent=Python-urllib/3.10)."""
     try:
         path = snapshot_path(state, rules)
         age = time.time() - os.path.getmtime(path) if os.path.exists(path) else None
         claim = path + ".refreshing"
         if age is not None and age < rules["snapshot"]["refresh_seconds"]:
+            return
+        failed = path + ".unreachable"
+        retry = rules["snapshot"].get("failed_retry_seconds", rules["snapshot"]["refresh_seconds"])
+        if os.path.exists(failed) and time.time() - os.path.getmtime(failed) < retry:
             return
         if os.path.exists(claim) and time.time() - os.path.getmtime(claim) < rules["door"]["timeout_seconds"] * 3:
             return
