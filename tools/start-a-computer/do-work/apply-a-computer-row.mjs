@@ -171,11 +171,12 @@ export function hostsOf(row) {
   return [...new Set(found.filter(host => /^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(host)))];
 }
 
-/** The vault names a row's units and names ask for: sealed secrets, credentials, a source's key and a name provider's key. */
+/** The vault names a row's units and names ask for: sealed secrets, credentials, a source's key and a name provider's key. A
+ *  credential that says `held_on: "computer"` is read on the computer from its own vault, so it is never asked of the reader here. */
 export function heldNamesOf(row) {
   const names = [];
   for (const unit of row.runs.units ?? []) {
-    names.push(unit.secret_vault_key, unit.source?.credential, ...(unit.credentials ?? []).map(credential => credential.vault_key));
+    names.push(unit.secret_vault_key, unit.source?.credential, ...(unit.credentials ?? []).filter(credential => credential.held_on === undefined).map(credential => credential.vault_key));
   }
   names.push(...(row.runs.names ?? []).map(name => name.provider?.vault_key));
   return [...new Set(names.filter(name => typeof name === 'string' && name))];

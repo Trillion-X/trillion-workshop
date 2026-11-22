@@ -309,15 +309,57 @@ async function readIfPresent(machine, run, path, binary) {
   return run(machine, `if [ -f ${q(path)} ]; then ${binary ? 'base64 -w0' : 'cat'} ${q(path)}; else exit 3; fi`).catch(error => { if (error.code === 3) return undefined; throw error; });
 }
 
-/** The sealed credentials a unit loads: its own (`secret_*`) and each of its `credentials` ({ vault_key, name, file, env? });
- * each as { unit, secret_vault_key, secret_name, secret_file }. */
+/** Whether a credential is held only in the computer's own vault (`held_on: "computer"`), never in the vault of whoever applies. */
+const heldOnComputer = (credential, unit) => {
+  if (credential.held_on === undefined) return false;
+  if (credential.held_on !== 'computer') throw refused(`${unit} credential ${credential.name} says held_on ${JSON.stringify(credential.held_on)}: the one place a credential is held other than the vault of whoever applies is "computer", the vault of the engine on that computer.`);
+  return true;
+};
+
+/** The sealed credentials a unit loads: its own (`secret_*`) and each of its `credentials` ({ vault_key, name, file, env?, held_on? });
+ * each as { unit, secret_vault_key, secret_name, secret_file, on_computer }. One that says `held_on: "computer"` is read and sealed
+ * on the computer from its own vault (`vaultReadOf`), never handed on descriptor 5. */
 export const secretsOf = unit => [
-  unit.secret_file && { unit: unit.unit, secret_vault_key: unit.secret_vault_key, secret_name: unit.secret_name, secret_file: unit.secret_file },
-  ...(unit.credentials ?? []).map(credential => ({ unit: unit.unit, secret_vault_key: credential.vault_key, secret_name: credential.name, secret_file: credential.file })),
+  unit.secret_file && { unit: unit.unit, secret_vault_key: unit.secret_vault_key, secret_name: unit.secret_name, secret_file: unit.secret_file, on_computer: false },
+  ...(unit.credentials ?? []).map(credential => ({ unit: unit.unit, secret_vault_key: credential.vault_key, secret_name: credential.name, secret_file: credential.file, on_computer: heldOnComputer(credential, unit.unit) })),
 ].filter(Boolean);
 
-/** Whether a unit needs values from the person's vault (descriptor 5): a sealed credential, or the key its source is fetched with. */
-const needsHeld = unit => secretsOf(unit).length > 0 || Boolean(unit.source?.credential);
+/** Whether a unit needs values from the person's vault (descriptor 5): a sealed credential held there, or the key its source is fetched with. */
+const needsHeld = unit => secretsOf(unit).some(secret => !secret.on_computer) || Boolean(unit.source?.credential);
+
+/** The shell words that print, on the computer, the value its own vault holds under a vault name: the row's `runs.vault_read`
+ * ({ command, user?, answers_on? }), named once as DATA on the computer row like `engine_call`. `command` is the reader's command
+ * line, its program first and one argument exactly `{name}`, where the vault name goes; `user` the account it runs as (an engine
+ * answers its vault only to its own account); `answers_on` the descriptor it writes the value on (1 when absent; never 2). A reader
+ * that answers on another descriptor gets a pipe there made by its own account, so the value reaches only the shell variable that
+ * holds it on the computer: never argv, a file, a log or the machine that applies. A reader that fails prints nothing. */
+export function vaultReadOf(vaultRead) {
+  const { command, user, answers_on: answersOn = 1 } = vaultRead ?? {};
+  if (!Array.isArray(command) || command.length < 2 || !command.every(part => typeof part === 'string' && part.length > 0)
+    || command.filter(part => part === '{name}').length !== 1 || command[0] === '{name}'
+    || (user !== undefined && !/^[a-z_][a-z0-9_-]*$/.test(user ?? '')) || !Number.isInteger(answersOn) || answersOn < 1 || answersOn === 2 || answersOn > 9) {
+    throw refused('A credential held_on the computer is read from its own vault by the row\'s runs.vault_read: { command: the reader\'s command line, its program first and one argument exactly {name}; user: the account it runs as, when not root; answers_on: the descriptor it writes the value on, when not 1 }.');
+  }
+  return name => {
+    const argv = command.map(part => q(part === '{name}' ? name : part)).join(' ');
+    const read = answersOn === 1 ? argv : `sh -c ${q(`"$@" ${answersOn}>&1 >/dev/null | cat`)} sh ${argv}`;
+    return user ? `runuser -u ${q(user)} -- ${read}` : read;
+  };
+}
+
+/** The command that says whether a credential held on the computer must be sealed: exit 3 when its file is absent or opens to
+ * another value than the computer's vault holds, exit 4 when its file is absent and the vault answers nothing, 0 when it is kept
+ * (the same value, or a vault that answers nothing while a sealed file is there: the unit keeps running on what it loads). */
+export const onComputerState = (readOf, secret) => `v=$(${readOf(secret.secret_vault_key)}); `
+  + `if ! test -s ${q(secret.secret_file)}; then [ -n "$v" ] || exit 4; exit 3; fi; `
+  + `[ -z "$v" ] || [ "$(systemd-creds decrypt --name=${q(secret.secret_name)} ${q(secret.secret_file)} -)" = "$v" ] || exit 3`;
+
+/** The command that seals a credential held on the computer from its own vault: the value goes from the reader into a shell
+ * variable and from there (printf, a shell builtin) into systemd-creds; exit 4 when the vault answers nothing. */
+export const onComputerSeal = (readOf, secret) => `install -d -m 0700 ${q(dirname(secret.secret_file))} && umask 077 && { v=$(${readOf(secret.secret_vault_key)}); `
+  + `[ -n "$v" ] || exit 4; printf '%s' "$v" | systemd-creds encrypt --name=${q(secret.secret_name)} - ${q(secret.secret_file)}; }`;
+
+const notOnComputer = secret => refused(`${secret.unit} needs the value held under the vault name ${secret.secret_vault_key} in the computer's own vault (held_on computer), and its runs.vault_read answers none.`);
 
 /** Apply what a computer's row says it runs: set it up, seal each secret a unit names that the computer does not hold yet, write only
  * the files that differ from what the row renders, and restart what those change. A computer that already matches gets
@@ -376,12 +418,22 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   const missing = [];
   // A credential the computer does not hold is sealed from the value handed under its vault name; one it holds that differs from the
   // value now handed (the vault is the original, so a changed value is the one to run) is sealed again, and its unit restarts to load it.
-  for (const secret of runs.units.flatMap(secretsOf)) {
+  // One held only in the computer's own vault is compared and sealed there from that vault (`runs.vault_read`); a value handed under
+  // its name is not used.
+  const secrets = runs.units.flatMap(secretsOf);
+  const readOf = secrets.some(secret => secret.on_computer) ? vaultReadOf(runs.vault_read) : null;
+  for (const secret of secrets) {
+    if (secret.on_computer) {
+      const state = await run(machine, onComputerState(readOf, secret)).then(() => 'kept', error => { if ([3, 4].includes(error.code)) return error.code; throw error; });
+      if (state === 4) throw notOnComputer(secret);
+      if (state === 3) missing.push(secret);
+      continue;
+    }
     const handed = typeof held[secret.secret_vault_key] === 'string' && held[secret.secret_vault_key] !== '';
     if (await absent(`test -s ${q(secret.secret_file)}`)
       || (handed && await absent(`test "$(systemd-creds decrypt --name=${q(secret.secret_name)} ${q(secret.secret_file)} -)" = "$(cat)"`, held[secret.secret_vault_key]))) missing.push(secret);
   }
-  for (const unit of missing) {
+  for (const unit of missing.filter(secret => !secret.on_computer)) {
     if (typeof held[unit.secret_vault_key] !== 'string' || !held[unit.secret_vault_key]) {
       throw refused(`${unit.unit} needs the value held under the vault name ${unit.secret_vault_key}: hand it on descriptor 5 as {"${unit.secret_vault_key}": value}, read from the person's vault.`);
     }
@@ -422,6 +474,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   if (accounts.includes(false) || nodeMissing || foldersMissing || programsMissing || portsClosed.length) await run(machine, `sh -s -- ${q(JSON.stringify({ units: setUpUnits }))} ${q(JSON.stringify(machineData))}`, readFileSync(SETUP));
   await sealTheKeys(machine, keys, run);
   for (const unit of missing) {
+    if (unit.on_computer) { await run(machine, onComputerSeal(readOf, unit)).catch(error => { throw error.code === 4 ? notOnComputer(unit) : error; }); continue; }
     await run(machine, `install -d -m 0700 ${q(dirname(unit.secret_file))} && umask 077 && systemd-creds encrypt --name=${q(unit.secret_name)} - ${q(unit.secret_file)}`, held[unit.secret_vault_key]);
   }
   // A unit behind its row's source commit is built there once set-up has made its user, builds folder and toolchain.
