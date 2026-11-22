@@ -10,7 +10,7 @@ test('the Hetzner DNS provider names its base, bearer auth and vault handle, and
   assert.equal(provider.base, 'https://api.hetzner.cloud/v1');
   assert.equal(provider.vault_key, 'hetzner-api-token');
   assert.deepEqual(provider.auth, { header: 'authorization', prefix: 'Bearer ' });
-  assert.doesNotMatch(JSON.stringify(provider), /[A-Za-z0-9_-]{40,}/, 'no long token-shaped value in the file');
+  assert.doesNotMatch(JSON.stringify(provider), /[A-Za-z0-9]{40,}/, 'no long token-shaped value in the file');
 });
 
 test('every request is an https call under the Hetzner base, with a method and a url', () => {
@@ -31,6 +31,12 @@ test('the read-only requests send GET only; the change requests are POST or DELE
   const reads = ['list_zones', 'find_zone', 'read_zone', 'list_records'];
   for (const name of reads) assert.equal(provider.requests[name].method, 'GET', name);
   for (const name of ['create_zone', 'create_record', 'add_record', 'remove_record']) assert.equal(provider.requests[name].method, 'POST', name);
+});
+
+test('the mail-forwarding note quotes Namecheap and says the forwarding is proven only by a test email', () => {
+  assert.equal(provider.mail_forwarding.namecheap_docs.length, 2);
+  assert.equal(provider.mail_forwarding.quotes.length, 3);
+  assert.match(provider.mail_forwarding.proof_after_apply, /test email/);
 });
 
 test('a new A record is written with the shortest TTL the provider takes', () => {

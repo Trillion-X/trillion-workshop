@@ -10,6 +10,19 @@
   "vault_key": "hetzner-api-token",
   "error_code_at": "error.code",
   "lease_label_key": "place-lease",
+  "mail_forwarding": {
+    "what": "Mail for the domains forwards through Namecheap's email forwarding, whose MX records point at eforward1-5.registrar-servers.com. Those MX records live in the zone, so a move must copy every MX, SPF TXT and other record to this provider, not only the A records. The forwarding setting itself is held at Namecheap, and this provider cannot read it.",
+    "namecheap_docs": [
+      "https://www.namecheap.com/support/knowledgebase/article.aspx/9623/2237/how-to-set-up-default-domain-and-email-redirects/",
+      "https://www.namecheap.com/support/knowledgebase/article.aspx/767/10/how-to-change-dns-for-a-domain/"
+    ],
+    "quotes": [
+      "\"both Domain and Email Redirects will be configured on our side\" (BasicDNS only; the article says nothing about forwarding under custom DNS)",
+      "\"the host records will not be added to the new nameservers automatically\"",
+      "\"Please make sure to save all the needed settings and set them up manually after the nameservers switch.\""
+    ],
+    "proof_after_apply": "After the nameserver change, send one test email to a forwarded address and confirm it arrives. Namecheap's docs do not confirm that forwarding works with third-party DNS, so this test is the only proof."
+  },
   "requests": {
     "list_zones": {
       "notes": "The zones of the Hetzner Cloud project, a page at a time. Reads only; the scope check uses it.",
