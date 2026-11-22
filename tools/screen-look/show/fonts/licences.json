@@ -41,20 +41,30 @@
         "on": "2026-10-06",
         "words": "The owner picked Recoleta, is fine with the foundry noticing it is used, and accepts the consequences."
       }
-    }
-  ],
-  "removed": [
+    },
     {
       "family": "SF Pro Text",
       "foundry": "Apple",
-      "files": [
-        "SF-Pro-Text-Regular.woff2",
-        "SF-Pro-Text-Medium.woff2",
-        "SF-Pro-Text-Semibold.woff2"
+      "files": [],
+      "licence_terms": "https://developer.apple.com/fonts/",
+      "buy": null,
+      "licensed_for": [
+        "video",
+        "social"
       ],
-      "removed_on": "2026-11-21",
-      "why": "Apple's SF Pro licence does not allow embedding the face in websites, so no web page or app carries these files. Screen Look draws text with the system face through the stack -apple-system, BlinkMacSystemFont, system-ui, sans-serif, which Apple devices render as SF natively. The entry is kept here so the removal and its reason stay on record.",
-      "licence_terms": "https://developer.apple.com/fonts/"
+      "receipt": null,
+      "note": "Apple's SF Pro licence does not allow embedding the face in websites, so web is taken out (2026-11-21). The files left the kit and no page ships them. The owner's choice of 2026-10-17 keeps the face for video and social; the face stays named here so those uses stay on record. Video and social uses are not checked by the web gate.",
+      "chosen_by": {
+        "kind": "person",
+        "accepted_risk": true,
+        "on": "2026-10-17",
+        "words": "the person chose this face for their videos, their web app and their public site; their own words are kept in their own records",
+        "known_licence_limit": "Apple's licence covers designing for Apple platforms; web embedding is no longer used (2026-11-21, web taken out); video and social stay the owner's accepted risk."
+      },
+      "web_taken_out": {
+        "on": "2026-11-21",
+        "why": "Apple's licence does not allow the face in websites."
+      }
     }
   ]
 }
