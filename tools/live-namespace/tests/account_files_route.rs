@@ -1947,6 +1947,8 @@ fn a_200_kb_file_read_through_the_doors_message_bound_comes_back_whole_by_next_o
         assert!(reads < 100, "reading on from next_offset reaches the end");
     }
     assert!(reads > 1, "200 KB does not fit one message");
+    // Carried once in its message (`tool_result`), a read is about 47 KB: 200 KB in 5 reads, not the 9 of an answer carried twice.
+    assert!(reads <= 5, "200 KB took {reads} reads");
     assert_eq!(rebuilt.len(), bytes.len());
     assert_eq!(blake3::hash(&rebuilt), blake3::hash(&bytes));
 }

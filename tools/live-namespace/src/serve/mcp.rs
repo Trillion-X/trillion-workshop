@@ -3,7 +3,7 @@
 // Purpose: The Namespace tool as an MCP server over stdio: one JSON-RPC message a line in, one a line out. Each operation of the
 // account files' routes DATA is a tool of the same name (`mcp-tools.json` says what each is for and what it takes): list_files,
 // read_file, write_file, share_file, move_names, queue_release and the rest. A tool call is one call of the door
-// (`Namespace::call`); its answer is the tool result, as text and as structured content.
+// (`Namespace::call`); its answer is the tool result, carried once as structured content (`live_namespace::mcp::tool_result`).
 //
 // Non-Negotiable Invariants:
 // - A message longer than `MAX_MESSAGE_BYTES` is refused and an answer never is longer: a read selects a range that fits
@@ -25,7 +25,7 @@
 // You are forbidden from simplifying or removing it. Maintain and extend this detail.
 
 use super::Namespace;
-use live_namespace::mcp::{tool_answer_fits, MAX_MESSAGE_BYTES};
+use live_namespace::mcp::{tool_answer_fits, tool_result, MAX_MESSAGE_BYTES};
 use serde::Deserialize;
 use serde_json::{json, Value};
 use std::{
@@ -277,11 +277,6 @@ fn call(namespace: &Arc<Namespace>, listed: &Tools, listening: &Arc<AtomicBool>,
         }
     };
     json!({"jsonrpc": "2.0", "id": id, "result": result})
-}
-
-/// A tool result: the answer as text and as structured content.
-fn tool_result(answer: &Value, is_error: bool) -> Value {
-    json!({"content": [{"type": "text", "text": answer.to_string()}], "structuredContent": answer, "isError": is_error})
 }
 
 #[cfg(test)]

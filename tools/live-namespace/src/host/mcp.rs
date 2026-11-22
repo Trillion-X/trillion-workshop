@@ -15,17 +15,25 @@ pub const MAX_MESSAGE_BYTES: usize = 65_536;
 /// The room a tool result leaves for its JSON-RPC envelope and the request's ID.
 const TOOL_ENVELOPE_RESERVE: usize = 1_024;
 
-/// Whether `answer`, one resource operation's answer, fits one MCP message as the tool result that carries it twice
-/// (its JSON text and its structured content), with room left for the envelope and the request's ID. A read that
-/// pages fills each page by this, so its answer never turns into an unknown outcome by its size.
+/// The text line of every tool result: the answer itself is its structured content.
+const ANSWERED: &str = "Answered in structuredContent.";
+/// The text line of a refusal: its code and outcome are its structured content.
+const REFUSED: &str = "Refused; the code is in structuredContent.";
+
+/// Whether `answer`, one resource operation's answer, fits one MCP message as the tool result that carries it
+/// (`tool_result`), with room left for the envelope and the request's ID. A read that pages fills each page by this, so
+/// its answer never turns into an unknown outcome by its size.
 pub fn tool_answer_fits(answer: &Value) -> bool {
-    let limit = MAX_MESSAGE_BYTES - TOOL_ENVELOPE_RESERVE;
-    let Some(text) = encode_with_limit(answer, limit) else {
-        return false;
-    };
-    let result = json!({"content":[{"type":"text","text":String::from_utf8_lossy(&text)}],
-        "structuredContent":answer,"isError":false,"resultType":"complete"});
-    encode_with_limit(&result, limit).is_some()
+    encode_with_limit(&tool_result(answer, false), MAX_MESSAGE_BYTES - TOOL_ENVELOPE_RESERVE).is_some()
+}
+
+/// A tool result: the answer once, as its structured content, beside one short text line. This tool's one caller is the
+/// engine's session (trillion-rust src/tool_runs/tools/sessions.rs `call`), a program that reads `structuredContent`; the
+/// engine's own door writes the text an app hands its model (trillion-rust src/mcp.rs `answered_result`). Until Nov 21
+/// 2026 the answer was carried twice, as its JSON text too, so each read of a file was cut to about 23.8 KB of a 64 KiB
+/// message (a 200 KB picture took 9 reads); carried once, a read is about twice that.
+pub fn tool_result(answer: &Value, is_error: bool) -> Value {
+    json!({"content":[{"type":"text","text":if is_error { REFUSED } else { ANSWERED }}],"structuredContent":answer,"isError":is_error})
 }
 
 /// One encoding owner for both message classes. Callers supply only the
