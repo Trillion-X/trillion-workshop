@@ -8,6 +8,7 @@
 #   WF_HOME                      the folder wf runs from: its bin folder receives the binary, and wf.json and runs live beside it
 #   WF_WORKSHOP                  the Workshop checkout whose origin/main is built
 #   WF_CONTENT_CRYPTO_CHECKOUT   a trillion-rust checkout (it holds crates/content-crypto; the package reads it by a relative path)
+#   WF_NO_INSTALL                set to build only: the binary stays in the build folder and bin/ is not touched
 #
 # Prints the Workshop commit built; wf.built-from in bin/ keeps it beside the binary.
 set -euo pipefail
@@ -25,8 +26,12 @@ PKG="$R/ws/tools/workflow-host"
 TARGET="${CARGO_TARGET_DIR:-$R/target}"
 cd "$PKG"
 CARGO_TARGET_DIR="$TARGET" cargo build -q --release
+if [ -n "${WF_NO_INSTALL:-}" ]; then
+  echo "built $TARGET/release/wf from Workshop main $TIP, not installed"
+  exit 0
+fi
 mkdir -p "$WF_HOME/bin"
-[ -x "$WF_HOME/bin/wf" ] && mv "$WF_HOME/bin/wf" "$WF_HOME/bin/wf.before-$(date +%Y%m%d-%H%M%S)"
+[ -x "$WF_HOME/bin/wf" ] && cp -p "$WF_HOME/bin/wf" "$WF_HOME/bin/wf.before-$(date +%Y%m%d-%H%M%S)"
 cp "$TARGET/release/wf" "$WF_HOME/bin/wf"
 echo "$TIP" > "$WF_HOME/bin/wf.built-from"
 echo "built wf from Workshop main $TIP at $(date '+%-I:%M %p %Z')"

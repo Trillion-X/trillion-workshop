@@ -134,11 +134,22 @@ fn definition_named(dir: &str, id: &str) -> Value {
 fn door(mut request: Value) -> Result<std::process::Output, String> {
     request["cli"] = json!(setting("cli"));
     if let Some(fields) = request.as_object_mut() { fields.retain(|_, value| !value.is_null()); }
-    // The door program: wf.json `door_op` when it names one, else the Workshop's own (tools/use-your-tools-from-a-shell).
-    let program = config()["door_op"].as_str().map(expand).unwrap_or_else(|| format!("{}/tools/use-your-tools-from-a-shell/do-work/door-op.mjs", workshop()));
+    let program = installed_door_op()?;
     let mut child = Command::new("node").arg(&program).stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::piped()).spawn().map_err(|e| e.to_string())?;
     child.stdin.take().unwrap().write_all(request.to_string().as_bytes()).map_err(|e| e.to_string())?;
     child.wait_with_output().map_err(|e| e.to_string())
+}
+
+// The door program the installed Workshop tree holds, read only when its bytes are origin/main's (the rule the converter uses): a
+// lane's unlanded edit in the shared checkout never runs as wf's door.
+fn installed_door_op() -> Result<String, String> {
+    const DOOR: &str = "tools/use-your-tools-from-a-shell/do-work/door-op.mjs";
+    let tree = installed_tree()?;
+    let installed = std::fs::read(format!("{tree}/{DOOR}")).map_err(|e| format!("the installed door program cannot be read: {e}"))?;
+    let origin = Command::new("git").arg("-C").arg(workshop()).args(["show", &format!("origin/main:{DOOR}")]).stderr(Stdio::null()).output()
+        .ok().filter(|o| o.status.success()).map(|o| o.stdout).ok_or("origin/main holds no door program")?;
+    if installed != origin { return Err("the installed door program is not origin/main's bytes; not calling".into()); }
+    Ok(format!("{tree}/{DOOR}"))
 }
 
 fn database_of(store: &str) -> String { store.strip_suffix("-connection").unwrap_or(store).to_string() }
