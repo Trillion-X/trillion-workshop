@@ -35,6 +35,22 @@ test('a job selects its model, structured output and output limit from data', as
   } finally { server.close(); }
 });
 
+test('a chat row that names a reasoning effort sends it, so a thinking model answers without thinking; a row that names none sends none', async () => {
+  const asked = [];
+  const server = await serve(body => { asked.push(body); return { choices: [{ message: { content: 'yes' } }] }; });
+  const url = `http://127.0.0.1:${server.address().port}/v1/chat/completions`;
+  const settings = { most_tokens: 400, words, classify: [], chat: [
+    { id: 'thinker', url, model: 'thinker', timeout_seconds: 5, reasoning_effort: 'none' },
+    { id: 'plain', url, model: 'plain', timeout_seconds: 5 },
+  ], jobs: { say: { models: ['thinker'] }, other: { models: ['plain'] } } };
+  try {
+    await askLocal({ job: 'say', messages: [{ role: 'user', content: 'hi' }] }, settings);
+    await askLocal({ job: 'other', messages: [{ role: 'user', content: 'hi' }] }, settings);
+    assert.equal(asked[0].reasoning_effort, 'none');
+    assert.equal('reasoning_effort' in asked[1], false);
+  } finally { server.close(); }
+});
+
 test('an answer lacking the fields its job names is that model\'s failure: the next model is asked, and none means no answer', async () => {
   const asked = [];
   const answers = { small: '{}', large: '{"subject":"Our call","text":"See you Saturday."}' };

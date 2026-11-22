@@ -193,6 +193,7 @@ export async function askLocal(input, settings, { priority = 0 } = {}) {
     const failures = [];
     const found = await firstAnswer(rows, async row => checked(await askChatShape(row, {
       model: row.model, messages: input.messages, stream: false, ...(row.keep_alive ? { keep_alive: row.keep_alive } : {}),
+      ...(row.reasoning_effort ? { reasoning_effort: row.reasoning_effort } : {}),
       ...(Array.isArray(input.tools) ? { tools: input.tools } : {}),
       ...(job.response_format ? { response_format: job.response_format } : {}),
       max_tokens: Math.min(Number(input.max_tokens) || job.most_tokens || settings.most_tokens, job.most_tokens || settings.most_tokens),

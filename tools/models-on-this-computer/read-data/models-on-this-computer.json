@@ -55,6 +55,16 @@
       "api_shape": "responses",
       "model": "gpt-6.2-sol",
       "timeout_seconds": 120
+    },
+    {
+      "id": "ollama-writing-voice-texting-v2",
+      "door": "local-model-server",
+      "path": "/v1/chat/completions",
+      "model": "writing-voice-texting-v2",
+      "keep_alive": "5m",
+      "timeout_seconds": 60,
+      "api_shape": "chat",
+      "reasoning_effort": "none"
     }
   ],
   "jobs": {
@@ -170,6 +180,24 @@
       ],
       "most_tokens": 300,
       "timeout_seconds": 120
+    },
+    "write-in-his-voice": {
+      "models": [
+        "ollama-writing-voice-texting-v2"
+      ],
+      "most_tokens": 300,
+      "timeout_seconds": 90,
+      "_what": "Say a plain draft the way the owner writes it, with his own fine-tuned writing model (a LoRA adapter trained on his sent texts, folded into its base). The model was trained with exactly these system words and frame: fill {channel}, {thread} (up to context_lines lines of the conversation before, each 'them: ...' or 'me: ...') and {draft}. It answers plain text, not JSON. Only for the channels listed: it was trained on texts and would turn an article or lesson into a text.",
+      "system": "Write this message as me, in {channel}. Keep every fact, name, number and link; add nothing.",
+      "frame": "Thread so far:\n{thread}\n\nWhat I want to say:\n{draft}",
+      "context_lines": 6,
+      "channels": [
+        "imessage",
+        "whatsapp",
+        "sms",
+        "instagram-dm"
+      ],
+      "trained_as": "voice_adapters qwen3.5-4b-lora-texting-v2 (adapter BLAKE3 736bc100994503a30ab9ba3d68a2d6ed23f13568b3c3527ba5354766a39e9225)"
     }
   },
   "classify": [
