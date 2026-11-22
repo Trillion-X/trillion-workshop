@@ -259,8 +259,18 @@ fn pinned_definition(run: &mut Map<String, Value>, recipe: &str, step: &str, ans
         Some(held) if held["blake3"] != pin["blake3"] && !may_move => Err(format!(
             "the workflow's definition changed while it ran (recipe {recipe}): it started on {} (version {}) and reads {} (version {}) now",
             held["blake3"].as_str().unwrap_or_default(), held["version"], pin["blake3"].as_str().unwrap_or_default(), pin["version"])),
-        _ => { answers[step] = pin; Ok(definition) }
+        _ => { answers[step] = pin; Ok(named(definition, recipe)) }
     }
+}
+
+/// A row's definition with the row's own id: a person's row keeps its id in the recipe column, so most definitions hold
+/// no `id` (582 of 797 rows on Nov 21 2026) and no `name`; both are filled from the recipe id when absent, after the pin is
+/// taken, so the pin stays the BLAKE3 of the row as read. 10:24 PM CST Nov 21 2026: every answered step on the Mac failed
+/// "a definition does not decode: missing field `id`".
+fn named(mut definition: Value, id: &str) -> Value {
+    if !definition["id"].as_str().is_some_and(|own| !own.is_empty()) { definition["id"] = json!(id); }
+    if !definition["name"].is_string() { definition["name"] = json!(id); }
+    definition
 }
 
 struct Held { run: String, answers: BTreeMap<String, Value>, refused: BTreeMap<String, String>, waiting: Mutex<Vec<Value>>, told: Mutex<Vec<(String, Value, Value)>>,
@@ -448,6 +458,7 @@ fn read_uses(run: &mut Map<String, Value>, step: &str, answer: &Value, held: &Va
         let mut definition = definition.clone();
         if definition.get("id").is_none() { definition["id"] = json!(id); }
         let pin = blake3::hash(definition.to_string().as_bytes()).to_hex().to_string();
+        let definition = named(definition, id);
         if let Some(before) = held.get(id).and_then(Value::as_str).filter(|before| *before != pin && !may_move) {
             return Err(format!("the workflow {id} that this run uses changed while it ran: it started on {before} and reads {pin} now"));
         }
@@ -560,7 +571,10 @@ fn main() {
     };
     if let Some(step) = run.get("start_at").and_then(Value::as_str) { all[0] = started_at_step(all[0].clone(), step); }
     let definitions: Vec<workflow_core::Definition> = all.into_iter()
-        .map(|definition| serde_json::from_value(definition).unwrap_or_else(|error| fail(format!("a definition does not decode: {error}")))).collect();
+        .map(|definition| {
+            let id = definition["id"].as_str().map(str::to_owned).or_else(|| recipe_of(&run)).unwrap_or_else(|| "the workflow".into());
+            serde_json::from_value(definition).unwrap_or_else(|error| fail(format!("the definition of {id} does not decode: {error}")))
+        }).collect();
     let id = definitions[0].id.clone();
     let answers: BTreeMap<String, Value> = serde_json::from_value(run.get("answers").cloned().unwrap_or(json!({}))).unwrap_or_default();
     let run_id = run.get("run").and_then(Value::as_str).unwrap_or("run").to_string();
@@ -818,6 +832,28 @@ mod tests {
         assert!(carried.len() < 1024, "the run carries the pin, not the definition: {} bytes", carried.len());
         assert_eq!(run["answers"][READ_STEP]["version"], "2026-11-21");
         assert_eq!(run["answers"][READ_STEP]["blake3"].as_str().unwrap().len(), 64);
+    }
+
+    // A row keeps its id in the recipe column, so its definition (and a used row's) may hold no id and no name: the run takes
+    // both from the recipe, decodes and walks, and the pin is the row as read (10:24 PM CST Nov 21 2026: every answered step
+    // on the Mac failed "missing field `id`").
+    #[test]
+    fn a_row_whose_definition_holds_no_id_is_named_by_its_recipe() {
+        let bare = |ask: &str| { let mut d = one_step("x", ask); d.as_object_mut().unwrap().remove("id"); d.as_object_mut().unwrap().remove("name"); d };
+        let mut run = Map::new();
+        run.insert("read_definition".into(), reader());
+        let definition = pinned_definition(&mut run, "workflow:x", READ_STEP, &read_answer(bare("tool:x"), "v1")).unwrap();
+        assert_eq!((definition["id"].as_str(), definition["name"].as_str()), (Some("workflow:x"), Some("workflow:x")));
+        assert_eq!(run["answers"][READ_STEP]["blake3"], json!(blake3::hash(bare("tool:x").to_string().as_bytes()).to_hex().to_string()));
+        let decoded: workflow_core::Definition = serde_json::from_value(definition).expect("decodes");
+        assert_eq!(decoded.id.to_string(), "workflow:x");
+        let mut used_run = Map::new();
+        let mut uses_reader = reader();
+        uses_reader["uses_at"] = json!("rows");
+        used_run.insert("read_definition".into(), uses_reader);
+        let used = read_uses(&mut used_run, READ_STEP, &json!({ "rows": [{ "recipe": "workflow:used", "definition": bare("tool:y") }] }), &Value::Null).unwrap();
+        let decoded: workflow_core::Definition = serde_json::from_value(used[0].clone()).expect("a used row decodes too");
+        assert_eq!(decoded.name, "workflow:used");
     }
 
     // A definition that changed while the run ran fails it in words, unless the run says it may move; the same one again
