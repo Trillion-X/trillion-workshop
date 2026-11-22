@@ -96,6 +96,60 @@ export function recipeToolGaps(recipe, { known, host = HOST_TOOLS }) {
   return recipeToolIds(recipe).filter(id => !known.has(id) && !host.has(id));
 }
 
+// A shared block is a workflow row that does what recipes used to copy as a step written out for whoever answers. Its
+// definition's `stands_for` lists the words of the steps it replaced, as they were written; a hand step whose words open
+// the same way is that block written out again, and runs the block instead (an action step naming it). Adding a block
+// row with its `stands_for` is all it takes for every later recipe to be pointed at it.
+const BLOCK_OPENING_WORDS = 10;
+
+/** A step's words with what differs from copy to copy taken out: quoted, bracketed and code text, workflow/tool/record
+ *  ids and numbers each become one placeholder, and only lowercase letters remain. */
+export function stepWords(text) {
+  return String(text ?? '').toLowerCase()
+    .replace(/`[^`]*`/g, ' x ').replace(/<[^<>]*>/g, ' x ').replace(/"[^"]*"/g, ' x ')
+    .replace(/(workflow|tool|record|list|brief):[a-z0-9:._#-]+/g, ' x ')
+    .replace(/\b\d[\d.,:]*\b/g, ' n ')
+    .replace(/[^a-z ]+/g, ' ')
+    .split(/\s+/).filter(Boolean);
+}
+
+const opening = text => {
+  const words = stepWords(text);
+  return words.length >= BLOCK_OPENING_WORDS ? words.slice(0, BLOCK_OPENING_WORDS).join(' ') : null;
+};
+
+/** The blocks among workflow rows ({ recipe, definition } as kept, or payloads with id): each row whose definition lists
+ *  `stands_for`, with the openings of those words. */
+export function sharedBlocks(rows) {
+  return (Array.isArray(rows) ? rows : []).flatMap(row => {
+    const id = row?.recipe ?? row?.id;
+    const standsFor = row?.definition?.stands_for;
+    const openings = [...new Set((Array.isArray(standsFor) ? standsFor : []).map(opening).filter(Boolean))];
+    return typeof id === 'string' && openings.length ? [{ id, openings }] : [];
+  });
+}
+
+// The words of a step someone answers by hand; a tool step, an action and a loop already run something.
+function handWords(step) {
+  if (step?.kind !== 'ask' || toolNamed(step.config?.name)) return null;
+  return step.config?.input?.do ?? step.config?.context?.do ?? null;
+}
+
+/** Each hand step of a recipe that writes out a shared block again, naming the block to run instead. A block is never
+ *  pointed at itself. */
+export function recipeBlockRepeats(recipe, { blocks = [] } = {}) {
+  const steps = Array.isArray(recipe?.definition?.steps) ? recipe.definition.steps.map(step => ({ id: step?.id, words: handWords(step), at: 'definition.steps' }))
+    : Array.isArray(recipe?.steps) ? recipe.steps.filter(step => step?.run_tool === undefined).map(step => ({ id: step?.id, words: step?.do, at: 'steps' })) : [];
+  const repeats = [];
+  for (const step of steps) {
+    const words = opening(step.words);
+    if (!words) continue;
+    const block = blocks.find(item => item.id !== recipe?.id && item.openings.includes(words));
+    if (block) repeats.push(`${step.at}.${step.id} writes out ${block.id} again: run it as one step, { "kind": "action", "config": { "definition_id": "${block.id}", "inputs": { ... } } }, binding its input from this run, instead of copying its words.`);
+  }
+  return repeats;
+}
+
 // Every problem with a pin a caller sent; none for a step with no pin.
 function pinProblems(pinned, name) {
   if (pinned === undefined) return [];
@@ -128,10 +182,11 @@ function actorPolicyProblems(policy, { name, step_id, asks, prior }) {
   return problems;
 }
 
-// What is wrong with a recipe row, every problem at once. A recipe that passes can be run by any account.
-export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY, { stepAnatomy = false } = {}) {
-  const problems = [];
+// What is wrong with a recipe row, every problem at once. A recipe that passes can be run by any account. Given `blocks`
+// (sharedBlocks of the person's workflow rows), a hand step that writes out a block again is refused, naming the block.
+export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY, { stepAnatomy = false, blocks } = {}) {
   if (!object(recipe)) return ['The workflow must be an object.'];
+  const problems = blocks === undefined ? [] : recipeBlockRepeats(recipe, { blocks });
   if (!/^workflow:[a-z0-9][a-z0-9-]*$/.test(recipe.id ?? '')) problems.push('id must be "workflow:" followed by lowercase letters, numbers and dashes.');
   if (!nonempty(recipe.job)) problems.push('job must say in plain words what the workflow gets done.');
   if (recipe.made_from !== undefined && !(Array.isArray(recipe.made_from) && recipe.made_from.every(id => /^workflow:[a-z0-9][a-z0-9-]*$/.test(id ?? '')) && !recipe.made_from.includes(recipe.id))) problems.push('made_from must list the ids of the workflows this one was made from ("workflow:..."), never its own id.');
