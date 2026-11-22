@@ -1,8 +1,7 @@
 {
-  "drafted_from": "workflow:combine-several-ai-answers's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
-  "start_here": "Say to your AI: \"Run workflow:combine-several-ai-answers on the question: should a one-shop bakery add online pre-orders? Here are three answers from three different AIs.\"",
+  "start_here": "Say to your AI: \"Run workflow:combine-several-ai-answers.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "It reads the answers you paste in and writes one combined answer; it keeps no list.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:combine-several-ai-answers"
   ],
@@ -10,15 +9,14 @@
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Paste the question and at least two answers, each with where it came from.",
-    "2. Say \"Run workflow:combine-several-ai-answers\" with question and answers.",
-    "3. The AI works collect, claims, agree-and-differ, check and answer: every claim is pulled out, answers resting on the same source count once, each disagreement gets the assumption that differs, and disputed claims are checked or marked unchecked.",
-    "4. Read the one answer: what holds and how many independent answers support it, what is disputed, what no answer established."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:combine-several-ai-answers\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Two answers on one source count as one",
-      "ask": "Combine these three answers on pre-orders.",
+      "title": "Combine several answers to one question into one answer",
+      "ask": "Run workflow:combine-several-ai-answers.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -27,21 +25,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:combine-several-ai-answers",
-              "question": "Should a one-shop bakery add online pre-orders?",
-              "answers": [
-                "run-1: Yes. Pre-orders cut weekend waste, per a trade article. Walk-in sales will not drop.",
-                "run-2: Yes. Pre-orders cut weekend waste, per the same trade article. Add a 30% revenue lift.",
-                "run-3: Yes. Pre-orders cut waste. Walk-in sales may drop because most customers live nearby."
-              ]
+              "row": "workflow:combine-several-ai-answers"
             }
           }
         }
       },
       "workflow": "workflow:combine-several-ai-answers",
-      "step": "agree-and-differ",
-      "given": "The claims step found: all three say pre-orders cut waste (run-1 and run-2 both rest on the same trade article); only run-2 claims a 30% revenue lift; run-1 says walk-in sales will not drop while run-3 says they may. Read from the agree-and-differ step of the workflow row.",
-      "hands_back": "The submit shape of step agree-and-differ: {\"agreements\":[{\"claim\":\"Pre-orders cut weekend waste\",\"independent_count\":2}],\"single_source_claims\":[\"Pre-orders add a 30% revenue lift\"],\"disagreements\":[{\"topic\":\"Whether walk-in sales drop\",\"differing_assumption\":\"run-1 assumes the shop sits on a busy street; run-3 assumes most customers live nearby and would switch to ordering ahead\"}]}"
+      "step": "collect",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:combine-several-ai-answers rendered from its row"
 }

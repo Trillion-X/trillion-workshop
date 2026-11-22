@@ -1,8 +1,7 @@
 {
-  "drafted_from": "workflow:describe-what-happens-before-naming-it's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
-  "start_here": "Say to your AI: \"Run workflow:describe-what-happens-before-naming-it on the subject: why customers leave the Saturday bread queue, with the goal of fewer walk-aways.\"",
+  "start_here": "Say to your AI: \"Run workflow:describe-what-happens-before-naming-it.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "It writes its answer back in the chat step by step and keeps no list.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:describe-what-happens-before-naming-it"
   ],
@@ -10,15 +9,14 @@
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. State the subject in a few words and, if you have one, the goal.",
-    "2. Say \"Run workflow:describe-what-happens-before-naming-it\" with subject and goal.",
-    "3. The AI works observe, requirements, conditions, principles and dimensions-and-name in order: what can be seen or counted, each requirement marked observed, assumed or inherited, where it holds and fails, the fewest principles, and only then dimensions with a rejecting test and a name.",
-    "4. Read still_unknown at the end: it is what the evidence did not settle."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:describe-what-happens-before-naming-it\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Each stated requirement is marked observed, assumed or inherited",
-      "ask": "Describe the Saturday queue problem before naming it.",
+      "title": "Describe what happens before you name it",
+      "ask": "Run workflow:describe-what-happens-before-naming-it.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -27,17 +25,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:describe-what-happens-before-naming-it",
-              "subject": "why customers leave the Saturday bread queue",
-              "goal": "fewer walk-aways"
+              "row": "workflow:describe-what-happens-before-naming-it"
             }
           }
         }
       },
       "workflow": "workflow:describe-what-happens-before-naming-it",
-      "step": "requirements",
-      "given": "The observe step counted: between 8 and 9 AM, 14 of 60 people who joined the queue left before the counter. Stated requirements: \"everyone must be served in order\" and \"the queue must be under 5 minutes\". Read from the requirements step of the workflow row.",
-      "hands_back": "The submit shape of step requirements: {\"requirements\":[{\"requirement\":\"Everyone must be served in order\",\"basis\":\"inherited\",\"if_removed\":\"People ordering one loaf could be served first and the queue would shrink faster.\"},{\"requirement\":\"The queue must be under 5 minutes\",\"basis\":\"assumed\",\"if_removed\":\"No one measured how long the 14 people waited before leaving, so the limit may be shorter or longer.\"}]}"
+      "step": "observe",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:describe-what-happens-before-naming-it rendered from its row"
 }
