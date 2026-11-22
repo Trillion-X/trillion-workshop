@@ -1,0 +1,39 @@
+{
+  "start_here": "Say to your AI: \"Find the workflow for <what I want done>, then start it.\" Your AI runs the wf command on this computer: wf find WORDS, then wf start WORKFLOW_ID with the input.",
+  "lists": [],
+  "no_lists_because": "wf reads the workflow definitions this computer keeps and the store a run names; it writes run folders on this computer. No list of yours is read or written by the host itself.",
+  "workflows": [],
+  "tools": [
+    "tool:workflow-host"
+  ],
+  "instructions": [
+    "1. Install it once from the Workshop: tools/workflows/build-wf.sh builds the package from origin/main into the bin folder wf runs from.",
+    "2. wf find WORDS lists the workflows that fit the words; wf kinds WORDS lists the kinds to search by.",
+    "3. wf start WORKFLOW_ID - reads the input from standard input; wf answer RUN STEP - answers a waiting step; wf show RUN shows where a run is."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start a found workflow",
+      "ask": "Find the workflow for sending a tour to a student, then start it for the student named in my message",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "database": "<my account database>",
+              "id": "workflow:send-a-tour"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:send-a-tour",
+      "step": "start",
+      "given": "The installed Workshop has the workflow definition workflow:send-a-tour; the input names the student.",
+      "hands_back": "wf start prints the run folder and its status: \"completed\" when every step is answered, or \"paused\" with what each waiting step asks."
+    }
+  ],
+  "drafted_from": "tools/workflow-host/src/main.rs (the wf commands and their usage lines)"
+}

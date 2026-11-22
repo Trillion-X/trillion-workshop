@@ -1,0 +1,23 @@
+[package]
+name = "workflow-host"
+version = "0.1.0"
+edition = "2021"
+description = "wf: the chat-side workflow host (find, start, answer, show, kinds, cancel) on one person's computer"
+
+# Its own workspace: a package beside the engine's crates, not a member of them, so its build never changes the engine's crate
+# folders (the web-host modules' fingerprint reads those).
+[workspace]
+
+[[bin]]
+name = "wf"
+path = "src/main.rs"
+
+[dependencies]
+workflow-core = { path = "../workflows/crates/workflow-core", default-features = false }
+workflow-engine = { path = "../workflows/crates/workflow-engine" }
+# wf keys its definitions with content-crypto's BLAKE3, the Workshop's declared hash owner (trillion-rust, beside the Workshop).
+content-crypto = { path = "../../../trillion-rust/crates/content-crypto" }
+async-trait = "0.1"
+regex = "1"
+serde_json = "1"
+tokio = { version = "1", features = ["rt", "macros"] }

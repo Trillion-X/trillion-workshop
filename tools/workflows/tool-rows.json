@@ -3048,6 +3048,83 @@
         "licence_class": "licence:maker-own",
         "result_selector": "$.result"
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:turn-workflow-recipes-into-definitions",
+        "label": "Turn workflow recipes into definitions",
+        "job": "Write every workflow recipe of one Workshop export as the definition the engine runs, and the index wf finds workflows by",
+        "description": "Turns the workflow recipes into the definitions the engine runs, through do-work/convert.mjs and the Workshop's own definitionOf. Wf (the workflow host on each person's computer) runs it from the installed Workshop tree, never in the engine container; the converter writes definitions-index.json beside the definitions so an unchanged recipe is reused. This row is the list wf keys its definitions on: the files in its package_files entry (package-files.json).",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "internet": false,
+          "workdir": "/opt/tools/workflows",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/tools/workflows/do-work/convert.mjs"
+          ],
+          "files": {
+            "package_files": [
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/convert.mjs",
+                  "recipes",
+                  "definitions"
+                ],
+                "at": "/opt/tools/workflows"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:workflow-host",
+        "label": "wf: the workflow host on this computer",
+        "job": "Find, start, answer, show and cancel workflow runs from a chat's shell, on the computer the chat runs on",
+        "description": "wf is a Rust package of its own (tools/workflow-host), built beside the engine crates it reads by path, never inside them. Its installed binary (tools/workflows/build-wf.sh) answers the chat's wf commands on this computer; the engine does not run it. This row is the list wf's package is kept by: the files in its package_files entry.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "internet": false,
+          "workdir": "/opt/tools/workflow-host",
+          "stdout": "json",
+          "argv": [
+            "wf"
+          ],
+          "files": {
+            "package_files": [
+              {
+                "package": "workflow-host",
+                "paths": [
+                  "Cargo.toml",
+                  "Cargo.lock",
+                  "src"
+                ],
+                "at": "/opt/tools/workflow-host"
+              }
+            ]
+          }
+        }
+      }
     }
   ]
 }
