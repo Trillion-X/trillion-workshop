@@ -863,7 +863,13 @@
               "start_at": "read-due-posts"
             }
           }
-        ]
+        ],
+        "records": {
+          "runs": [
+            "tool:run-sql-in-my-database",
+            "tool:send-a-post"
+          ]
+        }
       }
     }
   ]

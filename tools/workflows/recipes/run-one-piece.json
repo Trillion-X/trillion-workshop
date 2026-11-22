@@ -405,7 +405,22 @@
             }
           }
         ],
-        "fires_when": []
+        "fires_when": [],
+        "records": {
+          "rights": [
+            {
+              "at": "@own-records",
+              "id": "workflow-chosen-from-rows",
+              "operations": [
+                "wake:arrive"
+              ]
+            }
+          ],
+          "runs": [
+            "tool:choose-the-workflows-that-fire",
+            "tool:run-sql-in-my-database"
+          ]
+        }
       }
     }
   ]

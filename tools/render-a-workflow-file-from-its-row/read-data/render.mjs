@@ -5,7 +5,8 @@
 // A row is read through tool:run-sql-in-my-database; this module takes its values as plain objects.
 //
 // fileFromRow(row) -> { about, records: [{ payload }] }: the payload keeps the row's own steps (as `definition`), its
-// job, produces, input schema, source and fires_when, and each wake with its input cut to its start step. The store names
+// job, produces, input schema, source and fires_when, each wake with its input cut to its start step, and its records
+// with every tool its steps ask in records.runs. The store names
 // and account are not in the file: they come with each person's switch.
 // checkFile(file, row) -> problems: the file must be stamped with the row's kept_at, its name must be the id without
 // "workflow:" and hold no colon, and the row must be complete enough for the recipe validator to accept it.
@@ -27,6 +28,59 @@ function handAsks(definition) {
   return (definition?.steps ?? [])
     .filter(step => step.kind === 'ask' && ['anyone', 'ai', 'actor', ''].includes(step.config?.name ?? ''))
     .map(step => `hand ask: ${step.id}`);
+}
+
+// A run of a listed workflow row starts only the tools its row names in records.runs (trillion-rust run_capability.rs
+// Rights::declared; the engine hands no host actions to a row that names none), so a row whose steps ask a tool but whose
+// records name none fails every woken run at its first ask: a-piece-to-run (workflow:run-one-piece) and at-its-time
+// (workflow:send-each-post-at-its-time) on the Mac, 9:4x PM CST Nov 21 2026, "This run was not handed its host actions".
+// The tools a definition asks (every ask step, at any depth: loops, actions and its uses, whose name is a tool id) are
+// what its runs start, so the file names them with the row's own, as DATA read from the steps. A step that tells a fact
+// (an ask of wake:arrive with a literal kind) needs the right to tell that kind at the run's own records, so it is named
+// the same way; a kind made at run time is the row's own to name.
+const TOOL_ID_START = 'tool:';
+const TELL = 'wake:arrive';
+const OWN_RECORDS = '@own-records';
+const MOST_RUNS = 32; // trillion-rust tool-runs.json runs.most: a row naming more is refused whole.
+
+export function toolsAsked(definition) {
+  const asked = new Set();
+  const walk = value => {
+    if (Array.isArray(value)) { value.forEach(walk); return; }
+    if (value === null || typeof value !== 'object') return;
+    const name = value.kind === 'ask' ? value.config?.name : undefined;
+    if (typeof name === 'string' && name.startsWith(TOOL_ID_START) && name.length > TOOL_ID_START.length) asked.add(name);
+    Object.values(value).forEach(walk);
+  };
+  walk(definition);
+  return [...asked].sort();
+}
+
+export function kindsTold(definition) {
+  const told = new Set();
+  const walk = value => {
+    if (Array.isArray(value)) { value.forEach(walk); return; }
+    if (value === null || typeof value !== 'object') return;
+    const kind = value.kind === 'ask' && value.config?.name === TELL ? value.config?.input?.kind : undefined;
+    if (typeof kind === 'string' && kind) told.add(kind);
+    Object.values(value).forEach(walk);
+  };
+  walk(definition);
+  return [...told].sort();
+}
+
+function recordsOf(row, definition) {
+  const own = isEmpty(row.records) ? {} : asObject(row.records);
+  const runs = [...new Set([...(Array.isArray(own.runs) ? own.runs : []), ...toolsAsked(definition)])].sort();
+  if (runs.length > MOST_RUNS) throw new Error(`${row.recipe}: its steps ask ${runs.length} tools; a row may name at most ${MOST_RUNS} in records.runs`);
+  const rights = Array.isArray(own.rights) ? [...own.rights] : [];
+  for (const kind of kindsTold(definition)) {
+    if (!rights.some(right => right?.at === OWN_RECORDS && right?.id === kind && right?.operations?.includes(TELL))) {
+      rights.push({ at: OWN_RECORDS, id: kind, operations: [TELL] });
+    }
+  }
+  const records = { ...own, ...(rights.length ? { rights } : {}), ...(runs.length ? { runs } : {}) };
+  return Object.keys(records).length ? records : null;
 }
 
 function vaultNames(input, at = '') {
@@ -59,7 +113,8 @@ export function fileFromRow(row) {
     definition,
   };
   if (!isEmpty(row.fires_when)) payload.fires_when = asObject(row.fires_when);
-  if (!isEmpty(row.records)) payload.records = asObject(row.records);
+  const records = recordsOf(row, definition);
+  if (records) payload.records = records;
   return { about: `${row.recipe}: rendered from its workflow_recipes row.`, records: [{ payload }] };
 }
 
