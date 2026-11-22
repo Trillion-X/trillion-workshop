@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/keep-journey-steps-from-kept-rows/do-work/keep-steps.mjs
 //
 // The container tool `tool:keep-journey-steps-from-kept-rows` (tool-rows.json): reads the kept rows that stand for a visitor's
@@ -10,7 +11,7 @@
 // and never written raw. The mapping's SQL is DATA written by the pursuit's owner; the one input value (since) is a bound parameter.
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { emailKey, keepStep } from '../../traffic-attribution/do-work/journey.mjs';
+import { emailKey, keepStep, purgeProofRows } from '../../traffic-attribution/do-work/journey.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { throughProxy } from '../../run-sql-in-my-database/do-work/through-the-run-proxy.mjs';
 import settings from '../read-data/journey-kept-rows.json' with { type: 'json' };
@@ -66,10 +67,25 @@ export function stepOf(mapping, row) {
   };
 }
 
-/** The columns a table has in this database, read once per table; none when the table is absent. */
-async function columnsOf(query, table) {
-  const { rows } = await query('SELECT column_name FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = $1', [table]);
-  return new Set(rows.map(row => row.column_name));
+/** The columns a table has in this database, read once per table through `cache`; none when the table is absent. */
+async function columnsOf(query, table, cache) {
+  if (!cache.has(table)) {
+    const { rows } = await query('SELECT column_name FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = $1', [table]);
+    cache.set(table, new Set(rows.map(row => row.column_name)));
+  }
+  return cache.get(table);
+}
+
+/**
+ * Whether a shape fits this database: each of its requires_columns is a column of the mapped table, or, written "table.column",
+ * of the table it names (a mapping that reads offers needs offers' own columns too).
+ */
+async function fits(query, mapping, cache) {
+  for (const name of mapping.requires_columns ?? []) {
+    const [table, column] = name.includes('.') ? name.split('.') : [mapping.table, name];
+    if (!(await columnsOf(query, table, cache)).has(column)) return false;
+  }
+  return true;
 }
 
 /**
@@ -89,19 +105,23 @@ export async function keepStepsFromRows({ query, since = null, refs = null, mapp
     shapes.set(key, [...(shapes.get(key) ?? []), mapping]);
   }
   const answer = [];
-  const columnsByTable = new Map();
+  const cache = new Map();
   for (const alternatives of shapes.values()) {
     const { table, step } = alternatives[0];
-    if (!columnsByTable.has(table)) columnsByTable.set(table, await columnsOf(query, table));
-    const columns = columnsByTable.get(table);
     // A pursuit with no such table (a site that takes no bookings, say) has nothing to keep for these mappings: it is reported, not an error.
-    if (columns.size === 0) {
+    if ((await columnsOf(query, table, cache)).size === 0) {
       for (const mapping of alternatives) answer.push({ id: mapping.id, step, skipped: `no ${table} here` });
       continue;
     }
-    const mapping = alternatives.find(candidate => (candidate.requires_columns ?? []).every(column => columns.has(column)));
+    let mapping = null;
+    for (const candidate of alternatives) {
+      if (await fits(query, candidate, cache)) {
+        mapping = candidate;
+        break;
+      }
+    }
     if (!mapping) {
-      answer.push({ table, step, skipped: `no mapping fits ${table}`, columns: [...columns].sort() });
+      answer.push({ table, step, skipped: `no mapping fits ${table}`, columns: [...(await columnsOf(query, table, cache))].sort() });
       continue;
     }
     const { rows } = refs ? await query(readSql(mapping, { byRef: true }), [refs]) : await query(readSql(mapping), [since, mapping.step]);
@@ -152,7 +172,8 @@ async function schemaReport(query) {
 /**
  * The tool's answer for one input through the connection on descriptor 3. mode "keep" (the default) applies the kit's schema when
  * this database has not got this version, then keeps the steps: { schema, mappings }. mode "check" writes nothing and answers what
- * the kit declares that the database lacks: { declared, missing, version, applied }.
+ * the kit declares that the database lacks: { declared, missing, version, applied }. Keep mode also removes the proof rows that are
+ * old enough (purgeProofRows), and answers what it removed as proof.
  */
 export async function runKeepSteps({ input, connection, proxy = process.env.HTTPS_PROXY ?? '', connect = connectTo }) {
   if (!plain(input)) throw new Error('The input is one object, with since or refs (optional), or mode "check".');
@@ -178,13 +199,14 @@ export async function runKeepSteps({ input, connection, proxy = process.env.HTTP
       await applySchema(client);
       schema = 'applied';
     }
-    return { schema, ...(await keepStepsFromRows({ query, since, refs: refs?.map(ref => ref.trim()) ?? null })) };
+    const kept = await keepStepsFromRows({ query, since, refs: refs?.map(ref => ref.trim()) ?? null });
+    return { schema, ...kept, proof: await purgeProofRows(query) };
   } finally {
     await client.end();
   }
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const connection = (() => { try { return readFileSync(CONNECTION_DESCRIPTOR, 'utf8').trim(); } catch { return ''; } })();
   try {
     const input = JSON.parse(readFileSync(0, 'utf8'));

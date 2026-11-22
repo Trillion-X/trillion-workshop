@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
-import { emailKey } from '../../traffic-attribution/do-work/journey.mjs';
+import { emailKey, keepStep } from '../../traffic-attribution/do-work/journey.mjs';
 import { keepStepsFromRows, readSql, runKeepSteps } from '../do-work/keep-steps.mjs';
 import settings from '../read-data/journey-kept-rows.json' with { type: 'json' };
 
@@ -205,10 +205,10 @@ test('the kit schema applied twice to a database with rows changes no row and dr
 
 test('an older database gets the kit objects it lacks through the keep run, keeps its rows, and a second run applies nothing', async () => {
   const db = await olderPursuitDatabase();
-  const before = (await db.query('SELECT * FROM journey_steps WHERE id = 1')).rows;
+  const before = (await db.query('SELECT id, at, visitor, touch_id, step, source, ref, joined_by, email_key, offer_id, value_cents FROM journey_steps WHERE id = 1')).rows;
   const first = await runKeepSteps({ input: {}, connection: 'held', connect: connectTo(db) });
   assert.equal(first.schema, 'applied');
-  assert.deepEqual((await db.query('SELECT * FROM journey_steps WHERE id = 1')).rows, before);
+  assert.deepEqual((await db.query('SELECT id, at, visitor, touch_id, step, source, ref, joined_by, email_key, offer_id, value_cents FROM journey_steps WHERE id = 1')).rows, before);
   // The booking row keeps its ref, visitor and time; the statement's email fills the email_key it lacked.
   const booking = (await db.query("SELECT visitor, ref, email_key FROM journey_steps WHERE ref = 'tidycal:live-1'")).rows[0];
   assert.deepEqual(booking, { visitor: 'visitor-live-1', ref: 'tidycal:live-1', email_key: emailKey('live@example.com') });
@@ -267,7 +267,7 @@ async function otherShapeDatabase() {
   await db.exec(`
     CREATE TABLE payment_events (event_id text PRIMARY KEY, event_kind text, occurred_at timestamptz, offer_id text, customer_email text,
       amount_cents bigint, payment_status text, attributes jsonb, made_at timestamptz DEFAULT now());
-    CREATE TABLE offers (id text PRIMARY KEY);
+    CREATE TABLE offers (offer_id text PRIMARY KEY);
     INSERT INTO offers VALUES ('offer:course');
     INSERT INTO payment_events (event_id, event_kind, occurred_at, offer_id, customer_email, amount_cents, payment_status, attributes, made_at) VALUES
       ('evt-1', 'payment.confirmed', '2026-11-21T08:00:00Z', 'offer:course', 'Dee@Example.com', 2900, 'paid', '{"journey_visitor":"visitor-d-1"}', '2026-11-21T08:00:01Z'),
@@ -307,9 +307,54 @@ test('a table that fits none of its shapes is reported with its columns, and the
   ]);
 });
 
-test('a table that fits a shape but whose read fails is still an error', async () => {
-  const db = await otherShapeDatabase();
-  await db.exec('DROP TABLE offers');
-  await assert.rejects(keepStepsFromRows({ query: (sql, params) => db.query(sql, params), mappings: settings.mappings }), /offers/);
+test('a shape whose other table lacks its column or is missing is not picked; a table that fits a shape but whose read fails is still an error', async () => {
+  // The other client's payment_events, but its offers keyed by id: the shape names offers.offer_id, so no shape fits.
+  const keyedByID = await otherShapeDatabase();
+  await keyedByID.exec('DROP TABLE offers; CREATE TABLE offers (id text PRIMARY KEY);');
+  const mismatch = await keepStepsFromRows({ query: (sql, params) => keyedByID.query(sql, params), mappings: settings.mappings });
+  assert.deepEqual(mismatch.mappings.filter(item => item.step === 'sale'), [
+    { table: 'payment_events', step: 'sale', skipped: 'no mapping fits payment_events', columns: ['amount_cents', 'attributes', 'customer_email', 'event_id', 'event_kind', 'made_at', 'occurred_at', 'offer_id', 'payment_status'] },
+  ]);
+  // The same table with no offers table at all: the shape is not picked either.
+  const missing = await otherShapeDatabase();
+  await missing.exec('DROP TABLE offers');
+  const absent = await keepStepsFromRows({ query: (sql, params) => missing.query(sql, params), mappings: settings.mappings });
+  assert.equal(absent.mappings.filter(item => item.step === 'sale')[0].skipped, 'no mapping fits payment_events');
+  // A shape that fits, whose payment_status is not text: the filter's read fails, and that stays an error.
+  const broken = await otherShapeDatabase();
+  await broken.exec("ALTER TABLE payment_events ALTER COLUMN payment_status TYPE jsonb USING to_jsonb(payment_status)");
+  await assert.rejects(keepStepsFromRows({ query: (sql, params) => broken.query(sql, params), mappings: settings.mappings }), /json/);
 });
 
+test('a proof step is kept and readable by ref, counted by no view, and purged after 24 hours; a check keeps nothing; a real step is untouched', async () => {
+  const db = await pursuitDatabase();
+  const query = (sql, params) => db.query(sql, params);
+  const connection = connectTo(db);
+  // A proof's lead and the tracked link it was sent on: kept, marked is_proof.
+  await db.query("INSERT INTO journey_touches (id, destination, source) VALUES ('proof-touch', 'https://site.example/proof', '{\"utm_content\":\"proof\",\"utm_source\":\"proof\"}')");
+  const proof = await keepStep(query, { step: 'lead', ref: 'proof:lead-1', visitor: 'visitor-proof', touch_id: 'proof-touch', email_key: emailKey('proof@example.com'), source: { utm_content: 'proof', utm_source: 'proof' }, joined_by: 'touch' });
+  assert.deepEqual(proof, { kept: true });
+  assert.deepEqual((await db.query("SELECT is_proof FROM journey_steps WHERE ref = 'proof:lead-1'")).rows, [{ is_proof: true }]);
+  // Counted by no view: not in the resolved steps, and the funnel counts the one real visitor only.
+  assert.equal((await db.query("SELECT count(*)::int AS n FROM journey_resolved_steps WHERE ref = 'proof:lead-1'")).rows[0].n, 0);
+  assert.deepEqual((await db.query('SELECT sum(visitors)::int AS visitors, sum(leads)::int AS leads FROM funnel_by_source')).rows, [{ visitors: 1, leads: 0 }]);
+  // A check keeps nothing and sets nothing for its visitor, whatever else it carries.
+  assert.deepEqual(await keepStep(query, { step: 'visit', visitor: 'visitor-check', source: { utm_content: 'check', utm_source: 'test' }, joined_by: 'cookie' }), { kept: false });
+  assert.equal((await db.query("SELECT count(*)::int AS n FROM journey_steps WHERE visitor = 'visitor-check'")).rows[0].n, 0);
+  // A real lead from long ago is not a proof: it stays through the purge.
+  await db.query("INSERT INTO journey_steps (step, ref, visitor, joined_by, at) VALUES ('lead', 'real-lead-1', 'visitor-real', 'cookie', now() - interval '30 hours')");
+  // Young proof rows stay until they are 24 hours old.
+  const young = await runKeepSteps({ input: {}, connection: 'held', connect: connection });
+  assert.deepEqual(young.proof, { touches: 0, steps: 0 });
+  assert.equal((await db.query("SELECT count(*)::int AS n FROM journey_steps WHERE ref = 'proof:lead-1'")).rows[0].n, 1);
+  // Aged past 24 hours: the proof's step and the touch only the proof made go; the real lead and the real click stay.
+  await db.query("UPDATE journey_steps SET at = now() - interval '25 hours' WHERE is_proof");
+  await db.query("UPDATE journey_touches SET made_at = now() - interval '25 hours' WHERE id = 'proof-touch'");
+  const aged = await runKeepSteps({ input: {}, connection: 'held', connect: connection });
+  assert.deepEqual(aged.proof, { touches: 1, steps: 1 });
+  assert.equal((await db.query("SELECT count(*)::int AS n FROM journey_steps WHERE ref = 'proof:lead-1'")).rows[0].n, 0);
+  assert.equal((await db.query("SELECT count(*)::int AS n FROM journey_touches WHERE id = 'proof-touch'")).rows[0].n, 0);
+  assert.equal((await db.query("SELECT count(*)::int AS n FROM journey_steps WHERE ref = 'real-lead-1' AND NOT is_proof")).rows[0].n, 1);
+  assert.equal((await db.query("SELECT count(*)::int AS n FROM journey_steps WHERE step = 'click' AND touch_id = 'touch-1'")).rows[0].n, 1);
+  assert.equal((await db.query("SELECT count(*)::int AS n FROM journey_touches WHERE id = 'touch-1'")).rows[0].n, 1);
+});

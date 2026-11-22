@@ -35,6 +35,7 @@ const hostOf = referer => {
   try { return referer ? new URL(referer).hostname : null; } catch { return null; }
 };
 const isCheckSource = source => source?.[settings.check.key] === settings.check.value;
+const isProofSource = source => source?.[settings.proof.key] === settings.proof.value || settings.proof.sources.includes(source?.utm_source);
 const pickKept = source => Object.fromEntries(Object.entries(source ?? {}).filter(([key, value]) => KEPT.has(key) && text(value)));
 
 function cookieValue(cookieHeader, name) {
@@ -113,15 +114,15 @@ export async function keepStep(query, step) {
   if (!Object.hasOwn(settings.steps, step?.step)) throw new TypeError('A step needs a kind that read-data/journey.json names.');
   if (isCheckSource(step.source)) return { kept: false };
   const row = stepOf(step);
-  const params = [row.visitor, row.touch_id, row.step, row.source === null ? null : JSON.stringify(row.source), row.ref, row.joined_by, row.email_key, row.offer_id, row.value_cents];
-  const values = `SELECT $1::text, $2::text, $3::text, $4::jsonb, $5::text, $6::text, $7::text, $8::text, $9::bigint
+  const params = [row.visitor, row.touch_id, row.step, row.source === null ? null : JSON.stringify(row.source), row.ref, row.joined_by, row.email_key, row.offer_id, row.value_cents, isProofSource(row.source)];
+  const values = `SELECT $1::text, $2::text, $3::text, $4::jsonb, $5::text, $6::text, $7::text, $8::text, $9::bigint, $10::boolean
      WHERE NOT EXISTS (SELECT 1 FROM journey_excluded_refs x WHERE x.ref = $5::text)`;
   if (row.ref === null) {
-    const result = await query(`INSERT INTO journey_steps (visitor, touch_id, step, source, ref, joined_by, email_key, offer_id, value_cents) ${values} ON CONFLICT DO NOTHING`, params);
+    const result = await query(`INSERT INTO journey_steps (visitor, touch_id, step, source, ref, joined_by, email_key, offer_id, value_cents, is_proof) ${values} ON CONFLICT DO NOTHING`, params);
     return { kept: (result.rowCount ?? result.affectedRows ?? 0) > 0 };
   }
   const result = await query(
-    `INSERT INTO journey_steps (visitor, touch_id, step, source, ref, joined_by, email_key, offer_id, value_cents) ${values}
+    `INSERT INTO journey_steps (visitor, touch_id, step, source, ref, joined_by, email_key, offer_id, value_cents, is_proof) ${values}
      ON CONFLICT (step, ref) WHERE ref IS NOT NULL DO UPDATE SET
        visitor = COALESCE(journey_steps.visitor, EXCLUDED.visitor),
        touch_id = COALESCE(journey_steps.touch_id, EXCLUDED.touch_id),
@@ -136,6 +137,24 @@ export async function keepStep(query, step) {
     params,
   );
   return { kept: (result.rowCount ?? result.affectedRows ?? 0) > 0 };
+}
+
+/**
+ * Removes a proof's rows once they are proof.purge_after_hours old: the proof's steps, and the touches a proof made (a touch whose
+ * source is a proof's, or whose steps are all proofs). A touch with a real step is never removed, and a real step is never
+ * touched. Resolves to the rows each removed.
+ */
+export async function purgeProofRows(query) {
+  const hours = settings.proof.purge_after_hours;
+  const touches = await query(
+    `DELETE FROM journey_touches t
+     WHERE t.made_at < now() - make_interval(hours => $1::int)
+       AND NOT EXISTS (SELECT 1 FROM journey_steps s WHERE s.touch_id = t.id AND NOT s.is_proof)
+       AND (t.source->>$2::text = $3::text OR t.source->>'utm_source' = ANY($4::text[]) OR EXISTS (SELECT 1 FROM journey_steps s WHERE s.touch_id = t.id AND s.is_proof))`,
+    [hours, settings.proof.key, settings.proof.value, settings.proof.sources],
+  );
+  const steps = await query('DELETE FROM journey_steps WHERE is_proof AND at < now() - make_interval(hours => $1::int)', [hours]);
+  return { touches: touches.rowCount ?? touches.affectedRows ?? 0, steps: steps.rowCount ?? steps.affectedRows ?? 0 };
 }
 
 /**

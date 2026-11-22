@@ -4,10 +4,11 @@
 -- statement is idempotent. Step kinds, joins and limits are DATA in read-data/journey.json; the step names the views
 -- count ('click', 'visit', 'lead', 'booking', 'checkout', 'sale') are the same words that file names.
 
--- Safe on a live pursuit database with rows in it. Every statement creates only what is missing (IF NOT EXISTS), replaces a view
--- (CREATE OR REPLACE VIEW: a view may gain columns at its end, never lose or rename one), and never drops, truncates or rewrites a
--- row. A column added later is ALTER TABLE ... ADD COLUMN IF NOT EXISTS. The keep tool applies this file once per version (the
--- version is a BLAKE3 of these bytes, kept in journey_kit_schema), so a change here reaches every pursuit within one run.
+-- Safe on a live pursuit database with rows in it. Every statement creates only what is missing (IF NOT EXISTS) and never drops,
+-- truncates or rewrites a row. The views hold no rows: they are dropped and created again on each apply, because a column added
+-- to journey_steps lands inside the views' column lists, which CREATE OR REPLACE VIEW cannot move. A column added later is
+-- ALTER TABLE ... ADD COLUMN IF NOT EXISTS. The keep tool applies this file once per version (the version is a BLAKE3 of these
+-- bytes, kept in journey_kit_schema), so a change here reaches every pursuit within one run.
 
 -- Which version of this file a database has applied (written by the keep tool, which hashes these bytes).
 CREATE TABLE IF NOT EXISTS journey_kit_schema (
@@ -41,6 +42,10 @@ CREATE TABLE IF NOT EXISTS journey_steps (
   value_cents bigint
 );
 
+-- A step a proof made (read-data/journey.json proof): kept so the proof can read it back, counted by no view, and purged by the
+-- keep tool once it is old (purgeProofRows).
+ALTER TABLE journey_steps ADD COLUMN IF NOT EXISTS is_proof boolean NOT NULL DEFAULT false;
+
 CREATE UNIQUE INDEX IF NOT EXISTS journey_steps_step_ref ON journey_steps (step, ref) WHERE ref IS NOT NULL;
 CREATE INDEX IF NOT EXISTS journey_steps_visitor ON journey_steps (visitor);
 CREATE INDEX IF NOT EXISTS journey_steps_email_key ON journey_steps (email_key);
@@ -54,16 +59,19 @@ CREATE TABLE IF NOT EXISTS journey_excluded_refs (
   at    timestamptz NOT NULL DEFAULT now()
 );
 
--- Which visitor an email belongs to: the earliest visitor a step with that email_key carries.
+-- The views, dropped in dependency order and created again below (see the header).
+DROP VIEW IF EXISTS visit_steps_by_source, funnel_by_source, journey_first_touch, journey_step_sources, journey_resolved_steps, journey_email_visitor;
+
+-- Which visitor an email belongs to: the earliest visitor a step with that email_key carries. A proof's step is no visitor's.
 CREATE OR REPLACE VIEW journey_email_visitor AS
 SELECT DISTINCT ON (email_key) email_key, visitor
 FROM journey_steps
-WHERE email_key IS NOT NULL AND visitor IS NOT NULL
+WHERE email_key IS NOT NULL AND visitor IS NOT NULL AND NOT is_proof
 ORDER BY email_key, at, id;
 
 -- Every step with its person: its visitor, or the visitor its email joins to, or the email itself, or the touch it came
 -- from (a step kept without consent has no visitor, only the touch id of the link it followed). A sale with only an email
--- still counts, under its email.
+-- still counts, under its email. A proof's step (is_proof) is counted by no view.
 CREATE OR REPLACE VIEW journey_resolved_steps AS
 SELECT s.*, COALESCE(
   s.visitor,
@@ -73,7 +81,7 @@ SELECT s.*, COALESCE(
 ) AS person
 FROM journey_steps s
 LEFT JOIN journey_email_visitor e ON s.visitor IS NULL AND s.email_key = e.email_key
-WHERE s.ref IS NULL OR s.ref NOT IN (SELECT ref FROM journey_excluded_refs);
+WHERE NOT s.is_proof AND (s.ref IS NULL OR s.ref NOT IN (SELECT ref FROM journey_excluded_refs));
 
 -- The first touch of each person: the earliest step that carries a tracked source (a UTM field or an ad click id). A lead's
 -- self-reported answer is a source but not a touch, so it never decides where a person came from.
@@ -141,5 +149,5 @@ CREATE OR REPLACE VIEW visit_steps_by_source AS
          count(*) AS visit_steps
     FROM journey_steps s
     LEFT JOIN journey_touches t ON t.id = s.touch_id
-   WHERE s.step = 'visit'
+   WHERE s.step = 'visit' AND NOT s.is_proof
    GROUP BY 1, 2, 3;

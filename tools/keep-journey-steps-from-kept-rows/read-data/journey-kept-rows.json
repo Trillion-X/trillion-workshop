@@ -36,13 +36,13 @@
       "joined_by": "email",
       "joined_by_visitor": "client_reference_id",
       "cutoff_column": "made_at",
-      "requires_columns": ["id", "event_kind", "occurred_at", "attributes", "made_at"]
+      "requires_columns": ["id", "event_kind", "occurred_at", "attributes", "made_at", "offers.id"]
     },
     {
       "id": "stripe-sales-from-payment-events-by-columns",
       "table": "payment_events",
       "step": "sale",
-      "where": "event_kind = 'payment.confirmed' AND payment_status = 'paid' AND offer_id IN (SELECT id FROM offers)",
+      "where": "event_kind = 'payment.confirmed' AND payment_status = 'paid' AND offer_id IN (SELECT offer_id FROM offers)",
       "fields": {
         "ref": "event_id",
         "at": "occurred_at",
@@ -54,7 +54,7 @@
       "joined_by": "email",
       "joined_by_visitor": "client_reference_id",
       "cutoff_column": "made_at",
-      "requires_columns": ["event_id", "event_kind", "occurred_at", "offer_id", "customer_email", "amount_cents", "payment_status", "attributes", "made_at"]
+      "requires_columns": ["event_id", "event_kind", "occurred_at", "offer_id", "customer_email", "amount_cents", "payment_status", "attributes", "made_at", "offers.offer_id"]
     }
   ]
 }

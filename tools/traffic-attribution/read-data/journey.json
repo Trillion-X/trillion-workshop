@@ -25,7 +25,14 @@
   "check": {
     "key": "utm_content",
     "value": "check",
-    "_what": "A page check (a deploy watch, a proof) tags its address with this pair. The kit keeps no step for it and sets no visitor cookie for it, so a repeated check never reads as traffic."
+    "_what": "A page check (a deploy watch) tags its address with this pair. The kit keeps no step for it and sets no visitor cookie for it, so a repeated check never reads as traffic."
+  },
+  "proof": {
+    "key": "utm_content",
+    "value": "proof",
+    "sources": ["test", "proof"],
+    "purge_after_hours": 24,
+    "_what": "An end-to-end proof tags its address with the key and value, or with a utm_source from sources. Its steps are kept, marked is_proof, so the proof can read them back by ref; no view counts them. The keep tool purges them, and the touches only proofs made, once they are purge_after_hours old. A check (above) keeps nothing at all."
   },
   "retry_after_seconds": 30,
   "_retry_after_seconds_what": "Retry-After sent with a 503 when the database cannot be reached for a /go/ link.",
