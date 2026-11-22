@@ -22,7 +22,7 @@
 import { randomUUID } from 'node:crypto';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { credentialFor, doorFor, engineClient, CommandError } from '../../use-your-tools-from-a-shell/do-work/command.mjs';
+import { credentialFor, doorFor, speakAsInstalledSite, engineClient, CommandError } from '../../use-your-tools-from-a-shell/do-work/command.mjs';
 
 const say = (message, status) => new CommandError(message, { status });
 
@@ -72,6 +72,7 @@ async function main(argv, { stdin = process.stdin, print = line => process.stdou
   const removing = argv[0] === '--remove';
   const name = removing ? argv[1] : argv[0];
   const issuerStatus = removing && argv[2] === '--issuer-status' ? argv[3] : undefined;
+  speakAsInstalledSite();
   const credential = await credentialFor();
   const client = engineClient({ door: doorFor({ credential }), credential });
   if (removing) return print(JSON.stringify(await removeSecret({ name, issuerStatus, client })));

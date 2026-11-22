@@ -103,3 +103,32 @@ test('a removal sends the same request key each time it is made, so a retry afte
   await removeSecret({ name: 'synthetic-old-key', issuerStatus: 'revoked', client: second.client });
   assert.equal(first.bodies[0].params.arguments.request_key, second.bodies[0].params.arguments.request_key);
 });
+
+// A made-up home holding one installed site: the tool, run as its own file, must speak for that site and find its sign-in.
+test('run under its own name, the tool fills the site words and finds the installed sign-in', async () => {
+  const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const command = await import('../../use-your-tools-from-a-shell/do-work/command.mjs');
+  const { credentialFor, doorFor, grantStore, installedCli, keyStore, siteOf, speakFor } = command;
+  const home = mkdtempSync(join(tmpdir(), 'keep-secret-home-'));
+  try {
+    const state = join(home, '.example-cli', 'cli');
+    mkdirSync(state, { recursive: true });
+    writeFileSync(join(state, 'site.json'), JSON.stringify({ origin: 'https://example.com', site_name: 'Example', cli: 'example-cli' }));
+    assert.equal(installedCli({ home }), 'example-cli');
+    const rules = structuredClone((await import('../../use-your-tools-from-a-shell/do-work/command.json', { with: { type: 'json' } })).default);
+    speakFor(siteOf({ invoked: 'example-cli', home, rules }), rules);
+    assert.ok(!/\{(site_name|cli)\}/.test(rules.words.no_origin), 'no placeholder is left in the sentence');
+    assert.match(rules.words.no_origin, /Example/);
+    const grants = grantStore({ rules, home, platform: 'linux' });
+    grants.write({ access_token: 'synthetic-token', origin: 'https://example.com', resource: 'https://example.com/mcp' });
+    const credential = await credentialFor({ home, rules, env: {}, grants, store: keyStore({ rules, home, platform: 'linux' }) });
+    assert.equal(credential?.bearer, 'synthetic-token');
+    assert.equal(doorFor({ credential, rules, localMcp: null }).mcp, 'https://example.com/mcp');
+    // Two installed sites: it never guesses.
+    mkdirSync(join(home, '.other-cli', 'cli'), { recursive: true });
+    writeFileSync(join(home, '.other-cli', 'cli', 'site.json'), '{}');
+    assert.equal(installedCli({ home }), null);
+  } finally { rmSync(home, { recursive: true, force: true }); }
+});

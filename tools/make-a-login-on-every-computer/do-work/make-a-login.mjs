@@ -26,7 +26,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { credentialFor, doorFor, engineClient, opWhole, CommandError } from '../../use-your-tools-from-a-shell/do-work/command.mjs';
+import { credentialFor, doorFor, speakAsInstalledSite, engineClient, opWhole, CommandError } from '../../use-your-tools-from-a-shell/do-work/command.mjs';
 
 const say = (message, status) => new CommandError(message, { status });
 
@@ -107,6 +107,7 @@ async function main(stdin = process.stdin, print = line => process.stdout.write(
   const chunks = [];
   for await (const chunk of stdin) chunks.push(Buffer.from(chunk));
   const input = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
+  speakAsInstalledSite();
   const credential = await credentialFor();
   const client = engineClient({ door: doorFor({ credential }), credential });
   print(JSON.stringify(await makeLogin({ input, client })));

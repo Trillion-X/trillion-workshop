@@ -1515,6 +1515,28 @@ export function siteOf({ invoked = process.argv[1] ?? '', home = homedir(), rule
   return { cli: command(site?.cli) ?? cli, site_name: words(site?.site_name) ?? command(site?.cli) ?? cli };
 }
 
+/** The command name of the one site installed on this computer: the one folder `state_folder` (with {cli} the command's name) that
+ *  holds a site file. A tool another program runs as its own file (not through the link `setup` puts on PATH) learns its site here.
+ *  Null when no site, or more than one, is installed: it never guesses between sites. */
+export function installedCli({ home = homedir(), rules = settings } = {}) {
+  const [before, after] = expand(rules.state_folder, home).split('{cli}');
+  if (after === undefined) return null;
+  let names = [];
+  try { names = readdirSync(dirname(before)); } catch { return null; }
+  const prefix = basename(before);
+  const found = names.filter(name => name.startsWith(prefix) && name.length > prefix.length
+    && existsSync(join(dirname(before), name, after, rules.site_file))).map(name => name.slice(prefix.length));
+  return found.length === 1 ? found[0] : null;
+}
+
+/** Makes this program speak for the site installed on this computer, once, for a tool that imports this file and runs under its own
+ *  name: its sentences, its state folder (the kept sign-in) and its environment names are the site's, as when the command itself runs. */
+export function speakAsInstalledSite({ home = homedir(), rules = settings } = {}) {
+  if (rules.site) return;
+  const cli = installedCli({ home, rules });
+  speakFor(siteOf({ invoked: cli ?? process.argv[1] ?? '', home, rules }), rules);
+}
+
 /** Fills {site_name} and {cli} in this program's settings, once: the sentences a person reads and the places it keeps. */
 export function speakFor(site, rules = settings) {
   if (rules.site) return;
