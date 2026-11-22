@@ -28,10 +28,24 @@ const EMAIL_SHAPE = /^[^\s@<>()[\]\\,;:"]{1,64}@[a-z0-9-]+(\.[a-z0-9-]+)+$/i;
 const SIGNUPS_PER_NETWORK_PER_HOUR = 5;
 const CONFIRM_HOURS = 72;
 const TOKEN_NAME = /^[a-z][a-z0-9-]*$/;
+const DESCRIPTION_CHARS = 155;
 
 const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const nowIso = () => new Date().toISOString();
 const isHttpsAddress = (value) => { try { return new URL(value).protocol === 'https:'; } catch { return false; } };
+
+// The description of a row that has none: the body's first sentence (its headings and markdown marks left out), at most DESCRIPTION_CHARS
+// characters cut on a word boundary. The title only when the body is empty, since the body's opening describes the page.
+export function descriptionOf(row) {
+  if (row.description) return row.description;
+  const text = String(row.body_markdown ?? '').replace(/^#.*$/gm, '').replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/[*_`~>]/g, '').replace(/\s+/g, ' ').trim();
+  if (!text) return row.title;
+  const sentence = text.match(/^.*?[.!?](?=\s|$)/)?.[0] ?? text;
+  if (sentence.length <= DESCRIPTION_CHARS) return sentence;
+  const cut = sentence.slice(0, DESCRIPTION_CHARS + 1);
+  const at = cut.lastIndexOf(' ');
+  return at > 0 ? cut.slice(0, at).replace(/[\s,;:]+$/, '') : sentence.slice(0, DESCRIPTION_CHARS);
+}
 
 // The token aliases a site names its own way: { 'button-bg': 'button-primary-bg' } writes --button-bg as an alias of the site's
 // --button-primary-bg, the role token document-page reads. Only token names are written here, never a colour value.
@@ -43,7 +57,19 @@ function tokenAliasesHtml(tokens) {
   return pairs.length ? `<style>:root{${pairs.map(([role, own]) => `--${role}:var(--${own});`).join('')}}</style>` : '';
 }
 
-export function createSite({ db, mail, origin, brand, secret, signupText, stylesheets = [], themeAttributes = {}, tokens = {}, author = null, now = nowIso, draw = null }) {
+/** An escaped paragraph's [words](https://address) links as anchors: only http and https, so a row never writes a script link. */
+const links = (escaped) => escaped.replace(/\[([^\]\n]+)\]\((https?:\/\/[^\s)]+)\)/g, (all, words, href) => `<a href="${href}">${words}</a>`);
+
+/** The HTML of a body: blank-line paragraphs with their links, `#`/`##` headings, everything else escaped. */
+export function bodyHtml(markdown) {
+  return String(markdown ?? '').split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean).map((block) => {
+    if (block.startsWith('## ')) return `<h2>${esc(block.slice(3))}</h2>`;
+    if (block.startsWith('# ')) return `<h1>${esc(block.slice(2))}</h1>`;
+    return `<p>${links(esc(block)).replace(/\n/g, '<br>')}</p>`;
+  }).join('\n');
+}
+
+export function createSite({ db, mail, origin, brand, secret, signupText, layout = null, stylesheets = [], themeAttributes = {}, tokens = {}, author = null, now = nowIso, draw = null }) {
   if (!secret || secret.length < 32) throw new Error('createSite needs a secret of at least 32 characters (the caller holds it).');
   const keyed = (purpose, value) => createHmac('sha256', secret).update(`${purpose}\n${value}`).digest('base64url');
   const absolute = (path) => new URL(path, origin).toString();
@@ -52,21 +78,25 @@ export function createSite({ db, mail, origin, brand, secret, signupText, styles
   const previewToken = (slug) => keyed('preview', slug);
   const unsubscribeLink = (id) => absolute(`/unsubscribe?s=${encodeURIComponent(id)}&t=${keyed('unsubscribe', id)}`);
 
-  // A page document-page draws, with the search head withSearchHead writes over it. document-page's own head facts are left empty
-  // here, so withSearchHead's head is the only one the page carries.
-  function drawn({ head, status = 200, article = null, blocks = [] }) {
-    const html = documentPageHtml({ lang: 'en', theme_attributes: themeAttributes, stylesheets, header: { brand: { name: brand, href: '/' } }, article, blocks });
-    return new Response(withSearchHead(html.replace('</head>', `${tokenStyle}</head>`), head), {
+  // A page with its search head from withSearchHead, the one writer of that head. A site that passes `layout` gets its bare markup
+  // (`bare()`) wrapped in its own layout, as it always was; a site that does not gets document-page, whose own head facts are left
+  // empty here so withSearchHead's head is the only one the page carries.
+  function drawn({ head, status = 200, article = null, blocks = [], bare = null }) {
+    const html = layout
+      ? layout({ title: head.title, description: head.description, body: bare() })
+      : documentPageHtml({ lang: 'en', theme_attributes: themeAttributes, stylesheets, header: { brand: { name: brand, href: '/' } }, article, blocks }).replace('</head>', `${tokenStyle}</head>`);
+    return new Response(withSearchHead(html, head), {
       status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' },
     });
   }
 
   // A page of this site that is not an article: kept out of search, with its own address as canonical.
-  function utility(path, { heading, text = '', status = 200 }) {
+  function utility(path, { heading, text = '', description = text || heading, status = 200, bare = () => `<h1>${esc(heading)}</h1>${text ? `<p>${esc(text)}</p>` : ''}` }) {
     return drawn({
       status,
-      head: { title: `${heading} | ${brand}`, description: text || heading, canonical: absolute(path), robots: 'noindex, nofollow' },
+      head: { title: `${heading} | ${brand}`, description, canonical: absolute(path), robots: 'noindex, nofollow' },
       article: { title: heading, markdown: text },
+      bare,
     });
   }
 
@@ -89,6 +119,11 @@ export function createSite({ db, mail, origin, brand, secret, signupText, styles
         { id: 'articles', links: rows.map((row) => ({ title: row.title, href: `/articles/${encodeURIComponent(row.slug)}`, detail: row.description })) },
         signupBlock('/articles'),
       ],
+      bare: () => {
+        const items = rows.map((row) => `<li><a href="/articles/${encodeURIComponent(row.slug)}"><strong>${esc(row.title)}</strong></a>
+      <p>${esc(row.description)}</p></li>`).join('\n');
+        return `<h1>Articles</h1>\n<ul>\n${items}\n</ul>\n${signupForm('/articles')}`;
+      },
     });
   }
 
@@ -105,16 +140,17 @@ export function createSite({ db, mail, origin, brand, secret, signupText, styles
       head: articleHead(row, url.pathname),
       article: { title: row.title, markdown: row.body_markdown ?? '' },
       blocks: [signupBlock(`/articles/${slug}`)],
+      bare: () => `<article>\n<h1>${esc(row.title)}</h1>\n${bodyHtml(row.body_markdown)}\n</article>\n${signupForm(`/articles/${slug}`)}`,
     });
   }
 
   // The article's search head: its canonical is the row's own canonical (the home copy of a cross-posted article, per the rule row
   // canonical-of-a-cross-posted-article), else this page. Open Graph and the JSON-LD Article take the row's words and dates; the
-  // author is the site's, given at createSite. A row with no description is described by its title, since a head needs words.
+  // author is the site's, given at createSite.
   function articleHead(row, pathname) {
     const self = absolute(pathname);
     const canonical = isHttpsAddress(row.canonical) ? row.canonical : self;
-    const description = row.description || row.title;
+    const description = descriptionOf(row);
     const picture = row.picture ? absolute(row.picture) : null;
     const published = row.published_at ? new Date(row.published_at).toISOString() : null;
     const updated = row.updated_at ? new Date(row.updated_at).toISOString() : published;
@@ -149,6 +185,16 @@ export function createSite({ db, mail, origin, brand, secret, signupText, styles
       <pubDate>${new Date(row.published_at ?? row.updated_at).toUTCString()}</pubDate></item>`).join('\n');
     return new Response(`<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"><channel><title>${esc(brand)}</title>\n<link>${esc(origin)}</link>\n${items}\n</channel></rss>\n`,
       { headers: { 'content-type': 'application/rss+xml; charset=utf-8', 'cache-control': 'public, max-age=300' } });
+  }
+
+  // The signup as bare markup, for a site's own layout.
+  function signupForm(source) {
+    return `<form method="post" action="/subscribe" class="signup">
+  <input type="hidden" name="source" value="${esc(source)}">
+  <label>${esc(signupText.label)} <input type="email" name="email" required autocomplete="email"></label>
+  <p>${esc(signupText.consent)}</p>
+  <button type="submit">${esc(signupText.button)}</button>
+</form>`;
   }
 
   // The signup is a form block: document-page writes the field labels, the consent wording and the button.
@@ -205,7 +251,12 @@ export function createSite({ db, mail, origin, brand, secret, signupText, styles
   }
 
   function checkInbox(source) {
-    return utility('/subscribe', { heading: 'Check your inbox', text: `We sent a link. Click it to confirm.\n\n[Back](${source})` });
+    return utility('/subscribe', {
+      heading: 'Check your inbox',
+      text: `We sent a link. Click it to confirm.\n\n[Back](${source})`,
+      description: 'We sent a link. Click it to confirm.',
+      bare: () => `<h1>Check your inbox</h1><p>We sent a link. Click it to confirm.</p><a href="${esc(source)}">Back</a>`,
+    });
   }
 
   async function confirm(url) {

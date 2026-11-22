@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createHmac } from 'node:crypto';
 import { createSite } from '../do-work/pursuit-site.mjs';
 
 const site = (overrides = {}) => createSite({
@@ -116,12 +117,23 @@ test('a cross-posted article names the row\'s canonical; a bad canonical falls b
   assert.match(bad, /<link rel="canonical" href="https:\/\/example\.test\/articles\/a-guide"\/>/);
 });
 
-test('the author is left out of JSON-LD when the site does not name one; a row with no description is described by its title', async () => {
+test('the author is left out of JSON-LD when the site does not name one', async () => {
   const noAuthor = await pageOf(articleSite(published, { author: null }), '/articles/a-guide');
   assert.equal(noAuthor.includes('"author"'), false);
-  const bare = await pageOf(articleSite({ ...published, description: '' }), '/articles/a-guide');
-  assert.match(bare, /<meta name="description" content="A Guide"\/>/);
-  assert.match(bare, /application\/ld\+json/);
+});
+
+test('a row with no description is described by its body\'s first sentence, cut at a word boundary near 155 characters, else by its title', async () => {
+  const opening = await pageOf(articleSite({ ...published, description: '', body_markdown: '# Heading\n\nThe **first** sentence has a [link](https://example.test/x). Then more words follow here.' }), '/articles/a-guide');
+  assert.match(opening, /<meta name="description" content="The first sentence has a link\."\/>/);
+  assert.match(opening, /"description":"The first sentence has a link\."/);
+  const long = 'word '.repeat(60).trim();
+  const cut = await pageOf(articleSite({ ...published, description: '', body_markdown: long }), '/articles/a-guide');
+  const description = cut.match(/<meta name="description" content="([^"]*)"/)[1];
+  assert.ok(description.length <= 155 && description.length > 140, description.length);
+  assert.ok(long.startsWith(description));
+  assert.match(description, /word$/);
+  const empty = await pageOf(articleSite({ ...published, description: '', body_markdown: '' }), '/articles/a-guide');
+  assert.match(empty, /<meta name="description" content="A Guide"\/>/);
 });
 
 test('the page takes the site\'s stylesheets, its theme attribute, and its token names', async () => {
@@ -158,4 +170,61 @@ test('an article answers HEAD with its GET status and headers and no body; a mis
   const missing = await handler.handle(new Request('https://example.test/articles/gone', { method: 'HEAD' }));
   assert.equal(missing.status, 404);
   assert.equal(await handler.handle(new Request('https://example.test/subscribe/confirm?s=x&t=y', { method: 'HEAD' })), null);
+});
+
+// A site that passes `layout` (its layout carries a consent bar and page parts): they wrap every page the module draws, as they always have.
+const SECRET = 'x'.repeat(40);
+const digest = (purpose, value) => createHmac('sha256', SECRET).update(`${purpose}\n${value}`).digest('base64url');
+const layout = ({ title, description, body }) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${title}</title><meta name="description" content="${description}"/></head><body data-parts="layout">${body}</body></html>`;
+const pending = { id: 'sub-1', status: 'pending', confirm_sent_at: new Date().toISOString(), confirm_digest: digest('confirm', 'sub-1:tok') };
+const journey = (mail) => async (sql, params = []) => {
+  if (sql.includes('count(*)')) return [{ n: 0 }];
+  if (sql.includes('listed IS DISTINCT FROM false')) return [published];
+  if (sql.includes('WHERE slug = $1')) return params[0] === 'a-guide' ? [published] : [];
+  if (sql.startsWith('SELECT * FROM subscribers WHERE id')) return params[0] === 'sub-1' ? [pending] : [];
+  if (sql.startsWith('SELECT id, status FROM subscribers')) return params[0] === 'sub-1' ? [{ id: 'sub-1', status: 'confirmed' }] : [];
+  if (sql.startsWith('SELECT * FROM subscribers WHERE email')) return [];
+  return [];
+};
+
+test('a site that passes layout has every page the module draws wrapped in its layout, with one search head each', async () => {
+  const mail = [];
+  const handler = site({ layout, db: journey(mail), mail: async (message) => mail.push(message) });
+  const pages = [
+    ['index', new Request('https://example.test/articles')],
+    ['article', new Request('https://example.test/articles/a-guide')],
+    ['article not found', new Request('https://example.test/articles/nope')],
+    ['signup refused', new Request('https://example.test/subscribe', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: 'email=not-an-address&source=%2Farticles' })],
+    ['signup sent', new Request('https://example.test/subscribe', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: 'email=reader%40example.test&source=%2Farticles' })],
+    ['confirm', new Request('https://example.test/subscribe/confirm?s=sub-1&t=tok')],
+    ['confirm expired', new Request('https://example.test/subscribe/confirm?s=nope&t=tok')],
+    ['unsubscribe', new Request(`https://example.test/unsubscribe?s=sub-1&t=${digest('unsubscribe', 'sub-1')}`)],
+    ['unsubscribe refused', new Request('https://example.test/unsubscribe?s=sub-1&t=wrong')],
+  ];
+  for (const [name, request] of pages) {
+    const answer = await handler.handle(request);
+    const html = await answer.text();
+    assert.ok(html.includes('data-parts="layout"'), `${name} has the layout's parts`);
+    assert.equal(html.includes('doc-article'), false, `${name} is drawn by the layout, not document-page`);
+    assert.equal(html.match(/<title>/g).length, 1, `${name} has one title`);
+    assert.equal(html.match(/<meta name="description"/g).length, 1, `${name} has one description`);
+  }
+  assert.equal(mail.length, 1, 'the confirmation mail is sent once');
+});
+
+test('the confirm and unsubscribe pages of a layout site keep the layout\'s consent bar and its parts', async () => {
+  const handler = site({ layout, db: journey([]) });
+  const confirmed = await (await handler.handle(new Request('https://example.test/subscribe/confirm?s=sub-1&t=tok'))).text();
+  assert.match(confirmed, /<body data-parts="layout"><h1>You are subscribed<\/h1><p>Thank you\.<\/p><\/body>/);
+  const unsubscribed = await (await handler.handle(new Request(`https://example.test/unsubscribe?s=sub-1&t=${digest('unsubscribe', 'sub-1')}`))).text();
+  assert.match(unsubscribed, /<body data-parts="layout"><h1>You are unsubscribed<\/h1><\/body>/);
+});
+
+test('a site that does not pass layout has its pages drawn by document-page', async () => {
+  const handler = site({ db: journey([]) });
+  const confirmed = await (await handler.handle(new Request('https://example.test/subscribe/confirm?s=sub-1&t=tok'))).text();
+  assert.match(confirmed, /<article class="doc-article">/);
+  assert.equal(confirmed.includes('data-parts'), false);
+  const index = await (await handler.handle(new Request('https://example.test/articles'))).text();
+  assert.match(index, /<form class="doc-form" method="post" action="\/subscribe">/);
 });
