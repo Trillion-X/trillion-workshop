@@ -62,11 +62,27 @@ export function fileFromRow(row) {
   return { about: `${row.recipe}: rendered from its workflow_recipes row.`, records: [{ payload }] };
 }
 
-export function checkFile(file, row, fileName = fileNameOf(row.recipe)) {
+// origin is the file the render replaces (null when the recipe is new). A render may not drop a payload key, a definition key or a step
+// that origin has: the row must be backfilled from the file first, then rendered.
+export function lostAgainstOrigin(payload, origin) {
+  const before = origin?.records?.[0]?.payload;
+  if (!before) return [];
+  const lost = Object.keys(before).filter((k) => !(k in payload)).map((k) => k);
+  const was = before.definition ?? {};
+  const now = payload.definition ?? {};
+  lost.push(...Object.keys(was).filter((k) => !(k in now)).map((k) => `definition/${k}`));
+  const nowSteps = new Set((now.steps ?? []).map((s) => s.id));
+  lost.push(...(was.steps ?? []).filter((s) => !nowSteps.has(s.id)).map((s) => `step ${s.id}`));
+  return lost;
+}
+
+export function checkFile(file, row, fileName = fileNameOf(row.recipe), origin = null) {
   const problems = [];
   if (fileName.includes(':')) problems.push('the file name holds a colon');
   const payload = file.records?.[0]?.payload ?? {};
   if (payload.source_kept_at !== row.kept_at) problems.push(`stale: file is stamped ${payload.source_kept_at}, its row is at ${row.kept_at}`);
+  const lost = lostAgainstOrigin(payload, origin);
+  if (lost.length) problems.push(`lost against origin file: ${lost.join(', ')}`);
   problems.push(...handAsks(payload.definition ?? {}));
   for (const wake of payload.wakes ?? []) {
     for (const at of vaultNames(wake.input ?? {})) problems.push(`vault name in wake ${wake.id} input${at}`);

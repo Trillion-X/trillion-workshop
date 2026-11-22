@@ -51,3 +51,13 @@ test('a vault name written into a wake input is refused', () => {
   file.records[0].payload.wakes[0].input.store = { credential_name: 'some-login' };
   assert.match(checkFile(file, withVault).join('\n'), /vault name in wake on-note input\.store\.credential_name/);
 });
+
+test('a render that drops a payload key, a definition key or a step the origin file has is refused', () => {
+  const file = fileFromRow(stub);
+  const origin = structuredClone(file);
+  origin.records[0].payload.definition.steps.push({ id: 'kept-step', kind: 'return', config: {} });
+  origin.records[0].payload.rights = { wake: 'arrive' };
+  const problems = checkFile(file, stub, fileNameOf(stub.recipe), origin).join('\n');
+  assert.match(problems, /lost against origin file: rights, step kept-step/);
+  assert.deepEqual(checkFile(file, stub, fileNameOf(stub.recipe), file), []);
+});
