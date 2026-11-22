@@ -118,3 +118,19 @@ test('the read takes only the cutoff and the step as parameters, nothing from th
   assert.match(sql, /\(recorded_at\) >/);
   assert.doesNotMatch(sql, /\$3/);
 });
+
+test('a row committed within the overlap before the newest kept step is read and kept once; an older one is not read', async () => {
+  const db = await pursuitDatabase();
+  const query = (sql, params) => db.query(sql, params);
+  await keepStepsFromRows({ query, mappings: [mappings[0]] });
+  // Committed late: its insert time is 5 minutes before the newest kept step, inside the 10-minute overlap.
+  await db.query("INSERT INTO statements (key, source, place, meaning, after, at, recorded_at) SELECT 'b8', 'tidycal-api-token', 'booking', 'booked', '{\"email\":\"eli@example.com\"}', now(), (SELECT max(at) FROM journey_steps) - interval '5 minutes'");
+  const late = await keepStepsFromRows({ query, mappings: [mappings[0]] });
+  assert.deepEqual(late.mappings.map(({ read, kept }) => ({ read, kept })), [{ read: 1, kept: 1 }]);
+  const again = await keepStepsFromRows({ query, mappings: [mappings[0]] });
+  assert.deepEqual(again.mappings.map(({ read, kept }) => ({ read, kept })), [{ read: 1, kept: 0 }]);
+  // Older than the overlap: never read again.
+  await db.query("INSERT INTO statements (key, source, place, meaning, after, at, recorded_at) SELECT 'b7', 'tidycal-api-token', 'booking', 'booked', '{\"email\":\"fay@example.com\"}', now(), (SELECT max(at) FROM journey_steps) - interval '30 minutes'");
+  const old = await keepStepsFromRows({ query, mappings: [mappings[0]] });
+  assert.deepEqual(old.mappings.map(({ read, kept }) => ({ read, kept })), [{ read: 1, kept: 0 }]);
+});

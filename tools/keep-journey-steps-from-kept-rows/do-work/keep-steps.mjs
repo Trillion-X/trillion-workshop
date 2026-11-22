@@ -14,6 +14,9 @@ import { emailKey, keepStep } from '../../traffic-attribution/do-work/journey.mj
 import { throughProxy } from '../../run-sql-in-my-database/do-work/through-the-run-proxy.mjs';
 import settings from '../read-data/journey-kept-rows.json' with { type: 'json' };
 
+const OVERLAP_MINUTES = Number(settings.cutoff_overlap_minutes);
+if (!Number.isInteger(OVERLAP_MINUTES) || OVERLAP_MINUTES < 0) throw new TypeError('journey-kept-rows.json cutoff_overlap_minutes must be a whole number of minutes.');
+
 const CONNECTION_DESCRIPTOR = 3;
 const STATEMENT_TIMEOUT_MS = 20000;
 const ISO_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
@@ -24,13 +27,14 @@ const text = value => (typeof value === 'string' ? value.trim() : '');
 /**
  * The SELECT that reads one mapping's rows: its fields as f_<name>, its where, and only rows whose cutoff_column (the time the
  * source row itself was kept, an insert time) is newer than the cutoff. The cutoff is `since` when given, else the newest step
- * of this kind's own insert time, so a row inserted late with an old event time is still read; `at` is the event time, for display.
+ * of this kind's own insert time less the overlap (cutoff_overlap_minutes), so a row whose transaction committed late is still read;
+ * `at` is the event time, for display. A row read again is not kept twice.
  */
 export function readSql(mapping) {
   const fields = Object.entries(mapping.fields).map(([name, expression]) => `(${expression}) AS f_${name}`);
   const sourced = Object.entries(mapping.source ?? {}).map(([name, expression]) => `(${expression}) AS s_${name}`);
   return `SELECT ${[...fields, ...sourced].join(', ')} FROM ${mapping.table} WHERE (${mapping.where}) AND (${mapping.cutoff_column}) > `
-    + 'COALESCE($1::timestamptz, (SELECT max(at) FROM journey_steps WHERE step = $2), \'-infinity\'::timestamptz) '
+    + `COALESCE($1::timestamptz, (SELECT max(at) - make_interval(mins => ${OVERLAP_MINUTES}) FROM journey_steps WHERE step = $2), '-infinity'::timestamptz) `
     + `ORDER BY ${mapping.fields.at}, ${mapping.fields.ref}`;
 }
 
