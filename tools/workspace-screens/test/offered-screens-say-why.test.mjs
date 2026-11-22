@@ -18,7 +18,7 @@ test('an offered row opens through showOffered, and a throw while it opens is sa
 });
 
 test('a parts screen that throws while it mounts or shows says why, with Try again', () => {
-  assert.ok(toolScreen.includes('shown = module.mountPartsScreen(element, { requests: screen.requests ?? {}, title: screenFailed(tool, screen)'));
+  assert.ok(toolScreen.includes("shown = module.mountPartsScreen(slotOf(element, 'screen'), { requests: screen.requests ?? {}, title: screenFailed(tool, screen)"));
   assert.ok(toolScreen.includes('mountScreenState(element, failedState(error, open, screenFailed(tool, screen)));'));
 });
 
@@ -42,4 +42,14 @@ test('a refused read keeps its error in the failed state, so the reason (busy wo
 test('the words of a screen that cannot be shown are data, with the screen name in them', () => {
   assert.match(words.screen_failed, /\{name\}/);
   assert.ok(words.screen_plain && words.screen_plain.length > 0);
+});
+
+// A pane's writers draw into their own slots: no mount empties the pane itself (mountReactSurface and guideScreen both
+// replace a pane's children, which took the state and screen slots out of it: a failed state then drew into nodes that
+// were no longer in the pane).
+test('the parts, web-address and module screens mount into the pane\'s screen slot, never the pane itself', () => {
+  assert.ok(toolScreen.includes("module.mountPartsScreen(slotOf(element, 'screen'), {"));
+  assert.ok(toolScreen.includes("module.webAddress(slotOf(element, 'screen'), tool, screen, latest, screens);"));
+  assert.ok(toolScreen.includes("mountReactSurface(slotOf(element, 'screen'), node(latestInput));"));
+  assert.ok(!toolScreen.includes('mountPartsScreen(element,'), 'a parts screen mounts onto the raw pane');
 });

@@ -87,7 +87,7 @@ const webAddressShow: Show = (element, tool, screen, props, screens) => {
       module => {
         if (gone) return;
         releaseScreenState(element);
-        shown = module.webAddress(element, tool, screen, latest, screens);
+        shown = module.webAddress(slotOf(element, 'screen'), tool, screen, latest, screens);
       },
       error => { if (!gone) mountScreenState(element, codeFailedState(error, open)); },
     );
@@ -137,7 +137,7 @@ const partsScreen: Show = (element, tool, screen, props) => {
         releaseScreenState(element);
         // A screen that cannot be drawn says why, with Try again, in its own pane: the loading state is already let go.
         try {
-          shown = module.mountPartsScreen(element, { requests: screen.requests ?? {}, title: screenFailed(tool, screen), call: (name, input) => declaredCall(screen.requests, latest.surfaceInput ?? {}, name, input, tool.id) });
+          shown = module.mountPartsScreen(slotOf(element, 'screen'), { requests: screen.requests ?? {}, title: screenFailed(tool, screen), call: (name, input) => declaredCall(screen.requests, latest.surfaceInput ?? {}, name, input, tool.id) });
           shown.show(filledSpec(screen.spec ?? { root: null, elements: {} }, latest.surfaceInput?.filled_inputs));
         } catch (error) {
           shown?.();
@@ -199,7 +199,7 @@ const moduleScreen: Show = (element, tool, screen, props) => {
       requests={screen.requests}
       onCall={(name, input = {}) => declaredCall(screen.requests, surfaceInput, name, input)}
     />;
-    const mounted = mountReactSurface(element, node(latestInput));
+    const mounted = mountReactSurface(slotOf(element, 'screen'), node(latestInput));
     const dispose: Unmount = () => {
       for (const pending of pendingUpdates.values()) { window.clearTimeout(pending.timer); pending.resolve(false); }
       pendingUpdates.clear();
