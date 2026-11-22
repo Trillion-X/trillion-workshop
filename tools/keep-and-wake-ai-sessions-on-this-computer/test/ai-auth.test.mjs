@@ -14,7 +14,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 const [store, verb, name, file] = process.argv.slice(2);
 const kept = path.join(store, name);
+// Like the engine: startup events first, and a read refused unless descriptor 3 is a real pipe (not a socket pair).
+process.stderr.write('product-settings event=undeclared-sections count=1\\n');
 if (verb === 'read') {
+  if (!fs.fstatSync(3).isFIFO()) { process.stderr.write('descriptor 3 is not a pipe\\n'); process.exit(5); }
   if (!fs.existsSync(kept)) { process.stderr.write('no such value\\n'); process.exit(3); }
   fs.writeSync(3, fs.readFileSync(kept));
 } else if (verb === 'put') {
@@ -147,7 +150,7 @@ test('a lock left by a run that never ended is taken back once it is stale', () 
   } finally { f.cleanup(); }
 });
 
-test('a vault that does not answer names its status and its first line, and takes nothing', () => {
+test('a vault that does not answer names its status and the line that says why (not its startup event), and takes nothing', () => {
   const f = fixture();
   try {
     const vault = vaultOf(f);
