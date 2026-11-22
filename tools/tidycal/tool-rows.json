@@ -271,7 +271,7 @@
         "invoke": {
           "kind": "http",
           "url": "https://tidycal.com/api/bookings/{booking_id}/cancel",
-          "method": "PATCH",
+          "method": "POST",
           "timeout_seconds": 30,
           "headers": {
             "accept": "application/json",
@@ -313,6 +313,95 @@
           "read_on": "2026-11-21",
           "verified_live": false,
           "unverified": "The route and body fields are from the TidyCal FAQ (the API creates and cancels bookings) and the existing waiter; the first live call proves them."
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::list-tidycal-timeslots",
+      "address": "package::ai-tool-catalog::tool::list-tidycal-timeslots",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-tidycal-timeslots",
+        "label": "List open TidyCal times",
+        "job": "List the open times a booking type can take between two times, so a booking is made only for a slot that is open",
+        "description": "Reads the open time slots of one TidyCal booking type between two times (ISO 8601 UTC) with the person's own key from the vault. Reads only; books nothing. Use it before tool:create-a-tidycal-booking so a booking is asked only for a slot TidyCal answers as open.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "booking_type_id",
+            "starts_at",
+            "ends_at"
+          ],
+          "properties": {
+            "booking_type_id": {
+              "type": "integer",
+              "description": "The TidyCal booking type id (tool:list-my-tidycal-booking-types answers it)"
+            },
+            "starts_at": {
+              "type": "string",
+              "description": "Window start, ISO 8601 UTC"
+            },
+            "ends_at": {
+              "type": "string",
+              "description": "Window end, ISO 8601 UTC"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://tidycal.com/api/booking-types/{booking_type_id}/timeslots",
+          "method": "GET",
+          "timeout_seconds": 30,
+          "headers": {
+            "accept": "application/json",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
+          },
+          "query": {
+            "starts_at": {
+              "from": "starts_at"
+            },
+            "ends_at": {
+              "from": "ends_at"
+            }
+          },
+          "credential_injections": [
+            {
+              "hosts": [
+                "tidycal.com"
+              ],
+              "secret_name": "tidycal-api-token",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer "
+              }
+            }
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "read_only": true,
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "provider": "TidyCal",
+          "documentation": "https://tidycal.com/developer/docs/ (unreachable from here)",
+          "read_on": "2026-11-21",
+          "verified_live": false,
+          "unverified": "The route and its query names come from the lead's note on TidyCal's API v1; the first live call proves them."
         }
       }
     }

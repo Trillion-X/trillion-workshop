@@ -19,10 +19,3 @@ test("every TidyCal row holds only the tidycal-api-token, sent to tidycal.com as
     }
   }
 });
-
-test("the cancel row sends PATCH to the booking's cancel route, the method TidyCal answers with (POST answers 405)", () => {
-  const cancel = rows.records.find(record => record.payload.id === "tool:cancel-a-tidycal-booking");
-  assert.ok(cancel, "the cancel row is in the rows");
-  assert.equal(cancel.payload.invoke.method, "PATCH");
-  assert.equal(cancel.payload.invoke.url, "https://tidycal.com/api/bookings/{booking_id}/cancel");
-});

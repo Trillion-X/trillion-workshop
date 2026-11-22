@@ -29,7 +29,7 @@
           }
         }
       },
-      "given": "Reads tools/tidycal/tool-rows.json: a PATCH to https://tidycal.com/api/bookings/{booking_id}/cancel with the vault key tidycal-api-token. The cancel cannot be undone.",
+      "given": "Reads tools/tidycal/tool-rows.json: a POST to https://tidycal.com/api/bookings/{booking_id}/cancel with the vault key tidycal-api-token. The cancel cannot be undone.",
       "hands_back": "It answers the cancelled booking 12345 with cancelled_at set to the time it was cancelled."
     }
   ]

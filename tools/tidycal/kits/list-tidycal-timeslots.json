@@ -1,0 +1,40 @@
+{
+  "start_here": "Say to your AI: \"What times are open on my TidyCal Application Call between 1 and 3 December?\" It runs tool:list-tidycal-timeslots.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it reads which times TidyCal shows open and writes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:list-tidycal-timeslots",
+    "tool:list-my-tidycal-booking-types",
+    "tool:create-a-tidycal-booking"
+  ],
+  "instructions": [
+    "1. Get the booking type id with tool:list-my-tidycal-booking-types.",
+    "2. Say the window to your AI. It calls tools:run with tool tool:list-tidycal-timeslots, booking_type_id, starts_at and ends_at (ISO 8601 UTC).",
+    "3. Read each open slot's start time. Book only a slot listed here.",
+    "4. To book one of those slots, say so to your AI: it runs tool:create-a-tidycal-booking with the same booking_type_id and that start time."
+  ],
+  "worked_examples": [
+    {
+      "title": "Open times for Application Call on 1 December",
+      "ask": "What times are open on my Application Call on 1 December?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-tidycal-timeslots",
+            "input": {
+              "booking_type_id": 1339684,
+              "starts_at": "2026-12-01T00:00:00Z",
+              "ends_at": "2026-12-02T00:00:00Z"
+            }
+          }
+        }
+      },
+      "given": "Reads tools/tidycal/tool-rows.json: a GET to https://tidycal.com/api/booking-types/{booking_type_id}/timeslots with the vault key tidycal-api-token. Reads only.",
+      "hands_back": "It answers the open slots, for example a slot starting 2026-12-01T16:00:00Z. The real times are read from the live TidyCal answer when the row runs."
+    }
+  ]
+}
