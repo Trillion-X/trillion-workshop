@@ -1216,7 +1216,13 @@ export function accountCaller(origin, key, { backoff_seconds = readSettings().bu
   return call;
 }
 
+/** This computer's name, which its taker's agent id is made from (takerCard): the `computer_name` this computer's settings
+ * keep when they name one, else the name macOS shows (scutil), else the host name. A taker the engine keeps runs in a
+ * sandbox that can start neither scutil nor ask its service, so its row's settings name the computer, and the taker keeps
+ * the same agent id, and the same users row, it had when it ran by hand. */
 export function computerName() {
+  const named = computerSettings().computer_name;
+  if (typeof named === 'string' && named.trim()) return named.trim();
   try { return execFileSync('scutil', ['--get', 'ComputerName'], { encoding: 'utf8' }).trim() || hostname(); } catch { return hostname(); }
 }
 

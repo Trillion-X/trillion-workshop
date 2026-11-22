@@ -11,20 +11,27 @@
 //       call and sent only in the Authorization header of an https request to origin/mcp.
 //     - { "from": "vault", "item": NAME, "origin": URL }: the same request with the key read from this computer's vault
 //       value NAME (vault-value.mjs, the command the computer's config names) at each call.
-//   Which of the two the runner acts as is the data owner's decision; this file only carries out what the data names.
+//     - { "from": "run door", "fd": N }: the runner is itself a tool run the engine keeps (tool:take-given-tasks-on-this-computer,
+//       harness/take-open-work-in-a-run.mjs). The engine hands that run its own door on descriptor N ({url, capability}: its
+//       local MCP route and a capability bound to the run and to the tools its row names), read once and kept in memory;
+//       each operation is the same request to that url with the capability as its bearer. It is this computer's own engine,
+//       so no pin is sent, and what the capability reaches is what the row declares (its `invoke.records`), nothing more.
+//   Which of them the runner acts as is the data owner's decision; this file only carries out what the data names.
 //
 // Non-negotiable invariants
 //   1. A key is read only for the keychain or vault source, only at the call, and is placed only in the Authorization header. It is
-//      never put in argv, the environment, a file, an error or a log.
+//      never put in argv, the environment, a file, an error or a log. A run door's capability is read once from its
+//      descriptor and kept the same way: only in this process's memory and the Authorization header.
 //   2. An operation with no pin is refused before anything is sent or started.
 //   3. The input goes on standard input for the command (never argv) and in the JSON body for the request.
 //   4. A refusal is raised as AccountCallError carrying the engine's code; an operation that does not finish in time is
 //      stopped and raised with the code `timeout`; an unknown source is refused by name.
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { makeHashCodeHexFromBytes, requestKeyForEngine } from '../../content-identity/read-data/identity.mjs';
 import { accountKeyOrNull } from './account-key.mjs';
 import { readVaultValue } from './vault-value.mjs';
-import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 export class AccountCallError extends Error {
   constructor(message, { code = null } = {}) {
@@ -107,12 +114,45 @@ export async function runWithKey({ account, address, method, input, requestKey, 
   const key = readKey(item);
   if (!key) throw new AccountCallError(`No account key is kept under ${item}.`, { code: 'key_absent' });
   const message = { jsonrpc: '2.0', id: requestKey, method: 'tools/call', params: { name: TOOL, arguments: { address, method, input: input ?? {}, request_key: requestKey, pins: account.pins } } };
+  return sendRequest({ url: `${url.origin}/mcp`, bearer: key, message, method, timeoutSeconds: account.timeout_seconds ?? 120, fetchImpl });
+}
+
+// The run doors read so far, by descriptor: a descriptor is a pipe the engine wrote once, so it is read once per process.
+const doors = new Map();
+
+/** The run's door the engine wrote on descriptor `fd`: { url, capability }, read once and kept in memory. */
+export function runDoor(fd, readDescriptor = descriptor => readFileSync(descriptor, 'utf8')) {
+  if (!Number.isInteger(fd) || fd < 3) throw new AccountCallError('A run door names the descriptor the engine wrote it on (3 or more).', { code: 'door_absent' });
+  if (!doors.has(fd)) {
+    let door;
+    try { door = JSON.parse(readDescriptor(fd)); } catch { throw new AccountCallError(`This run was not handed a door on descriptor ${fd}.`, { code: 'door_absent' }); }
+    if (typeof door?.url !== 'string' || typeof door.capability !== 'string') throw new AccountCallError(`This run was not handed a door on descriptor ${fd}.`, { code: 'door_absent' });
+    const url = new URL(door.url);
+    if (url.protocol !== 'http:' || !['127.0.0.1', '[::1]', 'localhost'].includes(url.hostname)) throw new AccountCallError('A run door is this computer\'s own loopback route.', { code: 'origin_refused' });
+    doors.set(fd, { url: door.url, capability: door.capability });
+  }
+  return doors.get(fd);
+}
+
+/** One operation through the run's own door: the capability only in the Authorization header, no pin (the door is this
+ *  computer's engine), and the request key in the length the door takes (content-identity requestKeyForEngine). */
+export async function runWithDoor({ account, address, method, input, requestKey, fetchImpl, readDescriptor }) {
+  requirePins(account.pins);
+  if (typeof address !== 'string' || !address || typeof method !== 'string' || !method) throw new AccountCallError('An operation needs an address and a method.', { code: 'operation_incomplete' });
+  const door = runDoor(account.credential.fd ?? 3, readDescriptor);
+  const key = requestKeyForEngine(requestKey);
+  const message = { jsonrpc: '2.0', id: key, method: 'tools/call', params: { name: TOOL, arguments: { address, method, input: input ?? {}, request_key: key } } };
+  return sendRequest({ url: door.url, bearer: door.capability, message, method, timeoutSeconds: account.timeout_seconds ?? 120, fetchImpl });
+}
+
+/** One MCP request and its answer: the operation's structured result, or an AccountCallError with the engine's refusal. */
+async function sendRequest({ url, bearer, message, method, timeoutSeconds, fetchImpl }) {
   let response;
   try {
-    response = await fetchImpl(`${url.origin}/mcp`, { method: 'POST', signal: AbortSignal.timeout((account.timeout_seconds ?? 120) * 1000),
-      headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream', authorization: `Bearer ${key}` }, body: JSON.stringify(message) });
+    response = await fetchImpl(url, { method: 'POST', signal: AbortSignal.timeout(timeoutSeconds * 1000),
+      headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream', authorization: `Bearer ${bearer}` }, body: JSON.stringify(message) });
   } catch (error) {
-    if (error?.name === 'TimeoutError' || error?.name === 'AbortError') throw new AccountCallError(`The operation ${method} did not finish in ${account.timeout_seconds ?? 120} seconds.`, { code: 'timeout' });
+    if (error?.name === 'TimeoutError' || error?.name === 'AbortError') throw new AccountCallError(`The operation ${method} did not finish in ${timeoutSeconds} seconds.`, { code: 'timeout' });
     throw new AccountCallError(`The account did not answer (${error?.cause?.code ?? error?.code ?? 'no answer'}).`, { code: 'unreachable' });
   }
   if (!response.ok) throw new AccountCallError(`The account answered HTTP ${response.status}.`, { code: 'http_status' });
@@ -130,11 +170,12 @@ export async function runWithKey({ account, address, method, input, requestKey, 
  * One engine operation through the source take-open-work.json `account.credential` names. `deps` (env, spawnImpl,
  * fetchImpl, readKey) are the process's own by default. Resolves to the operation's answer; rejects with AccountCallError.
  */
-export async function runOperation({ account, address, method, input = {}, requestKey = randomUUID(), env = process.env, spawnImpl = spawn, fetchImpl = fetch, readKey = item => accountKeyOrNull({ item, timeout: 2000 }) }) {
+export async function runOperation({ account, address, method, input = {}, requestKey = randomUUID(), env = process.env, spawnImpl = spawn, fetchImpl = fetch, readKey = item => accountKeyOrNull({ item, timeout: 2000 }), readDescriptor }) {
   const from = account?.credential?.from;
   if (from === 'kept sign-in') return runWithSignIn({ account, env, address, method, input, requestKey, spawnImpl });
   if (from === 'keychain') return runWithKey({ account, address, method, input, requestKey, fetchImpl, readKey });
   if (from === 'vault') return runWithKey({ account, address, method, input, requestKey, fetchImpl, readKey: item => readVaultValue(account.vault, item) });
+  if (from === 'run door') return runWithDoor({ account, address, method, input, requestKey, fetchImpl, readDescriptor });
   throw new AccountCallError(`The account credential names no known source (${String(from)}).`, { code: 'credential_unknown' });
 }
 

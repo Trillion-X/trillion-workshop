@@ -1647,6 +1647,389 @@
           "network_egress": true
         }
       }
+    },
+    {
+      "id": "package::keep-and-wake-ai-sessions-on-this-computer::tool::take-given-tasks-on-this-computer",
+      "address": "package::keep-and-wake-ai-sessions-on-this-computer::tool::take-given-tasks-on-this-computer",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-dashboard",
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/check-consent-to-an-introduction",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/lessons-and-learning-paths",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/model-response",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/network-people",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-sql-in-my-database",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-storage-release-rules",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:take-given-tasks-on-this-computer",
+        "label": "Take the tasks given to this computer's AI, kept running by the engine",
+        "status": "active",
+        "job": "Keep this computer's task taker running inside the person's own engine: it takes each task given to this computer's AI (its assignees name this computer's taker), runs the AI the person chose on it headless, checks the result file the AI writes and finishes the task, or gives it back with the reason. Switching its wake on is the one yes; no launchd job, login item or hand-started process is needed.",
+        "description": "Runs harness/take-open-work-in-a-run.mjs as a kept-open session of invoke kind computer: HOME is the run's kept folder, the settings in the input are written as this computer's take-open-work.computer.json, and the helper's handler (wake-handlers/take-open-work.mjs) passes over the given tasks now, every full_pass_every_minutes, and as soon as a run it started ends. The tasks are rows of the database `settings.tasks_store` names, reached only through the run's door with the four task tools its records right names (run-sql-in-my-database, take-a-task, change-a-task, finish-a-task). The AI is the program of the run's start-a-program grant (program_kind ai-developer: it may change files only in its settings folder, the one work folder granted, the person's own settings folders and the temporary folders, and reaches the network only through the run's proxy). A Claude login is the vault value `claude_token_name`, mounted only in the run's environment as CLAUDE_CODE_OAUTH_TOKEN, so the run reaches only the hosts that value may go to. `settings.computer_name` keeps the taker's agent id, and so its users row, the same as when it ran by hand. Its AI runs get no account connection: the task prompt has them write the result file, and the taker finishes the task itself.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "settings",
+            "computer"
+          ],
+          "properties": {
+            "settings": {
+              "type": "object",
+              "description": "This computer's take-open-work.computer.json values, overlaid on harness/take-open-work.json: computer_name, chosen_ai, then_ai, tasks_store, account ({credential: {from: \"run door\", fd: 3}}), work_mcp (null: AI runs get no account connection), ais (each command's program as {granted_program}), working_folder ({granted_work} or {kept_home}). {granted_program}, {granted_work} and {kept_home} stand for the grant's program and work folder and the run's kept folder.",
+              "required": [
+                "computer_name",
+                "chosen_ai",
+                "tasks_store",
+                "account"
+              ]
+            },
+            "computer": {
+              "type": "object",
+              "description": "The grant the person gives this run (computer.start-a-program), with exactly these keys",
+              "additionalProperties": false,
+              "required": [
+                "start-a-program"
+              ],
+              "properties": {
+                "start-a-program": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "program_kind",
+                    "program",
+                    "settings",
+                    "work"
+                  ],
+                  "properties": {
+                    "program_kind": {
+                      "type": "string",
+                      "const": "ai-developer"
+                    },
+                    "program": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400,
+                      "description": "The AI program the taker starts, as installed on this computer (a link its updater moves is followed at each start)"
+                    },
+                    "settings": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400,
+                      "description": "The folder the AI program keeps its settings in"
+                    },
+                    "work": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 400,
+                      "description": "The one folder the AI may change files in, such as the folder that holds the person's code"
+                    }
+                  }
+                }
+              }
+            },
+            "claude_token_name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "The vault name of the Claude login the AI runs use, mounted only in the run's environment as CLAUDE_CODE_OAUTH_TOKEN"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "A kept-open session answers no result: each pass writes one JSON line to its output (what was taken, started, finished or given back)."
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "start-a-program"
+          ],
+          "workdir": "/opt/keep-and-wake-ai-sessions-on-this-computer",
+          "internet": true,
+          "argv": [
+            "node",
+            "--no-warnings",
+            "/opt/keep-and-wake-ai-sessions-on-this-computer/harness/take-open-work-in-a-run.mjs",
+            "--home",
+            {
+              "fill": {
+                "from": "task",
+                "field": "kept_folder"
+              }
+            },
+            "--program",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.start-a-program.program"
+              }
+            },
+            "--work",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.start-a-program.work"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "session": {
+            "keep_open": true
+          },
+          "kept_folder": true,
+          "max_memory_bytes": 4294967296,
+          "records": {
+            "fd": 3,
+            "runs": [
+              "tool:run-sql-in-my-database",
+              "tool:take-a-task",
+              "tool:change-a-task",
+              "tool:finish-a-task"
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name_from_input": "claude_token_name",
+              "env": "CLAUDE_CODE_OAUTH_TOKEN",
+              "only_when": {
+                "input": "claude_token_name",
+                "present": true
+              }
+            }
+          ],
+          "stdout": "json",
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "harness/take-open-work-in-a-run.mjs"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              }
+            ]
+          }
+        },
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 0,
+          "network_egress": true,
+          "memory_mb": 4096
+        },
+        "wakes": [
+          {
+            "id": "keep-taking-given-tasks",
+            "on": {
+              "running": {}
+            },
+            "budget": {
+              "steps": 2,
+              "wall_ms": 600000
+            },
+            "retry": {
+              "attempts": 64,
+              "factor": 2,
+              "first_ms": 30000,
+              "most_ms": 600000
+            },
+            "needs_input": [
+              "settings.computer_name",
+              "settings.chosen_ai",
+              "settings.tasks_store",
+              "computer.start-a-program.program",
+              "computer.start-a-program.work"
+            ]
+          }
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:keep-and-wake-ai-sessions-on-this-computer",
+        "provenance": {
+          "source": "harness/take-open-work.mjs and wake-handlers/take-open-work.mjs, the taker the helper (harness/wake-sessions.mjs) runs on a computer made from its row, started here by the engine instead of a service manager"
+        }
+      }
     }
   ]
 }

@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
 import { readFileSync } from 'node:fs';
-import { runOperation, opArguments, operationCaller, AccountCallError } from '../harness/account-call.mjs';
+import { runOperation, opArguments, operationCaller, runDoor, AccountCallError } from '../harness/account-call.mjs';
 
 const SIGN_IN = { credential: { from: 'kept sign-in', command: ['fake-command'] }, pins: ['f596fa0076f6c620'], timeout_seconds: 5 };
 const KEYED = { credential: { from: 'keychain', item: 'test-key-item', origin: 'https://account.example' }, pins: ['f596fa0076f6c620'], timeout_seconds: 5 };
@@ -111,7 +111,48 @@ test('the caller the runner uses answers a resource call through the account sou
 test('the modules hold no key of their own: the key appears only in the keyed source, read by its item name', () => {
   const text = readFileSync(new URL('../harness/account-call.mjs', import.meta.url), 'utf8');
   assert.equal(/nm_|sk_|secret\s*=/.test(text), false);
-  assert.match(text, /authorization: `Bearer \$\{key\}`/);
+  assert.match(text, /authorization: `Bearer \$\{bearer\}`/);
+});
+
+// A run door: the descriptor the engine wrote, as `readDescriptor` answers it. Each test reads its own descriptor number,
+// since a door is read once per descriptor and kept for the process.
+const CAPABILITY = 'run_test_capability_not_real';
+const DOOR_TEXT = JSON.stringify({ url: 'http://127.0.0.1:47011/mcp', resource: '@own-records', capability: CAPABILITY });
+const doorAccount = fd => ({ credential: { from: 'run door', fd }, pins: ['f596fa0076f6c620'], timeout_seconds: 5 });
+
+test('the run door sends the operation to the run\'s own route, the capability only in the Authorization header and no pin', async () => {
+  const sent = [];
+  const reads = [];
+  const readDescriptor = fd => { reads.push(fd); return DOOR_TEXT; };
+  const answer = await runOperation({ account: doorAccount(41), address: '@tools', method: 'tools:run', input: { tool: 'tool:take-a-task' }, requestKey: 'rk-door', fetchImpl: fakeFetch({ body: okReply({ taken: null }), sent }), readDescriptor });
+  assert.deepEqual(answer, { taken: null });
+  assert.equal(sent[0].url, 'http://127.0.0.1:47011/mcp');
+  assert.equal(sent[0].init.headers.authorization, `Bearer ${CAPABILITY}`);
+  const body = JSON.parse(sent[0].init.body);
+  assert.deepEqual(body.params.arguments, { address: '@tools', method: 'tools:run', input: { tool: 'tool:take-a-task' }, request_key: 'rk-door' });
+  assert.equal(sent[0].init.body.includes(CAPABILITY), false);
+  // The descriptor is a pipe written once: a second operation uses the door already read.
+  await runOperation({ account: doorAccount(41), address: '@tools', method: 'tools:run', fetchImpl: fakeFetch({ body: okReply({}) }), readDescriptor });
+  assert.deepEqual(reads, [41]);
+});
+
+test('the run door gives a request key longer than the door takes its own fixed-length name', async () => {
+  const sent = [];
+  const long = 'k'.repeat(300);
+  await runOperation({ account: doorAccount(42), address: '@tools', method: 'tools:run', requestKey: long, fetchImpl: fakeFetch({ body: okReply({}), sent }), readDescriptor: () => DOOR_TEXT });
+  const key = JSON.parse(sent[0].init.body).params.arguments.request_key;
+  assert.match(key, /^key:[0-9a-f]+:[0-9a-f]{64}$/);
+  assert.notEqual(key, long);
+});
+
+test('a run with no door, a door that is not this computer\'s loopback route, or no pin is refused before anything is sent', async () => {
+  const sent = [];
+  await assert.rejects(runOperation({ account: doorAccount(43), address: '@tools', method: 'm', fetchImpl: fakeFetch({ sent }), readDescriptor: () => { throw new Error('EBADF'); } }), { code: 'door_absent' });
+  await assert.rejects(runOperation({ account: doorAccount(44), address: '@tools', method: 'm', fetchImpl: fakeFetch({ sent }), readDescriptor: () => '{"url":"http://127.0.0.1:1/mcp"}' }), { code: 'door_absent' });
+  await assert.rejects(runOperation({ account: doorAccount(45), address: '@tools', method: 'm', fetchImpl: fakeFetch({ sent }), readDescriptor: () => JSON.stringify({ url: 'https://account.example/mcp', capability: CAPABILITY }) }), { code: 'origin_refused' });
+  await assert.rejects(runOperation({ account: { ...doorAccount(46), pins: [] }, address: '@tools', method: 'm', fetchImpl: fakeFetch({ sent }), readDescriptor: () => DOOR_TEXT }), { code: 'pin_absent' });
+  assert.throws(() => runDoor(2, () => DOOR_TEXT), { code: 'door_absent' });
+  assert.equal(sent.length, 0);
 });
 
 // An answer too large for one reply comes as byte pages (src/mcp.rs); the account road joins them for every caller, so a

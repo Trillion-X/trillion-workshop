@@ -64477,5 +64477,80 @@
   "tool:write-the-icon-shapes-a-motion-film-uses": [],
   "tool:write-with-a-persons-writing-adapter": [],
   "tool:your-files": [],
-  "tool:your-files-names": []
+  "tool:your-files-names": [],
+  "tool:take-given-tasks-on-this-computer": [
+    {
+      "package": "keep-and-wake-ai-sessions-on-this-computer",
+      "paths": [
+        "harness/take-open-work-in-a-run.mjs"
+      ],
+      "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+    },
+    {
+      "package": "content-identity",
+      "paths": [
+        "read-data/blake3.mjs",
+        "read-data/identity.mjs"
+      ],
+      "at": "/opt/content-identity"
+    },
+    {
+      "package": "judge-words",
+      "paths": [
+        "do-work/evidence-checks.mjs",
+        "do-work/judge-words.mjs"
+      ],
+      "at": "/opt/judge-words"
+    },
+    {
+      "package": "keep-and-wake-ai-sessions-on-this-computer",
+      "paths": [
+        "harness/account-call.mjs",
+        "harness/account-key.json",
+        "harness/account-key.mjs",
+        "harness/ai-auth.mjs",
+        "harness/answer-shape.mjs",
+        "harness/chosen-ai.mjs",
+        "harness/take-open-work.json",
+        "harness/take-open-work.mjs",
+        "harness/tool-config-switches.mjs",
+        "harness/triage-open-work.mjs",
+        "harness/vault-value.mjs",
+        "harness/wake-handlers/take-open-work.mjs",
+        "harness/wake-sessions.json",
+        "src/inbound-words.json",
+        "src/own-work.mjs"
+      ],
+      "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+    },
+    {
+      "package": "move-records-through-declared-states",
+      "paths": [
+        "do-work/move-records-through-declared-states.mjs"
+      ],
+      "at": "/opt/move-records-through-declared-states"
+    },
+    {
+      "package": "plan-tasks-and-todo-lists",
+      "paths": [
+        "run-a-task-move.mjs",
+        "task-moves.json",
+        "task-moves.mjs"
+      ],
+      "at": "/opt/plan-tasks-and-todo-lists"
+    },
+    {
+      "package": "formula-engine",
+      "paths": [
+        "built-stored-bytes/formula-engine"
+      ],
+      "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+    },
+    {
+      "packages": [
+        "node_modules/@noble/hashes"
+      ],
+      "at": "/opt/node_modules/@noble/hashes"
+    }
+  ]
 }
