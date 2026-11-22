@@ -233,10 +233,27 @@ export async function chosenRow(job, settings, { now = new Date(), readers = LIM
   return answerer ? { row: { ...chatOf(answerer), model: pick.model }, why: pick.why } : { row: null, why: `${pick.provider} names no chat row` };
 }
 
-/** { messages, tools?, max_tokens?, temperature? } -> the chat reply (OpenAI shape, with model), { state, questions } -> the
- *  classifier's answers, or { texts } -> one vector per text ({ vectors, model, dimensions }); { error } when no model here
- *  answered. */
-export async function askLocal(input, settings, { priority = 0 } = {}) {
+/** A job that keeps its own system words and frame (DATA system, frame, context_lines, channels) is asked with { fill }: the
+ *  values for its {names}. The thread keeps its last context_lines lines; a channel the job does not list is refused. The
+ *  values are put in once, so braces inside them stay as written. */
+export function framed(input, settings) {
+  const job = settings.jobs?.[input.job];
+  if (Array.isArray(input.messages) || !input.fill || typeof input.fill !== 'object' || !job?.frame) return input;
+  const fill = { ...input.fill };
+  if (Array.isArray(job.channels) && !job.channels.includes(fill.channel)) {
+    return { refused: String(settings.words.not_for_channel).replaceAll('{job}', input.job).replaceAll('{channel}', String(fill.channel ?? '')) };
+  }
+  if (job.context_lines && typeof fill.thread === 'string') fill.thread = fill.thread.split('\n').filter(line => line.trim()).slice(-job.context_lines).join('\n');
+  const put = words => words.replace(/\{(\w+)\}/g, (whole, name) => String(fill[name] ?? ''));
+  return { ...input, messages: [...(job.system ? [{ role: 'system', content: put(job.system) }] : []), { role: 'user', content: put(job.frame) }] };
+}
+
+/** { messages, tools?, max_tokens?, temperature? } or { job, fill } -> the chat reply (OpenAI shape, with model), { state,
+ *  questions } -> the classifier's answers, or { texts } -> one vector per text ({ vectors, model, dimensions }); { error }
+ *  when no model here answered. */
+export async function askLocal(handed, settings, { priority = 0 } = {}) {
+  const input = framed(handed, settings);
+  if (input.refused) return { error: input.refused };
   if (Array.isArray(input.messages)) {
     const job = settings.jobs?.[input.job] ?? settings.jobs?.default ?? {};
     const checked = reply => {

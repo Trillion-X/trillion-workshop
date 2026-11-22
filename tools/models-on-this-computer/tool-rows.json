@@ -196,7 +196,7 @@
         "label": "Ask a model",
         "status": "active",
         "job": "Ask a model served on the person's own computer (a local model, free to run) a conversation, a yes-or-no question about some words, or for vectors that compare words by meaning, instead of a service billed per word",
-        "description": "Runs on the person's computer with the models it serves (read-data/models-on-this-computer.json: Ollama for conversations, a small classifier for yes-or-no questions). messages asks a conversation and answers in the chat-completions shape; job picks a job row (which models, how many words, what answer format); tools optionally supplies the functions it may call, whose calls are returned for the caller to execute through its normal permissions; parts true also returns the answer as keyed parts. state and questions ask the classifier and answer its probabilities. texts answers one vector per text from the embedding model its job names (meaning when it names none), with that model's name, since vectors compare only with vectors from the same model. Answers error in words, with each model tried and why it did not answer, when no model on the computer is running.",
+        "description": "Runs on the person's computer with the models it serves (read-data/models-on-this-computer.json: Ollama for conversations, a small classifier for yes-or-no questions). messages asks a conversation and answers in the chat-completions shape (fill instead puts values into the job row’s own system words and frame); job picks a job row (which models, how many words, what answer format); tools optionally supplies the functions it may call, whose calls are returned for the caller to execute through its normal permissions; parts true also returns the answer as keyed parts. state and questions ask the classifier and answer its probabilities. texts answers one vector per text from the embedding model its job names (meaning when it names none), with that model's name, since vectors compare only with vectors from the same model. Answers error in words, with each model tried and why it did not answer, when no model on the computer is running.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -211,6 +211,10 @@
                 "type": "object"
               },
               "description": "A conversation: [{ role, content }]"
+            },
+            "fill": {
+              "type": "object",
+              "description": "Instead of messages, for a job that keeps its own system words and frame: the values for the frame's {names} (for write-in-his-voice: channel, thread, draft). A channel the job does not list is refused."
             },
             "tools": {
               "type": "array",

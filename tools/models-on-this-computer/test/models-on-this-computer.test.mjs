@@ -475,3 +475,23 @@ test('the codex-lb row is DATA: responses shape on its own door, and the ask-a-m
   const ask = rows.records.find(row => row.payload.id === 'tool:ask-a-model');
   assert.ok(ask.payload.invoke.local_doors.some(door => door.name === 'codex-lb'));
 });
+
+test('a job with its own system words and frame is asked with fill: its last thread lines, braces kept, other channels refused', async () => {
+  const asked = [];
+  const server = await serve(body => { asked.push(body); return { choices: [{ message: { content: 'ok' } }] }; });
+  const url = `http://127.0.0.1:${server.address().port}/v1/chat/completions`;
+  const settings = { most_tokens: 300, words: { ...words, not_for_channel: 'The job {job} was made only for its listed channels, not {channel}.' }, classify: [],
+    chat: [{ id: 'voice', url, model: 'voice', timeout_seconds: 5 }],
+    jobs: { voice: { models: ['voice'], system: 'Write this message as me, in {channel}.', frame: 'Thread so far:\n{thread}\n\nWhat I want to say:\n{draft}', context_lines: 2, channels: ['imessage'] } } };
+  try {
+    const reply = await askLocal({ job: 'voice', fill: { channel: 'imessage', thread: 'them: one\nme: two\n\nthem: three', draft: 'See you at {6} pm.' } }, settings);
+    assert.equal(reply.served_by, 'voice');
+    assert.deepEqual(asked[0].messages, [
+      { role: 'system', content: 'Write this message as me, in imessage.' },
+      { role: 'user', content: 'Thread so far:\nme: two\nthem: three\n\nWhat I want to say:\nSee you at {6} pm.' },
+    ]);
+    const refused = await askLocal({ job: 'voice', fill: { channel: 'web', thread: '', draft: 'A lesson.' } }, settings);
+    assert.equal(refused.error, 'The job voice was made only for its listed channels, not web.');
+    assert.equal(asked.length, 1);
+  } finally { server.close(); }
+});
