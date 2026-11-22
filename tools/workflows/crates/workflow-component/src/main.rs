@@ -185,6 +185,29 @@ fn pending_fill(run: &Map<String, Value>, refused: &BTreeMap<String, String>, co
     Ok(Some((workflow, step, tool, asks)))
 }
 
+/// The pin of the definition a run walks: what its reader's answer was pinned to (`pinned_definition`), else the BLAKE3 of
+/// the definition it carries, else `unread` (its definition is not read yet).
+fn pin_of(run: &Map<String, Value>) -> String {
+    let step = reader_step(run).unwrap_or_else(|| READ_STEP.to_string());
+    if let Some(pin) = run.get("answers").and_then(|answers| answers.get(&step)).and_then(|held| held["blake3"].as_str()) {
+        return pin.to_string();
+    }
+    match run.get("definition").filter(|d| d.is_object()).or_else(|| run.get("definitions").and_then(|all| all.get(0))) {
+        Some(definition) => blake3::hash(definition.to_string().as_bytes()).to_hex().to_string(),
+        None => "unread".into(),
+    }
+}
+
+/// The id a step's answer is told back under, which the engine keys the cause it starts by (and so the run's request
+/// key): the run, the step and the definition's pin, so a definition changed mid-run makes new keys and a retry of the
+/// same step of the same definition the same one. Nov 22 2026, 5:58:44-5:59:00 AM CST: about 70 tool:run-a-workflow
+/// children were refused by the store's idempotency check (src/wake/store.rs, a request key seen before with another
+/// input) after recipe rows were rewritten at 5:57, since the key was the run and the step alone.
+fn step_event(run: &Map<String, Value>, step: &str) -> String {
+    let run_id = run.get("run").and_then(Value::as_str).unwrap_or("run");
+    format!("{run_id}:{step}:{}", pin_of(run))
+}
+
 /// Hands out the one step a pass waits on before anything walks (a reader's), told back to this run under `step`.
 fn hand_out(run: &Map<String, Value>, workflow: &str, step: &str, tool: &str, asks: Value) {
     println!("{}", handed_out(run, workflow, step, tool, asks));
@@ -193,7 +216,7 @@ fn hand_out(run: &Map<String, Value>, workflow: &str, step: &str, tool: &str, as
 /// What `hand_out` prints: the paused pass with its one waiting step and the effect that runs it.
 fn handed_out(run: &Map<String, Value>, workflow: &str, step: &str, tool: &str, asks: Value) -> Value {
     let run_id = run.get("run").and_then(Value::as_str).unwrap_or("run").to_string();
-    let told = json!({ "source": ANSWERED, "event_id": format!("{run_id}:{step}"),
+    let told = json!({ "source": ANSWERED, "event_id": step_event(run, step),
         "payload": { "workflow": workflow, "run": run, "step": step, "for": tool } });
     let waiting = json!({ "step": step, "for": tool, "asks": asks });
     let effect = effect_of(&waiting, told.clone(), &door_asks(), workflow);
@@ -280,9 +303,8 @@ fn end_told(run: &Map<String, Value>, status: &str, workflow: &str, why: Option<
     let effect = end_effect(run, status, workflow, why)?;
     let mut carried = run.clone();
     carried.insert("ended_as".into(), json!(status));
-    let run_id = run.get("run").and_then(Value::as_str).unwrap_or("run");
     let tool = effect["wake"]["tool"].clone();
-    let told = json!({ "source": ANSWERED, "event_id": format!("{run_id}:{END_STEP}"),
+    let told = json!({ "source": ANSWERED, "event_id": step_event(run, END_STEP),
         "payload": { "workflow": workflow, "run": carried, "step": END_STEP, "for": tool } });
     Some(effect_of(&json!({ "step": END_STEP, "for": tool, "asks": effect["wake"]["input"] }), told, doors, workflow))
 }
@@ -806,7 +828,7 @@ fn main() {
     let waiting = host.waiting.lock().unwrap().clone();
     // Each waiting step says how its answer is told back: this run with that step named, under the workflow's id, which
     // the listed row's wake matches.
-    let told_as = |step: &Value, name: &Value| json!({ "source": ANSWERED, "event_id": format!("{run_id}:{}", step.as_str().unwrap_or_default()),
+    let told_as = |step: &Value, name: &Value| json!({ "source": ANSWERED, "event_id": step_event(&run, step.as_str().unwrap_or_default()),
         "payload": { "workflow": id, "run": run, "step": step, "for": name } });
     // A name the engine can start (a tool id) or make (a door ask) is handed back with a reply; every other ask is told as
     // a fact.
@@ -1554,6 +1576,20 @@ mod tests {
         big["filler"] = json!("x".repeat(MOST_ANSWER_BYTES));
         assert!(!hold_definitions(&mut big_run, &[big]));
         assert!(!carries_definition(&big_run), "too large: read again by its pin");
+    }
+
+    // A step's answer is told back under the run, the step and its definition's pin: a definition changed mid-run makes a
+    // new id (the engine's cause and request key), and the same step of the same definition the same id.
+    #[test]
+    fn a_step_event_changes_with_its_definition_and_not_on_a_retry() {
+        let run = |definition: Value| json!({ "run": "r", "definition": definition }).as_object().unwrap().clone();
+        let first = run(one_step("workflow:x", "tool:a"));
+        assert_eq!(step_event(&first, "s"), step_event(&run(one_step("workflow:x", "tool:a")), "s"), "a retry: the same id");
+        assert_ne!(step_event(&first, "s"), step_event(&run(one_step("workflow:x", "tool:b")), "s"), "a changed definition: a new id");
+        assert_ne!(step_event(&first, "s"), step_event(&first, "t"));
+        let read = |pin: &str| json!({ "run": "r", "read_definition": reader(), "answers": { READ_STEP: { "blake3": pin, "version": "v" } } }).as_object().unwrap().clone();
+        assert_eq!(step_event(&read("p1"), "s"), "r:s:p1");
+        assert_ne!(step_event(&read("p1"), "s"), step_event(&read("p2"), "s"));
     }
 
     // A run keeps two steps of its line for recording its end: a pass hands out its next step only while that leaves them.
