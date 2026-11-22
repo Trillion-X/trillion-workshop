@@ -42,20 +42,32 @@ FROM journey_steps
 WHERE email_key IS NOT NULL AND visitor IS NOT NULL
 ORDER BY email_key, at, id;
 
--- Every step with its person: its visitor, or the visitor its email joins to, or the email itself when no visitor
--- ever carried it (so a sale with only an email still counts, under unknown).
+-- Every step with its person: its visitor, or the visitor its email joins to, or the email itself, or the touch it came
+-- from (a step kept without consent has no visitor, only the touch id of the link it followed). A sale with only an email
+-- still counts, under its email.
 CREATE OR REPLACE VIEW journey_resolved_steps AS
-SELECT s.*, COALESCE(s.visitor, e.visitor, CASE WHEN s.email_key IS NOT NULL THEN 'email:' || s.email_key END) AS person
+SELECT s.*, COALESCE(
+  s.visitor,
+  e.visitor,
+  CASE WHEN s.email_key IS NOT NULL THEN 'email:' || s.email_key END,
+  CASE WHEN s.touch_id IS NOT NULL THEN 'touch:' || s.touch_id END
+) AS person
 FROM journey_steps s
 LEFT JOIN journey_email_visitor e ON s.visitor IS NULL AND s.email_key = e.email_key;
 
 -- The first touch of each person: the earliest step that carries a tracked source (a UTM field or an ad click id). A lead's
 -- self-reported answer is a source but not a touch, so it never decides where a person came from.
+-- A step that followed a tracked link carries that link's source (journey_touches.source) when the step has none of its own.
+CREATE OR REPLACE VIEW journey_step_sources AS
+SELECT r.*, COALESCE(NULLIF(r.source, '{}'::jsonb), t.source, '{}'::jsonb) AS step_source
+FROM journey_resolved_steps r
+LEFT JOIN journey_touches t ON t.id = r.touch_id;
+
 CREATE OR REPLACE VIEW journey_first_touch AS
-SELECT DISTINCT ON (person) person AS visitor, touch_id, source, at
-FROM journey_resolved_steps
+SELECT DISTINCT ON (person) person AS visitor, touch_id, step_source AS source, at
+FROM journey_step_sources
 WHERE person IS NOT NULL
-  AND source ?| array['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid', 'gbraid', 'wbraid', 'dclid', 'fbclid', 'fbc', 'msclkid', 'ttclid', 'twclid', 'li_fat_id', 'rdt_cid', 'ScCid', 'epik']
+  AND step_source ?| array['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid', 'gbraid', 'wbraid', 'dclid', 'fbclid', 'fbc', 'msclkid', 'ttclid', 'twclid', 'li_fat_id', 'rdt_cid', 'ScCid', 'epik']
 ORDER BY person, at, id;
 
 -- Each person's counts and revenue, grouped by the first touch's utm_source, utm_medium and utm_campaign. A person with
