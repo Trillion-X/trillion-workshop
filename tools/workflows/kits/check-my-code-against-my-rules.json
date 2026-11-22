@@ -1,24 +1,24 @@
 {
-  "drafted_from": "workflow:check-my-code-against-my-rules's own file, tools/workflows/recipes/check-my-code-against-my-rules.json (its wake, definition and steps), and tool:check-an-archive-against-my-rules.",
-  "start_here": "Say to your AI: \"Check these repositories against my rules every hour.\" The AI turns on workflow:check-my-code-against-my-rules's wake hourly with checks, one per repository (its archive address and your rules), as the switch's input. Each hour each newest commit is checked, and you are told only about a repository that breaks a rule.",
+  "start_here": "Say to your AI: \"Run workflow:check-my-code-against-my-rules.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "It keeps nothing: the repositories, their rules and recorded findings are the switch's input, and a check that finds something tells one notice.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:check-my-code-against-my-rules"
   ],
   "tools": [
     "tool:check-an-archive-against-my-rules",
-    "tool:run-sql-in-my-database"
+    "tool:run-sql-in-my-database",
+    "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Turn on this workflow's wake hourly once, with store (where the person keeps their notices, its language and its login's vault name) and checks: one item per repository, each {archive (the https address of the repository's archive, such as its host's archive of a branch), rules, recorded when some findings are already written down}. A wake has one switch, so to add a repository switch it on again with every check, the new one included.",
-    "2. To catch callers of names another repository retired, add subjects_from to a check: was (that repository's archive at the older commit), now (its archive today), path_matches, pattern and capture naming where and how a name is declared; a rule then collects from that subject by name.",
-    "3. Read each notice that comes: its body counts the findings; a finding whose name has a recorded new home says where it moved."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:check-my-code-against-my-rules\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "A commit that still calls a retired tool is told to the person",
-      "ask": "(the hourly due-time fact arrived for a repository whose switch input names its archive and a rule against retired tool ids)",
+      "title": "Check my code against my rules",
+      "ask": "Run workflow:check-my-code-against-my-rules.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -27,56 +27,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:check-my-code-against-my-rules",
-              "checks": [
-                {
-                  "archive": "https://example.test/apps/main.tar.gz",
-                  "rules": [
-                    {
-                      "kind": "source-file-rule",
-                      "id": "no-caller-of-a-retired-tool",
-                      "why": "A retirement is done only when every caller has moved.",
-                      "violation": {
-                        "unit": {
-                          "split": "\\n"
-                        },
-                        "forbidden": [
-                          {
-                            "collected": {
-                              "from_subject": "retired_tool_ids",
-                              "pattern": "^(.+)$",
-                              "flags": "m",
-                              "capture": 1
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  ],
-                  "subjects_from": {
-                    "retired_tool_ids": {
-                      "was": "https://example.test/tools/older.tar.gz",
-                      "now": "https://example.test/tools/main.tar.gz",
-                      "path_matches": "^tools/[^/]+/tool-rows\\.json$",
-                      "pattern": "\"id\":\\s*\"(tool:[^\"]+)\"",
-                      "capture": 1
-                    }
-                  }
-                }
-              ],
-              "store": {
-                "where": "the person's own database",
-                "language": "SQL (PostgreSQL)",
-                "credential_name": "the vault name of the person's database login"
-              }
+              "row": "workflow:check-my-code-against-my-rules"
             }
           }
         }
       },
       "workflow": "workflow:check-my-code-against-my-rules",
       "step": "check-each",
-      "given": "The archive holds one file calling tool:gone, an id the older tools archive declared and the newest one does not.",
-      "hands_back": "tool:check-an-archive-against-my-rules answers passed false with one finding naming the file and line; the run then keeps one notice in the person's store (a row of its notices table, made once), kind needs-you, with title \"My rules found something in https://example.test/apps/main.tar.gz\" and its body the run's count."
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:check-my-code-against-my-rules rendered from its row"
 }

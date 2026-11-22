@@ -1,47 +1,41 @@
 {
-  "drafted_from": "workflow:check-the-wake-alarm's own file, tools/workflows/recipes/check-the-wake-alarm.json (its two wakes and its one step), and the engine's wake settings retry and on_failure (trillion-rust 07ffdad66).",
-  "start_here": "Say to your AI: \"Check that my wake alarm still tells me when it fails.\" The AI switches on workflow:check-the-wake-alarm's wakes a-wake-that-fails and an-alarm-that-fails with your store as their input, tells the fact check-the-wake-alarm at the door (wake:arrive), waits about two minutes, reads wake:list and your notices, and switches both wakes off.",
+  "start_here": "Say to your AI: \"Run workflow:check-the-wake-alarm.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "It keeps one notice in the person's store (its notices table, the table workflow:read-my-notices reads) and reads nothing else; its one step reads a table that is kept nowhere, so that it fails for a real cause.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:check-the-wake-alarm"
   ],
   "tools": [
-    "tool:run-sql-in-my-database"
+    "tool:run-sql-in-my-database",
+    "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Switch on the wakes a-wake-that-fails and an-alarm-that-fails with store as the input: where the person keeps their notices, its language and the vault name of its login.",
-    "2. Tell the fact check-the-wake-alarm at the door (wake:arrive, any event_id, payload {}). a-wake-that-fails runs and fails (the table it reads does not exist), and the engine keeps one wake-failed fact for it.",
-    "3. an-alarm-that-fails hears that fact, fails the same way, runs again after 20 s and again 40 s later, then keeps a needs-you notice titled 'The check of the wake alarm failed three times'. Read wake:list (its outcome and retrying) and the notice's created_at.",
-    "4. Switch both wakes off. The real alarm, workflow:tell-when-a-wake-stops, also tells you that a-wake-that-fails stopped."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:check-the-wake-alarm\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "The alarm copy fails three times and keeps its notice",
-      "ask": "(the engine kept a wake-failed fact for the wake a-wake-that-fails of workflow:check-the-wake-alarm)",
+      "title": "Check that a failing wake alarm still tells me",
+      "ask": "Run workflow:check-the-wake-alarm.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
         "input": {
-          "method": "wake:switch",
+          "method": "tools:run",
           "input": {
-            "tool": "workflow:check-the-wake-alarm",
-            "id": "an-alarm-that-fails",
-            "on": true,
+            "tool": "tool:run-workflow-definition",
             "input": {
-              "store": {
-                "where": "the person's own database",
-                "language": "SQL (PostgreSQL)",
-                "credential_name": "the vault name of the person's database login"
-              }
+              "row": "workflow:check-the-wake-alarm"
             }
           }
         }
       },
       "workflow": "workflow:check-the-wake-alarm",
       "step": "read-a-table-kept-nowhere",
-      "given": "The engine kept wake-failed {tool workflow:check-the-wake-alarm, wake a-wake-that-fails, cause the database's answer that a_table_kept_nowhere_so_this_run_fails does not exist}.",
-      "hands_back": "Three failed runs of an-alarm-that-fails, 20 s and 40 s apart, then one notice in the person's store titled 'The check of the wake alarm failed three times', kind needs-you."
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:check-the-wake-alarm rendered from its row"
 }
