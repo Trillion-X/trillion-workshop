@@ -100,6 +100,10 @@ const runUnderTicket = async (client, shape, ticket) => {
   }
 };
 
+// The names a request gives for its connection: credential_name (the held connection) or database (one of the person's
+// databases). An absent, null or empty name is not given: the engine mounts the connection only for a request that names one.
+export const namesTarget = input => ['credential_name', 'database'].some(name => input?.[name] !== undefined && input[name] !== null && input[name] !== '');
+
 // The request's two shapes: { sql, params? } and { recipe }. Anything else is refused with its reason.
 export function shapeOf(input) {
   const asked = input !== null && typeof input === 'object' && !Array.isArray(input) ? input : {};
@@ -317,10 +321,14 @@ export function sayWithout(error, ...connections) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const connection = held(CONNECTION_DESCRIPTOR), roleConnection = held(ROLE_CONNECTION_DESCRIPTOR);
-  let ticket = '', heldValue = '';
+  let connection = '', roleConnection = '', ticket = '', heldValue = '';
   try {
     const input = JSON.parse(readFileSync(0, 'utf8'));
+    // A request that names no connection is refused before any descriptor is read: the engine mounts descriptor 3 only for a
+    // named one, and an unmounted descriptor may never answer, so the run would wait out its deadline.
+    if (!namesTarget(input)) throw new Error('no credential_name (or other target) in the input: give credential_name (the name of the held connection) or database (the name of one of the databases). No connection was opened.');
+    connection = held(CONNECTION_DESCRIPTOR);
+    roleConnection = held(ROLE_CONNECTION_DESCRIPTOR);
     // Descriptors 5 and 6 are read only when the input is one the row mounts them for: an unmounted number may be one the
     // runtime itself opened (Node's own event queue), and reading that would wait for ever.
     if (input?.use !== undefined && input.use !== null && typeof input.database === 'string') ticket = held(TICKET_DESCRIPTOR);

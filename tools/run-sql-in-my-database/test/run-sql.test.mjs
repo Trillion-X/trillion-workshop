@@ -10,7 +10,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import EmbeddedPostgres from 'embedded-postgres';
 import pg from 'pg';
-import { runSql, sayWithout, shapeOf, timeLimitOf } from '../do-work/run-sql.mjs';
+import { namesTarget, runSql, sayWithout, shapeOf, timeLimitOf } from '../do-work/run-sql.mjs';
 import { passwordOf, verifierOf } from '../do-work/make-a-login-verifier.mjs';
 
 // A real PostgreSQL server in a temp folder (no sudo), with an owner that may make roles of its own (as set-up-postgres-role.sh
@@ -144,6 +144,36 @@ test('a request that is neither shape, or both, or has no connection, is refused
   assert.throws(() => shapeOf({ sql: 'SELECT 1', params: 'x' }), /list of values/);
   assert.throws(() => shapeOf({ list: 'a', id: 'b', value: 1 }), /Give sql/, 'a tool-made table of rows is not a shape: a list is a table the person makes');
   return assert.rejects(runSql({ connection: '', input: { sql: 'SELECT 1' } }), /No database connection/);
+});
+
+// The engine mounts descriptor 3 only for a request that names a connection, and an unmounted descriptor may never answer. Here
+// descriptors 3 and 4 are left open, as an unmounted one is: a request naming no connection must be refused without reading them.
+const runWithoutConnection = input => new Promise((resolve) => {
+  const child = spawn(process.execPath, [fileURLToPath(new URL('../do-work/run-sql.mjs', import.meta.url))], { stdio: ['pipe', 'pipe', 'pipe', 'pipe', 'pipe'], env: {} });
+  let out = ''; let err = '';
+  child.stdout.on('data', chunk => { out += chunk; });
+  child.stderr.on('data', chunk => { err += chunk; });
+  const waited = setTimeout(() => { child.kill(); resolve({ code: 'hung', out, err }); }, 10000);
+  child.on('exit', code => { clearTimeout(waited); resolve({ code, out, err }); });
+  child.stdin.end(JSON.stringify(input));
+});
+
+test('a request that names no connection is refused at once, before any descriptor is read', async () => {
+  for (const input of [{ sql: 'SELECT 1' }, { sql: 'SELECT 1', credential_name: null }, { sql: 'SELECT 1', database: '' }]) {
+    const refused = await runWithoutConnection(input);
+    assert.equal(refused.code, 1, JSON.stringify(input));
+    assert.match(refused.err, /no credential_name \(or other target\) in the input/);
+    assert.equal(refused.out, '');
+  }
+});
+
+test('a connection is named by credential_name or database as text: null and empty are not given', () => {
+  assert.equal(namesTarget({ sql: 'SELECT 1', credential_name: 'own-rows-postgres-connection' }), true);
+  assert.equal(namesTarget({ sql: 'SELECT 1', database: 'shop_for_who_runs_it' }), true);
+  assert.equal(namesTarget({ sql: 'SELECT 1', credential_name: null }), false);
+  assert.equal(namesTarget({ sql: 'SELECT 1', database: '' }), false);
+  assert.equal(namesTarget(['credential_name']), false);
+  assert.equal(namesTarget(null), false);
 });
 
 test('a refused login says so without the connection string or its password', async () => {
