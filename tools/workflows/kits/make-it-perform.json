@@ -1,26 +1,24 @@
 {
-  "drafted_from": "Read from tools/workflows/recipes/workflows.json (workflow:make-it-perform, steps discover, improve, measure); the hands_back follows the step's submit shape.",
-  "start_here": "Say to your AI: \"Run workflow:make-it-perform to get my bakery's pre-order page at https://example.com/pre-order found for custom cakes nearby, with no paid ads and the wording kept, and you may edit its title and description.\"",
+  "start_here": "Say to your AI: \"Run workflow:make-it-perform.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:make-it-perform",
-    "workflow:x-mode",
-    "workflow:turn-something-shared-into-what-you-can-use"
+    "workflow:turn-something-shared-into-what-you-can-use",
+    "workflow:x-mode"
   ],
   "tools": [
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Say the run line in start_here with the request, the page or channel in scope, your constraints and the actions you allow.",
-    "2. The AI discovers the current route for each operation (discover), then fixes the actual bottleneck (improve) and replays a real task through the page.",
-    "3. After a stated window it compares fresh numbers with the baseline (measure); a blocked or unavailable measurement stays open with its exact gap.",
-    "4. Read each step's summary and evidence; nothing promises rankings or impressions."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:make-it-perform\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Find what blocks a pre-order page from being found",
-      "ask": "Make my bakery's pre-order page easier to find for custom cakes nearby.",
+      "title": "Make It Perform Mode",
+      "ask": "Run workflow:make-it-perform.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -29,25 +27,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:make-it-perform",
-              "request": "Get my bakery's pre-order page found when people search for custom cakes nearby",
-              "scope": "https://example.com/pre-order",
-              "constraints": [
-                "no paid ads",
-                "keep the page's current wording"
-              ],
-              "authorized_actions": [
-                "edit the page's title and description",
-                "read Search Console numbers"
-              ]
+              "row": "workflow:make-it-perform"
             }
           }
         }
       },
       "workflow": "workflow:make-it-perform",
       "step": "discover",
-      "given": "Read from the discover step in tools/workflows/recipes/workflows.json: it inspects the real schema of each operation before acting, reads back the persisted work record and states what is requirement and what is a gap.",
-      "hands_back": "{\"summary\": \"Read the page https://example.com/pre-order and found the Search Console report route in the account's catalog; the page title says 'Order' and has no description.\", \"evidence\": [{\"source\": \"https://example.com/pre-order\", \"observed\": \"title 'Order', no meta description, one H1 'Pre-order'\"}, {\"source\": \"the account's tool catalog\", \"observed\": \"Search Console read route found; schema inspected before use\"}], \"requirements\": {\"no_paid_ads\": true, \"keep_wording\": true, \"allowed\": [\"edit title\", \"edit description\", \"read Search Console numbers\"], \"gaps\": []}}"
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:make-it-perform rendered from its row"
 }

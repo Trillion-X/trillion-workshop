@@ -1,22 +1,22 @@
 {
-  "drafted_from": "Read from tools/workflows/recipes/workflows.json (workflow:make-it-once-for-everyone, steps raw-material to answer); the hands_back follows the step's submit shape.",
-  "start_here": "Say to your AI: \"Run workflow:make-it-once-for-everyone: add a footer to my bakery's order emails that shows the pickup time, and make it a thing any builder gets.\"",
+  "start_here": "Say to your AI: \"Run workflow:make-it-once-for-everyone.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "It names no list in its own words or steps: it works on the request it is given and answers what it changed.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:make-it-once-for-everyone"
   ],
-  "tools": [],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
   "instructions": [
-    "1. Say the run line in start_here with what you want built, in your own words.",
-    "2. The AI works the request as raw material (raw-material), searches for what exists (already-there) and decides whether it is truly new.",
-    "3. Read the for-everyone shape (the tool or workflow, and what another builder sets) and the principle it carried into your other pursuits.",
-    "4. Read the answer step: the change, what already existed, the tool everyone now gets and the links to see each surface."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:make-it-once-for-everyone\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "A pickup-time footer treated as raw material",
-      "ask": "Add a footer to my bakery's order emails that shows the pickup time.",
+      "title": "Build a feature, tool or page once, for everyone",
+      "ask": "Run workflow:make-it-once-for-everyone.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -25,17 +25,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:make-it-once-for-everyone",
-              "request": "Add a footer to my bakery's order emails that shows the pickup time",
-              "came_from": "Sam, owner of a bakery"
+              "row": "workflow:make-it-once-for-everyone"
             }
           }
         }
       },
       "workflow": "workflow:make-it-once-for-everyone",
       "step": "raw-material",
-      "given": "Read from the raw-material step in tools/workflows/recipes/workflows.json: it quotes the request, gives each constraint's smallest and largest sensible version, names the pursuit served and states the change that came out.",
-      "hands_back": "{\"asked\": \"Add a footer to my bakery's order emails that shows the pickup time.\", \"constraints\": [{\"constraint\": \"order emails\", \"smallest\": \"only the confirmation email\", \"largest\": \"every email the shop sends\", \"changes\": \"the footer must be one block any email look can include\"}, {\"constraint\": \"pickup time\", \"smallest\": \"a single time\", \"largest\": \"a time window plus the address and a change link\", \"changes\": \"the footer reads the order's own row instead of fixed words\"}], \"serves\": \"The bakery pursuit: buyers who know when to collect call and ask less.\", \"change\": \"One footer block that shows the order's pickup window, address and a change link, set once for every email look.\"}"
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:make-it-once-for-everyone rendered from its row"
 }
