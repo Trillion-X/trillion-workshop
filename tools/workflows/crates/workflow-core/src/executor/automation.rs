@@ -1868,8 +1868,9 @@ async fn execute_loop_step(
                 execute_action_step_inner(step, exec_ctx, deps, actor, &iter_step_id).await?;
             }
 
-            // Capture output for this iteration
-            if let Some(output) = exec_ctx.steps.get(&iter_step_id) {
+            // Capture output for this iteration, through the same innermost-first scopes bindings
+            // use: a loop inside a used workflow records its passes in that workflow's scope.
+            if let Some(output) = exec_ctx.step_output(&iter_step_id) {
                 do_while_outputs.push(output.output.clone());
             } else {
                 do_while_outputs.push(Value::Null);
@@ -1891,8 +1892,9 @@ async fn execute_loop_step(
                         "Step '{}': the loop condition reads {}, which holds nothing after pass {}",
                         step_id, path, iteration
                     ),
-                    hint: "Read what the body returned through loop.last_output (e.g. loop.last_output.held), \
-                           or a step output the body writes"
+                    hint: "A do-while condition sees what the body's pass returned (its last step's output) as \
+                           loop.last_output, e.g. loop.last_output.rows.0.held; the body's own steps are not \
+                           visible to it by name"
                         .to_string(),
                 });
             }
@@ -3919,6 +3921,47 @@ mod tests {
         assert_eq!(empty.status, ExecutionStatus::Failed);
         let why = empty.error_message.unwrap_or_default();
         assert!(why.contains("loop.last_output.no_such"), "{why}");
+    }
+
+    // The same do-while inside a used workflow (an action step's body holds the loop) reads its passes through that
+    // workflow's scope; a literal condition is accepted as any binding is.
+    #[tokio::test]
+    async fn a_do_while_inside_an_action_reads_its_last_pass() {
+        let mut store = TestDefinitionStore::new();
+        store.register(make_action("try-once", vec![Step::return_value(json!({
+            "rows": [{"held": {"$kind":"binding","select":{"from":"loop","path":"index"},
+                "transform":[{"op":"op:core.lt","args":{"value":1}},{"op":"op:core.not"}]}}]
+        })).with_id("judge")]));
+        let mut retry = Step::loop_step(json!({
+            "definition_id": "try-once",
+            "condition": {"$kind":"binding","select":{"from":"loop","path":"last_output.rows.0.held"},
+                "transform":[{"op":"op:core.not"}]},
+            "item_var": "attempt",
+            "max_iterations": 3
+        }));
+        retry.id = "law-loop".into();
+        store.register(make_action("voice-body", vec![retry]));
+        let mut once = Step::loop_step(json!({
+            "definition_id": "try-once",
+            "condition": {"$kind":"binding","select":{"from":"literal","value":false}},
+            "item_var": "attempt",
+            "max_iterations": 3
+        }));
+        once.id = "once".into();
+        store.register(make_workflow("wf-voice", vec![
+            Step::action("voice-body", json!({})).with_id("voice"),
+            once,
+        ]));
+        let instance = make_executor_with_store(store)
+            .execute_workflow("wf-voice", StartData { start_type: "test_event".into(), input: json!({}),
+                started_at: "2026-11-21T00:00:00Z".into(), start_id: None }, make_actor(), &RetryPolicy::default())
+            .await
+            .expect("failures are returned as failed instances");
+        assert_eq!(instance.status, ExecutionStatus::Completed, "{:?}", instance.error_message);
+        let passes = instance.execution_context.steps["voice"].output.as_array().cloned().unwrap_or_default();
+        assert_eq!(passes.len(), 2, "not held, then held: {:?}", instance.execution_context.steps["voice"].output);
+        assert_eq!(passes[1]["rows"][0]["held"], json!(true));
+        assert_eq!(instance.execution_context.steps["once"].output.as_array().unwrap().len(), 1, "a literal false ends after one pass");
     }
 
     struct WaitBindingAccess(Mutex<Vec<(Value, Value)>>);

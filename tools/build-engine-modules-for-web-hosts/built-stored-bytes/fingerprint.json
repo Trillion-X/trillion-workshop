@@ -24,7 +24,7 @@
     "tools/workflows/ask-rights.json",
     "tools/workflows/ask-words.json"
   ],
-  "fingerprint": "1b36d18e19670bc5a195caa7efaba9b5f1378f8b0eb93940ae33ae9f5456669f",
+  "fingerprint": "6688a322b87a609b4df57652afe4be424be8782be3265c87e504c0069599378b",
   "workspace_commits": {
     "../../trillion-rust/crates": "c2913a1e2cab8c0223c7d16006e17ccc9a86e6ca"
   },
@@ -32,12 +32,12 @@
     "held-values/http_client.js": "b943aae9882afe502dc46d8c135ccddb649512a49e6af0849e3428b8184ecb83",
     "held-values/http_client_bg.wasm": "a37e3961dd4887a3030fe08a8b659f3a9f9c5d9052425c8c0b1262267758d912",
     "workflow-engine/workflow_engine.js": "a99247854683107778e64e2eff8bb4423e45f5b1f0ae3d6f5ccd67e935f0c318",
-    "workflow-engine/workflow_engine_bg.wasm": "0eb949f4c4e44621daac7a9defcd04ab6b29e51fff0501bd7ebacf80d4493c1a",
+    "workflow-engine/workflow_engine_bg.wasm": "592e8bf0984c44645280a3e2870e313484b161e7ee78a3dd0abc7b5bfe4cbb0f",
     "screen-arrangement/screen_arrangement.js": "fdba8dd41246d911f133d038775ae1a564d22dac551e6ba54db757bdc3e1e573",
     "screen-arrangement/screen_arrangement_bg.wasm": "fe021c7de8ab0c6db1c8c9256b92e921f1cff8a9a7c261cdae6c0a6c09835ead",
     "composition-engine/composition_engine.wasm": "7cc1dccb8b257ead6bd8c77a774e898bc5e07ffa777c65aa13491e73ebbf6fe2",
     "composition-engine/composition_engine.js": "e77c96be89e4b4c3286febf0c83952300200a89b103b953153c773ae41c462f4",
     "composition-engine/composition_engine_bg.wasm": "1aa3536b57f96a9e3bc971a2a80bce6fd6da20f2157233625f3104e7cba0993c",
-    "workflow-component/workflow_component.wasm": "6dc8c4b8313db435ff5ebb06f3f4fe247525b0483abfc1f5cfe83dbf3565e856"
+    "workflow-component/workflow_component.wasm": "b1546a5592da4cefdcf783e7f517d1d713f0aa906b599d79f37886bfc3ab0bf4"
   }
 }

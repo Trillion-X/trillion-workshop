@@ -470,6 +470,8 @@ impl BindingResolver {
         let from = select.get("from").and_then(Value::as_str).unwrap_or_default();
         let key = select.get("key").and_then(Value::as_str).unwrap_or_default();
         let path = select.get("path").and_then(Value::as_str).unwrap_or_default();
+        // A literal holds what is written in it; only what it comes to after its transforms can be empty.
+        if from == "literal" { return Ok(None); }
         let selected = Self::resolve_select_binding(ctx, from, key, path)?;
         let named = [from, key, path].into_iter().filter(|part| !part.is_empty()).collect::<Vec<_>>().join(".");
         Ok(selected.is_null().then_some(named))
