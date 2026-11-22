@@ -1,5 +1,5 @@
 {
- "start_here": "Say to your AI: \"Run workflow:get-found-in-search-and-answer-engines for https://bakery.example.com, questions: who makes the best sourdough in town and where can I pre-order a wedding cake, engines: ChatGPT and Perplexity.\"",
+ "start_here": "Say to your AI: \"Run workflow:get-found-in-search-and-answer-engines for https://bakery.example.com, store: bakery_for_who_runs_it-connection.\" It chooses the keywords and questions from your own pages unless you give them.",
  "lists": [],
  "no_lists_because": "It keeps no list: it writes one search-visibility record to your own records so the next run can compare, and its answers sit on the run record.",
  "workflows": [
@@ -10,14 +10,17 @@
   "tool:run-workflow-definition",
   "tool:check-a-page-for-search-and-answer-engines",
   "tool:read-public-web-page",
-  "tool:read-a-page-in-my-browser"
+  "tool:read-a-page-in-my-browser",
+  "tool:measure-search-visibility",
+  "tool:run-sql-in-my-database",
+  "tool:call-a-treg-endpoint"
  ],
  "instructions": [
-  "1. Give your site, the reader questions to ask and the engines; check_rows is optional.",
-  "2. Say \"Run workflow:get-found-in-search-and-answer-engines\". It lists every page from the sitemap, then scores each page the way an engine reads it.",
-  "3. Read the proposed /robots.txt, /llms.txt and per-page changes; facts it does not have are listed as needing you.",
-  "4. It publishes only through a destination tool you have connected that can save a draft, preview, publish and read back; otherwise it reports the exact missing operation and stops.",
-  "5. Read the before-and-after scores and which engines name or cite your site for which question."
+  "1. Give your site and the store (your pursuit's own database) where the measures are kept; keywords, questions, engines and location are optional. A client website is a new build by default (mode new-build); a site you already run is mode existing.",
+  "2. It lists your pages, chooses the keywords and reader questions your own pages answer, and measures BEFORE any change: Google positions, search volume, answer-engine mentions and citations, and Google Maps position for a local business, each kept as a dated row of search_visibility_measures.",
+  "3. It checks every served page the way an engine reads it and places each fix as metadata, structured data, a site file, or markup around words already shown. It never adds or rewords a sentence you wrote; facts it does not have are listed as needing you.",
+  "4. It prepares robots.txt, sitemap.xml and llms.txt from your page list, and publishes through your site's own owner, then reads the live result back.",
+  "5. It measures again (same-day rows are phase check; rankings are compared at 14 and 28 days) and tells you each keyword, question and page that moved."
  ],
  "worked_examples": [
   {
