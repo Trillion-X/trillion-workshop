@@ -34,5 +34,11 @@
     "stop_seconds": 30,
   "runtime_preserve": "restart"
   },
-  "prebuilt_store": "~/.cache/start-a-computer/built"
+  "prebuilt_store": "~/.cache/start-a-computer/built",
+  "build_memory": {
+    "_what": "The memory a source build on the computer may use, by the kind of build (its argv's program name; `default` for any other): `high`, where the kernel slows it and reclaims its pages, and `max`, where the kernel ends it alone. The build runs in a systemd scope with MemoryHigh, MemoryMax and MemorySwapMax=0, so a build that grows past its cap fails by itself and every program the computer serves keeps its memory (Nov 21 2026, 6:12:04-6:12:29 PM CST: a site's npm ci on the 3.8 GB always-on, which has no swap, stalled every site it served for 25 s before the kernel ended it). Sized for an 8 GB computer that also runs an engine (about 1.4 GB), a database and its sites. A unit's `source.memory` ({ high, max }) replaces its kind's.",
+    "default": { "high": "768M", "max": "1G" },
+    "npm": { "high": "1536M", "max": "2G" },
+    "cargo": { "high": "2560M", "max": "3G" }
+  }
 }

@@ -61,7 +61,8 @@ test('the arguments are flags then URLs, and a URL is required', () => {
 });
 
 test('run through a linked path, the probe asks until SIGTERM and prints its summary', async () => {
-  const server = createServer((request, response) => response.end('ok'));
+  let asked = 0;
+  const server = createServer((request, response) => { asked++; response.end('ok'); });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const linked = join(mkdtempSync(join(tmpdir(), 'probe-')), 'probe.mjs');
   symlinkSync(new URL('../do-work/probe-while-applying.mjs', import.meta.url).pathname, linked);
@@ -69,7 +70,7 @@ test('run through a linked path, the probe asks until SIGTERM and prints its sum
   let said = '';
   probe.stdout.on('data', chunk => { said += chunk; });
   const ended = new Promise(resolve => probe.on('exit', resolve));
-  await new Promise(resolve => setTimeout(resolve, 600));
+  for (let i = 0; i < 300 && asked < 5; i++) await new Promise(resolve => setTimeout(resolve, 100));
   probe.kill('SIGTERM');
   assert.equal(await ended, 0);
   server.close();

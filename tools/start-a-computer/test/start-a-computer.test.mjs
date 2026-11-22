@@ -9,7 +9,7 @@ import {
   readProvider, providerClient, registerMachine, rentMachine, releaseMachine, readMachine, readPrice, pointName,
   forgetName, fingerprintOf, fileStore,
 } from '../do-work/rent-a-machine.mjs';
-import { rentAMachine, startAComputer, readRequest } from '../do-work/start-a-computer.mjs';
+import { rentAMachine, startAComputer, readRequest, sourceOf } from '../do-work/start-a-computer.mjs';
 
 const canary = 'provider-credential-canary-0123456789';
 const publicKey = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample0 someone@example.com';
@@ -421,4 +421,19 @@ test('renting a machine nobody can reach answers its line and waits, with no SSH
 test('a build on the computer is the first the kernel ends when memory runs out, never a unit that serves', () => {
   const script = readFileSync(new URL('../do-work/build-from-source.sh', import.meta.url), 'utf8');
   assert.match(script, /runuser -u "\$user" -- sh -c 'echo 1000 > \/proc\/self\/oom_score_adj; cd "\$0" && exec env "\$@"'/);
+});
+
+test('a build runs in a scope of its own whose memory is capped, by its kind or its source, so it never takes the served programs\' memory', () => {
+  const script = readFileSync(new URL('../do-work/build-from-source.sh', import.meta.url), 'utf8');
+  const scope = script.slice(script.indexOf('systemd-run --scope'), script.indexOf('> "$log" 2>&1 || status=$?'));
+  for (const part of ['systemd-run --scope --quiet --collect --unit="build-$user-', '-p MemoryHigh="$memory_high" -p MemoryMax="$memory_max" -p MemorySwapMax=0 --', 'runuser -u "$user" -- sh -c \'echo 1000 > /proc/self/oom_score_adj']) {
+    assert.ok(scope.includes(part), `the build's scope says ${part}`);
+  }
+  assert.match(script, /memory_high=\$\(field memory\.high\); memory_max=\$\(field memory\.max\)/);
+  const unit = { unit: 'site.service', user: 'site', builds: '/var/lib/site/builds', program: 'serve.cjs',
+    source: { repository: 'https://git.example.test/site.git', commit: 'c'.repeat(40), build: ['/opt/node/bin/npm', 'ci'], output: '{builds}/out' } };
+  assert.deepEqual(sourceOf(unit).memory, { high: '1536M', max: '2G' }, 'an npm build takes the npm cap');
+  assert.deepEqual(sourceOf({ ...unit, source: { ...unit.source, build: ['make'] } }).memory, { high: '768M', max: '1G' }, 'any other kind takes the default');
+  assert.deepEqual(sourceOf({ ...unit, source: { ...unit.source, memory: { high: '150M', max: '200M' } } }).memory, { high: '150M', max: '200M' }, 'the source\'s own cap replaces its kind\'s');
+  assert.throws(() => sourceOf({ ...unit, source: { ...unit.source, memory: { high: 'lots', max: '2G' } } }), /memory is \{ high, max \}/);
 });

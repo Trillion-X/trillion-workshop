@@ -232,7 +232,19 @@ export function sourceOf(unit) {
   if (!/^current[A-Za-z0-9_-]*$/.test(current)) throw refused(`${where}: the build link a unit runs is current, or current- and a slot's name.`);
   const filled = text => fill(text, { ...unit, commit: source.commit }, where);
   return { user: unit.user, builds: unit.builds, commit: source.commit, program, current, repository: source.repository, credential: source.credential ?? null,
-    host_keys: source.host_keys ?? [], output: filled(source.output), build: source.build.map(filled), environment: (source.environment ?? []).map(filled) };
+    host_keys: source.host_keys ?? [], output: filled(source.output), build: source.build.map(filled), environment: (source.environment ?? []).map(filled),
+    memory: buildMemory(source, where) };
+}
+
+/** The memory cap a source build runs under ({ high, max }, systemd sizes): the source's own `memory`, else settings.json
+ * `build_memory` for its kind (the build argv's program name), else that file's `default`. */
+export function buildMemory(source, where = 'source') {
+  const kind = String(source.build?.[0] ?? '').split('/').pop();
+  const { _what, ...kinds } = SETTINGS.build_memory;
+  const memory = source.memory ?? kinds[kind] ?? kinds.default;
+  const size = /^[1-9][0-9]*[KMGT]?$/;
+  if (!size.test(memory?.high ?? '') || !size.test(memory?.max ?? '')) throw refused(`${where} memory is { high, max }, each a size such as 1536M or 2G.`);
+  return { high: memory.high, max: memory.max };
 }
 
 /** Build a unit's source commit on the computer (do-work/build-from-source.sh): the computer fetches that commit itself from
