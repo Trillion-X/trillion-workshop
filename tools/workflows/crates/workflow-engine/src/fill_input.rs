@@ -93,11 +93,36 @@ pub fn ask(reader: &Value, known: &Value) -> Result<(String, Value), String> {
     Ok((reader["tool"].as_str().unwrap_or_default().to_string(), input))
 }
 
+/// The list of rows a read answers (`rows_at`, else the part of `fills_at` before its first index: `rows` for
+/// `rows.0.fills`), None when the reader reads no list.
+fn rows_at(reader: &Value, fills_at: &str) -> Option<String> {
+    if let Some(rows) = reader["rows_at"].as_str().filter(|rows| !rows.is_empty()) { return Some(rows.to_string()); }
+    let parts: Vec<&str> = fills_at.split('.').collect();
+    let index = parts.iter().position(|part| part.parse::<usize>().is_ok())?;
+    (index > 0).then(|| parts[..index].join("."))
+}
+
 /// Sets in `input` each field of the reader's answer at `fills_at` that `fills_absent` names and the input leaves out;
-/// answers `filled_from` ({field: the row at `from_at`, else true}) for what it set, empty when it set nothing. An
-/// answer with nothing at `fills_at` sets nothing and says why.
+/// answers `filled_from` ({field: the row at `from_at`, else true}) for what it set, empty when it set nothing. Only a
+/// clean read whose list of rows (`rows_at`) is empty is "no row" (the reader's `when_no_row` words); an answer that is an
+/// error, not answered yet, or holds no list is a failed read and says so with its cause, never absence (Nov 22 2026: a
+/// wake host's not-answered answer cancelled runs as uses_store_not_paired).
 pub fn apply(reader: &Value, input: &mut Value, answer: &Value) -> Result<Map<String, Value>, String> {
     let fills_at = reader["fills_at"].as_str().unwrap_or("fills");
+    let failed = |cause: String| format!("the input was not filled: its reader's read failed ({cause}), so whether a row holds it is not known");
+    if let Some(error) = answer.get("error").filter(|error| !error.is_null()) {
+        let said = answer["said"].as_str().map(|said| format!(": {said}")).unwrap_or_default();
+        return Err(failed(format!("{}{said}", error.as_str().map(str::to_owned).unwrap_or_else(|| error.to_string()))));
+    }
+    if let Some(kind) = answer.get("$kind").and_then(Value::as_str) {
+        return Err(failed(format!("it answered {kind}")));
+    }
+    if let Some(rows) = rows_at(reader, fills_at) {
+        match at_path(answer, &rows) {
+            Some(Value::Array(_)) => {}
+            _ => return Err(failed(format!("its answer holds no {rows} list"))),
+        }
+    }
     let Some(fills) = at_path(answer, fills_at).and_then(Value::as_object) else {
         return Err(match reader["when_no_row"].as_str() {
             Some(words) => fill_words(words, input),
@@ -170,6 +195,27 @@ mod tests {
         assert!(lone.get("uses_store").is_none(), "never filled from another row");
         let mut named = json!({ "store": "plain-name" });
         assert!(apply(&paired, &mut named, &json!({ "rows": [] })).unwrap_err().ends_with("given store plain-name"));
+    }
+
+    // Only a clean read with an empty list is "no row"; an error, a not-answered answer or an answer with no list is a
+    // failed read, said with its cause, and fills nothing.
+    #[test]
+    fn a_failed_read_is_never_taken_for_no_row() {
+        let mut paired = reader();
+        paired["when_no_row"] = json!("uses_store_not_paired: no account row holds the given store {store|none}");
+        let fill = |answer: Value| { let mut input = json!({}); (apply(&paired, &mut input, &answer), input) };
+        let (not_answered, input) = fill(json!({ "$kind": "not-answered-yet", "step_id": "fill-input", "asked": "tool:read" }));
+        let why = not_answered.unwrap_err();
+        assert!(why.contains("read failed") && why.contains("not-answered-yet") && !why.contains("not_paired"), "{why}");
+        assert!(input.get("store").is_none());
+        let why = fill(json!({ "error": "answer-too-large", "said": "142901 bytes" })).0.unwrap_err();
+        assert!(why.contains("read failed (answer-too-large: 142901 bytes)") && !why.contains("not_paired"), "{why}");
+        let why = fill(json!({ "row_count": 0 })).0.unwrap_err();
+        assert!(why.contains("holds no rows list"), "{why}");
+        assert!(fill(json!({ "rows": [] })).0.unwrap_err().starts_with("uses_store_not_paired"), "a clean read with no row");
+        let (filled, input) = fill(json!({ "rows": [{ "id": "record:account-store:a", "fills": { "store": "runs-a" } }] }));
+        assert_eq!(Value::Object(filled.unwrap()), json!({ "store": "record:account-store:a" }));
+        assert_eq!(input["store"], "runs-a", "a clean read with the row");
     }
 
     #[test]
