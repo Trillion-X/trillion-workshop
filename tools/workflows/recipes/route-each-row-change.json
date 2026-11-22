@@ -30,7 +30,7 @@
             },
             "budget": {
               "steps": 40,
-              "wall_ms": 120000
+              "wall_ms": 3600000
             },
             "replay": {
               "within_ms": 86400000
