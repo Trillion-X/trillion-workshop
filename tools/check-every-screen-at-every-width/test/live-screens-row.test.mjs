@@ -28,7 +28,9 @@ test('the signed-in row holds only the proof session on descriptor 4, and its si
   assert.deepEqual(signed.invoke.credential_mounts, [{ secret_name: 'proof-sessions', fd: 4 }]);
   assert.equal(signed.invoke.public_read, undefined);
   assert.deepEqual(signed.input_schema.properties.pages.items.properties.sign_in.properties, { kind: { const: 'held-session' } });
-  assert.deepEqual(signed.invoke.argv, row.invoke.argv);
+  // The same program, entered where every page must sign in.
+  assert.deepEqual(signed.invoke.argv, [...row.invoke.argv.slice(0, -1), 'checkLiveScreensSignedIn']);
+  assert.equal(row.invoke.argv.at(-1), 'checkLiveScreens');
   assert.deepEqual(signed.invoke.files, row.invoke.files);
 });
 

@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import test, { after, before } from 'node:test';
 import { writeFile } from 'node:fs/promises';
-import { addressOf, checkLiveScreens, keepPicture, planOf } from '../check-live-screens.mjs';
+import { addressOf, checkLiveScreens, checkLiveScreensSignedIn, keepPicture, planOf } from '../check-live-screens.mjs';
 import { windowPicture } from '../window-picture.mjs';
 
 const pageOf = (body, script = '') => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>fixture</title></head><body style="margin:0;padding:16px;font:16px sans-serif"><main id="app">${body}</main><script>${script}</script></body></html>`;
@@ -19,6 +19,8 @@ const FIXTURES = {
   '/landed': pageOf('<h1 id="landed">Landed</h1>', ''),
   '/busy': pageOf('<h1 id="ready">Ready</h1>', 'const until = performance.now() + 800; while (performance.now() < until) { /* a long task */ }'),
   '/broken': pageOf('<h1>Broken</h1><img src="/missing.png" alt="">', `console.error('the fixture failed on purpose');`),
+  '/sends-to-sign-in': pageOf('<h1>Loading</h1>', `setTimeout(() => location.replace('/sign-in'), 300);`),
+  '/sign-in': pageOf('<h1>Sign in or create an account</h1>', ''),
   '/late': pageOf('<h1 id="late" hidden>Late</h1>', `setTimeout(() => { document.getElementById('late').hidden = false; }, 1200);`),
 };
 
@@ -235,4 +237,25 @@ test('a page with no hop answers its paint times and no documents list', async (
   assert.equal(side.documents, undefined);
   assert.equal(typeof side.first_contentful_paint_ms, 'number');
   assert.equal(typeof side.first_paint_ms, 'number');
+});
+
+test('a signed-in view that the site sends to its sign-in page is answered signed_out', async () => {
+  const readHeld = async () => new Map([[origin, [{ name: 'session', value: 'held-value' }]]]);
+  const answer = await checkLiveScreensSignedIn({ pages: [
+    { id: 'sent', url: `${origin}/sends-to-sign-in`, sign_in: { kind: 'held-session' } },
+    { id: 'stays', url: `${origin}/private`, sign_in: { kind: 'held-session' } },
+  ], views: ['desktop'] }, undefined, { keep: recorder().keep, readHeld });
+  assert.equal(answer.pages[0].views[0].new.signed_out, true);
+  assert.equal(answer.pages[1].views[0].new.signed_out, undefined);
+});
+
+test('the signed-in entry refuses a page with no sign_in before a browser starts, naming the page and the fix', async () => {
+  let read = false;
+  const readHeld = async () => { read = true; return new Map(); };
+  await assert.rejects(checkLiveScreensSignedIn({ pages: [
+    { id: 'in', url: `${origin}/private`, sign_in: { kind: 'held-session' } },
+    { id: 'forgot', url: `${origin}/private` },
+  ], views: ['desktop'] }, undefined, { keep: recorder().keep, readHeld }),
+  error => error.code === 'refused' && /forgot/.test(error.message) && /held-session/.test(error.message) && !/\bin,/.test(error.message));
+  assert.equal(read, false, 'no session is read for a refused run');
 });

@@ -30,10 +30,12 @@
 //     views   the view ids of views.json (phone, tablet, desktop); all of them when left out. A view's throttle is in live-screens.json.
 //     until   epoch milliseconds; a view not begun by then is answered as { view, skipped: 'until' }.
 //   A side is { status, first_paint_ms, first_contentful_paint_ms, usable_ms, blank_ms, longest_task_ms, console_errors,
-//   console_error_count, failed_requests, failed_request_count, picture, picture_kept, reason?, png_base64?, error? }.
+//   console_error_count, failed_requests, failed_request_count, picture, picture_kept, reason?, png_base64?, error?, signed_out? }.
+//   signed_out is true when a signed-in view ended on a sign-in path (live-screens.json sign_in_paths).
 //   A tap is { name, worked, ms, detail, picture, picture_kept, reason?, png_base64? }.
 //   Refuses (code refused, nothing is opened) a page without an id, url or unique id, an address that is not http or https, a
-//   view views.json does not name, an expect with no known key, and a sign-in cookie without a name or value.
+//   view views.json does not name, an expect with no known key, and a sign-in cookie without a name or value. The signed-in row's
+//   entry (checkLiveScreensSignedIn) also refuses a page with no sign_in.
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { launchChromium, onThisPath } from '../headless-browser/launch.mjs';
@@ -393,6 +395,8 @@ async function measureSide({ browser, url, view, signIn, ready, reach = [], name
       // With reach steps, the screen's own time from its last tap; without, the page's time from its load.
       usable_ms: reach.length > 0 ? ms(usable) : ms(sinceBegan(loaded, loaded?.usableAt, began)),
       ...(documents.length > 1 ? { documents: documents.slice(0, LIST_LIMIT) } : {}),
+      // A signed-in view that ends on a sign-in path measured the sign-in page, not the screen asked for.
+      ...(signIn && LIVE.sign_in_paths.includes(new URL(page.url()).pathname) ? { signed_out: true } : {}),
       ...(reach.length > 0 ? { reach: reached.steps } : {}),
       // A screen that never showed anything is blank for the whole wait.
       blank_ms: ms(sinceBegan(live, live?.blankAt, began) ?? Date.now() - began),
@@ -412,6 +416,15 @@ async function measureSide({ browser, url, view, signIn, ready, reach = [], name
   } finally {
     await context.close().catch(() => {});
   }
+}
+
+/** The signed-in row's entry: every page signs in, so a page left without sign_in is refused rather than measured signed out. */
+export async function checkLiveScreensSignedIn(input = {}, host, deps) {
+  const unsigned = (Array.isArray(input?.pages) ? input.pages : []).filter(page => page?.sign_in === undefined).map(page => page?.id);
+  if (unsigned.length > 0) {
+    throw refuse(`Every page of the signed-in check signs in: add "sign_in": { "kind": "held-session" } to ${unsigned.join(', ')}, or measure it signed out with tool:check-live-screens.`);
+  }
+  return checkLiveScreens(input, host, deps);
 }
 
 /** Every page at every view on a real browser, measured and pictured; see the header for the shapes. */
