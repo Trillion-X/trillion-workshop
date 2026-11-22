@@ -27,6 +27,7 @@
               },
               "children": [
                 "title",
+                "note",
                 "empty",
                 "list"
               ]
@@ -36,6 +37,13 @@
               "props": {
                 "text": "Funnel by source",
                 "variant": "heading-lg"
+              }
+            },
+            "note": {
+              "type": "Text",
+              "props": {
+                "text": "Each count is the number of people who took that step, not the number of steps.",
+                "variant": "body-xs"
               }
             },
             "empty": {
@@ -121,7 +129,7 @@
             "label-visitors": {
               "type": "Text",
               "props": {
-                "text": "Visitors",
+                "text": "People seen",
                 "variant": "label"
               }
             },
@@ -137,7 +145,7 @@
             "label-clicks": {
               "type": "Text",
               "props": {
-                "text": "Clicks",
+                "text": "Clicked a tracked link",
                 "variant": "label"
               }
             },
@@ -153,7 +161,7 @@
             "label-visits": {
               "type": "Text",
               "props": {
-                "text": "Visits",
+                "text": "Visited",
                 "variant": "label"
               }
             },
@@ -169,7 +177,7 @@
             "label-leads": {
               "type": "Text",
               "props": {
-                "text": "Leads",
+                "text": "Left a lead",
                 "variant": "label"
               }
             },
@@ -185,7 +193,7 @@
             "label-bookings": {
               "type": "Text",
               "props": {
-                "text": "Bookings",
+                "text": "Booked",
                 "variant": "label"
               }
             },
@@ -201,7 +209,7 @@
             "label-checkouts": {
               "type": "Text",
               "props": {
-                "text": "Checkouts",
+                "text": "Started checkout",
                 "variant": "label"
               }
             },
@@ -217,7 +225,7 @@
             "label-sales": {
               "type": "Text",
               "props": {
-                "text": "Sales",
+                "text": "Bought",
                 "variant": "label"
               }
             },
@@ -307,6 +315,7 @@
               },
               "children": [
                 "title",
+                "note",
                 "empty",
                 "list"
               ]
@@ -316,6 +325,13 @@
               "props": {
                 "text": "Funnel by source",
                 "variant": "heading-lg"
+              }
+            },
+            "note": {
+              "type": "Text",
+              "props": {
+                "text": "Each count is the number of people who took that step, not the number of steps.",
+                "variant": "body-xs"
               }
             },
             "empty": {
@@ -401,7 +417,7 @@
             "label-visitors": {
               "type": "Text",
               "props": {
-                "text": "Visitors",
+                "text": "People seen",
                 "variant": "label"
               }
             },
@@ -417,7 +433,7 @@
             "label-clicks": {
               "type": "Text",
               "props": {
-                "text": "Clicks",
+                "text": "Clicked a tracked link",
                 "variant": "label"
               }
             },
@@ -433,7 +449,7 @@
             "label-visits": {
               "type": "Text",
               "props": {
-                "text": "Visits",
+                "text": "Visited",
                 "variant": "label"
               }
             },
@@ -449,7 +465,7 @@
             "label-leads": {
               "type": "Text",
               "props": {
-                "text": "Leads",
+                "text": "Left a lead",
                 "variant": "label"
               }
             },
@@ -465,7 +481,7 @@
             "label-bookings": {
               "type": "Text",
               "props": {
-                "text": "Bookings",
+                "text": "Booked",
                 "variant": "label"
               }
             },
@@ -481,7 +497,7 @@
             "label-checkouts": {
               "type": "Text",
               "props": {
-                "text": "Checkouts",
+                "text": "Started checkout",
                 "variant": "label"
               }
             },
@@ -497,7 +513,7 @@
             "label-sales": {
               "type": "Text",
               "props": {
-                "text": "Sales",
+                "text": "Bought",
                 "variant": "label"
               }
             },
