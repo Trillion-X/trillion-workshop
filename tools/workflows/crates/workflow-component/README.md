@@ -15,6 +15,7 @@ The workflow engine (`workflow-core`, through `workflow-engine`) as one WebAssem
 9. A fact that woke the run may carry `definition` and `start_at` (the run's) and `input`, the person's own settings for that workflow (from their row's condition), which is spread into the workflow's input beside `fact`.
 10. A `read` step is refused in plain words, since this run holds no store: its declared fallback answers, else the step fails. A check never sees an empty answer for a row it could not read.
 11. One waiting step is handed out per pass, the first the walk reached: the run travels in each answer's envelope, so two out at once would each come back with the run as it stood before either answered.
+12. A start that names a `fill_input` reader (`{tool, input, with?, fills_at, from_at?, fills_absent, step?}`) and leaves out a field it fills (a bare start with no `store`) asks that reader first, scoped by the task context's `account_id` (`with`). The told answer fills each left-out field from the row at `fills_at`, and the run keeps `filled_from` ({field: row at `from_at`}), also shown in its result. A field the caller gives is never filled. A reader that fails, or answers no row, fails the run in words. The same code (workflow-engine `fill_input`) fills a bare `wf start`.
 
 ## In and out
 

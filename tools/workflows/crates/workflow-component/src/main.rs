@@ -128,8 +128,9 @@ fn effect_of(waiting: &Value, told: Value, doors: &BTreeSet<String>, workflow: &
 }
 
 /// The fields of a run that are the run's own, not the workflow's input.
-const KEPT: [&str; 12] = ["row", "definition", "definitions", "answers", "start_at", "started_at", "run", "refused", "recipe",
-    "read_definition", "definition_may_move", "started_by"];
+/// `fill_input` is the reader of what a bare start leaves out (workflow_engine::fill_input), and `filled_from` what it filled.
+const KEPT: [&str; 14] = ["row", "definition", "definitions", "answers", "start_at", "started_at", "run", "refused", "recipe",
+    "read_definition", "definition_may_move", "started_by", "fill_input", "filled_from"];
 
 /// The step a definition is read under when its reader names none.
 const READ_STEP: &str = "read-definition";
@@ -145,6 +146,37 @@ fn recipe_of(run: &Map<String, Value>) -> Option<String> {
 fn reader_step(run: &Map<String, Value>) -> Option<String> {
     let reader = run.get("read_definition").filter(|reader| reader.is_object())?;
     Some(reader["step"].as_str().filter(|step| !step.is_empty()).unwrap_or(READ_STEP).to_string())
+}
+
+/// The step the run's `fill_input` reader answers under, when the run names one.
+fn fill_step(run: &Map<String, Value>) -> Option<String> {
+    run.get("fill_input").filter(|reader| reader.is_object()).map(workflow_engine::fill_input::step)
+}
+
+/// The reader step a start must hand out before anything walks, when its input leaves out what its `fill_input` reader
+/// fills (a bare start with no store): (workflow, step, tool, asks). The reader is scoped by what the task's context says
+/// (`account`: the signed-in account the run is for). A reader whose tool failed fails the run in its words.
+fn pending_fill(run: &Map<String, Value>, refused: &BTreeMap<String, String>, context: &Value) -> Result<Option<(String, String, String, Value)>, String> {
+    let Some(step) = fill_step(run) else { return Ok(None) };
+    let reader = &run["fill_input"];
+    if !workflow_engine::fill_input::wanted(reader, run.get("input").unwrap_or(&Value::Null)) { return Ok(None); }
+    if let Some(why) = refused.get(&step) { return Err(format!("the input was not filled: {why}")); }
+    let workflow = recipe_of(run).or_else(|| run.get("definition").and_then(|d| d["id"].as_str()).map(str::to_owned)).unwrap_or_else(|| "workflow".into());
+    let (tool, asks) = workflow_engine::fill_input::ask(reader, &json!({ "account": context["account_id"] }))?;
+    Ok(Some((workflow, step, tool, asks)))
+}
+
+/// Hands out the one step a pass waits on before anything walks (a reader's), told back to this run under `step`.
+fn hand_out(run: &Map<String, Value>, workflow: &str, step: &str, tool: &str, asks: Value) {
+    let run_id = run.get("run").and_then(Value::as_str).unwrap_or("run").to_string();
+    let told = json!({ "source": ANSWERED, "event_id": format!("{run_id}:{step}"),
+        "payload": { "workflow": workflow, "run": run, "step": step, "for": tool } });
+    let waiting = json!({ "step": step, "for": tool, "asks": asks });
+    let effect = effect_of(&waiting, told.clone(), &door_asks(), workflow);
+    let mut shown = waiting.clone();
+    shown["told_as"] = told;
+    println!("{}", json!({ "result": { "status": "paused", "workflow": workflow, "run": run_id, "steps": {}, "waiting": [shown] },
+        "wake_effects": [effect] }));
 }
 
 /// Whether the run was handed its definitions themselves.
@@ -297,6 +329,16 @@ fn the_run(given: &Value) -> (Map<String, Value>, BTreeMap<String, String>) {
         if let Some(Value::Object(kept)) = run.get("refused") {
             for (step, why) in kept { refused.insert(step.clone(), why.as_str().unwrap_or_default().to_string()); }
         }
+        // What the input left out is filled from the reader's answer (workflow_engine::fill_input), which is never held:
+        // the filled fields are the run's input from here on, and `filled_from` says which row each came from.
+        if told.get("error").is_none() && fill_step(&run).as_deref() == Some(step.as_str()) {
+            let reader = run["fill_input"].clone();
+            let input = run.entry("input").or_insert_with(|| json!({}));
+            let filled = workflow_engine::fill_input::apply(&reader, input, &told["result"]).unwrap_or_else(|why| fail(why));
+            let kept = run.entry("filled_from").or_insert_with(|| json!({}));
+            for (field, from) in filled { kept[field] = from; }
+            return (run, refused);
+        }
         // The reader's answer (the definition, of any size) is for this pass alone: never held, never carried, never
         // counted against the bound; only the pin it makes is held (`pinned_definition`).
         if told.get("error").is_none() && reader_step(&run).as_deref() == Some(step.as_str()) {
@@ -409,6 +451,12 @@ fn main() {
     std::io::stdin().read_to_string(&mut text).unwrap_or_else(|error| fail(error));
     let given: Value = serde_json::from_str(&text).unwrap_or_else(|error| fail(format!("the run is not JSON: {error}")));
     let (mut run, refused) = the_run(&given);
+    // A start that leaves out what its `fill_input` reader fills reads it first, from the row the person keeps for their
+    // account; a caller's own value always wins.
+    if let Some((workflow, step, tool, asks)) = pending_fill(&run, &refused, &given["context"]).unwrap_or_else(|why| fail(why)) {
+        hand_out(&run, &workflow, &step, &tool, asks);
+        return;
+    }
     let mut all = match (carries_definition(&run), recipe_of(&run)) {
         (false, Some(recipe)) => {
             let step = reader_step(&run).unwrap_or_else(|| fail(format!(
@@ -430,15 +478,7 @@ fn main() {
                     // Nothing walks until the definition is read: the reader is the one step handed out this pass.
                     let reader = run["read_definition"].clone();
                     let tool = reader["tool"].as_str().unwrap_or_default().to_string();
-                    let run_id = run.get("run").and_then(Value::as_str).unwrap_or("run").to_string();
-                    let told = json!({ "source": ANSWERED, "event_id": format!("{run_id}:{step}"),
-                        "payload": { "workflow": recipe, "run": run, "step": step, "for": tool } });
-                    let waiting = json!({ "step": step, "for": tool, "asks": reader_ask(&reader, &recipe, &run) });
-                    let effect = effect_of(&waiting, told.clone(), &door_asks(), &recipe);
-                    let mut shown = waiting.clone();
-                    shown["told_as"] = told;
-                    println!("{}", json!({ "result": { "status": "paused", "workflow": recipe, "run": run_id, "steps": {}, "waiting": [shown] },
-                        "wake_effects": [effect] }));
+                    hand_out(&run, &recipe, &step, &tool, reader_ask(&reader, &recipe, &run));
                     return;
                 }
             }
@@ -488,7 +528,8 @@ fn main() {
     let doors = door_asks();
     effects.extend(waiting.iter().take(1).map(|w| effect_of(w, told_as(&w["step"], &w["for"]), &doors, &id)));
     let waiting: Vec<Value> = waiting.into_iter().map(|mut w| { w["told_as"] = told_as(&w["step"], &w["for"]); w }).collect();
-    let result = json!({ "status": walked["status"], "workflow": id, "run": run_id, "steps": steps, "waiting": waiting });
+    let mut result = json!({ "status": walked["status"], "workflow": id, "run": run_id, "steps": steps, "waiting": waiting });
+    if let Some(filled) = run.get("filled_from") { result["filled_from"] = filled.clone(); }
     // A walk that failed is a failed run: it ends with exit 1 and the engine's words, so the wake that started it is
     // marked failed (and tells its failed fact) instead of ran, and whoever waits on its told answer hears the failure.
     if walked["status"] == "failed" {
@@ -806,5 +847,55 @@ mod tests {
         assert!(routed.get("started_by").is_none());
         let waiting = json!({ "step": "ask", "for": "person", "asks": {}, "started_by": "person:ana" });
         assert_eq!(effect_of(&waiting, json!({ "event_id": "k:ask" }), &door_asks(), "workflow:x")["arrive"]["payload"]["started_by"], "person:ana");
+    }
+
+    fn filler() -> Value {
+        json!({ "tool": "tool:reader", "input": { "sql": "select id, fills from account_stores where account = $1 and is_default", "params": [] },
+            "with": { "params.0": "account" }, "fills_at": "rows.0.fills", "from_at": "rows.0.id", "fills_absent": ["store", "uses_store"] })
+    }
+
+    fn fills_answer() -> Value {
+        json!({ "rows": [{ "id": "record:account-store:a", "fills": { "store": { "credential_name": "runs" }, "uses_store": { "credential_name": "uses" } } }] })
+    }
+
+    // A bare start (no store) hands out its fill reader before anything else, even before its definition is read; the told
+    // answer fills the input, says which row in filled_from, and the next step is the definition's reader.
+    #[test]
+    fn a_bare_start_reads_its_stores_from_the_account_row_first() {
+        let given = json!({ "input": { "recipe": "workflow:x", "read_definition": reader(), "fill_input": filler(), "request": "a job" }, "cause": { "key": "k" }, "context": {} });
+        let (run, refused) = the_run(&given);
+        let (workflow, step, tool, asks) = pending_fill(&run, &refused, &json!({ "account_id": "acct-1" })).unwrap().expect("the fill reader is asked first");
+        assert_eq!((workflow.as_str(), step.as_str(), tool.as_str()), ("workflow:x", workflow_engine::fill_input::STEP, "tool:reader"));
+        assert_eq!(asks["params"], json!(["acct-1"]), "scoped to the account the run is for");
+        let told = json!({ "input": {}, "cause": { "key": "k", "detail": { "kind": ANSWERED, "payload": {
+            "workflow": "workflow:x", "run": run, "step": step, "for": tool, "result": fills_answer() } } }, "context": {} });
+        let (run, refused) = the_run(&told);
+        assert!(refused.is_empty());
+        assert_eq!(run["input"], json!({ "request": "a job", "store": { "credential_name": "runs" }, "uses_store": { "credential_name": "uses" } }));
+        assert_eq!(run["filled_from"], json!({ "store": "record:account-store:a", "uses_store": "record:account-store:a" }));
+        assert!(run.get("answers").and_then(|answers| answers.get(&step)).is_none(), "the reader's answer is not held");
+        assert!(pending_fill(&run, &refused, &json!({ "account_id": "acct-1" })).unwrap().is_none(), "filled once, never asked again");
+        assert_eq!(reader_step(&run).as_deref(), Some(READ_STEP), "the definition is read next");
+    }
+
+    // A caller's own stores always win: nothing is asked, nothing filled.
+    #[test]
+    fn a_start_that_names_its_stores_is_never_filled() {
+        let given = json!({ "input": { "definition": one_step("workflow:x", "tool:x"), "fill_input": filler(),
+            "store": { "credential_name": "mine" }, "uses_store": { "credential_name": "mine-too" } }, "cause": { "key": "k" }, "context": {} });
+        let (run, refused) = the_run(&given);
+        assert!(pending_fill(&run, &refused, &json!({ "account_id": "acct-1" })).unwrap().is_none());
+        assert!(run.get("filled_from").is_none());
+        assert_eq!(run["input"]["store"], json!({ "credential_name": "mine" }));
+    }
+
+    // A fill reader whose tool failed fails the run, naming why, rather than walking with no store.
+    #[test]
+    fn a_failed_fill_reader_fails_the_run_in_its_words() {
+        let given = json!({ "input": { "definition": one_step("workflow:x", "tool:x"), "fill_input": filler() }, "cause": { "key": "k" }, "context": {} });
+        let (run, _) = the_run(&given);
+        let refused = BTreeMap::from([(workflow_engine::fill_input::STEP.to_string(), "tool:reader failed (no table)".to_string())]);
+        let why = pending_fill(&run, &refused, &json!({ "account_id": "acct-1" })).unwrap_err();
+        assert!(why.contains("not filled") && why.contains("no table"), "{why}");
     }
 }

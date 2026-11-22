@@ -22,6 +22,7 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 pub mod answer_shape;
 mod approval;
+pub mod fill_input;
 
 use std::sync::Arc;
 
