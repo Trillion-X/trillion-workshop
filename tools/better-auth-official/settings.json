@@ -140,7 +140,12 @@
     "trusted_proxies": [
       "127.0.0.0/8",
       "::1/128"
-    ]
+    ],
+    "oauth": {
+      "token": { "window": 60, "max": 300 },
+      "authorize": { "window": 60, "max": 300 }
+    },
+    "_oauth_why": "Window in seconds and max calls per client address, in the OAuth provider plugin's own rateLimit shape (the library's defaults were token 20 and authorize 30 a minute). Every session on one computer, and every person in one office or phone network, shares one client address, so a fresh page load's first token call was refused 429 (Nov 21 2026, about 9:25 PM CST). 300 a minute lets one address make many page loads a minute, and still refuses a script that sends more than five token or authorize calls a second from one address."
   },
   "cimd": {
     "fetch_module": "@better-auth/cimd/node"

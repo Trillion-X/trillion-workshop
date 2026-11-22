@@ -386,6 +386,8 @@ export const auth = betterAuth({
       ...(settings.mcp.resource_scopes ? { resources: [{ identifier: settings.mcp.resource, allowedScopes: settings.mcp.resource_scopes }], resourceSeedMode: 'merge' } : {}),
       // How long an AI's access token stands (settings.mcp.access_token_seconds): also how long a person taken out of a team is still admitted by the pass they hold.
       ...(settings.mcp.access_token_seconds ? { accessTokenExpiresIn: settings.mcp.access_token_seconds } : {}),
+      // The window and max of the token and authorize paths (settings.rate_limit.oauth, the plugin's own rateLimit shape); absent, the plugin's defaults hold.
+      ...(settings.rate_limit.oauth ? { rateLimit: settings.rate_limit.oauth } : {}),
       // The person's email and whether it is verified (OIDC's `email`, `email_verified`), so a door can tell a proven inbox from a typed one, and the ids of their teams.
       customAccessTokenClaims: async ({ user }) => ({
         ...(user?.email ? { email: user.email, email_verified: user.emailVerified === true } : {}),
