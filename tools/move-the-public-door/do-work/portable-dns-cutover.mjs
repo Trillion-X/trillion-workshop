@@ -73,7 +73,7 @@ const bodyOf = (provider, zone, row) => Object.fromEntries(provider.record.id_is
   : [key, key === provider.record.name_at ? labelOf(provider, zone, nameOf(provider, row)) : at(row, key)]));
 /** Remove one record: by its id, or by its body where the provider keeps no ids. */
 const removeRow = (request, provider, zone, row) => provider.record.id_is_fields
-  ? ask(request, provider, provider.record, 'remove', { zone_id: zone, record_body: bodyOf(provider, zone, row) })
+  ? ask(request, provider, provider.record, 'remove', { zone_id: zone, record_body: bodyOf(provider, zone, row), address: contentOf(provider, row), host_label: labelOf(provider, zone, nameOf(provider, row)), rr_type: typeOf(provider, row) })
   : ask(request, provider, provider.record, 'remove', { zone_id: zone }, idOf(provider.record, row));
 /** The name a record of `zone` takes in full: the zone's own name for '@', else the label joined to the zone. */
 const fullNameOf = (zone, name) => name === '@' ? zone : `${name}.${zone}`;
@@ -95,13 +95,22 @@ const contentOf = (provider, row) => at(row, contentKeyOf(provider, row));
 const idOf = (part, row) => at(row, part.id_at ?? 'id');
 const addressRows = (provider, state, hostname) => state.records.filter(row => nameOf(provider, row) === hostname && provider.record.address_types.includes(typeOf(provider, row)));
 
+/** A list that groups values under each row (`values_at`: an RRset's records) yields one row per value: the value sits under
+ * `content_at` and the group's name, type and TTL are kept on each row. */
+function expandValues(part, rows) {
+  return rows.flatMap(row => {
+    const { [part.values_at]: values = [], ...group } = row;
+    return values.map(value => ({ ...group, [part.content_at]: value[part.value_at] }));
+  });
+}
+
 /** Every listed record of the zone, and the records the list answer omits (`omitted_at`), each once. */
 async function pages(request, provider, ctx) {
   const part = provider.record, result = [], omitted = new Map();
   for (let page = 1; ; page += 1) {
     const size = part.page_size, answer = await ask(request, provider, part, 'list', { ...ctx, page, skip: size ? (page - 1) * size : undefined, take: size });
     const rows = at(answer, part.list_at);
-    result.push(...rows);
+    result.push(...(part.values_at ? expandValues(part, rows) : rows));
     for (const row of (part.omitted_at ? at(answer, part.omitted_at) : undefined) ?? []) omitted.set(JSON.stringify(row), row);
     if (size ? rows.length < size : !part.pages_at || page >= (at(answer, part.pages_at) ?? 1)) return { rows: result, omitted: [...omitted.values()] };
   }
@@ -266,6 +275,52 @@ export function probeHealthy({ hostname, address, path = '/', timeoutMs = 10000,
   });
 }
 
+/** The values a record set of `type` holds at `hostname` in a read state, as the provider's content strings, sorted. */
+const valuesAt = (state, provider, hostname, type) => state.records.filter(row => nameOf(provider, row) === hostname && typeOf(provider, row) === type).map(row => contentOf(provider, row)).sort();
+
+/** The declared record sets as { type: sorted values }: a row's priority is written in front of its value (an MX's is). */
+export function declaredSetsOf(declared) {
+  const sets = {};
+  for (const { type, value, priority } of declared) sets[type] = [...(sets[type] ?? []), priority === undefined ? value : `${priority} ${value}`];
+  for (const type of Object.keys(sets)) sets[type].sort();
+  return sets;
+}
+
+/** The record sets `hostname` holds now, for the types the declared rows name, shaped as declaredSetsOf shapes them; reads only. */
+export async function recordSetsOf({ hostname, declared, request, provider }) {
+  checked({ hostname, address: '192.0.2.1' });
+  const state = await snapshot({ hostname }, request, provider), sets = {};
+  for (const type of Object.keys(declaredSetsOf(declared))) sets[type] = valuesAt(state, provider, hostname, type);
+  return sets;
+}
+
+/** Each record set a names entry declares beside its address record is made exactly the declared values: a missing value is
+ * added (an add when the set already exists, else a create), an extra value of a declared type is removed, by compare. Other
+ * types and other names are never touched, and the address record stays with keepHealthyRecords. A provider whose create
+ * writes only address records (no {type} in its create body) is refused before any call. Readback must show the declared values. */
+export async function keepRecordSets({ hostname, declared, request, provider }) {
+  checked({ hostname, address: '192.0.2.1' });
+  const wanted = declaredSetsOf(declared), p = provider.record, owner = { lease_label_key: provider.lease_label_key, name: hostname };
+  if (!JSON.stringify(provider.requests[p.create]?.body_template ?? {}).includes('{type}')) throw Error(`${provider.name} creates only address records: it cannot keep the record sets of ${hostname}.`);
+  const state = await snapshot({ hostname }, request, provider), zone = state.zone, label = labelOf(provider, zone, hostname);
+  const added = [], removed = [];
+  for (const [type, values] of Object.entries(wanted)) {
+    const current = valuesAt(state, provider, hostname, type);
+    for (const value of values) if (!current.includes(value)) {
+      await ask(request, provider, p, current.length && p.add ? 'add' : 'create', { zone_id: zone, host_name: hostname, host_label: label, type, address: value, ...owner });
+      current.push(value); added.push({ type, value });
+    }
+    for (const row of state.records.filter(row => nameOf(provider, row) === hostname && typeOf(provider, row) === type)) if (!values.includes(contentOf(provider, row))) {
+      await removeRow(request, provider, zone, row);
+      removed.push({ type, value: contentOf(provider, row) });
+    }
+  }
+  const after = await snapshot({ hostname }, request, provider, zone, state.account), read = {};
+  for (const type of Object.keys(wanted)) read[type] = valuesAt(after, provider, hostname, type);
+  if (JSON.stringify(read) !== JSON.stringify(wanted)) throw Error(`${hostname} does not hold the declared record sets after the change; read it back and investigate.`);
+  return { hostname, added, removed };
+}
+
 /** Keep one hostname answering with exactly the front-door computers that pass their health check: `candidates` are
  * { address, health_path? }; `check(candidate)` answers true when that computer is healthy. Healthy addresses missing
  * from the name are added first, then unhealthy ones this call owns are removed, so the name is never empty; when no
@@ -292,7 +347,7 @@ export async function keepHealthyRecords({ hostname, candidates, check, request,
   const have = new Set(here.filter(isA).map(row => contentOf(provider, row)));
   const added = [], removed = [];
   for (const address of healthy) if (!have.has(address)) {
-    const answer = await ask(request, provider, p, 'create', { zone_id: state.zone, host_name: hostname, host_label: labelOf(provider, state.zone, hostname), address, ...owner });
+    const answer = await ask(request, provider, p, have.size && p.add ? 'add' : 'create', { zone_id: state.zone, host_name: hostname, host_label: labelOf(provider, state.zone, hostname), type: 'A', address, ...owner });
     added.push({ address, id: idOf(p, at(answer, p.created_at ?? 'result')) });
   }
   for (const row of here) if (!kept(row)) {

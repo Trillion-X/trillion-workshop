@@ -16,7 +16,7 @@
 //
 // usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | apply REQUEST_FILE | differences REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | remove LEASE_FILE
 import { differences, renderWhatItRuns, dropInName, withPrepared, withSlots, publishedFile } from './render-what-a-computer-runs.mjs';
-import { addressesOfName, dnsClient, keepHealthyRecords } from '../../move-the-public-door/do-work/portable-dns-cutover.mjs';
+import { addressesOfName, declaredSetsOf, dnsClient, keepHealthyRecords, keepRecordSets, recordSetsOf } from '../../move-the-public-door/do-work/portable-dns-cutover.mjs';
 import { fill } from './fill-fields.mjs';
 import { keyState, keyDifferences, sealTheKeys, removeThePlainKeys } from './keep-the-key-sealed.mjs';
 import { readAll, writeAll } from './files-in-one-go.mjs';
@@ -741,8 +741,8 @@ export async function applyAComputerRow(request, { held = {}, run = onMachine, f
  * answer with the row's address alone is one difference (its provider's key on descriptor 5, as for apply). */
 export async function computerRowDifferences(request, { run = onMachine, held = {}, fetchImpl = fetch } = {}) {
   const units = await runsDifferences({ ssh: request.ssh, address: request.machine.address }, runsOf(request), run, { pages: readPages(request) });
-  const names = (await keepTheNames(request, { held, fetchImpl, apply: false })).filter(name => !name.matches)
-    .map(name => ({ path: name.host_name, reason: name.unanswered ? `not known: ${name.unanswered}` : `answers ${name.answers.join(', ') || 'no address'}; its row says ${name.address}` }));
+  const names = (await keepTheNames(request, { held, fetchImpl, apply: false })).filter(name => !name.matches || name.records_match === false)
+    .map(name => ({ path: name.host_name, reason: name.records_match === false && name.matches ? 'its record sets differ from its row' : name.unanswered ? `not known: ${name.unanswered}` : `answers ${name.answers.join(', ') || 'no address'}; its row says ${name.address}` }));
   return { differences: [...units, ...names] };
 }
 
@@ -759,7 +759,7 @@ export function namesOf(request) {
   if (!Array.isArray(names)) throw refused('runs.names is a list of { host_name, provider, adopt? }.');
   return names.map((name, n) => {
     if (typeof name?.host_name !== 'string' || typeof name.provider !== 'string') throw refused(`runs.names[${n}] names its host_name and its DNS provider description (provider).`);
-    return { host_name: name.host_name.toLowerCase(), provider: readProvider(publishedFile(name.provider, `runs.names[${n}] provider`)), adopt: name.adopt === true, address: row.address };
+    return { host_name: name.host_name.toLowerCase(), provider: readProvider(publishedFile(name.provider, `runs.names[${n}] provider`)), adopt: name.adopt === true, address: row.address, records: recordsOf(name.records, n) };
   });
 }
 
@@ -819,9 +819,22 @@ export async function keepTheNames(request, { held = {}, fetchImpl = fetch, appl
         await new Promise(resolve => setTimeout(resolve, waits[attempt]));
       }
     }
+    if (name.records.length && !outcome.unanswered) {
+      if (apply) outcome.records = await keepRecordSets({ hostname: name.host_name, declared: name.records, request: dns, provider: name.provider });
+      else outcome.records_match = JSON.stringify(await recordSetsOf({ hostname: name.host_name, declared: name.records, request: dns, provider: name.provider })) === JSON.stringify(declaredSetsOf(name.records));
+    }
     kept.push(outcome);
   }
   return kept;
+}
+
+/** A names entry's own record sets beside its address record: `records` is a list of { type, value, priority? } rows (an MX's
+ * priority is its own key). The address record (A) and CNAME are the row's address, never a record set here. */
+function recordsOf(records, n) {
+  if (records === undefined) return [];
+  if (!Array.isArray(records) || !records.every(record => typeof record?.type === 'string' && /^[A-Z]+$/.test(record.type) && typeof record.value === 'string' && record.value && (record.priority === undefined || Number.isInteger(record.priority)))) throw refused(`runs.names[${n}] records is a list of { type, value, priority? } rows.`);
+  if (records.some(record => record.type === 'A' || record.type === 'CNAME')) throw refused(`runs.names[${n}] records names an A or CNAME record: the address is the row's own address record.`);
+  return records;
 }
 
 /** A request read from its file, each of its paths resolved against the file's own folder. */

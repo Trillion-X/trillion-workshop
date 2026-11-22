@@ -58,12 +58,12 @@
       "method": "GET"
     },
     "create_record": {
-      "notes": "Create one A RRset at a name with one value (the machine's address) and the shortest TTL, 60 seconds. Fails if the RRset already exists; add_record then adds a value to it.",
+      "notes": "Create one RRset at a name, of the record type given, with one value and the shortest TTL, 60 seconds. Fails if the RRset already exists; add_record then adds a value to it.",
       "url": "https://api.hetzner.cloud/v1/zones/{zone_id}/rrsets",
       "method": "POST",
       "body_template": {
         "name": "{host_label}",
-        "type": "A",
+        "type": "{type}",
         "ttl": 60,
         "records": [
           {
@@ -74,7 +74,7 @@
     },
     "add_record": {
       "notes": "Add one value to an existing A RRset (the RRset is found by its name and type).",
-      "url": "https://api.hetzner.cloud/v1/zones/{zone_id}/rrsets/{host_label}/A/actions/add_records",
+      "url": "https://api.hetzner.cloud/v1/zones/{zone_id}/rrsets/{host_label}/{type}/actions/add_records",
       "method": "POST",
       "body_template": {
         "records": [
@@ -86,7 +86,7 @@
     },
     "remove_record": {
       "notes": "Remove one value from an A RRset. The provider keeps no record ids: the value is the key.",
-      "url": "https://api.hetzner.cloud/v1/zones/{zone_id}/rrsets/{host_label}/A/actions/remove_records",
+      "url": "https://api.hetzner.cloud/v1/zones/{zone_id}/rrsets/{host_label}/{rr_type}/actions/remove_records",
       "method": "POST",
       "body_template": {
         "records": [
@@ -124,9 +124,9 @@
     ],
     "name_at": "name",
     "type_at": "type",
-    "content_at": "records.0.value",
     "values_at": "records",
     "value_at": "value",
+    "content_at": "value",
     "address_types": [
       "A"
     ],
@@ -136,17 +136,13 @@
     "fields": [
       "type",
       "name",
-      "records",
+      "value",
       "ttl"
     ],
     "desired": {
       "type": "A",
       "name": "{host_name}",
-      "records": [
-        {
-          "value": "{address}"
-        }
-      ],
+      "value": "{address}",
       "ttl": 60
     },
     "owner_by": "address"
