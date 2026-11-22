@@ -27,6 +27,7 @@
 use std::{collections::{BTreeMap, BTreeSet}, io::Read, sync::{Arc, Mutex}};
 use serde_json::{json, Map, Value};
 use workflow_engine::Host;
+use workflow_engine::fill_input::{FillError, FillKind};
 
 const ANSWERED: &str = "workflow-step-answered";
 const WAITING: &str = "workflow-step-waiting";
@@ -172,12 +173,13 @@ fn fill_step(run: &Map<String, Value>) -> Option<String> {
 
 /// The reader step a start must hand out before anything walks, when its input leaves out what its `fill_input` reader
 /// fills (a bare start with no store): (workflow, step, tool, asks). The reader is scoped by what the task's context says
-/// (`account`: the signed-in account the run is for). A reader whose tool failed fails the run in its words.
-fn pending_fill(run: &Map<String, Value>, refused: &BTreeMap<String, String>, context: &Value) -> Result<Option<(String, String, String, Value)>, String> {
+/// (`account`: the signed-in account the run is for). A reader whose tool failed fails the run in its words, as a
+/// `read-failed` fill.
+fn pending_fill(run: &Map<String, Value>, refused: &BTreeMap<String, String>, context: &Value) -> Result<Option<(String, String, String, Value)>, FillError> {
     let Some(step) = fill_step(run) else { return Ok(None) };
     let reader = &run["fill_input"];
     if !workflow_engine::fill_input::wanted(reader, run.get("input").unwrap_or(&Value::Null)) { return Ok(None); }
-    if let Some(why) = refused.get(&step) { return Err(format!("the input was not filled: {why}")); }
+    if let Some(why) = refused.get(&step) { return Err(FillError::new(FillKind::ReadFailed, format!("the input was not filled: {why}"))); }
     let workflow = recipe_of(run).or_else(|| run.get("definition").and_then(|d| d["id"].as_str()).map(str::to_owned)).unwrap_or_else(|| "workflow".into());
     let (tool, asks) = workflow_engine::fill_input::ask(reader, &json!({ "account": context["account_id"], "input": run.get("input") }))?;
     Ok(Some((workflow, step, tool, asks)))
@@ -486,6 +488,13 @@ fn fail(why: impl std::fmt::Display) -> ! {
     std::process::exit(1);
 }
 
+/// A failed fill fails the run in its words, with its kind (`read-failed`, `no-row`, `refused`) beside them, so a caller
+/// decides by `kind` and never by the words.
+fn fail_fill(why: FillError) -> ! {
+    println!("{}", json!({ "error": why.words, "kind": why.kind }));
+    std::process::exit(1);
+}
+
 /// The run this pass walks: the one a told answer carries back, with that answer added; else the tool's input, with the
 /// fact that woke it (when one did) as `fact` and `fact_id` in the workflow's input.
 fn the_run(given: &Value) -> (Map<String, Value>, BTreeMap<String, String>) {
@@ -512,7 +521,7 @@ fn the_run(given: &Value) -> (Map<String, Value>, BTreeMap<String, String>) {
         if told.get("error").is_none() && fill_step(&run).as_deref() == Some(step.as_str()) {
             let reader = run["fill_input"].clone();
             let input = run.entry("input").or_insert_with(|| json!({}));
-            let filled = workflow_engine::fill_input::apply(&reader, input, &told["result"]).unwrap_or_else(|why| fail(why));
+            let filled = workflow_engine::fill_input::apply(&reader, input, &told["result"]).unwrap_or_else(|why| fail_fill(why));
             let kept = run.entry("filled_from").or_insert_with(|| json!({}));
             for (field, from) in filled { kept[field] = from; }
             return (run, refused);
@@ -700,7 +709,7 @@ fn main() {
     let (mut run, refused) = the_run(&given);
     // A start that leaves out what its `fill_input` reader fills reads it first, from the row the person keeps for their
     // account; a caller's own value always wins.
-    if let Some((workflow, step, tool, asks)) = pending_fill(&run, &refused, &given["context"]).unwrap_or_else(|why| fail(why)) {
+    if let Some((workflow, step, tool, asks)) = pending_fill(&run, &refused, &given["context"]).unwrap_or_else(|why| fail_fill(why)) {
         hand_out(&run, &workflow, &step, &tool, asks);
         return;
     }
@@ -1229,7 +1238,10 @@ mod tests {
         let (run, _) = the_run(&given);
         let refused = BTreeMap::from([(workflow_engine::fill_input::STEP.to_string(), "tool:reader failed (no table)".to_string())]);
         let why = pending_fill(&run, &refused, &json!({ "account_id": "acct-1" })).unwrap_err();
-        assert!(why.contains("not filled") && why.contains("no table"), "{why}");
+        assert_eq!(why.kind, FillKind::ReadFailed);
+        assert_eq!(why.words, "the input was not filled: tool:reader failed (no table)");
+        let unscoped = pending_fill(&run, &BTreeMap::new(), &json!({})).unwrap_err();
+        assert_eq!(unscoped.kind, FillKind::Refused, "a start that does not know the account never asks the reader");
     }
 
     // A body kept in a sub-workflow's own uses is among the definitions the run walks.

@@ -253,7 +253,7 @@ async fn fill_store(given: &mut Value) -> Fill {
     let step = workflow_engine::fill_input::step(&reader);
     let (tool, asks) = match workflow_engine::fill_input::ask(&reader, &json!({ "account": signed_in_account(), "input": given })) {
         Ok(asked) => asked,
-        Err(why) => return Fill::Refused(why),
+        Err(why) => return Fill::Refused(why.words),
     };
     let waits: Vec<u64> = reader["retry_seconds"].as_array().map(|all| all.iter().filter_map(Value::as_u64).collect()).unwrap_or_default();
     let rows_at = reader["rows_at"].as_str().map(str::to_owned);
@@ -272,14 +272,14 @@ async fn fill_store(given: &mut Value) -> Fill {
         };
         match workflow_engine::fill_input::apply(&reader, given, &answer) {
             Ok(filled) => return Fill::Filled(filled),
-            Err(why) if why.contains(READ_FAILED) => {
+            Err(why) if why.words.contains(READ_FAILED) => {
                 // Named for the person as the answer's shape shows it (its rows list missing), else as fill_input says it.
                 failure = match rows_at.as_deref().filter(|path| !path.split('.').fold(&answer, |at, key| &at[key]).is_array()) {
                     Some(path) => format!("{tool} answered no {path} list: {}", answer.to_string().chars().take(300).collect::<String>()),
-                    None => why,
+                    None => why.words,
                 };
             }
-            Err(why) => return Fill::Refused(why),
+            Err(why) => return Fill::Refused(why.words),
         }
     }
     Fill::ReadFailed(format!("the store read failed after {} tries: {failure}", waits.len() + 1))
