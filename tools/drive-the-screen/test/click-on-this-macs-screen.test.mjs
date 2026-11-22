@@ -127,3 +127,13 @@ test('the four actions map onto the driver rows, and a click needs its target an
   assert.throws(() => clickInput(settings, { action: 'drag', app: 'Notes' }), /drag/);
   assert.deepEqual(clickInput(settings, { action: 'open', app: 'Notes', computer: { 'drive-the-screen': {} } }), { action: 'activate', app: 'Notes', record_captures: true }, 'the engine\'s grant targets are not a tool input');
 });
+
+test('a deny-list refusal comes before the person\'s place is read or any program starts', async () => {
+  const mac = pretend();
+  let placeRead = false;
+  const tools = makeScreenTools({ settings, driver: home => makeScreenDriver({ settings, home, program: mac.program, parent: () => 4242 }),
+    places: () => ({ handsOn: async () => { placeRead = true; throw new Error('spawn EPERM'); }, acted: () => {} }), scratch: () => tempFolder(join(tmpdir(), 'click-home-')) });
+  refusedBy(await tools.drive(clickInput(settings, { action: 'click', app: 'System Settings', target: 'Screen & System Audio Recording', dry_run: true })), 'privacy-and-security-settings');
+  assert.equal(placeRead, false);
+  assert.equal(mac.reads.length, 0);
+});

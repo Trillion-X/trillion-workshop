@@ -552,6 +552,16 @@ export function makeScreenDriver({ settings = screenSettings(), home = homedir()
     }
   };
 
+  /** The hard deny list on what a drive asks for (invariant 9), before anything is read or started: what is judged, and
+   *  whether the text it writes is a saved_login reference (the person's switched-on saved login, read from the vault at the
+   *  moment of action), which is not text the AI supplies. Unknown actions are left to the drive's own refusal. */
+  const refuseAskedFor = (input, action = Object.hasOwn(settings.actions, input?.action) ? settings.actions[input.action] : null) => {
+    const judged = Boolean(action) && !hardDeny.not_acting.includes(input.action);
+    const savedLogin = Boolean(action) && Object.entries(action.inputs ?? {}).some(([name, spec]) => spec.reference === true && objectLike(input[name]));
+    if (judged) requestRefusal(hardDeny, { app: input.app, target: input.target, to: input.to, writes: action.writes === true, savedLogin });
+    return { judged, savedLogin };
+  };
+
   /** One drive; every secret it reads is pushed to `secrets` so the caller can mask it. */
   const driveOnce = async (input, account, secrets) => {
     rejectCarriedConsent(settings, input);
@@ -561,10 +571,7 @@ export function makeScreenDriver({ settings = screenSettings(), home = homedir()
     const extra = Object.keys(input).find(name => !allowedKeys.has(name));
     if (extra) throw refuse(settings, 'takes_not', { action: input.action, name: extra }, 400);
     // The hard deny list on what is asked, before the screen is read (invariant 9).
-    const judged = !hardDeny.not_acting.includes(input.action);
-    // A saved_login reference (the person's switched-on saved login, read from the vault at the moment of action) is not text the AI supplies.
-    const savedLogin = Object.entries(action.inputs ?? {}).some(([name, spec]) => spec.reference === true && objectLike(input[name]));
-    if (judged) requestRefusal(hardDeny, { app: input.app, target: input.target, to: input.to, writes: action.writes === true, savedLogin });
+    const { judged, savedLogin } = refuseAskedFor(input, action);
     if (input.record_captures !== undefined && typeof input.record_captures !== 'boolean') throw refuse(settings, 'bad_input', { name: 'record_captures', type: 'true or false' }, 400);
     if (input.background !== undefined && typeof input.background !== 'boolean') throw refuse(settings, 'bad_input', { name: 'background', type: 'true or false' }, 400);
     const inBackground = input.background === true;
@@ -718,6 +725,9 @@ export function makeScreenDriver({ settings = screenSettings(), home = homedir()
       expect: 'A list of { target, min?, max? } (how many matches must be on the screen after) or { changed: true | false }.' };
     },
 
+    /** The deny list's check of what is asked, alone: the host asks it before anything else (the person's place, a program). */
+    refuseAskedFor: input => { refuseAskedFor(input ?? {}); },
+
     /** observe → locate → act → observe → verify, in one call, after any drive already running has finished. A secret the call typed is masked in all it says. */
     drive(input = {}, account = {}) {
       return oneAtATime(async () => {
@@ -772,6 +782,8 @@ export function makeScreenTools({ settings = screenSettings(), driver = home => 
     actions: answered(async input => { opened(input); return driver(scratch()).actions(); }),
     drive: answered(async input => {
       const { home, rest } = opened(input);
+      // A refusal by the hard deny list depends on nothing else: it comes before the person's place is read.
+      driver(home).refuseAskedFor?.(rest);
       const place = places(home);
       const told = await place.handsOn(PLACE);
       let answer;
