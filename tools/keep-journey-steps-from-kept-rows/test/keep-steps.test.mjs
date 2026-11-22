@@ -235,3 +235,27 @@ test('a mode other than keep or check is refused before the database is reached'
   await assert.rejects(runKeepSteps({ input: { mode: 'drop' }, connection: 'held', connect: () => { throw new Error('reached'); } }), /mode must be "keep" or "check"/);
 });
 
+test('a mapping whose source table this database lacks is skipped and reported, and the run still keeps from the others', async () => {
+  // A pursuit with the kit's tables and no source tables at all: both mappings are skipped, and the run succeeds.
+  const bare = new PGlite();
+  await bare.exec(journeySql);
+  const none = await keepStepsFromRows({ query: (sql, params) => bare.query(sql, params), mappings });
+  assert.deepEqual(none.mappings, [
+    { id: 'tidycal-bookings-from-statements', step: 'booking', skipped: 'no statements here' },
+    { id: 'stripe-sales-from-payment-events', step: 'sale', skipped: 'no payment_events here' },
+  ]);
+  // A pursuit with statements and no payment events: bookings are kept, sales are skipped.
+  const statementsOnly = await pursuitDatabase();
+  await statementsOnly.exec('DROP TABLE payment_events');
+  const some = await keepStepsFromRows({ query: (sql, params) => statementsOnly.query(sql, params), mappings });
+  assert.deepEqual(some.mappings.map(item => item.id), ['tidycal-bookings-from-statements', 'stripe-sales-from-payment-events']);
+  assert.deepEqual(some.mappings[1], { id: 'stripe-sales-from-payment-events', step: 'sale', skipped: 'no payment_events here' });
+  assert.equal(some.mappings[0].kept, 1);
+});
+
+test('a mapping whose table exists but whose read fails is still an error', async () => {
+  const db = await pursuitDatabase();
+  await db.exec('ALTER TABLE statements DROP COLUMN meaning');
+  await assert.rejects(keepStepsFromRows({ query: (sql, params) => db.query(sql, params), mappings: [mappings[0]] }), /meaning/);
+});
+

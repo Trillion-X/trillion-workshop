@@ -75,6 +75,12 @@ export async function keepStepsFromRows({ query, since = null, refs = null, mapp
   for (const mapping of mappings) {
     if (!text(mapping.fields?.ref)) throw new TypeError(`${mapping.id} names no ref, so its steps could not be kept once.`);
     if (!text(mapping.cutoff_column)) throw new TypeError(`${mapping.id} names no cutoff_column (the time its rows were kept), so its rows could not be read once each.`);
+    // A pursuit with no such table (a site that takes no bookings, say) has nothing to keep for this mapping: it is reported, not an error.
+    const present = (await query('SELECT to_regclass($1::text) IS NOT NULL AS present', [mapping.table])).rows[0].present;
+    if (!present) {
+      answer.push({ id: mapping.id, step: mapping.step, skipped: `no ${mapping.table} here` });
+      continue;
+    }
     const { rows } = refs ? await query(readSql(mapping, { byRef: true }), [refs]) : await query(readSql(mapping), [since, mapping.step]);
     let kept = 0;
     for (const row of rows) {
