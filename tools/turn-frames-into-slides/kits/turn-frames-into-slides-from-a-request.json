@@ -1,0 +1,138 @@
+{
+  "drafted_from": "tool:turn-frames-into-slides-from-a-request's row in tools/turn-frames-into-slides/tool-rows.json and the made-up board of test/make-slides.test.mjs (the same program, make-slides.mjs, run by the engine with the request given inline)",
+  "start_here": "Say to your AI: \"Make slides from my deck: two frames, the first saying Made for Example Co and its 70 people., the second One line. and A second line., on paper #f5f1ea in ink #202020 with Georgia and Helvetica, titled Example deck.\" It calls tool:turn-frames-into-slides-from-a-request with that request as JSON and gives you the kept slides.",
+  "lists": [],
+  "no_lists_because": "It keeps no list: it reads one request given as JSON and keeps the slide files it writes in the person's files.",
+  "workflows": [],
+  "tools": [
+    "tool:turn-frames-into-slides-from-a-request",
+    "tool:turn-frames-into-slides",
+    "tool:resolve-a-look",
+    "tool:fill-a-word-template"
+  ],
+  "instructions": [
+    "1. Have the board's items (a presentation frame is an item with extra.presentationFrame.order; every item centred inside it is on that slide), or the deck as slides, and your look's values from tool:resolve-a-look.",
+    "2. Call tool:turn-frames-into-slides-from-a-request with input {request: {board: {items: [...]}, title, look_values: {palette: {...}}, assets?: {name: https address}, frames?, words_from?, words_rules?}}. Everything is given inline: no file of yours is read.",
+    "3. Read the answer: result.slides (order, label, number of items, svg) and result.html, and files.slides, each written file kept in your files under Made by tools with its identity.",
+    "4. Open the kept SVGs or deck.html and look at every page: text cut short ends in an ellipsis, so give that item more room.",
+    "5. For a PDF or a picture of every page, run tool:turn-frames-into-slides on your own computer with a Chromium; this one makes none.",
+    "6. If the run stops, its words say what to change: a look variable the look lacks, an unknown asset, a frame name that is not a frame, frames of different sizes or words a rule refuses."
+  ],
+  "worked_examples": [
+    {
+      "title": "Two frames become two kept slides",
+      "ask": "Make slides from my two frames.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:turn-frames-into-slides-from-a-request",
+            "input": {
+              "request": {
+                "title": "Example deck",
+                "look_values": {
+                  "palette": {
+                    "--paper": "#f5f1ea",
+                    "--ink": "#202020",
+                    "--font-display": "Georgia, serif",
+                    "--font-primary": "Helvetica, sans-serif"
+                  }
+                },
+                "board": {
+                  "items": [
+                    {
+                      "memberId": "first",
+                      "x": 0,
+                      "y": 0,
+                      "w": 1280,
+                      "h": 720,
+                      "text": "",
+                      "extra": {
+                        "presentationFrame": {
+                          "order": 1
+                        },
+                        "style": {
+                          "fill": "--paper",
+                          "stroke": "--paper"
+                        }
+                      }
+                    },
+                    {
+                      "memberId": "second",
+                      "x": 2000,
+                      "y": 0,
+                      "w": 1280,
+                      "h": 720,
+                      "text": "",
+                      "extra": {
+                        "presentationFrame": {
+                          "order": 2
+                        },
+                        "style": {
+                          "fill": "--paper",
+                          "stroke": "--paper"
+                        }
+                      }
+                    },
+                    {
+                      "memberId": "first-title",
+                      "x": 80,
+                      "y": 80,
+                      "w": 1000,
+                      "h": 200,
+                      "text": "Made for Example Co and its 70 people.",
+                      "extra": {
+                        "fontSize": 56,
+                        "style": {
+                          "fill": "none",
+                          "stroke": "none",
+                          "textColor": "--ink"
+                        }
+                      }
+                    },
+                    {
+                      "memberId": "second-body",
+                      "x": 2080,
+                      "y": 80,
+                      "w": 1000,
+                      "h": 300,
+                      "text": "One line.\nA second line.",
+                      "extra": {
+                        "fontSize": 32,
+                        "style": {
+                          "fill": "none",
+                          "stroke": "none",
+                          "textColor": "--ink"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "given": "The made-up board of test/make-slides.test.mjs without its file asset, given inline; the look names its fonts (--font-display, --font-primary), which every request's look must. Run for real through make-slides.mjs at 5:4x PM CST Nov 21 2026 in the row's own layout.",
+      "hands_back": "result.slides [{order 1, label Slide 1, items 1}, {order 2, label Slide 2, items 1}], result.html, and files.slides: slides/01.svg, slides/02.svg and deck.html, each with its identity and its name under /Made by tools/Turn frames into slides from a request/."
+    },
+    {
+      "title": "A name that is not a frame stops the run",
+      "ask": "Make just the second-body slide.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:turn-frames-into-slides-from-a-request"
+          }
+        }
+      },
+      "given": "The same request with frames: [\"second-body\"], which is a text item, not a frame.",
+      "hands_back": "The run fails with exit 2 and nothing is kept; its words: \"make-slides: frames names second-body, which is not a frame on the board.\""
+    }
+  ]
+}

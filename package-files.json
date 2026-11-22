@@ -60782,6 +60782,78 @@
  ],
  "tool:turn-caption-quotes-into-analysis-device-rows": [],
  "tool:turn-frames-into-slides": [],
+ "tool:turn-frames-into-slides-from-a-request": [
+  {
+   "package": "turn-frames-into-slides",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/turn-frames-into-slides"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "headless-browser",
+   "paths": [
+    "devtools.mjs"
+   ],
+   "at": "/opt/headless-browser"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "organize-the-sidebar",
+   "paths": [
+    "do-work/arrowhead-catalog.ts",
+    "do-work/board-deck.ts",
+    "do-work/board-frames.ts",
+    "do-work/board-svg.ts",
+    "do-work/catmull-rom.ts",
+    "do-work/connector-geometry.ts",
+    "do-work/frame-border.ts",
+    "do-work/group-resize.ts",
+    "do-work/orthogonal-route.ts",
+    "read-data/board-template-apply.ts",
+    "read-data/finite-coord.ts",
+    "read-data/group-board-model.ts",
+    "read-data/relation-kind-catalog.ts",
+    "show/board-svg-transforms.ts",
+    "show/crop-rect.ts",
+    "show/stroke-style.ts"
+   ],
+   "at": "/opt/organize-the-sidebar"
+  },
+  {
+   "package": "ui",
+   "paths": [
+    "show/canvas-node/resize-geometry.ts",
+    "show/group/group-graph.ts",
+    "show/node-actions/node-ref.ts",
+    "show/raster/svg-to-png.ts",
+    "show/visual-layer-stack/frame-border.ts"
+   ],
+   "at": "/opt/ui"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:turn-my-agent-skills-into-workflows": [
   {
    "package": "turn-a-folder-of-agent-skills-into-workflows",
