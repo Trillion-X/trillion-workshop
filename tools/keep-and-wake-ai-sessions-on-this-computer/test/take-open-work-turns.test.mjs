@@ -63,7 +63,7 @@ test('a turn nobody can talk to, whose AI is not installed, or that says nothing
 });
 
 test('a turn handed to nobody is taken where its chat is; other work handed to nobody is still left; a turn for someone else is left', () => {
-  const unassigned = { ...settings, tasks: { ...settings.tasks, take_unassigned: false } };
+  const unassigned = { ...settings, tasks: { ...settings.tasks, take_unassigned_when: [] } };
   const ref = 'claude-code:abc';
   const plain = { ...task('p1', ref), source: undefined };
   const { start, left } = plan({ ...base, settings: unassigned, open: [task('t1', ref), plain], chats: here(ref) });

@@ -15,7 +15,8 @@
     "2. Keep each of the AI's logins in your vault under a name of your own, and name them in logins and in settings.ai_auth (for example ai_auth.claude.claude_token_names). A run takes the first login that is not resting; a login that reaches its limit rests alone and the next one runs.",
     "3. Switch the wake on with your input: wake:switch {tool: tool:take-given-tasks-on-this-computer, id: keep-taking-given-tasks, on: true, input: {settings, computer: {start-a-program: {...}}, logins}} (the worked example shows a whole input). A switch that leaves the computer name, the chosen AI, the tasks store or the grant's program or work folder empty is refused.",
     "4. Give a task to the taker: its assignees name ai:take-open-work-<your computer name in lower case, words joined by dashes>. Read the task row: within a pass its status turns In progress with taken_by the taker, then Done with the result, or back to To do with the reason.",
-    "5. Read the taker's own row in your users table: live.seen_at moves at each pass. Switch the wake off to stop it; switching it on again keeps the input it was given."
+    "5. Read the taker's own row in your users table: live.seen_at moves at each pass. Switch the wake off to stop it; switching it on again keeps the input it was given.",
+    "6. To let this computer take tasks that name nobody, list the shapes it takes in settings.tasks.take_unassigned_when (none by default). Each shape maps a task field to the values it may hold, or to true (holds something) or false (holds nothing). For the waiting steps of your engine's workflow runs: [{\"told_as.source\": [\"workflow-step-answered\"], \"for\": [\"anyone\", \"ai\"], \"asks.submit\": true, \"asks.checks\": false}]. Every computer whose shapes fit a task may claim it and one wins, so a task never waits on a computer that is off. Its daily_cap and max_concurrent still bound how many it takes."
   ],
   "worked_examples": [
     {

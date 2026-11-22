@@ -59,6 +59,35 @@ import { answerIssue, UnsupportedSchema } from './answer-shape.mjs';
 import { acquireAiAuth, loginsOf, restingLogins } from './ai-auth.mjs';
 
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (whole, name) => (Object.hasOwn(values, name) ? String(values[name]) : whole));
+// The value at a dotted path of a task ('told_as.source', 'asks.submit'), or undefined.
+const valueAt = (item, path) => String(path).split('.').reduce((at, key) => (at && typeof at === 'object' ? at[key] : undefined), item);
+const holdsSomething = value => value !== undefined && value !== null && value !== ''
+  && !(Array.isArray(value) && value.length === 0) && !(typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0);
+/**
+ * Whether a task that names nobody is one this computer takes: it fits one of the shapes this computer declares in
+ * settings.tasks.take_unassigned_when. A shape is { path: wanted }, each path a dotted field of the task (a details field
+ * such as told_as.source, for or asks.submit): wanted is the list of values the task may hold there, true (it holds
+ * something) or false (it holds nothing: absent, null or empty). A task fits a shape when every path holds; an empty shape
+ * fits every task, and an empty list fits none, so a computer takes no unassigned task until its own input names a shape.
+ * Two computers whose shapes fit the same task race for it, and the shared take's conditional write lets one win. Pure.
+ */
+export function takesUnassigned(item, shapes = []) {
+  if (!Array.isArray(shapes)) throw new Error('tasks.take_unassigned_when must be a list of task shapes.');
+  return shapes.some(shape => Object.entries(shape ?? {}).every(([path, wanted]) => {
+    if (!Array.isArray(wanted) && typeof wanted !== 'boolean') throw new Error(`tasks.take_unassigned_when: ${path} must be a list of values, true or false.`);
+    const value = valueAt(item, path);
+    return Array.isArray(wanted) ? wanted.includes(value) : wanted === holdsSomething(value);
+  }));
+}
+// Why this computer could not finish a step task however its AI answers, or null: the step names checks, which this
+// computer does not evaluate. The one rule plan() (before any claim, so no AI run is spent on it) and finishFromAnswer apply.
+const unevaluatedChecks = read => (Array.isArray(read?.asks?.checks) && read.asks.checks.length ? 'the task names checks, which this computer does not evaluate' : null);
+// The step's own input as its workflow gave it (every asks field but do, submit and checks), as the task prompt carries it.
+const ASKED = new Set(['do', 'submit', 'checks']);
+const givenOf = item => {
+  const given = Object.fromEntries(Object.entries(item.asks ?? {}).filter(([key]) => !ASKED.has(key)));
+  return Object.keys(given).length ? JSON.stringify(given) : 'none';
+};
 // The receipt field keeps its name (job_contract): a receipt written before this change keeps its attempt count.
 const taskContract = (task, settings) => Object.fromEntries((settings.tasks?.revision_fields ?? []).map(field => [field, task?.[field] ?? null]));
 const home = path => String(path).replace(/^~(?=\/|$)/, homedir());
@@ -403,10 +432,11 @@ export function plan({ open, agents, settings, started, today, running, chats, a
     const source_id = item.input?.arrived?.source_id;
     const turn = turnOf(settings, item);
     // A task names its assignees (record ids of anyone; none means anyone may take it). A chat's work names one AI in to_agent.
-    // With tasks.take_unassigned false (DATA), a task that names nobody is not this worker's: it is left for whoever it is
-    // handed to, so only the tasks that name this worker's own id are taken. A turn that names nobody is taken where its
-    // chat is (the session's own computer is its address), or, for a new chat, by whichever computer takes it first.
-    if (item.task && item.assignees.length === 0 && settings.tasks?.take_unassigned === false && !turn) { leave('handed to nobody'); continue; }
+    // A task that names nobody is this worker's only when it fits a shape this computer declares (tasks.take_unassigned_when,
+    // DATA; takesUnassigned); otherwise it is left, so only the tasks that name this worker's own id are taken. A turn that
+    // names nobody is taken where its chat is (the session's own computer is its address), or, for a new chat, by whichever
+    // computer takes it first.
+    if (item.task && item.assignees.length === 0 && !turn && !takesUnassigned(item, settings.tasks?.take_unassigned_when ?? [])) { leave('handed to nobody'); continue; }
     const named = item.task ? item.assignees.length > 0 && !item.assignees.includes(agent_id) : Boolean(item.to_agent) && sourceOwners.get(source_id) !== item.to_agent;
     if (named) { leave('handed to a named agent'); continue; }
     // With a triage step (settings.triage, harness/triage-open-work.mjs), only work it sorted as real work is run.
@@ -459,8 +489,10 @@ export function plan({ open, agents, settings, started, today, running, chats, a
       }
     }
     if (!job) {
+      const unchecked = item.task ? unevaluatedChecks(item) : null;
+      if (unchecked) { leave(unchecked); continue; }
       if (!ai) { leave('no chosen AI is installed here'); continue; }
-      const prompt = fill(item.task ? settings.prompts.task : settings.prompts.claim, { handoff_id: item.handoff_id, agent_id, computer, take_tool: settings.tasks?.take_tool, move_tool: settings.tasks?.move_tool, finish_tool: settings.tasks?.finish_tool, continuation: item.continuation ? JSON.stringify(item.continuation) : 'none', do: item.asks?.do ?? requestedOutcome(item) ?? '', submit: JSON.stringify(item.asks?.submit ?? null), result_file: resultFileOf(settings, item.handoff_id) });
+      const prompt = fill(item.task ? settings.prompts.task : settings.prompts.claim, { handoff_id: item.handoff_id, agent_id, computer, take_tool: settings.tasks?.take_tool, move_tool: settings.tasks?.move_tool, finish_tool: settings.tasks?.finish_tool, continuation: item.continuation ? JSON.stringify(item.continuation) : 'none', do: item.asks?.do ?? requestedOutcome(item) ?? '', given: givenOf(item), submit: JSON.stringify(item.asks?.submit ?? null), result_file: resultFileOf(settings, item.handoff_id) });
       job = { handoff_id: item.handoff_id, mode: 'claim', agent_id, cwd: home(settings.working_folder), prompt,
         command: ai.command.map(part => fill(part, { prompt })), ai_id: ai.id, work_mcp: ai.work_mcp };
     }
@@ -635,7 +667,8 @@ export async function finishFromAnswer(call, settings, { job, read, logPath, at 
   if (!written || typeof written !== 'object' || Array.isArray(written) || typeof evidence !== 'string' || !evidence.trim()) return fill(words.answer_missing, { log: logPath });
   if (written.result === null || written.result === undefined) return fill(words.answer_refused, { why: evidence.trim().slice(0, 400) });
   if (!read.asks?.submit) return fill(words.answer_refused, { why: 'the task names no submit shape to check the answer against' });
-  if (Array.isArray(read.asks.checks) && read.asks.checks.length) return fill(words.answer_refused, { why: 'the task names checks, which this computer does not evaluate' });
+  const unchecked = unevaluatedChecks(read);
+  if (unchecked) return fill(words.answer_refused, { why: unchecked });
   let issue;
   try { issue = answerIssue(written.result, read.asks.submit); }
   catch (error) { if (error instanceof UnsupportedSchema) return fill(words.answer_refused, { why: error.message }); throw error; }

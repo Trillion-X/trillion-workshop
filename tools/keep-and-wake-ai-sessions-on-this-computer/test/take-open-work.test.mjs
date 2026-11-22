@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, readFileSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { accountCaller, chatOf, eachLine, findChats, limitResetAt, listOpenWork, readPage, plan, releaseHeld, resultFileOf, restUntil, runPass, startedRecords, tailOf, takerCard, withComputerArgs, withWorkMcp } from '../harness/take-open-work.mjs';
+import { accountCaller, chatOf, eachLine, findChats, limitResetAt, listOpenWork, readPage, plan, releaseHeld, resultFileOf, restUntil, runPass, startedRecords, tailOf, takerCard, takesUnassigned, withComputerArgs, withWorkMcp } from '../harness/take-open-work.mjs';
 import { runTriage } from '../harness/triage-open-work.mjs';
 import settingsFile from '../harness/take-open-work.json' with { type: 'json' };
 
@@ -69,16 +69,64 @@ test('never twice: a job started here, one handed to a named agent, one held by 
   assert.deepEqual(left, { 'already started here': 1, 'handed to a named agent': 1, 'being worked on': 1, 'something is in the way': 1, 'waits for other work': 1 });
 });
 
-test('with tasks.take_unassigned false, this worker takes only the tasks that name its own agent id; a task naming nobody is left, and the default still takes it', () => {
+test('with no shape in tasks.take_unassigned_when (as shipped), this worker takes only the tasks that name its own agent id; the shape {} takes every task naming nobody', () => {
   const me = 'ai:take-open-work-mac';
   const task = (id, assignees) => job(id, { task: true, assignees, priority: 'medium', sent_at: NOW, sent_by: 'ai:sender' });
   const open = [task('t1', []), task('t2', [me]), task('t3', ['ai:someone-else'])];
-  const scoped = { ...base, agent_id: me, open, settings: { ...settings, max_concurrent: 10, tasks: { ...settings.tasks, take_unassigned: false } } };
-  const { start, left } = plan(scoped);
+  assert.deepEqual(settingsFile.tasks.take_unassigned_when, []);
+  const { start, left } = plan({ ...base, agent_id: me, open, settings: { ...settings, max_concurrent: 10 } });
   assert.deepEqual(start.map(item => item.handoff_id), ['t2']);
   assert.deepEqual(left, { 'handed to nobody': 1, 'handed to a named agent': 1 });
-  const unscoped = plan({ ...base, agent_id: me, open, settings: { ...settings, max_concurrent: 10, tasks: { ...settings.tasks, take_unassigned: true } } });
-  assert.deepEqual(unscoped.start.map(item => item.handoff_id), ['t1', 't2']);
+  const every = plan({ ...base, agent_id: me, open, settings: { ...settings, max_concurrent: 10, tasks: { ...settings.tasks, take_unassigned_when: [{}] } } });
+  assert.deepEqual(every.start.map(item => item.handoff_id), ['t1', 't2']);
+});
+
+// A waiting workflow step as the give writes it: its details (for, asks, told_as) are the task's own fields.
+const stepTask = (id, details = {}, extra = {}) => job(id, { task: true, assignees: [], priority: 'medium', sent_at: NOW, sent_by: 'workflow:some-recipe',
+  for: 'anyone', asks: { do: 'Answer with the one word ready.', submit: { type: 'object', required: ['word'] } }, told_as: { source: 'workflow-step-answered', event_id: `${id}:say` }, ...details, ...extra });
+const ENGINE_STEPS = [{ 'told_as.source': ['workflow-step-answered'], for: ['anyone', 'ai'], 'asks.submit': true, 'asks.checks': false }];
+
+test('a task naming nobody is taken only when it fits a declared shape: listed values, true for present, false for absent or empty', () => {
+  assert.equal(takesUnassigned(stepTask('s1'), ENGINE_STEPS), true);
+  assert.equal(takesUnassigned(stepTask('s2', { for: 'ai' }), ENGINE_STEPS), true);
+  assert.equal(takesUnassigned(stepTask('s3', { asks: { do: 'x', submit: { type: 'object' }, checks: [] } }), ENGINE_STEPS), true, 'an empty checks list holds nothing');
+  // A step a live session holds (a wf run) tells its answer under another source, so this shape leaves it.
+  assert.equal(takesUnassigned(stepTask('s4', { told_as: { source: 'wf-step-answered' } }), ENGINE_STEPS), false);
+  assert.equal(takesUnassigned(stepTask('s5', { for: 'person:someone' }), ENGINE_STEPS), false);
+  assert.equal(takesUnassigned(stepTask('s6', { asks: { do: 'x', submit: { type: 'object' }, checks: ['At least three are listed'] } }), ENGINE_STEPS), false);
+  assert.equal(takesUnassigned(stepTask('s7', { asks: { do: 'x' } }), ENGINE_STEPS), false, 'no submit shape: no answer could be checked');
+  assert.equal(takesUnassigned(stepTask('s8'), []), false);
+  assert.equal(takesUnassigned(stepTask('s9'), [{}]), true);
+  // Shapes are tried in turn: a task that fits any one is taken.
+  assert.equal(takesUnassigned(stepTask('s10', { told_as: { source: 'wf-step-answered' } }), [...ENGINE_STEPS, { handoff_id: ['s10'] }]), true);
+  assert.throws(() => takesUnassigned(stepTask('s11'), [{ for: 'anyone' }]), /for must be a list of values, true or false/);
+  assert.throws(() => takesUnassigned(stepTask('s12'), { for: ['anyone'] }), /must be a list of task shapes/);
+});
+
+test('a computer declaring the engine step shape claims those steps naming nobody, leaves the others, and the prompt carries the step\'s own input', () => {
+  const me = 'ai:take-open-work-mac';
+  const scoped = { ...settings, max_concurrent: 10, tasks: { ...settings.tasks, take_unassigned_when: ENGINE_STEPS } };
+  const open = [
+    stepTask('s1', { asks: { do: 'List what the old code does', submit: { type: 'object' }, old: ['tools/a.mjs'], fact: { after: 'x' } } }),
+    stepTask('s2', { told_as: { source: 'wf-step-answered' } }),
+    job('t3', { task: true, assignees: [], priority: 'medium', sent_at: NOW, sent_by: 'ai:sender' }),
+  ];
+  const { start, left } = plan({ ...base, agent_id: me, open, settings: scoped });
+  assert.deepEqual(start.map(item => item.handoff_id), ['s1']);
+  assert.deepEqual(left, { 'handed to nobody': 2 });
+  assert.match(start[0].prompt, /List what the old code does\. The step's own input, as its workflow gave it: \{"old":\["tools\/a\.mjs"\],"fact":\{"after":"x"\}\}\./);
+  assert.doesNotMatch(start[0].prompt, /"do":/);
+  const bare = plan({ ...base, agent_id: me, open: [stepTask('s4')], settings: scoped });
+  assert.match(bare.start[0].prompt, /The step's own input, as its workflow gave it: none\./);
+});
+
+test('a task whose step names checks is left before any claim, assigned or not, so no AI run is spent on an answer the finish would refuse', () => {
+  const me = 'ai:take-open-work-mac';
+  const checked = { do: 'Plant the seed.', submit: { type: 'object' }, checks: ['The root task id is given.'] };
+  const open = [stepTask('s1', { assignees: [me], asks: checked }), stepTask('s2', { assignees: [me], asks: { ...checked, checks: [] } })];
+  const { start, left } = plan({ ...base, agent_id: me, open, settings: { ...settings, max_concurrent: 10 } });
+  assert.deepEqual(start.map(item => item.handoff_id), ['s2']);
+  assert.deepEqual(left, { 'the task names checks, which this computer does not evaluate': 1 });
 });
 
 test('a chat\'s work goes back to that idle chat, one run per chat, and waits when the chat is busy, owned or unknown here', () => {

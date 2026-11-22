@@ -1305,7 +1305,7 @@ fn add_missed(run: &str, missed: Vec<Value>) -> bool {
 // A step that waits on a hand ask ("anyone", "ai", "whoever-holds-the-run") is given once, as the task
 // record:calendar-task:step-<fact_id>, by the same workflow the engine's own runs reach (the Mac's a-step-is-waiting wake
 // runs workflow:give-a-waiting-step-to-its-answerer for each workflow-step-waiting fact): wf starts that workflow from its
-// row with the wake's input ({fact_id, fact, pursuit, taker, database}; $WF_GIVE_INPUT for pursuit/taker/database), the
+// row with the wake's input ({fact_id, fact, pursuit, database}; $WF_GIVE_INPUT for pursuit/database; the give names no taker, takers claim), the
 // fact in the engine's own shape (tools/workflows/crates/workflow-component effect_of). Telling the fact at the door is no
 // road: that wake hears only facts from runs, and a door-told fact holds at most 8 text fields (3:20 AM CST Nov 22). Its told_as names this run's folder; source wf-step-answered, so no
 // engine wake mistakes it for one of its own runs. When that task is Done, the next walk of this run (wf show or answer)
@@ -1331,7 +1331,7 @@ fn tell_waiting(run: &str, workflow: &str, waiting: &[Value]) {
         let fact = json!({ "kind": "workflow-step-waiting", "event_id": fact_id,
             "payload": { "workflow": workflow, "step": step, "for": name, "asks": w["asks"], "told_as": told_as, "started_by": started_by } });
         let mut give: Value = std::env::var("WF_GIVE_INPUT").ok().and_then(|t| serde_json::from_str(&t).ok())
-            .unwrap_or_else(|| json!({ "pursuit": setting("host"), "taker": "", "database": setting("runs_database") }));
+            .unwrap_or_else(|| json!({ "pursuit": setting("host"), "database": setting("runs_database") }));
         give["fact_id"] = json!(fact_id);
         give["fact"] = fact["payload"].clone();
         give["request"] = json!(format!("give the waiting step {step} of {run} to {name}"));
