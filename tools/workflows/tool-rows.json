@@ -2177,6 +2177,42 @@
             }
           },
           {
+            "id": "a-task-row-changed",
+            "on": {
+              "fact": {
+                "kind": "something-changed",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "place": "calendar_tasks"
+                }
+              }
+            },
+            "budget": {
+              "steps": 40,
+              "wall_ms": 2400000
+            }
+          },
+          {
+            "id": "an-asked-run-row-changed",
+            "on": {
+              "fact": {
+                "kind": "something-changed",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "place": "workflow_runs_asked"
+                }
+              }
+            },
+            "budget": {
+              "steps": 40,
+              "wall_ms": 2400000
+            }
+          },
+          {
             "id": "a-thing-showed-up",
             "on": {
               "fact": {
