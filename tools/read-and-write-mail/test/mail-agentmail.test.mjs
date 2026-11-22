@@ -165,7 +165,7 @@ test('a refusal from AgentMail is quoted in words, up to its first 300 character
 
 test('keeping an attachment: the key goes to the API only, the signed download carries no key, the bytes are the kept file, and the answer names them', async () => {
   const run = standIn([
-    ['GET', /^\/v0\/inboxes\/stand-in-one%40example\.com\/messages\/m1\/attachments\/a1$/, () => json(200, { attachment_id: 'a1', size: 5, download_url: 'https://downloads.example.com/att/a1?sig=stand-in', filename: 'guide.pdf', content_type: 'application/pdf' })],
+    ['GET', /^\/v0\/inboxes\/stand-in-one%40example\.com\/messages\/m1\/attachments\/a1$/, () => json(200, { attachment_id: 'a1', size: 5, download_url: 'https://cdn.agentmail.to/att/a1?sig=stand-in', filename: 'guide.pdf', content_type: 'application/pdf' })],
     ['GET', /^\/att\/a1\?sig=stand-in$/, () => new Response('hello', { status: 200 })],
   ]);
   const out = join(mkdtempSync(join(tmpdir(), 'mail-attachment-')), 'attachment');
@@ -177,7 +177,7 @@ test('keeping an attachment: the key goes to the API only, the signed download c
   assert.equal(answer.blake3, Buffer.from(blake3(Buffer.from('hello'))).toString('hex'));
   assert.equal(readFileSync(out, 'utf8'), 'hello');
   const api = run.asked.find(request => request.url.startsWith('https://api.agentmail.to/'));
-  const download = run.asked.find(request => request.url.startsWith('https://downloads.example.com/'));
+  const download = run.asked.find(request => request.url.startsWith('https://cdn.agentmail.to/'));
   assert.equal(api.headers.Authorization, `Bearer ${KEY}`);
   assert.equal(download.headers.Authorization, undefined, 'the signed download carries no key');
   assert.ok(!download.url.includes(KEY));
@@ -191,12 +191,12 @@ test('a download is refused in words when the address is not https, when the rep
   assert.equal(insecure.asked.length, 1, 'nothing was fetched from the address');
 
   const big = standIn([
-    ['GET', /\/attachments\/a1$/, () => json(200, { attachment_id: 'a1', size: 16777217, download_url: 'https://downloads.example.com/att/a1', filename: 'guide.pdf' })],
+    ['GET', /\/attachments\/a1$/, () => json(200, { attachment_id: 'a1', size: 16777217, download_url: 'https://cdn.agentmail.to/att/a1', filename: 'guide.pdf' })],
   ]);
   await assert.rejects(keepAMailAttachment({ provider: 'agentmail', message_id: 'stand-in-one@example.com/m1', attachment_id: 'a1' }, { ...big.io, out: join(tmpdir(), 'unused') }), error => error instanceof Refused && /keeps at most 16777216 bytes/.test(error.message));
 
   const streamed = standIn([
-    ['GET', /\/attachments\/a1$/, () => json(200, { attachment_id: 'a1', size: 5, download_url: 'https://downloads.example.com/att/a2', filename: 'guide.pdf' })],
+    ['GET', /\/attachments\/a1$/, () => json(200, { attachment_id: 'a1', size: 5, download_url: 'https://cdn.agentmail.to/att/a2', filename: 'guide.pdf' })],
     ['GET', /\/att\/a2$/, () => new Response('x', { status: 200, headers: { 'content-length': '16777217' } })],
   ]);
   await assert.rejects(keepAMailAttachment({ provider: 'agentmail', message_id: 'stand-in-one@example.com/m1', attachment_id: 'a1' }, { ...streamed.io, out: join(tmpdir(), 'unused') }), error => error instanceof Refused && /keeps at most/.test(error.message));
@@ -210,11 +210,19 @@ test('Outlook does not offer keeping an attachment, and says so in words without
 
 test('a download that fails to connect names its host and error code in words, and never the signed query', async () => {
   const failing = standIn([
-    ['GET', /\/attachments\/a1$/, () => json(200, { attachment_id: 'a1', size: 5, download_url: 'https://downloads.example.com/att/a1?sig=stand-in-secret', filename: 'guide.pdf' })],
+    ['GET', /\/attachments\/a1$/, () => json(200, { attachment_id: 'a1', size: 5, download_url: 'https://cdn.agentmail.to/att/a1?sig=stand-in-secret', filename: 'guide.pdf' })],
     ['GET', /\/att\/a1\?sig=stand-in-secret$/, () => { throw Object.assign(new TypeError('fetch failed'), { cause: { code: 'ENOTFOUND' } }); }],
   ]);
   const out = join(tmpdir(), 'unused');
   await assert.rejects(keepAMailAttachment({ provider: 'agentmail', message_id: 'stand-in-one@example.com/m1', attachment_id: 'a1' }, { ...failing.io, out }), error => error instanceof Refused
-    && /downloads\.example\.com: ENOTFOUND/.test(error.message)
+    && /cdn\.agentmail\.to: ENOTFOUND/.test(error.message)
     && !error.message.includes('stand-in-secret') && !error.message.includes('sig='));
+});
+
+test('an attachment is fetched only from a host the row declares; any other host is refused in words before a request', async () => {
+  const other = standIn([
+    ['GET', /\/attachments\/a1$/, () => json(200, { attachment_id: 'a1', size: 5, download_url: 'https://elsewhere.example.com/att/a1', filename: 'guide.pdf' })],
+  ]);
+  await assert.rejects(keepAMailAttachment({ provider: 'agentmail', message_id: 'stand-in-one@example.com/m1', attachment_id: 'a1' }, { ...other.io, out: join(tmpdir(), 'unused') }), error => error instanceof Refused && /does not declare elsewhere\.example\.com/.test(error.message));
+  assert.equal(other.asked.length, 1, 'only the API was asked');
 });

@@ -94,6 +94,7 @@ export async function download(provider, url, io = {}) {
   const { send = fetch } = io;
   const target = new URL(url);
   if (target.protocol !== 'https:') throw new Refused(fill(rows.words.not_a_download, { label: provider.label }));
+  if (!(provider.download_hosts ?? []).includes(target.hostname)) throw new Refused(fill(rows.words.not_declared, { label: provider.label, host: target.hostname }));
   // The address is signed, so only its host is ever named in a word: a failed fetch says which host and the error code.
   let reply;
   try {
