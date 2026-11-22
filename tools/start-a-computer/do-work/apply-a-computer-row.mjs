@@ -11,6 +11,9 @@
 //    that does not match, a selector that matches none or several, refuses the whole request before anything is written.
 //  - `links.set` names the symlinks of `links.folder` an apply carries (a site's pages folder): they are set after the row is
 //    written, before the apply reads them, and put back as they were when the apply fails.
+//  - A failed apply puts the row back to exactly what was read, by the same compare-and-set (it changes the row only while it still
+//    is what this run wrote): the computer keeps serving what it served, so the row must keep saying so. The summary says
+//    `row_put_back` and whether the database read back what was put.
 // The machine's ssh identity, known_hosts and pages folder, by the row's address, and the program that reads a held value by vault
 // name are the person's own: they come from the file `--targets` names (its `machines` and `held_value_reader`), laid over the
 // defaults of read-data/apply-a-computer-row.json (the SQL process, the probe's timings). A shared tool names no one's machine. The row is read and written by the SQL
@@ -235,13 +238,16 @@ export async function applyARow(rawRequest, { dryRun = false }, deps) {
   const urls = hosts.length ? hosts.map(host => `https://${host}/`) : [`https://${row.address}/`];
   const probe = await deps.startProbe({ tree, urls, log: join(log, 'probe-requests.jsonl') });
   const started = deps.now();
-  let code = 1, ended = started, probed = null;
+  let code = 1, ended = started, probed = null, putBack = null;
   try {
     await deps.sleep(deps.targets.probe?.start_wait_ms ?? 0);
     code = await deps.runApply({ tree, requestFile: applyRequest, held, out: join(log, 'apply.out'), err: join(log, 'apply.err') });
   } finally {
     ended = deps.now();
-    if (code !== 0) put();
+    if (code !== 0) {
+      put();
+      if (written) putBack = await deps.store.write(row.name, computer).then(({ read_back_equal }) => ({ row_put_back: read_back_equal }), error => ({ row_put_back: false, row_put_back_error: error.message }));
+    }
     await deps.sleep(deps.targets.probe?.stop_after_ms ?? 0);
     probed = await probe.stop();
   }
@@ -249,7 +255,7 @@ export async function applyARow(rawRequest, { dryRun = false }, deps) {
   return {
     code,
     summary: {
-      computer: row.name, workshop_commit: request.workshop_commit, row_written: written,
+      computer: row.name, workshop_commit: request.workshop_commit, row_written: written, ...putBack,
       started: timeOf(started), ended: timeOf(ended), apply_exit: code,
       ...(request.links && { links: code === 0 ? 'set' : 'put back' }),
       probe: { urls, ...totals }, log_folder: log,
@@ -279,6 +285,7 @@ export function sqlRowStore(sql) {
       const [now] = objectsOf(await sql('update computer set address = $2, os = $3, arch = $4, libc = $5, what_this_is = $6, runs = $7 where name = $1 and runs::text = $8 and what_this_is is not distinct from $9 returning runs::text as runs',
         [name, computer.address, computer.os, computer.arch, computer.libc ?? null, computer._what, JSON.stringify(computer.runs), was.runs, was.what_this_is]));
       if (!now) throw new Error(`the ${name} row changed since it was read; read it again and redo the edit`);
+      readAs.set(name, { runs: now.runs, what_this_is: computer._what });
       return { read_back_equal: now.runs === JSON.stringify(computer.runs) };
     },
   };

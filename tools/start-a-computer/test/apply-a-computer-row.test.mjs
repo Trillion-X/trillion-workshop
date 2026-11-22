@@ -70,10 +70,11 @@ test('the hosts and the held names a row says are read from the row', () => {
 
 // A whole run with everything outside made up. `store` keeps what was written; `exit` is what the apply answers.
 const world = ({ exit = 0, written = true } = {}) => {
+  const stored = row();
   const log = mkdtempSync(join(tmpdir(), 'apply-row-test-'));
-  const seen = { writes: [], applied: [], stopped: 0, archived: [] };
+  const seen = { writes: [], applied: [], stopped: 0, archived: [], stored };
   const deps = {
-    store: { read: async () => ({ computer: row(), siteSetting: null }), write: async (name, computer) => { seen.writes.push({ name, computer }); return { read_back_equal: written }; } },
+    store: { read: async () => ({ computer: structuredClone(stored), siteSetting: null }), write: async (name, computer) => { seen.writes.push({ name, computer }); if (written) Object.assign(stored, structuredClone(computer)); return { read_back_equal: written }; } },
     targets: { machines: { '192.0.2.7': { ssh: { known_hosts: '/hosts', identity_file: '/key' }, pages_folder: '/pages' } }, probe: {} },
     heldValues: async names => Object.fromEntries(names.map(name => [name, 'v'])),
     runFolder: () => log,
@@ -86,12 +87,12 @@ const world = ({ exit = 0, written = true } = {}) => {
 };
 const request = extra => ({ computer: 'example-box', workshop_commit: TREE, edits: [edit], ...extra });
 
-test('a run writes the row once, applies it with the machine\'s identity and held values, and passes the exit code through', async () => {
+test('a run writes the row, applies it with the machine\'s identity and held values, and passes the exit code through', async () => {
   const { deps, seen, log } = world({ exit: 7 });
   const { code, summary } = await applyARow(request(), {}, deps);
   assert.equal(code, 7);
   assert.equal(summary.apply_exit, 7);
-  assert.equal(seen.writes.length, 1);
+  assert.equal(seen.writes.length, 2);
   assert.equal(seen.writes[0].computer.runs.units[1].source.commit, NEW);
   assert.deepEqual(seen.archived, [TREE]);
   assert.equal(seen.applied[0].request.ssh.identity_file, '/key');
@@ -103,6 +104,33 @@ test('a run writes the row once, applies it with the machine\'s identity and hel
   assert.equal(summary.probe.failures, undefined);
   assert.equal(summary.log_folder, log);
   assert.match(summary.started, /\d+:\d\d:\d\d [AP]M/);
+});
+
+test('a failed apply puts the row back to exactly what was read, and says so', async () => {
+  const { deps, seen } = world({ exit: 1 });
+  const { code, summary } = await applyARow(request(), {}, deps);
+  assert.equal(code, 1);
+  assert.equal(seen.writes.length, 2);
+  assert.equal(summary.row_written, true);
+  assert.equal(summary.row_put_back, true);
+  assert.deepEqual(seen.stored, row());
+});
+
+test('a row that someone else changed while the apply ran is not written over, and the summary says it was not put back', async () => {
+  const { deps, seen } = world({ exit: 1 });
+  const write = deps.store.write;
+  deps.store.write = async (name, computer) => { if (seen.writes.length) throw new Error('the row changed since it was read'); return write(name, computer); };
+  const { summary } = await applyARow(request(), {}, deps);
+  assert.equal(summary.row_put_back, false);
+  assert.match(summary.row_put_back_error, /changed since it was read/);
+});
+
+test('a successful apply keeps the row as written', async () => {
+  const { deps, seen } = world({ exit: 0 });
+  const { summary } = await applyARow(request(), {}, deps);
+  assert.equal(seen.writes.length, 1);
+  assert.equal(summary.row_put_back, undefined);
+  assert.equal(seen.stored.runs.units[1].source.commit, NEW);
 });
 
 test('a from that does not match writes nothing and applies nothing', async () => {
