@@ -19,8 +19,8 @@
 }
 
 # The question Caddy asks before getting a certificate for a name: 200 when the name (or, for www.<name>, the bare name) has
-# its folder, or a program of its own (a site whose program answers its first page itself has pages but no index.html),
-# 404 otherwise. Loopback only.
+# its folder, or a program of its own (a site whose program answers its first page itself has pages but no index.html), its
+# socket folder or its slots' socket folder (<name>-slots, give-a-site-program-slots.mjs), 404 otherwise. Loopback only.
 http://127.0.0.1:5601 {
 	bind 127.0.0.1
 	map {query.domain} {site} {
@@ -31,7 +31,7 @@ http://127.0.0.1:5601 {
 	respond @has_folder 200
 	@has_program file {
 		root {{programs_root}}
-		try_files /{site}/
+		try_files /{site}/ /{site}-slots/
 	}
 	respond @has_program 200
 	respond 404
