@@ -40,15 +40,15 @@ test('then the pursuit\'s own login turns on search by meaning, and reads back w
   const [vector] = (await run({ 'keep-the-login': kept, 'make-the-database': made })).waiting;
   assert.equal(vector.asks, 'tool:run-sql-in-my-database');
   assert.deepEqual(vector.input, { credential_name: 'made-up-pursuit-connection', sql: 'CREATE EXTENSION IF NOT EXISTS vector' });
-  const [back] = (await run({ 'keep-the-login': kept, 'make-the-database': made, 'search-by-meaning': { row_count: 0 } })).waiting;
+  const [back] = (await run({ 'keep-the-login': kept, 'make-the-database': made, 'search-by-meaning': { row_count: 0 }, 'consent-stack': { row_count: 0 }, 'piece-gate': { row_count: 0 } })).waiting;
   assert.equal(back.input.credential_name, 'made-up-pursuit-connection');
   assert.match(back.input.sql, /current_user .* current_database\(\) .* extname = 'vector'/);
-  const done = await run({ 'keep-the-login': kept, 'make-the-database': made, 'search-by-meaning': { row_count: 0 }, 'read-it-back': { rows: [{ login: 'p_made_up', database: 'p_made_up', vector: '0.8.0' }] } });
+  const done = await run({ 'keep-the-login': kept, 'make-the-database': made, 'search-by-meaning': { row_count: 0 }, 'consent-stack': { row_count: 0 }, 'piece-gate': { row_count: 0 }, 'read-it-back': { rows: [{ login: 'p_made_up', database: 'p_made_up', vector: '0.8.0' }] } });
   assert.equal(done.status, 'completed');
 });
 
 test('making a database makes no change table, trigger or telling step: telling is the person\'s own run of tell-me-when-something-changes', () => {
-  assert.deepEqual(definitions[0].steps.map(step => step.id), ['keep-the-login', 'make-the-database', 'search-by-meaning', 'read-it-back']);
+  assert.deepEqual(definitions[0].steps.map(step => step.id), ['keep-the-login', 'make-the-database', 'search-by-meaning', 'consent-stack', 'piece-gate', 'read-it-back']);
   assert.match(definitionText, /workflow:tell-me-when-something-changes when they want their changes told/);
   assert.doesNotMatch(JSON.stringify(definitions[0]), /row_changes|record_row_change|record-each-change|keep-changes/);
 });
