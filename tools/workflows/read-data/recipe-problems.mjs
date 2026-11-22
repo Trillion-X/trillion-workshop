@@ -196,6 +196,8 @@ function definitionProblems(definition, vocabulary) {
   if (!Array.isArray(definition.edges ?? [])) problems.push('definition.edges must be a list of { from, to, kind }.');
   for (const [index, edge] of (definition.edges ?? []).entries()) if (!object(edge) || !ids.has(edge.from) || !ids.has(edge.to)) problems.push(`definition.edges[${index}] must join two steps of the definition.`);
   problems.push(...booleanEdgeProblems(definition));
+  problems.push(...placeholderInputProblems(definition));
+  problems.push(...alwaysEdgeProblems(definition));
   const actorAsks = new Map(definition.steps.filter(step => step?.kind === 'ask').map(step => [step.id, { name: step.config?.name, policy: step.config?.context?.actor_policy }]));
   const precedes = (from, to) => {
     const visited = new Set(), pending = [from];
@@ -240,7 +242,30 @@ function booleanEdgeProblems(definition) {
     const column = path.split('.').at(-1);
     const source = definition.steps.find(step => step?.id === edge.from);
     if (source?.kind === 'ask' && source.config?.name === 'tool:run-sql-in-my-database' && sqlAliasesBoolean(source.config.input?.sql, column)) continue;
-    problems.push(`definition.edges[${index}] (${edge.from} -> ${edge.to}, on_result) reads ${path || 'nothing'} without a boolean transform (ends with ${last ?? 'no transform'}); end it with an op:core.equals/not/gt-style transform, or alias the column as a boolean expression in ${edge.from}'s SQL.`);
+    if (source?.kind === 'ask' && source.config?.input?.submit?.properties?.[column]?.type === 'boolean') continue;
+    const returned = source?.kind === 'return' ? source.config?.value?.[column] : null;
+    if (returned?.$kind === 'binding' && BOOLEAN_OPS.has((returned.transform ?? []).at(-1)?.op)) continue;
+    problems.push(`definition.edges[${index}] (${edge.from} -> ${edge.to}, on_result) reads ${path || 'nothing'} without a boolean transform (ends with ${last ?? 'no transform'}); end it with an op:core.equals/not/gt-style transform, or alias the column as a boolean expression in ${edge.from}'s SQL, or type it boolean in ${edge.from}'s submit schema (an ask), or end the returned value in a boolean transform (a return).`);
   }
   return problems;
+}
+
+// A step input whose whole string value is an unfilled placeholder ("<one record per visit or sale...>") was written by hand and would reach its tool as a literal.
+const PLACEHOLDER = /^<[^<>]+>$/;
+function placeholderInputProblems(definition) {
+  const problems = [];
+  const walk = (value, path) => {
+    if (typeof value === 'string') { if (PLACEHOLDER.test(value.trim())) problems.push(`${path} is an unfilled placeholder: ${value.slice(0, 60)}`); return; }
+    if (Array.isArray(value)) value.forEach((item, index) => walk(item, `${path}[${index}]`));
+    else if (object(value)) for (const [key, item] of Object.entries(value)) walk(item, `${path}.${key}`);
+  };
+  for (const step of Array.isArray(definition.steps) ? definition.steps : []) walk(step?.config?.input, `definition.steps.${step?.id}.config.input`);
+  return problems;
+}
+
+// An "always" edge takes its next step unconditionally; the engine ignores a config on it, so a condition written there gates nothing.
+function alwaysEdgeProblems(definition) {
+  return (Array.isArray(definition.edges) ? definition.edges : []).flatMap((edge, index) => edge?.kind === 'always' && edge.config !== undefined
+    ? [`definition.edges[${index}] (${edge.from} -> ${edge.to}) is an always edge with a config; the engine ignores it. Use on_result with the condition, or drop the config.`]
+    : []);
 }
