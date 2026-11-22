@@ -1,7 +1,7 @@
 {
-  "start_here": "Say to your AI: \"Run workflow:fill-in-a-lean-canvas-with-evidence for teaching people to hit a Federer-style forehand.\" It goes through the checklists step by step, answering each line from what is actually known, found or tested, and says what is still open.",
+  "start_here": "Say to your AI: \"Run workflow:fill-in-a-lean-canvas-with-evidence.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the last step keeps them wherever the person keeps the pursuit's rows, in that store's own way.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:fill-in-a-lean-canvas-with-evidence"
   ],
@@ -9,34 +9,32 @@
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Name the pursuit in plain words, and what is already known about it, as the input: {\"pursuit\": \"teaching people to hit a Federer-style forehand\", \"known\": \"I can teach the swing; I have not sold lessons yet\"}.",
-    "2. Run workflow:fill-in-a-lean-canvas-with-evidence with tools:run, tool tool:run-workflow-definition, input {row: \"workflow:fill-in-a-lean-canvas-with-evidence\", pursuit, known}. Each step waits for an answer: its lines answered with evidence in checked, and the lines not answerable yet in open with what would answer them.",
-    "3. Answer a step by giving its answer under answers by its step id and running again; a part some workflow the person can run already does is answered by running it.",
-    "4. Read what the run kept and what is open; the open lines are the next things to find out, and the last step says what matters most next."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:fill-in-a-lean-canvas-with-evidence\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Start fill in a lean canvas with evidence for a forehand-teaching pursuit",
-      "ask": "Run fill in a lean canvas with evidence for teaching people to hit a Federer-style forehand.",
+      "title": "Fill in a Lean Canvas with evidence",
+      "ask": "Run workflow:fill-in-a-lean-canvas-with-evidence.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:fill-in-a-lean-canvas-with-evidence",
-              "pursuit": "teaching people to hit a Federer-style forehand"
+              "row": "workflow:fill-in-a-lean-canvas-with-evidence"
             }
           }
         }
       },
       "workflow": "workflow:fill-in-a-lean-canvas-with-evidence",
       "step": "customer-segments-who-exactly-are-the-customers",
-      "given": "No answers yet; run on the workflow engine on 2026-11-18 with this input.",
-      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"customer-segments-who-exactly-are-the-customers\",\"asks\":\"ai\"}]}: the run waits at 'Customer Segments - Who exactly are the customers?' for its lines answered with evidence (checked) and the ones still open (open)."
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
   ],
-  "drafted_from": "workflow:fill-in-a-lean-canvas-with-evidence's own rows in published/workflows.json and published/workflow-steps.json, and its run on the workflow engine on 2026-11-18"
+  "drafted_from": "workflow:fill-in-a-lean-canvas-with-evidence rendered from its row"
 }

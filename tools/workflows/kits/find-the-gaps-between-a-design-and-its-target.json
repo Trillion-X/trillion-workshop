@@ -1,7 +1,7 @@
 {
-  "start_here": "Say to your AI: \"Run workflow:find-the-gaps-between-a-design-and-its-target for the design document for my software tool's new billing system.\" It goes step by step, handing back what it found with where each thing came from, and what is still open.",
+  "start_here": "Say to your AI: \"Run workflow:find-the-gaps-between-a-design-and-its-target.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the last step keeps them wherever the person keeps the pursuit's rows, in that store's own way.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:find-the-gaps-between-a-design-and-its-target"
   ],
@@ -9,34 +9,32 @@
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Say what the run is for in plain words, and what is already known, as the input: {\"about\": \"the design document for my software tool's new billing system\", \"known\": \"what you already know or decided\"}.",
-    "2. Run workflow:find-the-gaps-between-a-design-and-its-target with tools:run, tool tool:run-workflow-definition, input {row: \"workflow:find-the-gaps-between-a-design-and-its-target\", about, known}. Each step waits for its answer: what was found, each with where it came from, in found, and what is not settled yet in open with what would settle it.",
-    "3. Answer a step by giving its answer under answers by its step id and running again.",
-    "4. Read what the run kept and what is open; the last step says what matters most next, and choosing what runs next is up to you or your AI."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:find-the-gaps-between-a-design-and-its-target\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Start to find the gaps between a design and its target for the design document for my software tool's new billing system",
-      "ask": "Run find the gaps between a design and its target for the design document for my software tool's new billing system.",
+      "title": "Find the gaps between a design and its target",
+      "ask": "Run workflow:find-the-gaps-between-a-design-and-its-target.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:find-the-gaps-between-a-design-and-its-target",
-              "about": "the design document for my software tool's new billing system"
+              "row": "workflow:find-the-gaps-between-a-design-and-its-target"
             }
           }
         }
       },
       "workflow": "workflow:find-the-gaps-between-a-design-and-its-target",
       "step": "find-gaps-with-exact-fixes",
-      "given": "No answers yet; run on the workflow engine on 2026-11-18 with this input.",
-      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"find-gaps-with-exact-fixes\",\"asks\":\"ai\"}]}: the run waits at 'Find each gap and write its exact fix and its consequences' for what was found (found) and what is still open (open)."
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
   ],
-  "drafted_from": "workflow:find-the-gaps-between-a-design-and-its-target's own rows in published/workflows.json and published/workflow-steps.json, and its run on the workflow engine on 2026-11-18"
+  "drafted_from": "workflow:find-the-gaps-between-a-design-and-its-target rendered from its row"
 }
