@@ -6,7 +6,8 @@
 
 -- Safe on a live pursuit database with rows in it. Every statement creates only what is missing (IF NOT EXISTS) and never drops,
 -- truncates or rewrites a row. The views hold no rows: they are dropped and created again on each apply, because a column added
--- to journey_steps lands inside the views' column lists, which CREATE OR REPLACE VIEW cannot move. A column added later is
+-- to journey_steps lands inside the views' column lists, which CREATE OR REPLACE VIEW cannot move; the keep tool restores each
+-- view's grants after the file runs (its applySchema). A column added later is
 -- ALTER TABLE ... ADD COLUMN IF NOT EXISTS. The keep tool applies this file once per version (the version is a BLAKE3 of these
 -- bytes, kept in journey_kit_schema), so a change here reaches every pursuit within one run.
 

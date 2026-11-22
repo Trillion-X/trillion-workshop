@@ -151,12 +151,30 @@ async function schemaApplied(query) {
 }
 
 /**
- * Applies the kit's schema in one transaction, with the version row written in it, so a failed apply leaves the database as it
- * was. Plain text (no parameters) so the whole file runs as one simple query. The version is hex, so it is written inline.
+ * The privileges each kit view holds now, as GRANT statements (the owner's own entry is not one). A view is dropped and created
+ * again by the schema file, which takes its grants with it, so applySchema restores these after the file's views exist.
  */
-async function applySchema(client) {
+async function viewGrants(query) {
+  const { rows } = await query(
+    `SELECT c.relname, a.privilege_type, a.is_grantable,
+       CASE WHEN a.grantee = 0 THEN 'PUBLIC' ELSE quote_ident(pg_get_userbyid(a.grantee)) END AS grantee
+     FROM pg_class c CROSS JOIN LATERAL aclexplode(c.relacl) a
+     WHERE c.relkind = 'v' AND c.relname = ANY($1::text[]) AND pg_table_is_visible(c.oid) AND a.grantee <> c.relowner
+     ORDER BY c.relname, a.privilege_type, grantee`,
+    [DECLARED],
+  );
+  return rows.map(row => `GRANT ${row.privilege_type} ON ${row.relname} TO ${row.grantee}${row.is_grantable ? ' WITH GRANT OPTION' : ''};`);
+}
+
+/**
+ * Applies the kit's schema in one transaction, with the version row written in it, so a failed apply leaves the database as it
+ * was. The views' grants are read first and restored inside the same transaction. Plain text (no parameters) so the whole file
+ * runs as one simple query. The version is hex, so it is written inline.
+ */
+async function applySchema(client, query) {
+  const grants = await viewGrants(query);
   try {
-    await client.query(`BEGIN;\n${SCHEMA_SQL}\nINSERT INTO journey_kit_schema (version) VALUES ('${SCHEMA_VERSION}') ON CONFLICT DO NOTHING;\nCOMMIT;`);
+    await client.query(`BEGIN;\n${SCHEMA_SQL}\n${grants.join('\n')}\nINSERT INTO journey_kit_schema (version) VALUES ('${SCHEMA_VERSION}') ON CONFLICT DO NOTHING;\nCOMMIT;`);
   } catch (error) {
     await client.query('ROLLBACK');
     throw error;
@@ -196,7 +214,7 @@ export async function runKeepSteps({ input, connection, proxy = process.env.HTTP
     if (mode === 'check') return { mode, ...(await schemaReport(query)) };
     let schema = 'current';
     if (!(await schemaApplied(query))) {
-      await applySchema(client);
+      await applySchema(client, query);
       schema = 'applied';
     }
     const kept = await keepStepsFromRows({ query, since, refs: refs?.map(ref => ref.trim()) ?? null });

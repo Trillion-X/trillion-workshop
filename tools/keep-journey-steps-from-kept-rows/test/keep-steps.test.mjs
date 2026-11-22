@@ -358,3 +358,36 @@ test('a proof step is kept and readable by ref, counted by no view, and purged a
   assert.equal((await db.query("SELECT count(*)::int AS n FROM journey_steps WHERE step = 'click' AND touch_id = 'touch-1'")).rows[0].n, 1);
   assert.equal((await db.query("SELECT count(*)::int AS n FROM journey_touches WHERE id = 'touch-1'")).rows[0].n, 1);
 });
+
+test('a reader role granted SELECT on a kit view still has it after an apply that changes the view; a current database applies nothing', async () => {
+  // The kit as it was before is_proof: the column and the proof exclusions taken out of the file, so the apply adds them.
+  const older = new PGlite();
+  const cut = (text, from, to) => {
+    assert.equal(text.split(from).length - 1, 1, from);
+    return text.replace(from, to);
+  };
+  let olderSql = cut(journeySql, 'ALTER TABLE journey_steps ADD COLUMN IF NOT EXISTS is_proof boolean NOT NULL DEFAULT false;', '');
+  olderSql = cut(olderSql, 'AND visitor IS NOT NULL AND NOT is_proof', 'AND visitor IS NOT NULL');
+  olderSql = cut(olderSql, 'WHERE NOT s.is_proof AND (s.ref IS NULL', 'WHERE (s.ref IS NULL');
+  olderSql = cut(olderSql, "WHERE s.step = 'visit' AND NOT s.is_proof", "WHERE s.step = 'visit'");
+  await older.exec(olderSql);
+  await older.exec('CREATE ROLE kit_reader; GRANT SELECT ON funnel_by_source TO kit_reader;');
+  const viewBefore = (await older.query("SELECT oid::int AS oid FROM pg_class WHERE relname = 'funnel_by_source'")).rows[0].oid;
+  const applied = await runKeepSteps({ input: {}, connection: 'held', connect: connectTo(older) });
+  assert.equal(applied.schema, 'applied');
+  assert.equal((await older.query("SELECT count(*)::int AS n FROM information_schema.columns WHERE table_name = 'journey_steps' AND column_name = 'is_proof'")).rows[0].n, 1);
+  // The view was dropped and created again (its oid changed), and the reader's grant is back on it.
+  assert.notEqual((await older.query("SELECT oid::int AS oid FROM pg_class WHERE relname = 'funnel_by_source'")).rows[0].oid, viewBefore);
+  assert.deepEqual((await older.query("SELECT has_table_privilege('kit_reader', 'funnel_by_source', 'SELECT') AS granted")).rows, [{ granted: true }]);
+  await older.exec('SET ROLE kit_reader');
+  const read = await older.query('SELECT count(*)::int AS n FROM funnel_by_source');
+  await older.exec('RESET ROLE');
+  assert.deepEqual(read.rows, [{ n: 0 }]);
+  // A current database: no DDL, the view is the same object and the grant is untouched.
+  const viewNow = (await older.query("SELECT oid::int AS oid FROM pg_class WHERE relname = 'funnel_by_source'")).rows[0].oid;
+  const again = await runKeepSteps({ input: {}, connection: 'held', connect: connectTo(older) });
+  assert.equal(again.schema, 'current');
+  assert.equal((await older.query("SELECT oid::int AS oid FROM pg_class WHERE relname = 'funnel_by_source'")).rows[0].oid, viewNow);
+  assert.deepEqual((await older.query("SELECT has_table_privilege('kit_reader', 'funnel_by_source', 'SELECT') AS granted")).rows, [{ granted: true }]);
+});
+
