@@ -44,13 +44,20 @@ export async function launchALane({ brief, dir, resultFile, need = { kind: 'ai' 
  * --claude-door. With --pick-only it runs loadChoices and chooseAnswerer and starts nothing: it prints {provider, account,
  * model, why} or {none}, so a caller can choose before it commits to a start path. `deps` lets a test replace the loader.
  */
+/** execFile options for a launched run: a timeout only when one is given (a Codex lane runs as long as its job needs). */
+export function runOptions({ cwd, timeoutSeconds = 0 }) {
+  return { cwd, maxBuffer: 1 << 24, ...(timeoutSeconds > 0 ? { timeout: timeoutSeconds * 1000 } : {}) };
+}
+
 export async function cli(argv, stdinText, deps = {}) {
   const flag = name => { const at = argv.indexOf(`--${name}`); return at >= 0 ? argv[at + 1] : undefined; };
   const pickOnly = argv.includes('--pick-only');
+  const timeoutSeconds = Number(flag('timeout-seconds') ?? 0);
+  if (!Number.isFinite(timeoutSeconds) || timeoutSeconds < 0) throw new Error('--timeout-seconds takes a number of seconds, 0 or more (0 is no timeout)');
   const store = flag('store'), sqlCommand = flag('sql-command');
   const dir = flag('dir'), resultFile = flag('result');
   if (!store || !sqlCommand || (!pickOnly && (!dir || !resultFile))) {
-    throw new Error('usage: launch-a-lane.mjs --dir DIR --result FILE --store NAME --sql-command \'["cmd",...]\' [--kind K] [--codex-door URL] [--claude-door URL] [--pick-only] < brief');
+    throw new Error('usage: launch-a-lane.mjs --dir DIR --result FILE --store NAME --sql-command \'["cmd",...]\' [--kind K] [--codex-door URL] [--claude-door URL] [--pick-only] [--timeout-seconds N] < brief');
   }
   const doors = { codex: flag('codex-door'), claude: flag('claude-door') };
   const load = deps.loadChoices ?? loadChoices;
@@ -62,7 +69,7 @@ export async function cli(argv, stdinText, deps = {}) {
   }
   return launchALane({ brief: stdinText, dir, resultFile, need, ...choices,
     run: ({ argv: command, stdin, cwd }) => new Promise(resolve => {
-      const child = execFile(command[0], command.slice(1), { cwd, timeout: 600000, maxBuffer: 1 << 24 }, error => {
+      const child = execFile(command[0], command.slice(1), runOptions({ cwd, timeoutSeconds }), error => {
         resolve({ exit_code: error ? (typeof error.code === 'number' ? error.code : 1) : 0 });
       });
       child.stdin.end(stdin);
