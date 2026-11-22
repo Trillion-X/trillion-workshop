@@ -24,20 +24,20 @@
     "tools/workflows/ask-rights.json",
     "tools/workflows/ask-words.json"
   ],
-  "fingerprint": "17cdd62a9d97c5bddd9a0e79ae4ac03a9ea7e473acf6b0617d39be21d55fa1df",
+  "fingerprint": "c7a26321cda380f039038a76b2b43a70d16ba64c892d671f065ad7c80e9e7c36",
   "workspace_commits": {
     "../../trillion-rust/crates": "c2913a1e2cab8c0223c7d16006e17ccc9a86e6ca"
   },
   "files": {
     "held-values/http_client.js": "b943aae9882afe502dc46d8c135ccddb649512a49e6af0849e3428b8184ecb83",
-    "held-values/http_client_bg.wasm": "847263fb5a21813fa968a22f746ea2337bf165a8c1958ba29d67d28802e48214",
+    "held-values/http_client_bg.wasm": "94f0170453915810c0945ba30704679fc5b7187b2a662229fe7f33b9a1b398f6",
     "workflow-engine/workflow_engine.js": "a99247854683107778e64e2eff8bb4423e45f5b1f0ae3d6f5ccd67e935f0c318",
-    "workflow-engine/workflow_engine_bg.wasm": "21aeea2f82693746df7f24e3693c6f8bef581c52b18d18affcd907e44b94374b",
+    "workflow-engine/workflow_engine_bg.wasm": "68e899d67360c804022c73b5fd68f01cd6478ee2a67c9f265cfd6ea36077d946",
     "screen-arrangement/screen_arrangement.js": "fdba8dd41246d911f133d038775ae1a564d22dac551e6ba54db757bdc3e1e573",
     "screen-arrangement/screen_arrangement_bg.wasm": "fe021c7de8ab0c6db1c8c9256b92e921f1cff8a9a7c261cdae6c0a6c09835ead",
-    "composition-engine/composition_engine.wasm": "708ccb62eaf3062085b7fd140693179436fe2afaf6139f007f79eab15f33c37f",
+    "composition-engine/composition_engine.wasm": "6e52abb0b58c727fdd9225537d698252a60d92ec873a009e4c5d87f1442305a1",
     "composition-engine/composition_engine.js": "e77c96be89e4b4c3286febf0c83952300200a89b103b953153c773ae41c462f4",
-    "composition-engine/composition_engine_bg.wasm": "b61540b697526e5728d7eb19b0a2a18c98e6423a36a7fb0c169e9039d8f4ae8a",
-    "workflow-component/workflow_component.wasm": "571b49cf09223f4ea3f9945c3167640d69935758b3acdc6014846ffc87451f98"
+    "composition-engine/composition_engine_bg.wasm": "41ea954af1c1fde8702d3d9eea8beec5f96e465ce2d3fcd9b22743617926b418",
+    "workflow-component/workflow_component.wasm": "516afd7f17ccd82322d8fc38ee6894d54b5aab92174511324de0d5fe4d0114b0"
   }
 }

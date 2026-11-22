@@ -1176,6 +1176,33 @@ mod tests {
         assert_eq!(run["uses_missing"], json!(["workflow:first"]));
     }
 
+    // A workflow that calls a workflow that calls a workflow (make-what-a-store-lacks calls run-statements-in-order, which is
+    // its own row) is read a level at a time as the walk reaches each: the child once the top reaches it, the grandchild once
+    // the child does, each by the same reader, until the walk waits on the grandchild's own ask.
+    #[test]
+    fn a_grandchild_workflow_is_read_when_the_walk_reaches_it() {
+        let mut top = one_step("workflow:top", "tool:y");
+        top["steps"] = json!([{ "id": "call-child", "kind": "action", "config": { "definition_id": "workflow:child" } }]);
+        let mut child = one_step("workflow:child", "tool:y");
+        child["steps"] = json!([{ "id": "call-grandchild", "kind": "action", "config": { "definition_id": "workflow:grandchild" } }]);
+        let row = |id: &str, definition: Value| json!({ "recipe": id, "definition": definition, "kept_at": "v1" });
+        let mut run = json!({ "recipe": "workflow:top", "read_definition": uses_reader(), "input": {}, "answers": {} }).as_object().unwrap().clone();
+        let mut answer = json!({ "rows": [row("workflow:top", top)] });
+        let all = read_definitions(&mut run, "workflow:top", READ_STEP, &answer).unwrap().unwrap();
+        assert!(missed_to_read(&mut run, &walk_top(all, json!({}))));
+        assert_eq!(run["uses_missing"], json!(["workflow:child"]));
+        answer["rows"].as_array_mut().unwrap().push(row("workflow:child", child));
+        let all = read_definitions(&mut run, "workflow:top", READ_STEP, &answer).unwrap().unwrap();
+        let walked = walk_top(all, json!({}));
+        assert!(missed_to_read(&mut run, &walked), "the child reached the grandchild: {walked}");
+        assert_eq!(run["uses_missing"], json!(["workflow:child", "workflow:grandchild"]));
+        answer["rows"].as_array_mut().unwrap().push(row("workflow:grandchild", one_step("workflow:grandchild", "tool:z")));
+        let all = read_definitions(&mut run, "workflow:top", READ_STEP, &answer).unwrap().unwrap();
+        let walked = walk_top(all, json!({}));
+        assert!(!missed_to_read(&mut run, &walked), "nothing more to read: {walked}");
+        assert_ne!(walked["status"], "failed", "{walked}");
+    }
+
     // A run that fails tells its end recorder first, holding why, and the answer back fails it with those words; a run with
     // no recorder fails at once. A finished or skipped run tells its recorder as an effect; a paused one tells nothing.
     #[test]
