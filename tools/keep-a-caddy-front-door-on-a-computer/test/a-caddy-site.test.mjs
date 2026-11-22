@@ -113,6 +113,17 @@ test('a single-name front door renders its own name, pages, sign-in routes and e
   for (const field of ['request>headers', 'request>remote_ip', 'request>client_ip', 'resp_headers']) assert.match(file.text, new RegExp(`${field} delete`));
 });
 
+test('a screen\'s route_prefix address is answered by its prefix page, after the exact page and before the page handler', async () => {
+  const text = (await siteFile(single)).text;
+  const deep = text.indexOf('\t@prefix_deep {\n'), one = text.indexOf('\t@prefix_one {\n'), page = text.indexOf('\t@page file {\n');
+  assert.ok(deep > 0 && one > deep && page > one, 'the two-segment prefix rule, then the one-segment rule, then the page matcher');
+  assert.match(text, /^\t\tpath_regexp \^\/\[\^\/\]\+\/\[\^\/\]\+\/\[\^\/\]$/m, 'a third segment under two prefix segments');
+  assert.match(text, /^\t\tpath_regexp \^\/\[\^\/\]\+\/\[\^\/\]$/m, 'a second segment under one prefix segment');
+  assert.match(text, /^\trewrite @prefix_deep \/\{http\.request\.uri\.path\.0\}\.\{http\.request\.uri\.path\.1\}\.prefix\.html$/m);
+  assert.match(text, /^\trewrite @prefix_one \/\{http\.request\.uri\.path\.0\}\.prefix\.html$/m);
+  assert.equal((text.match(/^\t\tnot file \{$/gm) ?? []).length, 2, 'a page the path names exactly is never rewritten to a prefix page');
+});
+
 test('a routes slot the site leaves empty is no line at all; a missing field or an unknown site file is refused', async () => {
   const { engine_paths, ...noPaths } = single;
   await assert.rejects(siteFile(noPaths), /caddy-route-engine\.caddy needs engine_paths/);
@@ -190,6 +201,18 @@ test('each name its own folder: a name the row lists in site_sockets is sent to 
   for (const bad of [{ 'Place.Example': ['/run/x/http.sock'] }, { 'place.example.test': [] }, { 'place.example.test': ['relative/http.sock'] }, { 'place.example.test': ['/run/../etc/http.sock'] }]) {
     await assert.rejects(siteFile({ ...folders, site_sockets: bad }), /caddy\.site_sockets/);
   }
+});
+
+test('each name its own folder: a route_prefix address is answered by its prefix page in that name\'s folder, after the exact page', async () => {
+  const folders = { site_file: 'each-name-its-own-folder', door_host: '192.0.2.10', certificate_profile: 'shortlived', grace_period: '5s', pages_root: '/var/lib/example-sites', programs_root: '/run/example-sites' };
+  const text = (await siteFile(folders, [{ name: 'place.example.test/index.html', bytes: Buffer.from('<p>place</p>') }])).text;
+  const https = text.slice(text.indexOf('https:// {'));
+  const deep = https.indexOf('\t@prefix_deep {\n'), one = https.indexOf('\t@prefix_one {\n'), page = https.indexOf('\t@page {\n');
+  assert.ok(deep > 0 && one > deep && page > one, 'the prefix rules come before the page matcher');
+  assert.match(https, /^\trewrite @prefix_deep \/\{http\.request\.uri\.path\.0\}\.\{http\.request\.uri\.path\.1\}\.prefix\.html$/m);
+  assert.match(https, /^\trewrite @prefix_one \/\{http\.request\.uri\.path\.0\}\.prefix\.html$/m);
+  assert.equal((https.slice(deep, page).match(/^\t\t\troot \/var\/lib\/example-sites\/\{site\}$/gm) ?? []).length, 4, 'each prefix rule reads the folder of the name it is asked for');
+  assert.doesNotMatch(https, /\{\{/);
 });
 
 test('each name its own folder: the engine answers some paths of some names first, and every other path stays the site\'s', async () => {

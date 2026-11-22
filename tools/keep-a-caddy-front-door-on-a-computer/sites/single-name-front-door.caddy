@@ -47,6 +47,35 @@
 		respond "tls-ready
 " 200
 	}
+	# A screen's address under its route_prefix is answered by that prefix's page: a copy of the workspace page named for the
+	# prefix's one or two segments (workspace-pages.mjs makes each), so /file/<id> gets file.prefix.html and /record/about/<id>
+	# gets record.about.prefix.html. A page the path names exactly wins, and a bare prefix (/file, /file/) names no page, so it
+	# still answers 404. A prefix deeper than two segments has no rule here and no page. These rules rewrite the path before the
+	# routes above it are matched, so the first segment of a prefix must not be the first segment of an engine or sign-in route.
+	@prefix_deep {
+		path_regexp ^/[^/]+/[^/]+/[^/]
+		not file {
+			root {{pages_root}}
+			try_files {path} {path}.html
+		}
+		file {
+			root {{pages_root}}
+			try_files /{http.request.uri.path.0}.{http.request.uri.path.1}.prefix.html
+		}
+	}
+	rewrite @prefix_deep /{http.request.uri.path.0}.{http.request.uri.path.1}.prefix.html
+	@prefix_one {
+		path_regexp ^/[^/]+/[^/]
+		not file {
+			root {{pages_root}}
+			try_files {path} {path}.html
+		}
+		file {
+			root {{pages_root}}
+			try_files /{http.request.uri.path.0}.prefix.html
+		}
+	}
+	rewrite @prefix_one /{http.request.uri.path.0}.prefix.html
 	@page file {
 		root {{pages_root}}
 		try_files {path} {path}.html
