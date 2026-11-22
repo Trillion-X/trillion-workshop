@@ -173,7 +173,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": false,
+          "internet": true,
           "workdir": "/opt/read-published-clips",
           "stdout": "json",
           "argv": [
@@ -512,7 +512,7 @@
         },
         "licence_class": "licence:maker-own",
         "placements": [
-          "placement:your-computer"
+          "placement:small-container"
         ],
         "maker": "maker:run-sql-in-my-database",
         "provenance": {
