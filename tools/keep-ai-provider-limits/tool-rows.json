@@ -19,7 +19,7 @@
         },
         "label": "Keep an AI subscription's limit rows current",
         "job": "Send at most one tiny call per quiet window through the local AI proxy and write the subscription's rate-limit headers as provider_limits rows.",
-        "description": "Reads the store, proxy address, model and account from its input (the person's wake row names them). Sends nothing while a row of the provider was read inside the quiet window.",
+        "description": "Reads the store, proxy address, model and account from its input (a workflow recipe's step names them; the store is filled from the account's default account_stores row). Sends nothing while a row of the provider was read inside the quiet window.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -154,61 +154,6 @@
           ]
         },
         "result_selector": "$",
-        "wakes": [
-          {
-            "id": "every-fifteen-minutes",
-            "on": {
-              "fact": {
-                "kind": "due-time",
-                "from": [
-                  "run"
-                ],
-                "fold": true,
-                "match": {
-                  "schedule_id": "schedule:tool:keep-ai-provider-limits:every-fifteen-minutes"
-                },
-                "watch": {
-                  "schedules": [
-                    {
-                      "schedule_id": "schedule:tool:keep-ai-provider-limits:every-fifteen-minutes",
-                      "source_generation": 1,
-                      "schedule_revision": 1,
-                      "timezone": "UTC",
-                      "start_local_date": "1970-01-01",
-                      "local_window": {
-                        "start": "00:00",
-                        "duration_minutes": 1
-                      },
-                      "dst": {
-                        "gap": "next-valid",
-                        "fold": "earlier"
-                      },
-                      "action": {
-                        "operation": "tell-the-engine",
-                        "owner_ref": "tool:keep-ai-provider-limits",
-                        "owner_dispatch": {
-                          "name": "tool:keep-ai-provider-limits",
-                          "input": {}
-                        },
-                        "completion": {
-                          "mode": "synchronous-owner-return"
-                        }
-                      },
-                      "cadence": {
-                        "unit": "minute",
-                        "interval": 15
-                      }
-                    }
-                  ]
-                }
-              }
-            },
-            "budget": {
-              "steps": 1,
-              "wall_ms": 300000
-            }
-          }
-        ],
         "provenance": {
           "source": "Written for the Workshop: the Claude limit reader's idle fallback. The proxy passes Anthropic's rate-limit headers back only on a response, so a quiet-window call keeps the rows current when no other call has."
         }
