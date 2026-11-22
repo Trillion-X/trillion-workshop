@@ -1,0 +1,135 @@
+{
+  "drafted_from": "tool row in tools/read-a-videos-shape/tool-rows.json, do-work script and test",
+  "start_here": "Say to your AI: \"Read the width, height, frame rate and length of clip.mp4 on my computer and keep it in my clip checks.\"",
+  "lists": [
+    {
+      "list": "list:clip-shapes",
+      "label": "Read the shape of clip.mp4",
+      "row_type": "record:clip-shape",
+      "holds": "One row per clip the person checked: its file and the width, height, frame rate and length the probe read.",
+      "fields": [
+        {
+          "id": "file",
+          "kind": "text",
+          "label": "Clip file",
+          "alike": []
+        },
+        {
+          "id": "width",
+          "kind": "number",
+          "label": "Width (px)",
+          "alike": []
+        },
+        {
+          "id": "height",
+          "kind": "number",
+          "label": "Height (px)",
+          "alike": []
+        },
+        {
+          "id": "fps",
+          "kind": "number",
+          "label": "Frame rate",
+          "alike": []
+        },
+        {
+          "id": "duration_s",
+          "kind": "number",
+          "label": "Length (s)",
+          "alike": []
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "clip-1",
+          "values": {
+            "file": "clip.mp4",
+            "width": 1080,
+            "height": 1920,
+            "fps": 30,
+            "duration_s": 24.0
+          }
+        },
+        {
+          "id": "clip-2",
+          "values": {
+            "file": "replay.mp4",
+            "width": 1920,
+            "height": 1080,
+            "fps": 30,
+            "duration_s": 20.02
+          }
+        }
+      ],
+      "alike": [
+        "clip shape log",
+        "video checks"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:read-a-videos-shape"
+  ],
+  "instructions": [
+    "1. Put the clip on your computer as a file.",
+    "2. Run tool:read-a-videos-shape with file set to that path.",
+    "3. Keep one clip-shape row with the four values it returns."
+  ],
+  "worked_examples": [
+    {
+      "title": "Measure one clip and keep the result",
+      "ask": "Read the width, height, frame rate and length of clip.mp4 on my computer and keep it in my clip shapes.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "tool:read-a-videos-shape",
+        "input": {
+          "file": "clip.mp4"
+        }
+      },
+      "hands_back": "Returns {result: {width: 1080, height: 1920, fps: 30.0, duration_s: 24.0}}; the AI keeps one row with those values."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "kit_list": "list:clip-shapes",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for clip checks; the pour tool matches each kit field to one of yours and pours nothing under 80%.",
+    "example": {
+      "kit_list": "list:clip-shapes",
+      "into": {
+        "list": "list:clip-checks",
+        "row_type": "record:clip-shape",
+        "fields": [
+          "file",
+          "width",
+          "height",
+          "fps",
+          "duration_s"
+        ]
+      },
+      "rows": [
+        {
+          "id": "clip-1",
+          "values": {
+            "file": "clip.mp4",
+            "width": 1080,
+            "height": 1920,
+            "fps": 30,
+            "duration_s": 24.0
+          }
+        },
+        {
+          "id": "clip-2",
+          "values": {
+            "file": "replay.mp4",
+            "width": 1920,
+            "height": 1080,
+            "fps": 30,
+            "duration_s": 20.02
+          }
+        }
+      ]
+    }
+  }
+}

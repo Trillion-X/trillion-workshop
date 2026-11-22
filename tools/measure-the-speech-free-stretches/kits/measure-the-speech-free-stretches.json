@@ -1,0 +1,139 @@
+{
+  "drafted_from": "tool row in tools/measure-the-speech-free-stretches/tool-rows.json, do-work/measure_speech_free.py and its test",
+  "start_here": "Say to your AI: \"Find the longest dead-air stretch in clip.mp4 by its transcript and its audio, counting the whole clip.\"",
+  "lists": [
+    {
+      "list": "list:clip-speech-gaps",
+      "label": "Clip speech gaps",
+      "row_type": "record:clip-speech-gap",
+      "holds": "One row per clip checked for speech-free stretches: the longest stretch, how many are over the threshold, and the threshold.",
+      "fields": [
+        {
+          "id": "clip",
+          "kind": "text",
+          "label": "Clip",
+          "alike": [
+            "file",
+            "name"
+          ]
+        },
+        {
+          "id": "longest_dead_air_s",
+          "kind": "number",
+          "label": "Longest dead air (s)",
+          "alike": [
+            "longest pause",
+            "dead air"
+          ]
+        },
+        {
+          "id": "stretches_over_threshold",
+          "kind": "number",
+          "label": "Stretches over threshold",
+          "alike": [
+            "long gaps"
+          ]
+        },
+        {
+          "id": "threshold_s",
+          "kind": "number",
+          "label": "Threshold (s)",
+          "alike": [
+            "limit"
+          ]
+        },
+        {
+          "id": "flagged_by",
+          "kind": "text",
+          "label": "Flagged by",
+          "alike": [
+            "source"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "v5-dead-air",
+          "values": {
+            "clip": "v5-cut",
+            "longest_dead_air_s": 9.07,
+            "stretches_over_threshold": 1,
+            "threshold_s": 2.0,
+            "flagged_by": "transcript, energy"
+          }
+        },
+        {
+          "id": "v4-dead-air",
+          "values": {
+            "clip": "v4-cut",
+            "longest_dead_air_s": 5.12,
+            "stretches_over_threshold": 1,
+            "threshold_s": 2.0,
+            "flagged_by": "energy"
+          }
+        }
+      ],
+      "alike": [
+        "clip dead-air log",
+        "pause checks"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:measure-the-speech-free-stretches"
+  ],
+  "instructions": [
+    "1. Get the clip's whisper transcript as a JSON file and its audio as a WAV on your computer.",
+    "2. Run tool:measure-the-speech-free-stretches with transcript and clip set to those files (threshold_s defaults to 2.0).",
+    "3. Keep one clip-speech-gap row with the result, including which source flagged each stretch."
+  ],
+  "worked_examples": [
+    {
+      "title": "Measure the longest speech-free stretch of a clip",
+      "ask": "Find the longest dead-air stretch in clip.mp4 by its transcript and its audio, counting the whole clip.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "tool:measure-the-speech-free-stretches",
+        "input": {
+          "transcript": "clip-transcript.json",
+          "clip": "clip-16k.wav",
+          "threshold_s": 2.0
+        }
+      },
+      "hands_back": "{\"result\": {\"longest_dead_air_s\": 9.07, \"stretches_over_threshold\": 1, \"threshold_s\": 2.0, \"stretches\": [{\"at_s\": 17.04, \"s\": 9.07, \"flagged_by\": [\"transcript\", \"energy\"]}]}}"
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "kit_list": "list:clip-speech-gaps",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for clip dead-air checks; the pour tool matches each kit field to one of yours and pours nothing under 80%.",
+    "example": {
+      "kit_list": "list:clip-speech-gaps",
+      "into": {
+        "list": "list:clip-checks",
+        "row_type": "record:clip-check",
+        "fields": [
+          "clip",
+          "longest_dead_air_s",
+          "stretches_over_threshold",
+          "threshold_s",
+          "flagged_by"
+        ]
+      },
+      "rows": [
+        {
+          "id": "v5-dead-air",
+          "values": {
+            "clip": "v5-cut",
+            "longest_dead_air_s": 9.07,
+            "stretches_over_threshold": 1,
+            "threshold_s": 2.0,
+            "flagged_by": "transcript, energy"
+          }
+        }
+      ]
+    }
+  }
+}

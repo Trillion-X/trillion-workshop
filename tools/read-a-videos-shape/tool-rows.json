@@ -1,0 +1,53 @@
+{
+  "kind": "package-set-records",
+  "record_set": "read-a-videos-shape-tool-rows",
+  "what_this_is": "Reads one video file with ffprobe and prints its width and height in pixels, its frame rate and its duration in seconds. Decodes nothing. Refuses a file with no video stream or no usable frame rate.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-videos-shape",
+        "label": "Read a video's width, height, frame rate and length (runs on your computer)",
+        "job": "Give a check the shape of a video file: width, height, frame rate and duration, from its container",
+        "description": "Reads one video file with ffprobe and prints its width and height in pixels, its frame rate and its duration in seconds. Decodes nothing. Refuses a file with no video stream or no usable frame rate.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "file"
+          ],
+          "properties": {
+            "file": {
+              "type": "string",
+              "description": "The local video file, as the span read wrote it."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "{\"result\": {width, height, fps, duration_s}} or {\"error\": ...}"
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository"
+          ],
+          "run": "python3 -I tools/read-a-videos-shape/do-work/read_videos_shape.py {file}",
+          "needs": [
+            "python3",
+            "ffprobe (ffmpeg)"
+          ],
+          "say": "This runs on the person's own computer."
+        },
+        "maker": "maker:read-a-videos-shape",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "ffprobe (ffmpeg) for the shape; the pause measure of compare-voice-and-music-models measure_prosody.py"
+        }
+      }
+    }
+  ]
+}

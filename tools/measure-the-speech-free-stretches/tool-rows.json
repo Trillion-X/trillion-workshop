@@ -1,0 +1,64 @@
+{
+  "kind": "package-set-records",
+  "record_set": "measure-the-speech-free-stretches-tool-rows",
+  "what_this_is": "Measures the longest stretch of a clip with no speech, counting the whole clip (no section is exempt): from the start to the first word, between words, and from the last word to the end. Music-only stretches count. Reads a whisper transcript; refuses one with no speech.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:measure-the-speech-free-stretches",
+        "label": "Find the longest dead-air stretch in a clip, by words and by audio energy (runs on your computer)",
+        "job": "Give a dead-air check the longest speech-free stretch of a whole clip",
+        "description": "Measures the longest dead-air stretch of a whole clip: a moment counts when its transcript has no speech OR its audio is quiet (the union of the two; whisper often runs its words across a silence). No section is exempt. Each stretch says which source flagged it. Reads a whisper transcript and the clip's audio; refuses a transcript with no speech.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "transcript",
+            "clip"
+          ],
+          "properties": {
+            "transcript": {
+              "type": "string",
+              "description": "The whisper transcript JSON file of the clip."
+            },
+            "clip": {
+              "type": "string",
+              "description": "The clip's audio as a file (16 kHz mono WAV works)."
+            },
+            "threshold_s": {
+              "type": "number",
+              "description": "Stretches longer than this are counted (default 2.0)."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "{\"result\": {longest_dead_air_s, stretches_over_threshold, threshold_s, stretches: [{at_s, s, flagged_by}]}} or {\"error\": ...}"
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository"
+          ],
+          "run": "python3 -I tools/measure-the-speech-free-stretches/do-work/measure_speech_free.py {transcript} {clip} --threshold-s {threshold_s}",
+          "needs": [
+            "python",
+            "librosa",
+            "numpy",
+            "the compare-voice-and-music-models tool beside it"
+          ],
+          "say": "This runs on the person's own computer."
+        },
+        "maker": "maker:measure-the-speech-free-stretches",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "whisper transcript segments and duration; quiet frames from measure_prosody.py's levels"
+        }
+      }
+    }
+  ]
+}
