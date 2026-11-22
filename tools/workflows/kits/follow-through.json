@@ -1,53 +1,42 @@
 {
- "start_here": "Say to your AI: \"Run workflow:follow-through on my bakery wedding-cake orders: request is that every deposit promised this week is received or chased, scope is the order inbox and the deposits sheet, constraints are at most 3 reminders per customer, authorized actions are reading both and drafting reminders for me to send.\"",
- "lists": [],
- "no_lists_because": "It keeps no list of its own: its three steps hand back one evidence-backed answer each, kept on the run record.",
- "workflows": [
-  "workflow:follow-through",
-  "workflow:turn-something-shared-into-what-you-can-use",
-  "workflow:x-mode"
- ],
- "tools": [
-  "tool:run-workflow-definition"
- ],
- "instructions": [
-  "1. Write the request (the commitments and dependencies to carry through), the scope, the constraints and authorized_actions; all four are required.",
-  "2. Say \"Run workflow:follow-through\". Answer step state: reconcile what is open now, with evidence, and review existing capabilities.",
-  "3. Answer step act: give every unresolved dependency a real owner, its source, the next event that matters, a finite boundary and a stop condition.",
-  "4. Answer step verify: check the consequence at its real destination, recover failures once the shared cause is repaired, and measure customer benefit when it applies.",
-  "5. Read each answer: an unresolved item without an owner and a next event is not done."
- ],
- "worked_examples": [
-  {
-   "title": "State of this week's cake deposits",
-   "ask": "Follow through on this week's cake deposits.",
-   "mcp": {
-    "server": "{cli}",
-    "tool": "do_one_thing_in_my_account",
-    "input": {
-     "method": "tools:run",
-     "input": {
-      "tool": "tool:run-workflow-definition",
-      "input": {
-       "row": "workflow:follow-through",
-       "request": "Every deposit promised for a wedding cake this week is received or chased.",
-       "scope": "The order inbox and the deposits sheet",
-       "constraints": [
-        "At most 3 reminders per customer"
-       ],
-       "authorized_actions": [
-        "Read the inbox and the sheet",
-        "Draft reminders for the owner to send"
-       ]
-      }
-     }
+  "start_here": "Say to your AI: \"Run workflow:follow-through.\" The wake starts it once its switch input is set.",
+  "lists": [],
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
+  "workflows": [
+    "workflow:follow-through",
+    "workflow:turn-something-shared-into-what-you-can-use",
+    "workflow:x-mode"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:follow-through\".",
+    "3. Read the answer the run hands back."
+  ],
+  "worked_examples": [
+    {
+      "title": "Follow Through Mode",
+      "ask": "Run workflow:follow-through.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:follow-through"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:follow-through",
+      "step": "state",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-   },
-   "workflow": "workflow:follow-through",
-   "step": "state",
-   "given": "Read from the row of workflow:follow-through in tools/workflows/recipes/workflows.json: step state needs requirements current-state and capability-review-state. The sheet lists 4 deposits promised; 3 are marked received, the 4th (Sam, a 3-tier cake on 21 Nov) is not.",
-   "hands_back": "{\"summary\":\"3 of 4 deposits received; Sam's deposit for the 21 Nov cake is open.\",\"evidence\":[{\"id\":\"e1\",\"source\":\"the deposits sheet\",\"observed\":\"4 rows promised this week, 3 marked received, Sam row empty\"},{\"id\":\"e2\",\"source\":\"the order inbox\",\"observed\":\"Last message from Sam 5 days ago says the deposit is coming Friday\"}],\"requirements\":{\"current-state\":{\"state\":\"completed\",\"what_happened\":\"One open dependency: Sam's deposit, promised for Friday and not marked received.\",\"evidence_refs\":[\"e1\",\"e2\"]},\"capability-review-state\":{\"state\":\"completed\",\"what_happened\":\"Searched the Marketplace for a payment-check tool, found one that reads checkouts; REA, 21st.dev and Mobbin reviewed and not needed.\",\"evidence_refs\":[\"e1\"]}}}"
-  }
- ],
- "drafted_from": "workflow:follow-through's row in tools/workflows/recipes/workflows.json (input schema, steps and submit shapes); no test names it"
+  ],
+  "drafted_from": "workflow:follow-through rendered from its row"
 }

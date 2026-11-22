@@ -1,43 +1,40 @@
 {
- "start_here": "Say to your AI: \"Run workflow:find-where-the-steward-ladder-breaks for subject: my bakery newsletter, outcome: at least 5 new pre-orders a week from each issue.\"",
- "lists": [],
- "no_lists_because": "It keeps no list: it walks ten stages and hands back the failing stage and its fix as answers on the run record.",
- "workflows": [
-  "workflow:find-where-the-steward-ladder-breaks"
- ],
- "tools": [
-  "tool:run-workflow-definition"
- ],
- "instructions": [
-  "1. Say who or what keeps not getting a result (subject) and the result it should get (outcome); both are required.",
-  "2. Say \"Run workflow:find-where-the-steward-ladder-breaks\". Step stages: for each of the ten stages write what was actually seen and whether the stage holds.",
-  "3. Step failing: name the earliest stage that does not hold, with evidence, and a change that makes that stage happen by itself (a rule, schedule, hook, reused asset or named owner).",
-  "4. Step done: make the change, look at that stage again, say what is seen now and which stage to watch next."
- ],
- "worked_examples": [
-  {
-   "title": "Why the newsletter brings no pre-orders",
-   "ask": "Find where my bakery newsletter chain breaks.",
-   "mcp": {
-    "server": "{cli}",
-    "tool": "do_one_thing_in_my_account",
-    "input": {
-     "method": "tools:run",
-     "input": {
-      "tool": "tool:run-workflow-definition",
-      "input": {
-       "row": "workflow:find-where-the-steward-ladder-breaks",
-       "subject": "My bakery newsletter",
-       "outcome": "At least 5 new pre-orders a week from each issue"
-      }
-     }
+  "start_here": "Say to your AI: \"Run workflow:find-where-the-steward-ladder-breaks.\" The wake starts it once its switch input is set.",
+  "lists": [],
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
+  "workflows": [
+    "workflow:find-where-the-steward-ladder-breaks"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:find-where-the-steward-ladder-breaks\".",
+    "3. Read the answer the run hands back."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find where the steward ladder breaks",
+      "ask": "Run workflow:find-where-the-steward-ladder-breaks.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:find-where-the-steward-ladder-breaks"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:find-where-the-steward-ladder-breaks",
+      "step": "stages",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-   },
-   "workflow": "workflow:find-where-the-steward-ladder-breaks",
-   "step": "failing",
-   "given": "Read from the row of workflow:find-where-the-steward-ladder-breaks in tools/workflows/recipes/workflows.json: step failing answers {stage, evidence, change, why_this_stage}. Step stages found before acting, initiative and continuity holding, and durability failing: issues go out in bursts, then nothing for weeks.",
-   "hands_back": "{\"stage\":\"durability\",\"evidence\":\"Last 6 months: 3 issues in March, none April to August, 2 in September; pre-orders rose only in weeks an issue went out.\",\"change\":\"A weekly Thursday 9am schedule that drafts the issue from that week's new bakes and is owned by the shop manager, who approves it in 5 minutes.\",\"why_this_stage\":\"The newsletter starts and survives its first send, so more motivation or tools would not help; it stops being kept going.\"}"
-  }
- ],
- "drafted_from": "workflow:find-where-the-steward-ladder-breaks's row in tools/workflows/recipes/workflows.json (input schema, steps and submit shapes); no test names it"
+  ],
+  "drafted_from": "workflow:find-where-the-steward-ladder-breaks rendered from its row"
 }
