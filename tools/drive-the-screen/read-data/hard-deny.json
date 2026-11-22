@@ -1,0 +1,56 @@
+{
+  "_what": "What no AI may do on this Mac's screen, whatever the person's own rules, grants or the call say (./hard-deny.mjs, read by ./drive-the-screen.mjs for every drive: tool:drive-the-screen and tool:click-on-this-macs-screen). An AI never grants itself a Mac permission, types or reads a password, confirms a payment, or answers the system's own sign-in and authentication sheets: those are the person's own hands. Each rule has an id (named in every refusal), the words the refusal says, and `when`: a list of conditions, any of which matching refuses. A condition matches when every part it gives matches: `app` (a bundle id or name, exact, ignoring case, of the app driven or the app in front), `window` (a pattern tested on each window title of the app driven), `role` (the target's role or subrole, exact, ignoring case, the role prefix AX stripped as in the driver's elements), `label` (a pattern tested on the target's label and text), `writes` (true: only for actions that type into or change the screen) and `untargeted_on_credential_surface` (true: an action that writes with no target while the screen holds a password field). Patterns are regular expressions, matched ignoring case. The checks run twice: on what the call asks for before anything is read (the app and the target it names), and on the resolved target, its app, the app in front and the app's windows before anything is done, so a rehearsal (dry_run) is refused the same way. There is no switch: changing this list is a data edit that lands under review.",
+  "_not_acting_what": "Actions that only show or look and change nothing on the screen (a dot and a caption, the pointer resting): the list does not judge them, so an AI can still show the person where the button is.",
+  "not_acting": ["point", "hover"],
+  "app_identities": {
+    "settings": ["com.apple.systempreferences", "com.apple.Settings", "System Settings", "System Preferences"]
+  },
+  "rules": [
+    {
+      "id": "privacy-and-security-settings",
+      "said": "That is in System Settings' Privacy & Security, where Mac permissions are given. An AI never gives itself or any app a permission; the person does it with their own hands.",
+      "when": [
+        { "app": "@settings", "window": "privacy|security|screen (& system audio )?recording|accessibility|full disk access|automation|input monitoring|camera|microphone|location services|files (and|&) folders|developer tools|app management|bluetooth|local network|login items|passwords|contacts|calendars|reminders|photos|media (&|and) apple music|motion (&|and) fitness|home|remote desktop|lockdown mode|filevault|extensions" },
+        { "app": "@settings", "label": "privacy|security|screen (& system audio )?recording|accessibility|full disk access|automation|input monitoring|camera|microphone|location services|files (and|&) folders|developer tools|app management|local network|passwords|filevault|lockdown mode|allow|grant|always allow" }
+      ]
+    },
+    {
+      "id": "password-and-passkey-fields",
+      "said": "That is a password, passcode or passkey field. An AI never types, pastes or reads the person's passwords.",
+      "when": [
+        { "role": "securetextfield" },
+        { "label": "^(password|passcode|passkey|current password|new password|verify( password)?|confirm password|admin password|apple (id|account) password|pin|one-time code|verification code)\\b" },
+        { "untargeted_on_credential_surface": true }
+      ]
+    },
+    {
+      "id": "payment-confirmations",
+      "said": "That confirms a payment or a purchase. Paying is the person's own act; an AI prepares it and stops before this button.",
+      "when": [
+        { "label": "^(pay( now| with .*)?|buy( now)?|purchase|complete (purchase|payment|order)|confirm (purchase|payment|order|and pay)|place (your )?order|subscribe( now)?|double[- ]click to pay|pay with apple pay|send money|transfer( now)?)$" },
+        { "app": "com.apple.PassbookUIService" },
+        { "app": "com.apple.Passbook" },
+        { "app": "Wallet" }
+      ]
+    },
+    {
+      "id": "authentication-sheets",
+      "said": "That is the Mac's own sign-in or authentication sheet (an administrator password, Touch ID or a passkey prompt). Only the person answers it.",
+      "when": [
+        { "app": "com.apple.SecurityAgent" },
+        { "app": "SecurityAgent" },
+        { "app": "coreautha" },
+        { "app": "coreauthd" },
+        { "app": "com.apple.LocalAuthentication.UIAgent" },
+        { "app": "LocalAuthenticationRemoteService" },
+        { "app": "com.apple.AuthenticationServicesCore.AuthenticationServicesAgent" },
+        { "app": "AuthenticationServicesAgent" },
+        { "app": "com.apple.keychainaccess" },
+        { "app": "com.apple.Passwords" }
+      ]
+    }
+  ],
+  "words": {
+    "refused": "Refused by rule {rule}: {said} Nothing was done."
+  }
+}

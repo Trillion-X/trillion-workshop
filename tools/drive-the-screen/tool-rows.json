@@ -1400,6 +1400,448 @@
           "source": "Moved from Trillion-X/trillion computer/drive-the-screen.mjs, computer/drive-the-screen.json and computer/screen-driver.swift (rows: records/workshop-screen-driving-tool-records.json, computer/mac-tools.json), 2026-11-03"
         }
       }
+    },
+    {
+      "id": "package::drive-the-screen::tool::click-on-this-macs-screen",
+      "address": "package::drive-the-screen::tool::click-on-this-macs-screen",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-dashboard",
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/check-consent-to-an-introduction",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/lessons-and-learning-paths",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/model-response",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/network-people",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-sql-in-my-database",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-storage-release-rules",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:drive-the-screen",
+        "needs": {
+          "expected_seconds": 30,
+          "priority": 5,
+          "network_egress": false
+        },
+        "id": "tool:click-on-this-macs-screen",
+        "listed_on": "2026-10-19T00:00:00Z",
+        "label": "Click on this Mac's screen",
+        "job": "Do one thing in a named app on the person's Mac: bring it to the front, click a thing found by its accessibility label or role (or a point from a fresh look), type text or press a key, with a screen capture identity before and after. Never in System Settings' Privacy & Security, a password field, a payment confirmation or the Mac's authentication sheets.",
+        "description": "Runs on the person's own Mac under the app that runs tools there, with that app's own Accessibility and Screen Recording permissions (a run whose parent is not the app is refused). `action` is open (bring the named running app to the front), click (needs `target`), type (`text`, after clicking `target` when given) or press_key (`keys` such as cmd+s or return). `target` is a label, { match: { label | role | title | description | value | identifier | text } }, or { at: { x, y } } in global points from a fresh look, which resolves to the smallest element under the point. Each run observes the app, finds the target, judges it against a hard deny list, acts, observes again and says what changed; `captures` holds the BLAKE3 identity of a screen capture before and after. The deny list has no switch: a click, key or text in System Settings' Privacy & Security panes, into a password, passcode or passkey field, on a payment confirmation, or into the Mac's authentication sheets (SecurityAgent, coreautha) is refused before anything is done, a rehearsal (dry_run) too, and the refusal names its rule in `refused_by_rule`. Without the Mac permission it answers the permission it needs (`permission`: ax_trusted or screen_capture) and does nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "action",
+            "app"
+          ],
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "open",
+                "click",
+                "type",
+                "press_key"
+              ],
+              "description": "open, click, type or press_key"
+            },
+            "app": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The running app, by its name or bundle id"
+            },
+            "target": {
+              "description": "A label, { match: { field: text } }, or { at: { x, y } } from a fresh look"
+            },
+            "text": {
+              "type": "string",
+              "description": "What type types"
+            },
+            "keys": {
+              "type": "string",
+              "description": "What press_key presses, such as cmd+s or return"
+            },
+            "expect": {
+              "description": "What must be on the screen after: { target, min?, max? } or { changed: true | false }, or a list of them"
+            },
+            "dry_run": {
+              "type": "boolean",
+              "description": "Find and judge the target, do nothing"
+            },
+            "settings_folder": {
+              "type": "string",
+              "description": "The folder that holds the person's screen-driving settings"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string"
+            },
+            "dispatched": {
+              "type": "boolean"
+            },
+            "verified": {},
+            "targets": {
+              "type": "object"
+            },
+            "captures": {
+              "type": "object",
+              "properties": {
+                "before": {
+                  "type": "object"
+                },
+                "after": {
+                  "type": "object"
+                }
+              }
+            },
+            "effect": {},
+            "said": {
+              "type": "string"
+            },
+            "error": {
+              "type": "string"
+            },
+            "refused_by_rule": {
+              "type": "string"
+            },
+            "permission": {
+              "type": "string"
+            },
+            "reaction": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "see-the-screen",
+            "read-the-screen-text",
+            "drive-the-screen",
+            "change-a-folder"
+          ],
+          "max_run_ms": 120000,
+          "workdir": "/opt/drive-the-screen",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/drive-the-screen/read-data/drive-the-screen.mjs",
+            "clickOnThisMacsScreen"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes/formula-engine"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
+                "package": "drive-the-screen",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/drive-the-screen"
+              },
+              {
+                "package": "look-at-screen",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/look-at-screen"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "built-stored-bytes/formula-engine/formula_engine.js",
+                  "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
+                ],
+                "at": "/opt/formula-engine"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "read-data/large-file.json",
+                  "read-data/raw-pieces.mjs"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "read-data/host-actions.mjs",
+                  "read-data/large-file.json",
+                  "read-data/whole-file.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "safety": "dry-run",
+            "input": {
+              "action": "click",
+              "app": "System Settings",
+              "target": "Screen & System Audio Recording",
+              "dry_run": true
+            },
+            "output_selector": "$.refused_by_rule",
+            "contains": "privacy-and-security-settings",
+            "evidence": [
+              "tools/drive-the-screen/test/click-on-this-macs-screen.test.mjs"
+            ]
+          }
+        ],
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Asked for 2026-11-21: the screen clicking an AI did by hand from a terminal, made a Workshop tool run by the app that runs tools on the Mac, under its own Mac permissions, over the existing screen driver, with a hard deny list (read-data/hard-deny.json)"
+        }
+      }
     }
   ]
 }

@@ -952,5 +952,12 @@
     "_what": "Words the Mac host (Trillion-X/trillion computer/mac-tools.json words) said around these rows, said here now that a computer run has no host.",
     "not_an_object": "Send the tool input as an object.",
     "failed": "Something went wrong on this computer: {error}"
+  },
+  "click_actions": {
+    "_what": "The four actions of tool:click-on-this-macs-screen (drive-the-screen.mjs clickOnThisMacsScreen), each one row of `actions` above: `drive` is that row, `target` whether a target is required, optional or none, `input` the one more input it takes (text or keys).",
+    "open": { "drive": "activate", "target": "none", "what": "Bring the named running app to the front." },
+    "click": { "drive": "click", "target": "required", "what": "Click a thing in the named app, found by its accessibility label or role, or by a point from a fresh look." },
+    "type": { "drive": "type", "target": "optional", "input": "text", "what": "Type text into the named app, after clicking the target when one is given." },
+    "press_key": { "drive": "key", "target": "optional", "input": "keys", "what": "Press a key or a combination such as cmd+s or return in the named app." }
   }
 }

@@ -1,0 +1,31 @@
+{
+  "drafted_from": "tool:click-on-this-macs-screen row in tools/drive-the-screen/tool-rows.json, read-data/drive-the-screen.mjs (clickOnThisMacsScreen), read-data/hard-deny.json and test/click-on-this-macs-screen.test.mjs",
+  "start_here": "Say to your AI: \"In Notes, click New Note.\" It runs tool:click-on-this-macs-screen once with action click, app Notes and target New Note, and says what changed, with a capture identity from before and after.",
+  "lists": [],
+  "no_lists_because": "It names no list: it does one thing on the screen when run and answers what it did; workflow:do-a-thing-on-the-macs-screen keeps the record of a longer job.",
+  "workflows": ["workflow:do-a-thing-on-the-macs-screen"],
+  "tools": ["tool:click-on-this-macs-screen"],
+  "instructions": [
+    "1. The app that runs tools on this Mac needs Accessibility (to read and click) and Screen Recording (for the captures) in System Settings, Privacy & Security; without them the tool answers the permission it needs in `permission` and does nothing. The person turns them on; an AI never does.",
+    "2. Your AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:click-on-this-macs-screen and input {action, app, target?, text?, keys?, dry_run?}. action is open, click, type or press_key.",
+    "3. Describe the target by what it is called (a label, or { match: { role: \"button\", label: \"Save\" } }); a point { at: { x, y } } from a fresh look is the fallback.",
+    "4. Read the answer: dispatched, what changed (`effect`), `captures.before` and `captures.after` (BLAKE3 identities of the screen), and `verified` when `expect` was given.",
+    "5. A refusal with `refused_by_rule` is final: Privacy & Security panes, password fields, payment confirmations and authentication sheets are the person's own hands. Tell the person what to do there."
+  ],
+  "worked_examples": [
+    {
+      "title": "Click a named button in a named app",
+      "ask": "In Notes, click New Note.",
+      "mcp": { "server": "{cli}", "tool": "do_one_thing_in_my_account", "input": { "method": "tools:run", "input": { "tool": "tool:click-on-this-macs-screen", "input": { "action": "click", "app": "Notes", "target": "New Note" } } } },
+      "given": "From tools/drive-the-screen/test/click-on-this-macs-screen.test.mjs (the screen program stood in for): Notes has a button described New Note at 20,20 sized 40 by 20; the captures before and after differ.",
+      "hands_back": "dispatched true, targets.target {label \"New Note\", x 40, y 30}, captures {before {blake3 ...}, after {blake3 ...}}, and what changed in `effect`."
+    },
+    {
+      "title": "A click aimed at Screen Recording is refused",
+      "ask": "Turn on Screen Recording for the app that runs my tools.",
+      "mcp": { "server": "{cli}", "tool": "do_one_thing_in_my_account", "input": { "method": "tools:run", "input": { "tool": "tool:click-on-this-macs-screen", "input": { "action": "click", "app": "System Settings", "target": "Screen & System Audio Recording" } } } },
+      "given": "From the same test: the request names System Settings and a Privacy & Security pane, so read-data/hard-deny.json rule privacy-and-security-settings matches before the screen is read.",
+      "hands_back": "refused_by_rule \"privacy-and-security-settings\" and error \"Refused by rule privacy-and-security-settings: That is in System Settings' Privacy & Security, where Mac permissions are given. An AI never gives itself or any app a permission; the person does it with their own hands. Nothing was done.\""
+    }
+  ]
+}

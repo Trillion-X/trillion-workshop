@@ -34,6 +34,13 @@
 //      the MEASURED image size, and refused when the image's shape does not match the display.
 //   8. Working in the background keeps the person's own screen theirs: `background: true` posts input to the driven
 //      process itself (never the global stream) and never brings it forward.
+//   9. The hard deny list (./hard-deny.json, ./hard-deny.mjs) has no switch: what the call asks for is judged before the
+//      screen is read, and the resolved target, its app, the app in front and the app's windows before anything is done or
+//      rehearsed. A refusal names its rule. An AI never gives itself a Mac permission, types a password, confirms a payment
+//      or answers an authentication sheet.
+//  10. A target may be a point ({ at: { x, y } }, global points from a fresh look): it resolves to the smallest element under
+//      the point, which the deny list judges like any other target. `record_captures: true` keeps the BLAKE3 identity of a
+//      screen capture taken before and after the drive.
 //
 import { randomUUID } from 'node:crypto';
 import { mkdirSync, mkdtempSync, readFileSync, renameSync, statSync, writeFileSync } from 'node:fs';
@@ -50,6 +57,8 @@ import { categorySettings, loadCategoryTable, withCategories } from './observati
 import { ParkedWrite, writeSettingsFile } from './settings-file.mjs';
 import { makePlaces } from './work-places.mjs';
 import { decisionSettings, refreshControls, requireAllowed, requireHooks, ruleTools } from './run-decision.mjs';
+import { hardDenyList, requestRefusal, targetRefusal } from './hard-deny.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const screenSettings = () => JSON.parse(readFileSync(join(HERE, 'drive-the-screen.json'), 'utf8'));
@@ -252,6 +261,7 @@ function grade(spec, value) {
 /** The caller's description of a target: a string (its label) or { match: { field: matcher }, source?, nth? }. */
 export function targetSpec(target) {
   if (typeof target === 'string') return { match: { label: target } };
+  if (target && typeof target === 'object' && Number.isFinite(target.at?.x) && Number.isFinite(target.at?.y)) return { at: { x: target.at.x, y: target.at.y }, ...(target.source ? { source: target.source } : {}) };
   if (target && typeof target === 'object' && target.match && typeof target.match === 'object') return target;
   return null;
 }
@@ -262,6 +272,7 @@ const insideADisplay = (center, displays) => !center || displays.some(d => cente
 export function locate(settings, observation, target, { needs = [], sources = null } = {}) {
   const spec = targetSpec(target);
   if (!spec) return [];
+  if (spec.at) return underPoint(observation, spec.at);
   const wanted = spec.source ? [spec.source] : sources;
   const order = settings.elements.source_order;
   const scored = [];
@@ -288,6 +299,17 @@ export function locate(settings, observation, target, { needs = [], sources = nu
     return 0;
   });
   return scored.map(row => ({ ...row.element, score: row.ranked.score }));
+}
+
+/** The elements under a point, smallest first, each acting at the point itself; none when the point is on no display. With no
+ *  element there, the bare point (source `point`), so a click on empty space still goes where it was aimed. */
+function underPoint(observation, at) {
+  if (!insideADisplay(at, observation.displays)) return [];
+  const inside = observation.elements.filter(element => element.frame && at.x >= element.frame.x && at.x <= element.frame.x + element.frame.width
+    && at.y >= element.frame.y && at.y <= element.frame.y + element.frame.height)
+    .sort((a, b) => a.frame.width * a.frame.height - b.frame.width * b.frame.height);
+  const here = inside.map(element => ({ ...element, center: { x: at.x, y: at.y }, score: 1 }));
+  return here.length ? here : [{ source: 'point', fields: {}, center: { x: at.x, y: at.y }, raw: {}, score: 1 }];
 }
 
 /** What a located element offers a step: the point, the path, the raw fields, the app. */
@@ -413,6 +435,16 @@ export function makeScreenDriver({ settings = screenSettings(), home = homedir()
   },
   ocr = ocrPixels, wait = ms => new Promise(resolve => setTimeout(resolve, ms)), readSecret = callAccountTool, parent = () => process.ppid } = {}) {
   const limits = settings.limits;
+  const hardDeny = hardDenyList();
+
+  // The identity of one screen capture (BLAKE3 of its bytes), for the record of a drive; a capture the Mac refuses is the
+  // typed Screen Recording refusal, never a made-up identity.
+  const captureIdentity = async () => {
+    let bytes;
+    try { bytes = await capture(); }
+    catch { throw Object.assign(refuse(settings, 'not_ready', { what: settings.readiness[settings.elements.source_permissions.ocr] }, 409, false), { code: settings.permission_code, permission: settings.elements.source_permissions.ocr }); }
+    return { blake3: makeHashCodeHexFromBytes(bytes), bytes: bytes.length, at: new Date(now()).toISOString() };
+  };
 
   // One program answer, or a refusal: a program that fails, does not answer or answers nonsense is never read as allowed.
   const ask = async request => {
@@ -525,9 +557,13 @@ export function makeScreenDriver({ settings = screenSettings(), home = homedir()
     rejectCarriedConsent(settings, input);
     const action = Object.hasOwn(settings.actions, input.action) ? settings.actions[input.action] : null;
     if (!action) throw refuse(settings, 'unknown_action', { action: input.action }, 404);
-    const allowedKeys = new Set(['action', 'target', 'app', 'expect', 'dry_run', 'session', 'background', ...Object.keys(action.inputs ?? {})]);
+    const allowedKeys = new Set(['action', 'target', 'app', 'expect', 'dry_run', 'session', 'background', 'record_captures', ...Object.keys(action.inputs ?? {})]);
     const extra = Object.keys(input).find(name => !allowedKeys.has(name));
     if (extra) throw refuse(settings, 'takes_not', { action: input.action, name: extra }, 400);
+    // The hard deny list on what is asked, before the screen is read (invariant 9).
+    const judged = !hardDeny.not_acting.includes(input.action);
+    if (judged) requestRefusal(hardDeny, { app: input.app, target: input.target, to: input.to, writes: action.writes === true });
+    if (input.record_captures !== undefined && typeof input.record_captures !== 'boolean') throw refuse(settings, 'bad_input', { name: 'record_captures', type: 'true or false' }, 400);
     if (input.background !== undefined && typeof input.background !== 'boolean') throw refuse(settings, 'bad_input', { name: 'background', type: 'true or false' }, 400);
     const inBackground = input.background === true;
 
@@ -560,6 +596,7 @@ export function makeScreenDriver({ settings = screenSettings(), home = homedir()
     const sources = action.target?.sources ?? settings.elements.source_order;
     const facts = await factsOf(input.app);
     const session = sessionOf(input);
+    const captureBefore = input.record_captures === true ? await captureIdentity() : undefined;
     let before = await observe({ facts, sources, session });
     if (now() - before.observed_at > limits.observation_max_age_ms) before = await observe({ facts, sources, session });
 
@@ -576,7 +613,7 @@ export function makeScreenDriver({ settings = screenSettings(), home = homedir()
         throw refuse(settings, 'ambiguous_refusal', { count: found.length, target: JSON.stringify(input[name]), last: found.length - 1 }, 409, false);
       }
       const chosen = found[nth];
-      located[name] = { ...targetValues(chosen, facts.app), brief: brief(chosen), matches: found.length };
+      located[name] = { ...targetValues(chosen, facts.app), brief: brief(chosen), matches: found.length, element: chosen };
       if (found.length > 1 && nth === 0) said.push(fill(settings.words.ambiguous_note, { count: found.length }));
     }
 
@@ -592,9 +629,14 @@ export function makeScreenDriver({ settings = screenSettings(), home = homedir()
       }
       return steps;
     };
+    // The hard deny list on the resolved targets, before anything is done or rehearsed (invariant 9).
+    if (judged) targetRefusal(hardDeny, { app: before.app, frontmost: before.frontmost, targets: Object.values(located).map(row => row.element),
+      windows: before.elements.filter(element => element.source === 'ax' && element.ref?.path?.length === 1).map(element => element.raw?.title ?? element.fields.title),
+      writes: action.writes === true, credentialSurface: before.credential_surface === true });
     const events = stepsFor({ ...values, ...located });
     if (events.length > limits.max_events) throw refuse(settings, 'too_many_steps', { action: input.action, count: events.length, limit: limits.max_events }, 400);
-    const found = { action: input.action, observed_before: { ...slim(summary(before)), ...(before.credential_surface ? { credential_surface: settings.words.credential_surface } : {}) }, targets: Object.fromEntries(Object.entries(located).map(([name, row]) => [name, { ...row.brief, matches: row.matches }])), events };
+    const captures = captureBefore ? { captures: { before: captureBefore } } : {};
+    const found = { action: input.action, ...captures, observed_before: { ...slim(summary(before)), ...(before.credential_surface ? { credential_surface: settings.words.credential_surface } : {}) }, targets: Object.fromEntries(Object.entries(located).map(([name, row]) => [name, { ...row.brief, matches: row.matches }])), events };
     if (input.dry_run === true) return { ...found, plan: planOf(settings, events), dispatched: false, verified: null, said: fill(settings.words.dry_run, { action: input.action }) };
 
     // The floor again at the moment of action, from the person's file as it is now.
@@ -640,6 +682,7 @@ export function makeScreenDriver({ settings = screenSettings(), home = homedir()
     const diff = diffElements(before.elements, after.elements, limits.diff_samples);
     const checks = expectations.map(expectation => checkExpectation(settings, expectation, after, diff));
     const verified = checks.length ? checks.every(check => check.met) : null;
+    if (captureBefore) found.captures.after = await captureIdentity();
     return { ...found, dispatched: true, ...(inBackground ? { background: true } : {}), results: dispatched.events, observed_after: slim(summary(after)), effect: diff,
       ...(checks.length ? { checks } : {}), verified,
       said: [fill(verified === null ? settings.words.unchecked : verified ? settings.words.verified : settings.words.not_verified, { action: input.action }), ...said].join(' ') };
@@ -703,7 +746,7 @@ export function answerOfError(settings, error) {
   return { error: error?.status ? error.message : fill(hostWords(settings).failed, { error: error?.message ?? error }),
     ...(typeof error?.retry === 'boolean' ? { retry: error.retry } : {}), ...(Number.isFinite(error?.retry_after_ms) ? { retry_after_ms: error.retry_after_ms } : {}),
     ...(error?.reaction ? { reaction: error.reaction, reaction_said: error.reaction_said } : {}), ...(error?.outcome ? { outcome: error.outcome } : {}),
-    ...(error?.code ? { code: error.code } : {}), ...(error?.permission ? { permission: error.permission } : {}) };
+    ...(error?.code ? { code: error.code } : {}), ...(error?.permission ? { permission: error.permission } : {}), ...(error?.rule ? { refused_by_rule: error.rule } : {}) };
 }
 
 /** The four functions over a driver and the places, both made for the run's settings folder (a test hands in its own). */
@@ -743,6 +786,28 @@ export const lookAtTheScreen = input => toolsHere().look(input);
 export const findOnTheScreen = input => toolsHere().find(input);
 export const screenActions = input => toolsHere().actions(input);
 export const driveTheScreen = input => toolsHere().drive(input);
+
+// tool:click-on-this-macs-screen: one of four plain actions on a named app, each with a capture identity before and after and
+// the hard deny list judged on the resolved target. The words of each action are ./drive-the-screen.json `click_actions`.
+export function clickInput(settings, input) {
+  if (input === null || typeof input !== 'object' || Array.isArray(input)) throw Object.assign(new Error(hostWords(settings).not_an_object), { status: 400, retry: false });
+  const { action, app, target, text, keys, expect, dry_run: dryRun, settings_folder: folder, ...rest } = input;
+  const extra = Object.keys(rest)[0];
+  const row = settings.click_actions[action];
+  if (!row) throw refuse(settings, 'unknown_action', { action }, 404);
+  if (extra !== undefined) throw refuse(settings, 'takes_not', { action, name: extra }, 400);
+  if (typeof app !== 'string' || !app.trim()) throw refuse(settings, 'needs_input', { action, name: 'app' }, 400);
+  if (row.target === 'required' && target === undefined) throw refuse(settings, 'needs_input', { action, name: 'target' }, 400);
+  return { action: row.drive, app, ...(row.target !== 'none' && target !== undefined ? { target } : {}), ...(row.input === 'text' ? { text } : {}),
+    ...(row.input === 'keys' ? { keys } : {}), ...(expect !== undefined ? { expect } : {}), ...(dryRun !== undefined ? { dry_run: dryRun } : {}),
+    record_captures: true, ...(folder !== undefined ? { settings_folder: folder } : {}) };
+}
+export const clickOnThisMacsScreen = async input => {
+  const settings = screenSettings();
+  let asked;
+  try { asked = clickInput(settings, input); } catch (error) { return answerOfError(settings, error); }
+  return toolsHere().drive(asked);
+};
 
 // The person's own command line, on their Mac (HOME set to their settings folder):
 //   HOME=<folder> node tools/drive-the-screen/read-data/drive-the-screen.mjs grant --actions look,press --minutes 10 [--apps Safari]

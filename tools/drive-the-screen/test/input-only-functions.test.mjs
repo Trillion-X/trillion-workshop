@@ -1,4 +1,4 @@
-// The four Workshop functions take the run's input and nothing else: tools/workflows/do-work/run-a-function.mjs calls each
+// The five Workshop functions take the run's input and nothing else: tools/workflows/do-work/run-a-function.mjs calls each
 // with the input, and no door or context reaches them. Every row runs that runner on one of these exports, and a call that
 // leaves out what it needs is refused in words, never run on nothing.
 import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
@@ -8,12 +8,12 @@ import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { driveTheScreen, findOnTheScreen, lookAtTheScreen, makeScreenTools, screenActions } from '../read-data/drive-the-screen.mjs';
+import { clickOnThisMacsScreen, driveTheScreen, findOnTheScreen, lookAtTheScreen, makeScreenTools, screenActions } from '../read-data/drive-the-screen.mjs';
 import { makePlaces } from '../read-data/work-places.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const rows = JSON.parse(readFileSync(join(HERE, '..', 'tool-rows.json'), 'utf8')).records.filter(record => record.payload?.invoke);
-const exports = { lookAtTheScreen, findOnTheScreen, screenActions, driveTheScreen };
+const exports = { lookAtTheScreen, findOnTheScreen, screenActions, driveTheScreen, clickOnThisMacsScreen };
 
 // The person is away from this Mac, so a drive reaches its own refusals instead of waiting for them to leave it.
 const awayFor = ns => argv => ({ code: 0, stdout: Buffer.from(argv[0] === 'ioreg' ? `"HIDIdleTime" = ${ns}` : ''), stderr: '' });
@@ -21,7 +21,7 @@ const placesAway = () => makePlaces({ home: tempFolder(join(tmpdir(), 'input-onl
 const drive = input => makeScreenTools({ places: placesAway }).drive(input);
 
 test('every row runs the workflows runner on one of these functions, which takes only the input, and mounts no records door', () => {
-  assert.equal(rows.length, 4);
+  assert.equal(rows.length, 5);
   for (const row of rows) {
     const { argv, files } = row.payload.invoke;
     assert.deepEqual(argv.slice(0, 3), ['node', '/opt/workflows/do-work/run-a-function.mjs', '/opt/drive-the-screen/read-data/drive-the-screen.mjs']);

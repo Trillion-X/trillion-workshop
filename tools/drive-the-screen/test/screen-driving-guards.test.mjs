@@ -17,7 +17,7 @@ const DISPLAY = { index: 0, main: true, x: 0, y: 0, width: 1000, height: 500, sc
 const PROBE = { name: 'Probe', bundle_id: 'test.probe', pid: 4242 };
 const rows = (secure = false) => [
   { path: [0], depth: 1, role: 'AXWindow', title: 'Probe', frame: { x: 100, y: 100, width: 400, height: 300 } },
-  { path: [0, 0], depth: 2, role: 'AXButton', title: 'Confirm Order', enabled: true, actions: ['AXPress'], frame: { x: 120, y: 120, width: 100, height: 30 } },
+  { path: [0, 0], depth: 2, role: 'AXButton', title: 'Save Draft', enabled: true, actions: ['AXPress'], frame: { x: 120, y: 120, width: 100, height: 30 } },
   { path: [0, 1], depth: 2, role: 'AXTextField', description: 'Name field', enabled: true, frame: { x: 120, y: 220, width: 200, height: 20 } },
   ...(secure ? [{ path: [0, 2], depth: 2, role: 'AXTextField', subrole: 'AXSecureTextField', description: 'Password', enabled: true, frame: { x: 120, y: 260, width: 200, height: 20 } }] : []),
 ];
@@ -61,14 +61,14 @@ test('a grant that counts uses is spent by the action and gone at zero; the sent
   assert.equal(readGrants(gate, home).grants.find(grant => grant.id === once.grant.id).uses, 1);
   await driver.look();
   assert.equal(readGrants(gate, home).grants.find(grant => grant.id === once.grant.id).uses, 1, 'looking spends nothing');
-  const rehearsal = await driver.drive({ action: 'press', target: 'Confirm Order', dry_run: true }).catch(error => error);
+  const rehearsal = await driver.drive({ action: 'press', target: 'Save Draft', dry_run: true }).catch(error => error);
   assert.equal(rehearsal.dispatched, false);
-  assert.equal((await driver.drive({ action: 'press', target: 'Confirm Order' })).dispatched, true);
+  assert.equal((await driver.drive({ action: 'press', target: 'Save Draft' })).dispatched, true);
   assert.equal(readGrants(gate, home).grants.some(grant => grant.id === once.grant.id), false, 'spent');
-  await assert.rejects(driver.drive({ action: 'press', target: 'Confirm Order' }), /not allowed press/);
+  await assert.rejects(driver.drive({ action: 'press', target: 'Save Draft' }), /not allowed press/);
   assert.throws(() => tools.grant({ actions: ['press'], uses: 0 }), /Name the actions/);
   const twice = tools.grant({ actions: ['press'], uses: 2, minutes: 5 });
-  await driver.drive({ action: 'press', target: 'Confirm Order' });
+  await driver.drive({ action: 'press', target: 'Save Draft' });
   assert.equal(readGrants(gate, home).grants.find(grant => grant.id === twice.grant.id).uses, 1);
 });
 
@@ -78,7 +78,7 @@ test('with refuse_writes on, writing into a screen with a password field needs t
   const { driver, home, now } = driverOf(mac, on);
   await refusedBy(driver.drive({ action: 'type', text: 'x', target: 'Name field' }), /not allowed credential_surface/);
   assert.equal(mac.acts.length, 0);
-  assert.equal((await driver.drive({ action: 'press', target: 'Confirm Order' })).dispatched, true, 'a press is not a write');
+  assert.equal((await driver.drive({ action: 'press', target: 'Save Draft' })).dispatched, true, 'a press is not a write');
   grantTools(on, { home, now }).grant({ actions: ['credential_surface'], minutes: 5 });
   assert.equal((await driver.drive({ action: 'type', text: 'x', target: 'Name field' })).dispatched, true);
   const plain = driverOf(pretend(), on).driver;
@@ -95,7 +95,7 @@ test('with taint on, an action that could send on what the session read is refus
   assert.deepEqual(Object.keys(file.sessions['chat-1']).sort(), ['sensitive_data', 'untrusted_content']);
   await refusedBy(driver.drive({ action: 'type', text: 'x', session: 'chat-1' }), /read content from outside and private data/);
   assert.equal(mac.acts.length, 0);
-  assert.equal((await driver.drive({ action: 'press', target: 'Confirm Order', session: 'chat-1' })).dispatched, true, 'a press is not in the refused list');
+  assert.equal((await driver.drive({ action: 'press', target: 'Save Draft', session: 'chat-1' })).dispatched, true, 'a press is not in the refused list');
   const calm = withGuards({ 'guards.taint.private_apps': [] }, on);
   assert.equal((await driverOf(pretend(), calm, home, () => clock).driver.drive({ action: 'type', text: 'x', session: 'chat-2' })).dispatched, true, 'no private app was read in this session');
   grantTools(on, { home, now }).grant({ actions: ['tainted_action'], minutes: 5 });

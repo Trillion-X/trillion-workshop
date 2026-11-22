@@ -15,7 +15,7 @@ const DISPLAY = { index: 0, main: true, x: 0, y: 0, width: 1000, height: 500, sc
 const PROBE = { name: 'Probe', bundle_id: 'test.probe', pid: 4242 };
 const rows = [
   { path: [0], depth: 1, role: 'AXWindow', title: 'Probe', frame: { x: 100, y: 100, width: 400, height: 300 } },
-  { path: [0, 0], depth: 2, role: 'AXButton', title: 'Confirm Order', enabled: true, actions: ['AXPress'], frame: { x: 120, y: 120, width: 100, height: 30 } },
+  { path: [0, 0], depth: 2, role: 'AXButton', title: 'Save Draft', enabled: true, actions: ['AXPress'], frame: { x: 120, y: 120, width: 100, height: 30 } },
 ];
 const acts = [];
 function pretend({ secure, trusted = true, frontmost = PROBE } = {}) {
@@ -30,22 +30,22 @@ const driverOf = (program, settings = open) => makeScreenDriver({ settings, prog
 
 test('point shows where a thing is and does nothing else: one caption event, no key, click or change', async () => {
   const driver = driverOf(pretend());
-  const answer = await driver.drive({ action: 'point', target: 'Confirm Order' });
+  const answer = await driver.drive({ action: 'point', target: 'Save Draft' });
   assert.equal(answer.dispatched, true);
-  assert.deepEqual(acts[0].events, [{ event: 'caption', x: 170, y: 135, text: 'Confirm Order', ms: open.limits.caption_ms }]);
+  assert.deepEqual(acts[0].events, [{ event: 'caption', x: 170, y: 135, text: 'Save Draft', ms: open.limits.caption_ms }]);
   assert.equal(answer.verified, null);
   assert.ok(driver.actions().actions.some(row => row.id === 'point'));
 });
 
 test('narration is a flippable DATA row: off by default, and when on every located action is preceded by a caption at its point', async () => {
   assert.equal(open.narration.each_action, false);
-  await driverOf(pretend()).drive({ action: 'click', target: 'Confirm Order' });
+  await driverOf(pretend()).drive({ action: 'click', target: 'Save Draft' });
   assert.equal(acts[0].events[0].event, 'mouse_move');
   const on = { ...structuredClone(open), narration: { ...open.narration, each_action: true } };
-  await driverOf(pretend(), on).drive({ action: 'click', target: 'Confirm Order' });
-  assert.deepEqual(acts[0].events[0], { event: 'caption', x: 170, y: 135, text: 'click: Confirm Order', ms: open.limits.caption_ms });
+  await driverOf(pretend(), on).drive({ action: 'click', target: 'Save Draft' });
+  assert.deepEqual(acts[0].events[0], { event: 'caption', x: 170, y: 135, text: 'click: Save Draft', ms: open.limits.caption_ms });
   assert.equal(acts[0].events[1].event, 'mouse_move');
-  await driverOf(pretend(), on).drive({ action: 'point', target: 'Confirm Order' });
+  await driverOf(pretend(), on).drive({ action: 'point', target: 'Save Draft' });
   assert.equal(acts[0].events.filter(event => event.event === 'caption').length, 1, 'point is not captioned twice');
 });
 
@@ -108,7 +108,7 @@ test('the real native program shows a caption window that takes no focus and end
 
 test('a rehearsal returns the proposed plan as plain sentences, one per event, read from DATA, and dispatches nothing (F-0561)', async () => {
   const driver = driverOf(pretend());
-  const answer = await driver.drive({ action: 'click', target: 'Confirm Order', dry_run: true });
+  const answer = await driver.drive({ action: 'click', target: 'Save Draft', dry_run: true });
   assert.equal(answer.dispatched, false);
   assert.equal(acts.length, 0);
   assert.deepEqual(answer.plan, ['Move the pointer to (170, 135).', 'Press the left mouse button (down) at (170, 135).', 'Wait 35 ms.', 'Press the left mouse button (up) at (170, 135).']);
