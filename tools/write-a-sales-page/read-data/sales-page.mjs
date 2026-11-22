@@ -7,7 +7,8 @@
 //   consent, email course or article behavior; cards and actions here are static page content and links. A new kind of
 //   static section is different DATA, never new code.
 //
-//   Row: { title, description?, language?, brand?, palette?: { ground, text, accent }, share?, sections: [
+//   Row: { title, description?, language?, brand?, palette?: { ground, text, accent }, share?, canonical_origin?,
+//          canonical_path?, sections: [
 //          { emphasis?, heading?, body?, image?: { src, alt }, items?: [{ heading?, body?, meta?, details? }],
 //            cards?: [{ heading, body?, details?, href?, tone?, image? }], actions?: [{ label, href?, tone? }] } ] }
 //
@@ -16,7 +17,7 @@
 //   2. Nothing about what a page sells is written here; a page is only as true as the row it is given.
 //   3. Every problem with a row is reported at once, in words the caller can fix, before anything is written.
 //   4. A colour from DATA is used only when it is a plain colour value, so a row can never inject a rule.
-import { pageShellHtml } from '../../ui/show/server-rendered-page/page-sections-html.mjs';
+import { canonicalUrlFor, pageShellHtml } from '../../ui/show/server-rendered-page/page-sections-html.mjs';
 
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : null);
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -36,6 +37,7 @@ export function pageProblems(row) {
     for (const [index, card] of (Array.isArray(section.cards) ? section.cards : []).entries()) if (!text(card?.heading)) problems.push(`sections[${at}].cards[${index}].heading is required (for an offer, its plan name).`);
     for (const [index, action] of (Array.isArray(section.actions) ? section.actions : []).entries()) if (!text(action?.label)) problems.push(`sections[${at}].actions[${index}].label is required.`);
   }
+  if (row.canonical_origin !== undefined && !canonicalUrlFor(row, row.canonical_path ?? '/')) problems.push('canonical_origin must be an https origin, like https://www.example.com, and canonical_path a path starting with one /.');
   for (const [name, value] of Object.entries(object(row.palette) ? row.palette : {})) if (!(typeof value === 'string' && COLOUR.test(value.trim()))) problems.push(`palette.${name} must be a colour, like #111111.`);
   return problems;
 }
@@ -62,6 +64,7 @@ export function salesPageHtml(row, look) {
     language: text(row.language) ?? 'en',
     theme: 'page',
     ...(object(row.share) ? { share: row.share } : {}),
+    ...(row.canonical_origin !== undefined ? { canonical_origin: row.canonical_origin, canonical_path: row.canonical_path ?? '/' } : {}),
     sections,
     // The writer's own section and card rules come after this one, so the palette is set on html:root to win.
     island: { mount_element_id: 'page', inline_css: `html,body{margin:0;padding:0}${vars ? `html:root{${vars}}` : ''}\n${look}` },
