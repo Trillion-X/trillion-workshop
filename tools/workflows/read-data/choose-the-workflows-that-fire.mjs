@@ -7,7 +7,7 @@
 // conditions keep which parts. Nothing here names a workflow, a branch or a tag: a workflow added, or a kit installed,
 // is a candidate at once.
 //
-//   chooseTheWorkflowsThatFire({ parts, own?: [{ id, value: { recipe?, title, fires_when, definition?, kept_in? } }], operators?, within?, installed?, over_installed? })
+//   chooseTheWorkflowsThatFire({ parts, own?: [{ id, value: { recipe?, title, fires_when, definition?, kept_in? } }], shadow_ids?: [id], operators?, within?, installed?, over_installed? })
 //     -> { workflows, own, catalog_only, chosen: [{ workflow, label, part, condition, made_by, from, input, installed, definition?, kept_in? }],
 //          unfinished: [{ workflow, condition, incomplete }], unconditioned: [{ workflow, label }], unmatched_parts,
 //          within: [{ workflow, part, condition }] }
@@ -113,13 +113,16 @@ function metKeys(condition, part, operators) {
 }
 
 export async function chooseTheWorkflowsThatFire(input = {}) {
-  const { parts, own: ownRows = [], operators, within = [], installed = true, over_installed: overInstalled = [] } = input;
+  const { parts, own: ownRows = [], operators, within = [], installed = true, over_installed: overInstalled = [], shadow_ids: shadowIds = [] } = input;
   if (typeof installed !== 'boolean') throw new Error('installed must be true or false.');
   if (!Array.isArray(overInstalled) || !overInstalled.every(id => typeof id === 'string')) throw new Error('over_installed must be a list of workflow ids.');
   if (!Array.isArray(within) || !within.every(id => typeof id === 'string')) throw new Error('within must be a list of workflow ids.');
+  if (!Array.isArray(shadowIds) || !shadowIds.every(id => typeof id === 'string')) throw new Error('shadow_ids must be a list of workflow ids.');
   if (!Array.isArray(parts) || !parts.length || !parts.every(object)) throw new Error('parts must be a list of the seed\'s parts, each an object of its typed fields.');
   const shipped = catalogRecipes();
-  const catalog = installed ? shipped : new Map();
+  // Every id the person holds a row for shadows its installed copy, whether or not that row is among the rows handed in.
+  const catalog = new Map(installed ? shipped : []);
+  for (const id of shadowIds) catalog.delete(id);
   const own = ownWorkflows(ownRows);
   if (!installed) for (const id of [...own.keys()]) if (shipped.has(id) && !overInstalled.includes(id)) own.delete(id);
   const ids = [...new Set([...own.keys(), ...catalog.keys()])].sort();

@@ -209,6 +209,16 @@ test('the person\'s own row for an id shadows the installed copy of that id; an 
   assert.ok(noConditions.unconditioned.some(item => item.workflow === 'workflow:research-what-everyone-says'));
 });
 
+test('an id the person holds a row for, given as shadow_ids alone, takes its installed copy out of the choice', async () => {
+  const claim = { words: 'Most teams skip the plan.', kinds: ['claim'] };
+  const withoutShadow = await chooseTheWorkflowsThatFire({ parts: [claim], ...handedIn([]) });
+  assert.ok(withoutShadow.chosen.some(item => item.workflow === 'workflow:research-what-everyone-says'));
+  const shadowed = await chooseTheWorkflowsThatFire({ parts: [claim], shadow_ids: ['workflow:research-what-everyone-says'], ...handedIn([]) });
+  assert.ok(!shadowed.chosen.some(item => item.workflow === 'workflow:research-what-everyone-says'), 'a shadowed installed copy is not chosen');
+  assert.ok(!shadowed.unconditioned.some(item => item.workflow === 'workflow:research-what-everyone-says'), 'and is not listed either');
+  await assert.rejects(chooseTheWorkflowsThatFire({ parts: [claim], shadow_ids: 'workflow:x', ...handedIn([]) }), /shadow_ids must be a list/);
+});
+
 test('a condition on a field a part does not carry is named as unfinished, never dropped silently', async () => {
   const stage = { fields: [{ id: 'place', kind: 'choice', path: ['place'] }, { id: 'state', kind: 'choice', path: ['state'] }], tree: { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'place', operator: 'is_any_of', params: { values: ['product_stage'] } }, { kind: 'rule', field: 'state', operator: 'is_any_of', params: { values: ['ready'] } }] } };
   const row = ownRow('ready-piece-filler', { title: 'Fill a ready piece', fires_when: JSON.stringify([{ label: 'a piece is ready to be filled', condition: stage, made_by: 'the person', state: 'On' }]) });
