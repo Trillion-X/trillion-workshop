@@ -9,6 +9,7 @@ import { resolve } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 import { emailKey } from '../../traffic-attribution/do-work/journey.mjs';
 import { keepStepsFromRows, readSql, runKeepSteps } from '../do-work/keep-steps.mjs';
+import settings from '../read-data/journey-kept-rows.json' with { type: 'json' };
 
 const journeySql = readFileSync(resolve(import.meta.dirname, '../../traffic-attribution/read-data/journey-steps.sql'), 'utf8');
 
@@ -257,5 +258,58 @@ test('a mapping whose table exists but whose read fails is still an error', asyn
   const db = await pursuitDatabase();
   await db.exec('ALTER TABLE statements DROP COLUMN meaning');
   await assert.rejects(keepStepsFromRows({ query: (sql, params) => db.query(sql, params), mappings: [mappings[0]] }), /meaning/);
+});
+
+// A pursuit whose payment_events has the other client's columns (event_id, customer_email, amount_cents, no id), with its offers.
+async function otherShapeDatabase() {
+  const db = new PGlite();
+  await db.exec(journeySql);
+  await db.exec(`
+    CREATE TABLE payment_events (event_id text PRIMARY KEY, event_kind text, occurred_at timestamptz, offer_id text, customer_email text,
+      amount_cents bigint, payment_status text, attributes jsonb, made_at timestamptz DEFAULT now());
+    CREATE TABLE offers (id text PRIMARY KEY);
+    INSERT INTO offers VALUES ('offer:course');
+    INSERT INTO payment_events (event_id, event_kind, occurred_at, offer_id, customer_email, amount_cents, payment_status, attributes, made_at) VALUES
+      ('evt-1', 'payment.confirmed', '2026-11-21T08:00:00Z', 'offer:course', 'Dee@Example.com', 2900, 'paid', '{"journey_visitor":"visitor-d-1"}', '2026-11-21T08:00:01Z'),
+      ('evt-2', 'payment.refunded', '2026-11-21T09:00:00Z', 'offer:course', 'eli@example.com', 2900, 'paid', '{}', '2026-11-21T09:00:01Z'),
+      ('evt-3', 'payment.confirmed', '2026-11-21T10:00:00Z', 'offer:elsewhere', 'fay@example.com', 900, 'paid', '{}', '2026-11-21T10:00:01Z');
+  `);
+  return db;
+}
+
+test('each shape of payment_events is read through its own mapping: the first shape and the other shape keep their sales', async () => {
+  const first = await pursuitDatabase();
+  const firstAnswer = await keepStepsFromRows({ query: (sql, params) => first.query(sql, params), mappings: settings.mappings });
+  assert.deepEqual(firstAnswer.mappings.filter(item => item.step === 'sale'), [{ id: 'stripe-sales-from-payment-events', step: 'sale', read: 1, kept: 1 }]);
+
+  const other = await otherShapeDatabase();
+  const otherAnswer = await keepStepsFromRows({ query: (sql, params) => other.query(sql, params), mappings: settings.mappings });
+  assert.deepEqual(otherAnswer.mappings, [
+    { id: 'tidycal-bookings-from-statements', step: 'booking', skipped: 'no statements here' },
+    { id: 'stripe-sales-from-payment-events-by-columns', step: 'sale', read: 1, kept: 1 },
+  ]);
+  const { rows } = await other.query("SELECT ref, visitor, email_key, offer_id, value_cents, joined_by FROM journey_steps WHERE step = 'sale'");
+  assert.deepEqual(rows, [{ ref: 'evt-1', visitor: 'visitor-d-1', email_key: emailKey('dee@example.com'), offer_id: 'offer:course', value_cents: 2900, joined_by: 'client_reference_id' }]);
+  assert.equal(JSON.stringify(rows).includes('Dee@Example.com'), false);
+});
+
+test('a table that fits none of its shapes is reported with its columns, and the run still succeeds', async () => {
+  const db = new PGlite();
+  await db.exec(journeySql);
+  await db.exec(`
+    CREATE TABLE payment_events (id text PRIMARY KEY, event_kind text);
+    CREATE TABLE offers (id text PRIMARY KEY);
+    INSERT INTO payment_events VALUES ('x1', 'payment.confirmed');
+  `);
+  const answer = await keepStepsFromRows({ query: (sql, params) => db.query(sql, params), mappings: settings.mappings });
+  assert.deepEqual(answer.mappings.filter(item => item.step === 'sale'), [
+    { table: 'payment_events', step: 'sale', skipped: 'no mapping fits payment_events', columns: ['event_kind', 'id'] },
+  ]);
+});
+
+test('a table that fits a shape but whose read fails is still an error', async () => {
+  const db = await otherShapeDatabase();
+  await db.exec('DROP TABLE offers');
+  await assert.rejects(keepStepsFromRows({ query: (sql, params) => db.query(sql, params), mappings: settings.mappings }), /offers/);
 });
 

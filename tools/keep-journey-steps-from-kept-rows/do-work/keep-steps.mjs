@@ -66,19 +66,42 @@ export function stepOf(mapping, row) {
   };
 }
 
+/** The columns a table has in this database, read once per table; none when the table is absent. */
+async function columnsOf(query, table) {
+  const { rows } = await query('SELECT column_name FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = $1', [table]);
+  return new Set(rows.map(row => row.column_name));
+}
+
 /**
  * Keeps every mapped row as its journey step. `query(sql, params)` resolves to { rows, rowCount } (pg or PGlite). Answers each
  * mapping's count of rows read and of steps newly kept; a mapping with no ref in its fields is refused before any read.
+ * Mappings that name the same table and step are shapes of that table: the first whose requires_columns the table has is read,
+ * and the answer names it. A table that fits none of its shapes is reported with its columns, not an error.
  */
 export async function keepStepsFromRows({ query, since = null, refs = null, mappings = settings.mappings }) {
-  const answer = [];
   for (const mapping of mappings) {
     if (!text(mapping.fields?.ref)) throw new TypeError(`${mapping.id} names no ref, so its steps could not be kept once.`);
     if (!text(mapping.cutoff_column)) throw new TypeError(`${mapping.id} names no cutoff_column (the time its rows were kept), so its rows could not be read once each.`);
-    // A pursuit with no such table (a site that takes no bookings, say) has nothing to keep for this mapping: it is reported, not an error.
-    const present = (await query('SELECT to_regclass($1::text) IS NOT NULL AS present', [mapping.table])).rows[0].present;
-    if (!present) {
-      answer.push({ id: mapping.id, step: mapping.step, skipped: `no ${mapping.table} here` });
+  }
+  const shapes = new Map();
+  for (const mapping of mappings) {
+    const key = JSON.stringify([mapping.table, mapping.step]);
+    shapes.set(key, [...(shapes.get(key) ?? []), mapping]);
+  }
+  const answer = [];
+  const columnsByTable = new Map();
+  for (const alternatives of shapes.values()) {
+    const { table, step } = alternatives[0];
+    if (!columnsByTable.has(table)) columnsByTable.set(table, await columnsOf(query, table));
+    const columns = columnsByTable.get(table);
+    // A pursuit with no such table (a site that takes no bookings, say) has nothing to keep for these mappings: it is reported, not an error.
+    if (columns.size === 0) {
+      for (const mapping of alternatives) answer.push({ id: mapping.id, step, skipped: `no ${table} here` });
+      continue;
+    }
+    const mapping = alternatives.find(candidate => (candidate.requires_columns ?? []).every(column => columns.has(column)));
+    if (!mapping) {
+      answer.push({ table, step, skipped: `no mapping fits ${table}`, columns: [...columns].sort() });
       continue;
     }
     const { rows } = refs ? await query(readSql(mapping, { byRef: true }), [refs]) : await query(readSql(mapping), [since, mapping.step]);
@@ -87,7 +110,7 @@ export async function keepStepsFromRows({ query, since = null, refs = null, mapp
       const result = await keepStep(query, stepOf(mapping, row));
       if (result.kept) kept += 1;
     }
-    answer.push({ id: mapping.id, step: mapping.step, read: rows.length, kept });
+    answer.push({ id: mapping.id, step, read: rows.length, kept });
   }
   return { mappings: answer };
 }
