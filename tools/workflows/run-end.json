@@ -1,9 +1,9 @@
 {
-  "_what": "How a workflow run's end is recorded in the database its row was read from (crates/workflow-component/src/main.rs `RUN_END`). Every pass that ends a run (completed, skipped or failed), whichever wake drove it (a chosen run, an answered step, a row change, a due row), asks this recorder once, unless the run names its own `on_end`. Its `with` paths read what the run knows at its end: run (the run's id, the wf_runs row its reader wrote at the start), status, workflow, why (null when it ended well) and database (the database of the run's own definition reader, `read_definition.input.database`). A run whose reader names no database records nothing: no store is named here. The statement upserts, so a run whose start row was never written still gets one. Why: Nov 22 2026, the end recorder was given in one wake's switch input only, so every run resumed by an answered step (319 keep-each-told-change-in-the-history runs from 9:58 PM CST Nov 21, the tennis chooser at 3:50 AM) ended with its row still saying started.",
+  "_what": "How a workflow run's end is recorded in the database its row was read from (crates/workflow-component/src/main.rs `RUN_END`). Every pass that ends a run (completed, skipped or failed), whichever wake drove it (a chosen run, an answered step, a row change, a due row), asks this recorder once, unless the run names its own `on_end`. Its `with` paths read what the run knows at its end: run (the run's id, the wf_runs row its reader wrote at the start), status, workflow, why (null when it ended well), started_at (when the run started, as it carries it; null when it carries none) and database (the database of the run's own definition reader, `read_definition.input.database`). A run whose reader names no database records nothing: no store is named here. The statement upserts, so a run whose start row was never written still gets one. Why: Nov 22 2026, the end recorder was given in one wake's switch input only, so every run resumed by an answered step (319 keep-each-told-change-in-the-history runs from 9:58 PM CST Nov 21, the tennis chooser at 3:50 AM) ended with its row still saying started.",
   "recorder": {
     "tool": "tool:run-sql-in-my-database",
     "input": {
-      "sql": "INSERT INTO wf_runs (run_id, workflow, started_by, started_at, computer, status, failed, updated_at) VALUES ($1::text, $4::text, 'engine', now(), 'engine', $2::text, CASE WHEN $3::text IS NULL THEN '[]'::jsonb ELSE jsonb_build_object('why', $3::text, 'at', now()) END, now()) ON CONFLICT (run_id) DO UPDATE SET status = EXCLUDED.status, failed = CASE WHEN $3::text IS NULL THEN wf_runs.failed ELSE EXCLUDED.failed END, updated_at = now() WHERE wf_runs.status IS DISTINCT FROM EXCLUDED.status RETURNING run_id, status",
+      "sql": "INSERT INTO wf_runs (run_id, workflow, started_by, started_at, computer, status, failed, updated_at) VALUES ($1::text, $4::text, 'engine', nullif($5::text, '')::timestamptz, 'engine', $2::text, CASE WHEN $3::text IS NULL THEN '[]'::jsonb ELSE jsonb_build_object('why', $3::text, 'at', now()) END, now()) ON CONFLICT (run_id) DO UPDATE SET status = EXCLUDED.status, started_at = coalesce(wf_runs.started_at, EXCLUDED.started_at), failed = CASE WHEN $3::text IS NULL THEN wf_runs.failed ELSE EXCLUDED.failed END, updated_at = now() WHERE wf_runs.status IS DISTINCT FROM EXCLUDED.status RETURNING run_id, status",
       "params": []
     },
     "with": {
@@ -13,9 +13,11 @@
       "database": "database"
     },
     "with_if_given": {
-      "params.2": "why"
+      "params.2": "why",
+      "params.4": "started_at"
     }
   },
   "reserve_steps": 2,
-  "reserve_steps_why": "A run keeps two steps of its line for recording its end: the recorder's own run and the pass its answer starts. A pass that would hand out a step leaving fewer ends the run failed instead, and records that. Nov 22 2026, 4:44 AM CST: School's 27-step dry run spent all 40 steps of its line and record-the-end had none left, so its end was never recorded."
+  "reserve_steps_why": "A run keeps two steps of its line for recording its end: the recorder's own run and the pass its answer starts. A pass that would hand out a step leaving fewer ends the run failed instead, and records that. Nov 22 2026, 4:44 AM CST: School's 27-step dry run spent all 40 steps of its line and record-the-end had none left, so its end was never recorded.",
+  "started_at_why": "A row the recorder inserts (a run whose start row was never written) says when the run started as the run itself carries it, never the time its end was recorded; a row with a start keeps it, and one with none takes the run's. Nov 22 2026, 7:0x AM CST: every engine-recorded row's started_at was its end time (now() on insert), so the asked-row starter's 6:30 tick read as a run started at 6:50:57, after a row asked at 6:47:42, and was taken for a run that had skipped it."
 }

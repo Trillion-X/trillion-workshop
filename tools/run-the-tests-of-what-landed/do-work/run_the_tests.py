@@ -98,7 +98,7 @@ if overall == "fail":
     for r in [r for r in results if r["status"] == "fail"]:
         open_rows = sql("select id from calendar_tasks where job = $1 and status = 'To do' and summary = $2", [JOB, r["key"]])
         if not open_rows:
-            owner = sql("select started_by from wf_runs where lane = $1 order by started_at desc limit 1", [lane])
+            owner = sql("select started_by from wf_runs where lane = $1 order by started_at desc nulls last limit 1", [lane])
             session = owner[0]["started_by"] if owner and lane else ""
             live = False
             if session:

@@ -245,8 +245,10 @@ fn end_effect(run: &Map<String, Value>, status: &str, workflow: &str, why: Optio
         }
     };
     // A run that ends well has no why: a recorder reads it through `with_if_given`, which sets null in its place.
+    // When it started, as the run carries it (none on a pass that ends before its walk sets it): never the time it ended.
+    let started_at = run.get("started_at").and_then(Value::as_str).filter(|at| !at.is_empty());
     let known = json!({ "run": run.get("run").cloned().unwrap_or(json!("run")), "status": status, "workflow": workflow, "why": why,
-        "database": database });
+        "database": database, "started_at": started_at });
     let (tool, input) = workflow_engine::fill_input::ask(&recorder, &known).ok()?;
     Some(json!({ "wake": { "tool": tool, "input": input } }))
 }
@@ -1444,7 +1446,7 @@ mod tests {
         let effect = end_effect(&resumed, "completed", "workflow:x", None).expect("the resumed run records its end");
         assert_eq!(effect["wake"]["tool"], "tool:run-sql-in-my-database");
         assert_eq!(effect["wake"]["input"]["database"], "runs_db", "in its own reader's database");
-        assert_eq!(effect["wake"]["input"]["params"], json!(["cause-1", "completed", null, "workflow:x"]));
+        assert_eq!(effect["wake"]["input"]["params"], json!(["cause-1", "completed", null, "workflow:x", null]), "no start carried: none written");
         assert!(effect["wake"]["input"]["sql"].as_str().unwrap().contains("ON CONFLICT (run_id) DO UPDATE"), "a missing start row is upserted");
         // Started by a row-change wake: its switch hands the recipe and the reader; the same recorder.
         let started = json!({ "input": { "recipe": "workflow:x", "read_definition": reader, "row": "calendar_tasks" }, "cause": { "key": "change-1" }, "context": {} });
@@ -1452,7 +1454,7 @@ mod tests {
         assert_eq!(end_effect(&changed, "completed", "workflow:x", None).unwrap()["wake"]["input"]["params"][0], "change-1");
         // A failure writes its why, through the same recorder.
         let out = ending(resumed.clone(), "workflow:x", "workflow:x: step read-state failed").expect("told before it fails");
-        assert_eq!(out["wake_effects"][0]["wake"]["input"]["params"], json!(["cause-1", "failed", "workflow:x: step read-state failed", "workflow:x"]));
+        assert_eq!(out["wake_effects"][0]["wake"]["input"]["params"], json!(["cause-1", "failed", "workflow:x: step read-state failed", "workflow:x", null]));
         // A run's own on_end still wins; a run with no reader database records nothing.
         let mut own = resumed.clone();
         own.insert("on_end".into(), json!({ "tool": "tool:keep", "input": { "params": [] }, "with": { "params.0": "run" } }));
@@ -1630,6 +1632,19 @@ mod tests {
             }
         }
         assert!(checked > 0, "the recipes folder holds listed wakes");
+    }
+
+    // A run's end record says when the run started as the run carries it, and nothing when it carries none: never the
+    // time its end was recorded (Nov 22 2026: engine-recorded rows read as started when they ended).
+    #[test]
+    fn a_runs_end_record_carries_its_own_start() {
+        let reader = json!({ "tool": "tool:run-sql-in-my-database", "input": { "database": "runs_db", "sql": "select", "params": [] }, "recipe_at": "params.0" });
+        let run = |at: Value| json!({ "run": "r", "read_definition": reader, "recipe": "workflow:x", "started_at": at }).as_object().unwrap().clone();
+        let params = |run: &Map<String, Value>| end_effect(run, "completed", "workflow:x", None).unwrap()["wake"]["input"]["params"].clone();
+        assert_eq!(params(&run(json!("2026-11-22T12:30:01.000Z")))[4], "2026-11-22T12:30:01.000Z");
+        assert!(params(&run(json!(""))).get(4).map_or(true, Value::is_null), "an empty start is no start");
+        let sql = end_effect(&run(json!("x")), "completed", "workflow:x", None).unwrap()["wake"]["input"]["sql"].as_str().unwrap().to_string();
+        assert!(!sql.contains("now(), 'engine'") && sql.contains("coalesce(wf_runs.started_at, EXCLUDED.started_at)"), "{sql}");
     }
 
     // A run keeps two steps of its line for recording its end: a pass hands out its next step only while that leaves them.
