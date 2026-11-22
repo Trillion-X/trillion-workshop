@@ -1,0 +1,1095 @@
+{
+  "about": "workflow:send-a-reply-through-its-channel: rendered from its workflow_recipes row.",
+  "records": [
+    {
+      "payload": {
+        "source_kept_at": "2026-11-22 00:51:50.969772+00",
+        "kind": "workflow-recipe",
+        "id": "workflow:send-a-reply-through-its-channel",
+        "label": "Send a reply through the channel it came in on",
+        "job": "Send one judged reply by trying its channel's enabled routes in order, stopping at the first that sends, and record each try in the attempts table.",
+        "produces": "{sent, tool, said}",
+        "source": {},
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "channel",
+            "to",
+            "text",
+            "store"
+          ],
+          "properties": {
+            "to": {
+              "type": "string",
+              "minLength": 2
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1
+            },
+            "store": {
+              "type": "object",
+              "required": [
+                "credential_name"
+              ],
+              "properties": {
+                "credential_name": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "channel": {
+              "type": "string",
+              "minLength": 2,
+              "description": "the where of the message it answers; a row of send_routes lists its routes in order"
+            },
+            "dry_run": {
+              "type": "boolean"
+            },
+            "reply_key": {
+              "type": "string"
+            },
+            "notices_store": {
+              "type": "object",
+              "required": [
+                "credential_name"
+              ],
+              "properties": {
+                "credential_name": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "start_position": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "definition": {
+          "id": "workflow:send-a-reply-through-its-channel",
+          "kind": "workflow",
+          "name": "Send a reply through the channel it came in on",
+          "uses": [
+            {
+              "id": "workflow:send-a-reply-through-its-channel:try-one-route",
+              "kind": "workflow",
+              "name": "Try one route of a reply's channel",
+              "edges": [
+                {
+                  "to": "finished-dry",
+                  "from": "guard",
+                  "kind": "on_result",
+                  "config": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "output.rows.0.branch"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.equals",
+                        "args": {
+                          "value": "dry-run"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "to": "finished-sent",
+                  "from": "guard",
+                  "kind": "on_result",
+                  "config": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "output.rows.0.branch"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.equals",
+                        "args": {
+                          "value": "already-sent"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "to": "voice",
+                  "from": "guard",
+                  "kind": "on_result",
+                  "config": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "output.rows.0.branch"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.equals",
+                        "args": {
+                          "value": "mac-messages-tool"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "to": "voice-for-notice",
+                  "from": "guard",
+                  "kind": "on_result",
+                  "config": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "output.rows.0.branch"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.equals",
+                        "args": {
+                          "value": "notice-to-phone"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "to": "finished-handed",
+                  "from": "guard",
+                  "kind": "on_result",
+                  "config": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "output.rows.0.branch"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.equals",
+                        "args": {
+                          "value": "already-handed"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "to": "record-unwired",
+                  "from": "guard",
+                  "kind": "on_result",
+                  "config": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "output.rows.0.branch"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.equals",
+                        "args": {
+                          "value": "not-wired"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "to": "mac-send",
+                  "from": "voice",
+                  "kind": "always"
+                },
+                {
+                  "to": "record-held",
+                  "from": "voice",
+                  "kind": "on_failure"
+                },
+                {
+                  "to": "first-name",
+                  "from": "voice-for-notice",
+                  "kind": "always"
+                },
+                {
+                  "to": "record-held",
+                  "from": "voice-for-notice",
+                  "kind": "on_failure"
+                },
+                {
+                  "to": "notice-write",
+                  "from": "first-name",
+                  "kind": "always"
+                },
+                {
+                  "to": "record-handed",
+                  "from": "notice-write",
+                  "kind": "always"
+                },
+                {
+                  "to": "record-failed",
+                  "from": "notice-write",
+                  "kind": "on_failure"
+                },
+                {
+                  "to": "finished",
+                  "from": "record-handed",
+                  "kind": "always"
+                },
+                {
+                  "to": "record-sent",
+                  "from": "mac-send",
+                  "kind": "always"
+                },
+                {
+                  "to": "record-failed",
+                  "from": "mac-send",
+                  "kind": "on_failure"
+                },
+                {
+                  "to": "finished",
+                  "from": "record-sent",
+                  "kind": "always"
+                },
+                {
+                  "to": "finished",
+                  "from": "record-failed",
+                  "kind": "always"
+                },
+                {
+                  "to": "finished",
+                  "from": "record-unwired",
+                  "kind": "always"
+                },
+                {
+                  "to": "finished",
+                  "from": "record-held",
+                  "kind": "always"
+                }
+              ],
+              "steps": [
+                {
+                  "id": "guard",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-sql-in-my-database",
+                    "input": {
+                      "sql": "SELECT CASE WHEN coalesce($3::boolean, false) THEN 'dry-run' WHEN EXISTS (SELECT 1 FROM send_route_attempts a WHERE a.reply_key = $1::text AND a.outcome = 'sent') THEN 'already-sent' WHEN EXISTS (SELECT 1 FROM send_route_attempts a WHERE a.reply_key = $1::text AND a.outcome = 'handed-to-person') THEN 'already-handed' WHEN $2::text = 'mac-messages-tool' THEN 'mac-messages-tool' WHEN $2::text = 'notice-to-phone' THEN 'notice-to-phone' ELSE 'not-wired' END AS branch",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.reply_key"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.route_kind"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.dry_run"
+                          }
+                        }
+                      ],
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "route.credential_name"
+                        }
+                      }
+                    },
+                    "context": {
+                      "step_id": "guard"
+                    }
+                  }
+                },
+                {
+                  "id": "voice",
+                  "kind": "action",
+                  "config": {
+                    "inputs": {
+                      "kind": "text",
+                      "piece": {
+                        "pages": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.text"
+                          }
+                        },
+                        "caption": ""
+                      },
+                      "store": {
+                        "credential_name": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.credential_name"
+                          }
+                        }
+                      },
+                      "thread": {
+                        "words": "",
+                        "counterpart": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.recipient"
+                          }
+                        }
+                      },
+                      "channel": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "route.channel"
+                        }
+                      },
+                      "reply_to": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "route.reply_key"
+                        }
+                      },
+                      "judge_only": true,
+                      "called_from": "workflow:send-a-reply-through-its-channel step voice"
+                    },
+                    "definition_id": "workflow:put-words-in-the-owners-voice-and-judge-them"
+                  }
+                },
+                {
+                  "id": "record-held",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-sql-in-my-database",
+                    "input": {
+                      "sql": "INSERT INTO send_route_attempts (reply_key, channel, position, route_kind, tool_or_target, outcome, error) VALUES ($1::text, $2::text, $3::int, $4::text, $5::text, 'failed', $6::text) RETURNING outcome",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.reply_key"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.channel"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.position"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.route_kind"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.tool_or_target"
+                          }
+                        },
+                        "the voice judge held the words"
+                      ],
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "route.credential_name"
+                        }
+                      }
+                    },
+                    "context": {
+                      "step_id": "record-held"
+                    }
+                  }
+                },
+                {
+                  "id": "mac-send",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:send-a-message-on-this-mac",
+                    "input": {
+                      "text": {
+                        "$kind": "binding",
+                        "select": {
+                          "key": "voice",
+                          "from": "steps",
+                          "path": "output.pages"
+                        }
+                      },
+                      "computer": {
+                        "automate-an-app": {
+                          "app": "com.apple.MobileSMS"
+                        }
+                      },
+                      "recipients": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.recipient"
+                          }
+                        }
+                      ]
+                    },
+                    "context": {
+                      "step_id": "mac-send"
+                    }
+                  }
+                },
+                {
+                  "id": "record-sent",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-sql-in-my-database",
+                    "input": {
+                      "sql": "WITH o AS (SELECT coalesce($1::jsonb -> 'sent', $1::jsonb -> 'result' -> 'sent', '[]'::jsonb) AS sent, coalesce($1::jsonb ->> 'said', $1::jsonb -> 'result' ->> 'said', '') AS said), ok AS (SELECT jsonb_typeof(sent) = 'array' AND jsonb_array_length(sent) > 0 AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements(sent) e WHERE e ? 'error') AS sent_ok, said FROM o) INSERT INTO send_route_attempts (reply_key, channel, position, route_kind, tool_or_target, outcome, error) SELECT $2::text, $3::text, $4::int, $5::text, $6::text, CASE WHEN sent_ok THEN 'sent' ELSE 'failed' END, CASE WHEN sent_ok THEN '' ELSE coalesce(nullif(left(said, 300), ''), 'the Messages send tool sent nothing') END FROM ok RETURNING outcome",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "key": "mac-send",
+                            "from": "steps",
+                            "path": "output"
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.stringify",
+                              "args": {
+                                "format": "json"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.reply_key"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.channel"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.position"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.route_kind"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.tool_or_target"
+                          }
+                        }
+                      ],
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "route.credential_name"
+                        }
+                      }
+                    },
+                    "context": {
+                      "step_id": "record-sent"
+                    }
+                  }
+                },
+                {
+                  "id": "voice-for-notice",
+                  "kind": "action",
+                  "config": {
+                    "inputs": {
+                      "kind": "text",
+                      "piece": {
+                        "pages": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.text"
+                          }
+                        },
+                        "caption": ""
+                      },
+                      "store": {
+                        "credential_name": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.credential_name"
+                          }
+                        }
+                      },
+                      "thread": {
+                        "words": "",
+                        "counterpart": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.recipient"
+                          }
+                        }
+                      },
+                      "channel": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "route.channel"
+                        }
+                      },
+                      "reply_to": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "route.reply_key"
+                        }
+                      },
+                      "judge_only": true,
+                      "called_from": "workflow:send-a-reply-through-its-channel step voice-for-notice"
+                    },
+                    "definition_id": "workflow:put-words-in-the-owners-voice-and-judge-them"
+                  }
+                },
+                {
+                  "id": "first-name",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-sql-in-my-database",
+                    "input": {
+                      "sql": "SELECT coalesce(nullif(split_part(coalesce(s.came_from ->> 'person', ''), ' ', 1), ''), '') AS first_name FROM (SELECT $1::text AS id) r LEFT JOIN fast_replies f ON f.id = r.id LEFT JOIN seeds s ON s.id = f.message_key",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.reply_key"
+                          }
+                        }
+                      ],
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "route.credential_name"
+                        }
+                      }
+                    },
+                    "context": {
+                      "step_id": "first-name"
+                    }
+                  }
+                },
+                {
+                  "id": "notice-write",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-sql-in-my-database",
+                    "input": {
+                      "sql": "WITH n AS (INSERT INTO notices (title, body, kind, key, details) SELECT 'Reply to send by hand', 'For ' || coalesce(nullif($5::text, ''), 'the sender (first name not on file)') || ': copy this reply and send it from your Messages app. ' || $2::text, 'needs-you', 'send-route:' || $1::text, jsonb_build_object('reply_key', $1::text, 'channel', $3::text, 'position', $4::int) WHERE NOT EXISTS (SELECT 1 FROM notices x WHERE x.key = 'send-route:' || $1::text) RETURNING id) SELECT coalesce((SELECT id FROM n), (SELECT id FROM notices WHERE key = 'send-route:' || $1::text ORDER BY id LIMIT 1)) AS notice_id",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.reply_key"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "key": "voice-for-notice",
+                            "from": "steps",
+                            "path": "output.pages"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.channel"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.position"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "key": "first-name",
+                            "from": "steps",
+                            "path": "output.rows.0.first_name"
+                          }
+                        }
+                      ],
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "route.notices_credential"
+                        }
+                      }
+                    },
+                    "context": {
+                      "step_id": "notice-write"
+                    }
+                  }
+                },
+                {
+                  "id": "record-handed",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-sql-in-my-database",
+                    "input": {
+                      "sql": "INSERT INTO send_route_attempts (reply_key, channel, position, route_kind, tool_or_target, outcome, error) VALUES ($1::text, $2::text, $3::int, $4::text, $5::text, 'handed-to-person', '') RETURNING outcome",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.reply_key"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.channel"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.position"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.route_kind"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.tool_or_target"
+                          }
+                        }
+                      ],
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "route.credential_name"
+                        }
+                      }
+                    },
+                    "context": {
+                      "step_id": "record-handed"
+                    }
+                  }
+                },
+                {
+                  "id": "record-failed",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-sql-in-my-database",
+                    "input": {
+                      "sql": "INSERT INTO send_route_attempts (reply_key, channel, position, route_kind, tool_or_target, outcome, error) VALUES ($1::text, $2::text, $3::int, $4::text, $5::text, 'failed', $6::text) RETURNING outcome",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.reply_key"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.channel"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.position"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.route_kind"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.tool_or_target"
+                          }
+                        },
+                        "the Messages send tool did not answer"
+                      ],
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "route.credential_name"
+                        }
+                      }
+                    },
+                    "context": {
+                      "step_id": "record-failed"
+                    }
+                  }
+                },
+                {
+                  "id": "record-unwired",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:run-sql-in-my-database",
+                    "input": {
+                      "sql": "INSERT INTO send_route_attempts (reply_key, channel, position, route_kind, tool_or_target, outcome, error) VALUES ($1::text, $2::text, $3::int, $4::text, $5::text, 'failed', $6::text) RETURNING outcome",
+                      "params": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.reply_key"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.channel"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.position"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.route_kind"
+                          }
+                        },
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "route.tool_or_target"
+                          }
+                        },
+                        "route kind not wired yet"
+                      ],
+                      "credential_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "route.credential_name"
+                        }
+                      }
+                    },
+                    "context": {
+                      "step_id": "record-unwired"
+                    }
+                  }
+                },
+                {
+                  "id": "finished",
+                  "kind": "return",
+                  "config": {
+                    "value": {}
+                  }
+                },
+                {
+                  "id": "finished-dry",
+                  "kind": "return",
+                  "config": {
+                    "value": {}
+                  }
+                },
+                {
+                  "id": "finished-sent",
+                  "kind": "return",
+                  "config": {
+                    "value": {}
+                  }
+                },
+                {
+                  "id": "finished-handed",
+                  "kind": "return",
+                  "config": {
+                    "value": {}
+                  }
+                }
+              ],
+              "version": 1,
+              "is_active": true
+            }
+          ],
+          "edges": [
+            {
+              "to": "attempts",
+              "from": "plan",
+              "kind": "always"
+            },
+            {
+              "to": "outcome",
+              "from": "attempts",
+              "kind": "always"
+            },
+            {
+              "to": "done",
+              "from": "outcome",
+              "kind": "always"
+            }
+          ],
+          "steps": [
+            {
+              "id": "plan",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "SELECT r.channel, r.position, r.route_kind, r.tool_or_target, $2::text AS recipient, $3::text AS text, coalesce($4::text, md5($1::text || '|' || coalesce($2::text, '') || '|' || coalesce($3::text, ''))) AS reply_key, coalesce($6::boolean, false) AS dry_run, $7::text AS credential_name, $8::text AS notices_credential FROM send_routes r WHERE r.channel = $1::text AND r.enabled AND r.position >= coalesce($5::int, 1) ORDER BY r.position",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "channel"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "to"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "text"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "reply_key"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "start_position"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "dry_run"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "store.credential_name"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "notices_store.credential_name"
+                      }
+                    }
+                  ],
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  }
+                },
+                "context": {
+                  "step_id": "plan"
+                }
+              }
+            },
+            {
+              "id": "attempts",
+              "kind": "loop",
+              "config": {
+                "source": {
+                  "$kind": "binding",
+                  "select": {
+                    "key": "plan",
+                    "from": "steps",
+                    "path": "output.rows"
+                  }
+                },
+                "item_var": "route",
+                "parallel": false,
+                "definition_id": "workflow:send-a-reply-through-its-channel:try-one-route"
+              }
+            },
+            {
+              "id": "outcome",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "WITH k AS (SELECT coalesce($1::text, md5($2::text || '|' || coalesce($3::text, '') || '|' || coalesce($4::text, ''))) AS reply_key), s AS (SELECT a.tool_or_target FROM send_route_attempts a, k WHERE a.reply_key = k.reply_key AND a.outcome = 'sent' ORDER BY a.id DESC LIMIT 1), l AS (SELECT a.outcome, a.error FROM send_route_attempts a, k WHERE a.reply_key = k.reply_key ORDER BY a.id DESC LIMIT 1) SELECT (SELECT count(*) FROM s) > 0 AND NOT coalesce($5::boolean, false) AS sent, coalesce((SELECT tool_or_target FROM s), '') AS tool, CASE WHEN coalesce($5::boolean, false) THEN 'dry run: nothing sent' WHEN (SELECT count(*) FROM s) > 0 THEN 'sent through ' || (SELECT tool_or_target FROM s) WHEN (SELECT outcome FROM l) = 'handed-to-person' THEN 'handed to the person to send by hand; open until sent' ELSE coalesce(nullif(left((SELECT error FROM l), 300), ''), 'no enabled route for this channel') END AS said",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "reply_key"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "channel"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "to"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "text"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "dry_run"
+                      }
+                    }
+                  ],
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "store.credential_name"
+                    }
+                  }
+                },
+                "context": {
+                  "step_id": "outcome"
+                }
+              }
+            },
+            {
+              "id": "done",
+              "kind": "return",
+              "config": {
+                "value": {
+                  "said": {
+                    "$kind": "binding",
+                    "select": {
+                      "key": "outcome",
+                      "from": "steps",
+                      "path": "output.rows.0.said"
+                    }
+                  },
+                  "sent": {
+                    "$kind": "binding",
+                    "select": {
+                      "key": "outcome",
+                      "from": "steps",
+                      "path": "output.rows.0.sent"
+                    }
+                  },
+                  "tool": {
+                    "$kind": "binding",
+                    "select": {
+                      "key": "outcome",
+                      "from": "steps",
+                      "path": "output.rows.0.tool"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "version": 2,
+          "is_active": true
+        }
+      }
+    }
+  ]
+}

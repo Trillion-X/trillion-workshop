@@ -1,0 +1,42 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:send-a-reply-through-its-channel.\" The wake starts it once its switch input is set.",
+  "lists": [],
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
+  "workflows": [
+    "workflow:send-a-reply-through-its-channel",
+    "workflow:put-words-in-the-owners-voice-and-judge-them"
+  ],
+  "tools": [
+    "tool:run-sql-in-my-database",
+    "tool:send-a-message-on-this-mac"
+  ],
+  "instructions": [
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:send-a-reply-through-its-channel\".",
+    "3. Read the answer the run hands back."
+  ],
+  "worked_examples": [
+    {
+      "title": "Send a reply through the channel it came in on",
+      "ask": "Run workflow:send-a-reply-through-its-channel.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:send-a-reply-through-its-channel"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:send-a-reply-through-its-channel",
+      "step": "plan",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
+    }
+  ],
+  "drafted_from": "workflow:send-a-reply-through-its-channel rendered from its row"
+}
