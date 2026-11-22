@@ -39,3 +39,11 @@ test('a screen drawn from a tool\'s description or inputs is refused', t => {
 test('an id offered twice, or already a screen row, is refused', t => {
   assert.throws(() => offeredScreens(workshop(t, { a: { offers: [row('tool:synthetic-three')] }, b: { offers: [row('tool:synthetic-three')] } })), /already a screen row/);
 });
+
+test('a screen a tool declares in shared parts, with its own spec, is offered; a parts row with no spec is refused', t => {
+  const parts = id => ({ id, label: 'Synthetic board', screen: { kind: 'parts', icon: 'Box', spec: { root: 'r', elements: { r: { type: 'Container', props: {}, children: [] } } }, requests: {}, surface: { id, surface_id: id, kind: 'placeable-surface', sidebar_collection: 'synthetic-group', order: 6, route_paths: ['/synthetic-board'] } } });
+  const root = workshop(t, { 'synthetic-tool': { offers: [parts('tool:synthetic-board')] } });
+  assert.ok(offeredScreens(root).surfaces.some(surface => surface.id === 'tool:synthetic-board'));
+  const bare = parts('tool:synthetic-bare'); delete bare.screen.spec;
+  assert.throws(() => offeredRows(workshop(t, { 'synthetic-tool': { offers: [bare] } })), /with no spec of its own/);
+});

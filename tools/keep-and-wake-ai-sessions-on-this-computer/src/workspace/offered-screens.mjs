@@ -12,8 +12,10 @@
 //   sidebar screen, as the workspace read its screen rows before they moved here (rows with no surface were left out).
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. A tool offers only a screen that is its own code (`screen.kind` module) or one the page already has (`app-entry`). A row
-//      that names any other kind is refused: no screen is drawn from a tool's description, input_schema or field kinds.
+//   1. A tool offers only a screen it wrote itself: its own code (`screen.kind` module), one the page already has (`app-entry`),
+//      or a screen it declares as shared parts (`parts`, with its own `spec` of root and elements, drawn by parts-screen.tsx from
+//      shared parts only, no code). A row that names any other kind, or a parts row with no spec of its own, is refused: no
+//      screen is drawn from a tool's description, input_schema or field kinds.
 //   2. An id is offered once: a row repeating a screen's id, or two tools offering the same id, is refused, never shadowed.
 //   3. Node reads the Workshop folder this file sits in (tools/*/part.json); the page bundle never imports this file.
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
@@ -21,7 +23,9 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import screens, { SCREEN_TOOL_ROWS, surfaceOfScreenTool } from './screens.mjs';
 
-const OWN_CODE = new Set(['module', 'app-entry']);
+const OWN_CODE = new Set(['module', 'app-entry', 'parts']);
+/** Whether a parts row carries its own declared spec (a root and its elements), not one to be drawn from its inputs. */
+const declaresParts = screen => screen.kind !== 'parts' || (screen.spec && typeof screen.spec === 'object' && typeof screen.spec.root === 'string' && screen.spec.elements && typeof screen.spec.elements === 'object');
 const WORKSHOP = fileURLToPath(new URL('../../../../', import.meta.url));
 
 /** The tool rows every tool folder of the Workshop at `root` offers in its part.json, each with the tool that offers it. */
@@ -36,7 +40,7 @@ export function offeredRows(root = WORKSHOP) {
     if (!Array.isArray(offers)) throw new Error(`tools/${entry.name}/part.json offers must be a list of screen rows.`);
     for (const row of offers) {
       if (!row || typeof row.id !== 'string') throw new Error(`tools/${entry.name}/part.json offers a row with no id.`);
-      if (!OWN_CODE.has(row.screen.kind)) throw new Error(`${row.id} (tools/${entry.name}/part.json) offers a ${row.screen.kind} screen; a tool offers its own code (module) or an existing screen (app-entry), never one drawn from its description or inputs.`);
+      if (!OWN_CODE.has(row.screen.kind) || !declaresParts(row.screen)) throw new Error(`${row.id} (tools/${entry.name}/part.json) offers a ${row.screen.kind} screen${row.screen.kind === 'parts' ? ' with no spec of its own' : ''}; a tool offers its own code (module), an existing screen (app-entry) or a screen it declares in shared parts (parts, with its spec), never one drawn from its description or inputs.`);
       rows.push({ ...row, offeredBy: entry.name });
     }
   }
