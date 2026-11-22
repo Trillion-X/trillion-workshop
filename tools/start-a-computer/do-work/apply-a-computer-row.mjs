@@ -17,7 +17,7 @@
 // tool's own process (the connection string on its descriptor 3). Values the row's units name by vault name are handed to the apply on
 // descriptor 5, as start-a-computer takes them; none is in argv, a file or the summary. `--dry-run` stops after the edits and writes nothing.
 import { spawn, execFile } from 'node:child_process';
-import { closeSync, createReadStream, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, readlinkSync, renameSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { closeSync, createReadStream, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, readlinkSync, realpathSync, renameSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -315,10 +315,15 @@ const heldValuesBy = reader => async names => {
   return held;
 };
 
+/** A new folder for one run, by its real path. A program in the unpacked tree runs its main block only when its argv path equals
+ *  its module's own (real) path; under a temporary folder reached through a symlink (/var -> /private/var) the two differ, and
+ *  start-a-computer exited 0 having done nothing (12:58 AM CST Nov 22). */
+export const runFolder = name => realpathSync(mkdtempSync(join(tmpdir(), `row-${name}-`)));
+
 const realDeps = ({ store, targets, workshop }) => ({
   store, targets,
   heldValues: heldValuesBy(targets.held_value_reader),
-  runFolder: name => mkdtempSync(join(tmpdir(), `row-${name}-`)),
+  runFolder,
   async archive(commit, folder) {
     mkdirSync(folder, { recursive: true });
     const tarball = (await run('git', ['-C', workshop, 'archive', commit], { encoding: 'buffer', maxBuffer: 1 << 30 })).stdout;

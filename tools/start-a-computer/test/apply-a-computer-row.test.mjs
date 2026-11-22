@@ -5,10 +5,10 @@
 // the probe and the apply are made up; the links are real symlinks in a temporary folder.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { lstatSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, symlinkSync } from 'node:fs';
+import { lstatSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, realpathSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { applyARow, applyEdits, heldNamesOf, hostsOf, parsePath, setLinks, sqlRowStore } from '../do-work/apply-a-computer-row.mjs';
+import { applyARow, applyEdits, heldNamesOf, hostsOf, parsePath, runFolder, setLinks, sqlRowStore } from '../do-work/apply-a-computer-row.mjs';
 
 const OLD = '1'.repeat(40), NEW = '2'.repeat(40), TREE = '3'.repeat(40);
 const row = () => ({
@@ -173,4 +173,9 @@ test('the row store writes only a row still as it was read, and answers what the
   stored.runs.units.pop();
   await assert.rejects(store.write('example-box', computer), /changed since it was read/);
   assert.deepEqual(calls, ['select', 'update', 'update']);
+});
+
+test('a run folder is named by its real path, so a program unpacked in it sees its argv equal to its own module path', () => {
+  const folder = runFolder('example-box');
+  assert.equal(folder, realpathSync(folder));
 });
