@@ -256,3 +256,28 @@ test('a site names its own consent cookie (its DATA); without a name the default
   assert.notEqual(visitorOf('partner_consent=granted', undefined, { consentCookieName: 'partner_consent' }).visitor, null);
   assert.deepEqual(visitorOf('partner_consent=denied', undefined, { consentCookieName: 'partner_consent' }), { visitor: null, setCookie: null });
 });
+
+test('a page check tagged utm_content=check keeps no step and sets no visitor cookie, even with consent', async () => {
+  const { db, query } = await database();
+  const check = { utm_content: 'check' };
+  assert.equal(visitStep({ url: '/?utm_content=check', refererHeader: '', visitor: 'visitor-check-1' }), null);
+  assert.equal(await keepStep(query, { visitor: 'visitor-check-1', step: 'visit', source: { ...check, utm_source: 'deploy-watch' } }).then(answer => answer.kept), false);
+  const beacon = await visitBeacon(query, { body: JSON.stringify({ href: `${SITE}/?utm_content=check` }), siteOrigin: SITE, cookieHeader: '', consent: true });
+  assert.deepEqual(beacon, { status: 204, setCookie: null });
+  const touch = makeTouch({ destination: `${SITE}/offer`, source: check, base: SITE });
+  await writeTouch(query, touch);
+  const went = await goRedirect(query, touch.row.id, { cookieHeader: '', consent: true });
+  assert.equal(went.status, 302);
+  assert.equal(went.setCookie, null);
+  assert.equal((await db.query('SELECT count(*)::int AS n FROM journey_steps')).rows[0].n, 0);
+});
+
+test('an untagged repeating watch keeps nothing: a page with no tracked source is no visit, however often it is read', async () => {
+  const { db, query } = await database();
+  for (let i = 0; i < 3; i += 1) {
+    assert.equal(visitStep({ url: '/status', refererHeader: 'https://monitor.example/', visitor: null }), null);
+    assert.deepEqual(await visitBeacon(query, { body: JSON.stringify({ href: `${SITE}/status` }), siteOrigin: SITE, cookieHeader: '' }), { status: 204, setCookie: null });
+  }
+  assert.equal((await db.query('SELECT count(*)::int AS n FROM journey_steps')).rows[0].n, 0);
+});
+

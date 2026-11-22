@@ -22,6 +22,11 @@
   ],
   "_kept_params_what": "URL parameters a visit keeps as its source. t is the touch id a /go/ link sends the visitor on with. The ad click ids are added from ad-return.json's click_ids.",
   "touch_param": "t",
+  "check": {
+    "key": "utm_content",
+    "value": "check",
+    "_what": "A page check (a deploy watch, a proof) tags its address with this pair. The kit keeps no step for it and sets no visitor cookie for it, so a repeated check never reads as traffic."
+  },
   "retry_after_seconds": 30,
   "_retry_after_seconds_what": "Retry-After sent with a 503 when the database cannot be reached for a /go/ link.",
   "beacon": {

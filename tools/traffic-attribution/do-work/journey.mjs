@@ -28,6 +28,7 @@ const webUrl = (value, message) => {
 const hostOf = referer => {
   try { return referer ? new URL(referer).hostname : null; } catch { return null; }
 };
+const isCheckSource = source => source?.[settings.check.key] === settings.check.value;
 const pickKept = source => Object.fromEntries(Object.entries(source ?? {}).filter(([key, value]) => KEPT.has(key) && text(value)));
 
 function cookieValue(cookieHeader, name) {
@@ -89,7 +90,7 @@ export function sourceOf(url, refererHeader) {
 /** The visit step of a page request that came with a source, or null for a page reached with none. */
 export function visitStep({ url, refererHeader, visitor = null }) {
   const source = sourceOf(url, refererHeader);
-  if (Object.keys(source).length === 0) return null;
+  if (Object.keys(source).length === 0 || isCheckSource(source)) return null;
   const touchId = text(source[settings.touch_param]) || null;
   return stepOf({ visitor, touch_id: touchId, step: 'visit', source, joined_by: touchId ? 'touch' : visitor ? 'cookie' : null });
 }
@@ -97,6 +98,7 @@ export function visitStep({ url, refererHeader, visitor = null }) {
 /** Writes one step; a step with a ref already kept is left as it is. Resolves to { kept }. */
 export async function keepStep(query, step) {
   if (!Object.hasOwn(settings.steps, step?.step)) throw new TypeError('A step needs a kind that read-data/journey.json names.');
+  if (isCheckSource(step.source)) return { kept: false };
   const row = stepOf(step);
   const result = await query(
     `INSERT INTO journey_steps (visitor, touch_id, step, source, ref, joined_by, email_key, offer_id, value_cents)
@@ -120,9 +122,9 @@ export async function goRedirect(query, touchId, { visitor, cookieHeader, refere
     return { status: 503, location: null, setCookie: null, retryAfter: settings.retry_after_seconds };
   }
   if (!found) return { status: 404, location: null, setCookie: null };
-  const minted = !consent ? { visitor: null, setCookie: null } : visitor ? { visitor, setCookie: null } : visitorOf(cookieHeader, cookie, { consent: true });
   const host = hostOf(refererHeader);
   const source = pickKept(found.source);
+  const minted = !consent || isCheckSource(source) ? { visitor: null, setCookie: null } : visitor ? { visitor, setCookie: null } : visitorOf(cookieHeader, cookie, { consent: true });
   try {
     await keepStep(query, stepOf({ visitor: minted.visitor, touch_id: found.id, step: 'click', source: host ? { ...source, referrer_host: host } : source, joined_by: 'touch' }));
   } catch {
@@ -151,6 +153,7 @@ export async function visitBeacon(query, { cookieHeader, body, siteOrigin, refer
   } catch {
     return none;
   }
+  if (isCheckSource(sourceOf(`${address.pathname}${address.search}`, refererHeader))) return none;
   const minted = visitorOf(cookieHeader, cookie, { consent });
   const step = visitStep({ url: `${address.pathname}${address.search}`, refererHeader, visitor: minted.visitor });
   if (step) {
