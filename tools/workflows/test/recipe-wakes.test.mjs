@@ -112,3 +112,10 @@ test('every shipped recipe wake together fits the engine\'s cap on declared wake
   assert.ok(wakes.length > 0, 'some recipe declares a wake');
   assert.ok(wakes.length <= WAKE_VOCABULARY.max_wakes);
 });
+
+test('a wake with no start_at says so, rather than naming a step it does not have', () => {
+  assert.deepEqual(wakeProblems([{ ...weekly, input: { colour: 'red' } }], context), [
+    'wakes[0].input has no start_at: name the step the wake starts at (one of: first, weekly).',
+    'wakes[0].input.colour is not a field of this recipe\'s input_schema.',
+  ]);
+});

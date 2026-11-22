@@ -130,7 +130,8 @@ export function wakeProblems(wakes, { stepIds, inputFields }, vocabulary = WAKE_
     problems.push(...settingProblems(wake, where, row?.cause, vocabulary));
     problems.push(...budgetProblems(wake.budget, `${where}.budget`, ledgersOf(row, object(wake.on) ? wake.on[row?.cause] : undefined), vocabulary));
     if (!object(wake.input)) { problems.push(`${where}.input must be an object holding ${vocabulary.start_field}.`); return; }
-    if (!stepIds.includes(wake.input[vocabulary.start_field])) problems.push(`${where}.input.${vocabulary.start_field} must name a step of this recipe: ${stepIds.join(', ')}.`);
+    if (wake.input[vocabulary.start_field] === undefined) problems.push(`${where}.input has no ${vocabulary.start_field}: name the step the wake starts at (one of: ${stepIds.join(', ')}).`);
+    else if (!stepIds.includes(wake.input[vocabulary.start_field])) problems.push(`${where}.input.${vocabulary.start_field} must name a step of this recipe: ${stepIds.join(', ')}.`);
     for (const key of Object.keys(wake.input)) if (key !== vocabulary.start_field && !inputFields.includes(key)) problems.push(`${where}.input.${key} is not a field of this recipe's input_schema.`);
   });
   return problems;
