@@ -1,4 +1,565 @@
 {
   "public": [],
-  "offers": []
+  "offers": [
+    {
+      "id": "tool:show-funnel-by-source",
+      "label": "Funnel by source",
+      "description": "Shows one card per source, medium and campaign of one client's journeys: visitors, clicks, visits, leads, bookings, checkouts, sales and revenue, from the funnel_by_source view.",
+      "screen": {
+        "kind": "parts",
+        "icon": "ChartBar",
+        "surface": {
+          "route_paths": [
+            "/funnel-by-source"
+          ],
+          "surface_input": {
+            "credential_name": "ethos_for_who_runs_it-connection"
+          }
+        },
+        "spec": {
+          "root": "page",
+          "elements": {
+            "page": {
+              "type": "Container",
+              "props": {
+                "layout": "stack",
+                "gap": "md"
+              },
+              "children": [
+                "title",
+                "empty",
+                "list"
+              ]
+            },
+            "title": {
+              "type": "Text",
+              "props": {
+                "text": "Funnel by source",
+                "variant": "heading-lg"
+              }
+            },
+            "empty": {
+              "type": "Text",
+              "props": {
+                "text": "No journeys recorded yet for this client.",
+                "variant": "body"
+              },
+              "visible": {
+                "$state": "/row_count",
+                "eq": 0
+              }
+            },
+            "list": {
+              "type": "Container",
+              "props": {
+                "layout": "stack",
+                "gap": "sm"
+              },
+              "repeat": {
+                "statePath": "/rows",
+                "key": "source"
+              },
+              "children": [
+                "card"
+              ]
+            },
+            "card": {
+              "type": "Card",
+              "props": {
+                "variant": "surface",
+                "padding": "md",
+                "layout": "stack"
+              },
+              "children": [
+                "source",
+                "medium",
+                "campaign",
+                "label-visitors",
+                "value-visitors",
+                "label-clicks",
+                "value-clicks",
+                "label-visits",
+                "value-visits",
+                "label-leads",
+                "value-leads",
+                "label-bookings",
+                "value-bookings",
+                "label-checkouts",
+                "value-checkouts",
+                "label-sales",
+                "value-sales",
+                "label-revenue_cents",
+                "value-revenue_cents"
+              ]
+            },
+            "source": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "source"
+                },
+                "variant": "heading"
+              }
+            },
+            "medium": {
+              "type": "Badge",
+              "props": {
+                "text": {
+                  "$item": "medium"
+                }
+              }
+            },
+            "campaign": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "campaign"
+                },
+                "variant": "body-xs"
+              }
+            },
+            "label-visitors": {
+              "type": "Text",
+              "props": {
+                "text": "Visitors",
+                "variant": "label"
+              }
+            },
+            "value-visitors": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "visitors"
+                },
+                "variant": "body"
+              }
+            },
+            "label-clicks": {
+              "type": "Text",
+              "props": {
+                "text": "Clicks",
+                "variant": "label"
+              }
+            },
+            "value-clicks": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "clicks"
+                },
+                "variant": "body"
+              }
+            },
+            "label-visits": {
+              "type": "Text",
+              "props": {
+                "text": "Visits",
+                "variant": "label"
+              }
+            },
+            "value-visits": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "visits"
+                },
+                "variant": "body"
+              }
+            },
+            "label-leads": {
+              "type": "Text",
+              "props": {
+                "text": "Leads",
+                "variant": "label"
+              }
+            },
+            "value-leads": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "leads"
+                },
+                "variant": "body"
+              }
+            },
+            "label-bookings": {
+              "type": "Text",
+              "props": {
+                "text": "Bookings",
+                "variant": "label"
+              }
+            },
+            "value-bookings": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "bookings"
+                },
+                "variant": "body"
+              }
+            },
+            "label-checkouts": {
+              "type": "Text",
+              "props": {
+                "text": "Checkouts",
+                "variant": "label"
+              }
+            },
+            "value-checkouts": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "checkouts"
+                },
+                "variant": "body"
+              }
+            },
+            "label-sales": {
+              "type": "Text",
+              "props": {
+                "text": "Sales",
+                "variant": "label"
+              }
+            },
+            "value-sales": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "sales"
+                },
+                "variant": "body"
+              }
+            },
+            "label-revenue_cents": {
+              "type": "Text",
+              "props": {
+                "text": "Revenue (cents)",
+                "variant": "label"
+              }
+            },
+            "value-revenue_cents": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "revenue_cents"
+                },
+                "variant": "body"
+              }
+            }
+          },
+          "state": {},
+          "reads": {
+            "/rows": {
+              "request": "load",
+              "pick": "/rows"
+            },
+            "/row_count": {
+              "request": "load",
+              "pick": "/row_count"
+            }
+          }
+        },
+        "requests": {
+          "load": {
+            "run": {
+              "input_schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "credential_name"
+                ],
+                "properties": {
+                  "credential_name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The held name of the database connection string: the vault name the person saved it under."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "tool:show-funnel-by-source-proof",
+      "label": "Funnel by source (proof database)",
+      "description": "The same funnel board on the proof database, with clearly fake proof rows, so the screen can be seen with data.",
+      "screen": {
+        "kind": "parts",
+        "icon": "ChartBar",
+        "surface": {
+          "route_paths": [
+            "/funnel-by-source-proof"
+          ],
+          "surface_input": {
+            "credential_name": "proofs_for_who_runs_it-connection"
+          }
+        },
+        "spec": {
+          "root": "page",
+          "elements": {
+            "page": {
+              "type": "Container",
+              "props": {
+                "layout": "stack",
+                "gap": "md"
+              },
+              "children": [
+                "title",
+                "empty",
+                "list"
+              ]
+            },
+            "title": {
+              "type": "Text",
+              "props": {
+                "text": "Funnel by source",
+                "variant": "heading-lg"
+              }
+            },
+            "empty": {
+              "type": "Text",
+              "props": {
+                "text": "No journeys recorded yet for this client.",
+                "variant": "body"
+              },
+              "visible": {
+                "$state": "/row_count",
+                "eq": 0
+              }
+            },
+            "list": {
+              "type": "Container",
+              "props": {
+                "layout": "stack",
+                "gap": "sm"
+              },
+              "repeat": {
+                "statePath": "/rows",
+                "key": "source"
+              },
+              "children": [
+                "card"
+              ]
+            },
+            "card": {
+              "type": "Card",
+              "props": {
+                "variant": "surface",
+                "padding": "md",
+                "layout": "stack"
+              },
+              "children": [
+                "source",
+                "medium",
+                "campaign",
+                "label-visitors",
+                "value-visitors",
+                "label-clicks",
+                "value-clicks",
+                "label-visits",
+                "value-visits",
+                "label-leads",
+                "value-leads",
+                "label-bookings",
+                "value-bookings",
+                "label-checkouts",
+                "value-checkouts",
+                "label-sales",
+                "value-sales",
+                "label-revenue_cents",
+                "value-revenue_cents"
+              ]
+            },
+            "source": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "source"
+                },
+                "variant": "heading"
+              }
+            },
+            "medium": {
+              "type": "Badge",
+              "props": {
+                "text": {
+                  "$item": "medium"
+                }
+              }
+            },
+            "campaign": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "campaign"
+                },
+                "variant": "body-xs"
+              }
+            },
+            "label-visitors": {
+              "type": "Text",
+              "props": {
+                "text": "Visitors",
+                "variant": "label"
+              }
+            },
+            "value-visitors": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "visitors"
+                },
+                "variant": "body"
+              }
+            },
+            "label-clicks": {
+              "type": "Text",
+              "props": {
+                "text": "Clicks",
+                "variant": "label"
+              }
+            },
+            "value-clicks": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "clicks"
+                },
+                "variant": "body"
+              }
+            },
+            "label-visits": {
+              "type": "Text",
+              "props": {
+                "text": "Visits",
+                "variant": "label"
+              }
+            },
+            "value-visits": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "visits"
+                },
+                "variant": "body"
+              }
+            },
+            "label-leads": {
+              "type": "Text",
+              "props": {
+                "text": "Leads",
+                "variant": "label"
+              }
+            },
+            "value-leads": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "leads"
+                },
+                "variant": "body"
+              }
+            },
+            "label-bookings": {
+              "type": "Text",
+              "props": {
+                "text": "Bookings",
+                "variant": "label"
+              }
+            },
+            "value-bookings": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "bookings"
+                },
+                "variant": "body"
+              }
+            },
+            "label-checkouts": {
+              "type": "Text",
+              "props": {
+                "text": "Checkouts",
+                "variant": "label"
+              }
+            },
+            "value-checkouts": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "checkouts"
+                },
+                "variant": "body"
+              }
+            },
+            "label-sales": {
+              "type": "Text",
+              "props": {
+                "text": "Sales",
+                "variant": "label"
+              }
+            },
+            "value-sales": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "sales"
+                },
+                "variant": "body"
+              }
+            },
+            "label-revenue_cents": {
+              "type": "Text",
+              "props": {
+                "text": "Revenue (cents)",
+                "variant": "label"
+              }
+            },
+            "value-revenue_cents": {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$item": "revenue_cents"
+                },
+                "variant": "body"
+              }
+            }
+          },
+          "state": {},
+          "reads": {
+            "/rows": {
+              "request": "load",
+              "pick": "/rows"
+            },
+            "/row_count": {
+              "request": "load",
+              "pick": "/row_count"
+            }
+          }
+        },
+        "requests": {
+          "load": {
+            "run": {
+              "input_schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "credential_name"
+                ],
+                "properties": {
+                  "credential_name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The held name of the database connection string: the vault name the person saved it under."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }
