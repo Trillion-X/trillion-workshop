@@ -10,6 +10,8 @@
 // checkFile(file, row) -> problems: the file must be stamped with the row's kept_at, its name must be the id without
 // "workflow:" and hold no colon, and the row must be complete enough for the recipe validator to accept it.
 
+import { unresolvedInputBindings } from './input-bindings.mjs';
+
 const PREFIX = 'workflow:';
 const VAULT_KEY = /credential_name$|secret_name$/;
 
@@ -282,6 +284,8 @@ export function planRender(row, { origin = null, originKit = null, parent = null
     plan.gate_words = gateWordsIn(plan.recipe.text, gateWords);
     plan.problems.push(...checkFile(file, row, fileNameOf(row.recipe), origin).filter((item) => item.startsWith('vault name') || item.startsWith('stale')));
   }
+  // A step that reads a run-input key no start of the row gives fails every run that start makes.
+  plan.problems.push(...unresolvedInputBindings(row));
   if (!asObject(row.definition)?.steps?.length) {
     plan.problems.push('definition has no steps');
     return plan;
