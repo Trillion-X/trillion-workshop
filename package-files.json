@@ -63802,5 +63802,39 @@
    "at": "/opt/node_modules/@noble/hashes"
   }
  ],
- "tool:make-a-login-on-every-computer": [{"package": "make-a-login-on-every-computer", "paths": ["do-work/make-a-login.mjs"], "at": "/opt/make-a-login-on-every-computer"}, {"package": "use-your-tools-from-a-shell", "paths": ["do-work/ag-ui-agent.mjs", "do-work/ag-ui-wire.mjs", "do-work/command.json", "do-work/command.mjs", "do-work/keep-result.mjs", "do-work/keep-the-connection.mjs", "do-work/local-door.mjs", "do-work/packs/read-data/blake3.mjs", "do-work/packs/read-data/identity.mjs", "do-work/packs/tools/plan-tasks-and-todo-lists/run-a-task-move.mjs", "do-work/packs/tools/plan-tasks-and-todo-lists/task-moves.json", "do-work/replay-recorded-writes.json", "do-work/replay-recorded-writes.mjs", "do-work/settled-write.mjs"], "at": "/opt/use-your-tools-from-a-shell"}, {"packages": ["node_modules/@noble/hashes"], "at": "/opt/node_modules/@noble/hashes"}]
+ "tool:make-a-login-on-every-computer": [{"package": "make-a-login-on-every-computer", "paths": ["do-work/make-a-login.mjs"], "at": "/opt/make-a-login-on-every-computer"}, {"package": "use-your-tools-from-a-shell", "paths": ["do-work/ag-ui-agent.mjs", "do-work/ag-ui-wire.mjs", "do-work/command.json", "do-work/command.mjs", "do-work/keep-result.mjs", "do-work/keep-the-connection.mjs", "do-work/local-door.mjs", "do-work/packs/read-data/blake3.mjs", "do-work/packs/read-data/identity.mjs", "do-work/packs/tools/plan-tasks-and-todo-lists/run-a-task-move.mjs", "do-work/packs/tools/plan-tasks-and-todo-lists/task-moves.json", "do-work/replay-recorded-writes.json", "do-work/replay-recorded-writes.mjs", "do-work/settled-write.mjs"], "at": "/opt/use-your-tools-from-a-shell"}, {"packages": ["node_modules/@noble/hashes"], "at": "/opt/node_modules/@noble/hashes"}],
+ "tool:keep-new-arc-tabs-in-the-inspiration-library": [
+  {
+   "package": "research-a-creator-or-topic",
+   "paths": [
+    "do-work",
+    "test/fixtures/arc-sidebar-sample.json"
+   ],
+   "at": "/opt/research-a-creator-or-topic"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ]
 }

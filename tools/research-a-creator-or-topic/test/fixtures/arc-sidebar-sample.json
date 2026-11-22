@@ -1,0 +1,19 @@
+{
+  "sidebar": {
+    "containers": [
+      { "spaces": [{ "id": "S1", "title": "Work" }], "items": [] },
+      {
+        "spaces": [],
+        "items": [
+          "F1", { "parentID": null, "data": { "itemContainer": { "containerType": { "spaceItems": { "_0": "S1" } } } } },
+          "T1", { "parentID": "F1", "data": { "tab": { "savedURL": "https://www.refero.design/x?utm_source=a", "savedTitle": "Refero" } } },
+          "T2", { "parentID": "F1", "data": { "tab": { "savedURL": "https://chatgpt.com/c/abc", "savedTitle": "My thread" } } },
+          "T3", { "parentID": "F1", "data": { "tab": { "savedURL": "https://mail.google.com/mail/u/0/#inbox", "savedTitle": "Inbox (3)" } } },
+          "T4", { "parentID": "F1", "data": { "tab": { "savedURL": "https://youtu.be/abc123?si=zz", "savedTitle": "Video" } } },
+          "T5", { "parentID": "F1", "data": { "tab": { "savedURL": "https://www.youtube.com/watch?v=abc123&utm_source=x", "savedTitle": "Video again" } } },
+          "T6", { "parentID": "F1", "data": { "tab": { "savedURL": "https://agency.example/", "savedTitle": "Acme Design Agency" } } }
+        ]
+      }
+    ]
+  }
+}

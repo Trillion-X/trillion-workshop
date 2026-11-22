@@ -1,0 +1,40 @@
+{
+  "drafted_from": "tool:keep-new-arc-tabs-in-the-inspiration-library's own row (its words, input schema and output schema) and the runner's tests on a fixture sidebar and a stub browser; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep the new tabs from my Arc browser in my inspiration library, design and site ones first\", with {\"state_folder\":\"<a folder for this run>\",\"sidebar\":\"<the Arc folder>/StorableSidebar.json\",\"obscura\":\"<the Obscura program>\",\"limit\":2}. It runs tool:keep-new-arc-tabs-in-the-inspiration-library and answers the counts (tabs read, unique addresses, held, new by kind, screenshots taken) and the SQL statements that keep the rows.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours. It reads a copy of the Arc sidebar file and the addresses your library already holds, and answers the rows and the SQL that keeps them in inspiration_items; the tool itself keeps nothing in the database.",
+  "instructions": [
+    "1. Say to your AI: \"Keep the new tabs from my Arc browser in my inspiration library, design and site ones first\", and give it the state folder, the Arc sidebar file and the Obscura program (the worked example shows the values).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:keep-new-arc-tabs-in-the-inspiration-library and that input.",
+    "3. Read what comes back: counts (tabs, unique, held, new, byKind, shots_ok, shots_failed), waited (the load-gate waits), and statements, in order: inserts of up to 200 rows, then one update per screenshot.",
+    "4. Run the statements against your own database in order, one statement per call. The tool never writes the database itself.",
+    "5. Chat threads (ChatGPT, Claude, Gemini and the rest) keep their title and provider and are marked to mine later; they are never opened or screenshotted. Mail, calendar, documents, search and account pages keep the host only."
+  ],
+  "worked_examples": [
+    {
+      "title": "New tabs from the Arc sidebar, two screenshots",
+      "ask": "Keep the new tabs from my Arc browser in my inspiration library, design and site ones first",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-new-arc-tabs-in-the-inspiration-library",
+            "input": {
+              "state_folder": "<your home>/Library/Application Support/arc-tabs-intake/run",
+              "sidebar": "<your home>/Library/Application Support/Arc/StorableSidebar.json",
+              "obscura": "<your home>/.local/bin/obscura",
+              "held": [],
+              "limit": 2
+            }
+          }
+        }
+      },
+      "given": "A sidebar file with a design site (refero.design/x), a chat thread (chatgpt.com/c/abc), a mail page and a video; nothing held yet.",
+      "hands_back": "counts: tabs 6, unique 5, held 0, new 5, shots_ok 2 (the design site and the flow); statements: one insert of 5 rows, then two screenshot updates. The chat thread row keeps its title and provider and is marked to mine later; the mail row keeps the host only."
+    }
+  ],
+  "tools": ["tool:keep-new-arc-tabs-in-the-inspiration-library"],
+  "workflows": []
+}

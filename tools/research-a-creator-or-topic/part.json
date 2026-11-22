@@ -1,0 +1,9 @@
+{
+  "name": "research-a-creator-or-topic",
+  "public_files": [
+    "do-work/arc-inspiration-intake.mjs",
+    "do-work/arc-inspiration-intake.json",
+    "do-work/keep-new-arc-tabs-in-the-inspiration-library.mjs",
+    "../../content-identity/read-data/identity.mjs"
+  ]
+}

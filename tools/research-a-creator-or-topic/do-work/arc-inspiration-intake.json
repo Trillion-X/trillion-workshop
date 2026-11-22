@@ -1,0 +1,61 @@
+{
+  "what": "Rules for the Arc inspiration intake: which hosts are AI chat threads, which are mail, search or account pages, which are design or site inspiration by kind, the skip hosts, and the run limits. Read by arc-inspiration-intake.mjs; edit here, never in code.",
+  "run_limits": {
+    "shots_per_run": 20,
+    "load_gate_one_minute": 80,
+    "shots_in_flight": 2,
+    "viewport": "1280x720"
+  },
+  "ai_chat_hosts": {
+    "chatgpt.com": "ChatGPT",
+    "chat.openai.com": "ChatGPT",
+    "gemini.google.com": "Gemini",
+    "aistudio.google.com": "Google AI Studio",
+    "claude.ai": "Claude",
+    "grok.com": "Grok",
+    "x.ai": "Grok",
+    "chat.qwen.ai": "Qwen",
+    "chat.deepseek.com": "DeepSeek",
+    "z.ai": "Z.ai",
+    "perplexity.ai": "Perplexity",
+    "poe.com": "Poe",
+    "copilot.microsoft.com": "Copilot"
+  },
+  "host_only_hosts": {
+    "mail.google.com": "mail",
+    "calendar.google.com": "calendar",
+    "docs.google.com": "document",
+    "drive.google.com": "document",
+    "outlook.live.com": "mail",
+    "outlook.office.com": "mail",
+    "google.com": "search or account",
+    "dashboard.stripe.com": "account app",
+    "business.facebook.com": "account app",
+    "console.x.com": "account app",
+    "app.clickup.com": "account app",
+    "namecheap.com": "account app",
+    "platform.openai.com": "account app",
+    "app.liner.com": "account app",
+    "app.puzzle.io": "account app",
+    "postiz.com": "account app"
+  },
+  "skip_host_prefixes": ["auth", "app", "admin", "orders", "console", "dashboard", "login", "accounts"],
+  "skip_hosts": ["127.0.0.1", "localhost"],
+  "skip_host_suffixes": [".local", ".gov"],
+  "kind_hosts": {
+    "component": ["21st.dev", "ui.shadcn.com", "ui.aceternity.com", "reactbits.dev", "uiarc.dev", "reui.io", "shadcnuikit.com", "codepen.io", "tympanus.net", "grainient.supply", "great-ui.com", "tenor.design", "annnimate.com", "figma.com"],
+    "flow": ["mobbin.com", "pageflows.com", "refero.design", "interfaces.dev"],
+    "video": ["youtube.com", "youtu.be", "vimeo.com", "loom.com"],
+    "article": ["medium.com", "substack.com", "researchgate.net", "ncbi.nlm.nih.gov", "pubmed.ncbi.nlm.nih.gov", "taylorfrancis.com", "tandfonline.com", "academia.edu", "psycnet.apa.org", "theguardian.com", "tobiadonadon.com", "daveholloway.uk", "ideabrowser.com", "importyeti.com"],
+    "other": ["github.com", "apps.apple.com", "producthunt.com", "ycombinator.com", "amazon.com", "huggingface.co", "help.zapier.com", "fanout.sh", "t.me", "t.co", "bitfield.so", "instagram.com", "x.com", "twitter.com", "tiktok.com", "reddit.com", "facebook.com", "linkedin.com", "skool.com", "hypergrowthhq.circle.so"]
+  },
+  "kind_default_for_short_paths": "site",
+  "kind_default_for_deep_paths": "other",
+  "title_tags": [
+    ["agency|studio", "agency or studio site"],
+    ["case stud", "case study"],
+    ["landing", "landing page"],
+    ["\\bcourse\\b|bootcamp|academy", "course"]
+  ],
+  "tracking_params": ["ref", "ref_src", "via", "si", "fbclid", "gclid", "igshid", "mc_cid", "mc_eid", "source", "spm"]
+}
