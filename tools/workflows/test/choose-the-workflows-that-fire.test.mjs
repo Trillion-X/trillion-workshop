@@ -29,7 +29,7 @@ test('on a blank account the installed workflows choose by their own conditions,
   assert.ok(answer.chosen.some(item => item.workflow === 'workflow:research-what-everyone-says' && item.part === 0 && item.from === 'catalog'));
   const conditioned = new Set(installed.filter(recipe => recipe.fires_when).map(recipe => recipe.id));
   assert.equal(answer.unconditioned.length, installed.length - conditioned.size);
-  assert.deepEqual(answer.unfinished, []);
+  assert.ok(answer.unfinished.every(item => item.incomplete.every(text => /does not carry/.test(text))), 'a part that lacks a field is named, and nothing else is unfinished');
 });
 
 test('a workflow added to the person\'s list is chosen at once, with no list of branches edited', async () => {
@@ -71,7 +71,8 @@ test('an Off condition chooses nothing, an unfinished one is named, and a workfl
   ]);
   const answer = await chooseTheWorkflowsThatFire({ parts: [{ words: 'x', kinds: ['x'] }], ...handed });
   assert.ok(!answer.chosen.some(item => ['workflow:off-one', 'workflow:broken-one'].includes(item.workflow)));
-  assert.deepEqual(answer.unfinished.map(item => item.workflow), ['workflow:broken-one']);
+  const broken = answer.unfinished.filter(item => !item.incomplete.every(text => /does not carry/.test(text)));
+  assert.deepEqual(broken.map(item => item.workflow), ['workflow:broken-one']);
   assert.ok(answer.unconditioned.some(item => item.workflow === 'workflow:off-one'));
   assert.ok(answer.unconditioned.some(item => item.workflow === 'workflow:bare-one' && item.label === 'Bare'));
 });
@@ -192,6 +193,19 @@ test('on a blank account a message that needs an answer starts the installed inb
   for (const type of ['mailbox', 'inbox-summary', 'calendar-task']) assert.doesNotMatch(text, new RegExp(`type \\\\?"${type}\\\\?"|\\\\"type\\\\":\\\\"${type}\\\\"`), `${type} is read and written as record:${type}`);
   assert.match(text, /mailboxes/);
   assert.doesNotMatch(text, /record:mailbox|person's own store/);
+});
+
+test('a condition on a field a part does not carry is named as unfinished, never dropped silently', async () => {
+  const stage = { fields: [{ id: 'place', kind: 'choice', path: ['place'] }, { id: 'state', kind: 'choice', path: ['state'] }], tree: { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'place', operator: 'is_any_of', params: { values: ['product_stage'] } }, { kind: 'rule', field: 'state', operator: 'is_any_of', params: { values: ['ready'] } }] } };
+  const row = ownRow('ready-piece-filler', { title: 'Fill a ready piece', fires_when: JSON.stringify([{ label: 'a piece is ready to be filled', condition: stage, made_by: 'the person', state: 'On' }]) });
+  const parts = [{ words: 'A kinds-only seed.', kinds: ['finding'] }, { words: 'A stage row.', place: 'product_stage', state: 'ready' }];
+  const answer = await chooseTheWorkflowsThatFire({ parts, ...handedIn([row]) });
+  assert.ok(answer.chosen.some(item => item.workflow === 'workflow:ready-piece-filler' && item.part === 1), 'a part that carries the fields is chosen');
+  assert.ok(!answer.chosen.some(item => item.workflow === 'workflow:ready-piece-filler' && item.part === 0));
+  const named = answer.unfinished.find(item => item.workflow === 'workflow:ready-piece-filler' && item.part === 0);
+  assert.ok(named, 'the part without the fields is named, not dropped');
+  assert.match(named.incomplete.join(' '), /does not carry place/);
+  assert.match(named.incomplete.join(' '), /does not carry state/);
 });
 
 test('the shipped row, run as the engine runs it, reaches no database and chooses from the workflow rows it is given', async () => {

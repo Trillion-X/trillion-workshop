@@ -27,7 +27,8 @@
 // over_installed lists it, so the caller starts that one from the row it reads there.
 //
 // A condition that is Off, unfinished (a rule the engine cannot evaluate) or has no rule at all chooses nothing; the
-// last two are named so the run can fix them. A workflow with no condition is named in unconditioned, so the run can
+// last two are named so the run can fix them, and so is a part that lacks a field the condition reads (unfinished, with the
+// field named), so no condition is dropped unseen. A workflow with no condition is named in unconditioned, so the run can
 // judge it by its words and write the condition it judged back onto the workflow's row.
 
 import { readFileSync } from 'node:fs';
@@ -84,6 +85,19 @@ function ruleLeaves(condition) {
 
 const valueAt = (record, path) => path.reduce((value, key) => (value == null ? undefined : value[key]), record);
 
+// The fields a condition's rules read that a part does not carry at all: such a rule cannot be evaluated for that part.
+function fieldsMissingFrom(condition, part) {
+  const missing = new Set();
+  const walk = node => {
+    if (node?.kind === 'group') return node.rules.forEach(walk);
+    if (node?.kind !== 'rule') return;
+    const field = condition.fields.find(item => item.id === node.field);
+    if (field && valueAt(part, field.path ?? [field.id]) === undefined) missing.add(field.id);
+  };
+  walk(condition.tree);
+  return [...missing];
+}
+
 // The keys of one condition that this part meets: a value rule by the values the part holds, any other rule when the
 // formulas engine says it holds for the part alone.
 function metKeys(condition, part, operators) {
@@ -126,6 +140,13 @@ export async function chooseTheWorkflowsThatFire(input = {}) {
       ruleLeaves(item.condition).forEach(leaf => leaf.keys.forEach(key => keys.add(key)));
       const answer = filterRecords({ records: parts, fields: item.condition.fields, tree: item.condition.tree, ...(operators ? { operators } : {}) });
       for (const part of answer.matches) matches.push({ workflow, label, part, item, from });
+      // A part the condition kept nothing from, that lacks a field the condition reads, is named as unfinished, never dropped unseen.
+      const kept = new Set(answer.matches);
+      parts.forEach((part, at) => {
+        if (kept.has(at)) return;
+        const missing = fieldsMissingFrom(item.condition, part);
+        if (missing.length) unfinished.push({ workflow, condition: item?.label ?? null, part: at, incomplete: missing.map(field => `part ${at} does not carry ${field}`) });
+      });
     }
     if (keys.size) conditioned += 1;
     keys.forEach(key => holders.set(key, (holders.get(key) ?? 0) + 1));
