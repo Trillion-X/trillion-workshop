@@ -92,7 +92,8 @@
                 "paths": [
                   "do-work/journey.mjs",
                   "read-data/journey.json",
-                  "read-data/ad-return.json"
+                  "read-data/ad-return.json",
+                  "read-data/consent.json"
                 ],
                 "at": "/opt/traffic-attribution"
               },

@@ -1,0 +1,21 @@
+{
+  "_what": "The site's consent contract, read by do-work/journey.mjs: the first-party cookie a site's consent banner writes, the value that means analytics consent was granted, and the Google Tag Manager consent update each answer sends (gtag consent update). A site without a banner sends no such cookie, so the journey keeps no visitor for it. Names are data: the banner part and the journey read this one file, never a copy.",
+  "cookie_name": "site_consent",
+  "granted": "granted",
+  "denied": "denied",
+  "gtm": {
+    "command": ["consent", "update"],
+    "granted": {
+      "ad_storage": "granted",
+      "analytics_storage": "granted",
+      "ad_user_data": "granted",
+      "ad_personalization": "granted"
+    },
+    "denied": {
+      "ad_storage": "denied",
+      "analytics_storage": "denied",
+      "ad_user_data": "denied",
+      "ad_personalization": "denied"
+    }
+  }
+}

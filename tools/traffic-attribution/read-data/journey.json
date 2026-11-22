@@ -30,10 +30,6 @@
     "script": "<script>(function(){var b=JSON.stringify({href:location.href});if(navigator.sendBeacon){navigator.sendBeacon('/journey/beacon',new Blob([b],{type:'application/json'}));}else{fetch('/journey/beacon',{method:'POST',body:b,keepalive:true,headers:{'content-type':'application/json'}});}})();</script>",
     "_what": "A static page (served without the program) loads this script; it posts the page's own address to the beacon route, which keeps the visit. The route ignores foreign origins and bodies over max_bytes."
   },
-  "consent": {
-    "default": false,
-    "_what": "Without analytics consent a site keeps no visitor cookie and no visitor id: a step keeps only the touch id of the link it followed."
-  },
   "_touch_param_what": "The URL parameter that carries the touch id from a /go/ redirect to the destination page.",
   "steps": {
     "touch": {

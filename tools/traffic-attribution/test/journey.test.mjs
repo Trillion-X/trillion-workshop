@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
-import { visitorOf, sourceOf, visitStep, keepStep, goRedirect, visitBeacon, checkoutAttribution, bookedStep, bookingStepOf, leadStep, saleStepOf, emailKey, makeTouch } from '../do-work/journey.mjs';
+import { visitorOf, consentGrantedOf, sourceOf, visitStep, keepStep, goRedirect, visitBeacon, checkoutAttribution, bookedStep, bookingStepOf, leadStep, saleStepOf, emailKey, makeTouch } from '../do-work/journey.mjs';
 import { makeATrackedLink } from '../do-work/make-a-tracked-link.mjs';
 
 const sql = readFileSync(resolve(import.meta.dirname, '../read-data/journey-steps.sql'), 'utf8');
@@ -237,3 +237,13 @@ test('a beacon from a static page keeps the visit of its own origin, and ignores
   assert.deepEqual(await visitBeacon(query, { body: 'x'.repeat(3000), siteOrigin: SITE }), { status: 204, setCookie: null });
   assert.equal((await query('SELECT count(*)::int AS n FROM journey_steps')).rows[0].n, 1);
 });
+
+test('the site consent cookie decides consent: granted keeps the visitor, denied or absent keeps none', () => {
+  assert.equal(consentGrantedOf('site_consent=granted'), true);
+  assert.equal(consentGrantedOf('site_consent=denied'), false);
+  assert.equal(consentGrantedOf('jv=abcdefgh12345678'), false);
+  const granted = visitorOf('site_consent=granted');
+  assert.match(granted.visitor, /^[A-Za-z0-9_-]{8,128}$/);
+  assert.deepEqual(visitorOf('site_consent=denied'), { visitor: null, setCookie: null });
+});
+

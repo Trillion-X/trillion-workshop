@@ -87,7 +87,8 @@
          "do-work/journey.mjs",
          "read-data/tracked-link.mjs",
          "read-data/journey.json",
-         "read-data/ad-return.json"
+         "read-data/ad-return.json",
+         "read-data/consent.json"
         ],
         "at": "/opt/parts/traffic-attribution"
        },
