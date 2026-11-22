@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/read-a-page-in-arc/read-a-page-in-arc.mjs
 //
 // PURPOSE
@@ -51,7 +53,7 @@ export async function readPageInArc(input, { exec } = {}) {
   }
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const input = JSON.parse((await text(process.stdin)) || '{}');
   console.log(JSON.stringify(await readPageInArc(input)));
 }

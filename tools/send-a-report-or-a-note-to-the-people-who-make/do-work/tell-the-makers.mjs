@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/send-a-report-or-a-note-to-the-people-who-make/do-work/tell-the-makers.mjs
 //
 // The container tool `tool:tell-the-makers-of-a-product` (tool-rows.json): one feedback note written as one row of the makers'
@@ -75,7 +76,7 @@ export async function tellTheMakers({ connection, input }) {
   }
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const connection = held(CONNECTION_DESCRIPTOR);
   try {
     const input = JSON.parse(readFileSync(0, 'utf8'));

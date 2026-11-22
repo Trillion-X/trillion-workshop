@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/keep-package-files-current/do-work/keep-package-files-current.mjs
 //
 // Purpose: keeps the Workshop's package-files.json able to start every tool row. One pass regenerates the file from an export of
@@ -153,7 +155,7 @@ export const realSeams = {
   },
 };
 
-if (import.meta.url === (process.argv[1] ? pathToFileURL(process.argv[1]).href : '')) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const root = process.argv[process.argv.indexOf('--root') + 1];
   // A pass that throws reports an error outcome: the next pass starts again from origin/main.
   const result = await keepPackageFilesCurrent({ root, seams: realSeams }).catch(error => ({ outcome: 'error', why: error.message }));

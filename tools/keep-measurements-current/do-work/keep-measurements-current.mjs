@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 import { text } from 'node:stream/consumers';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
@@ -19,7 +21,7 @@ export async function run(input, { grantedFolder = process.argv[2] } = {}) {
   throw new TypeError('action must be collect_from_config.');
 }
 
-if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     console.log(JSON.stringify({ result: await run(JSON.parse((await text(process.stdin)) || '{}')) }));
   } catch (error) {

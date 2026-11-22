@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/list-and-run-my-tools-for-any-ai/do-work/save-tool-in-database.mjs
 //
 // tool:save-tool, one container process (tool-rows.json): saves one tool as a row of the `saved_tools` table in the database the
@@ -25,7 +27,7 @@ export async function main() {
   }
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   main().then(answer => console.log(JSON.stringify(answer))).catch(error => {
     console.log(JSON.stringify({ error: error.message }));
     process.exitCode = 1;

@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/browse-public-page/do-work/read_a_link.mjs
 //
 // PURPOSE
@@ -115,7 +116,7 @@ export async function readLinkCard(input, { fetchPage = fetch, waitMs = WAIT_MS 
 }
 
 // Run as the container tool: { url } on standard input, the card (or { error }) as one JSON line on standard output.
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     const input = JSON.parse(readFileSync(0, 'utf8'));
     process.stdout.write(JSON.stringify(await readLinkCard(input.url)) + '\n');

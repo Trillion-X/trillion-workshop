@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // Read one public page. What the page says (title, text, links and its own card) is read by the one page reader,
 // ./page-facts.mjs. Where the request may go is not decided here: the engine runs this tool as internet:true, so
 // Node's own fetch reaches only the engine's public-only proxy (NODE_USE_ENV_PROXY), which judges every address, every
@@ -105,7 +106,7 @@ export async function windowsAround(around, fetchPage = fetchOnce) {
   return { windows };
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     const input = JSON.parse(readFileSync(0, 'utf8'));
     process.stdout.write(JSON.stringify(await readPublicPageOrArchive(input)) + '\n');

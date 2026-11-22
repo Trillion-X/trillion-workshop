@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 /**
  * Read-only held-out evaluation for a writing-voice classifier's checks.
  * Asks the hosted classifier (tools/ask-a-small-model-for-a-verdict, /v1/systemone) one request per passage;
@@ -428,7 +430,7 @@ async function standardInput() {
   catch (error) { console.log(JSON.stringify({ error: String(error?.message ?? error) })); process.exitCode = 1; }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   if (process.argv.length > 2) await commandLine(process.argv.slice(2));
   else await standardInput();
 }

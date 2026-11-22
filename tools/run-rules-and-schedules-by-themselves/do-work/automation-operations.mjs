@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/run-rules-and-schedules-by-themselves/do-work/automation-operations.mjs
 //
 // The command tool:run-when-something-happens (--kind rule) and tool:run-at-a-time (--kind schedule) run in their
@@ -30,4 +32,4 @@ async function main() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) await main();
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) await main();

@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/make-a-login-on-every-computer/do-work/make-a-login.mjs
 //
 // Makes this computer's own database login for one pursuit, held in this computer's vault, and gives it its grants. Each computer
@@ -113,7 +114,7 @@ async function main(stdin = process.stdin, print = line => process.stdout.write(
   print(JSON.stringify(await makeLogin({ input, client })));
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   main().catch(error => {
     process.stderr.write(`${error.message}\n`);
     process.exitCode = error.status ?? 1;

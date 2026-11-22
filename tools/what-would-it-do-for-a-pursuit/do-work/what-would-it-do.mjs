@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/what-would-it-do-for-a-pursuit/do-work/what-would-it-do.mjs
 //
 // tool:what-would-it-do: what the platform would do for a pursuit, one container process. The caller hands in the pursuit's words,
@@ -65,7 +67,7 @@ export async function main() {
   }
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   main().then(answer => console.log(JSON.stringify(answer))).catch(error => {
     console.log(JSON.stringify({ error: error.message }));
     process.exitCode = 1;

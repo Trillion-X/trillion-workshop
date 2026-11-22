@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 /**
  * notice-when-something-shows-up/do-work/read-a-page-of-messages.mjs
  *
@@ -50,7 +52,7 @@ export function readAPage(input, { open = openCopy, home = homeFolder() } = {}) 
   }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   let text = "";
   for await (const chunk of process.stdin) text += chunk;
   try {

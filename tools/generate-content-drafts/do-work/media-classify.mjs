@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { realpathSync } from 'node:fs';
 /**
  * file: tools/generate-content-drafts/do-work/media-classify.mjs
  *
@@ -93,7 +94,7 @@ if (!picked) {
 return emit(picked, 'ai');
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     const jsonMode = process.argv.includes('--json');
     const args = new Map();

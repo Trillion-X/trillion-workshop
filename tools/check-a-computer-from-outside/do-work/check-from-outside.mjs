@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/check-a-computer-from-outside/do-work/check-from-outside.mjs
 //
 // tool:check-a-computer-from-outside: what anyone on the internet can see of one computer, compared with what its row
@@ -183,7 +185,7 @@ export async function checkFromOutside({ name, address, declared_ports: declared
     rtt_ms: { tcp: firstOpen?.ms ?? null, tls: certificates[0]?.rtt_ms?.tls ?? null }, findings: named };
 }
 
-const startedAsProgram = process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop());
+const startedAsProgram = (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]));
 if (startedAsProgram) {
   try {
     const input = JSON.parse((await text(process.stdin)) || '{}');

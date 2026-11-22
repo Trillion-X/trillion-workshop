@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/research-a-creator-or-topic/do-work/search-the-public-web.mjs
 //
 // A public web search: at most ten results, each with the address it cites. Run by the Workshop tool
@@ -17,7 +18,7 @@ export async function searchThePublicWeb(input, fetchPage) {
   return { source: feed.source, subject_ref: query, count: feed.items.length, items: feed.items };
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     process.stdout.write(`${JSON.stringify(await searchThePublicWeb(JSON.parse(readFileSync(0, 'utf8') || '{}')))}\n`);
   } catch (error) {

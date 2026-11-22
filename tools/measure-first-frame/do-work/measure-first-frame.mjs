@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/measure-first-frame/do-work/measure-first-frame.mjs
 //
 // Purpose: Measure what a person sees when a video served by byte ranges starts: the first presented frame, the time from Play to a
@@ -155,7 +157,7 @@ export async function measureFirstFrame(input, { launch } = {}) {
   }
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const chunks = [];
   for await (const chunk of process.stdin) chunks.push(chunk);
   try {

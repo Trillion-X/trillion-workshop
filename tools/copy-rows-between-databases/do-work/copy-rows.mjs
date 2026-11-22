@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/copy-rows-between-databases/do-work/copy-rows.mjs
 //
 // The container tool `tool:copy-rows-between-databases` (tool-rows.json): copies named rows of one table from one Postgres-wire
@@ -115,7 +116,7 @@ export function sayWithout(error, ...connections) {
   return said;
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const source = held(SOURCE_DESCRIPTOR), destination = held(DESTINATION_DESCRIPTOR);
   try {
     console.log(JSON.stringify(await copyRows({ source, destination, input: JSON.parse(readFileSync(0, 'utf8')) })));

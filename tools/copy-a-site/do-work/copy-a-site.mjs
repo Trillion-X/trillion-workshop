@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/copy-a-site/do-work/copy-a-site.mjs
 //
 // Copies a live website into the file map a public app is published from: each page of the site is opened
@@ -364,7 +365,7 @@ async function main() {
 }
 
 // Run as a script (the Workshop row runs it); imported, it only lends its naming rules (pageFile, assetFile).
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   main().catch(error => {
     process.stderr.write(`${error instanceof BrowserProblem ? error.message : error.stack}\n`);
     process.exit(1);

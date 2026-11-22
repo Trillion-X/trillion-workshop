@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 import { open, realpath, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -59,7 +61,7 @@ export async function importMarkdownFile({ source_path, output_path, granted_fol
   return { kind: 'editable-document-import-file', output_path: output, output_bytes: bytes.length, block_count: result.block_count, source_identity: result.source_identity, round_trip: result.round_trip };
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   let input = '';
   for await (const chunk of process.stdin) input += chunk;
   try {

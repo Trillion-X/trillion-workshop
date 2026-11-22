@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { fileURLToPath } from 'node:url';
 // tools/check-deleted-code-names-its-home/do-work/check-deleted-code-names-its-home.mjs
 //
 // A commit or push that deletes a source or test file is refused unless each deleted file names its new home or the
@@ -218,9 +219,9 @@ async function judgeGranted(folder) {
   }
 }
 
-if (process.argv[1] && import.meta.url === `file://${realpathSync(process.argv[1])}` && process.argv.includes('--granted')) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]) && process.argv.includes('--granted')) {
   await judgeGranted(option(process.argv.slice(2), '--granted'));
-} else if (process.argv[1] && import.meta.url === `file://${realpathSync(process.argv[1])}`) {
+} else if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const args = process.argv.slice(2);
   try {
     const root = option(args, '--root') ?? process.cwd();

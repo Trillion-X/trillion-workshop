@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { realpathSync } from 'node:fs';
 // tools/composio-connection/do-work/run-a-composio-action.mjs
 //
 // PURPOSE: tool:run-a-composio-action, run in the tool container. Reads one request on stdin and runs it for one connected
@@ -24,7 +25,7 @@ export async function runAComposioAction(request = {}, { execute = makeComposioC
   return { account_id: accountId, endpoint: asked.endpoint, status: answer.status, data: stripSecrets(answer.data) };
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   runAComposioAction(JSON.parse(readFileSync(0, 'utf8') || '{}'))
     .then(answer => process.stdout.write(`${JSON.stringify(answer)}\n`))
     .catch(error => { process.stderr.write(`${error.message}\n`); process.exit(1); });

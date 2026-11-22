@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { realpathSync } from 'node:fs';
 /**
  * file: tools/generate-content-drafts/do-work/compile-presentation-plan.mjs
  *
@@ -218,7 +219,7 @@ function fail(message) {
   throw new Error(message);
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     if (process.argv.includes("--json")) {
       const input = JSON.parse(readFileSync(0, "utf8"));

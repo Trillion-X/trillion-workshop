@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/send-messages/do-work/mail-sender.mjs
 //
 // Purpose
@@ -442,7 +443,7 @@ export async function sendAnEmail(request, { provider, sender }) {
   return { provider, sent, said };
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     const { saved, mail_settings: handedSettings, mail_sent: sentRows = [], mail_day: dayRows = [], ...request } = JSON.parse(readFileSync(0, 'utf8') || '{}');
     const row = mailSettings(handedSettings);

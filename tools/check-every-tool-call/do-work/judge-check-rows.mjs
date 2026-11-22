@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { fileURLToPath } from 'node:url';
 // tools/check-every-tool-call/do-work/judge-check-rows.mjs
 //
 // Purpose
@@ -265,7 +266,7 @@ function option(args, name) {
   return at >= 0 ? args[at + 1] : undefined;
 }
 
-if (process.argv[1] && import.meta.url === `file://${realpathSync(process.argv[1])}`) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const [mode, ...args] = process.argv.slice(2);
   let input;
   try {

@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/paid-access/do-work/seal-a-paid-file.mjs
 //
 // tool:seal-a-paid-file: seals one of the person's files for sale. It reads the plaintext file, encrypts it with the
@@ -59,7 +60,7 @@ export async function sealAPaidFile(input, { key, keyRef, out, fetchImpl = fetch
   return { row, sealed_bytes: ciphertext.length };
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const flag = name => { const at = process.argv.indexOf(`--${name}`); return at > 0 ? process.argv[at + 1] : undefined; };
   try {
     const out = flag('out');

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { realpathSync } from 'node:fs';
 // tools/sign-a-mac-app-update/do-work/sign-a-mac-app-update.mjs
 //
 // Purpose
@@ -91,7 +92,7 @@ async function main() {
   process.stdout.write(`${JSON.stringify(answer)}\n`);
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   main().catch(error => {
     process.stderr.write(`${error.message}\n`);
     process.exitCode = error.status ?? 1;

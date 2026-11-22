@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/run-rules-and-schedules-by-themselves/do-work/read-source-health.mjs
 //
 // The command tool:read-source-health runs in its container: how each source that feeds a person's automations is doing
@@ -39,4 +41,4 @@ async function main() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) await main();
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) await main();

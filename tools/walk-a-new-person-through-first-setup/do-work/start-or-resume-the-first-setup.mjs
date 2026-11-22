@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/walk-a-new-person-through-first-setup/do-work/start-or-resume-the-first-setup.mjs
 //
 // tool:start-or-resume-the-first-setup, run as a function in the tool container:
@@ -66,7 +68,7 @@ export function startOrResumeTheFirstSetup(input) {
   return { ...base, action, steps, next };
 }
 
-if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop())) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const { readFileSync } = await import('node:fs');
   try {
     process.stdout.write(JSON.stringify({ result: startOrResumeTheFirstSetup(JSON.parse(readFileSync(0, 'utf8') || '{}')) }) + '\n');

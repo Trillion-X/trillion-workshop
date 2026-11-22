@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/read-the-menu-bar-settings/do-work/read-the-menu-bar-settings.mjs
 //
 // tool:read-the-menu-bar-settings, run as a function in the tool container:
@@ -64,7 +66,7 @@ export function readTheMenuBarSettings(input) {
   return { rows, held: held !== null, ...(change ? { change } : {}) };
 }
 
-if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop())) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const { readFileSync } = await import('node:fs');
   try {
     process.stdout.write(JSON.stringify({ result: readTheMenuBarSettings(JSON.parse(readFileSync(0, 'utf8') || '{}')) }) + '\n');

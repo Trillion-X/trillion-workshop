@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/social-posts/do-work/approve-a-post-in-database.mjs
 //
 // tool:approve-a-post, one container process (tool-rows.json): approves a drafted post exactly as reviewed, reading the post and
@@ -78,7 +80,7 @@ export async function main() {
   }
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   main().then(answer => console.log(JSON.stringify(answer))).catch(error => {
     console.log(JSON.stringify({ error: error.message }));
     process.exitCode = 1;

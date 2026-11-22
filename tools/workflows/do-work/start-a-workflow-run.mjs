@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/workflows/do-work/start-a-workflow-run.mjs
 //
 // The start of a run of one of the person's workflows: the waiter that hears a workflow-chosen-from-rows fact is checked
@@ -56,7 +58,7 @@ export async function startWorkflowRun(input, { door = readDoor(), fetchImpl = f
 }
 
 // Run as the program: the input JSON comes on stdin, the answer goes out as one JSON line.
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     console.log(JSON.stringify({ result: await startWorkflowRun(JSON.parse(readFileSync(0, 'utf8') || '{}')) }));
   } catch (error) {

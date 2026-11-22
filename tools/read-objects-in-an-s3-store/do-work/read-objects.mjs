@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/read-objects-in-an-s3-store/do-work/read-objects.mjs
 //
 // The container tool `tool:read-objects-in-an-s3-store` (tool-rows.json): lists the objects of one bucket in any
@@ -116,7 +117,7 @@ export async function readObjects(input, { store, fetchImpl = fetch, now = new D
   return { key: input.key, size: bytes.length, content_type: response.headers.get('content-type') ?? 'application/octet-stream', base64: bytes.toString('base64') };
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const read = descriptor => { try { return readFileSync(descriptor, 'utf8').trim(); } catch { return ''; } };
   try {
     const input = JSON.parse(readFileSync(0, 'utf8') || '{}');

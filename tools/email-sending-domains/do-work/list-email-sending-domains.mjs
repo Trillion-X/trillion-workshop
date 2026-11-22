@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/email-sending-domains/do-work/list-email-sending-domains.mjs
 //
 // The container tool `tool:list-email-sending-domains` (tool-rows.json): which domains the person's email-sending
@@ -24,7 +25,7 @@ export async function listDomains({ key, fetchImpl = fetch }) {
   return { domains, count: domains.length };
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   let key = '';
   try { key = readFileSync(KEY_DESCRIPTOR, 'utf8'); } catch { key = ''; }
   try {

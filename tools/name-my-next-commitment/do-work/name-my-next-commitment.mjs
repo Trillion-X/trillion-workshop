@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/name-my-next-commitment/do-work/name-my-next-commitment.mjs
 //
 // tool:name-my-next-commitment, run as a function in the tool container:
@@ -43,7 +45,7 @@ export function nameMyNextCommitment(input) {
   };
 }
 
-if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop())) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     process.stdout.write(JSON.stringify({ result: nameMyNextCommitment(JSON.parse(readFileSync(0, 'utf8') || '{}')) }) + '\n');
   } catch (error) {

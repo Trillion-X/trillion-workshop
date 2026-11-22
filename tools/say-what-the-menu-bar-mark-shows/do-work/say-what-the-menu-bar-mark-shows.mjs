@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/say-what-the-menu-bar-mark-shows/do-work/say-what-the-menu-bar-mark-shows.mjs
 //
 // tool:say-what-the-menu-bar-mark-shows, run as a function in the tool container:
@@ -30,7 +32,7 @@ export function sayWhatTheMenuBarMarkShows(input) {
     list: running.slice(0, 8).map(record => record.title) };
 }
 
-if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop())) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const { readFileSync } = await import('node:fs');
   try {
     process.stdout.write(JSON.stringify({ result: sayWhatTheMenuBarMarkShows(JSON.parse(readFileSync(0, 'utf8') || '{}')) }) + '\n');

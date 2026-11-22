@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/send-messages/do-work/keep-who-agreed.mjs
 //
 // PURPOSE
@@ -179,7 +180,7 @@ export async function whoAgreedToGetEmails(input) {
 
 // The command each tool row runs: node keep-who-agreed.mjs <export name> < input.json, answering { result } or { error }.
 const EXPORTS = { enrollInEmailCourse, saveEmailInterest, unsubscribeFromEmailCourse, sendDueEmailLessons, whoAgreedToGetEmails };
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     const run = EXPORTS[process.argv[2]];
     if (!run) throw new Error(`usage: keep-who-agreed.mjs <${Object.keys(EXPORTS).join(' | ')}> < input.json`);

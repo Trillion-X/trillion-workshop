@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/set-up-my-account/do-work/see-what-is-left-to-set-up.mjs
 //
 // tool:see-what-is-left-to-set-up. One JSON request on standard input, the Get started answer on the last line of
@@ -43,7 +45,7 @@ export async function seeWhatIsLeftToSetUp(request) {
     ...(Array.isArray(request.setup_access) ? { setup_access: request.setup_access } : {}) });
 }
 
-if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop())) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     process.stdout.write(JSON.stringify({ result: await seeWhatIsLeftToSetUp(JSON.parse(readFileSync(0, 'utf8'))) }) + '\n');
   } catch (error) {

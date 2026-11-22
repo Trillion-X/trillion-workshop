@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/research-a-creator-or-topic/do-work/write-a-profile-request.mjs
 //
 // Turns what was gathered about a creator or a topic (a video's words, a page's text) into the instruction a model
@@ -40,7 +41,7 @@ export function writeAProfileRequest(input) {
   };
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     process.stdout.write(`${JSON.stringify(writeAProfileRequest(JSON.parse(readFileSync(0, 'utf8') || '{}')))}\n`);
   } catch (error) {

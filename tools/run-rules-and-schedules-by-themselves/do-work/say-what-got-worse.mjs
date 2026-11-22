@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { realpathSync } from 'node:fs';
 // tools/run-rules-and-schedules-by-themselves/do-work/say-what-got-worse.mjs
 //
 // PURPOSE: tool:say-what-got-worse, run in the tool container: the reading (measures with now and before) on standard
@@ -16,7 +17,7 @@ export function sayFrom(text) {
   return sayWhatGotWorse(JSON.parse(text));
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     process.stdout.write(`${JSON.stringify(sayFrom(readFileSync(0, 'utf8')))}\n`);
   } catch (error) {

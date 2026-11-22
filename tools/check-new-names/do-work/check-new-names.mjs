@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { fileURLToPath } from 'node:url';
 // tools/check-new-names/do-work/check-new-names.mjs
 //
 // A folder or file name a change adds says what the thing is or does: a new reader can point at it without asking.
@@ -105,7 +106,7 @@ function option(args, name) {
   return at >= 0 ? args[at + 1] : undefined;
 }
 
-if (process.argv[1] && import.meta.url === `file://${realpathSync(process.argv[1])}`) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const args = process.argv.slice(2);
   if (args.includes('--input-on-stdin')) {
     // Run as the Workshop tool on a folder the person granted: { rules, range? } on stdin (no range: the staged index),

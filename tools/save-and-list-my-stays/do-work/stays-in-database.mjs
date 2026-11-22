@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/save-and-list-my-stays/do-work/stays-in-database.mjs
 //
 // tool:save-a-stay and tool:list-my-stays, one container process each (tool-rows.json): a person's own stays, kept in the pursuit
@@ -78,7 +80,7 @@ export async function main(action = process.argv[2]) {
   }
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   main().then(answer => console.log(JSON.stringify(answer))).catch(error => {
     console.log(JSON.stringify({ error: error.message }));
     process.exitCode = 1;

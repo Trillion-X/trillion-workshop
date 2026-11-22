@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/walk-a-new-person-through-first-setup/do-work/walk-a-new-person-through-first-setup.mjs
 //
 // tool:walk-a-new-person-through-first-setup, run as a function in the tool container:
@@ -56,7 +58,7 @@ async function toolkitRowsAt(connection) {
   }
 }
 
-if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop())) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   let connection = '';
   try { connection = readFileSync(3, 'utf8').trim(); } catch { /* nothing held */ }
   try {

@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/check-a-public-address/do-work/check-a-public-address.mjs
 //
 // Purpose: asks one public HTTP or HTTPS address and says whether the answer meets the expectations given with it. Any check
@@ -71,7 +72,7 @@ export async function checkAddress({ input, fetchImpl = nodePublicFetch() }) {
   };
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     const input = JSON.parse(readFileSync(0, 'utf8'));
     console.log(JSON.stringify(await checkAddress({ input })));

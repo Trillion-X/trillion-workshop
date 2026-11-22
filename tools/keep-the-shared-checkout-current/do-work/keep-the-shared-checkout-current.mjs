@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { realpathSync } from 'node:fs';
 // tools/keep-the-shared-checkout-current/do-work/keep-the-shared-checkout-current.mjs
 //
 // One pass that keeps a shared checkout on origin/main without losing anyone's work. The steps are in the tool's
@@ -227,7 +228,7 @@ export function keepCurrent(root, { now = new Date(), beforeReset = () => {} } =
   return result;
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const rootIndex = process.argv.indexOf('--root');
   const root = rootIndex === -1 ? null : process.argv[rootIndex + 1];
   try {

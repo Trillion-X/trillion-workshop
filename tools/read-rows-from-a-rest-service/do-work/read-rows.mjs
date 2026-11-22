@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/read-rows-from-a-rest-service/do-work/read-rows.mjs
 //
 // The container tool `tool:read-rows-from-a-rest-service` (tool-rows.json): reads rows of one table of any PostgREST
@@ -67,7 +68,7 @@ export async function readRows(input, { service, fetchImpl = fetch }) {
   return { rows, count: rows.length, total: Number.isSafeInteger(total) ? total : null };
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const read = descriptor => { try { return readFileSync(descriptor, 'utf8').trim(); } catch { return ''; } };
   try {
     const input = JSON.parse(readFileSync(0, 'utf8') || '{}');

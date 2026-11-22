@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/lessons-and-learning-paths/do-work/show-the-courses-a-learner-is-on.mjs
 //
 // tool:show-the-courses-a-learner-is-on, run as a function in the tool container:
@@ -16,7 +18,7 @@ import { showTheCoursesALearnerIsOn } from '../read-data/courses-of-a-learner.mj
 
 export { showTheCoursesALearnerIsOn };
 
-if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop())) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     process.stdout.write(JSON.stringify({ result: { courses: showTheCoursesALearnerIsOn(JSON.parse(readFileSync(0, 'utf8') || '{}')) } }) + '\n');
   } catch (error) {

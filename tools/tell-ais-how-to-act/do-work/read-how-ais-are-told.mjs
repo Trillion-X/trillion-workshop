@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/tell-ais-how-to-act/do-work/read-how-ais-are-told.mjs
 //
 // The container tool `tool:read-how-ais-are-told` (tool-rows.json): reads the rows an AI is told when it first
@@ -26,7 +27,7 @@ export function readRows({ id, file } = {}) {
   return { row };
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     const raw = readFileSync(0, 'utf8').trim();
     console.log(JSON.stringify(readRows(raw ? JSON.parse(raw) : {})));

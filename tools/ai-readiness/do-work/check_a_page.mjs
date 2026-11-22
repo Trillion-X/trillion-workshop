@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // The container tool: reads one public page the way a crawler does (its served HTML, no script run), the robots.txt of
 // its host and, up to the limit in the checks DATA, the pages it links to, and answers what auditServedHtml finds.
 // Where a request may go is not decided here: the engine runs this tool as internet:true, so Node's own fetch reaches
@@ -63,7 +64,7 @@ export async function checkAPage({ url, checks, skip }, getter = getPublic) {
   };
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     const input = JSON.parse(readFileSync(0, 'utf8'));
     process.stdout.write(JSON.stringify(await checkAPage(input)) + '\n');

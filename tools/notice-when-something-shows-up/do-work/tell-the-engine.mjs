@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/notice-when-something-shows-up/do-work/tell-the-engine.mjs
 //
 // The noticer run as a Workshop tool: the same resident emitter (emit-arrival-fact.mjs) with a carrier that tells the
@@ -226,7 +228,7 @@ export function waitersWithTheirCredentials(waiters, first = EACH_WAITER_FD) {
       ? { ...waiter, credential_fd: first + index } : waiter);
 }
 
-const startedAsProgram = process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop());
+const startedAsProgram = (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]));
 if (startedAsProgram) {
   try {
     const input = JSON.parse((await text(process.stdin)) || '{}');

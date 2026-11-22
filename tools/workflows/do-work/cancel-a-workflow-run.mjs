@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/workflows/do-work/cancel-a-workflow-run.mjs
 //
 // Stop a run for good: its waiting tasks are withdrawn (details.withdrawn and status Withdrawn), so an answer that comes later is
@@ -42,7 +44,7 @@ export async function cancelWorkflowRun(input, { door = readDoor(), fetchImpl = 
   return { run_key: runKey, withdrawn: withdrawn.length };
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     console.log(JSON.stringify({ result: await cancelWorkflowRun(JSON.parse(readFileSync(0, 'utf8') || '{}')) }));
   } catch (error) {

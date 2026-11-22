@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/send-messages/do-work/send-a-message.mjs
 //
 // PURPOSE
@@ -209,7 +210,7 @@ export function heldKeys(provider, read = descriptor => readFileSync(descriptor,
   }));
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     const request = JSON.parse(readFileSync(0, 'utf8') || '{}');
     const provider = providerOf(process.argv[2] ?? request.provider);

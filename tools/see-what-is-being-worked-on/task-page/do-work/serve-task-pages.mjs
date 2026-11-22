@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/see-what-is-being-worked-on/task-page/do-work/serve-task-pages.mjs
 //
 // The task pages' kept session (tool:serve-the-task-pages): one process the engine keeps open and reaches by calls (MCP
@@ -174,7 +175,7 @@ export async function answer(session, message) {
   }
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const held = [];
   const loginOf = readOnce(index => heldOn(FIRST_DESCRIPTOR + index));
   const session = taskPagesSession({

@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // Collects current evidence and answers the rows to keep. It reads and keeps nothing: the source configuration
 // (`config`) and the forecast rows read from the person's store (`forecasts`) come in with the request, and the
 // observations, forecast and process measurements go back in the answer for the caller to write through its store.
@@ -33,7 +35,7 @@ export async function run(input = {}, { grantedFolder = process.argv[2] } = {}) 
   return { physical_refresh: { invocation, rows: physicalRows.records, measurements: physical }, discovery: collected.discovery, coverage: { status: 'stale-or-incomplete', component_status: collected.coverage.status, component_total: collected.coverage.total_cost, stale_sources: collected.coverage.stale_sources, total_cost: null, currency: collected.coverage.currency, rows: collected.coverage.rows }, observations: observations.records, forecast: forecast.record, refresh_wall_ms: performance.now() - started, tasks_created: 0 };
 }
 
-if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     console.log(JSON.stringify({ result: await run(JSON.parse((await text(process.stdin)) || '{}')) }));
   } catch (error) {

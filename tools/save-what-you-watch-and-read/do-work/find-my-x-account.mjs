@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/save-what-you-watch-and-read/do-work/find-my-x-account.mjs
 //
 // Answers whose X account the person's connection holds: X's own users/me answer, { data: { id, username, name } }.
@@ -18,6 +19,6 @@ async function main() {
   process.stdout.write(`${JSON.stringify(await accountOf(request))}\n`);
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   main().catch(error => { process.stderr.write(`${error.message}\n`); process.exit(1); });
 }

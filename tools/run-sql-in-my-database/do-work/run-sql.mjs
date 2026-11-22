@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/run-sql-in-my-database/do-work/run-sql.mjs
 //
 // The container tool `tool:run-sql-in-my-database` (tool-rows.json): one SQL statement, as written, in the person's own
@@ -368,7 +369,7 @@ export function sayWithout(error, ...connections) {
   return said;
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   let connection = '', roleConnection = '', ticket = '', heldValue = '';
   try {
     const input = JSON.parse(readFileSync(0, 'utf8'));

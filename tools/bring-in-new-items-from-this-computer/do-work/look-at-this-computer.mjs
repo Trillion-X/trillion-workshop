@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // do-work/look-at-this-computer.mjs
 //
 // Purpose: one look, as a Workshop run on the person's own computer (tool:look-for-the-places-on-this-computer, run at
@@ -58,7 +60,7 @@ export function lookAtThisComputer(request = {}, home, {rows = JSON.parse(readFi
   };
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   let text = '';
   for await (const chunk of process.stdin) text += chunk;
   try {

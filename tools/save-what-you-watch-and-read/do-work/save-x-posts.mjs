@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { realpathSync } from 'node:fs';
 // tools/save-what-you-watch-and-read/do-work/save-x-posts.mjs
 //
 // PURPOSE: tool:save-x-bookmarks and tool:save-x-likes, run in the tool container. Reads the person's saved X posts (their
@@ -50,7 +51,7 @@ function argument(name) {
   return at >= 0 ? process.argv[at + 1] : undefined;
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   saveXPosts({ ...JSON.parse(readFileSync(0, 'utf8') || '{}'), which: argument('--which') }, { out: argument('--out') })
     .then(answer => process.stdout.write(`${JSON.stringify(answer)}\n`))
     .catch(error => { process.stderr.write(`${error.message}\n`); process.exit(1); });

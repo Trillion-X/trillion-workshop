@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/research-a-creator-or-topic/do-work/prospects.mjs
 //
 // Research a prospect (a company, a business, a person to sell to) the way this folder researches a creator or a topic:
@@ -140,7 +141,7 @@ export function keepAProspect(input, list = readProspectList()) {
   return refuse('action is keep or mark.');
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     process.stdout.write(`${JSON.stringify(briefAProspect(JSON.parse(readFileSync(0, 'utf8') || '{}')))}\n`);
   } catch (error) {

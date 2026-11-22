@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/choose-the-feed-each-widget-shows/do-work/choose-the-feed-each-widget-shows.mjs
 //
 // tool:choose-the-feed-each-widget-shows, run as a function in the tool container:
@@ -43,7 +45,7 @@ export function chooseTheFeedEachWidgetShows(input) {
   return { surface: input.surface, feeds_in_order: shown, widgets };
 }
 
-if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop())) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     process.stdout.write(JSON.stringify({ result: chooseTheFeedEachWidgetShows(JSON.parse(readFileSync(0, 'utf8') || '{}')) }) + '\n');
   } catch (error) {

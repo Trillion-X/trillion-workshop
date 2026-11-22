@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/find-tool-servers-in-a-catalog/do-work/find-tool-servers.mjs
 //
 // The container tool `tool:find-tool-servers-in-a-catalog` (tool-rows.json): the tool servers a published catalog lists
@@ -75,7 +76,7 @@ export async function findToolServers(input, { fetchImpl = fetch } = {}) {
   return { servers: servers.slice(0, limit), next_cursor: next };
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     console.log(JSON.stringify(await findToolServers(JSON.parse(readFileSync(0, 'utf8') || '{}'))));
   } catch (error) {

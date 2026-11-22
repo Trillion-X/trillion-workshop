@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { importMarkdownDocument, exportDocumentMarkdown, revisionHashFor } from './imported-document.mjs';
 import path from 'node:path';
@@ -41,7 +43,7 @@ export function importMarkdown(markdown, requestedId, { maxResultBytes = MAX_RES
   return result;
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   let rawInput = '';
   for await (const chunk of process.stdin) rawInput += chunk;
   try {

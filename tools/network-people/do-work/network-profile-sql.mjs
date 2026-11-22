@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/network-people/do-work/network-profile-sql.mjs
 //
 // The one process the Network rows run (tools/network-people/tool-rows.json): the action is the first argument, the request is one
@@ -72,7 +74,7 @@ export async function main(argv = process.argv, stdin = 0) {
   }
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   main().then(answer => console.log(JSON.stringify(answer))).catch(error => {
     console.log(JSON.stringify({ error: error.message }));
     process.exitCode = 1;

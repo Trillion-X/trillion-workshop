@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { realpathSync } from 'node:fs';
 // tools/composio-connection/do-work/wait-for-a-composio-container.mjs
 //
 // PURPOSE: tool:wait-for-a-composio-container, run in the tool container. A media container an app creates (an Instagram reel or
@@ -41,7 +42,7 @@ export async function waitForAComposioContainer(request = {}, {
   throw new Refused(`Container ${containerId} is still ${last ?? 'unknown'} after ${maxTries} tries.`);
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   waitForAComposioContainer(JSON.parse(readFileSync(0, 'utf8') || '{}'))
     .then(answer => process.stdout.write(`${JSON.stringify(answer)}\n`))
     .catch(error => { process.stderr.write(`${error.message}\n`); process.exit(1); });

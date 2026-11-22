@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/save-what-you-watch-and-read/do-work/read-saved-x-posts.mjs
 //
 // Reads a person's saved X posts (their bookmarks or their likes), newest first, with the full words, who wrote each
@@ -48,6 +49,6 @@ async function main() {
   }
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   main().catch(error => { process.stderr.write(`${error.message}\n`); process.exit(1); });
 }

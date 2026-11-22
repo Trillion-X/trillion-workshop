@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/list-and-run-my-tools-for-any-ai/do-work/unpublish-tool-in-database.mjs
 //
 // tool:unpublish-tool, one container process (tool-rows.json): withdraws one listing from the database the request names. The
@@ -9,7 +11,7 @@ export async function main() {
   return runInDatabase(unpublishTool);
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   main().then(answer => console.log(JSON.stringify(answer))).catch(error => {
     console.log(JSON.stringify({ error: error.message }));
     process.exitCode = 1;

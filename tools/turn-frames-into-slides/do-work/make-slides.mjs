@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // tools/turn-frames-into-slides/do-work/make-slides.mjs
 //
 // Turns a board's presentation frames into slides: one SVG per frame in story order, one printable HTML document and,
@@ -246,7 +248,7 @@ export function keepInFiles(path, { title, call = [process.env.WORKSHOP_CLI], pi
   return name;
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const args = argsOf(process.argv.slice(2));
   const base = dirname(resolve(args.request));
   const given = readJson(base, args.request);

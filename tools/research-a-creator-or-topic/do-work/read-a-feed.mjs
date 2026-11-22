@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 // tools/research-a-creator-or-topic/do-work/read-a-feed.mjs
 //
 // The latest items of an Atom or RSS feed. Run by the Workshop tool `tool:list-the-latest-items-of-a-feed` in the tool
@@ -24,7 +25,7 @@ export async function readAFeed(input, fetchPage) {
   return { source: feed.source, subject_ref: url, count: items.length, items };
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     process.stdout.write(`${JSON.stringify(await readAFeed(JSON.parse(readFileSync(0, 'utf8') || '{}')))}\n`);
   } catch (error) {

@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 // do-work/list-every-connection.mjs
 //
 // Purpose: the one Connections list (tool:list-every-connection): every service a person can connect (this folder's
@@ -61,7 +63,7 @@ export function listEveryConnection(request = {}, {services, places, categories 
   return {said: `${count('service')} services and ${count('computer-place')} places on your computer${request.category ? ` in ${request.category}` : ''}.`, connections};
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   let text = '';
   for await (const chunk of process.stdin) text += chunk;
   try {
