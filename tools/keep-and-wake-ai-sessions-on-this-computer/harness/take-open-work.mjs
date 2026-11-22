@@ -711,6 +711,17 @@ export async function finishWithAnswer(call, settings, { job, read, answer, evid
 // for or run, and its card says so (see the invariant 7 above).
 // Ends one run's use of its login: a refreshed login is written back to the vault first; if that fails the task says so and
 // the login stays locked (it goes stale and is taken back later), so the new token is never lost.
+/**
+ * Whether the work this computer parked for review was parked only because its runs met spent logins: its record says
+ * parked, and the record and every earlier attempt kept for it (`history`, the records' .history rows) ended at a usage
+ * limit. Such a park asks no review, since no AI did any work on it; one real failure among the attempts keeps it parked.
+ * Pure.
+ */
+export function parkedOnlyByLimits(record, history = []) {
+  if (!record?.parked || !record.limit_hit) return false;
+  return history.filter(item => item.handoff_id === record.handoff_id).every(item => item.limit_hit === true);
+}
+
 /** A run that ended at its login's usage limit did no work, so it is not one of the task's attempts (tasks.max_attempts):
  * a pool whose logins hit their limits in turn never parks the task for review (Nov 22 2026: two tasks were parked at
  * 5:07 and 5:32 AM CST after runs that only met spent limits). Its record keeps the count it had before the run. */
@@ -808,6 +819,16 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
   const attempts = new Map();
   const executions = new Map();
   for (const item of selected) {
+    // Work this computer parked only because its runs met spent logins is resumed by the taker itself (its own id, which
+    // the task's rule allows the holder of the continuation), so it is taken again once a login has room (Nov 22 2026:
+    // two tasks were parked at 5:07 and 5:32 AM CST after runs that only met spent limits).
+    if (call.tasks && item.state === 'blocked' && item.continuation?.owner === agent_id && parkedOnlyByLimits(started.get(item.handoff_id), records.history())) {
+      try {
+        await call('/handoffs/resume', { handoff_id: item.handoff_id, agent_id, because: settings.words.resumed_after_limits });
+        log({ did: 'resumed work parked only by spent logins', handoff_id: item.handoff_id });
+      } catch (error) { log({ did: 'resume of work parked by spent logins waits', handoff_id: item.handoff_id, error: String(error?.message ?? error) }); }
+      continue;
+    }
     if (item.state !== 'open' && !(call.tasks && item.state === 'taken')) continue;
     const record = started.get(item.handoff_id);
     const attempt = record?.attempt ?? 1;
@@ -1244,6 +1265,12 @@ export function taskCaller(call, settings, { now = () => new Date(), computer = 
       const { result, kept } = await act(rules.finish_tool, { as: body.agent_id, id: body.handoff_id, taken_at: body.taken_at, result: body.result, check: body.check }, randomUUID());
       if (!kept) throw new Error('The task changed before its finish was written; the next pass reads it again.');
       return { result };
+    }
+    if (path === '/handoffs/resume') {
+      const { result, kept } = await act(rules.move_tool, { as: body.agent_id, id: body.handoff_id, action: 'resume', because: body.because }, randomUUID());
+      if (!kept) throw new Error('The task changed before its resume was written; the next pass reads it again.');
+      if (typeof result?.moved !== 'boolean') throw new Error('The shared resume returned no transition result.');
+      return { moved: result.moved };
     }
     if (path === '/handoffs/release') {
       const { result, kept } = await act(rules.move_tool, { as: body.agent_id, id: body.handoff_id, action: body.park ? 'wait' : 'release', taken_at: body.taken_at, because: body.because,

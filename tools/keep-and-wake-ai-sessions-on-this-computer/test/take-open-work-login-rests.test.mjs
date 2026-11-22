@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { acquireAiAuth, restingLogins } from '../harness/ai-auth.mjs';
 import { keepRunValues } from '../harness/vault-value.mjs';
-import { chosenAi, restOf, restsByLogin, runPass, startedRecords, takerCard } from '../harness/take-open-work.mjs';
+import { chosenAi, parkedOnlyByLimits, plan, restOf, restsByLogin, runPass, startedRecords, takerCard } from '../harness/take-open-work.mjs';
 import settingsFile from '../harness/take-open-work.json' with { type: 'json' };
 
 const NOW = '2026-11-22T11:00:00.000Z';
@@ -133,4 +133,58 @@ test('a job already started here lets go of the login it was given at once, so t
   assert.ok(lines.some(entry => entry.did === 'already started here'));
   const locks = join(folder, 'auth-locks');
   assert.deepEqual(existsSync(locks) ? readdirSync(locks) : [], [], 'no login stays locked');
+});
+
+test('work parked only because its runs met spent logins is told apart from work with a real failure', () => {
+  const record = { handoff_id: 'h1', parked: true, limit_hit: true };
+  const limitOnly = [{ handoff_id: 'h1', limit_hit: true }, { handoff_id: 'h1', limit_hit: true }, { handoff_id: 'other', limit_hit: false }];
+  assert.equal(parkedOnlyByLimits(record, limitOnly), true);
+  assert.equal(parkedOnlyByLimits(record, [...limitOnly, { handoff_id: 'h1' }]), false, 'one attempt that did not end at a limit keeps the park');
+  assert.equal(parkedOnlyByLimits({ ...record, limit_hit: false }, limitOnly), false, 'the last attempt failed for real');
+  assert.equal(parkedOnlyByLimits({ ...record, parked: false }, limitOnly), false, 'not parked: nothing to resume');
+  assert.equal(parkedOnlyByLimits(undefined, limitOnly), false);
+});
+
+// A task transport like the taker's: open work in pages, the taker's own card, and each resume it asks for.
+function taskCall(work, seen) {
+  const call = async (path, body) => {
+    seen.push([path, body]);
+    if (path === '/handoffs/open-page') return { work, agents: [], next_after: null };
+    if (path === '/handoffs/resume') return { moved: true };
+    return {};
+  };
+  call.tasks = true;
+  return call;
+}
+// One attempt's local record and its history, as runPass leaves them: `limits` says whether each attempt ended at a limit.
+function parkedHere(folder, id, limits) {
+  const records = startedRecords(folder);
+  limits.forEach((limit, index) => {
+    records.claim({ handoff_id: id, mode: 'claim', agent_id: 'ai:take-open-work-mac', started_at: NOW, attempt: index + 1, executor_starts: index + 1 });
+    records.update(id, { ended_at: NOW, ...(limit ? { limit_hit: true } : {}) });
+    if (index < limits.length - 1) records.rearm(id);
+  });
+  records.update(id, { parked: true });
+}
+const parked = id => ({ ...job(id), task: true, state: 'blocked', status: 'Waiting', assignees: ['ai:take-open-work-mac'], continuation: { owner: 'ai:take-open-work-mac', after: NOW } });
+
+test('the taker resumes, as itself, work it parked only because its runs met spent logins, and leaves a real failure parked', async () => {
+  const folder = tempFolder(join(tmpdir(), 'login-rests-park-'));
+  parkedHere(folder, 'limits-only', [true, true, true]);
+  parkedHere(folder, 'real-failure', [true, false, true]);
+  const seen = [];
+  const lines = [];
+  const pass = await runPass({ locate: located, settings: { ...settings, state_folder: folder, resting: {}, resting_because: {} }, call: taskCall([parked('limits-only'), parked('real-failure')], seen), computer: 'Mac', spawnRun: () => { throw new Error('must not start'); }, now: () => new Date(NOW), log: entry => lines.push(entry) });
+  await Promise.all(pass.runs);
+  const resumes = seen.filter(([path]) => path === '/handoffs/resume').map(([, body]) => body);
+  assert.deepEqual(resumes.map(body => [body.handoff_id, body.agent_id]), [['limits-only', 'ai:take-open-work-mac']]);
+  assert.equal(resumes[0].because, settings.words.resumed_after_limits);
+  assert.ok(lines.some(entry => entry.did === 'resumed work parked only by spent logins' && entry.handoff_id === 'limits-only'));
+});
+
+test('with take_unassigned_when empty, a task handed to nobody is not taken; one naming this taker is', () => {
+  assert.deepEqual(settings.tasks.take_unassigned_when, [], 'the shipped settings take no unassigned work');
+  const open = [{ ...job('nobody'), task: true, assignees: [] }, { ...job('mine'), task: true, assignees: ['ai:take-open-work-mac'] }];
+  const { start } = plan({ open, agents: [], settings, started: new Map(), today: 0, running: 0, chats: new Map(), agent_id: 'ai:take-open-work-mac', computer: 'Mac', now: NOW });
+  assert.deepEqual(start.map(item => item.handoff_id), ['mine']);
 });
