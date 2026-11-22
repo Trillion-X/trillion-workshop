@@ -2052,7 +2052,7 @@
         "label": "Run a workflow on the workflow engine, one step at a time",
         "status": "active",
         "job": "Run one of my workflows from its definition: walk its steps with the answers held so far, start the tool each next step names, tell every other step as waiting, and run again when an answer is told",
-        "description": "The workflow engine as one WebAssembly component (tools/workflows/crates/workflow-component), run with no network, no secret and no door. A run is handed its definition by whatever started it, from where the person keeps their workflows: in its input, in its wake's switch input, or in the fact that woke it (definition and start_at). The engine walks it from the start with the answers held. A step that names a tool starts that tool as a wake effect, whose result (or why it failed) is told back as the fact workflow-step-answered, which runs this again with the answer. Any other step is told as the fact workflow-step-waiting with what it asks, whom, and told_as, the envelope its answer comes back in; the person's own wakes decide what it becomes (its wake a-step-is-waiting runs the definition its switch input carries, such as one that gives the step to its answerer as a task). A step that asks wake:arrive, the engine's own operation, is answered at once and told as the fact it gives ({kind, event_id?, payload}) when the run ends; a step inside a loop or a used workflow waits under its place in the run, so each item is a step of its own. Nothing is kept here and no store or tool is named. A walk that failed ends the run failed, in the engine's words. Its wake a-workflow-was-picked hears the chooser's workflow-chosen facts (a message seed, a matched condition) and a-kept-workflow-is-due the times a noticer tells for kept workflows (kept-workflow-due, a due-time waiter's change_kind); the definition their switch input carries decides which kept workflow, if any, each fact starts.",
+        "description": "The workflow engine as one WebAssembly component (tools/workflows/crates/workflow-component), run with no network, no secret and no door. A run is handed its definition by whatever started it, from where the person keeps their workflows: in its input, in its wake's switch input, or in the fact that woke it (definition and start_at). The engine walks it from the start with the answers held. A step that names a tool starts that tool as a wake effect, whose result (or why it failed) is told back as the fact workflow-step-answered, which runs this again with the answer. Any other step is told as the fact workflow-step-waiting with what it asks, whom, and told_as, the envelope its answer comes back in; the person's own wakes decide what it becomes (its wake a-step-is-waiting runs the definition its switch input carries, such as one that gives the step to its answerer as a task). A step that asks wake:arrive, the engine's own operation, is answered at once and told as the fact it gives ({kind, event_id?, payload}) when the run ends; a step inside a loop or a used workflow waits under its place in the run, so each item is a step of its own. Nothing is kept here and no store or tool is named. A walk that failed ends the run failed, in the engine's words. Its wake a-workflow-was-picked hears the chooser's workflow-chosen facts (a message seed, a matched condition) and a-kept-workflow-is-due the times a noticer tells for kept workflows (kept-workflow-due, a due-time waiter's change_kind); the definition their switch input carries decides which kept workflow, if any, each fact starts. Its wake an-app-asked hears an app's asked-from-an-app fact (a tap on a notice's button, for one); the definition its switch input carries starts only the kept workflows whose own row opts in to that ask, so the next app action is one more row and no list here.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -2305,6 +2305,21 @@
             "budget": {
               "steps": 3,
               "wall_ms": 12000
+            }
+          },
+          {
+            "id": "an-app-asked",
+            "on": {
+              "fact": {
+                "kind": "asked-from-an-app",
+                "from": [
+                  "sender"
+                ]
+              }
+            },
+            "budget": {
+              "steps": 8,
+              "wall_ms": 15000
             }
           }
         ],
