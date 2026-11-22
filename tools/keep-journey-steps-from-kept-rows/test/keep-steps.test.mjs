@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
-import { emailKey, keepStep } from '../../traffic-attribution/do-work/journey.mjs';
+import { emailKey, keepStep, leadStep } from '../../traffic-attribution/do-work/journey.mjs';
 import { keepStepsFromRows, readSql, runKeepSteps } from '../do-work/keep-steps.mjs';
 import settings from '../read-data/journey-kept-rows.json' with { type: 'json' };
 
@@ -405,3 +405,36 @@ test('check mode reports a kit column the database lacks, and a current database
   assert.deepEqual(whole.missing, []);
 });
 
+test('a step of a proof visitor, or of a proof email, is a proof step: the lead by the same visitor and the booking or sale by the same email are proofs too', async () => {
+  const db = await pursuitDatabase();
+  const query = (sql, params) => db.query(sql, params);
+  await keepStep(query, { step: 'visit', visitor: 'visitor-prove', source: { utm_content: 'proof', utm_source: 'site' }, joined_by: 'cookie' });
+  await keepStep(query, leadStep({ visitor: 'visitor-prove', email: 'Confirm@Example.com' }));
+  assert.deepEqual((await db.query("SELECT step, is_proof FROM journey_steps WHERE visitor = 'visitor-prove' ORDER BY id")).rows, [
+    { step: 'visit', is_proof: true },
+    { step: 'lead', is_proof: true },
+  ]);
+  // A proof lead by email, then a TidyCal booking and a sale carrying the same email: no visitor, the email joins them.
+  await keepStep(query, leadStep({ email: 'proof-lead@example.com', source: { utm_content: 'proof' } }));
+  await db.query(`INSERT INTO statements (key, source, place, meaning, after, at) VALUES ('bk-proof', 'tidycal-api-token', 'booking', 'booked', '{"email":"proof-lead@example.com","starts_at":"2026-11-30T10:00:00Z"}', '2026-11-22T10:00:00Z')`);
+  await keepStepsFromRows({ query, mappings: [mappings[0]] });
+  await keepStep(query, { step: 'sale', ref: 'pe-proof', email_key: emailKey('proof-lead@example.com'), offer_id: 'offer:course', value_cents: 900, joined_by: 'email' });
+  assert.deepEqual((await db.query("SELECT ref, is_proof FROM journey_steps WHERE email_key = $1 ORDER BY id", [emailKey('proof-lead@example.com')])).rows, [
+    { ref: null, is_proof: true },
+    { ref: 'tidycal:bk-proof', is_proof: true },
+    { ref: 'pe-proof', is_proof: true },
+  ]);
+});
+
+test('a real visitor and a real email keep real steps; a check visit keeps nothing, and its visitor has no step after it', async () => {
+  const db = await pursuitDatabase();
+  const query = (sql, params) => db.query(sql, params);
+  await keepStep(query, { step: 'visit', visitor: 'visitor-real-2', source: { utm_source: 'instagram' }, joined_by: 'cookie' });
+  await keepStep(query, leadStep({ visitor: 'visitor-real-2', email: 'real@example.com' }));
+  assert.deepEqual((await db.query("SELECT step, is_proof FROM journey_steps WHERE visitor = 'visitor-real-2' ORDER BY id")).rows, [
+    { step: 'visit', is_proof: false },
+    { step: 'lead', is_proof: false },
+  ]);
+  assert.deepEqual(await keepStep(query, { step: 'visit', visitor: 'visitor-check-2', source: { utm_content: 'check' }, joined_by: 'cookie' }), { kept: false });
+  assert.equal((await db.query("SELECT count(*)::int AS n FROM journey_steps WHERE visitor = 'visitor-check-2'")).rows[0].n, 0);
+});

@@ -107,14 +107,17 @@ export function visitStep({ url, refererHeader, visitor = null }) {
  * Writes one step. A step with a ref already kept is not inserted again, but a field the kept step still lacks (email_key,
  * visitor, touch_id, offer_id, a source key) is filled from this one: a step kept from an incomplete source row joins its
  * person once the source is fixed. A value already set is never overwritten, and at and step never change. A ref in
- * journey_excluded_refs is never kept. Resolves to { kept }: true when a row was inserted or a field filled.
+ * journey_excluded_refs is never kept. A step is a proof's (is_proof) when its own source is a proof's, or when the database
+ * already holds a proof step of the same visitor or the same email_key: a proof's later lead or sale is part of the proof.
+ * Resolves to { kept }: true when a row was inserted or a field filled.
  */
 export async function keepStep(query, step) {
   if (!Object.hasOwn(settings.steps, step?.step)) throw new TypeError('A step needs a kind that read-data/journey.json names.');
   if (isCheckSource(step.source)) return { kept: false };
   const row = stepOf(step);
   const params = [row.visitor, row.touch_id, row.step, row.source === null ? null : JSON.stringify(row.source), row.ref, row.joined_by, row.email_key, row.offer_id, row.value_cents, isProofSource(row.source)];
-  const values = `SELECT $1::text, $2::text, $3::text, $4::jsonb, $5::text, $6::text, $7::text, $8::text, $9::bigint, $10::boolean
+  const values = `SELECT $1::text, $2::text, $3::text, $4::jsonb, $5::text, $6::text, $7::text, $8::text, $9::bigint,
+       ($10::boolean OR EXISTS (SELECT 1 FROM journey_steps p WHERE p.is_proof AND ((p.visitor IS NOT NULL AND p.visitor = $1::text) OR (p.email_key IS NOT NULL AND p.email_key = $7::text))))
      WHERE NOT EXISTS (SELECT 1 FROM journey_excluded_refs x WHERE x.ref = $5::text)`;
   if (row.ref === null) {
     const result = await query(`INSERT INTO journey_steps (visitor, touch_id, step, source, ref, joined_by, email_key, offer_id, value_cents, is_proof) ${values} ON CONFLICT DO NOTHING`, params);
