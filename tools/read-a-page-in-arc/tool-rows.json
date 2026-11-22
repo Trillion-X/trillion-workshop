@@ -24,9 +24,31 @@
             "url": {
               "type": "string",
               "description": "The page's address (http or https)"
+            },
+            "computer": {
+              "type": "object",
+              "required": [
+                "automate-an-app"
+              ],
+              "description": "The computer's capability: the browser app's bundle id, which the Mac must allow to be controlled",
+              "properties": {
+                "automate-an-app": {
+                  "type": "object",
+                  "required": [
+                    "app"
+                  ],
+                  "properties": {
+                    "app": {
+                      "type": "string",
+                      "const": "company.thebrowser.Browser"
+                    }
+                  }
+                }
+              }
             }
           },
           "required": [
+            "computer",
             "url"
           ]
         },
@@ -35,7 +57,9 @@
         },
         "invoke": {
           "kind": "computer",
-          "capabilities": [],
+          "capabilities": [
+            "automate-an-app"
+          ],
           "local_doors": [],
           "workdir": "/opt/read-a-page-in-arc",
           "stdout": "json",
@@ -173,9 +197,31 @@
                   "type": "string"
                 }
               }
+            },
+            "computer": {
+              "type": "object",
+              "required": [
+                "automate-an-app"
+              ],
+              "description": "The computer's capability: the browser app's bundle id, which the Mac must allow to be controlled",
+              "properties": {
+                "automate-an-app": {
+                  "type": "object",
+                  "required": [
+                    "app"
+                  ],
+                  "properties": {
+                    "app": {
+                      "type": "string",
+                      "const": "company.thebrowser.Browser"
+                    }
+                  }
+                }
+              }
             }
           },
           "required": [
+            "computer",
             "url"
           ]
         },
@@ -184,7 +230,9 @@
         },
         "invoke": {
           "kind": "computer",
-          "capabilities": [],
+          "capabilities": [
+            "automate-an-app"
+          ],
           "local_doors": [],
           "workdir": "/opt/read-a-page-in-arc",
           "stdout": "json",

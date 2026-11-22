@@ -529,7 +529,8 @@ test('the tool row names the pull, its input schema is closed, and its time boun
   assert.equal(payload.invoke.kind, 'computer');
   assert.deepEqual(payload.invoke.argv, ['node', '/opt/read-a-page-in-arc/pull-a-page-in-arc.mjs']);
   assert.equal(payload.input_schema.additionalProperties, false);
-  assert.deepEqual(payload.input_schema.required, ['url']);
+  assert.deepEqual(payload.input_schema.required, ['computer', 'url']);
+  assert.deepEqual(payload.invoke.capabilities, ['automate-an-app']);
   assert.ok(payload.verify[0].requires.includes('test/pull-a-page-in-arc.test.mjs'));
   const perPage = (realSettings.wait.most_seconds + realSettings.scroll.most_seconds) * 1000;
   assert.ok(payload.invoke.max_run_ms >= realSettings.follow.most_run_seconds * 1000 + perPage + 60000, 'the row time covers a follow run and the last page');

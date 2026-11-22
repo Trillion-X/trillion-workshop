@@ -40,7 +40,7 @@ import {
 
 export const settings = JSON.parse(readFileSync(new URL('./pull-settings.json', import.meta.url), 'utf8'));
 
-const INPUT_FIELDS = ['url', 'links', 'scroll_selector', 'follow', 'save', 'save_attachments', 'most_scroll_steps'];
+const INPUT_FIELDS = ['url', 'links', 'scroll_selector', 'follow', 'save', 'save_attachments', 'most_scroll_steps', 'computer'];
 const FOLLOW_FIELDS = ['same_site_only', 'most_pages', 'match'];
 const SAVE_FIELDS = ['folder', 'format', 'file_url'];
 const ATTACHMENT_FIELDS = ['folder'];
