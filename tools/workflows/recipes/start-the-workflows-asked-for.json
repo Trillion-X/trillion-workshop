@@ -205,7 +205,21 @@
               "start_at": "read"
             }
           }
-        ]
+        ],
+        "records": {
+          "runs": [
+            "tool:run-sql-in-my-database"
+          ],
+          "rights": [
+            {
+              "at": "@own-records",
+              "id": "workflow-chosen-from-rows",
+              "operations": [
+                "wake:arrive"
+              ]
+            }
+          ]
+        }
       }
     }
   ]
