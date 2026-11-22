@@ -1,0 +1,16 @@
+	# A program's own paths at some of a site's own names: the paths in socket_paths of the names in socket_path_hosts go to the one
+	# socket at socket_path, and the answers are sent no-store, so a cache keeps no visitor's answer (a redirect that sets a
+	# cookie, a beacon's 204). The socket is the program's alone (no pool, no slot switch): a call that meets it restarting waits
+	# up to 15 s, as a site's own program does, so a restart drops no call. Every other path of those names is the site's as
+	# before (its pages, then the program at the name's folder, if it has one), and every path of every other name is the site's.
+	@socket_paths_at_names {
+		host {socket_path_hosts}
+		path {socket_paths}
+	}
+	handle @socket_paths_at_names {
+		header Cache-Control "no-store"
+		reverse_proxy unix/{socket_path} {
+			lb_try_duration 15s
+			lb_try_interval 250ms
+		}
+	}
