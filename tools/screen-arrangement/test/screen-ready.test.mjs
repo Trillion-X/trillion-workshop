@@ -71,4 +71,47 @@ test('the marks follow what is drawn, and go when the content goes', async () =>
   assert.deepEqual(seen.cleared, [null, null]);
 });
 
+test('text inside a hidden slot is not content', async () => {
+  assert.equal(await stateOf(`${PANEL}<div hidden><p>Shown in another slot</p></div></div>`), null);
+});
+
+test('text with no drawn size is not content', async () => {
+  assert.equal(await stateOf(`${PANEL}<p style="font-size:0">Zero size</p></div>`), null);
+});
+
+test('a named control drawn with a size is content, even with no words', async () => {
+  assert.equal(await stateOf(`${PANEL}<button aria-label="Open the funnel" style="width:40px;height:40px"></button></div>`), 'content');
+});
+
+test('an unnamed control is not content', async () => {
+  assert.equal(await stateOf(`${PANEL}<button style="width:40px;height:40px"></button></div>`), null);
+});
+
+test('a loaded image is content; an image still loading is not', async () => {
+  const gif = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+  const decoded = await page.evaluate(async src => {
+    const pane = document.createElement('div');
+    pane.setAttribute('data-container-id', 'p');
+    pane.innerHTML = `<div data-screen-arrangement-tab-panel="" data-active="true"><img alt="" style="width:40px;height:40px" src="${src}"></div>`;
+    document.body.replaceChildren(pane);
+    const img = pane.querySelector('img');
+    await img.decode();
+    return window.__ready.paneReadyState(pane);
+  }, gif);
+  assert.equal(decoded, 'content');
+  const pending = await page.evaluate(() => {
+    const pane = document.createElement('div');
+    pane.setAttribute('data-container-id', 'p');
+    pane.innerHTML = '<div data-screen-arrangement-tab-panel="" data-active="true"><img alt="" style="width:40px;height:40px" src="data:image/gif;base64,"></div>';
+    document.body.replaceChildren(pane);
+    return window.__ready.paneReadyState(pane);
+  });
+  assert.equal(pending, null);
+});
+
+test('a failure or words marker that is hidden does not count', async () => {
+  assert.equal(await stateOf(`<div data-screen-state="failed" hidden>Could not open.</div>${PANEL}<p>Your list</p></div>`), 'content');
+  assert.equal(await stateOf(`<div data-screen-state="empty" hidden>Nothing here.</div>${PANEL}</div>`), null);
+});
+
 test.after(() => browser.close());
