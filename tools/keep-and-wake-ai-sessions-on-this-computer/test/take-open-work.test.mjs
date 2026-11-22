@@ -114,10 +114,15 @@ test('a computer declaring the engine step shape claims those steps naming nobod
   const { start, left } = plan({ ...base, agent_id: me, open, settings: scoped });
   assert.deepEqual(start.map(item => item.handoff_id), ['s1']);
   assert.deepEqual(left, { 'handed to nobody': 2 });
-  assert.match(start[0].prompt, /List what the old code does\. The step's own input, as its workflow gave it: \{"old":\["tools\/a\.mjs"\],"fact":\{"after":"x"\}\}\./);
+  const words = /earlier steps' answers\): (.*?)\. Write the result file/;
+  assert.deepEqual(JSON.parse(start[0].prompt.match(words)[1]), { step: { old: ['tools/a.mjs'], fact: { after: 'x' } } });
   assert.doesNotMatch(start[0].prompt, /"do":/);
+  // A step of an engine run is also given that run's input and its earlier steps' answers, which its words may name.
+  const run = { run: 'r1', input: { links: ['https://example.com/a'] }, answers: { read: { rows: [{ words: 'a seed' }] } }, definition: { steps: [] } };
+  const ran = plan({ ...base, agent_id: me, open: [stepTask('s5', { told_as: { source: 'workflow-step-answered', payload: { run } } })], settings: scoped });
+  assert.deepEqual(JSON.parse(ran.start[0].prompt.match(words)[1]), { run_input: run.input, earlier_answers: run.answers });
   const bare = plan({ ...base, agent_id: me, open: [stepTask('s4')], settings: scoped });
-  assert.match(bare.start[0].prompt, /The step's own input, as its workflow gave it: none\./);
+  assert.match(bare.start[0].prompt, /earlier steps' answers\): none\. Write the result file/);
 });
 
 test('a task whose step names checks is left before any claim, assigned or not, so no AI run is spent on an answer the finish would refuse', () => {
