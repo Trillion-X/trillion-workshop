@@ -296,15 +296,6 @@
           ],
           "records": {
             "fd": 3,
-            "rights": [
-              {
-                "at": "@own-records",
-                "id": "provider-limits",
-                "operations": [
-                  "tools:run"
-                ]
-              }
-            ],
             "runs": [
               "tool:run-sql-in-my-database"
             ]
@@ -335,10 +326,7 @@
               }
             ]
           },
-          "capabilities": [],
-          "hosts": [
-            "127.0.0.1"
-          ]
+          "capabilities": []
         },
         "result_selector": "$",
         "provenance": {
