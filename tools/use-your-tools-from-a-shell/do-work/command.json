@@ -433,6 +433,7 @@
     "missing_route": "{which} does not have what this needs. Update {site_name}, then try again.",
     "unreachable": "{which} could not be reached. Check your internet connection, then try again.",
     "no_account": "{site_name} did not say whose account this is. Try again, and if it keeps happening, update {site_name}.",
+    "schedule_more_after": "more after {next}",
     "pager_stuck": "{site_name}'s answer never ended, so it was stopped. Try again.",
     "too_many_pages": "{site_name}'s answer was too long to read, so it was stopped. Ask for less.",
     "timeout_range": "--timeout is a whole number of seconds, at least 1: how long one try waits before the next try.",

@@ -1395,10 +1395,10 @@ export function taskLines(task) {
 
 /** One answer of `schedule`: the computer that answered it on the first line, then its refusal or its wakes. */
 function scheduleBlock(block, rules) {
-  const { answered_by: computer, refused, ...rest } = block;
+  const { answered_by: computer, refused, more_after: next, ...rest } = block;
   const heading = !computer ? rules.words.schedule_unnamed
     : fill(refused ? rules.words.schedule_refused_by : rules.words.schedule_answered_by, { computer });
-  return [heading, refused ?? JSON.stringify(rest, null, 2)].join('\n');
+  return [heading, refused ?? JSON.stringify(rest, null, 2), ...(next == null ? [] : [fill(rules.words.schedule_more_after, { next })])].join('\n');
 }
 
 /** Plain lines for a command's answer; --json prints the answer itself instead. */
@@ -1567,7 +1567,7 @@ const HELP = `{cli}: see your AIs and their tasks, and run your {site_name}'s to
   --pin ID  meet the op or schedule call at this computer first, then the next --pin in order (repeat it, or give IDs separated by commas; at most ${settings.engine.pins.most})
   --upload FILE      (op, call) send FILE's bytes as the call's raw body (at most ${settings.direct_calls.upload_most_bytes} bytes): a session tool takes it as the file argument its row names (byte_argument)
   --timeout SECONDS  wait this long for one try of a call (default ${settings.retry.attempt_seconds}); a try with no answer is asked again, up to ${settings.retry.count} more times, under the same request key
-  {cli} schedule list | on TOOL WAKE_ID | off TOOL WAKE_ID | cancel RUN_KEY [--pin ID]...   the wakes your tool rows declare: list, switch, or cancel one admitted run (a wake is made, changed or removed in its row's wakes list). Each answer says which computer answered it on its first line; an unpinned list has one block per carried computer
+  {cli} schedule list [--first-page] | on TOOL WAKE_ID | off TOOL WAKE_ID | cancel RUN_KEY [--pin ID]...   the wakes your tool rows declare (a list reads every page; --first-page prints only the first and the cursor after it): list, switch, or cancel one admitted run (a wake is made, changed or removed in its row's wakes list). Each answer says which computer answered it on its first line; an unpinned list has one block per carried computer
   {cli} update                                        who updates this command (it never updates itself)
   ${basename(settings.install.link)} records replay-from-transcripts --since TIME            list the rows this computer's AIs wrote, to keep in your own store (writes nothing)
 
@@ -1598,13 +1598,13 @@ const HELP = `{cli}: see your AIs and their tasks, and run your {site_name}'s to
  *  engine finds the owner. A wake is made, changed or removed in its row's `wakes` list, never here.
  *  Every answer names the computer that answered it (`answered_by`). A list is one block per computer: with --pin, each
  *  pin's own; without, each computer the engine names as carried (carriedNow), so no one computer's wakes stand for all. */
-export async function schedules(client, words, { requestKey, rules = settings, inputFile, route = {}, readInput = file => readFileSync(file === '-' ? 0 : file, 'utf8') } = {}) {
+export async function schedules(client, words, { requestKey, rules = settings, inputFile, route = {}, firstPage = false, readInput = file => readFileSync(file === '-' ? 0 : file, 'utf8') } = {}) {
   const [action = 'list', ...args] = words;
   const { wake } = rules.engine;
   const pins = route.pins ?? [];
   if (action === 'list') {
     if (args.length) throw new CommandError(`Use ${cliName()} schedule list.`, { status: 2 });
-    return { computers: await listedByComputer(client, rules, pins) };
+    return { computers: await listedByComputer(client, rules, pins, firstPage) };
   }
   if (action === 'on' || action === 'off') {
     const [tool, id, ...extra] = args;
@@ -1646,10 +1646,34 @@ async function carriedNow(client, rules) {
   }
 }
 
-/** The wakes one pinned computer answers, under its name; a computer the pin does not name is a refusal under its name. */
-async function listedFrom(client, rules, name) {
+/** A wake list the engine answers a page at a time (wake:list `next`, trillion-rust e2583bd6e): every page, one door message
+ *  each, their wakes joined under the first page's notes. With --first-page only the first, and `more_after` names the
+ *  next page's cursor. Nov 22 2026, from 6:15 AM CST: the Mac's whole list was 1,137,328 bytes, past one door message. */
+async function everyWakePage(client, rules, first, route, firstPage) {
+  const { next, ...page } = first ?? {};
+  if (next == null) return page;
+  if (firstPage) return { ...page, more_after: next };
+  const wakes = [...(page.wakes ?? [])];
+  const seen = new Set();
+  let after = next;
+  for (let asked = 1; after != null; asked += 1) {
+    const method = rules.engine.wake.list;
+    if (asked >= rules.engine.most_pages) throw new CommandError(rules.words.too_many_pages, { status: 4, detail: fill(rules.words.details.too_many_pages, { method, pages: rules.engine.most_pages }) });
+    if (seen.has(after)) throw new CommandError(rules.words.pager_stuck, { status: 4, detail: fill(rules.words.details.pager_stuck, { method, next: short(after, 80) }) });
+    seen.add(after);
+    const more = await client.op(null, rules.engine.wake.list, { after }, { idempotent: true, route });
+    wakes.push(...(more?.wakes ?? []));
+    after = more?.next ?? null;
+  }
+  return { ...page, wakes };
+}
+
+/** The wakes one pinned computer answers, every page, under its name; a computer the pin does not name is a refusal under
+ *  its name. */
+async function listedFrom(client, rules, name, firstPage = false) {
   try {
-    const answer = await client.op(null, rules.engine.wake.list, {}, { idempotent: true, route: { pins: [name] } });
+    const route = { pins: [name] };
+    const answer = await everyWakePage(client, rules, await client.op(null, rules.engine.wake.list, {}, { idempotent: true, route }), route, firstPage);
     return { ...answer, answered_by: name };
   } catch (error) {
     if (error?.answer?.code !== rules.engine.carried.not_carried) throw error;
@@ -1658,16 +1682,16 @@ async function listedFrom(client, rules, name) {
 }
 
 /** One block per computer for a list: each pin given (in order), else each computer the engine names as carried now. */
-async function listedByComputer(client, rules, pins) {
+async function listedByComputer(client, rules, pins, firstPage = false) {
   const blocks = [];
   if (pins.length) {
-    for (const name of pins) blocks.push(await listedFrom(client, rules, name));
+    for (const name of pins) blocks.push(await listedFrom(client, rules, name, firstPage));
     return blocks;
   }
   const now = await carriedNow(client, rules);
-  if (now.answer) return [{ ...now.answer, answered_by: null }];
+  if (now.answer) return [{ ...(await everyWakePage(client, rules, now.answer, {}, firstPage)), answered_by: null }];
   if (!now.names.length) return [{ answered_by: null, refused: now.message }];
-  for (const name of now.names) blocks.push(await listedFrom(client, rules, name));
+  for (const name of now.names) blocks.push(await listedFrom(client, rules, name, firstPage));
   return blocks;
 }
 
@@ -2154,7 +2178,7 @@ export async function main(argv, seams = {}) {
   if (command === 'schedule') {
     const requestKey = flags['request-key'] ?? randomUUID();
     if (requestKey.length > 160) throw new CommandError('A schedule --request-key may be at most 160 characters so its per-step keys remain unique.', { status: 2 });
-    return print('schedule', await schedules(client, words, { requestKey, rules: settings, inputFile: flags.input, route: pinned }));
+    return print('schedule', await schedules(client, words, { requestKey, rules: settings, inputFile: flags.input, route: pinned, firstPage: flags['first-page'] === true }));
   }
   if (command === 'tools') return print('tools', { tools: await allPages(client, null, engine.tools_list, {}, 'tools') });
   if (command === 'connect') return JSON.stringify(await connectToolServer(client, words[0], { origin: context.state.site() }), null, 2);
