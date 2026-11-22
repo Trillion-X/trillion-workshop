@@ -2970,6 +2970,20 @@
         {"job": "apply one of the person's keep rules from their own schedule", "why": "that destroys expired records through the engine; this passes one statement to the person's own database and decides nothing"}
       ]
     },
-    {"capability": "estimate what a person's services cost from measured use and listed rates, warn at a budget and stop paid work", "owner": ["tools/estimate-what-a-persons-services-cost-from/"], "entry": "tools/estimate-what-a-persons-services-cost-from/tool-rows.json", "evidence": "src/spend-meter.mjs (the port in progress) prices each measured line from listed rates, checks budget rows and answers stops; the rates and lines are DATA in tools/shared-code/src/spend-meter.json, and the money rules stay in tools/money-out and tools/decide-who-may-change-a-cap.", "distinct_from": [{"job": "guard the spend on an AI's own account before each paid call, by a daily budget that refuses the call", "why": "tools/guard-ai-spending reserves and records one paid call against a budget; this owner estimates and reports what services cost over a period and states a stop, and holds no reservation."}, {"job": "keep unit-safe cost observations, corrections, versioned forecasts and billing comparisons in generic account records", "why": "tools/measurement-ledger owns the cost-observation records and their history; this owner reads measured use and rates and produces the estimate, and keeps no ledger."}]}
+    {"capability": "estimate what a person's services cost from measured use and listed rates, warn at a budget and stop paid work", "owner": ["tools/estimate-what-a-persons-services-cost-from/"], "entry": "tools/estimate-what-a-persons-services-cost-from/tool-rows.json", "evidence": "src/spend-meter.mjs (the port in progress) prices each measured line from listed rates, checks budget rows and answers stops; the rates and lines are DATA in tools/shared-code/src/spend-meter.json, and the money rules stay in tools/money-out and tools/decide-who-may-change-a-cap.", "distinct_from": [{"job": "guard the spend on an AI's own account before each paid call, by a daily budget that refuses the call", "why": "tools/guard-ai-spending reserves and records one paid call against a budget; this owner estimates and reports what services cost over a period and states a stop, and holds no reservation."}, {"job": "keep unit-safe cost observations, corrections, versioned forecasts and billing comparisons in generic account records", "why": "tools/measurement-ledger owns the cost-observation records and their history; this owner reads measured use and rates and produces the estimate, and keeps no ledger."}]},
+    {
+        "capability": "keep one AI subscription's usage-limit rows current from the response headers of one tiny call through the local AI proxy",
+        "owner": [
+            "tools/keep-ai-provider-limits/"
+        ],
+        "entry": "tools/keep-ai-provider-limits/part.json",
+        "evidence": "the local proxy passes an AI provider's rate-limit headers back only on a response (Nov 21 2026); tools/keep-ai-provider-limits is the one owner of the idle probe that writes those rows, with the mapping in keep-and-wake-ai-sessions-on-this-computer/harness/claude-limits.mjs",
+        "distinct_from": [
+            {
+                "job": "send a message or email to people through a chosen provider",
+                "why": "that sends to people; this sends one zero-token call to read a subscription's limits"
+            }
+        ]
+    }
   ]
 }

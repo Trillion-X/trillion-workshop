@@ -1,0 +1,36 @@
+{
+  "drafted_from": "tool:keep-ai-provider-limits' own row (its words, input schema, wake and steps); read the row before relying on it",
+  "start_here": "Nothing to say: the engine runs tool:keep-ai-provider-limits every fifteen minutes on the computer that runs the local AI proxy. It sends one tiny call only when no row of that provider was read in the quiet window, and writes the limit headers the proxy returns. To read the rows, say to your AI: \"Show the AI limits I have kept.\"",
+  "lists": [],
+  "no_lists_because": "The rows are kept in the person's provider_limits table; the tool itself keeps nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-ai-provider-limits",
+    "tool:run-sql-in-my-database"
+  ],
+  "instructions": [
+    "1. Leave it on: the wake every-fifteen-minutes runs the tool on the computer that runs the proxy. Its input (store, provider, proxy_address, model, account, quiet_minutes) comes from the person's wake row, not from this tool.",
+    "2. Read each pass: `sent` false means a row of that provider was read inside the quiet window; `sent` true with rows means the headers were written.",
+    "3. A status row of unknown means the proxy did not pass the headers; check the proxy's passthrough setting before trusting the rows."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the kept limits",
+      "ask": "Show the AI limits I have kept.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-sql-in-my-database",
+            "input": {
+              "sql": "select provider, account, window_name, used_percent, resets_at, read_at, state from provider_limits order by provider, window_name"
+            }
+          }
+        }
+      },
+      "hands_back": "The rows of the AI limits kept: provider, account, window name, used percent (null for an unknown window), resets at, read at and state (ok or limited), one row per window."
+    }
+  ]
+}

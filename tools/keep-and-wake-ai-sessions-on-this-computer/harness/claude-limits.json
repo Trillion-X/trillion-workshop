@@ -1,0 +1,25 @@
+{
+  "_what": "Settings for harness/claude-limits.mjs: how a Claude subscription's limits are recorded as provider_limits rows. header_reader is \"off\" until the reader is pointed at the proxy's usage queue (response_headers per request) and the coordinator confirms it; no probes are sent to read them. The words source is on now. A header row is \"limited\" only when its own Status is \"rejected\": overage-status is not a limit (it is rejected whenever org-level overage is off).",
+  "provider": "claude",
+  "header_reader": "on",
+  "sources": {
+    "words": "take-open-work limit_patterns and limit_reset",
+    "headers": "anthropic rate-limit response headers (the proxy passes them through)"
+  },
+  "utilization_scale": 100,
+  "header_rows": [
+    {
+      "window": "unified",
+      "status": "anthropic-ratelimit-unified-status",
+      "reset": "anthropic-ratelimit-unified-reset"
+    },
+    {
+      "window": "7d",
+      "utilization": "anthropic-ratelimit-unified-7d-utilization",
+      "reset": "anthropic-ratelimit-unified-7d-reset",
+      "status": "anthropic-ratelimit-unified-7d-status"
+    }
+  ],
+  "upsert_sql": "insert into provider_limits (provider, account, window_name, used_percent, resets_at, read_at, source, state) values ($1, $2, $3, $4, $5, $6, $7, $8) on conflict (provider, account, window_name) do update set used_percent = excluded.used_percent, resets_at = excluded.resets_at, read_at = excluded.read_at, source = excluded.source, state = excluded.state",
+  "table": "public.provider_limits (window is a reserved word, so the column is window_name)"
+}
