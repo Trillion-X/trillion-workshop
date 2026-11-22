@@ -96,8 +96,8 @@
                 "value-checkouts",
                 "label-sales",
                 "value-sales",
-                "label-revenue_cents",
-                "value-revenue_cents",
+                "label-revenue_text",
+                "value-revenue_text",
                 "label-visit_steps",
                 "value-visit_steps"
               ]
@@ -240,18 +240,18 @@
                 "variant": "body"
               }
             },
-            "label-revenue_cents": {
+            "label-revenue_text": {
               "type": "Text",
               "props": {
-                "text": "Revenue (cents)",
+                "text": "Revenue",
                 "variant": "label"
               }
             },
-            "value-revenue_cents": {
+            "value-revenue_text": {
               "type": "Text",
               "props": {
                 "text": {
-                  "$item": "revenue_cents"
+                  "$item": "revenue_text"
                 },
                 "variant": "body"
               }
@@ -402,8 +402,8 @@
                 "value-checkouts",
                 "label-sales",
                 "value-sales",
-                "label-revenue_cents",
-                "value-revenue_cents",
+                "label-revenue_text",
+                "value-revenue_text",
                 "label-visit_steps",
                 "value-visit_steps"
               ]
@@ -546,18 +546,18 @@
                 "variant": "body"
               }
             },
-            "label-revenue_cents": {
+            "label-revenue_text": {
               "type": "Text",
               "props": {
-                "text": "Revenue (cents)",
+                "text": "Revenue",
                 "variant": "label"
               }
             },
-            "value-revenue_cents": {
+            "value-revenue_text": {
               "type": "Text",
               "props": {
                 "text": {
-                  "$item": "revenue_cents"
+                  "$item": "revenue_text"
                 },
                 "variant": "body"
               }

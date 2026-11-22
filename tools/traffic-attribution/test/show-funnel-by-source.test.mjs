@@ -55,3 +55,16 @@ test('visits with no kept person still count by their source; the people counts 
   assert.equal(Number(unknown.visit_steps), 1, 'a visit with no source is counted under the unknown source');
   assert.equal(Number(unknown.visitors), 0);
 });
+
+// Every value the board's card binds to ($item) is a column the board SQL returns, so a column that draws empty is caught here.
+test('each card value binds to a column the board SQL returns', () => {
+  const offers = JSON.parse(readFileSync(resolve(import.meta.dirname, '../part.json'), 'utf8')).offers;
+  const offer = offers.find(one => one.id === 'tool:show-funnel-by-source');
+  const returned = new Set([...FUNNEL_SQL.matchAll(/ AS ([a-z_]+)/g)].map(match => match[1]));
+  const bound = Object.values(offer.screen.spec.elements)
+    .map(element => element.props?.text)
+    .filter(text => text && typeof text === 'object' && '$item' in text)
+    .map(text => text.$item);
+  assert.ok(bound.length >= 10, 'the card binds its columns');
+  for (const field of bound) assert.ok(returned.has(field), `${field} is bound by the card but the board SQL does not return it`);
+});
