@@ -957,7 +957,7 @@ export function engineClient({ door, credential, fetchImpl = fetch, rules = sett
       const code = answer?.code ?? error.code ?? null;
       // The same request_key rides on every attempt, so a retried call is answered as the first one was.
       if ((error.retryable === true || rules.retry.codes.includes(code)) && attempt < rules.retry.count) { await wait(gap(attempt, error.retry_after_seconds) * 1000); continue; }
-      const words = code ? rules.words.codes[code] ?? rules.words.refused_code : null;
+      const words = code ? rules.words.codes[code] ?? rules.words.refused_code_named : null;
       // The engine names the step that refused in `cause` (file, line, and the error); the message names the door and the code.
       const cause = typeof answer?.cause === 'string' ? ` Cause: ${answer.cause}` : '';
       const said = words ? fill(words, { which: door.name, code, tool: args?.input?.tool ?? name }) : null;

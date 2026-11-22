@@ -457,6 +457,7 @@
     "not_moved": "{id} was not moved ({reason}); here it is as it now is.",
     "not_finished": "Not finished after {seconds} seconds; read it later with {cli} tasks {id}.",
     "refused_code": "{which} did not do that.",
+    "refused_code_named": "{which} did not do that. Code: {code}.",
     "schedule_input_object": "--input is one saved object of your own data, for example {cli} schedule on TOOL WAKE_ID --input FILE (FILE may be - for standard input).",
     "schedule_input_size": "--input may hold at most {limit} bytes; this one holds {size}.",
     "schedule_input_off": "--input goes only with schedule on; a wake switched off keeps no input.",
@@ -493,9 +494,10 @@
     "whoami_ai": "AI: {ai}",
     "whoami_facts": "Running on: {facts}",
     "codes": {
-      "_what": "Plain words for the engine refusal codes a person meets most; any other code is said with refused_code.",
+      "_what": "Plain words for the engine refusal codes a person meets most; any other code is said with refused_code_named, which prints the code.",
       "tools_tool_unknown": "{tool} is not set up in your {site_name} yet.",
-      "original_command_conflict": "That changed in the meantime, so nothing was written."
+      "original_command_conflict": "That changed in the meantime, so nothing was written.",
+      "door_full": "This computer is busy with as many calls as it takes at once; try again in a moment."
     },
     "details": {
       "schedule_input_old_engine": "An engine older than trillion-rust 3bd6dc47a refuses a wake:switch that carries input (engine.need_refusal).",
