@@ -5,8 +5,8 @@
   {
    "business_id": "harbor-light-tennis",
    "document_type": "terms",
-   "identity": "1f:7b1125a3211636d1b74a7ac00f8d70dd2a54162ee38fae666af5648289d498c7",
-   "customer_ready": false,
+   "identity": "1f:7909f8ce3ee1e938fa947cd2e42fe289f8bc5bd239cbda231f0e1a22f3f72e47",
+   "customer_ready": true,
    "clauses": 14,
    "missing": [],
    "unverified": []
@@ -15,7 +15,7 @@
    "business_id": "harbor-light-tennis",
    "document_type": "privacy",
    "identity": "1f:f35da44208ea496827ea844fc5c394e22564ea4babf429e0c1931b3e3d200d22",
-   "customer_ready": false,
+   "customer_ready": true,
    "clauses": 10,
    "missing": [],
    "unverified": []
@@ -23,8 +23,8 @@
   {
    "business_id": "harbor-light-tennis",
    "document_type": "refunds",
-   "identity": "1f:c0994c269eb0816b668927d05c178052f8e2c5ad1522e4efa7ebfab48ae8bd3e",
-   "customer_ready": false,
+   "identity": "1f:392f6ea979c060e8ca571ef4c8350851c8004c5700ffa6eaa3d980c6884d3c66",
+   "customer_ready": true,
    "clauses": 4,
    "missing": [],
    "unverified": []
@@ -33,7 +33,7 @@
    "business_id": "harbor-light-tennis",
    "document_type": "waiver",
    "identity": "1f:6e3eb06d430e43518ffdbdb5a16466083ea4fd4325d5c7fd30d070f33d55f82a",
-   "customer_ready": false,
+   "customer_ready": true,
    "clauses": 4,
    "missing": [],
    "unverified": []
@@ -41,7 +41,7 @@
   {
    "business_id": "northwind-notes",
    "document_type": "terms",
-   "identity": "1f:d1741e21ebc4220575ac81ad8df8dab5a52602c9d69554c25f9b2360193849c5",
+   "identity": "1f:75bb6874987809dc0af7e015904a94e22e607077742ad1fc30d794be2b84579f",
    "customer_ready": false,
    "clauses": 17,
    "missing": [],
@@ -63,8 +63,8 @@
   {
    "business_id": "northwind-notes",
    "document_type": "refunds",
-   "identity": "1f:b0cd05b0e7f1373c65ddd3b02fe89639e878b00b0dbc87e5ac07c65a45f858ae",
-   "customer_ready": false,
+   "identity": "1f:7803a4d202fc993d75cce2fde1ee2b5eae8fa437288209c700b7c53d9e003e15",
+   "customer_ready": true,
    "clauses": 4,
    "missing": [],
    "unverified": []
@@ -72,8 +72,8 @@
   {
    "business_id": "quill-pottery-studio",
    "document_type": "terms",
-   "identity": "1f:f4b46f9dd697d2811c47d63355058d3ad4b9a94b1de5349dde64a89d35b79c36",
-   "customer_ready": false,
+   "identity": "1f:cf77aa7559bcd78209e708a7f4af95f0db58faf0de735e457daa06ce23745dbf",
+   "customer_ready": true,
    "clauses": 12,
    "missing": [],
    "unverified": []
@@ -82,7 +82,7 @@
    "business_id": "quill-pottery-studio",
    "document_type": "privacy",
    "identity": "1f:54e64387b287526c5abee67eb0dc76a607ec54caa8f7433330b11ba2d3ecfd11",
-   "customer_ready": false,
+   "customer_ready": true,
    "clauses": 10,
    "missing": [],
    "unverified": []
@@ -91,7 +91,7 @@
    "business_id": "quill-pottery-studio",
    "document_type": "refunds",
    "identity": "1f:b5efaea331b8c418bd36710b6483ffc8a142dca4d49ea3c26e637d8dff1a9cfd",
-   "customer_ready": false,
+   "customer_ready": true,
    "clauses": 1,
    "missing": [],
    "unverified": []

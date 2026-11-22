@@ -71,7 +71,7 @@
    ],
    "body": [
     "Subscriptions renew automatically at the end of each billing period until you cancel. Before you start a subscription we disclose, and you separately consent to, the recurring charge: the amount (as displayed), the billing frequency, and when charges begin.",
-    "You can cancel at any time using {{cancel_method}}. Cancellation is at least as easy as signing up and does not require contacting support, though support can also cancel for you. When you cancel, your subscription remains active until the end of the period you already paid for, and then does not renew.",
+    "You can cancel at any time by {{cancel_method}}. Cancellation is at least as easy as signing up and does not require contacting support, though support can also cancel for you. When you cancel, your subscription remains active until the end of the period you already paid for, and then does not renew.",
     "Where your subscription includes a free trial, we tell you the trial length and the date the first charge occurs before you start, and we send you a reminder before the trial converts to a paid subscription."
    ]
   },
@@ -214,7 +214,7 @@
     "venue"
    ],
    "body": [
-    "These Terms are governed by the laws of {{governing_law_state}}, without regard to conflict-of-law rules. Subject to any dispute-resolution section of these Terms, disputes will be brought in the courts located in {{venue}}. If you are a consumer in a jurisdiction whose law gives you mandatory protections or venue rights, nothing here takes those away."
+    "These Terms are governed by the laws of {{governing_law_state}}, without regard to conflict-of-law rules. Subject to any dispute-resolution section of these Terms, disputes will be brought in {{venue}}. If you are a consumer in a jurisdiction whose law gives you mandatory protections or venue rights, nothing here takes those away."
    ]
   },
   {
@@ -436,7 +436,7 @@
     "cancel_method"
    ],
    "body": [
-    "Cancellation. Cancel any time using {{cancel_method}}; it is as easy as signing up and takes effect at the end of the current paid period. You receive written confirmation of the cancellation. We send a reminder before renewal charges so you can cancel first."
+    "Cancellation. Cancel any time by {{cancel_method}}; it is as easy as signing up and takes effect at the end of the current paid period. You receive written confirmation of the cancellation. We send a reminder before renewal charges so you can cancel first."
    ]
   },
   {
@@ -453,7 +453,7 @@
    ],
    "body": [
     "Refunds. {{refund_statement}}",
-    "Charges appear on your statement as {{billing_descriptor}}. If you believe a charge is wrong, contact {{dispute_contact}} first; we resolve billing mistakes without requiring a card dispute."
+    "Charges appear on your statement as {{billing_descriptor}}. If you believe a charge is wrong, {{dispute_contact}}. We resolve billing mistakes without requiring a card dispute."
    ]
   },
   {
