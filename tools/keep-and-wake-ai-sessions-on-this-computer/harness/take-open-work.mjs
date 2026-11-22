@@ -55,7 +55,7 @@ import { accountWithWord, operationCaller } from './account-call.mjs';
 export const accountOfSettings = settings => ({ ...accountWithWord(settings.account, settings.trillion_marks_as), vault: settings.vault });
 import { runTaskMove, stateOfWord, tasksIn, wordsOfStates } from '../../plan-tasks-and-todo-lists/run-a-task-move.mjs';
 import { requestedOutcome } from '../../plan-tasks-and-todo-lists/task-moves.mjs';
-import { answerIssue, UnsupportedSchema } from './answer-shape.mjs';
+import { answerIssue, uncheckable, UnsupportedSchema } from './answer-shape.mjs';
 import { acquireAiAuth, loginsOf, restingLogins } from './ai-auth.mjs';
 
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (whole, name) => (Object.hasOwn(values, name) ? String(values[name]) : whole));
@@ -80,8 +80,10 @@ export function takesUnassigned(item, shapes = []) {
   }));
 }
 // Why this computer could not finish a step task however its AI answers, or null: the step names checks, which this
-// computer does not evaluate. The one rule plan() (before any claim, so no AI run is spent on it) and finishFromAnswer apply.
-const unevaluatedChecks = read => (Array.isArray(read?.asks?.checks) && read.asks.checks.length ? 'the task names checks, which this computer does not evaluate' : null);
+// computer does not evaluate, or its submit names a keyword answer-shape.mjs does not check. The one rule plan() (before
+// any claim, so no AI run is spent on it) and finishFromAnswer apply.
+const cannotFinishHere = read => (Array.isArray(read?.asks?.checks) && read.asks.checks.length ? 'the task names checks, which this computer does not evaluate'
+  : read?.asks?.submit ? uncheckable(read.asks.submit) : null);
 // What a step's AI works from, as its workflow gave it, for the task prompt: the step's own input (every asks field but do,
 // submit and checks) and, for a step of an engine run, that run's input and its earlier steps' answers (told_as.payload.run,
 // the run the answer is told back to), since a step's words name them ("input links", "the read step's output rows.0").
@@ -494,7 +496,7 @@ export function plan({ open, agents, settings, started, today, running, chats, a
       }
     }
     if (!job) {
-      const unchecked = item.task ? unevaluatedChecks(item) : null;
+      const unchecked = item.task ? cannotFinishHere(item) : null;
       if (unchecked) { leave(unchecked); continue; }
       if (!ai) { leave('no chosen AI is installed here'); continue; }
       const prompt = fill(item.task ? settings.prompts.task : settings.prompts.claim, { handoff_id: item.handoff_id, agent_id, computer, take_tool: settings.tasks?.take_tool, move_tool: settings.tasks?.move_tool, finish_tool: settings.tasks?.finish_tool, continuation: item.continuation ? JSON.stringify(item.continuation) : 'none', do: item.asks?.do ?? requestedOutcome(item) ?? '', given: givenOf(item), submit: JSON.stringify(item.asks?.submit ?? null), result_file: resultFileOf(settings, item.handoff_id) });
@@ -672,7 +674,7 @@ export async function finishFromAnswer(call, settings, { job, read, logPath, at 
   if (!written || typeof written !== 'object' || Array.isArray(written) || typeof evidence !== 'string' || !evidence.trim()) return fill(words.answer_missing, { log: logPath });
   if (written.result === null || written.result === undefined) return fill(words.answer_refused, { why: evidence.trim().slice(0, 400) });
   if (!read.asks?.submit) return fill(words.answer_refused, { why: 'the task names no submit shape to check the answer against' });
-  const unchecked = unevaluatedChecks(read);
+  const unchecked = cannotFinishHere(read);
   if (unchecked) return fill(words.answer_refused, { why: unchecked });
   let issue;
   try { issue = answerIssue(written.result, read.asks.submit); }

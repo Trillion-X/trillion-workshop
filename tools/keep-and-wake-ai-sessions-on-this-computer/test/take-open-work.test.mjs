@@ -134,6 +134,15 @@ test('a task whose step names checks is left before any claim, assigned or not, 
   assert.deepEqual(left, { 'the task names checks, which this computer does not evaluate': 1 });
 });
 
+test('a task whose step\'s submit names a keyword this computer does not check is left before any claim; one using the checked keywords is claimed', () => {
+  const me = 'ai:take-open-work-mac';
+  const submit = extra => ({ type: 'object', required: ['capabilities'], properties: { capabilities: { type: 'array', minItems: 1, items: { type: 'object', properties: { id: { type: 'string', minLength: 1, description: 'short id' }, ...extra } } } } });
+  const open = [stepTask('s1', { assignees: [me], asks: { do: 'List them', submit: submit({}) } }), stepTask('s2', { assignees: [me], asks: { do: 'List them', submit: submit({ at: { type: 'string', format: 'date' } }) } })];
+  const { start, left } = plan({ ...base, agent_id: me, open, settings: { ...settings, max_concurrent: 10 } });
+  assert.deepEqual(start.map(item => item.handoff_id), ['s1']);
+  assert.deepEqual(left, { 'the step\'s submit names the keyword "format", which this computer does not check': 1 });
+});
+
 test('a chat\'s work goes back to that idle chat, one run per chat, and waits when the chat is busy, owned or unknown here', () => {
   const chatSource = 'claude-code:aaaa-1111';
   const from = (id, source_id) => job(id, { input: { arrived: { source_id } } });
