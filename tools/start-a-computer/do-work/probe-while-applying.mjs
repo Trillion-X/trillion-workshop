@@ -56,13 +56,15 @@ export function summarize(requests, { slow_ms, lag_ms }, started, stopped) {
   const at = q => (ms.length ? Math.round(ms[Math.min(ms.length - 1, Math.floor(q * ms.length))]) : null);
   const failed = requests.filter(r => r.error || r.status >= 500);
   const slow = timely.filter(r => r.ms > slow_ms);
+  const retried = requests.filter(r => r.retried);
   return {
-    started, stopped, sent: requests.length, ok: requests.length - failed.length, failed: failed.length,
-    retried: requests.filter(r => r.retried).length,
+    // A request that needed a retry is its own number and never ok: a browser would have asked again, but the bar is 0 of them.
+    started, stopped, sent: requests.length, ok: requests.length - failed.length - retried.filter(r => !failed.includes(r)).length, failed: failed.length,
+    retried: retried.length,
     slow_over_ms: slow_ms, slow: slow.length, slow_while_lagging: requests.filter(r => r.lag_ms > lag_ms && r.ms > slow_ms).length,
     p50_ms: at(0.5), p99_ms: at(0.99), max_ms: ms.length ? Math.round(ms[ms.length - 1]) : null,
     most_lag_ms: requests.reduce((most, r) => Math.max(most, r.lag_ms), 0),
-    slow_requests: slow.slice(0, 50), failures: failed.slice(0, 50),
+    slow_requests: slow.slice(0, 50), failures: failed.slice(0, 50), retried_requests: retried.slice(0, 50),
   };
 }
 

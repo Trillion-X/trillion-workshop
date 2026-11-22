@@ -106,6 +106,8 @@ test('a request whose kept-alive connection closes before any answer is asked ag
   const summary = summarize(kept.map(r => ({ at, url, lag_ms: 0, ...r })), settings, at, at);
   assert.equal(summary.failed, 0);
   assert.equal(summary.retried, kept.filter(r => r.retried).length);
+  assert.equal(summary.ok, kept.length - summary.retried, 'a request that needed a retry is never counted as ok');
+  assert.equal(summary.retried_requests.length, summary.retried);
 });
 
 test('a server that drops every request still fails, after one more try', async () => {
