@@ -8,7 +8,10 @@
 // runs failed 32% of tool:run-sql-in-my-database runs with "no credential_name" (read 5:57 AM CST Nov 22 2026): the store
 // a router-started run reads is input.fact.where.
 //
-// unresolvedInputBindings(row) -> ["REFUSED: <recipe> step <id> reads input.<path>, which <start> does not give", ...]
+// unresolvedInputBindings(row) -> ["<recipe> step <id> reads input.<path>, which <start> does not give", ...]
+// A start's input is not all readable here: an engine switch's own input (wake:list hides it) can give a key the row does
+// not name, so these are findings. A row refuses them only once its owner has fixed or confirmed it and set the flag
+// "inputs-checked" (inputsChecked(row)).
 // Only steps are read: an edge's "input" is its source step's result, not the run's. A binding passes when it is marked
 // omit_if_missing, or when it sits in an op:core.coalesce with another value that resolves.
 
@@ -105,9 +108,15 @@ export function unresolvedInputBindings(row) {
   for (const start of startsOf(row)) {
     for (const step of steps) {
       for (const path of new Set(unresolvedIn(step?.config, start.gives))) {
-        problems.push(`REFUSED: ${row.recipe} step ${step.id} reads input.${path}, which ${start.at} does not give`);
+        problems.push(`${row.recipe} step ${step.id} reads input.${path}, which ${start.at} does not give`);
       }
     }
   }
   return problems;
+}
+
+const CHECKED = 'inputs-checked';
+export function inputsChecked(row) {
+  const flags = asObject(row.flags);
+  return Array.isArray(flags) ? flags.includes(CHECKED) : flags?.[CHECKED] === true;
 }

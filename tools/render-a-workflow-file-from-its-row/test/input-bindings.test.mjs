@@ -17,7 +17,7 @@ test('a router-started run that reads its store from fact.where passes', () => {
 
 test('a router-started run that reads store.credential_name is refused, naming the recipe, step, path and wake', () => {
   const problems = unresolvedInputBindings(row({ definition: { steps: [sqlStep('keep', fromInput('store.credential_name'))] }, wakes: [chosen('chosen--a-thing', null)] }));
-  assert.deepEqual(problems, ['REFUSED: workflow:keep-a-thing step keep reads input.store.credential_name, which wake chosen--a-thing (workflow-chosen) does not give']);
+  assert.deepEqual(problems, ['workflow:keep-a-thing step keep reads input.store.credential_name, which wake chosen--a-thing (workflow-chosen) does not give']);
 });
 
 test('a due-time run that reads a key its wake input carries passes', () => {
@@ -27,15 +27,15 @@ test('a due-time run that reads a key its wake input carries passes', () => {
 
 test('a due-time run that reads fact.* is refused: a time is no fact the run reads', () => {
   const problems = unresolvedInputBindings(row({ wakes: [due('hourly', { start_at: 'keep' })] }));
-  assert.deepEqual(problems, ['REFUSED: workflow:keep-a-thing step keep reads input.fact.where, which wake hourly (due-time) does not give']);
+  assert.deepEqual(problems, ['workflow:keep-a-thing step keep reads input.fact.where, which wake hourly (due-time) does not give']);
 });
 
 test('a row with a time wake and a fires_when rule is judged at each start', () => {
   const steps = [sqlStep('keep', fromInput('fact.where')), sqlStep('count', fromInput('credential_name'))];
   const problems = unresolvedInputBindings(row({ definition: { steps }, wakes: [due('hourly', { credential_name: 'a-store' })], fires_when: [rule()] }));
   assert.deepEqual(problems, [
-    'REFUSED: workflow:keep-a-thing step keep reads input.fact.where, which wake hourly (due-time) does not give',
-    'REFUSED: workflow:keep-a-thing step count reads input.credential_name, which fires_when "a thing was added" (workflow-chosen) does not give',
+    'workflow:keep-a-thing step keep reads input.fact.where, which wake hourly (due-time) does not give',
+    'workflow:keep-a-thing step count reads input.credential_name, which fires_when "a thing was added" (workflow-chosen) does not give',
   ]);
 });
 
@@ -48,7 +48,7 @@ test('a fires_when rule gives its own input, and an Off rule starts nothing', ()
 test('a nested sub-path is judged by its first key: any fact.* passes a router start, a missing first key is refused', () => {
   const steps = [{ id: 'note', kind: 'ask', config: { name: 'tool:keep-a-note', input: { about: { place: fromInput('fact.payload.row.place'), who: { name: fromInput('person.name.first') } } } } }];
   assert.deepEqual(unresolvedInputBindings(row({ definition: { steps }, wakes: [chosen('chosen--a-thing', null)] })), [
-    'REFUSED: workflow:keep-a-thing step note reads input.person.name.first, which wake chosen--a-thing (workflow-chosen) does not give',
+    'workflow:keep-a-thing step note reads input.person.name.first, which wake chosen--a-thing (workflow-chosen) does not give',
   ]);
 });
 
@@ -57,8 +57,8 @@ test('a coalesce passes when any of its values resolves, and is refused naming e
   const wakes = [chosen('chosen--a-thing', null)];
   assert.deepEqual(unresolvedInputBindings(row({ definition: { steps: [sqlStep('keep', coalesce(fromInput('store.credential_name'), fromInput('fact.where')))] }, wakes })), []);
   assert.deepEqual(unresolvedInputBindings(row({ definition: { steps: [sqlStep('keep', coalesce(fromInput('store.credential_name'), fromInput('database')))] }, wakes })), [
-    'REFUSED: workflow:keep-a-thing step keep reads input.store.credential_name, which wake chosen--a-thing (workflow-chosen) does not give',
-    'REFUSED: workflow:keep-a-thing step keep reads input.database, which wake chosen--a-thing (workflow-chosen) does not give',
+    'workflow:keep-a-thing step keep reads input.store.credential_name, which wake chosen--a-thing (workflow-chosen) does not give',
+    'workflow:keep-a-thing step keep reads input.database, which wake chosen--a-thing (workflow-chosen) does not give',
   ]);
 });
 
@@ -71,7 +71,7 @@ test('omit_if_missing, the whole input, a values path, edges, and a row with no 
   const edges = [{ from: 'keep', to: 'done', kind: 'on_result', config: fromInput('output.held') }];
   assert.deepEqual(unresolvedInputBindings(row({ definition: { steps, edges }, wakes })), []);
   assert.deepEqual(unresolvedInputBindings(row({ definition: { steps: [{ id: 'list', kind: 'ask', config: { input: { items: values } } }] }, wakes })), [
-    'REFUSED: workflow:keep-a-thing step list reads input.items.*.url, which wake hourly (due-time) does not give',
+    'workflow:keep-a-thing step list reads input.items.*.url, which wake hourly (due-time) does not give',
   ]);
   assert.deepEqual(unresolvedInputBindings(row({ definition: { steps: [sqlStep('keep', fromInput('store.credential_name'))] } })), []);
 });
@@ -81,11 +81,24 @@ test('another fact that wakes a run gives fact and fact_id', () => {
   assert.deepEqual(unresolvedInputBindings(row({ wakes })), []);
 });
 
-test('planRender carries the refusal, so the row is not written', () => {
-  const plan = planRender({
-    recipe: 'workflow:keep-a-thing', title: 'Keep a thing', job: 'Keeps a thing.', produces: 'A kept thing.', input_schema: { type: 'object' },
-    kept_at: '2026-11-22T12:00:00Z', source: {}, records: null, fires_when: [rule()],
-    definition: { steps: [sqlStep('keep', fromInput('store.credential_name'))], edges: [] }, wakes: [],
-  });
-  assert.ok(plan.problems.includes('REFUSED: workflow:keep-a-thing step keep reads input.store.credential_name, which fires_when "a thing was added" (workflow-chosen) does not give'));
+const unfixed = (flags) => ({
+  recipe: 'workflow:keep-a-thing', title: 'Keep a thing', job: 'Keeps a thing.', produces: 'A kept thing.', input_schema: { type: 'object' },
+  kept_at: '2026-11-22T12:00:00Z', source: {}, records: null, fires_when: [rule()], flags,
+  definition: { steps: [sqlStep('keep', fromInput('store.credential_name'))], edges: [] }, wakes: [],
+});
+const line = 'workflow:keep-a-thing step keep reads input.store.credential_name, which fires_when "a thing was added" (workflow-chosen) does not give';
+
+test('planRender reports an unresolved binding as a finding and still plans the file', () => {
+  const plan = planRender(unfixed(['public']));
+  assert.deepEqual(plan.findings, [`FINDING: ${line}`]);
+  assert.ok(!plan.problems.some(problem => problem.includes('reads input.')));
+  assert.ok(plan.recipe);
+});
+
+test('a row its owner marked inputs-checked refuses it, with the flags as a list or an object', () => {
+  for (const flags of [['public', 'inputs-checked'], { 'inputs-checked': true }]) {
+    const plan = planRender(unfixed(flags));
+    assert.ok(plan.problems.includes(`REFUSED: ${line}`));
+    assert.deepEqual(plan.findings, []);
+  }
 });

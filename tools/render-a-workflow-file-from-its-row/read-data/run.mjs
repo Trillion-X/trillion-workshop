@@ -6,7 +6,7 @@
 //     mode: "write" | "dry", kit_only: boolean, root: "<workshop checkout>" }
 // A row is read from workflow_recipes by the caller (a SQL reader); this entry only plans and writes files. In write mode each
 // ready recipe goes to tools/workflows/recipes/<slug>.json and its kit to tools/workflows/kits/<slug>.json. A row is written only
-// when its plan has no problems; gate words are reported, not refused, because the recipe check and the landing gate decide them.
+// when its plan has no problems; gate words and findings (an input binding no start gives) are reported, not refused.
 // The origin files (what a render replaces) are read from origin/main in root.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -53,7 +53,7 @@ for (const row of input.rows) {
     written.kit = true;
   }
   console.log(JSON.stringify({
-    id: plan.id, slug: plan.slug, kept_at: plan.kept_at, problems: plan.problems, gate_words: plan.gate_words,
+    id: plan.id, slug: plan.slug, kept_at: plan.kept_at, problems: plan.problems, findings: plan.findings ?? [], gate_words: plan.gate_words,
     note: plan.note ?? null, see_also: plan.kit?.see_also ?? [], refused: plan.kit?.refused ?? [], dropped: plan.kit?.dropped ?? [],
     written,
   }));

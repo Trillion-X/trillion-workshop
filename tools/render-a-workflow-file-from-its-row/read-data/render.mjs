@@ -10,7 +10,7 @@
 // checkFile(file, row) -> problems: the file must be stamped with the row's kept_at, its name must be the id without
 // "workflow:" and hold no colon, and the row must be complete enough for the recipe validator to accept it.
 
-import { unresolvedInputBindings } from './input-bindings.mjs';
+import { inputsChecked, unresolvedInputBindings } from './input-bindings.mjs';
 
 const PREFIX = 'workflow:';
 const VAULT_KEY = /credential_name$|secret_name$/;
@@ -260,7 +260,7 @@ export function bodyOf(id) {
 
 export function planRender(row, { origin = null, originKit = null, parent = null, allowLost = [], gateWords = [] } = {}) {
   const slug = row.recipe.slice(PREFIX.length).replace(/:/g, '_');
-  const plan = { id: row.recipe, slug, kept_at: row.kept_at, problems: [], gate_words: [], recipe: null, kit: null, rides_in_parent: false };
+  const plan = { id: row.recipe, slug, kept_at: row.kept_at, problems: [], findings: [], gate_words: [], recipe: null, kit: null, rides_in_parent: false };
   const parentId = bodyOf(row.recipe);
   if (parentId) {
     const copy = (parent?.uses ?? []).find((body) => body.id === row.recipe);
@@ -284,8 +284,11 @@ export function planRender(row, { origin = null, originKit = null, parent = null
     plan.gate_words = gateWordsIn(plan.recipe.text, gateWords);
     plan.problems.push(...checkFile(file, row, fileNameOf(row.recipe), origin).filter((item) => item.startsWith('vault name') || item.startsWith('stale')));
   }
-  // A step that reads a run-input key no start of the row gives fails every run that start makes.
-  plan.problems.push(...unresolvedInputBindings(row));
+  // A step that reads a run-input key no start of the row gives fails every run that start makes. It is a finding, and the
+  // file is written; a row its owner has fixed or confirmed (flag inputs-checked) is refused instead.
+  const unresolved = unresolvedInputBindings(row);
+  if (inputsChecked(row)) plan.problems.push(...unresolved.map((line) => `REFUSED: ${line}`));
+  else plan.findings.push(...unresolved.map((line) => `FINDING: ${line}`));
   if (!asObject(row.definition)?.steps?.length) {
     plan.problems.push('definition has no steps');
     return plan;
