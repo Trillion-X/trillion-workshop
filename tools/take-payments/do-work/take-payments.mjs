@@ -242,7 +242,7 @@ function checkoutAsStripeEvent(checkout) {
       payment_status: checkout.amount_total_cents > 0 ? 'paid' : 'no_payment_required',
       subscription: checkout.subscription_id,
       customer_details: { email: checkout.customer_email },
-      metadata: { offer_id: checkout.offer_id, ...(checkout.price_option_id ? { price_option_id: checkout.price_option_id } : {}) },
+      metadata: { offer_id: checkout.offer_id, ...(checkout.price_option_id ? { price_option_id: checkout.price_option_id } : {}), ...(checkout.journey_visitor ? { journey_visitor: checkout.journey_visitor } : {}) },
     } },
   };
 }

@@ -579,6 +579,7 @@ export type CompletedCheckout = {
   payment_mode: string | null;
   payment_intent: string | null;
   invoice_id: string | null;
+  journey_visitor: string | null;
 };
 
 /**
@@ -626,6 +627,7 @@ export async function listCompletedHostedSessions(input: unknown, { send }: { se
         payment_mode: text(candidate.mode) || null,
         payment_intent: text(candidate.payment_intent) || null,
         invoice_id: text(candidate.invoice) || null,
+        journey_visitor: text(metadata.journey_visitor) || null,
       });
     }
     more = page.has_more === true && sessions.length > 0;
