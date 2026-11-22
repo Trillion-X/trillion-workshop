@@ -96,7 +96,7 @@ const hrefsIn = html => [...String(html ?? '').matchAll(/href\s*=\s*["']([^"']+)
 function toNeutral(ctx, inbox, message, { full = false, thread = null } = {}) {
   const sentAt = Date.parse(message.timestamp ?? '');
   const text = full ? bodyText(message) : null;
-  const attachments = full ? (message.attachments ?? []).map(file => ({ name: file.filename ?? '', mime_type: file.content_type ?? '', size: typeof file.size === 'number' ? file.size : null })) : [];
+  const attachments = full ? (message.attachments ?? []).map(file => ({ attachment_id: file.attachment_id ?? '', name: file.filename ?? '', mime_type: file.content_type ?? '', size: typeof file.size === 'number' ? file.size : null })) : [];
   return neutralMessage({
     id: join(inbox, message.message_id),
     thread_id: join(inbox, message.thread_id ?? thread),

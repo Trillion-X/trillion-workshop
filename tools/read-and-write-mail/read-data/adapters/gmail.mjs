@@ -75,7 +75,7 @@ export function messageLinks(payload) {
 export function messageAttachments(payload) {
   const found = [];
   const visit = part => {
-    if (part.filename) found.push({ name: part.filename, mime_type: part.mimeType ?? '', size: typeof part.body?.size === 'number' ? part.body.size : null });
+    if (part.filename) found.push({ attachment_id: part.body?.attachmentId ?? '', name: part.filename, mime_type: part.mimeType ?? '', size: typeof part.body?.size === 'number' ? part.body.size : null });
     for (const child of part.parts ?? []) visit(child);
   };
   if (payload) visit(payload);

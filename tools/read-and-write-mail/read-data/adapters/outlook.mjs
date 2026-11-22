@@ -54,8 +54,8 @@ async function toNeutral(ctx, ids, message, { draft = false, full = false } = {}
   const sentAt = Date.parse(message.receivedDateTime ?? message.sentDateTime ?? '');
   let attachments = [];
   if (full && message.hasAttachments) {
-    const found = await ctx.call('GET', `/messages/${enc(message.id)}/attachments`, { query: { $select: 'name,contentType,size' } });
-    attachments = (found?.value ?? []).map(file => ({ name: file.name ?? '', mime_type: file.contentType ?? '', size: typeof file.size === 'number' ? file.size : null }));
+    const found = await ctx.call('GET', `/messages/${enc(message.id)}/attachments`, { query: { $select: 'id,name,contentType,size' } });
+    attachments = (found?.value ?? []).map(file => ({ attachment_id: file.id ?? '', name: file.name ?? '', mime_type: file.contentType ?? '', size: typeof file.size === 'number' ? file.size : null }));
   }
   const text = full && message.body?.contentType?.toLowerCase() === 'text' ? message.body.content : null;
   return neutralMessage({

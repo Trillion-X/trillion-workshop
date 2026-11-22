@@ -47,7 +47,7 @@ const graphRules = [
   { when: at('GET', '/mailFolders/inbox'), then: reply(200, { id: 'inbox-id' }) },
   { when: at('GET', '/mailFolders/sentitems'), then: reply(200, { id: 'sent-id' }) },
   { when: at('GET', '/mailFolders/deleteditems'), then: reply(200, { id: 'trash-id' }) },
-  { when: at('GET', '/messages/g1/attachments'), then: reply(200, { value: [{ name: 'invoice.pdf', contentType: 'application/pdf', size: 2048 }] }) },
+  { when: at('GET', '/messages/g1/attachments'), then: reply(200, { value: [{ id: 'a1', name: 'invoice.pdf', contentType: 'application/pdf', size: 2048 }] }) },
   { when: at('GET', '/messages/g1'), then: reply(200, graphMessage) },
 ];
 
@@ -64,7 +64,7 @@ test('the same read answers the same neutral row from two providers', async () =
     assert.equal(row.headers.message_id, '<m1@example.com>');
     assert.equal(row.text, 'Pay at https://pay.example.com/x?a=1, thanks.');
     assert.deepEqual(row.links, ['https://pay.example.com/x?a=1']);
-    assert.deepEqual(row.attachments, [{ name: 'invoice.pdf', mime_type: 'application/pdf', size: 2048 }]);
+    assert.deepEqual(row.attachments, [{ attachment_id: 'a1', name: 'invoice.pdf', mime_type: 'application/pdf', size: 2048 }]);
     assert.deepEqual(row.labels.filter(label => label === 'unread'), ['unread']);
     assert.equal(row.date_ms, 1700000000000);
     assert.equal(row.needs_original, true);
@@ -199,7 +199,7 @@ test('text, links and attachments are read from the message parts; html is read 
     { mimeType: 'text/html', body: { data: b64('<b>never handed on</b><a href="https://site.example.com/a&amp;b">x</a><a href="javascript:alert(1)">y</a>') } },
     { mimeType: 'application/pdf', filename: 'invoice.pdf', body: { attachmentId: 'a1', size: 2048 } }] };
   assert.deepEqual(messageLinks(payload), ['https://pay.example.com/x?a=1', 'https://site.example.com/a&b']);
-  assert.deepEqual(messageAttachments(payload), [{ name: 'invoice.pdf', mime_type: 'application/pdf', size: 2048 }]);
+  assert.deepEqual(messageAttachments(payload), [{ attachment_id: 'a1', name: 'invoice.pdf', mime_type: 'application/pdf', size: 2048 }]);
   assert.equal(plainTextBody(payload), 'Pay at https://pay.example.com/x?a=1, thanks. https://pay.example.com/x?a=1');
   assert.equal(plainTextBody({ mimeType: 'text/html', body: { data: b64('<b>x</b>') } }), null);
 });

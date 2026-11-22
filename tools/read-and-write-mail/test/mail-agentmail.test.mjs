@@ -111,7 +111,7 @@ test('a read answers the neutral row: a plain-text part is the text, an HTML-onl
   assert.equal(one.headers.list_unsubscribe, '<mailto:u@example.com>');
   assert.equal(one.text, 'Pay at https://pay.example.com/x?a=1, thanks.');
   assert.deepEqual(one.links, ['https://pay.example.com/x?a=1']);
-  assert.deepEqual(one.attachments, [{ name: 'invoice.pdf', mime_type: 'application/pdf', size: 2048 }]);
+  assert.deepEqual(one.attachments, [{ attachment_id: 'a1', name: 'invoice.pdf', mime_type: 'application/pdf', size: 2048 }]);
   assert.equal(one.needs_original, true);
   assert.equal(one.date_ms, Date.parse('2026-11-20T10:00:00Z'));
 
