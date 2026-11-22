@@ -1,0 +1,60 @@
+{
+  "kind": "tool-rows",
+  "record_set": "frame-the-whole-movement-in-view-tool-rows",
+  "what_this_is": "The Workshop row for the frame-the-whole-movement-in-view folder: on the person's computer, measures each shot's subject and implement boxes on every frame, then picks the first layout (in the request's order) that keeps every frame of the movement inside the picture, with the evidence, and returns the gate count.",
+  "records": [
+    {
+      "id": "package::frame-the-whole-movement-in-view::tool::frame-the-whole-movement-in-view",
+      "address": "package::frame-the-whole-movement-in-view::tool::frame-the-whole-movement-in-view",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:frame-the-whole-movement-in-view",
+        "label": "Frame the whole movement in view (runs on your computer)",
+        "status": "active",
+        "job": "Choose each shot's framing for a vertical video so the whole movement (the person and the implement they move) stays inside the picture on every frame, and prove the count of frames out of view is 0",
+        "description": "Two commands. measure detects, on every sampled frame of each shot, the subject (largest box of the subject class) and the implement near it, and writes boxes.json. choose reads the boxes and the layouts (rows: name, aspect, sizing full-height | around-movement | follow) in the request's order, and for each shot writes every layout's window and the frames whose boxes cross the window edge; the picked layout is the first with 0 such frames. gate reads framing.json and exits 1 unless the gate passes, and framing.json's gate passes only when the total is 0 and every shot has a picked layout; a failing shot is named so the workflow can go back to the choice. The side-by-side comparison is a layout row like any other, never the default. Runs on the person's computer. The blurred-bars layout's graphic_areas are where captions, the title and the pose marks go in that shot, so they never cover the movement.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "request": {
+              "type": "string",
+              "description": "The request JSON file on the person's computer. Its command is measure (detects the boxes; needs video, shots[{id,start,end,slow?}], model, subject_class, implement_class, sample_fps, imgsz, conf, near_px, out), choose (reads out/boxes.json; needs output [w,h], layouts[{name,aspect,sizing}], margin, follow_window_frames, max_zoom, safe_margin_px, out) or gate (reads out/framing.json; needs out)."
+            }
+          },
+          "required": [
+            "request"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "measure prints the shot count and out folder. choose prints the framing: source, output, shots[{id, picked, window, out_of_view_frames, graphic_areas (output-pixel [x,y,w,h] bands above and below the blurred-bars window, inside safe_margin_px; none for full-bleed, follow or stacked), frames, candidates[{layout, fits, out_of_view_frames, window, zoom, extent, undetected_frames}]}], and gate{out_of_view_frames, unpicked_shots, passes}. The same JSON is written to out/framing.json. gate prints {out_of_view_frames, unpicked_shots, passes} and exits 1 when it does not pass."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "python3 -m pip install -U numpy ultralytics",
+            "brew install ffmpeg"
+          ],
+          "run": "taskpolicy -b nice -n 20 python3 tools/frame-the-whole-movement-in-view/do-work/frame_the_movement.py --request {request}",
+          "needs": [
+            "python",
+            "ffmpeg",
+            "ultralytics segmentation model (yolo11n-seg)"
+          ],
+          "say": "This runs on the person's computer from the root of the Workshop checkout. measure is heavy: it refuses while the load is 120 or more, so run one at a time. Tell the person the picked layout per shot, the frames out of view before (the full-bleed candidate) and after (the picked layout), and the evidence. Never choose a layout by eye."
+        },
+        "result_selector": "$",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:frame-the-whole-movement-in-view",
+        "uses_tools": []
+      }
+    }
+  ]
+}

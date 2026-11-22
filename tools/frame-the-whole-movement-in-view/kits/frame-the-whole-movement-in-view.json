@@ -1,0 +1,42 @@
+{
+  "drafted_from": "tools/frame-the-whole-movement-in-view/tool-rows.json, do-work/frame_the_movement.py, test/test_frame_the_movement.py, and the reel recipe's three framing steps (workflow:make-a-trial-reel-and-post-it-on-instagram)",
+  "start_here": "Say to your AI: \"Keep the whole swing in view in my reel of the forehand clip.\" It measures each shot of the clip, picks each shot's layout by the measured fit and gates the result at 0 frames out of view.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it reads the film file and the layout rows the reel recipe passes it, and writes its measurements and the framing evidence as files in the folder the request names.",
+  "workflows": [
+    "workflow:make-a-trial-reel-and-post-it-on-instagram"
+  ],
+  "tools": [
+    "tool:frame-the-whole-movement-in-view"
+  ],
+  "instructions": [
+    "1. On the person's computer, from the root of the Workshop checkout, install the tool's needs: python3 -m pip install -U numpy ultralytics, and brew install ffmpeg.",
+    "2. Write a measure request: video, shots (start, end, optional slow), model (the yolo11n-seg file), subject_class 0, implement_class 38, sample_fps 6, imgsz 960, conf 0.2, near_px 400, command measure, out.",
+    "3. Run measure with taskpolicy, one at a time: taskpolicy -b nice -n 20 python3 tools/frame-the-whole-movement-in-view/do-work/frame_the_movement.py --request measure.json. It refuses while the 1-minute load is 120 or more; wait and run again.",
+    "4. Write a choose request with the same video and out, plus output [1080, 1920], the layouts in the law's order (full-bleed-9x16, wide-with-blurred-bars, follow-and-widen, stacked-synced-comparison), margin 0.08, follow_window_frames 3, max_zoom 1.25, safe_margin_px 60, command choose. Run it.",
+    "5. Run the gate request (command gate, same out). It exits 1 unless every shot is picked with 0 frames out of view; the reel recipe then goes back to the layout choice.",
+    "6. Read framing.json: each shot's picked layout, its window, its out_of_view_frames and its graphic_areas, and the full-bleed candidate's count as the before."
+  ],
+  "worked_examples": [
+    {
+      "title": "A forehand clip keeps the whole swing in view",
+      "ask": "Keep the whole swing in view in my reel of the forehand clip.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:frame-the-whole-movement-in-view",
+            "input": {
+              "request": "/work/framing/choose.json"
+            }
+          }
+        }
+      },
+      "given": "A 10-second side-view forehand clip of one shot (0 to 10 seconds), measured at 6 frames a second, with the four layout rows in the law's order.",
+      "hands_back": "framing.json: gate with out_of_view_frames, unpicked_shots and passes; per shot the picked layout, its window, out_of_view_frames, graphic_areas, and each candidate's count. The counts for this clip are not yet measured; the gate is the answer."
+    }
+  ]
+}
