@@ -23,6 +23,17 @@ function wakesIn(value, found = []) {
   return found;
 }
 
+/** Every object under `value` whose `key` is `expected`. */
+function objectsWith(value, key, expected, found = []) {
+  if (Array.isArray(value)) {
+    for (const item of value) objectsWith(item, key, expected, found);
+  } else if (value !== null && typeof value === 'object') {
+    if (value[key] === expected) found.push(value);
+    for (const child of Object.values(value)) objectsWith(child, key, expected, found);
+  }
+  return found;
+}
+
 const rowsOf = tool => JSON.parse(readFileSync(resolve(toolsDir, tool, 'tool-rows.json'), 'utf8'));
 const keysOf = wakes => new Set(wakes.flatMap(wake => Object.keys(wake)));
 
@@ -46,3 +57,19 @@ test('the keys this tool wake rows use are keys other tools wake rows use too', 
   const invented = [...own].filter(key => !others.has(key));
   assert.deepEqual(invented, []);
 });
+
+test('every fact wake of this tool matches a field the row-changes waiter puts in its fact', () => {
+  // The row-changes waiter (notice-when-something-shows-up, its keep-noticing-row-changes wake's input) names the fields of each
+  // fact it tells: where, place, change, at, key, before, after, by. A wake's match names one of those; another name is never equal.
+  const noticer = JSON.parse(readFileSync(resolve(toolsDir, 'notice-when-something-shows-up/tool-rows.json'), 'utf8'));
+  const rowChanges = objectsWith(noticer, 'mechanism_leaf', 'row-changes.mjs');
+  assert.equal(rowChanges.length, 1);
+  const told = new Set([...rowChanges[0].emitted_record.payload_fields, 'kind']);
+  for (const wake of wakesIn(rowsOf('keep-journey-steps-from-kept-rows'))) {
+    // Only the row-change wakes: a due-time wake matches its schedule, from the schedule's own fact.
+    if (wake.on?.fact?.kind !== 'something-changed') continue;
+    const named = Object.keys(wake.on.fact.match ?? {});
+    assert.deepEqual(named.filter(field => !told.has(field)), [], `${wake.id} matches a field the waiter does not tell`);
+  }
+});
+

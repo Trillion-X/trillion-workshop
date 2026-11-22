@@ -412,7 +412,7 @@
                 ],
                 "kind": "something-changed",
                 "match": {
-                  "table_name": "statements"
+                  "place": "statements"
                 }
               }
             },
@@ -433,7 +433,7 @@
                 ],
                 "kind": "something-changed",
                 "match": {
-                  "table_name": "payment_events"
+                  "place": "payment_events"
                 }
               }
             },
