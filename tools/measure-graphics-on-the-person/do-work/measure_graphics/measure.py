@@ -9,11 +9,8 @@ each platform's safe rectangle. Each law reads its own bar from its row; nothing
   everything-inside-platform-safe-zones: every layer's pixels inside every requested platform's safe rectangle. The row
     gives no number (zones_from only), so the bar is none outside: outside_px_max 0. The verdict records that rule.
 """
-import numpy as np
+from . import layers, people
 
-from . import layers, people, free
-
-LAYERS = ('graphics', 'captions', 'pose')
 LAW_CHECKS = {
     'graphics-never-cover-the-person': 'workflow:check-graphics-never-cover-the-person',
     'everything-inside-platform-safe-zones': 'workflow:check-inside-platform-safe-zones',
