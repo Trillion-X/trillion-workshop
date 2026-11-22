@@ -22,7 +22,7 @@ const FIXTURES = {
   '/sends-to-sign-in': pageOf('<h1>Loading</h1>', `setTimeout(() => location.replace('/sign-in'), 300);`),
   '/sign-in': pageOf('<h1>Sign in or create an account</h1>', ''),
   '/asks-a-limited-call': pageOf('<h1>Board</h1>', `fetch('/limited').catch(() => {});`),
-  '/labelled': pageOf('<h1>Labels</h1><button id="show">Show</button>', ''),
+  '/empty-pane': pageOf('<h1>Board</h1><section id="pane" data-ready style="height:200px"></section>', `setTimeout(() => { document.getElementById('pane').textContent = 'Drawn'; }, 1500);`),
   '/late': pageOf('<h1 id="late" hidden>Late</h1>', `setTimeout(() => { document.getElementById('late').hidden = false; }, 1200);`),
 };
 
@@ -66,10 +66,6 @@ test('a page list is checked before any browser opens: a missing url, a bad addr
   assert.throws(() => planOf({ pages: [{ id: 'a' }] }), /needs url/);
   assert.throws(() => planOf({ pages: [{ id: 'a', url: 'file:///etc/passwd' }] }), /full address \(http or https\)/);
   assert.throws(() => planOf({ pages: [{ id: 'a', url: origin }], views: ['watch'] }), /views is a list of/);
-  assert.throws(() => planOf({ pages: [{ id: 'a', url: origin, finds: [{ name: 'x' }] }] }), /names text or appears/);
-  assert.throws(() => planOf({ pages: [{ id: 'a', url: origin, finds: [{ name: 'x', text: 'a', appears: 'b' }] }] }), /names text or appears/);
-  assert.throws(() => planOf({ pages: [{ id: 'a', url: origin, finds: [{ text: 'a' }] }] }), /needs a name/);
-  assert.deepEqual(planOf({ pages: [{ id: 'a', url: origin, finds: [{ name: 'label', text: 'Show' }] }] }).pages[0].finds, [{ name: 'label', text: 'Show' }]);
   assert.throws(() => planOf({ pages: [{ id: 'a', url: origin, taps: [{ name: 'x', selector: 'button', expect: { shown: true } }] }] }), /expect names/);
   assert.throws(() => planOf({ pages: [{ id: 'a', url: origin, sign_in: { cookies: [{ name: 'session', value: 'v' }] } }] }), /held-session/);
   assert.throws(() => planOf({ pages: [{ id: 'a', url: origin }, { id: 'A', url: origin }] }), /another page has the name/);
@@ -272,10 +268,8 @@ test('a refused request that says when to ask again is listed with its Retry-Aft
   assert.ok(answer.pages[0].views[0].new.failed_requests.some(text => text.endsWith('/limited 429 retry-after 12')), JSON.stringify(answer.pages[0].views[0].new.failed_requests));
 });
 
-test('finds read a label and a selector on the page without a tap, and say what they show', async () => {
-  const kept = recorder();
-  const answer = await checkLiveScreens({ pages: [{ id: 'labelled', url: `${origin}/labelled`, finds: [{ name: 'button', text: 'Show' }, { name: 'control', appears: '#show' }, { name: 'missing', text: 'Not on the page' }] }], views: ['desktop'] }, undefined, { keep: kept.keep });
-  const finds = answer.pages[0].views[0].new.finds;
-  assert.deepEqual(finds.map(find => [find.name, find.found]), [['button', true], ['control', true], ['missing', false]]);
-  assert.equal(finds[1].rendered, 'Show');
+test('a ready element that is visible but draws nothing is not usable until something is drawn in it', async () => {
+  const answer = await checkLiveScreens({ pages: [{ id: 'empty-pane', url: `${origin}/empty-pane`, ready: '#pane[data-ready]' }], views: ['desktop'] }, undefined, { keep: recorder().keep });
+  const side = answer.pages[0].views[0].new;
+  assert.ok(side.usable_ms >= 1500, `usable at ${side.usable_ms} ms, before the pane drew anything`);
 });
