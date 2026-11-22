@@ -13,15 +13,5 @@ baselines and port contracts; they do not restore the retired Worker's billing i
 
 ## The buy address (`/buy/<offer id>`)
 
-`src/buy-route.mjs` answers a Buy: it reads the offer's charged price from the offer rows it is given, creates one Stripe
-Checkout session for it (a subscription when the price repeats, with its free days first, else a payment), and redirects
-to that session. Checkout returns to the settings' `success_path` (`/welcome`). `?jv=` becomes the session's
-`client_reference_id`; `utm_*` and `ref` become metadata on the session (and on the subscription). An id with no row, or
-with no charged price, gets the plain 404 page and no session is made.
-
-`on-a-computer/serve-buy.mjs` is the program a computer's unit runs (`on-a-computer/serve-buy.service`, its settings in
-`BUY_SETTINGS`, the Stripe secret key from the unit's sealed credential as `STRIPE_SECRET_KEY`). The front door sends
-`/buy/*` to its `buy` pool through `on-a-computer/caddy-route-buy.caddy`. The Stripe key is never read from a request,
-logged or put in a URL.
-
-Checks: `node --test tools/price-and-sell-by-contract/test/buy-route.test.mjs`.
+A purchase of a plan on the person's own account is the sign-in tool's (`tools/better-auth-official/sell.mjs`, Better Auth's
+Stripe plugin), because the account is there: this tool keeps no buy address.

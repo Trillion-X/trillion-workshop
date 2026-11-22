@@ -9,11 +9,13 @@
     "@better-auth/kysely-adapter": "1.7.25",
     "@better-auth/mcp": "1.7.25",
     "@better-auth/passkey": "1.7.25",
+    "@better-auth/stripe": "1.7.25",
     "better-auth": "1.7.25",
     "kysely": "0.29.9",
     "pg": "8.23.1",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "stripe": "23.2.0"
   },
   "devDependencies": {
     "auth": "1.7.25",

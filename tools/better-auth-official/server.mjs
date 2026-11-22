@@ -1,9 +1,10 @@
 // The Better Auth node server, mounted as its Node integration docs show (toNodeHandler from better-auth/node). Requests under
 // the base path, and the OAuth and protected-resource discovery documents under /.well-known/, go to Better Auth. The
-// sign-in pages are this tool's own files (pages/), answered by address as pages/routes.json says (pages.mjs).
+// sign-in pages are this tool's own files (pages/), answered by address as pages/routes.json says (pages.mjs). While
+// settings.sell is on, a GET under its buy path is a purchase of the offer it names (sell.mjs).
 
 import { createServer } from 'node:http';
-import { toNodeHandler } from 'better-auth/node';
+import { fromNodeHeaders, toNodeHandler } from 'better-auth/node';
 import { auth, pool, settings } from './auth.mjs';
 import { closeStore, migrateStore } from './store.mjs';
 import { pageAnswer } from './pages.mjs';
@@ -12,6 +13,7 @@ import { appleAppSiteAssociation } from './apple-app-site-association.mjs';
 import { serveInternal } from './internal-verify.mjs';
 import { loopbackCorsHeaders } from './loopback-cors.mjs';
 import { readiness, stopWithoutDropping } from './stop-without-dropping.mjs';
+import { BUY_PATH, buyAnswer } from './sell.mjs';
 
 // Every start makes or updates the tables for the options it runs, one process at a time (store.mjs), before it answers anything.
 await migrateStore(auth, settings);
@@ -36,6 +38,10 @@ const server = createServer(async (request, response) => {
   if (cors && request.method === 'OPTIONS') return response.writeHead(204, cors).end();
   if (cors) for (const [name, value] of Object.entries(cors)) response.setHeader(name, value);
   if (ours(url)) return handler(request, response);
+  if (settings.sell?.enabled && request.method === 'GET' && url.startsWith(BUY_PATH)) {
+    const answer = await buyAnswer(auth, settings.sell, new URL(url, settings.base_url), fromNodeHeaders(request.headers));
+    return response.writeHead(answer.status, answer.headers).end(answer.body ?? undefined);
+  }
   const answer = request.method === 'GET' || request.method === 'HEAD' ? pageAnswer(url) : null;
   if (answer) return response.writeHead(answer.status, answer.headers).end(request.method === 'HEAD' ? undefined : answer.body);
   response.writeHead(404, { 'content-type': 'application/json' }).end('{"error":"not_found"}');

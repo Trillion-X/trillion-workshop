@@ -1,3 +1,3 @@
 	handle /buy/* {
-		{buy_proxy}
+		{auth_proxy}
 	}

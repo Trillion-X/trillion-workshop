@@ -1,6 +1,6 @@
 // Better Auth, set up as its docs show (https://www.better-auth.com/docs): the shared Postgres store (store.mjs), email and password,
 // passkey, two factor, email OTP, magic link, multi session, API keys, JWT (EdDSA), MCP (the OAuth 2.1 provider for MCP clients,
-// with Client ID Metadata Documents), device authorization, bearer (which the device docs require to use its session token) and admin (removeUser and the rest, for the users settings.json names as admins). Everything that differs per place is DATA in settings.json,
+// with Client ID Metadata Documents), device authorization, bearer (which the device docs require to use its session token), admin (removeUser and the rest, for the users settings.json names as admins) and, while settings.sell is on, Stripe (a plan on the account, sell.mjs). Everything that differs per place is DATA in settings.json,
 // read from BETTER_AUTH_SETTINGS (default ./settings.json); the secret comes from BETTER_AUTH_SECRET.
 
 import { betterAuth } from 'better-auth';
@@ -23,6 +23,7 @@ import { storeDriver } from './store.mjs';
 import { teamIdsOf, teamClaim } from './teams-claim.mjs';
 import { callBeforeDelete } from './before-delete-url.mjs';
 import { safeNext } from './pages/safe-next.mjs';
+import { sellPlugins } from './sell.mjs';
 import { randomBytes } from 'node:crypto';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
@@ -406,5 +407,7 @@ export const auth = betterAuth({
     // After the provider: its limit column joins the provider's consent table, which must exist first.
     connected(),
     webLink(),
+    // A plan on the account, sold through Stripe, while settings.sell is on (sell.mjs).
+    ...sellPlugins(settings.sell),
   ],
 });
