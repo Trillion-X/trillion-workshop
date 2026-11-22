@@ -1,0 +1,96 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-codex-usage",
+        "status": "active",
+        "label": "Read the Codex accounts' weekly usage from codex-lb",
+        "job": "Read how much of each Codex account's weekly window is used, and when it resets, from this computer's codex-lb door, as rows the answerer chooser reads",
+        "description": "Reads GET /api/accounts on the codex-lb door this computer reports (local_ports codex-lb), with no key. Returns rows: { rows: [{ provider, account, window_name, used_percent, resets_at, read_at, source, state }] } for provider_limits, or { error } in words when no door is reported or codex-lb does not answer. Account labels are codex-lb account N by account order; no email, id or key is returned.",
+        "input_schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "rows": {
+              "type": "array"
+            },
+            "error": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "local_doors": [
+            {
+              "name": "codex-lb",
+              "required": true
+            }
+          ],
+          "workdir": "/opt/codex-usage-read",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/codex-usage-read/read-data/read-codex-usage.mjs",
+            "readCodexUsage"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "local_ports": {
+              "fill": {
+                "from": "computer",
+                "field": "local_ports"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "codex-usage-read",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/codex-usage-read"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          },
+          "max_run_ms": 60000
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {}
+          }
+        ],
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:codex-usage-read"
+      }
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "drafted_from": "tool:read-codex-usage's own row (its words, input schema and invoke block) and read-data/read-codex-usage.mjs",
+  "start_here": "Say to your AI: \"Read how much of each Codex account's weekly window is used and when it resets\", with {}. It runs tool:read-codex-usage on this computer and tells you each account by its label, with the percent used and the reset time.",
+  "lists": [],
+  "no_lists_because": "It takes no input and answers from codex-lb on this computer, and keeps no row; the hourly recipe keeps the rows in provider_limits.",
+  "workflows": [
+    "workflow:keep-codex-usage-in-provider-limits"
+  ],
+  "tools": [
+    "tool:read-codex-usage"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Read how much of each Codex account's weekly window is used and when it resets\", and give it nothing more: the input is {}.",
+    "2. The AI calls tool:read-codex-usage with {}. This computer must report the codex-lb door; if it does not, the answer says so in words and nothing is read.",
+    "3. Read the answer: each row names an account as codex-lb account N, its used percent, its reset time and when it was read. No key, id or email is returned.",
+    "4. To keep these readings for the chooser, the hourly recipe workflow:keep-codex-usage-in-provider-limits calls the same tool and writes the rows into provider_limits."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the Codex weekly window now",
+      "ask": "Read how much of each Codex account's weekly window is used and when it resets",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-codex-usage",
+            "input": {}
+          }
+        }
+      },
+      "given": "The input {}.",
+      "hands_back": "{\"rows\":[{\"provider\":\"codex\",\"account\":\"codex-lb account 1\",\"window_name\":\"weekly\",\"used_percent\":1,\"resets_at\":\"2026-11-24T16:09:58Z\",\"source\":\"codex-lb /api/accounts\",\"state\":\"ok\"}]}"
+    }
+  ]
+}

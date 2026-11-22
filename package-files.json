@@ -1,4 +1,5 @@
 {
+ "tool:read-codex-usage": [{"package": "codex-usage-read", "paths": ["read-data"], "at": "/opt/codex-usage-read"}, {"package": "workflows", "paths": ["do-work/run-a-function.mjs"], "at": "/opt/workflows"}, {"package": "browse-and-upload-my-files", "paths": ["do-work/send-a-file-to-a-namespace.mjs", "do-work/send-retry.mjs", "do-work/send-window.mjs", "send-settings.json"], "at": "/opt/browse-and-upload-my-files"}, {"package": "content-identity", "paths": ["read-data/blake3.mjs", "read-data/identity.mjs"], "at": "/opt/content-identity"}, {"package": "records-door", "paths": ["read-data/large-file.json", "read-data/raw-pieces.mjs"], "at": "/opt/records-door"}, {"package": "workflows", "paths": ["read-data/host-actions.mjs", "read-data/large-file.json", "read-data/whole-file.mjs"], "at": "/opt/workflows"}, {"packages": ["node_modules/@noble/hashes"], "at": "/opt/node_modules/@noble/hashes"}],
  "tool:accept-or-pass-on-a-ranked-record": [
   {
    "package": "rank-records-for-review",
