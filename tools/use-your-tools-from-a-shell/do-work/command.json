@@ -373,7 +373,7 @@
       "ai",
       "person"
     ],
-    "store": {"flag": "store", "file": "tasks-store.json", "who_types": [{"type": "user", "present": ["can"]}], "newest": {"field": "sent_at", "direction": "desc"}, "busy_fields": ["status", "taken_by"]},
+    "store": {"flag": "store", "file": "tasks-store.json", "ai_type": "user", "records": "@own-records", "who_types": [{"type": "user", "present": ["can"]}], "newest": {"field": "sent_at", "direction": "desc"}, "busy_fields": ["status", "taken_by"]},
     "list_limit": 20
   },
   "bearers": {

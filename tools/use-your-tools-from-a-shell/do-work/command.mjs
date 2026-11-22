@@ -1722,6 +1722,17 @@ export async function publishRecord(client, context, { held = null, rules = sett
   return { keep: [{ id: context.me.ai_id, type: engine.ai_type, value, expected: held === null ? null : { type: engine.ai_type, value: held } }] };
 }
 
+/** This AI's record kept in the person's tasks store: the store's value read, publishRecord over it, and that one row
+ *  written under the store's type for AIs (tasks.store.ai_type), conditioned on what was read. → { kept: id, live }. */
+export async function keepPublished(resource, client, context, { rules = settings } = {}) {
+  const id = context.me.ai_id;
+  const held = await resource(rules.tasks.store.records, 'records:read', { id });
+  const [row] = (await publishRecord(client, context, { held: held ?? null, rules })).keep;
+  const type = rules.tasks.store.ai_type;
+  await resource(rules.tasks.store.records, 'records:write', { records: [{ id, type, value: row.value, expected: held ? { type, value: held } : null }] });
+  return { kept: id, live: row.value.live };
+}
+
 /** What `give` says about when the receiver sees the task: each assignee reads it when it next reads its tasks; anyone's
  *  when someone next takes it. */
 export function giveNote(task, rules = settings) {
@@ -2097,6 +2108,10 @@ export async function main(argv, seams = {}) {
   if (call) return taskCommand(client, context, { command, call, flags, requestKey, stdinBytes, stdout: seams.stdout ?? process.stdout, print })
     .catch(error => { throw error?.code === 'tool_refused' ? new CommandError(error.message, { status: 1 }) : error; });
   if (command === 'publish') {
+    // With a tasks store, this AI's record is kept there, where give and who read it (users rows, tasks.store.ai_type);
+    // a printed keep row nobody applied left every chat unready and refused as an assignee (Nov 21 2026).
+    const store = tasksStoreOf(context);
+    if (store && words[0] === undefined) return JSON.stringify(await keepPublished(resourceOf(client, { store }), client, context), null, 2);
     const held = words[0] === undefined ? null : await readJson(words[0], '{"kind": "cli"}');
     return JSON.stringify(await publishRecord(client, context, { held }), null, 2);
   }

@@ -77,3 +77,33 @@ test('--store names the database once; give, take, hand-on, the person\'s take a
     assert.ok(!door.calls.some(call => call.address === '@own-records'), 'nothing went to a records door');
   } finally { await door.close(); }
 });
+
+test('publish keeps this AI\'s record in the store\'s users table, so a chat that published is ready and can be given work', async () => {
+  const db = new PGlite();
+  await db.exec(`create table calendar_tasks (id text primary key, title text, description text, status text, priority text, assignees jsonb,
+    sent_by text, sent_at text, taken_by text, taken_at text, finished_by text, finished_at text, outcome text, result text, summary text,
+    details jsonb, made_at timestamptz, changed_at timestamptz);
+    create table users (id text primary key, name text, kind text, can jsonb, live jsonb, details jsonb);`);
+  const door = await tableDoor(db);
+  try {
+    const folder = tempFolder(join(tmpdir(), 'example-cli-publish-'));
+    const seams = () => ({ store: { read: () => KEY, where: 'test key' }, grants: { where: 'none', read: () => null, write: () => {}, forget: () => {} }, state: stateOf({ home: folder }),
+      env: { CLAUDECODE: '1' }, place: () => ({ repository: 'example', branch: 'main' }), localDoor: () => door.mcp, agentSocket: () => null, computerName: 'Mac', model: null, wait: async () => {} });
+    await main(['tasks', '--store', 'tasks-db-connection'], seams());
+    const first = JSON.parse(await main(['publish'], seams()));
+    let [row] = (await db.query(`select id, kind, can, live, details from users`)).rows;
+    assert.equal(row.id, first.kept);
+    assert.deepEqual([row.kind, row.can], ['cli', ['any']], 'a new record starts from ai_record.new');
+    assert.ok(Date.now() - Date.parse(row.live.seen_at) < 60_000, 'it is seen now');
+    assert.equal(row.details.app, 'Claude Code');
+    await db.query(`update users set name = 'Builder' where id = $1`, [row.id]);
+    await main(['publish'], seams());
+    [row] = (await db.query(`select name, live from users`)).rows;
+    assert.equal(row.name, 'Builder', 'publishing again keeps the person\'s own cells');
+    assert.equal((await db.query('select count(*)::int as n from users')).rows[0].n, 1, 'one record, written again');
+    assert.match(await main(['give', 'Fix', 'the', 'build', '--to', first.kept, '--key', 'p1'], seams()), /^Gave record:calendar-task:p1\./, 'the chat that published can be handed work');
+    const who = JSON.parse(await main(['who', '--all', '--json'], seams()));
+    const chats = who.groups.flatMap(owner => owner.ais ?? []).flatMap(ai => ai.chats);
+    assert.equal(chats.find(chat => chat.id === first.kept)?.ready, true, 'and who says it is ready');
+  } finally { await door.close(); }
+});
