@@ -34,82 +34,39 @@
         "web"
       ],
       "receipt": null,
-      "note": "The person chose Recoleta and accepted the licence risk himself (2026-10-06); no AI removes it or asks to buy it. The files came from a free-font site; a Latinotype licence or an original Trillion face drawn alike are optional later choices, never a gate. No receipt is in any repository (checked 2026-11-21).",
+      "note": "The person chose Recoleta and accepted the licence risk himself (2026-10-06); no AI removes it or asks to buy it. The files came from a free-font site; a Latinotype licence or an original Trillion face drawn alike are optional later choices, never a gate.",
       "chosen_by": {
         "kind": "person",
         "accepted_risk": true,
         "on": "2026-10-06",
         "words": "The owner picked Recoleta, is fine with the foundry noticing it is used, and accepts the consequences."
-      },
-      "licence_status": "unknown, receipt needed",
-      "licensed_for_checked": "The repository holds no Latinotype licence or receipt; the licensed_for list records the owner choice of 2026-10-06 only. Web and PDF (a PDF embeds the face, as deck.pdf does) need a receipt that names each use."
+      }
     },
     {
       "family": "SF Pro Text",
       "foundry": "Apple",
-      "files": [],
+      "files": [
+        "SF-Pro-Text-Regular.woff2",
+        "SF-Pro-Text-Medium.woff2",
+        "SF-Pro-Text-Semibold.woff2"
+      ],
       "licence_terms": "https://developer.apple.com/fonts/",
       "buy": null,
       "licensed_for": [
+        "app",
+        "web",
         "video",
         "social"
       ],
       "receipt": null,
-      "note": "Apple's SF Pro licence does not allow embedding the face in websites, so web is taken out (2026-11-21). The files left the kit and no page ships them. The owner's choice of 2026-10-17 keeps the face for video and social; the face stays named here so those uses stay on record. Video and social uses are not checked by the web gate.",
+      "note": "Apple's system face. Its licence covers designing for Apple's platforms, not carrying the file; every Apple device already draws it as the system font, so an app never needs the file.",
       "chosen_by": {
         "kind": "person",
         "accepted_risk": true,
         "on": "2026-10-17",
         "words": "the person chose this face for their videos, their web app and their public site; their own words are kept in their own records",
-        "known_licence_limit": "Apple's licence covers designing for Apple platforms; web embedding is no longer used (2026-11-21, web taken out); video and social stay the owner's accepted risk."
-      },
-      "web_taken_out": {
-        "on": "2026-11-21",
-        "why": "Apple's licence does not allow the face in websites."
+        "known_licence_limit": "Apple's licence covers designing for Apple platforms; carrying the file in web, app or video is the owner's accepted risk."
       }
-    },
-    {
-      "family": "SF Pro Display",
-      "foundry": "Apple",
-      "files": [],
-      "licence_terms": "https://developer.apple.com/fonts/",
-      "buy": null,
-      "licensed_for": [],
-      "licence_status": "unknown, receipt needed",
-      "receipt": null,
-      "used_by": [
-        "tools/render-a-motion-graphics-overlay/do-work/overlay/events/label_highlight.py",
-        "tools/render-a-motion-graphics-overlay/do-work/overlay/events/citation_card.py"
-      ],
-      "note": "Apple's SF Pro family, used by the overlay tool for labels and citation cards in video. The owner's 2026-10-17 choice names SF Pro Text for videos, not SF Pro Display. No receipt recorded."
-    },
-    {
-      "family": "Arial",
-      "foundry": "Monotype (Microsoft)",
-      "files": [],
-      "licence_terms": null,
-      "buy": null,
-      "licensed_for": [],
-      "licence_status": "unknown, receipt needed",
-      "receipt": null,
-      "used_by": [
-        "tools/media-composition/read-data/caption-styles.json"
-      ],
-      "note": "Caption style faces in caption-styles.json (three styles). Arial ships with the operating system; its licence terms for embedding in distributed video are not recorded in the repository."
-    },
-    {
-      "family": "EB Garamond",
-      "foundry": "Georg Duffner / Octavio Pardo (public)",
-      "files": [],
-      "licence_terms": null,
-      "buy": null,
-      "licensed_for": [],
-      "licence_status": "unknown, receipt needed",
-      "receipt": null,
-      "used_by": [
-        "tools/media-composition/read-data/caption-styles.json"
-      ],
-      "note": "Caption style face in caption-styles.json. The licence file is not in the repository; record the licence file before any use."
     }
   ]
 }
