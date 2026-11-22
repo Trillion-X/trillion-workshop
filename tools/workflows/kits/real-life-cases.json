@@ -1,27 +1,25 @@
 {
-  "drafted_from": "workflow row in tools/workflows/recipes/workflows.json (input_schema and the case, evidence, opportunity steps with their submit shapes); read from the row's words, no test runs it",
-  "start_here": "Say to your AI: \"Run workflow:real-life-cases to find real situations where small bakery owners struggle to train new staff, from forums and video comments, with no private data and sources kept.\"",
+  "start_here": "Say to your AI: \"Run workflow:real-life-cases.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:real-life-cases",
     "workflow:answer-commenters-with-videos",
-    "workflow:x-mode",
-    "workflow:turn-something-shared-into-what-you-can-use"
+    "workflow:turn-something-shared-into-what-you-can-use",
+    "workflow:x-mode"
   ],
   "tools": [
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Write the request, its scope, the constraints (source terms, privacy) and the actions you authorize; add source_id when it came from a shared source.",
-    "2. Say \"Run workflow:real-life-cases\". The AI starts it with tool:run-workflow-definition and works the steps case, evidence, opportunity.",
-    "3. At case, real situations are found from current authorized sources; when they are comments under other people's posts, the AI runs workflow:answer-commenters-with-videos for its watch, keep and pick steps.",
-    "4. At evidence, each case keeps its author, link, date and excerpt, with supporting and contradicting evidence; at opportunity, read which cases are worth acting on and why."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:real-life-cases\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Finding the cases",
-      "ask": "Find real cases of bakery owners struggling to train staff.",
+      "title": "Real Life Cases Mode",
+      "ask": "Run workflow:real-life-cases.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -30,25 +28,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:real-life-cases",
-              "request": "Find real situations where small bakery owners struggle to train new staff.",
-              "scope": "Public forums and video comments only",
-              "constraints": [
-                "Respect source terms",
-                "No private data"
-              ],
-              "authorized_actions": [
-                "Read public pages",
-                "Write case rows to my account"
-              ]
+              "row": "workflow:real-life-cases"
             }
           }
         }
       },
       "workflow": "workflow:real-life-cases",
       "step": "case",
-      "given": "Read from tools/workflows/recipes/workflows.json (step case): the answer holds a summary, evidence (id, source, observed) and requirements find-cases and capability-review-case, each completed with what happened and evidence_refs.",
-      "hands_back": "{\"summary\":\"Found 3 recurring cases of new bakers taking weeks to learn the morning bake.\",\"evidence\":[{\"id\":\"c1\",\"source\":\"https://example.com/forum/new-baker-training\",\"observed\":\"An owner writes that each new hire needs two weeks of shadowing\"},{\"id\":\"c2\",\"source\":\"https://www.youtube.com/watch?v=EXAMPLE123\",\"observed\":\"A commenter asks how to train a new baker in one morning\"}],\"requirements\":{\"find-cases\":{\"state\":\"completed\",\"what_happened\":\"Searched public forums and video comments; kept 3 cases with their links.\",\"evidence_refs\":[\"c1\",\"c2\"]},\"capability-review-case\":{\"state\":\"completed\",\"what_happened\":\"Reviewed REA, 21st.dev and Mobbin; none applied to reading public comments, so the comment workflow was used.\",\"evidence_refs\":[\"c2\"]}}}"
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:real-life-cases rendered from its row"
 }

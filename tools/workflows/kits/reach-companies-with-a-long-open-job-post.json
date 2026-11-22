@@ -1,8 +1,7 @@
 {
-  "drafted_from": "workflow row in tools/workflows/recipes/workflows.json, the shipped rule row open-job-posts in tools/workflows/read-data/candidate-rules.json and tools/workflows/test/outreach-recipes.test.mjs",
-  "start_here": "Say to your AI: \"Run workflow:reach-companies-with-a-long-open-job-post: I help small companies hire operations managers faster, send from hello@example.com in America/Chicago, record it under product-hiring-help, and start with the job posts my job board connection gives.\"",
+  "start_here": "Say to your AI: \"Run workflow:reach-companies-with-a-long-open-job-post.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:reach-companies-with-a-long-open-job-post",
     "workflow:keep-how-someone-does-their-thing"
@@ -22,16 +21,14 @@
     "tool:write-a-message-body-from-a-document"
   ],
   "instructions": [
-    "1. Set up a separate sending address on a domain that is not your main one (like hello@example.com) and note its time zone; take the job posts from your job board connection as items (each post with its company, role, address, posted_at and employees).",
-    "2. Say \"Run workflow:reach-companies-with-a-long-open-job-post\" with offer, from, time_zone, product_id and the items. The AI starts it with tool:run-workflow-definition and works the steps find, read-post, problems, keep, style, write, judge, pace, send, record, outcomes, measure.",
-    "3. At find, only posts open 21 days or more at companies of 10 to 200 people are kept (the shipped rule row; your own source_row replaces it, the rules are never loosened to get more), each scored by the signals it matches.",
-    "4. Read the four-sentence messages it wrote (role and days open, biggest problem in the post's own words, what that costs, one low-effort question) and approve the addresses; only approved messages go out, from the separate address, at the pace of the inbox.",
-    "5. Replies come to you to answer; bounced addresses are suppressed; the measure step counts found, sent, replied, call booked and customer by signal so the next run knows which signal pays."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:reach-companies-with-a-long-open-job-post\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "A post open 43 days at a company of 40 people is kept with both signals",
-      "ask": "Find companies whose job post has been open three weeks or more and who might need my help.",
+      "title": "Reach companies whose job post has stayed open",
+      "ask": "Run workflow:reach-companies-with-a-long-open-job-post.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -40,29 +37,19 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:reach-companies-with-a-long-open-job-post",
-              "offer": "I help small companies hire operations managers faster.",
-              "from": "hello@example.com",
-              "time_zone": "America/Chicago",
-              "product_id": "product-hiring-help",
-              "items": [
-                {
-                  "company": "Example Foods",
-                  "role": "Operations Manager",
-                  "url": "https://example.com/jobs/ops-manager",
-                  "employees": 40,
-                  "posted_at": "2026-09-20T00:00:00Z"
-                }
-              ],
-              "limit": 20
+              "row": "workflow:reach-companies-with-a-long-open-job-post"
             }
           }
         }
       },
       "workflow": "workflow:reach-companies-with-a-long-open-job-post",
       "step": "find",
-      "given": "From tools/workflows/test/outreach-recipes.test.mjs: a post at a company of 40 people posted 2026-09-20, judged on 2026-11-02 (43 days later) against the shipped row open-job-posts passes its keep rule (10 to 200 people, open 21 days or more) and matches the signals open-a-month (weight 2) and open-three-weeks (weight 1), so its score is 3.",
-      "hands_back": "{\"tool\":\"tool:classify-a-record\",\"source\":\"open-job-posts\",\"prospects\":[{\"key\":\"example-foods-ops-manager\",\"company\":\"Example Foods\",\"role\":\"Operations Manager\",\"url\":\"https://example.com/jobs/ops-manager\",\"days_open\":43,\"employees\":40,\"signals\":[\"open-a-month\",\"open-three-weeks\"]}]}"
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
+  ],
+  "drafted_from": "workflow:reach-companies-with-a-long-open-job-post rendered from its row",
+  "see_also": [
+    "check-read:16ac3239a1754376dac19e4f9880f1c8"
   ]
 }

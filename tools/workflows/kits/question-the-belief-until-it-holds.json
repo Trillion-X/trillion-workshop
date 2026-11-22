@@ -1,24 +1,23 @@
 {
-  "drafted_from": "workflow row in tools/workflows/recipes/workflows.json (input_schema and the six steps with their submit shapes); read from the row's words, no test runs it",
-  "start_here": "Say to your AI: \"Run workflow:question-the-belief-until-it-holds on the belief: small bakeries cannot win customers from the big chain without discounts, for my pursuit Sunrise Bakery.\"",
+  "start_here": "Say to your AI: \"Run workflow:question-the-belief-until-it-holds.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:question-the-belief-until-it-holds",
     "workflow:possibility-to-proof"
   ],
-  "tools": [],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
   "instructions": [
-    "1. Write the belief in your own words (at least 3 characters); add the pursuit it serves and any context you have.",
-    "2. Say \"Run workflow:question-the-belief-until-it-holds\". The AI starts it with tool:run-workflow-definition and works the steps state, limits, evidence, revise, test, recurse.",
-    "3. At limits, read each assumed limit marked observed, inferred, inherited or imagined, with what would show it wrong; at evidence, read each source and what it does not establish.",
-    "4. At test, read the smallest real test, what is counted and the threshold; run it with workflow:possibility-to-proof when it should be run.",
-    "5. At recurse, read what changed in the method itself and which level to question next, then run the workflow again on that level."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:question-the-belief-until-it-holds\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "A belief about discounts turns into a checked limit list",
-      "ask": "Question my belief that a small bakery cannot win customers without discounts.",
+      "title": "Question the belief until it holds",
+      "ask": "Run workflow:question-the-belief-until-it-holds.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -27,17 +26,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:question-the-belief-until-it-holds",
-              "belief": "Small bakeries cannot win customers from the big chain without discounts.",
-              "pursuit": "Sunrise Bakery"
+              "row": "workflow:question-the-belief-until-it-holds"
             }
           }
         }
       },
       "workflow": "workflow:question-the-belief-until-it-holds",
-      "step": "limits",
-      "given": "Read from tools/workflows/recipes/workflows.json (step limits): the step lists every limit the belief takes for granted, marks each observed, inferred, inherited or imagined, and names what would show it does not hold.",
-      "hands_back": "{\"limits\":[{\"limit\":\"Customers choose the cheapest loaf\",\"basis\":\"imagined\",\"would_be_wrong_if\":\"Regulars pay more for a loaf baked that morning in a sold-out count of a week\"},{\"limit\":\"A small shop cannot afford ads\",\"basis\":\"inherited\",\"would_be_wrong_if\":\"A 20 dollar local post brings 10 new customers in a week\"},{\"limit\":\"The big chain sells at a lower price per loaf\",\"basis\":\"observed\",\"would_be_wrong_if\":\"Shelf prices at both shops are written down side by side and match\"}]}"
+      "step": "state",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:question-the-belief-until-it-holds rendered from its row"
 }

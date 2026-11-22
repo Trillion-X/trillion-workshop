@@ -1,7 +1,7 @@
 {
-  "start_here": "Say to your AI: \"Run workflow:read-the-surroundings-around-a-person for me, while I decide whether to start a coaching business.\" It goes step by step, handing back what it found with where each thing came from, and what is still open.",
+  "start_here": "Say to your AI: \"Run workflow:read-the-surroundings-around-a-person.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the last step keeps them wherever the person keeps the pursuit's rows, in that store's own way.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:read-the-surroundings-around-a-person"
   ],
@@ -9,34 +9,32 @@
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Say what the run is for in plain words, and what is already known, as the input: {\"about\": \"me, while I decide whether to start a coaching business\", \"known\": \"what you already know or decided\"}.",
-    "2. Run workflow:read-the-surroundings-around-a-person with tools:run, tool tool:run-workflow-definition, input {row: \"workflow:read-the-surroundings-around-a-person\", about, known}. Each step waits for its answer: what was found, each with where it came from, in found, and what is not settled yet in open with what would settle it.",
-    "3. Answer a step by giving its answer under answers by its step id and running again.",
-    "4. Read what the run kept and what is open; the last step says what matters most next, and choosing what runs next is up to you or your AI."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:read-the-surroundings-around-a-person\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Start to read the surroundings around a person for me, while I decide whether to start a coaching business",
-      "ask": "Run read the surroundings around a person for me, while I decide whether to start a coaching business.",
+      "title": "Read the surroundings around a person",
+      "ask": "Run workflow:read-the-surroundings-around-a-person.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:read-the-surroundings-around-a-person",
-              "about": "me, while I decide whether to start a coaching business"
+              "row": "workflow:read-the-surroundings-around-a-person"
             }
           }
         }
       },
       "workflow": "workflow:read-the-surroundings-around-a-person",
       "step": "map-the-people-around-them",
-      "given": "No answers yet; run on the workflow engine on 2026-11-18 with this input.",
-      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"map-the-people-around-them\",\"asks\":\"ai\"}]}: the run waits at 'Map the people around them' for what was found (found) and what is still open (open)."
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
   ],
-  "drafted_from": "workflow:read-the-surroundings-around-a-person's own rows in published/workflows.json and published/workflow-steps.json, and its run on the workflow engine on 2026-11-18"
+  "drafted_from": "workflow:read-the-surroundings-around-a-person rendered from its row"
 }
