@@ -67,3 +67,23 @@ test('the flags op and call know still work', async () => {
   assert.match(await result, /due-time/);
   assert.ok(asked.length > 0);
 });
+
+test('op takes its input from standard input (-) or a file (@FILE) as from the command line, and refuses a file over the bound', async () => {
+  const { writeFileSync } = await import('node:fs');
+  const { Readable } = await import('node:stream');
+  const dir = tempFolder(join(tmpdir(), 'example-op-input-'));
+  const input = { name: 'A Booker', email: 'booker@example.com' };
+  const shown = async argv => JSON.parse(await run(argv).result).input;
+  assert.deepEqual(await shown(['op', 'records:write', JSON.stringify(input), '--dry-run']), input, 'the command line, as before');
+  const file = join(dir, 'input.json');
+  writeFileSync(file, JSON.stringify(input));
+  assert.deepEqual(await shown(['op', 'records:write', `@${file}`, '--dry-run']), input, 'a file');
+  const before = Object.getOwnPropertyDescriptor(process, 'stdin');
+  Object.defineProperty(process, 'stdin', { value: Readable.from([Buffer.from(JSON.stringify(input))]), configurable: true });
+  try { assert.deepEqual(await shown(['op', 'records:write', '-', '--dry-run']), input, 'standard input'); }
+  finally { Object.defineProperty(process, 'stdin', before); }
+  const large = join(dir, 'large.json');
+  writeFileSync(large, JSON.stringify({ text: 'x'.repeat(settings.direct_calls.input_file_most_bytes) }));
+  await assert.rejects(run(['op', 'records:write', `@${large}`, '--dry-run']).result, error => error instanceof CommandError && /is at most/.test(error.message));
+  await assert.rejects(run(['op', 'records:write', `@${join(dir, 'none.json')}`, '--dry-run']).result, error => error instanceof CommandError && /Could not read the input file/.test(error.message));
+});

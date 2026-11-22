@@ -1526,7 +1526,7 @@ const HELP = `{cli}: see your AIs and their tasks, and run your {site_name}'s to
   {cli} publish [HELD_JSON|-]                         this AI's own record as a keep row (its facts, seen now) for your own store; HELD_JSON is the value your store holds now
   {cli} tools | call TOOL JSON|-                      your Workshop tools, and run one by its id
   {cli} connect ADDRESS                               sign in to a remote tool server (an MCP server's https address); then any AI calls its tools by that address
-  {cli} op METHOD JSON|- [--pin ID]...                 any engine operation by its method (do_one_thing_in_my_account); op --dry-run shows the request and sends nothing
+  {cli} op METHOD JSON|-|@FILE [--pin ID]...           any engine operation by its method (do_one_thing_in_my_account); op --dry-run shows the request and sends nothing
   --pin ID  meet the op or schedule call at this computer first, then the next --pin in order (repeat it, or give IDs separated by commas; at most ${settings.engine.pins.most})
   --upload FILE      (op, call) send FILE's bytes as the call's raw body (at most ${settings.direct_calls.upload_most_bytes} bytes): a session tool takes it as the file argument its row names (byte_argument)
   --timeout SECONDS  wait this long for one try of a call (default ${settings.retry.attempt_seconds}); a try with no answer is asked again, up to ${settings.retry.count} more times, under the same request key
@@ -1820,9 +1820,20 @@ async function records(context, words) {
   return JSON.stringify(await replay.dryRun({ host, since: flags.since, env: context.env, home: context.transcriptHome }), null, 2);
 }
 
-const readJson = async (raw, example) => {
+// The input of op and call: the JSON on the command line, `-` for standard input, or `@FILE` for a file, so a person's data
+// (a booker's name and email for a backfilled fact, Nov 21 2026) need never sit in the process list. A file over
+// direct_calls.input_file_most_bytes is refused before it is read.
+const readJson = async (raw, example, { stdin = process.stdin, rules = settings } = {}) => {
   let text = raw ?? '{}';
-  if (text === '-') { const chunks = []; for await (const chunk of process.stdin) chunks.push(chunk); text = Buffer.concat(chunks).toString('utf8'); }
+  if (text === '-') { const chunks = []; for await (const chunk of stdin) chunks.push(chunk); text = Buffer.concat(chunks).toString('utf8'); }
+  else if (text.startsWith('@')) {
+    const path = text.slice(1);
+    let size;
+    try { size = statSync(path).size; } catch (error) { throw new CommandError(`Could not read the input file ${path}: ${error.code ?? 'unreadable'}.`, { status: 2 }); }
+    const most = rules.direct_calls.input_file_most_bytes;
+    if (size > most) throw new CommandError(`The input file ${path} is ${size} bytes; an input is at most ${most}.`, { status: 2 });
+    text = readFileSync(path, 'utf8');
+  }
   try { const value = JSON.parse(text); if (object(value)) return value; } catch { /* refused below */ }
   throw new CommandError(`The input is one JSON object, for example ${example}.`, { status: 2 });
 };
