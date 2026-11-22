@@ -3,7 +3,7 @@
   "records": [
     {
       "payload": {
-        "source_kept_at": "2026-11-22 04:08:04.353013+00",
+        "source_kept_at": "2026-11-22 05:08:52.540312+00",
         "kind": "workflow-recipe",
         "id": "workflow:start-the-workflows-asked-for",
         "label": "Start each kept workflow someone asked to run",
@@ -199,7 +199,7 @@
             },
             "budget": {
               "steps": 40,
-              "wall_ms": 3600000
+              "wall_ms": 300000
             },
             "input": {
               "start_at": "read"
