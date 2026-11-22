@@ -2,7 +2,7 @@
 //
 // PURPOSE
 //   Where a message the person sends from the shared composer is kept: one row of the owner's own seeds table, in the
-//   database the owner-places record names for the role `messages-to-my-ais` (send-to-seeds.json). The device outbox
+//   database the owner-places record names for the role `messages-to-my-ais` (send-to-seeds.json, read by owner-place.ts). The device outbox
 //   (share-outbox.ts) posts a message to this route, so the message stays on this device until its row is written, and
 //   a send again carries the same client id, which makes the row's id the same.
 //
@@ -12,8 +12,9 @@
 //   2. The row id is composer:<client id>: a message sent again answers the row already held (its kept_at), never a second row.
 //   3. Words are DATA (send-to-seeds.json).
 
-import { runWorkshopTool, type Ran } from './workshop-tool-api.ts';
+import { runWorkshopTool } from './workshop-tool-api.ts';
 import seeds from './send-to-seeds.json' with { type: 'json' };
+import { ownerPlaceOf, type Runner } from './owner-place.ts';
 
 /** The outbox route a composer message is kept under (its path and the body field its client id travels in). */
 export const seedRoute = { path: seeds.route, key_field: seeds.key_field };
@@ -25,30 +26,15 @@ export type ComposerSeed = { client_id: string; text: string; at: string; files?
 export type KeptSeed = { message: string; message_id: string; kept_at: string };
 
 type Place = { credential_name: string; table: string };
-/** One tool run; the key is the run's own idempotency key (the same key again is the same run). */
-type Runner = <T>(tool: string, input: Record<string, unknown>, requestKey?: string) => Promise<Ran<T>>;
 
 const TABLE_NAME = /^[a-z_][a-z0-9_]*(\.[a-z_][a-z0-9_]*)?$/;
 
 /** The screen the person sent from: the first part of the page's address (`home` on the Home screen). */
 const screenNow = () => (typeof location === 'undefined' ? '' : location.pathname.split('/').filter(Boolean)[0] ?? '');
 
-/** The role's place from the owner-places record; null when the record has no such role. */
-async function placeOf(run: Runner): Promise<Place | null> {
-  const ran = await run<{ rows?: { value: string }[] }>(seeds.tool, {
-    credential_name: seeds.roles.credential_name,
-    sql: seeds.roles.sql,
-    params: [seeds.roles.label],
-    statement_timeout_ms: seeds.statement_timeout_ms,
-  });
-  const value = ran.result?.rows?.[0]?.value;
-  const roles = value ? (JSON.parse(value) as { roles?: Record<string, Place> }).roles ?? {} : {};
-  return roles[seeds.role] ?? null;
-}
-
 /** Keeps one composer message as its seed row and answers what the person is told about it. */
 export async function keepComposerSeed(body: ComposerSeed, run: Runner = runWorkshopTool): Promise<KeptSeed> {
-  const place = await placeOf(run);
+  const place = await ownerPlaceOf<Place>(seeds.role, run);
   if (!place || !TABLE_NAME.test(place.table)) throw new Error(seeds.no_place);
   const came_from = { source: 'composer', screen: screenNow(), at: body.at, channel: 'web', ...(body.anchor ? { anchor: body.anchor } : {}), ...(body.reply_to ? { reply_to: body.reply_to } : {}) };
   const media = body.files?.length ? JSON.stringify(body.files) : null;

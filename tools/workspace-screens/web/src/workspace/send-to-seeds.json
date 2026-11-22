@@ -1,15 +1,10 @@
 {
-  "_what": "Where a message the person sends from the shared composer is kept (send-to-seeds.ts): one row of the owner's own seeds table (id, words, came_from, media, at, kept_at) in the database the owner-places record names for `role`. That record is the workspace_records row labelled `roles.label`, read with `roles.sql` on `roles.credential_name`; its value is {roles: {<role>: {credential_name, table}}}. Every statement is a tool run (`tool`) with statement_timeout_ms. `route` is the device outbox's path for the message and `key_field` is the body field its client id travels in (share-outbox.ts). `insert` writes the row once: the id is composer:<client id>, so a send again with the same client id answers the row already held, never a second row. `sent_at` is what the person is told, with {time} the row's kept_at in the Mac's time.",
+  "_what": "Where a message the person sends from the shared composer is kept (send-to-seeds.ts): one row of the owner's own seeds table (id, words, came_from, media, at, kept_at) in the database the owner-places record names for `role` (owner-place.ts). Every statement is a tool run (`tool`) with statement_timeout_ms. `route` is the device outbox's path for the message and `key_field` is the body field its client id travels in (share-outbox.ts). `insert` writes the row once: the id is composer:<client id>, so a send again with the same client id answers the row already held, never a second row. `sent_at` is what the person is told, with {time} the row's kept_at in the Mac's time.",
   "tool": "tool:run-sql-in-my-database",
   "statement_timeout_ms": 5000,
   "role": "messages-to-my-ais",
   "route": "composer-seed",
   "key_field": "client_id",
-  "roles": {
-    "credential_name": "own-rows-postgres-connection",
-    "label": "owner-places",
-    "sql": "select value from public.workspace_records where label = $1"
-  },
   "insert": "with ins as (insert into {table} (id, words, came_from, media, at, kept_at) values ($1, $2, $3::jsonb, $4::jsonb, $5::timestamptz, now()) on conflict (id) do nothing returning id, kept_at) select id, kept_at::text as kept_at from ins union all select id, kept_at::text as kept_at from {table} where id = $1 and not exists (select 1 from ins)",
   "sent_at": "Sent at {time}.",
   "no_place": "Your AIs have no place for messages on this account yet, so this message was not kept.",

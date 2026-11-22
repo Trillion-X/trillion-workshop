@@ -1,0 +1,8 @@
+{
+  "_what": "Where the owner-places record is read (owner-place.ts): the person's workspace_records row labelled `label`, whose value is {\"roles\": {<role>: {credential_name, table, ...}}} and names where each role's data is kept. A screen names only its role and gets that role's place back; no screen names the label or the statement. The read is one tool run (`tool`) with the connection `credential_name`, `sql` with the label as $1, and statement_timeout_ms. A record with no such role answers no place.",
+  "tool": "tool:run-sql-in-my-database",
+  "statement_timeout_ms": 5000,
+  "credential_name": "own-rows-postgres-connection",
+  "label": "owner-places",
+  "sql": "select value from public.workspace_records where label = $1"
+}
