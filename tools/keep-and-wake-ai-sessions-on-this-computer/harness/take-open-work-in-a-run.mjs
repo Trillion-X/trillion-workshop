@@ -10,7 +10,9 @@
 //   The three values are the run's own: its kept folder, and the program and work folder of its start-a-program grant
 //   (the row fills them from the run's task). Standard input is the run's input; its `settings` are this computer's
 //   take-open-work.computer.json values (computer_name, chosen_ai, tasks_store, account, ais, working_folder ...), where
-//   the text {granted_program}, {granted_work} and {kept_home} stands for the three values above.
+//   the text {granted_program}, {granted_work} and {kept_home} stands for the three values above. Its `logins` ([{name}])
+//   are the vault values the engine mounted for the run, element i on descriptor 5 + i (the row's credential_mounts): the
+//   logins the settings' `ai_auth` pools, one taken per AI run (ai-auth.mjs), each resting on its own when it reaches its limit.
 //
 // How it works
 //   1. HOME becomes the kept folder, so what the taker keeps (its started records, rests, results and the AI's own
@@ -20,18 +22,25 @@
 //   3. The helper's own handler (wake-handlers/take-open-work.mjs start) runs a full pass now, again every
 //      full_pass_every_minutes, sooner when a run it started ends, and less often while nothing waits.
 //   4. The process stays running between passes; the engine's session is what keeps it.
+//   Before 2, each mounted login is read once from its descriptor into memory (vault-value.mjs keepRunValues), and the
+//   settings read them through the vault `{ from: "run mounts" }`.
 //
 // Non-negotiable invariants
 //   1. No key is written anywhere: the settings name sources, never values. The account is reached through the run's own
-//      door (account-call.mjs `run door`), and the AI's login is the environment the engine mounts for the run.
+//      door (account-call.mjs `run door`), and the AI's logins are the values the engine mounts for the run, kept in memory
+//      and handed to one AI run at a time in its environment.
 //   2. Settings that choose no AI end the start at once with the words that say so (exit 1), never a taker that takes nothing.
 //   3. Only the three named holes are filled; every other {name} in the settings is left for the taker's own fill.
+//   4. A login the settings pool that the run was not handed ends the start with its name (exit 1): a pool never quietly
+//      shrinks to the logins that happen to be there.
 //
 import { mkdirSync, readFileSync, realpathSync, renameSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HOLES = { granted_program: '--program', granted_work: '--work', kept_home: '--home' };
+/** The descriptor the first mounted login is on (the row's credential_mounts `logins[].name`, fd 5). */
+export const FIRST_LOGIN_FD = 5;
 const takerData = JSON.parse(readFileSync(new URL('./take-open-work.json', import.meta.url), 'utf8'));
 
 /** The value of `--name <value>` in argv, or null. */
@@ -72,13 +81,39 @@ export function keepRunSettings(settings, home) {
   return path;
 }
 
+/** The logins the run was handed ({ name: value }): `logins` [{name}], element i read once from descriptor 5 + i. */
+export function mountedLogins(logins, readDescriptor = fd => readFileSync(fd, 'utf8')) {
+  if (logins === undefined || logins === null) return {};
+  if (!Array.isArray(logins)) throw new Error('The run\'s logins are a list of {name}.');
+  return Object.fromEntries(logins.map((row, index) => {
+    if (typeof row?.name !== 'string' || !row.name) throw new Error(`Login ${index} of the run names no vault value.`);
+    let value;
+    try { value = readDescriptor(FIRST_LOGIN_FD + index).trim(); } catch { value = ''; }
+    if (!value) throw new Error(`The run was not handed ${row.name} on descriptor ${FIRST_LOGIN_FD + index}.`);
+    return [row.name, value];
+  }));
+}
+
+/** The logins the settings' ai_auth rows pool that are not among `names` (the ones the run was handed). Pure. */
+export function missingLogins(settings, names) {
+  const pooled = Object.values(settings?.ai_auth ?? {}).flatMap(auth => [...(auth?.claude_token_names ?? []), ...(auth?.codex_logins ?? []), ...(typeof auth?.codex_login === 'string' ? [auth.codex_login] : [])]);
+  return [...new Set(pooled)].filter(name => !names.includes(name));
+}
+
 async function main(argv) {
   const values = runValues(argv);
   const input = JSON.parse(readFileSync(0, 'utf8') || '{}');
   if (!input.settings || typeof input.settings !== 'object' || Array.isArray(input.settings)) throw new Error('The run\'s input names no settings for this computer\'s taker.');
   // HOME first: the taker's modules read their folders from it when they load.
   process.env.HOME = values.kept_home;
-  keepRunSettings(runSettings(input.settings, values), values.kept_home);
+  const logins = mountedLogins(input.logins);
+  const names = Object.keys(logins);
+  const settings = { ...runSettings(input.settings, values), ...(names.length ? { vault: { from: 'run mounts' } } : {}) };
+  const missing = missingLogins(settings, names);
+  if (missing.length) throw new Error(`The settings pool logins the run was not handed: ${missing.join(', ')}.`);
+  const { keepRunValues } = await import('./vault-value.mjs');
+  keepRunValues(logins);
+  keepRunSettings(settings, values.kept_home);
   const log = line => process.stdout.write(`${JSON.stringify({ at: new Date().toISOString(), part: 'take-given-tasks', said: line })}\n`);
   const helperRules = JSON.parse(readFileSync(new URL('./wake-sessions.json', import.meta.url), 'utf8'));
   const { chosenAi } = await import('./chosen-ai.mjs');

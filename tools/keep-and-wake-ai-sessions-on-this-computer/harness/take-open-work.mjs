@@ -56,7 +56,7 @@ export const accountOfSettings = settings => ({ ...accountWithWord(settings.acco
 import { runTaskMove, stateOfWord, tasksIn, wordsOfStates } from '../../plan-tasks-and-todo-lists/run-a-task-move.mjs';
 import { requestedOutcome } from '../../plan-tasks-and-todo-lists/task-moves.mjs';
 import { answerIssue, UnsupportedSchema } from './answer-shape.mjs';
-import { acquireAiAuth } from './ai-auth.mjs';
+import { acquireAiAuth, loginsOf, restingLogins } from './ai-auth.mjs';
 
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (whole, name) => (Object.hasOwn(values, name) ? String(values[name]) : whole));
 // The receipt field keeps its name (job_contract): a receipt written before this change keeps its attempt count.
@@ -192,12 +192,45 @@ const orderOf = settings => (settings.ai_order?.length ? settings.ai_order : set
  * `runnable(row)` (optional) says whether a row's program is installed where Trillion looks: an AI that is not is passed
  * over for the next of the person's AIs, and when none is, the answer is null (nothing is claimed for an AI that cannot run).
  */
+/**
+ * Whether an AI rests at `now`, and until when and why: an AI whose `ai_auth` row pools logins rests only while every one
+ * of them rests (until the earliest of their resets, with that login's reason); an AI on its own sign-in rests under its
+ * own id (settings.resting: { login or AI id: until ISO }). Null when it does not rest.
+ */
+export function restOf(settings, id, now = new Date().toISOString()) {
+  const pooled = restingLogins(settings.ai_auth?.[id], settings.resting, now);
+  if (pooled.logins.length) {
+    if (!pooled.all) return null;
+    const login = pooled.resting.find(name => settings.resting[name] === pooled.earliest);
+    return { until: pooled.earliest, because: settings.resting_because?.[login] ?? null, login };
+  }
+  return settings.resting?.[id] > now ? { until: settings.resting[id], because: settings.resting_because?.[id] ?? null, login: null } : null;
+}
+
+/**
+ * The rests as they are kept per login: a rest kept under an AI's own id while that AI pools logins (kept before rests were
+ * per login, when the AI ran on one login) is read as the rest of the pool's first login, unless that login keeps its own,
+ * so it holds that one login and never the others. Pure; `resting` and `because` come back as new objects.
+ */
+export function restsByLogin(aiAuth, resting = {}, because = {}) {
+  const kept = { ...resting };
+  const words = { ...because };
+  for (const [id, auth] of Object.entries(aiAuth ?? {})) {
+    const [first] = loginsOf(auth);
+    if (!first || !(id in kept)) continue;
+    if (!(first in kept)) { kept[first] = kept[id]; if (id in words) words[first] = words[id]; }
+    delete kept[id];
+    delete words[id];
+  }
+  return { resting: kept, resting_because: words };
+}
+
 export function chosenAi(settings, now = new Date().toISOString(), runnable = () => true) {
   const order = orderOf(settings);
   if (!order.length) throw new Error(`No AI is chosen on this computer yet. Choose one with node harness/wake-sessions.mjs --choose-ai <${settings.ais.map(item => item.id).join(' | ')}>.`);
   for (const id of order) if (!settings.ais.some(item => item.id === id)) throw new Error(`The chosen AI "${id}" names no row in take-open-work.json ais.`);
   const rowOf = id => settings.ais.find(item => item.id === id);
-  const awake = order.find(id => !(settings.resting?.[id] > now) && runnable(rowOf(id))) ?? order.find(id => runnable(rowOf(id)));
+  const awake = order.find(id => !restOf(settings, id, now) && runnable(rowOf(id))) ?? order.find(id => runnable(rowOf(id)));
   return awake ? rowOf(awake) : null;
 }
 
@@ -853,9 +886,16 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
     }
     // The AI's login (ai_auth) is taken before the claim, so a run that finds every login in use leaves the task untaken.
     let auth;
-    try { auth = acquireAiAuth(settings.ai_auth?.[job.ai_id], { folder, runId: randomUUID(), vault: settings.vault, staleMs: settings.run_timeout_minutes * 2 * 60000 }); }
+    try { auth = acquireAiAuth(settings.ai_auth?.[job.ai_id], { folder, runId: randomUUID(), vault: settings.vault, staleMs: settings.run_timeout_minutes * 2 * 60000, resting: settings.resting, now: nowIso }); }
     catch (error) { log({ did: 'AI login unavailable', ai: job.ai_id, handoff_id: job.handoff_id, error: String(error?.message ?? error) }); continue; }
-    if (!auth) { log({ did: 'waiting for a free login', ai: job.ai_id, handoff_id: job.handoff_id }); continue; }
+    if (!auth) {
+      // Not taken: every login rests (it waits for the earliest reset) or every free one is held by another run.
+      const pool = restingLogins(settings.ai_auth?.[job.ai_id], settings.resting, nowIso);
+      log(pool.all ? { did: 'every login rests', ai: job.ai_id, handoff_id: job.handoff_id, until: pool.earliest } : { did: 'waiting for a free login', ai: job.ai_id, handoff_id: job.handoff_id });
+      continue;
+    }
+    // The login a limit rests is the one this run used; an AI on its own sign-in rests under its own id.
+    job.rests_as = auth.login ?? job.ai_id;
     if (!records.claim({ handoff_id: job.handoff_id, mode: job.mode, source_id: job.fresh ? null : job.source_id ?? null, agent_id: job.agent_id, started_at: nowIso, attempt: attempts.get(job.handoff_id) ?? 1, request_key: randomUUID(), ...(job.job_contract ? { job_contract: job.job_contract } : {}), executor_starts: job.executor_starts, ...(job.own ? { own: true } : {}) })) { log({ did: 'already started here', handoff_id: job.handoff_id }); continue; }
     // A claim and a turn are taken by this computer before they run; a chat's handed work is taken by the chat itself.
     if (job.mode === 'claim' || job.mode === 'turn') {
@@ -949,10 +989,10 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
       // the reset they name. Otherwise why it was stopped is kept and shown on the card.
       if (stoppedTimeout) {
         const limited = reachedLimit(settings, said);
-        if (limited) rest(job.ai_id, restUntil(settings, said, now().getTime()), fill(settings.words.rested_because, { said: limitLine() }));
+        if (limited) rest(job.rests_as, restUntil(settings, said, now().getTime()), fill(settings.words.rested_because, { said: limitLine() }));
         else trouble(job.ai_id, fill(settings.words.timed_out_trouble, { minutes: settings.run_timeout_minutes ?? 30 }));
         const released = await releaseHeld(call, settings, job, limited
-          ? fill(settings.words.released_limit, { ai: job.ai_id, until: settings.resting[job.ai_id] })
+          ? fill(settings.words.released_limit, { ai: job.rests_as, until: settings.resting[job.rests_as] })
           : fill(settings.words.released_timeout, { minutes: settings.run_timeout_minutes ?? 30, log: logPath, computer }));
         if (!released) records.update(job.handoff_id, { release_pending: true });
         log({ did: released ? 'released timed out run' : 'timed out run awaits release', handoff_id: job.handoff_id, ai: job.ai_id, rested: limited });
@@ -968,10 +1008,10 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
       // An AI that reached its usage limit rests until the reset its words name (limit_reset; else limit_rest_hours from
       // now); its task is given back and planned again, and the next of the person's chosen AIs runs work meanwhile (chosenAi).
       if (code !== 0 && reachedLimit(settings, said)) {
-        rest(job.ai_id, restUntil(settings, said, now().getTime()), fill(settings.words.rested_because, { said: limitLine() }));
-        const released = await releaseHeld(call, settings, job, fill(settings.words.released_limit, { ai: job.ai_id, until: settings.resting[job.ai_id] }));
+        rest(job.rests_as, restUntil(settings, said, now().getTime()), fill(settings.words.rested_because, { said: limitLine() }));
+        const released = await releaseHeld(call, settings, job, fill(settings.words.released_limit, { ai: job.rests_as, until: settings.resting[job.rests_as] }));
         records.update(job.handoff_id, { limit_hit: true, ...(released ? {} : { release_pending: true }) });
-        log({ did: 'AI reached its usage limit', ai: job.ai_id, handoff_id: job.handoff_id, released });
+        log({ did: 'AI reached its usage limit', ai: job.ai_id, login: auth.login, handoff_id: job.handoff_id, released });
         await republish();
         return { handoff_id: job.handoff_id, code, finished: false, limit: true };
       }
@@ -1061,7 +1101,7 @@ export function readSettings() {
   const rows = Object.entries(kept('resting.json'));
   const resting = Object.fromEntries(rows.map(([id, row]) => [id, typeof row === 'string' ? row : row?.until]));
   const resting_because = Object.fromEntries(rows.filter(([, row]) => row?.because).map(([id, row]) => [id, row.because]));
-  return { ...settings, tasks_store: computerSettings().tasks_store ?? null, use_ai: chosenAiOnThisComputer(), ai_order: aiOrder(), resting, resting_because, trouble: kept('trouble.json') };
+  return { ...settings, tasks_store: computerSettings().tasks_store ?? null, use_ai: chosenAiOnThisComputer(), ai_order: aiOrder(), ...restsByLogin(settings.ai_auth, resting, resting_because), trouble: kept('trouble.json') };
 }
 
 // The worker keeps scheduling/attempt receipts only. The shared task owner (tools/plan-tasks-and-todo-lists) remains the
@@ -1252,7 +1292,8 @@ export function takerCard(settings, computer = computerName(), now = new Date().
   const ai = chosenAi(settings, now, runnable) ?? settings.ais.find(item => item.id === orderOf(settings)[0]);
   const label = id => settings.ais.find(item => item.id === id)?.label ?? id;
   const order = orderOf(settings);
-  const resting = order.filter(id => settings.resting?.[id] > now).map(id => ({ ai: id, until: settings.resting[id], because: settings.resting_because?.[id] ?? fill(settings.words.rested_because, { said: 'no reason kept' }) }));
+  const resting = order.map(id => [id, restOf(settings, id, now)]).filter(([, rest]) => rest)
+    .map(([id, rest]) => ({ ai: id, until: rest.until, because: rest.because ?? fill(settings.words.rested_because, { said: 'no reason kept' }), ...(rest.login ? { login: rest.login } : {}) }));
   const troubled = order.filter(id => settings.trouble?.[id]).map(id => ({ ai: id, at: settings.trouble[id].at, what: settings.trouble[id].what }));
   const all_resting = order.length > 0 && resting.length === order.length;
   const lines = [

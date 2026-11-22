@@ -1841,7 +1841,7 @@
         "label": "Take the tasks given to this computer's AI, kept running by the engine",
         "status": "active",
         "job": "Keep this computer's task taker running inside the person's own engine: it takes each task given to this computer's AI (its assignees name this computer's taker), runs the AI the person chose on it headless, checks the result file the AI writes and finishes the task, or gives it back with the reason. Switching its wake on is the one yes; no launchd job, login item or hand-started process is needed.",
-        "description": "Runs harness/take-open-work-in-a-run.mjs as a kept-open session of invoke kind computer: HOME is the run's kept folder, the settings in the input are written as this computer's take-open-work.computer.json, and the helper's handler (wake-handlers/take-open-work.mjs) passes over the given tasks now, every full_pass_every_minutes, and as soon as a run it started ends. The tasks are rows of the database `settings.tasks_store` names, reached only through the run's door with the four task tools its records right names (run-sql-in-my-database, take-a-task, change-a-task, finish-a-task). The AI is the program of the run's start-a-program grant (program_kind ai-developer: it may change files only in its settings folder, the one work folder granted, the person's own settings folders and the temporary folders, and reaches the network only through the run's proxy). A Claude login is the vault value `claude_token_name`, mounted only in the run's environment as CLAUDE_CODE_OAUTH_TOKEN, so the run reaches only the hosts that value may go to. `settings.computer_name` keeps the taker's agent id, and so its users row, the same as when it ran by hand. Its AI runs get no account connection: the task prompt has them write the result file, and the taker finishes the task itself.",
+        "description": "Runs harness/take-open-work-in-a-run.mjs as a kept-open session of invoke kind computer: HOME is the run's kept folder, the settings in the input are written as this computer's take-open-work.computer.json, and the helper's handler (wake-handlers/take-open-work.mjs) passes over the given tasks now, every full_pass_every_minutes, and as soon as a run it started ends. The tasks are rows of the database `settings.tasks_store` names, reached only through the run's door with the four task tools its records right names (run-sql-in-my-database, take-a-task, change-a-task, finish-a-task). The AI is the program of the run's start-a-program grant (program_kind ai-developer: it may change files only in its settings folder, the one work folder granted, the person's own settings folders and the temporary folders, and reaches the network only through the run's proxy). The AI's logins are the vault values `logins` names, each mounted for the run on its own descriptor and handed to one AI run at a time (settings.ai_auth pools them); a login that reaches its limit rests on its own, the others go on, and the run reaches only the hosts those values may go to. `settings.computer_name` keeps the taker's agent id, and so its users row, the same as when it ran by hand. Its AI runs get no account connection: the task prompt has them write the result file, and the taker finishes the task itself.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -1852,7 +1852,7 @@
           "properties": {
             "settings": {
               "type": "object",
-              "description": "This computer's take-open-work.computer.json values, overlaid on harness/take-open-work.json: computer_name, chosen_ai, then_ai, tasks_store, account ({credential: {from: \"run door\", fd: 3}}), work_mcp (null: AI runs get no account connection), ais (each command's program as {granted_program}), working_folder ({granted_work} or {kept_home}). {granted_program}, {granted_work} and {kept_home} stand for the grant's program and work folder and the run's kept folder.",
+              "description": "This computer's take-open-work.computer.json values, overlaid on harness/take-open-work.json: computer_name, chosen_ai, then_ai, tasks_store, account ({credential: {from: \"run door\", fd: 3}}), work_mcp (null: AI runs get no account connection), ai_auth (the logins each AI pools, all of them named in logins), ais (each command's program as {granted_program}), working_folder ({granted_work} or {kept_home}). {granted_program}, {granted_work} and {kept_home} stand for the grant's program and work folder and the run's kept folder.",
               "required": [
                 "computer_name",
                 "chosen_ai",
@@ -1904,11 +1904,26 @@
                 }
               }
             },
-            "claude_token_name": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 200,
-              "description": "The vault name of the Claude login the AI runs use, mounted only in the run's environment as CLAUDE_CODE_OAUTH_TOKEN"
+            "logins": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 16,
+              "description": "The vault values of the AI logins the settings' ai_auth rows pool (for example ai_auth.claude.claude_token_names), each mounted only for this run on descriptor 5 plus its place here, read once into memory; a run takes the first login that is neither resting nor held by another run, and a login that reaches its limit rests on its own.",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "description": "The vault name of one login"
+                  }
+                }
+              }
             }
           }
         },
@@ -1970,12 +1985,8 @@
           },
           "credential_mounts": [
             {
-              "secret_name_from_input": "claude_token_name",
-              "env": "CLAUDE_CODE_OAUTH_TOKEN",
-              "only_when": {
-                "input": "claude_token_name",
-                "present": true
-              }
+              "secret_name_from_input": "logins[].name",
+              "fd": 5
             }
           ],
           "stdout": "json",

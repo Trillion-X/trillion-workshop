@@ -8,7 +8,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
-import { keepRunSettings, runSettings, runValues } from '../harness/take-open-work-in-a-run.mjs';
+import { FIRST_LOGIN_FD, keepRunSettings, missingLogins, mountedLogins, runSettings, runValues } from '../harness/take-open-work-in-a-run.mjs';
 
 const VALUES = { granted_program: '/Programs/the-ai', granted_work: '/Work', kept_home: '/Kept' };
 
@@ -82,4 +82,25 @@ test('the row starts the run with its kept folder and grant, keeps it open, reac
   assert.deepEqual(wake.on, { running: {} });
   const schemaHas = path => path.split('.').reduce((schema, part) => schema?.properties?.[part] ?? (schema?.required?.includes(part) ? {} : undefined), row.input_schema) !== undefined;
   for (const path of wake.needs_input) assert.ok(schemaHas(path), `${path} is an input the row takes`);
+});
+
+test('each login the run was handed is read once from its own descriptor, and a pooled login it was not handed is named', () => {
+  const read = [];
+  const descriptors = { [FIRST_LOGIN_FD]: 'value-a\n', [FIRST_LOGIN_FD + 1]: 'value-b' };
+  const logins = mountedLogins([{ name: 'login-a' }, { name: 'login-b' }], fd => { read.push(fd); return descriptors[fd]; });
+  assert.deepEqual(logins, { 'login-a': 'value-a', 'login-b': 'value-b' });
+  assert.deepEqual(read, [5, 6]);
+  assert.deepEqual(mountedLogins(undefined), {});
+  assert.throws(() => mountedLogins([{ name: 'login-a' }, { name: 'login-c' }], descriptor => (descriptor === FIRST_LOGIN_FD ? 'value-a' : '')), /login-c on descriptor 6/);
+  assert.throws(() => mountedLogins([{}], () => 'x'), /names no vault value/);
+  const settings = { ai_auth: { claude: { claude_token_names: ['login-a', 'login-z'] }, codex: { codex_login: 'login-b' } } };
+  assert.deepEqual(missingLogins(settings, ['login-a', 'login-b']), ['login-z']);
+  assert.deepEqual(missingLogins({}, []), []);
+});
+
+test('the row mounts one login per element of logins, from descriptor 5 on', () => {
+  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+  const row = rows.records.map(record => record.payload).find(payload => payload.id === 'tool:take-given-tasks-on-this-computer');
+  assert.deepEqual(row.invoke.credential_mounts, [{ secret_name_from_input: 'logins[].name', fd: FIRST_LOGIN_FD }]);
+  assert.deepEqual(row.input_schema.properties.logins.items.required, ['name']);
 });

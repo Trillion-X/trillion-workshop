@@ -7,6 +7,9 @@
 //   refreshed it). `codex_login` names a single login. Every login is one lock: a login is used by one
 //   run at a time, so two runs never refresh the same single-use token. An AI with no `ai_auth` row uses its own
 //   sign-in and nothing here runs.
+//   A login that reached its usage limit rests on its own (take-open-work.mjs keeps the rest under the login's name), so a
+//   run takes the first login of the pool that is neither held by another run nor resting; a login with no rest kept is
+//   untested, never full, and is used. Another login of the same AI still runs while one rests.
 //
 // Non-negotiable invariants
 //   1. A value leaves the vault only into the run's environment (a token) or the run's private folder (Codex's auth.json,
@@ -32,30 +35,46 @@ function takeLock(path, staleMs) {
 
 const unlock = path => rmSync(path, { recursive: true, force: true });
 
+/** The names of the logins an AI's `ai_auth` row pools, in the order they are tried (empty for an AI on its own sign-in). */
+export function loginsOf(auth) {
+  if (Array.isArray(auth?.claude_token_names)) return auth.claude_token_names;
+  if (Array.isArray(auth?.codex_logins)) return auth.codex_logins;
+  return typeof auth?.codex_login === 'string' ? [auth.codex_login] : [];
+}
+
+/** The logins of the pool that rest at `now` (`resting`: { login: until ISO }), with the earliest reset among them. */
+export function restingLogins(auth, resting = {}, now = new Date().toISOString()) {
+  const logins = loginsOf(auth);
+  const rest = logins.filter(name => resting?.[name] > now);
+  return { logins, resting: rest, all: logins.length > 0 && rest.length === logins.length, earliest: rest.map(name => resting[name]).sort()[0] ?? null };
+}
+
 /**
- * The logins for one run of the AI `auth` describes (its `ai_auth` row). Answers { env, done } where env joins the run's
- * environment and done() ends the run's use of the logins (writes a refreshed login back, removes the run's folder,
- * releases the lock). Answers null when every login the AI may use is in use by another run. Throws when the vault does
- * not answer; nothing is taken then.
+ * The logins for one run of the AI `auth` describes (its `ai_auth` row). Answers { env, done, login } where env joins the
+ * run's environment, done() ends the run's use of the logins (writes a refreshed login back, removes the run's folder,
+ * releases the lock) and login names the login taken (null on the AI's own sign-in). A login resting at `now` is passed
+ * over. Answers null when every login the AI may use is resting or in use by another run. Throws when the vault does not
+ * answer; nothing is taken then.
  */
-export function acquireAiAuth(auth, { folder, runId, vault, staleMs }) {
-  if (!auth) return { env: {}, done() {} };
+export function acquireAiAuth(auth, { folder, runId, vault, staleMs, resting = {}, now = new Date().toISOString() }) {
+  if (!auth) return { env: {}, done() {}, login: null };
   const locks = join(folder, 'auth-locks');
   mkdirSync(locks, { recursive: true });
+  const awake = name => !(resting?.[name] > now);
   if (Array.isArray(auth.claude_token_names)) {
-    for (const name of auth.claude_token_names) {
+    for (const name of auth.claude_token_names.filter(awake)) {
       const lock = join(locks, lockName(name));
       if (!takeLock(lock, staleMs)) continue;
       let token;
       try { token = readVaultValue(vault, name).trim(); } catch (error) { unlock(lock); throw error; }
-      return { env: { [auth.claude_env ?? 'CLAUDE_CODE_OAUTH_TOKEN']: token }, done() { unlock(lock); } };
+      return { env: { [auth.claude_env ?? 'CLAUDE_CODE_OAUTH_TOKEN']: token }, done() { unlock(lock); }, login: name };
     }
     return null;
   }
-  const logins = Array.isArray(auth.codex_logins) ? auth.codex_logins : typeof auth.codex_login === 'string' ? [auth.codex_login] : null;
-  if (logins) {
-    // The first login no other run holds: one login per run, and a refreshed login goes back under its own name.
-    const name = logins.find(login => takeLock(join(locks, lockName(login)), staleMs));
+  const logins = loginsOf(auth);
+  if (logins.length) {
+    // The first login no other run holds and none rests: one login per run, and a refreshed login goes back under its own name.
+    const name = logins.filter(awake).find(login => takeLock(join(locks, lockName(login)), staleMs));
     if (!name) return null;
     const lock = join(locks, lockName(name));
     const home = join(folder, 'codex-homes', runId);
@@ -80,6 +99,7 @@ export function acquireAiAuth(auth, { folder, runId, vault, staleMs }) {
         rmSync(home, { recursive: true, force: true });
         unlock(lock);
       },
+      login: name,
     };
   }
   throw new Error('The AI names no login the runner knows (claude_token_names, or codex_logins / codex_login).');

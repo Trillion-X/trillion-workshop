@@ -12,8 +12,8 @@
   ],
   "instructions": [
     "1. Pick the AI program the taker starts (its path on this computer), the folder it keeps its settings in, and the one folder it may change files in.",
-    "2. Keep the AI's login in your vault under a name of your own, if it needs one (claude_token_name).",
-    "3. Switch the wake on with your input: wake:switch {tool: tool:take-given-tasks-on-this-computer, id: keep-taking-given-tasks, on: true, input: {settings, computer: {start-a-program: {...}}, claude_token_name}} (the worked example shows a whole input). A switch that leaves the computer name, the chosen AI, the tasks store or the grant's program or work folder empty is refused.",
+    "2. Keep each of the AI's logins in your vault under a name of your own, and name them in logins and in settings.ai_auth (for example ai_auth.claude.claude_token_names). A run takes the first login that is not resting; a login that reaches its limit rests alone and the next one runs.",
+    "3. Switch the wake on with your input: wake:switch {tool: tool:take-given-tasks-on-this-computer, id: keep-taking-given-tasks, on: true, input: {settings, computer: {start-a-program: {...}}, logins}} (the worked example shows a whole input). A switch that leaves the computer name, the chosen AI, the tasks store or the grant's program or work folder empty is refused.",
     "4. Give a task to the taker: its assignees name ai:take-open-work-<your computer name in lower case, words joined by dashes>. Read the task row: within a pass its status turns In progress with taken_by the taker, then Done with the result, or back to To do with the reason.",
     "5. Read the taker's own row in your users table: live.seen_at moves at each pass. Switch the wake off to stop it; switching it on again keeps the input it was given."
   ],
@@ -37,12 +37,36 @@
                 "chosen_ai": "claude",
                 "then_ai": [],
                 "tasks_store": "my-tasks-connection",
-                "account": { "credential": { "from": "run door", "fd": 3 } },
+                "account": {
+                  "credential": {
+                    "from": "run door",
+                    "fd": 3
+                  }
+                },
                 "work_mcp": null,
                 "working_folder": "{granted_work}",
                 "ais": [
-                  { "id": "claude", "label": "Claude Code", "command": ["{granted_program}", "-p", "{prompt}", "--permission-mode", "bypassPermissions"] }
-                ]
+                  {
+                    "id": "claude",
+                    "label": "Claude Code",
+                    "command": [
+                      "{granted_program}",
+                      "-p",
+                      "{prompt}",
+                      "--permission-mode",
+                      "bypassPermissions"
+                    ]
+                  }
+                ],
+                "ai_auth": {
+                  "claude": {
+                    "claude_env": "CLAUDE_CODE_OAUTH_TOKEN",
+                    "claude_token_names": [
+                      "my-ai-login-1",
+                      "my-ai-login-2"
+                    ]
+                  }
+                }
               },
               "computer": {
                 "start-a-program": {
@@ -52,7 +76,14 @@
                   "work": "/srv/code"
                 }
               },
-              "claude_token_name": "my-ai-login"
+              "logins": [
+                {
+                  "name": "my-ai-login-1"
+                },
+                {
+                  "name": "my-ai-login-2"
+                }
+              ]
             }
           }
         }

@@ -13,7 +13,17 @@
 //   4. Descriptor 3 is a real pipe. Node's 'pipe' stdio is a socket pair, which the engine refuses ("descriptor 3 is not a
 //      pipe"): the always-on's taker could not read its account key from 11:37 PM CST Nov 21 2026 while the same read
 //      from a shell worked. The read runs as `COMMAND 3>&1 | cat` under bash with pipefail, so the shell makes the pipe.
+//   5. A run's mounted values (`run mounts`) are read from memory, never written back.
 import { spawnSync } from 'node:child_process';
+
+// The values the engine mounted for this run (`vault: { from: "run mounts" }`): the taker the engine keeps
+// (take-open-work-in-a-run.mjs) reads each from its descriptor once at start and keeps it here, in memory only.
+const runValues = new Map();
+
+/** Keeps the values a run was handed ({ name: text }), for the vault `{ from: "run mounts" }`. */
+export function keepRunValues(values) {
+  for (const [name, text] of Object.entries(values)) runValues.set(name, text);
+}
 
 const commandOf = vault => {
   const [program, ...lead] = vault?.command ?? [];
@@ -35,6 +45,10 @@ const whyLine = result => {
 
 /** The text of one vault value. Throws, naming the status and the line that says why, when the vault does not answer. */
 export function readVaultValue(vault, name) {
+  if (vault?.from === 'run mounts') {
+    if (!runValues.has(name)) throw new Error(`The run was handed no value ${name}.`);
+    return runValues.get(name);
+  }
   const result = spawnSync('/bin/bash', ['-o', 'pipefail', '-c', '"$@" 3>&1 1>/dev/null | cat', 'vault-read', ...commandOf(vault), 'read', name],
     { env: envOf(vault), stdio: ['ignore', 'pipe', 'pipe'] });
   if (result.status !== 0 || !result.stdout?.length) throw new Error(`The vault did not give ${name} (exit ${result.status}${whyLine(result) ? `: ${whyLine(result)}` : ''}).`);
@@ -43,6 +57,8 @@ export function readVaultValue(vault, name) {
 
 /** Keeps the file at `path` as the vault value `name` (the engine's put, which replaces the value it holds). */
 export function writeVaultValue(vault, name, path) {
+  // A run's mounted values are the engine's to keep: a run writes none back.
+  if (vault?.from === 'run mounts') throw new Error(`The run cannot keep ${name}: its values are mounted by the engine, read only.`);
   const result = run(vault, ['put', name, path], ['ignore', 'ignore', 'pipe']);
   if (result.status !== 0) throw new Error(`The vault did not keep ${name} (exit ${result.status}${whyLine(result) ? `: ${whyLine(result)}` : ''}).`);
 }
