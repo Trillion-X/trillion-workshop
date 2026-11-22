@@ -2527,7 +2527,9 @@ mod tests {
                 .is_none(),
             "ask input must be bare target payload, not workflow wrapper"
         );
-        assert!(dispatcher.last_context.lock().unwrap().is_none());
+        // The engine stamps every ask with where it ran (`_runtime_identity`), so a host can resume it after a cold
+        // replay; an ask with no authored context carries that stamp alone.
+        assert_eq!(dispatcher.last_context.lock().unwrap().as_ref(), Some(&json!({"_runtime_identity": ["ask"]})));
     }
 
     #[tokio::test]
@@ -2788,7 +2790,7 @@ mod tests {
         assert!(result.is_ok(), "ask should succeed: {:?}", result.err());
         assert_eq!(
             dispatcher.last_context.lock().unwrap().as_ref(),
-            Some(&json!({"grant": "node-123"}))
+            Some(&json!({"grant": "node-123", "_runtime_identity": ["ask"]}))
         );
     }
 
@@ -2827,8 +2829,13 @@ mod tests {
             StepExecutor::execute_step(&step, "ask", &mut exec_ctx, &deps, &test_actor(), None)
                 .await
                 .expect("an absent selected context must remain absent");
-            let expected = trusted_local.then(|| json!({"kind": "bitfield.trusted-local-dispatch/v1"}));
-            assert_eq!(*dispatcher.last_context.lock().unwrap(), expected);
+            // An absent authored context stays absent: only the engine's own stamp of where the ask ran is sent.
+            let expected = if trusted_local {
+                json!({"kind": "bitfield.trusted-local-dispatch/v1", "_runtime_identity": ["ask"]})
+            } else {
+                json!({"_runtime_identity": ["ask"]})
+            };
+            assert_eq!(*dispatcher.last_context.lock().unwrap(), Some(expected));
         }
     }
 
@@ -2873,7 +2880,7 @@ mod tests {
 
         assert_eq!(
             dispatcher.last_context.lock().unwrap().as_ref(),
-            Some(&json!({"kind": "bitfield.trusted-local-dispatch/v1"}))
+            Some(&json!({"kind": "bitfield.trusted-local-dispatch/v1", "_runtime_identity": ["ask"]}))
         );
     }
 

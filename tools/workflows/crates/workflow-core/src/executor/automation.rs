@@ -3959,7 +3959,11 @@ mod tests {
             let mut wait = Step::wait(condition);
             wait.id = "hold".into();
             store.register(make_action("wait-body", vec![wait]));
-            store.register(make_workflow("wf-bound-wait", vec![make_action_step(0, "wait-body")]));
+            // A used workflow's start input is the inputs its action step hands it, so the condition is handed down.
+            let hand_down = Step::action("wait-body", json!({
+                "condition": {"$kind":"binding","select":{"from":"start","path":"input.condition"}}
+            })).with_id("ws-0");
+            store.register(make_workflow("wf-bound-wait", vec![hand_down]));
             store
         };
         let access = Arc::new(WaitBindingAccess(Mutex::new(Vec::new())));

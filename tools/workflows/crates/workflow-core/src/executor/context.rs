@@ -3402,7 +3402,7 @@ mod tests {
                     "op": "op:core.set",
                     "args": {
                         "key": {"$kind": "binding", "select": {"from": "input", "path": "dynamic_key"}},
-                        "value": {"$kind": "binding", "select": {"from": "steps", "key": "step1", "path": "created_id"}}
+                        "value": {"$kind": "binding", "select": {"from": "steps", "key": "step1", "path": "output.created_id"}}
                     }
                 }]
             }
@@ -3431,7 +3431,8 @@ mod tests {
         });
 
         let resolved = BindingResolver::resolve_value(&params, &ctx).unwrap();
-        assert_eq!(resolved["projected"], json!({"optional_value": null}));
+        // The source (input.nested.deep) keeps what it holds; the absent binding is set as an explicit null.
+        assert_eq!(resolved["projected"], json!({"value": 42, "optional_value": null}));
     }
 
     #[test]
@@ -3464,7 +3465,7 @@ mod tests {
                     "args": {
                         "source": {
                             "replace": {"$kind": "binding", "select": {"from": "context", "path": "organization_id"}},
-                            "added": {"$kind": "binding", "select": {"from": "steps", "key": "step1", "path": "count"}}
+                            "added": {"$kind": "binding", "select": {"from": "steps", "key": "step1", "path": "output.count"}}
                         }
                     }
                 }]

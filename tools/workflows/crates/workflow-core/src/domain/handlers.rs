@@ -364,6 +364,22 @@ mod tests {
         assert!(!OnResultEdgeHandler.evaluate("judge", &outcome(serde_json::json!({ "pass": false })), &Some(condition)).unwrap(), "a real false is a normal not-taken");
     }
 
+    // A formula that counts instead of judging (FILTER then SIZE) comes to a number: refused naming the step and the
+    // count, never taken as true or false (the shape behind the 4:14 PM CST Nov 21 2026 dead end); the same formula
+    // finished with a comparison judges.
+    #[test]
+    fn a_filter_and_size_formula_that_counts_is_refused_until_it_compares() {
+        let ready = serde_json::json!([{ "op": "op:core.get_path", "args": { "path": "state" } }, { "op": "op:core.equals", "args": { "value": "ready" } }]);
+        let counts = serde_json::json!({ "$kind": "binding", "select": { "from": "input", "path": "output.drafts" },
+            "transform": [{ "op": "op:core.filter_where", "args": { "predicate": ready.clone() } }, { "op": "op:core.size" }] });
+        let drafts = outcome(serde_json::json!({ "drafts": [{ "state": "ready" }, { "state": "held" }, { "state": "ready" }] }));
+        let refused = OnResultEdgeHandler.evaluate("pick", &drafts, &Some(counts)).unwrap_err();
+        assert!(refused.to_string().contains("'pick' came to 2, not true or false"), "{refused}");
+        let judges = serde_json::json!({ "$kind": "binding", "select": { "from": "input", "path": "output.drafts" },
+            "transform": [{ "op": "op:core.filter_where", "args": { "predicate": ready } }, { "op": "op:core.size" }, { "op": "op:core.gte", "args": { "value": 1 } }] });
+        assert!(OnResultEdgeHandler.evaluate("pick", &drafts, &Some(judges)).unwrap());
+    }
+
     #[test]
     fn a_condition_reading_another_step_is_refused_naming_it_never_silently_false() {
         let condition = serde_json::json!({ "$kind": "binding", "select": { "from": "steps", "key": "size", "path": "output.posts" }, "transform": [{ "op": "op:core.gte", "args": { "value": 10 } }] });
