@@ -99,6 +99,20 @@ function reachOf(reach, what) {
   });
 }
 
+// finds: [{ name, text? | appears? }] read after the screen is usable, without a tap: whether the text is on the page or the
+// selector shows, and what it shows. A label a script renders is found only once the script has run.
+function findsOf(finds, what) {
+  if (finds === undefined) return [];
+  if (!Array.isArray(finds)) throw refuse(`${what}: finds is a list of { name, text } or { name, appears }.`);
+  return finds.map((find, at) => {
+    if (!find || typeof find.name !== 'string' || !find.name) throw refuse(`${what}: finds[${at}] needs a name.`);
+    const keys = Object.keys(find).filter(key => key !== 'name');
+    if (keys.length !== 1 || !['text', 'appears'].includes(keys[0])) throw refuse(`${what}: finds[${at}] names text or appears, one of them.`);
+    if (typeof find[keys[0]] !== 'string' || !find[keys[0]]) throw refuse(`${what}: finds[${at}].${keys[0]} is a non-empty string.`);
+    return find;
+  });
+}
+
 function tapsOf(taps, what) {
   if (taps === undefined) return [];
   if (!Array.isArray(taps)) throw refuse(`${what}: taps is a list of { name, selector, expect }.`);
@@ -145,6 +159,7 @@ export function planOf(input) {
       reach: reachOf(page.reach, what),
       ready: page.ready ?? null,
       taps: tapsOf(page.taps, what),
+      finds: findsOf(page.finds, what),
     };
   });
   return {
@@ -284,6 +299,27 @@ async function expectationsMissed(page, expect, before) {
 
 // One tap: click, then poll what it expects until it holds or tap_within_ms is spent. A tap that moved the address is
 // undone by opening the page again, so the next tap starts from the page.
+// Reads each find in the page: found, and for an appears selector the visible text of its first shown match (at most 200 characters).
+async function findsIn(page, finds) {
+  return Promise.all(finds.map(async find => {
+    const key = 'text' in find ? 'text' : 'appears';
+    const answer = await page.evaluate(({ key, value }) => {
+      const shown = element => {
+        const box = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return box.width > 0 && box.height > 0 && style.visibility !== 'hidden' && style.display !== 'none';
+      };
+      if (key === 'text') {
+        const found = (document.body?.innerText ?? '').includes(value);
+        return { found, rendered: found ? value : null };
+      }
+      const match = [...document.querySelectorAll(value)].find(shown);
+      return { found: Boolean(match), rendered: match ? (match.innerText ?? match.textContent ?? '').trim().slice(0, 200) : null };
+    }, { key, value: find[key] }).catch(error => ({ found: false, rendered: null, error: firstLine(error) }));
+    return { name: find.name, [key]: find[key], ...answer };
+  }));
+}
+
 async function runTap({ page, startUrl, reach, tap, index, name, run, keep }) {
   const before = { url: page.url(), digest: await digestOf(page) };
   const began = Date.now();
@@ -350,7 +386,7 @@ async function usableAfter(page, ready, since) {
 }
 
 // One side of a view: a cold load in its own context, its reach steps, measured, pictured and (on the new side) tapped.
-async function measureSide({ browser, url, view, signIn, ready, reach = [], name, run, keep, taps = [] }) {
+async function measureSide({ browser, url, view, signIn, ready, reach = [], name, run, keep, taps = [], finds = [] }) {
   const context = await browser.newContext({ viewport: view.viewport, isMobile: !!view.mobile, hasTouch: !!view.mobile, deviceScaleFactor: 1 });
   const errors = [];
   const failed = [];
@@ -386,6 +422,7 @@ async function measureSide({ browser, url, view, signIn, ready, reach = [], name
       }
     }
     const live = await page.evaluate(() => window.__live ?? null).catch(() => null);
+    const found = finds.length > 0 && !error ? await findsIn(page, finds) : null;
     const bytes = await page.screenshot({ type: 'png', caret: 'hide' }).catch(() => null);
     const shot = bytes ? await keep(`${SHOT_FOLDER}/${run}/${name}.png`, bytes) : { picture: null, picture_kept: false, reason: 'no_picture' };
     const side = {
@@ -400,6 +437,7 @@ async function measureSide({ browser, url, view, signIn, ready, reach = [], name
       // A signed-in view that ends on a sign-in path measured the sign-in page, not the screen asked for.
       ...(signIn && LIVE.sign_in_paths.includes(new URL(page.url()).pathname) ? { signed_out: true } : {}),
       ...(reach.length > 0 ? { reach: reached.steps } : {}),
+      ...(found ? { finds: found } : {}),
       // A screen that never showed anything is blank for the whole wait.
       blank_ms: ms(sinceBegan(live, live?.blankAt, began) ?? Date.now() - began),
       longest_task_ms: ms(Math.max(longest, live?.longest ?? 0)),
@@ -461,7 +499,7 @@ export async function checkLiveScreens(input = {}, host, { keep = (name, bytes) 
         const answer = { view: view.id };
         const shared = { browser, view, ready: page.ready, run, keep };
         await spaced(page.signIn);
-        const current = await measureSide({ ...shared, url: page.url, signIn: page.signIn && signIns.get(page.url), reach: page.reach, name: `${name}-new`, taps: page.taps });
+        const current = await measureSide({ ...shared, url: page.url, signIn: page.signIn && signIns.get(page.url), reach: page.reach, name: `${name}-new`, taps: page.taps, finds: page.finds });
         answer.new = current.side;
         if (page.taps.length > 0) answer.taps = current.taps;
         if (page.oldUrl) {
