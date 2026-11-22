@@ -10,6 +10,7 @@
 // request sent on one just then failed in 71 ms; a browser would have asked again). The request keeps `retried` (the first
 // error) and its `ms` covers both tries, so the summary counts the retries and their wait.
 import { appendFileSync, realpathSync } from 'node:fs';
+import { hostname } from 'node:os';
 import { pathToFileURL } from 'node:url';
 
 /** The probe's settings from its arguments: flags first, then the URLs. */
@@ -86,7 +87,11 @@ async function main() {
   process.on('SIGTERM', async () => {
     clearInterval(timer);
     await Promise.allSettled([...inFlight]);
-    process.stdout.write(`${JSON.stringify(summarize(requests, given, started, new Date().toISOString()))}\n`);
+    // Where it asked from and how: a probe from another computer pays that path's round trip, and a new TLS connection costs
+    // it again (about 0.5 s from a home Mac, 1.2 s when a SYN is dropped), so a baseline says both. Each name is asked as
+    // itself (redirects are not followed), on connections kept open between requests.
+    const how = { from: hostname(), connections: 'kept open between requests; a new one only after the server closes one', redirects: 'not followed' };
+    process.stdout.write(`${JSON.stringify({ ...how, ...summarize(requests, given, started, new Date().toISOString()) })}\n`);
     process.exit(0);
   });
 }

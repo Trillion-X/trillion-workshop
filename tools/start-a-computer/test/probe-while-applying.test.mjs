@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import { mkdtempSync, symlinkSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { hostname, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createServer as createTcpServer } from 'node:net';
 import { execFileSync } from 'node:child_process';
@@ -76,6 +76,9 @@ test('run through a linked path, the probe asks until SIGTERM and prints its sum
   server.close();
   const summary = JSON.parse(said);
   assert.ok(summary.sent > 0 && summary.ok === summary.sent, `asked ${summary.sent}, ok ${summary.ok}`);
+  assert.equal(summary.from, hostname(), 'the summary says which computer asked');
+  assert.match(summary.connections, /kept open/);
+  assert.equal(summary.redirects, 'not followed');
 });
 
 // A server that answers the first request on each connection and keeps it open; a request on a reused connection is a reload:
