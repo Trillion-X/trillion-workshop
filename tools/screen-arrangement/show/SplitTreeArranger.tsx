@@ -42,6 +42,7 @@ import {
   splitSizeUnit,
 } from './split-tree-constraints'
 import { arrowPanePx, paneSizesNow, snapPanePx } from '../read-data/pane-sizes'
+import { shouldCommitPaneResize } from '../read-data/split-tree-operations'
 import { usePaneSizes } from './use-pane-sizes'
 import { LocalSurfaceVisibilityContext } from './embedded-surface-content'
 import { containerIsVisible, visibleSplitTree } from '../read-data/surface-visibility'
@@ -1432,7 +1433,7 @@ function usePaneEdgeDrag(ref: React.RefObject<HTMLElement | null>, { dir, index,
       const requested = requestedFromPointer(e)
       // pointerup can carry the final device coordinate before the browser has
       // dispatched its last pointermove, so the release position is the size.
-      if (drag && requested !== null) { commitRef.current(resizeTo(drag.measure, requested, true).sizes); drag.measure.panes.forEach((pane) => { pane.style.transition = '' }); reportScreenCommand(row ? 'Changed pane width' : 'Changed pane height', 'Workspace') }
+      if (drag && requested !== null && shouldCommitPaneResize({ moved: Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) > paneSizesNow().drag_start_px, sizes: drag.measure.sizes })) { commitRef.current(resizeTo(drag.measure, requested, true).sizes); drag.measure.panes.forEach((pane) => { pane.style.transition = '' }); reportScreenCommand(row ? 'Changed pane width' : 'Changed pane height', 'Workspace') }
       dragRef.current = null
       document.body.style.cursor = 'auto'
       document.body.style.userSelect = 'auto'
@@ -1473,7 +1474,7 @@ function usePaneEdgeDrag(ref: React.RefObject<HTMLElement | null>, { dir, index,
     const requested = e.key === 'Home'
       ? measure.minimum
       : arrowPanePx(measure.sizes[index], measure.snapStage, e.key === grow ? 1 : -1, e.shiftKey)
-    commitRef.current(resizeTo(measure, requested).sizes)
+    if (shouldCommitPaneResize({ moved: true, sizes: measure.sizes })) commitRef.current(resizeTo(measure, requested).sizes)
     window.setTimeout(() => setAtMinimum(false), 900)
   }
 

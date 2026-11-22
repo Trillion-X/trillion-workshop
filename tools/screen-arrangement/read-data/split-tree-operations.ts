@@ -220,3 +220,13 @@ export function sizeSplitInPixels(
   if (!sizesPx.every(size => Number.isFinite(size) && size > 0)) return root
   return replaceAt(root, path, found => ({...found, sizes: [...sizesPx], sizeUnit: 'px'}))
 }
+
+/** A pane edge commits only after real movement, and never with a size taken from a pane that reads 0 (its content has not arrived). */
+export function shouldCommitPaneResize({ moved, sizes }: { moved: boolean; sizes: readonly number[] }): boolean {
+  return moved && sizes.length > 0 && sizes.every(size => size > 0)
+}
+
+/** Every pane of a split sits at the drag floor: its saved sizes drew nothing, so the split starts again from its DATA sizes. */
+export function splitCollapsedToFloor(sizes: readonly number[], floorPx: number): boolean {
+  return sizes.length > 0 && sizes.every(size => size <= floorPx)
+}

@@ -21,7 +21,8 @@
     "arrow_step_px": 16,
     "arrow_big_step_px": 64,
     "handle_rail_rest_opacity": 0.45,
-    "handle_rail_hover_opacity": 0.9
+    "handle_rail_hover_opacity": 0.9,
+    "drag_start_px": 4
   },
   "sections": [
     {
