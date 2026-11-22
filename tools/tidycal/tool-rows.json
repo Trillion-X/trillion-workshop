@@ -271,7 +271,7 @@
         "invoke": {
           "kind": "http",
           "url": "https://tidycal.com/api/bookings/{booking_id}/cancel",
-          "method": "POST",
+          "method": "PATCH",
           "timeout_seconds": 30,
           "headers": {
             "accept": "application/json",
