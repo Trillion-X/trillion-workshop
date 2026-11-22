@@ -6,7 +6,29 @@
     "door": "local-model-server",
     "models": "/api/tags",
     "pull": "/api/pull",
-    "pull_minutes": 120
+    "pull_minutes": 120,
+    "health": {
+      "_what": "How tool:check-the-model-server-and-restart-it-if-stuck tells that the server still loads models, and restarts it when it does not. A small model that no job keeps loaded is asked for a few words; a load slower than limit_seconds counts as stuck. restart.argv is run as given ({uid} is this OS user's id): launchd restarts the brew service that keeps the server alive.",
+      "chat": "/api/chat",
+      "loaded": "/api/ps",
+      "alive": "/api/version",
+      "probe_model": "gemma3:4b",
+      "probe_words": "say ok",
+      "probe_tokens": 5,
+      "probe_keep_alive": "1m",
+      "limit_seconds": 60,
+      "restart": {
+        "argv": [
+          "/bin/launchctl",
+          "kickstart",
+          "-k",
+          "gui/{uid}/sh.brew.ollama"
+        ],
+        "run_seconds": 30,
+        "back_within_seconds": 60
+      },
+      "signature": "The server keeps answering the model it holds but loads no other: its log (/opt/homebrew/var/log/ollama.log) shows 'llama-server model predicted to exceed available memory, evicting' (sched.go) and then no load attempt; a new model's request never gets a [GIN] line and its client waits. Seen 01:18-02:43 AM CST Nov 22 2026; brew services restart fixed it in 13 s."
+    }
   },
   "disk_spare_gb": 10,
   "chat": [
