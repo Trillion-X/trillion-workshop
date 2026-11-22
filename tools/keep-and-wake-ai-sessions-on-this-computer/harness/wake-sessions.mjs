@@ -174,7 +174,7 @@ export function makeHelper({ rules = settings, key, origin = accountOrigin({ ask
       const value = await answer.json().catch(() => ({}));
       if (answer.ok) return value;
       const after = Number(answer.headers?.get?.('retry-after') ?? NaN);
-      if (!Number.isFinite(after) || attempt >= rules.busy_backoff_seconds.length) throw new Error(`${path}: ${value.error ?? answer.status}`);
+      if (!Number.isFinite(after) || attempt >= rules.busy_backoff_seconds.length) throw Object.assign(new Error(`${path}: ${value.error ?? answer.status}`), { status: answer.status, path });
       await wait(Math.max(after, rules.busy_backoff_seconds[attempt]));
     }
   }
@@ -186,7 +186,22 @@ export function makeHelper({ rules = settings, key, origin = accountOrigin({ ask
   // helper's own restarts when a session registers), and returns every agent id the stream carries.
   const sourceSecrets = new Map();
   let publishedTakerChoice = null;
+  // An account that serves no agent road answers 404 (its /mcp/api routes are retired). That is not busy: asking again
+  // every minute only filled the log (every 60 s on the always-on from 12:41 PM CST Nov 21 2026). From the first 404 the
+  // helper publishes nothing and opens no live connection; its handlers (the taker) keep taking work on their timers.
+  let noRoad = null;
   async function publishAll() {
+    if (noRoad) return [];
+    try { return await publishCards(); }
+    catch (error) {
+      if (error?.status !== 404) throw error;
+      noRoad = error.path;
+      log({ publish: 'stopped', why: fill(rules.no_agent_road, { path: noRoad }) });
+      for (const socket of sockets) { retired.add(socket); socket.close(); }
+      return [];
+    }
+  }
+  async function publishCards() {
     taker = takerForChoice();
     // The taker's card also says which AIs rest and what went wrong with one (take-open-work.mjs takerCard), so it is
     // published again whenever that changes, not only when the person's choice does.
@@ -267,6 +282,7 @@ export function makeHelper({ rules = settings, key, origin = accountOrigin({ ask
   const retired = new WeakSet();
   let stopped = false;
   function connect(ids, attempt = 0) {
+    if (noRoad || !ids.length) return null;
     const query = ids.map(id => `agent=${encodeURIComponent(id)}`).join('&');
     const socket = new WebSocketImpl(`${base.replace(/^http/, 'ws')}/mcp/api/live?${query}`, { headers: { authorization: `Bearer ${key}` } });
     sockets.add(socket);
@@ -474,7 +490,7 @@ if (isEntryScript()) {
   if (!process.argv.includes('--once')) startHandlers({ handlers: await loadHandlers(handlerRules), key: accountKey });
   let current = await start();
   if (process.argv.includes('--once')) {
-    const pulled = (await current.helper.call('/agents/events/pull', { agent_ids: current.ids.slice(0, 10) })).events ?? [];
+    const pulled = current.ids.length ? (await current.helper.call('/agents/events/pull', { agent_ids: current.ids.slice(0, 10) })).events ?? [] : [];
     await Promise.all(pulled.map(event => current.helper.handle(event)));
     process.exit(0);
   }

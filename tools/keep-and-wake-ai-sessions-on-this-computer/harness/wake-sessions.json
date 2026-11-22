@@ -8,6 +8,7 @@
   "ping_seconds": 30,
   "reconnect_seconds": [2, 5, 15, 30, 60],
   "busy_backoff_seconds": [1, 2, 4, 8],
+  "no_agent_road": "No agent road at this account: {path} answered 404 (the account's /mcp/api routes are retired), so this helper publishes no cards and opens no live connection; its handlers (the taker) run on their own timers.",
   "retries": 1,
   "most_at_once": 8,
   "wake_timeout_seconds": 900,

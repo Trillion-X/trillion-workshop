@@ -12,7 +12,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { tarGz } from '../src/tar-gz.mjs';
 import { fingerprintOf } from '../harness/wake-handlers/tool-reach.mjs';
-import { chooseAi, loadHandlers, makeHelper, registerSession, run, settings, watchConnection } from '../harness/wake-sessions.mjs';
+import { chooseAi, fill, loadHandlers, makeHelper, registerSession, run, settings, watchConnection } from '../harness/wake-sessions.mjs';
 
 // The Trillion address these tests talk to is the one the caller gives; no address is built in.
 process.env.TRILLION_ORIGIN ??= 'https://app.example.com';
@@ -382,4 +382,29 @@ test('a failed connection refresh is tried again on the next tick, and an order 
   assert.deepEqual(orders, [state], 'the order changed across the failure is handled');
   await tick();
   assert.equal(refreshes.length, 2, 'a handled state is not refreshed again');
+});
+
+// An account that serves no agent road answers 404 to the helper's /mcp/api calls (the routes are retired). The helper
+// then publishes nothing more and opens no live connection, instead of asking again every minute, as it did on the
+// always-on from 12:41 PM CST Nov 21 2026, and says so once; a busy answer (retry-after) is still asked again.
+test('a publish the account answers 404 stops the helper\'s cards and live connection, said once; a busy answer is asked again', async () => {
+  const w = world();
+  try {
+    let asked = 0, opened = 0;
+    const logged = [];
+    const missing = async () => { asked += 1; return new Response('{}', { status: 404 }); };
+    class Socket { constructor() { opened += 1; } addEventListener() {} close() {} send() {} }
+    const helper = makeHelper({ rules: w.rules, key: 'k', fetchImpl: missing, WebSocketImpl: Socket, handlers: await loadHandlers(w.rules), log: entry => logged.push(entry) });
+    assert.deepEqual(await helper.publishAll(), []);
+    assert.deepEqual(await helper.refresh(), [], 'publishing again asks nothing');
+    assert.equal(asked, 1, 'the account was asked once');
+    assert.equal(opened, 0, 'no live connection is opened to a road that is not there');
+    assert.equal(logged.filter(entry => entry.publish === 'stopped').length, 1);
+    assert.equal(logged[0].why, fill(settings.no_agent_road, { path: '/agents/publish' }));
+    assert.match(logged[0].why, /^No agent road at this account: \/agents\/publish answered 404/);
+    let tries = 0;
+    const busy = async () => (tries++ === 0 ? new Response('{}', { status: 503, headers: { 'retry-after': '0' } }) : new Response('{}', { status: 200 }));
+    await makeHelper({ rules: { ...w.rules, busy_backoff_seconds: [0] }, key: 'k', fetchImpl: busy, wait: async () => {}, handlers: await loadHandlers(w.rules), log: () => {} }).publishAll();
+    assert.ok(tries >= 2, 'a busy account is asked again');
+  } finally { w.done(); }
 });
