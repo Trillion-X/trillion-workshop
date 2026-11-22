@@ -4001,6 +4001,10 @@
                        "additionalProperties": false
                     }
                  },
+                 "record": {
+                    "type": "array",
+                    "description": "The rows the database has taken (their canonical_url is what is recorded), for the ledger step. Give nothing else: this step only records."
+                 },
                  "limit": {
                     "type": "integer",
                     "minimum": 0,

@@ -4,7 +4,7 @@ import { existsSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { keepNewArcTabs, blake3Hex } from '../do-work/keep-new-arc-tabs-in-the-inspiration-library.mjs';
+import { keepNewArcTabs, recordSeen, blake3Hex } from '../do-work/keep-new-arc-tabs-in-the-inspiration-library.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const sidebar = join(here, 'fixtures', 'arc-sidebar-sample.json');
@@ -24,10 +24,20 @@ test('plans the new rows, shoots the design rows and keeps the ledger', async ()
   assert.equal(out.shot_rows.filter(s => s.state === 'none' && s.name).length, 2);
   assert.equal(out.keep_files.length, 2);
   assert.ok(out.keep_files.every(f => existsSync(f.path)));
-  assert.ok(existsSync(join(state, 'ledger.json')));
+  assert.equal(existsSync(join(state, 'ledger.json')), false, 'planning writes no ledger');
   const again = await keepNewArcTabs({ ...base, held: [], limit: 10, state_folder: state }, { blake3Hex, ...calm });
-  assert.equal(again.counts.new, 0);
-  assert.equal(again.shot_rows.length, 0);
+  assert.equal(again.counts.new, 5, 'an unrecorded plan is offered again');
+  assert.equal(recordSeen({ state_folder: state, record: out.rows }).recorded, 5);
+  const after = await keepNewArcTabs({ ...base, held: [], limit: 10, state_folder: state }, { blake3Hex, ...calm });
+  assert.equal(after.counts.new, 0);
+  assert.equal(after.shot_rows.length, 0);
+});
+
+test('recordSeen adds the recorded addresses once, and a repeat adds nothing', () => {
+  const state = fresh();
+  const rows = [{ canonical_url: 'https://a.example/' }, { canonical_url: 'https://b.example/' }];
+  assert.equal(recordSeen({ state_folder: state, record: rows }).ledger, 2);
+  assert.equal(recordSeen({ state_folder: state, record: rows }).ledger, 2);
 });
 
 test('skips addresses the library already holds', async () => {

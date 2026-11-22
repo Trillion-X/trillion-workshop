@@ -73,7 +73,7 @@ export async function keepNewArcTabs(input, { blake3Hex, oneMinuteLoad = () => l
     shots.push(...results);
   }
   const shotIds = new Set(shots.filter(s => s.ok).map(s => s.id));
-  writeFileSync(ledgerPath, JSON.stringify({ seen: [...ledger.seen, ...rows.map(r => r.canonical_url)] }));
+  // Planning does not write the ledger: a row is recorded as seen only after its database write, by recordSeen.
   return {
     outcome: 'planned',
     counts: { ...counts, shots_ok: shotIds.size, shots_failed: shots.length - shotIds.size },
@@ -87,13 +87,28 @@ export async function keepNewArcTabs(input, { blake3Hex, oneMinuteLoad = () => l
   };
 }
 
+// Adds the addresses of rows the database has taken to the ledger, so the next plan does not offer them again. Called
+// after the insert, with the rows the insert used; a row the insert did not take is simply planned again later.
+export function recordSeen({ state_folder: stateFolder, record }) {
+  if (!stateFolder || !Array.isArray(record)) throw new Error('state_folder and record (the rows) are required.');
+  mkdirSync(stateFolder, { recursive: true });
+  const ledgerPath = join(stateFolder, 'ledger.json');
+  const ledger = existsSync(ledgerPath) ? JSON.parse(readFileSync(ledgerPath, 'utf8')) : { seen: [] };
+  const seen = new Set(ledger.seen);
+  for (const row of record) seen.add(row.canonical_url);
+  writeFileSync(ledgerPath, JSON.stringify({ seen: [...seen] }));
+  return { outcome: 'recorded', recorded: record.length, ledger: seen.size };
+}
+
 // The BLAKE3 identity owner: 64 hex digits of the BLAKE3 of the text. The row id keeps the first 16.
 export const blake3Hex = text => makeHashCodeHexFromBytes(new TextEncoder().encode(text)).slice(3);
 
-// The entry point the computer runs: one JSON object on stdin, one JSON line on stdout.
+// The entry point the computer runs: one JSON object on stdin, one JSON line on stdout. An input with record set is the
+// ledger step (recordSeen); any other input plans the rows and takes the shots (keepNewArcTabs).
 if (import.meta.url === `file://${process.argv[1]}`) {
   const input = JSON.parse(readFileSync(0, 'utf8') || '{}');
-  keepNewArcTabs(input, { blake3Hex }).then(out => process.stdout.write(`${JSON.stringify(out)}\n`), problem => {
+  const run = input.record ? Promise.resolve().then(() => recordSeen(input)) : keepNewArcTabs(input, { blake3Hex });
+  run.then(out => process.stdout.write(`${JSON.stringify(out)}\n`), problem => {
     process.stdout.write(`${JSON.stringify({ outcome: 'error', why: problem.message })}\n`);
     process.exitCode = 1;
   });
