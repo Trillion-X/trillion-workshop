@@ -1,0 +1,35 @@
+{
+  "start_here": "Say to your AI: \"Read my Stripe account\" and give the vault entry name of the Stripe key. It runs tool:read-my-stripe-account with that key_name.",
+  "lists": [],
+  "no_lists_because": "It keeps no list: it reads the Stripe account and writes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:read-my-stripe-account"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Read my Stripe account\" with the vault entry name. It calls tools:run with tool tool:read-my-stripe-account and {key_name}.",
+    "2. Read company name, address state and country, business type and profile name.",
+    "3. The key is never shown. The read changes nothing."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the Stripe account's business profile",
+      "ask": "Read my Stripe account.",
+      "given": "Reads tools/stripe-account/tool-rows.json: a GET to https://api.stripe.com/v1/account with the vault entry named by key_name as a bearer header, bound to api.stripe.com. Reads only.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-my-stripe-account",
+            "input": {
+              "key_name": "<the vault entry name for the Stripe key>"
+            }
+          }
+        }
+      },
+      "hands_back": "It answers the four fields only, for example {\"company_name\": \"<the company name Stripe holds>\", \"address_state\": \"<state>\", \"address_country\": \"US\", \"business_type\": \"company\", \"profile_name\": \"<the profile name>\"}. The values are read from Stripe on each call; this example is the shape, not a result. The key is never shown."
+    }
+  ]
+}

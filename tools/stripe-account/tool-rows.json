@@ -1,0 +1,76 @@
+{
+  "kind": "tool-rows",
+  "record_set": "stripe-account-tool-rows",
+  "what_this_is": "The Workshop row for Stripe's account read (GET /v1/account). One http call, with the Stripe secret key from the vault placed as a bearer header on api.stripe.com only. Reads only.",
+  "records": [
+    {
+      "id": "package::ai-tool-catalog::tool::read-my-stripe-account",
+      "address": "package::ai-tool-catalog::tool::read-my-stripe-account",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-my-stripe-account",
+        "label": "Read my Stripe account",
+        "job": "Read the Stripe account's own business profile: the company name, its address state and country, the business type and the profile name, so a legal entity can be checked against Stripe's own record",
+        "description": "Reads GET https://api.stripe.com/v1/account with the Stripe secret key the caller names by key_name (a vault entry name given as input, never stored in this row). Reads only; changes nothing. Shows only company name, address state and country, business type and profile name, and never the key.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "key_name"
+          ],
+          "properties": {
+            "key_name": {
+              "type": "string",
+              "description": "The name of the vault entry that holds the Stripe secret key to read the account with. The caller names it; the row names no key."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://api.stripe.com/v1/account",
+          "method": "GET",
+          "timeout_seconds": 30,
+          "headers": {
+            "accept": "application/json"
+          },
+          "credential_injections": [
+            {
+              "hosts": [
+                "api.stripe.com"
+              ],
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer "
+              },
+              "secret_name_from_input": "key_name"
+            }
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "read_only": true,
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "provider": "Stripe",
+          "documentation": "https://docs.stripe.com/api/accounts/object",
+          "read_on": "2026-11-21",
+          "verified_live": false
+        }
+      }
+    }
+  ]
+}
