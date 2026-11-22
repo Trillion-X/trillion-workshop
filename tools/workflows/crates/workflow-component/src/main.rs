@@ -244,6 +244,35 @@ fn ending(mut run: Map<String, Value>, workflow: &str, why: &str) -> Option<Valu
     Some(handed_out(&run, workflow, END_STEP, &tool, effect["wake"]["input"].clone()))
 }
 
+/// The recorder a run that ended well (completed or skipped) asks, with a reply: its answer comes back to the run under
+/// `END_STEP` with `ended_as` held, so a record that failed fails the run in its words instead of vanishing (Nov 22 2026,
+/// 4:22 AM CST: a resumed run's end effect, sent with no reply, never landed and nothing said so).
+fn end_told(run: &Map<String, Value>, status: &str, workflow: &str, why: Option<&str>, doors: &BTreeSet<String>) -> Option<Value> {
+    let effect = end_effect(run, status, workflow, why)?;
+    let mut carried = run.clone();
+    carried.insert("ended_as".into(), json!(status));
+    let run_id = run.get("run").and_then(Value::as_str).unwrap_or("run");
+    let tool = effect["wake"]["tool"].clone();
+    let told = json!({ "source": ANSWERED, "event_id": format!("{run_id}:{END_STEP}"),
+        "payload": { "workflow": workflow, "run": carried, "step": END_STEP, "for": tool } });
+    Some(effect_of(&json!({ "step": END_STEP, "for": tool, "asks": effect["wake"]["input"] }), told, doors, workflow))
+}
+
+/// What the pass the recorder's answer starts prints, for a run that ended well: its end, once more, when the record was
+/// kept; the run's failure, in words, when it was not.
+fn after_end(run: &Map<String, Value>, told: &Value) -> Result<Value, String> {
+    let status = run.get("ended_as").and_then(Value::as_str).unwrap_or("completed");
+    let workflow = told["workflow"].as_str().unwrap_or("the workflow");
+    let run_id = run.get("run").and_then(Value::as_str).unwrap_or("run");
+    match told.get("error") {
+        Some(error) => {
+            let said = told["said"].as_str().map(|said| format!(": {said}")).unwrap_or_default();
+            Err(format!("{workflow} {status}, but its end was not recorded ({}{said})", error.as_str().unwrap_or_default()))
+        }
+        None => Ok(json!({ "result": { "status": status, "workflow": workflow, "run": run_id, "steps": {}, "recorded": true } })),
+    }
+}
+
 /// The words a run fails with when its recorder's answer comes back (`END_STEP`): the failure it held, and the recorder's
 /// own error when it could not record it.
 fn ended_why(run: &Map<String, Value>, told: &Value) -> String {
@@ -421,7 +450,15 @@ fn the_run(given: &Value) -> (Map<String, Value>, BTreeMap<String, String>) {
         if let Some(Value::Object(kept)) = run.get("refused") {
             for (step, why) in kept { refused.insert(step.clone(), why.as_str().unwrap_or_default().to_string()); }
         }
-        if step == END_STEP { fail(ended_why(&run, told)); }
+        if step == END_STEP {
+            if run.contains_key("ended_as") {
+                match after_end(&run, told) {
+                    Ok(out) => { println!("{out}"); std::process::exit(0) }
+                    Err(why) => fail(why),
+                }
+            }
+            fail(ended_why(&run, told));
+        }
         // What the input left out is filled from the reader's answer (workflow_engine::fill_input), which is never held:
         // the filled fields are the run's input from here on, and `filled_from` says which row each came from.
         if told.get("error").is_none() && fill_step(&run).as_deref() == Some(step.as_str()) {
@@ -623,7 +660,7 @@ fn main() {
                 Some(answer) if skipped_by(&run["read_definition"], &answer).is_some() => {
                     let why = skipped_by(&run["read_definition"], &answer).unwrap_or_default();
                     let run_id = run.get("run").and_then(Value::as_str).unwrap_or("run").to_string();
-                    let effects: Vec<Value> = end_effect(&run, "skipped", &recipe, Some(&why)).into_iter().collect();
+                    let effects: Vec<Value> = end_told(&run, "skipped", &recipe, Some(&why), &door_asks()).into_iter().collect();
                     println!("{}", json!({ "result": { "status": "skipped", "why": why, "workflow": recipe, "run": run_id, "steps": {} }, "wake_effects": effects }));
                     return;
                 }
@@ -716,7 +753,7 @@ fn main() {
         println!("{}", json!({ "error": format!("{id}: {why}"), "result": result }));
         std::process::exit(1);
     }
-    effects.extend(end_effect(&run, walked["status"].as_str().unwrap_or_default(), &id, None));
+    effects.extend(end_told(&run, walked["status"].as_str().unwrap_or_default(), &id, None, &doors));
     println!("{}", json!({ "result": result, "wake_effects": effects }));
 }
 
@@ -1313,6 +1350,25 @@ mod tests {
         assert_eq!(end_effect(&own, "completed", "workflow:x", None).unwrap()["wake"]["tool"], "tool:keep");
         let bare = json!({ "run": "cause-2", "input": {} }).as_object().unwrap().clone();
         assert!(end_effect(&bare, "completed", "workflow:x", None).is_none());
+    }
+
+    // A run that ends well asks its recorder with a reply: the answer back says the end was kept, and a refused record
+    // fails the run in words instead of vanishing.
+    #[test]
+    fn a_record_of_a_runs_end_comes_back_to_the_run() {
+        let reader = json!({ "tool": "tool:run-sql-in-my-database", "input": { "database": "runs_db", "sql": "select", "params": [] } });
+        let run = json!({ "recipe": "workflow:x", "read_definition": reader, "run": "cause-1", "input": {}, "answers": {} }).as_object().unwrap().clone();
+        let effect = end_told(&run, "completed", "workflow:x", None, &door_asks()).expect("recorded");
+        let reply = &effect["wake"]["reply"];
+        assert_eq!(effect["wake"]["tool"], "tool:run-sql-in-my-database");
+        assert_eq!(reply["payload"]["step"], END_STEP);
+        assert_eq!(reply["payload"]["run"]["ended_as"], "completed");
+        assert!(end_told(&run, "paused", "workflow:x", None, &door_asks()).is_none(), "a paused pass records nothing");
+        let carried = reply["payload"]["run"].as_object().unwrap().clone();
+        let kept = after_end(&carried, &json!({ "workflow": "workflow:x", "result": { "row_count": 1 } })).unwrap();
+        assert_eq!((kept["result"]["status"].as_str(), kept["result"]["recorded"].as_bool()), (Some("completed"), Some(true)));
+        let why = after_end(&carried, &json!({ "workflow": "workflow:x", "error": "process_exit_unsuccessful", "said": "no such table" })).unwrap_err();
+        assert_eq!(why, "workflow:x completed, but its end was not recorded (process_exit_unsuccessful: no such table)");
     }
 
     // A workflow no place holds is not asked for forever: once asked for and still missing, the run walks and the step that
