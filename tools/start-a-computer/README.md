@@ -50,7 +50,7 @@ A row's `runs.names` lists the names that answer at the computer's `address`, ea
 
 ## Resizing a rented machine
 
-`node do-work/resize-a-machine.mjs LEASE_FILE SIZE`, with the provider's API key on stdin (piped, never argv), changes a running rented machine to another size of the same provider and keeps its disk. The lease names its provider description, which must carry a `resize` job (`providers/hetzner.json` and the made-up `made-up-providers/rented-machine.json` do). `resizeMachine` in `do-work/rent-a-machine.mjs` is the same operation for a caller that already holds a client.
+`node do-work/resize-a-machine.mjs LEASE_FILE SIZE`, with the provider's API key on stdin (piped, never argv), changes a running rented machine to another size of the same provider and keeps its disk. The lease names its provider description, which must carry a `resize` job (a published one under `providers/` and the made-up `made-up-providers/rented-machine.json` do). `resizeMachine` in `do-work/rent-a-machine.mjs` is the same operation for a caller that already holds a client.
 
 | Step | Row request | Call |
 | --- | --- | --- |
