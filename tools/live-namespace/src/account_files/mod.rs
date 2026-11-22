@@ -417,6 +417,18 @@ pub struct StreamedFile {
     pub identity: String,
 }
 
+/// Whether a read answer holds the file to its end, said in the answer itself: `truncated` is true when bytes are left
+/// after it, and then `next_offset` is where the next read starts. `byte_length` is the whole file's. Nov 21 2026: a read
+/// of a picture whose answer fit only the first 23,787 bytes (the caller's envelope, `fits`) was taken for the whole file,
+/// and the pictures came back with black bottoms.
+fn mark_partial(answer: &mut Value, size: u64, offset: u64, returned: u64) {
+    let end = offset.saturating_add(returned);
+    answer["truncated"] = json!(end < size);
+    if end < size {
+        answer["next_offset"] = json!(end);
+    }
+}
+
 /// The exact metadata and encoded content length of the base64 form of a bounded read. The read checks the actual
 /// UTF-8 form after fetching and falls back to base64 when text escaping would exceed the same bound. Reserving the
 /// recent-use word here keeps its later optional `recent_use_not_kept` field inside the transport bound too.
@@ -438,6 +450,7 @@ fn read_file_candidate(
         "encoding": "base64",
         "content": "A".repeat(encoded_length),
     });
+    mark_partial(&mut candidate, size, offset, length);
     if reserve_warning {
         let reserve = settings::settings().read.response_metadata_reserve_bytes;
         candidate["recent_use_not_kept"] = json!("x".repeat(reserve));
@@ -1078,6 +1091,7 @@ impl AccountFiles {
             "encoding": encoding,
             "content": content,
         });
+        mark_partial(&mut answer, size, offset, bytes.len() as u64);
         if let Some(fits) = fits {
             let reserve_warning = requested > 0 && offset == 0;
             let mut fit_answer = answer.clone();

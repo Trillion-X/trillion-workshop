@@ -354,6 +354,26 @@ fn read_file_asks_each_chunk_for_exactly_the_crossed_range() {
     let text = account_files.read_file("/Notes/a.txt", 2, Some(4)).unwrap();
     assert_eq!(text["encoding"], "utf-8");
     assert_eq!(text["content"], "note");
+    // A read that stops before the file's end says so, and where to go on from; a whole read says it is whole.
+    assert_eq!((read["truncated"].as_bool(), read["next_offset"].as_u64()), (Some(true), Some(1010)));
+    assert_eq!((text["truncated"].as_bool(), text["next_offset"].as_u64()), (Some(true), Some(6)));
+    let whole = account_files.read_file("/Notes/a.txt", 0, None).unwrap();
+    assert_eq!((whole["truncated"].as_bool(), whole.get("next_offset")), (Some(false), None), "{whole}");
+}
+
+/// A read whose answer must fit a caller's envelope answers the largest prefix that fits and says it is part of the file:
+/// truncated, with the next offset, never a part that looks whole.
+#[test]
+fn a_read_cut_to_fit_its_envelope_says_it_is_partial() {
+    let (mut account_files, _held, video) = kept();
+    let fits = |answer: &Value| answer.to_string().len() <= 1_000;
+    let read = account_files
+        .call_fitting("read_file", &json!({"name_or_identity": "/Recordings/club/player/day/C6637.MP4"}), &fits)
+        .unwrap()
+        .unwrap();
+    let returned = read["bytes_returned"].as_u64().unwrap();
+    assert!(returned > 0 && returned < video.len() as u64, "{read}");
+    assert_eq!((read["truncated"].as_bool(), read["next_offset"].as_u64()), (Some(true), Some(returned)));
 }
 
 /// A span is one answer of exactly the bytes asked, across chunks, with the same ranged reads `read_file` makes; a span
