@@ -54,6 +54,21 @@ export function inputOf(given) {
   return { login, database, host, pins, alwaysOn, operator, grants: grants ?? null, makeRole };
 }
 
+/** Whether the role already exists on the database, asked as the operator on the always-on computer. */
+async function roleExists(client, pin, operator, login) {
+  const asked = await runTool(client, pin, 'tool:run-sql-in-my-database', { credential_name: operator, sql: 'SELECT count(*)::int AS n FROM pg_roles WHERE rolname = $1', params: [login] });
+  if (asked?.exit_code !== 0) throw say(`The role could not be looked up at ${pin}: ${asked?.error ?? 'no answer'}.`, 3);
+  return asked.result.rows[0].n > 0;
+}
+
+/** Reads the held name back on every pin; a missing one stops the run and names the pin. */
+async function readBack(client, pins, heldName, why) {
+  for (const pin of pins) {
+    const names = await client.op('@secrets', 'secrets:names', {}, { requestKey: randomUUID(), route: { pins: [pin] } });
+    if (!Array.isArray(names?.names) || !names.names.includes(heldName)) throw say(`${heldName} is not held at ${pin} on read-back; ${why}.`, 3);
+  }
+}
+
 /** Runs one tool through the door, pinned to a computer, and answers its whole answer. */
 const runTool = (client, pin, tool, input) => opWhole(client, null, 'tools:run', { tool, input }, { requestKey: randomUUID(), route: { pins: [pin] } });
 
@@ -67,17 +82,23 @@ export async function makeLogin({ input, client, password = passwordOf() }) {
   const value = connectionOf({ login, password, database, host });
   const scrub = text => String(text).split(password).join('<redacted>');
   try {
-    for (const pin of pins) {
-      const answer = await client.op('@secrets', 'secrets:put', { name: heldName, value, hosts: [host] }, { requestKey: randomUUID(), route: { pins: [pin] } });
-      if (answer?.accepted !== true) throw say(`The vault at ${pin} did not accept ${heldName}; no role was made.`, 3);
-    }
-    for (const pin of pins) {
-      const names = await client.op('@secrets', 'secrets:names', {}, { requestKey: randomUUID(), route: { pins: [pin] } });
-      if (!Array.isArray(names?.names) || !names.names.includes(heldName)) throw say(`${heldName} is not held at ${pin} on read-back; no role was made.`, 3);
+    // A role that already exists keeps its password: a run that stopped after the role was made resumes at the grants, with the
+    // held value read back and not rotated. A missing held value then needs a password reset, which this tool does not do.
+    const existing = makeRole ? await roleExists(client, alwaysOn, operator, login) : false;
+    if (existing) {
+      await readBack(client, pins, heldName, 'the role exists, so its held value must already be on every pin: a password reset is needed');
+    } else {
+      for (const pin of pins) {
+        const answer = await client.op('@secrets', 'secrets:put', { name: heldName, value, hosts: [host] }, { requestKey: randomUUID(), route: { pins: [pin] } });
+        if (answer?.accepted !== true) throw say(`The vault at ${pin} did not accept ${heldName}; no role was made.`, 3);
+      }
+      await readBack(client, pins, heldName, 'no role was made');
     }
     if (!makeRole) return { login, held_name: heldName, held_at: pins, role_made: false, grants: null };
-    const made = await runTool(client, alwaysOn, 'tool:run-sql-in-my-database', { credential_name: operator, role_credential_name: heldName, recipe: { name: 'a-login', action: 'create' } });
-    if (made?.exit_code !== 0) throw say(`The login was not made at ${alwaysOn}: ${made?.error ?? 'no answer'}.`, 3);
+    if (!existing) {
+      const made = await runTool(client, alwaysOn, 'tool:run-sql-in-my-database', { credential_name: operator, role_credential_name: heldName, recipe: { name: 'a-login', action: 'create' } });
+      if (made?.exit_code !== 0) throw say(`The login was not made at ${alwaysOn}: ${made?.error ?? 'no answer'}.`, 3);
+    }
     if (grants) {
       const granted = await runTool(client, alwaysOn, 'tool:run-sql-in-my-database', { credential_name: `${database}-connection`, recipe: { name: grants.recipe, action: 'create', role: login } });
       if (granted?.exit_code !== 0) throw say(`The grants ${grants.recipe} were not given at ${alwaysOn}: ${granted?.error ?? 'no answer'}.`, 3);
