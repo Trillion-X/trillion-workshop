@@ -23,8 +23,6 @@ const SHOTS_IN_FLIGHT = rules.run_limits.shots_in_flight;
 const SHOT_KINDS = new Set(['site', 'component', 'flow']);
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-const sql = text => `'${String(text ?? '').replace(/'/g, "''")}'`;
-const sqlOrNull = value => (value === null || value === undefined ? 'NULL' : sql(value));
 
 async function waitForLoad(waited, { oneMinuteLoad, pause }) {
   while (oneMinuteLoad() >= GATE) { waited.count += 1; await pause(60_000); }
@@ -39,31 +37,8 @@ async function shoot(obscura, url, file) {
   }
 }
 
-// A shot that worked names its file and stays 'none' until it is kept in Files; one that failed is marked 'failed'.
-function shotStatement(shot) {
-  const state = shot.ok ? 'none' : 'failed';
-  return `update public.inspiration_items set screenshot_file_name = ${sql(shot.name)}, screenshot_state = ${sql(state)} where id = ${sql(shot.id)};`;
-}
-
 function canonicalOrNull(url) {
   try { return canonicalUrl(url); } catch { return null; }
-}
-
-const INSERT_BATCH = 200;
-
-// One insert statement per 200 rows; a row that is already there is left as it is.
-function insertStatements(rows) {
-  const cols = ['id', 'url', 'canonical_url', 'title', 'site', 'kind', 'why', 'shows_content', 'space', 'tabs', 'source', 'first_seen', 'provider', 'mine_later', 'tags'];
-  const statements = [];
-  for (let i = 0; i < rows.length; i += INSERT_BATCH) {
-    const values = rows.slice(i, i + INSERT_BATCH).map(r => `(${[
-      sql(r.id), sql(r.url), sql(r.canonical_url), sqlOrNull(r.title), sql(r.site), sql(r.kind), sql(r.why),
-      r.shows_content ? 'true' : 'false', sql(r.space), String(r.tabs), sql(r.source), sql(r.first_seen),
-      sqlOrNull(r.provider), r.mine_later ? 'true' : 'false', `ARRAY[${r.tags.map(sql).join(',')}]::text[]`,
-    ].join(',')})`);
-    statements.push(`insert into public.inspiration_items (${cols.join(', ')}) values ${values.join(',\n')} on conflict (canonical_url) do nothing;`);
-  }
-  return statements;
 }
 
 export async function keepNewArcTabs(input, { blake3Hex, oneMinuteLoad = () => loadavg()[0], pause = sleep }) {
@@ -102,8 +77,12 @@ export async function keepNewArcTabs(input, { blake3Hex, oneMinuteLoad = () => l
   return {
     outcome: 'planned',
     counts: { ...counts, shots_ok: shotIds.size, shots_failed: shots.length - shotIds.size },
-    statements: [...insertStatements(rows), ...shots.map(shotStatement)],
-    shots: shots.map(s => ({ id: s.id, name: s.name, path: s.path, ok: s.ok })),
+    // Rows for one parameterised insert; a row already in the library is left as it is.
+    rows,
+    // One update per shot: the file name of a shot that worked, and the state either way.
+    shot_rows: shots.map(s => ({ id: s.id, name: s.ok ? s.name : null, state: s.ok ? 'none' : 'failed' })),
+    // The files to keep in Files, in order; the kept names come back from the keep step.
+    keep_files: shots.filter(s => s.ok).map(s => ({ path: s.path, name: s.name, media_type: 'image/png' })),
     waited: waited.count,
   };
 }

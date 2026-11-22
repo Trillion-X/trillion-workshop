@@ -3944,7 +3944,7 @@
            "label": "Keep new Arc tabs in the inspiration library (on your computer)",
            "status": "active",
            "job": "Read the Arc browser saved tabs from its sidebar file, add the new ones to the inspiration library with their kind and reason, and take screenshots of the design and site rows",
-           "description": "Runs on the person's computer. Reads a copy of the Arc sidebar file (Arc is never written), plans a library row for each tab not yet held or already planned, takes an Obscura screenshot of up to limit design and site rows (two at a time, only while the one-minute load is under the gate), and returns the SQL statements that keep the rows: insert statements of 200 rows each, then one update per screenshot. The database is written by the caller, through the SQL tool, never by this program. AI chat threads keep their title and provider and are marked to mine later; they are never opened or shot. Mail, calendar, document, search, account and local addresses keep the host only.",
+           "description": "Runs on the person's computer. Reads a copy of the Arc sidebar file (Arc is never written), plans a library row for each tab not yet held or already planned, takes an Obscura screenshot of up to limit design and site rows (two at a time, only while the one-minute load is under the gate), and returns the rows for one parameterised insert, the shot rows for one parameterised update, and the screenshot files to keep in Files. The database is written by the caller, never by this program. AI chat threads keep their title and provider and are marked to mine later; they are never opened or shot. Mail, calendar, document, search, account and local addresses keep the host only.",
            "input_schema": {
               "type": "object",
               "additionalProperties": false,
@@ -4025,12 +4025,26 @@
                     "type": "object",
                     "description": "tabs, unique, held, new, byKind, shots_ok, shots_failed."
                  },
-                 "statements": {
+                 "rows": {
                     "type": "array",
                     "items": {
-                       "type": "string"
+                       "type": "object"
                     },
-                    "description": "SQL in order: inserts of up to 200 rows, then one update per screenshot."
+                    "description": "The rows for one parameterised insert into inspiration_items."
+                 },
+                 "shot_rows": {
+                    "type": "array",
+                    "items": {
+                       "type": "object"
+                    },
+                    "description": "One row per screenshot: id, the file name when it worked (null when not), and the state none or failed."
+                 },
+                 "keep_files": {
+                    "type": "array",
+                    "items": {
+                       "type": "object"
+                    },
+                    "description": "The screenshot files to keep in Files: path, name and media_type, in order."
                  },
                  "shots": {
                     "type": "array",

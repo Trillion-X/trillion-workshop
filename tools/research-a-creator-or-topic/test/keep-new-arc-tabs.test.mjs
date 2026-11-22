@@ -20,20 +20,21 @@ test('plans the new rows, shoots the design rows and keeps the ledger', async ()
   assert.equal(out.counts.new, 5);
   assert.equal(out.counts.shots_ok, 2);
   assert.equal(out.counts.shots_failed, 0);
-  assert.equal(out.statements.filter(s => s.startsWith('insert into public.inspiration_items')).length, 1);
-  assert.equal(out.statements.filter(s => s.startsWith('update public.inspiration_items')).length, 2);
-  assert.ok(out.shots.every(s => existsSync(s.path)));
+  assert.equal(out.rows.length, 5);
+  assert.equal(out.shot_rows.filter(s => s.state === 'none' && s.name).length, 2);
+  assert.equal(out.keep_files.length, 2);
+  assert.ok(out.keep_files.every(f => existsSync(f.path)));
   assert.ok(existsSync(join(state, 'ledger.json')));
   const again = await keepNewArcTabs({ ...base, held: [], limit: 10, state_folder: state }, { blake3Hex, ...calm });
   assert.equal(again.counts.new, 0);
-  assert.equal(again.shots.length, 0);
+  assert.equal(again.shot_rows.length, 0);
 });
 
 test('skips addresses the library already holds', async () => {
   const out = await keepNewArcTabs({ ...base, held: ['https://refero.design/x'], limit: 10, state_folder: fresh() }, { blake3Hex, ...calm });
   assert.equal(out.counts.held, 1);
   assert.equal(out.counts.new, 4);
-  assert.equal(out.shots.length, 1);
+  assert.equal(out.shot_rows.length, 1);
 });
 
 test('compares held addresses in canonical form, as the library stores them raw', async () => {
@@ -47,7 +48,7 @@ test('compares held addresses in canonical form, as the library stores them raw'
   assert.equal(out.counts.new, 3);
 });
 
-test('marks a shot that fails as failed and keeps going', async () => {
+test('marks a shot that fails as failed with no file name, and keeps going', async () => {
   const out = await keepNewArcTabs({
     ...base,
     held: [],
@@ -55,10 +56,10 @@ test('marks a shot that fails as failed and keeps going', async () => {
     state_folder: fresh(),
     pending_shots: [{ id: 'record:inspiration-item:0000000000000000', url: 'https://unreachable.example/', kind: 'site', site: 'unreachable.example' }],
   }, { blake3Hex, ...calm });
-  const failed = out.shots.find(s => s.id === 'record:inspiration-item:0000000000000000');
-  assert.equal(failed.ok, false);
-  assert.ok(out.statements.some(s => s.includes("screenshot_state = 'failed'") && s.includes('0000000000000000')));
+  const failed = out.shot_rows.find(s => s.id === 'record:inspiration-item:0000000000000000');
+  assert.deepEqual(failed, { id: 'record:inspiration-item:0000000000000000', name: null, state: 'failed' });
   assert.equal(out.counts.shots_failed, 1);
+  assert.ok(!out.keep_files.some(f => f.name.includes('unreachable')));
 });
 
 test('waits while the one-minute load is at or above the gate', async () => {
@@ -73,12 +74,12 @@ test('waits while the one-minute load is at or above the gate', async () => {
   assert.equal(out.waited, 2);
 });
 
-test('batches the insert statements at 200 rows', async () => {
+test('returns every new row for one parameterised insert, at any count', async () => {
   const lines = [];
   for (let i = 0; i < 450; i++) lines.push('T' + i, { parentID: 'F1', data: { tab: { savedURL: `https://site${i}.example/`, savedTitle: `Site ${i}` } } });
   const big = join(fresh(), 'sidebar.json');
   writeFileSync(big, JSON.stringify({ sidebar: { containers: [{ spaces: [], items: ['F1', { parentID: null, data: { itemContainer: { containerType: { spaceItems: { _0: 'S1' } } } } }, ...lines] }] } }));
   const out = await keepNewArcTabs({ obscura, sidebar: big, held: [], limit: 0, state_folder: fresh() }, { blake3Hex, ...calm });
-  const inserts = out.statements.filter(s => s.startsWith('insert into'));
-  assert.deepEqual(inserts.map(s => (s.match(/\('record:inspiration-item:/g) ?? []).length), [200, 200, 50]);
+  assert.equal(out.rows.length, 450);
+  assert.ok(out.rows.every(r => r.id.startsWith('record:inspiration-item:') && Array.isArray(r.tags)));
 });
