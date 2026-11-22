@@ -38,7 +38,9 @@ when, is the edit's data, not pixels. The face part of it (`face_marks_max` 0) i
   held database; the tool never has a zone or a bar written in its code).
 - Person detection settings (`person`): the segmentation model, the pose model, `person_conf`, `keypoint_conf`,
   `face_pad_ratio`, `imgsz`, `device`.
-- `format_id` (the clip's series, as its `content-series:` id) and, to write the verdict rows, `write_verdicts` (the held connection name).
+- `format_id` (the clip's series, as its `content-series:` id) and, to write the verdict rows, `write_verdicts` (the held connection name)
+  with `files_identity`: the published clip's Files identity (`1f:...`), the key the quality gate joins verdicts on. Writing is
+  refused without it.
 
 ## Person and face masks
 
@@ -91,8 +93,8 @@ taskpolicy -b nice -n 20 python3 tools/measure-graphics-on-the-person/do-work/me
 }
 ```
 
-Omit `write_verdicts` to print the verdicts without writing rows. The printed JSON holds the files identity (BLAKE3 of the
-clean picture and each layer), the two verdicts with reasons, and the worst values. The verdict rows hold the per-frame
+Omit `write_verdicts` to print the verdicts without writing rows. The printed JSON holds the files identity (the request's
+`files_identity`; without one, a BLAKE3 label of the clean picture and each layer), the two verdicts with reasons, and the worst values. The verdict rows hold the per-frame
 series in `measured`, the bar and zone rows in `bar`, the run folder in `evidence_ref`.
 
 ## Free regions for a renderer

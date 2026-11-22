@@ -86,7 +86,12 @@ def cmd_measure(args):
     result = measure.measure_layers(out, req['layers'], rects, width, height)
     summary = measure.summarize(result)
     law_results = measure.laws_verdicts(result, summary, laws, zone_rows)
-    identity = files_identity(req['clean'], req['layers'])
+    # the gate joins verdicts on the published clip's Files identity (1f:...), so a written verdict carries that key;
+    # the hash of the measured inputs is only a label for a dry measure
+    identity = req.get('files_identity')
+    if req.get('write_verdicts') and not (identity or '').startswith('1f:'):
+        raise SystemExit('write_verdicts needs files_identity: the published clip\'s Files identity (1f:...), the key the gate joins on')
+    identity = identity or files_identity(req['clean'], req['layers'])
     run = f"measure-graphics-on-the-person {req.get('run_label', 'run')} clean={os.path.basename(req['clean'])}"
     rows = []
     for law_id, verdict in law_results.items():
