@@ -16,7 +16,7 @@
 // Non-negotiable invariants
 //   1. Only a specifier of the form `trillion-workshop/<path>` is answered; every other specifier goes to Node untouched.
 //   2. The answer is a path inside this root: the hook stays a name for the root and gives no way out of it.
-import { register } from 'node:module';
+import { register, registerHooks } from 'node:module';
 import { dirname, join, relative, resolve as absolute, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isMainThread } from 'node:worker_threads';
@@ -38,9 +38,12 @@ export function resolve(specifier, context, nextResolve) {
   return nextResolve(asked ?? specifier, context);
 }
 
-// The hooks run in their own thread, which loads this file again; only the thread that asked registers.
+// registerHooks runs the hooks in this thread. register() runs them on a worker thread that the main thread waits on, and that wait
+// deadlocked a gateway build, so register() is only the fallback for a Node without registerHooks (before 22.15).
+// The fallback's hooks run in their own thread, which loads this file again; only the thread that asked registers.
 if (isMainThread) {
-  register(import.meta.url);
+  if (typeof registerHooks === 'function') registerHooks({ resolve });
+  else register(import.meta.url);
   const preload = `--import ${pathToFileURL(fileURLToPath(import.meta.url)).href}`;
   if (!(process.env.NODE_OPTIONS ?? '').includes(preload)) process.env.NODE_OPTIONS = `${process.env.NODE_OPTIONS ?? ''} ${preload}`.trim();
 }

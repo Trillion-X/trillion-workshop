@@ -37,3 +37,10 @@ test('a file under a tool folder with its own package.json imports trillion-work
   { encoding: 'utf8', cwd: resolve(root, 'tools/organize-the-sidebar') }).trim();
   assert.equal(printed, 'function');
 });
+
+test('importing the helper starts no hooks worker: register() would run its hooks on one that the main thread waits on', () => {
+  const script = `await import(process.argv[1]); const own = await import('trillion-workshop/test-helpers/tool-rows.mjs'); console.log(JSON.stringify({ worker: process.moduleLoadList.includes('NativeModule internal/modules/esm/hooks'), answered: typeof own.root }));`;
+  const out = JSON.parse(execFileSync(process.execPath, ['--input-type=module', '-e', script, pathToFileURL(resolve(root, 'test-helpers/workshop-self-resolve.mjs')).href],
+    { cwd: root, env: { ...process.env, NODE_OPTIONS: '' }, encoding: 'utf8' }));
+  assert.deepEqual(out, { worker: false, answered: 'string' });
+});
