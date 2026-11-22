@@ -68,6 +68,10 @@
                 "type": "string"
               },
               "description": "[scope_kind, scope_id] when settings_record holds several rows."
+            },
+            "max_per_thread": {
+              "type": "integer",
+              "description": "The most pairs one thread gives (lowest BLAKE3 of id first), so one long conversation does not teach its habits as the person's; left out for no cap."
             }
           }
         },

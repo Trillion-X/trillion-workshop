@@ -42,6 +42,18 @@ def test_held_out_threads_are_never_written_and_bytes_repeat():
         assert again["result"]["files"]["train"]["blake3"] == res["files"]["train"]["blake3"]
 
 
+def test_max_per_thread_caps_one_long_thread():
+    with tempfile.TemporaryDirectory() as d:
+        code, ans = build(request(Path(d), max_per_thread=5, valid_share=0.3))
+        assert code == 0, ans
+        res = ans["result"]
+        assert res["skipped"]["over_thread_cap"] == 20
+        assert res["skipped"]["held_out_thread"] == 5
+        assert res["files"]["train"]["rows"] + res["files"]["valid"]["rows"] == 5
+        code, ans = build(request(Path(d), max_per_thread=0))
+        assert code == 2 and "max_per_thread" in ans["error"]
+
+
 def test_refusals_say_what_to_change():
     with tempfile.TemporaryDirectory() as d:
         code, ans = build(request(Path(d), frame="no slots"))

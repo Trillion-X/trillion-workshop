@@ -3,12 +3,13 @@ really sent.
 
 usage: python3 -I build_writing_pairs.py <request.json | ->
 
-Request: {out_dir, pairs, held_out_threads, system, frame, context_lines, min_characters, valid_share, seed}, or
+Request: {out_dir, pairs, held_out_threads, system, frame, context_lines, min_characters, valid_share, seed, max_per_thread?}, or
 settings_record with the person's `build` settings under it. `pairs` are rows {id, thread, channel, context, draft,
 words} (inline or {"file": a JSON Lines file}): `words` is what the person sent, `draft` a plain wording of it made the
 same way the cases it will be measured on were made. A pair whose thread is held out is never written, not even to
 valid. Each kept pair lands in valid when the BLAKE3 of its id, read as a number in [0, 1), is below valid_share, so the
-same request writes the same files byte for byte. Writes train.jsonl and valid.jsonl ({messages}) and answers their
+same request writes the same files byte for byte. With max_per_thread, no thread gives more than that many pairs
+(the ones with the lowest BLAKE3 of "thread-cap:" and their id, a different order from the valid split), so one long conversation does not teach its habits as the person's. Writes train.jsonl and valid.jsonl ({messages}) and answers their
 counts and BLAKE3s."""
 import json
 import sys
@@ -33,8 +34,21 @@ def main(req):
     context_lines = need(req, "context_lines", int, "how many lines of the thread before the message are shown")
     min_chars = need(req, "min_characters", int, "the shortest message kept")
     valid_share = need(req, "valid_share", (int, float), "the share of pairs kept for validation")
+    per_thread = req.get("max_per_thread")
+    if per_thread is not None and (not isinstance(per_thread, int) or isinstance(per_thread, bool) or per_thread < 1):
+        raise Refused("max_per_thread must be a whole number of at least 1, or left out for no cap")
     out.mkdir(parents=True, exist_ok=True)
-    seen, kept, skipped = set(), {"train": [], "valid": []}, {"held_out_thread": 0, "no_draft": 0, "short": 0, "repeat": 0}
+    seen, kept, skipped = set(), {"train": [], "valid": []}, {"held_out_thread": 0, "no_draft": 0, "short": 0, "repeat": 0, "over_thread_cap": 0}
+    if per_thread is not None:
+        by_thread = {}
+        for p in pairs:
+            if isinstance(p, dict) and isinstance(p.get("id"), str):
+                by_thread.setdefault(p.get("thread") or p["id"], []).append(p)
+        capped = set()
+        for rows in by_thread.values():
+            capped.update(id(p) for p in sorted(rows, key=lambda p: share_of("thread-cap:" + p["id"]))[:per_thread])
+        skipped["over_thread_cap"] = sum(1 for p in pairs if isinstance(p, dict) and isinstance(p.get("id"), str) and id(p) not in capped)
+        pairs = [p for p in pairs if not (isinstance(p, dict) and isinstance(p.get("id"), str)) or id(p) in capped]
     for p in pairs:
         if not isinstance(p, dict) or not isinstance(p.get("id"), str) or not isinstance(p.get("words"), str):
             raise Refused("each pair needs an id and words (text)")
