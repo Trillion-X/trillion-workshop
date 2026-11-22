@@ -106,3 +106,18 @@ test('the author is left out of JSON-LD when the site does not name one, and no 
   assert.equal(bare.includes('application/ld+json'), false);
   assert.match(bare, /<title>A Guide \| Example<\/title>/);
 });
+
+test('an article answers HEAD with its GET status and headers and no body; a missing one is 404; a route with effects ignores HEAD', async () => {
+  const row = { slug: 'here', title: 'Here', description: 'd', body_markdown: 'Words', status: 'published', published_at: '2026-01-01T00:00:00Z', updated_at: '2026-01-01T00:00:00Z' };
+  const handler = site({
+    layout: ({ title, body }) => `<!doctype html><html><head><title>${title}</title></head><body>${body}</body></html>`,
+    db: async (sql, params) => (params?.[0] === 'here' ? [row] : []),
+  });
+  const head = await handler.handle(new Request('https://example.test/articles/here', { method: 'HEAD' }));
+  assert.equal(head.status, 200);
+  assert.match(head.headers.get('content-type'), /text\/html/);
+  assert.equal(await head.text(), '');
+  const missing = await handler.handle(new Request('https://example.test/articles/gone', { method: 'HEAD' }));
+  assert.equal(missing.status, 404);
+  assert.equal(await handler.handle(new Request('https://example.test/subscribe/confirm?s=x&t=y', { method: 'HEAD' })), null);
+});

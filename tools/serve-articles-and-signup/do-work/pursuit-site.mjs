@@ -203,6 +203,14 @@ export function createSite({ db, mail, origin, brand, secret, layout, signupText
     return page({ title: 'Unsubscribed', body: '<h1>You are unsubscribed</h1>' });
   }
 
+  // The routes that only read: the index, the feed and one article. null for any other path.
+  function readRoute(path, url) {
+    if (path === '/articles' || path === '/articles/') return articleIndex();
+    if (path === '/articles/rss.xml') return feed();
+    if (path.startsWith('/articles/') && path.split('/').length === 3) return articlePage(decodeURIComponent(path.slice('/articles/'.length)), url);
+    return null;
+  }
+
   return {
     previewToken,
     unsubscribeLink,
@@ -210,10 +218,10 @@ export function createSite({ db, mail, origin, brand, secret, layout, signupText
     async handle(request) {
       const url = new URL(request.url);
       const path = url.pathname.replace(/\/+$/, '') || '/';
-      if (request.method === 'GET' && (path === '/articles' || path === '/articles/')) return articleIndex();
-      if (request.method === 'GET' && path === '/articles/rss.xml') return feed();
-      if (request.method === 'GET' && path.startsWith('/articles/') && path.split('/').length === 3) {
-        return articlePage(decodeURIComponent(path.slice('/articles/'.length)), url);
+      if (request.method === 'GET' || request.method === 'HEAD') {
+        const answer = readRoute(path, url);
+        // HEAD is answered as GET is, with the same status and headers and no body.
+        if (answer) return request.method === 'GET' ? answer : answer.then((full) => new Response(null, { status: full.status, headers: full.headers }));
       }
       if (request.method === 'POST' && path === '/subscribe') return subscribe(request);
       if (request.method === 'GET' && path === '/subscribe/confirm') return confirm(url);
