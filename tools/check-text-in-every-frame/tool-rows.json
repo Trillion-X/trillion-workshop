@@ -1,0 +1,63 @@
+{
+  "kind": "package-set-records",
+  "record_set": "check-text-in-every-frame-tool-rows",
+  "what_this_is": "Checks that every sampled frame of a clip (one every 2 s) shows every required phrase, read by tesseract after case and whitespace are folded. Pass only when every frame has every phrase; lists the frames that miss one. No model judges the picture.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-text-in-every-frame",
+        "label": "Check that each phrase is on screen in every sampled frame (runs on your computer)",
+        "job": "Give a check the text it needs to find in every frame of a clip, frame by frame",
+        "description": "Checks that every sampled frame of a clip (one every 2 s) shows every required phrase, read by tesseract after case and whitespace are folded. Pass only when every frame has every phrase; lists the frames that miss one. No model judges the picture.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "clip",
+            "phrases"
+          ],
+          "properties": {
+            "clip": {
+              "type": "string",
+              "description": "The local clip file."
+            },
+            "phrases": {
+              "type": "string",
+              "description": "A JSON list of the phrases every frame must show."
+            },
+            "every_s": {
+              "type": "number",
+              "description": "Seconds between sampled frames (default 2.0)."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "{\"result\": {pass, frames, missing: [{at_s, missing}], phrases}} or {\"error\": ...}"
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository"
+          ],
+          "run": "python3 -I tools/check-text-in-every-frame/do-work/check_text_in_every_frame.py {clip} --phrases {phrases}",
+          "needs": [
+            "python",
+            "ffmpeg",
+            "tesseract"
+          ],
+          "say": "This runs on the person's own computer."
+        },
+        "maker": "maker:check-text-in-every-frame",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "ffmpeg frame extraction and the tesseract OCR engine"
+        }
+      }
+    }
+  ]
+}

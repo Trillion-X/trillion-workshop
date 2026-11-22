@@ -1,0 +1,138 @@
+{
+  "drafted_from": "tool row in tools/check-text-in-every-frame/tool-rows.json, do-work/check_text_in_every_frame.py and its test",
+  "start_here": "Say to your AI: \"Check that Name One and Name Two 2019 are on screen in every sampled frame of clip.mp4.\"",
+  "lists": [
+    {
+      "list": "list:clip-text-checks",
+      "label": "Clip text checks",
+      "row_type": "record:clip-text-check",
+      "holds": "One row per clip checked for on-screen text: the phrases required, the frames sampled, and the frames that miss a phrase.",
+      "fields": [
+        {
+          "id": "clip",
+          "kind": "text",
+          "label": "Clip",
+          "alike": [
+            "file",
+            "name"
+          ]
+        },
+        {
+          "id": "phrases",
+          "kind": "text",
+          "label": "Phrases required",
+          "alike": [
+            "words",
+            "text"
+          ]
+        },
+        {
+          "id": "frames",
+          "kind": "number",
+          "label": "Frames sampled",
+          "alike": [
+            "count"
+          ]
+        },
+        {
+          "id": "missing_frames",
+          "kind": "number",
+          "label": "Frames missing a phrase",
+          "alike": [
+            "misses"
+          ]
+        },
+        {
+          "id": "pass",
+          "kind": "checkbox",
+          "label": "All frames pass",
+          "alike": [
+            "passed"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "fed-12s-text",
+          "values": {
+            "clip": "12s comparison",
+            "phrases": "Name One; Name Two 2019",
+            "frames": 30,
+            "missing_frames": 0,
+            "pass": true
+          }
+        },
+        {
+          "id": "fed-24s-text",
+          "values": {
+            "clip": "24s comparison",
+            "phrases": "Name One; Name Two",
+            "frames": 12,
+            "missing_frames": 12,
+            "pass": false
+          }
+        }
+      ],
+      "alike": [
+        "clip text log",
+        "caption checks"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:check-text-in-every-frame"
+  ],
+  "instructions": [
+    "1. Put the clip on your computer as a file.",
+    "2. Run tool:check-text-in-every-frame with clip and phrases (a JSON list of the names and the credit text, year included).",
+    "3. Keep one clip-text-check row with the frames that missed a phrase."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check the names and credit are on screen in every frame",
+      "ask": "Check that Name One and Name Two 2019 are on screen in every sampled frame of clip.mp4.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "tool:check-text-in-every-frame",
+        "input": {
+          "clip": "clip.mp4",
+          "phrases": "[\"Name One\", \"Name Two 2019\"]"
+        }
+      },
+      "hands_back": "{\"result\": {\"pass\": true, \"frames\": 30, \"missing\": [], \"phrases\": [\"Name One\", \"Name Two 2019\"]}}"
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "kit_list": "list:clip-text-checks",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for clip text checks; the pour tool matches each kit field to one of yours and pours nothing under 80%.",
+    "example": {
+      "kit_list": "list:clip-text-checks",
+      "into": {
+        "list": "list:clip-checks",
+        "row_type": "record:clip-check",
+        "fields": [
+          "clip",
+          "phrases",
+          "frames",
+          "missing_frames",
+          "pass"
+        ]
+      },
+      "rows": [
+        {
+          "id": "fed-12s-text",
+          "values": {
+            "clip": "12s comparison",
+            "phrases": "Name One; Name Two 2019",
+            "frames": 30,
+            "missing_frames": 0,
+            "pass": true
+          }
+        }
+      ]
+    }
+  }
+}
