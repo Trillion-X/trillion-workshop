@@ -6,7 +6,16 @@
       "sql": "INSERT INTO wf_runs (run_id, workflow, started_by, started_at, computer, status, failed, updated_at) VALUES ($1::text, $4::text, 'engine', now(), 'engine', $2::text, CASE WHEN $3::text IS NULL THEN '[]'::jsonb ELSE jsonb_build_object('why', $3::text, 'at', now()) END, now()) ON CONFLICT (run_id) DO UPDATE SET status = EXCLUDED.status, failed = CASE WHEN $3::text IS NULL THEN wf_runs.failed ELSE EXCLUDED.failed END, updated_at = now() WHERE wf_runs.status IS DISTINCT FROM EXCLUDED.status RETURNING run_id, status",
       "params": []
     },
-    "with": { "params.0": "run", "params.1": "status", "params.3": "workflow", "database": "database" },
-    "with_if_given": { "params.2": "why" }
-  }
+    "with": {
+      "params.0": "run",
+      "params.1": "status",
+      "params.3": "workflow",
+      "database": "database"
+    },
+    "with_if_given": {
+      "params.2": "why"
+    }
+  },
+  "reserve_steps": 2,
+  "reserve_steps_why": "A run keeps two steps of its line for recording its end: the recorder's own run and the pass its answer starts. A pass that would hand out a step leaving fewer ends the run failed instead, and records that. Nov 22 2026, 4:44 AM CST: School's 27-step dry run spent all 40 steps of its line and record-the-end had none left, so its end was never recorded."
 }

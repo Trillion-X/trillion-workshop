@@ -208,7 +208,9 @@ fn end_effect(run: &Map<String, Value>, status: &str, workflow: &str, why: Optio
     let own = run.get("on_end").filter(|recorder| recorder["tool"].as_str().is_some_and(|tool| !tool.is_empty())).cloned();
     // The run's own definition reader names the database its row was written in; with no own recorder, the DATA one
     // records there. A run with neither records nothing (no store is named in code).
-    let database = run.get("read_definition").and_then(|reader| reader["input"]["database"].as_str()).filter(|d| !d.is_empty());
+    let asked = run.get("read_definition").filter(|reader| reader.is_object())
+        .map(|reader| reader_ask(reader, &recipe_of(run).unwrap_or_else(|| workflow.to_string()), run));
+    let database = asked.as_ref().and_then(|input| input["database"].as_str()).filter(|d| !d.is_empty());
     let recorder = match own {
         Some(recorder) => recorder,
         None => {
@@ -242,6 +244,31 @@ fn ending(mut run: Map<String, Value>, workflow: &str, why: &str) -> Option<Valu
     run.insert("ended".into(), json!(why));
     let tool = effect["wake"]["tool"].as_str().unwrap_or_default().to_string();
     Some(handed_out(&run, workflow, END_STEP, &tool, effect["wake"]["input"].clone()))
+}
+
+/// The steps a run keeps for recording its end (run-end.json `reserve_steps`): its recorder's run and the pass its answer
+/// starts. Nov 22 2026, 4:44 AM CST: School's 27-step dry run spent its line's 40 steps and its end was never recorded.
+fn reserve_steps() -> u64 {
+    let data: Value = serde_json::from_str(RUN_END).unwrap_or_else(|error| fail(format!("run-end.json does not read: {error}")));
+    data["reserve_steps"].as_u64().unwrap_or(2)
+}
+
+/// Whether handing out `handing` more runs from a pass whose line has `left` steps (the pass's own included) would leave
+/// fewer than the reserve for recording the run's end.
+fn starved(left: u64, handing: u64) -> bool {
+    left < 1 + handing + reserve_steps()
+}
+
+/// Keeps the definitions a run read in its envelope, so later passes walk them without asking the reader again (one read per
+/// run, one version from start to end), when the envelope with them stays within the run's answer bound; a larger one is
+/// read again by its pin each pass, as before (x-mode's is 655 KB). Answers whether they were kept.
+fn hold_definitions(run: &mut Map<String, Value>, all: &[Value]) -> bool {
+    let mut held = run.clone();
+    held.remove(READ);
+    held.insert("definitions".into(), json!(all));
+    let fits = Value::Object(held).to_string().len() <= most_answer_bytes(run);
+    if fits { run.insert("definitions".into(), json!(all)); }
+    fits
 }
 
 /// The recorder a run that ended well (completed or skipped) asks, with a reply: its answer comes back to the run under
@@ -329,10 +356,31 @@ fn reader_ask(reader: &Value, recipe: &str, run: &Map<String, Value>) -> Value {
     if let Some(path) = reader["uses_ids_at"].as_str() { set_at(&mut input, path, run.get("uses_missing").cloned().unwrap_or(json!([]))); }
     let run = Value::Object(run.clone());
     for (to, from) in reader["with"].as_object().into_iter().flatten() {
-        let value = from.as_str().and_then(|from| at_path(&run, from)).cloned().unwrap_or(Value::Null);
+        let value = with_value(&run, from).cloned().unwrap_or(Value::Null);
         set_at(&mut input, to, value);
     }
     input
+}
+
+/// What a reader's `with` entry names in the run: one dotted path, or a list of them, the first that holds a value (a
+/// listed workflow row's reader names where its database may be: the switch's `kept_in`, the fact's, or the run's own
+/// `database`). None when no path holds one.
+fn with_value<'v>(run: &'v Value, from: &Value) -> Option<&'v Value> {
+    let paths: Vec<&str> = match from {
+        Value::String(path) => vec![path.as_str()],
+        Value::Array(paths) => paths.iter().filter_map(Value::as_str).collect(),
+        _ => vec![],
+    };
+    paths.into_iter().find_map(|path| at_path(run, path).filter(|value| !value.is_null()))
+}
+
+/// Whether the run's reader can be asked: every `with` entry its `needs` names (DATA, such as the database it reads from)
+/// is there in the run. A reader that names no `needs` can always be asked, its other `with` values left empty when absent.
+fn reader_resolves(run: &Map<String, Value>) -> bool {
+    let Some(reader) = run.get("read_definition").filter(|reader| reader.is_object()) else { return false };
+    let whole = Value::Object(run.clone());
+    reader["needs"].as_array().into_iter().flatten().filter_map(Value::as_str)
+        .all(|needed| reader["with"].get(needed).is_some_and(|from| with_value(&whole, from).is_some()))
 }
 
 /// Why the reader's answer says the run is not to run (a text, or true, at the reader's `skip_at`), such as its row being
@@ -497,6 +545,8 @@ fn the_run(given: &Value) -> (Map<String, Value>, BTreeMap<String, String>) {
     }
     let input = given["input"].as_object().cloned().unwrap_or_default();
     let mut run: Map<String, Value> = input.iter().filter(|(field, _)| KEPT.contains(&field.as_str())).map(|(k, v)| (k.clone(), v.clone())).collect();
+    // Whether a fact that chose this run is read again from its row (below, once the run's input is whole).
+    let mut reads_row = false;
     let mut own: Map<String, Value> = match input.get("input") {
         Some(Value::Object(own)) if !input.contains_key("row") => own.clone(),
         _ => input.iter().filter(|(field, _)| !KEPT.contains(&field.as_str())).map(|(k, v)| (k.clone(), v.clone())).collect(),
@@ -522,7 +572,7 @@ fn the_run(given: &Value) -> (Map<String, Value>, BTreeMap<String, String>) {
             if !run.contains_key("recipe") {
                 if let Some(workflow) = fact.get("workflow").filter(|workflow| workflow.is_string()) { run.insert("recipe".into(), workflow.clone()); }
             }
-            if run.contains_key("recipe") { run.remove("definition"); run.remove("definitions"); }
+            reads_row = run.contains_key("recipe");
         }
         if let Some(Value::Object(settings)) = fact.remove("input") {
             for (field, value) in settings { own.insert(field, value); }
@@ -536,6 +586,17 @@ fn the_run(given: &Value) -> (Map<String, Value>, BTreeMap<String, String>) {
         }
     }
     run.insert("input".into(), Value::Object(own));
+    // A reader that can be asked reads the row as it is now, so the copy a fact carried goes. A reader whose database the
+    // run does not name (a listed row's shared reader, a switch that names no kept_in: Nov 22 2026, 27 switched-on wakes
+    // on the Mac named none) cannot be asked: a run that carries its definition runs that one, and the reader goes.
+    let carries = run.get("definition").is_some_and(Value::is_object) || run.get("definitions").is_some_and(|all| all.as_array().is_some_and(|all| !all.is_empty()));
+    if run.get("read_definition").is_some_and(Value::is_object) {
+        if reader_resolves(&run) {
+            if reads_row { run.remove("definition"); run.remove("definitions"); }
+        } else if carries {
+            run.remove("read_definition");
+        }
+    }
     if run.get("run").is_none() {
         run.insert("run".into(), given["cause"]["key"].as_str().map(Value::from).unwrap_or_else(|| json!("run")));
     }
@@ -643,10 +704,15 @@ fn main() {
         hand_out(&run, &workflow, &step, &tool, asks);
         return;
     }
-    let mut all = match (carries_definition(&run), recipe_of(&run)) {
+    let mut all = match (carries_definition(&run) && !run.contains_key(READ), recipe_of(&run)) {
         (false, Some(recipe)) => {
             let step = reader_step(&run).unwrap_or_else(|| fail(format!(
                 "{recipe} was named with no definition: hand in definition, or read_definition with a recipe")));
+            // A reader that takes its database from the run, which names none, is never asked with nothing.
+            if !reader_resolves(&run) {
+                fail(format!("{recipe} names no database to read its definition from: its switch names kept_in.database (the \
+                    database that keeps its row), or the fact that woke it carries kept_in or its definition"));
+            }
             if let Some(why) = refused.get(&step) {
                 let asked = run.get("uses_missing").and_then(Value::as_array).map(|ids| ids.len()).unwrap_or(0);
                 let with = if asked > 0 { format!(" with the {asked} workflows it uses") } else { String::new() };
@@ -665,7 +731,7 @@ fn main() {
                     return;
                 }
                 Some(answer) => match read_definitions(&mut run, &recipe, &step, &answer).unwrap_or_else(|why| end_failed(run.clone(), &recipe, why)) {
-                    Some(all) => all,
+                    Some(all) => { hold_definitions(&mut run, &all); all }
                     None => {
                         let reader = run["read_definition"].clone();
                         let tool = reader["tool"].as_str().unwrap_or_default().to_string();
@@ -714,6 +780,8 @@ fn main() {
     // reaches are read, never every one its uses name, so one read stays under the engine's answer bound (School's run at
     // 10:11 PM CST Nov 21 2026 asked for all 8 of its used rows at once: 142,901 bytes, over the 131,072 an answer may be).
     if missed_to_read(&mut run, &walked) {
+        // The held definitions lack what the walk reached: they are read again, with it, by the reader.
+        if run.contains_key("read_definition") { run.remove("definitions"); }
         let recipe = recipe_of(&run).unwrap_or_else(|| id.clone());
         let reader = run["read_definition"].clone();
         let tool = reader["tool"].as_str().unwrap_or_default().to_string();
@@ -737,6 +805,13 @@ fn main() {
     // and kept nowhere else, so two steps handed out together would each come back with the run as it stood before
     // either answered, and the second answer back would lose the first. The next pass hands out the next one.
     // Who started the run, when its starting fact said so, goes with every step it hands out.
+    if let (Some(next), Some(left)) = (waiting.first(), given["cause"]["budget"]["steps"].as_u64()) {
+        if end_effect(&run, "failed", &id, Some("")).is_some() && starved(left, 1) {
+            let why = format!("{id}: its line has {left} steps left; handing out {} would leave fewer than the {} kept to record its end",
+                next["step"].as_str().unwrap_or("the next step"), reserve_steps());
+            end_failed(run, &id, why);
+        }
+    }
     let started_by = run.get("started_by").cloned();
     let waiting: Vec<Value> = waiting.into_iter().map(|mut w| { if let Some(by) = &started_by { w["started_by"] = by.clone(); } w }).collect();
     let mut effects: Vec<Value> = told.into_iter().map(|(_, _, fact)| fact).collect();
@@ -1369,6 +1444,113 @@ mod tests {
         assert_eq!((kept["result"]["status"].as_str(), kept["result"]["recorded"].as_bool()), (Some("completed"), Some(true)));
         let why = after_end(&carried, &json!({ "workflow": "workflow:x", "error": "process_exit_unsuccessful", "said": "no such table" })).unwrap_err();
         assert_eq!(why, "workflow:x completed, but its end was not recorded (process_exit_unsuccessful: no such table)");
+    }
+
+    // A listed workflow row (a recipe a wake names as its tool) runs on this component: the row source in
+    // tools/workflows/tool-rows.json hands each listed row's run this component and its reader (`listed_input`), naming no
+    // database; the person's own switch names it (kept_in.database, as the asked-row starter does), and the engine adds the
+    // row's id as `row`. So a woken run reads its definition from the person's row in that database and hands its first
+    // tool ask back as a wake effect the engine runs (a-piece-to-run, 9:40:51 PM CST Nov 21 2026, failed on the JS walker).
+    #[test]
+    fn a_listed_workflow_rows_wake_run_is_driven_by_this_component() {
+        let rows: Value = serde_json::from_str(include_str!("../../../tool-rows.json")).unwrap();
+        let payloads: Vec<&Value> = rows["records"].as_array().unwrap().iter().map(|record| &record["payload"]).collect();
+        let source = payloads.iter().find(|row| row["kind"] == "tool-row-source" && row["list"]["records"]["kind"] == "workflow-recipe")
+            .expect("the workflow-recipe row source");
+        let runner = payloads.iter().find(|row| row["id"] == source["invoke_with"]).expect("the tool it runs as");
+        assert!(runner["invoke"]["argv"].as_array().unwrap().iter().any(|arg| arg.as_str().is_some_and(|arg| arg.ends_with("workflow_component.wasm"))),
+            "{} runs this component", source["invoke_with"]);
+        assert!(!source["listed_input"].to_string().contains("_for_who_"), "the shared row names no person's database");
+        let mut input = source["listed_input"].as_object().cloned().expect("listed_input");
+        input.insert("row".into(), json!("workflow:piece"));
+        input.insert("kept_in".into(), json!({ "database": "rows_db" }));
+        input.insert("store".into(), json!({ "credential_name": "runs" }));
+        let given = json!({ "input": input, "cause": { "key": "k", "detail": { "kind": "piece-to-run", "event_id": "e1",
+            "payload": { "event_id": "e1", "piece": "cta" } } }, "context": {} });
+        let (mut run, refused) = the_run(&given);
+        assert_eq!(recipe_of(&run).as_deref(), Some("workflow:piece"));
+        assert_eq!(run["input"]["fact"]["piece"], "cta", "the fact that woke it is the workflow's input");
+        assert_eq!(run["input"]["store"]["credential_name"], "runs", "the switch's own fields are the workflow's input");
+        assert_eq!(reader_step(&run).as_deref(), Some(READ_STEP), "the definition is read first");
+        let read = reader_ask(&run["read_definition"].clone(), "workflow:piece", &run);
+        assert_eq!((read["params"].clone(), read["database"].clone()), (json!(["workflow:piece", []]), json!("rows_db")),
+            "its recipe and uses, from the database the switch named");
+        let definition = one_step("workflow:piece", "tool:run-sql-in-my-database");
+        let answer = json!({ "rows": [{ "recipe": "workflow:piece", "definition": definition, "kept_at": "v1" }] });
+        let all = read_definitions(&mut run, "workflow:piece", READ_STEP, &answer).unwrap().expect("walks");
+        let definitions: Vec<workflow_core::Definition> = all.into_iter().map(|d| serde_json::from_value(d).unwrap()).collect();
+        let host = Arc::new(Held { run: "k".into(), answers: BTreeMap::new(), refused, waiting: Mutex::new(vec![]), told: Mutex::new(vec![]),
+            run_input: run["input"].clone(), words: words_keys() });
+        futures::executor::block_on(workflow_engine::run_definition_with_started_at(definitions, "workflow:piece", run["input"].clone(), "someone", "workflow", "2026-11-21T00:00:00Z", host.clone())).unwrap();
+        let waiting = host.waiting.lock().unwrap()[0].clone();
+        let effect = effect_of(&waiting, json!({ "source": ANSWERED, "event_id": "k:say" }), &door_asks(), "workflow:piece");
+        assert_eq!(effect["wake"]["tool"], "tool:run-sql-in-my-database", "the first ask is a wake effect the engine runs: {effect}");
+    }
+
+    // The three shapes of the 27 switched-on workflow-row wakes on the Mac (Nov 22 2026, 4:4x AM CST), on the shared
+    // reader the row source hands every listed row: a switch that names its own database (start-asked-every-ten-minutes),
+    // a chosen-- wake with no switch input whose fact carries the chosen row's definition (with or without kept_in), and
+    // a wake that hears no chosen fact (a-piece-to-run): read with kept_in, refused in words without it.
+    #[test]
+    fn every_switched_on_wake_shape_reads_or_runs_its_definition() {
+        let rows: Value = serde_json::from_str(include_str!("../../../tool-rows.json")).unwrap();
+        let source = rows["records"].as_array().unwrap().iter().map(|record| &record["payload"])
+            .find(|row| row["kind"] == "tool-row-source" && row["list"]["records"]["kind"] == "workflow-recipe").unwrap().clone();
+        let start = |row: &str, switch: Value, fact: Value| {
+            let mut input = source["listed_input"].as_object().cloned().unwrap();
+            input.insert("row".into(), json!(row));
+            for (field, value) in switch.as_object().cloned().unwrap_or_default() { input.insert(field, value); }
+            the_run(&json!({ "input": input, "cause": { "key": "k", "detail": fact }, "context": {} })).0
+        };
+        let asks_database = |run: &Map<String, Value>| reader_ask(&run["read_definition"].clone(), recipe_of(run).as_deref().unwrap(), run)["database"].clone();
+        // start-asked: its switch names the database its own steps read; its definition is read from that database.
+        let run = start("workflow:start", json!({ "database": "own_db", "start_at": "read" }),
+            json!({ "kind": "due-time", "event_id": "t1", "payload": { "schedule_id": "s" } }));
+        assert!(reader_resolves(&run) && !carries_definition(&run));
+        assert_eq!(asks_database(&run), json!("own_db"));
+        // chosen--, the fact carrying kept_in and the chosen copy: the row is read again from kept_in, the copy goes.
+        let chosen = |kept_in: Value| json!({ "kind": "workflow-chosen", "event_id": "c1", "payload": {
+            "workflow": "workflow:chosen", "definition": one_step("workflow:chosen", "tool:x"), "start_at": "say", "kept_in": kept_in } });
+        let run = start("workflow:chosen", Value::Null, chosen(json!({ "database": "rows_db" })));
+        assert!(reader_resolves(&run) && !carries_definition(&run), "{run:?}");
+        assert_eq!(asks_database(&run), json!("rows_db"));
+        // chosen-- whose fact names no database: the carried definition runs, and no reader is asked with nothing.
+        let run = start("workflow:chosen", Value::Null, chosen(Value::Null));
+        assert!(run.get("read_definition").is_none() && carries_definition(&run), "{run:?}");
+        assert_eq!(definitions_of(&run)[0]["id"], "workflow:chosen");
+        // A wake that hears no chosen fact: read from the kept_in its switch names, and without it nothing can be read.
+        let piece = json!({ "kind": "piece-to-run", "event_id": "p1", "payload": { "piece": "cta" } });
+        let run = start("workflow:piece", json!({ "store": { "credential_name": "runs" }, "kept_in": { "database": "rows_db" } }), piece.clone());
+        assert_eq!(asks_database(&run), json!("rows_db"));
+        let run = start("workflow:piece", json!({ "store": { "credential_name": "runs" } }), piece);
+        assert!(!reader_resolves(&run) && !carries_definition(&run), "main fails it naming kept_in.database, never asks with no database");
+    }
+
+    // A run reads its definition once: what the reader answered is held in the envelope when it fits the run's answer bound,
+    // so the next passes walk it without asking the reader; one too large is read again by its pin each pass, as before.
+    #[test]
+    fn a_read_definition_is_held_for_the_rest_of_the_run_when_it_fits() {
+        let mut run = json!({ "recipe": "workflow:x", "read_definition": reader(), "run": "r", "input": {}, "answers": {} }).as_object().unwrap().clone();
+        run.insert(READ.into(), json!({ "rows": [] }));
+        let small = vec![one_step("workflow:x", "tool:a")];
+        assert!(hold_definitions(&mut run, &small));
+        run.remove(READ);
+        assert!(carries_definition(&run), "the next pass walks the held definition, no reader ask");
+        assert_eq!(definitions_of(&run)[0]["id"], "workflow:x");
+        let mut big_run = json!({ "recipe": "workflow:x", "read_definition": reader(), "run": "r", "input": {}, "answers": {} }).as_object().unwrap().clone();
+        let mut big = one_step("workflow:x", "tool:a");
+        big["filler"] = json!("x".repeat(MOST_ANSWER_BYTES));
+        assert!(!hold_definitions(&mut big_run, &[big]));
+        assert!(!carries_definition(&big_run), "too large: read again by its pin");
+    }
+
+    // A run keeps two steps of its line for recording its end: a pass hands out its next step only while that leaves them.
+    #[test]
+    fn a_run_keeps_the_steps_its_end_record_needs() {
+        assert_eq!(reserve_steps(), 2);
+        assert!(!starved(40, 1));
+        assert!(!starved(4, 1), "this pass, its next step, and two for the end");
+        assert!(starved(3, 1), "one less, and the next step would starve the end");
     }
 
     // A workflow no place holds is not asked for forever: once asked for and still missing, the run walks and the step that

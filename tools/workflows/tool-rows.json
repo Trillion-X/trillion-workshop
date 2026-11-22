@@ -12,7 +12,35 @@
             "file": "recipes"
           }
         },
-        "invoke_with": "tool:run-workflow-definition"
+        "invoke_with": "tool:run-a-workflow",
+        "invoke_with_why": "A listed workflow row runs on the workflow component (tool:run-a-workflow): every ask is a wake effect the engine runs, and each pass is kept for tools:read {workflow_run} | {fact} (run_steps). Its definition is read from the row the person keeps (workflow_recipes) in the database the run names: its switch's kept_in.database, the kept_in of the fact that chose it (the same field the asked-row starter hands every run it starts), or the run's own database, so this shared row names none; a run whose reader names no database runs the definition it carries, and with none fails naming kept_in. tool:run-workflow-definition (the JS walker) is retired once every behaviour it alone has runs here (L101).",
+        "listed_input": {
+          "read_definition": {
+            "tool": "tool:run-sql-in-my-database",
+            "input": {
+              "sql": "SELECT recipe, definition, kept_at::text AS kept_at FROM workflow_recipes WHERE (recipe = $1::text OR recipe = ANY(coalesce($2::text[], '{}'))) AND jsonb_typeof(definition) = 'object' ORDER BY recipe = $1::text DESC, recipe",
+              "params": [
+                null,
+                []
+              ]
+            },
+            "recipe_at": "params.0",
+            "uses_ids_at": "params.1",
+            "uses_at": "rows",
+            "with": {
+              "database": [
+                "input.kept_in.database",
+                "input.fact.kept_in.database",
+                "input.database"
+              ]
+            },
+            "needs": [
+              "database"
+            ],
+            "definition_at": "rows.0.definition",
+            "version_at": "rows.0.kept_at"
+          }
+        }
       }
     },
     {
