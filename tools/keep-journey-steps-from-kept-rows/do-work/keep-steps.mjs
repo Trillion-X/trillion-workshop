@@ -11,11 +11,19 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { emailKey, keepStep } from '../../traffic-attribution/do-work/journey.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { throughProxy } from '../../run-sql-in-my-database/do-work/through-the-run-proxy.mjs';
 import settings from '../read-data/journey-kept-rows.json' with { type: 'json' };
 
 const OVERLAP_MINUTES = Number(settings.cutoff_overlap_minutes);
 if (!Number.isInteger(OVERLAP_MINUTES) || OVERLAP_MINUTES < 0) throw new TypeError('journey-kept-rows.json cutoff_overlap_minutes must be a whole number of minutes.');
+
+// The kit's tables and views (traffic-attribution's journey-steps.sql). Applied to a pursuit's database once per version, before
+// any step is kept, so a schema change in the kit reaches a live database within one run. The version is the BLAKE3 of the bytes.
+const SCHEMA_SQL = readFileSync(new URL('../../traffic-attribution/read-data/journey-steps.sql', import.meta.url), 'utf8');
+const SCHEMA_VERSION = makeHashCodeHexFromBytes(new TextEncoder().encode(SCHEMA_SQL));
+// Every object the file declares: tables, views and indexes (each a row of pg_class).
+const DECLARED = [...SCHEMA_SQL.matchAll(/^CREATE\s+(?:UNIQUE\s+)?(?:TABLE|INDEX|VIEW|OR REPLACE VIEW)\s+(?:IF NOT EXISTS\s+)?([a-z_][a-z0-9_]*)/gim)].map(match => match[1]);
 
 const CONNECTION_DESCRIPTOR = 3;
 const STATEMENT_TIMEOUT_MS = 20000;
@@ -86,9 +94,41 @@ async function connectTo(connection, proxy) {
   return client;
 }
 
-/** The tool's answer for one input { since? }, through the connection on descriptor 3. */
+/** Whether the database has applied this version of the kit's schema. */
+async function schemaApplied(query) {
+  const present = (await query("SELECT to_regclass('journey_kit_schema') IS NOT NULL AS present", [])).rows[0].present;
+  if (!present) return false;
+  return (await query('SELECT 1 AS applied FROM journey_kit_schema WHERE version = $1', [SCHEMA_VERSION])).rows.length > 0;
+}
+
+/**
+ * Applies the kit's schema in one transaction, with the version row written in it, so a failed apply leaves the database as it
+ * was. Plain text (no parameters) so the whole file runs as one simple query. The version is hex, so it is written inline.
+ */
+async function applySchema(client) {
+  try {
+    await client.query(`BEGIN;\n${SCHEMA_SQL}\nINSERT INTO journey_kit_schema (version) VALUES ('${SCHEMA_VERSION}') ON CONFLICT DO NOTHING;\nCOMMIT;`);
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  }
+}
+
+/** What the kit declares that the database lacks, read from pg_class (no writes). */
+async function schemaReport(query) {
+  const present = new Set((await query('SELECT relname FROM pg_class WHERE relname = ANY($1::text[])', [DECLARED])).rows.map(row => row.relname));
+  return { declared: DECLARED.length, missing: DECLARED.filter(name => !present.has(name)), version: SCHEMA_VERSION, applied: await schemaApplied(query) };
+}
+
+/**
+ * The tool's answer for one input through the connection on descriptor 3. mode "keep" (the default) applies the kit's schema when
+ * this database has not got this version, then keeps the steps: { schema, mappings }. mode "check" writes nothing and answers what
+ * the kit declares that the database lacks: { declared, missing, version, applied }.
+ */
 export async function runKeepSteps({ input, connection, proxy = process.env.HTTPS_PROXY ?? '', connect = connectTo }) {
-  if (!plain(input)) throw new Error('The input is one object, with since or refs (optional).');
+  if (!plain(input)) throw new Error('The input is one object, with since or refs (optional), or mode "check".');
+  const mode = input.mode === undefined ? 'keep' : input.mode;
+  if (mode !== 'keep' && mode !== 'check') throw new Error('mode must be "keep" or "check".');
   const since = input.since === undefined ? null : text(input.since);
   if (since !== null && !ISO_TIME.test(since)) throw new Error('since must be an ISO time, like 2026-11-21T00:00:00Z.');
   const refs = input.refs === undefined ? null : input.refs;
@@ -103,7 +143,13 @@ export async function runKeepSteps({ input, connection, proxy = process.env.HTTP
     return client.query({ name: names.get(sql), text: sql, values: params });
   };
   try {
-    return await keepStepsFromRows({ query, since, refs: refs?.map(ref => ref.trim()) ?? null });
+    if (mode === 'check') return { mode, ...(await schemaReport(query)) };
+    let schema = 'current';
+    if (!(await schemaApplied(query))) {
+      await applySchema(client);
+      schema = 'applied';
+    }
+    return { schema, ...(await keepStepsFromRows({ query, since, refs: refs?.map(ref => ref.trim()) ?? null })) };
   } finally {
     await client.end();
   }

@@ -4,6 +4,17 @@
 -- statement is idempotent. Step kinds, joins and limits are DATA in read-data/journey.json; the step names the views
 -- count ('click', 'visit', 'lead', 'booking', 'checkout', 'sale') are the same words that file names.
 
+-- Safe on a live pursuit database with rows in it. Every statement creates only what is missing (IF NOT EXISTS), replaces a view
+-- (CREATE OR REPLACE VIEW: a view may gain columns at its end, never lose or rename one), and never drops, truncates or rewrites a
+-- row. A column added later is ALTER TABLE ... ADD COLUMN IF NOT EXISTS. The keep tool applies this file once per version (the
+-- version is a BLAKE3 of these bytes, kept in journey_kit_schema), so a change here reaches every pursuit within one run.
+
+-- Which version of this file a database has applied (written by the keep tool, which hashes these bytes).
+CREATE TABLE IF NOT EXISTS journey_kit_schema (
+  version    text PRIMARY KEY,
+  applied_at timestamptz NOT NULL DEFAULT now()
+);
+
 -- One row per tracked link made for a post, ad, email or bio: the destination it opens and the source it carries.
 CREATE TABLE IF NOT EXISTS journey_touches (
   id          text PRIMARY KEY,

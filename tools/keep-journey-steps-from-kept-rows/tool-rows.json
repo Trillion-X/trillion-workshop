@@ -9,7 +9,7 @@
         "id": "tool:keep-journey-steps-from-kept-rows",
         "label": "Keep journey steps from kept rows",
         "job": "Keep each booking and each paid sale of the pursuit as a journey step, read from its own database",
-        "description": "Reads the kept rows that stand for a journey step (read-data/journey-kept-rows.json: TidyCal bookings from the statements table, paid sales from payment_events for the pursuit's own offers) from the database named by credential_name, and keeps each one in journey_steps once. Reads from the newest kept step of each kind unless since is given. Answers how many rows each mapping read and how many steps it newly kept. Running it again keeps nothing new.",
+        "description": "Reads the kept rows that stand for a journey step (read-data/journey-kept-rows.json: TidyCal bookings from the statements table, paid sales from payment_events for the pursuit's own offers) from the database named by credential_name, and keeps each one in journey_steps once. Reads from the newest kept step of each kind unless since is given. Answers how many rows each mapping read and how many steps it newly kept. Running it again keeps nothing new. Before it keeps anything it applies the kit's schema to that database once per version (a live pursuit gets each kit schema change within one run); mode check reports what the kit declares that the database lacks, and writes nothing.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -36,6 +36,11 @@
                 "minLength": 1
               },
               "description": "Optional list of refs (like tidycal:10712000) to read again whatever their cutoff, for a source row fixed after it was kept. Give refs or since, not both."
+            },
+            "mode": {
+              "type": "string",
+              "enum": ["keep", "check"],
+              "description": "keep (the default) applies the kit's schema to this database when this version is not applied yet, then keeps the steps. check writes nothing and answers which objects the kit declares that the database lacks."
             }
           }
         },
@@ -103,7 +108,8 @@
                   "do-work/journey.mjs",
                   "read-data/journey.json",
                   "read-data/ad-return.json",
-                  "read-data/consent.json"
+                  "read-data/consent.json",
+                  "read-data/journey-steps.sql"
                 ],
                 "at": "/opt/traffic-attribution"
               },

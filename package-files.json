@@ -2236,7 +2236,13 @@
   }
  ],
  "tool:answer-the-saved-examples-page": [
-    {"package": "run-sql-in-my-database", "paths": ["do-work/through-the-run-proxy.mjs"], "at": "/opt/run-sql-in-my-database"},
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
   {
    "package": "saved-examples",
    "paths": [
@@ -7221,7 +7227,13 @@
   }
  ],
  "tool:check-a-public-address": [
-    {"package": "run-sql-in-my-database", "paths": ["do-work/through-the-run-proxy.mjs"], "at": "/opt/check-a-public-address-tree/tools/run-sql-in-my-database"},
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/check-a-public-address-tree/tools/run-sql-in-my-database"
+  },
   {
    "package": "check-a-public-address",
    "paths": [
@@ -22649,7 +22661,8 @@
     "do-work/journey.mjs",
     "read-data/journey.json",
     "read-data/ad-return.json",
-    "read-data/consent.json"
+    "read-data/consent.json",
+    "read-data/journey-steps.sql"
    ],
    "at": "/opt/traffic-attribution"
   },
@@ -63802,7 +63815,41 @@
    "at": "/opt/node_modules/@noble/hashes"
   }
  ],
- "tool:make-a-login-on-every-computer": [{"package": "make-a-login-on-every-computer", "paths": ["do-work/make-a-login.mjs"], "at": "/opt/make-a-login-on-every-computer"}, {"package": "use-your-tools-from-a-shell", "paths": ["do-work/ag-ui-agent.mjs", "do-work/ag-ui-wire.mjs", "do-work/command.json", "do-work/command.mjs", "do-work/keep-result.mjs", "do-work/keep-the-connection.mjs", "do-work/local-door.mjs", "do-work/packs/read-data/blake3.mjs", "do-work/packs/read-data/identity.mjs", "do-work/packs/tools/plan-tasks-and-todo-lists/run-a-task-move.mjs", "do-work/packs/tools/plan-tasks-and-todo-lists/task-moves.json", "do-work/replay-recorded-writes.json", "do-work/replay-recorded-writes.mjs", "do-work/settled-write.mjs"], "at": "/opt/use-your-tools-from-a-shell"}, {"packages": ["node_modules/@noble/hashes"], "at": "/opt/node_modules/@noble/hashes"}],
+ "tool:make-a-login-on-every-computer": [
+  {
+   "package": "make-a-login-on-every-computer",
+   "paths": [
+    "do-work/make-a-login.mjs"
+   ],
+   "at": "/opt/make-a-login-on-every-computer"
+  },
+  {
+   "package": "use-your-tools-from-a-shell",
+   "paths": [
+    "do-work/ag-ui-agent.mjs",
+    "do-work/ag-ui-wire.mjs",
+    "do-work/command.json",
+    "do-work/command.mjs",
+    "do-work/keep-result.mjs",
+    "do-work/keep-the-connection.mjs",
+    "do-work/local-door.mjs",
+    "do-work/packs/read-data/blake3.mjs",
+    "do-work/packs/read-data/identity.mjs",
+    "do-work/packs/tools/plan-tasks-and-todo-lists/run-a-task-move.mjs",
+    "do-work/packs/tools/plan-tasks-and-todo-lists/task-moves.json",
+    "do-work/replay-recorded-writes.json",
+    "do-work/replay-recorded-writes.mjs",
+    "do-work/settled-write.mjs"
+   ],
+   "at": "/opt/use-your-tools-from-a-shell"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:keep-new-arc-tabs-in-the-inspiration-library": [
   {
    "package": "research-a-creator-or-topic",

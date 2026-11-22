@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 import { emailKey } from '../../traffic-attribution/do-work/journey.mjs';
-import { keepStepsFromRows, readSql } from '../do-work/keep-steps.mjs';
+import { keepStepsFromRows, readSql, runKeepSteps } from '../do-work/keep-steps.mjs';
 
 const journeySql = readFileSync(resolve(import.meta.dirname, '../../traffic-attribution/read-data/journey-steps.sql'), 'utf8');
 
@@ -165,5 +165,73 @@ test('a source row fixed after it was kept is read again by its ref, whatever it
   const byRef = await keepStepsFromRows({ query, refs: ['tidycal:b6'], mappings: [mappings[0]] });
   assert.deepEqual(byRef.mappings.map(({ read, kept }) => ({ read, kept })), [{ read: 1, kept: 1 }]);
   assert.equal((await db.query("SELECT email_key FROM journey_steps WHERE ref = 'tidycal:b6'")).rows[0].email_key, emailKey('fay@example.com'));
+});
+
+// A client that runs the same SQL on the PGlite database the test holds: plain text runs as one script, a statement with a name
+// runs as a prepared statement.
+const connectTo = db => async () => ({
+  query: (statement, values) => (typeof statement === 'string' ? db.exec(statement) : db.query(statement.text, statement.values ?? values)),
+  end: async () => {},
+});
+
+// A pursuit database as it was before the kit's later objects: the first tables, with rows, and none of the views or the version row.
+async function olderPursuitDatabase() {
+  const db = new PGlite();
+  await db.exec(`
+    CREATE TABLE journey_touches (id text PRIMARY KEY, destination text NOT NULL, source jsonb NOT NULL, post_id text, offer_id text, made_at timestamptz NOT NULL DEFAULT now());
+    CREATE TABLE journey_steps (id bigserial PRIMARY KEY, at timestamptz NOT NULL DEFAULT now(), visitor text, touch_id text, step text NOT NULL, source jsonb, ref text, joined_by text, email_key text, offer_id text, value_cents bigint);
+    CREATE UNIQUE INDEX journey_steps_step_ref ON journey_steps (step, ref) WHERE ref IS NOT NULL;
+    CREATE TABLE statements (key text PRIMARY KEY, source text, place text, meaning text, after jsonb, at timestamptz, recorded_at timestamptz DEFAULT now());
+    CREATE TABLE payment_events (id text PRIMARY KEY, event_kind text, occurred_at timestamptz, attributes jsonb, made_at timestamptz DEFAULT now());
+    CREATE TABLE offers (id text PRIMARY KEY);
+    INSERT INTO offers VALUES ('offer:course');
+    INSERT INTO journey_touches (id, destination, source) VALUES ('touch-live', 'https://site.example/offer', '{"utm_source":"instagram"}');
+    INSERT INTO journey_steps (step, ref, touch_id, joined_by, at) VALUES ('click', NULL, 'touch-live', 'touch', '2026-11-21T09:00:00Z');
+    INSERT INTO journey_steps (step, ref, visitor, email_key, joined_by, at) VALUES ('booking', 'tidycal:live-1', 'visitor-live-1', NULL, 'email', '2026-11-21T09:30:00Z');
+    INSERT INTO statements (key, source, place, meaning, after, at, recorded_at) VALUES ('live-1', 'tidycal-api-token', 'booking', 'booked', '{"email":"live@example.com"}', '2026-11-21T09:29:00Z', '2026-11-21T09:29:01Z');
+  `);
+  return db;
+}
+
+test('the kit schema applied twice to a database with rows changes no row and drops nothing', async () => {
+  const db = await pursuitDatabase();
+  const before = JSON.stringify((await db.query('SELECT * FROM journey_steps ORDER BY id')).rows);
+  await db.exec(journeySql);
+  await db.exec(journeySql);
+  assert.equal(JSON.stringify((await db.query('SELECT * FROM journey_steps ORDER BY id')).rows), before);
+  assert.equal((await db.query('SELECT count(*)::int AS n FROM journey_touches')).rows[0].n, 1);
+});
+
+test('an older database gets the kit objects it lacks through the keep run, keeps its rows, and a second run applies nothing', async () => {
+  const db = await olderPursuitDatabase();
+  const before = (await db.query('SELECT * FROM journey_steps WHERE id = 1')).rows;
+  const first = await runKeepSteps({ input: {}, connection: 'held', connect: connectTo(db) });
+  assert.equal(first.schema, 'applied');
+  assert.deepEqual((await db.query('SELECT * FROM journey_steps WHERE id = 1')).rows, before);
+  // The booking row keeps its ref, visitor and time; the statement's email fills the email_key it lacked.
+  const booking = (await db.query("SELECT visitor, ref, email_key FROM journey_steps WHERE ref = 'tidycal:live-1'")).rows[0];
+  assert.deepEqual(booking, { visitor: 'visitor-live-1', ref: 'tidycal:live-1', email_key: emailKey('live@example.com') });
+  assert.equal((await db.query("SELECT to_regclass('journey_excluded_refs') IS NOT NULL AS present")).rows[0].present, true);
+  assert.equal((await db.query("SELECT to_regclass('visit_steps_by_source') IS NOT NULL AS present")).rows[0].present, true);
+  assert.equal((await db.query('SELECT count(*)::int AS n FROM journey_kit_schema')).rows[0].n, 1);
+  const second = await runKeepSteps({ input: {}, connection: 'held', connect: connectTo(db) });
+  assert.equal(second.schema, 'current');
+  assert.equal((await db.query('SELECT count(*)::int AS n FROM journey_kit_schema')).rows[0].n, 1);
+});
+
+test('check mode names what the kit declares that the database lacks, and writes nothing', async () => {
+  const db = await olderPursuitDatabase();
+  const report = await runKeepSteps({ input: { mode: 'check' }, connection: 'held', connect: connectTo(db) });
+  assert.equal(report.mode, 'check');
+  assert.equal(report.applied, false);
+  assert.ok(report.missing.includes('journey_excluded_refs'));
+  assert.ok(report.missing.includes('visit_steps_by_source'));
+  assert.equal(report.missing.includes('journey_steps'), false);
+  assert.equal((await db.query("SELECT to_regclass('journey_excluded_refs') IS NOT NULL AS present")).rows[0].present, false);
+  assert.equal((await db.query('SELECT count(*)::int AS n FROM journey_steps')).rows[0].n, 2);
+});
+
+test('a mode other than keep or check is refused before the database is reached', async () => {
+  await assert.rejects(runKeepSteps({ input: { mode: 'drop' }, connection: 'held', connect: () => { throw new Error('reached'); } }), /mode must be "keep" or "check"/);
 });
 
