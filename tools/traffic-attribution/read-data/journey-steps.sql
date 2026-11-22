@@ -35,6 +35,14 @@ CREATE INDEX IF NOT EXISTS journey_steps_visitor ON journey_steps (visitor);
 CREATE INDEX IF NOT EXISTS journey_steps_email_key ON journey_steps (email_key);
 CREATE INDEX IF NOT EXISTS journey_steps_step_at ON journey_steps (step, at);
 
+-- Refs that must never become a step again: a test booking or a test payment, once its steps are deleted, would otherwise be
+-- read back from its source row. The setup procedure inserts a ref here before it deletes the step (why says what it was).
+CREATE TABLE IF NOT EXISTS journey_excluded_refs (
+  ref   text PRIMARY KEY,
+  why   text,
+  at    timestamptz NOT NULL DEFAULT now()
+);
+
 -- Which visitor an email belongs to: the earliest visitor a step with that email_key carries.
 CREATE OR REPLACE VIEW journey_email_visitor AS
 SELECT DISTINCT ON (email_key) email_key, visitor
@@ -53,7 +61,8 @@ SELECT s.*, COALESCE(
   CASE WHEN s.touch_id IS NOT NULL THEN 'touch:' || s.touch_id END
 ) AS person
 FROM journey_steps s
-LEFT JOIN journey_email_visitor e ON s.visitor IS NULL AND s.email_key = e.email_key;
+LEFT JOIN journey_email_visitor e ON s.visitor IS NULL AND s.email_key = e.email_key
+WHERE s.ref IS NULL OR s.ref NOT IN (SELECT ref FROM journey_excluded_refs);
 
 -- The first touch of each person: the earliest step that carries a tracked source (a UTM field or an ad click id). A lead's
 -- self-reported answer is a source but not a touch, so it never decides where a person came from.

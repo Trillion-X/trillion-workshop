@@ -28,13 +28,14 @@ const text = value => (typeof value === 'string' ? value.trim() : '');
  * The SELECT that reads one mapping's rows: its fields as f_<name>, its where, and only rows whose cutoff_column (the time the
  * source row itself was kept, an insert time) is newer than the cutoff. The cutoff is `since` when given, else the newest step
  * of this kind's own insert time less the overlap (cutoff_overlap_minutes), so a row whose transaction committed late is still read;
- * `at` is the event time, for display. A row read again is not kept twice.
+ * `at` is the event time, for display. A row read again is not kept twice. A ref in journey_excluded_refs is never read.
  */
 export function readSql(mapping) {
   const fields = Object.entries(mapping.fields).map(([name, expression]) => `(${expression}) AS f_${name}`);
   const sourced = Object.entries(mapping.source ?? {}).map(([name, expression]) => `(${expression}) AS s_${name}`);
   return `SELECT ${[...fields, ...sourced].join(', ')} FROM ${mapping.table} WHERE (${mapping.where}) AND (${mapping.cutoff_column}) > `
     + `COALESCE($1::timestamptz, (SELECT max(at) - make_interval(mins => ${OVERLAP_MINUTES}) FROM journey_steps WHERE step = $2), '-infinity'::timestamptz) `
+    + `AND NOT EXISTS (SELECT 1 FROM journey_excluded_refs x WHERE x.ref = (${mapping.fields.ref})) `
     + `ORDER BY ${mapping.fields.at}, ${mapping.fields.ref}`;
 }
 

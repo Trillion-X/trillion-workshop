@@ -134,3 +134,20 @@ test('a row committed within the overlap before the newest kept step is read and
   const old = await keepStepsFromRows({ query, mappings: [mappings[0]] });
   assert.deepEqual(old.mappings.map(({ read, kept }) => ({ read, kept })), [{ read: 1, kept: 0 }]);
 });
+
+test('a ref in journey_excluded_refs is never kept again, even after its steps are deleted; the resolved view drops an excluded step', async () => {
+  const db = await pursuitDatabase();
+  const query = (sql, params) => db.query(sql, params);
+  await keepStepsFromRows({ query, mappings });
+  // The proof booking: its ref is excluded first, then its step is deleted, as the setup procedure does.
+  await db.query("INSERT INTO journey_excluded_refs (ref, why) VALUES ('tidycal:b1', 'attribution proof test booking')");
+  await db.query("DELETE FROM journey_steps WHERE ref = 'tidycal:b1'");
+  const again = await keepStepsFromRows({ query, mappings });
+  assert.deepEqual(again.mappings.map(({ read, kept }) => ({ read, kept })), [{ read: 0, kept: 0 }, { read: 0, kept: 0 }]);
+  assert.equal((await db.query("SELECT count(*)::int AS n FROM journey_steps WHERE ref = 'tidycal:b1'")).rows[0].n, 0);
+  // An excluded step that is still in journey_steps (the sale kept earlier in this test) does not show in the resolved view.
+  await db.query("INSERT INTO journey_excluded_refs (ref, why) VALUES ('pe1', 'attribution proof test payment')");
+  assert.equal((await db.query("SELECT count(*)::int AS n FROM journey_steps WHERE ref = 'pe1'")).rows[0].n, 1);
+  assert.equal((await db.query("SELECT count(*)::int AS n FROM journey_resolved_steps WHERE ref = 'pe1'")).rows[0].n, 0);
+});
+
