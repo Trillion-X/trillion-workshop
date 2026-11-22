@@ -91,6 +91,30 @@ test('a file reached through a .ts program is packed, and only where a relative 
   assert.deepEqual(fixtureFindings({ package: 'other', paths: ['read-data'], at: '/opt/other' }), ['missing-relative-import tools/shared/read-data/go.mjs']);
 });
 
+// A tool imports the Workshop by its own package name (trillion-workshop/tools/<package>/<path>): the file it names is followed like
+// any file a program reaches, so a file it imports that is not packed is a gap, and an import of the Workshop outside the tools is
+// named, not silently passed.
+test('a bare import of the Workshop by its own name is followed into the tree, and the file it names is walked for its own imports', () => {
+  const folder = tempFolder(join(tmpdir(), 'tool-row-imports-own-name-'));
+  const write = (file, text) => { mkdirSync(dirname(join(folder, file)), { recursive: true }); writeFileSync(join(folder, file), text); };
+  const row = { kind: 'ai-tool-descriptor', id: 'tool:user', status: 'live', invoke: { argv: ['node', '/opt/user/do-work/run.mjs'], files: { package_files: [{ package: 'user', paths: ['do-work'], at: '/opt/user' }] } } };
+  write('tools/user/tool-rows.json', JSON.stringify({ records: [{ payload: row }] }));
+  write('tools/user/do-work/run.mjs', "import { identify } from 'trillion-workshop/tools/content-identity/read-data/identity.mjs';\nimport { x } from 'trillion-workshop/test-helpers/outside.mjs';\nidentify(x);\n");
+  write('tools/content-identity/read-data/identity.mjs', "import { hash } from '" + ['.', 'hash.mjs'].join('/') + "';\nexport const identify = () => hash();\n");
+  write('tools/content-identity/read-data/hash.mjs', 'export const hash = () => 1;\n');
+  write('test-helpers/outside.mjs', 'export const x = 1;\n');
+  write('package.json', JSON.stringify({ name: 'trillion-workshop' }));
+  write('tools/user/tool-rows.json.unused', '');
+  write('test-helpers/tool-row-imports.json', JSON.stringify({ provided_by_the_system: [] }));
+  write('package-lock.json', JSON.stringify({ packages: {} }));
+  const git = args => execFileSync('git', ['-C', folder, ...args], { env: { ...process.env, GIT_AUTHOR_NAME: 'check', GIT_AUTHOR_EMAIL: 'check@example.test', GIT_COMMITTER_NAME: 'check', GIT_COMMITTER_EMAIL: 'check@example.test' } }).toString();
+  git(['init', '-q']);
+  git(['add', '-A']);
+  git(['commit', '-q', '-m', 'fixture']);
+  const found = toolRowFindings({ repo: folder, ref: 'HEAD' }).results.flatMap(r => r.findings).map(f => `${f.kind} ${f.needs ?? f.spec ?? ''}`.trim());
+  assert.deepEqual(found.sort(), ['missing-relative-import tools/content-identity/read-data/hash.mjs', 'workshop-import-outside-tools trillion-workshop/test-helpers/outside.mjs']);
+});
+
 // The engine copies each path a row lays from the row's package into the run's folder before the program starts, and refuses the
 // run when one is gone (container.rs copy_tree: NotRunnableHere). A file moved, renamed or kept once in another tool leaves the
 // rows that laid it unable to start anything, so every laid path is one the tree holds.

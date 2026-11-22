@@ -553,13 +553,24 @@ function checkRow(rowFile, desc) {
         const own = top === selfName ? spec.slice(top.length + 1).match(/^tools\/([^/]+)\/(.+)$/) : null;
         if (own) {
           const [, pkg, rel] = own;
-          if (!fileSet.has(`tools/${pkg}/${rel}`)) { findings.push({ kind: 'dangling-in-tree', from: ws, spec, target: `tools/${pkg}/${rel}` }); continue; }
+          const target = `tools/${pkg}/${rel}`;
+          if (!fileSet.has(target)) { findings.push({ kind: 'dangling-in-tree', from: ws, spec, target }); continue; }
+          // The folder is laid whole under the Workshop's own package name, and the file the import names is walked for its own
+          // imports like any file a program reaches: a code file is followed, a file of another kind is read.
           const dir = path.posix.dirname(rel);
           const at = `/opt/${MODULES}${selfName}/tools/${pkg}`;
           if (!covers.some((c) => c.pkg === pkg && c.at === at && (dir === c.rel || dir.startsWith(c.rel + '/') || c.rel === '.'))) {
             if (!ownFolders.has(pkg)) ownFolders.set(pkg, new Set());
             ownFolders.get(pkg).add(dir);
           }
+          if (/\.(mjs|js|cjs|ts|py)$/.test(target)) { if (!visited.has(target)) queue.push({ ws: target, from: ws }); }
+          else readFiles.add(target);
+          continue;
+        }
+        if (top === selfName) {
+          // Every other import of the Workshop's own package names a file outside the tools, which no tool row lays: not followed.
+          const key = `own-outside|${ws}|${spec}`;
+          if (!seen.has(key)) { seen.add(key); findings.push({ kind: 'workshop-import-outside-tools', from: ws, spec }); }
           continue;
         }
         if (systemNames.has(top) || modules.has(top) || modules.has(spec)) continue;
@@ -628,10 +639,12 @@ function checkRow(rowFile, desc) {
   }
   const items = [...files];
   const extra = new Map();
+  // A file under a folder a bare import lays whole at the Workshop's package name is placed there, not at /opt/<package>.
+  const laidWhole = ws => [...ownFolders].some(([name, dirs]) => [...dirs].some(dir => ws.startsWith(`tools/${name}/${dir === '.' ? '' : dir + '/'}`)));
   for (const ws of [...visited, ...readFiles].sort()) {
     const [, pkg, ...rest] = ws.split('/');
     const rel = rest.join('/');
-    if (!fileSet.has(ws) || mountedAt(covers, pkg, rel)) continue;
+    if (!fileSet.has(ws) || mountedAt(covers, pkg, rel) || laidWhole(ws)) continue;
     if (!extra.has(pkg)) extra.set(pkg, new Set());
     extra.get(pkg).add(rel);
   }
