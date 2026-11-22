@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { HTMLRewriter, cachesDefault, d1, emailBy, kv, numbered, workerSecrets } from '../read-data/workers-stand-ins.mjs';
+import { HTMLRewriter, cachesDefault, d1, emailBy, journeyBindingOf, kv, numbered, workerSecrets } from '../read-data/workers-stand-ins.mjs';
 
 const fakePool = answer => { const asked = []; return { asked, query: async (sql, values) => { asked.push([sql, values]); return answer(sql, values); } }; };
 
@@ -88,4 +88,18 @@ test('each credential file but the two the host reads is a Worker secret named i
   assert.deepEqual(workerSecrets(undefined, { readdirSync, readFileSync }), {});
   writeFileSync(join(folder, 'Bad_Name'), 'x');
   assert.throws(() => workerSecrets(folder, { readdirSync, readFileSync }), /names no Worker secret/);
+});
+
+test('env.JOURNEY_DB exists only when a journey connection is named, and answers as env.DB does', async () => {
+  assert.deepEqual(journeyBindingOf(undefined, () => assert.fail('no pool is made without a connection')), {});
+  const pool = fakePool(() => ({ rows: [{ n: 7 }], rowCount: 1 }));
+  const { JOURNEY_DB } = journeyBindingOf('postgres://journey', connectionString => { assert.equal(connectionString, 'postgres://journey'); return pool; });
+  assert.deepEqual((await JOURNEY_DB.prepare('select ? as n').bind(7).all()).results, [{ n: 7 }]);
+  assert.deepEqual(pool.asked, [['select $1 as n', [7]]]);
+});
+
+test('journey-database is the journey binding, never a Worker secret', () => {
+  const folder = tempFolder(join(tmpdir(), 'held-journey-'));
+  writeFileSync(join(folder, 'journey-database'), 'postgres://journey');
+  assert.deepEqual(workerSecrets(folder, { readdirSync, readFileSync }), {});
 });

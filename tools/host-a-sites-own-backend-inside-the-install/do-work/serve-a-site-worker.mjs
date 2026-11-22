@@ -12,7 +12,7 @@
 //
 // Settings (environment): SITE_BUNDLE (the bundle's index.js), SITE_FILES (the built folder), SOCKET or PORT, SITE_SETTINGS (a JSON file:
 // { vars, run_worker_first, email_provider, kv_table }, email_provider being an email provider file's content). Held values come from the unit's credentials folder
-// ($CREDENTIALS_DIRECTORY): site-database (the Postgres connection) and email-key (the email provider's key; optional); every other file there is
+// ($CREDENTIALS_DIRECTORY): site-database (the Postgres connection), email-key (the email provider's key; optional) and journey-database (the journey tables' Postgres connection; optional, env.JOURNEY_DB when named); every other file there is
 // one of the Worker's secrets, named in the env the way its file is named in capitals (mail-link-key is env.MAIL_LINK_KEY).
 // GET /readyz answers 200 once the Worker is loaded and the database answers, 503 while this process drains (SIGTERM).
 import { createServer } from 'node:http';
@@ -21,7 +21,7 @@ import { connect } from 'node:net';
 import { extname, join, normalize, resolve } from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import pg from 'pg';
-import { HTMLRewriter, WorkerEntrypoint, cachesDefault, d1, emailBy, kv, workerSecrets } from '../read-data/workers-stand-ins.mjs';
+import { HTMLRewriter, WorkerEntrypoint, cachesDefault, d1, emailBy, journeyBindingOf, kv, workerSecrets } from '../read-data/workers-stand-ins.mjs';
 
 const settings = JSON.parse(readFileSync(process.env.SITE_SETTINGS, 'utf8'));
 const files = resolve(process.env.SITE_FILES);
@@ -98,6 +98,12 @@ function assetResponse(found, url, method) {
 const env = {
   ...settings.vars,
   ...workerSecrets(process.env.CREDENTIALS_DIRECTORY, { readdirSync, readFileSync }),
+  ...journeyBindingOf(held('journey-database'), connectionString => {
+    const journeyPool = new pg.Pool({ connectionString, max: 4 });
+    // As the site database's pool: an idle connection the database ends is dropped, not a reason to end the program.
+    journeyPool.on('error', error => console.error(JSON.stringify({ journey_connection_lost: String(error?.message ?? error).slice(0, 300), code: error?.code })));
+    return journeyPool;
+  }),
   DB: d1(pool),
   SHARED_LISTS: kv(pool, settings.kv_table ?? 'site_shared_lists'),
   EMAIL: emailBy({ provider: settings.email_provider, key: held('email-key') }),

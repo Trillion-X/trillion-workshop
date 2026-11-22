@@ -53,6 +53,12 @@ export function d1(pool) {
   };
 }
 
+/** env.JOURNEY_DB: the journey database answered as env.DB is, when the unit's credentials name a connection for it. With
+ *  none named there is no such binding at all: the key is absent from env, so a Worker that reads it finds nothing. */
+export function journeyBindingOf(connectionString, makePool) {
+  return connectionString ? { JOURNEY_DB: d1(makePool(connectionString)) } : {};
+}
+
 export function kv(pool, table) {
   if (!/^[a-z_][a-z0-9_]*$/.test(table)) throw new Error('The key-value table is named in lowercase letters, digits and _.');
   let made = null;
@@ -144,7 +150,7 @@ export function cachesDefault(now = () => Date.now()) {
 }
 
 // The files the host reads for itself are not the Worker's: the database connection and the email provider's key.
-const HOST_HELD = new Set(['site-database', 'email-key']);
+const HOST_HELD = new Set(['site-database', 'email-key', 'journey-database']);
 export function workerSecrets(folder, { readdirSync, readFileSync }) {
   if (!folder) return {};
   const secrets = {};
