@@ -13,11 +13,6 @@ const nonempty = value => typeof value === 'string' && value.trim().length > 0;
 // Who an ask asks is a literal or a binding the engine resolves (a step no tool runs asks the run's own actor).
 const toolNamed = name => typeof name === 'string' && name.startsWith('tool:');
 const named = name => nonempty(name) || (object(name) && name.$kind === 'binding');
-// A run-sql step names its connection: credential_name (a held connection) or database (one of the person's databases). A step
-// that names neither has no connection and waits out its deadline, so the recipe check names it before any run.
-const RUN_SQL_TOOL = 'tool:run-sql-in-my-database';
-const hasConnectionName = input => object(input) && ['credential_name', 'database'].some(key => named(input[key]));
-const noConnectionProblem = name => name + ' names no connection: give credential_name (the held connection) or database (one of their databases), as text or a binding.';
 export const STEP_ANATOMY = JSON.parse(readFileSync(new URL('./step-anatomy.json', import.meta.url), 'utf8'));
 
 // Syntax only: references and extension keywords remain the execution owner's
@@ -167,7 +162,6 @@ export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY, { stepAnat
     if (!(object(step.submit) && step.submit.type === 'object')) problems.push(`${name}.submit must be a JSON Schema with "type": "object" for what the step hands back.`);
     if (step.run_tool !== undefined && !(object(step.run_tool) && /^tool:/.test(step.run_tool.tool_id ?? '') && (step.run_tool.input === undefined || object(step.run_tool.input)))) problems.push(`${name}.run_tool must be { tool_id: "tool:...", input: { field: value, or { "from": path } } }.`);
     else if (step.run_tool !== undefined) problems.push(...pinProblems(step.run_tool.pinned, `${name}.run_tool.pinned`));
-    if (step.run_tool?.tool_id === RUN_SQL_TOOL && !hasConnectionName(step.run_tool.input)) problems.push(noConnectionProblem(`${name}.run_tool.input`));
     problems.push(...checkProblems(step.checks, name, step.id, seen, vocabulary, { this: step.submit, input: recipe.input_schema, steps: submits }));
     // Several agents on one step, lanes and where an output is kept were the recipe layer's (its job queue and tables,
     // deleted 2026-11-18): several agents are a loop with parallel: true in the recipe's own definition, and what a run
@@ -191,7 +185,6 @@ function definitionProblems(definition, vocabulary) {
     if (ids.has(step.id)) problems.push(`${name}.id "${step.id}" is used twice.`);
     ids.add(step.id);
     if (step.kind === 'ask' && !named(step.config?.name)) problems.push(`${name}.config.name must say who answers: a tool id, or a binding such as the run's own actor {"$kind":"binding","select":{"from":"context","path":"actor.user_id"}}.`);
-    if (step.kind === 'ask' && step.config?.name === RUN_SQL_TOOL && !hasConnectionName(step.config.input)) problems.push(noConnectionProblem(`${name}.config.input`));
     if (step.kind === 'ask') problems.push(...pinProblems(step.config?.context?.pinned, `${name}.config.context.pinned`));
     if (step.kind === 'ask' && !toolNamed(step.config?.name) && !(nonempty(step.config.input?.do) && object(step.config.input?.submit) && step.config.input.submit.type === 'object')) problems.push(`${name}.config.input must say what is done (do) and the shape it hands back (submit, a JSON Schema with "type": "object").`);
     if (step.kind === 'check') {
@@ -202,6 +195,7 @@ function definitionProblems(definition, vocabulary) {
   });
   if (!Array.isArray(definition.edges ?? [])) problems.push('definition.edges must be a list of { from, to, kind }.');
   for (const [index, edge] of (definition.edges ?? []).entries()) if (!object(edge) || !ids.has(edge.from) || !ids.has(edge.to)) problems.push(`definition.edges[${index}] must join two steps of the definition.`);
+  problems.push(...booleanEdgeProblems(definition));
   const actorAsks = new Map(definition.steps.filter(step => step?.kind === 'ask').map(step => [step.id, { name: step.config?.name, policy: step.config?.context?.actor_policy }]));
   const precedes = (from, to) => {
     const visited = new Set(), pending = [from];
@@ -219,5 +213,34 @@ function definitionProblems(definition, vocabulary) {
   for (const step of definition.steps.filter(step => step?.kind === 'ask')) problems.push(...actorPolicyProblems(step.config?.context?.actor_policy, {
     name: `definition.steps.${step.id}.config.context`, step_id: step.id, asks: actorAsks, prior: id => id !== step.id && actorAsks.has(id) && precedes(id, step.id),
   }));
+  return problems;
+}
+
+// An on_result edge branches on a boolean. Its binding must end in a transform that yields a boolean, unless the source step's SQL
+// aliases the read column as a boolean expression. Anything else reads text, a count or null, and the edge never does what it says.
+const BOOLEAN_OPS = new Set(['op:core.equals', 'op:core.eq', 'op:core.ne', 'op:core.not', 'op:core.gt', 'op:core.ge', 'op:core.gte', 'op:core.lt', 'op:core.le',
+  'op:core.contains', 'op:core.includes', 'op:core.ends_with', 'op:core.in_list', 'op:core.is_null', 'op:core.is_not_null', 'op:core.is_empty', 'op:core.array_contains', 'op:core.text_regex_match']);
+function sqlAliasesBoolean(sql, column) {
+  const text = String(sql ?? '');
+  const alias = new RegExp(`\\bAS\\s+${column}\\b`, 'i').exec(text);
+  if (!alias) return false;
+  let expression = text.slice(0, alias.index).split(/,(?![^()]*\))/).at(-1);
+  const select = expression.search(/\bSELECT\b/i);
+  if (select >= 0) expression = expression.slice(select + 6);
+  return /(=|<>|!=|<=|>=|<|>|\bIS\s+(NOT\s+)?NULL\b|\bEXISTS\b|\bNOT\b|\bLIKE\b|\bIN\s*\(|\bBETWEEN\b)/i.test(expression);
+}
+function booleanEdgeProblems(definition) {
+  const problems = [];
+  for (const [index, edge] of (Array.isArray(definition.edges) ? definition.edges : []).entries()) {
+    if (edge?.kind !== 'on_result' || !object(edge.config) || edge.config.$kind !== 'binding') continue;
+    const transforms = Array.isArray(edge.config.transform) ? edge.config.transform : [];
+    const last = transforms.at(-1)?.op;
+    if (BOOLEAN_OPS.has(last)) continue;
+    const path = String(edge.config.select?.path ?? '');
+    const column = path.split('.').at(-1);
+    const source = definition.steps.find(step => step?.id === edge.from);
+    if (source?.kind === 'ask' && source.config?.name === 'tool:run-sql-in-my-database' && sqlAliasesBoolean(source.config.input?.sql, column)) continue;
+    problems.push(`definition.edges[${index}] (${edge.from} -> ${edge.to}, on_result) reads ${path || 'nothing'} without a boolean transform (ends with ${last ?? 'no transform'}); end it with an op:core.equals/not/gt-style transform, or alias the column as a boolean expression in ${edge.from}'s SQL.`);
+  }
   return problems;
 }
