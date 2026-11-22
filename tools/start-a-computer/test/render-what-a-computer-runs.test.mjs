@@ -3,6 +3,7 @@
 // The renderer of what a computer runs, on a synthetic computer: its files, its refusals and the comparison with what a computer runs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { differences, renderWhatItRuns, withPrepared } from '../do-work/render-what-a-computer-runs.mjs';
 
 const runs = {
@@ -158,4 +159,20 @@ test('serve-a-built-program keeps its /run folder always when its row says runti
     assert.match(file.text, /^RuntimeDirectoryPreserve=yes$/m);
     assert.match(file.text, new RegExp(`^Environment=SOCKET=/run/sites/place\\.example\\.test/http-${slot}\\.sock$`, 'm'));
   }
+});
+
+test('a standing probe is a kept-running unit: the probe program from this Workshop, its URLs in the row, and the one folder it writes', () => {
+  const command = '/opt/node/bin/node /usr/local/lib/example-probe/probe.mjs --every-ms 5000 --log /var/lib/example-probe/requests.jsonl --log-max-bytes 1000000 https://place.example.test/?utm_content=check https://www.place.example.test/?utm_content=check';
+  const files = renderWhatItRuns({ units: [{
+    unit: 'example-probe.service', user: 'example-probe', state: '/var/lib/example-probe', node_bin: '/opt/node/bin', description: 'Asks the example sites from this computer',
+    template: 'tools/start-a-computer/read-data/unit-templates/init-systemd-system.service', drop_ins: ['tools/start-a-computer/read-data/unit-templates/writable.conf'],
+    writable: '/var/lib/example-probe', script: 'tools/start-a-computer/do-work/probe-while-applying.mjs', script_file: '/usr/local/lib/example-probe/probe.mjs', command,
+  }] });
+  assert.deepEqual(files.map(file => file.path), ['/etc/systemd/system/example-probe.service', '/usr/local/lib/example-probe/probe.mjs', '/etc/systemd/system/example-probe.service.d/writable.conf']);
+  assert.match(files[0].text, /^ExecStart=\/opt\/node\/bin\/node \/usr\/local\/lib\/example-probe\/probe\.mjs --every-ms 5000 .* https:\/\/www\.place\.example\.test\/\?utm_content=check$/m);
+  assert.match(files[0].text, /^ProtectSystem=strict$/m);
+  assert.equal(files[1].text, readFileSync(new URL('../do-work/probe-while-applying.mjs', import.meta.url), 'utf8'), 'the probe is this Workshop\'s own');
+  assert.match(files[2].text, /^\[Service\]\nReadWritePaths=\/var\/lib\/example-probe$/m);
+  assert.doesNotMatch(files[2].text, /\{[a-z_]+\}/);
+  assert.throws(() => renderWhatItRuns({ units: [{ unit: 'x.service', user: 'x', drop_ins: ['tools/start-a-computer/read-data/unit-templates/writable.conf'] }] }), /needs writable/);
 });

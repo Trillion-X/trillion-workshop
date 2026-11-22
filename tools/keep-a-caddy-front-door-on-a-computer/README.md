@@ -40,6 +40,12 @@ A site that names `site_file` gets that whole file from `sites/`, each `{{field}
 
 A program that switches between two slots without a gap names both slots' sockets in the row's Caddy `site_sockets` (`{"<name>": ["/run/sites/<name>/http-a.sock", "/run/sites/<name>/http-b.sock"]}`, absolute `.sock` paths). Only names listed there use it (`routes/site-sockets.fragment`): requests go to the first socket that answers (`lb_policy first`), and a socket that refuses is skipped for 2 s (`fail_duration`), so the slot that is starting and the slot that is stopping overlap and no request waits. Without `fail_duration`, `first` keeps choosing the dead socket, and each request waits the whole 15 s try. Every other name keeps `programs_root/<name>/http.sock`. The two slot units say `runtime_preserve: "yes"` in start-a-computer, so the slot that stops does not remove the shared `/run` folder.
 
+A site that asks for its request log (`access_log`) gets one JSON line per request in its `https://` block: the method, the address without the query, the status, the duration and the time (`ts`). Every header, cookie, TLS detail and query value is removed, and the client address too unless `keep_ip` is `true`.
+- The lines go to the journal (`log journal`), where start-a-computer's apply-checked fact reads the failures of an apply window.
+- When the row names `file` (`{"path": "/var/log/caddy/<name>.log", "roll_size": "10MiB", "roll_keep": 10}`), the same lines go to that file too (`log file`). Caddy starts a new file past `roll_size` and keeps `roll_keep` old ones, gzipped, beside it, so the log stays bounded.
+- The file is in `/var/log/caddy`, the folder Caddy's package makes for its own user. The site file's check (`caddy validate`, run as root) makes the file owned by root, so a changed site file gives the folder and the file to the unit's `user` before the reload.
+- The requests of each second: `jq -r '.ts | floor' /var/log/caddy/<name>.log | uniq -c` (or `journalctl -u caddy -o cat | jq -r 'select(.logger | startswith("http.log.access")) | .ts | floor' | uniq -c`).
+
 ## Routes and pools
 
 A site names each route by path, like a unit's template: a file the program it sends to publishes (a relative path inside the Workshop, or an absolute path of the person's own), filled from the site's fields. A route that is a module (`.mjs`) answers its text from `route()`, so a program that computes its route from its own data keeps that data. This kit names no route of its own:

@@ -65,6 +65,9 @@ https:// {
 	# Every answer, a page or a program's, is sent compressed when the browser takes it (Nov 21 2026: a 15.3 MB members
 	# script went whole, 3.4 MB as gzip, on a phone that waited 79 s).
 	encode zstd gzip
+	# The site's request log, when the row asks for it (access_log): one JSON line per request, to the journal and to a file of
+	# its own when the row names one. Absent: no line.
+{{access_log}}
 {{routes}}
 	# A screen's address under its route_prefix is answered by that prefix's page in this name's folder: a copy of the workspace
 	# page named for the prefix's one or two segments (workspace-pages.mjs makes each), so /file/<id> gets file.prefix.html and

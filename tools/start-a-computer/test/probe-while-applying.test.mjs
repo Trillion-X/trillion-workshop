@@ -6,13 +6,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdtempSync, symlinkSync } from 'node:fs';
+import { mkdtempSync, readFileSync, statSync, symlinkSync } from 'node:fs';
 import { hostname, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createServer as createTcpServer } from 'node:net';
 import { execFileSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
-import { askOnce, parseArgs, summarize } from '../do-work/probe-while-applying.mjs';
+import { askOnce, keptLog, parseArgs, summarize } from '../do-work/probe-while-applying.mjs';
 
 const at = '2026-11-21T18:00:00.000Z';
 const settings = { slow_ms: 1000, lag_ms: 250 };
@@ -55,9 +55,61 @@ test('a refused or unanswered request is a failure, kept with its target', () =>
 
 test('the arguments are flags then URLs, and a URL is required', () => {
   assert.deepEqual(parseArgs(['--every-ms', '25', '--log', '/x', 'https://a.example/']),
-    { every_ms: 25, slow_ms: 1000, lag_ms: 250, log: '/x', urls: ['https://a.example/'] });
+    { every_ms: 25, slow_ms: 1000, lag_ms: 250, log: '/x', log_max_bytes: null, urls: ['https://a.example/'] });
   assert.throws(() => parseArgs([]), /at least one URL/);
   assert.throws(() => parseArgs(['--slow-ms', '0', 'https://a.example/']), /above 0/);
+  assert.equal(parseArgs(['--log', '/x', '--log-max-bytes', '4096', 'https://a.example/']).log_max_bytes, 4096);
+  assert.throws(() => parseArgs(['--log-max-bytes', '4096', 'https://a.example/']), /needs --log/);
+  assert.throws(() => parseArgs(['--log', '/x', '--log-max-bytes', '1.5', 'https://a.example/']), /whole number of bytes/);
+});
+
+test('a bounded log moves itself to FILE.1 before a line would take it past its bound, and keeps one older file at most', () => {
+  const file = join(mkdtempSync(join(tmpdir(), 'kept-log-')), 'requests.jsonl');
+  const line = n => `${JSON.stringify({ at, url: 'https://a.example/', status: 200, ms: n })}\n`;
+  const size = Buffer.byteLength(line(10));
+  const write = keptLog(file, size * 3);
+  for (let n = 10; n < 17; n++) write(line(n));
+  // 7 lines of equal size, 3 to a file: 10-12 and 13-15 filled in turn, then 16 started a new file; 10-12 were dropped.
+  assert.deepEqual(readFileSync(file, 'utf8').trim().split('\n').map(text => JSON.parse(text).ms), [16]);
+  assert.deepEqual(readFileSync(`${file}.1`, 'utf8').trim().split('\n').map(text => JSON.parse(text).ms), [13, 14, 15]);
+  // A probe started again counts what its file already holds.
+  const again = keptLog(file, size * 3);
+  again(line(17)); again(line(18)); again(line(19));
+  assert.deepEqual(readFileSync(file, 'utf8').trim().split('\n').map(text => JSON.parse(text).ms), [19]);
+  assert.deepEqual(readFileSync(`${file}.1`, 'utf8').trim().split('\n').map(text => JSON.parse(text).ms), [16, 17, 18]);
+  // A line longer than the bound is still kept, alone in its file.
+  keptLog(file, 10)(line(20));
+  assert.deepEqual(readFileSync(file, 'utf8').trim().split('\n').map(text => JSON.parse(text).ms), [20]);
+  const unbounded = join(mkdtempSync(join(tmpdir(), 'kept-log-')), 'requests.jsonl');
+  const all = keptLog(unbounded);
+  for (let n = 0; n < 50; n++) all(line(n));
+  assert.equal(readFileSync(unbounded, 'utf8').trim().split('\n').length, 50, 'with no bound, every line stays in the one file');
+  assert.throws(() => readFileSync(`${unbounded}.1`), /ENOENT/);
+});
+
+test('a standing probe (--log-max-bytes) writes each request to its bounded log, and on SIGTERM ends with no summary', async () => {
+  let asked = 0;
+  const server = createServer((request, response) => { asked++; response.statusCode = request.url.includes('utm_content=check') ? 308 : 400; response.end(); });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  const file = join(mkdtempSync(join(tmpdir(), 'standing-')), 'requests.jsonl');
+  const url = `http://127.0.0.1:${server.address().port}/?utm_content=check`;
+  const probe = spawn(process.execPath, [new URL('../do-work/probe-while-applying.mjs', import.meta.url).pathname, '--every-ms', '20', '--log', file, '--log-max-bytes', '600', url]);
+  let said = '';
+  probe.stdout.on('data', chunk => { said += chunk; });
+  const ended = new Promise(resolve => probe.on('exit', resolve));
+  for (let i = 0; i < 300 && asked < 20; i++) await new Promise(resolve => setTimeout(resolve, 100));
+  probe.kill('SIGTERM');
+  assert.equal(await ended, 0);
+  server.close();
+  assert.equal(said, '', 'a standing probe prints no summary');
+  const lines = [file, `${file}.1`].flatMap(path => readFileSync(path, 'utf8').trim().split('\n')).map(text => JSON.parse(text));
+  assert.ok(lines.length >= 4, `kept ${lines.length}`);
+  for (const kept of lines) {
+    assert.equal(kept.url, url);
+    assert.equal(kept.status, 308, 'the redirect is the answer, not followed');
+    assert.ok(typeof kept.ms === 'number' && typeof kept.lag_ms === 'number' && !Number.isNaN(Date.parse(kept.at)));
+  }
+  assert.ok(statSync(file).size <= 600 && statSync(`${file}.1`).size <= 600, 'each file stays within its bound');
 });
 
 test('run through a linked path, the probe asks until SIGTERM and prints its summary', async () => {

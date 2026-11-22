@@ -283,3 +283,58 @@ test('each name its own folder: Caddy reads the file with www_first_names absent
     assert.equal(adapted.status, 0, `${name}: ${adapted.stderr}`);
   }
 });
+
+const logFolders = { site_file: 'each-name-its-own-folder', door_host: '192.0.2.10', certificate_profile: 'shortlived', grace_period: '5s', pages_root: '/var/lib/example-sites', programs_root: '/run/example-sites' };
+const logFile = { path: '/var/log/caddy/example-access.log', roll_size: '10MiB', roll_keep: 10 };
+const httpsOf = text => text.slice(text.indexOf('https:// {'));
+
+test('each name its own folder: a site that asks for its request log gets one journal log in its https block, and a site that does not gets none', async () => {
+  const absent = await siteFile(logFolders);
+  assert.doesNotMatch(absent.text, /\tlog |access_log\}\}/, 'no access_log: no log and no leftover slot');
+  assert.deepEqual(absent.then, [['systemctl', 'reload', 'caddy.service']]);
+  const https = httpsOf((await siteFile({ ...logFolders, access_log: { keep_ip: true } })).text);
+  assert.equal(https.split('\n').filter(line => /^\tlog /.test(line)).length, 1, 'one log, the journal');
+  assert.match(https, /\tlog journal \{\n\t\toutput stdout\n\t\tformat filter \{\n\t\t\twrap json\n\t\t\tfields \{\n\t\t\t\trequest>uri regexp "\\\?\.\*" ""\n\t\t\t\trequest>headers delete\n/, 'the query and headers are removed');
+  assert.doesNotMatch(https, /remote_ip delete|client_ip delete/, 'keep_ip keeps the client address');
+  assert.ok(https.indexOf('encode zstd gzip') < https.indexOf('\tlog journal') && https.indexOf('\tlog journal') < https.indexOf('handle @page'), 'the log is in the https block before its handlers');
+});
+
+test('each name its own folder: a request log names its file, rolled at roll_size with roll_keep old files, and the client address is removed unless keep_ip', async () => {
+  const file = await siteFile({ ...logFolders, access_log: { file: logFile } });
+  const https = httpsOf(file.text);
+  assert.match(https, /\tlog file \{\n\t\toutput file \/var\/log\/caddy\/example-access\.log \{\n\t\t\troll_size 10MiB\n\t\t\troll_keep 10\n\t\t\}\n\t\tformat filter \{\n\t\t\twrap json\n/);
+  assert.match(https, /\tlog journal \{\n\t\toutput stdout\n/, 'the journal keeps its lines too, for the apply-checked fact');
+  assert.equal((https.match(/request>remote_ip delete\n\t\t\t\trequest>client_ip delete/g) ?? []).length, 2, 'no keep_ip: both logs remove the client address');
+  // caddy validate, run as root by the apply, makes the file owned by root; the unit's user gets the folder and file before the reload.
+  assert.deepEqual(file.then, [['install', '-d', '-o', 'caddy', '-g', 'caddy', '-m', '0755', '/var/log/caddy'], ['chown', 'caddy:caddy', '/var/log/caddy/example-access.log'], ['systemctl', 'reload', 'caddy.service']]);
+  const kept = httpsOf((await siteFile({ ...logFolders, access_log: { keep_ip: true, file: logFile } })).text);
+  assert.doesNotMatch(kept, /remote_ip delete|client_ip delete/);
+});
+
+test('a request log that is not bounded, not in the log folder or not plainly asked is refused', async () => {
+  const bad = [
+    null, [], 'yes', { keep_ip: 'yes' }, { file: null },
+    { file: { ...logFile, path: '/etc/caddy/access.log' } }, { file: { ...logFile, path: '/var/log/caddy/../access.log' } },
+    { file: { ...logFile, path: '/var/log/caddy/access.txt' } }, { file: { ...logFile, path: '/var/log/caddy/sub/access.log' } },
+    { file: { ...logFile, roll_size: undefined } }, { file: { ...logFile, roll_size: '10' } }, { file: { ...logFile, roll_size: '0MiB' } },
+    { file: { ...logFile, roll_keep: 0 } }, { file: { ...logFile, roll_keep: 2.5 } }, { file: { ...logFile, roll_keep: undefined } },
+  ];
+  for (const access_log of bad) await assert.rejects(siteFile({ ...logFolders, access_log }), /caddy\.access_log/, JSON.stringify(access_log));
+  await assert.rejects(prepare({ unit: 'caddy.service', site: { ...logFolders, access_log: { file: logFile } } }, { pages: PAGES }), /names the user Caddy runs as/);
+});
+
+test('each name its own folder: Caddy reads a request log to the journal and to a rolled file, each its own logger', { skip: spawnSync('caddy', ['version']).status !== 0 && 'caddy is not installed' }, async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'access-log-'));
+  const path = join(dir, 'Caddyfile');
+  writeFileSync(path, (await siteFile({ ...logFolders, access_log: { keep_ip: false, file: logFile } })).text);
+  // adapt reads the file without opening the log file, so the folder need not exist here.
+  const adapted = spawnSync('caddy', ['adapt', '--config', path, '--adapter', 'caddyfile'], { encoding: 'utf8' });
+  assert.equal(adapted.status, 0, adapted.stderr);
+  const { logs } = JSON.parse(adapted.stdout).logging;
+  assert.deepEqual(logs.file.writer, { filename: '/var/log/caddy/example-access.log', output: 'file', roll_keep: 10, roll_size_mb: 10 });
+  assert.deepEqual(logs.journal.writer, { output: 'stdout' });
+  for (const name of ['file', 'journal']) {
+    assert.deepEqual(logs[name].include, [`http.log.access.${name}`]);
+    assert.equal(logs[name].encoder.fields['request>remote_ip'].filter, 'delete');
+  }
+});

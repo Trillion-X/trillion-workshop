@@ -135,8 +135,46 @@ const wwwFirstNames = site => {
     return WWW_FIRST_NAME.replaceAll('{name}', name);
   }).join('\n');
 };
+// A site that asks for its request log (access_log: { keep_ip?, file? }) gets one JSON line per request: its method, its address
+// without the query, its status and how long it took; no header, cookie, TLS detail or query value. The client address is kept
+// only when keep_ip is true. Every line goes to the journal, where start-a-computer's apply-checked fact reads it, and, when the
+// row names a file (file: { path, roll_size, roll_keep }), to that file too: Caddy starts a new file past roll_size and keeps
+// roll_keep old ones gzipped beside it, so the file never holds more than about roll_size x (roll_keep + 1). Each line is one
+// JSON object with its time (ts), so the requests of each second are counted with jq. A site that does not ask gets no log.
+// The file is in LOG_FOLDER, the folder Caddy's package makes for its own user. The site file's check (caddy validate, run as
+// root) opens the log file and so makes it, owned by root, where Caddy running as the unit's user could not write it; so a
+// changed site file gives the folder and the file to the unit's user before the reload.
+const ROLL_SIZE = /^[1-9][0-9]*(?:KiB|MiB|GiB|KB|MB|GB)$/;
+const LOG_FOLDER = '/var/log/caddy';
+const accessLog = site => {
+  const asked = site.access_log;
+  if (asked === undefined) return '';
+  if (asked === null || typeof asked !== 'object' || Array.isArray(asked)) throw new Error('caddy.access_log is { keep_ip?, file? }');
+  const { keep_ip = false, file } = asked;
+  if (typeof keep_ip !== 'boolean') throw new Error('caddy.access_log keep_ip is true or false');
+  const where = 'caddy.access_log file';
+  if (file !== undefined) {
+    if (file === null || typeof file !== 'object') throw new Error(`${where} is { path, roll_size, roll_keep }`);
+    if (typeof file.path !== 'string' || !new RegExp(`^${LOG_FOLDER}/[A-Za-z0-9_-][A-Za-z0-9._-]*\\.log$`).test(file.path)) throw new Error(`${where} path is a .log file in ${LOG_FOLDER}`);
+    if (typeof file.roll_size !== 'string' || !ROLL_SIZE.test(file.roll_size)) throw new Error(`${where} roll_size is a size such as 10MiB`);
+    if (!Number.isInteger(file.roll_keep) || file.roll_keep < 1) throw new Error(`${where} roll_keep is how many old files are kept, 1 or more`);
+  }
+  const fields = ['request>uri regexp "\\?.*" ""', 'request>headers delete', 'request>tls delete', 'request>remote_port delete',
+    ...(keep_ip ? [] : ['request>remote_ip delete', 'request>client_ip delete']), 'resp_headers delete'];
+  const block = (name, output) => [`\tlog ${name} {`, ...output.map(line => `\t\t${line}`), '\t\tformat filter {', '\t\t\twrap json', '\t\t\tfields {',
+    ...fields.map(line => `\t\t\t\t${line}`), '\t\t\t}', '\t\t}', '\t}'].join('\n');
+  return [block('journal', ['output stdout']),
+    ...(file ? [block('file', [`output file ${file.path} {`, `\troll_size ${file.roll_size}`, `\troll_keep ${file.roll_keep}`, '}'])] : [])].join('\n');
+};
+/** The commands that give the log folder and file to the unit's user, run after a changed site file and before its reload. */
+const logFileOwner = (site, unit) => {
+  const path = site.access_log?.file?.path;
+  if (!path) return [];
+  if (!/^[a-z_][a-z0-9_-]*$/.test(unit.user ?? '')) throw new Error(`unit ${unit.unit} names the user Caddy runs as, who writes caddy.access_log file`);
+  return [['install', '-d', '-o', unit.user, '-g', unit.user, '-m', '0755', LOG_FOLDER], ['chown', `${unit.user}:${unit.user}`, path]];
+};
 // The fields a site file fills with lines made from the row: absent or empty, a line that is only the field's slot is no line.
-const LINE_FIELDS = { site_sockets: siteSockets, www_first_names: wwwFirstNames };
+const LINE_FIELDS = { site_sockets: siteSockets, www_first_names: wwwFirstNames, access_log: accessLog };
 const wholeFile = (site, texts) => {
   const where = `caddy site file ${site.site_file}`;
   const routes = key => (site[key] ?? []).map(path => routeText(texts, path, site)).join('\n');
@@ -154,7 +192,7 @@ export async function prepare(given, { pages } = {}) {
   if (site === null || typeof site !== 'object') throw new Error(`unit ${given.unit} needs site: the names, routes and pools Caddy serves`);
   const texts = await routeTexts(site);
   const text = (site.site_file ? wholeFile(site, texts) : blockPerName(site, texts)) + innerDoors(site);
-  const caddyfile = { path: CADDYFILE, text, check: [site.binary ?? 'caddy', 'validate', '--config', '{file}', '--adapter', 'caddyfile'], then: [['systemctl', 'reload', unit.unit]] };
+  const caddyfile = { path: CADDYFILE, text, check: [site.binary ?? 'caddy', 'validate', '--config', '{file}', '--adapter', 'caddyfile'], then: [...logFileOwner(site, unit), ['systemctl', 'reload', unit.unit]] };
   const served = site.pages_root ? pageFiles(site, [...(pages ?? []), ...await madePages(site)]).map(file => ({ ...file, then: [] })) : [];
   // The pages folder is the site's whole: a page that left the person's pages folder leaves the computer too (owned_folders).
   return { unit: { ...unit, files: [...(unit.files ?? []), caddyfile, ...served], ...(site.pages_root ? { owned_folders: [...(unit.owned_folders ?? []), site.pages_root] } : {}) } };
