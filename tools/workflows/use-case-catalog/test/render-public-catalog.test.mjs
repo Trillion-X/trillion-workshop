@@ -14,8 +14,8 @@ test('only public rows leave, with allow-listed fields', () => {
     ],
   });
   const out = JSON.parse(catalog);
-  assert.equal(out.workflows.length, 1);
-  assert.deepEqual(Object.keys(out.workflows[0]).sort(), ['job', 'kind', 'produces', 'recipe', 'title']);
+  assert.equal(out.items.length, 1);
+  assert.deepEqual(Object.keys(out.items[0]).sort(), ['id', 'inputs', 'job', 'kind', 'produces', 'recipe', 'steps', 'title']);
 });
 
 test('sitemap lists each public workflow and use-case address', () => {
@@ -37,4 +37,19 @@ test('refuses output that carries an email, a phone number or a connection name'
 
 test('refuses a non-https origin', () => {
   assert.throws(() => renderPublicCatalog({ origin: 'http://x.example' }), /https/);
+});
+
+test('inputs leave as names and descriptions only, and each listing gets its own file', () => {
+  const out = renderPublicCatalog({
+    origin,
+    workflows: [{ recipe: 'workflow:trace-to-first-principles', title: 'Trace', job: 'Traces it.', kind: 'workflow', public: true,
+      input_schema: { properties: { subject: { type: 'string', default: 'SECRET-DEFAULT', description: 'The feature to trace' } } },
+      steps: [{ title: 'Read the chain' }, { id: 'no-title' }] }],
+  });
+  const listing = JSON.parse(out.listings['workflow:trace-to-first-principles']);
+  assert.equal(JSON.parse(out.catalog).items[0].id, 'workflow:trace-to-first-principles');
+  assert.deepEqual(listing.inputs, [{ name: 'subject', says: 'The feature to trace' }]);
+  assert.deepEqual(listing.steps, ['Read the chain']);
+  assert.equal(listing.id, 'workflow:trace-to-first-principles');
+  assert.ok(!out.catalog.includes('SECRET-DEFAULT'));
 });
