@@ -18,6 +18,15 @@
 # no swap, so a build that outgrows its memory is ended alone, and one that runs past its seconds is ended whole (build_over_time);
 # either way the apply fails and the programs the computer serves keep their memory and keep serving.
 set -eu
+# build-ended-by:begin
+# Why a build that failed ended: over_time when timeout ended it (124) or it ran its seconds; over_memory when its scope's
+# memory.events counts an oom_kill (the kernel ended a program of it at its MemoryMax); else failed.
+build_ended_by() {
+  if [ "$1" -eq 124 ] || [ $(( $(date +%s) - $2 )) -ge "$3" ]; then echo over_time; return; fi
+  kills=$(awk '$1 == "oom_kill" { print $2 }' "$4" 2>/dev/null || true)
+  if [ -n "$kills" ] && [ "$kills" -gt 0 ]; then echo over_memory; else echo failed; fi
+}
+# build-ended-by:end
 # It runs at the lowest CPU and disk priority, and every program it starts inherits that, so the programs this computer
 # serves keep answering while it works (Nov 21 2026, 3:58-4:01 PM CST: a site's npm ci on a 2-core computer slowed every site
 # it served to 1.07-1.54 s).
@@ -60,19 +69,22 @@ if [ ! -x "$at/$program" ]; then
   # time is bounded too; once it ends, the scope is stopped, so no program the build started outlives it.
   log="$builds/build-$commit.log"
   scope="build-$user-$(printf '%.12s' "$commit")"
+  # The scope's first program is a shell that runs the build under its time bound, then copies the scope's own memory.events
+  # out before it ends (the scope goes with its last program), so why the build ended is read, not guessed from a status.
+  events="$builds/build-$commit.memory-events"
   status=0
   started=$(date +%s)
   systemd-run --scope --quiet --collect --unit="$scope" -p MemoryMax="$memory_max" -p MemorySwapMax=0 -- \
-    timeout -k 10 "$seconds" \
+    env BUILD_MEMORY_EVENTS="$events" sh -c 'timeout -k 10 "$0" "$@"; s=$?; cat "/sys/fs/cgroup$(sed -n "s/^0:://p" /proc/self/cgroup)/memory.events" > "$BUILD_MEMORY_EVENTS" 2>/dev/null; exit $s' "$seconds" \
     runuser -u "$user" -- sh -c 'echo 1000 > /proc/self/oom_score_adj; cd "$0" && exec env "$@"' "$tree" "$@" > "$log" 2>&1 || status=$?
   systemctl stop "$scope.scope" >/dev/null 2>&1 || true
   if [ "$status" -ne 0 ]; then
     grep -m1 -A1 '^error' "$log" >&2 || true
-    if [ "$status" -eq 124 ] || [ $(( $(date +%s) - started )) -ge "$seconds" ]; then
-      echo "build_over_time: the build of $commit ran past its $seconds s (settings build_limits or its source's limits) and was ended whole." >&2
-    elif [ "$status" -eq 137 ]; then
-      echo "The build of $commit was ended at its memory cap ($memory_max); every program this computer serves kept its memory." >&2
-    fi
+    case $(build_ended_by "$status" "$started" "$seconds" "$events") in
+      over_time) echo "build_over_time: the build of $commit ran past its $seconds s (settings build_limits or its source's limits) and was ended whole." >&2 ;;
+      over_memory) echo "The build of $commit was ended at its memory cap ($memory_max); every program this computer serves kept its memory." >&2 ;;
+    esac
+    rm -f "$events"
     echo "The build of $commit failed; its whole output is $log on this computer." >&2
     rm -rf "$tree"
     exit 1

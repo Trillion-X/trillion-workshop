@@ -1,7 +1,8 @@
 import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, writeFileSync, rmSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, rmSync, existsSync, mkdtempSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -426,7 +427,7 @@ test('a build on the computer is the first the kernel ends when memory runs out,
 test('a build runs in a scope of its own whose memory cap ends it and whose time is bounded, by its kind or its source', () => {
   const script = readFileSync(new URL('../do-work/build-from-source.sh', import.meta.url), 'utf8');
   const scope = script.slice(script.indexOf('systemd-run --scope'), script.indexOf('> "$log" 2>&1 || status=$?'));
-  for (const part of ['systemd-run --scope --quiet --collect --unit="$scope" -p MemoryMax="$memory_max" -p MemorySwapMax=0 --', 'timeout -k 10 "$seconds"', 'runuser -u "$user" -- sh -c \'echo 1000 > /proc/self/oom_score_adj']) {
+  for (const part of ['systemd-run --scope --quiet --collect --unit="$scope" -p MemoryMax="$memory_max" -p MemorySwapMax=0 --', 'timeout -k 10 "$0" "$@"', '/memory.events" > "$BUILD_MEMORY_EVENTS"', 'runuser -u "$user" -- sh -c \'echo 1000 > /proc/self/oom_score_adj']) {
     assert.ok(scope.includes(part), `the build's scope says ${part}`);
   }
   assert.ok(script.includes('systemctl stop "$scope.scope"'), 'the scope is stopped once the build ends, so nothing it started outlives it');
@@ -440,6 +441,29 @@ test('a build runs in a scope of its own whose memory cap ends it and whose time
   assert.throws(() => sourceOf({ ...unit, source: { ...unit.source, limits: { seconds: 0 } } }), /limits\.seconds is a whole number/);
   assert.throws(() => sourceOf({ ...unit, source: { ...unit.source, limits: { memory_max: 'lots' } } }), /limits\.memory_max is a size/);
   assert.throws(() => sourceOf({ ...unit, source: { ...unit.source, memory: { high: '150M', max: '200M' } } }), /memory was replaced by limits/);
+});
+
+// The kernel's own memory.events of a build scope, as the always-on wrote it when its cap ended npm ci (Nov 21 2026, 9:59:42 PM
+// CST, a site's build scope under /system.slice): runuser then exited 1, not 137.
+const MEMORY_EVENTS = oomKills => `low 0\nhigh 0\nmax 1093\noom ${oomKills ? 1 : 0}\noom_kill ${oomKills}\noom_group_kill 0\n`;
+test('why a failed build ended is read from its scope\'s memory.events, not guessed from its exit status', () => {
+  const script = readFileSync(new URL('../do-work/build-from-source.sh', import.meta.url), 'utf8');
+  const fn = script.slice(script.indexOf('# build-ended-by:begin'), script.indexOf('# build-ended-by:end'));
+  assert.match(fn, /^# build-ended-by:begin\n/);
+  const here = mkdtempSync(join(tmpdir(), 'build-events-'));
+  const reason = (status, events, startedAgo = 0, seconds = 900) => {
+    const file = join(here, `events-${Math.random()}`);
+    if (events !== undefined) writeFileSync(file, events);
+    const started = Math.floor(Date.now() / 1000) - startedAgo;
+    return execFileSync('sh', ['-c', `${fn}\nbuild_ended_by "$@"`, 'sh', String(status), String(started), String(seconds), file], { encoding: 'utf8' }).trim();
+  };
+  assert.equal(reason(1, MEMORY_EVENTS(1)), 'over_memory', 'the cap ended it, whatever status runuser gave');
+  assert.equal(reason(137, MEMORY_EVENTS(2)), 'over_memory');
+  assert.equal(reason(1, MEMORY_EVENTS(0)), 'failed', 'a build that failed by itself is not called a cap');
+  assert.equal(reason(1, undefined), 'failed', 'no events kept is a plain failure');
+  assert.equal(reason(124, MEMORY_EVENTS(0)), 'over_time');
+  assert.equal(reason(1, MEMORY_EVENTS(1), 301, 300), 'over_time', 'past its seconds is over time first');
+  assert.match(script, /over_memory\) echo "The build of \$commit was ended at its memory cap \(\$memory_max\)/);
 });
 
 test('a build scope has no memory high below its max: the cap ends a build instead of slowing it for ever', () => {
