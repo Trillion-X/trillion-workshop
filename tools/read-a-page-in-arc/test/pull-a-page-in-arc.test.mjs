@@ -661,3 +661,15 @@ test('a Notion page\'s attached file is signed in the page and saved by Arc\'s d
   }
 });
 
+test('most_scroll_steps caps the scrolls of one read, and refuses a number outside 1 to the settings bound', async () => {
+  const arc = fakeArc({ 'https://endless.example/': { title: 'Endless', text: 'x', baseHeight: 1000, growBy: 10, growSteps: 1000000 } });
+  const answer = await pullAPageInArc({ url: 'https://endless.example/', most_scroll_steps: 3 }, { exec: arc.exec, sleep: noSleep });
+  assert.equal(answer.error, undefined, answer.error);
+  assert.equal(answer.scroll.steps, 3);
+  assert.equal(answer.scroll.stopped_by, 'most_steps');
+  assert.equal(arc.isOpen(), false);
+  for (const bad of [0, 1.5, realSettings.scroll.most_steps + 1, '3']) {
+    const refused = await pullAPageInArc({ url: 'https://endless.example/', most_scroll_steps: bad }, { exec: arc.exec, sleep: noSleep });
+    assert.match(refused.error, /most_scroll_steps must be a whole number/);
+  }
+});
