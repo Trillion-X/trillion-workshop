@@ -40,6 +40,9 @@ const ASK_RIGHTS: &str = include_str!("../../../ask-rights.json");
 /// The fields of an ask's input that hold words for whoever answers it, as DATA (tools/workflows/ask-words.json `keys`,
 /// fingerprinted like `ASK_RIGHTS`): a {key} in them is filled before the ask goes out (`fill_ask_words`).
 const ASK_WORDS: &str = include_str!("../../../ask-words.json");
+/// How a run's end is recorded when the run names no `on_end` of its own (tools/workflows/run-end.json, fingerprinted like
+/// `ASK_RIGHTS`): the recorder every pass that ends a run asks, whichever wake drove it (`end_effect`).
+const RUN_END: &str = include_str!("../../../run-end.json");
 /// The most bytes (as JSON) the run may be when a step's answer is held with it: every later envelope carries the whole run
 /// (its definition and every held answer), so a step whose answer takes the run past this is refused at that step. The run's
 /// input or definition `most_answer_bytes` overrides it.
@@ -201,11 +204,23 @@ fn handed_out(run: &Map<String, Value>, workflow: &str, step: &str, tool: &str, 
 /// ({path in the input: run, status, workflow or why}) set where it says, so the place that keeps the run's row (the
 /// wf_runs row its reader wrote at the start) learns how it ended. None while the run is paused, or when it names none.
 fn end_effect(run: &Map<String, Value>, status: &str, workflow: &str, why: Option<&str>) -> Option<Value> {
-    let recorder = run.get("on_end").filter(|recorder| recorder["tool"].as_str().is_some_and(|tool| !tool.is_empty()))?;
     if status == "paused" { return None; }
+    let own = run.get("on_end").filter(|recorder| recorder["tool"].as_str().is_some_and(|tool| !tool.is_empty())).cloned();
+    // The run's own definition reader names the database its row was written in; with no own recorder, the DATA one
+    // records there. A run with neither records nothing (no store is named in code).
+    let database = run.get("read_definition").and_then(|reader| reader["input"]["database"].as_str()).filter(|d| !d.is_empty());
+    let recorder = match own {
+        Some(recorder) => recorder,
+        None => {
+            database?;
+            let data: Value = serde_json::from_str(RUN_END).unwrap_or_else(|error| fail(format!("run-end.json does not read: {error}")));
+            data["recorder"].clone()
+        }
+    };
     // A run that ends well has no why: a recorder reads it through `with_if_given`, which sets null in its place.
-    let known = json!({ "run": run.get("run").cloned().unwrap_or(json!("run")), "status": status, "workflow": workflow, "why": why });
-    let (tool, input) = workflow_engine::fill_input::ask(recorder, &known).ok()?;
+    let known = json!({ "run": run.get("run").cloned().unwrap_or(json!("run")), "status": status, "workflow": workflow, "why": why,
+        "database": database });
+    let (tool, input) = workflow_engine::fill_input::ask(&recorder, &known).ok()?;
     Some(json!({ "wake": { "tool": tool, "input": input } }))
 }
 
@@ -1266,6 +1281,38 @@ mod tests {
         assert!(ended_why(&carried, &json!({ "error": "refused" })).ends_with("(its end was not recorded: refused)"));
         let unrecorded = json!({ "recipe": "workflow:x", "run": "cause-1", "input": {} }).as_object().unwrap().clone();
         assert!(ending(unrecorded, "workflow:x", why).is_none(), "no recorder: it fails at once");
+    }
+
+    // The end recorder belongs to the run, not to one wake's input: a run that names a reader (any wake's: a chosen run, an
+    // answered step resumed from its envelope, a row change) records its end in its reader's database from run-end.json,
+    // upserting its row, and a failure writes its why (Nov 22 2026: every resumed run's row stayed started).
+    #[test]
+    fn every_run_with_a_reader_records_its_end_whichever_wake_drove_it() {
+        let reader = json!({ "tool": "tool:run-sql-in-my-database", "input": { "database": "runs_db", "sql": "select", "params": [] },
+            "recipe_at": "params.0" });
+        // Resumed by an answered step: the run is the envelope carried back, holding its reader and no on_end.
+        let envelope = json!({ "recipe": "workflow:x", "read_definition": reader, "run": "cause-1", "input": {}, "answers": {} });
+        let given = json!({ "input": {}, "cause": { "key": "answer-9", "detail": { "kind": ANSWERED, "payload": {
+            "workflow": "workflow:x", "run": envelope, "step": "read-state", "for": "tool:read", "result": { "rows": [] } } } }, "context": {} });
+        let (resumed, _) = the_run(&given);
+        let effect = end_effect(&resumed, "completed", "workflow:x", None).expect("the resumed run records its end");
+        assert_eq!(effect["wake"]["tool"], "tool:run-sql-in-my-database");
+        assert_eq!(effect["wake"]["input"]["database"], "runs_db", "in its own reader's database");
+        assert_eq!(effect["wake"]["input"]["params"], json!(["cause-1", "completed", null, "workflow:x"]));
+        assert!(effect["wake"]["input"]["sql"].as_str().unwrap().contains("ON CONFLICT (run_id) DO UPDATE"), "a missing start row is upserted");
+        // Started by a row-change wake: its switch hands the recipe and the reader; the same recorder.
+        let started = json!({ "input": { "recipe": "workflow:x", "read_definition": reader, "row": "calendar_tasks" }, "cause": { "key": "change-1" }, "context": {} });
+        let (changed, _) = the_run(&started);
+        assert_eq!(end_effect(&changed, "completed", "workflow:x", None).unwrap()["wake"]["input"]["params"][0], "change-1");
+        // A failure writes its why, through the same recorder.
+        let out = ending(resumed.clone(), "workflow:x", "workflow:x: step read-state failed").expect("told before it fails");
+        assert_eq!(out["wake_effects"][0]["wake"]["input"]["params"], json!(["cause-1", "failed", "workflow:x: step read-state failed", "workflow:x"]));
+        // A run's own on_end still wins; a run with no reader database records nothing.
+        let mut own = resumed.clone();
+        own.insert("on_end".into(), json!({ "tool": "tool:keep", "input": { "params": [] }, "with": { "params.0": "run" } }));
+        assert_eq!(end_effect(&own, "completed", "workflow:x", None).unwrap()["wake"]["tool"], "tool:keep");
+        let bare = json!({ "run": "cause-2", "input": {} }).as_object().unwrap().clone();
+        assert!(end_effect(&bare, "completed", "workflow:x", None).is_none());
     }
 
     // A workflow no place holds is not asked for forever: once asked for and still missing, the run walks and the step that

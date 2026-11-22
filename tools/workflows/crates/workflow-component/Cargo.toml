@@ -20,7 +20,7 @@ chrono.workspace = true
 # The pin of a definition read by recipe (main.rs `pinned_definition`): the BLAKE3 of its JSON.
 blake3 = { version = "1.8.5", default-features = false }
 
-# ask-rights.json and ask-words.json are read into the component (main.rs `ASK_RIGHTS`, `ASK_WORDS`), so a change to
-# either builds the component again.
+# ask-rights.json, ask-words.json and run-end.json are read into the component (main.rs `ASK_RIGHTS`, `ASK_WORDS`,
+# `RUN_END`), so a change to any of them builds the component again.
 [package.metadata.compiled-module]
-source-files = ["../../ask-rights.json", "../../ask-words.json"]
+source-files = ["../../ask-rights.json", "../../ask-words.json", "../../run-end.json"]
