@@ -1,47 +1,42 @@
 {
- "start_here": "Say to your AI: \"Run workflow:hire-help-for-a-step: I need someone to photograph the shelf at Example Market on 12 Example Street on Saturday at 10:00, and the proof I want is three photos of the shelf.\"",
- "lists": [],
- "no_lists_because": "It keeps no list of its own: one waiting row goes on the person's Waiting on you list, and the booking and proof are kept on the run record.",
- "workflows": [
-  "workflow:hire-help-for-a-step"
- ],
- "tools": [
-  "tool:run-workflow-definition",
-  "tool:hold-to-it",
-  "tool:send-an-email"
- ],
- "instructions": [
-  "1. Say what must be done in person (step), and where, when and what proof you want (where, when, proof_wanted); only step is required.",
-  "2. Say \"Run workflow:hire-help-for-a-step\". The AI writes the task as a tasker reads it, finds who can do it near you and the total price.",
-  "3. One row appears on your Waiting on you list with the task, who and the price. Press it to book; nothing is booked or emailed before that tap.",
-  "4. After the tap it books or emails, puts the time on your calendar with tool:hold-to-it, and checks the proof arrived, following up and telling you if it did not."
- ],
- "worked_examples": [
-  {
-   "title": "The task and the price are written first",
-   "ask": "Hire someone to photograph the shelf at the market.",
-   "mcp": {
-    "server": "{cli}",
-    "tool": "do_one_thing_in_my_account",
-    "input": {
-     "method": "tools:run",
-     "input": {
-      "tool": "tool:run-workflow-definition",
-      "input": {
-       "row": "workflow:hire-help-for-a-step",
-       "step": "Photograph the bakery shelf at Example Market",
-       "where": "12 Example Street, Springfield",
-       "when": "Saturday 10:00",
-       "proof_wanted": "Three photos of the shelf with the price tags readable"
-      }
-     }
+  "start_here": "Say to your AI: \"Run workflow:hire-help-for-a-step.\" The wake starts it once its switch input is set.",
+  "lists": [],
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
+  "workflows": [
+    "workflow:hire-help-for-a-step"
+  ],
+  "tools": [
+    "tool:hold-to-it",
+    "tool:run-workflow-definition",
+    "tool:send-an-email"
+  ],
+  "instructions": [
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:hire-help-for-a-step\".",
+    "3. Read the answer the run hands back."
+  ],
+  "worked_examples": [
+    {
+      "title": "Hire help for a step",
+      "ask": "Run workflow:hire-help-for-a-step.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:hire-help-for-a-step"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:hire-help-for-a-step",
+      "step": "task",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-   },
-   "workflow": "workflow:hire-help-for-a-step",
-   "step": "task",
-   "given": "Read from the task step in tools/workflows/recipes/workflows.json: the step wants task (at least 20 characters), who and price, and the AI finds a task marketplace category near the address.",
-   "hands_back": "{\"task\": \"On Saturday at 10:00 go to Example Market, 12 Example Street, Springfield. Photograph the bakery shelf, three photos with the price tags readable, and send them back within an hour.\", \"who\": \"A nearby errand tasker from a task marketplace, listed at an hourly rate\", \"price\": \"$30 total for one hour\"}"
-  }
- ],
- "drafted_from": "tools/workflows/recipes/workflows.json row of workflow:hire-help-for-a-step (input schema, steps and submit shapes)"
+  ],
+  "drafted_from": "workflow:hire-help-for-a-step rendered from its row"
 }

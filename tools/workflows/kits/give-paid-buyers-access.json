@@ -1,57 +1,47 @@
 {
- "start_here": "Say to your AI: \"Run workflow:give-paid-buyers-access for offer offer:sourdough-club, customer records of type record:club-customer, email provider resend from club@example.com, with a setup email saying how to pick up the first loaf.\"",
- "lists": [],
- "no_lists_because": "It names no list: it keeps customer records of the type you give it as customer_record_type, one per paid checkout, through your records.",
- "workflows": [
-  "workflow:give-paid-buyers-access",
-  "workflow:tell-the-person"
- ],
- "tools": [
-  "tool:run-sql-in-my-database",
-  "tool:run-workflow-definition",
-  "tool:send-an-email",
-  "tool:list-completed-stripe-checkouts",
-  "tool:look-up-a-stripe-checkout",
-  "tool:check-what-a-buyer-paid",
-  "tool:list-ended-stripe-subscriptions"
- ],
- "instructions": [
-  "1. Declare the offer with its prices and connect Stripe; name the email provider you connected and the from address.",
-  "2. Say \"Run workflow:give-paid-buyers-access\" with offer_id, email_provider, from and setup_email (subject and text, with {email} and {people} placeholders); customer_record_type and start_unix are optional.",
-  "3. Schedule it every 15 minutes. Each run lists checkouts paid since the last one kept, checks each amount against a declared price and keeps one record per checkout.",
-  "4. Read what it tells you: a checkout whose amount matches no price is not kept and is named to you.",
-  "5. Each new customer gets the setup email once; customers whose subscription ended are marked ended and keep their record."
- ],
- "worked_examples": [
-  {
-   "title": "One new checkout since the last run",
-   "ask": "Give my new Sourdough Club buyers access.",
-   "mcp": {
-    "server": "{cli}",
-    "tool": "do_one_thing_in_my_account",
-    "input": {
-     "method": "tools:run",
-     "input": {
-      "tool": "tool:run-workflow-definition",
-      "input": {
-       "row": "workflow:give-paid-buyers-access",
-       "offer_id": "offer:sourdough-club",
-       "customer_record_type": "record:club-customer",
-       "email_provider": "resend",
-       "from": "club@example.com",
-       "setup_email": {
-        "subject": "Your Sourdough Club loaf is ready to book",
-        "text": "Hi {email}, thanks for joining. Your {people} places are held: reply with a pick-up day."
-       }
-      }
-     }
+  "start_here": "Say to your AI: \"Run workflow:give-paid-buyers-access.\" The wake starts it once its switch input is set.",
+  "lists": [],
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
+  "workflows": [
+    "workflow:give-paid-buyers-access",
+    "workflow:tell-the-person"
+  ],
+  "tools": [
+    "tool:check-what-a-buyer-paid",
+    "tool:list-completed-stripe-checkouts",
+    "tool:list-ended-stripe-subscriptions",
+    "tool:look-up-a-stripe-checkout",
+    "tool:run-sql-in-my-database",
+    "tool:run-workflow-definition",
+    "tool:send-an-email"
+  ],
+  "instructions": [
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:give-paid-buyers-access\".",
+    "3. Read the answer the run hands back."
+  ],
+  "worked_examples": [
+    {
+      "title": "Give paid buyers access",
+      "ask": "Run workflow:give-paid-buyers-access.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:give-paid-buyers-access"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:give-paid-buyers-access",
+      "step": "where-to-start",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-   },
-   "workflow": "workflow:give-paid-buyers-access",
-   "step": "check-each-amount",
-   "given": "Read from the row of workflow:give-paid-buyers-access in tools/workflows/recipes/workflows.json: step check-each-amount answers {matched:[{provider_session_id, paid_cents, people}], refused}. One new checkout cs_test_a1 paid 2400 cents (usd) with an email; the offer declares 1200 cents per person; tool:check-what-a-buyer-paid accepts it.",
-   "hands_back": "{\"matched\":[{\"provider_session_id\":\"cs_test_a1\",\"paid_cents\":2400,\"people\":2}],\"refused\":[]}"
-  }
- ],
- "drafted_from": "workflow:give-paid-buyers-access's row in tools/workflows/recipes/workflows.json (input schema, steps and submit shapes); no test names it"
+  ],
+  "drafted_from": "workflow:give-paid-buyers-access rendered from its row"
 }

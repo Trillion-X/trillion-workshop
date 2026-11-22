@@ -1,49 +1,42 @@
 {
- "start_here": "Say to your AI: \"Run workflow:grow-on-reddit-without-selling-first: my product is a scheduling app for small bakeries, my keywords are \\\"bakery order software\\\" and \\\"pre-order cake tracking\\\", and my Reddit username is sam_bakes_example.\"",
- "lists": [],
- "no_lists_because": "It keeps no list of its own: each step hands back one answer kept on the run record, and every comment and post goes out only after the person approves the exact words.",
- "workflows": [
-  "workflow:grow-on-reddit-without-selling-first",
-  "workflow:tell-the-person"
- ],
- "tools": [
-  "tool:run-workflow-definition",
-  "tool:read-a-page-in-my-browser"
- ],
- "instructions": [
-  "1. Gather three inputs: product (one plain sentence), keywords (the phrases buyers type into Google) and reddit_username (without u/). Sign in to Reddit in your own browser.",
-  "2. Say \"Run workflow:grow-on-reddit-without-selling-first\" with them. The AI reads your profile, searches Google for site:reddit.com plus each keyword and picks the 5 subreddits shown for the most keywords.",
-  "3. Read the rules it records for each subreddit, then approve each daily comment in your own words; it drafts, you send, and it checks the comment is live. Days 1, 2 and 3 each need a new calendar day.",
-  "4. After the tally shows 15 live comments, name the subreddit to post in, approve the exact post, paste it on Reddit yourself and let the AI confirm it is live."
- ],
- "worked_examples": [
-  {
-   "title": "Day one reads the account first",
-   "ask": "Warm up my Reddit account before I post.",
-   "mcp": {
-    "server": "{cli}",
-    "tool": "do_one_thing_in_my_account",
-    "input": {
-     "method": "tools:run",
-     "input": {
-      "tool": "tool:run-workflow-definition",
-      "input": {
-       "row": "workflow:grow-on-reddit-without-selling-first",
-       "product": "A scheduling app for small bakeries",
-       "keywords": [
-        "bakery order software",
-        "pre-order cake tracking"
-       ],
-       "reddit_username": "sam_bakes_example"
-      }
-     }
+  "start_here": "Say to your AI: \"Run workflow:grow-on-reddit-without-selling-first.\" The wake starts it once its switch input is set.",
+  "lists": [],
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
+  "workflows": [
+    "workflow:grow-on-reddit-without-selling-first",
+    "workflow:tell-the-person"
+  ],
+  "tools": [
+    "tool:read-a-page-in-my-browser",
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:grow-on-reddit-without-selling-first\".",
+    "3. Read the answer the run hands back."
+  ],
+  "worked_examples": [
+    {
+      "title": "Grow on Reddit without selling for the first 3 days",
+      "ask": "Run workflow:grow-on-reddit-without-selling-first.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:grow-on-reddit-without-selling-first"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:grow-on-reddit-without-selling-first",
+      "step": "account",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-   },
-   "workflow": "workflow:grow-on-reddit-without-selling-first",
-   "step": "account",
-   "given": "Read from the account step in tools/workflows/recipes/workflows.json: the AI calls tool:read-a-page-in-my-browser with {\"url\":\"https://www.reddit.com/user/sam_bakes_example/\"}; the page shows the name sam_bakes_example and 3 karma.",
-   "hands_back": "{\"profile_url\": \"https://www.reddit.com/user/sam_bakes_example/\", \"username_seen\": \"sam_bakes_example\", \"karma\": 3}"
-  }
- ],
- "drafted_from": "tools/workflows/recipes/workflows.json row of workflow:grow-on-reddit-without-selling-first (input schema, steps and submit shapes)"
+  ],
+  "drafted_from": "workflow:grow-on-reddit-without-selling-first rendered from its row"
 }

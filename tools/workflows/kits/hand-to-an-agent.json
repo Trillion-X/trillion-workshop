@@ -1,7 +1,7 @@
 {
-  "start_here": "Say to your AI: \"Run workflow:hand-to-an-agent with the job: turn my voice note from this morning into an outline with a hook and three points.\" It hands that job, with every detail of what arrived, to one of your AIs; the AI that takes it does the job and what it did is kept as the result. An item tagged for-another-ai starts it by itself.",
+  "start_here": "Say to your AI: \"Run workflow:hand-to-an-agent.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "The item reads and writes no list: its one step hands the job to an AI, and the job and its result are kept on the run itself.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:hand-to-an-agent"
   ],
@@ -9,14 +9,14 @@
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Say to your AI what you want done with what arrived, in plain words (the job).",
-    "2. The AI starts workflow:hand-to-an-agent with that job; its one step, handle, waits for an AI to take the job.",
-    "3. Read the run: its handle step holds what the AI that took it did. An item tagged for-another-ai starts the same workflow by itself (its fires_when)."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:hand-to-an-agent\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "A voice note becomes an outline",
-      "ask": "Hand my voice note from this morning to my AI: turn it into an outline with a hook and three points.",
+      "title": "Hand it to one of your AIs",
+      "ask": "Run workflow:hand-to-an-agent.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -25,17 +25,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:hand-to-an-agent",
-              "job": "Turn this voice note into an outline with a hook and three points",
-              "said": "Outline from this morning's voice note"
+              "row": "workflow:hand-to-an-agent"
             }
           }
         }
       },
       "workflow": "workflow:hand-to-an-agent",
       "step": "handle",
-      "given": "The job in plain words and what arrived (the voice note's id and words).",
-      "hands_back": "Step handle answers with what the AI that answered it did, e.g. {\"outline\":{\"hook\":\"Nobody reads the how-to.\",\"points\":[\"hand people the filled-in sheet\",\"show one real row\",\"say what is missing\"]}}."
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:hand-to-an-agent rendered from its row"
 }
