@@ -72,9 +72,13 @@ test('a call with no --pin sends the same envelope as before: exactly method, re
   assert.deepEqual(Object.keys(sent).sort(), ['input', 'method', 'request_key']);
   assert.deepEqual(sent.input, { kind: 'due-time' });
 
+  // A schedule list with no --pin is the one call that carries a pin of its own: the probe that asks the engine which
+  // computers are carried (command-schedule-names-the-computer.test.mjs). Its method and input are still the wake list's.
   const scheduled = run(['schedule', 'list']);
   await scheduled.result;
-  assert.deepEqual(Object.keys(envelopes(scheduled.asked)[0]).sort(), ['input', 'method', 'request_key']);
+  assert.deepEqual(envelopes(scheduled.asked).map(sent => sent.method), ['wake:list']);
+  assert.equal(envelopes(scheduled.asked)[0].pins.length, 1);
+  assert.match(envelopes(scheduled.asked)[0].pins[0], /^no-such-computer-/);
 });
 
 test('a --pin the engine would refuse, or more than 64 of them, is refused before anything is sent', async () => {

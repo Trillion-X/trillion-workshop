@@ -481,6 +481,26 @@ test('give → take → hand-on to person:someone → that person takes and fini
   } finally { await fake.close(); }
 });
 
+test('a turn: give --in says words to a chat, --wait prints the reply, and --after goes on in the chat and to the taker the reply named', async () => {
+  const runner = 'ai:take-open-work-server';
+  const store = recordStore([[runner, 'ai', { agent_id: 'take-open-work-server' }]]);
+  const fake = await fakeDoor({ ops: taskDoorOps(store) });
+  try {
+    const folder = home();
+    const seams = (extra = {}) => seamsFor(folder, { localDoor: () => fake.mcp, ...extra });
+    const reply = { reply: 'Hello there, the build is green.', in: 'claude-code:7f1c', to: runner, on: 'server', ai: 'claude-code' };
+    const answer = id => async () => store.put(id, 'calendar-task', { ...store.get(id), status: 'Done', result: JSON.stringify(reply) });
+    const first = await main(['give', 'help', 'me', '--in', 'claude-code:new', '--to', runner, '--key', 't1', '--wait', '5'], seams({ wait: answer('record:calendar-task:t1') }));
+    assert.deepEqual(store.get('record:calendar-task:t1').source, { kind: settings.tasks.turn_source_kind, ref: 'claude-code:new' });
+    assert.equal(store.get('record:calendar-task:t1').description, 'help me', 'the words are kept as they were said');
+    assert.match(first, /^Hello there, the build is green\.\n\n\(claude-code on server; to go on: .* give WORDS --after record:calendar-task:t1 --wait SECONDS\)\n$/);
+    await main(['give', 'and', 'the', 'tests?', '--after', 'record:calendar-task:t1', '--key', 't2'], seams());
+    assert.deepEqual(store.get('record:calendar-task:t2').source, { kind: settings.tasks.turn_source_kind, ref: 'claude-code:7f1c' });
+    assert.deepEqual(store.get('record:calendar-task:t2').assignees, [runner]);
+    await assert.rejects(main(['give', 'x', '--after', 'record:calendar-task:t2', '--key', 't3'], seams()), /is not a finished turn/);
+  } finally { await fake.close(); }
+});
+
 test('a move another AI made between its read and its write is reported as changed, and nothing is written over it', async () => {
   const store = recordStore([['ai:claude-code-on-mac', 'ai', {}], ['record:calendar-task:r', 'calendar-task', { title: 'Race', status: 'In progress', taken_by: 'ai:claude-code-on-mac', taken_at: '2026-11-19T12:00:00.000Z', sent_by: 'ai:codex-on-mac', sent_at: '2026-11-19T11:00:00.000Z', priority: 'medium' }]]);
   const ops = taskDoorOps(store);

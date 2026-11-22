@@ -329,10 +329,13 @@
     "cancel": "tools:cancel",
     "wake": { "switch": "wake:switch", "list": "wake:list", "max_switch_input_bytes": 65536, "_why": "A switch on may carry the person's own input (an object, at most max_switch_input_bytes as JSON), kept with the wake and handed to every run it starts under the row's own fields (an engine from commit 3bd6dc47a; an older one refuses the unknown field, and that refusal is passed through with schedule_input_old_engine, never resent without the input)." },
     "pins": { "most": 64, "id_pattern": "^[A-Za-z0-9_-]{1,128}$", "_why": "The engine's rule for the pins of a call's envelope (trillion-rust src/tool_runs/reach.rs Route::parse and computer_id_valid): at most 64 computer ids, each 1 to 128 ASCII letters, digits, dashes or underscores. --pin is checked against it here, before anything is sent." },
+    "carried": { "not_carried": "tools_pinned_computer_not_carried", "probe": "no-such-computer-", "carried_words": "yours carried now: ([A-Za-z0-9_-]+(?:, [A-Za-z0-9_-]+)*)", "_why": "A pin no computer of the person's has is refused by the computer meeting point (its pinned() refusal), and that refusal's words name the computers carried now (carried_words). The CLI reads those names from the refusal of such a probe: no engine change, and nothing is sent to a computer." },
     "_need_refusal": "The exact refusal an engine older than trillion-rust 9133c735e gives a call that carries `need` (its parse_operation names every argument that is not a call's, as invalid params). Only this refusal makes the command send the same call once more without `need`; every other refusal is passed through.",
     "need_refusal": { "code": -32602, "message": "Addressed resource arguments are incomplete: `need` is not an argument of a call." }
   },
   "tasks": {
+    "_turn_what": "A turn is a task whose source is {kind: turn_source_kind, ref}: its words go, as they are, to the chat the ref names (a chat row's source_prefix and its session id, or `new` for a new chat), and the AI's reply is its result, {reply, in, to, on, ai} (the take-open-work runner, keep-and-wake-ai-sessions-on-this-computer, writes it). `give --in REF` gives one; `give --after ID` gives the next turn of the conversation task ID was a turn of, to whoever took it (its result's in and to, unless --in or --to name others). With --wait, a finished turn prints its reply.",
+    "turn_source_kind": "chat",
     "_what": "Each task command is one read or one move through a Workshop task tool (trillion-workshop tools/plan-tasks-and-todo-lists, packed under ./packs). `tools` names the tool for see (tasks), give, take, who (who-can-take), change (every move by id except finish) and finish (its own row, so it may name only the saved target). `actions` maps each move command to the action the task row takes. `holder_commands` are the moves the AI holding a task makes: the claim (taken_at) is read from the task's own row. `who_types` are the record types who-can-take reads (the people and AIs that may take a task). `list_limit` is how many tasks `tasks` shows when no limit is given. `store` is where the tasks are kept when the person's own database keeps them as table rows: `--store NAME` on any task command names the held connection of that database (kept in `file` under the state folder for the next command), and who-can-take then reads `who_types` from it (only the users whose `can` says what they can take, and of the tasks held now only `busy_fields`, which count them); `tasks` asks the store for only the newest it shows, in `newest` order (the order the see-tasks row shows them in).",
     "tools": {
       "see": "tool:see-tasks",
@@ -442,6 +445,8 @@
     "gave_before": "{id} was given before; here it is as it now is.",
     "not_written": "The task was not written; nothing was given.",
     "no_task": "No task {id} is there.",
+    "not_a_turn": "Task {id} is not a finished turn: its result names no chat to go on in, so --after cannot follow it. Name the chat with --in.",
+    "turn_next": "({ai} on {on}; to go on: {cli} give WORDS --after {id} --wait SECONDS)",
     "took": "Took {id}.",
     "take_lost": "Another AI ({taker}) moved {id} first.",
     "another_ai": "another AI",
@@ -458,6 +463,9 @@
     "schedule_input_old_engine": "What runs your tools on this computer is too old to take your own input when switching a wake on. Update it, then ask again. The wake was not switched on.",
     "pin_refused": "--pin names a computer by its id: 1 to 128 letters, digits, dashes or underscores. {id} is not one.",
     "pin_too_many": "--pin takes at most {most} computers; this names {count}.",
+    "schedule_answered_by": "answered by: {computer}",
+    "schedule_refused_by": "not answered by: {computer}",
+    "schedule_unnamed": "answered by: unnamed (none of your computers was named)",
     "retry_with_key": "To ask again without doing it twice, add {flag} {key} to the command.",
     "request_key_line": "Reference: {key}.",
     "write_pending": "Your change was saved, but it has not shown up yet. Look again before you try again.",

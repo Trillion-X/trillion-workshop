@@ -74,12 +74,12 @@ const run = (fake, ...words) => schedules(fake.client, words, { requestKey: 'req
 
 test('schedule lists the declared wakes and switches one off and on at the wake owner, naming no address and no row', async () => {
   const fake = engine();
-  assert.deepEqual((await run(fake, 'list')).wakes.map(wake => [wake.tool, wake.id, wake.switched_on]), [['tool:x', 'daily', true]]);
-  assert.deepEqual((await run(fake)).wakes.length, 1, 'no words lists them');
-  assert.deepEqual(await run(fake, 'off', 'tool:x', 'daily'), { on: false });
+  assert.deepEqual((await run(fake, 'list')).computers[0].wakes.map(wake => [wake.tool, wake.id, wake.switched_on]), [['tool:x', 'daily', true]]);
+  assert.deepEqual((await run(fake)).computers[0].wakes.length, 1, 'no words lists them');
+  assert.deepEqual(await run(fake, 'off', 'tool:x', 'daily'), { on: false, answered_by: null });
   assert.equal(fake.wakes[0].switched_on, false);
-  assert.deepEqual(await run(fake, 'on', 'tool:x', 'daily'), { on: true });
-  assert.deepEqual(fake.calls.map(call => [call.address, call.method]), [[null, 'wake:list'], [null, 'wake:list'], [null, 'wake:switch'], [null, 'wake:switch']]);
+  assert.deepEqual(await run(fake, 'on', 'tool:x', 'daily'), { on: true, answered_by: null });
+  assert.deepEqual(fake.calls.map(call => [call.address, call.method]), [[null, 'wake:list'], [null, 'wake:list'], [null, 'wake:switch'], [null, 'wake:list'], [null, 'wake:switch'], [null, 'wake:list']]);
   assert.deepEqual(fake.calls.filter(call => call.method === 'wake:switch').map(call => call.key), ['req-1', 'req-1']);
   await assert.rejects(run(fake, 'off', 'tool:x', 'weekly'), /No wake weekly/);
 });
@@ -105,8 +105,8 @@ test('schedule cancel asks the engine to cancel one exact admitted run under the
 test('schedule on --input sends the object with the switch and never prints its values', async () => {
   const fake = engine();
   const input = { vault: 'my-secret-name', rules: ['a', 'b'] };
-  assert.deepEqual(await run2(fake, ['on', 'tool:x', 'daily'], { inputFile: 'f.json', readInput: () => JSON.stringify(input) }), { on: true });
-  assert.deepEqual(fake.calls.map(call => [call.method, call.input]), [['wake:switch', { tool: 'tool:x', id: 'daily', on: true, input }]]);
+  assert.deepEqual(await run2(fake, ['on', 'tool:x', 'daily'], { inputFile: 'f.json', readInput: () => JSON.stringify(input) }), { on: true, answered_by: null });
+  assert.deepEqual(fake.calls.map(call => [call.method, call.input]), [['wake:switch', { tool: 'tool:x', id: 'daily', on: true, input }], ['wake:list', {}]]);
 });
 
 test('schedule on --input refuses a non-object, an over-size object and off with input, before anything is sent', async () => {

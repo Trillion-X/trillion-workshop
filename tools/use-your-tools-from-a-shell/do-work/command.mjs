@@ -141,7 +141,7 @@ export const aiIdOf = (id, rules = settings) => (/^[^:\s]+:\S+$/.test(String(id)
 
 // ── Command line ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-const VALUE_FLAGS = new Set(['address', 'description', 'title', 'source-file', 'obligations-file', 'continuation-file', 'request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'can', 'from', 'taken-by', 'assignee', 'ag-ui', 'since', 'list', 'check-file', 'acceptance-file', 'input', 'store', 'pin', 'upload']);
+const VALUE_FLAGS = new Set(['address', 'description', 'title', 'source-file', 'obligations-file', 'continuation-file', 'request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'can', 'from', 'taken-by', 'assignee', 'ag-ui', 'since', 'list', 'check-file', 'acceptance-file', 'input', 'store', 'pin', 'upload', 'in', 'after']);
 // A flag given more than once keeps every value, in order (`--to A --to B`); the others keep the last.
 const MULTI_FLAGS = new Set(['to', 'can', 'pin']);
 
@@ -354,11 +354,13 @@ export function argumentsFor(command, { words, flags }, { me, held = {}, request
           ...(assignees.length ? { assignees } : {}),
           ...(flags.priority !== undefined ? { priority: priorityOf(flags.priority) } : {}),
           ...(flags.outcome !== undefined ? { outcome: flags.outcome } : acceptance ? { outcome: acceptance.outcome } : {}),
-          ...(flags['source-file'] ? { source: validateSource(readJsonFile(flags['source-file'], 'source', '{"kind":"repository","ref":"..."}')) } : {}),
+          ...(flags.in !== undefined ? { source: validateSource({ kind: rules.tasks.turn_source_kind, ref: flags.in }) }
+            : flags['source-file'] ? { source: validateSource(readJsonFile(flags['source-file'], 'source', '{"kind":"repository","ref":"..."}')) } : {}),
           ...(flags['obligations-file'] ? { obligations: validateObligations(readJsonFile(flags['obligations-file'], 'obligations', '[{"id":"...","outcome":"..."}]')) } : {}),
           ...(acceptance ? { acceptance } : {}),
         },
         read: { ids: assignees.map(recordRef) },
+        ...(flags.after !== undefined ? { after: taskRef(flags.after).id } : {}),
       };
     }
     case 'take':
@@ -1388,9 +1390,19 @@ export function taskLines(task) {
     ...(task.result !== undefined && task.result !== null ? [`  result: ${short(task.result, 1000)}`] : [])];
 }
 
+/** One answer of `schedule`: the computer that answered it on the first line, then its refusal or its wakes. */
+function scheduleBlock(block, rules) {
+  const { answered_by: computer, refused, ...rest } = block;
+  const heading = !computer ? rules.words.schedule_unnamed
+    : fill(refused ? rules.words.schedule_refused_by : rules.words.schedule_answered_by, { computer });
+  return [heading, refused ?? JSON.stringify(rest, null, 2)].join('\n');
+}
+
 /** Plain lines for a command's answer; --json prints the answer itself instead. */
 export function render(command, answer, rules = settings) {
   const value = quiet(answer);
+  if (command === 'schedule' && Array.isArray(value.computers)) return value.computers.map(block => scheduleBlock(block, rules)).join('\n');
+  if (command === 'schedule' && 'answered_by' in value) return scheduleBlock(value, rules);
   if (command === 'who' && Array.isArray(value.groups)) {
     const hidden = value.hidden ? [fill(rules.who.hidden, { count: value.hidden, days: rules.who.seen_within_days })] : [];
     if (!value.groups.length) return [rules.who.none, ...hidden].join('\n');
@@ -1530,7 +1542,7 @@ const HELP = `{cli}: see your AIs and their tasks, and run your {site_name}'s to
   --pin ID  meet the op or schedule call at this computer first, then the next --pin in order (repeat it, or give IDs separated by commas; at most ${settings.engine.pins.most})
   --upload FILE      (op, call) send FILE's bytes as the call's raw body (at most ${settings.direct_calls.upload_most_bytes} bytes): a session tool takes it as the file argument its row names (byte_argument)
   --timeout SECONDS  wait this long for one try of a call (default ${settings.retry.attempt_seconds}); a try with no answer is asked again, up to ${settings.retry.count} more times, under the same request key
-  {cli} schedule list | on TOOL WAKE_ID | off TOOL WAKE_ID | cancel RUN_KEY [--pin ID]...   the wakes your tool rows declare: list, switch, or cancel one admitted run (a wake is made, changed or removed in its row's wakes list)
+  {cli} schedule list | on TOOL WAKE_ID | off TOOL WAKE_ID | cancel RUN_KEY [--pin ID]...   the wakes your tool rows declare: list, switch, or cancel one admitted run (a wake is made, changed or removed in its row's wakes list). Each answer says which computer answered it on its first line; an unpinned list has one block per carried computer
   {cli} update                                        who updates this command (it never updates itself)
   ${basename(settings.install.link)} records replay-from-transcripts --since TIME            list the rows this computer's AIs wrote, to keep in your own store (writes nothing)
 
@@ -1538,6 +1550,7 @@ const HELP = `{cli}: see your AIs and their tasks, and run your {site_name}'s to
   {cli} TASK-COMMAND ... --store NAME                 the tasks are rows of your own database's tables: NAME is the connection you saved for it (kept for the next command)
   {cli} tasks [ID] [--status S] [--from ID] [--taken-by ID] [--assignee ID] [--limit N]   the newest tasks that match, or one with its result
   {cli} give WORDS [--to ID]... [--title T] [--priority urgent|high|medium|low] [--outcome TEXT] [--key K] [--wait SECONDS]   give a task (--to: who may take it; repeat for more)
+  {cli} give WORDS --in CHAT | --after ID [--to ID] [--wait SECONDS]   say WORDS to an AI's chat (CHAT: claude-code:new, codex:new, or one a reply named); --after goes on from turn ID; --wait prints the reply
   {cli} take [ID] [--only-mine]                       take the oldest task you may take (or that one)
   {cli} who-can-take [--can WORD]... [--live]         the people and AIs that can take a task: live now, and how many tasks each holds
   {cli} finish ID "RESULT" [--check-file JSON] | fail ID "WHY"   record what came of a task you took (no words: the result is read from standard input, any size; one too long for the task row is kept as a file of your files and the row names it)
@@ -1557,28 +1570,32 @@ const HELP = `{cli}: see your AIs and their tasks, and run your {site_name}'s to
 
 /** `schedule`: the wakes the person's tool rows declare (each row's `wakes` list), read and switched at the engine's wake
  *  owner (`engine.wake`: list, switch), and one admitted run cancelled (`engine.cancel`). A call names its method only; the
- *  engine finds the owner. A wake is made, changed or removed in its row's `wakes` list, never here. */
+ *  engine finds the owner. A wake is made, changed or removed in its row's `wakes` list, never here.
+ *  Every answer names the computer that answered it (`answered_by`). A list is one block per computer: with --pin, each
+ *  pin's own; without, each computer the engine names as carried (carriedNow), so no one computer's wakes stand for all. */
 export async function schedules(client, words, { requestKey, rules = settings, inputFile, route = {}, readInput = file => readFileSync(file === '-' ? 0 : file, 'utf8') } = {}) {
   const [action = 'list', ...args] = words;
   const { wake } = rules.engine;
+  const pins = route.pins ?? [];
   if (action === 'list') {
     if (args.length) throw new CommandError(`Use ${cliName()} schedule list.`, { status: 2 });
-    return client.op(null, wake.list, {}, { idempotent: true, route });
+    return { computers: await listedByComputer(client, rules, pins) };
   }
   if (action === 'on' || action === 'off') {
     const [tool, id, ...extra] = args;
     need(tool, `Name the tool: ${cliName()} schedule ${action} TOOL WAKE_ID.`);
     need(id, `Name the wake id: ${cliName()} schedule ${action} TOOL WAKE_ID.`);
     if (extra.length) throw new CommandError(`Use ${cliName()} schedule ${action} TOOL WAKE_ID.`, { status: 2 });
-    if (inputFile === undefined) return opWhole(client, null, wake.switch, { tool, id, on: action === 'on' }, { requestKey, route });
+    if (inputFile === undefined) return answeredBySwitch(client, rules, await opWhole(client, null, wake.switch, { tool, id, on: action === 'on' }, { requestKey, route }), pins);
     if (action === 'off') throw new CommandError(rules.words.schedule_input_off, { status: 2 });
     const input = switchInput(inputFile, readInput, rules);
     // An engine older than the input refuses the unknown field; that refusal is passed through with one line of help and
     // the call is never sent again without the input, which would switch the wake on without it.
-    return opWhole(client, null, wake.switch, { tool, id, on: true, input }, { requestKey, route }).catch(error => {
+    const answer = await opWhole(client, null, wake.switch, { tool, id, on: true, input }, { requestKey, route }).catch(error => {
       if (error?.answer?.code === rules.engine.need_refusal.code) error.message = `${error.message}\n${rules.words.schedule_input_old_engine}`;
       throw error;
     });
+    return answeredBySwitch(client, rules, answer, pins);
   }
   if (action === 'cancel') {
     const [run, ...extra] = args;
@@ -1587,6 +1604,57 @@ export async function schedules(client, words, { requestKey, rules = settings, i
     return opWhole(client, null, rules.engine.cancel, { run }, { requestKey, route });
   }
   throw new CommandError(`Unknown schedule command ${action}. Run ${cliName()} help.`, { status: 2 });
+}
+
+/** The computers the engine names as carried now. A read is asked with a pin no computer of the person's has; the meeting
+ *  point refuses it and its words name the carried computers (engine.carried.carried_words). `answer` is set when the engine
+ *  answered without a meeting (no computer is announced), `names` are the carried computers, `message` the refusal's words. */
+async function carriedNow(client, rules) {
+  const carried = rules.engine.carried;
+  const probe = `${carried.probe}${randomUUID().slice(0, 8)}`;
+  try {
+    return { answer: await client.op(null, rules.engine.wake.list, {}, { idempotent: true, route: { pins: [probe] } }), names: [], message: null };
+  } catch (error) {
+    if (error?.answer?.code !== carried.not_carried) throw error;
+    const named = new RegExp(carried.carried_words).exec(error.message ?? '');
+    return { answer: null, names: named ? named[1].split(', ') : [], message: error.message ?? null };
+  }
+}
+
+/** The wakes one pinned computer answers, under its name; a computer the pin does not name is a refusal under its name. */
+async function listedFrom(client, rules, name) {
+  try {
+    const answer = await client.op(null, rules.engine.wake.list, {}, { idempotent: true, route: { pins: [name] } });
+    return { ...answer, answered_by: name };
+  } catch (error) {
+    if (error?.answer?.code !== rules.engine.carried.not_carried) throw error;
+    return { answered_by: name, refused: error.message };
+  }
+}
+
+/** One block per computer for a list: each pin given (in order), else each computer the engine names as carried now. */
+async function listedByComputer(client, rules, pins) {
+  const blocks = [];
+  if (pins.length) {
+    for (const name of pins) blocks.push(await listedFrom(client, rules, name));
+    return blocks;
+  }
+  const now = await carriedNow(client, rules);
+  if (now.answer) return [{ ...now.answer, answered_by: null }];
+  if (!now.names.length) return [{ answered_by: null, refused: now.message }];
+  for (const name of now.names) blocks.push(await listedFrom(client, rules, name));
+  return blocks;
+}
+
+/** The computer that switched a wake: the one pin it was sent to, else the one carried computer the switch did not pass
+ *  to (the engine names every other computer under `elsewhere`, each with its outcome). Null when that is not one computer. */
+async function answeredBySwitch(client, rules, answer, pins) {
+  if (pins.length === 1) return { ...answer, answered_by: pins[0] };
+  const carried = (await carriedNow(client, rules)).names;
+  const elsewhere = Array.isArray(answer.elsewhere) ? answer.elsewhere.map(said => said.computer) : [];
+  const candidates = Array.isArray(answer.elsewhere) ? carried : carried.filter(name => pins.length === 0 || pins.includes(name));
+  const left = candidates.filter(name => !elsewhere.includes(name));
+  return { ...answer, answered_by: left.length === 1 ? left[0] : null };
 }
 
 /** The person's own input for a wake switch: one JSON object read from a file (- is standard input), within the engine's size
@@ -1891,6 +1959,19 @@ async function taskCommand(client, context, { command, call, flags, requestKey, 
     return print('tasks', withoutKeep(answer.result));
   }
   if (call.call === 'give') {
+    // The next turn of a conversation: the chat and the taker come from the turn it follows (its result's in and to),
+    // unless --in or --to name others.
+    if (call.after) {
+      const before = await readOne(call.after);
+      if (!before) throw new CommandError(fill(settings.words.no_task, { id: call.after }), { status: 1 });
+      let said = null;
+      if (typeof before.result === 'string') {
+        try { said = JSON.parse(printResult(await kept(readResult(client, before.result, settings)), stdout)); } catch (error) { if (!(error instanceof SyntaxError)) throw error; }
+      }
+      if (!object(said) || typeof said.in !== 'string') throw new CommandError(fill(settings.words.not_a_turn, { id: call.after }), { status: 1 });
+      call.input.source ??= { kind: settings.tasks.turn_source_kind, ref: said.in };
+      if (!call.input.assignees && typeof said.to === 'string') { call.input.assignees = [said.to]; call.read.ids.push(recordRef(said.to)); }
+    }
     const answer = await runTaskMove(resource, { tool: tools.give, input: call.input, key: requestKey, read: call.read });
     if (!answer.kept) throw new CommandError(settings.words.not_written, { status: 4 });
     const given = withoutKeep(answer.result);
@@ -1901,7 +1982,13 @@ async function taskCommand(client, context, { command, call, flags, requestKey, 
       const seen = await readOne(given.task_id);
       return seen && finishedStates.includes(seen.status) ? seen : null;
     }, { seconds, sleep: context.wait });
-    if (done) return print('tasks', { tasks: [done], more: false });
+    if (done) {
+      // A finished turn says its reply, as the AI said it, then where the conversation goes on.
+      const turnSaid = done.source?.kind === settings.tasks.turn_source_kind && typeof done.result === 'string' && !flags.json
+        ? (() => { try { const said = JSON.parse(done.result); return object(said) && typeof said.reply === 'string' ? said : null; } catch { return null; } })() : null;
+      if (turnSaid) return `${turnSaid.reply}\n\n${fill(settings.words.turn_next, { id: done.id, ai: turnSaid.ai ?? '', on: turnSaid.on ?? '', cli: cliName() })}\n`;
+      return print('tasks', { tasks: [done], more: false });
+    }
     return print('give', { ...given, note: [giveNote(given.task), fill(settings.words.not_finished, { seconds, id: given.task_id })].join(' ') });
   }
   if (call.call === 'take') {
