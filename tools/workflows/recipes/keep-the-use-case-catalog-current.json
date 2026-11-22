@@ -1,0 +1,259 @@
+{
+  "about": "workflow:keep-the-use-case-catalog-current: keeps the use-case catalog naming every workflow. Two steps: read changed recipes, then apply them through one catalog function. Both store connections and both table names come from the wake input.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-the-use-case-catalog-current",
+        "label": "Keep the use-case catalog current",
+        "job": "Each time a workflow row changes, and each day, link every use-case row to the workflow that serves it, add a row for each real end-user workflow that has none, and mark the rest internal, so the catalog names every workflow.",
+        "produces": "Upserted links and new use-case rows in the use-case store, and one count of each.",
+        "source": {
+          "from": "the use-case catalog lane, 2026-11-21",
+          "note": "A two-step sweep: the workflows store is read for changed recipes only (kept_at after the sweep mark), and the use-case store is written by one function that takes both table names and the delta as inputs."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "runs_connection",
+            "catalog_connection",
+            "catalog_table",
+            "links_table",
+            "id_prefix"
+          ],
+          "properties": {
+            "runs_connection": {
+              "type": "string",
+              "pattern": "-connection$",
+              "description": "The vault name of the database that holds the workflow rows."
+            },
+            "catalog_connection": {
+              "type": "string",
+              "pattern": "-connection$",
+              "description": "The vault name of the database that holds the use-case rows and links."
+            },
+            "catalog_table": {
+              "type": "string",
+              "pattern": "^[a-z0-9_]+$",
+              "description": "The use-case table in the catalog database."
+            },
+            "links_table": {
+              "type": "string",
+              "pattern": "^[a-z0-9_]+$",
+              "description": "The links table in the catalog database."
+            },
+            "id_prefix": {
+              "type": "string",
+              "pattern": "^record:[a-z0-9:-]+:$",
+              "description": "The id prefix the catalog rows use for new rows, such as the record id of its table followed by a colon."
+            }
+          }
+        },
+        "fires_when": [
+          {
+            "label": "a workflow row was added or changed in the workflows store, so the use-case catalog may need its links and rows",
+            "state": "On",
+            "made_by": "the person's AI, which wrote this workflow (Nov 21 2026)",
+            "evidence": "The owner's standing rule: every workflow is a row, and the use-case catalog must name every workflow that serves a use case",
+            "condition": {
+              "fields": [
+                {
+                  "id": "place",
+                  "kind": "choice",
+                  "path": [
+                    "place"
+                  ]
+                },
+                {
+                  "id": "change",
+                  "kind": "choice",
+                  "path": [
+                    "change"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "place",
+                    "params": {
+                      "values": [
+                        "workflow_recipes"
+                      ]
+                    },
+                    "operator": "is_any_of"
+                  },
+                  {
+                    "kind": "rule",
+                    "field": "change",
+                    "params": {
+                      "values": [
+                        "added",
+                        "changed"
+                      ]
+                    },
+                    "operator": "is_any_of"
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "wakes": [
+          {
+            "id": "daily",
+            "on": {
+              "fact": {
+                "from": [
+                  "run"
+                ],
+                "kind": "due-time",
+                "match": {
+                  "schedule_id": "schedule:workflow:keep-the-use-case-catalog-current:daily"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:keep-the-use-case-catalog-current",
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        },
+                        "owner_dispatch": {
+                          "name": "workflow:keep-the-use-case-catalog-current",
+                          "input": {}
+                        }
+                      },
+                      "cadence": {
+                        "unit": "day"
+                      },
+                      "timezone": "America/Chicago",
+                      "schedule_id": "schedule:workflow:keep-the-use-case-catalog-current:daily",
+                      "local_window": {
+                        "start": "07:00",
+                        "duration_minutes": 1
+                      },
+                      "start_local_date": "2026-11-21",
+                      "schedule_revision": 1,
+                      "source_generation": 1
+                    }
+                  ]
+                }
+              }
+            },
+            "input": {
+              "start_at": "read"
+            },
+            "budget": {
+              "steps": 5,
+              "wall_ms": 600000
+            }
+          }
+        ],
+        "steps": [
+          {
+            "id": "read",
+            "title": "Read the workflows changed since the last sweep",
+            "do": "Run the delta read in the workflows store and return the changed recipes as a compact list, moving the sweep mark to the newest change it read.",
+            "run_tool": {
+              "tool_id": "tool:run-sql-in-my-database",
+              "input": {
+                "sql": "WITH d AS (\n  SELECT r.recipe, r.title, r.job, (r.flags::text LIKE '%\"public\"%') AS is_public, r.kept_at\n  FROM workflow_recipes r\n  JOIN use_case_sweep_marks m ON m.name = 'use-case-catalog' AND r.kept_at > m.swept_through\n),\nmoved AS (\n  UPDATE use_case_sweep_marks SET swept_through = coalesce((SELECT max(kept_at) FROM d), swept_through)\n  WHERE name = 'use-case-catalog' AND EXISTS (SELECT 1 FROM d)\n  RETURNING swept_through\n)\nSELECT row_to_json(x)::text FROM (\n  SELECT (SELECT count(*) FROM d) AS changed,\n         coalesce((SELECT jsonb_agg(jsonb_build_object('recipe', d.recipe, 'title', d.title, 'job', d.job, 'is_public', d.is_public)) FROM d), '[]'::jsonb) AS delta\n) x;\n",
+                "credential_name": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "runs_connection"
+                  }
+                }
+              }
+            },
+            "submit": {
+              "type": "object",
+              "required": [
+                "changed",
+                "delta"
+              ],
+              "properties": {
+                "changed": {
+                  "type": "integer"
+                },
+                "delta": {
+                  "type": "array"
+                }
+              }
+            }
+          },
+          {
+            "id": "apply",
+            "title": "Upsert the links and rows for the changed recipes",
+            "do": "Run the catalog apply function in the use-case store on the delta, and return its counts only.",
+            "run_tool": {
+              "tool_id": "tool:run-sql-in-my-database",
+              "input": {
+                "sql": "SELECT row_to_json(x)::text FROM (SELECT catalog_apply_delta($1::text, $2::text, $3::jsonb, $4::text) AS counts) x",
+                "params": [
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "catalog_table"
+                    }
+                  },
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "links_table"
+                    }
+                  },
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "read",
+                      "path": "delta"
+                    }
+                  },
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "id_prefix"
+                    }
+                  }
+                ],
+                "credential_name": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "catalog_connection"
+                  }
+                }
+              }
+            },
+            "submit": {
+              "type": "object",
+              "required": [
+                "counts"
+              ],
+              "properties": {
+                "counts": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

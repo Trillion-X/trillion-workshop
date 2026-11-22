@@ -1,0 +1,42 @@
+{
+  "start_here": "Say to your AI: \"Switch on workflow:keep-the-use-case-catalog-current with runs_connection <the vault name of the database that holds your workflow rows>, catalog_connection <the vault name of the database that holds your use-case rows>, catalog_table <your use-case table> links_table <your link table> and id_prefix <the id prefix your catalog rows use for new rows>.\" It then links every use-case row to the workflow that serves it each day and each time a workflow row changes.",
+  "lists": [],
+  "no_lists_because": "The sweep reads the workflow rows and writes the use-case table and its link table, all in the databases the person already keeps. No list of the person's is read or written.",
+  "workflows": [
+    "workflow:keep-the-use-case-catalog-current"
+  ],
+  "tools": [
+    "tool:run-sql-in-my-database"
+  ],
+  "instructions": [
+    "1. Name the vault connection of the workflow-rows database (runs_connection), the vault connection of the use-case database (catalog_connection), the two table names (catalog_table, links_table) and the id prefix for new rows (id_prefix).",
+    "2. Install the catalog function once in the use-case database from use-case-catalog/apply-delta.sql in the workflows folder (it is a function, not a list, and needs no rows).",
+    "3. Create the sweep mark once in the workflows database: CREATE TABLE IF NOT EXISTS use_case_sweep_marks (name text PRIMARY KEY, swept_through timestamptz NOT NULL); then INSERT INTO use_case_sweep_marks (name, swept_through) VALUES ('use-case-catalog', now()) ON CONFLICT (name) DO NOTHING.",
+    "4. Switch the daily wake and the row-change trigger on for workflow:keep-the-use-case-catalog-current with those names as its input.",
+    "5. Read the counts the sweep answers (linked_touched, new_rows, internal, gaps_added) and the use-case rows it wrote."
+  ],
+  "worked_examples": [
+    {
+      "title": "Run the sweep once now",
+      "ask": "Run workflow:keep-the-use-case-catalog-current with my workflow database, my use-case database and their table names now",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-sql-in-my-database",
+            "input": {
+              "credential_name": "<my workflow database>",
+              "sql": "<the read step, run once>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-the-use-case-catalog-current",
+      "step": "read",
+      "hands_back": "The changed recipes from the read step, then the counts such as {\"linked_touched\": 0, \"new_rows\": 0, \"internal\": 0, \"gaps_added\": 0} from the catalog function."
+    }
+  ],
+  "drafted_from": "workflow:keep-the-use-case-catalog-current steps read and apply"
+}
