@@ -107,3 +107,15 @@ test('the input is checked before anything is put: the computer is a short name,
   assert.throws(() => inputOf({ ...INPUT, grants: {} }), /grants must be/);
   assert.equal(inputOf(INPUT).role, ROLE);
 });
+
+test('the row runs on the person\'s own computer (kind computer), takes its grant from the listed row, and packs the script and the door client it imports', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const row = JSON.parse(await readFile(new URL('../tool-rows.json', import.meta.url), 'utf8')).records[0].payload;
+  assert.equal(row.invoke.kind, 'computer');
+  assert.deepEqual(row.invoke.records, { fd: 3, from_listed_row: true });
+  assert.deepEqual(row.invoke.argv.slice(0, 2), ['node', '--no-warnings']);
+  const packed = row.invoke.files.package_files.flatMap(entry => entry.paths);
+  assert.ok(packed.includes('do-work/make-a-login.mjs'));
+  assert.ok(packed.includes('do-work/command.mjs'));
+  assert.equal(row.invoke.records.rights, undefined, 'the grant is read from the listed row, not declared here');
+});

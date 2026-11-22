@@ -103,21 +103,63 @@
           }
         },
         "invoke": {
-          "kind": "on-your-computer",
-          "get_it": [
-            "clone the Workshop repository (package.json repository.url)"
+          "kind": "computer",
+          "internet": true,
+          "workdir": "/opt/make-a-login-on-every-computer",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "--no-warnings",
+            "/opt/make-a-login-on-every-computer/do-work/make-a-login.mjs"
           ],
-          "run": "node tools/make-a-login-on-every-computer/do-work/make-a-login.mjs",
-          "stdin": "the input JSON: login, database, host, computer, operator, grants, make_role. It holds no password; the tool makes it.",
-          "needs": [
-            "node 22 or later",
-            "the person's own sign-in (the sign-in command, or the Mac app's key)"
-          ],
-          "say": "This runs on the person's own computer from the root of the Workshop checkout. Pipe the input JSON on stdin. Report only the answer."
+          "records": {
+            "fd": 3,
+            "from_listed_row": true
+          },
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "make-a-login-on-every-computer",
+                "paths": [
+                  "do-work/make-a-login.mjs"
+                ],
+                "at": "/opt/make-a-login-on-every-computer"
+              },
+              {
+                "package": "use-your-tools-from-a-shell",
+                "paths": [
+                  "do-work/ag-ui-agent.mjs",
+                  "do-work/ag-ui-wire.mjs",
+                  "do-work/command.json",
+                  "do-work/command.mjs",
+                  "do-work/keep-result.mjs",
+                  "do-work/keep-the-connection.mjs",
+                  "do-work/local-door.mjs",
+                  "do-work/packs/read-data/blake3.mjs",
+                  "do-work/packs/read-data/identity.mjs",
+                  "do-work/packs/tools/plan-tasks-and-todo-lists/run-a-task-move.mjs",
+                  "do-work/packs/tools/plan-tasks-and-todo-lists/task-moves.json",
+                  "do-work/replay-recorded-writes.json",
+                  "do-work/replay-recorded-writes.mjs",
+                  "do-work/settled-write.mjs"
+                ],
+                "at": "/opt/use-your-tools-from-a-shell"
+              }
+            ]
+          }
         },
         "provenance": {
           "source": "New: the person's own door operation secrets:put (src/secrets.rs SECRETS_PUT), replacing the store-file write of `secrets put`.",
           "note": "Made by lane db-logins-every-computer, Nov 21 2026. Revised to one login per computer. The secrets:put right is granted per pursuit in the person's own listed row, not in this shared row."
+        },
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": true
         }
       }
     }
