@@ -1,8 +1,7 @@
 {
-  "drafted_from": "workflow:method-research-plan-build's row in tools/workflows/recipes/workflows.json (its job, input schema and the step named in the worked example)",
-  "start_here": "Say to your AI: \"Run workflow:method-research-plan-build on: send bakery customers a pickup reminder before their pickup time.\"",
+  "start_here": "Say to your AI: \"Run workflow:method-research-plan-build.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "It is a way of thinking a request through, answered in words step by step, and it reads and writes no list.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:method-research-plan-build"
   ],
@@ -10,15 +9,14 @@
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Say the capability you want in one plain sentence, for example \"send bakery customers a pickup reminder before their pickup time\", and say \"Run workflow:method-research-plan-build\" with it as request.",
-    "2. The AI starts it with tool:run-workflow-definition (row workflow:method-research-plan-build) and answers its steps in order: baseline, root, rule-out, combine, risk, production; each answer is refused until every check of the step is answered about this request.",
-    "3. At baseline, research how many others handle it and what is far beyond common practice; at root, reason from basic constraints alone so the two can be compared.",
-    "4. At production, write the detailed plan and then carry it out end to end; the step is done when the real working result exists."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:method-research-plan-build\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Reason from first principles before comparing with outside examples",
-      "ask": "Run workflow:method-research-plan-build: send bakery customers a pickup reminder before their pickup time.",
+      "title": "Research the field, then design, plan and build it end to end",
+      "ask": "Run workflow:method-research-plan-build.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -27,16 +25,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:method-research-plan-build",
-              "request": "Send bakery customers a pickup reminder before their pickup time"
+              "row": "workflow:method-research-plan-build"
             }
           }
         }
       },
       "workflow": "workflow:method-research-plan-build",
-      "step": "root",
-      "given": "Read from tools/workflows/recipes/workflows.json, step root: its submit shape is answer and checks with one check, root-independent-first-principles. The request is the one in the input above.",
-      "hands_back": "{\"answer\":\"Why 1: customers forget pickups. Why 2: nothing tells them when it is close. Why 3: the order holds a pickup time but nothing reads it. The deepest cause to change is that the pickup time is stored but never acted on.\",\"checks\":{\"root-independent-first-principles\":\"From constraints alone: a reminder needs the pickup time, a way to reach the customer and a clock; sending it one hour before covers the walk. This was written before reading how other shops do it.\"}}"
+      "step": "baseline",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:method-research-plan-build rendered from its row"
 }

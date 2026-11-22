@@ -1,8 +1,7 @@
 {
-  "drafted_from": "workflow:method-test-a-design-against-every-case's row in tools/workflows/recipes/workflows.json (its job, input schema and the step named in the worked example)",
-  "start_here": "Say to your AI: \"Run workflow:method-test-a-design-against-every-case on: add a reorder button to a bakery's order history page.\"",
+  "start_here": "Say to your AI: \"Run workflow:method-test-a-design-against-every-case.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "It is a way of thinking a request through, answered in words step by step, and it reads and writes no list.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:method-test-a-design-against-every-case"
   ],
@@ -10,15 +9,14 @@
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Say the design or feature in one plain sentence, for example \"add a reorder button to a bakery's order history page\", and say \"Run workflow:method-test-a-design-against-every-case\" with it as request.",
-    "2. The AI starts it with tool:run-workflow-definition (row workflow:method-test-a-design-against-every-case) and answers its steps in order: outcome, baseline, root, delete, rule-out, owner, combine, smallest-change, risk, naming, production, proof; each answer is refused until every check of the step is answered about this request.",
-    "3. At rule-out, strip the nouns off the request to find the underlying building block it is one case of, and test it in a completely different field.",
-    "4. At proof, check that what the design could support is actually done: zero open obligations and the next binding constraint named."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:method-test-a-design-against-every-case\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "See the request as one case of a broader need",
-      "ask": "Run workflow:method-test-a-design-against-every-case: add a reorder button to a bakery's order history page.",
+      "title": "Test a design or architecture against every case it will meet",
+      "ask": "Run workflow:method-test-a-design-against-every-case.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -27,16 +25,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:method-test-a-design-against-every-case",
-              "request": "Add a reorder button to a bakery's order history page"
+              "row": "workflow:method-test-a-design-against-every-case"
             }
           }
         }
       },
       "workflow": "workflow:method-test-a-design-against-every-case",
       "step": "outcome",
-      "given": "Read from tools/workflows/recipes/workflows.json, step outcome: its submit shape is answer and checks with outcome-derive-whole-outcome and outcome-the-request-is-a-box. The request is the one in the input above.",
-      "hands_back": "{\"answer\":\"A returning customer retypes the same order each week -> a returning customer repeats a past order in one tap. Fact: 31 of 50 orders last month matched the customer's previous order line for line.\",\"checks\":{\"outcome-derive-whole-outcome\":\"Result: the same items arrive for pickup again. Steps: see the past order, copy its items, check each is still sold, pick a pickup time, confirm. Nobody asked for \\\"check each is still sold\\\" but it cannot work without it.\",\"outcome-the-request-is-a-box\":\"The broader need is \\\"repeat something I did before\\\"; the reorder button is one case, and the same building block serves a saved weekly order or a standing order.\"}}"
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:method-test-a-design-against-every-case rendered from its row"
 }

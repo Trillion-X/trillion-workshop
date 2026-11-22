@@ -1,8 +1,7 @@
 {
-  "drafted_from": "workflow:method-build-a-product's row in tools/workflows/recipes/workflows.json (input schema, step ids, submit shapes {run_id, changed}); no test names it",
-  "start_here": "Say to your AI: \"Run workflow:method-build-a-product for the request: let customers of a small bakery pre-order a weekend box from the website.\" It walks nine method workflows in order and hands back each one's run_id and what it changed.",
+  "start_here": "Say to your AI: \"Run workflow:method-build-a-product.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:method-build-a-product",
     "workflow:method-build-the-real-thing",
@@ -19,15 +18,14 @@
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Say \"Run workflow:method-build-a-product\" with request, in plain words, the product you want built (for example a pre-order page for a bakery).",
-    "2. The AI starts it with tool:run-workflow-definition (row workflow:method-build-a-product, input {request}) and walks its steps in order: research-plan-build, name-question-delete, contact-reality, find-the-constraints, test-a-design-against-every-case, build-the-real-thing, name-things-by-what-they-do, do-it-completely, plan-only-what-helps.",
-    "3. Each step starts one child workflow with the same request; read the {run_id, changed} it hands back and let that change shape the next step.",
-    "4. The last step, plan-only-what-helps, ends the run: read what it changed and ship the real thing it names."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:method-build-a-product\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Research first: the first step runs the research-plan-build workflow",
-      "ask": "Run workflow:method-build-a-product for the request: let customers of a small bakery pre-order a weekend box from the website.",
+      "title": "Design, plan and build a product people pay for",
+      "ask": "Run workflow:method-build-a-product.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -36,16 +34,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:method-build-a-product",
-              "request": "Let customers of a small bakery pre-order a weekend box from the website."
+              "row": "workflow:method-build-a-product"
             }
           }
         }
       },
       "workflow": "workflow:method-build-a-product",
       "step": "research-plan-build",
-      "given": "Read from tools/workflows/recipes/workflows.json (workflow:method-build-a-product, step research-plan-build): the step starts workflow:method-research-plan-build with the same request and walks it to its end.",
-      "hands_back": "The step starts workflow:method-research-plan-build with request \"Let customers of a small bakery pre-order a weekend box from the website.\", walks it, and submits {\"run_id\":\"run-example-001\",\"changed\":\"Research showed shops lose pre-orders at the payment step, so the build now takes the order and the payment on one page instead of two.\"}."
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:method-build-a-product rendered from its row"
 }

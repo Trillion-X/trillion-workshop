@@ -1,8 +1,7 @@
 {
-  "drafted_from": "workflow:method-design-a-feature's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
-  "start_here": "Say to your AI: \"Run workflow:method-design-a-feature on this request: let a bakery show how many loaves are left each morning.\" It runs seven sub-workflows in order and hands back each run_id and what it changed.",
+  "start_here": "Say to your AI: \"Run workflow:method-design-a-feature.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:method-design-a-feature",
     "workflow:method-build-the-real-thing",
@@ -17,15 +16,14 @@
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Write the feature in plain words, for example \"Let a bakery show how many loaves are left each morning\".",
-    "2. Say \"Run workflow:method-design-a-feature\" with that request; the AI starts it with tool:run-workflow-definition.",
-    "3. For each of its seven steps the AI starts the named sub-workflow with the same request (name-question-delete, contact-reality, find-the-constraints, test-a-design-against-every-case, build-the-real-thing, name-things-by-what-they-do, plan-only-what-helps), walks it to the end and hands back its run_id and the one thing it changed.",
-    "4. Read the last step, plan-only-what-helps, for the plan you build from."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:method-design-a-feature\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Start the first sub-workflow for a loaf-count feature",
-      "ask": "Run method-design-a-feature on: let a bakery show how many loaves are left each morning.",
+      "title": "Design and plan a feature, deciding its architecture",
+      "ask": "Run workflow:method-design-a-feature.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -34,16 +32,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:method-design-a-feature",
-              "request": "Let a bakery show how many loaves are left each morning"
+              "row": "workflow:method-design-a-feature"
             }
           }
         }
       },
       "workflow": "workflow:method-design-a-feature",
       "step": "name-question-delete",
-      "given": "Read from tools/workflows/recipes/workflows.json: step name-question-delete starts workflow:method-name-question-delete with the same request, walks it to the end, and submits run_id and changed.",
-      "hands_back": "{\"run_id\":\"run:example-name-question-delete-1\",\"changed\":\"Dropped the separate stock screen: the loaf count is one number on the existing pickup page.\"}"
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:method-design-a-feature rendered from its row"
 }

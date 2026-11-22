@@ -1,8 +1,7 @@
 {
-  "drafted_from": "workflow:method-change-code's row in tools/workflows/recipes/workflows.json (input schema, step ids, submit shapes {run_id, changed}); no test names it",
-  "start_here": "Say to your AI: \"Run workflow:method-change-code for the request: fix the bug where the order total shows twice the price when a discount code is applied.\" It names the change, tests the design, does it in one pass and proves it on the running path.",
+  "start_here": "Say to your AI: \"Run workflow:method-change-code.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:method-change-code",
     "workflow:method-contact-reality",
@@ -15,15 +14,14 @@
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Say \"Run workflow:method-change-code\" with request, in plain words, the code change or fix you want.",
-    "2. The AI starts it with tool:run-workflow-definition (row workflow:method-change-code, input {request}) and walks its steps in order: name-question-delete, contact-reality, test-a-design-against-every-case, do-it-completely, plan-only-what-helps.",
-    "3. Each step starts one child workflow with the same request; read the {run_id, changed} it hands back.",
-    "4. The last step, plan-only-what-helps, writes only the plan that helps and does it; check the change on the real running path."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:method-change-code\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Name and question a bug fix before touching code",
-      "ask": "Run workflow:method-change-code for the request: fix the bug where the order total shows twice the price when a discount code is applied.",
+      "title": "Plan, design and change code",
+      "ask": "Run workflow:method-change-code.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -32,16 +30,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:method-change-code",
-              "request": "Fix the bug where the order total shows twice the price when a discount code is applied."
+              "row": "workflow:method-change-code"
             }
           }
         }
       },
       "workflow": "workflow:method-change-code",
       "step": "name-question-delete",
-      "given": "Read from tools/workflows/recipes/workflows.json (workflow:method-change-code, step name-question-delete): the step starts workflow:method-name-question-delete with the same request and walks it to its end.",
-      "hands_back": "The step starts workflow:method-name-question-delete with request \"Fix the bug where the order total shows twice the price when a discount code is applied.\", walks it, and submits {\"run_id\":\"run-example-002\",\"changed\":\"The fix deletes the second place that adds the discount instead of patching the total, so the discount is applied once.\"}."
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:method-change-code rendered from its row"
 }

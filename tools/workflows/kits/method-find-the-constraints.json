@@ -1,8 +1,7 @@
 {
-  "drafted_from": "workflow:method-find-the-constraints's row in tools/workflows/recipes/workflows.json (its job, input schema and the step named in the worked example)",
-  "start_here": "Say to your AI: \"Run workflow:method-find-the-constraints on: decide the price of a five-lesson online bread-baking course for home bakers.\"",
+  "start_here": "Say to your AI: \"Run workflow:method-find-the-constraints.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "It is a way of thinking a request through, answered in words step by step, and it reads and writes no list.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:method-find-the-constraints"
   ],
@@ -10,15 +9,14 @@
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Write the decision in one plain sentence, for example \"decide the price of a five-lesson online bread-baking course for home bakers\", and say \"Run workflow:method-find-the-constraints\" with it as request (at least 10 characters).",
-    "2. The AI starts it with tool:run-workflow-definition (row workflow:method-find-the-constraints) and answers its steps in order: outcome, question, baseline, rule-out, owner, smallest-change, automate, risk, production, proof; each answer is refused until every check of the step is answered about this request.",
-    "3. At rule-out, write the table of extremes (people, use, money, memory, disk, setup, time, absence, failure) and count how many options survive; if more than a few survive, name the constraint you are missing.",
-    "4. Read what the last step, proof, hands back: how success and failure will be checked and the date it will be checked."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:method-find-the-constraints\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Name what a course price is chosen to maximize",
-      "ask": "Run workflow:method-find-the-constraints: decide the price of a five-lesson online bread-baking course for home bakers.",
+      "title": "Find the design constraints that leave one right answer",
+      "ask": "Run workflow:method-find-the-constraints.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -27,16 +25,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:method-find-the-constraints",
-              "request": "Decide the price of a five-lesson online bread-baking course for home bakers"
+              "row": "workflow:method-find-the-constraints"
             }
           }
         }
       },
       "workflow": "workflow:method-find-the-constraints",
       "step": "outcome",
-      "given": "Read from tools/workflows/recipes/workflows.json, step outcome: its submit shape is answer (at least 40 characters) and checks, which holds one check, outcome-price-names-what-it-optimizes (at least 20 characters). The request is the one in the input above.",
-      "hands_back": "{\"answer\":\"Home bakers who finished the free first lesson (412 last month) know the course exists but have not bought; the change is that they are enrolled, and no price has been shown to any of them yet.\",\"checks\":{\"outcome-price-names-what-it-optimizes\":\"The price is chosen to maximize money collected per person shown the offer in their first 90 days, not the price per sale.\"}}"
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:method-find-the-constraints rendered from its row"
 }

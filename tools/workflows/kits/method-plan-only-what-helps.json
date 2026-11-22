@@ -1,8 +1,7 @@
 {
-  "drafted_from": "workflow:method-plan-only-what-helps's row in tools/workflows/recipes/workflows.json (its job, input schema and the step named in the worked example)",
-  "start_here": "Say to your AI: \"Run workflow:method-plan-only-what-helps on: let bakery customers change a pre-order until the evening before pickup.\"",
+  "start_here": "Say to your AI: \"Run workflow:method-plan-only-what-helps.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "It is a way of thinking a request through, answered in words step by step, and it reads and writes no list.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:method-plan-only-what-helps"
   ],
@@ -10,15 +9,14 @@
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Say the work in one plain sentence, for example \"let bakery customers change a pre-order until the evening before pickup\", and say \"Run workflow:method-plan-only-what-helps\" with it as request.",
-    "2. The AI starts it with tool:run-workflow-definition (row workflow:method-plan-only-what-helps) and answers its steps in order: outcome, baseline, delete, owner, combine, smallest-change, risk, production, proof, focused-choice; each answer is refused until every check of the step is answered about this request.",
-    "3. Keep a section only when it helps: delete mirror checks and ceremony that makes work wait, and do every step you identify in the same pass.",
-    "4. At proof, give a test that could fail, a before and after view, and measured numbers where speed matters."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:method-plan-only-what-helps\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Tie the change to the person's own messages and words",
-      "ask": "Run workflow:method-plan-only-what-helps: let bakery customers change a pre-order until the evening before pickup.",
+      "title": "Write only the plan or design that helps, then do it",
+      "ask": "Run workflow:method-plan-only-what-helps.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -27,16 +25,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:method-plan-only-what-helps",
-              "request": "Let bakery customers change a pre-order until the evening before pickup"
+              "row": "workflow:method-plan-only-what-helps"
             }
           }
         }
       },
       "workflow": "workflow:method-plan-only-what-helps",
       "step": "outcome",
-      "given": "Read from tools/workflows/recipes/workflows.json, step outcome: its submit shape is answer and checks with outcome-asked-in, outcome-observable-done and outcome-in-their-own-words. The request is the one in the input above.",
-      "hands_back": "{\"answer\":\"Customers cannot change a pre-order once placed and phone the bakery instead -> customers change it themselves until 6 pm the day before pickup. Fact: 9 of the last 20 messages asked for a change.\",\"checks\":{\"outcome-asked-in\":\"Answers the owner's message of Tuesday 9 am: \\\"people keep calling to swap a loaf, it is driving me nuts\\\".\",\"outcome-observable-done\":\"A customer can open their reservation and swap a loaf without calling; checked on the live page. First gap: the reservation page has no change button (seen on the live page).\",\"outcome-in-their-own-words\":\"In the owner's words: \\\"swap a loaf\\\" without a call; what matters most is \\\"no more phone calls\\\".\"}}"
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:method-plan-only-what-helps rendered from its row"
 }

@@ -1,8 +1,7 @@
 {
-  "drafted_from": "workflow:method-contact-reality's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
-  "start_here": "Say to your AI: \"Run workflow:method-contact-reality on this request: let customers pre-order bread online for pickup at a small bakery.\" It walks the eight checks (alignment, question, root, rule-out, combine, automate, production, proof) and hands back an answer and per-check answers for each.",
+  "start_here": "Say to your AI: \"Run workflow:method-contact-reality.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:method-contact-reality",
     "workflow:combine-several-ai-answers",
@@ -11,17 +10,18 @@
     "workflow:question-the-belief-until-it-holds",
     "workflow:write-a-research-prompt-without-the-answer-in-it"
   ],
-  "tools": [],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
   "instructions": [
-    "1. Write the request in your own plain words, for example \"Let customers pre-order bread online for pickup at a small bakery\".",
-    "2. Say \"Run workflow:method-contact-reality\" with that request; the AI starts it with tool:run-workflow-definition and works the steps in order: alignment, question, root, rule-out, combine, automate, production, proof.",
-    "3. For each step the AI answers the step question about your request and each named check, with at least 40 characters for the answer and 20 for each check.",
-    "4. Read the proof step last: it names what shows success, what shows failure, the independent check and its date."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:method-contact-reality\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Question the assumed limits on a bakery pre-order idea",
-      "ask": "Run method-contact-reality on: let customers pre-order bread online for pickup at a small bakery.",
+      "title": "Make contact with reality before any design, plan or decision",
+      "ask": "Run workflow:method-contact-reality.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -30,16 +30,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:method-contact-reality",
-              "request": "Let customers pre-order bread online for pickup at a small bakery"
+              "row": "workflow:method-contact-reality"
             }
           }
         }
       },
       "workflow": "workflow:method-contact-reality",
-      "step": "question",
-      "given": "Read from tools/workflows/recipes/workflows.json: step question asks which demands the decision works under, and its one check question-no-assumed-limits asks which assumed limits are observed, inferred, inherited or imagined.",
-      "hands_back": "{\"answer\":\"Demands: (1) orders close the night before, set by the owner, kept because the ovens are loaded at 4 AM; (2) payment online, set by the owner, dropped because pay-at-pickup also gets the loaves reserved; (3) a fixed menu of 6 breads, set by the baker, kept.\",\"checks\":{\"question-no-assumed-limits\":\"Assumed limit \\\"people will not order ahead\\\" is imagined: no one has asked; 12 of the last 20 walk-ins asked if they could reserve. Assumed limit \\\"the oven holds 60 loaves\\\" is observed. Drop the first, keep the second.\"}}"
+      "step": "alignment",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:method-contact-reality rendered from its row"
 }

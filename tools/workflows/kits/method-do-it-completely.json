@@ -1,22 +1,22 @@
 {
-  "drafted_from": "workflow:method-do-it-completely's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
-  "start_here": "Say to your AI: \"Run workflow:method-do-it-completely on this request: add a pre-order page for a bakery, finished in one pass.\" It walks delete, owner, smallest-change, production and proof and hands back an answer and checks for each.",
+  "start_here": "Say to your AI: \"Run workflow:method-do-it-completely.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:method-do-it-completely"
   ],
-  "tools": [],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
   "instructions": [
-    "1. Write what you are deciding, designing or building in plain words, for example \"Add a pre-order page for a bakery\".",
-    "2. Say \"Run workflow:method-do-it-completely\" with that request; the AI starts it with tool:run-workflow-definition.",
-    "3. The steps run in order: delete, owner, smallest-change, production, proof; each hands back an answer (at least 40 characters) and one short answer per named check.",
-    "4. Read proof last: it says what shows success or failure and the date it will be checked, so nothing is left for later."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:method-do-it-completely\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Delete first on a bakery pre-order page",
-      "ask": "Run method-do-it-completely on: add a pre-order page for a bakery.",
+      "title": "Do it completely and correctly the first time",
+      "ask": "Run workflow:method-do-it-completely.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -25,16 +25,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:method-do-it-completely",
-              "request": "Add a pre-order page for a bakery"
+              "row": "workflow:method-do-it-completely"
             }
           }
         }
       },
       "workflow": "workflow:method-do-it-completely",
       "step": "delete",
-      "given": "Read from tools/workflows/recipes/workflows.json: step delete asks which demands or steps can be dropped; its three checks are delete-methods-are-aids, delete-delete-before-improving and delete-restore-only-what-failed.",
-      "hands_back": "{\"answer\":\"Drop the account sign-up and the online card payment; keep the menu, the pickup time and the loaf count, because those make the result.\",\"checks\":{\"delete-methods-are-aids\":\"No method is run as paperwork: the only checklist in use is the pickup-time check, which answers whether two orders collide at 8 AM.\",\"delete-delete-before-improving\":\"Removed sign-up and card payment first, then ran an order with only name, loaf and pickup time and it went through.\",\"delete-restore-only-what-failed\":\"Added back a phone number field only because the first test order could not be confirmed without it; nothing else was restored.\"}}"
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:method-do-it-completely rendered from its row"
 }
