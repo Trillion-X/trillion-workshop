@@ -41,7 +41,7 @@
           "get_it": [
             "clone the Workshop repository"
           ],
-          "run": "python3 -I tools/measure-the-speech-free-stretches/do-work/measure_speech_free.py {transcript} {clip} --threshold-s {threshold_s}",
+          "run": "python3 -I tools/measure-the-speech-free-stretches/do-work/measure_speech_free.py {transcript} {clip}",
           "needs": [
             "python",
             "librosa",
