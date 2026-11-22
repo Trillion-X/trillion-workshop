@@ -125,6 +125,22 @@
         "REVOKE CONNECT ON DATABASE %4$I FROM %1$I"
       ]
     },
+    "post-writer-for-a-login": {
+      "_what": "The rights of a post writer given to a login another login made (a-login), run by the pursuit's owner in its own database: it may connect, read the article site destinations (article_site_destinations) and read, add and change posts (post) under the post table's row rules (consent_fence). It may not change a destination's SQL, a table, or any other table, and it may not make logins. The drop takes the rights back.",
+      "grants_only": true,
+      "create": [
+        "GRANT CONNECT ON DATABASE %4$I TO %1$I",
+        "GRANT USAGE ON SCHEMA public TO %1$I",
+        "GRANT SELECT ON TABLE public.article_site_destinations TO %1$I",
+        "GRANT SELECT, INSERT, UPDATE ON TABLE public.post TO %1$I"
+      ],
+      "drop": [
+        "REVOKE SELECT, INSERT, UPDATE ON TABLE public.post FROM %1$I",
+        "REVOKE SELECT ON TABLE public.article_site_destinations FROM %1$I",
+        "REVOKE USAGE ON SCHEMA public FROM %1$I",
+        "REVOKE CONNECT ON DATABASE %4$I FROM %1$I"
+      ]
+    },
     "may-read-under-row-rules": {
       "_what": "The rights of a login another login made (a-login) that reads a pursuit's rows only under the row rules, for runs whose use the engine binds: it may connect and read every table of the public schema, the ones there now and the ones the owner makes later, and may change nothing, make nothing (temporary tables included: TEMPORARY on the database is taken from it and from PUBLIC, so no table of its own can stand in for one a rule reads) and reach no other database; a login that bypasses row rules, is a superuser, or may act as the owner is refused. Run by the database's owner in that database. It also keeps the use binding the row rules read (schema use_binding): the held value on descriptor 6 (value_credential_name, the computer's <database>-use-key) is the key the engine signs each run's use ticket with; use_binding.claim_use(ticket) checks the ticket's HMAC-SHA256 and its end and binds its purpose and surface to the calling transaction once (the ticket's nonce cannot be claimed twice); use_binding.run_purpose() and run_surface() answer the claimed use, and a transaction with no claim the pursuit's own use_settings row purpose_when_unstated (no row: no purpose, so nothing is allowed). The login cannot read or change the keys or the claims (they live in a schema it may only call into), and no setting a session may SET is read. The drop takes the login's rights back; the binding and its keys stay for the next login.",
       "grants_only": true,
