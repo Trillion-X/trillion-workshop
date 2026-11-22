@@ -13,14 +13,15 @@
 // 3. A refusal is a Refused with words a person can read; the provider's own reply is quoted only up to SAID characters.
 
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { makeComposioProxy } from '../../composio-connection/read-data/composio-call.mjs';
 import { blake3 } from '../../content-identity/read-data/blake3.mjs';
 import { MOST_ATTACHMENT_BYTES } from './neutral.mjs';
 
 const HELD_DESCRIPTOR = 4;
 const SAID = 300;
-const KEPT = '/opt/read-and-write-mail/out/attachment';
+// The run's own out folder, as the research harvest writes its kept files (relative to the run's directory).
+const KEPT = resolve('out', 'attachment');
 const rows = JSON.parse(readFileSync(new URL('./mail-providers.json', import.meta.url), 'utf8'));
 
 export class Refused extends Error {}
