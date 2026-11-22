@@ -16733,6 +16733,70 @@
    "at": "/opt/node_modules/@noble/hashes"
   }
  ],
+ "tool:keep-a-mail-attachment": [
+  {
+   "package": "read-and-write-mail",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/read-and-write-mail"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "composio-connection",
+   "paths": [
+    "read-data/composio-call.mjs"
+   ],
+   "at": "/opt/composio-connection"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:find-my-x-account": [
   {
    "package": "save-what-you-watch-and-read",

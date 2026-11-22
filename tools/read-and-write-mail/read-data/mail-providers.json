@@ -19,7 +19,8 @@
     "delete-a-mail-draft",
     "send-a-mail-draft",
     "list-send-as-addresses",
-    "set-a-mail-signature"
+    "set-a-mail-signature",
+    "keep-a-mail-attachment"
   ],
   "neutral_labels": ["inbox", "unread", "starred", "important", "draft", "sent", "trash", "spam"],
   "folders": ["inbox", "starred", "sent", "drafts", "trash", "all"],
@@ -31,7 +32,10 @@
     "no_provider": "Give provider: one of {providers}.",
     "no_such_provider": "{provider} is not a mail provider here; the providers are {providers}.",
     "no_folder": "{label} has no folder called {folder}.",
-    "no_address": "{label} did not say which address this mailbox is."
+    "no_address": "{label} did not say which address this mailbox is.",
+    "too_large": "{label} keeps at most {max} bytes of one attachment; this one is {size} bytes.",
+    "download_refused": "{label} refused the download of the attachment ({status}).",
+    "not_a_download": "{label} gave an attachment address that is not https, so nothing was fetched."
   },
   "providers": [
     {
@@ -58,7 +62,7 @@
         "find-my-mailbox", "list-new-mail", "find-mail", "read-mail-headers", "read-a-mail", "read-a-conversation",
         "organize-mail", "organize-a-conversation", "trash-mail", "restore-mail", "trash-a-conversation", "restore-a-conversation",
         "list-mail-drafts", "read-a-mail-draft", "save-a-mail-draft", "delete-a-mail-draft", "send-a-mail-draft",
-        "list-send-as-addresses", "set-a-mail-signature"
+        "list-send-as-addresses", "set-a-mail-signature", "keep-a-mail-attachment"
       ],
       "labels": {
         "INBOX": "inbox",
@@ -100,7 +104,7 @@
         "find-my-mailbox", "list-new-mail", "find-mail", "read-mail-headers", "read-a-mail", "read-a-conversation",
         "organize-mail", "organize-a-conversation", "trash-mail", "restore-mail", "trash-a-conversation", "restore-a-conversation",
         "list-mail-drafts", "read-a-mail-draft", "save-a-mail-draft", "delete-a-mail-draft", "send-a-mail-draft",
-        "list-send-as-addresses", "set-a-mail-signature"
+        "list-send-as-addresses", "set-a-mail-signature", "keep-a-mail-attachment"
       ],
       "labels": {
         "INBOX": "inbox",
@@ -180,7 +184,7 @@
       "refresh": null,
       "operations": [
         "find-my-mailbox", "list-new-mail", "find-mail", "read-mail-headers", "read-a-mail", "read-a-conversation",
-        "list-send-as-addresses"
+        "list-send-as-addresses", "keep-a-mail-attachment"
       ],
       "labels": {
         "received": "inbox",

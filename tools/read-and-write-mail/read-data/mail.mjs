@@ -12,11 +12,15 @@
 // 2. A provider that does not offer an operation is refused before any request leaves, in the words of its row.
 // 3. A refusal is a Refused with words a person can read; the provider's own reply is quoted only up to SAID characters.
 
-import { readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
 import { makeComposioProxy } from '../../composio-connection/read-data/composio-call.mjs';
+import { blake3 } from '../../content-identity/read-data/blake3.mjs';
+import { MOST_ATTACHMENT_BYTES } from './neutral.mjs';
 
 const HELD_DESCRIPTOR = 4;
 const SAID = 300;
+const KEPT = '/opt/read-and-write-mail/out/attachment';
 const rows = JSON.parse(readFileSync(new URL('./mail-providers.json', import.meta.url), 'utf8'));
 
 export class Refused extends Error {}
@@ -84,6 +88,21 @@ function makeProxiedCall(provider, { connection = {}, read, send } = {}) {
   };
 }
 
+/** Fetches an attachment's bytes from the address a provider handed over (a signed download address). No key is sent: the
+ *  address carries its own grant, and it must be https. The reply is refused when it is larger than MOST_ATTACHMENT_BYTES. */
+export async function download(provider, url, io = {}) {
+  const { send = fetch } = io;
+  const target = new URL(url);
+  if (target.protocol !== 'https:') throw new Refused(fill(rows.words.not_a_download, { label: provider.label }));
+  const reply = await send(target, { method: 'GET', redirect: 'manual', headers: { Accept: 'application/octet-stream' } });
+  if (!reply.ok) throw new Refused(fill(rows.words.download_refused, { label: provider.label, status: reply.status }));
+  const size = Number(reply.headers?.get?.('content-length'));
+  if (Number.isFinite(size) && size > MOST_ATTACHMENT_BYTES) throw new Refused(fill(rows.words.too_large, { label: provider.label, max: MOST_ATTACHMENT_BYTES, size }));
+  const bytes = Buffer.from(await reply.arrayBuffer());
+  if (bytes.length > MOST_ATTACHMENT_BYTES) throw new Refused(fill(rows.words.too_large, { label: provider.label, max: MOST_ATTACHMENT_BYTES, size: bytes.length }));
+  return bytes;
+}
+
 /** Runs one operation for the provider the input names. `io` is only for tests: the descriptor reader and the fetch. */
 export async function perform(operation, input = {}, io = {}) {
   const provider = providerFor(input);
@@ -93,7 +112,7 @@ export async function perform(operation, input = {}, io = {}) {
   const run = adapter.operations[operation];
   if (typeof run !== 'function') throw new Refused(fill(rows.words.not_offered, { label: provider.label, job: jobOf(operation) }));
   const { provider: _named, connection, ...asked } = input;
-  return run({ provider, call: makeCall(provider, { ...io, connection }), words: rows.words, fill, Refused }, asked);
+  return run({ provider, call: makeCall(provider, { ...io, connection }), download: url => download(provider, url, io), words: rows.words, fill, Refused }, asked);
 }
 
 const operation = name => input => perform(name, input);
@@ -116,3 +135,13 @@ export const deleteAMailDraft = operation('delete-a-mail-draft');
 export const sendAMailDraft = operation('send-a-mail-draft');
 export const listSendAsAddresses = operation('list-send-as-addresses');
 export const setAMailSignature = operation('set-a-mail-signature');
+
+/** Keeps one attachment as a file of the run: the bytes are written to the kept output (data only, never opened) and the
+ *  answer is its name, its size, its media type and its BLAKE3 identity. `io.out` is only for tests. */
+export async function keepAMailAttachment(input = {}, io = {}) {
+  const found = await perform('keep-a-mail-attachment', input, io);
+  const out = io.out ?? KEPT;
+  mkdirSync(dirname(out), { recursive: true });
+  writeFileSync(out, found.bytes);
+  return { name: found.name, bytes: found.bytes.length, media_type: found.media_type, blake3: Buffer.from(blake3(found.bytes)).toString('hex') };
+}

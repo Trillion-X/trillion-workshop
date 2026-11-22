@@ -44,7 +44,7 @@ test('each row runs the export of its operation, and every provider offers only 
     const operation = row.id.replace(/^tool:/, '');
     assert.equal(row.invoke.argv[3], camel(operation), row.id);
     assert.equal(typeof mail[camel(operation)], 'function', `${operation} has an export`);
-    assert.equal(row.read_only, ['find-my-mailbox', 'list-new-mail', 'find-mail', 'read-mail-headers', 'read-a-mail', 'read-a-conversation', 'list-mail-drafts', 'read-a-mail-draft', 'list-send-as-addresses'].includes(operation), row.id);
+    assert.equal(row.read_only, ['find-my-mailbox', 'list-new-mail', 'find-mail', 'read-mail-headers', 'read-a-mail', 'read-a-conversation', 'list-mail-drafts', 'read-a-mail-draft', 'list-send-as-addresses', 'keep-a-mail-attachment'].includes(operation), row.id);
   }
   for (const provider of providers.providers) {
     const adapter = await import(`../read-data/adapters/${provider.adapter}.mjs`);

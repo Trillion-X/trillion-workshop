@@ -1,0 +1,45 @@
+{
+  "drafted_from": "tool:keep-a-mail-attachment's own row in tools/read-and-write-mail/tool-rows.json, read-data/mail.mjs (keepAMailAttachment) and the Gmail and AgentMail adapters; the answer is the shape those operations produce for the sample input",
+  "start_here": "Say to your AI: \"Keep the PDF that was sent to my mail inbox as a file.\" It finds the message with find-mail, then runs tool:keep-a-mail-attachment as that account and gets back the name, size, media type and BLAKE3 identity of the kept file.",
+  "lists": [],
+  "no_lists_because": "It keeps no list: it asks the mail provider for one attachment of one message and keeps its bytes as a file of the run.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-a-mail-attachment",
+    "tool:find-mail",
+    "tool:read-a-mail"
+  ],
+  "instructions": [
+    "1. Find the message: say \"Find the mail with the PDF in it\" and let your AI call tool:find-mail with its provider and the words of its subject.",
+    "2. Read the message with tool:read-a-mail and note its attachment's id from the attachments list (its name, type and size are there).",
+    "3. Say \"Keep that attachment\" and let your AI call tool:keep-a-mail-attachment with the provider, your account handle, the message id and the attachment id.",
+    "4. Read the answer: name, bytes, media_type and blake3. The file is kept as data; nothing in it is opened or run.",
+    "5. A provider that does not offer the job (Outlook) says so in words and nothing is fetched."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep the PDF attached to a mail",
+      "ask": "Keep the PDF attached to that mail as a file.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-a-mail-attachment",
+            "input": {
+              "provider": "agentmail",
+              "connection": {
+                "connection_id": "service_connection:agentmail"
+              },
+              "message_id": "inbox_id/message_id",
+              "attachment_id": "attachment_id"
+            }
+          }
+        }
+      },
+      "given": "A mail in the inbox with one PDF attachment named guide.pdf of 5 bytes, the provider answering from a recorded reply.",
+      "hands_back": "It kept the file and answered {\"name\":\"guide.pdf\",\"bytes\":5,\"media_type\":\"application/pdf\",\"blake3\":\"<64 hex characters>\"}."
+    }
+  ]
+}

@@ -53,6 +53,9 @@ export function wireLabels(provider, names = []) {
 }
 
 const MOST_LINKS = 50;
+
+/** The most bytes one kept attachment may hold (the kept output's max_bytes says the same). */
+export const MOST_ATTACHMENT_BYTES = 16777216;
 const NAMED_ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
 
 /** The http and https addresses in a text, each once, at most MOST_LINKS. */

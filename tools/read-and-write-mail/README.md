@@ -32,7 +32,7 @@ A new provider is a row in `mail-providers.json` and an adapter file. No tool id
 
 ## The tools
 
-`find-my-mailbox`, `list-new-mail`, `find-mail`, `read-mail-headers`, `read-a-mail`, `read-a-conversation`, `organize-mail`, `organize-a-conversation`, `trash-mail`, `restore-mail`, `trash-a-conversation`, `restore-a-conversation`, `list-mail-drafts`, `read-a-mail-draft`, `save-a-mail-draft`, `delete-a-mail-draft`, `send-a-mail-draft`, `list-send-as-addresses`, `set-a-mail-signature` (ids `tool:<name>`). `find-mail` takes a `folder` (inbox, starred, sent, drafts, trash, all) or `text` to search all mail in the provider's own search words. A send is kept once per request key, so sending the same key again answers the first reply.
+`find-my-mailbox`, `list-new-mail`, `find-mail`, `read-mail-headers`, `read-a-mail`, `read-a-conversation`, `organize-mail`, `organize-a-conversation`, `trash-mail`, `restore-mail`, `trash-a-conversation`, `restore-a-conversation`, `list-mail-drafts`, `read-a-mail-draft`, `save-a-mail-draft`, `delete-a-mail-draft`, `send-a-mail-draft`, `list-send-as-addresses`, `set-a-mail-signature`, `keep-a-mail-attachment` (ids `tool:<name>`). `keep-a-mail-attachment` writes one attachment's bytes to the run's kept output (data only, never opened) and answers `{name, bytes, media_type, blake3}`; it is offered by Gmail and AgentMail, not Outlook, and its download address must be https and at most 16 MiB. `find-mail` takes a `folder` (inbox, starred, sent, drafts, trash, all) or `text` to search all mail in the provider's own search words. A send is kept once per request key, so sending the same key again answers the first reply.
 
 ## How to run one
 

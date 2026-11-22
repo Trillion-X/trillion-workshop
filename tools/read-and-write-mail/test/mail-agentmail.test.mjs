@@ -4,8 +4,12 @@
 // part is preferred and an HTML-only message is read as text; a refusal, an unoffered job and a bad id are said in words.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { perform, providerFor, Refused } from '../read-data/mail.mjs';
+import { mkdtempSync, readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { perform, providerFor, keepAMailAttachment, Refused } from '../read-data/mail.mjs';
 import { HEADER_FIELDS } from '../read-data/neutral.mjs';
+import { blake3 } from '../../content-identity/read-data/blake3.mjs';
 
 const KEY = 'agentmail-held-key-value';
 const json = (status, body) => new Response(body === undefined ? '' : JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -157,4 +161,49 @@ test('the send-as list is the live inboxes with their signature text, and an ope
 test('a refusal from AgentMail is quoted in words, up to its first 300 characters, and the key is never in the words', async () => {
   const run = standIn([['GET', /^\/v0\/inboxes/, () => json(401, { name: 'UnauthorizedError', message: 'bad key', code: 'unauthorized' })]]);
   await assert.rejects(perform('find-my-mailbox', { provider: 'agentmail' }, run.io), error => error instanceof Refused && /AgentMail refused the request \(401\).*bad key/.test(error.message) && !error.message.includes(KEY));
+});
+
+test('keeping an attachment: the key goes to the API only, the signed download carries no key, the bytes are the kept file, and the answer names them', async () => {
+  const run = standIn([
+    ['GET', /^\/v0\/inboxes\/stand-in-one%40example\.com\/messages\/m1\/attachments\/a1$/, () => json(200, { attachment_id: 'a1', size: 5, download_url: 'https://downloads.example.com/att/a1?sig=stand-in', filename: 'guide.pdf', content_type: 'application/pdf' })],
+    ['GET', /^\/att\/a1\?sig=stand-in$/, () => new Response('hello', { status: 200 })],
+  ]);
+  const out = join(mkdtempSync(join(tmpdir(), 'mail-attachment-')), 'attachment');
+  const answer = await keepAMailAttachment({ provider: 'agentmail', connection: { connection_id: 'service_connection:agentmail' }, message_id: 'stand-in-one@example.com/m1', attachment_id: 'a1' }, { ...run.io, out });
+  assert.deepEqual(Object.keys(answer), ['name', 'bytes', 'media_type', 'blake3']);
+  assert.equal(answer.name, 'guide.pdf');
+  assert.equal(answer.bytes, 5);
+  assert.equal(answer.media_type, 'application/pdf');
+  assert.equal(answer.blake3, Buffer.from(blake3(Buffer.from('hello'))).toString('hex'));
+  assert.equal(readFileSync(out, 'utf8'), 'hello');
+  const api = run.asked.find(request => request.url.startsWith('https://api.agentmail.to/'));
+  const download = run.asked.find(request => request.url.startsWith('https://downloads.example.com/'));
+  assert.equal(api.headers.Authorization, `Bearer ${KEY}`);
+  assert.equal(download.headers.Authorization, undefined, 'the signed download carries no key');
+  assert.ok(!download.url.includes(KEY));
+});
+
+test('a download is refused in words when the address is not https, when the reply is too large, and when the attachment is too large', async () => {
+  const insecure = standIn([
+    ['GET', /\/attachments\/a1$/, () => json(200, { attachment_id: 'a1', size: 5, download_url: 'http://downloads.example.com/att/a1', filename: 'guide.pdf' })],
+  ]);
+  await assert.rejects(keepAMailAttachment({ provider: 'agentmail', message_id: 'stand-in-one@example.com/m1', attachment_id: 'a1' }, { ...insecure.io, out: join(tmpdir(), 'unused') }), error => error instanceof Refused && /not https/.test(error.message));
+  assert.equal(insecure.asked.length, 1, 'nothing was fetched from the address');
+
+  const big = standIn([
+    ['GET', /\/attachments\/a1$/, () => json(200, { attachment_id: 'a1', size: 16777217, download_url: 'https://downloads.example.com/att/a1', filename: 'guide.pdf' })],
+  ]);
+  await assert.rejects(keepAMailAttachment({ provider: 'agentmail', message_id: 'stand-in-one@example.com/m1', attachment_id: 'a1' }, { ...big.io, out: join(tmpdir(), 'unused') }), error => error instanceof Refused && /keeps at most 16777216 bytes/.test(error.message));
+
+  const streamed = standIn([
+    ['GET', /\/attachments\/a1$/, () => json(200, { attachment_id: 'a1', size: 5, download_url: 'https://downloads.example.com/att/a2', filename: 'guide.pdf' })],
+    ['GET', /\/att\/a2$/, () => new Response('x', { status: 200, headers: { 'content-length': '16777217' } })],
+  ]);
+  await assert.rejects(keepAMailAttachment({ provider: 'agentmail', message_id: 'stand-in-one@example.com/m1', attachment_id: 'a1' }, { ...streamed.io, out: join(tmpdir(), 'unused') }), error => error instanceof Refused && /keeps at most/.test(error.message));
+});
+
+test('Outlook does not offer keeping an attachment, and says so in words without a request', async () => {
+  const none = standIn([]);
+  await assert.rejects(perform('keep-a-mail-attachment', { provider: 'outlook', message_id: 'g1', attachment_id: 'a1' }, none.io), /Outlook does not offer this: keep a mail attachment\./);
+  assert.equal(none.asked.length, 0);
 });

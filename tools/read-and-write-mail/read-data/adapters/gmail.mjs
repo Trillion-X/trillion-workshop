@@ -15,7 +15,7 @@
 // 3. A draft that carries anything a plain-text edit would lose (an attachment, a non-text part, an inline part, a Bcc
 //    line) says needs_original, so no screen saves over it.
 
-import { HEADER_FIELDS, neutralLabels, neutralMessage, wireLabels } from '../neutral.mjs';
+import { HEADER_FIELDS, MOST_ATTACHMENT_BYTES, neutralLabels, neutralMessage, wireLabels } from '../neutral.mjs';
 
 const MOST_LINKS = 50;
 const enc = encodeURIComponent;
@@ -80,6 +80,17 @@ export function messageAttachments(payload) {
   };
   if (payload) visit(payload);
   return found;
+}
+
+/** The MIME part of a message that carries one attachment, by its Gmail attachment id. */
+function attachedPart(part, attachmentId) {
+  if (!part) return null;
+  if (part.body?.attachmentId === attachmentId) return part;
+  for (const child of part.parts ?? []) {
+    const found = attachedPart(child, attachmentId);
+    if (found) return found;
+  }
+  return null;
 }
 
 /** Whether a plain-text edit of a draft would discard original MIME media or formatting. */
@@ -156,6 +167,18 @@ export const operations = {
     const messages = (history?.history ?? []).flatMap(step => (step.messagesAdded ?? []).map(added => added.message)).filter(message => message?.id)
       .map(message => ({ id: message.id, thread_id: message.threadId ?? null, labels: neutralLabels(ctx.provider, message.labelIds) }));
     return { messages, cursor: String(history?.historyId ?? input.since), next_page_token: history?.nextPageToken ?? null };
+  },
+
+  async 'keep-a-mail-attachment'(ctx, input) {
+    const id = need(ctx, input, 'message_id');
+    const attachmentId = need(ctx, input, 'attachment_id');
+    const message = await ctx.call('GET', `/messages/${enc(id)}`, { query: { format: 'full' } });
+    const part = attachedPart(message?.payload, attachmentId);
+    if (!part) throw new ctx.Refused(`The message has no attachment ${attachmentId}.`);
+    const file = await ctx.call('GET', `/messages/${enc(id)}/attachments/${enc(attachmentId)}`);
+    if ((file?.size ?? 0) > MOST_ATTACHMENT_BYTES) throw new ctx.Refused(ctx.fill(ctx.words.too_large, { label: ctx.provider.label, max: MOST_ATTACHMENT_BYTES, size: file.size }));
+    if (!file?.data) throw new ctx.Refused(`${ctx.provider.label} sent no bytes for attachment ${attachmentId}.`);
+    return { name: input.name || part.filename, media_type: part.mimeType ?? 'application/octet-stream', bytes: Buffer.from(file.data, 'base64url') };
   },
 
   async 'find-mail'(ctx, input) {

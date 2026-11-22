@@ -233,3 +233,15 @@ test('reading a conversation asks for its headers only; done, delete and restore
   const refusing = standIn([{ when: () => true, then: reply(403, { error: 'insufficient authentication scopes' }) }]);
   await assert.rejects(perform('trash-a-conversation', { provider: 'gmail', thread_id: 'thread-1' }, refusing.io), /refused the request \(403\)/);
 });
+
+test('Gmail keeps an attachment: the part named by its attachment id gives the type, the name is the one asked for, and the bytes are the attachment data', async () => {
+  const run = standIn([
+    { when: at('GET', '/messages/m1/attachments/a1'), then: reply(200, { size: 5, data: b64('hello') }) },
+    { when: at('GET', '/messages/m1'), then: reply(200, { id: 'm1', payload: { mimeType: 'multipart/mixed', parts: [{ mimeType: 'text/plain', body: { data: b64('see attached') } }, { mimeType: 'application/pdf', filename: 'guide.pdf', body: { attachmentId: 'a1', size: 5 } }] } }) },
+  ]);
+  const answer = await perform('keep-a-mail-attachment', { provider: 'gmail', connection: { connection_id: 'service_connection:google-account' }, message_id: 'm1', attachment_id: 'a1', name: 'Hermes guide.pdf' }, run.io);
+  assert.equal(answer.name, 'Hermes guide.pdf');
+  assert.equal(answer.media_type, 'application/pdf');
+  assert.equal(Buffer.compare(answer.bytes, Buffer.from('hello')), 0);
+  assert.ok(run.asked[0].url.includes('format=full'));
+});

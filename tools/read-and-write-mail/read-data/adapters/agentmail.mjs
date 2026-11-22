@@ -20,7 +20,7 @@
 //    where it stopped and never restarts one.
 // 3. A deactivated inbox is not asked, since it neither sends nor receives mail.
 
-import { htmlToText, linksIn, neutralLabels, neutralMessage } from '../neutral.mjs';
+import { MOST_ATTACHMENT_BYTES, htmlToText, linksIn, neutralLabels, neutralMessage } from '../neutral.mjs';
 
 const enc = encodeURIComponent;
 const PAGE_OF_INBOXES = 100;
@@ -181,6 +181,16 @@ export const operations = {
     } while (page);
     const rows = messages.map(message => toNeutral(ctx, inbox, message, { full: true, thread }));
     return { thread_id: join(inbox, thread), messages: rows.sort((a, b) => (a.date_ms ?? 0) - (b.date_ms ?? 0)) };
+  },
+
+  async 'keep-a-mail-attachment'(ctx, input) {
+    const { inbox, id } = split(ctx, need(ctx, input, 'message_id'), 'message_id');
+    const attachmentId = need(ctx, input, 'attachment_id');
+    const file = await ctx.call('GET', `/inboxes/${enc(inbox)}/messages/${enc(id)}/attachments/${enc(attachmentId)}`);
+    if ((file?.size ?? 0) > MOST_ATTACHMENT_BYTES) throw new ctx.Refused(ctx.fill(ctx.words.too_large, { label: ctx.provider.label, max: MOST_ATTACHMENT_BYTES, size: file.size }));
+    if (!file?.download_url) throw new ctx.Refused(`${ctx.provider.label} gave no download address for attachment ${attachmentId}.`);
+    const bytes = await ctx.download(file.download_url);
+    return { name: input.name || file.filename || attachmentId, media_type: file.content_type || 'application/octet-stream', bytes };
   },
 
   async 'list-send-as-addresses'(ctx) {
