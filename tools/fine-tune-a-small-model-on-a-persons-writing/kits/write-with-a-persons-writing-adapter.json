@@ -1,0 +1,265 @@
+{
+  "drafted_from": "tool row in tools/fine-tune-a-small-model-on-a-persons-writing/tool-rows.json and test/test_writing_fine_tune.py, run here Nov 21 2026",
+  "start_here": "Say to your AI: \"Write my 35 test cases with my texting adapter, then with the base model alone, at temperature 0.\" It writes a request file and runs write_with_the_adapter.py on your Mac.",
+  "tools": [
+    "tool:build-writing-pairs-from-a-persons-messages",
+    "tool:train-a-small-model-on-a-persons-writing",
+    "tool:write-with-a-persons-writing-adapter",
+    "tool:read-a-tool-setting",
+    "tool:pour-example-rows-into-my-list"
+  ],
+  "instructions": [
+    "1. Pour the two example rows into your own settings list (see pour), or make list:settings from them, then put your own system words, frame, base model and numbers in the build, train and write objects.",
+    "2. Keep your sent messages as rows (list:my-sent-messages): each with the thread before it and a plain draft made the same way as the cases you will measure on, and name the threads those cases come from.",
+    "3. Build the rows with tool:build-writing-pairs-from-a-persons-messages, train with tool:train-a-small-model-on-a-persons-writing (tens of minutes on a Mac with Apple silicon), then write the measuring cases with tool:write-with-a-persons-writing-adapter, once with the adapter and once with adapter null.",
+    "4. Compare both answers with your real messages on the same cases and keep the result rows; keep the adapter only where it beats the base model and your current way of writing."
+  ],
+  "worked_examples": [
+    {
+      "title": "An adapter whose bytes changed is refused",
+      "ask": "Write my test cases with /work/texting-adapter.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:write-with-a-persons-writing-adapter"
+          }
+        }
+      },
+      "given": "Request with adapter /work/texting-adapter and an adapter_blake3 that is not the BLAKE3 of its adapters.safetensors. Command: python3 -I tools/fine-tune-a-small-model-on-a-persons-writing/do-work/write_with_the_adapter.py /work/request.json. It exits 2.",
+      "hands_back": "{\"error\": \"the adapter's BLAKE3 is <its BLAKE3>, not <the one given>: this is not the adapter that was measured\"}. With the right BLAKE3 it answers {\"result\": {\"answers\": [{\"case_id\": ..., \"words\": ..., \"tokens_in\": ..., \"tokens_out\": ..., \"ms\": ...}]}}."
+    }
+  ],
+  "lists": [
+    {
+      "list": "list:settings",
+      "label": "Settings",
+      "row_type": "record:setting",
+      "holds": "One row per tool and scope (a person, a channel or the whole account): the settings that tool reads when it runs, as JSON. For the writing fine-tune the row id is record:setting:fine-tune-a-small-model-on-a-persons-writing~<scope_kind>~<scope_id> and its settings hold a build, a train and a write object that fill every request key the request leaves out.",
+      "fields": [
+        {
+          "id": "name",
+          "kind": "text",
+          "label": "Setting",
+          "alike": [
+            "title",
+            "key",
+            "label"
+          ]
+        },
+        {
+          "id": "tool",
+          "kind": "text",
+          "label": "Tool",
+          "alike": [
+            "tool id",
+            "owner"
+          ]
+        },
+        {
+          "id": "scope_kind",
+          "kind": "text",
+          "label": "For a",
+          "alike": [
+            "scope",
+            "applies to"
+          ]
+        },
+        {
+          "id": "scope_id",
+          "kind": "text",
+          "label": "For",
+          "alike": [
+            "scope id",
+            "target"
+          ]
+        },
+        {
+          "id": "settings",
+          "kind": "long-text",
+          "label": "Settings (JSON)",
+          "alike": [
+            "values",
+            "config",
+            "options"
+          ]
+        },
+        {
+          "id": "from",
+          "kind": "text",
+          "label": "From",
+          "alike": [
+            "source",
+            "origin"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "text",
+          "label": "Status",
+          "alike": [
+            "state",
+            "on or off"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "writing-texting",
+          "values": {
+            "name": "My texting adapter",
+            "tool": "tool:build-writing-pairs-from-a-persons-messages",
+            "scope_kind": "channel",
+            "scope_id": "texting",
+            "settings": "{\"build\": {\"system\": \"Write this message as me, in {channel}. Keep every fact.\", \"frame\": \"Thread so far:\\n{thread}\\n\\nWhat I want to say:\\n{draft}\", \"context_lines\": 6, \"min_characters\": 15, \"valid_share\": 0.1}, \"train\": {\"base_model\": \"mlx-community/Qwen3.5-4B-MLX-8bit\", \"fine_tune_type\": \"lora\", \"rank\": 16, \"scale\": 1.0, \"dropout\": 0.05, \"num_layers\": 16, \"iters\": 300, \"batch\": 4, \"lr\": 0.0001, \"max_seq_length\": 1024, \"seed\": 1}, \"write\": {\"system\": \"Write this message as me, in {channel}. Keep every fact.\", \"frame\": \"Thread so far:\\n{thread}\\n\\nWhat I want to say:\\n{draft}\", \"context_lines\": 6, \"max_tokens\": 200, \"temperature\": 0}}",
+            "from": "2026-11-21",
+            "status": "active"
+          }
+        },
+        {
+          "id": "writing-email",
+          "values": {
+            "name": "My email adapter",
+            "tool": "tool:build-writing-pairs-from-a-persons-messages",
+            "scope_kind": "channel",
+            "scope_id": "email",
+            "settings": "{\"build\": {\"system\": \"Write this message as me, in {channel}. Keep every fact.\", \"frame\": \"Thread so far:\\n{thread}\\n\\nWhat I want to say:\\n{draft}\", \"context_lines\": 0, \"min_characters\": 15, \"valid_share\": 0.1}, \"train\": {\"base_model\": \"mlx-community/Qwen3.5-4B-MLX-8bit\", \"fine_tune_type\": \"lora\", \"rank\": 16, \"scale\": 1.0, \"dropout\": 0.05, \"num_layers\": 16, \"iters\": 200, \"batch\": 2, \"lr\": 0.0001, \"max_seq_length\": 2048, \"seed\": 1}}",
+            "from": "2026-11-21",
+            "status": "active"
+          }
+        }
+      ],
+      "alike": [
+        "an app's settings screen",
+        "a config file per tool",
+        "a spreadsheet of options"
+      ]
+    },
+    {
+      "list": "list:my-sent-messages",
+      "label": "My sent messages",
+      "row_type": "record:sent-message",
+      "holds": "One row per message the person really sent, with the thread before it and a plain draft of what they meant: what the writing adapter learns from.",
+      "fields": [
+        {
+          "id": "thread",
+          "kind": "text",
+          "label": "Thread",
+          "alike": [
+            "conversation",
+            "chat"
+          ]
+        },
+        {
+          "id": "channel",
+          "kind": "choice",
+          "label": "Channel",
+          "alike": [
+            "app",
+            "source"
+          ]
+        },
+        {
+          "id": "context",
+          "kind": "long-text",
+          "label": "Lines before it",
+          "alike": [
+            "history"
+          ]
+        },
+        {
+          "id": "draft",
+          "kind": "long-text",
+          "label": "Plain draft",
+          "alike": [
+            "neutral version",
+            "paraphrase"
+          ]
+        },
+        {
+          "id": "words",
+          "kind": "long-text",
+          "label": "What I sent",
+          "alike": [
+            "message",
+            "text",
+            "body"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "m1",
+          "values": {
+            "thread": "chat-with-sam",
+            "channel": "texting",
+            "context": "[{\"who\": \"them\", \"words\": \"are you coming tonight?\"}]",
+            "draft": "Yes, I will be there in about 20 minutes.",
+            "words": "yep omw there in 20"
+          }
+        },
+        {
+          "id": "m2",
+          "values": {
+            "thread": "chat-with-ana",
+            "channel": "texting",
+            "context": "[{\"who\": \"them\", \"words\": \"can you send the deck\"}]",
+            "draft": "I will send the deck after my call.",
+            "words": "will send after my call!"
+          }
+        }
+      ],
+      "alike": [
+        "a messages export",
+        "a sent-mail folder",
+        "a chat history spreadsheet"
+      ]
+    }
+  ],
+  "workflows": [],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
+    "example": {
+      "kit_list": "list:settings",
+      "into": {
+        "list": "list:my-settings",
+        "row_type": "record:setting",
+        "fields": [
+          {
+            "id": "name",
+            "label": "Setting"
+          },
+          {
+            "id": "tool",
+            "label": "Tool"
+          },
+          {
+            "id": "scope_kind",
+            "label": "For a"
+          },
+          {
+            "id": "scope_id",
+            "label": "For"
+          },
+          {
+            "id": "settings",
+            "label": "Settings (JSON)"
+          },
+          {
+            "id": "from",
+            "label": "From"
+          },
+          {
+            "id": "status",
+            "label": "Status"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

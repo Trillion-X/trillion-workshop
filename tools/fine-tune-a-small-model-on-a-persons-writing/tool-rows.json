@@ -1,0 +1,312 @@
+{
+  "kind": "package-set-records",
+  "record_set": "fine-tune-a-small-model-on-a-persons-writing-tool-rows",
+  "what_this_is": "The Workshop rows for the fine-tune-a-small-model-on-a-persons-writing folder: scripts the person's AI runs on the person's own computer to teach a small open chat model to write the way the person writes: build chat rows from messages they sent (thread and a plain draft in, their real message out) with the measuring threads held out, LoRA-train an adapter with the ready-made MLX trainer, and write with it so it can be measured against any other way of writing in their voice.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:build-writing-pairs-from-a-persons-messages",
+        "label": "Build the rows that teach a small model to write like me, with the measuring threads held out (runs on your computer)",
+        "job": "Make the training set to teach a small model to write the way I write",
+        "description": "Reads messages the person really sent, each with the thread before it and a plain draft of what they meant (made the same way as the cases it will be measured on), and the threads those cases come from. Writes train.jsonl and valid.jsonl as chat rows: the thread and draft in, the person's real message out. A held-out thread is never written, not even to validation; each pair lands in validation by the BLAKE3 of its id, so the same request writes the same bytes.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "out_dir",
+            "pairs",
+            "held_out_threads",
+            "system",
+            "frame",
+            "context_lines",
+            "min_characters",
+            "valid_share"
+          ],
+          "properties": {
+            "out_dir": {
+              "type": "string",
+              "description": "The folder train.jsonl and valid.jsonl are written to."
+            },
+            "pairs": {
+              "description": "Rows {id, thread, channel, context: [{who, words}], draft, words}, inline or {\"file\": a JSON Lines file}."
+            },
+            "held_out_threads": {
+              "type": "array",
+              "description": "The threads the measuring cases come from; none of their messages is trained on."
+            },
+            "system": {
+              "type": "string",
+              "description": "The system words every row starts with; may hold {channel}."
+            },
+            "frame": {
+              "type": "string",
+              "description": "The user words, holding {thread} and {draft}."
+            },
+            "context_lines": {
+              "type": "integer",
+              "description": "How many lines of the thread before the message are shown."
+            },
+            "min_characters": {
+              "type": "integer",
+              "description": "The shortest message kept."
+            },
+            "valid_share": {
+              "type": "number",
+              "description": "The share of pairs kept for validation."
+            },
+            "seed": {
+              "type": "integer",
+              "description": "Kept with the request; the split itself is by BLAKE3 of each id."
+            },
+            "settings_record": {
+              "description": "The person's settings row record:setting:fine-tune-a-small-model-on-a-persons-writing~<scope_kind>~<scope_id> from their list:settings, exactly as selected from their database with plain SQL (or as tool:read-a-tool-setting answers it), or the path of a JSON file holding it. Its settings' build object gives every request key the request leaves out."
+            },
+            "settings_scope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "[scope_kind, scope_id] when settings_record holds several rows."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line {\"result\": {files: {train, valid: {file, rows, blake3}}, skipped, held_out_threads}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U blake3"
+          ],
+          "run": "python3 -I tools/fine-tune-a-small-model-on-a-persons-writing/do-work/build_writing_pairs.py {input}",
+          "needs": [
+            "python 3 with blake3"
+          ],
+          "say": "Write the request to a file, run `run` with that file as {input} from the root of the Workshop checkout, and read the last line. Then train with tool:train-a-small-model-on-a-persons-writing."
+        },
+        "maker": "maker:fine-tune-a-small-model-on-a-persons-writing",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:train-a-small-model-on-a-persons-writing",
+        "label": "Teach a small open model to write like me by training a LoRA adapter (runs on your Mac)",
+        "job": "Train a small local model to write the way I write",
+        "description": "LoRA- or DoRA-trains a small open chat model on the rows from tool:build-writing-pairs-from-a-persons-messages with the ready-made MLX trainer (mlx_lm lora), loss on the person's message only, at low priority beside their work. Keeps the trainer's config and log beside the adapter and answers the adapter's BLAKE3, the train and validation losses and the minutes it took.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "base_model",
+            "data_dir",
+            "out",
+            "fine_tune_type",
+            "rank",
+            "scale",
+            "dropout",
+            "num_layers",
+            "iters",
+            "batch",
+            "lr",
+            "max_seq_length",
+            "seed",
+            "memory_limit_gb"
+          ],
+          "properties": {
+            "base_model": {
+              "type": "string",
+              "description": "An MLX model folder or Hugging Face repo id."
+            },
+            "data_dir": {
+              "type": "string",
+              "description": "The folder holding train.jsonl and valid.jsonl."
+            },
+            "out": {
+              "type": "string",
+              "description": "The folder the adapter, its config, log and train-info.json are written to."
+            },
+            "fine_tune_type": {
+              "type": "string",
+              "description": "lora or dora."
+            },
+            "rank": {
+              "type": "integer",
+              "description": "The LoRA rank."
+            },
+            "scale": {
+              "type": "number",
+              "description": "The LoRA scale (alpha over rank)."
+            },
+            "dropout": {
+              "type": "number",
+              "description": "The LoRA dropout."
+            },
+            "num_layers": {
+              "type": "integer",
+              "description": "How many of the last layers get an adapter; -1 for all."
+            },
+            "iters": {
+              "type": "integer",
+              "description": "Training steps."
+            },
+            "batch": {
+              "type": "integer",
+              "description": "Rows per step."
+            },
+            "lr": {
+              "type": "number",
+              "description": "The learning rate."
+            },
+            "max_seq_length": {
+              "type": "integer",
+              "description": "The longest row in tokens."
+            },
+            "seed": {
+              "type": "integer",
+              "description": "The seed, so a run can be made again."
+            },
+            "nice": {
+              "type": "integer",
+              "description": "The priority to run at (default 10)."
+            },
+            "settings_record": {
+              "description": "The person's settings row record:setting:fine-tune-a-small-model-on-a-persons-writing~<scope_kind>~<scope_id> from their list:settings, exactly as selected from their database with plain SQL (or as tool:read-a-tool-setting answers it), or the path of a JSON file holding it. Its settings' train object gives every request key the request leaves out."
+            },
+            "settings_scope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "[scope_kind, scope_id] when settings_record holds several rows."
+            },
+            "memory_limit_gb": {
+              "type": "number",
+              "description": "The most memory the run may hold, in GB; past it the run stops instead of starving the computer."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The trainer's log in train-log.txt, then a last line {\"result\": {adapter, blake3, config_blake3, base, rows, minutes, peak_memory_gb, memory_limit_gb, train_loss_last, val_loss, train_files_blake3}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U mlx mlx-lm blake3"
+          ],
+          "run": "python3 -I tools/fine-tune-a-small-model-on-a-persons-writing/do-work/train_a_writing_adapter.py {input}",
+          "needs": [
+            "a Mac with Apple silicon",
+            "python with mlx, mlx_lm and blake3",
+            "the base model downloaded or reachable"
+          ],
+          "say": "This runs on the person's own computer and can take tens of minutes. Write the request to a file, run `run` with that file as {input}, and read the last line. Then measure it with tool:write-with-a-persons-writing-adapter, with and without the adapter."
+        },
+        "maker": "maker:fine-tune-a-small-model-on-a-persons-writing",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:write-with-a-persons-writing-adapter",
+        "label": "Write messages with my writing adapter, checked by its BLAKE3 first (runs on your Mac)",
+        "job": "Write messages in my voice with my own small model",
+        "description": "Writes one message per case (the thread so far and a plain draft) with the base model and the person's adapter, refused when the adapter's BLAKE3 differs from the one measured. With adapter null the base model alone answers the same way, the floor any adapter must beat. Answers each message with its tokens in and out and the milliseconds it took.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "base_model",
+            "system",
+            "frame",
+            "context_lines",
+            "max_tokens",
+            "temperature",
+            "cases"
+          ],
+          "properties": {
+            "base_model": {
+              "type": "string",
+              "description": "The MLX model folder or Hugging Face repo id the adapter was trained on."
+            },
+            "adapter": {
+              "description": "The adapter folder, or null for the base model alone."
+            },
+            "adapter_blake3": {
+              "type": "string",
+              "description": "The adapter BLAKE3 from train-info.json; required with an adapter."
+            },
+            "system": {
+              "type": "string",
+              "description": "The system words it was trained with."
+            },
+            "frame": {
+              "type": "string",
+              "description": "The frame it was trained with."
+            },
+            "context_lines": {
+              "type": "integer",
+              "description": "How many thread lines it was trained with."
+            },
+            "max_tokens": {
+              "type": "integer",
+              "description": "The most tokens one message may take."
+            },
+            "temperature": {
+              "type": "number",
+              "description": "The sampling temperature; 0 for the most likely words."
+            },
+            "cases": {
+              "description": "Rows {case_id, channel, context, draft}, inline or {\"file\": a JSON Lines file}."
+            },
+            "settings_record": {
+              "description": "The person's settings row record:setting:fine-tune-a-small-model-on-a-persons-writing~<scope_kind>~<scope_id> from their list:settings, exactly as selected from their database with plain SQL (or as tool:read-a-tool-setting answers it), or the path of a JSON file holding it. Its settings' write object gives every request key the request leaves out."
+            },
+            "settings_scope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "[scope_kind, scope_id] when settings_record holds several rows."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line {\"result\": {base, adapter, answers: [{case_id, words, tokens_in, tokens_out, ms}]}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U mlx mlx-lm blake3"
+          ],
+          "run": "python3 -I tools/fine-tune-a-small-model-on-a-persons-writing/do-work/write_with_the_adapter.py {input}",
+          "needs": [
+            "a Mac with Apple silicon",
+            "python with mlx, mlx_lm and blake3"
+          ],
+          "say": "Write the request to a file, run `run` with that file as {input}, and read the last line. Give the same system words, frame and context_lines the adapter was trained with."
+        },
+        "maker": "maker:fine-tune-a-small-model-on-a-persons-writing",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ]
+      }
+    }
+  ]
+}
