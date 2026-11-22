@@ -28,8 +28,8 @@
 import { blake3 } from '../../../live-namespace/do-work/blake3.mjs';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import contract from './graph-contract.json' with { type: 'json' };
-import { escapeHtml } from 'trillion-workshop/tools/write-a-post-for-each-place/read-data/escape-html.mjs';
-import { sanitizeErrorText } from 'trillion-workshop/tools/ui/show/safe-error-card/sanitize-error-text.ts';
+import { escapeHtml } from '../server-rendered-page/escape-html.mjs';
+import { sanitizeErrorText } from '../safe-error-card/sanitize-error-text.ts';
 import { layerDiagramAtlas, layerDiagramHtml, layerDiagramLayout } from './layer-diagram.mjs';
 
 const isObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);

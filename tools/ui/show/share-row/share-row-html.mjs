@@ -19,7 +19,7 @@
 //
 // Key concepts: `shareRowHtml(share)`, `shareHref(template, values)`, `SHARE_ROW_CSS`, `SHARE_ROW_SCRIPT`.
 
-import { escapeHtml } from 'trillion-workshop/tools/write-a-post-for-each-place/read-data/escape-html.mjs';
+import { escapeHtml } from '../server-rendered-page/escape-html.mjs';
 import DEFAULTS from './share-row.json' with { type: 'json' };
 
 const text = (value) => (typeof value === 'string' && value.trim() ? value.trim() : null);

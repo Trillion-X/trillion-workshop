@@ -29,7 +29,7 @@
 // Security: no caller string is ever placed unescaped; form fields are named by plain words only;
 // the only inline script is JSON-LD, built from values, never from caller markup.
 
-import { escapeHtml } from 'trillion-workshop/tools/write-a-post-for-each-place/read-data/escape-html.mjs';
+import { escapeHtml } from '../server-rendered-page/escape-html.mjs';
 import { SHARE_ROW_CSS, SHARE_ROW_SCRIPT, shareRowHtml } from '../share-row/share-row-html.mjs';
 import { SITE_NAV_CSS, SITE_NAV_SCRIPT, siteNavEntries } from '../site-nav/site-nav-look.mjs';
 import { LAYER_DIAGRAM_CSS, layerDiagramHtml } from '../layer-diagram/layer-diagram.mjs';

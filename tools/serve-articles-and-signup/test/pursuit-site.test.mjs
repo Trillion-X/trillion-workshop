@@ -1,19 +1,34 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { bodyHtml, createSite } from '../do-work/pursuit-site.mjs';
+import { createSite } from '../do-work/pursuit-site.mjs';
 
 const site = (overrides = {}) => createSite({
   db: async () => [], mail: async () => {}, origin: 'https://example.test', brand: 'Example', secret: 'x'.repeat(40),
-  layout: ({ title, body }) => `<!doctype html><title>${title}</title>${body}`,
   signupText: { label: 'Email', consent: 'Send me new articles.', button: 'Sign up', confirm: { subject: 'Confirm', body: 'Confirm your address.', button: 'Confirm' } },
   ...overrides,
 });
 
-test('a body is escaped: a row never writes raw HTML into a page', () => {
-  const html = bodyHtml('# Hi <img src=x onerror=alert(1)>\n\nSome "text" & more');
-  assert.ok(!html.includes('<img'));
+const published = { slug: 'a-guide', title: 'A Guide', description: 'Plain words about a guide.', body_markdown: 'Body.', picture: '/img/guide.png', keywords: 'guide', status: 'published', canonical: null, published_at: '2026-11-01T09:00:00.000Z', updated_at: '2026-11-03T09:00:00.000Z' };
+const articleSite = (row = published, options = {}) => site({
+  author: 'Example Author',
+  db: async (sql) => (sql.startsWith('SELECT slug, title, description, body_markdown, picture, keywords, status') ? [row] : []),
+  ...options,
+});
+const pageOf = async (handler, path) => (await handler.handle(new Request(`https://example.test${path}`))).text();
+
+test('an article body is markdown drawn by document-page: raw HTML in a row is shown as text, never written as a tag', async () => {
+  const html = await pageOf(articleSite({ ...published, body_markdown: '# Hi <img src=x onerror=alert(1)>\n\nSome "text" & more' }), '/articles/a-guide');
+  assert.ok(!html.includes('<img src=x'));
   assert.ok(html.includes('&lt;img'));
-  assert.ok(html.includes('<h1>Hi'));
+  assert.match(html, /<article class="doc-article">/);
+  assert.match(html, /<h1 class="doc-h1">A Guide<\/h1>/);
+});
+
+test('a link in an article is an anchor only to an http or https address', async () => {
+  const body = 'If you want it, [book a call with me](https://example.test/book?utm_source=site&utm_medium=article). Or [this](javascript:alert(1)).';
+  const html = await pageOf(articleSite({ ...published, body_markdown: body }), '/articles/a-guide');
+  assert.match(html, /href="https:\/\/example\.test\/book\?utm_source=site&amp;utm_medium=article"/);
+  assert.ok(!html.includes('href="javascript'));
 });
 
 test('paths this site does not serve are left to the site\'s own program', async () => {
@@ -22,15 +37,18 @@ test('paths this site does not serve are left to the site\'s own program', async
   assert.equal(await handler.handle(new Request('https://example.test/subscribe', { method: 'GET' })), null);
 });
 
-test('an unknown article address answers 404 with no article row', async () => {
+test('an unknown article address answers 404 with no article row, kept out of search', async () => {
   const handler = site();
   const answer = await handler.handle(new Request('https://example.test/articles/nope'));
   assert.equal(answer.status, 404);
+  const html = await answer.text();
+  assert.match(html, /<meta name="robots" content="noindex, nofollow"\/>/);
+  assert.match(html, /<link rel="canonical" href="https:\/\/example\.test\/articles\/nope"\/>/);
 });
 
 test('a draft answers only with its own preview token', async () => {
-  const draft = { slug: 'a-draft', title: 'Draft', description: '', body_markdown: 'Secret words', status: 'draft', published_at: null, updated_at: '2026-11-21' };
-  const handler = site({ db: async (sql) => (sql.startsWith('SELECT slug, title, description, body_markdown, picture, keywords, status') ? [draft] : []) });
+  const draft = { ...published, slug: 'a-draft', title: 'Draft', description: '', body_markdown: 'Secret words', status: 'draft', published_at: null };
+  const handler = articleSite(draft);
   const hidden = await handler.handle(new Request('https://example.test/articles/a-draft'));
   assert.equal(hidden.status, 404);
   const shown = await handler.handle(new Request(`https://example.test/articles/a-draft?preview=${handler.previewToken('a-draft')}`));
@@ -58,28 +76,18 @@ test('a published row whose time has come answers when read from the database as
   assert.equal(await answer.text(), 'article:dated');
 });
 
-test('a paragraph\'s markdown link is an anchor, and only to an http or https address', () => {
-  const html = bodyHtml('If you want it, [book a call with me](https://example.test/book?utm_source=site&utm_medium=article). Or [this](javascript:alert(1)).');
-  assert.ok(html.includes('<a href="https://example.test/book?utm_source=site&amp;utm_medium=article">book a call with me</a>'));
-  assert.ok(!html.includes('href="javascript'));
-  assert.ok(html.includes('[this](javascript:alert(1))'));
-  assert.ok(!bodyHtml('[x](https://a.test/"onmouseover=alert(1))').includes('"onmouseover'));
+test('the index lists the listed articles as links and carries its own canonical and the signup form', async () => {
+  const rows = [published, { ...published, slug: 'second', title: 'Second' }];
+  const html = await pageOf(site({ db: async (sql) => (sql.includes('listed IS DISTINCT FROM false') ? rows : []) }), '/articles');
+  assert.match(html, /<a class="doc-links-title" href="\/articles\/a-guide">A Guide<\/a>/);
+  assert.match(html, /<a class="doc-links-title" href="\/articles\/second">Second<\/a>/);
+  assert.match(html, /<link rel="canonical" href="https:\/\/example\.test\/articles"\/>/);
+  assert.match(html, /<form class="doc-form" method="post" action="\/subscribe">/);
 });
 
 // The article's search head: canonical from its row (else this page), Open Graph, and a JSON-LD Article with the site's author and the row's dates.
-const headed = (row, options = {}) => site({
-  author: 'Example Author',
-  layout: ({ title, description, body }) => `<!doctype html><html><head><meta charset="utf-8"/><title>${title}</title></head><body>${body}</body></html>`,
-  db: async (sql) => (sql.startsWith('SELECT slug, title, description, body_markdown, picture, keywords, status') ? [row] : []),
-  ...options,
-});
-const article = {
-  slug: 'a-guide', title: 'A Guide', description: 'Plain words about a guide.', body_markdown: 'Body.', picture: '/img/guide.png',
-  keywords: 'guide', status: 'published', canonical: null, published_at: '2026-11-01T09:00:00.000Z', updated_at: '2026-11-03T09:00:00.000Z',
-};
-
 test('an article names itself as canonical, with Open Graph and a JSON-LD Article from its row', async () => {
-  const html = await (await headed(article).handle(new Request('https://example.test/articles/a-guide'))).text();
+  const html = await pageOf(articleSite(), '/articles/a-guide');
   assert.match(html, /<link rel="canonical" href="https:\/\/example\.test\/articles\/a-guide"\/>/);
   assert.match(html, /<meta property="og:type" content="article"\/>/);
   assert.match(html, /<meta property="og:image" content="https:\/\/example\.test\/img\/guide\.png"\/>/);
@@ -91,28 +99,58 @@ test('an article names itself as canonical, with Open Graph and a JSON-LD Articl
   assert.equal(jsonld.dateModified, '2026-11-03T09:00:00.000Z');
 });
 
+test('the search head is written once: document-page\'s own head facts are replaced, not doubled', async () => {
+  const html = await pageOf(articleSite(), '/articles/a-guide');
+  assert.equal(html.match(/<title>/g).length, 1);
+  assert.equal(html.match(/<meta name="description"/g).length, 1);
+  assert.equal(html.match(/<link rel="canonical"/g).length, 1);
+  assert.equal(html.match(/<meta property="og:title"/g).length, 1);
+  assert.match(html, /<title>A Guide \| Example<\/title>/);
+});
+
 test('a cross-posted article names the row\'s canonical; a bad canonical falls back to this page', async () => {
   const home = 'https://home.example/articles/a-guide';
-  const cross = await (await headed({ ...article, canonical: home }).handle(new Request('https://example.test/articles/a-guide'))).text();
+  const cross = await pageOf(articleSite({ ...published, canonical: home }), '/articles/a-guide');
   assert.match(cross, new RegExp(`<link rel="canonical" href="${home}"/>`));
-  const bad = await (await headed({ ...article, canonical: 'javascript:alert(1)' }).handle(new Request('https://example.test/articles/a-guide'))).text();
+  const bad = await pageOf(articleSite({ ...published, canonical: 'javascript:alert(1)' }), '/articles/a-guide');
   assert.match(bad, /<link rel="canonical" href="https:\/\/example\.test\/articles\/a-guide"\/>/);
 });
 
-test('the author is left out of JSON-LD when the site does not name one, and no head is written without a description', async () => {
-  const noAuthor = await (await headed(article, { author: null }).handle(new Request('https://example.test/articles/a-guide'))).text();
+test('the author is left out of JSON-LD when the site does not name one; a row with no description is described by its title', async () => {
+  const noAuthor = await pageOf(articleSite(published, { author: null }), '/articles/a-guide');
   assert.equal(noAuthor.includes('"author"'), false);
-  const bare = await (await headed({ ...article, description: '' }).handle(new Request('https://example.test/articles/a-guide'))).text();
-  assert.equal(bare.includes('application/ld+json'), false);
-  assert.match(bare, /<title>A Guide \| Example<\/title>/);
+  const bare = await pageOf(articleSite({ ...published, description: '' }), '/articles/a-guide');
+  assert.match(bare, /<meta name="description" content="A Guide"\/>/);
+  assert.match(bare, /application\/ld\+json/);
+});
+
+test('the page takes the site\'s stylesheets, its theme attribute, and its token names', async () => {
+  const html = await pageOf(articleSite(published, {
+    stylesheets: ['/assets/site.css'],
+    themeAttributes: { 'data-theme': 'paper' },
+    tokens: { 'button-bg': 'button-primary-bg', ink: 'text-main' },
+  }), '/articles/a-guide');
+  assert.match(html, /<html lang="en" data-theme="paper">/);
+  assert.match(html, /<link rel="stylesheet" href="\/assets\/site\.css"\/>/);
+  assert.match(html, /<style>:root\{--button-bg:var\(--button-primary-bg\);--ink:var\(--text-main\);\}<\/style>/);
+});
+
+test('a token name that is not a word with dashes is refused when the site is made', () => {
+  assert.throws(() => site({ tokens: { 'button-bg': 'Button Primary' } }), TypeError);
+  assert.throws(() => site({ tokens: { 'bg; color: red': 'x' } }), TypeError);
+});
+
+test('the signup form posts to /subscribe with the page it came from', async () => {
+  const html = await pageOf(articleSite(), '/articles/a-guide');
+  assert.match(html, /<form class="doc-form" method="post" action="\/subscribe">/);
+  assert.match(html, /<input type="hidden" name="source" value="\/articles\/a-guide"\/>/);
+  assert.match(html, /<input class="doc-field-input" id="doc-field-email" name="email" type="email" required autocomplete="email"\/>/);
+  assert.match(html, /Send me new articles\./);
 });
 
 test('an article answers HEAD with its GET status and headers and no body; a missing one is 404; a route with effects ignores HEAD', async () => {
   const row = { slug: 'here', title: 'Here', description: 'd', body_markdown: 'Words', status: 'published', published_at: '2026-01-01T00:00:00Z', updated_at: '2026-01-01T00:00:00Z' };
-  const handler = site({
-    layout: ({ title, body }) => `<!doctype html><html><head><title>${title}</title></head><body>${body}</body></html>`,
-    db: async (sql, params) => (params?.[0] === 'here' ? [row] : []),
-  });
+  const handler = site({ db: async (sql, params) => (params?.[0] === 'here' ? [row] : []) });
   const head = await handler.handle(new Request('https://example.test/articles/here', { method: 'HEAD' }));
   assert.equal(head.status, 200);
   assert.match(head.headers.get('content-type'), /text\/html/);

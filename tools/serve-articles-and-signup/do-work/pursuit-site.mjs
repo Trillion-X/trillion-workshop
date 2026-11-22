@@ -1,11 +1,15 @@
 // tools/serve-articles-and-signup/do-work/pursuit-site.mjs
 //
-// Articles and a double opt-in newsletter signup for one pursuit's site, drawn at request time from the pursuit's own
-// Postgres rows: the `articles` table (one row is one article; its slug is its address) and the `subscribers` table
-// (the newsletter kit's shape: text times, tags as JSON text, consent provenance). Any Node server runs it: the site's
-// server hands each request whose path is one of these routes to `handleSiteRequest` and every other request to its own
-// program. It holds no database login and no mail key: the caller passes `db` (a query function) and `mail` (a send
-// function), so the login and the key stay with the program that holds them.
+// Articles and a double opt-in newsletter signup for one pursuit's site, drawn at request time from the pursuit's own Postgres
+// rows: the `articles` table (one row is one article; its slug is its address) and the `subscribers` table (the newsletter kit's
+// shape: text times, tags as JSON text, consent provenance). Any Node server runs it: the site's server hands each request whose
+// path is one of these routes to `createSite(...).handle` and every other request to its own program. It holds no database login
+// and no mail key: the caller passes `db` (a query function) and `mail` (a send function), so the login and the key stay with the
+// program that holds them.
+//
+// Every page is drawn by the document-page part (tools/ui/show/document-page), which writes the body and its links. The search head
+// (title, description, canonical, robots, Open Graph, Twitter card, JSON-LD) is written only by withSearchHead
+// (tools/publish-content-for-discovery), over the page document-page drew. A site's own draw hooks (`draw`) replace both.
 //
 // Invariants:
 //   - Only `published` articles whose published_at has come appear in the index, the feed or the article's address; a
@@ -14,43 +18,55 @@
 //     link carries a random token; only its keyed digest is stored.
 //   - An unsubscribe link carries a keyed digest of the subscriber id, so one click ends that subscription and no other.
 //   - Consent provenance is stored as given (the exact wording shown, the page, the time, a digest of the IP, never the IP).
-//   - Article bodies are escaped; no raw HTML from a row is ever written into a page.
+//   - Article bodies are markdown drawn by document-page: raw HTML in a row is shown as text, and a link is written only to
+//     an http(s) or same-site address.
 import { createHmac, randomBytes, randomUUID } from 'node:crypto';
+import { documentPageHtml } from '../../ui/show/document-page/document-page-html.mjs';
 import { withSearchHead } from '../../publish-content-for-discovery/do-work/site-search-head.mjs';
 
 const EMAIL_SHAPE = /^[^\s@<>()[\]\\,;:"]{1,64}@[a-z0-9-]+(\.[a-z0-9-]+)+$/i;
 const SIGNUPS_PER_NETWORK_PER_HOUR = 5;
 const CONFIRM_HOURS = 72;
+const TOKEN_NAME = /^[a-z][a-z0-9-]*$/;
 
 const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const nowIso = () => new Date().toISOString();
 const isHttpsAddress = (value) => { try { return new URL(value).protocol === 'https:'; } catch { return false; } };
-const json = (text, fallback) => { try { return text ? JSON.parse(text) : fallback; } catch { return fallback; } };
 
-/** An escaped paragraph's [words](https://address) links as anchors: only http and https, so a row never writes a script link. */
-const links = (escaped) => escaped.replace(/\[([^\]\n]+)\]\((https?:\/\/[^\s)]+)\)/g, (all, words, href) => `<a href="${href}">${words}</a>`);
-
-/** The HTML of a body: blank-line paragraphs with their links, `#`/`##` headings, everything else escaped. */
-export function bodyHtml(markdown) {
-  return String(markdown ?? '').split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean).map((block) => {
-    if (block.startsWith('## ')) return `<h2>${esc(block.slice(3))}</h2>`;
-    if (block.startsWith('# ')) return `<h1>${esc(block.slice(2))}</h1>`;
-    return `<p>${links(esc(block)).replace(/\n/g, '<br>')}</p>`;
-  }).join('\n');
+// The token aliases a site names its own way: { 'button-bg': 'button-primary-bg' } writes --button-bg as an alias of the site's
+// --button-primary-bg, the role token document-page reads. Only token names are written here, never a colour value.
+function tokenAliasesHtml(tokens) {
+  const pairs = Object.entries(tokens);
+  if (pairs.some(([role, own]) => !TOKEN_NAME.test(role) || !TOKEN_NAME.test(own))) {
+    throw new TypeError('tokens maps document-page role tokens to the site\'s token names: lower-case words with dashes, such as { "button-bg": "button-primary-bg" }.');
+  }
+  return pairs.length ? `<style>:root{${pairs.map(([role, own]) => `--${role}:var(--${own});`).join('')}}</style>` : '';
 }
 
-export function createSite({ db, mail, origin, brand, secret, layout, signupText, author = null, now = nowIso, draw = null }) {
+export function createSite({ db, mail, origin, brand, secret, signupText, stylesheets = [], themeAttributes = {}, tokens = {}, author = null, now = nowIso, draw = null }) {
   if (!secret || secret.length < 32) throw new Error('createSite needs a secret of at least 32 characters (the caller holds it).');
   const keyed = (purpose, value) => createHmac('sha256', secret).update(`${purpose}\n${value}`).digest('base64url');
   const absolute = (path) => new URL(path, origin).toString();
+  const tokenStyle = tokenAliasesHtml(tokens);
 
   const previewToken = (slug) => keyed('preview', slug);
   const unsubscribeLink = (id) => absolute(`/unsubscribe?s=${encodeURIComponent(id)}&t=${keyed('unsubscribe', id)}`);
 
-  function page({ title, body, status = 200, description = '', head = null }) {
-    const html = layout({ title: `${title} | ${brand}`, description, body });
-    return new Response(head ? withSearchHead(html, head) : html, {
+  // A page document-page draws, with the search head withSearchHead writes over it. document-page's own head facts are left empty
+  // here, so withSearchHead's head is the only one the page carries.
+  function drawn({ head, status = 200, article = null, blocks = [] }) {
+    const html = documentPageHtml({ lang: 'en', theme_attributes: themeAttributes, stylesheets, header: { brand: { name: brand, href: '/' } }, article, blocks });
+    return new Response(withSearchHead(html.replace('</head>', `${tokenStyle}</head>`), head), {
       status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' },
+    });
+  }
+
+  // A page of this site that is not an article: kept out of search, with its own address as canonical.
+  function utility(path, { heading, text = '', status = 200 }) {
+    return drawn({
+      status,
+      head: { title: `${heading} | ${brand}`, description: text || heading, canonical: absolute(path), robots: 'noindex, nofollow' },
+      article: { title: heading, markdown: text },
     });
   }
 
@@ -66,30 +82,39 @@ export function createSite({ db, mail, origin, brand, secret, layout, signupText
   async function articleIndex() {
     const rows = await listedRows();
     if (draw) return htmlPage(draw.index(rows));
-    const items = rows.map((row) => `<li><a href="/articles/${encodeURIComponent(row.slug)}"><strong>${esc(row.title)}</strong></a>
-      <p>${esc(row.description)}</p></li>`).join('\n');
-    return page({ title: 'Articles', description: 'Articles', body: `<h1>Articles</h1>\n<ul>\n${items}\n</ul>\n${signupBlock('/articles')}` });
+    return drawn({
+      head: { title: `Articles | ${brand}`, description: 'Articles', canonical: absolute('/articles'), og: { type: 'website', title: 'Articles', description: 'Articles', site_name: brand }, twitter: { card: 'summary' } },
+      article: { title: 'Articles', markdown: '' },
+      blocks: [
+        { id: 'articles', links: rows.map((row) => ({ title: row.title, href: `/articles/${encodeURIComponent(row.slug)}`, detail: row.description })) },
+        signupBlock('/articles'),
+      ],
+    });
   }
 
   async function articlePage(slug, url) {
     const [row] = await db(`SELECT slug, title, description, body_markdown, picture, keywords, status, canonical, published_at, updated_at, listed, category, image, course_slug, sources, related, short_version, sections
       FROM articles WHERE slug = $1`, [slug]);
-    if (!row) return page({ title: 'Not found', body: '<h1>Not found</h1>', status: 404 });
+    const path = `/articles/${encodeURIComponent(slug)}`;
+    if (!row) return utility(path, { heading: 'Not found', status: 404 });
     const preview = url.searchParams.get('preview');
     const shown = row.status === 'published' && (!row.published_at || new Date(row.published_at) <= new Date(now()));
-    if (!shown && preview !== previewToken(slug)) return page({ title: 'Not found', body: '<h1>Not found</h1>', status: 404 });
+    if (!shown && preview !== previewToken(slug)) return utility(path, { heading: 'Not found', status: 404 });
     if (draw) return htmlPage(draw.article(row, { preview: !shown }));
-    const body = `<article>\n<h1>${esc(row.title)}</h1>\n${bodyHtml(row.body_markdown)}\n</article>\n${signupBlock(`/articles/${slug}`)}`;
-    return page({ title: row.title, description: row.description, body, head: articleHead(row, url.pathname) });
+    return drawn({
+      head: articleHead(row, url.pathname),
+      article: { title: row.title, markdown: row.body_markdown ?? '' },
+      blocks: [signupBlock(`/articles/${slug}`)],
+    });
   }
 
   // The article's search head: its canonical is the row's own canonical (the home copy of a cross-posted article, per the rule row
   // canonical-of-a-cross-posted-article), else this page. Open Graph and the JSON-LD Article take the row's words and dates; the
-  // author is the site's, given at createSite. A row with no description gets no search head (the head needs a description).
+  // author is the site's, given at createSite. A row with no description is described by its title, since a head needs words.
   function articleHead(row, pathname) {
-    if (!row.description) return null;
     const self = absolute(pathname);
     const canonical = isHttpsAddress(row.canonical) ? row.canonical : self;
+    const description = row.description || row.title;
     const picture = row.picture ? absolute(row.picture) : null;
     const published = row.published_at ? new Date(row.published_at).toISOString() : null;
     const updated = row.updated_at ? new Date(row.updated_at).toISOString() : published;
@@ -97,7 +122,7 @@ export function createSite({ db, mail, origin, brand, secret, layout, signupText
       '@context': 'https://schema.org',
       '@type': 'Article',
       headline: row.title,
-      description: row.description,
+      description,
       mainEntityOfPage: self,
       url: self,
       publisher: { '@type': 'Organization', name: brand },
@@ -109,14 +134,13 @@ export function createSite({ db, mail, origin, brand, secret, layout, signupText
     };
     return {
       title: `${row.title} | ${brand}`,
-      description: row.description,
+      description,
       canonical,
-      og: { type: 'article', title: row.title, description: row.description, site_name: brand, ...(picture ? { image: picture } : {}) },
+      og: { type: 'article', title: row.title, description, site_name: brand, ...(picture ? { image: picture } : {}) },
       twitter: { card: picture ? 'summary_large_image' : 'summary' },
       jsonld: [jsonld],
     };
   }
-
 
   async function feed() {
     const rows = await listedRows();
@@ -127,13 +151,20 @@ export function createSite({ db, mail, origin, brand, secret, layout, signupText
       { headers: { 'content-type': 'application/rss+xml; charset=utf-8', 'cache-control': 'public, max-age=300' } });
   }
 
+  // The signup is a form block: document-page writes the field labels, the consent wording and the button.
   function signupBlock(source) {
-    return `<form method="post" action="/subscribe" class="signup">
-  <input type="hidden" name="source" value="${esc(source)}">
-  <label>${esc(signupText.label)} <input type="email" name="email" required autocomplete="email"></label>
-  <p>${esc(signupText.consent)}</p>
-  <button type="submit">${esc(signupText.button)}</button>
-</form>`;
+    return {
+      id: 'signup',
+      form: {
+        action: '/subscribe',
+        submit_label: signupText.button,
+        note: signupText.consent,
+        fields: [
+          { name: 'source', kind: 'hidden', value: source },
+          { name: 'email', kind: 'email', label: signupText.label, required: true, autocomplete: 'email' },
+        ],
+      },
+    };
   }
 
   async function subscribe(request) {
@@ -141,11 +172,11 @@ export function createSite({ db, mail, origin, brand, secret, layout, signupText
     const form = type.includes('application/json') ? await request.json() : Object.fromEntries(await request.formData());
     const email = String(form.email ?? '').trim().toLowerCase();
     const source = String(form.source ?? '').startsWith('/') ? String(form.source).slice(0, 200) : '/';
-    if (!EMAIL_SHAPE.test(email) || email.length > 254) return page({ title: 'Not sent', body: '<h1>That address does not look right</h1>', status: 400 });
+    if (!EMAIL_SHAPE.test(email) || email.length > 254) return utility('/subscribe', { heading: 'That address does not look right', status: 400 });
     const network = keyed('network', request.headers.get('cf-connecting-ip') ?? request.headers.get('x-forwarded-for') ?? 'unknown');
     const since = new Date(Date.now() - 3600_000).toISOString();
     const [{ n }] = await db(`SELECT count(*)::int AS n FROM subscribers WHERE network_digest = $1 AND confirm_sent_at > $2`, [network, since]);
-    if (n >= SIGNUPS_PER_NETWORK_PER_HOUR) return page({ title: 'Not sent', body: '<h1>Too many sign-ups from here</h1>', status: 429 });
+    if (n >= SIGNUPS_PER_NETWORK_PER_HOUR) return utility('/subscribe', { heading: 'Too many sign-ups from here', status: 429 });
     const [existing] = await db('SELECT * FROM subscribers WHERE email = $1', [email]);
     if (existing?.status === 'confirmed' || existing?.status === 'suppressed') return checkInbox(source);
     const id = existing?.id ?? randomUUID();
@@ -168,39 +199,39 @@ export function createSite({ db, mail, origin, brand, secret, layout, signupText
     } catch (error) {
       await db('UPDATE subscribers SET confirm_sent_at = NULL WHERE id = $1', [id]);
       console.error('confirmation send failed', error?.code ?? '', error?.message ?? '');
-      return page({ title: 'Not sent', body: '<h1>We could not send the email. Try again later.</h1>', status: 502 });
+      return utility('/subscribe', { heading: 'We could not send the email. Try again later.', status: 502 });
     }
     return checkInbox(source);
   }
 
   function checkInbox(source) {
-    return page({ title: 'Check your inbox', body: `<h1>Check your inbox</h1><p>We sent a link. Click it to confirm.</p><a href="${esc(source)}">Back</a>` });
+    return utility('/subscribe', { heading: 'Check your inbox', text: `We sent a link. Click it to confirm.\n\n[Back](${source})` });
   }
 
   async function confirm(url) {
     const id = url.searchParams.get('s') ?? '';
     const token = url.searchParams.get('t') ?? '';
     const [row] = await db('SELECT * FROM subscribers WHERE id = $1', [id]);
-    if (row?.status === 'confirmed') return page({ title: 'Already confirmed', body: '<h1>You are already subscribed</h1>' });
+    if (row?.status === 'confirmed') return utility('/subscribe/confirm', { heading: 'You are already subscribed' });
     const fresh = row && Date.now() - Date.parse(row.confirm_sent_at) < CONFIRM_HOURS * 3600_000;
     if (!(row?.status === 'pending' && fresh && row.confirm_digest === keyed('confirm', `${id}:${token}`))) {
-      return page({ title: 'Link expired', body: '<h1>This link is no longer valid</h1><p>Sign up again to get a new one.</p>', status: 400 });
+      return utility('/subscribe/confirm', { heading: 'This link is no longer valid', text: 'Sign up again to get a new one.', status: 400 });
     }
     await db(`UPDATE subscribers SET status = 'confirmed', confirmed_at = $1, confirm_digest = NULL WHERE id = $2`, [now(), id]);
-    return page({ title: 'Subscribed', body: '<h1>You are subscribed</h1><p>Thank you.</p>' });
+    return utility('/subscribe/confirm', { heading: 'You are subscribed', text: 'Thank you.' });
   }
 
   async function unsubscribe(request, url) {
     const id = url.searchParams.get('s') ?? '';
     const token = url.searchParams.get('t') ?? '';
     const [row] = await db('SELECT id, status FROM subscribers WHERE id = $1', [id]);
-    if (!row || token !== keyed('unsubscribe', id)) return page({ title: 'Link not valid', body: '<h1>This link is not valid</h1>', status: 400 });
+    if (!row || token !== keyed('unsubscribe', id)) return utility('/unsubscribe', { heading: 'This link is not valid', status: 400 });
     if (row.status === 'confirmed' || row.status === 'pending') {
       await db(`UPDATE subscribers SET status = 'unsubscribed', ended_at = $1, ended_reason = $2 WHERE id = $3`,
         [now(), request.method === 'POST' ? 'one-click' : 'link', id]);
     }
     if (request.method === 'POST') return new Response(null, { status: 200 });
-    return page({ title: 'Unsubscribed', body: '<h1>You are unsubscribed</h1>' });
+    return utility('/unsubscribe', { heading: 'You are unsubscribed' });
   }
 
   // The routes that only read: the index, the feed and one article. null for any other path.

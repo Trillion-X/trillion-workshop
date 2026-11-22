@@ -24,7 +24,7 @@
 // `layerDiagramHtml(diagram)`, `LAYER_DIAGRAM_CSS`. Typed graph documents are read by ./graph-contract.mjs; this stays
 // the one layout and drawing.
 
-import { escapeHtml } from 'trillion-workshop/tools/write-a-post-for-each-place/read-data/escape-html.mjs';
+import { escapeHtml } from '../server-rendered-page/escape-html.mjs';
 
 const GEOMETRY = {
   across: { node_w: 204, node_h: 58, column_gap: 128, row_gap: 16, pad: 24, head: 34 },
