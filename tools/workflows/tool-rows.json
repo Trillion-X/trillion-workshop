@@ -2006,6 +2006,14 @@
         ],
         "kind": "ai-tool-descriptor",
         "id": "tool:run-a-workflow",
+        "run_steps": {
+          "run_at": "result.run",
+          "status_at": "result.status",
+          "steps_at": "result.steps",
+          "waiting_at": "result.waiting",
+          "workflow_at": "result.workflow"
+        },
+        "run_steps_why": "Where a pass's result names its run, status, steps, waiting asks and workflow (the engine's src/tool_runs/tools/run_steps.rs): the engine keeps each finished pass as its run's summary, readable by tools:read {workflow_run} or {fact} (the event id of the fact that started it), so a run that made no waiting task can be read back (gap-a-workflow-run-without-tasks-cannot-be-read-back, Nov 21 2026).",
         "label": "Run a workflow on the workflow engine, one step at a time",
         "status": "active",
         "job": "Run one of my workflows from its definition: walk its steps with the answers held so far, start the tool each next step names, tell every other step as waiting, and run again when an answer is told",
