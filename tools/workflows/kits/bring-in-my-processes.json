@@ -1,25 +1,24 @@
 {
-  "drafted_from": "workflow:bring-in-my-processes's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
-  "start_here": "Say to your AI: \"Run workflow:bring-in-my-processes with scope: the folder named skills, which holds three checklists and one script.\" It lists what you have, searches the marketplace, and brings in only what is missing.",
+  "start_here": "Say to your AI: \"Run workflow:bring-in-my-processes.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "It reads your skills, scripts and checklists where they live and publishes workflow and tool rows; it keeps no list of its own.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:bring-in-my-processes",
     "workflow:turn-research-into-a-plan"
   ],
   "tools": [
+    "tool:run-sql-in-my-database",
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Decide the scope: one folder of skills, a scripts folder, or everything your AI can reach.",
-    "2. Say \"Run workflow:bring-in-my-processes\" with that scope.",
-    "3. The AI works the steps inventory, match, decide and bring_in: it reads each item, searches the workflows and tools for the same job, decides each item once and adapts only the missing ones (workflow:turn-research-into-a-plan shows a whole workflow).",
-    "4. Read the bring_in answer: each workflow_id or tool_id and whether it was published; read leave for what was left out and why."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:bring-in-my-processes\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Three items: one becomes a workflow, one a tool, one is left",
-      "ask": "Bring in what is in my skills folder.",
+      "title": "Bring in my processes and tools",
+      "ask": "Run workflow:bring-in-my-processes.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -28,16 +27,20 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:bring-in-my-processes",
-              "scope": "the folder named skills, holding close-the-shop.md, send-invoice.sh and brand-notes.md"
+              "row": "workflow:bring-in-my-processes"
             }
           }
         }
       },
       "workflow": "workflow:bring-in-my-processes",
-      "step": "decide",
-      "given": "The inventory step listed close-the-shop.md (a five-step evening checklist: a workflow), send-invoice.sh (one action: a tool) and brand-notes.md (reference). The match step searched the workflow recipes and the tools with each job and found nothing doing the same job for the first two.",
-      "hands_back": "The submit shape of step decide: {\"bring_in\":[{\"item\":\"close-the-shop.md\",\"as\":\"new workflow\",\"reason\":\"A five-step checklist done every evening and nothing found does the same job.\"},{\"item\":\"send-invoice.sh\",\"as\":\"new tool\",\"reason\":\"One repeatable action that keeps running where the script lives.\"}],\"leave\":[{\"item\":\"brand-notes.md\",\"reason\":\"Reference material, not a repeatable job.\"}]}"
+      "step": "inventory",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
+  ],
+  "drafted_from": "workflow:bring-in-my-processes rendered from its row",
+  "see_also": [
+    "check-read:16ac3239a1754376dac19e4f9880f1c8",
+    "check-read:3be9c3d1064d1844281c07df9846015a"
   ]
 }
