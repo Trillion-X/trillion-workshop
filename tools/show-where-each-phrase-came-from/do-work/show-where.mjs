@@ -10,6 +10,7 @@
 //   credential_name  the held name of the database connection (a login that may read)
 //
 // Key Concepts: the door client is use-your-tools-from-a-shell's engineClient; opWhole answers a tool run whole, as make-a-login does.
+import { realpathSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -53,7 +54,7 @@ async function main(stdin = process.stdin, print = line => process.stdout.write(
   print(JSON.stringify(await showWhere({ input, runTool: runToolOn(client) })));
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   main().catch(error => {
     process.stderr.write(`${error.message}\n`);
     process.exitCode = error.status ?? 1;

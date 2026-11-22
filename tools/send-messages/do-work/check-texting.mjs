@@ -14,6 +14,8 @@
 //
 // USAGE
 //   node check-texting.mjs        (the computer row; its request is ignored, last line of output is { result })
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 import { execFile } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 
@@ -58,6 +60,6 @@ export function checkMessages({ run = (file, args) => new Promise((done, fail) =
   return run('/usr/bin/osascript', ['-e', SCRIPT]).then(answerFrom, refusalFrom);
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   checkMessages().then(result => process.stdout.write(`${JSON.stringify({ result })}\n`));
 }

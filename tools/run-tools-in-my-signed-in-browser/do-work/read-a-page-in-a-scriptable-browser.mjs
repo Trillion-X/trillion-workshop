@@ -19,6 +19,8 @@
 //
 // USAGE
 //   node read-a-page-in-a-scriptable-browser.mjs   (stdin: { url, computer: { "automate-an-app": { app } } }; the last line is { result })
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 import { execFile } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 import { text } from 'node:stream/consumers';
@@ -102,7 +104,7 @@ export function readPage(input, { run = defaultRun } = {}) {
   return run('/usr/bin/osascript', ['-e', scriptFor({ app, url })]).then(stdout => pageFrom(stdout, url), refusalFrom);
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const input = JSON.parse((await text(process.stdin)) || '{}');
   readPage(input).then(result => process.stdout.write(`${JSON.stringify({ result })}\n`));
 }

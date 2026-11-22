@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 import { open, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -35,7 +37,7 @@ export async function hashContent(input, folder) {
   return { blake3: identity.slice(3), identity, bytes: bytes.byteLength };
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(await realpath(process.argv[1])).href) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   try {
     const input = JSON.parse(await text(process.stdin));
     console.log(JSON.stringify({ result: await hashContent(input, process.argv[2]) }));
