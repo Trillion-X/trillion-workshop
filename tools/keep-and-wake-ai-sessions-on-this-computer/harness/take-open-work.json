@@ -53,6 +53,7 @@
   "chats": [
     {
       "id": "claude-code",
+      "ai": "claude",
       "source_prefix": "claude-code:",
       "session_file": "~/.claude/projects/*/{session}.jsonl",
       "working_folder_at": ["cwd"],
@@ -70,6 +71,7 @@
     },
     {
       "id": "codex",
+      "ai": "codex",
       "source_prefix": "codex:",
       "session_file": "~/.codex/sessions/*/*/*/rollout-*-{session}.jsonl",
       "working_folder_at": ["payload", "cwd"],

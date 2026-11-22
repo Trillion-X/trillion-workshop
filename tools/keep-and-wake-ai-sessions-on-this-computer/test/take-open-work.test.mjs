@@ -710,6 +710,19 @@ test('task worker leaves a task that names nobody: no run starts and the task st
   assert.equal(f.calls.some(call => call.method === 'records:write' && (call.input?.records ?? []).some(record => !String(record.id).startsWith('ai:'))), false);
 });
 
+test('a turn runs as the AI its chat row names, so it takes that AI\'s login; a row that names none is its own AI', () => {
+  const turn = (ref, extra = {}) => ({ handoff_id: ref, task: true, state: 'open', status: 'To do', assignees: [], priority: 'medium', sent_at: NOW,
+    sent_by: 'person:someone', input: {}, description: 'hello', source: { kind: 'chat', ref }, handed_at: NOW, hold_until: null, ...extra });
+  const base = { agents: [], settings: { ...settings, max_concurrent: 4 }, started: new Map(), today: 0, running: 0, chats: new Map(), agent_id: 'ai:t', computer: 'server', now: NOW };
+  for (const row of settings.chats.filter(row => row.turn)) {
+    const [job] = plan({ ...base, open: [turn(`${row.source_prefix}new`, { assignees: ['ai:t'] })] }).start;
+    if (!job) continue;
+    assert.equal(job.ai_id, row.ai ?? row.id, `${row.id} runs as ${row.ai ?? row.id}`);
+    if (row.ai) assert.ok(settings.ais.some(ai => ai.id === row.ai), `${row.id} names an AI the ais rows hold`);
+  }
+  assert.equal(settings.chats.find(row => row.id === 'claude-code').ai, 'claude', 'Claude Code\'s chat runs on the logins kept for claude');
+});
+
 test('a taker with no fresh card publishes it on a pass with nothing to start, then not again until it is due; a failed refresh does not fail the pass', async () => {
   const folder = tempFolder(join(tmpdir(), 'take-open-work-card-'));
   const published = [];

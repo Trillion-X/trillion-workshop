@@ -404,7 +404,10 @@ export function plan({ open, agents, settings, started, today, running, chats, a
       const session = fresh ? (chat.row.turn.session?.mint === 'uuid' ? randomUUID() : '') : chat.session;
       const prompt = fill(settings.turns.prompt, { words });
       job = { handoff_id: item.handoff_id, mode: 'turn', agent_id, source_id: turn, fresh, session, cwd: found?.cwd ?? home(settings.working_folder), prompt,
-        command: command.map(part => fill(part, { session, prompt })), ai_id: chat.row.id, work_mcp: chat.row.work_mcp,
+        // The AI the run is, for its login (ai_auth), rest and trouble: the `ais` row the chat row names (`ai`), else the
+        // chat row's own id. Keyed by the chat row id, the always-on's Claude Code turn found no login ("Not logged in",
+        // 4:58 AM CST Nov 22 2026): its logins are kept under the AI `claude`, its chat row is `claude-code`.
+        command: command.map(part => fill(part, { session, prompt })), ai_id: chat.row.ai ?? chat.row.id, work_mcp: chat.row.work_mcp,
         ...(typeof chat.row.turn.stdin === 'string' ? { stdin: fill(chat.row.turn.stdin, { session, prompt }) } : {}) };
     } else if (typeof source_id === 'string' && source_id) {
       const chat = chatOf(settings, source_id);
