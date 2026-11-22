@@ -404,6 +404,162 @@
           "unverified": "The route and its query names come from the lead's note on TidyCal's API v1; the first live call proves them."
         }
       }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::create-a-tidycal-booking-type",
+      "address": "package::ai-tool-catalog::tool::create-a-tidycal-booking-type",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:create-a-tidycal-booking-type",
+        "label": "Create a TidyCal booking type",
+        "job": "Make one booking type on my TidyCal account, for a test, with a title and a length",
+        "description": "Creates one booking type on the person's TidyCal account (for a test). It changes the account's booking pages, so call it only for a type the person asked for and remove it when the test is done.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "title",
+            "duration_minutes"
+          ],
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "duration_minutes": {
+              "type": "integer",
+              "minimum": 5
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://tidycal.com/api/booking-types",
+          "method": "POST",
+          "timeout_seconds": 30,
+          "headers": {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
+          },
+          "credential_injections": [
+            {
+              "hosts": [
+                "tidycal.com"
+              ],
+              "secret_name": "tidycal-api-token",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer "
+              }
+            }
+          ],
+          "body": {
+            "title": {
+              "from": "title"
+            },
+            "duration_minutes": {
+              "from": "duration_minutes"
+            }
+          }
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": false,
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "provider": "TidyCal",
+          "documentation": "https://help.tidycal.com/article/739-faq",
+          "read_on": "2026-11-21",
+          "verified_live": false,
+          "unverified": "The route (POST /api/booking-types, DELETE /api/booking-types/{id}) and body fields are from the TidyCal FAQ (it says the API creates booking types) and are unverified; the first live call proves them."
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::delete-a-tidycal-booking-type",
+      "address": "package::ai-tool-catalog::tool::delete-a-tidycal-booking-type",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:delete-a-tidycal-booking-type",
+        "label": "Delete a TidyCal booking type",
+        "job": "Delete one booking type on my TidyCal account by its id, for example a test type once its test is done",
+        "description": "Deletes one TidyCal booking type by its id. Call it only for a type the person asked to remove.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "booking_type_id"
+          ],
+          "properties": {
+            "booking_type_id": {
+              "type": "integer"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://tidycal.com/api/booking-types/{booking_type_id}",
+          "method": "DELETE",
+          "timeout_seconds": 30,
+          "headers": {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
+          },
+          "credential_injections": [
+            {
+              "hosts": [
+                "tidycal.com"
+              ],
+              "secret_name": "tidycal-api-token",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer "
+              }
+            }
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": false,
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "provider": "TidyCal",
+          "documentation": "https://help.tidycal.com/article/739-faq",
+          "read_on": "2026-11-21",
+          "verified_live": false,
+          "unverified": "The route (POST /api/booking-types, DELETE /api/booking-types/{id}) and body fields are from the TidyCal FAQ (it says the API creates booking types) and are unverified; the first live call proves them."
+        }
+      }
     }
   ]
 }

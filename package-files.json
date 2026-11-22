@@ -63680,5 +63680,7 @@
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:your-files": [],
  "tool:your-files-names": [],
- "tool:list-tidycal-timeslots": []
+ "tool:list-tidycal-timeslots": [],
+ "tool:create-a-tidycal-booking-type": [],
+ "tool:delete-a-tidycal-booking-type": []
 }

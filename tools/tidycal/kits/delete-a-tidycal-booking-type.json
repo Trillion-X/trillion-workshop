@@ -1,0 +1,36 @@
+{
+  "start_here": "Say to your AI: \"Delete TidyCal booking type <id>.\" It runs tool:delete-a-tidycal-booking-type.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it changes one booking type on your TidyCal account.",
+  "workflows": [],
+  "tools": [
+    "tool:delete-a-tidycal-booking-type",
+    "tool:create-a-tidycal-booking-type"
+  ],
+  "instructions": [
+    "1. Say to your AI what the test type is for.",
+    "2. The AI calls tools:run with the tool and its input.",
+    "3. Read the answer and check the type's id before removing it."
+  ],
+  "worked_examples": [
+    {
+      "title": "tool:delete-a-tidycal-booking-type",
+      "ask": "Delete TidyCal booking type 9999999.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:delete-a-tidycal-booking-type",
+            "input": {
+              "booking_type_id": 9999999
+            }
+          }
+        }
+      },
+      "given": "Reads tools/tidycal/tool-rows.json: a DELETE to https://tidycal.com/api/booking-types/{booking_type_id} with the vault key tidycal-api-token.",
+      "hands_back": "It answers the removed booking type, for example type 9999999 removed. Real values come from the live TidyCal answer."
+    }
+  ]
+}
