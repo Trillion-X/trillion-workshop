@@ -22,6 +22,18 @@
   ],
   "_kept_params_what": "URL parameters a visit keeps as its source. t is the touch id a /go/ link sends the visitor on with. The ad click ids are added from ad-return.json's click_ids.",
   "touch_param": "t",
+  "retry_after_seconds": 30,
+  "_retry_after_seconds_what": "Retry-After sent with a 503 when the database cannot be reached for a /go/ link.",
+  "beacon": {
+    "path": "/journey/beacon",
+    "max_bytes": 2048,
+    "script": "<script>(function(){var b=JSON.stringify({href:location.href});if(navigator.sendBeacon){navigator.sendBeacon('/journey/beacon',new Blob([b],{type:'application/json'}));}else{fetch('/journey/beacon',{method:'POST',body:b,keepalive:true,headers:{'content-type':'application/json'}});}})();</script>",
+    "_what": "A static page (served without the program) loads this script; it posts the page's own address to the beacon route, which keeps the visit. The route ignores foreign origins and bodies over max_bytes."
+  },
+  "consent": {
+    "default": false,
+    "_what": "Without analytics consent a site keeps no visitor cookie and no visitor id: a step keeps only the touch id of the link it followed."
+  },
   "_touch_param_what": "The URL parameter that carries the touch id from a /go/ redirect to the destination page.",
   "steps": {
     "touch": {

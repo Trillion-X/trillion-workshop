@@ -48,8 +48,12 @@ function cookieString(visitor, cookie) {
   ].filter(Boolean).join('; ');
 }
 
-/** The visitor's id from the request's cookie, kept as it is when it is well formed; otherwise a new id and its Set-Cookie. */
-export function visitorOf(cookieHeader, cookie = settings.cookie) {
+/**
+ * The visitor's id from the request's cookie, kept as it is when it is well formed; otherwise a new id and its Set-Cookie.
+ * Without consent (read-data/journey.json consent.default, false) there is no id and no cookie: { visitor: null, setCookie: null }.
+ */
+export function visitorOf(cookieHeader, cookie = settings.cookie, { consent = settings.consent.default } = {}) {
+  if (!consent) return { visitor: null, setCookie: null };
   const kept = cookieValue(cookieHeader, cookie.name);
   if (kept && COOKIE_VALUE.test(kept)) return { visitor: kept, setCookie: null };
   const visitor = randomUUID();
@@ -93,22 +97,58 @@ export async function keepStep(query, step) {
 }
 
 /**
- * The /go/:id route: finds the touch, keeps a click step for the visitor and answers the redirect to the destination with
- * the touch's UTM fields and the touch id. Resolves to { status: 404 } for an unknown touch. The visitor is `visitor` when
- * given, else the cookie's (and then setCookie carries the new cookie when one was minted).
+ * The /go/:id route: finds the touch, keeps a click step and answers the redirect to the destination with the touch's UTM
+ * fields and the touch id. Resolves to { status: 404 } for an unknown touch, and to { status: 503, retryAfter } when the
+ * touch cannot be read (the database is unreachable). The click step is best effort: a failed write never holds the visitor
+ * back. The visitor is `visitor` when given, else the cookie's, and only with consent (none otherwise, and no cookie is set).
  */
-export async function goRedirect(query, touchId, { visitor, cookieHeader, refererHeader, cookie = settings.cookie } = {}) {
-  const found = (await query('SELECT id, destination, source FROM journey_touches WHERE id = $1', [touchId])).rows[0];
+export async function goRedirect(query, touchId, { visitor, cookieHeader, refererHeader, cookie = settings.cookie, consent = settings.consent.default } = {}) {
+  let found;
+  try {
+    found = (await query('SELECT id, destination, source FROM journey_touches WHERE id = $1', [touchId])).rows[0];
+  } catch {
+    return { status: 503, location: null, setCookie: null, retryAfter: settings.retry_after_seconds };
+  }
   if (!found) return { status: 404, location: null, setCookie: null };
-  const minted = visitor ? { visitor, setCookie: null } : visitorOf(cookieHeader, cookie);
-  const who = visitor ?? minted.visitor;
+  const minted = !consent ? { visitor: null, setCookie: null } : visitor ? { visitor, setCookie: null } : visitorOf(cookieHeader, cookie, { consent: true });
   const host = hostOf(refererHeader);
   const source = pickKept(found.source);
-  await keepStep(query, stepOf({ visitor: who, touch_id: found.id, step: 'click', source: host ? { ...source, referrer_host: host } : source, joined_by: 'touch' }));
+  try {
+    await keepStep(query, stepOf({ visitor: minted.visitor, touch_id: found.id, step: 'click', source: host ? { ...source, referrer_host: host } : source, joined_by: 'touch' }));
+  } catch {
+    // best effort: the visitor is redirected whether or not the click was kept
+  }
   const location = new URL(found.destination);
   for (const [key, value] of Object.entries(source)) location.searchParams.set(key, value);
   location.searchParams.set(settings.touch_param, found.id);
   return { status: 302, location: location.toString(), setCookie: minted.setCookie };
+}
+
+/**
+ * The beacon a static page posts its own address to (read-data/journey.json beacon): keeps the visit of an address on the
+ * site's own origin and answers 204. A foreign origin, an unreadable or oversized body, or a failed write keeps nothing and
+ * still answers 204. Without consent the visit keeps its touch id only.
+ */
+export async function visitBeacon(query, { cookieHeader, body, siteOrigin, refererHeader, cookie = settings.cookie, consent = settings.consent.default } = {}) {
+  const none = { status: 204, setCookie: null };
+  if (typeof body !== 'string' || Buffer.byteLength(body) > settings.beacon.max_bytes) return none;
+  let address;
+  try {
+    const href = JSON.parse(body).href;
+    if (typeof href !== 'string') return none;
+    address = new URL(href, siteOrigin);
+    if (address.origin !== new URL(siteOrigin).origin) return none;
+  } catch {
+    return none;
+  }
+  const minted = visitorOf(cookieHeader, cookie, { consent });
+  const step = visitStep({ url: `${address.pathname}${address.search}`, refererHeader, visitor: minted.visitor });
+  if (step) {
+    try { await keepStep(query, step); } catch {
+      // best effort, as the /go/ click
+    }
+  }
+  return { status: 204, setCookie: minted.setCookie };
 }
 
 /** The Stripe Checkout Session fields that carry the visitor and the UTM source, within Stripe's limits; invalid characters are dropped. */

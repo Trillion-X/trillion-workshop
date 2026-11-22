@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
-import { visitorOf, sourceOf, visitStep, keepStep, goRedirect, checkoutAttribution, bookedStep, bookingStepOf, leadStep, saleStepOf, emailKey, makeTouch } from '../do-work/journey.mjs';
+import { visitorOf, sourceOf, visitStep, keepStep, goRedirect, visitBeacon, checkoutAttribution, bookedStep, bookingStepOf, leadStep, saleStepOf, emailKey, makeTouch } from '../do-work/journey.mjs';
 import { makeATrackedLink } from '../do-work/make-a-tracked-link.mjs';
 
 const sql = readFileSync(resolve(import.meta.dirname, '../read-data/journey-steps.sql'), 'utf8');
@@ -25,11 +25,11 @@ async function writeTouch(query, touch) {
 }
 
 test('a visitor keeps the cookie they came with, and gets a new one with its attributes when it is absent or malformed', () => {
-  const first = visitorOf('');
+  const first = visitorOf('', undefined, { consent: true });
   assert.match(first.visitor, /^[A-Za-z0-9_-]{8,128}$/);
   assert.equal(first.setCookie, `jv=${first.visitor}; Max-Age=34128000; Path=/; SameSite=Lax; HttpOnly; Secure`);
-  assert.deepEqual(visitorOf(`theme=dark; jv=${first.visitor}`), { visitor: first.visitor, setCookie: null });
-  const malformed = visitorOf('jv=not a valid value!');
+  assert.deepEqual(visitorOf(`theme=dark; jv=${first.visitor}`, undefined, { consent: true }), { visitor: first.visitor, setCookie: null });
+  const malformed = visitorOf('jv=not a valid value!', undefined, { consent: true });
   assert.notEqual(malformed.visitor, 'not a valid value!');
   assert.ok(malformed.setCookie.startsWith(`jv=${malformed.visitor};`));
 });
@@ -60,7 +60,7 @@ test('a /go/ link keeps a click for the visitor and redirects with the touch fie
   assert.deepEqual(touch.row.source, { utm_source: 'instagram', utm_campaign: 'reel-12' });
   await writeTouch(query, touch);
 
-  const went = await goRedirect(query, touch.row.id, { cookieHeader: '', refererHeader: 'https://www.instagram.com/' });
+  const went = await goRedirect(query, touch.row.id, { cookieHeader: '', refererHeader: 'https://www.instagram.com/', consent: true });
   assert.equal(went.status, 302);
   const location = new URL(went.location);
   assert.equal(`${location.origin}${location.pathname}`, 'https://tidycal.com/acme/call');
@@ -139,7 +139,7 @@ test('the SQL applies twice cleanly, and a booking joined only by email counts t
   await db.exec(sql);
   const touch = makeTouch({ destination: `${SITE}/offer`, source: { utm_source: 'instagram', utm_medium: 'social', utm_campaign: 'reel-12' }, base: SITE });
   await writeTouch(query, touch);
-  await goRedirect(query, touch.row.id, { visitor: 'visitor-a-1' });
+  await goRedirect(query, touch.row.id, { visitor: 'visitor-a-1', consent: true });
   await keepStep(query, { visitor: 'visitor-a-1', step: 'lead', email_key: emailKey('a@example.com'), joined_by: 'cookie' });
   await keepStep(query, bookedStep({ params: { email: 'a@example.com', starts: '2026-11-25' }, visitor: null }));
   await keepStep(query, saleStepOf({ id: 'cs_9', customer_details: { email: 'nobody@example.com' }, amount_total: 1000 }));
@@ -193,4 +193,47 @@ test('a booking made from the site joins to the visitor whose lead step carried 
   assert.deepEqual(funnel.map(row => ({ ...row, visitors: Number(row.visitors), leads: Number(row.leads), bookings: Number(row.bookings) })), [
     { utm_source: null, visitors: 1, leads: 1, bookings: 1 },
   ]);
+});
+
+test('without consent (the default) a visitor gets no id and no cookie, and a step keeps only its touch id', async () => {
+  assert.deepEqual(visitorOf('jv=abcdefgh12345678'), { visitor: null, setCookie: null });
+  const { query } = await database();
+  const touch = makeTouch({ destination: `${SITE}/offer`, source: { utm_source: 'instagram' }, base: SITE });
+  await writeTouch(query, touch);
+  const went = await goRedirect(query, touch.row.id, { cookieHeader: '' });
+  assert.equal(went.status, 302);
+  assert.equal(went.setCookie, null);
+  const { rows } = await query('SELECT visitor, touch_id FROM journey_steps');
+  assert.deepEqual(rows, [{ visitor: null, touch_id: touch.row.id }]);
+});
+
+test('a database that cannot be read answers 503 with a retry time, and a failed click write still redirects', async () => {
+  const broken = async () => { throw new Error('connection refused'); };
+  assert.deepEqual(await goRedirect(broken, 'any-touch'), { status: 503, location: null, setCookie: null, retryAfter: 30 });
+
+  const { db, query } = await database();
+  const touch = makeTouch({ destination: `${SITE}/offer`, source: { utm_source: 'instagram' }, base: SITE });
+  await writeTouch(query, touch);
+  const writesFail = async (sql, params) => {
+    if (/INSERT INTO journey_steps/.test(sql)) throw new Error('disk full');
+    return query(sql, params);
+  };
+  const went = await goRedirect(writesFail, touch.row.id, { consent: false });
+  assert.equal(went.status, 302);
+  assert.match(went.location, /utm_source=instagram/);
+  assert.equal((await db.query('SELECT count(*)::int AS n FROM journey_steps')).rows[0].n, 0);
+});
+
+test('a beacon from a static page keeps the visit of its own origin, and ignores a foreign origin or an oversized body', async () => {
+  const { query } = await database();
+  const body = JSON.stringify({ href: `${SITE}/offer?utm_source=instagram&t=touch-9` });
+  const answer = await visitBeacon(query, { body, siteOrigin: SITE, cookieHeader: '', consent: true });
+  assert.equal(answer.status, 204);
+  assert.match(answer.setCookie, /^jv=/);
+  const kept = (await query("SELECT step, touch_id, visitor FROM journey_steps")).rows;
+  assert.deepEqual(kept.map(row => ({ step: row.step, touch_id: row.touch_id })), [{ step: 'visit', touch_id: 'touch-9' }]);
+
+  assert.deepEqual(await visitBeacon(query, { body: JSON.stringify({ href: 'https://elsewhere.example/offer?utm_source=x' }), siteOrigin: SITE }), { status: 204, setCookie: null });
+  assert.deepEqual(await visitBeacon(query, { body: 'x'.repeat(3000), siteOrigin: SITE }), { status: 204, setCookie: null });
+  assert.equal((await query('SELECT count(*)::int AS n FROM journey_steps')).rows[0].n, 1);
 });

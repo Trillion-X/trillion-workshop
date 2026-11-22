@@ -46,7 +46,10 @@ How a client sets it up:
    - Every page request: set the visitor cookie with `visitorOf(cookieHeader)` (send `setCookie` when it is set, HttpOnly), and keep `visitStep({ url, refererHeader, visitor })` when it is not null.
 4. Checkout: when a Checkout Session is created, spread `checkoutAttribution(visitor, source)` into it and keep a `checkout` step. Set `metadata.offer_id` to the offer sold. When a payment succeeds, `keepStep(query, saleStepOf(session))`; the session id keeps a repeated webhook to one sale.
 5. TidyCal: set the post-booking redirect to `https://<site>/booked?email={contact.email}&starts={booking.starts_at}&type={booking_type.title}`. Add `&booking={booking.id}` when the template carries the provider's booking id.
-6. Tracked links: `tool:make-tracked-link` with `go_base` (the site's address) answers `touch` and `short_link`. The tool keeps no row: write `touch` into `journey_touches` with `tool:run-sql-in-my-database`, and post `short_link`. A visitor who follows it lands on `touch.destination` with the UTM fields and `t=<touch id>`.
+6. Static pages need the beacon. A page that the server never runs (a file served straight from `public/`) keeps no visit on its own. Put `journey.json`'s beacon script in the page and route `POST beacon.path` to `visitBeacon(query, { cookieHeader, body, siteOrigin, refererHeader, consent })`, which answers 204 and sets the cookie when consent is given. A foreign origin or an oversized body keeps nothing.
+7. Consent: `visitorOf`, `goRedirect` and `visitBeacon` give no visitor id and set no cookie unless `consent` is true (the default is off, from `consent.default` in `journey.json`). Without consent a step keeps only the touch id of the link it followed, and `journey_resolved_steps` joins it by `touch:<id>`.
+8. A `/go/` route answers 503 with `retryAfter` when the database cannot be read, and 404 only for a touch that is not there. A failed click write never holds the visitor back.
+9. Tracked links: `tool:make-tracked-link` with `go_base` (the site's address) answers `touch` and `short_link`. The tool keeps no row: write `touch` into `journey_touches` with `tool:run-sql-in-my-database`, and post `short_link`. A visitor who follows it lands on `touch.destination` with the UTM fields and `t=<touch id>`.
 
 Invariants:
 
