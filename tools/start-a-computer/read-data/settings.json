@@ -13,6 +13,10 @@
   "unit_restarts": {
     "budget": 5
   },
+  "slot_start": {
+    "_what": "What a slot must find free before apply boots it beside the slot that runs (`margin_bytes` over the memory it needs, read from the computer's MemAvailable). The memory needed is the unit's `start_headroom_bytes` when its row names one, else the running slot's own MemoryCurrent (summed over the slots that run). A slot that does not fit is not started: apply is refused, nothing is stopped, and the slot that runs keeps serving (Nov 21 2026, 9:47 PM CST: a 1.32 GB new slot beside a 1.26 GB old one on a 4 GB computer was killed by the kernel's global out-of-memory killer, and every site on the box timed out).",
+    "margin_bytes": 268435456
+  },
   "machine": {
     "_what": "What set-up-the-machine.sh installs: the apt packages and the ports the firewall admits (firewall_allow). A computer row's own `machine` object replaces any of these fields for that computer, and carries what only that computer needs: `node` ({ version, files: { <uname -m>: { url, sha256 } } }, the node release each unit `node_bin` folder gets when it has none; a computer with no unit that names a node_bin gets none), `downloads` (a toolchain a unit's source build needs is one), `files`, `apt_sources`. A computer whose firewall another program keeps names firewall_allow null.",
     "firewall_allow": [

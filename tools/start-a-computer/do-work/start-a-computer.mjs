@@ -492,8 +492,31 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   // A switch starts the other slot, and only once it answers its boot check is it the one that starts with the computer and is
   // the slot that ran stopped: that one stops taking calls and finishes those it holds (its stop_seconds). A slot that never
   // answers is stopped again, and the slot that ran keeps serving.
+  // A slot boots beside the one that runs only when the computer has the memory for both (settings.json `slot_start`): the
+  // unit's `start_headroom_bytes` (what a new slot takes to start), else the memory the running slots use now (their MemoryCurrent),
+  // and the margin over it, against the computer's MemAvailable. Too little is refused before anything stops, so the slot that
+  // runs keeps serving (Nov 21 2026, 9:47 PM CST: the kernel's global out-of-memory killer ended a new slot that had reached 1.32 GB
+  // beside an old one holding 1.26 GB on a 4 GB computer, and every site on the box timed out).
+  const memoryForASlot = async (group, target) => {
+    const { margin_bytes: margin } = SETTINGS.slot_start;
+    let need = target.start_headroom_bytes;
+    if (need !== undefined && !(Number.isSafeInteger(need) && need >= 0)) throw refused(`${target.unit} start_headroom_bytes is a whole number of bytes, 0 or more.`);
+    if (need === undefined) {
+      need = 0;
+      for (const unit of group.active) {
+        const current = (await run(machine, `systemctl show -p MemoryCurrent --value ${q(unit.unit)}`)).trim();
+        if (!/^[0-9]+$/.test(current)) throw refused(`${target.unit} needs the memory ${unit.unit} uses (MemoryCurrent: ${current || 'nothing'}), or its row's start_headroom_bytes, before it can start beside it.`);
+        need += Number(current);
+      }
+    }
+    const available = Number((await run(machine, "awk '/^MemAvailable:/ { print $2 * 1024 }' /proc/meminfo")).trim());
+    if (!Number.isSafeInteger(available)) throw refused(`${target.unit} cannot be checked: the computer's MemAvailable in /proc/meminfo is not a number.`);
+    if (available >= need + margin) return;
+    throw refused(`${target.unit} was not started: it needs ${need + margin} bytes of MemAvailable and the computer has ${available}. ${group.active.length ? `${group.active.map(unit => unit.unit).join(' and ')} kept serving.` : 'No slot of it serves.'}`);
+  };
   const switched = [], booted = [];
   for (const { group, target } of switching) {
+    await memoryForASlot(group, target);
     await run(machine, `systemctl restart ${q(target.unit)}`);
     try {
       await bootCheck(target.unit);

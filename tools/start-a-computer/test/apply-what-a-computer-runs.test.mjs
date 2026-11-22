@@ -348,7 +348,9 @@ test('a path unit that is not active is started, with nothing written', async ()
 // stopped again and the slot that ran keeps serving (plan: a deploy never drops anything).
 const slotted = { ...built, units: [{ ...built.units[0], stop_seconds: 170, health: { path: '/readyz', status: 200, host: 'place.example.test' }, health_listen: '127.0.0.1:7199',
   slots: { a: { 'settings.listen': '127.0.0.1:7199', health_listen: '127.0.0.1:7199' }, b: { 'settings.listen': '127.0.0.1:7198', health_listen: '127.0.0.1:7198' } } }] };
-const slotComputer = ({ active, links, answers = {} }) => {
+const MiB = 1024 ** 2;
+// `memory` is what the computer reports: MemAvailable, and the MemoryCurrent every running slot shows (bytes).
+const slotComputer = ({ active, links, answers = {}, memory = { available: 4096 * MiB, current: 1260 * MiB } }) => {
   const live = Object.fromEntries(renderWhatItRuns(slotted).map(({ path, text }) => [path, text]));
   const base = computer(live);
   const run = async (m, command, input) => {
@@ -356,6 +358,8 @@ const slotComputer = ({ active, links, answers = {} }) => {
     if (activeAsked) { base.commands.push({ command }); if (active.includes(activeAsked[1])) return ''; throw Object.assign(new Error('inactive'), { code: 3 }); }
     const link = command.match(/^readlink '[^']+\/(current[^']*)'/);
     if (link) return links[link[1]] ?? '';
+    if (command.startsWith('systemctl show -p MemoryCurrent')) { base.commands.push({ command }); return `${memory.current}\n`; }
+    if (command.startsWith("awk '/^MemAvailable")) { base.commands.push({ command }); return `${memory.available}\n`; }
     if (command.startsWith('pid=$(systemctl show')) return '';
     if (command.startsWith('sh -c ')) { base.commands.push({ command, input }); return `${SOURCE_COMMIT}\n`; }
     const health = command.match(/^curl .*'http:\/\/([^/]+)\/readyz'/);
@@ -416,6 +420,45 @@ test('a new slot that answers but fails its switch_check_command is stopped agai
   assert.deepEqual((await applyWhatItRuns(machine, checked, ok)).switched, [{ to: 'example-place-b.service', from: ['example-place-a.service'] }]);
   const at = text => passing.commands.findIndex(({ command }) => command.startsWith(text));
   assert.ok(at('check-kept ') < at("systemctl disable --now 'example-place-a.service'"), 'the slot that ran stops only after the check passed');
+});
+
+// A slot boots only when MemAvailable holds what it needs (the unit's start_headroom_bytes, else the running slot's MemoryCurrent)
+// and settings.json slot_start.margin_bytes (256 MiB). A slot that does not fit is refused before anything stops.
+const withHeadroom = start_headroom_bytes => ({ ...slotted, units: [{ ...slotted.units[0], start_headroom_bytes }] });
+const bootsAt = memory => slotComputer({ active: ['example-place-a.service'], links: { 'current-a': 'b'.repeat(40) }, memory });
+
+test('a new slot boots when MemAvailable holds its start headroom and the margin over it', async () => {
+  const { run, commands } = bootsAt({ available: 1800 * MiB, current: 1260 * MiB });
+  const answer = await applyWhatItRuns(machine, withHeadroom(1500 * MiB), run, {}, { wait: async () => {} });
+  assert.deepEqual(answer.switched, [{ to: 'example-place-b.service', from: ['example-place-a.service'] }]);
+  assert.ok(commands.some(({ command }) => command === "systemctl restart 'example-place-b.service'"));
+});
+
+test('a new slot that does not fit is refused, and the slot that runs keeps serving untouched', async () => {
+  const { run, commands } = bootsAt({ available: 1700 * MiB, current: 1260 * MiB });
+  const failure = await applyWhatItRuns(machine, withHeadroom(1500 * MiB), run, {}, { wait: async () => {} }).then(() => null, error => error);
+  assert.equal(failure?.exit, 2, 'a refusal, as the other named refusals are');
+  assert.match(failure.message, new RegExp(`^example-place-b\\.service was not started: it needs ${1756 * MiB} bytes of MemAvailable and the computer has ${1700 * MiB}\\. example-place-a\\.service kept serving\\.$`));
+  const sent = text => commands.some(({ command }) => command.startsWith(text));
+  assert.equal(sent("systemctl restart 'example-place-b.service'"), false, 'the new slot is not started');
+  assert.equal(sent('curl '), false, 'the new slot is not asked');
+  assert.equal(commands.some(({ command }) => command.includes("'example-place-a.service'") && /disable|stop|restart/.test(command)), false, 'the slot that runs is not stopped');
+});
+
+test('with no start_headroom_bytes, the running slot\'s MemoryCurrent is the headroom it needs', async () => {
+  const short = bootsAt({ available: 1500 * MiB, current: 1260 * MiB });
+  const failure = await applyWhatItRuns(machine, slotted, short.run, {}, { wait: async () => {} }).then(() => null, error => error);
+  assert.match(failure.message, new RegExp(`needs ${(1260 + 256) * MiB} bytes of MemAvailable and the computer has ${1500 * MiB}\\.`));
+  assert.ok(short.commands.some(({ command }) => command === "systemctl show -p MemoryCurrent --value 'example-place-a.service'"), 'the running slot\'s memory is read');
+  const enough = bootsAt({ available: 1600 * MiB, current: 1260 * MiB });
+  assert.deepEqual((await applyWhatItRuns(machine, slotted, enough.run, {}, { wait: async () => {} })).switched, [{ to: 'example-place-b.service', from: ['example-place-a.service'] }]);
+});
+
+test('a unit without slots reads no memory and is applied as before', async () => {
+  const live = Object.fromEntries(renderWhatItRuns(runs).map(({ path, text }) => [path, text]));
+  const { run, commands } = computer(live);
+  assert.deepEqual(await applyWhatItRuns(machine, runs, run), { written: [], restarted: [] });
+  assert.equal(commands.some(({ command }) => command.includes('MemAvailable') || command.includes('MemoryCurrent')), false);
 });
 
 // A slot served on a unix socket has no TCP address to ask: its own check_command (a curl --unix-socket on its socket) is its
