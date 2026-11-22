@@ -5,6 +5,8 @@
   "refused": "Trillion could not do that just now.",
   "absent": "This part of Trillion is not in the version you are running.",
   "read_kept": "Nothing was lost.",
+  "screen_failed": "{name} could not be shown.",
+  "screen_plain": "This screen could not be shown.",
   "slow": "Trillion is taking too long to answer. Try again in a moment.",
   "still_opening": "Still opening your workspace. Trillion is taking a moment to answer.",
   "pursuits_not_loaded": "Your pursuits did not load yet. They show here as soon as Trillion answers.",

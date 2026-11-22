@@ -31,10 +31,11 @@ import {
   screenSpecLimits, screenSpecWords, specStream,
 } from 'trillion-workshop/tools/build-a-screen-from-patches/read-data/screen-spec.mjs';
 import { declaredComponents } from './declared-parts';
-import { reasonOf } from './failure';
+import { failedState } from './failure';
 import { loadScreenConditions } from './record-filter';
 import { onStoreChange } from './store-changes';
 import type { Unmount } from './lazy-screen';
+import failureWords from './failure-words.json' with { type: 'json' };
 
 type Element = { type?: string; props?: Record<string, unknown>; children?: string[]; on?: Record<string, Binding[]>; visible?: unknown; repeat?: { statePath?: string; key?: string } };
 type Binding = { action: string; params?: Record<string, unknown>; result?: string };
@@ -48,14 +49,13 @@ type Checked = ReturnType<typeof checkElement>;
 type Answer = ReturnType<ReturnType<typeof specStream>['push']>;
 
 const parts = declaredParts as Record<string, Part>;
-const say = (template: string, values: Record<string, unknown>) => template.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
 const ROOT_SCOPE: Scope = {};
 
 /** The screen's spec, its state and what failed, with one subscription road for every element. */
 function partsStore(given: Record<string, unknown>) {
   let spec: PartsSpec = { root: null, elements: {}, state: {}, reads: {} };
   let state: Record<string, unknown> = {};
-  let failure: string | null = null;
+  let failure: { error: unknown } | null = null;
   let requests = given;
   const listeners = new Set<() => void>();
   let checked = new WeakMap<Element, Checked>();
@@ -87,11 +87,11 @@ function partsStore(given: Record<string, unknown>) {
       emit();
     },
     setState(path: string, value: unknown) { state = pointerSet(state, path, value) as Record<string, unknown>; emit(); },
-    fail(reason: string | null) { if (failure !== reason) { failure = reason; emit(); } },
+    fail(next: { error: unknown } | null) { if (failure !== next) { failure = next; emit(); } },
   };
 }
 type Store = ReturnType<typeof partsStore>;
-type Host = { store: Store; run: (bindings: Binding[], value: unknown, scope: Scope) => Promise<void> };
+type Host = { store: Store; run: (bindings: Binding[], value: unknown, scope: Scope) => Promise<void>; retry: () => void };
 const HostContext = React.createContext<Host | null>(null);
 
 // The value an event reports: its first argument, or the `from` path in it (currentTarget.value, id).
@@ -185,32 +185,44 @@ function childrenOf(element: Element, here: Scope & { state: Record<string, unkn
 // `$cond`) asks nothing of the engine, so it draws at once and its bytes are never fetched for it.
 const hasCondition = (spec: PartsSpec) => Object.values(spec.elements ?? {}).some(element => element?.visible !== undefined || JSON.stringify(element?.props ?? {}).includes('"$cond"'));
 
-function ConditionsLoaded({ store, children }: { store: Store; children: React.ReactNode }) {
+function ConditionsLoaded({ store, title, children }: { store: Store; title: string; children: React.ReactNode }) {
   const needed = React.useSyncExternalStore(store.subscribe, () => hasCondition(store.spec()));
-  const [state, setState] = React.useState<'idle' | 'loading' | 'ready' | 'failed'>('idle');
+  const [state, setState] = React.useState<'idle' | 'loading' | 'ready' | { failed: unknown }>('idle');
   React.useEffect(() => {
     if (!needed || state !== 'idle') return undefined;
     let live = true;
     setState('loading');
-    loadScreenConditions().then(() => live && setState('ready'), () => live && setState('failed'));
+    loadScreenConditions().then(() => live && setState('ready'), error => live && setState({ failed: error }));
     return () => { live = false; };
   }, [needed, state]);
   if (!needed) return <>{children}</>;
-  if (state === 'failed') return <Fallback />;
+  // The conditions engine did not load: the screen says why, and Try again loads it again.
+  if (typeof state === 'object') return <ScreenState state={failedState(state.failed, () => setState('idle'), title)} />;
   return state === 'ready' ? <>{children}</> : <ScreenState state={{ status: 'loading', label: screenSpecWords.loading, layout: 'rows' }} />;
 }
 
-function Screen({ host }: { host: Host }) {
+function Screen({ host, title }: { host: Host; title: string }) {
   const root = React.useSyncExternalStore(host.store.subscribe, () => host.store.spec().root);
   const failure = React.useSyncExternalStore(host.store.subscribe, host.store.failure);
   return (
     <HostContext.Provider value={host}>
       <Container layout="vertical" gap="sm" data-parts-screen="">
         {root ? <ElementNode id={root} scope={ROOT_SCOPE} trail="" /> : <ScreenState state={{ status: 'loading', label: screenSpecWords.loading, layout: 'rows' }} />}
-        {failure ? <Text variant="caption" color="error" role="status">{failure}</Text> : null}
+        {failure ? <ScreenState state={failedState(failure.error, host.retry, title)} /> : null}
       </Container>
     </HostContext.Provider>
   );
+}
+
+// The one place a drawing that throws says why: the screen's own pane shows the failed state with Try again, never a
+// blank pane. Each element keeps its own boundary (ElementBoundary), so one bad element still never blanks the screen.
+class DrawBoundary extends React.Component<{ title: string; children: React.ReactNode }, { error: { value: unknown } | null }> {
+  state: { error: { value: unknown } | null } = { error: null };
+  static getDerivedStateFromError(error: unknown) { return { error: { value: error } }; }
+  render() {
+    if (this.state.error) return <ScreenState state={failedState(this.state.error.value, () => this.setState({ error: null }), this.props.title)} />;
+    return this.props.children;
+  }
 }
 
 export type PartsScreenHandle = Unmount & {
@@ -225,14 +237,14 @@ export type PartsScreenHandle = Unmount & {
 };
 
 /** Draws a parts screen into `element`. `call(name, input)` sends one declared request (the screen's host owns how). */
-export function mountPartsScreen(element: HTMLElement, { call, requests = {} }: { call: PartsCall; requests?: Record<string, unknown> }): PartsScreenHandle {
+export function mountPartsScreen(element: HTMLElement, { call, requests = {}, title = failureWords.screen_plain }: { call: PartsCall; requests?: Record<string, unknown>; title?: string }): PartsScreenHandle {
   const store = partsStore(requests);
   const stream = specStream();
   let readsKey = '';
   let gone = false;
   let readVersion = 0;
   let changed: (() => void) | null = null;
-  const failed = (error: unknown) => store.fail(say(screenSpecWords.failed, { reason: reasonOf(error) }));
+  const failed = (error: unknown) => store.fail({ error });
   // Each read fills its state path; one that fails says so and leaves what was there.
   const read = async () => {
     const version = ++readVersion;
@@ -271,7 +283,8 @@ export function mountPartsScreen(element: HTMLElement, { call, requests = {} }: 
     }
     return answer;
   };
-  const mounted = mountReactSurface(element, <ConditionsLoaded store={store}><Screen host={{ store, run }} /></ConditionsLoaded>);
+  const host: Host = { store, run, retry: () => { store.fail(null); void read(); } };
+  const mounted = mountReactSurface(element, <DrawBoundary title={title}><ConditionsLoaded store={store} title={title}><Screen host={host} title={title} /></ConditionsLoaded></DrawBoundary>);
   const dispose = (() => { gone = true; changed?.(); queueMicrotask(() => mounted()); }) as PartsScreenHandle;
   dispose.push = text => take(stream.push(text));
   dispose.end = text => take(stream.end(text));

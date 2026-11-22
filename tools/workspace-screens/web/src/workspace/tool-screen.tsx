@@ -68,6 +68,8 @@ export type Show = (element: HTMLElement, tool: Descriptor, screen: Screen, prop
 export const nameOf = (tool: Descriptor, screen: Screen) => screen.label ?? tool.label ?? tool.id;
 /** The line a person reads about the tool: its screen's own plain line; the AI-facing description only when it has none. */
 export const aboutOf = (tool: Descriptor, screen: Screen) => screen.about ?? tool.description ?? tool.job;
+// The line a screen says when it cannot be drawn, in the one place its words live (failure-words.json).
+const screenFailed = (tool: Descriptor, screen: Screen) => failureWords.screen_failed.replace('{name}', nameOf(tool, screen));
 // Lets go of whatever the host drew and empties it (invariant 5).
 const letGo = (element: HTMLElement) => () => { releaseScreenState(element); };
 export const sameInput = (left?: Record<string, unknown>, right?: Record<string, unknown>) => JSON.stringify(left ?? {}) === JSON.stringify(right ?? {});
@@ -133,8 +135,15 @@ const partsScreen: Show = (element, tool, screen, props) => {
       module => {
         if (gone) return;
         releaseScreenState(element);
-        shown = module.mountPartsScreen(element, { requests: screen.requests ?? {}, call: (name, input) => declaredCall(screen.requests, latest.surfaceInput ?? {}, name, input, tool.id) });
-        shown.show(filledSpec(screen.spec ?? { root: null, elements: {} }, latest.surfaceInput?.filled_inputs));
+        // A screen that cannot be drawn says why, with Try again, in its own pane: the loading state is already let go.
+        try {
+          shown = module.mountPartsScreen(element, { requests: screen.requests ?? {}, title: screenFailed(tool, screen), call: (name, input) => declaredCall(screen.requests, latest.surfaceInput ?? {}, name, input, tool.id) });
+          shown.show(filledSpec(screen.spec ?? { root: null, elements: {} }, latest.surfaceInput?.filled_inputs));
+        } catch (error) {
+          shown?.();
+          shown = null;
+          mountScreenState(element, failedState(error, open, screenFailed(tool, screen)));
+        }
       },
       error => { if (!gone) mountScreenState(element, codeFailedState(error, open)); },
     );
@@ -302,6 +311,26 @@ function unavailable(element: HTMLElement): () => void {
   return letGo(element);
 }
 
+/** An offered row's own screen, drawn by its kind (SHOWS). A screen that cannot open says why, with Try again, in its own
+ *  pane: a throw while it opens never leaves the pane blank (the loading state was let go of before it opened). */
+function showOffered(element: HTMLElement, tool: Descriptor, screen: Screen, props: Props, screens: Record<string, Mount>): Unmount {
+  const show = SHOWS[screen.kind];
+  if (!show) return unavailable(element);
+  let stop: Unmount = letGo(element);
+  const open = () => {
+    releaseScreenState(element);
+    try { stop = show(element, tool, screen, props, screens); }
+    catch (error) {
+      stop = letGo(element);
+      mountScreenState(element, failedState(error, open, screenFailed(tool, screen)));
+    }
+  };
+  open();
+  const dispose: Unmount = () => { stop(); };
+  dispose.update = next => stop.update?.(next);
+  return dispose;
+}
+
 /** The tool named in the tab's input (`tool_id`, or the rest of a /use/ address), shown as its own screen says. */
 export function mountToolScreen(element: HTMLElement, props: Props, screens: Record<string, Mount>): Unmount {
   let latestProps = props;
@@ -313,7 +342,7 @@ export function mountToolScreen(element: HTMLElement, props: Props, screens: Rec
   // parts its spec declares. The kinds it can open are SHOWS' own, so a kind a tool may offer is never refused here.
   const offered = offeredRow(id);
   const own = (SCREEN_TOOL_ROWS.find(row => row.id === id) ?? offered) as Descriptor | undefined;
-  if (own?.screen) return SHOWS[own.screen.kind] ? SHOWS[own.screen.kind](element, own, own.screen, props, screens) : unavailable(element);
+  if (own?.screen) return showOffered(element, own, own.screen, props, screens);
   let unmount: Unmount = letGo(element);
   let gone = false;
   let readNumber = 0;
