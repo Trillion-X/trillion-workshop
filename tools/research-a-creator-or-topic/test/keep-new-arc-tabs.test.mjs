@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -92,4 +93,23 @@ test('returns every new row for one parameterised insert, at any count', async (
   const out = await keepNewArcTabs({ obscura, sidebar: big, held: [], limit: 0, state_folder: fresh() }, { blake3Hex, ...calm });
   assert.equal(out.rows.length, 450);
   assert.ok(out.rows.every(r => r.id.startsWith('record:inspiration-item:') && Array.isArray(r.tags)));
+});
+
+test('runs its entry point from a path with a space and answers one JSON line', () => {
+  const here2 = dirname(fileURLToPath(import.meta.url));
+  const base = mkdtempSync(join(tmpdir(), 'arc intake '));
+  const root = join(base, 'research-a-creator-or-topic');
+  const doWork = join(root, 'do-work');
+  mkdirSync(doWork, { recursive: true });
+  const doWorkSource = join(here2, '..', 'do-work');
+  for (const name of ['keep-new-arc-tabs-in-the-inspiration-library.mjs', 'arc-inspiration-intake.mjs', 'arc-inspiration-intake.json']) {
+    cpSync(join(doWorkSource, name), join(doWork, name));
+  }
+  cpSync(join(here2, '..', '..', 'content-identity', 'read-data'), join(base, 'content-identity', 'read-data'), { recursive: true });
+  cpSync(join(here2, '..', '..', '..', 'node_modules', '@noble', 'hashes'), join(base, 'node_modules', '@noble', 'hashes'), { recursive: true });
+  const run = spawnSync(process.execPath, [join(doWork, 'keep-new-arc-tabs-in-the-inspiration-library.mjs')], { input: '{}', encoding: 'utf8' });
+  assert.equal(run.status, 1, 'an input with no folders is refused with exit 1');
+  const lines = run.stdout.trim().split('\n');
+  assert.equal(lines.length, 1);
+  assert.equal(JSON.parse(lines[0]).outcome, 'error');
 });

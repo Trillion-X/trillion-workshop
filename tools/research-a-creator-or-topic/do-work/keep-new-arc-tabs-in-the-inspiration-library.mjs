@@ -9,8 +9,9 @@
 //            "sidebar": "path to StorableSidebar.json" }
 //   stdout: one JSON line { outcome, counts, insert_sql, shots: [{ id, name, path, ok }], waited }
 import { execFile } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { loadavg } from 'node:os';
 import { promisify } from 'node:util';
 import { readArcTabs, planIntake, canonicalUrl } from './arc-inspiration-intake.mjs';
@@ -105,7 +106,7 @@ export const blake3Hex = text => makeHashCodeHexFromBytes(new TextEncoder().enco
 
 // The entry point the computer runs: one JSON object on stdin, one JSON line on stdout. An input with record set is the
 // ledger step (recordSeen); any other input plans the rows and takes the shots (keepNewArcTabs).
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const input = JSON.parse(readFileSync(0, 'utf8') || '{}');
   const run = input.record ? Promise.resolve().then(() => recordSeen(input)) : keepNewArcTabs(input, { blake3Hex });
   run.then(out => process.stdout.write(`${JSON.stringify(out)}\n`), problem => {
