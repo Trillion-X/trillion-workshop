@@ -15,23 +15,22 @@
   "worked_examples": [
     {
       "title": "tool:create-a-tidycal-booking-type",
-      "ask": "Make a test booking type called TEST pipeline, 30 minutes.",
+      "ask": "Make a test booking type called TEST pipeline, auto-deleted, 15 minutes.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
-            "tool": "tool:create-a-tidycal-booking-type",
-            "input": {
-              "title": "TEST pipeline",
-              "duration_minutes": 30
-            }
+            "title": "TEST pipeline, auto-deleted",
+            "description": "Test type, deleted after the test",
+            "duration_minutes": 15,
+            "url_slug": "test-pipeline-7k2q"
           }
         }
       },
-      "given": "Reads tools/tidycal/tool-rows.json: a POST to https://tidycal.com/api/booking-types with the vault key tidycal-api-token. It changes the account.",
-      "hands_back": "It answers the new booking type, for example id 9999999 titled TEST pipeline, 30 minutes. Real values come from the live TidyCal answer."
+      "given": "Reads tools/tidycal/tool-rows.json: a POST to https://tidycal.com/api/booking-types with the vault key tidycal-api-token. The body is always private, free (price 0), not in the public directory (in_gallery_at null) and 30 days of availability; the caller gives only title, description, duration and url slug.",
+      "hands_back": "It answers the new booking type with its id and url slug, for example id 9999999 with url slug test-pipeline-7k2q. Real values come from the live TidyCal answer."
     }
   ]
 }

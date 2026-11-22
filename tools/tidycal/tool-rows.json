@@ -416,24 +416,35 @@
         "kind": "ai-tool-descriptor",
         "id": "tool:create-a-tidycal-booking-type",
         "label": "Create a TidyCal booking type",
-        "job": "Make one booking type on my TidyCal account, for a test, with a title and a length",
-        "description": "Creates one booking type on the person's TidyCal account (for a test). It changes the account's booking pages, so call it only for a type the person asked for and remove it when the test is done.",
+        "job": "Make one private, free, unlisted booking type on my TidyCal account for a test, with a title, a description, a length and a URL slug",
+        "description": "Creates one private TidyCal booking type that costs nothing and is not listed in TidyCal's public directory (in_gallery_at is always null, private is always true, price is always 0, latest_availability_days is always 30). It changes the account, so call it only for a test the person asked for and remove it when the test is done.",
         "status": "active",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
           "required": [
             "title",
-            "duration_minutes"
+            "description",
+            "duration_minutes",
+            "url_slug"
           ],
           "properties": {
             "title": {
               "type": "string",
               "minLength": 1
             },
+            "description": {
+              "type": "string",
+              "minLength": 1
+            },
             "duration_minutes": {
               "type": "integer",
               "minimum": 5
+            },
+            "url_slug": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$",
+              "minLength": 3
             }
           }
         },
@@ -467,8 +478,26 @@
             "title": {
               "from": "title"
             },
+            "description": {
+              "from": "description"
+            },
             "duration_minutes": {
               "from": "duration_minutes"
+            },
+            "url_slug": {
+              "from": "url_slug"
+            },
+            "private": {
+              "const": true
+            },
+            "price": {
+              "const": 0
+            },
+            "in_gallery_at": {
+              "const": null
+            },
+            "latest_availability_days": {
+              "const": 30
             }
           }
         },
@@ -486,7 +515,7 @@
           "documentation": "https://help.tidycal.com/article/739-faq",
           "read_on": "2026-11-21",
           "verified_live": false,
-          "unverified": "The route (POST /api/booking-types, DELETE /api/booking-types/{id}) and body fields are from the TidyCal FAQ (it says the API creates booking types) and are unverified; the first live call proves them."
+          "unverified": "Route and fields from the TidyCal developer docs (lead read them: POST /api/booking-types; required title, description, duration_minutes, url_slug). The first live call proves the response."
         }
       }
     },
