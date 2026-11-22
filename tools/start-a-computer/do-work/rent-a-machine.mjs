@@ -6,7 +6,8 @@
 // `zone` and `record` do the same for one DNS name. A description with no `base` is a machine the person already runs:
 // it is adopted at its address, and removing it forgets it without touching it. A description with a `pull` row is a
 // machine nobody can reach from outside: renting it makes a one-time line (`pull.line`, with {token}) the person runs on
-// that machine, which then dials out and registers (`registerMachine`); the lease waits until it does.
+// that machine, which then dials out and registers (`registerMachine`); the lease waits until it does. A description with a `resize` job
+// changes a running machine's size and keeps its disk (`resizeMachine`, run by do-work/resize-a-machine.mjs).
 //
 // Optional description fields: `lease_label_key` (the label every owned resource carries, required when there is a
 // `base`), `async` (create answers before the machine runs: read it every `every_ms` until `state_at` is `ready_when`),
@@ -248,6 +249,65 @@ export async function readPrice({ request, provider, placement = {} }) {
   const monthly = Number(at(here, p.monthly_at));
   if (!here || !Number.isFinite(monthly)) throw new Error(`${row.name} has no monthly price for ${spec.size} at ${spec.location}.`);
   return { cents: Math.round(monthly * 100), currency: p.currency };
+}
+
+/** Change a running machine to another size of its provider, keeping its disk (the row's `resize` job). A machine already at
+ * `size` answers unchanged; both sizes' monthly prices are read before anything changes. The machine is powered off, its type
+ * changed in place and powered on, each action awaited within the row's bounds. The power-on is asked for once the power-off is
+ * (even after a failure), and an error says what the machine reads back as. `keep_disk` must be true: a disk upgrade cannot be
+ * undone. Answers { from, to, price_from, price_to, off_at, on_at, seconds_down, status }. */
+export async function resizeMachine({ request, store, provider, size, keep_disk = true, wait = pause, now = Date.now }) {
+  const lease = await readLease(store), row = provider ?? readProvider(lease.providerFile), r = row.resize;
+  if (!row.base || !r) throw new Error(`The ${row.name} description has no resize job, so it cannot change a machine's size.`);
+  if (!Number.isSafeInteger(r.tries) || !Number.isSafeInteger(r.every_ms)) throw new Error(`The ${row.name} resize job needs whole-number tries and every_ms.`);
+  if (keep_disk !== true) throw new Error('A resize keeps its disk: an upgrade of the disk cannot be undone, so it is refused.');
+  if (typeof size !== 'string' || !/^[a-z0-9][a-z0-9-]{0,40}$/.test(size)) throw new Error("A size is the provider's size name, such as cx23.");
+  if (lease.state !== 'running' || lease.serverId == null) throw new Error('Only a running machine can be resized.');
+  const ctx = ownCtx(row, { name: lease.name }), id = lease.serverId;
+  const readServer = async () => {
+    const answer = await ask(request, row, row.host, 'read', ctx, id);
+    if (answer.absent) throw new Error('The machine is gone; it cannot be resized.');
+    const found = at(answer, row.host.found_at);
+    if (!owns(found, row.host, ctx)) throw new Error('The machine is no longer owned by this lease; it was left untouched.');
+    return { type: at(found, r.type_at), status: at(found, row.host.state_at) };
+  };
+  const before = await readServer();
+  if (before.type === size) return { unchanged: true, from: size, to: size };
+  if (typeof before.type !== 'string') throw new Error(`${row.name} did not name the machine's size.`);
+  if (before.status !== r.running_state) throw new Error(`The machine is ${before.status}; a resize needs it ${r.running_state}.`);
+  const location = lease.location;
+  const price_from = await readPrice({ request, provider: row, placement: { size: before.type, location } });
+  const price_to = await readPrice({ request, provider: row, placement: { size, location } });
+  // Each step is asked (its action id answered), then its action is polled: at most `tries` polls after the first, `every_ms` apart.
+  const act = async (name, extra) => at(await ask(request, row, r.steps, name, { ...ctx, ...extra }, id), r.action_at);
+  const awaitAction = async actionId => {
+    for (let tries = 0; ; tries += 1) {
+      const status = at(await ask(request, row, r.steps, 'action', { ...ctx, action_id: actionId }), r.status_at);
+      if (status === r.action_words.done) return;
+      if (status === r.action_words.failed) throw new Error(`${row.name} action ${actionId} ended in error.`);
+      if (tries >= r.tries) throw new Error(`${row.name} action ${actionId} was still ${status} after ${r.tries} checks.`);
+      await wait(r.every_ms);
+    }
+  };
+  let failure = null, offAt = null;
+  try {
+    await awaitAction(await act('power_off'));
+    offAt = now();
+    await awaitAction(await act('change_type', { server_type: size }));
+  } catch (error) { failure = error; }
+  // Any failure above may have left the machine down, so the power-on is always asked for (refused, harmlessly, if it is up).
+  let onAt = null, onError = null;
+  try { await awaitAction(await act('power_on')); onAt = now(); }
+  catch (error) { onError = error; }
+  let state = null, stateError = null;
+  try { state = await readServer(); } catch (error) { stateError = error; }
+  if (state?.type && state.type !== lease.serverType) { lease.serverType = state.type; await store.save(lease); }
+  const failed = [failure, stateError, onError].filter(Boolean);
+  if (failed.length || state.type !== size || state.status !== r.running_state) {
+    const why = failed.length ? failed.map(error => error.message).join(' ') : `It reads ${state.type} ${state.status}, not ${size} ${r.running_state}.`;
+    throw new Error(`The resize of ${lease.name} to ${size} did not finish: ${why} ${onError ? 'Power-on failed.' : 'Power-on was sent and done.'} The machine reads ${state ? `${state.type} ${state.status}` : 'unknown'}.`);
+  }
+  return { from: before.type, to: size, price_from, price_to, off_at: new Date(offAt).toISOString(), on_at: new Date(onAt).toISOString(), seconds_down: (onAt - offAt) / 1000, status: state.status };
 }
 
 /** Point host_name at the lease's address through a names row, keeping the record's identity on the lease. */

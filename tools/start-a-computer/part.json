@@ -1,3 +1,3 @@
 {
-  "public": ["do-work/start-a-computer.mjs", "do-work/rent-a-machine.mjs"]
+  "public": ["do-work/start-a-computer.mjs", "do-work/rent-a-machine.mjs", "do-work/resize-a-machine.mjs"]
 }

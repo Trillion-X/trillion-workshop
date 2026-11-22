@@ -86,6 +86,30 @@
       "notes": "One server type with its price in every location. Reads only.",
       "url": "https://api.example.test/v1/server_types?name={size}",
       "method": "GET"
+    },
+    "power_off_server": {
+      "notes": "Hard power-off of one server (the provider cuts its power). Answers its action: wait for it.",
+      "url": "https://api.example.test/v1/servers/{server_id}/actions/poweroff",
+      "method": "POST"
+    },
+    "change_server_type": {
+      "notes": "Change one server to another type. Needs the server off. upgrade_disk false keeps its disk: the type changes in place. Answers its action.",
+      "url": "https://api.example.test/v1/servers/{server_id}/actions/change_type",
+      "method": "POST",
+      "body_template": {
+        "server_type": "{server_type}",
+        "upgrade_disk": false
+      }
+    },
+    "power_on_server": {
+      "notes": "Power one server on. Answers its action: wait for it.",
+      "url": "https://api.example.test/v1/servers/{server_id}/actions/poweron",
+      "method": "POST"
+    },
+    "read_action": {
+      "notes": "One action with its status (running, success or error). Reads only.",
+      "url": "https://api.example.test/v1/actions/{action_id}",
+      "method": "GET"
     }
   },
   "host": {
@@ -120,6 +144,26 @@
     "location_at": "location",
     "monthly_at": "price_monthly.gross",
     "currency": "EUR"
+  },
+  "resize": {
+    "notes": "Change a rented server to another type of the same provider, keeping its disk. In order: power_off_server, change_server_type, power_on_server; each answers an action (at action_at) that is polled with read_action until its status (status_at) is action_words.done (a failed action or an exhausted bound ends the wait). The server's type sits at type_at of the host read; running_state is the status it must have before and after. Every wait is at most tries more polls, every_ms apart.",
+    "steps": {
+      "id_is": "server_id",
+      "power_off": "power_off_server",
+      "change_type": "change_server_type",
+      "power_on": "power_on_server",
+      "action": "read_action"
+    },
+    "type_at": "server_type.name",
+    "action_at": "action.id",
+    "status_at": "action.status",
+    "action_words": {
+      "done": "success",
+      "failed": "error"
+    },
+    "running_state": "running",
+    "every_ms": 3000,
+    "tries": 100
   },
   "lease_label_key": "example-lease",
   "fingerprint": {
