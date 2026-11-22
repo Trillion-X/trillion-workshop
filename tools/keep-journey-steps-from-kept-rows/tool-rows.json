@@ -419,8 +419,7 @@
             "budget": {
               "steps": 1,
               "wall_ms": 600000
-            },
-            "why": "A row changed in statements of the database named by credential_name (the notice-when-something-shows-up row-changes waiter tells it as something-changed). Reads the new rows and keeps their steps once."
+            }
           },
           {
             "id": "keep-steps-when-payments-change",
@@ -441,8 +440,7 @@
             "budget": {
               "steps": 1,
               "wall_ms": 600000
-            },
-            "why": "A row changed in payment_events of the database named by credential_name (the notice-when-something-shows-up row-changes waiter tells it as something-changed). Reads the new rows and keeps their steps once."
+            }
           },
           {
             "id": "keep-steps-every-fifteen-minutes",
@@ -498,8 +496,7 @@
             "budget": {
               "steps": 1,
               "wall_ms": 600000
-            },
-            "why": "A slow fallback every 15 minutes, so a missed row-change notice still gets its steps kept."
+            }
           }
         ]
       }
