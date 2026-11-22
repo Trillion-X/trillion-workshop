@@ -64561,7 +64561,7 @@
         "recipes",
         "definitions"
       ],
-      "at": "/opt/tools/workflows"
+      "at": "/opt/workflows"
     },
     {
       "package": "ai-tool-catalog",

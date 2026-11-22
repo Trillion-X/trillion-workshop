@@ -1,5 +1,5 @@
 // Writes every workflow of one Workshop export as the engine definition it runs as, plus _index.json for wf find.
-// usage: node convert.mjs OUT_DIR [PREVIOUS_OUT_DIR]   (run from the Workshop tree that holds it: its own folder is the root)
+// usage: node convert.mjs OUT_DIR [PREVIOUS_OUT_DIR]   (its recipes and kept definitions sit beside its folder, tools/workflows, in the Workshop tree or in the engine's layout alike)
 // With PREVIOUS_OUT_DIR, a recipe whose bytes are unchanged since that folder's definitions-index.json (blake3 of the recipe as
 // JSON) keeps its definition file as it was: definitionOf runs only for the recipes that changed or are new. The caller gives a
 // previous folder only when no converter code changed (wf decides; see wf.rs definitions()).
@@ -16,7 +16,7 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 const [out, previous] = process.argv.slice(2);
 if (!out) throw new Error('usage: node convert.mjs OUT_DIR [PREVIOUS_OUT_DIR]');
 // The Workshop tree this file sits in: tools/workflows/do-work/convert.mjs, so its recipes and kept definitions are beside it.
-const root = path.resolve(import.meta.dirname, '../../..');
+const workflows = path.resolve(import.meta.dirname, '..');
 const fileName = id => `${id.replace(/[^a-z0-9-]/gi, '_')}.json`;
 
 const kindsIn = conditions => {
@@ -36,7 +36,7 @@ const failed = [];
 const hashes = {};
 const previousHashes = previous && existsSync(path.join(previous, 'definitions-index.json')) ? JSON.parse(readFileSync(path.join(previous, 'definitions-index.json'), 'utf8')) : {};
 let converted = 0, reused = 0;
-const recipes = path.join(root, 'tools/workflows/recipes');
+const recipes = path.join(workflows, 'recipes');
 for (const file of readdirSync(recipes).filter(name => name.endsWith('.json'))) {
   for (const record of JSON.parse(readFileSync(path.join(recipes, file), 'utf8')).records ?? []) {
     const recipe = record.payload ?? record;
@@ -56,7 +56,7 @@ for (const file of readdirSync(recipes).filter(name => name.endsWith('.json'))) 
   }
 }
 writeFileSync(path.join(out, 'definitions-index.json'), JSON.stringify(hashes));
-const kept = path.join(root, 'tools/workflows/definitions');
+const kept = path.join(workflows, 'definitions');
 let asIs = 0;
 if (existsSync(kept)) {
   for (const file of readdirSync(kept).filter(name => name.endsWith('.json'))) {

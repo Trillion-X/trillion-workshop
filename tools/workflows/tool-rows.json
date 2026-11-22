@@ -3073,11 +3073,11 @@
           "kind": "computer",
           "capabilities": [],
           "internet": false,
-          "workdir": "/opt/tools/workflows",
+          "workdir": "/opt/workflows",
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/tools/workflows/do-work/convert.mjs"
+            "/opt/workflows/do-work/convert.mjs"
           ],
           "files": {
             "package_files": [
@@ -3088,7 +3088,7 @@
                   "recipes",
                   "definitions"
                 ],
-                "at": "/opt/tools/workflows"
+                "at": "/opt/workflows"
               }
             ]
           }
