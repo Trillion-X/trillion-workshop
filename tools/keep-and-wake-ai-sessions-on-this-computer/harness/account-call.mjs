@@ -24,6 +24,7 @@ import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { accountKeyOrNull } from './account-key.mjs';
 import { readVaultValue } from './vault-value.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 export class AccountCallError extends Error {
   constructor(message, { code = null } = {}) {
@@ -143,6 +144,49 @@ export async function runOperation({ account, address, method, input = {}, reque
  */
 export function operationCaller(account, deps = {}) {
   const call = path => { throw new AccountCallError(`${path} is a legacy HTTP route; it is not reached through the account's one road.`, { code: 'legacy_route' }); };
-  call.resource = (address, method, input, requestKey = randomUUID()) => runOperation({ ...deps, account, address, method, input, requestKey });
+  call.resource = async (address, method, input, requestKey = randomUUID()) => {
+    const send = extra => runOperation({ ...deps, account, address, method, input: { ...(input ?? {}), ...extra }, requestKey });
+    return wholeAnswer(await send({}), at => send({ after_byte: at }), method);
+  };
   return call;
+}
+
+// At most this many pages make one answer (a page is at most what one reply holds).
+const MOST_PAGES = 1000;
+
+/**
+ * The whole of an answer the engine sent as byte pages (`{byte_page: {offset, length, total, next_after_byte, blake3,
+ * base64}}`, src/mcp.rs), else the answer as it came. Each further page is the same operation under the same request
+ * key with `after_byte` (`next`), answered from the first call's receipt; every page must continue where the last ended
+ * and name the first page's total and BLAKE3, and the joined bytes must hash to it, or nothing is answered. The bytes
+ * are read as JSON, else answered as text. The always-on's taker read every listing of its tasks as a page and took
+ * nothing (from 3:57 AM CST Nov 22 2026: "answered no rows: {byte_page: …}").
+ */
+export async function wholeAnswer(first, next, method = 'the operation') {
+  const head = first && typeof first === 'object' && first.byte_page && typeof first.byte_page === 'object' ? first.byte_page : null;
+  if (!head) return first;
+  const broken = why => new AccountCallError(`The answer to ${method} came in pages that do not join: ${why}.`, { code: 'byte_page_broken' });
+  const { total, blake3 } = head;
+  if (!Number.isInteger(total) || total < 0 || typeof blake3 !== 'string' || !/^[0-9a-f]{64}$/i.test(blake3)) throw broken('its first page names no size or BLAKE3');
+  const parts = [];
+  let page = head, at = 0;
+  for (let count = 1; ; count += 1) {
+    if (page.offset !== at) throw broken(`a page starts at byte ${page.offset}, not ${at}`);
+    if (page.total !== total || String(page.blake3).toLowerCase() !== blake3.toLowerCase()) throw broken('a page belongs to another answer');
+    const bytes = Buffer.from(typeof page.base64 === 'string' ? page.base64 : '', 'base64');
+    if (bytes.length !== page.length || (!bytes.length && at < total)) throw broken(`a page at byte ${at} holds ${bytes.length} bytes, not ${page.length}`);
+    parts.push(bytes);
+    at += bytes.length;
+    if (at > total) throw broken(`the pages hold more than ${total} bytes`);
+    if (at === total) break;
+    if (page.next_after_byte !== at) throw broken(`next_after_byte is ${page.next_after_byte ?? 'null'} at byte ${at} of ${total}`);
+    if (count >= MOST_PAGES) throw broken(`more than ${MOST_PAGES} pages`);
+    const answer = await next(at);
+    page = answer && typeof answer === 'object' && answer.byte_page && typeof answer.byte_page === 'object' ? answer.byte_page : null;
+    if (!page) throw broken(`the page after byte ${at} is not a byte_page`);
+  }
+  const joined = Buffer.concat(parts);
+  if (makeHashCodeHexFromBytes(joined).slice('1f:'.length) !== blake3.toLowerCase()) throw broken('the joined bytes do not hash to the BLAKE3 the pages name');
+  const text = joined.toString('utf8');
+  try { return JSON.parse(text); } catch { return text; }
 }

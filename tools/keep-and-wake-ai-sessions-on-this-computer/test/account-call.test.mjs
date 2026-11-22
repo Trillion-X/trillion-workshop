@@ -113,3 +113,48 @@ test('the modules hold no key of their own: the key appears only in the keyed so
   assert.equal(/nm_|sk_|secret\s*=/.test(text), false);
   assert.match(text, /authorization: `Bearer \$\{key\}`/);
 });
+
+// An answer too large for one reply comes as byte pages (src/mcp.rs); the account road joins them for every caller, so a
+// task listing is rows again (the always-on's taker read every listing as a page and took nothing from 3:57 AM Nov 22 2026).
+import { wholeAnswer } from '../harness/account-call.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+
+const pagesOf = (value, size) => {
+  const bytes = Buffer.from(JSON.stringify(value));
+  const blake3 = makeHashCodeHexFromBytes(bytes).slice(3);
+  const page = offset => {
+    const part = bytes.subarray(offset, offset + size);
+    const end = offset + part.length;
+    return { byte_page: { total: bytes.length, blake3, offset, length: part.length, base64: part.toString('base64'), next_after_byte: end < bytes.length ? end : null } };
+  };
+  return { first: page(0), page };
+};
+
+test('a paged answer is joined into the whole answer, each further page asked with after_byte', async () => {
+  const rows = { rows: Array.from({ length: 40 }, (_, i) => ({ id: `record:calendar-task:${i}`, title: `Task ${i}` })) };
+  const { first, page } = pagesOf(rows, 97);
+  const asked = [];
+  assert.deepEqual(await wholeAnswer(first, async at => { asked.push(at); return page(at); }, 'tools:run'), rows);
+  assert.ok(asked.length > 5);
+  assert.deepEqual(asked, asked.map((_, i) => (i + 1) * 97), 'each page is asked where the last one ended');
+  assert.deepEqual(await wholeAnswer({ rows: [] }, async () => { throw new Error('never asked'); }), { rows: [] }, 'an answer that is not paged is as it came');
+});
+
+test('pages that do not join are refused, never answered in part', async () => {
+  const { first, page } = pagesOf({ rows: [1, 2, 3, 4, 5, 6, 7, 8] }, 5);
+  await assert.rejects(wholeAnswer(first, async at => page(at + 1)), { code: 'byte_page_broken' });
+  await assert.rejects(wholeAnswer(first, async () => ({ rows: [] })), { code: 'byte_page_broken' });
+  const other = pagesOf({ rows: [9, 9, 9, 9, 9, 9, 9, 9] }, 5);
+  await assert.rejects(wholeAnswer(first, async at => other.page(at)), { code: 'byte_page_broken' });
+});
+
+test('operationCaller hands every operation\'s pages back joined, under one request key', async () => {
+  const rows = { rows: [{ id: 'a' }, { id: 'b' }, { id: 'c' }] };
+  const { first, page } = pagesOf(rows, 10);
+  const keys = [];
+  const answers = [];
+  const runOperationAt = async ({ input, requestKey }) => { keys.push(requestKey); answers.push(input.after_byte ?? 0); return input.after_byte === undefined ? first : page(input.after_byte); };
+  assert.deepEqual(await wholeAnswer(await runOperationAt({ input: {}, requestKey: 'k1' }), at => runOperationAt({ input: { after_byte: at }, requestKey: 'k1' })), rows);
+  assert.ok(keys.every(key => key === 'k1'));
+  assert.equal(answers[0], 0);
+});
