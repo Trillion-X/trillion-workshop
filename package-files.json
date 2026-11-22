@@ -2236,6 +2236,7 @@
   }
  ],
  "tool:answer-the-saved-examples-page": [
+    {"package": "run-sql-in-my-database", "paths": ["do-work/through-the-run-proxy.mjs"], "at": "/opt/run-sql-in-my-database"},
   {
    "package": "saved-examples",
    "paths": [
@@ -7220,6 +7221,7 @@
   }
  ],
  "tool:check-a-public-address": [
+    {"package": "run-sql-in-my-database", "paths": ["do-work/through-the-run-proxy.mjs"], "at": "/opt/check-a-public-address-tree/tools/run-sql-in-my-database"},
   {
    "package": "check-a-public-address",
    "paths": [

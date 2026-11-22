@@ -5,19 +5,32 @@ import { lookup } from 'node:dns/promises';
 import { createGunzip, createInflate, createBrotliDecompress } from 'node:zlib';
 import { publicAddress, fetchPublic } from '../../refuse-requests-to-private-addresses/public-address.mjs';
 import { checkedLookup } from './resolved-address.mjs';
+import { once } from 'node:events';
+import { connect as tlsConnect } from 'node:tls';
+// Sandboxed runs reach the network only through the run's proxy (HTTPS_PROXY); the same CONNECT tunnel the run-sql tool uses.
+import { throughProxy } from '../../run-sql-in-my-database/do-work/through-the-run-proxy.mjs';
 
 export function nodePublicFetch({ resolve = host => lookup(host, { all: true, verbatim: true }), request = httpsRequest,
-  maxBytes = 65536, timeoutMs = 10000 } = {}) {
+  maxBytes = 65536, timeoutMs = 10000, proxy = process.env.HTTPS_PROXY || process.env.https_proxy || '' } = {}) {
   const connectLookup = checkedLookup(resolve);
+  const tunnelFor = proxy ? throughProxy(proxy) : null;
+  // Through the run's proxy the proxy resolves the name, so no address is checked here; the name itself was judged by publicAddress.
+  const secureThroughProxy = async url => {
+    const tunnel = tunnelFor();
+    tunnel.connect(Number(url.port || 443), url.hostname);
+    await once(tunnel, 'connect');
+    return tlsConnect({ socket: tunnel, servername: url.hostname, rejectUnauthorized: true });
+  };
   const hop = async (address, init) => {
     const url = new URL(publicAddress(address));
     const headers = new Headers(init.headers);
     for (const name of ['host', 'connection', 'transfer-encoding', 'proxy-authorization']) headers.delete(name);
     headers.set('accept-encoding', 'identity');
+    const secure = tunnelFor ? await secureThroughProxy(url) : null;
     return new Promise((resolveAnswer, reject) => {
       const abort = () => req.destroy(new Error('The public request was cancelled.'));
       const req = request(url, { method: init.method ?? 'GET', headers: Object.fromEntries(headers), agent: false,
-        lookup: connectLookup, rejectUnauthorized: true, signal: init.signal }, async incoming => {
+        ...(secure ? { createConnection: () => secure } : { lookup: connectLookup }), rejectUnauthorized: true, signal: init.signal }, async incoming => {
         try {
           let stream = incoming;
           const encoding = String(incoming.headers['content-encoding'] ?? '').toLowerCase();

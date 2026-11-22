@@ -113,6 +113,11 @@
           "files": {
             "package_files": [
               {
+                "package": "run-sql-in-my-database",
+                "paths": ["do-work/through-the-run-proxy.mjs"],
+                "at": "/opt/check-a-public-address-tree/tools/run-sql-in-my-database"
+              },
+              {
                 "package": "check-a-public-address",
                 "paths": [
                   "do-work/check-a-public-address.mjs"
