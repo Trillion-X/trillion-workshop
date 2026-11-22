@@ -1,0 +1,60 @@
+{
+  "kind": "tool-rows",
+  "record_set": "measure-graphics-on-the-person-tool-rows",
+  "what_this_is": "The Workshop row for the measure-graphics-on-the-person folder: a measurement the person's AI runs on the person's own computer against a video's graphic layers and clean picture, returning the verdict per law and the worst frames.",
+  "records": [
+    {
+      "id": "package::measure-graphics-on-the-person::tool::measure-graphics-on-the-person",
+      "address": "package::measure-graphics-on-the-person::tool::measure-graphics-on-the-person",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:measure-graphics-on-the-person",
+        "label": "Measure graphics against the person and the platform safe zones (runs on your computer)",
+        "status": "active",
+        "job": "Check a finished vertical edit by measurement: do any graphics or captions cover the person or the face, and does anything sit outside the platform safe zones; and find where a graphic can go without covering the person",
+        "description": "Measures a vertical video's graphic layers from pixels: the graphics, the captions and the pose marks over a clean picture. Per frame it finds the share of each layer on the person (detected by segmentation) and on the face (from pose keypoints), and the pixels outside each platform's safe rectangle; it keeps the worst frame and time for each. It returns one verdict per law, against the bars in the person's video_style_laws rows and the platform_safe_zones rows read from the held database, and can write one clip_quality_verdicts row per check. It also gives the free regions of a frame or span, the safe zone minus the person and face masks, so a renderer can place a graphic automatically. Runs on the person's computer.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "request": {
+              "type": "string",
+              "description": "The request JSON file on the person's computer (clean, layers{graphics,captions,pose}, out, platforms, zones_file, laws_file, person{...}, format_id, optional run_label and write_verdicts), put where {request} is in the command."
+            }
+          },
+          "required": [
+            "request"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The printed JSON: files_identity, rows (one per law: check_id, verdict, reason), and worst (per layer: the worst frame and time for pixels, person share, face share and pixels outside each platform). With write_verdicts, written counts the clip_quality_verdicts rows."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "python3 -m pip install -U numpy opencv-python ultralytics blake3",
+            "brew install ffmpeg"
+          ],
+          "run": "taskpolicy -b nice -n 20 python3 tools/measure-graphics-on-the-person/do-work/measure_graphics_on_the_person.py measure --request {request}",
+          "needs": [
+            "python",
+            "ffmpeg",
+            "ultralytics segmentation and pose models"
+          ],
+          "say": "This runs on the person's computer from the root of the Workshop checkout. It measures the layer videos the edit renders; it does not edit them. Pass the request file. Tell the person the verdict per law, the worst frame and time per measure, and the reasons. For a renderer placing a graphic, run the free-regions command on the analysed clean picture instead."
+        },
+        "result_selector": "$",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:measure-graphics-on-the-person",
+        "uses_tools": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+ "drafted_from": "tool:measure-graphics-on-the-person's own row, do-work/measure_graphics_on_the_person.py and test/test_measure_graphics.py",
+ "start_here": "Say to your AI: \"Measure my edit's graphics against me and the platform safe zones.\" It runs tool:measure-graphics-on-the-person on your computer on the clean picture and the graphic layers, and reports the verdict per law with the worst frame and time.",
+ "lists": [],
+ "no_lists_because": "It keeps no row of its own: the bars come from the video_style_laws rows and the zones from the platform_safe_zones rows, read by the tool's rows command; a verdict is written only when a request names the held connection to write it to.",
+ "workflows": [],
+ "tools": [
+  "tool:measure-graphics-on-the-person"
+ ],
+ "instructions": [
+  "1. Render the edit's clean picture (the same edit with no graphics) and each graphic layer (graphics, captions, pose), same size and frame rate, as alpha videos or as mask videos (white = layer).",
+  "2. Fetch the law and zone rows with the rows command into a folder.",
+  "3. Write the request file: the clean picture, the three layers, an output folder, the platform ids, the two row files, the person settings and the clip's format id.",
+  "4. Run the measure command with the request as {request} under the load ceiling (taskpolicy -b nice -n 20).",
+  "5. Keep the verdict per law; for a graphic that must be placed, ask the free-regions command for the rectangles free over its span and place it inside one."
+ ],
+ "worked_examples": [
+  {
+   "title": "A card placed in the free region passes",
+   "ask": "Place the card in the top band and check it.",
+   "mcp": {
+    "server": "{cli}",
+    "tool": "do_one_thing_in_my_account",
+    "input": {
+     "address": "@tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:measure-graphics-on-the-person",
+      "input": {
+       "request": "/work/measure/request.json"
+      }
+     }
+    }
+   },
+   "given": "A clean picture of one second, a card 700 by 90 pixels inside the rectangle the free-regions command gives for the span, for three platforms.",
+   "hands_back": "{\"rows\": [{\"check_id\": \"workflow:check-graphics-never-cover-the-person\", \"verdict\": \"pass\"}, {\"check_id\": \"workflow:check-inside-platform-safe-zones\", \"verdict\": \"pass\"}]}"
+  }
+ ]
+}

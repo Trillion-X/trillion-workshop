@@ -30653,6 +30653,7 @@
    "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
+ "tool:measure-graphics-on-the-person": [],
  "tool:measure-how-a-show-stages-a-characters-turns": [
   {
    "package": "measure-a-characters-voice-lines-and-staging",
