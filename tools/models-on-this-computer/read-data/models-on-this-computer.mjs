@@ -204,12 +204,25 @@ async function askChatShape(row, body, seconds, streamed) {
 const LIMIT_READERS = { 'codex-lb-accounts': readCodexLimits };
 
 /**
+ * A reviewer's need from { review_of: { served_by, model } }, the answer it checks: the maker's provider (the answerer row
+ * whose chat row served it, else the serving row's own id) and model. The shared chooser then never gives the reviewer the
+ * maker's model and prefers another provider while one has room (choose-an-answerer invariant 4); null when the ask
+ * reviews nothing, so it is chosen exactly as before.
+ */
+export function reviewerNeed(input, settings) {
+  const maker = input?.review_of;
+  if (!maker || typeof maker !== 'object' || (!maker.served_by && !maker.model)) return null;
+  const answerer = (settings.answerers?.rows ?? []).find(row => row.chat === maker.served_by);
+  return { role: 'reviewer', avoid: { provider: answerer?.provider ?? maker.served_by ?? null, model: maker.model ?? null } };
+}
+
+/**
  * The chat row the shared chooser picks for a job that says `choose`, with the model it picked, and why; `{ row: null,
  * why }` when nothing fits (the job's own models answer then). Limits and models are read through the doors the
  * answerer limits rows name (placed: their `url`); a door this computer does not report gives no reading, which the
  * chooser skips. A row resting in this process after a failure or a 429 is a cool-down for every account of its provider.
  */
-export async function chosenRow(job, settings, { now = new Date(), readers = LIMIT_READERS, fetchImpl = fetch } = {}) {
+export async function chosenRow(job, settings, { now = new Date(), readers = LIMIT_READERS, fetchImpl = fetch, need = null } = {}) {
   const answerers = settings.answerers;
   if (!job?.choose || !Array.isArray(answerers?.rows) || !answerers.rows.length) return { row: null, why: null };
   const limits = [], models = {}, cooldowns = [];
@@ -227,7 +240,7 @@ export async function chosenRow(job, settings, { now = new Date(), readers = LIM
     const until = Math.max(0, ...rests.map(rest => rest.until));
     if (until) for (const account of answerer.account_pool ?? []) cooldowns.push({ provider: answerer.provider, account, until: new Date(until).toISOString() });
   }
-  const pick = chooseAnswerer({ kind: job.choose.kind, fit: job.choose.fit ?? [] }, { providers: answerers.rows, limits, models, cooldowns, now, threshold_percent: answerers.threshold_percent });
+  const pick = chooseAnswerer({ kind: job.choose.kind, fit: job.choose.fit ?? [], ...(need ?? {}) }, { providers: answerers.rows, limits, models, cooldowns, now, threshold_percent: answerers.threshold_percent });
   if (pick.none) return { row: null, why: pick.none };
   const answerer = answerers.rows.find(row => row.provider === pick.provider && (row.models ?? []).includes(pick.model) && chatOf(row));
   return answerer ? { row: { ...chatOf(answerer), model: pick.model }, why: pick.why } : { row: null, why: `${pick.provider} names no chat row` };
@@ -261,8 +274,11 @@ export async function askLocal(handed, settings, { priority = 0 } = {}) {
       if (lacking.length) throw Object.assign(new Error('the answer lacks fields'), { said: `answered without ${lacking.join(', ')}` });
       return reply;
     };
-    const listed = Array.isArray(job.models) ? job.models.map(id => settings.chat.find(row => row.id === id)).filter(Boolean) : settings.chat;
-    const picked = await chosenRow(job, settings);
+    const need = reviewerNeed(input, settings);
+    const named = Array.isArray(job.models) ? job.models.map(id => settings.chat.find(row => row.id === id)).filter(Boolean) : settings.chat;
+    // A reviewer's own fallbacks put the maker's model last, so a local judge is another model whenever the job lists one.
+    const listed = need?.avoid?.model ? [...named.filter(row => row.model !== need.avoid.model), ...named.filter(row => row.model === need.avoid.model)] : named;
+    const picked = await chosenRow(job, settings, { need });
     const rows = picked.row ? [picked.row, ...listed.filter(row => row.id !== picked.row.id)] : listed;
     const failures = [];
     const found = await firstAnswer(rows, async row => checked(await askChatShape(row, {

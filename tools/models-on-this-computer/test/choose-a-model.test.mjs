@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import test from 'node:test';
-import { askLocal, chosenRow, localModelSettings } from '../read-data/models-on-this-computer.mjs';
+import { askLocal, chosenRow, localModelSettings, reviewerNeed } from '../read-data/models-on-this-computer.mjs';
 
 const words = { none: 'No model on this computer answered.', needs_input: 'Give messages or state and questions.' };
 
@@ -134,4 +134,56 @@ test('the shipped DATA: do-a-task-step chooses, each answerer row answers throug
     assert.ok(settings.chat.some(chat => chat.door === source.door), `${source.door} is a door a chat row already uses`);
   }
   assert.ok(settings.answerers.threshold_percent < 85, 'unattended work stops before the chooser\'s default threshold, keeping a reserve');
+});
+
+// A judge reviews another step's answer: { review_of: { served_by, model } } of that answer.
+const reviewing = (settings, maker) => askLocal({ ...ask, review_of: maker }, settings);
+
+test('a reviewer never answers with the maker\'s model: with room, the subscription answers with another of its models', async () => {
+  const asked = [], localAsked = [];
+  const door = await codexDoor({ remaining: [95, 98], asked });
+  const local = await localServer(localAsked);
+  const settings = settingsFor(door, local);
+  settings.answerers.rows[0].models = ['gpt-big', 'gpt-other'];
+  try {
+    const reply = await reviewing(settings, { served_by: 'subscription', model: 'gpt-big' });
+    assert.equal(reply.served_by, 'subscription');
+    assert.equal(reply.model, 'gpt-other');
+    assert.deepEqual(asked, ['gpt-other'], 'the maker\'s model is not asked');
+    assert.match(reply.chosen_because, /reviewer/);
+  } finally { door.close(); local.close(); }
+});
+
+test('a reviewer of a local maker takes the subscription while it has room', async () => {
+  const asked = [], localAsked = [];
+  const door = await codexDoor({ remaining: [95, 98], asked });
+  const local = await localServer(localAsked);
+  try {
+    const reply = await reviewing(settingsFor(door, local), { served_by: 'local', model: 'local-model' });
+    assert.equal(reply.served_by, 'subscription');
+    assert.deepEqual(localAsked, []);
+  } finally { door.close(); local.close(); }
+});
+
+test('with no room, a reviewer\'s local fallback asks another local model before the maker\'s', async () => {
+  const asked = [], localAsked = [];
+  const door = await codexDoor({ remaining: [25, 20], asked });
+  const local = await localServer(localAsked);
+  const settings = settingsFor(door, local);
+  settings.chat.push({ ...settings.chat[1], id: 'local-two', model: 'other-local' });
+  settings.jobs.step.models = ['local', 'local-two'];
+  try {
+    const reply = await reviewing(settings, { served_by: 'local', model: 'local-model' });
+    assert.equal(reply.served_by, 'local-two');
+    assert.deepEqual(localAsked, ['other-local']);
+    assert.deepEqual(asked, [], 'the reserve above the threshold is kept');
+  } finally { door.close(); local.close(); }
+});
+
+test('reviewerNeed names the maker\'s provider by its answerer row, else by the row that served it; no review_of is no need', () => {
+  const settings = { answerers: { rows: [{ provider: 'codex', chat: 'subscription' }] } };
+  assert.deepEqual(reviewerNeed({ review_of: { served_by: 'subscription', model: 'gpt-big' } }, settings), { role: 'reviewer', avoid: { provider: 'codex', model: 'gpt-big' } });
+  assert.deepEqual(reviewerNeed({ review_of: { served_by: 'local', model: 'qwen' } }, settings), { role: 'reviewer', avoid: { provider: 'local', model: 'qwen' } });
+  assert.equal(reviewerNeed({}, settings), null);
+  assert.equal(reviewerNeed({ review_of: {} }, settings), null);
 });

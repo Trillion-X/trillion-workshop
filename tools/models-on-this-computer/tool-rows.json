@@ -245,6 +245,10 @@
               "type": "boolean",
               "description": "true streams the answer and also returns it as keyed parts"
             },
+            "review_of": {
+              "type": "object",
+              "description": "The answer this ask checks, as its reply named it ({ served_by, model }): a job that chooses then never answers with that model, and takes another provider while one has room"
+            },
             "texts": {
               "type": "array",
               "items": {
