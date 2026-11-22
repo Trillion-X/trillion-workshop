@@ -81,6 +81,7 @@ const world = ({ exit = 0, written = true } = {}) => {
     archive: async (commit, folder) => { seen.archived.push(commit); mkdirSync(folder, { recursive: true }); },
     startProbe: async ({ urls }) => ({ stop: async () => { seen.stopped++; return { requests: 3, failed: 0, failures: [], slow_requests: [], urls }; } }),
     runApply: async ({ requestFile, held }) => { seen.applied.push({ request: JSON.parse(readFileSync(requestFile, 'utf8')), held }); return exit; },
+    addressesOf: async () => ['192.0.2.7'],
     sleep: async () => {}, now: () => Date.parse('2026-11-22T06:00:00Z'),
   };
   return { deps, seen, log };
@@ -123,6 +124,27 @@ test('a row that someone else changed while the apply ran is not written over, a
   const { summary } = await applyARow(request(), {}, deps);
   assert.equal(summary.row_put_back, false);
   assert.match(summary.row_put_back_error, /changed since it was read/);
+});
+
+test('a name that a fresh lookup finds answering with a second address fails the run with exit 6 and names it; a failed apply is not looked up', async () => {
+  const withNames = addressesOf => {
+    const named = world({ exit: 0 });
+    const read = named.deps.store.read;
+    named.deps.store.read = async () => { const answer = await read(); answer.computer.runs.names = [{ host_name: 'one.example.com', provider: {} }, { host_name: 'two.example.com', provider: {} }]; return answer; };
+    named.deps.addressesOf = addressesOf;
+    return named.deps;
+  };
+  const { code, summary } = await applyARow(request(), {}, withNames(async host => (host === 'one.example.com' ? ['192.0.2.7', '198.51.100.9', '192.0.2.7'] : ['192.0.2.7'])));
+  assert.equal(code, 6);
+  assert.equal(summary.apply_exit, 0);
+  assert.deepEqual(summary.names_answering_elsewhere, [{ host_name: 'one.example.com', addresses: ['192.0.2.7', '198.51.100.9'] }]);
+  const unfound = await applyARow(request(), {}, withNames(async () => { throw Object.assign(new Error('gone'), { code: 'ENOTFOUND' }); }));
+  assert.deepEqual(unfound.summary.names_answering_elsewhere.map(name => name.addresses), [['not found: ENOTFOUND'], ['not found: ENOTFOUND']]);
+  const clean = await applyARow(request(), {}, withNames(async () => ['192.0.2.7']));
+  assert.deepEqual([clean.code, clean.summary.names_answering_elsewhere], [0, undefined]);
+  const failed = world({ exit: 1 });
+  failed.deps.addressesOf = async () => { throw new Error('a failed apply must not look names up'); };
+  assert.equal((await applyARow(request(), {}, failed.deps)).code, 1);
 });
 
 test('a successful apply keeps the row as written', async () => {

@@ -20,6 +20,7 @@
 // tool's own process (the connection string on its descriptor 3). Values the row's units name by vault name are handed to the apply on
 // descriptor 5, as start-a-computer takes them; none is in argv, a file or the summary. `--dry-run` stops after the edits and writes nothing.
 import { spawn, execFile } from 'node:child_process';
+import { resolve4 } from 'node:dns/promises';
 import { closeSync, createReadStream, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, readlinkSync, realpathSync, renameSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -200,7 +201,7 @@ export function checkRequest(request) {
  * One whole run. `deps` is everything outside the program's own logic: `store` (read(name) answers { computer, siteSetting },
  * write(name, computer) answers { read_back_equal }), `targets` (read-data/apply-a-computer-row.json), `heldValues(names)`,
  * `archive(commit, folder)`, `runFolder(name)`, `startProbe({ tree, urls, log })` (answers `stop()`), `runApply({ tree, requestFile, held, out, err })`
- * (answers the exit code), `sleep(ms)` and `now()`.
+ * (answers the exit code), `addressesOf(host)` (a fresh lookup of a name's addresses), `sleep(ms)` and `now()`.
  */
 export async function applyARow(rawRequest, { dryRun = false }, deps) {
   const request = checkRequest(rawRequest);
@@ -252,15 +253,32 @@ export async function applyARow(rawRequest, { dryRun = false }, deps) {
     probed = await probe.stop();
   }
   const { failures, slow_requests, ...totals } = probed ?? {};
+  // The probe keeps its connections open, so it never sees a second address a name answers with; each name is looked up fresh.
+  const elsewhere = code === 0 ? await namesAnsweringElsewhere(row, deps.addressesOf) : [];
   return {
-    code,
+    code: elsewhere.length ? 6 : code,
     summary: {
       computer: row.name, workshop_commit: request.workshop_commit, row_written: written, ...putBack,
       started: timeOf(started), ended: timeOf(ended), apply_exit: code,
       ...(request.links && { links: code === 0 ? 'set' : 'put back' }),
+      ...(elsewhere.length && { names_answering_elsewhere: elsewhere }),
       probe: { urls, ...totals }, log_folder: log,
     },
   };
+}
+
+/** The names of `runs.names` that do not answer with the row's address alone, each with what a fresh lookup answered. A name with a
+ *  second address beside the row's (a provider's redirect record that no remove call can name, kept beside an adopted A record)
+ *  sends some fresh visitors to a host that may not serve the site, which a probe over kept connections cannot see: one fresh
+ *  visit in two hung on such an address after an apply that passed (Nov 22 2026, 3:54 AM CST). Such a run exits 6. */
+export async function namesAnsweringElsewhere(row, addressesOf) {
+  const off = [];
+  for (const name of row.runs?.names ?? []) {
+    if (typeof name?.host_name !== 'string') continue;
+    const addresses = await addressesOf(name.host_name).then(found => [...new Set(found)].sort(), error => [`not found: ${error.code ?? error.message}`]);
+    if (addresses.length !== 1 || addresses[0] !== row.address) off.push({ host_name: name.host_name, addresses });
+  }
+  return off;
 }
 
 /** The rows of a SQL answer as objects, whichever shape the SQL process gave them. */
@@ -356,6 +374,7 @@ const realDeps = ({ store, targets, workshop }) => ({
       return await new Promise((done, fail) => child.on('error', fail).on('exit', (code, signal) => done(code ?? (signal ? 128 : 1))));
     } finally { closeSync(outFd); closeSync(errFd); }
   },
+  addressesOf: host => resolve4(host),
   sleep: ms => new Promise(done => setTimeout(done, ms)),
   now: () => Date.now(),
 });
