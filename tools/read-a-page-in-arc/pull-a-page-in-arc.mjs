@@ -42,7 +42,10 @@ import {
 
 export const settings = JSON.parse(readFileSync(new URL('./pull-settings.json', import.meta.url), 'utf8'));
 
-const INPUT_FIELDS = ['url', 'links', 'scroll_selector', 'follow', 'save', 'save_attachments'];
+// `computer` is the engine's grant (computer.automate-an-app), which tool-rows.json requires; `most_scroll_steps` caps one
+// read's scrolls (5e75dfbf8). Both were dropped by 188cb225c, which rewrote this file from older bytes, so every engine
+// run of this tool was refused "The input has a field it does not take: computer" (found 4:3x AM CST Nov 22 2026).
+const INPUT_FIELDS = ['url', 'links', 'scroll_selector', 'follow', 'save', 'save_attachments', 'most_scroll_steps', 'computer'];
 const FOLLOW_FIELDS = ['same_site_only', 'most_pages', 'match'];
 const SAVE_FIELDS = ['folder', 'format', 'file_url'];
 const ATTACHMENT_FIELDS = ['folder'];
@@ -117,12 +120,16 @@ function readInput(input, s) {
   }
   const links = input.links ?? false;
   if (typeof links !== 'boolean') refuse('links must be true or false.');
+  const mostScrollSteps = input.most_scroll_steps ?? null;
+  if (mostScrollSteps !== null && (!Number.isInteger(mostScrollSteps) || mostScrollSteps < 1 || mostScrollSteps > s.scroll.most_steps)) {
+    refuse(`most_scroll_steps must be a whole number from 1 to ${s.scroll.most_steps}.`);
+  }
   const follow = input.follow === undefined ? null : readFollow(input.follow, s);
   const save = input.save === undefined ? null : readSave(input.save);
   if (save && (links || follow || selector)) refuse('save is one job on its own: leave out links, follow and scroll_selector.');
   const saveAttachments = input.save_attachments === undefined ? null : readAttachmentFolder(input.save_attachments);
   if (saveAttachments && save) refuse('save and save_attachments are separate jobs: give one.');
-  return { url, selector, links, needs_links: links || follow !== null, follow, save, save_attachments: saveAttachments };
+  return { url, selector, links, needs_links: links || follow !== null, follow, save, save_attachments: saveAttachments, most_scroll_steps: mostScrollSteps };
 }
 
 /**
@@ -566,7 +573,8 @@ export async function pullAPageInArc(input, { exec, settings: s = settings, slee
   try {
     const openTab = () => arcTab({ exec, timeout_ms: s.wait.call_timeout_ms });
     if (want.save) return await pullFile(arc, want, source, folder, s, sleep, openTab);
-    return await pullPage(arc, want, s, sleep, startedAt, folder, openTab);
+    const bounded = want.most_scroll_steps === null ? s : { ...s, scroll: { ...s.scroll, most_steps: want.most_scroll_steps } };
+    return await pullPage(arc, want, bounded, sleep, startedAt, folder, openTab);
   } catch (error) {
     return { error: failure(error) };
   }

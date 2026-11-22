@@ -674,3 +674,31 @@ test('most_scroll_steps caps the scrolls of one read, and refuses a number outsi
     assert.match(refused.error, /most_scroll_steps must be a whole number/);
   }
 });
+
+// Nov 22 2026: 188cb225c dropped `computer` and `most_scroll_steps` from the fields this tool takes, so the engine's own
+// input (tool-rows.json requires computer.automate-an-app) was refused before Arc was touched. Every property the row
+// declares is a field the tool takes, and the declared bound of most_scroll_steps is the settings' own.
+test('every input property the tool row declares is a field the tool takes, computer included', async () => {
+  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+  const row = rows.records.find(record => JSON.stringify(record.payload ?? record).includes('"tool:pull-a-page-in-arc"'));
+  const schema = findSchema(row);
+  assert.ok(schema, 'the row declares its input');
+  assert.ok(schema.required.includes('computer'));
+  assert.equal(schema.properties.most_scroll_steps.maximum, realSettings.scroll.most_steps);
+  for (const field of Object.keys(schema.properties)) {
+    const answer = await pullAPageInArc({ url: 'not an address', [field]: field === 'url' ? 'not an address' : null });
+    assert.doesNotMatch(answer.error, /a field it does not take/, field);
+  }
+  const granted = await pullAPageInArc({ url: 'file:///etc/hosts', computer: { 'automate-an-app': { app: 'company.thebrowser.Browser' } } });
+  assert.match(granted.error, /http or https/);
+});
+
+function findSchema(value) {
+  if (!value || typeof value !== 'object') return null;
+  if (value.properties?.url && value.properties?.computer) return value;
+  for (const inner of Object.values(value)) {
+    const found = findSchema(inner);
+    if (found) return found;
+  }
+  return null;
+}

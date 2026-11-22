@@ -140,6 +140,12 @@
               "type": "string",
               "description": "CSS selector of a scrolling pane inside the page (for example a Notion scroller) to scroll instead of the page itself"
             },
+            "most_scroll_steps": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "description": "The most scrolls this one read makes, so a long page is read in fixed chunks (at most pull-settings.json scroll.most_steps). Default: the settings bound."
+            },
             "follow": {
               "type": "object",
               "additionalProperties": false,
