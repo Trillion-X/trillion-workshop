@@ -1,25 +1,24 @@
 {
-  "start_here": "Say to your AI: \"Run workflow:write-product-words for a tour card on the drawing feature: you can now draw on top of any page you have open and your lines stay put when you scroll. The readers are new members.\"",
+  "start_here": "Say to your AI: \"Run workflow:write-product-words.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "It takes the facts as input and hands the words back by where they go; it reads and writes no list.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:write-product-words"
   ],
   "tools": [
+    "tool:ask-a-model",
     "tool:check-copy",
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Gather every true fact about what changed or what the words are for (at least 10 characters), where the words will show (a tour card, a notice, a landing page, an email, a post) and who reads them.",
-    "2. Say \"Run workflow:write-product-words\" with what, and where and reader when you know them.",
-    "3. Step facts lists only what is true and the one thing the reader can now do; step draft writes every piece in full second-person sentences, leading with what the reader gets.",
-    "4. Step judge runs tool:check-copy on the words and rewrites every finding until it passes.",
-    "5. Read the final words by where they go (title, body, button) and use them; nothing was added that your facts did not state."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:write-product-words\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "A title without a full stop fails the copy judge, then passes",
-      "ask": "Write the tour card for the drawing feature.",
+      "title": "Write product words people enjoy reading",
+      "ask": "Run workflow:write-product-words.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -28,19 +27,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:write-product-words",
-              "what": "You can now draw on top of any page you have open and your lines stay put when you scroll.",
-              "where": "a tour card",
-              "reader": "new members"
+              "row": "workflow:write-product-words"
             }
           }
         }
       },
       "workflow": "workflow:write-product-words",
-      "step": "judge",
-      "given": "Read from tools/check-against-a-persons-rules-and-verdicts/do-work/check-copy.mjs, run with value {title, body} and no rules (the mechanical grammar rows judge). With title \"New: Draw over anything\" it says failed, \"2 units: 1 fail, 0 uncertain, 1 pass\", FAIL value.title: sentence-ends-with-stop. With the title \"New: Draw over anything.\" and the body below it says passed, \"2 units: 0 fail, 0 uncertain, 2 pass\".",
-      "hands_back": "{\"words\":{\"title\":\"New: Draw over anything.\",\"body\":\"You can now draw on top of any page you have open. Pick the pen, draw, and your lines stay put when you scroll.\"},\"judge_said\":\"passed: 2 units: 0 fail, 0 uncertain, 2 pass\"}"
+      "step": "facts",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
   ],
-  "drafted_from": "workflow:write-product-words row and tools/check-against-a-persons-rules-and-verdicts/do-work/check-copy.mjs run on the example words"
+  "drafted_from": "workflow:write-product-words rendered from its row"
 }

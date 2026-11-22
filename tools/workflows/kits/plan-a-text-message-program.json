@@ -1,42 +1,41 @@
 {
-  "start_here": "Say to your AI: \"Run workflow:plan-a-text-message-program for appointment reminders for my tennis lessons.\" It goes step by step, handing back what it found with where each thing came from, and what is still open.",
+  "start_here": "Say to your AI: \"Run workflow:plan-a-text-message-program.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the last step keeps them wherever the person keeps the pursuit's rows, in that store's own way.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:plan-a-text-message-program"
   ],
   "tools": [
+    "tool:ask-a-model",
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Say what the run is for in plain words, and what is already known, as the input: {\"about\": \"appointment reminders for my tennis lessons\", \"known\": \"what you already know or decided\"}.",
-    "2. Run workflow:plan-a-text-message-program with tools:run, tool tool:run-workflow-definition, input {row: \"workflow:plan-a-text-message-program\", about, known}. Each step waits for its answer: what was found, each with where it came from, in found, and what is not settled yet in open with what would settle it.",
-    "3. Answer a step by giving its answer under answers by its step id and running again.",
-    "4. Read what the run kept and what is open; the last step says what matters most next, and choosing what runs next is up to you or your AI."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:plan-a-text-message-program\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Start to plan a text message program for appointment reminders for my tennis lessons",
-      "ask": "Run plan a text message program for appointment reminders for my tennis lessons.",
+      "title": "Plan a text message program",
+      "ask": "Run workflow:plan-a-text-message-program.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:plan-a-text-message-program",
-              "about": "appointment reminders for my tennis lessons"
+              "row": "workflow:plan-a-text-message-program"
             }
           }
         }
       },
       "workflow": "workflow:plan-a-text-message-program",
       "step": "gather-the-business-context",
-      "given": "No answers yet; run on the workflow engine on 2026-11-18 with this input.",
-      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"gather-the-business-context\",\"asks\":\"ai\"}]}: the run waits at 'Gather what the business is and where it stands' for what was found (found) and what is still open (open)."
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
   ],
-  "drafted_from": "workflow:plan-a-text-message-program's own rows in published/workflows.json and published/workflow-steps.json, and its run on the workflow engine on 2026-11-18"
+  "drafted_from": "workflow:plan-a-text-message-program rendered from its row"
 }

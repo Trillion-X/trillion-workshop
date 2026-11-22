@@ -1,42 +1,41 @@
 {
-  "start_here": "Say to your AI: \"Run workflow:move-past-fear-of-speaking-to-strangers-in-small-steps for my plan to say hello to a new person each day at the climbing gym.\" It goes step by step, handing back what it found with where each thing came from, and what is still open.",
+  "start_here": "Say to your AI: \"Run workflow:move-past-fear-of-speaking-to-strangers-in-small-steps.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the last step keeps them wherever the person keeps the pursuit's rows, in that store's own way.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:move-past-fear-of-speaking-to-strangers-in-small-steps"
   ],
   "tools": [
+    "tool:ask-a-model",
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Say what the run is for in plain words, and what is already known, as the input: {\"about\": \"my plan to say hello to a new person each day at the climbing gym\", \"known\": \"what you already know or decided\"}.",
-    "2. Run workflow:move-past-fear-of-speaking-to-strangers-in-small-steps with tools:run, tool tool:run-workflow-definition, input {row: \"workflow:move-past-fear-of-speaking-to-strangers-in-small-steps\", about, known}. Each step waits for its answer: what was found, each with where it came from, in found, and what is not settled yet in open with what would settle it.",
-    "3. Answer a step by giving its answer under answers by its step id and running again.",
-    "4. Read what the run kept and what is open; the last step says what matters most next, and choosing what runs next is up to you or your AI."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:move-past-fear-of-speaking-to-strangers-in-small-steps\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Start to move past fear of speaking to strangers in small steps for my plan to say hello to a new person each day at the climbing gym",
-      "ask": "Run move past fear of speaking to strangers in small steps for my plan to say hello to a new person each day at the climbing gym.",
+      "title": "Move past fear of speaking to strangers in small steps",
+      "ask": "Run workflow:move-past-fear-of-speaking-to-strangers-in-small-steps.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:move-past-fear-of-speaking-to-strangers-in-small-steps",
-              "about": "my plan to say hello to a new person each day at the climbing gym"
+              "row": "workflow:move-past-fear-of-speaking-to-strangers-in-small-steps"
             }
           }
         }
       },
       "workflow": "workflow:move-past-fear-of-speaking-to-strangers-in-small-steps",
       "step": "make-it-about-you-not-them",
-      "given": "No answers yet; run on the workflow engine on 2026-11-18 with this input.",
-      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"make-it-about-you-not-them\",\"asks\":\"ai\"}]}: the run waits at 'Make it about you, not them' for what was found (found) and what is still open (open)."
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
   ],
-  "drafted_from": "workflow:move-past-fear-of-speaking-to-strangers-in-small-steps's own rows in published/workflows.json and published/workflow-steps.json, and its run on the workflow engine on 2026-11-18"
+  "drafted_from": "workflow:move-past-fear-of-speaking-to-strangers-in-small-steps rendered from its row"
 }

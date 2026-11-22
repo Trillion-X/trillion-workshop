@@ -1,27 +1,27 @@
 {
-  "start_here": "Say to your AI: \"Run workflow:turn-notes-into-finished-content with format 'thread' for pursuit:example-bakery, from these notes: 'I used to write the order sheet from scratch every morning. Now I hand a new baker the sheet from yesterday and they learn the bake in one morning.'\"",
+  "start_here": "Say to your AI: \"Run workflow:turn-notes-into-finished-content.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "The notes come in as input and are searched in the person's own files, and the finished draft is kept as a file under /Content/, so it reads and writes no list.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:turn-notes-into-finished-content",
     "workflow:method-tell-a-story",
     "workflow:write-product-words"
   ],
   "tools": [
+    "tool:ask-a-model",
     "tool:check-copy",
+    "tool:run-sql-in-my-database",
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Have your notes, words or principle ready word for word (at least 20 characters) and decide the format (the id or name of one of your content formats, such as a post, thread, newsletter, article, script or talk).",
-    "2. Say \"Run workflow:turn-notes-into-finished-content\" with material, format and, if there is one, pursuit.",
-    "3. Step own-work searches your files for what you have already said and keeps your exact words and where each was found; step story runs workflow:method-tell-a-story to the end and hands back its run_id and the core change.",
-    "4. Steps write and laws write the piece citing your own words and check every line against your copywriting laws (workflow:write-product-words when you have none) and aloud.",
-    "5. Step judge runs tool:check-copy on the draft until it passes, keeps the draft in your files under /Content/ and links it to its pursuit; read the final draft and where it was kept before you use it."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:turn-notes-into-finished-content\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "The final draft goes through the copy judge and is kept under /Content/",
-      "ask": "Finish the thread from my notes about the order sheet.",
+      "title": "Turn notes into finished content",
+      "ask": "Run workflow:turn-notes-into-finished-content.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -30,19 +30,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:turn-notes-into-finished-content",
-              "material": "I used to write the order sheet from scratch every morning. Now I hand a new baker the sheet from yesterday and they learn the bake in one morning.",
-              "format": "thread",
-              "pursuit": "pursuit:example-bakery"
+              "row": "workflow:turn-notes-into-finished-content"
             }
           }
         }
       },
       "workflow": "workflow:turn-notes-into-finished-content",
-      "step": "judge",
-      "given": "Read from tools/check-against-a-persons-rules-and-verdicts/do-work/check-copy.mjs, run with {value: \"I used to write the order sheet from scratch every morning. Now I hand a new baker the sheet from yesterday. They learn the bake in one morning.\"} and no rules, so the mechanical grammar rows judge: status passed, exit 0, 1 unit, 0 fail, 0 uncertain, lines [\"1 units: 0 fail, 0 uncertain, 1 pass\"].",
-      "hands_back": "{\"draft\":\"I used to write the order sheet from scratch every morning. Now I hand a new baker the sheet from yesterday. They learn the bake in one morning.\",\"judge_said\":\"passed: 1 units: 0 fail, 0 uncertain, 1 pass\",\"kept_at\":\"/Content/order-sheet-thread.md\"}"
+      "step": "own-work",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
   ],
-  "drafted_from": "workflow:turn-notes-into-finished-content row and tools/check-against-a-persons-rules-and-verdicts/do-work/check-copy.mjs run on the example draft"
+  "drafted_from": "workflow:turn-notes-into-finished-content rendered from its row"
 }

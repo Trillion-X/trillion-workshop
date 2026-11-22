@@ -1,24 +1,24 @@
 {
-  "start_here": "Say to your AI: \"Run workflow:turn-research-into-a-plan for the capability 'customers find their past orders without asking us' in the shop's order page, and give me a facts-only plan with no recommendations.\"",
+  "start_here": "Say to your AI: \"Run workflow:turn-research-into-a-plan.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "Its plan is one document kept in the person's files and every finding is cited by id inside that document, so it reads and writes no list.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:turn-research-into-a-plan"
   ],
   "tools": [
-    "tool:run-workflow-definition"
+    "tool:ask-a-model",
+    "tool:run-workflow-definition",
+    "tool:your-files"
   ],
   "instructions": [
-    "1. Name the capability that is missing or weak (at least 3 characters) and, if you know it, the project, codebase or product it affects.",
-    "2. Say \"Run workflow:turn-research-into-a-plan\" with capability and where.",
-    "3. Step scope writes every hard constraint as an outcome (c1, c2 and so on) before any research; step current_state audits what exists now with the file and line behind each claim and the searches behind each \"missing\".",
-    "4. Steps research and per_system run six open lanes (discovery, failures, cutting-edge, two domains, industry-floor) and a deep dive on each system found; every finding is a fact with a source and a status.",
-    "5. Steps root_cause, constraint_stack and plan assemble the facts-only document (what they all get wrong is its longest section) and give where it is kept; step audit has an independent reviewer check it for recommendations, missing research and wrong facts. Read the document; it recommends nothing."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:turn-research-into-a-plan\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Scope names the constraints as outcomes before any research",
-      "ask": "Research how customers can find their past orders without asking us, and give me a plan of facts.",
+      "title": "Turn research into a plan",
+      "ask": "Run workflow:turn-research-into-a-plan.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -27,18 +27,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:turn-research-into-a-plan",
-              "capability": "customers find their past orders without asking us",
-              "where": "the shop's order page"
+              "row": "workflow:turn-research-into-a-plan"
             }
           }
         }
       },
       "workflow": "workflow:turn-research-into-a-plan",
-      "step": "scope",
-      "given": "Read from the scope step of workflow:turn-research-into-a-plan in tools/workflows/recipes/workflows.json (at least two constraints, each an outcome with why it is not a mechanism, at least 15 characters each).",
-      "hands_back": "{\"capability\":\"customers find their past orders without asking us\",\"affects\":[\"the shop's order page\",\"the order confirmation email\"],\"constraints\":[{\"id\":\"c1\",\"outcome\":\"A customer sees every order they have placed without contacting the shop.\",\"why_not_a_mechanism\":\"It names what the customer gets, not a login, an account or a lookup form that delivers it.\"},{\"id\":\"c2\",\"outcome\":\"A customer who never made an account can still reach their own orders and nobody else's.\",\"why_not_a_mechanism\":\"It states who may see what, and leaves open how that is proved.\"}]}"
+      "step": "current_state",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
   ],
-  "drafted_from": "workflow:turn-research-into-a-plan row (input_schema and steps scope to audit)"
+  "drafted_from": "workflow:turn-research-into-a-plan rendered from its row"
 }
