@@ -7,7 +7,7 @@
       "settings": [
         { "key": "color", "label": "Text", "widget": "color" },
         { "key": "font-family", "label": "Font", "widget": "choices", "options_drawn_with": "font-family", "options": [
-          { "value": "-apple-system, BlinkMacSystemFont, system-ui, sans-serif", "label": "System" },
+          { "value": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif", "label": "System" },
           { "value": "Inter, system-ui, sans-serif", "label": "Inter" },
           { "value": "Georgia, serif", "label": "Georgia" },
           { "value": "ui-monospace, Menlo, monospace", "label": "Mono" }

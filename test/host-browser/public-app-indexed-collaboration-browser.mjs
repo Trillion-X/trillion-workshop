@@ -10,6 +10,7 @@ const root = hostTestSource.root;
 
 const HARNESS = `import { mountPublicAppsScreen } from './src/workspace/public-apps-screen'; mountPublicAppsScreen(document.getElementById('root'));`;
 const WORKSPACE_FONTS = new Set([
+  'SF-Pro-Text-Regular.woff2', 'SF-Pro-Text-Medium.woff2', 'SF-Pro-Text-Semibold.woff2',
   'Recoleta-Regular.woff2', 'Recoleta-Medium.woff2', 'Recoleta-SemiBold.woff2',
   'Look-Regular.woff2', 'Look-Medium.woff2', 'Look-SemiBold.woff2',
 ]);

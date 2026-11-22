@@ -47,6 +47,10 @@
 @font-face { font-family: 'EB Garamond'; src: url('https://fonts.gstatic.com/s/ebgaramond/v27/SlGDmQSNjdsmc35JDF1K5E55YMjF_7DPuGi-6_RIAYV-e6yHgQ.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
 @font-face { font-family: 'EB Garamond'; src: url('https://fonts.gstatic.com/s/ebgaramond/v32/SlGUmQSNjdsmc35JDF1K5GR1SDk_YAPI.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
 @font-face { font-family: 'EB Garamond'; src: url('https://fonts.gstatic.com/s/ebgaramond/v32/SlGUmQSNjdsmc35JDF1K5GR1SDk_YAPI.woff2') format('woff2'); font-weight: 800; font-style: normal; font-display: swap; }
+@font-face { font-family: 'SF Pro Display'; src: url('./fonts/SF-Pro-Display-Regular.otf') format('opentype'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'SF Pro Display'; src: url('./fonts/SF-Pro-Display-Medium.otf') format('opentype'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'SF Pro Display'; src: url('./fonts/SF-Pro-Display-Semibold.otf') format('opentype'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'SF Pro Display'; src: url('./fonts/SF-Pro-Display-Bold.otf') format('opentype'); font-weight: 700; font-style: normal; font-display: swap; }
 @font-face { font-family: 'Geist Mono'; src: url('https://cdn.jsdelivr.net/gh/vercel/geist-font@main/packages/next/dist/fonts/geist-mono/GeistMono-Medium.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
 
 /* ---------------------------------------------------------------------------
@@ -60,7 +64,7 @@
 	      color-mix(in srgb, var(--surface-base) 94%, #fbfaf6 6%);
 	    background-color: var(--landing-canvas-bg);
     color: var(--text-primary);
-    font-family: -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', sans-serif;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-weight: 400;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -117,7 +121,7 @@ html.theme-transition-active *::after {
 
   /* Bitfield */
   --font-serif: 'Apple Garamond', 'Garamond Premier Pro', 'EB Garamond', Georgia, 'Times New Roman', serif;
-  --font-sans: -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', sans-serif;
+  --font-sans: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'Geist Mono', 'SF Mono', 'Fira Code', monospace;
   --bf-red: #e8453c;
   --bf-orange: #f5a623;

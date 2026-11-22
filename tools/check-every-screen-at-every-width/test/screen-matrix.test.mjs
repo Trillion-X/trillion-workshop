@@ -20,7 +20,7 @@ import test, { after, before } from 'node:test';
 import { launchChromium } from '../../headless-browser/launch.mjs';
 import { readViews, runMatrix } from '../check-screens.mjs';
 
-const fontFile = readFileSync(new URL('../../screen-look/show/fonts/Look-Regular.woff2', import.meta.url));
+const fontFile = readFileSync(new URL('../../screen-look/show/fonts/SF-Pro-Text-Regular.woff2', import.meta.url));
 
 // One page shell: a font that does load (the fixture's own family), the colours of a readable page, and `body`.
 const page = (body, style = '') => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>fixture</title>

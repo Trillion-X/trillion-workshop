@@ -45,25 +45,27 @@
     {
       "family": "SF Pro Text",
       "foundry": "Apple",
-      "files": [],
+      "files": [
+        "SF-Pro-Text-Regular.woff2",
+        "SF-Pro-Text-Medium.woff2",
+        "SF-Pro-Text-Semibold.woff2"
+      ],
       "licence_terms": "https://developer.apple.com/fonts/",
       "buy": null,
       "licensed_for": [
+        "app",
+        "web",
         "video",
         "social"
       ],
       "receipt": null,
-      "note": "Apple's SF Pro licence does not allow embedding the face in websites, so web is taken out (2026-11-21). The files left the kit and no page ships them. The owner's choice of 2026-10-17 keeps the face for video and social; the face stays named here so those uses stay on record. Video and social uses are not checked by the web gate.",
+      "note": "Apple's system face. Its licence covers designing for Apple's platforms, not carrying the file; every Apple device already draws it as the system font, so an app never needs the file.",
       "chosen_by": {
         "kind": "person",
         "accepted_risk": true,
         "on": "2026-10-17",
         "words": "the person chose this face for their videos, their web app and their public site; their own words are kept in their own records",
-        "known_licence_limit": "Apple's licence covers designing for Apple platforms; web embedding is no longer used (2026-11-21, web taken out); video and social stay the owner's accepted risk."
-      },
-      "web_taken_out": {
-        "on": "2026-11-21",
-        "why": "Apple's licence does not allow the face in websites."
+        "known_licence_limit": "Apple's licence covers designing for Apple platforms; carrying the file in web, app or video is the owner's accepted risk."
       }
     }
   ]

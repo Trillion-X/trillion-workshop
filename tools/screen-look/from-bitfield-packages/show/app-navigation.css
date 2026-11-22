@@ -3,12 +3,12 @@
 [data-theme=dark]{color-scheme:dark;--bg:#0b0c0f;--surface:#13151a;--surface-soft:#181b21;--surface-strong:#20242c;--text:#f5f7fb;--muted:#9298a6;--faint:#656c79;--line:#242832;--line-strong:#343a46;--accent:#8b76ff;--accent-soft:#29233f;--green:#54cfb6;--danger:#e68b84;--shadow:0 22px 64px rgba(0,0,0,.24)}
 *{box-sizing:border-box}
 html,body{min-height:100%;background:var(--bg);color:var(--text)}
-body{margin:0;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont, system-ui,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+body{margin:0;min-height:100vh;font-family:"SF Pro Text",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 .shell{min-height:100vh;margin-left:var(--rail)}
 .shell main{width:min(1400px,calc(100vw - var(--rail) - 48px));margin:0 auto;padding:24px 0 72px}
 .page{display:none}.page.active{display:block}
 .page-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0 0 18px;border-bottom:1px solid var(--line)}
-.page-title{margin:0;font:600 24px/1.3 -apple-system,BlinkMacSystemFont, system-ui,"Segoe UI",sans-serif}
+.page-title{margin:0;font:600 24px/1.3 "SF Pro Display",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 .page-card{margin-top:20px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
 .connection{display:flex;align-items:center;gap:8px;margin-bottom:14px;color:var(--muted);font-size:12px}.connection-dot{width:7px;height:7px;border-radius:50%;background:var(--green)}.connection[data-state=drive_disconnected] .connection-dot{background:var(--faint)}
 .info-card{max-width:720px;line-height:1.7;color:var(--muted)}

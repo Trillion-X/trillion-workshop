@@ -315,7 +315,7 @@
       "label": "Text font",
       "description": "Body and control text.",
       "kind": "text",
-      "value": "-apple-system, BlinkMacSystemFont, system-ui, sans-serif"
+      "value": "SF Pro Text"
      },
      {
       "key": "displayFontFamily",
@@ -798,7 +798,7 @@
       "label": "Text font",
       "description": "Body and control text.",
       "kind": "text",
-      "value": "-apple-system, BlinkMacSystemFont, system-ui, sans-serif"
+      "value": "SF Pro Text"
      },
      {
       "key": "displayFontFamily",
