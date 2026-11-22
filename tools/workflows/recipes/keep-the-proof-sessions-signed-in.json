@@ -1,74 +1,24 @@
 {
-  "_what": "workflow:keep-the-proof-sessions-signed-in: every morning, mint the proof accounts' sign-ins again before they end, so the signed-in live check (tool:check-live-screens-signed-in) never stops on an expired session. Its four tools are tools/check-every-screen-at-every-width/proof-session-mint.mjs and held-session.mjs; the person's own copy of this row is workflow_recipes in their database.",
+  "about": "workflow:keep-the-proof-sessions-signed-in: rendered from its workflow_recipes row.",
   "records": [
     {
       "payload": {
+        "source_kept_at": "2026-11-21 21:26:41.316659+00",
         "kind": "workflow-recipe",
         "id": "workflow:keep-the-proof-sessions-signed-in",
         "label": "Keep the proof sessions signed in",
         "job": "Every morning (9 AM CST), read when each proof account's session ends; when one has none or ends within renew_when_days_left (proof-accounts.json), ask the sites for codes, keep the codes in the vault, sign in with them and keep the sessions as proof-sessions, so the signed-in live check never stops for an expired sign-in. No code or cookie passes through a step answer.",
         "produces": "proof-sessions in the Mac vault, renewed before it ends",
+        "source": {
+          "by": "group 9 (lane g9-live-split)",
+          "from": "main dude hand path mint-proof-sessions.mjs, Nov 21 2026",
+          "tools": "Workshop tools/check-every-screen-at-every-width/proof-session-mint.mjs"
+        },
         "input_schema": {
           "type": "object",
-          "additionalProperties": false,
-          "properties": {}
+          "properties": {},
+          "additionalProperties": false
         },
-        "wakes": [
-          {
-            "id": "every-morning",
-            "on": {
-              "fact": {
-                "from": [
-                  "run"
-                ],
-                "kind": "due-time",
-                "match": {
-                  "schedule_id": "schedule:workflow:keep-the-proof-sessions-signed-in:every-morning"
-                },
-                "watch": {
-                  "schedules": [
-                    {
-                      "dst": {
-                        "gap": "next-valid",
-                        "fold": "earlier"
-                      },
-                      "action": {
-                        "operation": "tell-the-engine",
-                        "owner_ref": "workflow:keep-the-proof-sessions-signed-in",
-                        "completion": {
-                          "mode": "synchronous-owner-return"
-                        },
-                        "owner_dispatch": {
-                          "name": "workflow:keep-the-proof-sessions-signed-in",
-                          "input": {}
-                        }
-                      },
-                      "cadence": {
-                        "unit": "day"
-                      },
-                      "timezone": "UTC",
-                      "schedule_id": "schedule:workflow:keep-the-proof-sessions-signed-in:every-morning",
-                      "local_window": {
-                        "start": "15:00",
-                        "duration_minutes": 1
-                      },
-                      "start_local_date": "1970-01-01",
-                      "schedule_revision": 1,
-                      "source_generation": 1
-                    }
-                  ]
-                }
-              }
-            },
-            "input": {
-              "start_at": "when"
-            },
-            "budget": {
-              "steps": 10,
-              "wall_ms": 600000
-            }
-          }
-        ],
         "definition": {
           "id": "workflow:keep-the-proof-sessions-signed-in",
           "kind": "workflow",
@@ -163,6 +113,62 @@
           "version": 1,
           "is_active": true
         },
+        "wakes": [
+          {
+            "id": "every-morning",
+            "on": {
+              "fact": {
+                "from": [
+                  "run"
+                ],
+                "kind": "due-time",
+                "match": {
+                  "schedule_id": "schedule:workflow:keep-the-proof-sessions-signed-in:every-morning"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:keep-the-proof-sessions-signed-in",
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        },
+                        "owner_dispatch": {
+                          "name": "workflow:keep-the-proof-sessions-signed-in",
+                          "input": {}
+                        }
+                      },
+                      "cadence": {
+                        "unit": "day"
+                      },
+                      "timezone": "UTC",
+                      "schedule_id": "schedule:workflow:keep-the-proof-sessions-signed-in:every-morning",
+                      "local_window": {
+                        "start": "15:00",
+                        "duration_minutes": 1
+                      },
+                      "start_local_date": "1970-01-01",
+                      "schedule_revision": 1,
+                      "source_generation": 1
+                    }
+                  ]
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 600000
+            },
+            "input": {
+              "start_at": "when"
+            }
+          }
+        ],
         "records": {
           "runs": [
             "tool:read-when-the-proof-session-ends",
