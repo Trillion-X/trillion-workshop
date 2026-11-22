@@ -175,7 +175,7 @@ test('the read leaves out only what the formula engine would not keep: after fie
   assert.deepEqual(await kept(null, JSON.stringify(['niche'])), ['workflow:before-state', 'workflow:niche-or-kind', 'workflow:text-place'], 'an or group stays while one of its rules can be met');
   for (const [recipe, rules, fieldsList] of [['workflow:text-place', [rule('place', 'is_any_of', ['elsewhere'])], [field('place', 'text')]], ['workflow:design-ready', [rule('piece', 'is_any_of', ['design'])], [field('piece', 'choice', ['after', 'piece'])]]]) {
     const engine = await chooseTheWorkflowsThatFire({ parts: [{ place: 'product_stage', change: 'changed', where: SHOP, after: { piece: 'price' } }], own: [{ id: recipe, value: { recipe, fires_when: [group('and', rules, fieldsList)] } }], installed: false });
-    assert.equal(engine.chosen.length + engine.unfinished.length > 0, (await kept({ piece: 'price', n: 2 })).includes(recipe), `${recipe}: the read keeps what the chooser would choose or name`);
+    assert.equal(engine.chosen.length + engine.named.unfinished > 0, (await kept({ piece: 'price', n: 2 })).includes(recipe), `${recipe}: the read keeps what the chooser would choose or name`);
   }
 });
 

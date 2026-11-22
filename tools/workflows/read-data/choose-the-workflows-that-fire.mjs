@@ -7,10 +7,17 @@
 // conditions keep which parts. Nothing here names a workflow, a branch or a tag: a workflow added, or a kit installed,
 // is a candidate at once.
 //
-//   chooseTheWorkflowsThatFire({ parts, own?: [{ id, value: { recipe?, title, fires_when, definition?, kept_in? } }], shadow_ids?: [id], operators?, within?, installed?, over_installed? })
-//     -> { workflows, own, catalog_only, chosen: [{ workflow, label, part, condition, made_by, from, input, installed, definition?, kept_in? }],
-//          unfinished: [{ workflow, condition, incomplete }], unconditioned: [{ workflow, label }], unmatched_parts,
-//          within: [{ workflow, part, condition }] }
+//   chooseTheWorkflowsThatFire({ parts, own?: [{ id, value: { recipe?, title, fires_when, definition?, kept_in? } }], shadow_ids?: [id], operators?, within?, installed?, over_installed?, explain? })
+//     -> { workflows, own, catalog_only, chosen: [{ workflow, part, condition, input, installed, score, rank, kept_in?, definition? }],
+//          named: { unfinished, unconditioned, broad, unmatched_parts }, within: [{ workflow, part, condition }] }
+//   explain: true adds why: each choice's label, made_by, from, matched and weight, and the lists named counts:
+//     unfinished: [{ workflow, condition, part?, incomplete }], unconditioned: [{ workflow, label }], broad: [{ workflow, condition, kept_parts, of }], unmatched_parts: [part]
+//
+// The answer without explain is what a run holds and carries in every later envelope (tool:run-a-workflow refuses a run past
+// 32 KB): route-each-row-change binds only workflow, condition, input, installed and kept_in of each choice, and wf find
+// ranks by score. On Nov 22 2026 the explained answer (156 unconditioned workflows by label, every part a condition could not
+// read) took the router's runs to 43,056 bytes and every run failed from 6:29 AM CST. The lists depend only on the rows, the
+// installed recipes and the parts, so whoever fixes them asks again with the same parts and explain: true.
 //
 // within names the workflows of the runs this choice is made inside (the run itself and every run above it). A workflow
 // in that chain is never chosen again, so no workflow starts itself through its own parts, at any depth; its matches are
@@ -24,12 +31,14 @@
 // installed says an installed recipe holds the chosen id, so the installed workflow's own wakes can start it. kept_in is
 // where an own row says its definition is kept (the caller's name for that store, given when the caller read only the
 // row's conditions): a choice made by that row's own conditions names it when no installed recipe holds the id, or
-// over_installed lists it, so the caller starts that one from the row it reads there.
+// over_installed lists it, so the caller starts that one from the row it reads there; such a choice hands on no definition,
+// since the starter reads it from where it is kept.
 //
 // A condition that is Off, unfinished (a rule the engine cannot evaluate) or has no rule at all chooses nothing; the
-// last two are named so the run can fix them, and so is a part that lacks a field the condition reads (unfinished, with the
-// field named), so no condition is dropped unseen. A workflow with no condition is named in unconditioned, so the run can
-// judge it by its words and write the condition it judged back onto the workflow's row.
+// last two are counted (and named, with explain) so the run can fix them, and so is a part that lacks a field the condition
+// reads (unfinished, with the field named), so no condition is dropped unseen. A workflow with no condition is counted in
+// unconditioned (named with its label, with explain), so the run can judge it by its words and write the condition it
+// judged back onto the workflow's row.
 
 import { readFileSync } from 'node:fs';
 import { initSync, filterRecords } from 'trillion-workshop/tools/formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
@@ -113,8 +122,9 @@ function metKeys(condition, part, operators) {
 }
 
 export async function chooseTheWorkflowsThatFire(input = {}) {
-  const { parts, own: ownRows = [], operators, within = [], installed = true, over_installed: overInstalled = [], shadow_ids: shadowIds = [] } = input;
+  const { parts, own: ownRows = [], operators, within = [], installed = true, over_installed: overInstalled = [], shadow_ids: shadowIds = [], explain = false } = input;
   if (typeof installed !== 'boolean') throw new Error('installed must be true or false.');
+  if (typeof explain !== 'boolean') throw new Error('explain must be true or false.');
   if (!Array.isArray(overInstalled) || !overInstalled.every(id => typeof id === 'string')) throw new Error('over_installed must be a list of workflow ids.');
   if (!Array.isArray(within) || !within.every(id => typeof id === 'string')) throw new Error('within must be a list of workflow ids.');
   if (!Array.isArray(shadowIds) || !shadowIds.every(id => typeof id === 'string')) throw new Error('shadow_ids must be a list of workflow ids.');
@@ -163,9 +173,10 @@ export async function chooseTheWorkflowsThatFire(input = {}) {
     const matched = metKeys(item.condition, parts[part], operators);
     const weight = typeof item.weight === 'number' ? item.weight : 1;
     const score = weight * matched.reduce((sum, key) => sum + Math.log(conditioned / (holders.get(key) ?? conditioned)), 0);
-    const definition = from === 'own' ? own.get(workflow)?.definition : undefined;
     const keptIn = from === 'own' && (!shipped.has(workflow) || overInstalled.includes(workflow)) ? own.get(workflow)?.keptIn : undefined;
-    return { workflow, label, part, condition: item.label, made_by: item.made_by, from, matched, weight, score: Number(score.toFixed(6)), input: item.input ?? {}, installed: shipped.has(workflow), ...(definition ? { definition } : {}), ...(keptIn ? { kept_in: keptIn } : {}) };
+    const definition = from === 'own' && !keptIn ? own.get(workflow)?.definition : undefined;
+    const why = explain ? { label, made_by: item.made_by, from, matched, weight } : {};
+    return { workflow, part, condition: item.label, input: item.input ?? {}, installed: shipped.has(workflow), score: Number(score.toFixed(6)), ...why, ...(definition ? { definition } : {}), ...(keptIn ? { kept_in: keptIn } : {}) };
   }).sort((a, b) => a.part - b.part || b.score - a.score || (a.workflow < b.workflow ? -1 : 1));
   // A condition that keeps more than half of the parts it is shown says nothing about which work a part is: it is named in
   // broad so learn-and-prune rewrites it around the one situation its workflow is for.
@@ -179,15 +190,14 @@ export async function chooseTheWorkflowsThatFire(input = {}) {
     .map(entry => ({ workflow: entry.workflow, condition: entry.condition, kept_parts: entry.parts.size, of: parts.length }));
   const rankOf = new Map();
   for (const item of chosen) { item.rank = (rankOf.get(item.part) ?? 0) + 1; rankOf.set(item.part, item.rank); }
+  const lists = { unfinished, unconditioned, broad, unmatched_parts: parts.map((_, at) => at).filter(at => !rankOf.has(at)) };
   return {
     workflows: ids.length,
     own: own.size,
     catalog_only: ids.filter(id => !own.has(id)).length,
     chosen,
-    unfinished,
-    broad,
-    unconditioned,
-    unmatched_parts: parts.map((_, at) => at).filter(at => !rankOf.has(at)),
+    named: Object.fromEntries(Object.entries(lists).map(([name, list]) => [name, list.length])),
     within: inside,
+    ...(explain ? lists : {}),
   };
 }

@@ -230,7 +230,7 @@
         "label": "Choose which of my workflows fire for these parts of a seed",
         "status": "active",
         "job": "Say which of all my workflows, and the Workshop's I have installed, fire for each part of something that arrived, from the conditions each workflow carries on its own row",
-        "description": "Every workflow is a candidate branch of the one tree. Takes parts: the parts of one seed, each an object of its typed fields (for example kinds, subjects, people, niches, own_words; the fields are whatever the conditions read). Is given the person's own workflow rows as values (own), read by the caller from wherever the person keeps them, beside every recipe this Workshop installs; it reaches no database; an id the person holds a row for always shadows the installed recipe of that id, whatever the row's conditions (a row with none is unconditioned), and shadow_ids names every id the person holds a row for, so the installed copy of each is left out. Each workflow's conditions are its fires_when (branches/fires-when.json): a list of { label, condition: { fields, tree }, made_by, state }, the same fields and tree tool:filter-rows-by-rules takes, evaluated by the same formulas engine over the parts. Answers chosen (one row per workflow, part and condition that kept it, ranked within each part by specificity: score is the sum over the tags or rules the part met of log(workflows with a condition / workflows holding that tag), times the condition's measured weight, rank 1 best), broad (conditions that kept more than half of the parts, to be rewritten), unfinished (conditions with a rule the engine cannot evaluate or no rule at all, which choose nothing), unconditioned (workflows with no condition On, by id and label, to be judged by their words), unmatched_parts and the counts. Nothing is written; no workflow, branch or tag is named in the tool.",
+        "description": "Every workflow is a candidate branch of the one tree. Takes parts: the parts of one seed, each an object of its typed fields (for example kinds, subjects, people, niches, own_words; the fields are whatever the conditions read). Is given the person's own workflow rows as values (own), read by the caller from wherever the person keeps them, beside every recipe this Workshop installs; it reaches no database; an id the person holds a row for always shadows the installed recipe of that id, whatever the row's conditions (a row with none is unconditioned), and shadow_ids names every id the person holds a row for, so the installed copy of each is left out. Each workflow's conditions are its fires_when (branches/fires-when.json): a list of { label, condition: { fields, tree }, made_by, state }, the same fields and tree tool:filter-rows-by-rules takes, evaluated by the same formulas engine over the parts. Answers chosen (one row per workflow, part and condition that kept it: workflow, part, condition, input, installed, score, rank, and kept_in for an own row kept in a store, or definition for one handed in with it; ranked within each part by specificity: score is the sum over the tags or rules the part met of log(workflows with a condition / workflows holding that tag), times the condition's measured weight, rank 1 best), named (how many conditions are unfinished: a rule the engine cannot evaluate, no rule at all, or a field a part does not carry, which choose nothing; how many workflows are unconditioned, with no condition On; how many conditions are broad, keeping more than half of the parts; how many parts are unmatched), within and the counts. This answer is what a workflow run holds and carries in every later envelope, so it stays small. With explain: true it also names them, to be fixed: unfinished, unconditioned (by id and label, to be judged by their words), broad (to be rewritten) and unmatched_parts, and each choice's label, made_by, from, matched and weight. Nothing is written; no workflow, branch or tag is named in the tool.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -285,6 +285,10 @@
               "type": "boolean",
               "description": "false leaves the installed recipes out, and every own row whose id an installed recipe holds: only the person's rows that exist nowhere else are candidates. Left out, true"
             },
+            "explain": {
+              "type": "boolean",
+              "description": "true also names what named counts (unfinished, unconditioned, broad, unmatched_parts) and why each choice was made (label, made_by, from, matched, weight), for whoever judges or fixes them. Left out, false: the answer a workflow run carries"
+            },
             "over_installed": {
               "type": "array",
               "items": {
@@ -299,10 +303,7 @@
           "required": [
             "workflows",
             "chosen",
-            "unfinished",
-            "unconditioned",
-            "unmatched_parts",
-            "broad"
+            "named"
           ],
           "properties": {
             "workflows": {
@@ -339,6 +340,18 @@
                   "condition": {
                     "type": "string"
                   },
+                  "input": {
+                    "type": "object"
+                  },
+                  "installed": {
+                    "type": "boolean"
+                  },
+                  "kept_in": {
+                    "type": "string"
+                  },
+                  "definition": {
+                    "type": "object"
+                  },
                   "made_by": {
                     "type": [
                       "string",
@@ -363,6 +376,29 @@
                   "rank": {
                     "type": "integer"
                   }
+                }
+              }
+            },
+            "named": {
+              "type": "object",
+              "required": [
+                "unfinished",
+                "unconditioned",
+                "broad",
+                "unmatched_parts"
+              ],
+              "properties": {
+                "unfinished": {
+                  "type": "integer"
+                },
+                "unconditioned": {
+                  "type": "integer"
+                },
+                "broad": {
+                  "type": "integer"
+                },
+                "unmatched_parts": {
+                  "type": "integer"
                 }
               }
             },
