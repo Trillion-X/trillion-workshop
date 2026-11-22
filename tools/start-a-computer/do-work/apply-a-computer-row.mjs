@@ -15,11 +15,17 @@
 //  - A failed apply puts the row back to exactly what was read, by the same compare-and-set (it changes the row only while it still
 //    is what this run wrote): the computer keeps serving what it served, so the row must keep saying so. The summary says
 //    `row_put_back` and whether the database read back what was put.
+//  - The row keeps the Workshop commit its computer was last applied from, `runs.rendered_from_workshop`, written by the same
+//    compare-and-set as the edits. Every unit renders from the request's commit, so a commit that is not that one or one after it
+//    renders an older kit over the computer (Nov 22 2026, 6:15 AM CST: an apply from a commit made before the web server kit learned
+//    to send each www name to its first name took that away for ten minutes). Such a request is refused before anything is written;
+//    a commit not found here is fetched once first. A row that records no commit yet is applied and then records one.
 // The machine's ssh identity, known_hosts and pages folder, by the row's address, and the program that reads a held value by vault
 // name are the person's own: they come from the file `--targets` names (its `machines` and `held_value_reader`), laid over the
 // defaults of read-data/apply-a-computer-row.json (the SQL process, the probe's timings). A shared tool names no one's machine. The row is read and written by the SQL
 // tool's own process (the connection string on its descriptor 3). Values the row's units name by vault name are handed to the apply on
-// descriptor 5, as start-a-computer takes them; none is in argv, a file or the summary. `--dry-run` stops after the edits and writes nothing.
+// descriptor 5, as start-a-computer takes them; none is in argv, a file or the summary. `--dry-run` stops after the edits and the commit
+// check, says what the check found, and writes nothing.
 import { spawn, execFile } from 'node:child_process';
 import { resolve4 } from 'node:dns/promises';
 import { closeSync, createReadStream, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, readlinkSync, realpathSync, renameSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
@@ -203,7 +209,8 @@ export function checkRequest(request) {
  * One whole run. `deps` is everything outside the program's own logic: `store` (read(name) answers { computer, siteSetting },
  * write(name, computer) answers { read_back_equal }), `targets` (read-data/apply-a-computer-row.json), `heldValues(names)`,
  * `archive(commit, folder)`, `runFolder(name)`, `startProbe({ tree, urls, log })` (answers `stop()`), `runApply({ tree, requestFile, held, out, err })`
- * (answers the exit code), `addressesOf(host)` (a fresh lookup of a name's addresses), `sleep(ms)` and `now()`.
+ * (answers the exit code), `addressesOf(host)` (a fresh lookup of a name's addresses), `isAncestor(older, newer)` (true, false, or
+ * null when either commit is not known even after one fetch), `sleep(ms)` and `now()`.
  */
 export async function applyARow(rawRequest, { dryRun = false }, deps) {
   const request = checkRequest(rawRequest);
@@ -211,10 +218,12 @@ export async function applyARow(rawRequest, { dryRun = false }, deps) {
   const { row, changes } = applyEdits(computer, request.edits);
   const machine = deps.targets.machines?.[row.address];
   if (!machine) throw refused(`${row.name} is at ${row.address}, which the targets file names no ssh identity for.`);
-  if (dryRun) return { code: 0, summary: { dry_run: true, computer: row.name, changes } };
+  const workshopCheck = await checkWorkshopCommit(computer, request.workshop_commit, deps.isAncestor);
+  if (dryRun) return { code: 0, summary: { dry_run: true, computer: row.name, workshop_check: workshopCheck, changes } };
 
+  row.runs.rendered_from_workshop = request.workshop_commit;
   const held = await deps.heldValues(heldNamesOf(row));
-  const changed = changes.some(change => !isDeepStrictEqual(change.before, change.after));
+  const changed = !isDeepStrictEqual(row, computer);
   const written = changed && (await deps.store.write(row.name, row)).read_back_equal === true;
   if (changed && !written) throw new Error('the database did not read back what was written; no apply was run.');
 
@@ -260,7 +269,7 @@ export async function applyARow(rawRequest, { dryRun = false }, deps) {
   return {
     code: elsewhere.length ? 6 : code,
     summary: {
-      computer: row.name, workshop_commit: request.workshop_commit, row_written: written, ...putBack,
+      computer: row.name, workshop_commit: request.workshop_commit, workshop_check: workshopCheck, row_written: written, ...putBack,
       started: timeOf(started), ended: timeOf(ended), apply_exit: code,
       ...(request.links && { links: code === 0 ? 'set' : 'put back' }),
       ...(elsewhere.length && { names_answering_elsewhere: elsewhere }),
@@ -268,6 +277,30 @@ export async function applyARow(rawRequest, { dryRun = false }, deps) {
     },
   };
 }
+
+/** Whether `commit` may render `computer`: it is the commit the row records as last applied (`runs.rendered_from_workshop`), one after
+ *  it, or the row records none. Answers what was found, in words; refuses an older commit, or one whose ancestry cannot be read. */
+export async function checkWorkshopCommit(computer, commit, isAncestor) {
+  const recorded = computer.runs.rendered_from_workshop;
+  if (recorded === undefined) return 'the row records no commit yet';
+  if (recorded === commit) return 'the commit the row was last applied from';
+  const after = await isAncestor(recorded, commit);
+  if (after === true) return `after ${recorded}, the commit the row was last applied from`;
+  if (after === null) throw refused(`${computer.name} was last applied from Workshop commit ${recorded}; ${commit} or ${recorded} is not in the Workshop repository here, even after a fetch, so whether ${commit} comes after it cannot be read. Nothing was written.`);
+  throw refused(`${computer.name} was last applied from Workshop commit ${recorded}; ${commit} is not that commit or one after it, so applying it would render an older kit over the computer. Ask with ${recorded} or a later commit. Nothing was written.`);
+}
+
+/** Whether commit `older` is `newer` or before it in the Workshop repository at `workshop`: null when either is not there, even after
+ *  one fetch of its default remote. */
+export const isAncestorIn = workshop => async (older, newer) => {
+  const git = args => run('git', ['-C', workshop, ...args]);
+  const known = async () => (await Promise.all([older, newer].map(commit => git(['cat-file', '-e', `${commit}^{commit}`]).then(() => true, () => false)))).every(Boolean);
+  if (!(await known())) {
+    await git(['fetch', '--quiet']);
+    if (!(await known())) return null;
+  }
+  return git(['merge-base', '--is-ancestor', older, newer]).then(() => true, error => { if (error.code === 1) return false; throw error; });
+};
 
 /** The names of `runs.names` that do not answer with the row's address alone, each with what a fresh lookup answered. A name with a
  *  second address beside the row's (a provider's redirect record that no remove call can name, kept beside an adopted A record)
@@ -377,6 +410,7 @@ const realDeps = ({ store, targets, workshop }) => ({
     } finally { closeSync(outFd); closeSync(errFd); }
   },
   addressesOf: host => resolve4(host),
+  isAncestor: isAncestorIn(workshop),
   sleep: ms => new Promise(done => setTimeout(done, ms)),
   now: () => Date.now(),
 });

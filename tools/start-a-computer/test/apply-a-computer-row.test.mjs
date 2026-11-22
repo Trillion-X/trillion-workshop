@@ -1,14 +1,16 @@
 // tools/start-a-computer/test/apply-a-computer-row.test.mjs
 //
 // Changing a computer's row and applying it: edits by path selector, compare-and-set before anything is written, links put back
-// when the apply fails, the apply's exit code passed through, and a dry run that writes nothing. The row store, the unpacking,
-// the probe and the apply are made up; the links are real symlinks in a temporary folder.
+// when the apply fails, the apply's exit code passed through, a Workshop commit that never goes back to before the one the row was
+// last applied from, and a dry run that writes nothing. The row store, the unpacking, the probe and the apply are made up; the links
+// are real symlinks in a temporary folder, and the ancestry reader runs on real git repositories in one.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { lstatSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, realpathSync, symlinkSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { applyARow, applyEdits, heldNamesOf, hostsOf, parsePath, runFolder, setLinks, sqlRowStore } from '../do-work/apply-a-computer-row.mjs';
+import { applyARow, applyEdits, heldNamesOf, hostsOf, isAncestorIn, parsePath, runFolder, setLinks, sqlRowStore } from '../do-work/apply-a-computer-row.mjs';
 
 const OLD = '1'.repeat(40), NEW = '2'.repeat(40), TREE = '3'.repeat(40);
 const row = () => ({
@@ -69,10 +71,11 @@ test('the hosts and the held names a row says are read from the row', () => {
 });
 
 // A whole run with everything outside made up. `store` keeps what was written; `exit` is what the apply answers.
-const world = ({ exit = 0, written = true } = {}) => {
+const world = ({ exit = 0, written = true, recorded, after = true } = {}) => {
   const stored = row();
+  if (recorded) stored.runs.rendered_from_workshop = recorded;
   const log = mkdtempSync(join(tmpdir(), 'apply-row-test-'));
-  const seen = { writes: [], applied: [], stopped: 0, archived: [], stored };
+  const seen = { writes: [], applied: [], stopped: 0, archived: [], stored, ancestry: [] };
   const deps = {
     store: { read: async () => ({ computer: structuredClone(stored), siteSetting: null }), write: async (name, computer) => { seen.writes.push({ name, computer }); if (written) Object.assign(stored, structuredClone(computer)); return { read_back_equal: written }; } },
     targets: { machines: { '192.0.2.7': { ssh: { known_hosts: '/hosts', identity_file: '/key' }, pages_folder: '/pages' } }, probe: {} },
@@ -82,6 +85,7 @@ const world = ({ exit = 0, written = true } = {}) => {
     startProbe: async ({ urls }) => ({ stop: async () => { seen.stopped++; return { requests: 3, failed: 0, failures: [], slow_requests: [], urls }; } }),
     runApply: async ({ requestFile, held }) => { seen.applied.push({ request: JSON.parse(readFileSync(requestFile, 'utf8')), held }); return exit; },
     addressesOf: async () => ['192.0.2.7'],
+    isAncestor: async (older, newer) => { seen.ancestry.push([older, newer]); return after; },
     sleep: async () => {}, now: () => Date.parse('2026-11-22T06:00:00Z'),
   };
   return { deps, seen, log };
@@ -180,6 +184,77 @@ test('a dry run prints the changes and writes, unpacks and applies nothing', asy
   assert.equal(code, 0);
   assert.deepEqual(summary.changes.map(({ at, before, after }) => ({ at, before, after })), [{ at: edit.at, before: OLD, after: NEW }]);
   assert.deepEqual([seen.writes.length, seen.applied.length, seen.archived.length], [0, 0, 0]);
+});
+
+test('a row that records no commit is applied and then records the commit it was rendered from, in the same write', async () => {
+  const { deps, seen, log } = world({ exit: 0 });
+  const { summary } = await applyARow(request(), {}, deps);
+  assert.equal(seen.writes.length, 1);
+  assert.equal(seen.writes[0].computer.runs.rendered_from_workshop, TREE);
+  assert.equal(seen.writes[0].computer.runs.units[1].source.commit, NEW);
+  assert.equal(seen.stored.runs.rendered_from_workshop, TREE);
+  assert.equal(JSON.parse(readFileSync(join(log, 'row/computer.json'), 'utf8')).runs.rendered_from_workshop, TREE);
+  assert.equal(summary.workshop_check, 'the row records no commit yet');
+  assert.deepEqual(seen.ancestry, []);
+});
+
+test('the same commit is applied without an ancestry read, and with no edits writes nothing', async () => {
+  const { deps, seen } = world({ exit: 0, recorded: TREE });
+  const { code, summary } = await applyARow(request({ edits: [] }), {}, deps);
+  assert.deepEqual([code, seen.writes.length, seen.applied.length, seen.ancestry.length], [0, 0, 1, 0]);
+  assert.equal(summary.workshop_check, 'the commit the row was last applied from');
+  assert.equal(seen.stored.runs.rendered_from_workshop, TREE);
+});
+
+test('a commit after the recorded one is applied and recorded', async () => {
+  const { deps, seen } = world({ exit: 0, recorded: OLD });
+  const { code, summary } = await applyARow(request(), {}, deps);
+  assert.equal(code, 0);
+  assert.deepEqual(seen.ancestry, [[OLD, TREE]]);
+  assert.equal(seen.stored.runs.rendered_from_workshop, TREE);
+  assert.equal(summary.workshop_check, `after ${OLD}, the commit the row was last applied from`);
+});
+
+test('a commit before the recorded one, or one whose ancestry cannot be read, is refused with nothing written or applied', async () => {
+  for (const [after, words] of [[false, /example-box was last applied from Workshop commit 1{40}; 3{40} is not that commit or one after it, so applying it would render an older kit/], [null, /3{40} or 1{40} is not in the Workshop repository here, even after a fetch/]]) {
+    for (const dryRun of [false, true]) {
+      const { deps, seen } = world({ exit: 0, recorded: OLD, after });
+      await assert.rejects(applyARow(request(), { dryRun }, deps), error => words.test(error.message) && /Nothing was written\.$/.test(error.message) && error.exit === 2);
+      assert.deepEqual([seen.writes.length, seen.applied.length, seen.archived.length], [0, 0, 0]);
+      assert.equal(seen.stored.runs.rendered_from_workshop, OLD);
+    }
+  }
+});
+
+test('a failed apply leaves the recorded commit as it was', async () => {
+  const { deps, seen } = world({ exit: 1, recorded: OLD });
+  const { summary } = await applyARow(request(), {}, deps);
+  assert.equal(seen.writes[0].computer.runs.rendered_from_workshop, TREE);
+  assert.equal(summary.row_put_back, true);
+  assert.equal(seen.stored.runs.rendered_from_workshop, OLD);
+});
+
+test('a dry run says what the commit check found and writes nothing', async () => {
+  const { deps, seen } = world({ recorded: OLD });
+  const { summary } = await applyARow(request(), { dryRun: true }, deps);
+  assert.equal(summary.workshop_check, `after ${OLD}, the commit the row was last applied from`);
+  assert.deepEqual([seen.writes.length, seen.applied.length, seen.archived.length], [0, 0, 0]);
+});
+
+test('ancestry is read from the Workshop repository, fetching once a commit it does not have yet', async () => {
+  const folder = mkdtempSync(join(tmpdir(), 'apply-row-git-'));
+  const git = (cwd, ...args) => execFileSync('git', ['-C', cwd, '-c', 'user.name=Example', '-c', 'user.email=example', ...args], { encoding: 'utf8' }).trim();
+  const origin = join(folder, 'origin'), here = join(folder, 'here');
+  execFileSync('git', ['init', '--quiet', origin]);
+  const commit = words => { git(origin, 'commit', '--quiet', '--allow-empty', '-m', words); return git(origin, 'rev-parse', 'HEAD'); };
+  const first = commit('first'), second = commit('second');
+  execFileSync('git', ['clone', '--quiet', origin, here]);
+  const third = commit('third');
+  const isAncestor = isAncestorIn(here);
+  assert.equal(await isAncestor(first, second), true);
+  assert.equal(await isAncestor(second, first), false);
+  assert.equal(await isAncestor(first, third), true);
+  assert.equal(await isAncestor('f'.repeat(40), third), null);
 });
 
 test('links are set before the apply reads them and put back when it fails', async () => {
