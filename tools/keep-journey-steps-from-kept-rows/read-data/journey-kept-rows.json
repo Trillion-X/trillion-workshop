@@ -1,5 +1,5 @@
 {
-  "_what": "Which kept rows become journey steps (do-work/keep-steps.mjs). One mapping per kept table and step kind. where is the SQL that picks the rows, written over the table's own columns; each field is a SQL expression over the same row, named in fields: ref (the step's unique key, required), at (when the thing happened; rows are read from the newest kept step of this kind), email (made into email_key in JavaScript and never kept raw), visitor (the journey visitor the row carries, when it does), offer_id, value_cents. source maps step source keys to fields. A payment_events row is scoped to the pursuit's own offers: a sale for an offer the pursuit does not sell keeps no step. A client with other table names gives its own mapping in the input, never a code branch.",
+  "_what": "Which kept rows become journey steps (do-work/keep-steps.mjs). One mapping per kept table and step kind. where is the SQL that picks the rows, written over the table's own columns; each field is a SQL expression over the same row, named in fields: ref (the step's unique key, required), at (when the thing happened; rows are read from the newest kept step of this kind, comparing cutoff_column: the source row's own kept time, an insert time, against the newest journey step's insert time, so a row inserted late with an old event time is still kept), email (made into email_key in JavaScript and never kept raw), visitor (the journey visitor the row carries, when it does), offer_id, value_cents. source maps step source keys to fields. A payment_events row is scoped to the pursuit's own offers: a sale for an offer the pursuit does not sell keeps no step. A client with other table names gives its own mapping in the input, never a code branch.",
   "mappings": [
     {
       "id": "tidycal-bookings-from-statements",
@@ -11,8 +11,11 @@
         "at": "at",
         "email": "after->>'email'"
       },
-      "source": { "starts_at": "after->>'starts_at'" },
-      "joined_by": "email"
+      "source": {
+        "starts_at": "after->>'starts_at'"
+      },
+      "joined_by": "email",
+      "cutoff_column": "recorded_at"
     },
     {
       "id": "stripe-sales-from-payment-events",
@@ -28,7 +31,8 @@
         "value_cents": "(attributes->>'amount_due_today_cents')::bigint"
       },
       "joined_by": "email",
-      "joined_by_visitor": "client_reference_id"
+      "joined_by_visitor": "client_reference_id",
+      "cutoff_column": "made_at"
     }
   ]
 }

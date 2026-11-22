@@ -21,11 +21,15 @@ const ISO_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2}
 const plain = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const text = value => (typeof value === 'string' ? value.trim() : '');
 
-/** The SELECT that reads one mapping's rows: its fields as f_<name>, its where, and only rows newer than the cutoff. */
+/**
+ * The SELECT that reads one mapping's rows: its fields as f_<name>, its where, and only rows whose cutoff_column (the time the
+ * source row itself was kept, an insert time) is newer than the cutoff. The cutoff is `since` when given, else the newest step
+ * of this kind's own insert time, so a row inserted late with an old event time is still read; `at` is the event time, for display.
+ */
 export function readSql(mapping) {
   const fields = Object.entries(mapping.fields).map(([name, expression]) => `(${expression}) AS f_${name}`);
   const sourced = Object.entries(mapping.source ?? {}).map(([name, expression]) => `(${expression}) AS s_${name}`);
-  return `SELECT ${[...fields, ...sourced].join(', ')} FROM ${mapping.table} WHERE (${mapping.where}) AND (${mapping.fields.at}) > `
+  return `SELECT ${[...fields, ...sourced].join(', ')} FROM ${mapping.table} WHERE (${mapping.where}) AND (${mapping.cutoff_column}) > `
     + 'COALESCE($1::timestamptz, (SELECT max(at) FROM journey_steps WHERE step = $2), \'-infinity\'::timestamptz) '
     + `ORDER BY ${mapping.fields.at}, ${mapping.fields.ref}`;
 }
@@ -54,6 +58,7 @@ export async function keepStepsFromRows({ query, since = null, mappings = settin
   const answer = [];
   for (const mapping of mappings) {
     if (!text(mapping.fields?.ref)) throw new TypeError(`${mapping.id} names no ref, so its steps could not be kept once.`);
+    if (!text(mapping.cutoff_column)) throw new TypeError(`${mapping.id} names no cutoff_column (the time its rows were kept), so its rows could not be read once each.`);
     const { rows } = await query(readSql(mapping), [since, mapping.step]);
     let kept = 0;
     for (const row of rows) {
