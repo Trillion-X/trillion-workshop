@@ -1,26 +1,25 @@
 {
-  "drafted_from": "tools/workflows/recipes/workflows.json (the workflow:sell-what-the-pursuit-makes row: input_schema and steps find, pick and prices with their submit shapes); no test names it",
-  "start_here": "Say to your AI: \"Run workflow:sell-what-the-pursuit-makes for pursuit:sourdough-baking: find what my baking already produces and pick the first thing to offer.\"",
+  "start_here": "Say to your AI: \"Run workflow:sell-what-the-pursuit-makes.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "The workflow reads the pursuit and the person's own files and starts a price experiment through tools; it names no list in its words, input or steps.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:sell-what-the-pursuit-makes"
   ],
   "tools": [
     "tool:choose-what-a-visitor-sees",
     "tool:credit-outcomes-to-candidates",
-    "tool:read-experiment-results"
+    "tool:read-experiment-results",
+    "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Say \"Run workflow:sell-what-the-pursuit-makes\" with pursuit_id set to the pursuit whose byproducts you want to sell; leave it out and it takes your biggest pursuit.",
-    "2. Step find reads the pursuit and your files, recordings, posts and tools that came out of it, and lists every byproduct with where it is.",
-    "3. Step pick says who would pay for each, the evidence (people asking, similar things selling) and whether selling it would pull the pursuit off course, then picks the first one to offer.",
-    "4. Step prices chooses two or more prices (one low enough that most who want it can get in) and starts an experiment with tool:choose-what-a-visitor-sees; the winner is read from payments. If the offer does not exist yet it is drafted for your approval first and nothing is charged or published without it."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:sell-what-the-pursuit-makes\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Three byproducts of a baking pursuit",
-      "ask": "What does my baking already make that people would pay for?",
+      "title": "Sell what your pursuit already makes",
+      "ask": "Run workflow:sell-what-the-pursuit-makes.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -29,38 +28,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:sell-what-the-pursuit-makes",
-              "pursuit_id": "pursuit:sourdough-baking"
+              "row": "workflow:sell-what-the-pursuit-makes"
             }
           }
         }
       },
       "workflow": "workflow:sell-what-the-pursuit-makes",
       "step": "find",
-      "given": "Read from the step in tools/workflows/recipes/workflows.json (byproducts need at least 1 item, each with what and where). Synthetic files of the pursuit: a notes folder, a camera roll of bakes and a spreadsheet of hydration tests.",
-      "hands_back": "{\"byproducts\":[{\"what\":\"Bake notes for 40 loaves\",\"where\":\"files/baking/notes/\"},{\"what\":\"Time-lapse clips of shaping and scoring\",\"where\":\"files/baking/clips/\"},{\"what\":\"Hydration test spreadsheet\",\"where\":\"files/baking/hydration.csv\"}]}"
-    },
-    {
-      "title": "Two prices are chosen for the first offer",
-      "ask": "Test prices for the bake-notes pack.",
-      "mcp": {
-        "server": "{cli}",
-        "tool": "do_one_thing_in_my_account",
-        "input": {
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:run-workflow-definition",
-            "input": {
-              "row": "workflow:sell-what-the-pursuit-makes",
-              "pursuit_id": "pursuit:sourdough-baking"
-            }
-          }
-        }
-      },
-      "workflow": "workflow:sell-what-the-pursuit-makes",
-      "step": "prices",
-      "given": "Read from the step: the offer \"Sourdough bake notes pack\" does not exist yet, so the experiment waits on the draft offer for the person to approve (nothing is charged or published without approval); two prices are chosen, one low and one that would fund the pursuit faster.",
-      "hands_back": "{\"prices\":[\"$9\",\"$24\"],\"experiment\":\"Draft offer \\\"Sourdough bake notes pack\\\", waiting on the owner's approval before the price experiment starts\"}"
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:sell-what-the-pursuit-makes rendered from its row"
 }

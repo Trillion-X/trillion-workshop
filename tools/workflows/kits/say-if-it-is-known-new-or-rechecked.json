@@ -1,22 +1,22 @@
 {
-  "drafted_from": "tools/workflows/recipes/workflows.json (the workflow:say-if-it-is-known-new-or-rechecked row: input_schema and steps read and label with their submit shapes); no test names it",
-  "start_here": "Say to your AI: \"Run workflow:say-if-it-is-known-new-or-rechecked for the question: do we already offer refunds on the weekend bread box, and since when?\"",
+  "start_here": "Say to your AI: \"Run workflow:say-if-it-is-known-new-or-rechecked.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "The workflow reads whatever places the person already keeps notes, decisions and messages in, and writes new findings where the next reader looks; it names no list of its own.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:say-if-it-is-known-new-or-rechecked"
   ],
-  "tools": [],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
   "instructions": [
-    "1. Ask the question you are about to answer, in the words you would say it, as the question input (came_from is optional: a message id, a file or a date).",
-    "2. Say \"Run workflow:say-if-it-is-known-new-or-rechecked\". Step read searches every place earlier work is kept (decisions, notes, messages, handoffs, files) and says what it searched and what came back, including nothing.",
-    "3. Step label puts each claim in exactly one list: known (since when, linked to where), rechecked (known before, checked again now: still true or changed) or new (not found anywhere read).",
-    "4. Step write_back puts each new finding and each changed re-check where the next reader looks first; step answer gives the labelled answer and the address of any screen that already shows it."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:say-if-it-is-known-new-or-rechecked\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "One claim was known, one was rechecked, one is new",
-      "ask": "Do we already offer refunds on the weekend bread box, and since when?",
+      "title": "Say whether it is known, new or re-checked",
+      "ask": "Run workflow:say-if-it-is-known-new-or-rechecked.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -25,16 +25,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:say-if-it-is-known-new-or-rechecked",
-              "question": "Do we already offer refunds on the weekend bread box, and since when?"
+              "row": "workflow:say-if-it-is-known-new-or-rechecked"
             }
           }
         }
       },
       "workflow": "workflow:say-if-it-is-known-new-or-rechecked",
-      "step": "label",
-      "given": "Read from the step in tools/workflows/recipes/workflows.json. Synthetic places read: a decision note \"refunds within 7 days\" dated 2026-09-02 and a message from Sam (2026-10-11) saying the window is 7 days. Today the shop page was read again and still says 7 days; no place mentions refunds on gift orders.",
-      "hands_back": "{\"known\":[{\"claim\":\"Refunds are offered within 7 days of delivery\",\"since\":\"2026-09-02\",\"source\":\"decision:refund-window\"}],\"rechecked\":[{\"claim\":\"The refund window is 7 days\",\"since\":\"2026-10-11\",\"source\":\"message from Sam\",\"now\":\"still true\",\"how\":\"Read the live shop page today; it still says 7 days\"}],\"new\":[{\"claim\":\"Gift orders have no stated refund rule\",\"how_found\":\"Searched every place read for gift and refund together and found nothing\"}]}"
+      "step": "read",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:say-if-it-is-known-new-or-rechecked rendered from its row"
 }

@@ -1,22 +1,22 @@
 {
-  "drafted_from": "tools/workflows/recipes/workflows.json (the workflow:same-abilities-each-device-its-own-look row: input_schema and steps abilities and devices with their submit shapes); no test names it",
-  "start_here": "Say to your AI: \"Run workflow:same-abilities-each-device-its-own-look for saved places: I want it the same on my phone, browser and desktop app, each in its own native controls.\"",
+  "start_here": "Say to your AI: \"Run workflow:same-abilities-each-device-its-own-look.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "The workflow works from the person's feature and devices and writes its answers in each step; it names no list in its words, input or steps.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:same-abilities-each-device-its-own-look"
   ],
-  "tools": [],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
   "instructions": [
-    "1. Name the feature that should be the same everywhere (for example \"Saved places\") and the devices you use it on.",
-    "2. Say \"Run workflow:same-abilities-each-device-its-own-look\" with feature set to that name.",
-    "3. Step abilities lists every ability on the device where it works best, in the order a person meets them; step devices says which abilities each device offers and whether each is drawn natively or borrowed from another device's page.",
-    "4. Step match adds each missing ability in each device's own native controls in the same order, replaces borrowed pages with native screens, and shows you a picture of each device's result."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:same-abilities-each-device-its-own-look\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "The abilities of \"Saved places\" on the device it works best on",
-      "ask": "Make saved places the same on every device.",
+      "title": "Same abilities on every device, each in its own look",
+      "ask": "Run workflow:same-abilities-each-device-its-own-look.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -25,38 +25,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:same-abilities-each-device-its-own-look",
-              "feature": "Saved places"
+              "row": "workflow:same-abilities-each-device-its-own-look"
             }
           }
         }
       },
       "workflow": "workflow:same-abilities-each-device-its-own-look",
       "step": "abilities",
-      "given": "Read from the step in tools/workflows/recipes/workflows.json (each ability needs an id and a what of at least 5 characters). Synthetic: on the browser, the feature offers three abilities in the order a person meets them.",
-      "hands_back": "{\"abilities\":[{\"id\":\"save\",\"what\":\"Save the place you are looking at\"},{\"id\":\"list\",\"what\":\"See every saved place in one list\"},{\"id\":\"share\",\"what\":\"Send one saved place to a friend\"}]}"
-    },
-    {
-      "title": "The phone borrows the browser page for one ability",
-      "ask": "Check which devices offer these abilities natively.",
-      "mcp": {
-        "server": "{cli}",
-        "tool": "do_one_thing_in_my_account",
-        "input": {
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:run-workflow-definition",
-            "input": {
-              "row": "workflow:same-abilities-each-device-its-own-look",
-              "feature": "Saved places"
-            }
-          }
-        }
-      },
-      "workflow": "workflow:same-abilities-each-device-its-own-look",
-      "step": "devices",
-      "given": "Read from the step: the phone app offers save and list in its own controls but shows share by opening the browser page; the browser offers all three in its own controls.",
-      "hands_back": "{\"devices\":[{\"device\":\"phone\",\"offers\":[\"save\",\"list\",\"share\"],\"native\":false},{\"device\":\"browser\",\"offers\":[\"save\",\"list\",\"share\"],\"native\":true}]}"
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:same-abilities-each-device-its-own-look rendered from its row"
 }
