@@ -94,9 +94,14 @@ export async function dryRunWithEmailTool(sender: Sender, message: { to: string;
 
 /** The pursuit's look, from its own how_it_looks row (id 'site') in its uses database: the theme the page sets on its root,
  *  and the brand name and picture it shows. Null when the pursuit has no row, so the page keeps the shared look. */
-export type Brand = { theme_id: string; brand_name: string | null; brand_image: string | null; icon: string | null };
+export type Brand = { theme_id: string; brand_name: string | null; brand_image: string | null; brand_width: number | null; brand_height: number | null; icon: string | null };
 export async function readBrand(pursuit: Pursuit): Promise<Brand | null> {
-  const [row] = await sql<Record<string, unknown>>(pursuit, "select theme_id, brand_name, brand_image, icon from how_it_looks where id = 'site'", [], usesDatabaseOf(pursuit));
+  const [row] = await sql<Record<string, unknown>>(pursuit, "select theme_id, brand_name, brand_image, brand_image_width, brand_image_height, icon from how_it_looks where id = 'site'", [], usesDatabaseOf(pursuit));
   if (!row || typeof row.theme_id !== 'string') return null;
-  return { theme_id: row.theme_id, brand_name: (row.brand_name as string | null) ?? null, brand_image: (row.brand_image as string | null) ?? null, icon: (row.icon as string | null) ?? null };
+  return {
+    theme_id: row.theme_id, brand_name: (row.brand_name as string | null) ?? null, brand_image: (row.brand_image as string | null) ?? null,
+    brand_width: row.brand_image_width === null || row.brand_image_width === undefined ? null : Number(row.brand_image_width),
+    brand_height: row.brand_image_height === null || row.brand_image_height === undefined ? null : Number(row.brand_image_height),
+    icon: (row.icon as string | null) ?? null,
+  };
 }

@@ -8,8 +8,10 @@
 
 import React from 'react';
 import { mountReactSurface } from '../../../../ui';
-import { Badge, Button, Card, Container, Text } from '../../../../ui';
+import { Badge, Button, Card, Container, ImageBlock, Text } from '../../../../ui';
 import words from './private-deal-page-words.json';
+import { lookFor, PAGE_LOOK } from '../../../../workspace-screens/web/src/page-look.mjs';
+import { lookDocumentCss } from '../../../../screen-look/read-data/look-document-css.js';
 import { signSection } from '../../../read-data/sign-through-deal-link.mjs';
 
 export type DealLine = {
@@ -17,7 +19,7 @@ export type DealLine = {
   total_cents: number | null; percent: number | null; amount_cents: number | null;
 };
 export type PrivateDeal = {
-  theme_id: string | null; brand_name: string | null; brand_image: string | null;
+  theme_id: string | null; brand_name: string | null; brand_image: string | null; brand_width: number | null; brand_height: number | null;
   offer: string; buyer: string; seller: string; date: string; expires: string | null;
   lines: DealLine[]; total_cents: number | null; signatures: string[]; signedByYou: boolean; proven: boolean;
 };
@@ -37,10 +39,25 @@ function lineAmount(line: DealLine): string {
 
 export function PrivateDealPage({ deal }: { deal: PrivateDeal }) {
   const sign = signSection({ signedByYou: deal.signedByYou, signatures: deal.signatures, proven: deal.proven });
+  const [brandShown, setBrandShown] = React.useState(Boolean(deal.brand_image));
+  // The pursuit's look: its theme from its own look row, resolved by the shared page look and written as the document's
+  // variables (the same look.css the workspace writes). A pursuit with no theme, or one the look does not offer, wears the
+  // shared start look. The paper ground fills the whole page: the theme and the canvas class go on the document body.
+  React.useEffect(() => {
+    const body = document.body;
+    const look = deal.theme_id ? lookFor(deal.theme_id) : PAGE_LOOK;
+    const style = document.createElement('style');
+    style.id = 'private-deal-look';
+    style.textContent = lookDocumentCss(look.palette);
+    document.head.appendChild(style);
+    if (deal.theme_id) body.dataset.theme = deal.theme_id;
+    body.classList.add('landing-page');
+    return () => { style.remove(); delete body.dataset.theme; body.classList.remove('landing-page'); };
+  }, [deal.theme_id]);
   return (
-    <Container layout="vertical" gap="md" className="landing-page mx-auto w-full min-w-0 max-w-2xl p-4" data-theme={deal.theme_id ?? undefined}>
+    <Container layout="vertical" gap="md" className="mx-auto min-h-screen w-full min-w-0 max-w-2xl p-4">
       <Container layout="horizontal" className="items-center gap-3">
-        {deal.brand_image ? <img src={deal.brand_image} alt={deal.brand_name ?? ''} className="h-10 w-auto" /> : null}
+        {deal.brand_image && brandShown ? <ImageBlock src={deal.brand_image} alt={deal.brand_name ?? ''} rounded="lg" objectFit="cover" style={{ width: deal.brand_width ?? 40, height: deal.brand_height ?? 40 }} className="border border-[var(--border-primary)]" onError={() => setBrandShown(false)} /> : null}
         {deal.brand_name ? <Text variant="heading-sm" color="strong">{deal.brand_name}</Text> : null}
       </Container>
       <Container layout="vertical" gap="xs" className="min-w-0">
@@ -64,8 +81,8 @@ export function PrivateDealPage({ deal }: { deal: PrivateDeal }) {
           </Container>
         ))}
         <Container layout="horizontal" className="items-baseline justify-between gap-3 border-t pt-3">
-          <Text variant="heading-md" color="strong">{words.total}</Text>
-          <Text variant="heading-md" color="strong">{deal.total_cents === null ? words.unpriced : money(deal.total_cents)}</Text>
+          <Text variant="heading-lg" color="strong">{words.total}</Text>
+          <Text variant="heading-lg" color="strong">{deal.total_cents === null ? words.unpriced : money(deal.total_cents)}</Text>
         </Container>
       </Card>
 
