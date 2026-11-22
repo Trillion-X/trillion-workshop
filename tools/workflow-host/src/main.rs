@@ -1,5 +1,5 @@
 // wf: work inside a run of one of the person's workflows, on the workflow engine (workflow-core), from any chat.
-//   wf find WORDS... [--kinds K1,K2]   the workflows for this moment, from current Workshop main: ranked by the words over each
+//   wf find WORDS... [--kinds K1,K2]   the workflows for this moment, from the rows of the person's stores: ranked by the words over each
 //                                      workflow's name, job and steps; with --kinds, the account's own chooser
 //                                      (tool:choose-the-workflows-that-fire) picks by those kinds of moment and the words break ties
 //   wf kinds [WORDS...]                the kinds of moment the workflows wait for, nearest the words first
@@ -13,8 +13,8 @@
 // RUN is the run's folder, its name under $WF_HOME/runs, or its first part (the number before the workflow).
 // A run is answered only by the chat that started it (its CLAUDE_CODE_SESSION_ID or CODEX_THREAD_ID, else $WF_ACTOR), or by an
 // answerer its person names in the answer_rights table (the run's person is RUN_PERSON, stamped at start).
-// Every run is a folder under $WF_HOME/runs. Workflows are read from the Workshop checkout's origin/main ($WF_WORKSHOP),
-// fetched at most once a minute and converted by convert.mjs into $WF_HOME/definitions-main (overwritten when main moves).
+// Every run is a folder under $WF_HOME/runs. Workflows are read from the rows of the person's own stores (workflow_recipes), so a
+// row changed in its store is what the next wf command reads; no Workshop commit is involved.
 // Built by build.sh beside this file, as an example of the workflow-engine crate at current main.
 use std::{collections::{BTreeMap, BTreeSet}, io::Write, process::{Command, Stdio}, sync::{Arc, Mutex}};
 use serde_json::{json, Value};
@@ -46,44 +46,8 @@ fn run_person() -> String { setting("person") }
 
 fn claude_projects() -> String { std::env::var("WF_TRANSCRIPTS").unwrap_or_else(|_| format!("{}/.claude/projects", home())) }
 
-fn only_recipes_changed(folder: &std::path::Path, commit: &str, inputs: &[String]) -> bool {
-    let Some(previous) = std::fs::read_to_string(folder.join("COMMIT")).ok() else { return false };
-    let Some(changed) = Command::new("git").arg("-C").arg(workshop()).args(["diff", "--name-only", previous.trim(), commit, "--"]).args(inputs)
-        .stderr(Stdio::null()).output().ok().filter(|o| o.status.success()).map(|o| String::from_utf8_lossy(&o.stdout).to_string()) else { return false };
-    changed.lines().all(|f| f.starts_with("tools/workflows/recipes/") || f.starts_with("tools/workflows/definitions/"))
-}
 
-fn covered_paths(entries: &[Value]) -> Vec<String> {
-    const LAID_AT: &str = "/opt/tools/";
-    let mut paths: BTreeSet<String> = ["tools/workflows/recipes", "tools/workflows/definitions", "package.json", "package-lock.json"].map(String::from).into_iter().collect();
-    for entry in entries {
-        let Some(at) = entry["at"].as_str() else { continue };
-        let folder = match (at.strip_prefix(LAID_AT), entry["package"].as_str()) {
-            (Some(inside), _) => format!("tools/{inside}"),
-            (None, Some(package)) if at == format!("/opt/{package}") => format!("tools/{package}"),
-            _ => continue,
-        };
-        for path in entry["paths"].as_array().into_iter().flatten().filter_map(Value::as_str) { paths.insert(format!("{folder}/{path}")); }
-    }
-    paths.into_iter().collect()
-}
 
-fn key_of(commit: &str) -> Option<(String, Vec<String>)> {
-    const ROW: &str = "tool:turn-workflow-recipes-into-definitions";
-    let listed: Value = serde_json::from_str(&git(&["show", &format!("{commit}:package-files.json")])?).ok()?;
-    let entries = listed[ROW].as_array().filter(|entries| !entries.is_empty())?;
-    let paths = covered_paths(entries);
-    let listing = Command::new("git").arg("-C").arg(workshop()).args(["ls-tree", "-r", commit, "--"]).args(&paths)
-        .stderr(Stdio::null()).output().ok().filter(|o| o.status.success())?;
-    // Each listing line is "<mode> <type> <blob>\t<path>"; the key is over the sorted "<path> <blob>" lines.
-    let mut lines: Vec<String> = String::from_utf8_lossy(&listing.stdout).lines().filter_map(|line| {
-        let (meta, path) = line.split_once('\t')?;
-        Some(format!("{path} {}", meta.split(' ').nth(2)?))
-    }).collect();
-    lines.sort();
-    let digest = content_crypto::hash(format!("{}\n", lines.join("\n")).as_bytes());
-    Some((digest.iter().map(|byte| format!("{byte:02x}")).collect(), paths))
-}
 
 fn own_index() -> Vec<Value> {
     const SQL: &str = "select recipe, title, fires_when, coalesce(definition->>'name', title) as job, coalesce((select string_agg(case when jsonb_typeof(s->'config'->'context'->'title') = 'string' then s->'config'->'context'->>'title' else '' end || ' ' || case when jsonb_typeof(s->'config'->'input'->'do') = 'string' then s->'config'->'input'->>'do' else '' end, ' ') from jsonb_array_elements(coalesce(definition->'steps', '[]'::jsonb)) s), '') as words from workflow_recipes where definition is not null order by recipe";
@@ -127,9 +91,7 @@ fn own_definition(recipe: &str) -> Option<Value> {
     None
 }
 
-fn definition_named(dir: &str, id: &str) -> Value {
-    own_definition(id).unwrap_or_else(|| read(&format!("{dir}/{}.json", id.chars().map(|c| if c.is_ascii_alphanumeric() || c == '-' { c } else { '_' }).collect::<String>())))
-}
+fn definition_named(id: &str) -> Value { own_definition(id).unwrap_or(Value::Null) }
 
 fn door(mut request: Value) -> Result<std::process::Output, String> {
     request["cli"] = json!(setting("cli"));
@@ -187,7 +149,6 @@ fn home() -> String { std::env::var("HOME").unwrap_or_default() }
 fn wf_home() -> String {
     std::env::var("WF_HOME").unwrap_or_else(|_| std::env::current_exe().ok().and_then(|exe| exe.parent()?.parent().map(|p| p.display().to_string())).unwrap_or_default())
 }
-fn workshop() -> String { std::env::var("WF_WORKSHOP").unwrap_or_else(|_| setting("workshop")) }
 fn runs_dir() -> String { format!("{}/runs", wf_home()) }
 fn read(p: &str) -> Value { serde_json::from_str(&std::fs::read_to_string(p).unwrap_or_else(|_| "null".into())).unwrap_or(Value::Null) }
 fn keep_pick(line: Value) {
@@ -245,8 +206,6 @@ fn fill_reader() -> Value {
 // door's tools:run timed out, OneRule::ask answered its "not answered yet" marker, and fill_input::apply read that as no
 // row, cancelling three seed-breakdown runs "uses_store_not_paired" while record:account-store:<person>:<host> was there.
 enum Fill { Filled(serde_json::Map<String, Value>), Refused(String), ReadFailed(String) }
-// What fill_input::apply says about a failed read: its words name it, so wf tells a failed read from "no row" by them.
-const READ_FAILED: &str = "its reader's read failed";
 async fn fill_store(given: &mut Value) -> Fill {
     let reader = fill_reader();
     if !workflow_engine::fill_input::wanted(&reader, given) { return Fill::Filled(serde_json::Map::new()); }
@@ -272,7 +231,7 @@ async fn fill_store(given: &mut Value) -> Fill {
         };
         match workflow_engine::fill_input::apply(&reader, given, &answer) {
             Ok(filled) => return Fill::Filled(filled),
-            Err(why) if why.words.contains(READ_FAILED) => {
+            Err(why) if why.kind == workflow_engine::fill_input::FillKind::ReadFailed => {
                 // Named for the person as the answer's shape shows it (its rows list missing), else as fill_input says it.
                 failure = match rows_at.as_deref().filter(|path| !path.split('.').fold(&answer, |at, key| &at[key]).is_array()) {
                     Some(path) => format!("{tool} answered no {path} list: {}", answer.to_string().chars().take(300).collect::<String>()),
@@ -321,101 +280,11 @@ fn run_of(given: &str) -> String {
         many => { eprintln!("{given} names {} runs: {}; give the whole name", many.len(), many.join(", ")); std::process::exit(1); }
     }
 }
-fn git(args: &[&str]) -> Option<String> {
-    let out = Command::new("git").arg("-C").arg(workshop()).args(args).stderr(Stdio::null()).output().ok()?;
-    out.status.success().then(|| String::from_utf8_lossy(&out.stdout).trim().to_string())
-}
 
-/// The definitions of current Workshop main: fetch at most once a minute, convert again only when main moved.
-/// $WF_HOME/definitions-main is a link to definitions-<commit>, swapped in one rename once a commit's tree is whole, so a
-/// reader never sees a half-made one. One refresher per computer holds an OS lock on definitions-main.lock (the kernel lets
-/// it go when the holder ends, however it ends: a caller's timeout left the old folder lock behind, and from 12:58 PM CST
-/// Nov 21 2026 waiters that each took the left lock over at once ran 6 tar extractions into one folder at load 128).
-fn definitions() -> String {
-    let fetched = std::fs::metadata(format!("{}/.git/FETCH_HEAD", workshop())).and_then(|m| m.modified()).ok()
-        .and_then(|t| t.elapsed().ok()).map(|age| age.as_secs()).unwrap_or(u64::MAX);
-    if fetched > 60 && git(&["fetch", "-q", "origin"]).is_none() { eprintln!("wf: could not fetch the Workshop; using the origin/main this computer has"); }
-    let home = wf_home();
-    let dir = format!("{home}/definitions-main");
-    let Some(commit) = git(&["rev-parse", "origin/main"]) else { eprintln!("wf: no Workshop at {}; using {dir} as it is", workshop()); return dir; };
-    let tip = &commit[..9];
-    let Some((key, inputs)) = key_of(&commit) else { eprintln!("wf: could not read the converter's inputs at Workshop main {tip}; using {dir} as it is"); return dir; };
-    let current = || std::fs::read_to_string(format!("{dir}/KEY")).map(|k| k.trim() == key).unwrap_or(false);
-    if current() { return dir; }
-    let Ok(lock) = std::fs::OpenOptions::new().create(true).truncate(false).write(true).open(format!("{home}/definitions-main.lock")) else {
-        eprintln!("wf: could not open the refresh lock; using {dir} as it is"); return dir;
-    };
-    let waited = std::time::Instant::now();
-    loop {
-        match lock.try_lock() {
-            Ok(()) => break,
-            Err(std::fs::TryLockError::WouldBlock) => {}
-            Err(error) => { eprintln!("wf: the refresh lock failed ({error}); using {dir} as it is"); return dir; }
-        }
-        if current() { return dir; }
-        if waited.elapsed().as_secs() > 300 { eprintln!("wf: another call has been refreshing the workflows for 5 minutes; using {dir} as it is"); return dir; }
-        std::thread::sleep(std::time::Duration::from_millis(500));
-    }
-    if current() { return dir; }
-    // The folder the link names now, and whether only recipes or kept definitions changed since it was made (then its unchanged
-    // definitions are reused by convert.mjs). Any other change, or a folder that cannot say which commit it is, converts all.
-    let before = std::fs::read_link(&dir).ok().filter(|p| p.is_dir());
-    let reuse = before.filter(|folder| only_recipes_changed(folder, &commit, &inputs));
-    // This key's own folder, made fresh (a holder that ended mid-way left it half made). The converter runs from the Workshop tree
-    // this computer's engine installed for the person, never from a copy wf extracts: its bytes must be origin's converter at this commit.
-    let built = format!("{home}/definitions-{}", &key[..12]);
-    let _ = std::fs::remove_dir_all(&built);
-    std::fs::create_dir_all(&built).ok();
-    let installed = installed_tree();
-    let same_converter = installed.as_ref().ok().and_then(|tree| std::fs::read(format!("{tree}/tools/workflows/do-work/convert.mjs")).ok())
-        .zip(Command::new("git").arg("-C").arg(workshop()).args(["show", &format!("{commit}:tools/workflows/do-work/convert.mjs")])
-            .stderr(Stdio::null()).output().ok().filter(|o| o.status.success()).map(|o| o.stdout))
-        .is_some_and(|(installed, origin)| installed == origin);
-    let converted = installed.as_ref().ok().filter(|_| same_converter).and_then(|tree| {
-        let mut convert = Command::new("node");
-        convert.current_dir(tree).arg(format!("{tree}/tools/workflows/do-work/convert.mjs")).arg(&built);
-        if let Some(previous) = &reuse { convert.arg(previous); }
-        convert.stderr(Stdio::inherit()).output().ok().filter(|o| o.status.success())
-    });
-    if installed.is_err() { eprintln!("wf: {}", installed.as_ref().err().cloned().unwrap_or_default()); }
-    if installed.is_ok() && !same_converter { eprintln!("wf: the installed Workshop converter is not origin/main {tip}'s; not converting"); }
-    let Some(out) = converted else {
-        let _ = std::fs::remove_dir_all(&built);
-        eprintln!("wf: could not convert Workshop main {tip}; using the workflows kept from {}", std::fs::read_to_string(format!("{dir}/COMMIT")).unwrap_or_default().trim());
-        return dir;
-    };
-    std::fs::write(format!("{built}/COMMIT"), tip).ok();
-    std::fs::write(format!("{built}/KEY"), &key).ok();
-    // A folder kept where the link goes (the layout before links) moves aside once; the link is then swapped in one rename.
-    let before = std::fs::read_link(&dir).ok();
-    if before.is_none() && std::fs::symlink_metadata(&dir).is_ok_and(|m| m.is_dir()) {
-        let _ = std::fs::rename(&dir, format!("{home}/definitions-main.before-links"));
-    }
-    let next = format!("{home}/definitions-main.next");
-    let _ = std::fs::remove_file(&next);
-    if std::os::unix::fs::symlink(&built, &next).and_then(|_| std::fs::rename(&next, &dir)).is_err() {
-        eprintln!("wf: could not point {dir} at {built}"); return built;
-    }
-    if let Some(old) = before.filter(|old| old.to_string_lossy() != built && old.file_name().is_some_and(|n| n.to_string_lossy().starts_with("definitions-"))) {
-        let _ = std::fs::remove_dir_all(old);
-    }
-    eprintln!("wf: workflows of Workshop main {tip}: {}", String::from_utf8_lossy(&out.stdout).trim());
-    dir
-}
 
 /// The person's own kept workflows (workflow_recipes in each pursuit database named by $WF_STORES), read directly by
 /// own-workflows.mjs beside this file; each as an index entry plus its definition. A store that cannot be read adds nothing.
 
-/// Current main's index with the person's own kept workflows put in, an own row winning over a shipped one of the same id.
-fn full_index(dir: &str) -> Vec<Value> {
-    let mut index: Vec<Value> = read(&format!("{dir}/_index.json")).as_array().cloned().unwrap_or_default();
-    for entry in own_index() {
-        let id = entry["id"].as_str().unwrap_or("").to_string();
-        index.retain(|w| w["id"] != id.as_str());
-        index.push(entry);
-    }
-    index
-}
 const COMMON: &[&str] = &["a", "an", "the", "and", "or", "of", "to", "in", "on", "for", "is", "it", "its", "be", "by", "with", "this", "that", "from", "as", "at",
     "are", "was", "so", "do", "my", "me", "i", "we", "our", "his", "her", "their", "they", "them", "you", "your", "what", "when", "which", "who", "how", "not", "no", "one", "each", "every"];
 fn stem(word: &str) -> String {
@@ -468,8 +337,7 @@ fn find(args: &[String]) {
         if args[i] == "--kinds" { kinds = args.get(i + 1).map(|k| k.split(',').map(|s| s.trim().to_string()).filter(|s| !s.is_empty()).collect()).unwrap_or_default(); i += 2; }
         else { words.push(args[i].clone()); i += 1; }
     }
-    let dir = definitions();
-    let index = full_index(&dir);
+    let index = own_index();
     let by_id: BTreeMap<String, &Value> = index.iter().map(|w| (w["id"].as_str().unwrap_or("").to_string(), w)).collect();
     let text = words.join(" ");
     let scores = word_scores(&index, &words_of(&text));
@@ -517,12 +385,11 @@ fn find(args: &[String]) {
         if !near.is_empty() { println!("Kinds of moment these wait for: {}\nName the kinds that fit this moment: wf find {text} --kinds K1,K2", near.iter().take(8).map(|(k, n)| format!("{k} ({n})")).collect::<Vec<_>>().join(", ")); }
     }
     if ranked.is_empty() && by_words.is_empty() { println!("No workflow fits these words. Say so in one line and work plainly."); }
-    let commit = std::fs::read_to_string(format!("{dir}/COMMIT")).unwrap_or_default();
-    keep_pick(json!({ "command": "find", "words": text, "kinds": kinds, "main": commit.trim(), "chooser": chooser_said,
+    keep_pick(json!({ "command": "find", "words": text, "kinds": kinds, "chooser": chooser_said,
         "top": ranked.iter().map(|r| r.0.clone()).chain(by_words.iter().map(|w| w.0.clone())).take(5).collect::<Vec<_>>() }));
 }
 fn list_kinds(args: &[String]) {
-    let index = full_index(&definitions());
+    let index = own_index();
     let vocabulary = kinds_vocabulary(&index);
     let query: BTreeSet<String> = words_of(&args.join(" ")).into_iter().collect();
     let mut rows: Vec<(usize, &String, &Vec<String>)> = vocabulary.iter().map(|(k, labels)| {
@@ -936,7 +803,7 @@ fn record(run: &str) -> Result<Value, String> {
     }
     // A word the shared workflows already use ("Only", "Tennis") or a pursuit's own name is not a person's: test and
     // business accounts sit in the same tables.
-    let shared: BTreeSet<String> = std::fs::read_to_string(format!("{}/_index.json", definitions())).unwrap_or_default()
+    let shared: BTreeSet<String> = own_index().iter().map(Value::to_string).collect::<Vec<_>>().join(" ")
         .split(|c: char| !c.is_ascii_alphabetic()).map(str::to_lowercase).chain(databases.iter().flat_map(|d| d.split('_').map(String::from).collect::<Vec<_>>())).collect();
     for st in steps.iter_mut() {
         if let Some(places) = st["where_each_fact_lives"].as_array_mut() {
@@ -963,7 +830,7 @@ fn record(run: &str) -> Result<Value, String> {
     let sends = |text: &str| senders.iter().any(|words| words.iter().all(|w| text.contains(w.trim_start_matches("tool:"))));
     // The calls made into steps of an SOP: a step ends where the chat says what it will do next, where it answers a step
     // of the run, or where the work moves to another place. The first step's trigger is what the run's workflow fires on.
-    let kinds: Vec<Value> = full_index(&definitions()).into_iter().find(|w| w["id"] == workflow.as_str()).map(|w| w["kinds"].as_array().cloned().unwrap_or_default()).unwrap_or_default();
+    let kinds: Vec<Value> = own_index().into_iter().find(|w| w["id"] == workflow.as_str()).map(|w| w["kinds"].as_array().cloned().unwrap_or_default()).unwrap_or_default();
     let primary = |call: &Value| -> String {
         let places: Vec<&str> = call["where_each_fact_lives"].as_array().into_iter().flatten().filter_map(Value::as_str).collect();
         places.iter().find(|p| !p.starts_with("file ") && !p.starts_with("table ")).map(|p| p.to_string())
@@ -1288,10 +1155,9 @@ fn add_missed(run: &str, missed: Vec<Value>) -> bool {
     if missed.is_empty() { return false; }
     let mut def = read(&format!("{run}/definition.json"));
     let have: BTreeSet<String> = workflow_engine::uses::with_uses(def.clone()).unwrap_or_default().iter().filter_map(|d| d["id"].as_str().map(String::from)).collect();
-    let dir = definitions();
     let mut added = false;
     for named in missed.iter().filter_map(Value::as_str).filter(|named| !have.contains(*named)) {
-        let kept = definition_named(&dir, named);
+        let kept = definition_named(named);
         if kept.is_null() { eprintln!("the run chose {named}, which is on neither Workshop main nor in the person's own stores"); continue; }
         if !def["uses"].is_array() { def["uses"] = json!([]); }
         def["uses"].as_array_mut().unwrap().push(kept);
@@ -1571,10 +1437,9 @@ fn fill_answers_file() -> String {
 
 // A start whose store read keeps failing is kept paused, its input as given and the read error in fill_paused.json; any later
 // wf show or answer reads the store again first (go), so a failed read never cancels a good run (Nov 22 2026).
-fn paused_start(id: &str, def: &Value, input: &str, why: String, dir: &str) -> ! {
+fn paused_start(id: &str, def: &Value, input: &str, why: String) -> ! {
     eprintln!("{why}");
     let run = make_run(id, def, input);
-    std::fs::write(format!("{run}/main.txt"), std::fs::read_to_string(format!("{dir}/COMMIT")).unwrap_or_default()).ok();
     let started = now_utc();
     std::fs::write(format!("{run}/started_at.json"), serde_json::to_vec(&started).unwrap()).ok();
     let paused = json!({ "at": now_utc(), "by": actor(), "why": why });
@@ -1650,9 +1515,8 @@ async fn main() {
         Some("kinds") => list_kinds(&a[2..]),
         Some("start") if a.len() > 2 => {
             let id = &a[2];
-            let dir = definitions();
             // A definition file (a path ending .json) runs as it is: how wf's own checks run without a row.
-            let def = if id.ends_with(".json") && std::path::Path::new(id).exists() { read(id) } else { definition_named(&dir, id) };
+            let def = if id.ends_with(".json") && std::path::Path::new(id).exists() { read(id) } else { definition_named(id) };
             let id = &(if id.ends_with(".json") { def["id"].as_str().unwrap_or("workflow:from-a-file").to_string() } else { id.clone() });
             if def.is_null() { eprintln!("no workflow {id} on Workshop main or kept in the person's own stores; find one with wf find WORDS"); std::process::exit(1); }
             // A workflow another names (an action or loop step's definition_id) is read from where it is kept, its own row
@@ -1666,7 +1530,7 @@ async fn main() {
                 // A step names one workflow (definition_id), or lists those a row may choose among (definition_refs).
                 for named in workflow_engine::uses::missing(&[next.clone()]) {
                     if !have.insert(named.clone()) { continue; }
-                    let kept = definition_named(&dir, &named);
+                    let kept = definition_named(&named);
                     if kept.is_null() { eprintln!("{id} names {named}, which is on neither Workshop main nor in the person's own stores"); std::process::exit(1); }
                     if !def["uses"].is_array() { def["uses"] = json!([]); }
                     def["uses"].as_array_mut().unwrap().push(kept.clone());
@@ -1690,7 +1554,7 @@ async fn main() {
             let filled = match fill_store(&mut given).await {
                 Fill::Filled(filled) => filled,
                 Fill::Refused(why) => refused_start(id, &def, &input, why),
-                Fill::ReadFailed(why) => paused_start(id, &def, &input, why, &dir),
+                Fill::ReadFailed(why) => paused_start(id, &def, &input, why),
             };
             if !filled.is_empty() {
                 eprintln!("filled {} from {}", filled.keys().cloned().collect::<Vec<_>>().join(", "),
@@ -1705,7 +1569,6 @@ async fn main() {
             let run_input = if filled.is_empty() { input.clone() } else { given.to_string() };
             let run = make_run(id, &def, &run_input);
             if !filled.is_empty() { std::fs::write(format!("{run}/filled_from.json"), serde_json::to_vec_pretty(&filled).unwrap()).unwrap(); }
-            std::fs::write(format!("{run}/main.txt"), std::fs::read_to_string(format!("{dir}/COMMIT")).unwrap_or_default()).unwrap();
             std::fs::write(format!("{run}/started_at.json"), serde_json::to_vec(&now_utc()).unwrap()).unwrap();
             keep_pick(json!({ "command": "start", "workflow": id, "run": run, "by": actor() }));
             go(&run, true).await;
@@ -1863,26 +1726,5 @@ mod json_arg_tests {
         let text = json_text("not json", || panic!("stdin is not read for a plain argument")).unwrap();
         assert_eq!(text, "not json");
         assert!(serde_json::from_str::<serde_json::Value>(&text).is_err());
-    }
-}
-
-#[cfg(test)]
-mod covered_paths_tests {
-    use super::covered_paths;
-    use serde_json::json;
-
-    #[test]
-    fn a_walked_item_maps_to_its_tree_path_and_an_npm_module_to_the_lockfile() {
-        let entries = vec![
-            json!({ "package": "workflows", "paths": ["do-work/convert.mjs", "recipes"], "at": "/opt/tools/workflows" }),
-            json!({ "package": "shared-code", "paths": ["src/failure.mjs"], "at": "/opt/shared-code" }),
-            json!({ "packages": ["node_modules/@noble/hashes"], "at": "/opt/node_modules/@noble/hashes" }),
-            json!({ "package": "elsewhere", "paths": ["x.mjs"], "at": "/srv/elsewhere" }),
-        ];
-        let paths = covered_paths(&entries);
-        assert!(paths.contains(&"tools/workflows/do-work/convert.mjs".to_string()));
-        assert!(paths.contains(&"tools/shared-code/src/failure.mjs".to_string()));
-        assert!(paths.contains(&"package-lock.json".to_string()));
-        assert!(!paths.iter().any(|p| p.contains("elsewhere")));
     }
 }

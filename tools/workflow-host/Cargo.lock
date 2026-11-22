@@ -2172,7 +2172,6 @@ name = "workflow-host"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "content-crypto",
  "regex",
  "serde_json",
  "tokio",

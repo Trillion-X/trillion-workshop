@@ -15,8 +15,6 @@ path = "src/main.rs"
 [dependencies]
 workflow-core = { path = "../workflows/crates/workflow-core", default-features = false }
 workflow-engine = { path = "../workflows/crates/workflow-engine" }
-# wf keys its definitions with content-crypto's BLAKE3, the Workshop's declared hash owner (trillion-rust, beside the Workshop).
-content-crypto = { path = "../../../trillion-rust/crates/content-crypto" }
 async-trait = "0.1"
 regex = "1"
 serde_json = "1"
