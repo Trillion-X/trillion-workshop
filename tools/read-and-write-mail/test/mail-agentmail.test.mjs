@@ -207,3 +207,14 @@ test('Outlook does not offer keeping an attachment, and says so in words without
   await assert.rejects(perform('keep-a-mail-attachment', { provider: 'outlook', message_id: 'g1', attachment_id: 'a1' }, none.io), /Outlook does not offer this: keep a mail attachment\./);
   assert.equal(none.asked.length, 0);
 });
+
+test('a download that fails to connect names its host and error code in words, and never the signed query', async () => {
+  const failing = standIn([
+    ['GET', /\/attachments\/a1$/, () => json(200, { attachment_id: 'a1', size: 5, download_url: 'https://downloads.example.com/att/a1?sig=stand-in-secret', filename: 'guide.pdf' })],
+    ['GET', /\/att\/a1\?sig=stand-in-secret$/, () => { throw Object.assign(new TypeError('fetch failed'), { cause: { code: 'ENOTFOUND' } }); }],
+  ]);
+  const out = join(tmpdir(), 'unused');
+  await assert.rejects(keepAMailAttachment({ provider: 'agentmail', message_id: 'stand-in-one@example.com/m1', attachment_id: 'a1' }, { ...failing.io, out }), error => error instanceof Refused
+    && /downloads\.example\.com: ENOTFOUND/.test(error.message)
+    && !error.message.includes('stand-in-secret') && !error.message.includes('sig='));
+});

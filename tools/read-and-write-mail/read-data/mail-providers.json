@@ -35,6 +35,7 @@
     "no_address": "{label} did not say which address this mailbox is.",
     "too_large": "{label} keeps at most {max} bytes of one attachment; this one is {size} bytes.",
     "download_refused": "{label} refused the download of the attachment ({status}).",
+    "download_failed": "{label} could not download the attachment from {host}: {cause}.",
     "not_a_download": "{label} gave an attachment address that is not https, so nothing was fetched."
   },
   "providers": [

@@ -94,7 +94,13 @@ export async function download(provider, url, io = {}) {
   const { send = fetch } = io;
   const target = new URL(url);
   if (target.protocol !== 'https:') throw new Refused(fill(rows.words.not_a_download, { label: provider.label }));
-  const reply = await send(target, { method: 'GET', redirect: 'manual', headers: { Accept: 'application/octet-stream' } });
+  // The address is signed, so only its host is ever named in a word: a failed fetch says which host and the error code.
+  let reply;
+  try {
+    reply = await send(target, { method: 'GET', redirect: 'manual', headers: { Accept: 'application/octet-stream' } });
+  } catch (error) {
+    throw new Refused(fill(rows.words.download_failed, { label: provider.label, host: target.hostname, cause: error?.cause?.code ?? error?.code ?? error?.message ?? 'unknown' }));
+  }
   if (!reply.ok) throw new Refused(fill(rows.words.download_refused, { label: provider.label, status: reply.status }));
   const size = Number(reply.headers?.get?.('content-length'));
   if (Number.isFinite(size) && size > MOST_ATTACHMENT_BYTES) throw new Refused(fill(rows.words.too_large, { label: provider.label, max: MOST_ATTACHMENT_BYTES, size }));
