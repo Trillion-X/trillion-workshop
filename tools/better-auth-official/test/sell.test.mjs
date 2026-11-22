@@ -16,6 +16,7 @@ import Stripe from 'stripe';
 import { startStore } from '../test-fixtures/embedded-store.mjs';
 
 const OFFER = 'offer:example-seat';
+const PLAN = 'example';
 const PRICE = 'price_example_seat';
 const WEBHOOK_SECRET = 'whsec_a_scratch_secret_for_this_test_only';
 const NOW = Math.floor(Date.now() / 1000);
@@ -60,7 +61,7 @@ const dir = tempFolder(join(tmpdir(), 'sell-'));
 const shipped = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
 const settings = {
   ...shipped, email_password: { require_verification: false }, disabled_paths: [], rate_limit: { ...shipped.rate_limit, enabled: false },
-  sell: { ...shipped.sell, enabled: true, success_path: '/welcome', cancel_path: '/', offers: [{ offer_id: OFFER, price_id: PRICE, trial_days: 7 }], stripe_api: { host: '127.0.0.1', port: stand.address().port, protocol: 'http' }, stripe_retries: 0 },
+  sell: { ...shipped.sell, enabled: true, success_path: '/welcome', cancel_path: '/', plans: [{ plan: PLAN, price_id: PRICE }], offers: [{ offer_id: OFFER, plan: PLAN, trial_days: 7 }, { offer_id: 'offer:example-proof', plan: PLAN, trial_days: 7, payment_method_collection: 'if_required' }, { offer_id: 'offer:example-off', plan: PLAN, trial_days: 7, on: false }], stripe_api: { host: '127.0.0.1', port: stand.address().port, protocol: 'http' }, stripe_retries: 0 },
 };
 writeFileSync(join(dir, 'settings.json'), JSON.stringify(settings));
 process.env.BETTER_AUTH_SETTINGS = join(dir, 'settings.json');
@@ -96,9 +97,9 @@ function event(type, object, secret = WEBHOOK_SECRET, id = `evt_${type}`) {
 const rows = async referenceId => (await pool.query('select plan, status, "stripeSubscriptionId", "trialEnd" from subscription where "referenceId" = $1', [referenceId])).rows;
 const plans = async headers => (await auth.api.listActiveSubscriptions({ headers })).map(row => `${row.plan} ${row.status}`);
 
-test('an address that names no offer the settings list is 404 and nothing reaches Stripe', async () => {
+test('an address that names no offer the settings list, or one that is off, is 404 and nothing reaches Stripe', async () => {
   const before = sent.length;
-  for (const path of ['/buy/offer%3Anot-sold', '/buy/', '/buy/%E0%A4%A']) assert.equal((await buy(path)).status, 404, path);
+  for (const path of ['/buy/offer%3Anot-sold', '/buy/offer%3Aexample-off', '/buy/', '/buy/%E0%A4%A']) assert.equal((await buy(path)).status, 404, path);
   assert.equal(sent.length, before);
 });
 
@@ -122,6 +123,7 @@ test('a bought plan goes on the account by a signed event, a replay keeps one ro
   assert.equal(made.form.get('mode'), 'subscription');
   assert.equal(made.form.get('line_items[0][price]'), PRICE);
   assert.equal(made.form.get('subscription_data[trial_period_days]'), '7');
+  assert.equal(made.form.get('payment_method_collection'), 'always', 'an offer that names no collection asks for a card, as Stripe does');
   assert.equal(made.form.get('client_reference_id'), person.id);
   assert.equal(made.form.get('customer'), 'cus_example_1');
   assert.equal(made.form.get('metadata[jv]'), 'visitor-2');
@@ -138,14 +140,14 @@ test('a bought plan goes on the account by a signed event, a replay keeps one ro
   stripeState.subscription = subscriptionObject({});
   const completed = { ...session, subscription: 'sub_example_1', customer: 'cus_example_1', payment_status: 'no_payment_required', status: 'complete' };
   assert.equal((await event('checkout.session.completed', completed)).status, 200);
-  assert.deepEqual(await plans(person.headers), [`${OFFER} trialing`]);
+  assert.deepEqual(await plans(person.headers), [`${PLAN} trialing`]);
   const [on] = await rows(person.id);
   assert.equal(on.stripeSubscriptionId, 'sub_example_1');
   assert.equal(new Date(on.trialEnd).getTime(), (NOW + 7 * DAY) * 1000);
 
   // The same event again: one row, the same state.
   assert.equal((await event('checkout.session.completed', completed)).status, 200);
-  assert.deepEqual((await rows(person.id)).map(row => `${row.plan} ${row.status}`), [`${OFFER} trialing`]);
+  assert.deepEqual((await rows(person.id)).map(row => `${row.plan} ${row.status}`), [`${PLAN} trialing`]);
 
   // Buying what the account already holds goes to the success page with no second Checkout.
   const sessions = stripeState.sessions.length;
@@ -156,27 +158,53 @@ test('a bought plan goes on the account by a signed event, a replay keeps one ro
   assert.equal((await event('customer.subscription.deleted', canceled, 'whsec_not_the_secret')).status, 400);
   const unsigned = await auth.handler(new Request(`${API}/stripe/webhook`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ type: 'customer.subscription.deleted', data: { object: canceled } }) }));
   assert.equal(unsigned.status, 400);
-  assert.deepEqual(await plans(person.headers), [`${OFFER} trialing`]);
+  assert.deepEqual(await plans(person.headers), [`${PLAN} trialing`]);
 
   // The free days end and it is paid: the plan stays on, active.
   stripeState.subscription = subscriptionObject({ status: 'active', trial_end: NOW });
   assert.equal((await event('customer.subscription.updated', stripeState.subscription)).status, 200);
-  assert.deepEqual(await plans(person.headers), [`${OFFER} active`]);
+  assert.deepEqual(await plans(person.headers), [`${PLAN} active`]);
 
   // The cancel, then the same cancel again: the plan is off, one row.
   stripeState.subscription = canceled;
   for (const _ of [1, 2]) assert.equal((await event('customer.subscription.deleted', canceled)).status, 200);
   assert.deepEqual(await plans(person.headers), []);
-  assert.deepEqual((await rows(person.id)).map(row => `${row.plan} ${row.status}`), [`${OFFER} canceled`]);
+  assert.deepEqual((await rows(person.id)).map(row => `${row.plan} ${row.status}`), [`${PLAN} canceled`]);
+
+  // Bought again after the cancel: a new Checkout with no free days, because the account has had them.
+  stripeState.subscription = null;
+  assert.equal((await buy('/buy/offer%3Aexample-seat', person.headers)).status, 303);
+  const again = sent.filter(request => request.path === '/v1/checkout/sessions').at(-1);
+  assert.equal(again.form.get('subscription_data[trial_period_days]'), null);
 });
 
-test('the plugin starts only with its key and signing secret, and an offer id in lower case', () => {
+test('an offer with if_required makes a Checkout that asks for no card while nothing is due, on the same plan', async () => {
+  const person = await signedIn('proof@example.test');
+  stripeState.subscription = null;
+  assert.equal((await buy('/buy/offer%3Aexample-proof', person.headers)).status, 303);
+  const made = sent.filter(request => request.path === '/v1/checkout/sessions').at(-1);
+  assert.equal(made.form.get('payment_method_collection'), 'if_required');
+  assert.equal(made.form.get('subscription_data[trial_period_days]'), '7');
+  assert.equal(made.form.get('line_items[0][price]'), PRICE);
+  assert.equal(made.form.get('metadata[offer_id]'), 'offer:example-proof');
+  assert.deepEqual((await rows(person.id)).map(row => row.plan), [PLAN]);
+});
+
+test('the plugin starts only with its key, its signing secret and offers that name a listed plan', () => {
   const sell = { ...settings.sell };
   assert.deepEqual(sellPlugins({ ...sell, enabled: false }, {}), []);
   assert.throws(() => sellPlugins(sell, { [sell.webhook_secret_env]: WEBHOOK_SECRET }), new RegExp(sell.stripe_key_env));
   assert.throws(() => sellPlugins(sell, { [sell.stripe_key_env]: 'sk_test_x' }), new RegExp(sell.webhook_secret_env));
   const env = { [sell.stripe_key_env]: 'sk_test_x', [sell.webhook_secret_env]: WEBHOOK_SECRET };
-  assert.throws(() => sellPlugins({ ...sell, offers: [{ offer_id: 'offer:Seat', price_id: PRICE, trial_days: 0 }] }, env), /offer:Seat must be lower case/);
+  const offer = { offer_id: 'offer:x', plan: PLAN, trial_days: 0 };
+  for (const [changed, refusal] of [
+    [{ plans: [{ plan: 'Example', price_id: PRICE }], offers: [] }, /Example must be lower case/],
+    [{ plans: [{ plan: 'a', price_id: PRICE }, { plan: 'b', price_id: PRICE }], offers: [] }, /two plans name one price/],
+    [{ offers: [{ ...offer, plan: 'missing' }] }, /names the plan missing/],
+    [{ offers: [{ ...offer, payment_method_collection: 'never' }] }, /payment_method_collection is one of always, if_required/],
+    [{ offers: [{ ...offer, trial_days: -1 }] }, /trial_days is a whole number/],
+    [{ offers: [{ ...offer, on: 'yes' }] }, /on is true or false/],
+  ]) assert.throws(() => sellPlugins({ ...sell, ...changed }, env), refusal);
   assert.equal(sellPlugins(sell, env).length, 1);
 });
 

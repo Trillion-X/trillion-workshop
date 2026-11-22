@@ -244,18 +244,22 @@ From `/api/auth/oauth2/token` with `resource` set to `mcp.resource`: EdDSA JWTs,
 
 ## A plan on the account (`settings.sell`)
 
-While `sell.enabled` is true, Better Auth's Stripe plugin (`@better-auth/stripe`, sell.mjs) sells the offers `sell.offers` lists,
-each `{offer_id, price_id, trial_days}`: the offer id is the plugin's plan name (lower case), the Stripe price is what it charges and
-the free days come before the first charge (once per account, the plugin's rule). `GET /buy/<offer id>` (the front door routes it here
-with `on-a-computer/caddy-route-better-auth-buy.caddy`) sends a signed-in person with a proven address to a Stripe Checkout for that
-offer, with `?jv=`, `ref` and `utm_*` as its metadata; a person not signed in goes to `sign_in_path` and back; an account that already
-holds the plan goes to `success_path`; an id the list does not name is 404. The plan is the `subscription` row (referenceId the user id),
-written only from an event to `POST /api/auth/stripe/webhook` whose `Stripe-Signature` checks with the signing secret
-(`checkout.session.completed` puts it on, `customer.subscription.updated` changes it, `customer.subscription.deleted` takes it off); a
-bad or missing signature is 400 and writes nothing, and the same event again writes the same state. `GET /api/auth/subscription/list`
-reads a signed-in person's plans. The Stripe key and the signing secret are read from `sell.stripe_key_env` and
-`sell.webhook_secret_env`, which the unit fills from its credentials. Checks: `node --test test/sell.test.mjs` (a stand-in Stripe over
-HTTP, every event signed with Stripe's scheme).
+While `sell.enabled` is true, Better Auth's Stripe plugin (`@better-auth/stripe`, sell.mjs) sells plans on the person's own account.
+`sell.plans` lists what an account can hold, each `{plan, price_id}`: a lower-case name and its Stripe price, one plan per price
+(the plugin knows a plan by its price). `sell.offers` lists the terms a plan is bought on, each `{offer_id, plan, trial_days,
+payment_method_collection, on}`: the free days before the first charge (given once per account), whether Checkout asks for a card
+(`always`, Stripe's own default for a trial and the value when none is named, or `if_required`), and whether it is sold now (`on`,
+absent is true). `GET /buy/<offer id>` (the front door routes it here with `on-a-computer/caddy-route-better-auth-buy.caddy`) sends a
+signed-in person with a proven address to a Stripe Checkout on that offer's terms, with `?jv=`, `ref`, `utm_*` and the offer id as its
+metadata; a person not signed in goes to `sign_in_path` and back; an account that already holds the plan goes to `success_path`; an id
+the list does not name, or an offer that is off, is 404. The plan is the `subscription` row (referenceId the user id), written only from
+an event to `POST /api/auth/stripe/webhook` whose `Stripe-Signature` checks (`checkout.session.completed` puts it on,
+`customer.subscription.updated` changes it, `customer.subscription.deleted` takes it off); a bad or missing signature is 400 and writes
+nothing, and the same event again writes the same state. `GET /api/auth/subscription/list` reads a signed-in person's plans. The Stripe
+key and the signing secret are read from `sell.stripe_key_env` and `sell.webhook_secret_env`, which the unit fills from its credentials.
+Checks: `node --test test/sell.test.mjs` (a stand-in Stripe over HTTP, every event signed with Stripe's scheme).
+
+The webhook endpoint and its signing secret are made once by `tools/take-payments/do-work/register-a-webhook-endpoint.mjs`.
 
 ## On a computer
 
