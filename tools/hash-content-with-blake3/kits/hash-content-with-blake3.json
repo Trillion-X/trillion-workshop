@@ -1,0 +1,54 @@
+{
+  "start_here": "Say to your AI: \"Run tool:hash-content-with-blake3 with text abc, exactly three lowercase letters, and show its identity and byte count.\" For a file instead, grant read access to its Files folder and give the relative path.",
+  "lists": [],
+  "no_lists_because": "This tool reads only the supplied text or granted file and returns its identity; it does not read or keep list rows.",
+  "workflows": [],
+  "tools": [
+    "tool:hash-content-with-blake3"
+  ],
+  "instructions": [
+    "1. Choose exactly one input: text for exact UTF-8 bytes, or path for a regular file relative to a granted Files folder. For the file example, put the three bytes abc in sample.txt and grant access to its folder.",
+    "2. Ask your AI to run tool:hash-content-with-blake3 with {\"text\":\"abc\"} or, with the folder granted, {\"path\":\"sample.txt\"}. Do not send both fields. Whitespace and Unicode normalization are not changed.",
+    "3. Read blake3, identity and bytes from the result. Compare identities only when you intend to compare exact bytes. If an input or grant error is returned, correct that input or folder grant and run again. Files are read into memory, so memory use grows with file size."
+  ],
+  "worked_examples": [
+    {
+      "title": "Hash exact text",
+      "ask": "Hash the exact text abc with BLAKE3.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:hash-content-with-blake3",
+            "input": {
+              "text": "abc"
+            }
+          }
+        }
+      },
+      "given": "The text abc contains exactly three UTF-8 bytes.",
+      "hands_back": "{\"blake3\": \"6437b3ac38465133ffb63b75273a8db548c558465d79db03fd359c6cd5bd9d85\", \"identity\": \"1f:6437b3ac38465133ffb63b75273a8db548c558465d79db03fd359c6cd5bd9d85\", \"bytes\": 3}"
+    },
+    {
+      "title": "Hash the same bytes from Files",
+      "ask": "Hash sample.txt in the Files folder I granted.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:hash-content-with-blake3",
+            "input": {
+              "path": "sample.txt"
+            }
+          }
+        }
+      },
+      "given": "The granted folder contains the regular file sample.txt with exactly the bytes abc and no newline.",
+      "hands_back": "{\"blake3\": \"6437b3ac38465133ffb63b75273a8db548c558465d79db03fd359c6cd5bd9d85\", \"identity\": \"1f:6437b3ac38465133ffb63b75273a8db548c558465d79db03fd359c6cd5bd9d85\", \"bytes\": 3}"
+    }
+  ]
+}
