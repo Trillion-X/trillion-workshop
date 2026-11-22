@@ -140,15 +140,13 @@ fn door(mut request: Value) -> Result<std::process::Output, String> {
     child.wait_with_output().map_err(|e| e.to_string())
 }
 
-// The door program the installed Workshop tree holds, read only when its bytes are origin/main's (the rule the converter uses): a
-// lane's unlanded edit in the shared checkout never runs as wf's door.
+// The door program the installed Workshop tree holds: the engine's pinned, landed copy, so it is never a lane's unlanded edit. The
+// commit it is named by is said on stderr (the installed tree's own record: its address ends in the commit it was downloaded from).
 fn installed_door_op() -> Result<String, String> {
     const DOOR: &str = "tools/use-your-tools-from-a-shell/do-work/door-op.mjs";
     let tree = installed_tree()?;
-    let installed = std::fs::read(format!("{tree}/{DOOR}")).map_err(|e| format!("the installed door program cannot be read: {e}"))?;
-    let origin = Command::new("git").arg("-C").arg(workshop()).args(["show", &format!("origin/main:{DOOR}")]).stderr(Stdio::null()).output()
-        .ok().filter(|o| o.status.success()).map(|o| o.stdout).ok_or("origin/main holds no door program")?;
-    if installed != origin { return Err("the installed door program is not origin/main's bytes; not calling".into()); }
+    let commit = read(&format!("{tree}.json"))["address"].as_str().and_then(|address| address.rsplit('/').next()).unwrap_or("unknown").to_string();
+    eprintln!("wf: the door program is the installed Workshop's {DOOR} at commit {commit}");
     Ok(format!("{tree}/{DOOR}"))
 }
 
