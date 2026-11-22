@@ -1,0 +1,37 @@
+{
+  "drafted_from": "tool:show-funnel-by-source's own row in tools/traffic-attribution/records.json and its screen in part.json, read before relying on it; what its one read answered on one client's database (no rows, no journey yet) is written in hands_back.",
+  "start_here": "Say to your AI: \"Show the funnel by source for my database\". It opens the funnel screen at /funnel-by-source with the held database name, one card per source.",
+  "lists": [],
+  "no_lists_because": "It reads one view of your own database (funnel_by_source) and keeps no row of its own.",
+  "workflows": [],
+  "tools": [
+    "tool:show-funnel-by-source"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Show the funnel by source for my database\". It needs the held name of that database's connection (the vault name you saved it under).",
+    "2. The AI calls do_one_thing_in_my_account with method tools:run, tool tool:show-funnel-by-source and the credential_name input (the worked example shows the call).",
+    "3. Read what comes back: columns and rows of funnel_by_source, one row per utm_source, utm_medium and utm_campaign, with visitors, clicks, visits, leads, bookings, checkouts, sales and revenue_cents. An empty answer means no journey has been recorded yet."
+  ],
+  "worked_examples": [
+    {
+      "title": "Show the funnel by source for one database",
+      "ask": "Show the funnel by source for my database",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:show-funnel-by-source",
+            "input": {
+              "credential_name": "ethos_for_who_runs_it-connection"
+            },
+            "credential_name": "<the held database connection name>"
+          }
+        }
+      },
+      "given": "The held name of the database's connection (the vault name it was saved under). Nothing else: the statement is fixed.",
+      "hands_back": "{\"columns\":[\"source\",\"medium\",\"campaign\",\"visitors\",\"clicks\",\"visits\",\"leads\",\"bookings\",\"checkouts\",\"sales\",\"revenue_cents\"],\"rows\":[],\"row_count\":0}, observed on a client database on 2026-11-21: the view held no journey yet, so the screen shows its empty line."
+    }
+  ]
+}
