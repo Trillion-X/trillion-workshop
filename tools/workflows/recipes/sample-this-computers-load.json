@@ -1,7 +1,9 @@
 {
+  "about": "workflow:sample-this-computers-load: rendered from its workflow_recipes row.",
   "records": [
     {
       "payload": {
+        "source_kept_at": "2026-11-21 21:26:28.327262+00",
         "kind": "workflow-recipe",
         "id": "workflow:sample-this-computers-load",
         "label": "Sample this computer load every five minutes",
@@ -24,35 +26,101 @@
             }
           }
         },
-        "fires_when": [],
+        "definition": {
+          "edges": [
+            {
+              "to": "keep",
+              "from": "measure",
+              "kind": "always"
+            }
+          ],
+          "steps": [
+            {
+              "id": "measure",
+              "kind": "ask",
+              "config": {
+                "name": "tool:read-this-computers-load",
+                "input": {},
+                "context": {
+                  "title": "Read this computer's load",
+                  "step_id": "measure"
+                }
+              }
+            },
+            {
+              "id": "keep",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "INSERT INTO computer_readings (computer, read_at, measure, value, of_value, run, how) VALUES ($1, now(), 'load_1m', $2::numeric, $3::numeric, $4, $5), ($1, now(), 'memory_pressure_free_pct', $6::numeric, 100, $4, $5)",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "key": "measure",
+                        "from": "steps",
+                        "path": "output.result.host"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "key": "measure",
+                        "from": "steps",
+                        "path": "output.result.load_1m"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "key": "measure",
+                        "from": "steps",
+                        "path": "output.result.cores"
+                      }
+                    },
+                    "workflow:sample-this-computers-load",
+                    "tool:read-this-computers-load (read-only, every five minutes)",
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "key": "measure",
+                        "from": "steps",
+                        "path": "output.result.memory_pressure_free_pct"
+                      }
+                    }
+                  ],
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "credential_name"
+                    }
+                  }
+                },
+                "context": {
+                  "title": "Keep the load and memory pressure as computer readings",
+                  "step_id": "keep"
+                }
+              }
+            }
+          ]
+        },
         "wakes": [
           {
             "id": "every-five-minutes",
             "on": {
               "fact": {
-                "kind": "due-time",
                 "from": [
                   "run"
                 ],
+                "kind": "due-time",
                 "match": {
                   "schedule_id": "schedule:workflow:sample-this-computers-load:every-five-minutes"
                 },
                 "watch": {
                   "schedules": [
                     {
-                      "schedule_id": "schedule:workflow:sample-this-computers-load:every-five-minutes",
-                      "source_generation": 1,
-                      "schedule_revision": 1,
-                      "timezone": "America/Chicago",
-                      "start_local_date": "2026-11-21",
-                      "local_window": {
-                        "start": "00:00",
-                        "duration_minutes": 1440
-                      },
-                      "cadence": {
-                        "unit": "minute",
-                        "interval": 5
-                      },
                       "dst": {
                         "gap": "next-valid",
                         "fold": "earlier"
@@ -67,92 +135,35 @@
                           "name": "workflow:sample-this-computers-load",
                           "input": {}
                         }
-                      }
+                      },
+                      "cadence": {
+                        "unit": "minute",
+                        "interval": 5
+                      },
+                      "timezone": "America/Chicago",
+                      "schedule_id": "schedule:workflow:sample-this-computers-load:every-five-minutes",
+                      "local_window": {
+                        "start": "00:00",
+                        "duration_minutes": 1440
+                      },
+                      "start_local_date": "2026-11-21",
+                      "schedule_revision": 1,
+                      "source_generation": 1
                     }
                   ]
                 }
               }
             },
-            "input": {
-              "start_at": "measure"
-            },
             "budget": {
               "steps": 3,
               "wall_ms": 120000
+            },
+            "input": {
+              "start_at": "measure"
             }
           }
         ],
-        "steps": [
-          {
-            "id": "measure",
-            "kind": "ask",
-            "config": {
-              "name": "tool:read-this-computers-load",
-              "input": {},
-              "context": {
-                "title": "Read this computer's load",
-                "step_id": "measure"
-              }
-            }
-          },
-          {
-            "id": "keep",
-            "kind": "ask",
-            "config": {
-              "name": "tool:run-sql-in-my-database",
-              "input": {
-                "sql": "INSERT INTO computer_readings (computer, read_at, measure, value, of_value, run, how) VALUES ($1, now(), 'load_1m', $2::numeric, $3::numeric, $4, $5), ($1, now(), 'memory_pressure_free_pct', $6::numeric, 100, $4, $5)",
-                "credential_name": {
-                  "$kind": "binding",
-                  "select": {
-                    "from": "input",
-                    "path": "credential_name"
-                  }
-                },
-                "params": [
-                  {
-                    "$kind": "binding",
-                    "select": {
-                      "from": "steps",
-                      "key": "measure",
-                      "path": "output.result.host"
-                    }
-                  },
-                  {
-                    "$kind": "binding",
-                    "select": {
-                      "from": "steps",
-                      "key": "measure",
-                      "path": "output.result.load_1m"
-                    }
-                  },
-                  {
-                    "$kind": "binding",
-                    "select": {
-                      "from": "steps",
-                      "key": "measure",
-                      "path": "output.result.cores"
-                    }
-                  },
-                  "workflow:sample-this-computers-load",
-                  "tool:read-this-computers-load (read-only, every five minutes)",
-                  {
-                    "$kind": "binding",
-                    "select": {
-                      "from": "steps",
-                      "key": "measure",
-                      "path": "output.result.memory_pressure_free_pct"
-                    }
-                  }
-                ]
-              },
-              "context": {
-                "title": "Keep the load and memory pressure as computer readings",
-                "step_id": "keep"
-              }
-            }
-          }
-        ]
+        "fires_when": []
       }
     }
   ]
