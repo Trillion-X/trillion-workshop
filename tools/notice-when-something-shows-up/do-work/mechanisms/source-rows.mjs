@@ -21,9 +21,11 @@
  *   - A list that cannot be read is said on its row (`last_said`) and read again at its next due time; it never stops the
  *     other rows or the session.
  *   - What reads cost is capped each day: no read starts once what today's reads cost (each row's `cost`, else
- *     `cost.per_read`) would pass the day's cap. The cap is the person's budget row when it exists (`cost.budget_table`,
- *     `cost.budget_id`, its `daily_cost`), else what the service says is left today (`cost.balance_request` and
- *     `cost.balance_path`, read once a day with the same credential): never a number written here.
+ *     `cost.per_read`) would pass the day's cap. The cap is the least of the person's budget row (`cost.budget_table`,
+ *     `cost.budget_id`, its `daily_cost`) and what the service says is left today less a floor kept unspent
+ *     (`cost.balance_request`, `cost.balance_path`, read once a day with the same credential, less `cost.floor`), of
+ *     those there are: never a number written here. With neither, nothing that costs is read. A stop at the cap is said
+ *     on the first row it left unread (`last_said`) and once a day on stderr, so it is seen.
  *   - It writes only its own rows' kept columns (seen, read_at, due_at, last_said). Its login needs to read and update
  *     the table (and read the budget table, when one is named).
  *
@@ -43,7 +45,7 @@
  *   longest_wait_seconds    the longest a pass waits before looking at the table again (default 60), so a row added or
  *                           made due by hand is read within it
  *   again_after_refusal_seconds  how soon a row whose tell was refused is read again (default 30)
- *   cost                    { per_read?, budget_table?, budget_id?, balance_request?: {url, headers}, balance_path? }
+ *   cost                    { per_read?, budget_table?, budget_id?, balance_request?: {url, headers}, balance_path?, floor? }
  */
 import { compare, readList, readSettings as readListSettings, at } from "./service-lists.mjs";
 import { readGivenCredential } from "./given-credential.mjs";
@@ -78,6 +80,7 @@ export function readSettings(settings = {}) {
       budget_id: typeof cost.budget_id === "string" ? cost.budget_id : null,
       balance_request: cost.balance_request?.url ? cost.balance_request : null,
       balance_path: typeof cost.balance_path === "string" ? cost.balance_path : null,
+      floor: Number.isFinite(Number(cost.floor)) && Number(cost.floor) > 0 ? Number(cost.floor) : 0,
     },
   };
 }
@@ -168,20 +171,20 @@ export async function watchForTransitions(settings, handlers) {
     store = pgStore(client, own);
   }
   // Today's spend and cap, kept with the waiter so a restart does not spend the day again.
-  let spend = handlers.state?.day ? { ...handlers.state } : { day: null, spent: 0, cap: null };
+  let spend = handlers.state?.day ? { left: null, stopped: null, ...handlers.state } : { day: null, spent: 0, cap: null, left: null, stopped: null };
   const readTimes = [];
-  /** The cap of the day `today`: the budget row when there is one, else what the service says is left at the day's start. */
-  async function capOf(today) {
+  /** The cap of the day: the least of the budget row and what the service said was left at the day's start less the floor. */
+  async function capOf() {
     const budget = await store.budget();
-    if (budget !== null) return budget;
-    if (spend.day === today && spend.cap !== null) return spend.cap;
-    return readBalance(own, credential, fetchImpl).catch(() => null);
+    if (spend.left === null && own.cost.balance_request) spend.left = await readBalance(own, credential, fetchImpl).catch(() => null);
+    const caps = [budget, spend.left === null ? null : Math.max(spend.left - own.cost.floor, 0)].filter((cap) => cap !== null);
+    return caps.length ? Math.min(...caps) : null;
   }
   try {
     while (!signal?.aborted) {
       const today = dayOf(now());
-      if (spend.day !== today) spend = { day: today, spent: 0, cap: null };
-      spend.cap = await capOf(today);
+      if (spend.day !== today) spend = { day: today, spent: 0, cap: null, left: null, stopped: null };
+      spend.cap = await capOf();
       await keepState(spend);
       const rows = await store.due(own.most_per_pass, now());
       let read = 0;
@@ -189,7 +192,18 @@ export async function watchForTransitions(settings, handlers) {
       for (const row of rows) {
         if (signal?.aborted) return;
         const cost = Number.isFinite(Number(row.cost)) && row.cost !== null ? Number(row.cost) : own.cost.per_read;
-        if (cost > 0 && (spend.cap === null || spend.spent + cost > spend.cap)) { capped = true; break; }
+        if (cost > 0 && (spend.cap === null || spend.spent + cost > spend.cap)) {
+          capped = true;
+          const said = spend.cap === null ? "not read: no budget row and no balance the service says, so nothing that costs is read"
+            : `not read: today's cap of ${spend.cap} is spent (${Number(spend.spent.toFixed(6))} read so far; budget row, or balance less floor ${own.cost.floor})`;
+          await store.save(row.id, { seen: row.seen ?? undefined, read_at: row.read_at, due_at: now(), last_said: said });
+          if (spend.stopped === null) {
+            spend.stopped = now();
+            await keepState(spend);
+            process.stderr.write(`source-rows-capped table=${own.table} list_group=${own.list_group ?? ""} day=${spend.day} cap=${spend.cap} spent=${spend.spent}\n`);
+          }
+          break;
+        }
         // At most most_reads_per_minute reads in any minute.
         while (readTimes.length >= own.most_reads_per_minute && now() - readTimes[0] < 60_000) {
           await sleep(60_000 - (now() - readTimes[0]));

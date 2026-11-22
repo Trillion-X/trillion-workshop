@@ -113,9 +113,9 @@ test('reads stop for the day at the cap: what the service says is left, or the b
   const byBalance = world({ until: (start) => start + 100_000, lists: () => [], balance: 3 });
   await watchForTransitions({ table: 'watched_lists', cost }, { store: memoryStore(rows()), credential: 'the-key', fetch: byBalance.fetch, now: byBalance.now, sleep: byBalance.sleep, signal: byBalance.controller.signal, onTransition: byBalance.onTransition });
   assert.equal(byBalance.reads.length, 3, 'three reads cost what the service says is left');
-  const byBudget = world({ until: (start) => start + 100_000, lists: () => [], balance: 3 });
+  const byBudget = world({ until: (start) => start + 100_000, lists: () => [], balance: 30 });
   await watchForTransitions({ table: 'watched_lists', cost: { ...cost, budget_table: 'budgets', budget_id: 'treg' } }, { store: memoryStore(rows(), { budget: 5 }), credential: 'the-key', fetch: byBudget.fetch, now: byBudget.now, sleep: byBudget.sleep, signal: byBudget.controller.signal, onTransition: byBudget.onTransition });
-  assert.equal(byBudget.reads.length, 5, 'the budget row is the cap when there is one');
+  assert.equal(byBudget.reads.length, 5, 'the budget row is the cap when it is below what is left');
   const noCap = world({ until: (start) => start + 100_000, lists: () => [] });
   await watchForTransitions({ table: 'watched_lists', cost: { per_read: 1 } }, { store: memoryStore(rows()), credential: 'the-key', fetch: noCap.fetch, now: noCap.now, sleep: noCap.sleep, signal: noCap.controller.signal, onTransition: noCap.onTransition });
   assert.equal(noCap.reads.length, 0, 'with no budget row and no balance, nothing that costs is read');
@@ -138,4 +138,19 @@ test('the table is read by its own columns, only the waiter\'s list_group, and w
   assert.deepEqual(asked[0].params.slice(1), [5, 'treg']);
   assert.deepEqual(asked[1].params, ['treg']);
   assert.match(asked[2].sql, /^UPDATE watched_lists SET seen = \$2, read_at = \$3, due_at = \$4, last_said = \$5 WHERE id = \$1$/);
+});
+
+test('the cap is the least of the budget row and the balance less its floor, and a stop at the cap is said on the row', async () => {
+  const rows = () => Array.from({ length: 10 }, (_, n) => ({ id: `channel-${n}`, settings: listSettings(n) }));
+  const cost = { per_read: 1, balance_request: { url: 'https://service.test/balance', headers: { Authorization: 'Bearer {credential}' } }, balance_path: 'balance.amount', budget_table: 'budgets', budget_id: 'treg' };
+  const floored = world({ until: (start) => start + 100_000, lists: () => [], balance: 6 });
+  const store = memoryStore(rows(), { budget: 8 });
+  await watchForTransitions({ table: 'watched_lists', cost: { ...cost, floor: 2 } }, { store, credential: 'the-key', fetch: floored.fetch, now: floored.now, sleep: floored.sleep, signal: floored.controller.signal, onTransition: floored.onTransition });
+  assert.equal(floored.reads.length, 4, 'a balance of 6 less a floor of 2 is below the budget row of 8');
+  const unread = [...store.table.values()].filter((row) => row.read_at === null);
+  assert.equal(unread.length, 6);
+  assert.match(unread[0].last_said, /cap of 4 is spent/, 'the stop is said on the first row left unread');
+  const budgetLower = world({ until: (start) => start + 100_000, lists: () => [], balance: 6 });
+  await watchForTransitions({ table: 'watched_lists', cost }, { store: memoryStore(rows(), { budget: 3 }), credential: 'the-key', fetch: budgetLower.fetch, now: budgetLower.now, sleep: budgetLower.sleep, signal: budgetLower.controller.signal, onTransition: budgetLower.onTransition });
+  assert.equal(budgetLower.reads.length, 3, 'the budget row when it is the lower');
 });
