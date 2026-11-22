@@ -10,6 +10,8 @@
 # A name the row's `site_sockets` lists (absent: none, and no line) is sent to each of its program's sockets instead, the first
 # that takes the call (routes/site-sockets.fragment): two slots of one program, each on its own socket, so one restarts while
 # the other serves (Nov 21 2026: a site program restarted in place made its names wait up to 1.5 s).
+# A name the row's `www_first_names` lists (absent: none, and no line) is answered at www.<name> instead, and its bare name is
+# sent there (routes/www-first-name.fragment), for a bare name that also answers at an address this computer does not hold.
 {
 	admin localhost:2019
 	grace_period {{grace_period}}
@@ -50,12 +52,16 @@ https:// {
 	tls {
 		on_demand
 	}
-	map {host} {site} {
-		~^www\.(.+)$ ${1}
-		default {host}
+	# {site} is the bare name, for www.<name> too, so both answer from one folder and one program. {canonical} is the name that
+	# answers, <name> (or www.<name> for a listed name, whose lines go first), and the other is sent there with a 308 that keeps
+	# the path and query.
+	map {host} {site} {canonical} {
+{{www_first_names}}
+		~^www\.(.+)$ ${1} ${1}
+		default {host} {host}
 	}
-	@www header_regexp Host ^www\.
-	redir @www https://{site}{uri} 308
+	@not_canonical expression {host} != {canonical}
+	redir @not_canonical https://{canonical}{uri} 308
 	# Every answer, a page or a program's, is sent compressed when the browser takes it (Nov 21 2026: a 15.3 MB members
 	# script went whole, 3.4 MB as gzip, on a phone that waited 79 s).
 	encode zstd gzip

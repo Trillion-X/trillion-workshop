@@ -115,21 +115,35 @@ const SITE_FILE = name => {
 // program, the first that takes the call, and one that refuses is passed over for fail_duration (routes/site-sockets.fragment).
 // The names come from the row alone; a name it does not list keeps the one socket programs_root/<name>/http.sock.
 const SITE_SOCKETS = readFileSync(new URL('./routes/site-sockets.fragment', import.meta.url), 'utf8').trimEnd();
+const HOST_NAME = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
 const siteSockets = site => Object.entries(site.site_sockets ?? {}).map(([name, sockets], at) => {
   const where = `caddy.site_sockets ${name}`;
-  if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(name)) throw new Error(`${where}: a name is a host name in small letters`);
+  if (!HOST_NAME.test(name)) throw new Error(`${where}: a name is a host name in small letters`);
   if (!Array.isArray(sockets) || !sockets.length || !sockets.every(path => /^\/[A-Za-z0-9._/-]+\.sock$/.test(path) && !path.includes('..'))) {
     throw new Error(`${where} lists one or more absolute .sock paths`);
   }
   return SITE_SOCKETS.replaceAll('{at}', String(at)).replaceAll('{name}', name).replaceAll('{sockets}', sockets.map(path => `unix/${path}`).join(' '));
 }).join('\n');
+// A name a site file answers at www.<name> (www_first_names: [bare names]) is its own map lines (routes/www-first-name.fragment):
+// www.<name> is the name that answers and the bare name is sent there. A name it does not list keeps <name> as that name.
+const WWW_FIRST_NAME = readFileSync(new URL('./routes/www-first-name.fragment', import.meta.url), 'utf8').trimEnd();
+const wwwFirstNames = site => {
+  const names = site.www_first_names ?? [];
+  if (!Array.isArray(names)) throw new Error('caddy.www_first_names lists bare host names');
+  return names.map(name => {
+    if (typeof name !== 'string' || !HOST_NAME.test(name) || name.startsWith('www.')) throw new Error(`caddy.www_first_names ${name}: a name is a bare host name in small letters`);
+    return WWW_FIRST_NAME.replaceAll('{name}', name);
+  }).join('\n');
+};
+// The fields a site file fills with lines made from the row: absent or empty, a line that is only the field's slot is no line.
+const LINE_FIELDS = { site_sockets: siteSockets, www_first_names: wwwFirstNames };
 const wholeFile = (site, texts) => {
   const where = `caddy site file ${site.site_file}`;
   const routes = key => (site[key] ?? []).map(path => routeText(texts, path, site)).join('\n');
   const isRoutes = key => key === 'routes' || key.endsWith('_routes');
-  const sockets = siteSockets(site);
-  const text = SITE_FILE(site.site_file).replace(/^\{\{([a-z_]+)\}\}\n/gm, (line, key) => (isRoutes(key) && !routes(key)) || (key === 'site_sockets' && !sockets) ? '' : line);
-  return fillFields(text, site, where, key => (isRoutes(key) ? routes(key) : key === 'refuse_other_hosts' ? REFUSE_OTHER_HOSTS : key === 'site_sockets' ? sockets : undefined));
+  const lines = Object.fromEntries(Object.entries(LINE_FIELDS).map(([key, make]) => [key, make(site)]));
+  const text = SITE_FILE(site.site_file).replace(/^\{\{([a-z_]+)\}\}\n/gm, (line, key) => (isRoutes(key) && !routes(key)) || lines[key] === '' ? '' : line);
+  return fillFields(text, site, where, key => (isRoutes(key) ? routes(key) : key === 'refuse_other_hosts' ? REFUSE_OTHER_HOSTS : lines[key]));
 };
 
 /** The Caddy unit as the computer runs it: its `files` are the site file (checked by the site's Caddy, `binary`, and applied by

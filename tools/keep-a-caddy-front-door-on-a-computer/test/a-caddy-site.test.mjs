@@ -5,7 +5,10 @@
 // pools and inner doors; and how each file is applied (the site file checked by the site's Caddy, then a reload).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { prepare } from '../prepare-a-caddy-site.mjs';
 
 // The pages a request hands in (the person's own folder): this kit holds none.
@@ -221,9 +224,62 @@ test('each name its own folder: the engine answers some paths of some names firs
   const text = (await siteFile({ ...folders, routes: ['tools/keep-an-engine-on-a-computer/caddy-route-engine-at-names.caddy'], engine_hosts: ['app.place.example.test'], engine_paths: ['/mcp', '/.well-known/oauth-protected-resource*'], pools: engine })).text;
   assert.match(text, /@engine_at_names \{\n\t\thost app\.place\.example\.test\n\t\tpath \/mcp \/\.well-known\/oauth-protected-resource\*\n\t\}/);
   const https = text.slice(text.indexOf('https:// {'));
-  assert.ok(https.indexOf('handle @engine_at_names') > https.indexOf('redir @www') && https.indexOf('handle @engine_at_names') < https.indexOf('handle @page'), 'the engine route goes after the www redirect and before every page and program');
+  assert.ok(https.indexOf('handle @engine_at_names') > https.indexOf('redir @not_canonical') && https.indexOf('handle @engine_at_names') < https.indexOf('handle @page'), 'the engine route goes after the www redirect and before every page and program');
   assert.match(https, /handle @engine_at_names \{[\s\S]*reverse_proxy 127\.0\.0\.1:7199 127\.0\.0\.1:7198/);
   const none = (await siteFile({ ...folders, routes: [] })).text;
   assert.doesNotMatch(none, /engine_at_names|\{\{/, 'a site with no routes renders as before');
   await assert.rejects(siteFile({ ...folders, routes: ['tools/keep-an-engine-on-a-computer/caddy-route-engine-at-names.caddy'], engine_paths: ['/mcp'], pools: engine }), /needs engine_hosts/);
+});
+
+// A name the row's www_first_names lists answers at www.<name>, and its bare name is sent there; every other www.<name> is still
+// sent to <name>. Both forms keep one folder and one program ({site} is the bare name) and both still get their certificate.
+const wwwFolders = { site_file: 'each-name-its-own-folder', door_host: '192.0.2.10', certificate_profile: 'shortlived', grace_period: '5s', pages_root: '/var/lib/example-sites', programs_root: '/run/example-sites' };
+const wwwCases = async () => ({
+  absent: (await siteFile(wwwFolders)).text,
+  empty: (await siteFile({ ...wwwFolders, www_first_names: [] })).text,
+  one: (await siteFile({ ...wwwFolders, www_first_names: ['place.example.test'] })).text,
+});
+const canonicalLines = text => text.slice(text.indexOf('https:// {')).match(/\tmap \{host\} \{site\} \{canonical\} \{\n[\s\S]*?\n\t\}\n\t@not_canonical .*\n\tredir .*\n/)[0];
+const askBlock = text => text.slice(text.indexOf(':5601 {'), text.indexOf('\n}\n', text.indexOf(':5601 {')));
+
+test('each name its own folder: a name the row lists in www_first_names answers at www.<name>, and its bare name is sent there', async () => {
+  const { absent, empty, one } = await wwwCases();
+  assert.equal(empty, absent, 'an empty list is the same file as no list');
+  assert.equal(canonicalLines(absent), [
+    '\tmap {host} {site} {canonical} {',
+    '\t\t~^www\\.(.+)$ ${1} ${1}',
+    '\t\tdefault {host} {host}',
+    '\t}',
+    '\t@not_canonical expression {host} != {canonical}',
+    '\tredir @not_canonical https://{canonical}{uri} 308',
+    '',
+  ].join('\n'), 'no listed name: every www.<name> is sent to <name>, path and query kept');
+  assert.equal(canonicalLines(one), [
+    '\tmap {host} {site} {canonical} {',
+    '\t\tplace.example.test place.example.test www.place.example.test',
+    '\t\twww.place.example.test place.example.test www.place.example.test',
+    '\t\t~^www\\.(.+)$ ${1} ${1}',
+    '\t\tdefault {host} {host}',
+    '\t}',
+    '\t@not_canonical expression {host} != {canonical}',
+    '\tredir @not_canonical https://{canonical}{uri} 308',
+    '',
+  ].join('\n'), 'a listed name: its lines go first, so its bare name is sent to www.<name> and www.<name> answers from <name>');
+  assert.equal(askBlock(one), askBlock(absent), 'the certificate question is the same for both forms of every name');
+  assert.match(askBlock(absent), /^\t\t~\^www\\\.\(\.\+\)\$ \$\{1\}$/m);
+  assert.doesNotMatch(absent + one, /\{\{/);
+  assert.equal((one.match(/place\.example\.test/g) ?? []).length, 6, 'the listed name is named in its two map lines only');
+  for (const bad of [['Place.Example.test'], ['www.place.example.test'], ['place'], [7], 'place.example.test']) {
+    await assert.rejects(siteFile({ ...wwwFolders, www_first_names: bad }), /caddy\.www_first_names/);
+  }
+});
+
+test('each name its own folder: Caddy reads the file with www_first_names absent, empty and holding one name', { skip: spawnSync('caddy', ['version']).status !== 0 && 'caddy is not installed' }, async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'www-first-names-'));
+  for (const [name, text] of Object.entries(await wwwCases())) {
+    const file = join(dir, `${name}.caddyfile`);
+    writeFileSync(file, text);
+    const adapted = spawnSync('caddy', ['adapt', '--config', file, '--adapter', 'caddyfile'], { encoding: 'utf8' });
+    assert.equal(adapted.status, 0, `${name}: ${adapted.stderr}`);
+  }
 });
