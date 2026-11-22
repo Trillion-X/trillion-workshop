@@ -293,3 +293,42 @@ test('every function that reads consent throws without the consent cookie name, 
   assert.equal(consentGrantedOf('site_consent=granted', 'site_consent'), true);
 });
 
+
+test('a re-kept step fills only the fields it still lacks, never overwrites a set value, and never moves at or step', async () => {
+  const { db, query } = await database();
+  const first = await keepStep(query, { step: 'booking', ref: 'tidycal:fill-1', joined_by: 'email', email_key: null, visitor: null });
+  assert.equal(first.kept, true);
+  const before = (await db.query("SELECT at FROM journey_steps WHERE ref = 'tidycal:fill-1'")).rows[0].at;
+  const filled = await keepStep(query, { step: 'booking', ref: 'tidycal:fill-1', joined_by: 'email', email_key: emailKey('ana@example.com'), visitor: 'visitor-fill-1', source: { utm_source: 'instagram' } });
+  assert.equal(filled.kept, true);
+  const row = (await db.query("SELECT visitor, email_key, source, at, step, ref FROM journey_steps WHERE ref = 'tidycal:fill-1'")).rows[0];
+  assert.equal(row.visitor, 'visitor-fill-1');
+  assert.equal(row.email_key, emailKey('ana@example.com'));
+  assert.deepEqual(row.source, { utm_source: 'instagram' });
+  assert.equal(String(row.at), String(before));
+  assert.equal(row.step, 'booking');
+  assert.equal(row.ref, 'tidycal:fill-1');
+});
+
+test('a set value is never overwritten by a later keep, and a repeat that fills nothing keeps nothing', async () => {
+  const { db, query } = await database();
+  await keepStep(query, { step: 'lead', ref: 'lead:set-1', email_key: emailKey('ana@example.com'), visitor: 'visitor-set-1' });
+  const again = await keepStep(query, { step: 'lead', ref: 'lead:set-1', email_key: emailKey('other@example.com'), visitor: 'visitor-other' });
+  assert.equal(again.kept, false);
+  const row = (await db.query("SELECT visitor, email_key FROM journey_steps WHERE ref = 'lead:set-1'")).rows[0];
+  assert.equal(row.visitor, 'visitor-set-1');
+  assert.equal(row.email_key, emailKey('ana@example.com'));
+});
+
+test('a ref in journey_excluded_refs is never kept or filled, even when a step for it already exists', async () => {
+  const { db, query } = await database();
+  await keepStep(query, { step: 'booking', ref: 'tidycal:excl-1', email_key: null });
+  await db.query("INSERT INTO journey_excluded_refs (ref, why) VALUES ('tidycal:excl-1', 'attribution proof test booking')");
+  const fill = await keepStep(query, { step: 'booking', ref: 'tidycal:excl-1', email_key: emailKey('ana@example.com') });
+  assert.equal(fill.kept, false);
+  assert.equal((await db.query("SELECT email_key FROM journey_steps WHERE ref = 'tidycal:excl-1'")).rows[0].email_key, null);
+  const fresh = await keepStep(query, { step: 'booking', ref: 'tidycal:excl-2', email_key: null });
+  await db.query("INSERT INTO journey_excluded_refs (ref, why) VALUES ('tidycal:excl-3', 'x')");
+  assert.equal((await keepStep(query, { step: 'booking', ref: 'tidycal:excl-3', email_key: emailKey('b@example.com') })).kept, false);
+  assert.equal(fresh.kept, true);
+});

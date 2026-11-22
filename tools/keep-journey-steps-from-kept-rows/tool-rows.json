@@ -26,6 +26,16 @@
             "since": {
               "type": "string",
               "description": "Optional ISO time (like 2026-11-21T00:00:00Z) to read rows from, instead of the newest kept step of each kind."
+            },
+            "refs": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 500,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Optional list of refs (like tidycal:10712000) to read again whatever their cutoff, for a source row fixed after it was kept. Give refs or since, not both."
             }
           }
         },

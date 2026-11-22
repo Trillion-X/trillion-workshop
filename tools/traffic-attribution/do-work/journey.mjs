@@ -103,15 +103,37 @@ export function visitStep({ url, refererHeader, visitor = null }) {
   return stepOf({ visitor, touch_id: touchId, step: 'visit', source, joined_by: touchId ? 'touch' : visitor ? 'cookie' : null });
 }
 
-/** Writes one step; a step with a ref already kept is left as it is. Resolves to { kept }. */
+/**
+ * Writes one step. A step with a ref already kept is not inserted again, but a field the kept step still lacks (email_key,
+ * visitor, touch_id, offer_id, a source key) is filled from this one: a step kept from an incomplete source row joins its
+ * person once the source is fixed. A value already set is never overwritten, and at and step never change. A ref in
+ * journey_excluded_refs is never kept. Resolves to { kept }: true when a row was inserted or a field filled.
+ */
 export async function keepStep(query, step) {
   if (!Object.hasOwn(settings.steps, step?.step)) throw new TypeError('A step needs a kind that read-data/journey.json names.');
   if (isCheckSource(step.source)) return { kept: false };
   const row = stepOf(step);
+  const params = [row.visitor, row.touch_id, row.step, row.source === null ? null : JSON.stringify(row.source), row.ref, row.joined_by, row.email_key, row.offer_id, row.value_cents];
+  const values = `SELECT $1::text, $2::text, $3::text, $4::jsonb, $5::text, $6::text, $7::text, $8::text, $9::bigint
+     WHERE NOT EXISTS (SELECT 1 FROM journey_excluded_refs x WHERE x.ref = $5::text)`;
+  if (row.ref === null) {
+    const result = await query(`INSERT INTO journey_steps (visitor, touch_id, step, source, ref, joined_by, email_key, offer_id, value_cents) ${values} ON CONFLICT DO NOTHING`, params);
+    return { kept: (result.rowCount ?? result.affectedRows ?? 0) > 0 };
+  }
   const result = await query(
-    `INSERT INTO journey_steps (visitor, touch_id, step, source, ref, joined_by, email_key, offer_id, value_cents)
-     VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7, $8, $9) ON CONFLICT DO NOTHING`,
-    [row.visitor, row.touch_id, row.step, row.source === null ? null : JSON.stringify(row.source), row.ref, row.joined_by, row.email_key, row.offer_id, row.value_cents],
+    `INSERT INTO journey_steps (visitor, touch_id, step, source, ref, joined_by, email_key, offer_id, value_cents) ${values}
+     ON CONFLICT (step, ref) WHERE ref IS NOT NULL DO UPDATE SET
+       visitor = COALESCE(journey_steps.visitor, EXCLUDED.visitor),
+       touch_id = COALESCE(journey_steps.touch_id, EXCLUDED.touch_id),
+       email_key = COALESCE(journey_steps.email_key, EXCLUDED.email_key),
+       offer_id = COALESCE(journey_steps.offer_id, EXCLUDED.offer_id),
+       source = COALESCE(journey_steps.source, '{}'::jsonb) || COALESCE(EXCLUDED.source, '{}'::jsonb)
+     WHERE (journey_steps.visitor IS NULL AND EXCLUDED.visitor IS NOT NULL)
+        OR (journey_steps.touch_id IS NULL AND EXCLUDED.touch_id IS NOT NULL)
+        OR (journey_steps.email_key IS NULL AND EXCLUDED.email_key IS NOT NULL)
+        OR (journey_steps.offer_id IS NULL AND EXCLUDED.offer_id IS NOT NULL)
+        OR (EXCLUDED.source IS NOT NULL AND NOT (EXCLUDED.source <@ COALESCE(journey_steps.source, '{}'::jsonb)))`,
+    params,
   );
   return { kept: (result.rowCount ?? result.affectedRows ?? 0) > 0 };
 }

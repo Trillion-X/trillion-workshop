@@ -30,11 +30,14 @@ const text = value => (typeof value === 'string' ? value.trim() : '');
  * of this kind's own insert time less the overlap (cutoff_overlap_minutes), so a row whose transaction committed late is still read;
  * `at` is the event time, for display. A row read again is not kept twice. A ref in journey_excluded_refs is never read.
  */
-export function readSql(mapping) {
+export function readSql(mapping, { byRef = false } = {}) {
   const fields = Object.entries(mapping.fields).map(([name, expression]) => `(${expression}) AS f_${name}`);
   const sourced = Object.entries(mapping.source ?? {}).map(([name, expression]) => `(${expression}) AS s_${name}`);
-  return `SELECT ${[...fields, ...sourced].join(', ')} FROM ${mapping.table} WHERE (${mapping.where}) AND (${mapping.cutoff_column}) > `
-    + `COALESCE($1::timestamptz, (SELECT max(at) - make_interval(mins => ${OVERLAP_MINUTES}) FROM journey_steps WHERE step = $2), '-infinity'::timestamptz) `
+  // byRef: the rows named by $1 (a list of refs), whatever their cutoff, so a source fixed long after it was kept is read again.
+  const scope = byRef
+    ? `(${mapping.fields.ref}) = ANY($1::text[])`
+    : `(${mapping.cutoff_column}) > COALESCE($1::timestamptz, (SELECT max(at) - make_interval(mins => ${OVERLAP_MINUTES}) FROM journey_steps WHERE step = $2), '-infinity'::timestamptz)`;
+  return `SELECT ${[...fields, ...sourced].join(', ')} FROM ${mapping.table} WHERE (${mapping.where}) AND ${scope} `
     + `AND NOT EXISTS (SELECT 1 FROM journey_excluded_refs x WHERE x.ref = (${mapping.fields.ref})) `
     + `ORDER BY ${mapping.fields.at}, ${mapping.fields.ref}`;
 }
@@ -59,12 +62,12 @@ export function stepOf(mapping, row) {
  * Keeps every mapped row as its journey step. `query(sql, params)` resolves to { rows, rowCount } (pg or PGlite). Answers each
  * mapping's count of rows read and of steps newly kept; a mapping with no ref in its fields is refused before any read.
  */
-export async function keepStepsFromRows({ query, since = null, mappings = settings.mappings }) {
+export async function keepStepsFromRows({ query, since = null, refs = null, mappings = settings.mappings }) {
   const answer = [];
   for (const mapping of mappings) {
     if (!text(mapping.fields?.ref)) throw new TypeError(`${mapping.id} names no ref, so its steps could not be kept once.`);
     if (!text(mapping.cutoff_column)) throw new TypeError(`${mapping.id} names no cutoff_column (the time its rows were kept), so its rows could not be read once each.`);
-    const { rows } = await query(readSql(mapping), [since, mapping.step]);
+    const { rows } = refs ? await query(readSql(mapping, { byRef: true }), [refs]) : await query(readSql(mapping), [since, mapping.step]);
     let kept = 0;
     for (const row of rows) {
       const result = await keepStep(query, stepOf(mapping, row));
@@ -85,9 +88,12 @@ async function connectTo(connection, proxy) {
 
 /** The tool's answer for one input { since? }, through the connection on descriptor 3. */
 export async function runKeepSteps({ input, connection, proxy = process.env.HTTPS_PROXY ?? '', connect = connectTo }) {
-  if (!plain(input)) throw new Error('The input is one object, with since (optional) as an ISO time.');
+  if (!plain(input)) throw new Error('The input is one object, with since or refs (optional).');
   const since = input.since === undefined ? null : text(input.since);
   if (since !== null && !ISO_TIME.test(since)) throw new Error('since must be an ISO time, like 2026-11-21T00:00:00Z.');
+  const refs = input.refs === undefined ? null : input.refs;
+  if (refs !== null && (!Array.isArray(refs) || refs.length === 0 || refs.length > 500 || !refs.every(ref => typeof ref === 'string' && ref.trim()))) throw new Error('refs must be a list of 1 to 500 ref strings.');
+  if (refs !== null && since !== null) throw new Error('give refs or since, not both.');
   if (!connection) throw new Error('The database connection is not held for this run.');
   const client = await connect(connection, proxy);
   const names = new Map();
@@ -97,7 +103,7 @@ export async function runKeepSteps({ input, connection, proxy = process.env.HTTP
     return client.query({ name: names.get(sql), text: sql, values: params });
   };
   try {
-    return await keepStepsFromRows({ query, since });
+    return await keepStepsFromRows({ query, since, refs: refs?.map(ref => ref.trim()) ?? null });
   } finally {
     await client.end();
   }

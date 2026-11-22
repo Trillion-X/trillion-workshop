@@ -151,3 +151,19 @@ test('a ref in journey_excluded_refs is never kept again, even after its steps a
   assert.equal((await db.query("SELECT count(*)::int AS n FROM journey_resolved_steps WHERE ref = 'pe1'")).rows[0].n, 0);
 });
 
+test('a source row fixed after it was kept is read again by its ref, whatever its old cutoff, and its missing email fills', async () => {
+  const db = await pursuitDatabase();
+  const query = (sql, params) => db.query(sql, params);
+  await db.query("INSERT INTO statements (key, source, place, meaning, after, at, recorded_at) VALUES ('b6', 'tidycal-api-token', 'booking', 'booked', '{}', '2026-01-01T00:00:00Z', '2026-01-01T00:00:01Z')");
+  await keepStepsFromRows({ query, mappings: [mappings[0]] });
+  const kept = (await db.query("SELECT email_key FROM journey_steps WHERE ref = 'tidycal:b6'")).rows[0];
+  assert.equal(kept.email_key, null);
+  // Fixed later: the payload arrives, its recorded_at stays old.
+  await db.query(`UPDATE statements SET after = '{"email":"fay@example.com","starts_at":"2026-11-30T10:00:00Z"}' WHERE key = 'b6'`);
+  const byCutoff = await keepStepsFromRows({ query, mappings: [mappings[0]] });
+  assert.deepEqual(byCutoff.mappings.map(({ read }) => read), [0]);
+  const byRef = await keepStepsFromRows({ query, refs: ['tidycal:b6'], mappings: [mappings[0]] });
+  assert.deepEqual(byRef.mappings.map(({ read, kept }) => ({ read, kept })), [{ read: 1, kept: 1 }]);
+  assert.equal((await db.query("SELECT email_key FROM journey_steps WHERE ref = 'tidycal:b6'")).rows[0].email_key, emailKey('fay@example.com'));
+});
+
