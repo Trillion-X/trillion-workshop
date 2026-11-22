@@ -55,6 +55,10 @@
  *                 key: "<path>" | ["<path>", ...], at: "<path>", at_unit?: "seconds" | "ms" | "iso",
  *                 before?: "<path>", after?: "<path>" }
  *               A path is dot-separated (`data.object.id`); a list of paths takes the first one present.
+ *               `levels` (optional, instead of `changes`) reads nested lists: each level's `list` path is read from every
+ *               item of the level above, and its `inherit` maps a name to a path in the parent, copied down onto each child
+ *               (so a child reads what its parent carried). `filter` ({ path, equals }) keeps only the items whose value at
+ *               `path` equals `equals`; an item it drops is skipped, not refused. The shape paths then read the child view.
  */
 import { createServer } from "node:http";
 import { createHmac, timingSafeEqual } from "node:crypto";
@@ -303,6 +307,32 @@ function placeOf(spec, item) {
 }
 
 /**
+ * The items one verified call's changes sit in: the body itself, one list at `shape.changes`, or nested lists at
+ * `shape.levels` (each child carries its parent's `inherit` fields down).
+ */
+function leavesOf(shape, parsed) {
+  if (Array.isArray(shape.levels)) {
+    let items = [parsed];
+    for (const level of shape.levels) {
+      const next = [];
+      for (const parent of items) {
+        const list = at(parent, level.list);
+        if (!Array.isArray(list)) return { refused: "no-changes-at-path" };
+        for (const child of list) {
+          const inherited = Object.fromEntries(Object.entries(level.inherit ?? {}).map(([name, path]) => [name, at(parent, path) ?? null]));
+          next.push(typeof child === "object" && child !== null ? { ...child, ...inherited } : child);
+        }
+      }
+      items = next;
+    }
+    return { items };
+  }
+  const list = shape.changes ? at(parsed, shape.changes) : [parsed];
+  if (!Array.isArray(list)) return { refused: "no-changes-at-path" };
+  return { items: list };
+}
+
+/**
  * The changes one verified call says happened, as fact fields, by the row's `shape`.
  * @returns {{changes:Array<{event_key:string, detail:object}>}|{refused:string}}
  */
@@ -310,10 +340,11 @@ export function changesOf({ shape, where, body, receivedAt = new Date() }) {
   if (!shape || typeof shape !== "object") return { refused: "no-shape-row" };
   let parsed;
   try { parsed = JSON.parse(body); } catch { return { refused: "body-is-not-json" }; }
-  const list = shape.changes ? at(parsed, shape.changes) : [parsed];
-  if (!Array.isArray(list)) return { refused: "no-changes-at-path" };
+  const leaves = leavesOf(shape, parsed);
+  if (leaves.refused) return leaves;
   const changes = [];
-  for (const item of list) {
+  for (const item of leaves.items) {
+    if (shape.filter && at(item, shape.filter.path) !== shape.filter.equals) continue;
     const place = placeOf(shape.place, item);
     const raw = shape.change?.path ? at(item, shape.change.path) : undefined;
     const change = shape.change?.map?.[raw] ?? shape.change?.otherwise ?? null;

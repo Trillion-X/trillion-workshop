@@ -32,10 +32,14 @@
 //   body_byte_ceiling?         the most body bytes accepted (default 1048576)
 //   url?                       the public address the service signed the call at, when its rule needs it
 //   door_file                  the JSON file holding the engine door {url, resource, capability} (run's own door shape)
+//   subscribe?                 { mode, verify_credential }: answers the service's subscribe handshake, a GET whose hub.mode is
+//                              mode and whose hub.verify_token is the credential's value, with hub.challenge as plain text.
+//                              Any other GET on the path is refused with 403. Absent: every GET is answered 405.
 //
 // Usage
 //   node signed-webhook-receiver.mjs <config.json>     (CREDENTIALS_DIRECTORY must be set by the unit)
 import { readFileSync } from 'node:fs';
+import { timingSafeEqual } from 'node:crypto';
 import { createServer } from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -62,6 +66,8 @@ export function receiverConfigOf(raw) {
   if (typeof raw.kind !== 'string' || !raw.kind) refuse('no-fact-kind');
   const ceiling = raw.body_byte_ceiling ?? DEFAULT_BODY_CEILING;
   if (!Number.isInteger(ceiling) || ceiling <= 0) refuse('bad-body-ceiling');
+  const subscribe = raw.subscribe ?? null;
+  if (subscribe !== null && (typeof subscribe !== 'object' || typeof subscribe.mode !== 'string' || !subscribe.mode || typeof subscribe.verify_credential !== 'string' || !NAME.test(subscribe.verify_credential))) refuse('bad-subscribe');
   return {
     listen_host: raw.listen_host,
     listen_port: raw.listen_port,
@@ -73,6 +79,7 @@ export function receiverConfigOf(raw) {
     kind: raw.kind,
     body_byte_ceiling: ceiling,
     url: typeof raw.url === 'string' && raw.url ? raw.url : null,
+    subscribe: subscribe === null ? null : { mode: subscribe.mode, verify_credential: subscribe.verify_credential },
   };
 }
 
@@ -88,7 +95,7 @@ function factOfChange(kind, change) {
  * @param {{config: object, secret: string, arrive: (fact: object) => Promise<unknown>, now?: () => number}} args
  *   `arrive` tells one fact to the engine and rejects when the engine does not take it.
  */
-export function createReceiver({ config, secret, arrive, now = () => Date.now() }) {
+export function createReceiver({ config, secret, arrive, now = () => Date.now(), subscribe = null }) {
   const told = new Set();
   const remember = (eventId) => {
     told.add(eventId);
@@ -101,6 +108,15 @@ export function createReceiver({ config, secret, arrive, now = () => Date.now() 
   return createServer(async (request, response) => {
     const url = new URL(request.url ?? '/', 'http://receiver.invalid');
     if (url.pathname !== config.path) return answer(response, 404, { recorded: false, reason: 'no-such-path' });
+    if (request.method === 'GET' && subscribe) {
+      const challenge = url.searchParams.get('hub.challenge');
+      const offered = Buffer.from(url.searchParams.get('hub.verify_token') ?? '');
+      const expected = Buffer.from(subscribe.token);
+      const matches = url.searchParams.get('hub.mode') === subscribe.mode && offered.length === expected.length && timingSafeEqual(offered, expected);
+      if (!matches || challenge === null) return answer(response, 403, { recorded: false, reason: 'subscribe-refused' });
+      response.writeHead(200, { 'Content-Type': 'text/plain' });
+      return response.end(challenge);
+    }
     if (request.method !== 'POST') return answer(response, 405, { recorded: false, reason: 'method-not-allowed' }, { Allow: 'POST' });
     const declared = Number(request.headers['content-length']);
     if (Number.isFinite(declared) && declared > config.body_byte_ceiling) {
@@ -150,6 +166,8 @@ export async function startReceiver({ configPath, env = process.env, fetchImpl =
   if (!env.CREDENTIALS_DIRECTORY) throw new Error('CREDENTIALS_DIRECTORY is not set: the unit must be given the signing secret as a credential.');
   const secret = readFileSync(path.join(env.CREDENTIALS_DIRECTORY, config.secret_credential), 'utf8').replace(/\r?\n$/, '');
   if (!secret) throw new Error(`the credential ${config.secret_credential} is empty`);
+  const subscribe = config.subscribe ? { mode: config.subscribe.mode, token: readFileSync(path.join(env.CREDENTIALS_DIRECTORY, config.subscribe.verify_credential), 'utf8').replace(/\r?\n$/, '') } : null;
+  if (subscribe && !subscribe.token) throw new Error(`the credential ${config.subscribe.verify_credential} is empty`);
   const door = JSON.parse(readFileSync(raw.door_file, 'utf8'));
   if (typeof door.url !== 'string' || typeof door.capability !== 'string') throw new Error('the door file must hold a url and a capability');
   const arrive = async (fact) => {
@@ -161,7 +179,7 @@ export async function startReceiver({ configPath, env = process.env, fetchImpl =
       throw error;
     }
   };
-  const server = createReceiver({ config, secret, arrive });
+  const server = createReceiver({ config, secret, arrive, subscribe });
   await new Promise((resolve) => server.listen(config.listen_port, config.listen_host, resolve));
   say(JSON.stringify({ listening: `${config.listen_host}:${server.address().port}`, path: config.path }));
   return server;
