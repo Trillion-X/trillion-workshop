@@ -187,13 +187,13 @@ test('a background ask timing out does not rest the model for the person\'s work
   const ask = { messages: [{ role: 'user', content: 'x' }] };
   try {
     assert.deepEqual((await askLocal(ask, settings, { priority: 0 })).tried, [{ id: 'only', why: 'did not answer in time' }]);
-    assert.deepEqual((await askLocal(ask, settings)).tried, [{ id: 'only', why: 'is resting after a failure' }], 'another background ask is held off');
+    assert.deepEqual((await askLocal(ask, settings)).tried.map(({ id, why }) => ({ id, why })), [{ id: 'only', why: 'is resting after a failure' }], 'another background ask is held off');
     slow = false;
     assert.equal((await askLocal(ask, settings, { priority: 5 })).served_by, 'only', 'the person\'s work is not told the model is resting');
     slow = true;
     assert.deepEqual((await askLocal(ask, settings, { priority: 5 })).tried, [{ id: 'only', why: 'did not answer in time' }]);
-    assert.deepEqual((await askLocal(ask, settings, { priority: 5 })).tried, [{ id: 'only', why: 'is resting after a failure' }], 'its own failure rests it for equal work');
-    assert.deepEqual((await askLocal(ask, settings, { priority: 2 })).tried, [{ id: 'only', why: 'is resting after a failure' }], 'and for work beneath it');
+    assert.deepEqual((await askLocal(ask, settings, { priority: 5 })).tried.map(({ id, why }) => ({ id, why })), [{ id: 'only', why: 'is resting after a failure' }], 'its own failure rests it for equal work');
+    assert.deepEqual((await askLocal(ask, settings, { priority: 2 })).tried.map(({ id, why }) => ({ id, why })), [{ id: 'only', why: 'is resting after a failure' }], 'and for work beneath it');
   } finally { server.closeAllConnections(); server.close(); }
 });
 

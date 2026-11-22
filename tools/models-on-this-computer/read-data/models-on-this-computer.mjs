@@ -13,7 +13,8 @@
 //      (`placed`), so a row whose door the computer does not report is never asked.
 //   2. Only this computer's own servers are asked; the words never leave it except as the answer.
 //   3. A server that is not running is skipped; when none answers the tool says so in words (error), and names for each
-//      model why it did not answer (`tried`). A model that refused only this request's shape (400-499, such as a model
+//      model why it did not answer (`tried`). A model resting after a failure is passed over without being asked; when a
+//      row passed over was resting, the answer is `retryable` with `retry_at`, the earliest time a resting row comes back. A model that refused only this request's shape (400-499, such as a model
 //      that takes no tool calls) is passed over for that request and not rested, so one request it cannot take never
 //      silences the asks it can.
 //   4. A job that says `choose` asks the shared chooser (tools/choose-an-answerer) first: the answerer rows (DATA
@@ -94,6 +95,20 @@ export function answerLacks(reply, fields) {
   return fields.filter(field => typeof value?.[field] !== 'string' || !value[field].trim());
 }
 
+/**
+ * What a call says when no row answered: the words and each row's reason, and, when some row passed over was only
+ * resting, `retryable: true` with `retry_at` (the earliest time one comes back, ISO). When every row passed over was
+ * resting, the words say so and when, so a caller (the engine's step retry) waits until `retry_at` and asks again instead
+ * of treating the step as failed.
+ */
+export function noAnswer(settings, failures, extra = {}) {
+  const rests = failures.map(failure => failure.resting_until).filter(Boolean).sort();
+  if (!rests.length) return { error: settings.words.none, tried: failures, ...extra };
+  const allResting = failures.every(failure => failure.resting_until);
+  const words = allResting ? String(settings.words.resting ?? settings.words.none).replaceAll('{until}', rests[0]) : settings.words.none;
+  return { error: words, tried: failures, retryable: true, retry_at: rests[0], ...extra };
+}
+
 /** Asks the first row of `rows` whose server answers; null when none does. `failures` (an array) is filled with each
  *  row passed over and why, so an empty result can say what happened. */
 export async function firstAnswer(rows, ask, retryAfterSeconds = 0, failures = [], priority = 0) {
@@ -101,7 +116,7 @@ export async function firstAnswer(rows, ask, retryAfterSeconds = 0, failures = [
     if (row.not_reported) { failures.push({ id: row.id, why: row.not_reported }); continue; }
     const key = modelKey(row);
     const resting = unavailableUntil.get(key);
-    if (resting && resting.until > Date.now() && priority <= resting.priority) { failures.push({ id: row.id, why: 'is resting after a failure' }); continue; }
+    if (resting && resting.until > Date.now() && priority <= resting.priority) { failures.push({ id: row.id, why: 'is resting after a failure', resting_until: new Date(resting.until).toISOString() }); continue; }
     try {
       const reply = await ask(row);
       unavailableUntil.delete(key);
@@ -235,6 +250,7 @@ export async function askLocal(input, settings, { priority = 0 } = {}) {
     const failures = [];
     const found = await firstAnswer(rows, async row => checked(await askChatShape(row, {
       model: row.model, messages: input.messages, stream: false, ...(row.keep_alive ? { keep_alive: row.keep_alive } : {}),
+      ...(row.reasoning_effort ? { reasoning_effort: row.reasoning_effort } : {}),
       ...(Array.isArray(input.tools) ? { tools: input.tools } : {}),
       ...(job.response_format ? { response_format: job.response_format } : {}),
       max_tokens: Math.min(Number(input.max_tokens) || job.most_tokens || settings.most_tokens, job.most_tokens || settings.most_tokens),
@@ -243,7 +259,7 @@ export async function askLocal(input, settings, { priority = 0 } = {}) {
       ...(Number.isInteger(input.seed) ? { seed: input.seed } : {}),
     }, job.timeout_seconds ?? row.timeout_seconds, input.parts === true)), settings.retry_after_seconds, failures, priority);
     const because = picked.why ? { chosen_because: picked.why } : {};
-    return found ? { ...found.reply, model: found.row.model, served_by: found.row.id, ...because } : { error: settings.words.none, tried: failures, ...because };
+    return found ? { ...found.reply, model: found.row.model, served_by: found.row.id, ...because } : noAnswer(settings, failures, because);
   }
   if (input.state !== undefined && input.questions && typeof input.questions === 'object') {
     const failures = [];
@@ -252,7 +268,7 @@ export async function askLocal(input, settings, { priority = 0 } = {}) {
     const judges = judge ? settings.classify.filter(row => row.id === judge) : settings.classify;
     const found = await firstAnswer(judges, row => (row.ask === 'chat' ? askChatYesNo(row, input)
       : post(row.url, { state: input.state, questions: input.questions }, row.timeout_seconds, { 'x-answer-within-seconds': String(row.timeout_seconds) })), settings.retry_after_seconds, failures, priority);
-    return found ? { ...found.reply, served_by: found.row.id } : { error: settings.words.none, tried: failures };
+    return found ? { ...found.reply, served_by: found.row.id } : noAnswer(settings, failures);
   }
   if (Array.isArray(input.texts)) {
     if (!input.texts.length || !input.texts.every(text => typeof text === 'string')) return { error: settings.words.needs_input };
@@ -267,7 +283,7 @@ export async function askLocal(input, settings, { priority = 0 } = {}) {
       return reply;
     }, settings.retry_after_seconds, failures, priority);
     return found ? { vectors: found.reply.embeddings, model: found.row.model, dimensions: found.reply.embeddings[0].length, served_by: found.row.id }
-      : { error: settings.words.none, tried: failures };
+      : noAnswer(settings, failures);
   }
   return { error: settings.words.needs_input };
 }
