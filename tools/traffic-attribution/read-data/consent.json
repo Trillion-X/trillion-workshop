@@ -1,10 +1,13 @@
 {
-  "_what": "The consent contract's defaults, read by do-work/journey.mjs: the first-party cookie name a site's consent banner writes (a default: a site's own consent DATA names its cookie, and the caller passes that name to journey.mjs), the value that means analytics consent was granted, and the Google Tag Manager consent update each answer sends (gtag consent update). The granted value and the update fields are the same for every site. A site without a banner sends no such cookie, so the journey keeps no visitor for it.",
-  "cookie_name": "site_consent",
+  "_what": "The consent contract, read by do-work/journey.mjs: the value that means analytics consent was granted, and the Google Tag Manager consent update each answer sends (gtag consent update). The cookie name is not here: each caller passes its site's consent cookie name (a required argument); cookie_name_pattern is the one shape a name may have. A site without a banner sends no such cookie, so the journey keeps no visitor for it.",
+  "cookie_name_pattern": "^[A-Za-z0-9_.-]{1,64}$",
   "granted": "granted",
   "denied": "denied",
   "gtm": {
-    "command": ["consent", "update"],
+    "command": [
+      "consent",
+      "update"
+    ],
     "granted": {
       "ad_storage": "granted",
       "analytics_storage": "granted",

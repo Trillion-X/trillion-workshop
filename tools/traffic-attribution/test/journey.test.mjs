@@ -12,6 +12,7 @@ import { makeATrackedLink } from '../do-work/make-a-tracked-link.mjs';
 
 const sql = readFileSync(resolve(import.meta.dirname, '../read-data/journey-steps.sql'), 'utf8');
 const SITE = 'https://site.example';
+const N = { consentCookieName: 'site_consent' };
 
 async function database() {
   const db = new PGlite();
@@ -25,11 +26,11 @@ async function writeTouch(query, touch) {
 }
 
 test('a visitor keeps the cookie they came with, and gets a new one with its attributes when it is absent or malformed', () => {
-  const first = visitorOf('', undefined, { consent: true });
+  const first = visitorOf('', undefined, { ...N, consent: true });
   assert.match(first.visitor, /^[A-Za-z0-9_-]{8,128}$/);
   assert.equal(first.setCookie, `jv=${first.visitor}; Max-Age=34128000; Path=/; SameSite=Lax; HttpOnly; Secure`);
-  assert.deepEqual(visitorOf(`theme=dark; jv=${first.visitor}`, undefined, { consent: true }), { visitor: first.visitor, setCookie: null });
-  const malformed = visitorOf('jv=not a valid value!', undefined, { consent: true });
+  assert.deepEqual(visitorOf(`theme=dark; jv=${first.visitor}`, undefined, { ...N, consent: true }), { visitor: first.visitor, setCookie: null });
+  const malformed = visitorOf('jv=not a valid value!', undefined, { ...N, consent: true });
   assert.notEqual(malformed.visitor, 'not a valid value!');
   assert.ok(malformed.setCookie.startsWith(`jv=${malformed.visitor};`));
 });
@@ -60,7 +61,7 @@ test('a /go/ link keeps a click for the visitor and redirects with the touch fie
   assert.deepEqual(touch.row.source, { utm_source: 'instagram', utm_campaign: 'reel-12' });
   await writeTouch(query, touch);
 
-  const went = await goRedirect(query, touch.row.id, { cookieHeader: '', refererHeader: 'https://www.instagram.com/', consent: true });
+  const went = await goRedirect(query, touch.row.id, { ...N, cookieHeader: '', refererHeader: 'https://www.instagram.com/', consent: true });
   assert.equal(went.status, 302);
   const location = new URL(went.location);
   assert.equal(`${location.origin}${location.pathname}`, 'https://tidycal.com/acme/call');
@@ -73,7 +74,7 @@ test('a /go/ link keeps a click for the visitor and redirects with the touch fie
   const { rows } = await query('SELECT step, touch_id, visitor, joined_by, source->>\'referrer_host\' AS host FROM journey_steps');
   assert.deepEqual(rows, [{ step: 'click', touch_id: touch.row.id, visitor, joined_by: 'touch', host: 'www.instagram.com' }]);
 
-  assert.deepEqual(await goRedirect(query, 'no-such-touch'), { status: 404, location: null, setCookie: null });
+  assert.deepEqual(await goRedirect(query, 'no-such-touch', N), { status: 404, location: null, setCookie: null });
 });
 
 test('checkout fields stay inside Stripe\'s limits: invalid characters dropped, lengths capped, empty values left out', () => {
@@ -139,7 +140,7 @@ test('the SQL applies twice cleanly, and a booking joined only by email counts t
   await db.exec(sql);
   const touch = makeTouch({ destination: `${SITE}/offer`, source: { utm_source: 'instagram', utm_medium: 'social', utm_campaign: 'reel-12' }, base: SITE });
   await writeTouch(query, touch);
-  await goRedirect(query, touch.row.id, { visitor: 'visitor-a-1', consent: true });
+  await goRedirect(query, touch.row.id, { ...N, visitor: 'visitor-a-1', consent: true });
   await keepStep(query, { visitor: 'visitor-a-1', step: 'lead', email_key: emailKey('a@example.com'), joined_by: 'cookie' });
   await keepStep(query, bookedStep({ params: { email: 'a@example.com', starts: '2026-11-25' }, visitor: null }));
   await keepStep(query, saleStepOf({ id: 'cs_9', customer_details: { email: 'nobody@example.com' }, amount_total: 1000 }));
@@ -196,11 +197,11 @@ test('a booking made from the site joins to the visitor whose lead step carried 
 });
 
 test('without consent (the default) a visitor gets no id and no cookie, and a step keeps only its touch id', async () => {
-  assert.deepEqual(visitorOf('jv=abcdefgh12345678'), { visitor: null, setCookie: null });
+  assert.deepEqual(visitorOf('jv=abcdefgh12345678', undefined, N), { visitor: null, setCookie: null });
   const { query } = await database();
   const touch = makeTouch({ destination: `${SITE}/offer`, source: { utm_source: 'instagram' }, base: SITE });
   await writeTouch(query, touch);
-  const went = await goRedirect(query, touch.row.id, { cookieHeader: '' });
+  const went = await goRedirect(query, touch.row.id, { ...N, cookieHeader: '' });
   assert.equal(went.status, 302);
   assert.equal(went.setCookie, null);
   const { rows } = await query('SELECT visitor, touch_id FROM journey_steps');
@@ -209,7 +210,7 @@ test('without consent (the default) a visitor gets no id and no cookie, and a st
 
 test('a database that cannot be read answers 503 with a retry time, and a failed click write still redirects', async () => {
   const broken = async () => { throw new Error('connection refused'); };
-  assert.deepEqual(await goRedirect(broken, 'any-touch'), { status: 503, location: null, setCookie: null, retryAfter: 30 });
+  assert.deepEqual(await goRedirect(broken, 'any-touch', N), { status: 503, location: null, setCookie: null, retryAfter: 30 });
 
   const { db, query } = await database();
   const touch = makeTouch({ destination: `${SITE}/offer`, source: { utm_source: 'instagram' }, base: SITE });
@@ -218,7 +219,7 @@ test('a database that cannot be read answers 503 with a retry time, and a failed
     if (/INSERT INTO journey_steps/.test(sql)) throw new Error('disk full');
     return query(sql, params);
   };
-  const went = await goRedirect(writesFail, touch.row.id, { consent: false });
+  const went = await goRedirect(writesFail, touch.row.id, { ...N, consent: false });
   assert.equal(went.status, 302);
   assert.match(went.location, /utm_source=instagram/);
   assert.equal((await db.query('SELECT count(*)::int AS n FROM journey_steps')).rows[0].n, 0);
@@ -227,24 +228,24 @@ test('a database that cannot be read answers 503 with a retry time, and a failed
 test('a beacon from a static page keeps the visit of its own origin, and ignores a foreign origin or an oversized body', async () => {
   const { query } = await database();
   const body = JSON.stringify({ href: `${SITE}/offer?utm_source=instagram&t=touch-9` });
-  const answer = await visitBeacon(query, { body, siteOrigin: SITE, cookieHeader: '', consent: true });
+  const answer = await visitBeacon(query, { ...N, body, siteOrigin: SITE, cookieHeader: '', consent: true });
   assert.equal(answer.status, 204);
   assert.match(answer.setCookie, /^jv=/);
   const kept = (await query("SELECT step, touch_id, visitor FROM journey_steps")).rows;
   assert.deepEqual(kept.map(row => ({ step: row.step, touch_id: row.touch_id })), [{ step: 'visit', touch_id: 'touch-9' }]);
 
-  assert.deepEqual(await visitBeacon(query, { body: JSON.stringify({ href: 'https://elsewhere.example/offer?utm_source=x' }), siteOrigin: SITE }), { status: 204, setCookie: null });
-  assert.deepEqual(await visitBeacon(query, { body: 'x'.repeat(3000), siteOrigin: SITE }), { status: 204, setCookie: null });
+  assert.deepEqual(await visitBeacon(query, { ...N, body: JSON.stringify({ href: 'https://elsewhere.example/offer?utm_source=x' }), siteOrigin: SITE }), { status: 204, setCookie: null });
+  assert.deepEqual(await visitBeacon(query, { ...N, body: 'x'.repeat(3000), siteOrigin: SITE }), { status: 204, setCookie: null });
   assert.equal((await query('SELECT count(*)::int AS n FROM journey_steps')).rows[0].n, 1);
 });
 
 test('the site consent cookie decides consent: granted keeps the visitor, denied or absent keeps none', () => {
-  assert.equal(consentGrantedOf('site_consent=granted'), true);
-  assert.equal(consentGrantedOf('site_consent=denied'), false);
-  assert.equal(consentGrantedOf('jv=abcdefgh12345678'), false);
-  const granted = visitorOf('site_consent=granted');
+  assert.equal(consentGrantedOf('site_consent=granted', 'site_consent'), true);
+  assert.equal(consentGrantedOf('site_consent=denied', 'site_consent'), false);
+  assert.equal(consentGrantedOf('jv=abcdefgh12345678', 'site_consent'), false);
+  const granted = visitorOf('site_consent=granted', undefined, N);
   assert.match(granted.visitor, /^[A-Za-z0-9_-]{8,128}$/);
-  assert.deepEqual(visitorOf('site_consent=denied'), { visitor: null, setCookie: null });
+  assert.deepEqual(visitorOf('site_consent=denied', undefined, N), { visitor: null, setCookie: null });
 });
 
 
@@ -252,7 +253,7 @@ test('a site names its own consent cookie (its DATA); without a name the default
   assert.equal(consentGrantedOf('partner_consent=granted', 'partner_consent'), true);
   assert.equal(consentGrantedOf('partner_consent=denied', 'partner_consent'), false);
   assert.equal(consentGrantedOf('site_consent=granted', 'partner_consent'), false);
-  assert.equal(consentGrantedOf('partner_consent=granted'), false);
+  assert.throws(() => consentGrantedOf('partner_consent=granted'), /consentCookieName is required/);
   assert.notEqual(visitorOf('partner_consent=granted', undefined, { consentCookieName: 'partner_consent' }).visitor, null);
   assert.deepEqual(visitorOf('partner_consent=denied', undefined, { consentCookieName: 'partner_consent' }), { visitor: null, setCookie: null });
 });
@@ -262,11 +263,11 @@ test('a page check tagged utm_content=check keeps no step and sets no visitor co
   const check = { utm_content: 'check' };
   assert.equal(visitStep({ url: '/?utm_content=check', refererHeader: '', visitor: 'visitor-check-1' }), null);
   assert.equal(await keepStep(query, { visitor: 'visitor-check-1', step: 'visit', source: { ...check, utm_source: 'deploy-watch' } }).then(answer => answer.kept), false);
-  const beacon = await visitBeacon(query, { body: JSON.stringify({ href: `${SITE}/?utm_content=check` }), siteOrigin: SITE, cookieHeader: '', consent: true });
+  const beacon = await visitBeacon(query, { ...N, body: JSON.stringify({ href: `${SITE}/?utm_content=check` }), siteOrigin: SITE, cookieHeader: '', consent: true });
   assert.deepEqual(beacon, { status: 204, setCookie: null });
   const touch = makeTouch({ destination: `${SITE}/offer`, source: check, base: SITE });
   await writeTouch(query, touch);
-  const went = await goRedirect(query, touch.row.id, { cookieHeader: '', consent: true });
+  const went = await goRedirect(query, touch.row.id, { ...N, cookieHeader: '', consent: true });
   assert.equal(went.status, 302);
   assert.equal(went.setCookie, null);
   assert.equal((await db.query('SELECT count(*)::int AS n FROM journey_steps')).rows[0].n, 0);
@@ -276,8 +277,19 @@ test('an untagged repeating watch keeps nothing: a page with no tracked source i
   const { db, query } = await database();
   for (let i = 0; i < 3; i += 1) {
     assert.equal(visitStep({ url: '/status', refererHeader: 'https://monitor.example/', visitor: null }), null);
-    assert.deepEqual(await visitBeacon(query, { body: JSON.stringify({ href: `${SITE}/status` }), siteOrigin: SITE, cookieHeader: '' }), { status: 204, setCookie: null });
+    assert.deepEqual(await visitBeacon(query, { ...N, body: JSON.stringify({ href: `${SITE}/status` }), siteOrigin: SITE, cookieHeader: '' }), { status: 204, setCookie: null });
   }
   assert.equal((await db.query('SELECT count(*)::int AS n FROM journey_steps')).rows[0].n, 0);
+});
+
+test('every function that reads consent throws without the consent cookie name, and a malformed one', async () => {
+  const message = /consentCookieName is required: pass your site's consent cookie name/;
+  const { query } = await database();
+  assert.throws(() => consentGrantedOf('site_consent=granted'), message);
+  assert.throws(() => consentGrantedOf('site_consent=granted', 'bad name;'), message);
+  assert.throws(() => visitorOf('', undefined, { consent: true }), message);
+  await assert.rejects(goRedirect(query, 'any-touch', { consent: true }), message);
+  await assert.rejects(visitBeacon(query, { body: '{}', siteOrigin: SITE, consent: true }), message);
+  assert.equal(consentGrantedOf('site_consent=granted', 'site_consent'), true);
 });
 
