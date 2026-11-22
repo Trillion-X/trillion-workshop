@@ -1,0 +1,39 @@
+{
+  "drafted_from": "tool:run-a-script's own row in tools/run-on-a-persons-computer/tool-rows.json (its words, input schema and Node pin) and the script sandbox's tests (script-sandbox.mjs, test/script-sandbox-child.test.mjs); read them before relying on this kit",
+  "start_here": "Say to your AI: \"Run this script over my tools: find my open rows and return their ids\", and give it the body as code, with input for anything the body reads. It runs tool:run-a-script, which is a draft: until its runner is written, it answers a refusal saying the tool is not finished, and nothing runs.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes code and input in its request and keeps nothing in your records; any row the script reads or writes is a tool call the script makes itself.",
+  "workflows": [],
+  "tools": [
+    "tool:run-a-script"
+  ],
+  "instructions": [
+    "1. Say to your AI what the script should do, and give it code: a function body that calls call(toolId, input) for each Workshop tool it needs, and returns the value to answer with. Give input for anything the body reads as `input`.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:run-a-script and its input {code, input}, with a request_key that is unique to this run.",
+    "3. Read what comes back: {\"result\": the script's returned value} when it ran, or {\"error\": what to change}. While the tool is a draft, the answer is an error that says it is not finished.",
+    "4. The script reads files only through the host (no file grant), reaches the network through no route, and cannot start a program; a call it makes runs as you, with the rights the one tool has."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find my open rows and return their ids, through a script (draft: today it answers an error)",
+      "ask": "Run this script over my tools: find my open rows and return their ids",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "request_key": "run-a-script-open-rows-1",
+          "input": {
+            "tool": "tool:run-a-script",
+            "input": {
+              "code": "const rows = await call('tool:list-rows', { open: true }); return rows.items.map(row => row.id);",
+              "input": {}
+            }
+          }
+        }
+      },
+      "given": "A body that makes one call to tool:list-rows and returns the ids of the open rows.",
+      "hands_back": "Today: an error saying the tool is a draft and its runner is not written, so nothing ran. Once the runner is written: {\"result\": [\"row-1\", \"row-2\"]}."
+    }
+  ]
+}
