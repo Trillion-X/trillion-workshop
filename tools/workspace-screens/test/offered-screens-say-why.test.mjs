@@ -53,3 +53,9 @@ test('the parts, web-address and module screens mount into the pane\'s screen sl
   assert.ok(toolScreen.includes("mountReactSurface(slotOf(element, 'screen'), node(latestInput));"));
   assert.ok(!toolScreen.includes('mountPartsScreen(element,'), 'a parts screen mounts onto the raw pane');
 });
+
+// A renderer that a resource binding mounts draws into the pane's screen slot too, so it cannot empty the pane.
+test('an addressed renderer mounts into the pane\'s screen slot', () => {
+  assert.ok(toolScreen.includes("mountAddressedRenderer({ element: slotOf(element, 'screen'), binding: screen.resource_binding!"));
+  assert.ok(!toolScreen.includes('mountAddressedRenderer({ element, binding'), 'an addressed renderer mounts onto the raw pane');
+});

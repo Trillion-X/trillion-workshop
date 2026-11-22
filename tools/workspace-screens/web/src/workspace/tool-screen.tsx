@@ -234,7 +234,7 @@ const moduleScreen: Show = (element, tool, screen, props) => {
     let closed = false;
     const start = () => {
       mountScreenState(element, { status: 'loading', label: `Opening ${nameOf(tool, screen)}`, layout: 'rows' });
-      closeRenderer = mountAddressedRenderer({ element, binding: screen.resource_binding!, props,
+      closeRenderer = mountAddressedRenderer({ element: slotOf(element, 'screen'), binding: screen.resource_binding!, props,
         host: resourcePresentationHost(nativeResourcePresentationHost({ readJson })),
         resolveRenderer: () => loadCode(() => import(address), module => module),
         beforeMount: () => releaseScreenState(element),
