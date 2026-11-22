@@ -1,42 +1,40 @@
 {
- "start_here": "Say to your AI: \"Run workflow:keep-what-you-find-in-lists: I need the emails of the founding members of the bakery club, and keep whatever you find in my lists.\"",
- "lists": [],
- "no_lists_because": "It keeps no list of its own: it writes into whichever of the person's lists the facts belong to, making the list or a field first when one is missing.",
- "workflows": [
-  "workflow:keep-what-you-find-in-lists"
- ],
- "tools": [
-  "tool:run-workflow-definition"
- ],
- "instructions": [
-  "1. Say what you need to know in one sentence (need), for example the emails of the founding members.",
-  "2. Say \"Run workflow:keep-what-you-find-in-lists\". It searches your messages, notes, lists and connected accounts first and says what each answered.",
-  "3. Only for what is still missing does it look elsewhere, naming where each fact came from.",
-  "4. It keeps each fact as a row of the right list, linking rows instead of copying values, reads the list back and tells you the lists and row count."
- ],
- "worked_examples": [
-  {
-   "title": "Their own records are read before anything is looked up",
-   "ask": "Find the emails of the founding members of the bakery club.",
-   "mcp": {
-    "server": "{cli}",
-    "tool": "do_one_thing_in_my_account",
-    "input": {
-     "method": "tools:run",
-     "input": {
-      "tool": "tool:run-workflow-definition",
-      "input": {
-       "row": "workflow:keep-what-you-find-in-lists",
-       "need": "The emails of the founding members of the bakery club"
-      }
-     }
+  "start_here": "Say to your AI: \"Run workflow:keep-what-you-find-in-lists.\" The wake starts it once its switch input is set.",
+  "lists": [],
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
+  "workflows": [
+    "workflow:keep-what-you-find-in-lists"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:keep-what-you-find-in-lists\".",
+    "3. Read the answer the run hands back."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep what you find in the person's lists",
+      "ask": "Run workflow:keep-what-you-find-in-lists.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-what-you-find-in-lists"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-what-you-find-in-lists",
+      "step": "read",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-   },
-   "workflow": "workflow:keep-what-you-find-in-lists",
-   "step": "read",
-   "given": "Read from the read step in tools/workflows/recipes/workflows.json: the person's messages hold one email from Sam (sam@example.com) and nothing for Alex.",
-   "hands_back": "{\"searched\": [\"messages mentioning bakery club\", \"list of club members\"], \"found\": [{\"fact\": \"Sam is a founding member, email sam@example.com\", \"from\": \"message from Sam on 2026-10-02\"}]}"
-  }
- ],
- "drafted_from": "tools/workflows/recipes/workflows.json row of workflow:keep-what-you-find-in-lists (input schema, steps and submit shapes)"
+  ],
+  "drafted_from": "workflow:keep-what-you-find-in-lists rendered from its row"
 }

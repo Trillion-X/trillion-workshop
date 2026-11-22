@@ -1,8 +1,7 @@
 {
-  "drafted_from": "workflow:lead-me-to-it's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:lead-me-to-it.\" It pick the one thing that moves the person's pursuits most right now, do every part of it an AI can, then take the person to it: open that exact thing on their screen and walk them through only the part that needs them, pointing at its own control.",
+  "start_here": "Say to your AI: \"Run workflow:lead-me-to-it.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "Its steps name no list and write no row: each step answers in the run itself.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:lead-me-to-it"
   ],
@@ -12,16 +11,13 @@
     "tool:what-is-waiting-on-me"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:lead-me-to-it\"; it starts it with tool:run-workflow-definition (row workflow:lead-me-to-it).",
-    "2. Pick the needle mover.",
-    "3. Do every part an AI can.",
-    "4. Write the walkthrough and what to tell them.",
-    "5. Take them there.",
-    "6. Read what it gives back: what step take-there hands back"
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:lead-me-to-it\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Step take-there: Take them there",
+      "title": "Lead the person to the one thing that needs them",
       "ask": "Run workflow:lead-me-to-it.",
       "mcp": {
         "server": "{cli}",
@@ -29,35 +25,18 @@
         "input": {
           "method": "tools:run",
           "input": {
-            "tool": "tool:take-me-there",
+            "tool": "tool:run-workflow-definition",
             "input": {
-              "thing": "sample-card",
-              "waiting": {
-                "cards": [
-                  {
-                    "id": "sample-card",
-                    "title": "A made-up thing",
-                    "address": "/sample/open?item=one"
-                  }
-                ]
-              },
-              "screens": [
-                {
-                  "path_prefix": "/sample",
-                  "tool_id": "tool:sample-screen",
-                  "route_input_from_query": [
-                    "item"
-                  ]
-                }
-              ]
+              "row": "workflow:lead-me-to-it"
             }
           }
         }
       },
       "workflow": "workflow:lead-me-to-it",
-      "step": "take-there",
-      "given": "The input {\"thing\":\"sample-card\",\"waiting\":{\"cards\":[{\"id\":\"sample-card\",\"title\":\"A made-up thing\",\"address\":\"/sample/open?item=one\"}]},\"screens\":[{\"path_prefix\":\"/sample\",\"tool_id\":\"tool:sample-screen\",\"route_input_from_query\":[\"item\"]}]}.",
-      "hands_back": "It answered {\"taken\":true,\"screen\":{\"tool_id\":\"tool:sample-screen\",\"route_input\":{\"item\":\"one\"}},\"arrangement\":{\"id\":\"sample-card\",\"held\":\"sample-card\",\"replaces\":[\"A made-up thing\"],\"name\":\"A made-up thing\",\"category\":\"Opened for you\",\"root\":{\"kind\":\"pane\",\"surfaces\":[{\"id\":\"tool:sample-screen\",\"input\":{\"item\":\"one\"},\"title\":\"A made-up thing\"}]}},\"tour\":null,\"notice\":null,\"open\":\"/?layout=sample-card\",\"said\":\"A made-up thing is ready to open as the main pane. The arrangement is returned to save and open; nothing was saved here.\"}."
+      "step": "pick",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:lead-me-to-it rendered from its row"
 }
