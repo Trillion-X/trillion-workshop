@@ -48,6 +48,8 @@
  *   list_is_whole       true when one read returns every thing that exists
  *   most_pages          the most pages one read follows (default 10)
  *   look_again_seconds  how long between reads (default 300)
+ *   request_timeout_seconds  the most one page's request may take before it is given up and the pass ends with that
+ *                       reason (default 30); a pass never waits on a service without a bound
  */
 import { createHash } from "node:crypto";
 import { readGivenCredential } from "./given-credential.mjs";
@@ -79,6 +81,7 @@ export function readSettings(settings = {}) {
     list_is_whole: settings.list_is_whole === true,
     tell_what_is_there_at_first: settings.tell_what_is_there_at_first === true,
     most_pages: number(settings.most_pages, 10),
+    request_timeout_ms: number(settings.request_timeout_seconds, 30) * 1000,
     look_again_ms: number(settings.look_again_seconds, 300) * 1000,
   };
 }
@@ -130,7 +133,13 @@ export async function readList(own, credential, fetchImpl = fetch) {
   const items = [];
   let url = own.request.url;
   for (let page = 0; url && page < own.most_pages; page += 1) {
-    const response = await fetchImpl(url, { method: own.request.method ?? "GET", headers });
+    let response;
+    try {
+      response = await fetchImpl(url, { method: own.request.method ?? "GET", headers, signal: AbortSignal.timeout(own.request_timeout_ms) });
+    } catch (error) {
+      if (error?.name === "TimeoutError" || error?.name === "AbortError") throw new Error(`The service did not answer within ${own.request_timeout_ms / 1000} seconds, so this pass ends.`);
+      throw error;
+    }
     if (!response.ok) throw new Error(`The service answered ${response.status} for its list.`);
     const answer = await response.json();
     const found = at(answer, own.shape.items);
