@@ -3,11 +3,14 @@
 // Purpose:
 //   Fills what a run's input leaves out from a row the person keeps, so a bare start (`wf start X '{"request":…}'`, or
 //   a workflow-run start with no store) runs on the starting account's own stores. The starter is handed a reader
-//   `{tool, input, with?, fills_at, from_at?, fills_absent, step?}`: it asks `tool` with `input` (any tool, as a step
-//   would), each value `with` names ({path in the input: path in what the starter knows}, such as `account`, the signed-in
-//   account starting the run) set where it says,
-//   takes the object at `fills_at` in the answer (`rows.0.fills`), and sets each of its fields the input does not
-//   give. What it set is answered as `filled_from` ({field: the row at `from_at`}), which the starter keeps with the run.
+//   `{tool, input, with?, with_if_given?, fills_at, from_at?, fills_absent, when_no_row?, step?}`: it asks `tool` with
+//   `input` (any tool, as a step would), each value `with` names ({path in the input: path in what the starter knows},
+//   such as `account`, the signed-in account starting the run) set where it says, and each `with_if_given` value (such as
+//   `input.store`, a store the caller gave) set there too, as null when not given; takes the object at `fills_at` in the
+//   answer (`rows.0.fills`), and sets each of its fields the input does not give. What it set is answered as
+//   `filled_from` ({field: the row at `from_at`}), which the starter keeps with the run. So a caller who gives one store
+//   gets the others from the row that holds that store, never from another pursuit's: the reader's own query pairs them,
+//   and an answer with no row is refused in the reader's `when_no_row` words ({path} filled from the run's input).
 //
 // Non-Negotiable Invariants:
 //   1. A caller's own value always wins: a field the input gives (anything but null) is never filled.
@@ -83,6 +86,10 @@ pub fn ask(reader: &Value, known: &Value) -> Result<(String, Value), String> {
             .ok_or_else(|| format!("the input was not filled: the reader needs {from}, which this start does not know"))?;
         set_at(&mut input, to, value.clone());
     }
+    for (to, from) in reader["with_if_given"].as_object().into_iter().flatten() {
+        let value = from.as_str().and_then(|from| at_path(known, from)).cloned().unwrap_or(Value::Null);
+        set_at(&mut input, to, value);
+    }
     Ok((reader["tool"].as_str().unwrap_or_default().to_string(), input))
 }
 
@@ -91,9 +98,13 @@ pub fn ask(reader: &Value, known: &Value) -> Result<(String, Value), String> {
 /// answer with nothing at `fills_at` sets nothing and says why.
 pub fn apply(reader: &Value, input: &mut Value, answer: &Value) -> Result<Map<String, Value>, String> {
     let fills_at = reader["fills_at"].as_str().unwrap_or("fills");
-    let fills = at_path(answer, fills_at).and_then(Value::as_object)
-        .ok_or_else(|| format!("the input was left without {}: the reader answered nothing at {fills_at} (is there a row for this account?)",
-            fills_absent(reader).join(", ")))?;
+    let Some(fills) = at_path(answer, fills_at).and_then(Value::as_object) else {
+        return Err(match reader["when_no_row"].as_str() {
+            Some(words) => fill_words(words, input),
+            None => format!("the input was left without {}: the reader answered nothing at {fills_at} (is there a row for this account?)",
+                fills_absent(reader).join(", ")),
+        });
+    };
     let from = reader["from_at"].as_str().and_then(|path| at_path(answer, path)).cloned().unwrap_or(json!(true));
     if !input.is_object() { *input = json!({}); }
     let mut filled = Map::new();
@@ -107,6 +118,27 @@ pub fn apply(reader: &Value, input: &mut Value, answer: &Value) -> Result<Map<St
     Ok(filled)
 }
 
+/// `words` with each {path} (or {path|other}) filled from `input` (a text as it is, anything else as its JSON, nothing as
+/// "none").
+fn fill_words(words: &str, input: &Value) -> String {
+    let mut out = String::new();
+    let mut rest = words;
+    while let Some(open) = rest.find('{') {
+        out.push_str(&rest[..open]);
+        let Some(close) = rest[open..].find('}') else { break };
+        // `{a|b}`: the first of the paths the input holds.
+        let found = rest[open + 1..open + close].split('|').find_map(|path| at_path(input, path).filter(|value| !value.is_null()));
+        out.push_str(&match found {
+            Some(Value::String(text)) => text.clone(),
+            Some(value) if !value.is_null() => value.to_string(),
+            _ => "none".to_string(),
+        });
+        rest = &rest[open + close + 1..];
+    }
+    out.push_str(rest);
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -114,6 +146,30 @@ mod tests {
     fn reader() -> Value {
         json!({ "tool": "tool:read", "input": { "sql": "select", "params": [] }, "with": { "params.0": "account" },
             "fills_at": "rows.0.fills", "from_at": "rows.0.id", "fills_absent": ["store", "uses_store"] })
+    }
+
+    // A caller's own store is handed to the reader, so the row that holds it fills the rest; no such row is refused in
+    // the reader's words, never filled from the default.
+    #[test]
+    fn a_given_store_is_paired_from_its_own_row_or_refused() {
+        let mut paired = reader();
+        paired["with_if_given"] = json!({ "params.1": "input.store" });
+        paired["when_no_row"] = json!("uses_store_not_paired: no account row holds the given store {store.credential_name|store}");
+        let (_, asked) = ask(&paired, &json!({ "account": "acct-1", "input": { "store": { "credential_name": "runs-b" } } })).unwrap();
+        assert_eq!(asked["params"], json!(["acct-1", { "credential_name": "runs-b" }]));
+        let (_, bare) = ask(&paired, &json!({ "account": "acct-1", "input": {} })).unwrap();
+        assert_eq!(bare["params"], json!(["acct-1", null]), "a bare start asks with no store");
+        let mut input = json!({ "store": { "credential_name": "runs-b" } });
+        let row = json!({ "rows": [{ "id": "record:account-store:b", "fills": { "store": { "credential_name": "runs-b" }, "uses_store": { "credential_name": "uses-b" } } }] });
+        let filled = apply(&paired, &mut input, &row).unwrap();
+        assert_eq!(input["uses_store"], json!({ "credential_name": "uses-b" }));
+        assert_eq!(Value::Object(filled), json!({ "uses_store": "record:account-store:b" }));
+        let mut lone = json!({ "store": { "credential_name": "elsewhere" } });
+        let why = apply(&paired, &mut lone, &json!({ "rows": [] })).unwrap_err();
+        assert_eq!(why, "uses_store_not_paired: no account row holds the given store elsewhere");
+        assert!(lone.get("uses_store").is_none(), "never filled from another row");
+        let mut named = json!({ "store": "plain-name" });
+        assert!(apply(&paired, &mut named, &json!({ "rows": [] })).unwrap_err().ends_with("given store plain-name"));
     }
 
     #[test]

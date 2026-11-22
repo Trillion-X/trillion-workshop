@@ -162,7 +162,7 @@ fn pending_fill(run: &Map<String, Value>, refused: &BTreeMap<String, String>, co
     if !workflow_engine::fill_input::wanted(reader, run.get("input").unwrap_or(&Value::Null)) { return Ok(None); }
     if let Some(why) = refused.get(&step) { return Err(format!("the input was not filled: {why}")); }
     let workflow = recipe_of(run).or_else(|| run.get("definition").and_then(|d| d["id"].as_str()).map(str::to_owned)).unwrap_or_else(|| "workflow".into());
-    let (tool, asks) = workflow_engine::fill_input::ask(reader, &json!({ "account": context["account_id"] }))?;
+    let (tool, asks) = workflow_engine::fill_input::ask(reader, &json!({ "account": context["account_id"], "input": run.get("input") }))?;
     Ok(Some((workflow, step, tool, asks)))
 }
 
