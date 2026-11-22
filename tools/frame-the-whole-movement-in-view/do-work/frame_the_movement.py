@@ -203,17 +203,18 @@ def _candidate(layout, shot, src_w, src_h, out_w, out_h, margin, reach, max_zoom
             'undetected_frames': len(boxes) - len(known)}
 
 
-def graphic_areas(layout, window, out_w, out_h, safe):
+def graphic_areas(layout, window, out_w, out_h, safe, band_top=None):
     """Output-pixel rectangles [x, y, w, h] where graphics, captions and the chip may go without touching the picture.
     A layout that fills the frame gives none. The wide layout shows the window at full width in the middle, so the bars
-    above and below it are the areas (inside the safe margin); the picture itself is never a graphic area."""
+    above and below it are the areas (inside the safe margin); the picture itself is never a graphic area. band_top is the
+    output y where the window starts (the request's band_top); without it the window is centred."""
     if layout == 'full-bleed-9x16' or window is None:
         return []
     if layout == 'follow-and-widen':
         return []
     if layout == 'wide-with-blurred-bars':
         shown_h = out_w * window[3] / window[2]
-        top = (out_h - shown_h) / 2
+        top = (out_h - shown_h) / 2 if band_top is None else band_top
         bottom = top + shown_h
         areas = []
         if top - safe > 0:
@@ -238,7 +239,7 @@ def choose(request):
         picked = passing[0] if passing else None
         results.append({'id': shot['id'], 'picked': picked and picked['layout'], 'window': picked and picked['window'],
                         'out_of_view_frames': picked['out_of_view_frames'] if picked else None,
-                        'graphic_areas': picked and graphic_areas(picked['layout'], picked['window'], out_w, out_h, request['safe_margin_px']),
+                        'graphic_areas': picked and graphic_areas(picked['layout'], picked['window'], out_w, out_h, request['safe_margin_px'], request.get('band_top')),
                         'candidates': candidates, 'frames': len(shot['frames'])})
     gate = {'out_of_view_frames': sum(r['out_of_view_frames'] or 0 for r in results),
             'unpicked_shots': [r['id'] for r in results if r['picked'] is None]}

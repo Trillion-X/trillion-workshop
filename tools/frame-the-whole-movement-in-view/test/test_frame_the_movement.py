@@ -97,6 +97,14 @@ class TestGraphicAreas(unittest.TestCase):
         areas = ftm.graphic_areas('wide-with-blurred-bars', [0, 0, 2160, 2160], OUT_W, OUT_H, 60)
         self.assertEqual(areas, [[0, 60, 1080, 300], [0, 1560, 1080, 300]])
 
+    def test_band_top_moves_the_bars_with_the_renderers_window(self):
+        # the renderer overlays the square at y = band_top, so the picture covers 500..1580 and both bars stay off it
+        areas = ftm.graphic_areas('wide-with-blurred-bars', [0, 0, 2160, 2160], OUT_W, OUT_H, 60, band_top=500)
+        self.assertEqual(areas, [[0, 60, 1080, 380], [0, 1640, 1080, 220]])
+        top, bottom = areas
+        self.assertLessEqual(top[1] + top[3], 500)
+        self.assertGreaterEqual(bottom[1], 500 + 1080)
+
     def test_full_bleed_and_follow_give_no_area(self):
         self.assertEqual(ftm.graphic_areas('full-bleed-9x16', [0, 0, 1215, 2160], OUT_W, OUT_H, 60), [])
         self.assertEqual(ftm.graphic_areas('follow-and-widen', [0, 0, 1215, 2160], OUT_W, OUT_H, 60), [])

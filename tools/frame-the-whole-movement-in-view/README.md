@@ -20,7 +20,7 @@ A layout is `{name, aspect, sizing}`. The tool does not know any layout's name; 
 
 ## Graphics in the bars
 
-`choose` also writes each shot's `graphic_areas`: for the blurred-bars layout, the two bands above and below the window at full width, inside `safe_margin_px` (a request setting, to be read from the platform safe zone rows when wired). Graphics and captions for that shot go only there. The full-bleed, follow and stacked layouts give none: their graphics stay where the layout puts them, measured by the graphics tool. An unknown layout name fails loud rather than getting a guessed area.
+`choose` also writes each shot's `graphic_areas`: for the blurred-bars layout, the two bands above and below the window at full width, inside `safe_margin_px` (a request setting, to be read from the platform safe zone rows when wired). The window starts at the request's `band_top` (output y), or is centred when the request names none. Graphics and captions for that shot go only there. The full-bleed, follow and stacked layouts give none: their graphics stay where the layout puts them, measured by the graphics tool. An unknown layout name fails loud rather than getting a guessed area.
 
 ## Evidence
 
