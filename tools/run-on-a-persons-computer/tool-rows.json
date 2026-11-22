@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "run-on-a-persons-computer-tool-rows",
-  "what_this_is": "The Workshop row for tools/run-on-a-persons-computer's script runner: a model's script runs in the script sandbox (script-sandbox.mjs) inside its OS wall (confined-run.mjs, the read-only tier), with the pinned Node below as its program. The engine fetches that Node, checks the archive's BLAKE3 against the pin, unpacks it and runs it from its own folder (the same road as audio-transcription's python3 pin). status draft: the runner that takes the script and answers its calls is not written yet, so the tool does not run.",
+  "what_this_is": "The Workshop row for tools/run-on-a-persons-computer's script runner: a model's script runs in the script sandbox (script-sandbox.mjs) inside its OS wall (confined-run.mjs, the read-only tier), with the pinned Node below as its program. The engine fetches that Node, checks the archive's BLAKE3 against the pin, unpacks it and runs it from its own folder (the same road as audio-transcription's python3 pin). The runner (run-a-script.mjs, mapped in computer/mac-tools.json) takes the script and its input, runs it through the script sandbox (script-sandbox.mjs), and answers each call(toolId, input) as the person, through one door call with the account's key.",
   "records": [
     {
       "payload": {
@@ -11,25 +11,47 @@
         "label": "Run a script over my tools",
         "job": "Run a JavaScript body that calls my Workshop tools with call(toolId, input) inside a sandbox with no files and no network, and return only the value it returns",
         "description": "A model's script runs in a child process started through confined-run (read-only tier: no writes, no network) from the pinned Node, with node --permission inside. The script reaches the Workshop only through call(toolId, input), which the host answers as the person.",
-        "status": "draft",
+        "status": "active",
         "input_schema": {
           "type": "object",
-          "required": ["code"],
+          "required": [
+            "code"
+          ],
           "additionalProperties": false,
           "properties": {
-            "code": {"type": "string", "minLength": 1, "maxLength": 20000, "description": "A function body; `return` the value to answer with."},
-            "input": {"type": "object", "description": "Passed to the body as `input`."}
+            "code": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20000,
+              "description": "A function body; `return` the value to answer with."
+            },
+            "input": {
+              "type": "object",
+              "description": "Passed to the body as `input`."
+            }
           }
         },
-        "output_schema": {"type": "object", "description": "The value the script returned, bounded by the script sandbox's result_chars."},
+        "output_schema": {
+          "type": "object",
+          "description": "The value the script returned, bounded by the script sandbox's result_chars."
+        },
         "invoke": {
           "max_run_ms": 60000,
           "kind": "computer",
-          "capabilities": ["start-a-program"],
+          "capabilities": [
+            "start-a-program"
+          ],
           "workdir": "/opt/run-on-a-persons-computer",
           "stdout": "json",
-          "argv": ["node", "/opt/run-on-a-persons-computer/run-a-script.mjs"],
-          "stdin": {"fill": {"from": "input"}},
+          "argv": [
+            "node",
+            "/opt/run-on-a-persons-computer/run-a-script.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
           "programs": {
             "node": {
               "fetch": {
@@ -38,6 +60,7 @@
                   "version": "25.3.0",
                   "blake3": "b52c8ba09296f9048c0b1b4b95fe7e5c08baaf2406e38a0869a2f15c70c9f77b",
                   "executable": "node-v25.3.0-darwin-arm64/bin/node",
+                  "executable_blake3": "3c2ad9874425285131914e0d178e5a1db6a11cb6ab0e5c60bc681feb0d57e2c2",
                   "checked_against": "https://nodejs.org/dist/v25.3.0/SHASUMS256.txt"
                 },
                 "macos-x86_64": {
@@ -50,8 +73,12 @@
         },
         "maker": "maker:run-on-a-persons-computer",
         "licence_class": "licence:maker-own",
-        "placements": ["placement:your-computer"],
-        "provenance": {"source": "run-on-a-persons-computer/script-sandbox.mjs and confined-run.mjs (trillion-workshop 77ba3d9d12); the Node pin checked by hand: the Mac's bin/node is byte-identical to the archive's, BLAKE3 3c2ad9874425285131914e0d178e5a1db6a11cb6ab0e5c60bc681feb0d57e2c2"}
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "run-on-a-persons-computer/script-sandbox.mjs and confined-run.mjs (trillion-workshop 77ba3d9d12); the Node pin checked by hand: the Mac's bin/node is byte-identical to the archive's, BLAKE3 3c2ad9874425285131914e0d178e5a1db6a11cb6ab0e5c60bc681feb0d57e2c2"
+        }
       }
     }
   ]

@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { confinementSettings, spawnConfined } from '../confined-run.mjs';
+import { programNode } from '../run-a-script.mjs';
 import { childArguments, makeHostCalls, runScript, sandboxSettings } from '../script-sandbox.mjs';
 
 const settings = sandboxSettings();
@@ -28,7 +29,8 @@ test('a script chains two host calls with a filter between them', async () => {
 
 // Runs `code` as a node program under the read-only tier, without node --permission, and returns what it printed as JSON.
 const underTier = async code => {
-  const child = await spawnConfined(process.execPath, ['--input-type=module', '--eval', code], { tier: settings.node.tier, pin: { blake3: settings.node.blake3 } });
+  const node = programNode();
+  const child = await spawnConfined(node.path, ['--input-type=module', '--eval', code], { tier: node.tier, pin: { blake3: node.pin } });
   let out = '';
   child.stdout.on('data', chunk => { out += chunk; });
   await new Promise(resolve => child.on('exit', resolve));

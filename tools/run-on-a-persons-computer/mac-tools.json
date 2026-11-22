@@ -103,6 +103,11 @@
    "export": "appJob",
    "name": "run"
   },
+  "tool:run-a-script": {
+   "module": "./run-a-script.mjs",
+   "export": "runAScript",
+   "name": "run"
+  },
   "tool:build-native-app": {
    "module": "./native-app-build.mjs",
    "export": "nativeAppBuild",

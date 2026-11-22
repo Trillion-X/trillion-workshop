@@ -64847,5 +64847,94 @@
       ],
       "at": "/opt/tools/workflow-host"
     }
+  ],
+  "tool:run-a-script": [
+    {
+      "package": "bring-in-new-items-from-this-computer",
+      "paths": [
+        "computer/computer-sources.json"
+      ],
+      "at": "/opt/bring-in-new-items-from-this-computer"
+    },
+    {
+      "package": "browse-and-upload-my-files",
+      "paths": [
+        "built-stored-bytes/content-chunks/content_chunks.js",
+        "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
+        "do-work/content-chunks.mjs",
+        "do-work/namespace-client.mjs",
+        "do-work/send-a-file-to-a-namespace.mjs",
+        "do-work/send-a-folder-to-a-namespace.mjs",
+        "do-work/send-retry.mjs",
+        "do-work/send-window.mjs",
+        "do-work/shared-file-reference.mjs",
+        "send-settings.json"
+      ],
+      "at": "/opt/browse-and-upload-my-files"
+    },
+    {
+      "package": "computer-programs",
+      "paths": [
+        "read-data/program-here.mjs"
+      ],
+      "at": "/opt/computer-programs"
+    },
+    {
+      "package": "content-identity",
+      "paths": [
+        "read-data/blake3.mjs",
+        "read-data/identity.mjs"
+      ],
+      "at": "/opt/content-identity"
+    },
+    {
+      "package": "http-client",
+      "paths": [
+        "do-work/same-origin.mjs"
+      ],
+      "at": "/opt/http-client"
+    },
+    {
+      "package": "keep-and-wake-ai-sessions-on-this-computer",
+      "paths": [
+        "harness/local-door.mjs"
+      ],
+      "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+    },
+    {
+      "package": "run-on-a-persons-computer",
+      "paths": [
+        "confined-run.mjs",
+        "file-type.json",
+        "file-type.mjs",
+        "helper-sandbox.mjs",
+        "keep-drive-files.mjs",
+        "observe-visual.mjs",
+        "run-a-script.mjs",
+        "script-sandbox.mjs",
+        "see-a-recording.mjs",
+        "side-files.json",
+        "side-files.mjs"
+      ],
+      "at": "/opt/run-on-a-persons-computer"
+    },
+    {
+      "packages": [
+        "node_modules/@noble/hashes"
+      ],
+      "at": "/opt/node_modules/@noble/hashes"
+    },
+    {
+      "packages": [
+        "node_modules/tldts"
+      ],
+      "at": "/opt/node_modules/tldts"
+    },
+    {
+      "packages": [
+        "node_modules/tldts-core"
+      ],
+      "at": "/opt/node_modules/tldts-core"
+    }
   ]
 }

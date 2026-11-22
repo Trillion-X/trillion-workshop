@@ -38,7 +38,7 @@ function stripFileBodies(request, kinds) {
 }
 
 /** The host side of each capability, over the objects the caller handed in. Returns an async function(kind, args) → value. */
-export function makeHostCalls({ settings = sandboxSettings(), files = null, cookies = null, sendRequest = null, loadPackage = null, setCookie = null } = {}) {
+export function makeHostCalls({ settings = sandboxSettings(), files = null, cookies = null, sendRequest = null, loadPackage = null, setCookie = null, callTool = null } = {}) {
   const caps = settings.capabilities;
   const insideFolder = path => {
     if (!files?.folder) throw new Error(settings.words.no_files);
@@ -66,6 +66,10 @@ export function makeHostCalls({ settings = sandboxSettings(), files = null, cook
     if (kind === 'send_request') {
       if (!sendRequest) throw new Error(settings.words.no_requests);
       return sendRequest(stripFileBodies(args, caps.send_request.strip_body_kinds));
+    }
+    if (kind === 'call_tool') {
+      if (!callTool) throw new Error(settings.words.no_tools);
+      return callTool(args.tool_id, args.input);
     }
     throw new Error(fill(settings.words.threw, { error: kind }));
   };
@@ -101,6 +105,7 @@ function childMain(vm) {
   pm.require = name => ask('require', { name });
   const global = globalThis;
   global.pm = pm;
+  global.call = (toolId, input) => ask('call_tool', { tool_id: toolId, input: input ?? {} });
   for (const [name, source] of Object.entries(libraries)) global[name] = (0, eval)(source);
 })`;
   const run = ({ code, input, wall_ms, libraries }) => {
@@ -140,10 +145,10 @@ export const childArguments = heap_mb => ['--permission', `--max-old-space-size=
   '--eval', `import('node:vm').then(vm => (${childMain.toString()})(vm.default));`];
 
 /** Runs `code` (a function body; `return` the result) with `input` in a child process; resolves { value } or { error }. */
-export async function runScript({ code, input = null, settings = sandboxSettings(), host = makeHostCalls({ settings }), wall_ms = settings.limits.wall_ms } = {}) {
+export async function runScript({ code, input = null, settings = sandboxSettings(), host = makeHostCalls({ settings }), wall_ms = settings.limits.wall_ms, node = { path: process.execPath, tier: 'read-only', pin: null } } = {}) {
   let child;
   try {
-    child = await spawnConfined(process.execPath, childArguments(settings.limits.heap_mb), { tier: settings.node.tier, pin: { blake3: settings.node.blake3 } });
+    child = await spawnConfined(node.path, childArguments(settings.limits.heap_mb), { tier: node.tier, pin: node.pin ? { blake3: node.pin } : null });
   } catch (error) {
     return { error: String(error?.message ?? error) };
   }
