@@ -123,7 +123,8 @@ test('an own row that shares an id with an installed recipe is started from its 
   assert.equal((await route(plain, change(SHOP, 'broad_condition'))).status, 'completed');
   assert.ok(plain.told.some(fact => fact.kind === 'workflow-chosen' && fact.payload.workflow === 'workflow:rewrite-a-broad-condition' && fact.payload.condition === mine.label), 'the person\'s condition wins');
   assert.deepEqual(byKind(plain, 'workflow-chosen-from-rows'), []);
-  assert.ok(plain.told.filter(fact => fact.kind === 'workflow-chosen').every(fact => !('after' in fact.payload) && !('before' in fact.payload)), 'a chosen fact carries no row state');
+  assert.ok(plain.told.filter(fact => fact.kind === 'workflow-chosen').every(fact => !('before' in fact.payload)), 'a chosen fact carries no before');
+  assert.ok(plain.told.filter(fact => fact.kind === 'workflow-chosen').every(fact => 'after' in fact.payload), 'a chosen fact carries the change\'s after, which a service fact has no row to read back from');
   const over = door({ [HOME]: home });
   assert.equal((await route(over, change(SHOP, 'broad_condition'), { credential_name: HOME, over_installed: ['workflow:rewrite-a-broad-condition'] })).status, 'completed');
   assert.deepEqual(byKind(over, 'workflow-chosen-from-rows'), ['workflow:rewrite-a-broad-condition']);
