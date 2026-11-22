@@ -16,17 +16,19 @@
 // - Needs cargo, the wasm32-unknown-unknown target (and each row's own `target`, such as wasm32-wasip1) and the
 //   wasm-bindgen CLI each crate workspace's Cargo.lock pins. Cargo builds in the computer's one shared target folder
 //   (shared-cargo-target.mjs); each module is copied out while that folder is held.
+// - Recovering an interrupted publication and swapping the new generation in hold the published folder's own lock
+//   (compiled-modules.mjs withPublishedModules), taken inside the target ownership, so readers wait only for the swap.
 import { execFileSync } from 'node:child_process';
 import { copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { crateWorkspaces, withCrateBuilds, workspaceOf } from './build-crate-for-a-web-host.mjs';
-import { BUILT_CRATES_FOLDER, COMPILED_MODULES, ENGINE_COMPONENTS, PAGE_COMPILED_MODULES, TOOLS, WORKSHOP, committedModulesCurrent, compiledFileIdentities, crateSourceFingerprint, recoverCompiledModulePublication } from './compiled-modules.mjs';
+import { BUILT_CRATES_FOLDER, COMPILED_MODULES, ENGINE_COMPONENTS, PAGE_COMPILED_MODULES, TOOLS, WORKSHOP, committedModulesCurrent, compiledFileIdentities, crateSourceFingerprint, recoverCompiledModulePublication, withPublishedModules } from './compiled-modules.mjs';
 
 // One existing target ownership scope covers source validation, every crate and
 // publication. A caller that waited for an identical build rechecks only after
 // acquiring ownership and does not delete or rebuild that completed output.
 await withCrateBuilds(async builds => {
-  await recoverCompiledModulePublication();
+  await withPublishedModules(recoverCompiledModulePublication);
   const crateRows = [...COMPILED_MODULES, ...PAGE_COMPILED_MODULES, ...ENGINE_COMPONENTS].filter(row => row.crate);
   // Each crate's closure comes from its own workspace's resolution (an engine crate resolves in the engine's workspace).
   const metadataOf = new Map();
@@ -113,25 +115,29 @@ await withCrateBuilds(async builds => {
     // The BLAKE3 of each file built, so a Workshop exported without the crates beside it admits these bytes and no others.
     const files = await compiledFileIdentities(next);
     writeFileSync(join(next, 'fingerprint.json'), `${JSON.stringify({ crate_dirs: crateDirs, source_files: sourceFiles, fingerprint, workspace_commits, files }, null, 2)}\n`);
-    const hadPrevious = existsSync(BUILT_CRATES_FOLDER);
-    // Write recovery facts before retiring the current tree. Process exit at
-    // either rename leaves enough information for the ordinary next owner.
-    writeFileSync(join(stage, 'publication.json'), `${JSON.stringify({
-      schema: 'compiled-modules-publication/v1', destination: resolve(BUILT_CRATES_FOLDER), hadPrevious,
-    })}\n`);
-    if (hadPrevious) renameSync(BUILT_CRATES_FOLDER, previous);
-    try {
-      renameSync(next, BUILT_CRATES_FOLDER);
-    } catch (publicationError) {
-      if (hadPrevious) {
-        try { renameSync(previous, BUILT_CRATES_FOLDER); }
-        catch (recoveryError) {
-          retainStage = true;
-          throw new AggregateError([publicationError, recoveryError], `Compiled-module publication failed; original output is preserved at ${previous}`);
+    await withPublishedModules(() => {
+      const hadPrevious = existsSync(BUILT_CRATES_FOLDER);
+      // Write recovery facts before retiring the current tree. Process exit at
+      // either rename leaves enough information for the ordinary next owner.
+      writeFileSync(join(stage, 'publication.json'), `${JSON.stringify({
+        schema: 'compiled-modules-publication/v1', destination: resolve(BUILT_CRATES_FOLDER), hadPrevious,
+      })}\n`);
+      if (hadPrevious) renameSync(BUILT_CRATES_FOLDER, previous);
+      try {
+        renameSync(next, BUILT_CRATES_FOLDER);
+      } catch (publicationError) {
+        if (hadPrevious) {
+          try { renameSync(previous, BUILT_CRATES_FOLDER); }
+          catch (recoveryError) {
+            retainStage = true;
+            throw new AggregateError([publicationError, recoveryError], `Compiled-module publication failed; original output is preserved at ${previous}`);
+          }
         }
+        throw publicationError;
       }
-      throw publicationError;
-    }
+      // A registered stage is never left for a reader's recovery once the swap is done.
+      rmSync(stage, { recursive: true, force: true });
+    });
     process.stdout.write(`fingerprint ${fingerprint.slice(0, 16)} over ${crateDirs.length} crates\n`);
   } finally {
     if (!retainStage) rmSync(stage, { recursive: true, force: true });

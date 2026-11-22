@@ -10,9 +10,10 @@
 //   (tools/process-session/do-work/computer-cache-folder.mjs: $XDG_CACHE_HOME/trillion or ~/.cache/trillion, the same
 //   rule on every computer). It carries a CACHEDIR.TAG, so backups skip it.
 // - One build at a time holds it: `withSharedCargoTarget` takes `<folder>.lock` (a directory made atomically, holding
-//   the holder's process id) and keeps it until the work, including copying the built module out, is done, so two
-//   copies building the same crate with different features never read each other's output. A lock whose process has
-//   ended is taken over.
+//   the holder's process id, `withFolderLock`) and keeps it until the work, including copying the built module out, is
+//   done, so two copies building the same crate with different features never read each other's output. A lock whose
+//   process has ended is taken over. Only work that runs cargo or reads its output takes it: a reader of modules already
+//   built and published elsewhere guards that published folder with its own lock, so it never waits for a compile.
 // - Before each build, while holding the lock, the folder is measured; past CARGO_TARGET_CEILING it is deleted whole and
 //   cargo builds again from nothing. Everything in it is cargo's own regenerable output.
 // - Work handed the folder must copy anything it keeps into its own copy of the repository before returning.
@@ -102,6 +103,21 @@ function kilobytesIn(folder) {
 }
 
 /**
+ * Run `work()` holding the lock directory `lock` (made atomically, holding this process's id; a lock whose process has
+ * ended is taken over), and give it back when the work ends or throws.
+ * @template T
+ * @param {string} lock
+ * @param {() => T | Promise<T>} work
+ * @returns {Promise<T>}
+ */
+export async function withFolderLock(lock, work) {
+  mkdirSync(dirname(lock), { recursive: true });
+  await takeLock(lock);
+  try { return await work(); }
+  finally { rmSync(lock, { recursive: true, force: true }); }
+}
+
+/**
  * Run `work(folder)` holding the shared cargo target folder, for the cargo workspaces at `workspaceRoots` (each tool's
  * `crates/` folder). Cargo started inside must be given `{ env: cargoEnv(folder) }`.
  * @template T
@@ -109,18 +125,9 @@ function kilobytesIn(folder) {
  * @param {(folder: string) => T | Promise<T>} work
  * @returns {Promise<T>}
  */
-/** Hold the same target owner without build preparation, for coherent byte readers. */
-export async function withSharedCargoTargetLock(work) {
-  const folder = sharedCargoTargetFolder();
-  mkdirSync(join(folder, '..'), { recursive: true });
-  const lock = `${folder}.lock`;
-  await takeLock(lock);
-  try { return await work(folder); }
-  finally { rmSync(lock, { recursive: true, force: true }); }
-}
-
 export async function withSharedCargoTarget(workspaceRoots, work) {
-  return withSharedCargoTargetLock(async folder => {
+  const folder = sharedCargoTargetFolder();
+  return withFolderLock(`${folder}.lock`, async () => {
     if (existsSync(folder) && kilobytesIn(folder) > CARGO_TARGET_CEILING.gigabytes * 1024 * 1024) rmSync(folder, { recursive: true, force: true });
     mkdirSync(folder, { recursive: true });
     if (!existsSync(join(folder, 'CACHEDIR.TAG'))) writeFileSync(join(folder, 'CACHEDIR.TAG'), CACHEDIR_TAG);

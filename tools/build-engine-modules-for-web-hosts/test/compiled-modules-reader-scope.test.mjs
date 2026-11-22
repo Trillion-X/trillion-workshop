@@ -16,7 +16,7 @@ const cacheRule = fileURLToPath(new URL('../../process-session/do-work/computer-
 const TOOL = 'tools/build-engine-modules-for-web-hosts';
 const CRATES = 'tools/made-up-crates/crates';
 const BUILD = `${TOOL}/build`;
-const crateNames = ['http-client', 'workflow-engine', 'screen-arrangement', 'composition-engine'];
+const crateNames = ['http-client', 'workflow-engine', 'screen-arrangement', 'composition-engine', 'workflow-component'];
 // One build runs the compiler once for each crate row and once more, so a count follows the rows (never a fixed number).
 const perBuild = crateNames.length + 1;
 const wasm = Buffer.from([0, 97, 115, 109, 1, 0, 0, 0]);
@@ -146,6 +146,27 @@ await assert.rejects(withCommittedModules(()=>{throw new Error('synthetic reader
     const result = await f.run(['--input-type=module', '-e', script], { WORKERS_CI: '1' }).ended;
     assert.equal(result.code, 0, result.output);
     assert.equal(f.log().length, perBuild);
+  } finally { await f.done(); }
+});
+
+test('a cargo build holding the shared target does not delay readers of the current generation', async () => {
+  const f = fixture();
+  try {
+    const initial = await f.run().ended; assert.equal(initial.code, 0, initial.output);
+    // Another build owns the shared target for as long as this test runs: a live process's id in its lock.
+    const holder = f.run(['-e', 'setTimeout(() => {}, 60000)']);
+    const lock = join(f.home, 'cache/cargo-target.lock');
+    mkdirSync(lock, { recursive: true });
+    writeFileSync(join(lock, 'pid'), String(holder.child.pid));
+    const script = `import assert from 'node:assert/strict';import{withCommittedModules,withStagedModules,prepareCompiledModules}from'./${BUILD}/compiled-modules.mjs';
+assert.equal(typeof await withCommittedModules(metadata=>metadata.fingerprint),'string');await withStagedModules(()=>{});await prepareCompiledModules();`;
+    const started = Date.now();
+    const result = await f.run(['--input-type=module', '-e', script], { WORKERS_CI: '1' }).ended;
+    assert.equal(result.code, 0, result.output);
+    assert.ok(Date.now() - started < 20000, `readers waited ${Date.now() - started} ms for the cargo target`);
+    assert.equal(readFileSync(join(lock, 'pid'), 'utf8'), String(holder.child.pid), 'the build\'s lock is left as it was');
+    assert.ok(existsSync(join(f.home, 'dist/workflow-engine/workflow_engine.js')));
+    assert.equal(f.log().length, perBuild, 'readers never invoke a compiler');
   } finally { await f.done(); }
 });
 

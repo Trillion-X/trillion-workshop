@@ -1,5 +1,7 @@
-import { withSharedCargoTargetLock } from './shared-cargo-target.mjs';
+import { sharedCargoTargetFolder, withFolderLock } from './shared-cargo-target.mjs';
 import { AsyncLocalStorage } from 'node:async_hooks';
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { basename, dirname, join, relative, resolve } from 'node:path';
@@ -49,6 +51,19 @@ export const ENGINE_COMPONENTS = [
 // is not; a hosted build without the engine checkout beside it stops the same way.
 export const BUILT_CRATES_FOLDER = join(BUILD_TOOL, 'built-stored-bytes');
 const BUILD_COMMAND = join(BUILD_TOOL, 'build/build-compiled-modules.mjs');
+
+// The published folder's own lock. Publication (recovering an interrupted one, and the two renames that swap a new
+// generation in) and every reader of the published bytes hold it, so no reader sees a half-published generation. It is
+// named by the published folder's path and kept in the computer's cache folder beside the cargo target, not the cargo
+// target's lock: reading bytes already built never waits for a compile, of this checkout or any other. A publisher takes
+// it inside its cargo target ownership (cargo's lock, then this one), never the other way round.
+export function publishedModulesLock() {
+  const named = bytesToHex(blake3(new TextEncoder().encode(resolve(BUILT_CRATES_FOLDER)))).slice(0, 32);
+  return join(dirname(sharedCargoTargetFolder()), 'compiled-modules-publication', `${named}.lock`);
+}
+
+/** Run `work()` holding the published folder's lock (publishedModulesLock). */
+export const withPublishedModules = work => withFolderLock(publishedModulesLock(), work);
 export async function crateSourceFingerprint(crateDirs, sourceFiles = [], workspaceCommits = {}) {
   const { readdirSync, readFileSync, statSync, lstatSync, realpathSync, openSync, fstatSync, closeSync, constants } = await import('node:fs');
   const { basename, dirname, join, relative, resolve, isAbsolute } = await import('node:path');
@@ -284,8 +299,8 @@ export function missingCrateInput(crateDirs, base = TOOLS) {
 }
 
 /**
- * Recover only this owner's interrupted publication stages while holding its
- * existing shared-target ownership. Never promote a stranded next generation.
+ * Recover only this owner's interrupted publication stages while holding the
+ * published folder's lock. Never promote a stranded next generation.
  * A retired previous tree is restored when the public path is absent.
  */
 export async function recoverCompiledModulePublication() {
@@ -329,9 +344,10 @@ export async function recoverCompiledModulePublication() {
 }
 
 /**
- * Admit and consume one coherent existing generation under the build owner's
- * same cache lock. A source edit after admission does not change that cohort.
- * Rebuilding is outside the read-held scope to avoid recursive ownership.
+ * Admit and consume one coherent existing generation under the published
+ * folder's lock, never the cargo target's: a compile elsewhere does not delay
+ * it. A source edit after admission does not change that cohort. Rebuilding is
+ * outside the read-held scope to avoid recursive ownership.
  */
 const admittedReaders = new AsyncLocalStorage();
 
@@ -347,7 +363,7 @@ function consumeAdmitted(scope, read) {
 export async function withCommittedModules(read) {
   const inherited = admittedReaders.getStore();
   if (inherited?.open) return consumeAdmitted(inherited, read);
-  const attempt = () => withSharedCargoTargetLock(async () => {
+  const attempt = () => withPublishedModules(async () => {
     await recoverCompiledModulePublication();
     const admitted = await currentCommittedModules();
     if (!admitted) return { current: false };
@@ -440,7 +456,7 @@ export async function prepareCompiledModules({ modules = COMPILED_MODULES, desti
 /**
  * Stage the committed modules and fresh restartable glue without checking them against their crates: a release has
  * neither cargo nor the engine's crates beside the Workshop, and this tool's own test (test/compiled-modules-current.test.mjs)
- * is what says the modules match their sources. Reads one coherent generation: it holds the build owner's target lock and
+ * is what says the modules match their sources. Reads one coherent generation: it holds the published folder's lock and
  * first recovers an interrupted publication.
  */
 export async function stageCommittedModules({ modules = COMPILED_MODULES, destination = 'dist' } = {}) {
@@ -452,7 +468,7 @@ export async function stageCommittedModules({ modules = COMPILED_MODULES, destin
  * the web client's build of a named commit (a release), which has neither cargo nor the engine's crates beside the Workshop, reads them through this.
  */
 export async function withStagedModules(read) {
-  return withSharedCargoTargetLock(async () => {
+  return withPublishedModules(async () => {
     await recoverCompiledModulePublication();
     return read();
   });
