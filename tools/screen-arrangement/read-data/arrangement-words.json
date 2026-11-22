@@ -1,5 +1,12 @@
 {
   "_what": "Words the arrangement says about its own saving (tools/screen-arrangement/show/screen-arrangement-context.tsx). `stale` is shown when a drag was made from an older copy of an arrangement kept elsewhere since: nothing was replaced, and the screen now shows what is kept. `seconds_shown` is how long it stays.",
   "stale": "This screen was arranged somewhere else, so your change was not kept. It now shows the arrangement kept there.",
-  "seconds_shown": 6
+  "seconds_shown": 6,
+  "resize_width": "Resize pane width",
+  "resize_height": "Resize pane height",
+  "axis_width": "width",
+  "axis_height": "height",
+  "at_minimum": "Pane reached its minimum {axis} of {minimum} pixels.",
+  "size": "Pane {axis} {size} pixels. Use the arrow keys to resize this pane only; Home moves to its minimum.",
+  "minimum_label": "Minimum {minimum} px"
 }

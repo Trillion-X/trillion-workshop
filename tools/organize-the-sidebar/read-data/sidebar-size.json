@@ -1,0 +1,6 @@
+{
+  "_what": "The window's docked sidebar width, as DATA: the narrowest and widest it may be, and the width it starts at. read-sidebar-placement.ts clamps a stored width to these on read and sets the starting width; show/DesktopSidebar.tsx resizes within them and resets to the starting width. Nothing else names these numbers.",
+  "min_px": 180,
+  "max_px": 520,
+  "default_px": 280
+}

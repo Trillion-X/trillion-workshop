@@ -26,6 +26,8 @@ export type PaneSizes = {
   added_pane_height_px: number
   arrow_step_px: number
   arrow_big_step_px: number
+  handle_rail_rest_opacity: number
+  handle_rail_hover_opacity: number
 }
 
 /** The workspace preference holding the person's own pane sizes. */

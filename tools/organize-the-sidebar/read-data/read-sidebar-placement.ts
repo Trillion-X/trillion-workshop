@@ -1,4 +1,5 @@
 import { decodeDockFit, decodeDockPoint, decodeDockSeam, type DockFit, type DockPoint, type DockSeam } from '../../ui/show/dockable-placement/dockable-placement';
+import sidebarSize from './sidebar-size.json';
 
 export type SidebarPosition = 'left' | 'right' | 'top' | 'bottom';
 export type SidebarDockState = 'docked' | 'floating';
@@ -7,6 +8,16 @@ export type SidebarMode = 'expanded' | 'collapsed' | 'auto' | 'folded';
 export type SidebarSeam = DockSeam;
 export type SidebarPoint = DockPoint;
 export type SidebarFit = DockFit;
+
+/** The docked width bounds and starting width (sidebar-size.json): the one source every reader of them uses. */
+export const SIDEBAR_MIN_W: number = sidebarSize.min_px;
+export const SIDEBAR_MAX_W: number = sidebarSize.max_px;
+export const SIDEBAR_DEFAULT_W: number = sidebarSize.default_px;
+
+/** A docked width kept inside the bounds. */
+export function clampSidebarWidth(value: number): number {
+  return Math.min(SIDEBAR_MAX_W, Math.max(SIDEBAR_MIN_W, value));
+}
 
 export interface FloatRect {
   x: number;
@@ -44,7 +55,7 @@ export const DEFAULT_SIDEBAR_PLACEMENT_STATE: SidebarPlacementState = {
   position: 'left',
   dockState: 'docked',
   mode: 'expanded',
-  width: 280,
+  width: SIDEBAR_DEFAULT_W,
   floatRect: { x: 100, y: 100, w: 280, h: 600 },
 };
 
@@ -78,7 +89,7 @@ export function decodeSidebarPlacementValue(value: unknown): SidebarPlacementSta
     position,
     dockState,
     mode,
-    width: readFiniteNumber(record.width, DEFAULT_SIDEBAR_PLACEMENT_STATE.width),
+    width: clampSidebarWidth(readFiniteNumber(record.width, DEFAULT_SIDEBAR_PLACEMENT_STATE.width)),
     floatRect: {
       x: readFiniteNumber(rect.x, DEFAULT_SIDEBAR_PLACEMENT_STATE.floatRect.x),
       y: readFiniteNumber(rect.y, DEFAULT_SIDEBAR_PLACEMENT_STATE.floatRect.y),

@@ -45,6 +45,7 @@ import { arrowPanePx, paneSizesNow, snapPanePx } from '../read-data/pane-sizes'
 import { usePaneSizes } from './use-pane-sizes'
 import { LocalSurfaceVisibilityContext } from './embedded-surface-content'
 import { containerIsVisible, visibleSplitTree } from '../read-data/surface-visibility'
+import arrangementWords from '../read-data/arrangement-words.json'
 
 const TAB_EDGE_PX = TAB_EDGE_DROP_PX // widen container-edge activation
 // FRAME_EDGE_PX = 32 — reserved for frame-edge drop zone logic (wired later)
@@ -1487,6 +1488,11 @@ function usePaneEdgeDrag(ref: React.RefObject<HTMLElement | null>, { dir, index,
   return { atMinimum, announced, begin, handleKeyDown }
 }
 
+/** A words-file line with its {placeholders} filled in. */
+function fillWords(line: string, values: Record<string, string | number>): string {
+  return line.replace(/\{(\w+)\}/g, (_match, key: string) => String(values[key]));
+}
+
 function ResizeHandle({
   seamOf,
   ...edge
@@ -1500,18 +1506,18 @@ function ResizeHandle({
   const row = edge.dir === 'row'
   const handlePointerDown = (e: React.PointerEvent) => { begin(e) }
 
-  const axis = row ? 'width' : 'height'
+  const axis = row ? arrangementWords.axis_width : arrangementWords.axis_height
   const minimumPx = Math.round(announced.minimum || paneDragMinimumPx())
   const valueText = atMinimum
-    ? `Pane reached its minimum ${axis} of ${minimumPx} pixels.`
-    : `Pane ${axis} ${Math.round(announced.size)} pixels. Use the arrow keys to resize this pane only; Home moves to its minimum.`
+    ? fillWords(arrangementWords.at_minimum, { axis, minimum: minimumPx })
+    : fillWords(arrangementWords.size, { axis, size: Math.round(announced.size) })
 
   return (
     <div
       ref={ref}
       role="separator"
       aria-orientation={row ? 'vertical' : 'horizontal'}
-      aria-label={row ? 'Resize pane width' : 'Resize pane height'}
+      aria-label={row ? arrangementWords.resize_width : arrangementWords.resize_height}
       aria-valuemin={minimumPx}
       aria-valuenow={Math.round(announced.size)}
       aria-valuetext={valueText}
@@ -1544,7 +1550,7 @@ function ResizeHandle({
             : 'left-0 right-0 top-1/2 -translate-y-1/2 h-0.5'
         )}
         initial={false}
-        animate={{ opacity: isHovered || atMinimum ? 0.9 : 0, scale: isHovered || atMinimum ? 1 : 0.5 }}
+        animate={{ opacity: isHovered || atMinimum ? paneSizesNow().handle_rail_hover_opacity : paneSizesNow().handle_rail_rest_opacity }}
         transition={{ duration: 0.15, ease: 'easeOut' }}
         style={{
           backgroundColor: atMinimum ? 'var(--accent-primary, var(--border-focus))' : 'var(--border-focus)',
@@ -1557,7 +1563,7 @@ function ResizeHandle({
           data-resize-boundary-label
           className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-md border border-[var(--accent-primary)] bg-[var(--bg-surface)] px-2 py-1 text-xs font-medium text-[var(--text-primary)] shadow-sm"
         >
-          Minimum {minimumPx} px
+          {fillWords(arrangementWords.minimum_label, { minimum: minimumPx })}
         </span>
       )}
     </div>

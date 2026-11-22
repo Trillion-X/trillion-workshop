@@ -19,7 +19,8 @@
 //    come from useSidebarPlacement. Only interaction state and live gesture refs
 //    are local.
 // 2. THREE MODES ONLY: expanded (locked open), collapsed (icon-only), auto (hover reveal)
-// 3. Width bounds: MIN_W (240px) <= width <= MAX_W (520px), COLLAPSED_W = 64px
+// 3. Width bounds are DATA (organize-the-sidebar read-data/sidebar-size.json): MIN_W <= width <= MAX_W, and the
+//    width it starts at and resets to is SIDEBAR_DEFAULT_W. COLLAPSED_W = 64px
 // 4. Delegates ALL content rendering to SidebarContent
 // 5. Glassmorphism: bg-[var(--glass-bg-primary)] base, border-[var(--border-primary)]
 // 6. Floating drag/resize: ref-based imperative (zero re-renders during move)
@@ -66,7 +67,8 @@ import {
 import byWidth from '../read-data/sidebar-settings-by-width.json';
 import { readSidebarWidthRows, sidebarAllows, sidebarSettingsAtWidth, SIDEBAR_SWITCHES } from '../read-data/sidebar-settings';
 import { dockedListFit } from '../read-data/docked-list-fit';
-import { DEFAULT_SIDEBAR_PLACEMENT_STATE } from 'trillion-workshop/tools/organize-the-sidebar/read-data/read-sidebar-placement.ts';
+import { clampSidebarWidth, DEFAULT_SIDEBAR_PLACEMENT_STATE, SIDEBAR_DEFAULT_W, SIDEBAR_MAX_W as MAX_W, SIDEBAR_MIN_W as MIN_W } from 'trillion-workshop/tools/organize-the-sidebar/read-data/read-sidebar-placement.ts';
+import sidebarWords from '../read-data/sidebar-words.json';
 import bar from '../read-data/sidebar-bar.json';
 import { SidebarBar, SidebarMoveGrip } from './SidebarBar';
 import { usePlaceDrag, type PlaceTarget } from './place-drag';
@@ -77,8 +79,6 @@ import { claimSeam, useSeamSlot } from '../../ui/show/seam-slots';
 // ============================================================================
 
 const REVEAL_HOTZONE = 28;
-const MIN_W = 180;
-const MAX_W = 520;
 const COLLAPSED_W = 64;
 // The window's sidebar collapses to its thin bar (read-data/sidebar-bar.json), on an edge or on a seam.
 const BAR_W = bar.thickness_px;
@@ -130,7 +130,7 @@ function windowEdgeInset(edge: WindowEdge, gap: number): string {
 }
 
 function clampSidebarSize(value: number): number {
-  return Math.min(MAX_W, Math.max(MIN_W, value));
+  return clampSidebarWidth(value);
 }
 
 /** Suppress new selection only while a sidebar pointer gesture is active. */
@@ -227,10 +227,9 @@ function ResizeHandle({
   };
 
   // The hit target sits across the narrow seam between the visible sidebar
-  // frame and the first arrangement pane. The rail itself stays quiet until
-  // the seam is hovered or a keyboard user focuses the separator.
-  // SplitDividers owns pointer tracking, keyboard input, bounds announcements,
-  // and the quiet hover-revealed rail used by screen arrangement as well.
+  // frame and the first arrangement pane. The rail draws at rest, so the person can see where the sidebar resizes;
+  // it strengthens on hover or focus.
+  // SplitDividers owns pointer tracking, keyboard input and bounds announcements.
   // The reveal group is THIS seam wrapper, never the sidebar frame: a frame-wide
   // group would also reveal every row's HoverRevealItem inside the sidebar.
   return (
@@ -244,8 +243,8 @@ function ResizeHandle({
     >
       <SplitDividers
         axis={isVertical ? 'x' : 'y'}
-        revealed={false}
-        label={`Resize ${thing}`}
+        revealed
+        label={sidebarWords.resize.replace('{thing}', thing)}
         value={{ now: value, min: MIN_W, max: MAX_W }}
         dividers={[{
           leftIndex: 0,
@@ -1088,7 +1087,7 @@ export function SidebarFrame({
             key={edge}
             axis={axis}
             revealed
-            label={`Resize ${thing}`}
+            label={sidebarWords.resize.replace('{thing}', thing)}
             value={{ now: axis === 'x' ? floatWidth : floatRect.h, min: axis === 'x' && isCollapsed ? COLLAPSED_W : MIN_FLOAT, max: axis === 'x' ? bounds().width : bounds().height }}
             dividers={[divider]}
             onResizeStart={() => startFloatResizeFromDivider(edge)}
@@ -1290,7 +1289,7 @@ export function SidebarFrame({
               endDockResize();
             }}
             onResizeStep={(direction) => {
-              const nextWidth = direction === 'reset' ? 280 : direction === 'minimum' ? MIN_W : direction === 'maximum' ? MAX_W : width + (direction === 'increase' ? 16 : -16);
+              const nextWidth = direction === 'reset' ? SIDEBAR_DEFAULT_W : direction === 'minimum' ? MIN_W : direction === 'maximum' ? MAX_W : width + (direction === 'increase' ? 16 : -16);
               setWidth(clampSidebarSize(nextWidth));
             }}
           />}
@@ -1403,7 +1402,7 @@ export function SidebarFrame({
             endDockResize();
           }}
           onResizeStep={(direction) => {
-            const nextSize = direction === 'reset' ? 280 : direction === 'minimum' ? MIN_W : direction === 'maximum' ? MAX_W : width + (direction === 'increase' ? 16 : -16);
+            const nextSize = direction === 'reset' ? SIDEBAR_DEFAULT_W : direction === 'minimum' ? MIN_W : direction === 'maximum' ? MAX_W : width + (direction === 'increase' ? 16 : -16);
             setWidth(clampSidebarSize(nextSize));
           }}
         />}

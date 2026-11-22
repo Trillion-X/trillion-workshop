@@ -1,0 +1,4 @@
+{
+  "_what": "Words the window's sidebar says about itself (show/DesktopSidebar.tsx). `resize` names its resize handle; {thing} is what the frame holds in words ('sidebar').",
+  "resize": "Resize {thing}"
+}
