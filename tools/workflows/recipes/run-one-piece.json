@@ -388,6 +388,7 @@
         "wakes": [
           {
             "id": "a-piece-to-run",
+            "needs_input": ["kept_in.database"],
             "on": {
               "fact": {
                 "from": [

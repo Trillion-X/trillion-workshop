@@ -42,6 +42,7 @@
         "wakes": [
           {
             "id": "a-tool-ran",
+            "needs_input": ["kept_in.database"],
             "on": {
               "fact": {
                 "kind": "tool-ran",

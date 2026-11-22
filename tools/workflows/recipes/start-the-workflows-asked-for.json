@@ -150,6 +150,7 @@
         "wakes": [
           {
             "id": "start-asked-every-ten-minutes",
+            "needs_input": ["database"],
             "on": {
               "fact": {
                 "from": [

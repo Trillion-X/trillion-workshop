@@ -810,6 +810,7 @@
         "wakes": [
           {
             "id": "at-its-time",
+            "needs_input": ["kept_in.database"],
             "on": {
               "fact": {
                 "from": [

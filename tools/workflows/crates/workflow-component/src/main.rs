@@ -1592,6 +1592,46 @@ mod tests {
         assert_ne!(step_event(&read("p1"), "s"), step_event(&read("p2"), "s"));
     }
 
+    // A listed recipe's wake that hears no chosen fact (whose fact carries no kept_in) runs only with a database its switch
+    // names: each declares it (`needs_input`, a path the shared reader reads), so the engine refuses a switch without it
+    // instead of taking it and failing every fact it hears. Nov 22 2026, 6:11 AM CST: the listed wakes moved onto this
+    // component and every fact of the ones switched with no kept_in failed in about 100 ms and was let go.
+    #[test]
+    fn every_listed_wake_that_hears_no_chosen_fact_needs_its_database() {
+        let rows: Value = serde_json::from_str(include_str!("../../../tool-rows.json")).unwrap();
+        let source = rows["records"].as_array().unwrap().iter().map(|record| &record["payload"])
+            .find(|row| row["kind"] == "tool-row-source" && row["list"]["records"]["kind"] == "workflow-recipe").unwrap().clone();
+        let switchable: Vec<String> = source["listed_input"]["read_definition"]["with"]["database"].as_array().unwrap().iter()
+            .filter_map(|path| path.as_str()?.strip_prefix("input.")).filter(|path| !path.starts_with("fact.")).map(str::to_owned).collect();
+        assert!(!switchable.is_empty());
+        let folder = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../recipes");
+        let mut checked = 0;
+        for entry in std::fs::read_dir(&folder).unwrap() {
+            let path = entry.unwrap().path();
+            if path.extension().and_then(|e| e.to_str()) != Some("json") || path.file_name().unwrap() == "workflows.json" { continue; }
+            let Ok(kept) = serde_json::from_str::<Value>(&std::fs::read_to_string(&path).unwrap()) else { continue };
+            for record in kept["records"].as_array().into_iter().flatten() {
+                let payload = &record["payload"];
+                for wake in payload["wakes"].as_array().into_iter().flatten() {
+                    if wake["on"]["fact"]["kind"] == "workflow-chosen" || wake["on"]["fact"].is_null() { continue; }
+                    let needs: Vec<&str> = wake["needs_input"].as_array().map(|all| all.iter().filter_map(Value::as_str).collect()).unwrap_or_default();
+                    assert!(needs.iter().any(|need| switchable.iter().any(|path| path == need)),
+                        "{} wake {} hears {} and needs one of {switchable:?}", payload["id"], wake["id"], wake["on"]["fact"]["kind"]);
+                    let mut input = source["listed_input"].as_object().cloned().unwrap();
+                    input.insert("row".into(), payload["id"].clone());
+                    let mut switch = json!({});
+                    for need in &needs { set_at(&mut switch, need, json!("rows_db")); }
+                    for (field, value) in switch.as_object().cloned().unwrap() { input.insert(field, value); }
+                    let fact = json!({ "kind": wake["on"]["fact"]["kind"], "event_id": "e", "payload": {} });
+                    let run = the_run(&json!({ "input": input, "cause": { "key": "k", "detail": fact }, "context": {} })).0;
+                    assert!(reader_resolves(&run), "{} wake {}: its needed input lets the reader find the database", payload["id"], wake["id"]);
+                    checked += 1;
+                }
+            }
+        }
+        assert!(checked > 0, "the recipes folder holds listed wakes");
+    }
+
     // A run keeps two steps of its line for recording its end: a pass hands out its next step only while that leaves them.
     #[test]
     fn a_run_keeps_the_steps_its_end_record_needs() {

@@ -504,6 +504,7 @@
         "wakes": [
           {
             "id": "every-10-minutes",
+            "needs_input": ["kept_in.database"],
             "on": {
               "fact": {
                 "from": [

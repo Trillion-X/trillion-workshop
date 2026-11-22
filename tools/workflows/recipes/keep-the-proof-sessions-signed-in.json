@@ -116,6 +116,7 @@
         "wakes": [
           {
             "id": "every-morning",
+            "needs_input": ["kept_in.database"],
             "on": {
               "fact": {
                 "from": [

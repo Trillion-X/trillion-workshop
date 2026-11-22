@@ -25,7 +25,7 @@
     "tools/workflows/ask-words.json",
     "tools/workflows/run-end.json"
   ],
-  "fingerprint": "b7f9518f769e241a745a6c1f0a88a8d2f2c6a60fe0da8bd9aca8ed263fc31802",
+  "fingerprint": "23c8fbfa2fb48d4ef06b1dcf3232449b937b03903e21bba36e9369d79ad29d33",
   "workspace_commits": {
     "../../trillion-rust/crates": "ea7967f600eaeaf32108a1db55daee4312788fae"
   },

@@ -159,6 +159,7 @@
         "wakes": [
           {
             "id": "every-fifteen-minutes",
+            "needs_input": ["kept_in.database"],
             "on": {
               "fact": {
                 "from": [

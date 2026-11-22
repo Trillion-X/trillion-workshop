@@ -42,6 +42,7 @@
         "wakes": [
           {
             "id": "a-wake-stopped",
+            "needs_input": ["kept_in.database"],
             "on": {
               "fact": {
                 "kind": "wake-failed",
@@ -80,6 +81,7 @@
           },
           {
             "id": "a-waiter-is-held-back",
+            "needs_input": ["kept_in.database"],
             "on": {
               "fact": {
                 "kind": "something-showed-up",

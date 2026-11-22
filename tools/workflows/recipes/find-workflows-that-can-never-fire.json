@@ -80,6 +80,7 @@
         "wakes": [
           {
             "id": "daily",
+            "needs_input": ["kept_in.database"],
             "on": {
               "fact": {
                 "from": [

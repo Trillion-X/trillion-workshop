@@ -20,6 +20,7 @@
         "wakes": [
           {
             "id": "a-row-changed",
+            "needs_input": ["kept_in.database"],
             "on": {
               "fact": {
                 "kind": "something-changed",

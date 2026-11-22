@@ -79,6 +79,7 @@
         "wakes": [
           {
             "id": "hourly",
+            "needs_input": ["kept_in.database"],
             "on": {
               "fact": {
                 "kind": "due-time",

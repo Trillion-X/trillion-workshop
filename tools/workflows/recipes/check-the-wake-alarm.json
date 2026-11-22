@@ -42,6 +42,7 @@
         "wakes": [
           {
             "id": "a-wake-that-fails",
+            "needs_input": ["kept_in.database"],
             "on": {
               "fact": {
                 "kind": "check-the-wake-alarm",
@@ -60,6 +61,7 @@
           },
           {
             "id": "an-alarm-that-fails",
+            "needs_input": ["kept_in.database"],
             "on": {
               "fact": {
                 "kind": "wake-failed",

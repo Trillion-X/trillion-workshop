@@ -245,6 +245,7 @@
     "wakes": [
      {
       "id": "weekly",
+      "needs_input": ["kept_in.database"],
       "budget": {
        "steps": 6,
        "wall_ms": 900000
