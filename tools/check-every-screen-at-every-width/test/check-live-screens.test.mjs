@@ -21,6 +21,7 @@ const FIXTURES = {
   '/broken': pageOf('<h1>Broken</h1><img src="/missing.png" alt="">', `console.error('the fixture failed on purpose');`),
   '/sends-to-sign-in': pageOf('<h1>Loading</h1>', `setTimeout(() => location.replace('/sign-in'), 300);`),
   '/sign-in': pageOf('<h1>Sign in or create an account</h1>', ''),
+  '/asks-a-limited-call': pageOf('<h1>Board</h1>', `fetch('/limited').catch(() => {});`),
   '/late': pageOf('<h1 id="late" hidden>Late</h1>', `setTimeout(() => { document.getElementById('late').hidden = false; }, 1200);`),
 };
 
@@ -31,6 +32,7 @@ before(async () => {
   server = createServer((request, response) => {
     const body = FIXTURES[new URL(request.url, 'http://fixture').pathname];
     if (request.url === '/missing.png') { response.writeHead(404); response.end(); return; }
+    if (request.url === '/limited') { response.writeHead(429, { 'retry-after': '12' }); response.end(); return; }
     if (request.url === '/hop-through') { response.writeHead(302, { location: '/landed' }); response.end(); return; }
     if (request.url === '/private') {
       const signedIn = /(^|; )session=held-value(;|$)/.test(request.headers.cookie ?? '');
@@ -258,4 +260,9 @@ test('the signed-in entry refuses a page with no sign_in before a browser starts
   ], views: ['desktop'] }, undefined, { keep: recorder().keep, readHeld }),
   error => error.code === 'refused' && /forgot/.test(error.message) && /held-session/.test(error.message) && !/\bin,/.test(error.message));
   assert.equal(read, false, 'no session is read for a refused run');
+});
+
+test('a refused request that says when to ask again is listed with its Retry-After', async () => {
+  const answer = await checkLiveScreens({ pages: [{ id: 'limited', url: `${origin}/asks-a-limited-call` }], views: ['desktop'] }, undefined, { keep: recorder().keep });
+  assert.ok(answer.pages[0].views[0].new.failed_requests.some(text => text.endsWith('/limited 429 retry-after 12')), JSON.stringify(answer.pages[0].views[0].new.failed_requests));
 });

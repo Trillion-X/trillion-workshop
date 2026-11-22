@@ -224,7 +224,9 @@ function listen(page, errors, failed) {
   page.on('requestfailed', request => failed.push(clip(`${request.method()} ${addressOf(request.url())} ${request.failure()?.errorText ?? 'failed'}`)));
   page.on('response', response => {
     const request = response.request();
-    if (response.status() >= 400 && !request.isNavigationRequest()) failed.push(clip(`${request.method()} ${addressOf(response.url())} ${response.status()}`));
+    // A refusal that says when to ask again (429, 503) carries its Retry-After, so a limit's wait can be read from the answer.
+    const after = response.headers()['retry-after'];
+    if (response.status() >= 400 && !request.isNavigationRequest()) failed.push(clip(`${request.method()} ${addressOf(response.url())} ${response.status()}${after ? ` retry-after ${after}` : ''}`));
   });
 }
 
