@@ -47,7 +47,7 @@ import type {Listing} from '../listing-card';
 import {later} from '../load-later/later';
 import type {NotificationAction, NotificationRecord} from './notification-center';
 import {relativeWhen} from '../relative-time/relative-time';
-import {sanitizeErrorText} from 'trillion-workshop/tools/ui/show/safe-error-card/sanitize-error-text.ts';
+import {rawWordsOf, shownWords} from './notification-words';
 
 // The row arrives with the first notification drawn, not with the page (../load-later/later.ts).
 const ListingCard = later(() => import('../listing-card/ListingCard'), module => module.ListingCard);
@@ -86,9 +86,7 @@ export function notificationListing(record: NotificationRecord, when?: string, c
   const percent = measured ? Math.round(Math.max(0, Math.min(1, value)) * 100) : null;
   const states = (record.chips ?? []).filter(chip => glanceTone(chip.tone) && glanceTone(chip.tone) !== glanceTone(kindsData.fallback.tone));
   const names = (record.chips ?? []).filter(chip => !states.includes(chip));
-  const gate = record.kind ? kinds[record.kind]?.gate_words : undefined;
-  const title = gate ? sanitizeErrorText(record.title, gate.title) : record.title;
-  const detail = gate && record.detail ? sanitizeErrorText(record.detail, gate.detail) : record.detail;
+  const {title, detail} = shownWords(record, kinds);
   const text = [record.running ? record.progress?.label : undefined, detail].filter(Boolean).join(' · ');
   const buttons = record.actions.filter(action => !action.press && !action.input);
   // A face shows who is at it by turning; without one, work going on shows on the kind's tile (a ring or the loading mark).
@@ -157,6 +155,19 @@ function AnswerInPlace({action, run}: {action: NotificationAction; run: (text: s
   );
 }
 
+/** The raw words the gate kept from a notification, behind one press: the only place an engine's words are shown. */
+function NotificationDetails({raw}: {raw: string}) {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger render={<Button type="button" size="sm" variant="ghost" />}>Details</PopoverTrigger>
+      <PopoverPopup side="bottom" align="end" sideOffset={6} portalProps={{className: 'coss-ui'}} className="notification-details" data-slot="notification-details">
+        <pre className="notification-details-text">{raw}</pre>
+      </PopoverPopup>
+    </Popover>
+  );
+}
+
 export function NotificationRow({record, onDismiss, when, controls, count, className}: NotificationRowProps) {
   const busy = React.useRef(false);
   const [now, setNow] = React.useState(() => Date.now());
@@ -190,6 +201,7 @@ export function NotificationRow({record, onDismiss, when, controls, count, class
       onOpen={press >= 0 ? () => { void run(press); } : undefined}
       controls={<>
         {answers.map(action => <AnswerInPlace key={action.id ?? action.label} action={action} run={text => answer(action, text)} />)}
+        {rawWordsOf(record, kinds) ? <NotificationDetails raw={rawWordsOf(record, kinds) ?? ''} /> : null}
         {controls}
         {/* Silence or hide notices like this one (for an hour, until tomorrow, always, on this device), from the page's
             show rules; the menu draws nothing until the rules are loaded. */}
