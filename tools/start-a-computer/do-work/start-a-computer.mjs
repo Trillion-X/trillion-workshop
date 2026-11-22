@@ -21,7 +21,7 @@ import { fill } from './fill-fields.mjs';
 import { keyState, keyDifferences, sealTheKeys, removeThePlainKeys } from './keep-the-key-sealed.mjs';
 import { readAll, writeAll } from './files-in-one-go.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { readFileSync, readdirSync, statSync, createReadStream } from 'node:fs';
+import { readFileSync, readdirSync, realpathSync, statSync, createReadStream } from 'node:fs';
 import { isAbsolute, dirname, relative, resolve as resolvePath } from 'node:path';
 import { spawn, execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -658,9 +658,28 @@ export function readPages(request) {
   return walk(folder);
 }
 
+/** A unit may declare `pages_hosts`: the host names whose pages it was built with. Each host's link in the request's
+ * pages_folder (realpath) must point into the unit's `source.commit`, so the pages and the program that serves them switch
+ * together; a missing link, or one pointing elsewhere, refuses the apply before any write. A unit without the field is not checked. */
+export function checkPagesFollowCommit(request) {
+  for (const unit of runsOf(request).units.filter(given => given.pages_hosts !== undefined)) {
+    const { unit: name, pages_hosts: hosts } = unit, commit = unit.source?.commit ?? '';
+    if (!Array.isArray(hosts) || !hosts.every(host => typeof host === 'string' && /^[A-Za-z0-9.-]+$/.test(host))) throw refused(`${name} pages_hosts is a list of host names.`);
+    if (!/^[0-9a-f]{40}$/.test(commit)) throw refused(`${name} pages_hosts needs source.commit, the full commit id its pages were built with.`);
+    for (const host of hosts) {
+      if (request.pages_folder === undefined) throw refused(`${name} pages_hosts names ${host}: the request needs pages_folder, the folder holding that host's link.`);
+      const link = `${absolute(request.pages_folder, 'pages_folder')}/${host}`;
+      let target;
+      try { target = realpathSync(link); } catch { throw refused(`${host} has no link at ${link} in pages_folder; ${name} pages_hosts needs it to point at source.commit ${commit}. Apply refused before any write.`); }
+      if (!target.includes(commit)) throw refused(`${host} pages: ${link} points at ${target}, not ${name}'s source.commit ${commit}. Apply refused before any write.`);
+    }
+  }
+}
+
 /** Apply a computer's row to the computer the request names (`machine.address`, `ssh`), already running: the same
  * apply a start does, with the values its units name by vault name (`held`). */
 export async function applyAComputerRow(request, { held = {}, run = onMachine, fetchImpl = fetch } = {}) {
+  checkPagesFollowCommit(request);
   const applied = await applyWhatItRuns({ ssh: request.ssh, address: request.machine.address }, runsOf(request), run, held, { pages: readPages(request), computer: request.machine.name });
   const names = await keepTheNames(request, { held, fetchImpl, apply: true });
   return names.length ? { ...applied, names } : applied;
