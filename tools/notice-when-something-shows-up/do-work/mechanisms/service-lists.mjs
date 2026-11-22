@@ -96,6 +96,8 @@ export function at(value, path) {
 }
 
 const fingerprint = (item) => createHash("sha256").update(JSON.stringify(item)).digest("base64url").slice(0, 16);
+/** The print rule of a state kept before states named their rule: the whole thing. */
+const WHOLE_THING = fingerprint(null);
 
 function isoOf(value, unit) {
   if (value === undefined || value === null || value === "") return null;
@@ -191,6 +193,7 @@ export async function watchForTransitions(settings, handlers) {
   const keepState = handlers.keepState ?? (async () => {});
   const credential = handlers.credential ?? readGivenCredential(handlers, own.credential_fd);
   let state = handlers.state?.seen ? handlers.state : null;
+  const printRule = fingerprint(Array.isArray(own.shape.print) ? own.shape.print : null);
   const now = () => handlers.now?.() ?? Date.now();
   const wait = (ms) => new Promise((resolve) => {
     if (ms <= 0 || signal?.aborted) return resolve();
@@ -202,12 +205,18 @@ export async function watchForTransitions(settings, handlers) {
     // the next read waits out the rest of look_again_seconds instead of reading at once. On Nov 21 2026 seven treg
     // waiters with look_again_seconds 1800 read about every 15 minutes, once per restart, at twice the intended cost.
     if (Number.isFinite(state?.read_at)) await wait(state.read_at + own.look_again_ms - now());
+    // A kept state's fingerprints were made under one print rule (shape.print, or the whole thing when it names none).
+    // A state made under another rule is read again once without telling, so naming or changing print never tells
+    // every thing as changed. Nov 22 2026: the TidyCal waiter told 16 old bookings as moved when their booking type was
+    // edited at 7:36 PM CST (the booking type sits inside each booking), and naming print alone would have told all 106.
+    let reseed = state !== null && (state.print_rule ?? WHOLE_THING) !== printRule;
     while (!signal?.aborted) {
       const { items, whole } = await readList(own, credential, handlers.fetch ?? fetch);
       const readAt = new Date(now());
       const read_at = readAt.getTime();
-      if (state === null && !own.tell_what_is_there_at_first) {
-        state = { seen: compare({ own, seen: {}, items, whole: false, readAt }).now, read_at };
+      if ((state === null && !own.tell_what_is_there_at_first) || reseed) {
+        reseed = false;
+        state = { seen: compare({ own, seen: {}, items, whole: false, readAt }).now, read_at, print_rule: printRule };
         await keepState(state);
       } else {
         const seen = { ...(state?.seen ?? {}) };
@@ -217,11 +226,11 @@ export async function watchForTransitions(settings, handlers) {
           const next = { ...seen };
           if (one.print === null) delete next[one.key]; else next[one.key] = one.print;
           const told = await handlers.onTransition({ condition: "became-reachable", observed_identity: { where: own.where, place: one.detail.place },
-            event_key: `${own.where}:${one.detail.place}:${one.key}:${one.detail.change}:${one.print ?? one.detail.at}`, state: { seen: next, read_at }, detail: one.detail });
+            event_key: `${own.where}:${one.detail.place}:${one.key}:${one.detail.change}:${one.print ?? one.detail.at}`, state: { seen: next, read_at, print_rule: printRule }, detail: one.detail });
           if (told === false) break;
           Object.assign(seen, next); for (const id of Object.keys(seen)) if (!(id in next)) delete seen[id];
         }
-        state = { seen, read_at };
+        state = { seen, read_at, print_rule: printRule };
         await keepState(state);
       }
       if (signal?.aborted) return;
