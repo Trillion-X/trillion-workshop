@@ -3,7 +3,7 @@
   "records": [
     {
       "payload": {
-        "source_kept_at": "2026-11-21 22:36:35.10989+00",
+        "source_kept_at": "2026-11-22 00:20:22.828151+00",
         "kind": "workflow-recipe",
         "id": "workflow:run-one-piece",
         "label": "Run one product piece: choose its branch workflows by kind, start each, cite it",
@@ -184,7 +184,7 @@
                   "config": {
                     "name": "tool:run-sql-in-my-database",
                     "input": {
-                      "sql": "INSERT INTO piece_citations (product_id, piece, chosen_workflow, run_ref, output_ref) VALUES ($1::text, $2::text, $3::text, $4::text, $5::text)",
+                      "sql": "INSERT INTO piece_citations (product_id, piece, chosen_workflow, run_ref, output_ref) VALUES ($1::text, $2::text, $3::text, $4::text, $5::text) ON CONFLICT (run_ref, chosen_workflow) DO NOTHING",
                       "params": [
                         {
                           "$kind": "binding",
@@ -404,7 +404,8 @@
               "start_at": "read-candidates"
             }
           }
-        ]
+        ],
+        "fires_when": []
       }
     }
   ]
