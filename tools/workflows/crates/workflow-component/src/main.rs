@@ -130,11 +130,14 @@ fn effect_of(waiting: &Value, told: Value, doors: &BTreeSet<String>, workflow: &
 /// The fields of a run that are the run's own, not the workflow's input.
 /// `fill_input` is the reader of what a bare start leaves out (workflow_engine::fill_input), and `filled_from` what it filled.
 /// `uses_missing` lists the workflows the run names that no `uses` holds, which its reader reads too.
-const KEPT: [&str; 15] = ["row", "definition", "definitions", "answers", "start_at", "started_at", "run", "refused", "recipe",
-    "read_definition", "definition_may_move", "started_by", "fill_input", "filled_from", "uses_missing"];
+/// `on_end` is the run's end recorder (`end_effect`), and `ended` the failure a run is telling it before it fails.
+const KEPT: [&str; 17] = ["row", "definition", "definitions", "answers", "start_at", "started_at", "run", "refused", "recipe",
+    "read_definition", "definition_may_move", "started_by", "fill_input", "filled_from", "uses_missing", "on_end", "ended"];
 
 /// The step a definition is read under when its reader names none.
 const READ_STEP: &str = "read-definition";
+/// The step a failing run tells its `on_end` recorder under, before it fails.
+const END_STEP: &str = "record-the-end";
 /// Where this pass holds the reader's answer it was told: taken out before anything is carried.
 const READ: &str = "definition_read";
 
@@ -169,6 +172,11 @@ fn pending_fill(run: &Map<String, Value>, refused: &BTreeMap<String, String>, co
 
 /// Hands out the one step a pass waits on before anything walks (a reader's), told back to this run under `step`.
 fn hand_out(run: &Map<String, Value>, workflow: &str, step: &str, tool: &str, asks: Value) {
+    println!("{}", handed_out(run, workflow, step, tool, asks));
+}
+
+/// What `hand_out` prints: the paused pass with its one waiting step and the effect that runs it.
+fn handed_out(run: &Map<String, Value>, workflow: &str, step: &str, tool: &str, asks: Value) -> Value {
     let run_id = run.get("run").and_then(Value::as_str).unwrap_or("run").to_string();
     let told = json!({ "source": ANSWERED, "event_id": format!("{run_id}:{step}"),
         "payload": { "workflow": workflow, "run": run, "step": step, "for": tool } });
@@ -176,8 +184,49 @@ fn hand_out(run: &Map<String, Value>, workflow: &str, step: &str, tool: &str, as
     let effect = effect_of(&waiting, told.clone(), &door_asks(), workflow);
     let mut shown = waiting.clone();
     shown["told_as"] = told;
-    println!("{}", json!({ "result": { "status": "paused", "workflow": workflow, "run": run_id, "steps": {}, "waiting": [shown] },
-        "wake_effects": [effect] }));
+    json!({ "result": { "status": "paused", "workflow": workflow, "run": run_id, "steps": {}, "waiting": [shown] }, "wake_effects": [effect] })
+}
+
+/// The one run of the run's `on_end` tool its end asks for, `{tool, input, with?}`: its input with each value `with` names
+/// ({path in the input: run, status, workflow or why}) set where it says, so the place that keeps the run's row (the
+/// wf_runs row its reader wrote at the start) learns how it ended. None while the run is paused, or when it names none.
+fn end_effect(run: &Map<String, Value>, status: &str, workflow: &str, why: Option<&str>) -> Option<Value> {
+    let recorder = run.get("on_end").filter(|recorder| recorder["tool"].as_str().is_some_and(|tool| !tool.is_empty()))?;
+    if status == "paused" { return None; }
+    // A run that ends well has no why: a recorder reads it through `with_if_given`, which sets null in its place.
+    let known = json!({ "run": run.get("run").cloned().unwrap_or(json!("run")), "status": status, "workflow": workflow, "why": why });
+    let (tool, input) = workflow_engine::fill_input::ask(recorder, &known).ok()?;
+    Some(json!({ "wake": { "tool": tool, "input": input } }))
+}
+
+/// A run that fails tells its `on_end` recorder first, so its row says failed and why: the recorder is the one step handed
+/// out (`END_STEP`), with the failure held as `ended`, and the pass its answer starts fails with those words (the_run). A
+/// run that names no recorder, or has told it already, fails at once. Before this, a run whose read was refused or too
+/// large ended with exit 1 and its wf_runs row said started for ever (School's run at 10:11 PM CST Nov 21 2026).
+fn end_failed(run: Map<String, Value>, workflow: &str, why: String) -> ! {
+    match ending(run, workflow, &why) {
+        Some(out) => { println!("{out}"); std::process::exit(0) }
+        None => fail(why),
+    }
+}
+
+/// The pass a failing run prints to tell its recorder (`end_failed`), or None when it names none or has told it already.
+fn ending(mut run: Map<String, Value>, workflow: &str, why: &str) -> Option<Value> {
+    if run.get("ended").is_some() { return None; }
+    let effect = end_effect(&run, "failed", workflow, Some(why))?;
+    run.insert("ended".into(), json!(why));
+    let tool = effect["wake"]["tool"].as_str().unwrap_or_default().to_string();
+    Some(handed_out(&run, workflow, END_STEP, &tool, effect["wake"]["input"].clone()))
+}
+
+/// The words a run fails with when its recorder's answer comes back (`END_STEP`): the failure it held, and the recorder's
+/// own error when it could not record it.
+fn ended_why(run: &Map<String, Value>, told: &Value) -> String {
+    let why = run.get("ended").and_then(Value::as_str).unwrap_or("the workflow failed").to_string();
+    match told.get("error") {
+        Some(error) => format!("{why} (its end was not recorded: {})", error.as_str().unwrap_or_default()),
+        None => why,
+    }
 }
 
 /// Whether the run was handed its definitions themselves.
@@ -343,6 +392,7 @@ fn the_run(given: &Value) -> (Map<String, Value>, BTreeMap<String, String>) {
         if let Some(Value::Object(kept)) = run.get("refused") {
             for (step, why) in kept { refused.insert(step.clone(), why.as_str().unwrap_or_default().to_string()); }
         }
+        if step == END_STEP { fail(ended_why(&run, told)); }
         // What the input left out is filled from the reader's answer (workflow_engine::fill_input), which is never held:
         // the filled fields are the run's input from here on, and `filled_from` says which row each came from.
         if told.get("error").is_none() && fill_step(&run).as_deref() == Some(step.as_str()) {
@@ -470,9 +520,10 @@ fn read_uses(run: &mut Map<String, Value>, step: &str, answer: &Value, held: &Va
 }
 
 /// The definitions a read run walks: the one its reader answered (held to its pin), every workflow in its uses at any
-/// depth, and the workflows the run names that no uses holds, read from the person's rows by the same reader in the same
-/// ask. None when the answer shows workflows not yet asked for: the run then names them (`uses_missing`) and its reader is
-/// asked again with them. A workflow no place holds is left to the step that names it, which fails naming where it looked.
+/// depth, and the workflows from the person's rows its walks have reached so far (`uses_missing`), read by the same reader
+/// in the same ask. A workflow the run names that nothing holds is read only once a walk reaches it (missed_to_read), so a
+/// run that uses many large rows never asks for them all in one answer. A workflow no place holds is left to the step that
+/// names it, which fails naming where it looked.
 fn read_definitions(run: &mut Map<String, Value>, recipe: &str, step: &str, answer: &Value) -> Result<Option<Vec<Value>>, String> {
     let held_uses = run.get("answers").and_then(|answers| answers.get(step)).map(|held| held["uses"].clone()).unwrap_or(Value::Null);
     let mut definition = pinned_definition(run, recipe, step, answer)?;
@@ -482,14 +533,7 @@ fn read_definitions(run: &mut Map<String, Value>, recipe: &str, step: &str, answ
     for used in read.into_iter().filter(|d| !d["id"].as_str().is_some_and(|id| own.contains(id))) {
         definition["uses"].as_array_mut().unwrap().push(used);
     }
-    let all = workflow_engine::uses::with_uses(definition)?;
-    let asked: BTreeSet<String> = run.get("uses_missing").and_then(Value::as_array).into_iter().flatten().filter_map(Value::as_str).map(str::to_owned).collect();
-    let missing = workflow_engine::uses::missing(&all);
-    if run.get("read_definition").is_some_and(|reader| reader["uses_ids_at"].is_string()) && !missing.is_subset(&asked) {
-        run.insert("uses_missing".into(), json!(asked.union(&missing).collect::<Vec<_>>()));
-        return Ok(None);
-    }
-    Ok(Some(all))
+    Ok(Some(workflow_engine::uses::with_uses(definition)?))
 }
 
 /// Whether a failed walk missed workflows (the engine's `definitions_missed`) that the run's reader has not been asked for
@@ -537,7 +581,11 @@ fn main() {
         (false, Some(recipe)) => {
             let step = reader_step(&run).unwrap_or_else(|| fail(format!(
                 "{recipe} was named with no definition: hand in definition, or read_definition with a recipe")));
-            if let Some(why) = refused.get(&step) { fail(format!("the definition of {recipe} was not read: {why}")); }
+            if let Some(why) = refused.get(&step) {
+                let asked = run.get("uses_missing").and_then(Value::as_array).map(|ids| ids.len()).unwrap_or(0);
+                let with = if asked > 0 { format!(" with the {asked} workflows it uses") } else { String::new() };
+                end_failed(run.clone(), &recipe, format!("the definition of {recipe}{with} was not read: {why}"));
+            }
             // A caller that read it itself hands the reader's answer as the step's answer; it is used, never held.
             let given_read = run.get("answers").and_then(|answers| answers.get(&step))
                 .filter(|answer| answer.get("blake3").is_none()).cloned();
@@ -546,10 +594,11 @@ fn main() {
                 Some(answer) if skipped_by(&run["read_definition"], &answer).is_some() => {
                     let why = skipped_by(&run["read_definition"], &answer).unwrap_or_default();
                     let run_id = run.get("run").and_then(Value::as_str).unwrap_or("run").to_string();
-                    println!("{}", json!({ "result": { "status": "skipped", "why": why, "workflow": recipe, "run": run_id, "steps": {} } }));
+                    let effects: Vec<Value> = end_effect(&run, "skipped", &recipe, Some(&why)).into_iter().collect();
+                    println!("{}", json!({ "result": { "status": "skipped", "why": why, "workflow": recipe, "run": run_id, "steps": {} }, "wake_effects": effects }));
                     return;
                 }
-                Some(answer) => match read_definitions(&mut run, &recipe, &step, &answer).unwrap_or_else(|why| fail(why)) {
+                Some(answer) => match read_definitions(&mut run, &recipe, &step, &answer).unwrap_or_else(|why| end_failed(run.clone(), &recipe, why)) {
                     Some(all) => all,
                     None => {
                         let reader = run["read_definition"].clone();
@@ -593,6 +642,19 @@ fn main() {
         definitions, &id, run.get("input").cloned().unwrap_or(json!({})), &actor, &product_word, &started, host.clone()))
         .unwrap_or_else(|error| fail(error));
     if !refused.is_empty() { run.insert("refused".into(), json!(refused)); }
+    // A walk that reached a workflow nothing held (one the run uses, or a family member a step chose at run time) reads it
+    // with the definition, by the same reader, and walks again from the held answers: whatever this pass reached, failed or
+    // routed is let go and walked again with it, so nothing it told or handed out is kept. Only the workflows a walk
+    // reaches are read, never every one its uses name, so one read stays under the engine's answer bound (School's run at
+    // 10:11 PM CST Nov 21 2026 asked for all 8 of its used rows at once: 142,901 bytes, over the 131,072 an answer may be).
+    if missed_to_read(&mut run, &walked) {
+        let recipe = recipe_of(&run).unwrap_or_else(|| id.clone());
+        let reader = run["read_definition"].clone();
+        let tool = reader["tool"].as_str().unwrap_or_default().to_string();
+        let step = reader_step(&run).unwrap_or_else(|| READ_STEP.to_string());
+        hand_out(&run, &recipe, &step, &tool, reader_ask(&reader, &recipe, &run));
+        return;
+    }
     // What this pass told is held as answered, so the next pass replays it and tells nothing again.
     let told = host.told.lock().unwrap().clone();
     for (step, answer, _) in &told { run.entry("answers").or_insert_with(|| json!({}))[step] = answer.clone(); }
@@ -619,21 +681,13 @@ fn main() {
     if let Some(filled) = run.get("filled_from") { result["filled_from"] = filled.clone(); }
     // A walk that failed is a failed run: it ends with exit 1 and the engine's words, so the wake that started it is
     // marked failed (and tells its failed fact) instead of ran, and whoever waits on its told answer hears the failure.
-    // A walk that failed on a workflow a step chose at run time and nothing held (a family member added by its row) reads
-    // it with the definition, by the same reader, and walks again from the held answers, instead of failing.
-    if walked["status"] == "failed" && missed_to_read(&mut run, &walked) {
-        let recipe = recipe_of(&run).unwrap_or_else(|| id.clone());
-        let reader = run["read_definition"].clone();
-        let tool = reader["tool"].as_str().unwrap_or_default().to_string();
-        let step = reader_step(&run).unwrap_or_else(|| READ_STEP.to_string());
-        hand_out(&run, &recipe, &step, &tool, reader_ask(&reader, &recipe, &run));
-        return;
-    }
     if walked["status"] == "failed" {
         let why = walked["error_message"].as_str().unwrap_or("the workflow failed");
+        if run.get("ended").is_none() && end_effect(&run, "failed", &id, None).is_some() { end_failed(run, &id, format!("{id}: {why}")); }
         println!("{}", json!({ "error": format!("{id}: {why}"), "result": result }));
         std::process::exit(1);
     }
+    effects.extend(end_effect(&run, walked["status"].as_str().unwrap_or_default(), &id, None));
     println!("{}", json!({ "result": result, "wake_effects": effects }));
 }
 
@@ -1041,8 +1095,14 @@ mod tests {
         reader
     }
 
+    fn walk_top(all: Vec<Value>, input: Value) -> Value {
+        let definitions: Vec<workflow_core::Definition> = all.into_iter().map(|d| serde_json::from_value(d).unwrap()).collect();
+        futures::executor::block_on(workflow_engine::run_definition_with_started_at(
+            definitions, "workflow:top", input, "someone", "workflow", "2026-11-21T00:00:00Z", held())).unwrap()
+    }
+
     // A workflow the run names that no uses holds (one chosen by a row) is read by the same reader, in the same ask as
-    // the definition, once the first read shows it is needed; it is held to the run's pin like the definition.
+    // the definition, once a walk reaches it; it is held to the run's pin like the definition.
     #[test]
     fn a_workflow_named_by_a_row_is_read_with_the_definition() {
         let mut top = one_step("workflow:top", "tool:y");
@@ -1050,7 +1110,8 @@ mod tests {
         let mut run = json!({ "recipe": "workflow:top", "read_definition": uses_reader(), "input": {}, "answers": {} }).as_object().unwrap().clone();
         assert_eq!(reader_ask(&run["read_definition"].clone(), "workflow:top", &run)["params"], json!(["workflow:top", []]));
         let first = json!({ "rows": [{ "recipe": "workflow:top", "definition": top, "kept_at": "v1" }] });
-        assert!(read_definitions(&mut run, "workflow:top", READ_STEP, &first).unwrap().is_none(), "asked again, naming it");
+        let all = read_definitions(&mut run, "workflow:top", READ_STEP, &first).unwrap().expect("walks with what it holds");
+        assert!(missed_to_read(&mut run, &walk_top(all, json!({}))), "the walk reached it, so it is asked for");
         assert_eq!(run["uses_missing"], json!(["workflow:by-a-row"]));
         assert_eq!(reader_ask(&run["read_definition"].clone(), "workflow:top", &run)["params"], json!(["workflow:top", ["workflow:by-a-row"]]));
         let mut second = first.clone();
@@ -1091,6 +1152,60 @@ mod tests {
         let walked = walk(all, &run);
         assert_ne!(walked["status"], "failed", "{walked}");
         assert!(walked.get("definitions_missed").is_none());
+    }
+
+    // A run that uses many workflows asks only for the ones its walk reaches, one step at a time, never all at once: School's
+    // run (10:11 PM CST Nov 21 2026) asked for all 8 of its used rows in one answer, 142,901 bytes, over the engine's 131,072,
+    // and hung. Here the walk waits on the first used workflow's ask, so only that one is read; the second is never asked.
+    #[test]
+    fn a_run_reads_only_the_used_workflows_its_walk_reaches() {
+        let mut top = one_step("workflow:top", "tool:y");
+        top["steps"] = json!([{ "id": "first", "kind": "action", "config": { "definition_id": "workflow:first" } },
+                              { "id": "second", "kind": "action", "config": { "definition_id": "workflow:second" } }]);
+        top["edges"] = json!([{ "from": "first", "to": "second", "kind": "always" }]);
+        let mut run = json!({ "recipe": "workflow:top", "read_definition": uses_reader(), "input": {}, "answers": {} }).as_object().unwrap().clone();
+        let first = json!({ "rows": [{ "recipe": "workflow:top", "definition": top, "kept_at": "v1" }] });
+        let all = read_definitions(&mut run, "workflow:top", READ_STEP, &first).unwrap().expect("walks with what it holds");
+        assert!(missed_to_read(&mut run, &walk_top(all, json!({}))));
+        assert_eq!(run["uses_missing"], json!(["workflow:first"]), "only the one reached");
+        let mut second = first.clone();
+        second["rows"].as_array_mut().unwrap().push(json!({ "recipe": "workflow:first", "definition": one_step("workflow:first", "tool:z"), "kept_at": "v1" }));
+        let all = read_definitions(&mut run, "workflow:top", READ_STEP, &second).unwrap().expect("walks");
+        let walked = walk_top(all, json!({}));
+        assert!(!missed_to_read(&mut run, &walked), "waiting on workflow:first's ask, it reaches nothing more: {walked}");
+        assert_eq!(run["uses_missing"], json!(["workflow:first"]));
+    }
+
+    // A run that fails tells its end recorder first, holding why, and the answer back fails it with those words; a run with
+    // no recorder fails at once. A finished or skipped run tells its recorder as an effect; a paused one tells nothing.
+    #[test]
+    fn a_runs_end_is_told_to_its_recorder_and_a_failure_before_it_fails() {
+        let recorder = json!({ "tool": "tool:keep", "input": { "sql": "update wf_runs set status = $2, why = $3 where run_id = $1", "params": [] },
+            "with": { "params.0": "run", "params.1": "status" }, "with_if_given": { "params.2": "why" } });
+        let run = json!({ "run": "cause-1", "on_end": recorder, "input": {} }).as_object().unwrap().clone();
+        assert_eq!(end_effect(&run, "completed", "workflow:x", None),
+            Some(json!({ "wake": { "tool": "tool:keep", "input": { "sql": "update wf_runs set status = $2, why = $3 where run_id = $1", "params": ["cause-1", "completed", null] } } })));
+        assert_eq!(end_effect(&run, "failed", "workflow:x", Some("too large")).unwrap()["wake"]["input"]["params"], json!(["cause-1", "failed", "too large"]));
+        assert!(end_effect(&run, "paused", "workflow:x", None).is_none());
+        let none = json!({ "run": "cause-1", "input": {} }).as_object().unwrap().clone();
+        assert!(end_effect(&none, "completed", "workflow:x", None).is_none());
+        // A failing run hands out its recorder with why, holding it as `ended`; the answer back fails it with those words.
+        let read = json!({ "recipe": "workflow:x", "read_definition": reader(), "on_end": recorder, "run": "cause-1", "input": {}, "answers": {} });
+        let why = "the definition of workflow:x was not read: tool:reader failed (answer-too-large): 142901 bytes";
+        let out = ending(read.as_object().unwrap().clone(), "workflow:x", why).expect("told first");
+        assert_eq!(out["result"]["status"], "paused");
+        let effect = &out["wake_effects"][0]["wake"];
+        assert_eq!(effect["tool"], "tool:keep");
+        assert_eq!(effect["input"]["params"], json!(["cause-1", "failed", why]));
+        let told = &effect["reply"]["payload"];
+        assert_eq!(told["step"], END_STEP);
+        assert_eq!(told["run"]["ended"], why, "the failure rides with the run");
+        let carried = told["run"].as_object().unwrap().clone();
+        assert!(ending(carried.clone(), "workflow:x", why).is_none(), "told once, never again");
+        assert_eq!(ended_why(&carried, &json!({ "result": { "row_count": 1 } })), why);
+        assert!(ended_why(&carried, &json!({ "error": "refused" })).ends_with("(its end was not recorded: refused)"));
+        let unrecorded = json!({ "recipe": "workflow:x", "run": "cause-1", "input": {} }).as_object().unwrap().clone();
+        assert!(ending(unrecorded, "workflow:x", why).is_none(), "no recorder: it fails at once");
     }
 
     // A workflow no place holds is not asked for forever: once asked for and still missing, the run walks and the step that
