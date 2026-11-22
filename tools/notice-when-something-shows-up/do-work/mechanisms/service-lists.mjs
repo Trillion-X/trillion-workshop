@@ -205,32 +205,52 @@ export async function watchForTransitions(settings, handlers) {
     // the next read waits out the rest of look_again_seconds instead of reading at once. On Nov 21 2026 seven treg
     // waiters with look_again_seconds 1800 read about every 15 minutes, once per restart, at twice the intended cost.
     if (Number.isFinite(state?.read_at)) await wait(state.read_at + own.look_again_ms - now());
-    // A kept state's fingerprints were made under one print rule (shape.print, or the whole thing when it names none).
-    // A state made under another rule is read again once without telling, so naming or changing print never tells
-    // every thing as changed. Nov 22 2026: the TidyCal waiter told 16 old bookings as moved when their booking type was
-    // edited at 7:36 PM CST (the booking type sits inside each booking), and naming print alone would have told all 106.
-    let reseed = state !== null && (state.print_rule ?? WHOLE_THING) !== printRule;
+    // A kept state's fingerprints were made under one print rule: shape.print, or the whole thing when it names none.
+    // The state keeps the rule itself (print) beside its fingerprint (print_rule). When the row's rule changes, the
+    // things are first compared under the OLD rule and every difference is told as a change (a refused tell stops the
+    // pass and keeps the old rule, so it is told again next read); only after every one is told is everything kept under
+    // the new rule. So naming or changing print never tells every thing as changed and never drops a change not yet told
+    // (Nov 22 2026: the TidyCal waiter told 16 old bookings as moved when their booking type was edited at 7:36 PM CST,
+    // and the first silent reread on naming print swallowed booking 10712394's refused 12:47 AM cancel). A state whose
+    // old rule cannot be read back (it kept a print_rule but not the rule) is adopted silently, and the count is said.
+    const newPrint = Array.isArray(own.shape.print) ? own.shape.print : null;
+    const ruleFingerprintOf = (kept) => ("print" in kept ? fingerprint(kept.print ?? null) : (kept.print_rule ?? WHOLE_THING));
+    const oldPrintOf = (kept) => {
+      if ("print" in kept) return { known: true, print: kept.print ?? null };
+      if (kept.print_rule === undefined || kept.print_rule === WHOLE_THING) return { known: true, print: null };
+      return { known: false };
+    };
+    const keptAs = (seen, read_at, print) => ({ seen, read_at, print_rule: fingerprint(print), print });
     while (!signal?.aborted) {
       const { items, whole } = await readList(own, credential, handlers.fetch ?? fetch);
       const readAt = new Date(now());
       const read_at = readAt.getTime();
-      if ((state === null && !own.tell_what_is_there_at_first) || reseed) {
-        reseed = false;
-        state = { seen: compare({ own, seen: {}, items, whole: false, readAt }).now, read_at, print_rule: printRule };
+      const moved = state !== null && ruleFingerprintOf(state) !== printRule;
+      const old = moved ? oldPrintOf(state) : { known: true, print: newPrint };
+      if (state === null && !own.tell_what_is_there_at_first) {
+        state = keptAs(compare({ own, seen: {}, items, whole: false, readAt }).now, read_at, newPrint);
+        await keepState(state);
+      } else if (moved && !old.known) {
+        console.error(`service-lists: ${own.where}: the kept state does not say the print rule its fingerprints were made under, so ${items.length} things were adopted under the new rule without telling`);
+        state = keptAs(compare({ own, seen: {}, items, whole: false, readAt }).now, read_at, newPrint);
         await keepState(state);
       } else {
+        const pass = moved ? { ...own, shape: { ...own.shape, print: old.print ?? undefined } } : own;
         const seen = { ...(state?.seen ?? {}) };
-        const { changes } = compare({ own, seen, items, whole, readAt });
+        const { changes } = compare({ own: pass, seen, items, whole, readAt });
+        let everyOneTold = true;
         for (const one of changes) {
           if (signal?.aborted) return;
           const next = { ...seen };
           if (one.print === null) delete next[one.key]; else next[one.key] = one.print;
           const told = await handlers.onTransition({ condition: "became-reachable", observed_identity: { where: own.where, place: one.detail.place },
-            event_key: `${own.where}:${one.detail.place}:${one.key}:${one.detail.change}:${one.print ?? one.detail.at}`, state: { seen: next, read_at, print_rule: printRule }, detail: one.detail });
-          if (told === false) break;
+            event_key: `${own.where}:${one.detail.place}:${one.key}:${one.detail.change}:${one.print ?? one.detail.at}`, state: keptAs(next, read_at, old.print), detail: one.detail });
+          if (told === false) { everyOneTold = false; break; }
           Object.assign(seen, next); for (const id of Object.keys(seen)) if (!(id in next)) delete seen[id];
         }
-        state = { seen, read_at, print_rule: printRule };
+        state = moved && everyOneTold
+          ? keptAs(compare({ own, seen: {}, items, whole: false, readAt }).now, read_at, newPrint)
+          : keptAs(seen, read_at, old.print);
         await keepState(state);
       }
       if (signal?.aborted) return;
