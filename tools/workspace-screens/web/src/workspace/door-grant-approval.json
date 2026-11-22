@@ -1,0 +1,11 @@
+{
+  "_what": "Where the grants screen's approval check reads the person's approval setting (door-grant-approval.ts). The approvals place is the role `approvals` of the owner-places record (workspace_records, label owner-places, value {\"roles\": {role: {credential_name, table, decision_table, approver}}}): the pursuit database that holds approval_setting and approval_decision (credential_name), their two tables, and the approver the check reads. Read with `roles.sql` on `roles.credential_name`; every statement is a tool run (`tool`) with statement_timeout_ms. A place that is missing or not usable asks the person.",
+  "tool": "tool:run-sql-in-my-database",
+  "statement_timeout_ms": 5000,
+  "role": "approvals",
+  "roles": {
+    "credential_name": "own-rows-postgres-connection",
+    "label": "owner-places",
+    "sql": "select value from public.workspace_records where label = $1"
+  }
+}

@@ -5,7 +5,7 @@
 // and last use, who, and refusals read as their own words.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { APPROVAL_SCOPE, APPROVAL_SQL, approvalParams, autoOf, KEEP, LIST, WITHDRAW, doorPath, doorRequest, endsWords, isKept, lastUsedWords, problemOf, refusalWords, requestOf, whoWords, withdrawInput, KEPT_NOTICE_SQL, keptNoticeParams } from '../web/src/workspace/door-grant.mjs';
+import { APPROVAL_SCOPE, APPROVAL_SQL, approvalCheckOf, autoOf, KEEP, LIST, WITHDRAW, doorPath, doorRequest, endsWords, isKept, lastUsedWords, problemOf, refusalWords, requestOf, whoWords, withdrawInput, KEPT_NOTICE_SQL, keptNoticeParams } from '../web/src/workspace/door-grant.mjs';
 
 const digest = 'a'.repeat(64);
 const grant = (overrides = {}) => ({
@@ -122,9 +122,11 @@ test('is kept is read from the engine list by its label', () => {
 
 test('the approval check reads the scope own setting, else the master scope, and writes a decision only for auto', () => {
   assert.equal(APPROVAL_SCOPE, 'door-grant');
-  assert.match(APPROVAL_SQL, /FROM approval_setting[\s\S]*scope IN \(\$1, '\*'\)[\s\S]*ORDER BY scope = \$1 DESC/);
-  assert.match(APPROVAL_SQL, /INSERT INTO approval_decision[\s\S]*'auto-setting'[\s\S]*WHERE mode = 'auto'/);
-  assert.deepEqual(approvalParams('Sam'), ['door-grant', 'grant:Sam']);
+  assert.match(APPROVAL_SQL, /FROM \{setting\}[\s\S]*WHERE person = \$1 AND scope IN \(\$2, '\*'\)[\s\S]*ORDER BY scope = \$2 DESC/);
+  assert.match(APPROVAL_SQL, /INSERT INTO \{decision\}[\s\S]*'auto-setting'[\s\S]*WHERE mode = 'auto'/);
+  const place = { credential_name: 'pursuit-connection', table: 'approval_setting', decision_table: 'approval_decision', approver: 'owner-person' };
+  assert.deepEqual(approvalCheckOf(place, 'Sam'), { sql: APPROVAL_SQL.replaceAll('{setting}', 'approval_setting').replaceAll('{decision}', 'approval_decision'), params: ['owner-person', 'door-grant', 'grant:Sam'] });
+  assert.equal(approvalCheckOf({ ...place, approver: '' }, 'Sam'), null, 'no approver is no check');
 });
 
 test('an auto setting with its decision row is an auto decision; anything else asks the person', () => {

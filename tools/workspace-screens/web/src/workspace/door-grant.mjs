@@ -114,27 +114,38 @@ export const refusalWords = code => words.refused[REFUSED[code]] ?? words.refuse
 /** Whether a list the engine answered has the grant named by its label. */
 export const isKept = (list, label) => Array.isArray(list?.grants) && list.grants.some(grant => grant?.label === label);
 
-// The master auto-approve (workflow-engine src/approval.rs, CHECK_SQL): the scope's own setting, else the master scope '*',
-// decides. A setting in mode `auto` writes one approval_decision row in the same statement and the grant is kept without a
-// press. Any other mode, no setting, or a check that cannot be read asks the person (one Allow press). A new scope is a row.
+// The master auto-approve (workflow-engine src/approval.rs, CHECK_SQL): the approver's setting for the scope, else the master
+// scope '*', decides. A setting in mode `auto` writes one approval_decision row in the same statement and the grant is kept
+// without a press. Any other mode, no setting, or a check that cannot be read asks the person (one Allow press). The two
+// tables are named by the approvals owner place (door-grant-approval.json), never here. A new scope is a row.
 export const APPROVAL_SCOPE = 'door-grant';
 export const APPROVAL_SQL = `
 WITH setting AS (
-  SELECT person, scope, mode, set_by FROM approval_setting
-  WHERE scope IN ($1, '*')
-  ORDER BY scope = $1 DESC
+  SELECT person, scope, mode, set_by FROM {setting}
+  WHERE person = $1 AND scope IN ($2, '*')
+  ORDER BY scope = $2 DESC
   LIMIT 1
 ), decided AS (
-  INSERT INTO approval_decision (id, post_id, person, at, decision, approved_how, setting_id, mode, reason, approved_by)
-  SELECT gen_random_uuid()::text, $2, person, now(), 'approved', 'auto-setting', 'approval_setting:' || person || ':' || scope, mode, set_by, person
+  INSERT INTO {decision} (id, post_id, person, at, decision, approved_how, setting_id, mode, reason, approved_by)
+  SELECT gen_random_uuid()::text, $3, person, now(), 'approved', 'auto-setting', 'approval_setting:' || person || ':' || scope, mode, set_by, person
   FROM setting WHERE mode = 'auto'
   RETURNING id
 )
 SELECT setting.person, setting.scope, setting.mode, setting.set_by, decided.id AS decision_id
 FROM setting LEFT JOIN decided ON true`;
 
-/** The parameters of the check for one grant: the scope, and the subject the decision row names. */
-export const approvalParams = label => [APPROVAL_SCOPE, `grant:${String(label)}`];
+const TABLE_NAME = /^[a-z_][a-z0-9_]*(\.[a-z_][a-z0-9_]*)?$/;
+
+/** The check for one grant as its statement and parameters, from the approvals owner place (approver, table, decision_table);
+ *  null when the place does not name a usable approver and plain table names, so the person is asked. */
+export function approvalCheckOf(place, label) {
+  const usable = nonEmpty(place?.approver) && TABLE_NAME.test(place?.table ?? '') && TABLE_NAME.test(place?.decision_table ?? '');
+  if (!usable) return null;
+  return {
+    sql: APPROVAL_SQL.replaceAll('{setting}', place.table).replaceAll('{decision}', place.decision_table),
+    params: [place.approver, APPROVAL_SCOPE, `grant:${String(label)}`],
+  };
+}
 
 /** The check's answer rows as an auto decision, or null when the person must press Allow. An auto row with no decision id
  *  is not an auto decision (the engine refuses it too), so it asks. */
