@@ -157,6 +157,19 @@ class TestTextRoom(unittest.TestCase):
             self.assertEqual(result['shots'][0]['picked'], 'full-bleed-9x16')
 
 
+class TestTextRoomBandTop(unittest.TestCase):
+    def test_band_top_500_fits_a_532_by_191_card_inside_the_safe_zone(self):
+        # the request's safe_margin_px is 0 and the platform zone clips the outer edge: the top bar is y 288..500 (212 px)
+        room_ok = ftm._text_room_fits(LAYOUTS[1], [0, 0, 2160, 2160], OUT_W, OUT_H, 0, [532, 191], band_top=500,
+                                      zone=[65, 288, 888, 1248])
+        self.assertTrue(room_ok)
+
+    def test_a_60_px_margin_does_not_fit_the_same_card(self):
+        room_ok = ftm._text_room_fits(LAYOUTS[1], [0, 0, 2160, 2160], OUT_W, OUT_H, 60, [532, 191], band_top=500,
+                                      zone=[65, 288, 888, 1248])
+        self.assertFalse(room_ok)
+
+
 class TestGate(unittest.TestCase):
     def test_gate_exits_one_when_a_shot_has_no_layout(self):
         with tempfile.TemporaryDirectory() as out:

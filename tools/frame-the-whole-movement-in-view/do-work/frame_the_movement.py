@@ -185,14 +185,27 @@ def _out_of_view(boxes, windows):
     return count
 
 
-def _text_room_fits(layout, window, out_w, out_h, safe, room):
-    """A layout keeps text room when one of its graphic areas holds the room's width and height (output pixels)."""
+def _inside_zone(area, zone):
+    """The part of a graphic area inside the platform safe zone [x0, y0, x1, y1], as [x, y, w, h]."""
+    x, y, w, h = area
+    x0, y0 = max(x, zone[0]), max(y, zone[1])
+    x1, y1 = min(x + w, zone[2]), min(y + h, zone[3])
+    return [x0, y0, x1 - x0, y1 - y0]
+
+
+def _text_room_fits(layout, window, out_w, out_h, safe, room, band_top=None, zone=None):
+    """A layout keeps text room when one of its graphic areas, inside the platform safe zone, holds the room's width and
+    height (output pixels). The areas are the bars where the renderer puts the window (band_top), not the centred ones."""
     if room is None:
         return True
-    return any(aw >= room[0] and ah >= room[1] for _, _, aw, ah in graphic_areas(layout['name'], window, out_w, out_h, safe))
+    areas = graphic_areas(layout['name'], window, out_w, out_h, safe, band_top)
+    if zone is not None:
+        areas = [_inside_zone(area, zone) for area in areas]
+    return any(aw >= room[0] and ah >= room[1] for _, _, aw, ah in areas)
 
 
-def _candidate(layout, shot, src_w, src_h, out_w, out_h, margin, reach, max_zoom, reference=None, text_room=None, safe=60):
+def _candidate(layout, shot, src_w, src_h, out_w, out_h, margin, reach, max_zoom, reference=None, text_room=None, safe=60,
+               band_top=None, zone=None):
     boxes = [f['box'] for f in shot['frames']]
     known = [b for b in boxes if b is not None]
     if not known:
@@ -219,7 +232,7 @@ def _candidate(layout, shot, src_w, src_h, out_w, out_h, margin, reach, max_zoom
         return {'layout': layout['name'], 'fits': False, 'out_of_view_frames': _out_of_view(boxes, windows),
                 'window': window, 'zoom': round(max(zoom), 3), 'why': f'zoom above {max_zoom}'}
     count = _out_of_view(boxes, windows)
-    if not _text_room_fits(layout, window, out_w, out_h, safe, text_room):
+    if not _text_room_fits(layout, window, out_w, out_h, safe, text_room, band_top, zone):
         return {'layout': layout['name'], 'fits': False, 'out_of_view_frames': count, 'window': window,
                 'why': f'no graphic area holds the text room {text_room[0]} by {text_room[1]} px'}
     return {'layout': layout['name'], 'fits': count == 0, 'out_of_view_frames': count, 'window': window,
@@ -259,7 +272,8 @@ def choose(request):
     for shot in boxes['shots']:
         room = request.get('text_room', {}).get(shot['id'])
         candidates = [_candidate(layout, shot, src_w, src_h, out_w, out_h, request['margin'], request['follow_window_frames'],
-                                 request['max_zoom'], request.get('reference'), room, request['safe_margin_px'])
+                                 request['max_zoom'], request.get('reference'), room, request['safe_margin_px'],
+                                 request.get('band_top'), request.get('safe_zone'))
                       for layout in request['layouts']]
         passing = [c for c in candidates if c['fits']]
         picked = passing[0] if passing else None
