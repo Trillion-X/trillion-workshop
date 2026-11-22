@@ -18,20 +18,19 @@
         ],
         "label": "Make a database login held by every computer of mine",
         "job": "Make one database login, held under one name by every computer I name, and give it its grants, so each computer can open the database through its own vault",
-        "description": "Generates one connection password in one process, puts the same connection string to each computer's vault through the engine's secrets:put (the person's own key, as keep-a-secret-by-name does), reads the name back on each computer, and only then makes the role with the login recipe (a-login) on the always-on computer, which holds the operator, and gives its grants as the database's owner (post-writer-for-a-login, or any grants recipe named). The password never goes into the answer, an error, a log or a tool run; the answer is {login, held_name, held_at, role_made, grants}. With make_role false it only puts and reads back, for a step that makes its own role.",
+        "description": "Makes this computer's own database login for one pursuit, held in this computer's own vault under the shared name <login>-connection, and gives it its grants. Each computer runs it for itself: it makes its own password in the process, makes its own role (the role name carries the computer, so one computer's login can be revoked alone), puts the connection string through the engine's secrets:put on this computer only, reads the name back, then runs the login recipe (a-login) and the grants recipe on this computer's database. No value leaves the computer. The answer is {login, role, held_name, held_at, role_made, grants}; the password is in no answer, error or tool run.",
         "input_schema": {
           "type": "object",
           "required": [
             "login",
             "database",
             "host",
-            "pins",
-            "always_on"
+            "computer"
           ],
           "properties": {
             "login": {
               "type": "string",
-              "description": "The role name: letters, digits, underscores. Its connection is held as <login>-connection."
+              "description": "The login's base name, e.g. <pursuit>_post_writer. Held as <login>-connection on this computer."
             },
             "database": {
               "type": "string",
@@ -41,21 +40,13 @@
               "type": "string",
               "description": "The database address the connection string names; the vault may send the value only there."
             },
-            "pins": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "minItems": 1,
-              "description": "Every computer's pin id that must hold the value. Given as input until each computer has its own row."
-            },
-            "always_on": {
+            "computer": {
               "type": "string",
-              "description": "The pin of the computer that holds the operator login; it makes the role. Must be one of pins."
+              "description": "This computer's short name, carried in the role name: <login>_<computer>."
             },
             "operator": {
               "type": "string",
-              "description": "The operator login's held connection name (CREATEROLE). Required when make_role is true."
+              "description": "This computer's operator login held connection name (CREATEROLE). Required when make_role is true."
             },
             "grants": {
               "type": "object",
@@ -79,12 +70,16 @@
           "type": "object",
           "required": [
             "login",
+            "role",
             "held_name",
             "held_at",
             "role_made"
           ],
           "properties": {
             "login": {
+              "type": "string"
+            },
+            "role": {
               "type": "string"
             },
             "held_name": {
@@ -113,7 +108,7 @@
             "clone the Workshop repository (package.json repository.url)"
           ],
           "run": "node tools/make-a-login-on-every-computer/do-work/make-a-login.mjs",
-          "stdin": "the input JSON: login, database, host, pins, always_on, operator, grants, make_role. It holds no password; the tool makes it.",
+          "stdin": "the input JSON: login, database, host, computer, operator, grants, make_role. It holds no password; the tool makes it.",
           "needs": [
             "node 22 or later",
             "the person's own sign-in (the sign-in command, or the Mac app's key)"
@@ -122,7 +117,7 @@
         },
         "provenance": {
           "source": "New: the person's own door operation secrets:put (src/secrets.rs SECRETS_PUT), replacing the store-file write of `secrets put`.",
-          "note": "Made by lane db-logins-every-computer, Nov 21 2026, from keep-a-secret-by-name's shape, for the fan-out of one generated login to every computer."
+          "note": "Made by lane db-logins-every-computer, Nov 21 2026. Revised to one login per computer. The secrets:put right is granted per pursuit in the person's own listed row, not in this shared row."
         }
       }
     }

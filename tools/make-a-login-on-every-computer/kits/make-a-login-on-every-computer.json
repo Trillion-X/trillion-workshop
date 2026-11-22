@@ -1,22 +1,22 @@
 {
   "drafted_from": "tool:make-a-login-on-every-computer's row in tool-rows.json, do-work/make-a-login.mjs and test/make-a-login.test.mjs",
-  "start_here": "Say to your AI: \"Make a login for my new pursuit's database, held on both my computers, and give it the post writer's rights.\" It runs the script on your computer with the input on stdin: the login name, the database, its address, the computers to hold it, the computer that holds the operator, and the grants recipe. It tells you only the held name, the computers, and whether the role was made.",
+  "start_here": "Say to your AI: \"Make this computer's login for my pursuit's database, and give it the post writer's rights.\" It runs the script on this computer with the input on stdin: the login name, the database, its address, this computer's short name, the operator login, and the grants recipe. It tells you only the held name, the role, and whether the role was made.",
   "lists": [],
-  "no_lists_because": "It keeps no list: it writes one named connection value into each computer's vault through the door and makes one database role, and it answers only the held name, the computers and what was made.",
+  "no_lists_because": "It keeps no list: it writes one named connection value into this computer's vault and makes one database role, and it answers only the held name, the role and what was made.",
   "workflows": [],
   "tools": [
     "tool:make-a-login-on-every-computer"
   ],
   "instructions": [
-    "1. Pick the login name and the database it connects to (letters, digits and underscores), and the database's address. Name each computer that must hold the value by its pin id, and the one that holds the operator login.",
-    "2. Say \"Make a login for my pursuit's database\". Your AI runs node tools/make-a-login-on-every-computer/do-work/make-a-login.mjs with the input JSON on stdin. The password is made inside that process and is never printed or passed as an argument.",
-    "3. Read the last line: {\"login\": ..., \"held_name\": ..., \"held_at\": [...], \"role_made\": true, \"grants\": ...}. If it names a pin in an error, that computer did not hold the value and no role was made.",
+    "1. Pick the login's base name and the database it connects to (letters, digits and underscores), the database's address, this computer's short name, and this computer's operator login held connection name.",
+    "2. Say \"Make this computer's login for my pursuit's database\". Your AI runs node tools/make-a-login-on-every-computer/do-work/make-a-login.mjs with the input JSON on stdin. The password is made inside that process and is never printed or passed as an argument.",
+    "3. Read the last line: {\"login\": ..., \"role\": ..., \"held_name\": ..., \"held_at\": [...], \"role_made\": true, \"grants\": ...}. Run it on each computer that must hold the login: each makes its own role and its own held value.",
     "4. To make only the held value and make the role yourself (for a new database's own role step), give make_role false."
   ],
   "worked_examples": [
     {
-      "title": "Give a pursuit's post writer its login on both computers",
-      "ask": "Make the post writer login for example_pursuit_for_who_runs_it, held on both my computers, and give it the post writer's rights.",
+      "title": "Give a pursuit's post writer its login on this computer",
+      "ask": "Make this computer's post writer login for example_pursuit_for_who_runs_it, and give it the post writer's rights.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -27,8 +27,8 @@
           }
         }
       },
-      "given": "From tools/make-a-login-on-every-computer/test/make-a-login.test.mjs (the happy path, with a stub door): the input {login, database, host, pins, always_on, operator, grants: {recipe: post-writer-for-a-login}} puts the same connection string to each pin, reads the name back on each, then runs a-login and the grants on the always-on computer. The answer is {login, held_name, held_at, role_made: true, grants: post-writer-for-a-login}.",
-      "hands_back": "{\"login\": \"example_pursuit_for_who_runs_it\", \"held_name\": \"example_pursuit_for_who_runs_it-connection\", \"held_at\": [\"first-computer-pin\", \"second-computer-pin\"], \"role_made\": true, \"grants\": \"post-writer-for-a-login\"}. The password is in no line of the answer."
+      "given": "From tools/make-a-login-on-every-computer/test/make-a-login.test.mjs (the happy path, with a stub door): the input {login, database, host, computer, operator, grants: {recipe: post-writer-for-a-login}} checks the role, puts the connection string on this computer only, reads the name back, runs a-login and the grants. Nothing names another computer.",
+      "hands_back": "{\"login\": \"example_pursuit_post_writer\", \"role\": \"example_pursuit_post_writer_this_computer\", \"held_name\": \"example_pursuit_post_writer-connection\", \"held_at\": [\"this-computer\"], \"role_made\": true, \"grants\": \"post-writer-for-a-login\"}. The password is in no line of the answer."
     }
   ]
 }

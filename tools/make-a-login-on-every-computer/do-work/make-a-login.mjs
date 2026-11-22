@@ -1,29 +1,28 @@
 // tools/make-a-login-on-every-computer/do-work/make-a-login.mjs
 //
-// Makes one database login held by every computer the person names, and its database grants, in one run. The password is
-// generated once in this process, put to each computer's vault through the door's secrets:put (the account's own key, as
-// keep-a-secret-by-name does), read back by name on each computer, and only then made into a role on the database by the
-// login's own maker (tool:run-sql-in-my-database a-login, pinned to the always-on computer, which holds the operator), then
-// given its grants by the database's owner. The password never goes into an argument, stdout, a file or an answer.
+// Makes this computer's own database login for one pursuit, held in this computer's vault, and gives it its grants. Each computer
+// runs this for itself: it makes its own password in this process, makes its own role on the database (the role name carries the
+// computer, so one computer's login can be revoked alone), puts the connection string under the shared held name in its own
+// vault, reads the name back, and gives the role its grants. No value leaves this computer: nothing is put to another computer.
 //
 // Non-Negotiable Invariants:
-// - Put to every pin first, read back the name on every pin, and only then make the role. A refused put or a missing read-back
-//   stops the run before any role is made, and the answer names the pin.
+// - Put, then read back the name on this computer, and only then make the role. A refused put or a missing read-back stops the run
+//   before any role is made. A role that already exists keeps its password: a re-run checks the held value and goes on to the grants.
 // - The password is generated here and nowhere else; the vault stores it as the connection string the door is given.
 // - Every error message is scrubbed of the password before it leaves this process.
 //
-// Input (JSON on stdin): { login, database, host, pins, always_on, operator, grants? }
-//   login      the role name (letters, digits, underscores), also the held connection's name prefix: <login>-connection
+// Input (JSON on stdin): { login, database, host, computer, operator, grants?, make_role? }
+//   login      the login's base name (letters, digits, underscores), e.g. ethos_for_who_runs_it_post_writer; the held name is <login>-connection
 //   database   the database the login connects to and its grants apply in
 //   host       the address the connection string names and the vault may send the value to
-//   pins       every computer to hold the value, each a computer pin id (from input until the computers' rows exist)
-//   always_on  the pin of the computer that holds the operator login (it makes the role)
-//   operator   the operator login's held connection name (CREATEROLE), as the make step names it; needed when make_role is true
-//   grants     optional { recipe } to run after the role is made, as the database's owner (credential <database>-connection)
-//   make_role  true (the default) makes the role with a-login and gives grants; false only puts and reads back the value, for a
-//              step that makes its own role (own-database creates the role and its database)
+//   computer   this computer's short name, carried in the role name: <login>_<computer>
+//   operator   this computer's operator login's held connection name (CREATEROLE), as the make step names it; needed when make_role is true
+//   grants     optional { recipe } to run after the role is made, as the database's owner (credential <database>-connection, held here)
+//   make_role  true (the default) makes the role with a-login and gives grants; false only puts and reads back, for a step that makes its
+//              own role (own-database creates the role and its database)
 //
-// Key Concepts: the door client is use-your-tools-from-a-shell's engineClient; opWhole answers a tool run whole.
+// Key Concepts: the door client is use-your-tools-from-a-shell's engineClient; opWhole answers a tool run whole. A call with no route is
+// this computer's own door (a run's right is valid only on its own computer).
 import { randomBytes, randomUUID } from 'node:crypto';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -32,78 +31,73 @@ import { credentialFor, doorFor, engineClient, opWhole, CommandError } from '../
 const say = (message, status) => new CommandError(message, { status });
 
 const NAME = /^[a-z_][a-z0-9_]{0,62}$/;
+const SHORT = /^[a-z0-9][a-z0-9-]{0,30}$/;
 
 /** A password of 32 random bytes, base64url: the same shape the login recipes accept as a standing password. */
 export const passwordOf = () => randomBytes(32).toString('base64url');
 
 /** The connection string the held name carries, in the shape the make-a-database recipe uses. */
-export const connectionOf = ({ login, password, database, host }) => `postgresql://${login}:${password}@${host}:5432/${database}?sslmode=verify-full`;
+export const connectionOf = ({ role, password, database, host }) => `postgresql://${role}:${password}@${host}:5432/${database}?sslmode=verify-full`;
 
-/** Checks the input before anything is put anywhere. */
+/** Checks the input before anything is put anywhere; answers the run's own names. */
 export function inputOf(given) {
-  const { login, database, host, pins, always_on: alwaysOn, operator, grants, make_role: makeRole = true } = given ?? {};
-  if (typeof login !== 'string' || !NAME.test(login)) throw say('login must be a role name: letters, digits and underscores.', 2);
+  const { login, database, host, computer, operator, grants, make_role: makeRole = true } = given ?? {};
+  if (typeof login !== 'string' || !NAME.test(login)) throw say('login must be a name: letters, digits and underscores.', 2);
   if (typeof database !== 'string' || !NAME.test(database)) throw say('database must be a database name: letters, digits and underscores.', 2);
   if (typeof host !== 'string' || host === '') throw say('host must be the database address.', 2);
-  if (!Array.isArray(pins) || pins.length === 0 || pins.some(pin => typeof pin !== 'string' || pin === '')) throw say('pins must be a list of computer pin ids.', 2);
-  if (new Set(pins).size !== pins.length) throw say('pins must name each computer once.', 2);
-  if (typeof alwaysOn !== 'string' || !pins.includes(alwaysOn)) throw say('always_on must be one of the pins: the computer that holds the operator.', 2);
+  if (typeof computer !== 'string' || !SHORT.test(computer)) throw say('computer must be this computer\'s short name: lowercase letters, digits and hyphens.', 2);
   if (typeof makeRole !== 'boolean') throw say('make_role must be true or false.', 2);
-  if (makeRole && (typeof operator !== 'string' || operator === '')) throw say('operator must be the operator login\'s held connection name when make_role is true.', 2);
+  if (makeRole && (typeof operator !== 'string' || operator === '')) throw say('operator must be this computer\'s operator login held connection name when make_role is true.', 2);
   if (grants !== undefined && (grants === null || typeof grants !== 'object' || typeof grants.recipe !== 'string' || grants.recipe === '')) throw say('grants must be { recipe } naming the grants recipe to run.', 2);
-  return { login, database, host, pins, alwaysOn, operator, grants: grants ?? null, makeRole };
+  const role = `${login}_${computer.replaceAll('-', '_')}`;
+  if (!NAME.test(role)) throw say('the role name (login and computer) is too long or not a name.', 2);
+  return { login, database, host, computer, operator, grants: grants ?? null, makeRole, role };
 }
 
-/** Whether the role already exists on the database, asked as the operator on the always-on computer. */
-async function roleExists(client, pin, operator, login) {
-  const asked = await runTool(client, pin, 'tool:run-sql-in-my-database', { credential_name: operator, sql: 'SELECT count(*)::int AS n FROM pg_roles WHERE rolname = $1', params: [login] });
-  if (asked?.exit_code !== 0) throw say(`The role could not be looked up at ${pin}: ${asked?.error ?? 'no answer'}.`, 3);
+/** Runs one tool on this computer's own door and answers its whole answer. */
+const runTool = (client, tool, input) => opWhole(client, null, 'tools:run', { tool, input }, { requestKey: randomUUID(), route: {} });
+
+/** Whether this computer's database role already exists, asked as this computer's operator. */
+async function roleExists(client, operator, role) {
+  const asked = await runTool(client, 'tool:run-sql-in-my-database', { credential_name: operator, sql: 'SELECT count(*)::int AS n FROM pg_roles WHERE rolname = $1', params: [role] });
+  if (asked?.exit_code !== 0) throw say(`The role could not be looked up: ${asked?.error ?? 'no answer'}.`, 3);
   return asked.result.rows[0].n > 0;
 }
 
-/** Reads the held name back on every pin; a missing one stops the run and names the pin. */
-async function readBack(client, pins, heldName, why) {
-  for (const pin of pins) {
-    const names = await client.op('@secrets', 'secrets:names', {}, { requestKey: randomUUID(), route: { pins: [pin] } });
-    if (!Array.isArray(names?.names) || !names.names.includes(heldName)) throw say(`${heldName} is not held at ${pin} on read-back; ${why}.`, 3);
-  }
+/** Reads the held name back on this computer; a missing one stops the run. */
+async function readBack(client, heldName, why) {
+  const names = await client.op('@secrets', 'secrets:names', {}, { requestKey: randomUUID(), route: {} });
+  if (!Array.isArray(names?.names) || !names.names.includes(heldName)) throw say(`${heldName} is not held on this computer on read-back; ${why}.`, 3);
 }
 
-/** Runs one tool through the door, pinned to a computer, and answers its whole answer. */
-const runTool = (client, pin, tool, input) => opWhole(client, null, 'tools:run', { tool, input }, { requestKey: randomUUID(), route: { pins: [pin] } });
-
 /**
- * Makes the login held by every pin and its grants. Answers { login, held_name, held_at, role_made, grants }; never the password.
+ * Makes this computer's login and its grants. Answers { login, role, held_name, held_at, role_made, grants }; never the password.
  * `password` is for the test only: a run makes its own.
  */
 export async function makeLogin({ input, client, password = passwordOf() }) {
-  const { login, database, host, pins, alwaysOn, operator, grants, makeRole } = inputOf(input);
+  const { login, database, host, computer, operator, grants, makeRole, role } = inputOf(input);
   const heldName = `${login}-connection`;
-  const value = connectionOf({ login, password, database, host });
+  const value = connectionOf({ role, password, database, host });
   const scrub = text => String(text).split(password).join('<redacted>');
   try {
-    // A role that already exists keeps its password: a run that stopped after the role was made resumes at the grants, with the
-    // held value read back and not rotated. A missing held value then needs a password reset, which this tool does not do.
-    const existing = makeRole ? await roleExists(client, alwaysOn, operator, login) : false;
+    const existing = makeRole ? await roleExists(client, operator, role) : false;
     if (existing) {
-      await readBack(client, pins, heldName, 'the role exists, so its held value must already be on every pin: a password reset is needed');
+      await readBack(client, heldName, 'the role exists, so its held value must already be on this computer: a password reset is needed');
     } else {
-      for (const pin of pins) {
-        const answer = await client.op('@secrets', 'secrets:put', { name: heldName, value, hosts: [host] }, { requestKey: randomUUID(), route: { pins: [pin] } });
-        if (answer?.accepted !== true) throw say(`The vault at ${pin} did not accept ${heldName}; no role was made.`, 3);
-      }
-      await readBack(client, pins, heldName, 'no role was made');
+      const answer = await client.op('@secrets', 'secrets:put', { name: heldName, value, hosts: [host] }, { requestKey: randomUUID(), route: {} });
+      if (answer?.accepted !== true) throw say(`This computer's vault did not accept ${heldName}; no role was made.`, 3);
+      await readBack(client, heldName, 'no role was made');
     }
-    if (!makeRole) return { login, held_name: heldName, held_at: pins, role_made: false, grants: null };
+    if (!makeRole) return { login, role, held_name: heldName, held_at: [computer], role_made: false, grants: null };
     if (!existing) {
-      const made = await runTool(client, alwaysOn, 'tool:run-sql-in-my-database', { credential_name: operator, role_credential_name: heldName, recipe: { name: 'a-login', action: 'create' } });
-      if (made?.exit_code !== 0) throw say(`The login was not made at ${alwaysOn}: ${made?.error ?? 'no answer'}.`, 3);
+      const made = await runTool(client, 'tool:run-sql-in-my-database', { credential_name: operator, role_credential_name: heldName, recipe: { name: 'a-login', action: 'create' } });
+      if (made?.exit_code !== 0) throw say(`The login was not made: ${made?.error ?? 'no answer'}.`, 3);
     }
     if (grants) {
-      const granted = await runTool(client, alwaysOn, 'tool:run-sql-in-my-database', { credential_name: `${database}-connection`, recipe: { name: grants.recipe, action: 'create', role: login } });
-      if (granted?.exit_code !== 0) throw say(`The grants ${grants.recipe} were not given at ${alwaysOn}: ${granted?.error ?? 'no answer'}.`, 3);
+      const granted = await runTool(client, 'tool:run-sql-in-my-database', { credential_name: `${database}-connection`, recipe: { name: grants.recipe, action: 'create', role } });
+      if (granted?.exit_code !== 0) throw say(`The grants ${grants.recipe} were not given: ${granted?.error ?? 'no answer'}.`, 3);
     }
-    return { login, held_name: heldName, held_at: pins, role_made: true, grants: grants ? grants.recipe : null };
+    return { login, role, held_name: heldName, held_at: [computer], role_made: true, grants: grants ? grants.recipe : null };
   } catch (error) {
     throw new CommandError(scrub(error.message), { status: error.status ?? 1 });
   }
