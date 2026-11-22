@@ -1,0 +1,141 @@
+{
+  "what_this_is": "A provider description for tools/start-a-computer names: DNS zones and records at Hetzner DNS, reached through the Hetzner Cloud API (https://api.hetzner.cloud/v1/zones). Name this file in a name record's provider. The zone is the domain name (Hetzner accepts a name in place of a zone id). Records are read and changed as RRsets: one RRset is one name and type with its values, and the values are the records. The credential is the vault handle hetzner-api-token (never its value), sent as a bearer header to api.hetzner.cloud only. Routes come from the public Hetzner Cloud OpenAPI spec (docs.hetzner.cloud/cloud.spec.json, read 2026-11-22). This file does not move nameservers: the nameservers a new zone is handed back are read by read_zone, and the registrar change is made by the owner of the names rows.",
+  "id": "hetzner-dns",
+  "name": "Hetzner DNS",
+  "base": "https://api.hetzner.cloud/v1",
+  "auth": {
+    "header": "authorization",
+    "prefix": "Bearer "
+  },
+  "vault_key": "hetzner-api-token",
+  "error_code_at": "error.code",
+  "lease_label_key": "place-lease",
+  "requests": {
+    "list_zones": {
+      "notes": "The zones of the Hetzner Cloud project, a page at a time. Reads only; the scope check uses it.",
+      "url": "https://api.hetzner.cloud/v1/zones?per_page=50&page={page}",
+      "method": "GET"
+    },
+    "find_zone": {
+      "notes": "The zone with one exact name, or none. Reads only.",
+      "url": "https://api.hetzner.cloud/v1/zones?name={zone}",
+      "method": "GET"
+    },
+    "read_zone": {
+      "notes": "One zone with its nameservers: authoritative_nameservers.assigned is the list a new zone is handed, to be set at the registrar. Reads only.",
+      "url": "https://api.hetzner.cloud/v1/zones/{zone_id}",
+      "method": "GET"
+    },
+    "create_zone": {
+      "notes": "Create one primary zone for a domain the person owns, with the default record TTL of 60 seconds. Creates no records; read_zone then returns the nameservers.",
+      "url": "https://api.hetzner.cloud/v1/zones",
+      "method": "POST",
+      "body_template": {
+        "name": "{zone}",
+        "mode": "primary",
+        "ttl": 60,
+        "labels": {
+          "{lease_label_key}": "{name}"
+        }
+      }
+    },
+    "list_records": {
+      "notes": "The RRsets of one zone, a page at a time; each RRset carries its values under records. Reads only.",
+      "url": "https://api.hetzner.cloud/v1/zones/{zone_id}/rrsets?per_page=100&page={page}",
+      "method": "GET"
+    },
+    "create_record": {
+      "notes": "Create one A RRset at a name with one value (the machine's address) and the shortest TTL, 60 seconds. Fails if the RRset already exists; add_record then adds a value to it.",
+      "url": "https://api.hetzner.cloud/v1/zones/{zone_id}/rrsets",
+      "method": "POST",
+      "body_template": {
+        "name": "{host_label}",
+        "type": "A",
+        "ttl": 60,
+        "records": [
+          {
+            "value": "{address}"
+          }
+        ]
+      }
+    },
+    "add_record": {
+      "notes": "Add one value to an existing A RRset (the RRset is found by its name and type).",
+      "url": "https://api.hetzner.cloud/v1/zones/{zone_id}/rrsets/{host_label}/A/actions/add_records",
+      "method": "POST",
+      "body_template": {
+        "records": [
+          {
+            "value": "{address}"
+          }
+        ]
+      }
+    },
+    "remove_record": {
+      "notes": "Remove one value from an A RRset. The provider keeps no record ids: the value is the key.",
+      "url": "https://api.hetzner.cloud/v1/zones/{zone_id}/rrsets/{host_label}/A/actions/remove_records",
+      "method": "POST",
+      "body_template": {
+        "records": [
+          {
+            "value": "{address}"
+          }
+        ]
+      }
+    }
+  },
+  "zone": {
+    "find": "find_zone",
+    "list_at": "zones",
+    "create": "create_zone",
+    "created_at": "zone",
+    "read": "read_zone",
+    "nameservers_at": "zone.authoritative_nameservers.assigned",
+    "id_is": "zone_id",
+    "id_pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}$",
+    "id_at": "name",
+    "name_relative": true
+  },
+  "record": {
+    "list": "list_records",
+    "list_at": "rrsets",
+    "pages_at": "meta.pagination.last_page",
+    "create": "create_record",
+    "created_at": "rrset",
+    "add": "add_record",
+    "remove": "remove_record",
+    "id_is_fields": [
+      "type",
+      "name",
+      "value"
+    ],
+    "name_at": "name",
+    "type_at": "type",
+    "content_at": "records.0.value",
+    "values_at": "records",
+    "value_at": "value",
+    "address_types": [
+      "A"
+    ],
+    "editable_types": [
+      "A"
+    ],
+    "fields": [
+      "type",
+      "name",
+      "records",
+      "ttl"
+    ],
+    "desired": {
+      "type": "A",
+      "name": "{host_name}",
+      "records": [
+        {
+          "value": "{address}"
+        }
+      ],
+      "ttl": 60
+    },
+    "owner_by": "address"
+  }
+}
