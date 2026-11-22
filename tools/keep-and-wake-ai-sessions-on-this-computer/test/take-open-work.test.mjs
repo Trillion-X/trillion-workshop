@@ -504,6 +504,7 @@ test('one announced job is read by its id, never by listing every open job, even
     if (path === '/handoffs/open-page') return { work: [job('h1')], agents: [{ agent_id: 'chat-abc', takes_work: true, source_id: 'codex:abc' }], next_after: body.limit === 1 ? 'h1' : null };
     return {};
   };
+  writeFileSync(join(folder, settings.card.file), JSON.stringify({ at: NOW }), { flag: 'w' });
   const run = (onlyHandoffId, knownAgents = null) => runPass({ locate: located, settings: { ...settings, max_concurrent: 0, state_folder: folder }, call, computer: 'Mac', spawnRun: () => {}, now: () => new Date(NOW), onlyHandoffId, knownAgents });
   await run('h3');
   assert.deepEqual(calls.map(([path]) => path), ['/handoffs/read'], 'a job from no chat is one read');
@@ -705,7 +706,35 @@ test('task worker leaves a task that names nobody: no run starts and the task st
   assert.deepEqual(pass.started, []);
   assert.equal(pass.left['handed to nobody'], 1);
   assert.equal(f.task().status, 'To do');
-  assert.equal(f.calls.some(call => call.method === 'records:write'), false);
+  // The only write is the taker's own card (kept fresh, card.refresh_minutes); the task is never written.
+  assert.equal(f.calls.some(call => call.method === 'records:write' && (call.input?.records ?? []).some(record => !String(record.id).startsWith('ai:'))), false);
+});
+
+test('a taker with no fresh card publishes it on a pass with nothing to start, then not again until it is due; a failed refresh does not fail the pass', async () => {
+  const folder = tempFolder(join(tmpdir(), 'take-open-work-card-'));
+  const published = [];
+  const logged = [];
+  let refuse = false;
+  const call = async (path, body) => {
+    if (path === '/agents/publish') { if (refuse) throw new Error('store is down'); published.push(body.agent_id); return { agent_id: body.agent_id }; }
+    if (path === '/handoffs/read') return { handoff: job(body.handoff_id) };
+    return {};
+  };
+  let at = Date.parse(NOW);
+  const pass = () => runPass({ locate: located, settings: { ...settings, max_concurrent: 0, state_folder: folder }, call, computer: 'Mac', spawnRun: () => {}, now: () => new Date(at), onlyHandoffId: 'h3', log: line => logged.push(line) });
+  await pass();
+  assert.equal(published.length, 1, 'no card yet: it is published although nothing starts');
+  at += (settings.card.refresh_minutes - 1) * 60_000;
+  await pass();
+  assert.equal(published.length, 1, 'a fresh card is not published again');
+  at += 2 * 60_000;
+  refuse = true;
+  await pass();
+  assert.equal(published.length, 1);
+  assert.equal(logged.filter(line => line.did === 'card not published').length, 1, 'a failed refresh is said, and the pass goes on');
+  refuse = false;
+  await pass();
+  assert.equal(published.length, 2, 'the next pass publishes it');
 });
 
 test('task worker claims through shared action and recognizes persisted checked completion', async () => {

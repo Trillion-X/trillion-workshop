@@ -777,8 +777,23 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
   if (programChanged) await republish();
   const planned = plan({ open: selected, agents, settings, started: new Map([...current].filter(([id]) => !attempts.has(id))), today, running, chats, agent_id, computer, now: nowIso, triaged, runnable });
   log({ did: 'planned', open: selected.length, starting: planned.start.map(job => job.handoff_id), left: planned.left });
-  if (!alreadyPublished && planned.start.some(job => job.mode === 'claim' || job.mode === 'turn')) {
-    await call('/agents/publish', card());
+  // The card is what makes this taker addressable (give --to refuses an id the store holds no record for) and ready (its
+  // live.seen_at): it is published before work starts, and on any pass where it is older than card.refresh_minutes. Published
+  // only when work started, a new computer could never be handed its first work: the always-on's taker planned every minute
+  // from 4:16 AM CST Nov 22 2026 with no card in the store. A due refresh that fails is logged and tried on the next pass.
+  const cardFile = join(folder, settings.card.file);
+  const cardAt = (() => { try { return Date.parse(JSON.parse(readFileSync(cardFile, 'utf8')).at); } catch { return NaN; } })();
+  const starting = planned.start.some(job => job.mode === 'claim' || job.mode === 'turn');
+  const cardDue = !(now().getTime() - cardAt < settings.card.refresh_minutes * 60_000);
+  if (!alreadyPublished && (starting || cardDue)) {
+    try {
+      await call('/agents/publish', card());
+      mkdirSync(folder, { recursive: true });
+      writeFileSync(cardFile, JSON.stringify({ at: now().toISOString() }));
+    } catch (error) {
+      if (starting) throw error;
+      log({ did: 'card not published', error: String(error?.message ?? error) });
+    }
   }
   const runs = [];
   const begun = [];

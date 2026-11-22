@@ -30,6 +30,7 @@
   "agent_description": "Takes work handed to any of the person's AIs and runs {ai} on {computer} to do it.",
   "max_concurrent": 1,
   "daily_cap": 20,
+  "card": { "_what": "This taker's card (its record in the tasks store, which makes it addressable and ready): kept fresh on any pass where the last publish is older than refresh_minutes (its live.minutes is 60), its time kept in file in the state folder.", "file": "card.json", "refresh_minutes": 30 },
   "full_pass_every_minutes": 10,
   "idle_pass_most_minutes": 60,
   "run_timeout_minutes": 30,
