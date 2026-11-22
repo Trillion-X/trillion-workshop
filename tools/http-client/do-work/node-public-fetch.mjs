@@ -1,6 +1,6 @@
 // Node's supply for the SAME public-address/DNS/redirect rules. DNS is checked
 // in the connection's lookup callback, never checked once then resolved again.
-import { request as httpsRequest } from 'node:https';
+import { request as httpsRequest, Agent as HttpsAgent } from 'node:https';
 import { lookup } from 'node:dns/promises';
 import { createGunzip, createInflate, createBrotliDecompress } from 'node:zlib';
 import { publicAddress, fetchPublic } from '../../refuse-requests-to-private-addresses/public-address.mjs';
@@ -17,8 +17,14 @@ export function nodePublicFetch({ resolve = host => lookup(host, { all: true, ve
   // Through the run's proxy the proxy resolves the name, so no address is checked here; the name itself was judged by publicAddress.
   const secureThroughProxy = async url => {
     const tunnel = tunnelFor();
-    tunnel.connect(Number(url.port || 443), url.hostname);
-    await once(tunnel, 'connect');
+    const port = Number(url.port || 443);
+    tunnel.connect(port, url.hostname);
+    // The tunnel opens (its 'connect') or fails: a proxy that closes the connection is a failure, never a wait.
+    await new Promise((resolveOpen, reject) => {
+      tunnel.once('connect', resolveOpen);
+      tunnel.once('error', reject);
+      tunnel.once('close', () => reject(new Error(`the run's proxy did not open ${url.hostname}:${port}`)));
+    });
     return tlsConnect({ socket: tunnel, servername: url.hostname, rejectUnauthorized: true });
   };
   const hop = async (address, init) => {
@@ -29,8 +35,11 @@ export function nodePublicFetch({ resolve = host => lookup(host, { all: true, ve
     const secure = tunnelFor ? await secureThroughProxy(url) : null;
     return new Promise((resolveAnswer, reject) => {
       const abort = () => req.destroy(new Error('The public request was cancelled.'));
-      const req = request(url, { method: init.method ?? 'GET', headers: Object.fromEntries(headers), agent: false,
-        ...(secure ? { createConnection: () => secure } : { lookup: connectLookup }), rejectUnauthorized: true, signal: init.signal }, async incoming => {
+      // Through the proxy the connection is the tunnel itself: the request's own agent hands that socket over, so Node never
+      // resolves the name directly (a request option createConnection is not used by every Node's https agent).
+      const agent = secure ? Object.assign(new HttpsAgent({ keepAlive: false }), { createConnection: () => secure }) : false;
+      const req = request(url, { method: init.method ?? 'GET', headers: Object.fromEntries(headers), agent,
+        ...(secure ? {} : { lookup: connectLookup }), rejectUnauthorized: true, signal: init.signal }, async incoming => {
         try {
           let stream = incoming;
           const encoding = String(incoming.headers['content-encoding'] ?? '').toLowerCase();

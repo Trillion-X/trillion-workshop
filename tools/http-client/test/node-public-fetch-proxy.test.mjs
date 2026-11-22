@@ -46,6 +46,14 @@ test('a private or local name is refused before any CONNECT reaches the proxy', 
   } finally { proxy.close(); }
 });
 
+test('a name that does not resolve is still asked through CONNECT, and its failure answers rather than waiting', async () => {
+  const proxy = await startProxy();
+  try {
+    await assert.rejects(nodePublicFetch({ proxy: proxy.url })('https://no-such-name.invalid/'), /did not open no-such-name\.invalid:443/);
+    assert.deepEqual(proxy.seen, [{ method: 'CONNECT', target: 'no-such-name.invalid:443' }]);
+  } finally { proxy.close(); }
+});
+
 test('a public name is asked through CONNECT to the proxy, on the name and port 443', { skip: process.env.PUBLIC_FETCH_LIVE !== '1' }, async () => {
   const proxy = await startProxy();
   try {
