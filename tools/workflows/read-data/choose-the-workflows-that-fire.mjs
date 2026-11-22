@@ -176,7 +176,10 @@ export async function chooseTheWorkflowsThatFire(input = {}) {
     const keptIn = from === 'own' && (!shipped.has(workflow) || overInstalled.includes(workflow)) ? own.get(workflow)?.keptIn : undefined;
     const definition = from === 'own' && !keptIn ? own.get(workflow)?.definition : undefined;
     const why = explain ? { label, made_by: item.made_by, from, matched, weight } : {};
-    return { workflow, part, condition: item.label, input: item.input ?? {}, installed: shipped.has(workflow), score: Number(score.toFixed(6)), ...why, ...(definition ? { definition } : {}), ...(keptIn ? { kept_in: keptIn } : {}) };
+    // A part's store (a row change's {credential_name}, the database it changed in) goes on in the input, so a workflow it
+    // starts reads that database; the condition's own input wins. Never the part's where: for a message fact it names a vault entry.
+    const input = { ...(parts[part].store ? { store: parts[part].store } : {}), ...(item.input ?? {}) };
+    return { workflow, part, condition: item.label, input, installed: shipped.has(workflow), score: Number(score.toFixed(6)), ...why, ...(definition ? { definition } : {}), ...(keptIn ? { kept_in: keptIn } : {}) };
   }).sort((a, b) => a.part - b.part || b.score - a.score || (a.workflow < b.workflow ? -1 : 1));
   // A condition that keeps more than half of the parts it is shown says nothing about which work a part is: it is named in
   // broad so learn-and-prune rewrites it around the one situation its workflow is for.

@@ -98,3 +98,15 @@ test('tell-installed and start-from-rows get the same values from the carried an
   assert.deepEqual(slim.asked, full.asked);
   assert.ok(bytes(slim.chosen) < bytes(full.chosen));
 });
+
+test('a row change part\'s store goes on in each choice\'s input, a message part gives none, and a condition\'s own input wins', async () => {
+  const store = { credential_name: KEPT };
+  const own = [{ id: 'workflow:a', value: { recipe: 'workflow:a', fires_when: [{ ...when('a payment row', 'payment_events'), input: {} }] } },
+    { id: 'workflow:b', value: { recipe: 'workflow:b', fires_when: [{ ...when('a payment row, its own store', 'payment_events'), input: { start_at: 'do', store: { credential_name: 'its-own-connection' } } }] } }];
+  const inputOf = (answer, id) => answer.chosen.find(item => item.workflow === id).input;
+  const changed = await chooseTheWorkflowsThatFire({ parts: [{ ...part, store }], own, installed: false });
+  assert.deepEqual(inputOf(changed, 'workflow:a'), { store });
+  assert.deepEqual(inputOf(changed, 'workflow:b'), { start_at: 'do', store: { credential_name: 'its-own-connection' } }, 'the condition\'s input wins');
+  const message = await chooseTheWorkflowsThatFire({ parts: [part], own, installed: false });
+  assert.deepEqual(inputOf(message, 'workflow:a'), {}, 'a part with no store gives none, and its where is never taken for one');
+});
