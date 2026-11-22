@@ -1,0 +1,24 @@
+{
+  "start_here": "Say to your AI: \"Record my AI tokens from my Claude Code transcripts now.\" It reads the saved byte cursors, reads only the new transcript lines with tool:record-ai-work-tokens, and runs the SQL it returns with tool:run-sql-in-my-database against the database that holds claude_messages.",
+  "no_lists_because": "This item keeps no list the person edits: it writes two measurement tables, claude_messages (one row per assistant message with its token usage) and transcript_cursors (the byte offset read in each transcript file), both named in its SQL plan, not in a list.",
+  "lists": [],
+  "workflows": ["workflow:record-ai-work-tokens-daily"],
+  "tools": ["tool:record-ai-work-tokens", "tool:run-sql-in-my-database"],
+  "instructions": [
+    "1. Make sure the database named in your store holds the tables claude_messages and transcript_cursors (the SQL plan creates no tables; the measurement tables must already exist).",
+    "2. Say \"Record my AI tokens from my Claude Code transcripts now.\" Your AI reads transcript_cursors, which is empty on the first run, so every transcript is read once.",
+    "3. Run the SQL the tool returns with tool:run-sql-in-my-database. Read the stats it gives back: files_seen, files_read, assistant_records, bad_line and partial_only.",
+    "4. Repeat on the next day; only the lines written since the saved cursors are read again."
+  ],
+  "worked_examples": [
+    {
+      "title": "The first full read of the transcripts",
+      "ask": "Record my AI tokens from my Claude Code transcripts now.",
+      "mcp": { "server": "{cli}", "tool": "do_one_thing_in_my_account", "input": { "address": "@tools", "method": "tools:run", "input": { "tool": "tool:record-ai-work-tokens", "input": { "projects_dir": "<your Claude Code projects folder>", "since_ms": 0, "cursors": {} } } } },
+      "workflow": "workflow:record-ai-work-tokens-daily",
+      "step": "read-transcripts",
+      "given": "Empty transcript_cursors and a projects folder with 16,437 transcript files",
+      "hands_back": "stats: files_seen 16413, files_read 590, assistant_records 11361, bad_line 0, partial_only 15823; the SQL then writes those usage rows and moves the cursors"
+    }
+  ]
+}

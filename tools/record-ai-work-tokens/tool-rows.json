@@ -1,0 +1,23 @@
+{
+  "kind": "tool-rows",
+  "record_set": "record-ai-work-tokens-tool-rows",
+  "what_this_is": "The Workshop row for the record-ai-work-tokens folder: reads the person's Claude Code transcripts from their byte cursors and returns the usage rows and the SQL that records them. It writes nothing; the daily recipe runs the SQL with tool:run-sql-in-my-database.",
+  "records": [
+    {
+      "id": "package::record-ai-work-tokens::tool::record-ai-work-tokens",
+      "address": "package::record-ai-work-tokens::tool::record-ai-work-tokens",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:record-ai-work-tokens",
+        "label": "Record how many AI tokens each transcript used (runs on your computer)",
+        "status": "active",
+        "job": "Read new Claude Code transcript lines since the last run and return usage rows and SQL for the measurement tables",
+        "runs_on": "the person's own computer",
+        "entry": "node tools/record-ai-work-tokens/do-work/record-tokens.mjs REQUEST.json",
+        "request": "{projects_dir, since_ms, cursors}",
+        "result": "{result: {stats, cursor_updates, sql}}"
+      }
+    }
+  ]
+}
