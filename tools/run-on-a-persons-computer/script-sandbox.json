@@ -1,6 +1,12 @@
 {
-  "_what": "How a person's script runs (computer/script-sandbox.mjs). The script runs in a child process started with `node --permission` and no allow flags, with an empty environment, so Node refuses its files, network, child processes, workers, addons and wasi. Inside that child the script runs in a vm context whose global has no prototype and holds nothing but `pm` (built in the context from the capabilities the host hands it) and the `libraries` named here. `limits` bound it: `wall_ms` is the longest it may run (finite by default; a run still going is killed), `heap_mb` its memory. A capability is a host object with an allowlist; with none, the script has no files, no cookies and no packages. Every word is here.",
+  "_what": "How a person's script runs (computer/script-sandbox.mjs). The script runs in a child process started through confined-run.mjs (tier `node.tier`: a Seatbelt profile with no writes and no network) from the Node in `node`, pinned by BLAKE3; inside it `node --permission` runs with no allow flags, so Node refuses its files, child processes, workers, addons and wasi. Inside that child the script runs in a vm context whose global has no prototype and holds nothing but `pm` (built in the context from the capabilities the host hands it) and the `libraries` named here. `limits` bound it: `wall_ms` is the longest it may run (finite by default; a run still going is killed), `heap_mb` its memory. A capability is a host object with an allowlist; with none, the script has no files, no cookies and no packages. Every word is here.",
   "limits": { "wall_ms": 30000, "heap_mb": 128, "result_chars": 200000 },
+  "node": {
+    "tier": "read-only",
+    "version": "25.3.0",
+    "blake3": "3c2ad9874425285131914e0d178e5a1db6a11cb6ab0e5c60bc681feb0d57e2c2",
+    "archive": { "url": "https://nodejs.org/dist/v25.3.0/node-v25.3.0-darwin-arm64.tar.gz", "bytes": 52655386, "blake3": "b52c8ba09296f9048c0b1b4b95fe7e5c08baaf2406e38a0869a2f15c70c9f77b", "executable": "node-v25.3.0-darwin-arm64/bin/node", "checked_against": "https://nodejs.org/dist/v25.3.0/SHASUMS256.txt" }
+  },
   "capabilities": {
     "files": { "read_max_bytes": 1000000 },
     "cookies": { "domains": [] },

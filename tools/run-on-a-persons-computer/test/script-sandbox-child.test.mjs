@@ -3,9 +3,11 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
+import { confinementSettings, spawnConfined } from '../confined-run.mjs';
 import { childArguments, makeHostCalls, runScript, sandboxSettings } from '../script-sandbox.mjs';
 
 const settings = sandboxSettings();
+const sandboxAllowed = () => confinementSettings().env_allow;
 const fast = { ...settings, limits: { ...settings.limits, wall_ms: 3000 } };
 
 test('a script chains two host calls with a filter between them', async () => {
@@ -24,11 +26,27 @@ test('a script chains two host calls with a filter between them', async () => {
   assert.deepEqual(asked, ['https://rows.test/list', 'https://rows.test/get']);
 });
 
-test('the child process has no environment of the host, so no key from the host reaches the script', () => {
+// Runs `code` as a node program under the read-only tier, without node --permission, and returns what it printed as JSON.
+const underTier = async code => {
+  const child = await spawnConfined(process.execPath, ['--input-type=module', '--eval', code], { tier: settings.node.tier, pin: { blake3: settings.node.blake3 } });
+  let out = '';
+  child.stdout.on('data', chunk => { out += chunk; });
+  await new Promise(resolve => child.on('exit', resolve));
+  return JSON.parse(out);
+};
+
+test('the child gets only the confined environment allowlist, so no other key from the host reaches it', async () => {
   // macOS's CoreFoundation sets __CF_USER_TEXT_ENCODING in every process it starts; the host passes nothing of its own.
-  const probe = "process.stdout.write(JSON.stringify(Object.keys(process.env).filter(name => !name.startsWith('__CF_'))));";
-  const run = spawnSync(process.execPath, [...childArguments(128).slice(0, 2), '--input-type=module', '--eval', probe], { env: {}, encoding: 'utf8' });
-  assert.deepEqual(JSON.parse(run.stdout), []);
+  const names = await underTier("process.stdout.write(JSON.stringify(Object.keys(process.env).filter(name => !name.startsWith('__CF_'))));");
+  const allowed = sandboxAllowed();
+  assert.ok(names.every(name => allowed.includes(name)), `${names.join(',')} is not in the allowlist`);
+});
+
+test('with the permission model off and the read-only tier on, the network is still refused by the OS wall', async () => {
+  const out = await underTier(`
+    try { await fetch('https://example.com/'); process.stdout.write(JSON.stringify({ reached: true })); }
+    catch (error) { process.stdout.write(JSON.stringify({ reached: false, why: String(error.cause?.code ?? error.code ?? error.message) })); }`);
+  assert.equal(out.reached, false, 'example.com must not be reached');
 });
 
 test('the process refuses a file read of the home .ssh folder, a fetch, and a child process', () => {

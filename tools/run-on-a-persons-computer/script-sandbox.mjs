@@ -5,9 +5,11 @@
 //   hand it. Used by anything that runs user scripts on this computer.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Isolation is the process. The script runs in a child started with `node --permission` and no allow flags, so Node itself
-//      refuses files, network, child processes, workers, addons and wasi, whatever the script does to reach them. The child gets
-//      an empty environment. Inside the child, the script runs in a vm context whose global has no prototype, and `pm` is built
+//   1. Two walls around the child. It is started through confined-run.mjs (`read-only` tier: a deny-default Seatbelt profile,
+//      no writes, no network), the one owner of starting a program inside the OS sandbox, from a Node binary whose BLAKE3 is
+//      pinned (computer/script-sandbox.json `node`). Inside that, Node's permission model refuses files, child processes, workers,
+//      addons and wasi (no allow flags), so the process refuses them even if the OS wall were missing. The child's environment is
+//      the confined environment allowlist. Inside the child, the script runs in a vm context whose global has no prototype, and `pm` is built
 //      inside that context from one string-only host call, so no object of the child or Node reaches the script. The vm context
 //      keeps the script's realm clean; the process permission is the boundary, not the vm.
 //   2. A finite wall clock by default (computer/script-sandbox.json limits); a child still running is killed.
@@ -18,11 +20,11 @@
 //      removed first.
 //   4. Everything that varies (limits, allowlists, words) is computer/script-sandbox.json; this file names no package, host or domain.
 //
-import { spawn } from 'node:child_process';
 import { readFileSync, realpathSync, statSync } from 'node:fs';
 import { dirname, join, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { hostWithin } from '../http-client/do-work/same-origin.mjs';
+import { spawnConfined } from './confined-run.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const sandboxSettings = () => JSON.parse(readFileSync(join(HERE, 'script-sandbox.json'), 'utf8'));
@@ -138,9 +140,14 @@ export const childArguments = heap_mb => ['--permission', `--max-old-space-size=
   '--eval', `import('node:vm').then(vm => (${childMain.toString()})(vm.default));`];
 
 /** Runs `code` (a function body; `return` the result) with `input` in a child process; resolves { value } or { error }. */
-export function runScript({ code, input = null, settings = sandboxSettings(), host = makeHostCalls({ settings }), wall_ms = settings.limits.wall_ms } = {}) {
+export async function runScript({ code, input = null, settings = sandboxSettings(), host = makeHostCalls({ settings }), wall_ms = settings.limits.wall_ms } = {}) {
+  let child;
+  try {
+    child = await spawnConfined(process.execPath, childArguments(settings.limits.heap_mb), { tier: settings.node.tier, pin: { blake3: settings.node.blake3 } });
+  } catch (error) {
+    return { error: String(error?.message ?? error) };
+  }
   return new Promise(done => {
-    const child = spawn(process.execPath, childArguments(settings.limits.heap_mb), { env: {}, stdio: ['pipe', 'pipe', 'pipe'] });
     let finished = false;
     let buffer = '';
     const finish = result => {

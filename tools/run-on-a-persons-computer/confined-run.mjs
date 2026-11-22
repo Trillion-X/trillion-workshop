@@ -16,7 +16,7 @@
 //   5. Paths in the profile are real paths (links resolved), so a link cannot lead a write outside its root.
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { execFile } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, realpathSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -57,11 +57,8 @@ export async function checkPin(program, pin, settings = confinementSettings()) {
   if (pin.team && await teamOf(program, settings) !== pin.team) throw refusal(settings, 'pin_team', { program, team: pin.team });
 }
 
-/**
- * Runs `command args` confined to `tier`. → { stdout, stderr, profile }. Rejects with the program's own error, or a refusal.
- * options: tier (id), workspace, scoped_env ({ NAME: value }), pin, timeout_ms, cwd, home, settings.
- */
-export async function runConfined(command, args = [], { tier: tierId, workspace = null, scoped_env = {}, pin = null, timeout_ms = 60000, cwd = workspace ?? undefined, home = homedir(), settings = confinementSettings() } = {}) {
+/** The sandbox's command line, profile and environment for `command args` confined to a tier. Refuses before anything starts. */
+async function confinement(command, args, { tier: tierId, workspace = null, scoped_env = {}, pin = null, home = homedir(), settings = confinementSettings() }) {
   const tier = settings.tiers.find(row => row.id === tierId);
   if (!tier) throw refusal(settings, 'unknown_tier', { tier: tierId }, 400);
   if (!existsSync(settings.sandbox_program)) throw refusal(settings, 'no_sandbox', {}, 501);
@@ -70,6 +67,24 @@ export async function runConfined(command, args = [], { tier: tierId, workspace 
   const profile = profileFor(tier, { workspace, tmp, home }, settings);
   const env = Object.fromEntries(settings.env_allow.filter(name => process.env[name] !== undefined).map(name => [name, process.env[name]]));
   Object.assign(env, scoped_env, { TMPDIR: tmp });
-  const { stdout, stderr } = await run(settings.sandbox_program, ['-p', profile, command, ...args], { env, cwd, timeout: timeout_ms, maxBuffer: 64 * 1024 * 1024 });
+  return { argv: ['-p', profile, command, ...args], env, profile, settings };
+}
+
+/**
+ * Runs `command args` confined to `tier`. → { stdout, stderr, profile }. Rejects with the program's own error, or a refusal.
+ * options: tier (id), workspace, scoped_env ({ NAME: value }), pin, timeout_ms, cwd, home, settings.
+ */
+export async function runConfined(command, args = [], { workspace = null, timeout_ms = 60000, cwd = workspace ?? undefined, ...options } = {}) {
+  const { argv, env, profile, settings } = await confinement(command, args, { workspace, ...options });
+  const { stdout, stderr } = await run(settings.sandbox_program, argv, { env, cwd, timeout: timeout_ms, maxBuffer: 64 * 1024 * 1024 });
   return { stdout: String(stdout), stderr: String(stderr), profile };
+}
+
+/**
+ * Starts `command args` confined to `tier` and returns the child process, with its standard input and output open for a
+ * caller that streams to it (the script sandbox does). Same refusals, pin and profile as runConfined; nothing is waited for.
+ */
+export async function spawnConfined(command, args = [], { workspace = null, cwd = workspace ?? undefined, ...options } = {}) {
+  const { argv, env, settings } = await confinement(command, args, { workspace, ...options });
+  return spawn(settings.sandbox_program, argv, { env, cwd, stdio: ['pipe', 'pipe', 'pipe'] });
 }
