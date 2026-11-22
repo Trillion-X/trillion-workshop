@@ -103,8 +103,9 @@ function makeTab(spec, address) {
         const body = JSON.parse(options.body);
         spec.notion.calls.push({ path: new URL(downloadAddress).pathname, body });
         try {
-          const recordMap = spec.notion.answer(new URL(downloadAddress).pathname, body);
-          return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ recordMap, cursor: { stack: [] } }) });
+          const answer = spec.notion.answer(new URL(downloadAddress).pathname, body);
+          const payload = answer.signedUrls ? answer : { recordMap: answer, cursor: { stack: [] } };
+          return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(payload) });
         } catch (error) {
           return Promise.reject(error);
         }
@@ -608,3 +609,55 @@ test('a Notion page whose API refuses falls back to scrolling the page, and says
   assert.match(answer.notion_error, /HTTP 401/);
   assert.equal(arc.log.opened.length, arc.log.closed);
 });
+
+test('a Notion page\'s attached file is signed in the page and saved by Arc\'s download, named by its BLAKE3 with its own extension', async () => {
+  const dir = tempRoot();
+  try {
+    const downloads = join(dir, 'Downloads');
+    const root = join(dir, 'pulled');
+    mkdirSync(downloads);
+    const origin = 'https://example.notion.site';
+    const id = 'aaaaaaaabbbbccccddddeeeeeeeeeeee';
+    const body = new TextEncoder().encode('PK fake zip bytes');
+    const signed = [];
+    const blockOf = (value) => ({ value: { value: { alive: true, ...value } } });
+    const notion = {
+      calls: [],
+      answer: (path, requestBody) => {
+        if (path === '/api/v3/loadPageChunk') return { block: {
+          'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee': blockOf({ type: 'page', properties: { title: [['Skill']] }, content: ['20000000-0000-0000-0000-000000000001'] }),
+          '20000000-0000-0000-0000-000000000001': blockOf({ type: 'file', properties: { title: [['scripts-skill.zip']], size: [['2.24 KiB']], source: [['attachment:d6118353-c008-4ac8-8a75-aee4db8a31e1:scripts-skill.zip']] }, format: {}, content: [] }),
+        } };
+        assert.equal(path, '/api/v3/getSignedFileUrls');
+        signed.push(requestBody);
+        return { signedUrls: ['https://files.example/signed/scripts-skill.zip?signature=x'] };
+      },
+    };
+    const arc = fakeArc({
+      [`${origin}/Skill-${id}`]: { title: 'Skill', text: 'x', notion },
+      'https://files.example/signed/scripts-skill.zip?signature=x': {
+        title: 'file',
+        text: '',
+        onOpen: () => writeFileSync(join(downloads, 'scripts-skill.zip'), body),
+      },
+    });
+    const settings = withSettings({ save: { root, downloads_folder: downloads, poll_ms: 5, most_download_seconds: 5 } });
+    const answer = await pullAPageInArc({ url: `${origin}/Skill-${id}`, save_attachments: { folder: join(root, 'skill') } }, { exec: arc.exec, settings, sleep: fastSleep });
+    assert.equal(answer.error, undefined, answer.error);
+    assert.deepEqual(signed[0].urls[0].permissionRecord, { table: 'block', id: '20000000-0000-0000-0000-000000000001' });
+    assert.equal(answer.attachments.length, 1);
+    const [file] = answer.attachments;
+    assert.equal(file.error, undefined, file.error);
+    assert.equal(file.original_name, 'scripts-skill.zip');
+    const hash = bytesToHex(blake3(body));
+    assert.equal(file.name, `${hash}.zip`);
+    assert.equal(file.blake3, hash);
+    assert.equal(file.bytes, body.length);
+    assert.deepEqual(readFileSync(file.path), Buffer.from(body));
+    assert.deepEqual(readdirSync(downloads), []);
+    assert.equal(arc.log.opened.length, arc.log.closed);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+

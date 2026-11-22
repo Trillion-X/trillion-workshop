@@ -28,6 +28,10 @@ Two tools live here:
 - A Notion page (`notion.site`, `notion.com`, `notion.so`) is read through the page's own API inside the tab (`loadPageChunk`, then `syncRecordValuesSpace` for children that were not loaded), with no clicks. Toggles and child pages are included in block order; child pages are answered as links. If the API refuses, the page is read by scrolling and `notion_error` says why.
 - A `scroll_selector` that matches nothing falls back to scrolling the window; `scroll.pane_found` says whether the pane was found.
 
+## Notion attachments
+
+- `save_attachments: { folder }` on a Notion page saves each file the page attaches (file, pdf, image, video, audio blocks and `attachment:` links). The reader asks Notion for each file's signed address (`getSignedFileUrls`, inside the tab), then Arc downloads it as in the save route below. Each file is named by its BLAKE3 with its own extension, listed under `attachments` with its `original_name`. Nothing is opened or unpacked.
+
 ## Save
 
 - A Google Doc is read from its own HTML page (`/mobilebasic`) with the person's sign-in, and saved as `txt` (the visible text, converted in node) or `html` (the bytes as fetched). Its export address (`/export?format=`) cannot be used from Arc: the fetch fails with "Failed to fetch" for every format, because the export redirects to another origin without CORS headers.

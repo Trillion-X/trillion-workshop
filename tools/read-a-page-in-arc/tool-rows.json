@@ -155,6 +155,19 @@
                   "description": "The file's address (http or https), when the page is not a Google file or a Drive file"
                 }
               }
+            },
+            "save_attachments": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "folder"
+              ],
+              "description": "A Notion page's attached files (file, pdf, image, video, audio blocks and attachment: links) are signed in the page and saved by Arc's download into this folder (an absolute path or one starting with ~/, inside the save root), each named by its BLAKE3 with its own extension; the answer lists them as attachments.",
+              "properties": {
+                "folder": {
+                  "type": "string"
+                }
+              }
             }
           },
           "required": [

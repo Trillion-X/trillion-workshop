@@ -18,7 +18,8 @@
     "most_rounds": 30,
     "most_seconds": 120,
     "poll_ms": 500,
-    "merge_min_line_chars": 20
+    "merge_min_line_chars": 20,
+    "most_attachments": 50
   },
   "text": {
     "most_chars": 2000000,

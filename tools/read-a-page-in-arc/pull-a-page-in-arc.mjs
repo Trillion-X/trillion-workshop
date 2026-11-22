@@ -40,9 +40,10 @@ import {
 
 export const settings = JSON.parse(readFileSync(new URL('./pull-settings.json', import.meta.url), 'utf8'));
 
-const INPUT_FIELDS = ['url', 'links', 'scroll_selector', 'follow', 'save'];
+const INPUT_FIELDS = ['url', 'links', 'scroll_selector', 'follow', 'save', 'save_attachments'];
 const FOLLOW_FIELDS = ['same_site_only', 'most_pages', 'match'];
 const SAVE_FIELDS = ['folder', 'format', 'file_url'];
+const ATTACHMENT_FIELDS = ['folder'];
 const GOOGLE_KINDS = { document: 'document', spreadsheets: 'spreadsheet', presentation: 'presentation' };
 const GOOGLE_DEFAULT_FORMAT = { document: 'txt', spreadsheet: 'csv', presentation: 'pdf' };
 const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
@@ -94,6 +95,14 @@ function readSave(save) {
   return { folder: save.folder, format: save.format ?? null, file_url: save.file_url ?? null };
 }
 
+/** save_attachments: { folder } where the files a Notion page attaches are written. */
+function readAttachmentFolder(value) {
+  if (typeof value !== 'object' || Array.isArray(value)) refuse('save_attachments must be an object with a folder.');
+  onlyFields(value, ATTACHMENT_FIELDS, 'save_attachments');
+  if (typeof value.folder !== 'string' || value.folder.length === 0) refuse('save_attachments.folder must be the folder the files are written in.');
+  return { folder: value.folder };
+}
+
 /** Checks the input before Arc is touched. Answers the request in plain words, or refuses. */
 function readInput(input, s) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) refuse('The input must be a JSON object.');
@@ -109,7 +118,9 @@ function readInput(input, s) {
   const follow = input.follow === undefined ? null : readFollow(input.follow, s);
   const save = input.save === undefined ? null : readSave(input.save);
   if (save && (links || follow || selector)) refuse('save is one job on its own: leave out links, follow and scroll_selector.');
-  return { url, selector, links, needs_links: links || follow !== null, follow, save };
+  const saveAttachments = input.save_attachments === undefined ? null : readAttachmentFolder(input.save_attachments);
+  if (saveAttachments && save) refuse('save and save_attachments are separate jobs: give one.');
+  return { url, selector, links, needs_links: links || follow !== null, follow, save, save_attachments: saveAttachments };
 }
 
 /**
@@ -274,12 +285,13 @@ async function readNotionText(tab, s, sleep) {
     maxBlocks: s.notion.most_blocks,
     maxChunks: s.notion.most_chunks,
     maxRounds: s.notion.most_rounds,
+    maxAttachments: s.notion.most_attachments,
   }));
   const deadline = Date.now() + s.notion.most_seconds * 1000;
   for (;;) {
     const state = await tab.evaluate(notionStateScript(s.links.most_links));
     if (state.state === 'done') {
-      return { text: await readWholeText(tab, state.chars, s), links: state.links, blocks: state.blocks, chars: state.chars, sync_error: state.sync_error };
+      return { text: await readWholeText(tab, state.chars, s), links: state.links, blocks: state.blocks, chars: state.chars, sync_error: state.sync_error, attachments: state.attachments };
     }
     if (state.state === 'failed') return { error: state.error };
     if (Date.now() >= deadline) return { error: `The Notion page did not finish within ${s.notion.most_seconds} seconds.` };
@@ -319,6 +331,7 @@ async function readOpenPage(tab, asked, selector, s, sleep) {
         text_chars_total: text.length,
         scroll: { steps: 0, stopped_by: 'notion_blocks', text_chars_before: pageView.length, pane_found: null, notion_blocks: notion.blocks },
         notion_links: notion.links,
+        notion_attachments: notion.attachments,
         notion_error: notion.sync_error,
         merge: { api_chars: notion.chars, page_view_chars: first.textChars, page_view_lines_added: extra.length },
       };
@@ -385,7 +398,25 @@ function mergeLinks(notionLinks, dom, most) {
   return { links: links.slice(0, most), found: notionLinks.length + dom.found };
 }
 
-async function pullPage(tab, want, s, sleep, startedAt) {
+/** Saves the files a Notion page attaches, each by Arc's own download (the signed address), named by its BLAKE3. */
+async function saveAttachments(attachments, folder, openTab, s, sleep) {
+  const saved = [];
+  for (const attachment of attachments) {
+    if (!attachment.signed) {
+      saved.push({ original_name: attachment.name, error: 'Notion did not sign this file\'s address.' });
+      continue;
+    }
+    try {
+      const file = await saveByBrowserDownload(openTab, attachment.signed, folder, { extension: extname(attachment.name).slice(1).toLowerCase(), from_url: attachment.signed }, s, sleep);
+      saved.push({ original_name: attachment.name, ...file });
+    } catch (error) {
+      saved.push({ original_name: attachment.name, error: failure(error) });
+    }
+  }
+  return saved;
+}
+
+async function pullPage(tab, want, s, sleep, startedAt, folder, openTab) {
   const { page, linked } = await withTab(tab, want.url, async () => {
     const read = await readOpenPage(tab, want.url, want.selector, s, sleep);
     const dom = want.needs_links ? await readLinks(tab, s) : null;
@@ -394,6 +425,12 @@ async function pullPage(tab, want, s, sleep, startedAt) {
   const answer = { title: page.title, url: page.url, text: page.text, truncated: page.truncated, text_chars_total: page.text_chars_total, scroll: page.scroll };
   if (page.notion_error) answer.notion_error = page.notion_error;
   if (page.merge) answer.merge = page.merge;
+  if (want.save_attachments) {
+    answer.attachments = page.notion_attachments
+      ? await saveAttachments(page.notion_attachments, folder, openTab, s, sleep)
+      : [];
+    if (!page.notion_attachments) answer.attachments_note = 'Only a Notion page has attachments to save; this page read another way.';
+  }
   if (want.links) {
     answer.links = linked.links;
     answer.links_found = linked.found;
@@ -519,13 +556,15 @@ export async function pullAPageInArc(input, { exec, settings: s = settings, slee
       source = saveSource(want.url, want.save, s);
       folder = await prepareFolder(want.save.folder, s);
     }
+    if (want.save_attachments) folder = await prepareFolder(want.save_attachments.folder, s);
   } catch (error) {
     return { error: failure(error) };
   }
   const arc = tab ?? arcTab({ exec, timeout_ms: s.wait.call_timeout_ms });
   try {
-    if (want.save) return await pullFile(arc, want, source, folder, s, sleep, () => arcTab({ exec, timeout_ms: s.wait.call_timeout_ms }));
-    return await pullPage(arc, want, s, sleep, startedAt);
+    const openTab = () => arcTab({ exec, timeout_ms: s.wait.call_timeout_ms });
+    if (want.save) return await pullFile(arc, want, source, folder, s, sleep, openTab);
+    return await pullPage(arc, want, s, sleep, startedAt, folder, openTab);
   } catch (error) {
     return { error: failure(error) };
   }

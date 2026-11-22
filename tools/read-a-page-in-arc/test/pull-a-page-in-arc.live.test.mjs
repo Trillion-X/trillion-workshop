@@ -107,3 +107,18 @@ test('a Google Drive file the in-tab fetch cannot read is saved by Arc\'s own do
   console.log(`Drive file: ${answer.file.bytes} bytes, ${answer.file.name}`);
 });
 
+test('a Notion page\'s attached zip is saved by Arc\'s download, named by its BLAKE3, with its original name', async () => {
+  const answer = await pullAPageInArc({
+    url: 'https://cactus-diploma-d38.notion.site/The-SCRIPTS-Claude-skill-41856c8bc0b08141b1fbd2ce695fb53a',
+    save_attachments: { folder: join(saveRoot, 'cactus-attachments') },
+  });
+  assert.equal(answer.error, undefined, answer.error);
+  const zip = answer.attachments.find((file) => file.original_name === 'scripts-skill.zip');
+  assert.ok(zip, 'scripts-skill.zip is in the answer');
+  assert.equal(zip.error, undefined, zip.error);
+  assert.ok(zip.bytes > 0);
+  assert.equal(zip.name, `${zip.blake3}.zip`);
+  assert.equal(bytesToHex(blake3(readFileSync(zip.path))), zip.blake3);
+  console.log(`scripts-skill.zip: ${zip.bytes} bytes, ${zip.path}`);
+});
+

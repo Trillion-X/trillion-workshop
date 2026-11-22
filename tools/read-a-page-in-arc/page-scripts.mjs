@@ -251,9 +251,16 @@ function readNotion(config) {
   var lines = [];
   var links = [];
   var linkSeen = {};
+  var attachments = [];
+  var attachmentSeen = {};
   var visited = 0;
+  function addAttachment(block, source, name) {
+    if (!source || attachmentSeen[source] || attachments.length >= config.maxAttachments) return;
+    attachmentSeen[source] = true;
+    attachments.push({ block: block, source: source, name: name || source.split(':').pop() });
+  }
   function addLink(href, text) {
-    if (!href || linkSeen[href]) return;
+    if (!href || !/^https?:\/\//.test(href) || linkSeen[href]) return;
     linkSeen[href] = true;
     links.push({ href: href, text: text });
   }
@@ -286,6 +293,14 @@ function readNotion(config) {
     if (!value || visited >= config.maxBlocks) return;
     visited += 1;
     var text = textOf(value);
+    // An attachment: link anywhere in the block's text (Notion stores an uploaded file as attachment:<id>:<name>).
+    Object.keys(value.properties || {}).forEach(function (name) {
+      (value.properties[name] || []).forEach(function (piece) {
+        (piece[1] || []).forEach(function (d) {
+          if (d[0] === 'a' && typeof d[1] === 'string' && d[1].indexOf('attachment:') === 0) addAttachment(id, d[1], piece[0]);
+        });
+      });
+    });
     var line = null;
     var recurse = true;
     var childDepth = depth + 1;
@@ -348,7 +363,8 @@ function readNotion(config) {
       case 'audio':
         var address = propertyText(value, 'source') || propertyText(value, 'link');
         addLink(address, text);
-        line = text && address ? text + ' ' + address : (text || address);
+        if (value.type !== 'bookmark' && value.type !== 'embed' && value.type !== 'link_preview' && address) addAttachment(id, address, propertyText(value, 'title') || text);
+        line = text && /^https?:\/\//.test(address) ? text + ' ' + address : (text || address);
         break;
       case 'equation': line = propertyText(value, 'title') || text; break;
       default: line = text || null;
@@ -357,6 +373,20 @@ function readNotion(config) {
     if (recurse) {
       (value.content || []).forEach(function (child) { render(child, childDepth, columnOrder); });
     }
+  }
+  // Each attachment's download address, signed for this page (Notion's getSignedFileUrls, answered in the page's own origin).
+  // Best effort: a refused signing leaves the files unsigned (with the reason) and never costs the page's text.
+  function signAttachments() {
+    if (!attachments.length) return Promise.resolve([]);
+    var urls = attachments.map(function (a) { return { url: a.source, permissionRecord: { table: 'block', id: a.block } }; });
+    return post('/api/v3/getSignedFileUrls', { urls: urls }).then(function (data) {
+      return attachments.map(function (a, i) {
+        return { name: a.name, source: a.source, block: a.block, signed: (data.signedUrls || [])[i] || null };
+      });
+    }).catch(function (error) {
+      result.attachments_error = String((error && error.message) || error);
+      return attachments.map(function (a) { return { name: a.name, source: a.source, block: a.block, signed: null }; });
+    });
   }
   nextChunk({ stack: [] })
     .then(function () {
@@ -375,6 +405,10 @@ function readNotion(config) {
       result.chunks = chunk;
       result.rounds = rounds;
       result.sync_error = result.sync_error || null;
+      return signAttachments();
+    })
+    .then(function (signed) {
+      result.attachments = signed;
       result.state = 'done';
     })
     .catch(function (error) {
@@ -406,7 +440,8 @@ export function notionStateScript(maxLinks) {
     rounds: result.rounds || 0,
     sync_error: result.sync_error || null,
     links: (result.links || []).slice(0, maxLinks),
-    links_found: (result.links || []).length
+    links_found: (result.links || []).length,
+    attachments: result.attachments || []
   });
 })(${JSON.stringify(maxLinks)});`;
 }
