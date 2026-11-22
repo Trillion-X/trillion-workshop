@@ -185,7 +185,7 @@
     "released_busy": "Trillion kept answering busy, so this computer stopped the AI run and gave the task back for the next AI.",
     "released_timeout": "The AI run for this task ran past {minutes} minutes and was stopped; its words show no usage limit, so no AI rests. The task is given back; the words are in {log} on {computer}.",
     "released_limit": "{ai} reached its usage limit and rests until {until}; the task is given back for the next AI.",
-    "rested_because": "it reached its usage limit ({said})", "resumed_after_limits": "Reviewed by this computer: every attempt on this work ended at a spent login's usage limit before any work was done, so it is taken again on a login that has room.",
+    "rested_because": "it reached its usage limit ({said})", "resumed_after_limits": "Reviewed by this computer: every attempt on this work ended at a spent login's usage limit before any work was done, so it is taken again on a login that has room.", "resumed_after_check_change": "Reviewed by this computer: this work was parked because its answer check ({was}) refused the answer, and this computer now checks answers with another check ({now}), so it is taken again under the new check, once.",
     "released_start_failed": "{ai} could not be started on this computer ({error}); the task is given back for the next AI.",
     "start_failed_trouble": "could not start: {error}",
     "program_missing_trouble": "{program} is not installed where Trillion looks ({folders})",

@@ -56,6 +56,7 @@ export const accountOfSettings = settings => ({ ...accountWithWord(settings.acco
 import { runTaskMove, stateOfWord, tasksIn, wordsOfStates } from '../../plan-tasks-and-todo-lists/run-a-task-move.mjs';
 import { requestedOutcome } from '../../plan-tasks-and-todo-lists/task-moves.mjs';
 import { answerIssue, uncheckable, UnsupportedSchema } from './answer-shape.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { acquireAiAuth, loginsOf, restingLogins } from './ai-auth.mjs';
 
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (whole, name) => (Object.hasOwn(values, name) ? String(values[name]) : whole));
@@ -674,12 +675,14 @@ export async function finishFromAnswer(call, settings, { job, read, logPath, at 
   if (!written || typeof written !== 'object' || Array.isArray(written) || typeof evidence !== 'string' || !evidence.trim()) return fill(words.answer_missing, { log: logPath });
   if (written.result === null || written.result === undefined) return fill(words.answer_refused, { why: evidence.trim().slice(0, 400) });
   if (!read.asks?.submit) return fill(words.answer_refused, { why: 'the task names no submit shape to check the answer against' });
+  // A refusal by the answer check names that check on the job, so a park it causes can be lifted by a newer check.
+  const byCheck = why => { job.check_refused = ANSWER_CHECK; return fill(words.answer_refused, { why }); };
   const unchecked = cannotFinishHere(read);
-  if (unchecked) return fill(words.answer_refused, { why: unchecked });
+  if (unchecked) return unchecked === uncheckable(read.asks.submit) ? byCheck(unchecked) : fill(words.answer_refused, { why: unchecked });
   let issue;
   try { issue = answerIssue(written.result, read.asks.submit); }
-  catch (error) { if (error instanceof UnsupportedSchema) return fill(words.answer_refused, { why: error.message }); throw error; }
-  if (issue) return fill(words.answer_refused, { why: issue });
+  catch (error) { if (error instanceof UnsupportedSchema) return byCheck(error.message); throw error; }
+  if (issue) return byCheck(issue);
   return finishWithAnswer(call, settings, { job, read, answer: written.result, evidence: { ref: file, observation: evidence.trim().slice(0, 2000) }, at });
 }
 
@@ -719,6 +722,23 @@ export async function finishWithAnswer(call, settings, { job, read, answer, evid
  * limit. Such a park asks no review, since no AI did any work on it; one real failure among the attempts keeps it parked.
  * Pure.
  */
+// The identity of this computer's answer check (answer-shape.mjs's bytes, BLAKE3): kept on an attempt's record when that
+// check refused the attempt's answer, so a task parked by an older check is resumed once the check is another.
+export const ANSWER_CHECK = makeHashCodeHexFromBytes(readFileSync(new URL('./answer-shape.mjs', import.meta.url)));
+
+/**
+ * Whether work this computer parked for review was parked by its answer check, under a check that is not `check` (the one
+ * this computer runs now): the refusal may have been the old check's, so the taker resumes it, once per check. A record
+ * names the check that refused it (check_refused); one parked before records kept it is read from the reason the task was
+ * given back with, and only an unchecked-keyword refusal counts, the one a newer check can lift. Nov 22 2026: an inventory
+ * step stayed parked at 6:44 AM CST after three refusals for minItems, which dcab08064 then checked. Pure.
+ */
+export function parkedByAnOlderCheck(record, reason, check = ANSWER_CHECK) {
+  if (!record?.parked || record.check_resumed === check) return false;
+  if (typeof record.check_refused === 'string') return record.check_refused !== check;
+  return /names the keyword "[^"]*", which this computer does not check/.test(String(reason ?? ''));
+}
+
 export function parkedOnlyByLimits(record, history = []) {
   if (!record?.parked || !record.limit_hit) return false;
   return history.filter(item => item.handoff_id === record.handoff_id).every(item => item.limit_hit === true);
@@ -829,6 +849,17 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
         await call('/handoffs/resume', { handoff_id: item.handoff_id, agent_id, because: settings.words.resumed_after_limits });
         log({ did: 'resumed work parked only by spent logins', handoff_id: item.handoff_id });
       } catch (error) { log({ did: 'resume of work parked by spent logins waits', handoff_id: item.handoff_id, error: String(error?.message ?? error) }); }
+      continue;
+    }
+    // Work parked because the answer check refused it, under a check this computer no longer runs, is resumed by the taker
+    // itself once per check (parkedByAnOlderCheck); a park under the check it runs now stays for review.
+    if (call.tasks && item.state === 'blocked' && item.continuation?.owner === agent_id && parkedByAnOlderCheck(started.get(item.handoff_id), item.continuation?.reason)) {
+      const was = started.get(item.handoff_id).check_refused ?? 'an earlier one';
+      try {
+        await call('/handoffs/resume', { handoff_id: item.handoff_id, agent_id, because: fill(settings.words.resumed_after_check_change, { was, now: ANSWER_CHECK }) });
+        records.update(item.handoff_id, { check_resumed: ANSWER_CHECK });
+        log({ did: 'resumed work parked by an older answer check', handoff_id: item.handoff_id, was, now: ANSWER_CHECK });
+      } catch (error) { log({ did: 'resume of work parked by an older answer check waits', handoff_id: item.handoff_id, error: String(error?.message ?? error) }); }
       continue;
     }
     if (item.state !== 'open' && !(call.tasks && item.state === 'taken')) continue;
@@ -1102,6 +1133,7 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
         refusal = job.mode === 'turn'
           ? await finishTurn(call, settings, { job, read, out: readFileSync(replyPath, 'utf8'), outPath: replyPath, logPath, computer, at: now() })
           : await finishFromAnswer(call, settings, { job, read, logPath, at: now() });
+        if (refusal !== null && job.check_refused) records.update(job.handoff_id, { check_refused: job.check_refused });
         if (refusal === null) read = (await call('/handoffs/read', { handoff_id: job.handoff_id }))?.handoff;
       }
       const finished = read?.state === 'finished';
