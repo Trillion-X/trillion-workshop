@@ -15,9 +15,7 @@
 //
 // Nothing here prices anything, names a product, or holds a key. A request is built from the person's offer rows and
 // goes to Stripe only through `send`; with no key the function refuses before building a request that could be sent.
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import webhookEventMap from '../read-data/webhook-event-map.json' with { type: 'json' };
 import { openBillingPage, readBillingPage } from './billing-portal.mjs';
 import { readCheckoutOffers } from '../../funnels-and-offers/read-data/read-offers.ts';
 import { suggestionListsFrom } from '../read-data/suggestion-lists.mjs';
@@ -50,8 +48,6 @@ import { rehearseABillingPage } from './rehearse-a-billing-page.mjs';
 import { readStripeObjects } from './read-stripe-objects.mjs';
 export { manageUsagePricing, priceResourceUsage, keepResourceUsageObservation, settleSharedResourceCost, correctResourceUsageSettlement, readResourceUsageSettlement } from './resource-usage.mjs';
 
-const here = dirname(fileURLToPath(import.meta.url));
-const dataFile = name => JSON.parse(readFileSync(join(here, '..', 'read-data', name), 'utf8'));
 
 // The descriptor numbers the rows mount things on: 4 is the person's Stripe key, 5 the signing secret for webhooks.
 const STRIPE_KEY_DESCRIPTOR = 4;
@@ -174,7 +170,7 @@ export const listEndedStripeSubscriptions = async (input, context = {}) => listE
  */
 export const listStripeEventsAsPaymentEvents = async (input, context = {}) => listStripeEvents(input, {
   send: sender(context),
-  eventMap: input.event_map ?? dataFile('webhook-event-map.json'),
+  eventMap: input.event_map ?? webhookEventMap,
 });
 export const tagAStripeSubscription = async (input, context = {}) => updateSubscriptionMetadata(input, { send: sender(context) });
 
@@ -212,7 +208,7 @@ export async function checkAStripeEvent(input, context = {}) {
   if (!checked.admitted) return { admitted: false, reason: checked.reason, payment_event: null };
   const invoice = invoiceNeedingPaymentIntent(checked.stripeEvent);
   const paymentIntent = invoice ? await invoicePaymentIntent(invoice, sender(context)) : null;
-  const mapped = mapStripeWebhookEvent(checked.stripeEvent, input.event_map ?? dataFile('webhook-event-map.json'), paymentIntent);
+  const mapped = mapStripeWebhookEvent(checked.stripeEvent, input.event_map ?? webhookEventMap, paymentIntent);
   if (!mapped) return { admitted: false, reason: 'unmapped-event-type', payment_event: null };
   return {
     admitted: true,
@@ -256,7 +252,7 @@ function checkoutAsStripeEvent(checkout) {
  */
 export async function listCompletedCheckoutsAsPaymentEvents(input, context = {}) {
   const listed = await listCompletedHostedSessions(input, { send: sender(context) });
-  const eventMap = input.event_map ?? dataFile('webhook-event-map.json');
+  const eventMap = input.event_map ?? webhookEventMap;
   const offerRows = input.offers ?? [];
   const pursuitsOf = new Map(offerRows.filter(row => Array.isArray(row.pursuit_ids) && row.pursuit_ids.length)
     .flatMap(row => [row.id, ...(Array.isArray(row.earlier_ids) ? row.earlier_ids : [])].map(id => [id, row.pursuit_ids])));

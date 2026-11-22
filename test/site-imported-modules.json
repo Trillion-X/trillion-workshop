@@ -1,0 +1,42 @@
+{
+  "_what": "The Workshop modules the sites import (Ethos through workshop/…, trillion-x-school), found by reading each site's origin imports. A site bundles these, and a bundle has no folder of its own beside it, so a run-time read of a file from the module's own folder fails there. test/bundled-site-modules-read-no-file-beside-them.test.mjs reads this list. Extend the list when a site starts importing another module. allowed names a listed module that reads beside itself on purpose, with why.",
+  "modules": [
+    "tools/take-payments/do-work/take-payments.mjs",
+    "tools/take-payments/do-work/stripe-send.mjs",
+    "tools/take-payments/do-work/hosted-session.ts",
+    "tools/take-payments/read-data/suggestion-lists.mjs",
+    "tools/traffic-attribution/do-work/journey.mjs",
+    "tools/send-messages/do-work/send-a-message.mjs",
+    "tools/send-messages/do-work/send-via-resend.cjs",
+    "tools/send-messages/read-data/email-course.mjs",
+    "tools/space-members/read-data/member-now.mjs",
+    "tools/space-members/read-data/space-rows.mjs",
+    "tools/read-objects-in-an-s3-store/do-work/read-objects.mjs",
+    "tools/lessons-and-learning-paths/do-work/show-the-courses-a-learner-is-on.mjs",
+    "tools/lessons-and-learning-paths/read-data/lesson-done.mjs",
+    "tools/paid-access/read-data/who-holds-access.mjs",
+    "tools/gather-words-from-people/do-work/gather-words.mjs",
+    "tools/gather-words-from-people/read-data/gathered-words.mjs",
+    "tools/referral-codes-and-rewards/read-data/referral-codes.mjs",
+    "tools/referral-codes-and-rewards/read-data/referral-reward-rules.mjs",
+    "tools/referral-codes-and-rewards/do-work/referral-rewards.mjs",
+    "tools/take-a-booking-one-step-at-a-time/read-data/booking-steps.mjs",
+    "tools/social-posts/read-data/posts.mjs",
+    "tools/shared-code/src/build-provider-request.mjs",
+    "tools/publish-content-for-discovery/do-work/site-search-head.mjs",
+    "tools/guided-tours/do-work/tour.mjs",
+    "tools/funnels-and-offers/read-data/read-offers.ts",
+    "tools/book-time/read-data/derive-open-slots.ts",
+    "tools/write-a-sales-page/read-data/sales-page.mjs",
+    "tools/serve-articles-and-signup/do-work/pursuit-site.mjs",
+    "tools/content-identity/read-data/identity.mjs",
+    "tools/ui/show/consent-banner/consent-banner.mjs",
+    "tools/ui/show/consent-banner/consent-banner-check.mjs"
+  ],
+  "allowed": [
+    {
+      "path": "tools/space-members/read-data/member-now.mjs",
+      "why": "Loads the formula engine's wasm with readFileSync(new URL(import.meta.resolve(...))): a binary package asset that a JSON import cannot carry. A site's bundler must ship the .wasm beside its bundle; the formula-engine owner holds that fix. Not a read beside the module's own folder, but the same bundle risk, so it stays visible here until that fix lands."
+    }
+  ]
+}
