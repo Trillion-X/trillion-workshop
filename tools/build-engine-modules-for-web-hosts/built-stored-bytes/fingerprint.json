@@ -25,7 +25,7 @@
     "tools/workflows/ask-words.json",
     "tools/workflows/run-end.json"
   ],
-  "fingerprint": "451e712f1826e639bb4be34a94a5fb47cb9dfa6344d8408657e693750b9a77fc",
+  "fingerprint": "8f84ccc2a4c0f5dcdabab0a2aaf52410ae6919630a0f986973ff2abb6407f98e",
   "workspace_commits": {
     "../../trillion-rust/crates": "00ed817c51a2b88c46c727ceb68de2a25eb63836"
   },
@@ -39,6 +39,6 @@
     "composition-engine/composition_engine.wasm": "634e20f190f0e4680d7f0dd360e44427817471e14678bcb86b58c37a96018b91",
     "composition-engine/composition_engine.js": "e77c96be89e4b4c3286febf0c83952300200a89b103b953153c773ae41c462f4",
     "composition-engine/composition_engine_bg.wasm": "f11c4deaa1cf76b6092e92e6352ba05f3f91e7498278874a17919ef58aae0caa",
-    "workflow-component/workflow_component.wasm": "483f2db2d2948ed9390c04ae34d95c45cfb2b5609528fb48c01b112f4d7b8f5c"
+    "workflow-component/workflow_component.wasm": "f9ae0cd7aeddafa1669f37df7c817370b4bf9f41b09c781b431cd43a93f18306"
   }
 }

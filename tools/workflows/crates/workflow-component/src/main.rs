@@ -145,8 +145,10 @@ fn effect_of(waiting: &Value, told: Value, doors: &BTreeSet<String>, workflow: &
 /// `fill_input` is the reader of what a bare start leaves out (workflow_engine::fill_input), and `filled_from` what it filled.
 /// `uses_missing` lists the workflows the run names that no `uses` holds, which its reader reads too.
 /// `on_end` is the run's end recorder (`end_effect`), and `ended` the failure a run is telling it before it fails.
-const KEPT: [&str; 17] = ["row", "definition", "definitions", "answers", "start_at", "started_at", "run", "refused", "recipe",
-    "read_definition", "definition_may_move", "started_by", "fill_input", "filled_from", "uses_missing", "on_end", "ended"];
+/// `definitions_kept` is the key its read definitions are kept under by the engine when the envelope cannot hold them.
+const KEPT: [&str; 19] = ["row", "definition", "definitions", "answers", "start_at", "started_at", "run", "refused", "recipe",
+    "read_definition", "definition_may_move", "started_by", "fill_input", "filled_from", "uses_missing", "on_end", "ended",
+    "definitions_kept", "answers_kept"];
 
 /// The step a definition is read under when its reader names none.
 const READ_STEP: &str = "read-definition";
@@ -210,7 +212,7 @@ fn step_event(run: &Map<String, Value>, step: &str) -> String {
 
 /// Hands out the one step a pass waits on before anything walks (a reader's), told back to this run under `step`.
 fn hand_out(run: &Map<String, Value>, workflow: &str, step: &str, tool: &str, asks: Value) {
-    println!("{}", handed_out(run, workflow, step, tool, asks));
+    emit(handed_out(run, workflow, step, tool, asks));
 }
 
 /// What `hand_out` prints: the paused pass with its one waiting step and the effect that runs it.
@@ -259,7 +261,7 @@ fn end_effect(run: &Map<String, Value>, status: &str, workflow: &str, why: Optio
 /// large ended with exit 1 and its wf_runs row said started for ever (School's run at 10:11 PM CST Nov 21 2026).
 fn end_failed(run: Map<String, Value>, workflow: &str, why: String) -> ! {
     match ending(run, workflow, &why) {
-        Some(out) => { println!("{out}"); std::process::exit(0) }
+        Some(out) => { emit(out); std::process::exit(0) }
         None => fail(why),
     }
 }
@@ -292,10 +294,147 @@ fn starved(left: u64, handing: u64) -> bool {
 fn hold_definitions(run: &mut Map<String, Value>, all: &[Value]) -> bool {
     let mut held = run.clone();
     held.remove(READ);
+    held.remove(KEY);
     held.insert("definitions".into(), json!(all));
     let fits = Value::Object(held).to_string().len() <= most_answer_bytes(run);
-    if fits { run.insert("definitions".into(), json!(all)); }
+    run.remove(KEY);
+    if fits {
+        run.insert("definitions".into(), json!(all));
+    } else {
+        // Too large for the envelope: the engine keeps them by their BLAKE3 for this run (the pass's `keep`), the envelope
+        // carries only the key, and each later pass is handed them on its input (`kept`) without asking the reader.
+        let key = keep_value(run, &json!(all));
+        run.insert(KEY.into(), json!(key));
+        run.insert("definitions".into(), json!(all));
+    }
     fits
+}
+
+/// Where a run's envelope names the key the engine keeps its read definitions under.
+const KEY: &str = "definitions_kept";
+/// Where a run's envelope names the key the engine keeps its held answers too large to carry under: one value for all of
+/// them ({step: answer}), so a run holds at most two keys (the engine takes at most 8 per effect).
+const ANSWERS_KEY: &str = "answers_kept";
+
+/// What this pass keeps with the engine and lets go of: the run it keeps for; each value it kept this pass, (key, JSON
+/// text); the answers the run holds by `ANSWERS_KEY`, which no envelope carries; and the answers this pass was told too large
+/// to carry, kept with them when the run's held answers are known (`take_kept`). Wake's kept values (trillion-rust
+/// src/wake): a pass's top-level `keep` [{key, text, for}] is kept per account under the BLAKE3 of its text, which the
+/// engine checks; a fact whose payload names `kept` [keys] starts a pass handed `kept` {key: text} on its input;
+/// `let_go` [holder] frees all a holder kept.
+#[derive(Default)]
+struct Keeping { run: Option<String>, keep: Vec<(String, String)>, held: BTreeSet<String>, told: BTreeMap<String, Value> }
+static KEEPING: Mutex<Keeping> = Mutex::new(Keeping { run: None, keep: Vec::new(), held: BTreeSet::new(), told: BTreeMap::new() });
+
+/// The text a key stands for, handed on this pass's input (`kept`), read when it is the key's.
+fn kept_text(given: &Value, key: &str) -> Option<Value> {
+    let text = given["kept"][key].as_str()?;
+    (blake3::hash(text.as_bytes()).to_hex().as_str() == key).then(|| serde_json::from_str(text).ok()).flatten()
+}
+
+/// A run whose envelope carries kept keys takes what they stand for from the pass's input (`kept`): its definitions, and
+/// its held answers in their steps' places, with any this pass was told too large to carry, kept again with them under one
+/// new key. A definitions key the engine no longer holds (refused over its bound, let go, another computer) is dropped, so
+/// the run reads its definitions again by its pin; held answers that are not handed back end the run failed in words, since
+/// asking their steps again could do what they did twice.
+fn take_kept(run: &mut Map<String, Value>, given: &Value) {
+    let told = std::mem::take(&mut KEEPING.lock().unwrap().told);
+    let definitions = run.get(KEY).and_then(Value::as_str).map(str::to_owned);
+    let answers = run.get(ANSWERS_KEY).and_then(Value::as_str).map(str::to_owned);
+    if definitions.is_none() && answers.is_none() && told.is_empty() { return; }
+    KEEPING.lock().unwrap().run = run.get("run").and_then(Value::as_str).map(str::to_owned);
+    if let Some(key) = definitions {
+        match kept_text(given, &key) {
+            Some(Value::Array(all)) if !all.is_empty() => { run.insert("definitions".into(), json!(all)); }
+            _ => { run.remove(KEY); run.remove("definitions"); }
+        }
+    }
+    let mut held = match &answers {
+        None => Map::new(),
+        Some(key) => match kept_text(given, key) {
+            Some(Value::Object(held)) => held,
+            _ => {
+                let workflow = recipe_of(run).unwrap_or_else(|| "the workflow".into());
+                end_failed(run.clone(), &workflow, format!("{workflow}: its answers kept by the engine under {key} were not handed back"));
+            }
+        },
+    };
+    if !told.is_empty() {
+        held.extend(told);
+        let key = keep_value(run, &Value::Object(held.clone()));
+        run.insert(ANSWERS_KEY.into(), json!(key));
+    }
+    let answers = run.entry("answers").or_insert_with(|| json!({}));
+    for (step, answer) in &held { answers[step] = answer.clone(); }
+    KEEPING.lock().unwrap().held = held.keys().cloned().collect();
+}
+
+/// Keeps one value with the engine for this run (the pass's `keep`), answering its key: the BLAKE3 of its JSON text.
+fn keep_value(run: &Map<String, Value>, value: &Value) -> String {
+    let text = value.to_string();
+    let key = blake3::hash(text.as_bytes()).to_hex().to_string();
+    let mut keeping = KEEPING.lock().unwrap();
+    keeping.run = run.get("run").and_then(Value::as_str).map(str::to_owned);
+    if !keeping.keep.iter().any(|(kept, _)| *kept == key) { keeping.keep.push((key.clone(), text)); }
+    key
+}
+
+/// The run an effect carries back (a tool's or door's reply, or a waiting fact's `told_as`) and the keys its envelope names.
+fn carried_keys(effect: &Value) -> Vec<String> {
+    let Some((_, inner)) = effect.as_object().and_then(|effect| effect.iter().find(|(kind, _)| ["wake", "door", "arrive"].contains(&kind.as_str()))) else {
+        return Vec::new();
+    };
+    let run = inner.pointer("/reply/payload/run").or_else(|| inner.pointer("/payload/told_as/payload/run"));
+    [KEY, ANSWERS_KEY].iter().filter_map(|field| run.and_then(|run| run.get(*field)).and_then(Value::as_str).map(str::to_owned)).collect()
+}
+
+/// Every envelope, at any depth, carries what is kept by its key alone: no definitions beside their key, and none of the
+/// answers held under `ANSWERS_KEY` (`held`: their steps).
+fn without_kept(value: &mut Value, held: &BTreeSet<String>) {
+    match value {
+        Value::Object(all) => {
+            if all.contains_key(KEY) { all.remove("definitions"); }
+            if all.contains_key(ANSWERS_KEY) {
+                if let Some(Value::Object(answers)) = all.get_mut("answers") { answers.retain(|step, _| !held.contains(step)); }
+            }
+            all.values_mut().for_each(|value| without_kept(value, held));
+        }
+        Value::Array(all) => all.iter_mut().for_each(|value| without_kept(value, held)),
+        _ => {}
+    }
+}
+
+/// What a pass prints, with what it keeps: envelopes carry only keys; each answer an effect tells back names them in its
+/// payload (`kept`), so the pass it starts is handed what they stand for; what was kept this pass goes out (`keep`) while an
+/// effect carries the run on; and a run that held keys and whose effects carry none is done with them (`let_go`).
+fn kept_out(mut out: Value, keeping: &Keeping) -> Value {
+    without_kept(&mut out, &keeping.held);
+    let mut carried = false;
+    if let Some(Value::Array(effects)) = out.get_mut("wake_effects") {
+        for effect in effects.iter_mut() {
+            let keys = carried_keys(effect);
+            if keys.is_empty() { continue; }
+            carried = true;
+            // The engine hands a pass `kept` {key: text} for the keys its fact's payload names (wake.rs `with_kept`), so
+            // each answer told back names them: a reply's payload, or a waiting fact's `told_as` its answerer tells back.
+            for at in ["/wake/reply/payload", "/door/reply/payload", "/arrive/payload/told_as/payload"] {
+                if let Some(Value::Object(payload)) = effect.pointer_mut(at) { payload.insert("kept".into(), json!(keys)); }
+            }
+        }
+    }
+    let Some(run) = &keeping.run else { return out };
+    if !carried {
+        out["let_go"] = json!([run]);
+        return out;
+    }
+    let keep: Vec<Value> = keeping.keep.iter().map(|(key, text)| json!({ "key": key, "text": text, "for": run })).collect();
+    if !keep.is_empty() { out["keep"] = json!(keep); }
+    out
+}
+
+/// Prints what the pass ends with, with what it keeps and lets go of (`kept_out`).
+fn emit(out: Value) {
+    println!("{}", kept_out(out, &KEEPING.lock().unwrap()));
 }
 
 /// The recorder a run that ended well (completed or skipped) asks, with a reply: its answer comes back to the run under
@@ -508,14 +647,16 @@ impl Host for Held {
 }
 
 fn fail(why: impl std::fmt::Display) -> ! {
-    println!("{}", json!({ "error": why.to_string() }));
+    let keeping = KEEPING.try_lock().map(|keeping| Keeping { run: keeping.run.clone(), ..Default::default() }).unwrap_or_default();
+    println!("{}", kept_out(json!({ "error": why.to_string() }), &keeping));
     std::process::exit(1);
 }
 
 /// A failed fill fails the run in its words, with its kind (`read-failed`, `no-row`, `refused`) beside them, so a caller
 /// decides by `kind` and never by the words.
 fn fail_fill(why: FillError) -> ! {
-    println!("{}", json!({ "error": why.words, "kind": why.kind }));
+    let keeping = KEEPING.try_lock().map(|keeping| Keeping { run: keeping.run.clone(), ..Default::default() }).unwrap_or_default();
+    println!("{}", kept_out(json!({ "error": why.words, "kind": why.kind }), &keeping));
     std::process::exit(1);
 }
 
@@ -527,6 +668,8 @@ fn the_run(given: &Value) -> (Map<String, Value>, BTreeMap<String, String>) {
     if detail["kind"] == ANSWERED {
         let told = &detail["payload"];
         let mut run = told["run"].as_object().cloned().unwrap_or_else(|| fail("a told answer carries no run"));
+        // A run that holds a kept key lets it go on whichever pass ends it, this one's early ends (its end record) included.
+        if run.contains_key(KEY) || run.contains_key(ANSWERS_KEY) { KEEPING.lock().unwrap().run = run.get("run").and_then(Value::as_str).map(str::to_owned); }
         let step = told["step"].as_str().unwrap_or_else(|| fail("a told answer names no step")).to_string();
         if let Some(Value::Object(kept)) = run.get("refused") {
             for (step, why) in kept { refused.insert(step.clone(), why.as_str().unwrap_or_default().to_string()); }
@@ -534,7 +677,7 @@ fn the_run(given: &Value) -> (Map<String, Value>, BTreeMap<String, String>) {
         if step == END_STEP {
             if run.contains_key("ended_as") {
                 match after_end(&run, told) {
-                    Ok(out) => { println!("{out}"); std::process::exit(0) }
+                    Ok(out) => { emit(out); std::process::exit(0) }
                     Err(why) => fail(why),
                 }
             }
@@ -567,10 +710,16 @@ fn the_run(given: &Value) -> (Map<String, Value>, BTreeMap<String, String>) {
                 let mut held = run.clone();
                 held.entry("answers").or_insert_with(|| json!({}))[&step] = told["result"].clone();
                 let bytes = Value::Object(held.clone()).to_string().len();
-                if bytes > most {
-                    refused.insert(step, format!("the run would carry {bytes} bytes with this step's answer; filter the answer to what the next step needs (at most {most} bytes are carried)"));
-                } else {
+                // Too large to carry: it is kept by the engine with the run's other held answers under one key (`take_kept`),
+                // and the envelope carries the key in their place. Nov 22 2026, from 6:29:53 AM CST: every
+                // route-each-row-change run failed carrying 43,056 bytes with its choose step's answer, over 32,768.
+                let without = Value::Object(run.clone()).to_string().len() + ANSWERS_KEY.len() + 72;
+                if bytes <= most {
                     run = held;
+                } else if without <= most {
+                    KEEPING.lock().unwrap().told.insert(step, told["result"].clone());
+                } else {
+                    refused.insert(step, format!("the run would carry {without} bytes with this step's answer kept by its key; filter what it holds to what its next steps need (at most {most} bytes are carried)"));
                 }
             }
         }
@@ -731,6 +880,7 @@ fn main() {
     std::io::stdin().read_to_string(&mut text).unwrap_or_else(|error| fail(error));
     let given: Value = serde_json::from_str(&text).unwrap_or_else(|error| fail(format!("the run is not JSON: {error}")));
     let (mut run, refused) = the_run(&given);
+    take_kept(&mut run, &given);
     // A start that leaves out what its `fill_input` reader fills reads it first, from the row the person keeps for their
     // account; a caller's own value always wins.
     if let Some((workflow, step, tool, asks)) = pending_fill(&run, &refused, &given["context"]).unwrap_or_else(|why| fail_fill(why)) {
@@ -760,7 +910,7 @@ fn main() {
                     let why = skipped_by(&run["read_definition"], &answer).unwrap_or_default();
                     let run_id = run.get("run").and_then(Value::as_str).unwrap_or("run").to_string();
                     let effects: Vec<Value> = end_told(&run, "skipped", &recipe, Some(&why), &door_asks()).into_iter().collect();
-                    println!("{}", json!({ "result": { "status": "skipped", "why": why, "workflow": recipe, "run": run_id, "steps": {} }, "wake_effects": effects }));
+                    emit(json!({ "result": { "status": "skipped", "why": why, "workflow": recipe, "run": run_id, "steps": {} }, "wake_effects": effects }));
                     return;
                 }
                 Some(answer) => match read_definitions(&mut run, &recipe, &step, &answer).unwrap_or_else(|why| end_failed(run.clone(), &recipe, why)) {
@@ -814,7 +964,7 @@ fn main() {
     // 10:11 PM CST Nov 21 2026 asked for all 8 of its used rows at once: 142,901 bytes, over the 131,072 an answer may be).
     if missed_to_read(&mut run, &walked) {
         // The held definitions lack what the walk reached: they are read again, with it, by the reader.
-        if run.contains_key("read_definition") { run.remove("definitions"); }
+        if run.contains_key("read_definition") { run.remove("definitions"); run.remove(KEY); }
         let recipe = recipe_of(&run).unwrap_or_else(|| id.clone());
         let reader = run["read_definition"].clone();
         let tool = reader["tool"].as_str().unwrap_or_default().to_string();
@@ -858,11 +1008,11 @@ fn main() {
     if walked["status"] == "failed" {
         let why = walked["error_message"].as_str().unwrap_or("the workflow failed");
         if run.get("ended").is_none() && end_effect(&run, "failed", &id, None).is_some() { end_failed(run, &id, format!("{id}: {why}")); }
-        println!("{}", json!({ "error": format!("{id}: {why}"), "result": result }));
+        emit(json!({ "error": format!("{id}: {why}"), "result": result }));
         std::process::exit(1);
     }
     effects.extend(end_told(&run, walked["status"].as_str().unwrap_or_default(), &id, None, &doors));
-    println!("{}", json!({ "result": result, "wake_effects": effects }));
+    emit(json!({ "result": result, "wake_effects": effects }));
 }
 
 #[cfg(test)]
@@ -912,29 +1062,37 @@ mod tests {
         assert!(pass(json!({ "each_iter_0/ask": 1, "each_iter_1/ask": 2 })).is_empty());
     }
 
-    // A step's answer that takes the run (its definition and every held answer) past its bound is refused at that step in
-    // plain words and is not held, so no later envelope carries it; an answer within the bound is held as before.
+    // A step's answer that takes the run (its definition and every held answer) past its bound is never carried: it is kept
+    // by the engine under the run's held-answers key (`take_kept`), and the step is refused in plain words only when the run
+    // is past its bound even without it; an answer within the bound is held as before.
     fn told_answer(run: Value, result: Value) -> Value {
         json!({ "input": { "definition": {}, "answers": {} }, "cause": { "key": "k", "detail": { "kind": ANSWERED, "payload": {
             "workflow": "w", "run": run, "step": "fetch", "for": "tool:run-a-composio-action", "result": result } } }, "context": {} })
     }
 
     #[test]
-    fn a_held_answer_over_its_bound_is_refused_at_its_step_and_not_carried() {
+    fn a_held_answer_over_its_bound_is_kept_by_its_key_and_not_carried() {
+        let _one = keeping_alone();
         let big = json!({ "text": "x".repeat(MOST_ANSWER_BYTES) });
-        let (run, refused) = the_run(&told_answer(json!({ "input": {} }), big));
-        assert!(refused["fetch"].contains("filter the answer to what the next step needs"), "{refused:?}");
+        let (run, refused) = the_run(&told_answer(json!({ "input": {} }), big.clone()));
+        assert!(refused.is_empty(), "{refused:?}");
         assert!(run.get("answers").is_none_or(|answers| answers.get("fetch").is_none()), "{run:?}");
+        assert_eq!(KEEPING.lock().unwrap().told["fetch"], big, "kept with the run's held answers");
     }
 
-    // Each answer is within the bound on its own, but the run with all of them is not: the last one is refused, so the
-    // envelope never carries more than the bound.
+    // Each answer is within the bound on its own, but the run with all of them is not: the last one is kept by its key, and
+    // refused only when the run without it is already past the bound, so the envelope never carries more than the bound.
     #[test]
-    fn many_small_answers_together_past_the_bound_refuse_the_step_that_takes_the_run_over() {
+    fn many_small_answers_together_past_the_bound_keep_or_refuse_the_step_that_takes_the_run_over() {
+        let _one = keeping_alone();
         let small = json!({ "text": "y".repeat(300) });
         let run = json!({ "input": { "most_answer_bytes": 1000 }, "answers": { "one": small.clone(), "two": small.clone() } });
         let (held, refused) = the_run(&told_answer(run.clone(), small.clone()));
-        assert!(refused["fetch"].contains("the run would carry") && refused["fetch"].contains("at most 1000 bytes"), "{refused:?}");
+        assert!(refused.is_empty() && KEEPING.lock().unwrap().told.contains_key("fetch"), "{refused:?}");
+        assert!(held.get("answers").is_some_and(|answers| answers.get("fetch").is_none()), "{held:?}");
+        let full = json!({ "input": { "most_answer_bytes": 700 }, "answers": { "one": small.clone(), "two": small.clone() } });
+        let (held, refused) = the_run(&told_answer(full, small.clone()));
+        assert!(refused["fetch"].contains("the run would carry") && refused["fetch"].contains("at most 700 bytes"), "{refused:?}");
         assert!(held.get("answers").is_some_and(|answers| answers.get("fetch").is_none()), "{held:?}");
         let (held, refused) = the_run(&told_answer(json!({ "input": { "most_answer_bytes": 2000 }, "answers": { "one": small.clone(), "two": small.clone() } }), small));
         assert!(refused.is_empty(), "{refused:?}");
@@ -1185,10 +1343,11 @@ mod tests {
         assert!(missing.contains("no definition of workflow:gone was read") && missing.contains("rows.0.definition"), "{missing}");
     }
 
-    // The size guard counts the pin and the held answers only: a held step answer is still refused past the bound, with the
-    // reader's pin among the run's answers.
+    // The size guard counts the pin and the held answers only: a held step answer past the bound is still not carried, with
+    // the reader's pin among the run's answers (it is kept by its key).
     #[test]
     fn the_size_guard_counts_the_pin_not_the_definition() {
+        let _one = keeping_alone();
         let mut run = Map::new();
         run.insert("read_definition".into(), reader());
         run.insert("recipe".into(), json!("workflow:x"));
@@ -1196,8 +1355,8 @@ mod tests {
         pinned_definition(&mut run, "workflow:x", READ_STEP, &read_answer(one_step("workflow:x", "tool:x"), "v1")).unwrap();
         let (held, refused) = the_run(&told_answer(Value::Object(run.clone()), json!({ "text": "y".repeat(300) })));
         assert!(refused.is_empty() && held["answers"]["fetch"].is_object(), "{refused:?}");
-        let (_, refused) = the_run(&told_answer(Value::Object(run), json!({ "text": "y".repeat(1200) })));
-        assert!(refused["fetch"].contains("at most 1000 bytes"), "{refused:?}");
+        let (held, refused) = the_run(&told_answer(Value::Object(run), json!({ "text": "y".repeat(1200) })));
+        assert!(refused.is_empty() && held["answers"].get("fetch").is_none() && KEEPING.lock().unwrap().told.contains_key("fetch"), "{refused:?}");
     }
 
     // A fact that starts a run by its recipe says who started it: the run keeps it and every handed-out step says it; a
@@ -1566,6 +1725,7 @@ mod tests {
     // so the next passes walk it without asking the reader; one too large is read again by its pin each pass, as before.
     #[test]
     fn a_read_definition_is_held_for_the_rest_of_the_run_when_it_fits() {
+        let _one = keeping_alone();
         let mut run = json!({ "recipe": "workflow:x", "read_definition": reader(), "run": "r", "input": {}, "answers": {} }).as_object().unwrap().clone();
         run.insert(READ.into(), json!({ "rows": [] }));
         let small = vec![one_step("workflow:x", "tool:a")];
@@ -1576,8 +1736,96 @@ mod tests {
         let mut big_run = json!({ "recipe": "workflow:x", "read_definition": reader(), "run": "r", "input": {}, "answers": {} }).as_object().unwrap().clone();
         let mut big = one_step("workflow:x", "tool:a");
         big["filler"] = json!("x".repeat(MOST_ANSWER_BYTES));
-        assert!(!hold_definitions(&mut big_run, &[big]));
-        assert!(!carries_definition(&big_run), "too large: read again by its pin");
+        assert!(!hold_definitions(&mut big_run, &[big.clone()]));
+        let key = big_run[KEY].as_str().expect("too large for the envelope: kept by the engine under a key").to_string();
+        assert_eq!(key, blake3::hash(json!([big]).to_string().as_bytes()).to_hex().to_string());
+        let mut carried = Value::Object(big_run);
+        without_kept(&mut carried, &BTreeSet::new());
+        assert!(carried.get("definitions").is_none(), "the envelope carries the key, never the definitions");
+    }
+
+    // A run that names a kept key walks what the engine hands it under that key; a key it is not handed, or bytes that are
+    // not what the key says, are let go and the definitions read again.
+    #[test]
+    fn a_run_takes_its_kept_definitions_or_reads_them_again() {
+        let _one = keeping_alone();
+        let all = json!([one_step("workflow:x", "tool:a")]);
+        let text = all.to_string();
+        let key = blake3::hash(text.as_bytes()).to_hex().to_string();
+        let run = || json!({ "recipe": "workflow:x", "read_definition": reader(), "run": "r", "input": {}, KEY: key }).as_object().unwrap().clone();
+        let mut handed = run();
+        take_kept(&mut handed, &json!({ "kept": { key.clone(): text } }));
+        assert!(carries_definition(&handed), "walked from the kept bytes, no reader ask");
+        let mut missing = run();
+        take_kept(&mut missing, &json!({}));
+        assert!(!carries_definition(&missing) && missing.get(KEY).is_none(), "not handed: read again");
+        let mut changed = run();
+        take_kept(&mut changed, &json!({ "kept": { key.clone(): json!([one_step("workflow:x", "tool:b")]).to_string() } }));
+        assert!(!carries_definition(&changed), "bytes that are not the key's: read again");
+    }
+
+    /// Tests that use this pass's kept values (the process-wide KEEPING) run one at a time, each from none.
+    fn keeping_alone() -> std::sync::MutexGuard<'static, ()> {
+        static ONE: Mutex<()> = Mutex::new(());
+        let one = ONE.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        *KEEPING.lock().unwrap() = Keeping::default();
+        one
+    }
+
+    // A step's answer too large to carry is kept by the engine with the run's other held answers under one key, and the
+    // envelope carries the key, never the answers; the next pass is handed them back and walks with them; held answers not
+    // handed back end the run (asking those steps again could do what they did twice).
+    #[test]
+    fn an_answer_too_large_to_carry_is_kept_by_its_key() {
+        let _one = keeping_alone();
+        let big = json!({ "rows": [{ "words": "x".repeat(MOST_ANSWER_BYTES) }] });
+        let envelope = json!({ "recipe": "workflow:x", "run": "r", "input": {}, "answers": { "small": 1 } });
+        let given = json!({ "input": {}, "cause": { "key": "c", "detail": { "kind": ANSWERED, "payload": {
+            "workflow": "workflow:x", "run": envelope, "step": "choose", "for": "tool:a", "result": big } } }, "context": {} });
+        let (mut run, refused) = the_run(&given);
+        assert!(refused.is_empty(), "{refused:?}");
+        take_kept(&mut run, &given);
+        assert_eq!(run["answers"]["choose"], big, "this pass walks with the answer");
+        let key = run[ANSWERS_KEY].as_str().unwrap().to_string();
+        let text = json!({ "choose": big }).to_string();
+        assert_eq!(key, blake3::hash(text.as_bytes()).to_hex().to_string());
+        let out = json!({ "result": {}, "wake_effects": [{ "wake": { "tool": "tool:b", "input": {}, "reply": { "source": ANSWERED, "event_id": "e",
+            "payload": { "run": Value::Object(run.clone()) } } } }] });
+        let printed = kept_out(out, &KEEPING.lock().unwrap());
+        let carried = &printed["wake_effects"][0]["wake"]["reply"]["payload"]["run"];
+        assert!(carried["answers"].get("choose").is_none() && carried["answers"]["small"] == 1, "{carried}");
+        assert!(carried.to_string().len() < MOST_ANSWER_BYTES);
+        assert_eq!(printed["wake_effects"][0]["wake"]["reply"]["payload"]["kept"], json!([key]));
+        assert_eq!(printed["keep"][0]["key"], json!(key));
+        assert_eq!(printed["keep"][0]["text"], json!(text));
+        // The next pass is handed the key's text and walks with the answer.
+        *KEEPING.lock().unwrap() = Keeping::default();
+        let mut next = carried.as_object().unwrap().clone();
+        take_kept(&mut next, &json!({ "kept": { key.clone(): text } }));
+        assert_eq!(next["answers"]["choose"], big);
+        assert!(KEEPING.lock().unwrap().keep.is_empty(), "nothing new to keep");
+    }
+
+    // An effect that carries the run back names its kept key; what was read this pass is kept when an effect names it; a
+    // run that held a key and hands nothing on lets it go; a run that holds none adds nothing.
+    #[test]
+    fn a_pass_keeps_names_and_lets_go_of_its_kept_definitions() {
+        let envelope = json!({ "run": "r", KEY: "k1", "definitions": [{ "id": "workflow:x" }] });
+        let out = json!({ "result": { "status": "paused" }, "wake_effects": [
+            { "wake": { "tool": "tool:a", "input": {}, "reply": { "source": ANSWERED, "event_id": "e", "payload": { "run": envelope } } } }] });
+        let reading = Keeping { run: Some("r".into()), keep: vec![("k1".into(), "[]".into())], ..Default::default() };
+        let printed = kept_out(out.clone(), &reading);
+        assert_eq!(printed["wake_effects"][0]["wake"]["reply"]["payload"]["kept"], json!(["k1"]));
+        assert!(printed["wake_effects"][0]["wake"]["reply"]["payload"]["run"].get("definitions").is_none());
+        assert_eq!(printed["keep"], json!([{ "key": "k1", "text": "[]", "for": "r" }]));
+        assert!(printed.get("let_go").is_none());
+        let walking = Keeping { run: Some("r".into()), ..Default::default() };
+        let printed = kept_out(out, &walking);
+        assert!(printed.get("keep").is_none() && printed.get("let_go").is_none(), "still held, nothing new kept");
+        let ended = kept_out(json!({ "result": { "status": "completed" }, "wake_effects": [] }), &walking);
+        assert_eq!(ended["let_go"], json!(["r"]));
+        let none = kept_out(json!({ "result": { "status": "completed" } }), &Keeping::default());
+        assert!(none.get("let_go").is_none() && none.get("keep").is_none());
     }
 
     // A step's answer is told back under the run, the step and its definition's pin: a definition changed mid-run makes a
