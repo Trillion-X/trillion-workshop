@@ -254,6 +254,14 @@ export async function checkWhenIAmBusy(input, context) {
   };
 }
 
+// An attendee is an email text or a { email, displayName? } person; both providers take the person form.
+function attendeesOf(list) {
+  return (list ?? []).map(person => {
+    if (typeof person === 'string') return { email: needText(person, 'attendee') };
+    return { email: needText(person?.email, 'attendee email'), ...(person.displayName ? { displayName: person.displayName } : {}) };
+  });
+}
+
 export async function putABookingOnMyCalendar(input, context) {
   const account = accountOf(context);
   const answer = await createExternalCalendarEvent(account, {
@@ -261,7 +269,7 @@ export async function putABookingOnMyCalendar(input, context) {
     start_local: needText(input.start_local, 'start_local'),
     end_local: needText(input.end_local, 'end_local'),
     timezone: needText(input.timezone, 'timezone'),
-    attendees: input.attendees ?? [],
+    attendees: attendeesOf(input.attendees),
     ...(input.description ? { description: input.description } : {}),
     ...(input.location ? { location: input.location } : {}),
     ...(input.reminder_minutes ? { reminder_minutes: input.reminder_minutes } : {}),
