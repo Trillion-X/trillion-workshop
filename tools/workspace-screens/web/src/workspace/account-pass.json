@@ -1,5 +1,5 @@
 {
-  "_what": "How this page gets its pass to the account's one door (account-pass.ts): the sign-in tool's OAuth code flow with PKCE, this page being the client its own client document names (CIMD; scripts/build-workspace.mjs writes the document at `client_document` for each origin it is built for). `scope` is the words the page asks for, each one the authorization server offers; `sharing.*` lets the owner keep, list and withdraw a grant on their own door from this page (sharing.keep, sharing.list, sharing.withdraw), which no other credential of theirs carries. `kept` is the sessionStorage name the code verifier and the state wait under across the one redirect. `renew_before_ms`: a pass that ends sooner than this is renewed before a call.",
+  "_what": "How this page gets its pass to the account's one door (account-pass.ts): the sign-in tool's OAuth code flow with PKCE, this page being the client its own client document names (CIMD; scripts/build-workspace.mjs writes the document at `client_document` for each origin it is built for). `scope` is the words the page asks for, each one the authorization server offers; `sharing.*` lets the owner keep, list and withdraw a grant on their own door from this page (sharing.keep, sharing.list, sharing.withdraw), which no other credential of theirs carries. `kept` is the sessionStorage name the code verifier and the state wait under across the one redirect. `renew_before_ms`: a pass that ends sooner than this is renewed before a call. A sign-in call answered 429 is asked again up to `busy_tries` times in all, after the wait the server names (1 s, 2 s, ... when it names none) while that wait is at most `busy_wait_max_s`; only then is `busy` said.",
   "authorize": "/api/auth/oauth2/authorize",
   "token": "/api/auth/oauth2/token",
   "client_document": "/workspace/client.json",
@@ -11,5 +11,7 @@
   "renew_before_ms": 30000,
   "refused": "Signing in did not finish. Sign in again.",
   "busy": "Sign-in is busy right now. Try again in {seconds} seconds.",
-  "busy_seconds": 30
+  "busy_seconds": 30,
+  "busy_tries": 4,
+  "busy_wait_max_s": 8
 }

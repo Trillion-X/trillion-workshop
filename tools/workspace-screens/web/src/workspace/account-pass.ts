@@ -24,10 +24,14 @@ const base64url = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes)).rep
 const random = () => base64url(crypto.getRandomValues(new Uint8Array(32)));
 
 async function exchange(fields: Record<string, string>): Promise<Pass> {
-  const response = await fetch(flow.token, {
+  const response = await patiently(() => fetch(flow.token, {
     method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded', accept: 'application/json' },
     body: new URLSearchParams({ client_id: at(flow.client_document), resource: at(flow.resource), ...fields }),
-  });
+  }));
+  if (response.status === 429) {
+    void response.body?.cancel();
+    throw new PassBusy(retryAfterOf(response));
+  }
   const answer = await response.json().catch(() => ({})) as { access_token?: string; refresh_token?: string; expires_in?: number };
   if (!response.ok || typeof answer.access_token !== 'string') throw Object.assign(new Error(flow.refused), { status: response.status });
   return { access: answer.access_token, refresh: answer.refresh_token ?? null, ends: Date.now() + 1000 * (Number(answer.expires_in) || 0) };
@@ -53,6 +57,24 @@ const retryAfterOf = (response: Response): number => {
   return Number.isFinite(seconds) && seconds > 0 ? Math.ceil(seconds) : 0;
 };
 
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+/** A call the sign-in server answered 429 is asked again after the wait it names (1 s, then 2 s, ... when it names none),
+ *  while that wait is at most busy_wait_max_s and busy_tries allow. A person whose address many share (an office, a phone
+ *  network, one computer with several windows) gets the pass a moment later, not a busy screen on the first load (Nov 21
+ *  2026: the first token call of a live check answered 429 and the screens drew empty). A 429 the server still answers
+ *  after that is the caller's to say. A 429 is a request the server did not take, so asking again never spends a code. */
+async function patiently(ask: () => Promise<Response>): Promise<Response> {
+  for (let tried = 1; ; tried++) {
+    const response = await ask();
+    if (response.status !== 429 || tried >= flow.busy_tries) return response;
+    const wait = retryAfterOf(response) || tried;
+    if (wait > flow.busy_wait_max_s) return response;
+    void response.body?.cancel();
+    await sleep(wait * 1000);
+  }
+}
+
 /** The code a callback address carries for this page's own callback and state, or null when it is not that callback. */
 function codeAt(href: string, state: string): string | null {
   const url = new URL(href, location.origin);
@@ -70,7 +92,7 @@ function codeAt(href: string, state: string): string | null {
 async function quietCode(asked: string, state: string): Promise<string | null> {
   let response: Response;
   try {
-    response = await fetch(asked, { credentials: 'same-origin', redirect: 'follow', headers: { accept: 'application/json, text/html' } });
+    response = await patiently(() => fetch(asked, { credentials: 'same-origin', redirect: 'follow', headers: { accept: 'application/json, text/html' } }));
   } catch {
     throw new PassBusy(0);
   }
