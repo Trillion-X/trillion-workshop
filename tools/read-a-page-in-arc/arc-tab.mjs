@@ -38,19 +38,29 @@ end run
 
 /** Arc's own words for a tab or window that is no longer open. */
 const GONE = /Can.t get (tab|window) id|Can.t get (tab|window)|Can.t get tab|missing value/i;
+/** Arc's own words for a call that did not reach it (-609): one retry after a short wait. */
+const CONNECTION_INVALID = /-609|Connection is invalid/i;
+/** Arc's own words for this Mac not allowing the run to control Arc (-1743): never retried. */
+const NOT_ALLOWED = /-1743|not allowed to send Apple events|Not authorized to send Apple events/i;
 
 /**
  * The Arc tab of one read: { open(address), evaluate(javascript), close() }. `open` answers the tab's place: { window, tab }.
  * Each call is bounded by timeout_ms; a tab that has only just opened may not answer scripts yet, so a call can time out.
  */
-export function arcTab({ exec = run, timeout_ms }) {
+export function arcTab({ exec = run, timeout_ms, retry_wait_ms = 2000 }) {
   let place = null;
-  async function call(args) {
+  async function call(args, retried = false) {
     try {
       const { stdout } = await exec('osascript', ['-e', SCRIPT, ...args], { timeout: timeout_ms, maxBuffer: most_output_bytes });
       return stdout;
     } catch (error) {
-      if (GONE.test(String(error.stderr || error.message))) throw new Error('The tab this read opened is no longer open in Arc.');
+      const said = String(error.stderr || error.message);
+      if (NOT_ALLOWED.test(said)) throw new Error('Arc refused control from this Mac (-1743): allow automation for Arc in System Settings, Privacy & Security, Automation, then ask again.');
+      if (CONNECTION_INVALID.test(said) && !retried) {
+        await new Promise(done => setTimeout(done, retry_wait_ms));
+        return call(args, true);
+      }
+      if (GONE.test(said)) throw new Error('The tab this read opened is no longer open in Arc.');
       throw error;
     }
   }
