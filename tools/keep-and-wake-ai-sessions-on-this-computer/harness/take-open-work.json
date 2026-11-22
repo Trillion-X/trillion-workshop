@@ -58,7 +58,14 @@
       "later": { "time_path": ["timestamp"], "role_path": ["type"], "roles": ["user", "assistant"], "text_path": ["message", "content"] },
       "command": ["claude", "-p", "--resume", "{session}", "{prompt}", "--permission-mode", "bypassPermissions"],
       "retry_command": ["claude", "-p", "--resume", "{session}", "{prompt}", "--model", "sonnet", "--permission-mode", "bypassPermissions", "--betas", "context-1m-2025-08-07"],
-      "work_mcp": { "insert_at": 1, "args": ["--mcp-config", "{mcp_config}", "--strict-mcp-config"] }
+      "work_mcp": { "insert_at": 1, "args": ["--mcp-config", "{mcp_config}", "--strict-mcp-config"] },
+      "turn": {
+        "start": ["claude", "-p", "--session-id", "{session}", "--permission-mode", "bypassPermissions"],
+        "resume": ["claude", "-p", "--resume", "{session}", "--permission-mode", "bypassPermissions"],
+        "stdin": "{prompt}",
+        "session": { "mint": "uuid" },
+        "reply": { "from": "stdout" }
+      }
     },
     {
       "id": "codex",
@@ -67,9 +74,34 @@
       "working_folder_at": ["payload", "cwd"],
       "later": { "time_path": ["timestamp"], "role_path": ["payload", "role"], "roles": ["user", "assistant"], "text_path": ["payload", "content"] },
       "command": ["codex", "exec", "--dangerously-bypass-approvals-and-sandbox", "resume", "{session}", "{prompt}"],
-      "work_mcp": { "insert_at": 2, "args": ["-c", "mcp_servers.trillion.command={runtime_toml}", "-c", "mcp_servers.trillion.args=[{bridge_toml}]"] }
+      "work_mcp": { "insert_at": 2, "args": ["-c", "mcp_servers.trillion.command={runtime_toml}", "-c", "mcp_servers.trillion.args=[{bridge_toml}]"] },
+      "turn": {
+        "start": ["codex", "exec", "--json", "--skip-git-repo-check", "--dangerously-bypass-approvals-and-sandbox", "-"],
+        "resume": ["codex", "exec", "--json", "--skip-git-repo-check", "--dangerously-bypass-approvals-and-sandbox", "resume", "{session}", "-"],
+        "stdin": "{prompt}",
+        "session": { "from": "stdout_lines", "where": { "type": "thread.started" }, "path": ["thread_id"] },
+        "reply": { "from": "stdout_lines", "where": { "type": "item.completed", "item": { "type": "agent_message" } }, "path": ["item", "text"], "last": true }
+      }
+    },
+    {
+      "id": "opencode",
+      "source_prefix": "opencode:",
+      "command": ["opencode", "run", "--session", "{session}", "--", "{prompt}"],
+      "turn": {
+        "start": ["opencode", "run", "--format", "json", "-m", "opencode/nemotron-3.5-lightning-free", "--", "{prompt}"],
+        "resume": ["opencode", "run", "--format", "json", "-m", "opencode/nemotron-3.5-lightning-free", "--session", "{session}", "--", "{prompt}"],
+        "session": { "from": "stdout_lines", "where": {}, "path": ["sessionID"] },
+        "reply": { "from": "stdout_lines", "where": { "type": "text" }, "path": ["part", "text"], "last": true }
+      }
     }
   ],
+  "turns": {
+    "what_this_is": "A turn is a task whose source is {kind: source_kind, ref: <a chat row's source_prefix><session id>}: the person's words, as they are (prompt; {words} is the task's description), go to that chat's AI through the chat row's `turn` block (on its standard input when turn.stdin names {prompt}, so words that begin with a dash or run long are never read as arguments), and the AI's reply is the task's result, which this computer writes as {reply, in, to, on, ai} (in: the source ref the next turn names; to: the taker the next turn is handed to; on: this computer). A ref whose session is new_session starts a new chat with turn.start (its id minted when turn.session says mint, else read from what the run said by turn.session); any other ref resumes that chat with turn.resume, only on the computer whose disk holds it, once its own run has ended and nothing has written it for quiet_seconds. A turn that names no taker is taken where its chat is. The reply and a new chat's id are read from the run's standard output: {from: stdout} is all of it; {from: stdout_lines, where, path, last} is path of the first (or last) JSON line whose fields equal where.",
+    "source_kind": "chat",
+    "new_session": "new",
+    "prompt": "{words}",
+    "quiet_seconds": 3
+  },
   "triage": {
     "what_this_is": "Before any job gets a full AI run, a cheap model reads it, and for work from one of the person's chats what was said in that chat after it arrived, and sorts it by one of outcomes. The model is the first of the `models` rows of the person's chosen AIs (take-open-work `ai_order`, in their order) that answers; a row of any AI the person did not choose is never asked. Each row is a command run with provider settings retained, tools and hooks disabled, and no saved session (so sorting is never itself recorded as something the person wrote), and a row that answers nothing give_up_after times in a row (a usage limit reached) gives way to the next chosen row. Each outcome's `then` says what happens: close (finished with the one-line reason), digest (folded with the others into one daily digest job), take (queued for the full run, which keeps max_concurrent and daily_cap). Jobs to close or gather are sent batch_size at a time to the account (POST /handoffs/close-many, src/close-many.json holds its words), each as its row's closes_as. An answer that names no outcome counts as when_unsure.",
     "agent_id_prefix": "take-open-work-triage-",
@@ -139,6 +171,8 @@
     "chat": "<trillion-message from=\"Trillion\" handoff_id=\"{handoff_id}\">\nTrillion work {handoff_id} came from this chat ({source_id}) and is waiting for it on the trillion MCP server.\n1. Call publish_agent with agent_id \"{chat_agent_id}\", a short name and description of this chat, takes_work true and source_id \"{source_id}\".\n2. Call take_work with agent_id \"{chat_agent_id}\" and handoff_id \"{handoff_id}\". It returns the job and what arrived.\n3. Run the job through the Marketplace workflow coordinate-work-with-cheapest-capable-agents: call start_workflow with purpose \"coordinate-work-with-cheapest-capable-agents\", a request_key of \"{handoff_id}\" and input {task: the job in plain words, source_message_id: the message it arrived from, if it names one}. You are the coordinator: hand each bounded part to a helper on the cheapest capable model your tools list (Claude Code: a subagent with model haiku or sonnet; Codex: the smaller model in its catalog), and submit each step with submit_workflow_step. A small job may need one helper or none; say so in the run.\n4. Do the job the way the trillion server's instructions say. When the job asks you to resolve a decision for a message, open or continue that decision, answer every step and decide it before finishing.\n5. Call finish_work with handoff_id \"{handoff_id}\", agent_id \"{chat_agent_id}\" and result {\"state\": \"completed\", \"outcome\": \"<what you did>\"}, then end your reply with the handoff id and that outcome.\nIf something only the person can do stands in the way, call say_what_is_in_the_way with the same ids instead of finishing.\n</trillion-message>"
   },
   "words": {
+    "turn_empty": "The AI's run said nothing back to the person, so the turn is given back; its words are in {log}.",
+    "turn_evidence": "{ai} wrote this reply ({chars} characters) to its standard output in this run; the result holds it as written.",
     "answer_missing": "The run wrote no readable result file, so the task is given back for another run; its words are in {log}.",
     "answer_refused": "The run's result does not match the step's answer shape ({why}), so the task is given back; it is not finished.",
     "answer_not_finished": "The result matched the step, but the task could not be finished ({why}), so it is given back.",

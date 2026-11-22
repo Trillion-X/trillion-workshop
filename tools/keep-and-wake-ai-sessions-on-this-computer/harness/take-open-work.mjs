@@ -276,7 +276,8 @@ export function withComputerArgs(settings, values) {
   return {
     ...settings,
     ais: settings.ais.map(row => ({ ...row, command: add(row.command) })),
-    chats: settings.chats.map(row => ({ ...row, command: add(row.command), ...(row.retry_command ? { retry_command: add(row.retry_command) } : {}) })),
+    chats: settings.chats.map(row => ({ ...row, command: add(row.command), ...(row.retry_command ? { retry_command: add(row.retry_command) } : {}),
+      ...(row.turn ? { turn: { ...row.turn, ...Object.fromEntries(['start', 'resume'].filter(key => Array.isArray(row.turn[key])).map(key => [key, add(row.turn[key])])) } } : {}) })),
     ...(settings.triage ? { triage: { ...settings.triage, models: settings.triage.models.map(row => ({ ...row, command: add(row.command) })) } } : {}),
   };
 }
@@ -289,6 +290,50 @@ export const reachedLimit = (settings, words) => (settings.limit_patterns ?? [])
 export function chatOf(settings, source_id) {
   const row = settings.chats.find(item => typeof source_id === 'string' && source_id.startsWith(item.source_prefix));
   return row ? { row, session: source_id.slice(row.source_prefix.length) } : null;
+}
+
+/** The chat a task is a turn of: its source ref when the source's kind is settings.turns.source_kind, else null. A turn's
+ *  words go to that chat's AI as they are, and its reply is the task's result (finishTurn). */
+export const turnOf = (settings, item) => (item?.task && settings.turns && item.source?.kind === settings.turns.source_kind
+  && typeof item.source.ref === 'string' && item.source.ref ? item.source.ref : null);
+
+/** One value read out of a run's standard output by a chat row's rule (`turn.session`, `turn.reply`):
+ *  { from: "stdout" } is all of it, trimmed; { from: "stdout_lines", where, path, last } is `path` of the first (or last)
+ *  JSON line whose fields equal every field of `where` (nested objects compare field by field). → the text, or null. */
+export function readOut(rule, text) {
+  if (rule?.from === 'stdout') { const whole = String(text ?? '').trim(); return whole || null; }
+  if (rule?.from !== 'stdout_lines') return null;
+  const matches = (value, want) => (want && typeof want === 'object' && !Array.isArray(want)
+    ? value && typeof value === 'object' && Object.entries(want).every(([key, inner]) => matches(value[key], inner))
+    : value === want);
+  let found = null;
+  for (const line of String(text ?? '').split('\n')) {
+    if (!line.trim()) continue;
+    let row;
+    try { row = JSON.parse(line); } catch { continue; }
+    if (!matches(row, rule.where ?? {})) continue;
+    const value = (rule.path ?? []).reduce((at, key) => (at && typeof at === 'object' ? at[key] : undefined), row);
+    if (typeof value !== 'string' || !value.trim()) continue;
+    found = value;
+    if (!rule.last) break;
+  }
+  return found;
+}
+
+/** Finishes a turn from what its run said: the reply (the chat row's turn.reply rule over the run's standard output) as the
+ *  person sees it, with where the conversation continues (`in`, a source ref the next turn names), who takes it (`to`) and
+ *  the computer. A run that said nothing back is refused with the words of settings.words.turn_empty. → refusal words or null. */
+export async function finishTurn(call, settings, { job, read, out, outPath, logPath, computer, at = new Date() }) {
+  const chat = chatOf(settings, job.source_id);
+  const reply = readOut(chat?.row.turn?.reply, out);
+  if (!reply) return fill(settings.words.turn_empty, { log: logPath });
+  const session = job.fresh ? (job.session || readOut(chat.row.turn.session, out)) : chat.session;
+  const result = { reply, ...(session ? { in: `${chat.row.source_prefix}${session}` } : {}), to: String(job.agent_id).includes(':') ? job.agent_id : `${settings.tasks.ai_kind}:${job.agent_id}`, on: computer, ai: chat.row.id };
+  // The turn asked for the AI's reply; the evidence a finish checks is the reply itself, as the AI wrote it to its standard
+  // output on this computer. A turn that saved parts to check on their own is not finished here.
+  if ((read?.obligations ?? []).length) return fill(settings.words.answer_refused, { why: 'a turn has no parts to check on their own' });
+  return finishWithAnswer(call, settings, { job, read, answer: result, at,
+    evidence: { ref: `${computer}:${outPath}`, observation: fill(settings.words.turn_evidence, { ai: chat.row.id, chars: reply.length }) } });
 }
 
 /**
@@ -310,7 +355,7 @@ export function plan({ open, agents, settings, started, today, running, chats, a
   const slots = Math.max(0, settings.max_concurrent - running);
   const room = Math.min(slots, Math.max(0, settings.daily_cap - today));
   const sourceOwners = new Map(agents.filter(card => card.takes_work && card.source_id).map(card => [card.source_id, card.agent_id]));
-  const busyChats = new Set([...started.values()].filter(record => record.mode === 'chat' && !record.ended_at).map(record => record.source_id));
+  const busyChats = new Set([...started.values()].filter(record => (record.mode === 'chat' || record.mode === 'turn') && record.source_id && !record.ended_at).map(record => record.source_id));
   // The AI that takes unnamed work now: the first chosen AI whose program is installed (null when none is).
   const ai = chosenAi(settings, now, runnable);
   const left = {};
@@ -323,10 +368,12 @@ export function plan({ open, agents, settings, started, today, running, chats, a
     if (why) { leave(why); continue; }
     if (started.has(item.handoff_id) && !started.get(item.handoff_id).limit_hit) { leave('already started here'); continue; }
     const source_id = item.input?.arrived?.source_id;
+    const turn = turnOf(settings, item);
     // A task names its assignees (record ids of anyone; none means anyone may take it). A chat's work names one AI in to_agent.
     // With tasks.take_unassigned false (DATA), a task that names nobody is not this worker's: it is left for whoever it is
-    // handed to, so only the tasks that name this worker's own id are taken.
-    if (item.task && item.assignees.length === 0 && settings.tasks?.take_unassigned === false) { leave('handed to nobody'); continue; }
+    // handed to, so only the tasks that name this worker's own id are taken. A turn that names nobody is taken where its
+    // chat is (the session's own computer is its address), or, for a new chat, by whichever computer takes it first.
+    if (item.task && item.assignees.length === 0 && settings.tasks?.take_unassigned === false && !turn) { leave('handed to nobody'); continue; }
     const named = item.task ? item.assignees.length > 0 && !item.assignees.includes(agent_id) : Boolean(item.to_agent) && sourceOwners.get(source_id) !== item.to_agent;
     if (named) { leave('handed to a named agent'); continue; }
     // With a triage step (settings.triage, harness/triage-open-work.mjs), only work it sorted as real work is run.
@@ -337,7 +384,29 @@ export function plan({ open, agents, settings, started, today, running, chats, a
       if (then !== 'take') { leave(verdict ? 'triaged as not needing a run' : 'waits for triage'); continue; }
     }
     let job;
-    if (typeof source_id === 'string' && source_id) {
+    if (turn) {
+      // A turn: the person's words, as they are, to the chat its source names (turns, and the chat row's `turn` block).
+      const chat = chatOf(settings, turn);
+      const fresh = Boolean(chat) && chat.session === settings.turns.new_session;
+      // A chat whose row names no session file is found where its turn is handed: on this computer when the turn names it.
+      const handedHere = item.assignees.includes(agent_id);
+      const found = !chat || fresh ? null : chat.row.session_file ? chats.get(turn)
+        : handedHere ? { cwd: home(settings.working_folder), quiet: true, bytes: 0 } : null;
+      const command = chat?.row.turn?.[fresh ? 'start' : 'resume'];
+      const why = !chat || !Array.isArray(command) ? 'no chat row says how to talk to it'
+        : !fresh && !found ? 'waits for its own chat'
+        : found && found.bytes > settings.chat_largest_bytes ? 'its chat is too long to resume'
+        : !fresh && (busyChats.has(turn) || !found.quiet) ? 'its chat is busy'
+        : !runnable({ ...chat.row, command }) ? 'its AI is not installed here' : null;
+      if (why) { leave(why); continue; }
+      const words = [item.description, requestedOutcome(item)].find(said => typeof said === 'string' && said.trim());
+      if (!words) { leave('the turn says nothing'); continue; }
+      const session = fresh ? (chat.row.turn.session?.mint === 'uuid' ? randomUUID() : '') : chat.session;
+      const prompt = fill(settings.turns.prompt, { words });
+      job = { handoff_id: item.handoff_id, mode: 'turn', agent_id, source_id: turn, fresh, session, cwd: found?.cwd ?? home(settings.working_folder), prompt,
+        command: command.map(part => fill(part, { session, prompt })), ai_id: chat.row.id, work_mcp: chat.row.work_mcp,
+        ...(typeof chat.row.turn.stdin === 'string' ? { stdin: fill(chat.row.turn.stdin, { session, prompt }) } : {}) };
+    } else if (typeof source_id === 'string' && source_id) {
       const chat = chatOf(settings, source_id);
       const found = chats.get(source_id);
       // Its chat's first turn is over and no chat took it (the account's anyone_from): any AI of the person's may.
@@ -364,6 +433,7 @@ export function plan({ open, agents, settings, started, today, running, chats, a
     job.own = own(item);
     start.push(job);
     if (job.mode === 'chat') busyChats.add(source_id);
+    if (job.mode === 'turn' && !job.fresh) busyChats.add(job.source_id);
   }
   return { start, left };
 }
@@ -467,12 +537,15 @@ export function findChats(settings, sourceIds, nowMs) {
   const found = new Map();
   for (const source_id of sourceIds) {
     const chat = chatOf(settings, source_id);
-    if (!chat) continue;
+    // A chat row that names no session_file keeps its chats where no file shows them (a database of its own): such a chat
+    // is found where its turn is handed (plan), never by looking here.
+    if (!chat?.row.session_file) continue;
     const pattern = home(fill(chat.row.session_file, { session: chat.session }));
     const file = matchFiles(pattern)[0];
     if (!file) continue;
-    let cwd = null;
-    eachLine(file, line => {
+    // A row that names no working_folder_at runs its chats in this computer's working folder.
+    let cwd = Array.isArray(chat.row.working_folder_at) ? null : home(settings.working_folder);
+    if (!cwd) eachLine(file, line => {
       if (!line.trim()) return false;
       let row;
       try { row = JSON.parse(line); } catch { return false; }
@@ -482,7 +555,9 @@ export function findChats(settings, sourceIds, nowMs) {
     });
     if (!cwd) continue;
     const kept = statSync(file);
-    found.set(source_id, { cwd, idle: nowMs - kept.mtimeMs >= settings.chat_idle_minutes * 60_000, bytes: kept.size });
+    // quiet: nothing has written the chat for turns.quiet_seconds, so a turn may resume it (a turn waits only for the chat's
+    // own run to end and this short quiet, never the chat_idle_minutes a chat's handed work waits).
+    found.set(source_id, { cwd, idle: nowMs - kept.mtimeMs >= settings.chat_idle_minutes * 60_000, quiet: nowMs - kept.mtimeMs >= (settings.turns?.quiet_seconds ?? 0) * 1000, bytes: kept.size });
   }
   return found;
 }
@@ -529,16 +604,24 @@ export async function finishFromAnswer(call, settings, { job, read, logPath, at 
   try { issue = answerIssue(written.result, read.asks.submit); }
   catch (error) { if (error instanceof UnsupportedSchema) return fill(words.answer_refused, { why: error.message }); throw error; }
   if (issue) return fill(words.answer_refused, { why: issue });
+  return finishWithAnswer(call, settings, { job, read, answer: written.result, evidence: { ref: file, observation: evidence.trim().slice(0, 2000) }, at });
+}
+
+/** Finishes a taken task with `answer` as its answer and result: the answer is saved on the task, an acceptance that the
+ *  answer is there is planned (unless the same one is already saved), and the finish carries the check with `evidence`
+ *  ({ref, observation}). → refusal words, or null when finished. */
+export async function finishWithAnswer(call, settings, { job, read, answer, evidence, at = new Date() }) {
+  const words = settings.words;
   const outcome = requestedOutcome(read);
   if (!outcome) return fill(words.answer_refused, { why: 'the task names no outcome to check against' });
   const target = { type: settings.tasks.kind, id: job.handoff_id };
   const acceptance = { outcome, target, rules: [{ id: 'outcome', path: 'answer', required: true }] };
-  const check = { target, outcome, checked_at: at.toISOString(), evidence: [{ ref: file, observation: evidence.trim().slice(0, 2000) }], obligations: [] };
+  const check = { target, outcome, checked_at: at.toISOString(), evidence: [evidence], obligations: [] };
   try {
-    await call('/handoffs/answer', { handoff_id: job.handoff_id, answer: written.result });
+    await call('/handoffs/answer', { handoff_id: job.handoff_id, answer });
     // A retry finds the acceptance an earlier attempt saved; a different saved acceptance is never replaced (the shared plan refuses it).
     if (!sameAcceptance(read.acceptance, acceptance)) await call('/handoffs/plan', { handoff_id: job.handoff_id, agent_id: job.agent_id, taken_at: job.taken_at, acceptance });
-    await call('/handoffs/finish', { handoff_id: job.handoff_id, agent_id: job.agent_id, taken_at: job.taken_at, result: JSON.stringify(written.result), check });
+    await call('/handoffs/finish', { handoff_id: job.handoff_id, agent_id: job.agent_id, taken_at: job.taken_at, result: JSON.stringify(answer), check });
   } catch (error) {
     return fill(words.answer_not_finished, { why: error?.message ?? String(error) });
   }
@@ -585,7 +668,8 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
       records.update(record.handoff_id, { ended_at: nowIso, lost: true });
   }
   for (const record of records.all().values()) {
-    if ((!record.lost && !record.release_pending) || (record.released_at && !record.release_pending) || record.mode !== 'claim') continue;
+    // Claims and turns are taken by this computer, so a lost or unreleased one is given back by it.
+    if ((!record.lost && !record.release_pending) || (record.released_at && !record.release_pending) || (record.mode !== 'claim' && record.mode !== 'turn')) continue;
     if (await releaseHeld(call, settings, record, record.recovery_because)) {
       records.update(record.handoff_id, { released_at: nowIso, release_pending: false, final_read_pending: false });
       log({ did: record.lost ? 'released lost run' : 'released pending run', handoff_id: record.handoff_id });
@@ -669,7 +753,7 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
   // The person's own words are not counted toward daily_cap (plan), so their runs are not counted here either.
   const today = [...current.values(), ...records.history()].filter(record => record.pid && !record.own && localDay(record.started_at) === localDay(nowIso)).length;
   const running = [...current.values()].filter(record => !record.ended_at || record.claim_pending).length;
-  const chats = findChats(settings, new Set(selected.map(item => item.input?.arrived?.source_id).filter(Boolean)), now().getTime());
+  const chats = findChats(settings, new Set(selected.map(item => turnOf(settings, item) ?? item.input?.arrived?.source_id).filter(Boolean)), now().getTime());
   // What the triage step (harness/triage-open-work.mjs) sorted, when this computer sorts work before running it.
   const triaged = settings.triage && !call.tasks ? readTriaged(folder) : null;
   // An AI whose program is not installed where Trillion looks is neither claimed for nor run. Its trouble says which program
@@ -693,7 +777,7 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
   if (programChanged) await republish();
   const planned = plan({ open: selected, agents, settings, started: new Map([...current].filter(([id]) => !attempts.has(id))), today, running, chats, agent_id, computer, now: nowIso, triaged, runnable });
   log({ did: 'planned', open: selected.length, starting: planned.start.map(job => job.handoff_id), left: planned.left });
-  if (!alreadyPublished && planned.start.some(job => job.mode === 'claim')) {
+  if (!alreadyPublished && planned.start.some(job => job.mode === 'claim' || job.mode === 'turn')) {
     await call('/agents/publish', card());
   }
   const runs = [];
@@ -754,8 +838,9 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
     try { auth = acquireAiAuth(settings.ai_auth?.[job.ai_id], { folder, runId: randomUUID(), vault: settings.vault, staleMs: settings.run_timeout_minutes * 2 * 60000 }); }
     catch (error) { log({ did: 'AI login unavailable', ai: job.ai_id, handoff_id: job.handoff_id, error: String(error?.message ?? error) }); continue; }
     if (!auth) { log({ did: 'waiting for a free login', ai: job.ai_id, handoff_id: job.handoff_id }); continue; }
-    if (!records.claim({ handoff_id: job.handoff_id, mode: job.mode, source_id: job.source_id ?? null, agent_id: job.agent_id, started_at: nowIso, attempt: attempts.get(job.handoff_id) ?? 1, request_key: randomUUID(), ...(job.job_contract ? { job_contract: job.job_contract } : {}), executor_starts: job.executor_starts, ...(job.own ? { own: true } : {}) })) { log({ did: 'already started here', handoff_id: job.handoff_id }); continue; }
-    if (job.mode === 'claim') {
+    if (!records.claim({ handoff_id: job.handoff_id, mode: job.mode, source_id: job.fresh ? null : job.source_id ?? null, agent_id: job.agent_id, started_at: nowIso, attempt: attempts.get(job.handoff_id) ?? 1, request_key: randomUUID(), ...(job.job_contract ? { job_contract: job.job_contract } : {}), executor_starts: job.executor_starts, ...(job.own ? { own: true } : {}) })) { log({ did: 'already started here', handoff_id: job.handoff_id }); continue; }
+    // A claim and a turn are taken by this computer before they run; a chat's handed work is taken by the chat itself.
+    if (job.mode === 'claim' || job.mode === 'turn') {
       let taken;
       try { taken = await call('/handoffs/take', { agent_id, handoff_id: job.handoff_id, ...(call.tasks ? { request_key: records.all().get(job.handoff_id).request_key } : {}) }); }
       catch (error) {
@@ -773,14 +858,21 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
     catch (error) { endLogin(auth, job, log, records); runs.push(failedToStart(job, error)); continue; }
     if (call.tasks) { mkdirSync(join(folder, 'results'), { recursive: true }); try { unlinkSync(resultFileOf(settings, job.handoff_id)); } catch { /* none from an earlier run */ } }
     const out = openSync(logPath, 'a');
+    // A turn's standard output is its reply (and, for a new chat, its session), kept apart from the log; its errors go to the log.
+    const replyPath = job.mode === 'turn' ? join(folder, 'runs', `${encodeURIComponent(job.handoff_id)}.out`) : null;
+    const replyOut = replyPath ? openSync(replyPath, 'w') : out;
     let child;
-    try { child = spawnRun(program, job.command.slice(1), { cwd: job.cwd, env: { ...childEnv(), ...auth.env }, stdio: ['ignore', out, out] }); } catch (error) {
+    try { child = spawnRun(program, job.command.slice(1), { cwd: job.cwd, env: { ...childEnv(), ...auth.env }, stdio: [job.stdin === undefined ? 'ignore' : 'pipe', replyOut, out] }); } catch (error) {
       closeSync(out);
+      if (replyPath) closeSync(replyOut);
       endLogin(auth, job, log, records);
       runs.push(failedToStart(job, error));
       continue;
     }
     closeSync(out);
+    if (replyPath) closeSync(replyOut);
+    // A turn's words go in on standard input (turn.stdin), so no word of the person's is ever read as an argument.
+    if (job.stdin !== undefined) { child.stdin?.on?.('error', () => {}); child.stdin?.end?.(job.stdin); }
     // A program that cannot be started (not found) never gets a pid: the error comes as an event, then it closes.
     let startError = null;
     if (child.pid) job.executor_starts += 1;
@@ -830,6 +922,8 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
       records.update(job.handoff_id, { ended_at: now().toISOString(), code, ...(stoppedBusy ? { stopped_busy: true } : {}), ...(stoppedTimeout ? { stopped_timeout: true } : {}) });
       let said = '';
       try { said = tailOf(logPath, 20000); } catch { /* no words kept */ }
+      // A turn's own words (its standard output) may be where it says it reached its limit.
+      if (replyPath) { try { said = `${said}\n${tailOf(replyPath, 20000)}`; } catch { /* nothing said */ } }
       // A line of the run's words that says it reached its limit, for the reason shown beside the rest.
       const limitLine = () => (said.split('\n').find(line => reachedLimit(settings, line)) ?? '').trim().slice(0, 200);
       // A run that timed out is NOT a reason to rest its AI (2026-10-08: Codex was rested 6h for a timeout caused by
@@ -875,7 +969,9 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
       // (finishFromAnswer). The run never finishes its own task. A refusal gives the task back with its reason.
       let refusal = null;
       if (call.tasks && code === 0 && read?.state === 'taken' && read.taken_by === job.agent_id) {
-        refusal = await finishFromAnswer(call, settings, { job, read, logPath, at: now() });
+        refusal = job.mode === 'turn'
+          ? await finishTurn(call, settings, { job, read, out: readFileSync(replyPath, 'utf8'), outPath: replyPath, logPath, computer, at: now() })
+          : await finishFromAnswer(call, settings, { job, read, logPath, at: now() });
         if (refusal === null) read = (await call('/handoffs/read', { handoff_id: job.handoff_id }))?.handoff;
       }
       const finished = read?.state === 'finished';

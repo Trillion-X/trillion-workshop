@@ -139,7 +139,7 @@ test('chat rows find the session file and its working folder, and say whether th
   const nowMs = Date.parse(NOW);
   utimesSync(file, new Date(nowMs - 2 * 3600_000), new Date(nowMs - 2 * 3600_000));
   const size = statSync(file).size;
-  assert.deepEqual(findChats(rows, ['c:aaaa', 'c:none', 'other:1'], nowMs), new Map([['c:aaaa', { cwd: '/work/sample/proj', idle: true, bytes: size }]]));
+  assert.deepEqual(findChats(rows, ['c:aaaa', 'c:none', 'other:1'], nowMs), new Map([['c:aaaa', { cwd: '/work/sample/proj', idle: true, quiet: true, bytes: size }]]));
   utimesSync(file, new Date(nowMs - 60_000), new Date(nowMs - 60_000));
   assert.equal(findChats(rows, ['c:aaaa'], nowMs).get('c:aaaa').idle, false);
 });
