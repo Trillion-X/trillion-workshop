@@ -41,7 +41,7 @@ export function renderPublicCatalog({ origin, workflows = [], tools = [], uses =
   }
   const addresses = [
     ...catalog.workflows.map(row => `${origin}/marketplace/workflow/${slugOf(row.recipe)}`),
-    ...catalog.tools.map(row => row.marketplace ?? `${origin}/marketplace/tool/${row.id}`),
+    ...catalog.tools.map(row => row.marketplace ?? `${origin}/marketplace/tool/${String(row.id).replace(/^tool:/, '')}`),
     ...catalog.use_cases.map(row => row.marketplace).filter(Boolean),
   ];
   const unique = [...new Set(addresses)].filter(address => address.startsWith(origin + '/'));
