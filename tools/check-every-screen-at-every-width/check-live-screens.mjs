@@ -427,6 +427,14 @@ export async function checkLiveScreens(input = {}, host, { keep = (name, bytes) 
   const browser = await launchChromium({ headless: true, executablePath: onThisPath('chrome-headless-shell') });
   try {
     const pages = [];
+    // Signed-in loads start at least signed_in_gap_ms apart (see live-screens.json); keyless loads are not spaced.
+    let lastSignedIn = 0;
+    const spaced = async signIn => {
+      if (!signIn) return;
+      const wait = lastSignedIn + LIVE.signed_in_gap_ms - Date.now();
+      if (wait > 0) await new Promise(done => setTimeout(done, wait));
+      lastSignedIn = Date.now();
+    };
     for (const page of plan.pages) {
       const views = [];
       for (const view of plan.views) {
@@ -437,10 +445,12 @@ export async function checkLiveScreens(input = {}, host, { keep = (name, bytes) 
         const name = `${page.slug}-${view.id}`;
         const answer = { view: view.id };
         const shared = { browser, view, ready: page.ready, run, keep };
+        await spaced(page.signIn);
         const current = await measureSide({ ...shared, url: page.url, signIn: page.signIn && signIns.get(page.url), reach: page.reach, name: `${name}-new`, taps: page.taps });
         answer.new = current.side;
         if (page.taps.length > 0) answer.taps = current.taps;
         if (page.oldUrl) {
+          await spaced(page.signIn);
           answer.old = (await measureSide({ ...shared, url: page.oldUrl, signIn: page.signIn && signIns.get(page.oldUrl), reach: page.reach, name: `${name}-old` })).side;
         }
         views.push(answer);
