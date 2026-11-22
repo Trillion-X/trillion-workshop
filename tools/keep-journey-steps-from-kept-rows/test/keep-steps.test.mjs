@@ -359,18 +359,21 @@ test('a proof step is kept and readable by ref, counted by no view, and purged a
   assert.equal((await db.query("SELECT count(*)::int AS n FROM journey_touches WHERE id = 'touch-1'")).rows[0].n, 1);
 });
 
-test('a reader role granted SELECT on a kit view still has it after an apply that changes the view; a current database applies nothing', async () => {
-  // The kit as it was before is_proof: the column and the proof exclusions taken out of the file, so the apply adds them.
-  const older = new PGlite();
+// The kit's schema as it was before is_proof: the column and the proof exclusions taken out of the file, so an apply adds them.
+function kitBeforeProof() {
   const cut = (text, from, to) => {
     assert.equal(text.split(from).length - 1, 1, from);
     return text.replace(from, to);
   };
-  let olderSql = cut(journeySql, 'ALTER TABLE journey_steps ADD COLUMN IF NOT EXISTS is_proof boolean NOT NULL DEFAULT false;', '');
-  olderSql = cut(olderSql, 'AND visitor IS NOT NULL AND NOT is_proof', 'AND visitor IS NOT NULL');
-  olderSql = cut(olderSql, 'WHERE NOT s.is_proof AND (s.ref IS NULL', 'WHERE (s.ref IS NULL');
-  olderSql = cut(olderSql, "WHERE s.step = 'visit' AND NOT s.is_proof", "WHERE s.step = 'visit'");
-  await older.exec(olderSql);
+  let text = cut(journeySql, 'ALTER TABLE journey_steps ADD COLUMN IF NOT EXISTS is_proof boolean NOT NULL DEFAULT false;', '');
+  text = cut(text, 'AND visitor IS NOT NULL AND NOT is_proof', 'AND visitor IS NOT NULL');
+  text = cut(text, 'WHERE NOT s.is_proof AND (s.ref IS NULL', 'WHERE (s.ref IS NULL');
+  return cut(text, "WHERE s.step = 'visit' AND NOT s.is_proof", "WHERE s.step = 'visit'");
+}
+
+test('a reader role granted SELECT on a kit view still has it after an apply that changes the view; a current database applies nothing', async () => {
+  const older = new PGlite();
+  await older.exec(kitBeforeProof());
   await older.exec('CREATE ROLE kit_reader; GRANT SELECT ON funnel_by_source TO kit_reader;');
   const viewBefore = (await older.query("SELECT oid::int AS oid FROM pg_class WHERE relname = 'funnel_by_source'")).rows[0].oid;
   const applied = await runKeepSteps({ input: {}, connection: 'held', connect: connectTo(older) });
@@ -389,5 +392,16 @@ test('a reader role granted SELECT on a kit view still has it after an apply tha
   assert.equal(again.schema, 'current');
   assert.equal((await older.query("SELECT oid::int AS oid FROM pg_class WHERE relname = 'funnel_by_source'")).rows[0].oid, viewNow);
   assert.deepEqual((await older.query("SELECT has_table_privilege('kit_reader', 'funnel_by_source', 'SELECT') AS granted")).rows, [{ granted: true }]);
+});
+
+test('check mode reports a kit column the database lacks, and a current database reports none missing', async () => {
+  const older = new PGlite();
+  await older.exec(kitBeforeProof());
+  const lacking = await runKeepSteps({ input: { mode: 'check' }, connection: 'held', connect: connectTo(older) });
+  assert.deepEqual(lacking.missing, ['journey_steps.is_proof']);
+  assert.equal(lacking.applied, false);
+  const current = await pursuitDatabase();
+  const whole = await runKeepSteps({ input: { mode: 'check' }, connection: 'held', connect: connectTo(current) });
+  assert.deepEqual(whole.missing, []);
 });
 

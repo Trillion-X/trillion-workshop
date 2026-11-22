@@ -25,6 +25,16 @@ const SCHEMA_SQL = readFileSync(new URL('../../traffic-attribution/read-data/jou
 const SCHEMA_VERSION = makeHashCodeHexFromBytes(new TextEncoder().encode(SCHEMA_SQL));
 // Every object the file declares: tables, views and indexes (each a row of pg_class).
 const DECLARED = [...SCHEMA_SQL.matchAll(/^CREATE\s+(?:UNIQUE\s+)?(?:TABLE|INDEX|VIEW|OR REPLACE VIEW)\s+(?:IF NOT EXISTS\s+)?([a-z_][a-z0-9_]*)/gim)].map(match => match[1]);
+// The columns the kit's tables declare, as [table, column]: each CREATE TABLE's column list and each ADD COLUMN IF NOT EXISTS.
+const CONSTRAINT_WORD = /^(PRIMARY|UNIQUE|CHECK|FOREIGN|CONSTRAINT)$/i;
+const DECLARED_COLUMNS = [
+  ...[...SCHEMA_SQL.matchAll(/^CREATE TABLE IF NOT EXISTS ([a-z_][a-z0-9_]*) \(\n([\s\S]*?)\n\);/gim)].flatMap(([, table, body]) => body.split('\n')
+    .map(line => line.trim().match(/^([a-z_][a-z0-9_]*)\s/i)?.[1])
+    .filter(column => column && !CONSTRAINT_WORD.test(column))
+    .map(column => [table, column])),
+  ...[...SCHEMA_SQL.matchAll(/^ALTER TABLE ([a-z_][a-z0-9_]*) ADD COLUMN IF NOT EXISTS ([a-z_][a-z0-9_]*)/gim)].map(([, table, column]) => [table, column]),
+];
+const DECLARED_TABLES = [...new Set(DECLARED_COLUMNS.map(([table]) => table))];
 
 const CONNECTION_DESCRIPTOR = 3;
 const STATEMENT_TIMEOUT_MS = 20000;
@@ -184,7 +194,12 @@ async function applySchema(client, query) {
 /** What the kit declares that the database lacks, read from pg_class (no writes). */
 async function schemaReport(query) {
   const present = new Set((await query('SELECT relname FROM pg_class WHERE relname = ANY($1::text[])', [DECLARED])).rows.map(row => row.relname));
-  return { declared: DECLARED.length, missing: DECLARED.filter(name => !present.has(name)), version: SCHEMA_VERSION, applied: await schemaApplied(query) };
+  const columns = new Set((await query('SELECT table_name, column_name FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = ANY($1::text[])', [DECLARED_TABLES])).rows.map(row => `${row.table_name}.${row.column_name}`));
+  const missing = [
+    ...DECLARED.filter(name => !present.has(name)),
+    ...DECLARED_COLUMNS.map(([table, column]) => `${table}.${column}`).filter(name => !columns.has(name)),
+  ];
+  return { declared: DECLARED.length, missing, version: SCHEMA_VERSION, applied: await schemaApplied(query) };
 }
 
 /**
