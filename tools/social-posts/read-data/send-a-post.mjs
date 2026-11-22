@@ -250,7 +250,7 @@ async function filesMediaFor(post, place, mediaName, files) {
     const length = Math.min(settings.files_read.span_bytes, size - offset);
     let answer;
     try { answer = await files('read_file_span', { name_or_identity: mediaName, offset, length }); }
-    catch (error) { throw new Refused(fillWords(words.unreadable, { platform: place.label, code: error?.code ?? 'files' })); }
+    catch (error) { throw new Refused(fillWords(['no_host_actions', 'no_files'].includes(error?.code) ? words.no_right : words.unreadable, { platform: place.label, code: error?.code ?? 'files' })); }
     const bytes = Buffer.from(typeof answer?.content === 'string' ? answer.content : '', 'base64');
     if (answer?.bytes_returned !== length || bytes.length !== length) throw new Refused(fillWords(words.unreadable, { platform: place.label, code: 'short_read' }));
     parts.push(bytes);

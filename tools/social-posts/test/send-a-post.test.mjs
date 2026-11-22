@@ -498,3 +498,14 @@ test('a post\'s file from the Files right is refused in plain words when the run
     assert.match(fake.kept.get('post:p1').value.deliveries[ACCOUNT].error, /not handed the right to read your files/);
   });
 });
+
+test('a Files read the run was not handed the right for is refused in the no-right words, not as a try-again', async () => {
+  const video = { media: { name: '/Recordings/clip.mp4', media_type: 'video/mp4', byte_length: 1000, identity: `1f:${'d'.repeat(64)}` } };
+  const files = async () => { throw Object.assign(new Error('no files right'), { code: 'no_host_actions' }); };
+  await withDoor([post(video), connection], async fake => {
+    await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, media_name: '/Recordings/clip.mp4' }, { send: place().send, held: () => VALUE, files });
+    const error = fake.kept.get('post:p1').value.deliveries[ACCOUNT].error;
+    assert.match(error, /not handed the right to read your files/);
+    assert.doesNotMatch(error, /Send it again shortly/);
+  });
+});
