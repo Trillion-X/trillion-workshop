@@ -36,6 +36,17 @@ test('skips addresses the library already holds', async () => {
   assert.equal(out.shots.length, 1);
 });
 
+test('compares held addresses in canonical form, as the library stores them raw', async () => {
+  const out = await keepNewArcTabs({
+    ...base,
+    held: ['https://www.youtube.com/watch?v=abc123&t=9', 'https://www.refero.design/x?utm_source=b'],
+    limit: 0,
+    state_folder: fresh(),
+  }, { blake3Hex, ...calm });
+  assert.equal(out.counts.held, 2);
+  assert.equal(out.counts.new, 3);
+});
+
 test('marks a shot that fails as failed and keeps going', async () => {
   const out = await keepNewArcTabs({
     ...base,

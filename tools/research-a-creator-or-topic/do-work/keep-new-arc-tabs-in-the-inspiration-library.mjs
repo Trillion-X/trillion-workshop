@@ -13,7 +13,7 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from
 import { join } from 'node:path';
 import { loadavg } from 'node:os';
 import { promisify } from 'node:util';
-import { readArcTabs, planIntake } from './arc-inspiration-intake.mjs';
+import { readArcTabs, planIntake, canonicalUrl } from './arc-inspiration-intake.mjs';
 import rules from './arc-inspiration-intake.json' with { type: 'json' };
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
@@ -45,6 +45,10 @@ function shotStatement(shot) {
   return `update public.inspiration_items set screenshot_file_name = ${sql(shot.name)}, screenshot_state = ${sql(state)} where id = ${sql(shot.id)};`;
 }
 
+function canonicalOrNull(url) {
+  try { return canonicalUrl(url); } catch { return null; }
+}
+
 const INSERT_BATCH = 200;
 
 // One insert statement per 200 rows; a row that is already there is left as it is.
@@ -73,7 +77,8 @@ export async function keepNewArcTabs(input, { blake3Hex, oneMinuteLoad = () => l
   const { tabs } = readArcTabs(readFileSync(copy, 'utf8'));
   const ledgerPath = join(stateFolder, 'ledger.json');
   const ledger = existsSync(ledgerPath) ? JSON.parse(readFileSync(ledgerPath, 'utf8')) : { seen: [] };
-  const known = new Set([...held, ...ledger.seen]);
+  // Held addresses come in as the library stores them, so each one is put in canonical form before the comparison.
+  const known = new Set([...held.map(canonicalOrNull).filter(Boolean), ...ledger.seen]);
   const firstSeen = new Date().toISOString();
   const { rows, counts } = planIntake({ tabs, heldCanonicals: known, blake3Hex, firstSeen });
 
