@@ -2,18 +2,19 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { loadChoices, modelsOf, sqlThrough } from '../read-data/load-choices.mjs';
 
-const fakeSql = answers => async (store, sql) => {
+// One statement returns all four inputs as one row, so the fake answers with that row.
+const storeWith = inputs => async (store, sql) => {
   assert.equal(store, 'store-a');
-  const key = Object.keys(answers).find(words => sql.includes(words));
-  return answers[key];
+  assert.match(sql, /answerer-choice/);
+  return [{ inputs }];
 };
 const noCodex = async () => { throw new Error('no codex-lb'); };
 
 test('the loader reads choice, limit and cool-down rows from the store it is given, and the models from the doors', async () => {
-  const runSql = fakeSql({
-    'answerer-choice': [{ value: JSON.stringify({ id: 'codex-answer', provider: 'codex', kinds: ['ai'], models: ['m1'] }) }, { value: '{"provider":"claude"}' }],
-    'from provider_limits': [{ provider: 'claude', account: 'claude pool 1', window_name: 'weekly', used_percent: 10, state: 'ok' }],
-    'cooldown/': [{ value: JSON.stringify({ provider: 'codex', account: 'codex-lb account 1', until: '2026-11-22T10:00:00Z' }) }],
+  const runSql = storeWith({
+    choices: [{ id: 'codex-answer', provider: 'codex', kinds: ['ai'], models: ['m1'] }, { provider: 'claude' }],
+    limits: [{ provider: 'claude', account: 'claude pool 1', window_name: 'weekly', used_percent: 10, state: 'ok' }],
+    cooldowns: [{ provider: 'codex', account: 'codex-lb account 1', until: '2026-11-22T10:00:00Z' }],
   });
   const fetchImpl = async url => ({ ok: true, json: async () => ({ data: url.includes('2455') ? [{ id: 'm1' }] : [{ id: 'c1' }] }) });
   const choices = await loadChoices({ store: 'store-a', doors: { codex: 'http://127.0.0.1:2455', claude: 'http://127.0.0.1:9000' }, runSql, fetchImpl,
@@ -26,7 +27,7 @@ test('the loader reads choice, limit and cool-down rows from the store it is giv
 });
 
 test('with no door given, no model is named and the stored limits stand', async () => {
-  const runSql = fakeSql({ 'answerer-choice': [], 'from provider_limits': [{ provider: 'codex', account: 'a', window_name: 'weekly', used_percent: 5, state: 'ok' }], 'cooldown/': [] });
+  const runSql = storeWith({ choices: [], limits: [{ provider: 'codex', account: 'a', window_name: 'weekly', used_percent: 5, state: 'ok' }], cooldowns: [] });
   const choices = await loadChoices({ store: 'store-a', runSql, readCodex: noCodex });
   assert.deepEqual(choices.models, { codex: [], claude: [] });
   assert.equal(choices.limits[0].used_percent, 5);
