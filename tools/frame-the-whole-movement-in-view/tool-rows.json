@@ -22,7 +22,7 @@
           "properties": {
             "request": {
               "type": "string",
-              "description": "The request JSON file on the person's computer. Its command is measure (detects the boxes; needs video, shots[{id,start,end,slow?}], model, subject_class, implement_class, sample_fps, imgsz, conf, near_px, out), choose (reads out/boxes.json; needs output [w,h], layouts[{name,aspect,sizing}], margin, follow_window_frames, max_zoom, safe_margin_px, out) or gate (reads out/framing.json; needs out)."
+              "description": "The request JSON file on the person's computer. Its command is measure (detects the boxes; needs video, shots[{id,start,end,slow?}], model, subject_class, implement_class, sample_fps, imgsz, conf, near_px, out), choose (reads out/boxes.json; needs output [w,h], layouts[{name,aspect,sizing}], margin, follow_window_frames, max_zoom, safe_margin_px, out) or gate (reads out/framing.json; needs out). choose also takes reference (a clip name, required by a layout with needs_reference), text_room ({shot id: [w, h]})."
             }
           },
           "required": [
@@ -52,8 +52,7 @@
         "placements": [
           "placement:your-computer"
         ],
-        "maker": "maker:frame-the-whole-movement-in-view",
-        "uses_tools": []
+        "maker": "maker:frame-the-whole-movement-in-view"
       }
     }
   ]

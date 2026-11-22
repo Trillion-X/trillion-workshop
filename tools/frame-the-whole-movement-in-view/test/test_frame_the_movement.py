@@ -114,6 +114,49 @@ class TestGraphicAreas(unittest.TestCase):
             ftm.graphic_areas('some-new-layout', [0, 0, 1, 1], OUT_W, OUT_H, 60)
 
 
+class TestMovementShape(unittest.TestCase):
+    def test_window_takes_the_movement_shape_and_fills_the_source_height(self):
+        window = ftm._static_window({'name': 'w', 'aspect': 0, 'sizing': 'movement-shape'}, [1000, 300, 3200, 2000],
+                                    SRC_W, SRC_H, 0.08)
+        x, y, w, h = window
+        self.assertAlmostEqual(h, SRC_H)
+        self.assertAlmostEqual(w / h, 2200 / 1700, places=3)
+
+    def test_movement_bigger_than_the_source_does_not_fit(self):
+        self.assertIsNone(ftm._static_window({'name': 'w', 'aspect': 0, 'sizing': 'movement-shape'}, [0, 0, 3800, 100],
+                                             SRC_W, SRC_H, 0.08))
+
+
+class TestReference(unittest.TestCase):
+    def test_stacked_refuses_without_a_reference_and_passes_with_one(self):
+        stacked = dict(next(x for x in LAYOUTS if x['name'] == 'stacked-synced-comparison'), needs_reference=True)
+        frames = [[1000, 200, 2800, 1900]] * 4
+        without = ftm._candidate(stacked, shot(frames), SRC_W, SRC_H, OUT_W, OUT_H, 0.08, 3, 1.25, None)
+        with_ref = ftm._candidate(stacked, shot(frames), SRC_W, SRC_H, OUT_W, OUT_H, 0.08, 3, 1.25, '/ref.mp4')
+        self.assertFalse(without['fits'])
+        self.assertTrue(with_ref['fits'])
+
+
+class TestTextRoom(unittest.TestCase):
+    def test_title_that_does_not_fit_off_the_subject_makes_the_chooser_pick_bars(self):
+        with tempfile.TemporaryDirectory() as out:
+            frames = [[1000, 200, 2800, 1900]] * 6
+            ftm._write(os.path.join(out, 'boxes.json'), {'source': [SRC_W, SRC_H], 'shots': [dict(shot(frames, 'opener'), start=0, end=1)]})
+            result = ftm.choose({'out': out, 'output': [OUT_W, OUT_H], 'layouts': LAYOUTS[:2], 'margin': 0.08,
+                                 'follow_window_frames': 3, 'max_zoom': 1.25, 'safe_margin_px': 60,
+                                 'text_room': {'opener': [532, 191]}})
+            self.assertEqual(result['shots'][0]['picked'], 'wide-with-blurred-bars')
+            self.assertFalse(result['shots'][0]['candidates'][0]['fits'])
+
+    def test_no_text_room_needed_keeps_the_fixed_frame(self):
+        with tempfile.TemporaryDirectory() as out:
+            frames = [[1500, 200, 2100, 1900]] * 6
+            ftm._write(os.path.join(out, 'boxes.json'), {'source': [SRC_W, SRC_H], 'shots': [dict(shot(frames, 'opener'), start=0, end=1)]})
+            result = ftm.choose({'out': out, 'output': [OUT_W, OUT_H], 'layouts': LAYOUTS[:2], 'margin': 0.08,
+                                 'follow_window_frames': 3, 'max_zoom': 1.25, 'safe_margin_px': 60, 'text_room': {}})
+            self.assertEqual(result['shots'][0]['picked'], 'full-bleed-9x16')
+
+
 class TestGate(unittest.TestCase):
     def test_gate_exits_one_when_a_shot_has_no_layout(self):
         with tempfile.TemporaryDirectory() as out:

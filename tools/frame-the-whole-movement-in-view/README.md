@@ -12,11 +12,16 @@ Keeps a vertical video's whole movement inside the picture, by measurement. The 
 
 ## Layouts are rows
 
-A layout is `{name, aspect, sizing}`. The tool does not know any layout's name; the workflow passes the layout rows of the law, in order (tightest first, side-by-side last, never the default):
+A layout is `{name, aspect, sizing}`, optionally `needs_reference: true` (the stacked comparison: refused unless the request names a `reference` clip). The tool does not know any layout's name; the workflow passes the layout rows of the law, in order (tightest first, side-by-side last, never the default):
 
 - `full-height`: the whole source height at `aspect` (9:16 for full-bleed). Its zoom is output height over window height and must not exceed `max_zoom`.
+- `movement-shape`: the largest window whose aspect is the movement box's own aspect (with margin) and which fits the source; used for the blurred-bars layout, so the bars shrink to the movement's shape.
 - `around-movement`: the smallest window at `aspect` holding the shot's whole extent plus `margin`, capped at the source. Used for the wide layout with blurred bars and for the stacked comparison's panel (aspect = output width over half the output height).
 - `follow`: one window per frame at `aspect`, holding the boxes of the frames within `follow_window_frames` of it, so it moves and widens with the movement.
+
+## Text room
+
+The request may give `text_room`: a map from shot id to [width, height] of the text a shot must carry. A layout passes that shot only if one of its graphic areas holds the room; a shot with no bar area (full-bleed, follow, stacked) then fails that layout, so the chooser picks bars.
 
 ## Graphics in the bars
 
@@ -31,7 +36,7 @@ Every candidate keeps its window, zoom, extent and `undetected_frames` (frames w
 | File | Purpose |
 |---|---|
 | `do-work/frame_the_movement.py` | the three commands |
-| `test/test_frame_the_movement.py` | 10 tests on synthetic boxes, no detection model: `python3 test/test_frame_the_movement.py` |
+| `test/test_frame_the_movement.py` | 17 tests on synthetic boxes, no detection model: `python3 test/test_frame_the_movement.py` |
 | `tool-rows.json` | the Workshop row (`tool:frame-the-whole-movement-in-view`), on the person's computer |
 | `part.json` | nothing here is imported by other code |
 

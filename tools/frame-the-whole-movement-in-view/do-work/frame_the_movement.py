@@ -130,6 +130,14 @@ def _static_window(layout, extent, src_w, src_h, margin):
         win_w = win_h * aspect
         if win_w > src_w:
             return None
+    elif layout['sizing'] == 'movement-shape':
+        x0, y0, x1, y1 = extent
+        ext_w, ext_h = (x1 - x0) * (1 + 2 * margin), (y1 - y0) * (1 + 2 * margin)
+        if ext_w > src_w or ext_h > src_h:
+            return None
+        aspect = ext_w / ext_h
+        win_h = min(float(src_h), src_w / aspect)
+        win_w = win_h * aspect
     else:
         x0, y0, x1, y1 = extent
         ext_w, ext_h = (x1 - x0) * (1 + 2 * margin), (y1 - y0) * (1 + 2 * margin)
@@ -177,12 +185,22 @@ def _out_of_view(boxes, windows):
     return count
 
 
-def _candidate(layout, shot, src_w, src_h, out_w, out_h, margin, reach, max_zoom):
+def _text_room_fits(layout, window, out_w, out_h, safe, room):
+    """A layout keeps text room when one of its graphic areas holds the room's width and height (output pixels)."""
+    if room is None:
+        return True
+    return any(aw >= room[0] and ah >= room[1] for _, _, aw, ah in graphic_areas(layout['name'], window, out_w, out_h, safe))
+
+
+def _candidate(layout, shot, src_w, src_h, out_w, out_h, margin, reach, max_zoom, reference=None, text_room=None, safe=60):
     boxes = [f['box'] for f in shot['frames']]
     known = [b for b in boxes if b is not None]
     if not known:
         return {'layout': layout['name'], 'fits': False, 'out_of_view_frames': len(boxes), 'why': 'no subject found'}
     extent = [min(b[0] for b in known), min(b[1] for b in known), max(b[2] for b in known), max(b[3] for b in known)]
+    if layout.get('needs_reference') and not reference:
+        return {'layout': layout['name'], 'fits': False, 'out_of_view_frames': len(boxes), 'window': None,
+                'why': 'this layout compares with a reference clip, and the request names none'}
     if layout['sizing'] == 'follow':
         windows = _follow_windows(layout, boxes, src_w, src_h, margin, reach)
         zoom = [out_h / win[3] for win in windows if win is not None]
@@ -190,7 +208,10 @@ def _candidate(layout, shot, src_w, src_h, out_w, out_h, margin, reach, max_zoom
     else:
         window = _static_window(layout, extent, src_w, src_h, margin)
         windows = [window] * len(boxes)
-        zoom = [out_h / window[3]] if window else []
+        if window and layout['sizing'] == 'full-height':
+            zoom = [out_h / window[3]]
+        else:
+            zoom = [out_w / window[2]] if window else []
     if window is None and layout['sizing'] != 'follow':
         return {'layout': layout['name'], 'fits': False, 'out_of_view_frames': len(boxes), 'window': None,
                 'why': 'the window at this aspect does not fit the source'}
@@ -198,6 +219,9 @@ def _candidate(layout, shot, src_w, src_h, out_w, out_h, margin, reach, max_zoom
         return {'layout': layout['name'], 'fits': False, 'out_of_view_frames': _out_of_view(boxes, windows),
                 'window': window, 'zoom': round(max(zoom), 3), 'why': f'zoom above {max_zoom}'}
     count = _out_of_view(boxes, windows)
+    if not _text_room_fits(layout, window, out_w, out_h, safe, text_room):
+        return {'layout': layout['name'], 'fits': False, 'out_of_view_frames': count, 'window': window,
+                'why': f'no graphic area holds the text room {text_room[0]} by {text_room[1]} px'}
     return {'layout': layout['name'], 'fits': count == 0, 'out_of_view_frames': count, 'window': window,
             'zoom': round(max(zoom), 3) if zoom else None, 'extent': [int(v) for v in extent],
             'undetected_frames': len(boxes) - len(known)}
@@ -233,8 +257,10 @@ def choose(request):
     out_w, out_h = request['output']
     results = []
     for shot in boxes['shots']:
+        room = request.get('text_room', {}).get(shot['id'])
         candidates = [_candidate(layout, shot, src_w, src_h, out_w, out_h, request['margin'], request['follow_window_frames'],
-                                 request['max_zoom']) for layout in request['layouts']]
+                                 request['max_zoom'], request.get('reference'), room, request['safe_margin_px'])
+                      for layout in request['layouts']]
         passing = [c for c in candidates if c['fits']]
         picked = passing[0] if passing else None
         results.append({'id': shot['id'], 'picked': picked and picked['layout'], 'window': picked and picked['window'],
