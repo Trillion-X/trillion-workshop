@@ -59,7 +59,8 @@ import { goTo } from './open-screen';
 import { mountWorkspace, newWorkspaceRoot, openScreens, openSurface } from './mount-workspace';
 import { installScreenRunner, type Around } from './screen-runner';
 import surfaces, { screenOpenedEvent } from './screens.mjs';
-import { replaceWorkspaceAddress, screenAt, screensAtAddress } from './addresses.mjs';
+import { replaceWorkspaceAddress } from './addresses.mjs';
+import { addressOpener } from './address-open.mjs';
 import { takeSpaceInviteAfterCheckout } from './pending-space-invite.mjs';
 import { offeredScreens, startScreenRecords, type ScreenRow as Row } from './offered-screens';
 import { onFocusChange } from './scope-focus';
@@ -121,29 +122,10 @@ const aroundScreen: Around = (element, { entry, input }, mount) => {
   return () => { stopFelt(); stopTour(); unmount(); };
 };
 
-// The screens this page's address asks for, as open requests, among the screens this person is offered
-// (addresses.mjs, the same resolution the Worker answers the address with): an exact `route_paths` match opens the
-// screen itself, an address under its `route_prefix` opens it with that rest as its `route_input` (one decision per tab),
-// and each query field a screen's `route_query` names selects that screen with its input. A query about the path's
-// screen selects that same copy; a meeting link on a list opens Record beside the list. They open after the person's
-// saved arrangement, so the address is what shows.
-type Asked = { row: Record<string, unknown>; input: Record<string, string> | null };
 // One read of the tools' screens: a page of them, and `next` while more of the person's own are left (first-answers.json).
 type ToolScreens = { surfaces: Row[]; next?: string | null };
 type ToolScreensRead = { value: ToolScreens } | { error: unknown };
 type PursuitsRead = { value: Record<string, unknown>[] } | { error: unknown };
-const openRequest = ({ row, input }: Asked): Record<string, unknown> =>
-  (input ? { id: row.id, surfaceInput: { ...(row.surface_input as Record<string, unknown> | undefined), ...input } } : row);
-// When the path opened a screen too, each query's screen opens beside it (on a phone, where panes stack, it opens in
-// place and the path's screen stays one tab back).
-function routedOpen(offered: Record<string, unknown>[]): Record<string, unknown>[] {
-  const routed = screenAt(offered, location.pathname) as Asked | null;
-  return (screensAtAddress(offered, location.pathname, location.search) as Asked[])
-    .map((asked, index) => {
-      const request = openRequest(asked);
-      return routed && index > 0 ? { ...request, placement: 'right' } : request;
-    });
-}
 
 async function start() {
   // Every long wait on this page (a pressed button, a screen loading) says it is still working in these words.
@@ -192,6 +174,9 @@ async function start() {
   const firstPursuits = pursuitNow && 'value' in pursuitNow ? pursuitNow.value : [];
   // Which screens this person is offered (offered-screens.ts).
   const offered: Row[] = offeredScreens(viewer, toolScreens.surfaces, firstPursuits, []);
+  // The address's screens open once they are offered: a tool's screen (the grants screen) is offered only when the tools'
+  // answer arrives, which may be after this first read (address-open.mjs).
+  const openAddress = addressOpener();
   // The tray picks from what the pointer is over and adds its two rows to the right-click menu; its code arrives
   // while the first screens draw, since nothing is picked before then.
   void import('./tray').then(({ startTray }) => startTray(offered));
@@ -288,6 +273,8 @@ async function start() {
       // A final page may confirm completeness without changing a row. The arrangement must hear that transition
       // before it can close a saved tab whose screen is no longer offered.
       workspace.reoffer(updated, { catalogComplete: state.complete });
+      const late = openAddress(updated as Record<string, unknown>[], location.pathname, location.search);
+      if (late.length) openScreens(late);
     },
     onError: (_error, source) => notify(screenCatalogWords.failed.replace('{source}', screenCatalogWords.sources[source]), {
       kind: 'info', key: `catalog-${source}-not-loaded`, actions: [{ id: `retry-catalog-${source}`, label: screenCatalogWords.retry,
@@ -329,7 +316,7 @@ async function start() {
   replacedEarly.clear();
   const opening = [
     ...(addressLabelForInput('layout-state') in saved ? [] : surfaces.open_at_start.map(id => offered.find(surface => surface.id === id)).filter(Boolean) as Record<string, unknown>[]),
-    ...routedOpen(offered as Record<string, unknown>[]),
+    ...openAddress(offered as Record<string, unknown>[], location.pathname, location.search),
   ];
   if (opening.length) openScreens(opening);
   // Heading for a screen in the sidebar (the pointer's path, tools/ui/show/intent-prefetch) or moving focus to it starts
