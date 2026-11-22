@@ -1,0 +1,33 @@
+{
+  "start_here": "Say to your AI: \"Read the records of the zone example.com on Hetzner.\" It runs tool:read-hetzner-dns-rrsets with the zone name.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it reads or changes your Hetzner DNS zones.",
+  "workflows": [],
+  "tools": [
+    "tool:read-hetzner-dns-rrsets"
+  ],
+  "instructions": [
+    "1. Say to your AI what to do, with the zone name and the record values.",
+    "2. The AI calls tools:run with the tool and its input.",
+    "3. Read the answer; a change is real, so check it with tool:read-hetzner-dns-rrsets."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read a Hetzner DNS zone's records",
+      "ask": "Read the records of the zone example.com on Hetzner.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-hetzner-dns-rrsets",
+            "input": {}
+          }
+        }
+      },
+      "given": "Reads tools/hetzner-dns/tool-rows.json: GET https://api.hetzner.cloud/v1/zones/{zone}/rrsets with the vault key hetzner-api-token as a bearer header, to api.hetzner.cloud only.",
+      "hands_back": "It answers each record set with its name, type, TTL and values, for example @ A 60 with 203.0.113.10."
+    }
+  ]
+}
