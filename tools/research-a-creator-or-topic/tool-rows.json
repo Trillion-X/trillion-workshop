@@ -4095,7 +4095,7 @@
         "outputs": [
          {
           "name": "shots",
-          "path": "out/shots.json",
+          "path": "/opt/research-a-creator-or-topic/out/shots.json",
           "keep_in": "files",
           "media_type": "application/json",
           "max_bytes": 16777216
