@@ -1,0 +1,41 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:start-the-workflows-asked-for.\" The wake starts it once its switch input is set.",
+  "lists": [],
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
+  "workflows": [
+    "workflow:start-the-workflows-asked-for"
+  ],
+  "tools": [
+    "tool:run-sql-in-my-database",
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:start-the-workflows-asked-for\".",
+    "3. Read the answer the run hands back."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start each kept workflow someone asked to run",
+      "ask": "Run workflow:start-the-workflows-asked-for.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:start-the-workflows-asked-for"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:start-the-workflows-asked-for",
+      "step": "read",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
+    }
+  ],
+  "drafted_from": "workflow:start-the-workflows-asked-for rendered from its row"
+}

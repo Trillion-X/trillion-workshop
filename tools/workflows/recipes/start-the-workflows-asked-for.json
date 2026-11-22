@@ -1,0 +1,212 @@
+{
+  "about": "workflow:start-the-workflows-asked-for: rendered from its workflow_recipes row.",
+  "records": [
+    {
+      "payload": {
+        "source_kept_at": "2026-11-22 04:08:04.353013+00",
+        "kind": "workflow-recipe",
+        "id": "workflow:start-the-workflows-asked-for",
+        "label": "Start each kept workflow someone asked to run",
+        "job": "When a row is added to workflow_runs_asked (recipe, input, start_at), read that recipe's definition and tell workflow-chosen-from-rows with it and the input, so it runs on tool:run-a-workflow",
+        "produces": "runs of the workflows people asked for, each started once",
+        "source": {
+          "at": "2026-11-20",
+          "made_by": "the workflow-engine chat f86c0656",
+          "switched_as": "tool:run-a-workflow a-row-changed/start-asked-workflows switch input"
+        },
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "database": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The held name of the database whose asked rows are started; the account default when absent."
+            }
+          }
+        },
+        "definition": {
+          "id": "workflow:start-the-workflows-asked-for",
+          "kind": "workflow",
+          "name": "Start each kept workflow someone asked to run",
+          "uses": [
+            {
+              "id": "workflow:start-the-workflows-asked-for:start",
+              "kind": "workflow",
+              "name": "Start one",
+              "edges": [],
+              "steps": [
+                {
+                  "id": "start",
+                  "kind": "ask",
+                  "config": {
+                    "name": "wake:arrive",
+                    "input": {
+                      "kind": "workflow-chosen-from-rows",
+                      "payload": {
+                        "asked": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "asked.id"
+                          }
+                        },
+                        "input": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "asked.input"
+                          }
+                        },
+                        "start_at": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "asked.start_at"
+                          }
+                        },
+                        "workflow": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "asked.recipe"
+                          }
+                        },
+                        "definition": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "asked.definition"
+                          }
+                        }
+                      },
+                      "event_id": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "asked.id"
+                        }
+                      }
+                    },
+                    "context": {
+                      "step_id": "start"
+                    }
+                  }
+                }
+              ],
+              "version": 1,
+              "is_active": true
+            }
+          ],
+          "edges": [
+            {
+              "to": "start-each",
+              "from": "read",
+              "kind": "always"
+            }
+          ],
+          "steps": [
+            {
+              "id": "read",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "WITH due AS (\n  SELECT a.id, a.recipe, coalesce(a.input, '{}'::jsonb) || jsonb_build_object('kept_in', jsonb_build_object('database', current_database())) AS input, a.start_at, a.asked_at,\n    jsonb_build_object('id', r.recipe, 'name', coalesce(r.title, r.recipe), 'kind', 'workflow', 'is_active', true, 'version', 1) || r.definition AS definition\n  FROM workflow_runs_asked a JOIN workflow_recipes r ON r.recipe = a.recipe\n  WHERE (a.start_at IS NULL OR a.start_at::timestamptz <= now()) AND jsonb_typeof(r.definition) = 'object'\n    AND coalesce((r.definition->>'is_active')::boolean, true) AND NOT EXISTS (SELECT 1 FROM asked_row_claims k WHERE k.id = a.id)\n  ORDER BY a.asked_at, a.id LIMIT 50),\nclaimed AS (INSERT INTO asked_row_claims (id, claimed_at, reason) SELECT id, now(), 'claimed by the claim-first starter' FROM due ON CONFLICT (id) DO NOTHING RETURNING id)\nSELECT due.id, due.recipe, due.input, due.start_at, due.definition FROM due JOIN claimed USING (id) ORDER BY due.asked_at, due.id",
+                  "params": [],
+                  "database": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "database"
+                    }
+                  }
+                },
+                "context": {
+                  "step_id": "read"
+                }
+              }
+            },
+            {
+              "id": "start-each",
+              "kind": "loop",
+              "config": {
+                "source": {
+                  "$kind": "binding",
+                  "select": {
+                    "key": "read",
+                    "from": "steps",
+                    "path": "output.rows"
+                  }
+                },
+                "item_var": "asked",
+                "parallel": true,
+                "definition_id": "workflow:start-the-workflows-asked-for:start"
+              }
+            }
+          ],
+          "version": 1,
+          "is_active": true
+        },
+        "wakes": [
+          {
+            "id": "start-asked-every-ten-minutes",
+            "on": {
+              "fact": {
+                "from": [
+                  "run"
+                ],
+                "kind": "due-time",
+                "match": {
+                  "schedule_id": "schedule:workflow:start-the-workflows-asked-for:every-ten-minutes"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:start-the-workflows-asked-for",
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        },
+                        "owner_dispatch": {
+                          "name": "workflow:start-the-workflows-asked-for",
+                          "input": {
+                            "start_at": "read"
+                          }
+                        }
+                      },
+                      "cadence": {
+                        "unit": "minute",
+                        "interval": 10
+                      },
+                      "timezone": "America/Chicago",
+                      "schedule_id": "schedule:workflow:start-the-workflows-asked-for:every-ten-minutes",
+                      "local_window": {
+                        "start": "00:00",
+                        "duration_minutes": 1440
+                      },
+                      "start_local_date": "1969-12-31",
+                      "schedule_revision": 1,
+                      "source_generation": 1
+                    }
+                  ]
+                }
+              }
+            },
+            "budget": {
+              "steps": 40,
+              "wall_ms": 3600000
+            },
+            "input": {
+              "start_at": "read"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
