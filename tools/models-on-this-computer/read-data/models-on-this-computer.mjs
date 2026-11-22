@@ -16,7 +16,11 @@
 //      model why it did not answer (`tried`). A model that refused only this request's shape (400-499, such as a model
 //      that takes no tool calls) is passed over for that request and not rested, so one request it cannot take never
 //      silences the asks it can.
-//   4. `fit` (modelsForThisMac) reads this computer (its chip, memory and free space) and the models its server has,
+//   4. A job that says `choose` asks the shared chooser (tools/choose-an-answerer) first: the answerer rows (DATA
+//      `answerers.rows`) are weighed against each provider's limits read fresh through its own door, the models that door
+//      lists live, and this process's rests (a 429 or a failure rests a row, which the chooser reads as a cool-down). A
+//      pick is asked first; no pick (limits at the threshold, a cool-down, no reading) leaves the job's own models.
+//   5. `fit` (modelsForThisMac) reads this computer (its chip, memory and free space) and the models its server has,
 //      and offers only models that fit (DATA `offer`); asked to get them, it has the server download each.
 //
 // Usage
@@ -25,6 +29,9 @@
 import { cpus, homedir, totalmem } from 'node:os';
 import { readFileSync } from 'node:fs';
 import { statfs } from 'node:fs/promises';
+import { chooseAnswerer } from '../../choose-an-answerer/read-data/choose-an-answerer.mjs';
+import { modelsOf } from '../../choose-an-answerer/read-data/load-choices.mjs';
+import { readCodexLimits } from '../../codex-usage-read/read-data/codex-limits.mjs';
 
 /** The settings file: the model tables (chat, jobs, classify, offer, wired), the server, the limits and the words. */
 export const localModelSettings = () => JSON.parse(readFileSync(new URL('./models-on-this-computer.json', import.meta.url), 'utf8'));
@@ -178,6 +185,39 @@ async function askChatShape(row, body, seconds, streamed) {
   return chatReplyOf(reply, body.model);
 }
 
+// How each provider's limits are read, by the reader a limits row names (DATA `answerers.limits.<provider>.reader`).
+const LIMIT_READERS = { 'codex-lb-accounts': readCodexLimits };
+
+/**
+ * The chat row the shared chooser picks for a job that says `choose`, with the model it picked, and why; `{ row: null,
+ * why }` when nothing fits (the job's own models answer then). Limits and models are read through the doors the
+ * answerer limits rows name (placed: their `url`); a door this computer does not report gives no reading, which the
+ * chooser skips. A row resting in this process after a failure or a 429 is a cool-down for every account of its provider.
+ */
+export async function chosenRow(job, settings, { now = new Date(), readers = LIMIT_READERS, fetchImpl = fetch } = {}) {
+  const answerers = settings.answerers;
+  if (!job?.choose || !Array.isArray(answerers?.rows) || !answerers.rows.length) return { row: null, why: null };
+  const limits = [], models = {}, cooldowns = [];
+  for (const [provider, source] of Object.entries(answerers.limits ?? {})) {
+    if (!source?.url) continue;
+    const read = readers[source.reader];
+    if (read) limits.push(...await read(source.url, { now, fetchImpl }).catch(() => []));
+    models[provider] = await modelsOf(source.url, { fetchImpl });
+  }
+  const chatOf = answerer => (settings.chat ?? []).find(item => item.id === answerer.chat);
+  for (const answerer of answerers.rows) {
+    const chat = chatOf(answerer);
+    if (!chat) continue;
+    const rests = (answerer.models ?? []).map(model => unavailableUntil.get(modelKey({ ...chat, model }))).filter(rest => rest && rest.until > now.getTime());
+    const until = Math.max(0, ...rests.map(rest => rest.until));
+    if (until) for (const account of answerer.account_pool ?? []) cooldowns.push({ provider: answerer.provider, account, until: new Date(until).toISOString() });
+  }
+  const pick = chooseAnswerer({ kind: job.choose.kind, fit: job.choose.fit ?? [] }, { providers: answerers.rows, limits, models, cooldowns, now, threshold_percent: answerers.threshold_percent });
+  if (pick.none) return { row: null, why: pick.none };
+  const answerer = answerers.rows.find(row => row.provider === pick.provider && (row.models ?? []).includes(pick.model) && chatOf(row));
+  return answerer ? { row: { ...chatOf(answerer), model: pick.model }, why: pick.why } : { row: null, why: `${pick.provider} names no chat row` };
+}
+
 /** { messages, tools?, max_tokens?, temperature? } -> the chat reply (OpenAI shape, with model), { state, questions } -> the
  *  classifier's answers, or { texts } -> one vector per text ({ vectors, model, dimensions }); { error } when no model here
  *  answered. */
@@ -189,11 +229,12 @@ export async function askLocal(input, settings, { priority = 0 } = {}) {
       if (lacking.length) throw Object.assign(new Error('the answer lacks fields'), { said: `answered without ${lacking.join(', ')}` });
       return reply;
     };
-    const rows = Array.isArray(job.models) ? job.models.map(id => settings.chat.find(row => row.id === id)).filter(Boolean) : settings.chat;
+    const listed = Array.isArray(job.models) ? job.models.map(id => settings.chat.find(row => row.id === id)).filter(Boolean) : settings.chat;
+    const picked = await chosenRow(job, settings);
+    const rows = picked.row ? [picked.row, ...listed.filter(row => row.id !== picked.row.id)] : listed;
     const failures = [];
     const found = await firstAnswer(rows, async row => checked(await askChatShape(row, {
       model: row.model, messages: input.messages, stream: false, ...(row.keep_alive ? { keep_alive: row.keep_alive } : {}),
-      ...(row.reasoning_effort ? { reasoning_effort: row.reasoning_effort } : {}),
       ...(Array.isArray(input.tools) ? { tools: input.tools } : {}),
       ...(job.response_format ? { response_format: job.response_format } : {}),
       max_tokens: Math.min(Number(input.max_tokens) || job.most_tokens || settings.most_tokens, job.most_tokens || settings.most_tokens),
@@ -201,7 +242,8 @@ export async function askLocal(input, settings, { priority = 0 } = {}) {
       ...(Number.isFinite(input.temperature) ? { temperature: input.temperature } : {}),
       ...(Number.isInteger(input.seed) ? { seed: input.seed } : {}),
     }, job.timeout_seconds ?? row.timeout_seconds, input.parts === true)), settings.retry_after_seconds, failures, priority);
-    return found ? { ...found.reply, model: found.row.model, served_by: found.row.id } : { error: settings.words.none, tried: failures };
+    const because = picked.why ? { chosen_because: picked.why } : {};
+    return found ? { ...found.reply, model: found.row.model, served_by: found.row.id, ...because } : { error: settings.words.none, tried: failures, ...because };
   }
   if (input.state !== undefined && input.questions && typeof input.questions === 'object') {
     const failures = [];
@@ -302,7 +344,9 @@ export function placed(settings, ports = {}) {
     return { ...item, url, ...(url ? {} : { not_reported: String(settings.words?.not_reported ?? '').replaceAll('{door}', item.door) }) };
   };
   const server = settings.server?.door ? { ...settings.server, models: at(settings.server.door, settings.server.models), pull: at(settings.server.door, settings.server.pull) } : settings.server;
-  return { ...settings, server, chat: (settings.chat ?? []).map(row), classify: (settings.classify ?? []).map(row), embed: (settings.embed ?? []).map(row) };
+  const answerers = settings.answerers ? { ...settings.answerers, limits: Object.fromEntries(Object.entries(settings.answerers.limits ?? {})
+    .map(([provider, source]) => [provider, { ...source, url: at(source.door, source.path ?? '') }])) } : settings.answerers;
+  return { ...settings, server, chat: (settings.chat ?? []).map(row), classify: (settings.classify ?? []).map(row), embed: (settings.embed ?? []).map(row), ...(answerers ? { answerers } : {}) };
 }
 
 /** What a row hands in: { input, local_ports } (tool-rows.json stdin); a call with no ports reaches no server. */

@@ -3553,6 +3553,21 @@
       "at": "/opt/browse-and-upload-my-files"
     },
     {
+      "package": "choose-an-answerer",
+      "paths": [
+        "read-data/choose-an-answerer.mjs",
+        "read-data/load-choices.mjs"
+      ],
+      "at": "/opt/choose-an-answerer"
+    },
+    {
+      "package": "codex-usage-read",
+      "paths": [
+        "read-data/codex-limits.mjs"
+      ],
+      "at": "/opt/codex-usage-read"
+    },
+    {
       "package": "content-identity",
       "paths": [
         "read-data/blake3.mjs",
@@ -13699,6 +13714,21 @@
       "at": "/opt/browse-and-upload-my-files"
     },
     {
+      "package": "choose-an-answerer",
+      "paths": [
+        "read-data/choose-an-answerer.mjs",
+        "read-data/load-choices.mjs"
+      ],
+      "at": "/opt/choose-an-answerer"
+    },
+    {
+      "package": "codex-usage-read",
+      "paths": [
+        "read-data/codex-limits.mjs"
+      ],
+      "at": "/opt/codex-usage-read"
+    },
+    {
       "package": "records-door",
       "paths": [
         "read-data/large-file.json",
@@ -19014,6 +19044,21 @@
         "send-settings.json"
       ],
       "at": "/opt/browse-and-upload-my-files"
+    },
+    {
+      "package": "choose-an-answerer",
+      "paths": [
+        "read-data/choose-an-answerer.mjs",
+        "read-data/load-choices.mjs"
+      ],
+      "at": "/opt/choose-an-answerer"
+    },
+    {
+      "package": "codex-usage-read",
+      "paths": [
+        "read-data/codex-limits.mjs"
+      ],
+      "at": "/opt/codex-usage-read"
     },
     {
       "package": "content-identity",
@@ -62013,6 +62058,21 @@
         "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
       ],
       "at": "/opt/browse-and-upload-my-files"
+    },
+    {
+      "package": "choose-an-answerer",
+      "paths": [
+        "read-data/choose-an-answerer.mjs",
+        "read-data/load-choices.mjs"
+      ],
+      "at": "/opt/choose-an-answerer"
+    },
+    {
+      "package": "codex-usage-read",
+      "paths": [
+        "read-data/codex-limits.mjs"
+      ],
+      "at": "/opt/codex-usage-read"
     },
     {
       "package": "records-door",
