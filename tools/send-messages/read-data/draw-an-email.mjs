@@ -15,12 +15,10 @@
 // Moved from the older owner: its markdown reader and email part (tools/ui/show/document-page/document-page-html.mjs)
 // and its mail sender's palette (src/mail-sender.mjs hex, rgba, toHex, solidColour, emailPalette, currentPalette,
 // drawEmail).
-import { readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { escapeHtml } from '../../write-a-post-for-each-place/read-data/escape-html.mjs';
+import emailLook from './email-look.json' with { type: 'json' };
 
-export const EMAIL_LOOK = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'email-look.json'), 'utf8'));
+export const EMAIL_LOOK = emailLook;
 
 function textOrNull(value) {
   return typeof value === 'string' && value.trim() ? value.trim() : null;

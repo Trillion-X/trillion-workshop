@@ -29,8 +29,11 @@ import { MessageRejectedError, readCustomHeaders } from '../read-data/check-mess
 import { buildEmailMessage, selectDescriptor } from '../read-data/render-a-message.ts';
 import { buildSendInvocation, isTccDenial } from '../read-data/render-a-send.ts';
 
+// The rows are imported, never read from a path beside this file at run time: a site that bundles this module into one
+// file has no read-data folder beside it (every sign-up of the school failed with 502 at 10:42 PM CST Nov 21 2026).
+import providerRows from '../read-data/message-providers.json' with { type: 'json' };
+import templateRows from '../read-data/message-templates.json' with { type: 'json' };
 const here = dirname(fileURLToPath(import.meta.url));
-const data = name => JSON.parse(readFileSync(join(here, '..', 'read-data', name), 'utf8'));
 const TAIL = 8192;
 
 /** The Mac refused the Automation event: a different failure from a rejected send, so a caller can show what to grant. */
@@ -38,7 +41,7 @@ export class MessageBlockedError extends Error {
   code = 'blocked_needs_grant';
 }
 
-export const providers = () => data('message-providers.json').providers;
+export const providers = () => providerRows.providers;
 
 /** The provider row with this id. An unknown id is refused with the ids that exist (no first-match fallback). */
 export function providerOf(id, rows = providers()) {
@@ -75,7 +78,7 @@ function variablesOf(value) {
 export function messageOf(request, channel) {
   if (typeof request.template === 'string' && request.template !== '') {
     const merged = { ...(typeof request.message === 'object' && request.message !== null ? request.message : {}), ...(request.from ? { from: request.from } : {}) };
-    const descriptor = selectDescriptor(request.templates ?? data('message-templates.json').things, request.template);
+    const descriptor = selectDescriptor(request.templates ?? templateRows.things, request.template);
     return buildEmailMessage(descriptor, variablesOf(request.variables), merged);
   }
   if (channel === 'email') {

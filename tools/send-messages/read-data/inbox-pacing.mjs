@@ -6,13 +6,13 @@
 // It sends nothing and keeps nothing: planSends says when each address may be sent to, sortOutcomes says what each event
 // means and which addresses to leave alone. The send tools do the sending.
 
-import { readFileSync } from 'node:fs';
 import * as engine from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
+import pacing from './inbox-pacing.json' with { type: 'json' };
 
 const { addCivilDays, instantAt, timeZoneName, wallTimeOf, weekday } = engine;
 const DAY_MS = engine.DAY_MS();
 
-export const PACING = JSON.parse(readFileSync(new URL('./inbox-pacing.json', import.meta.url), 'utf8'));
+export const PACING = pacing;
 
 const WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 const EVENT_FIELDS = ['recipient', 'type', 'status', 'subject', 'text', 'at'];
