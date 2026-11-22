@@ -319,7 +319,7 @@
             "/funnel-by-source-proof"
           ],
           "surface_input": {
-            "credential_name": "proofs_for_who_runs_it-connection"
+            "credential_name": "proofs_for_who_runs_it-reader-connection"
           }
         },
         "spec": {
