@@ -1,0 +1,41 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:check-every-due-commitment.\" The wake starts it once its switch input is set.",
+  "lists": [],
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
+  "workflows": [
+    "workflow:check-every-due-commitment",
+    "workflow:run-one-check"
+  ],
+  "tools": [
+    "tool:run-sql-in-my-database"
+  ],
+  "instructions": [
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:check-every-due-commitment\".",
+    "3. Read the answer the run hands back."
+  ],
+  "worked_examples": [
+    {
+      "title": "Tell one fact per due commitment check (inactive until the 15-minute wake is switched on)",
+      "ask": "Run workflow:check-every-due-commitment.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:check-every-due-commitment"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:check-every-due-commitment",
+      "step": "read-due",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
+    }
+  ],
+  "drafted_from": "workflow:check-every-due-commitment rendered from its row"
+}

@@ -1,0 +1,41 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:run-one-check.\" The wake starts it once its switch input is set.",
+  "lists": [],
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
+  "workflows": [
+    "workflow:run-one-check"
+  ],
+  "tools": [
+    "tool:check-a-public-address",
+    "tool:run-sql-in-my-database"
+  ],
+  "instructions": [
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:run-one-check\".",
+    "3. Read the answer the run hands back."
+  ],
+  "worked_examples": [
+    {
+      "title": "Run one check and record its result on its target (inactive until switched on)",
+      "ask": "Run workflow:run-one-check.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:run-one-check"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:run-one-check",
+      "step": "read-fact",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
+    }
+  ],
+  "drafted_from": "workflow:run-one-check rendered from its row"
+}

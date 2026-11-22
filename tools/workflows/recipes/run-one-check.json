@@ -1,0 +1,416 @@
+{
+  "about": "workflow:run-one-check: rendered from its workflow_recipes row.",
+  "records": [
+    {
+      "payload": {
+        "source_kept_at": "2026-11-22 00:27:17.397915+00",
+        "kind": "workflow-recipe",
+        "id": "workflow:run-one-check",
+        "label": "Run one check and record its result on its target (inactive until switched on)",
+        "job": "Given one fact {check_spec, target {table, id}}, run the check by its kind and record a pass or fail on the target table. Engine checks are recorded as not runnable.",
+        "produces": "One recorded result for one check: a pass, fail, or unknown written to its commitment or ruling through record_check_result.",
+        "source": {},
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "fact",
+            "fact_id",
+            "own"
+          ],
+          "properties": {
+            "own": {
+              "type": "object",
+              "required": [
+                "credential_name"
+              ],
+              "properties": {
+                "credential_name": {
+                  "type": "string"
+                }
+              }
+            },
+            "fact": {
+              "type": "object",
+              "required": [
+                "check_spec",
+                "target"
+              ],
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "required": [
+                    "table",
+                    "id"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "table": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "check_spec": {
+                  "type": "object"
+                },
+                "commitment_id": {
+                  "type": "string"
+                }
+              }
+            },
+            "fact_id": {
+              "type": "string"
+            }
+          }
+        },
+        "definition": {
+          "id": "workflow:run-one-check",
+          "kind": "workflow",
+          "name": "Run one check and record its result on its target",
+          "uses": [],
+          "edges": [
+            {
+              "to": "sql-check",
+              "from": "read-fact",
+              "kind": "on_result",
+              "config": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "output.rows.0.kind"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": "sql"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "to": "build-expect",
+              "from": "read-fact",
+              "kind": "on_result",
+              "config": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "output.rows.0.kind"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": "http"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "to": "engine-gap",
+              "from": "read-fact",
+              "kind": "on_result",
+              "config": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "output.rows.0.kind"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": "engine"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "to": "write-sql",
+              "from": "sql-check",
+              "kind": "always"
+            },
+            {
+              "to": "http-check",
+              "from": "build-expect",
+              "kind": "always"
+            },
+            {
+              "to": "write-http",
+              "from": "http-check",
+              "kind": "always"
+            }
+          ],
+          "steps": [
+            {
+              "id": "read-fact",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "SELECT $1::text AS kind",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.check_spec.kind"
+                      }
+                    }
+                  ],
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "own.credential_name"
+                    }
+                  }
+                }
+              },
+              "context": {
+                "step_id": "read-fact"
+              }
+            },
+            {
+              "id": "sql-check",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "fact.check_spec.sql"
+                    }
+                  },
+                  "params": [],
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "fact.check_spec.credential_name"
+                    }
+                  }
+                }
+              },
+              "context": {
+                "step_id": "sql-check"
+              }
+            },
+            {
+              "id": "write-sql",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "SELECT record_check_result($1, $2, $3::boolean, $4::numeric, jsonb_build_object('run', $5::text), NULL)",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.target.table"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.target.id"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "key": "sql-check",
+                        "from": "steps",
+                        "path": "output.rows.0.ok"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "key": "sql-check",
+                        "from": "steps",
+                        "path": "output.rows.0.measured"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact_id"
+                      }
+                    }
+                  ],
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "own.credential_name"
+                    }
+                  }
+                }
+              },
+              "context": {
+                "step_id": "write-sql"
+              }
+            },
+            {
+              "id": "build-expect",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "SELECT jsonb_strip_nulls(jsonb_build_object('status', ($1::jsonb)->'status', 'contains', ($1::jsonb)->'contains', 'json_path', ($1::jsonb)->'json_path', 'equals', ($1::jsonb)->'equals')) AS expect",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.check_spec"
+                      }
+                    }
+                  ],
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "own.credential_name"
+                    }
+                  }
+                }
+              },
+              "context": {
+                "step_id": "build-expect"
+              }
+            },
+            {
+              "id": "http-check",
+              "kind": "ask",
+              "config": {
+                "name": "tool:check-a-public-address",
+                "input": {
+                  "url": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "fact.check_spec.url"
+                    }
+                  },
+                  "expect": {
+                    "$kind": "binding",
+                    "select": {
+                      "key": "build-expect",
+                      "from": "steps",
+                      "path": "output.rows.0.expect"
+                    }
+                  }
+                }
+              },
+              "context": {
+                "step_id": "http-check"
+              }
+            },
+            {
+              "id": "write-http",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "SELECT record_check_result($1, $2, $3::boolean, NULL::numeric, jsonb_build_object('run', $4::text), $5::text)",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.target.table"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.target.id"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "key": "http-check",
+                        "from": "steps",
+                        "path": "output.ok"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact_id"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "key": "http-check",
+                        "from": "steps",
+                        "path": "output.error"
+                      }
+                    }
+                  ],
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "own.credential_name"
+                    }
+                  }
+                }
+              },
+              "context": {
+                "step_id": "write-http"
+              }
+            },
+            {
+              "id": "engine-gap",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "sql": "INSERT INTO gap (id, area, next_step, state, why, source) VALUES ($1, 'client-lifecycle/checks', 'Make the engine check runnable', 'open', 'engine checks are not runnable yet', 'run-one-check') ON CONFLICT (id) DO NOTHING",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact_id"
+                      }
+                    }
+                  ],
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "own.credential_name"
+                    }
+                  }
+                }
+              },
+              "context": {
+                "step_id": "engine-gap"
+              }
+            }
+          ],
+          "version": 1,
+          "is_active": false
+        }
+      }
+    }
+  ]
+}
