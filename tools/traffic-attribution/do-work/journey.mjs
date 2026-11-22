@@ -5,7 +5,6 @@
 // limit comes from read-data/journey.json and read-data/ad-return.json. The functions that touch the database take
 // `query(sql, params)`, any pg-style client that resolves to { rows } (or the write's rowCount), so the site brings its own.
 // A step is one plain object: visitor, touch_id, step, source, ref, joined_by, email_key, offer_id, value_cents.
-import { randomBytes, randomUUID } from 'node:crypto';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import settings from '../read-data/journey.json' with { type: 'json' };
 import adReturn from '../read-data/ad-return.json' with { type: 'json' };
@@ -76,7 +75,7 @@ export function visitorOf(cookieHeader, cookie = settings.cookie, { consentCooki
   if (!consent) return { visitor: null, setCookie: null };
   const kept = cookieValue(cookieHeader, cookie.name);
   if (kept && COOKIE_VALUE.test(kept)) return { visitor: kept, setCookie: null };
-  const visitor = randomUUID();
+  const visitor = globalThis.crypto.randomUUID();
   return { visitor, setCookie: cookieString(visitor, cookie) };
 }
 
@@ -317,6 +316,13 @@ export function saleStepOf(session) {
   });
 }
 
+/** Base64url without padding, the form a short id is written in; Web Crypto's bytes encode the same way in Node and in a Worker. */
+function base64Url(bytes) {
+  let binary = '';
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
 /**
  * A tracked link's touch row (what tool:run-sql-in-my-database writes to journey_touches) and the short /go/ link that
  * sends a visitor through it. Only the UTM fields and bf_project of `source` are kept on the row.
@@ -324,7 +330,7 @@ export function saleStepOf(session) {
 export function makeTouch({ destination, source = {}, post_id = null, offer_id = null, base }) {
   webUrl(destination, 'The destination must be a web URL without account details.');
   const origin = webUrl(base, 'The site address must be a web URL.').origin;
-  const id = randomBytes(SHORT_ID_BYTES).toString('base64url');
+  const id = base64Url(globalThis.crypto.getRandomValues(new Uint8Array(SHORT_ID_BYTES)));
   return {
     row: { id, destination: text(destination), source: pickKept(source), post_id, offer_id },
     short_link: `${origin}/go/${id}`,
