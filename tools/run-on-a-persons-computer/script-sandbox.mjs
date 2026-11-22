@@ -5,17 +5,20 @@
 //   hand it. Used by anything that runs user scripts on this computer.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Isolation: the script runs in its own worker thread (heap-capped, wall-clock limited) in a vm context whose global has no
-//      prototype; `pm` is built inside that context from a single string-only host call, so no object of the worker, the host or
-//      Node reaches the script, and the host's process is another thread.
-//   2. A finite wall clock by default (computer/script-sandbox.json limits); a script still running is terminated.
-//   3. No ambient authority. Each capability is a host-supplied object with an allowlist, and absent means refused in words:
-//      files are read only below the one folder given (a symlink or .. that leaves it is refused, a size cap applies); cookies only for
-//      allowlisted domains; packages only from the allowlist through the host's own loader, with a timeout; a request a script sends
-//      goes through the SAME pipeline as a person's request (`sendRequest`), with file bodies removed first.
+//   1. Isolation is the process. The script runs in a child started with `node --permission` and no allow flags, so Node itself
+//      refuses files, network, child processes, workers, addons and wasi, whatever the script does to reach them. The child gets
+//      an empty environment. Inside the child, the script runs in a vm context whose global has no prototype, and `pm` is built
+//      inside that context from one string-only host call, so no object of the child or Node reaches the script. The vm context
+//      keeps the script's realm clean; the process permission is the boundary, not the vm.
+//   2. A finite wall clock by default (computer/script-sandbox.json limits); a child still running is killed.
+//   3. No ambient authority, and the host does every read. The child has no file grant at all: a script reads files only through
+//      `pm.files.read`, which the host answers below the one folder given (a symlink or .. that leaves it is refused, a size cap
+//      applies). Cookies only for allowlisted domains; packages only from the allowlist through the host's own loader, with a
+//      timeout; a request a script sends goes through the SAME pipeline as a person's request (`sendRequest`), with file bodies
+//      removed first.
 //   4. Everything that varies (limits, allowlists, words) is computer/script-sandbox.json; this file names no package, host or domain.
 //
-import { Worker } from 'node:worker_threads';
+import { spawn } from 'node:child_process';
 import { readFileSync, realpathSync, statSync } from 'node:fs';
 import { dirname, join, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -66,29 +69,117 @@ export function makeHostCalls({ settings = sandboxSettings(), files = null, cook
   };
 }
 
-/** Runs `code` (a function body; `return` the result) with `input`; resolves { value } or { error }. */
+/** The child's whole program. It is embedded as text and runs under `node --permission`; `vm` is passed in by the host's eval. */
+function childMain(vm) {
+  const send = message => process.stdout.write(JSON.stringify(message) + '\n');
+  const pending = new Map();
+  let next = 1;
+  // The only function the context ever holds: strings in, one string out through a callback.
+  const hostCall = (request, callback) => {
+    const id = next++;
+    pending.set(id, reply => callback(JSON.stringify(reply)));
+    send({ type: 'call', id, request: JSON.parse(request) });
+  };
+  const BOOT = `(function (call, libraries, input) {
+  'use strict';
+  const ask = (kind, args) => new Promise((resolve, reject) => {
+    call(JSON.stringify({ kind, args }), text => {
+      const reply = JSON.parse(text);
+      if (reply.error) reject(new Error(reply.error)); else resolve(reply.value);
+    });
+  });
+  const pm = Object.create(null);
+  pm.input = input;
+  pm.sendRequest = request => ask('send_request', request);
+  pm.files = Object.create(null);
+  pm.files.read = path => ask('files_read', { path });
+  pm.cookies = Object.create(null);
+  pm.cookies.get = (domain, name) => ask('cookies_get', { domain, name });
+  pm.cookies.set = (domain, name, value) => ask('cookies_set', { domain, name, value });
+  pm.require = name => ask('require', { name });
+  const global = globalThis;
+  global.pm = pm;
+  for (const [name, source] of Object.entries(libraries)) global[name] = (0, eval)(source);
+})`;
+  const run = ({ code, input, wall_ms, libraries }) => {
+    try {
+      const context = Object.create(null);
+      vm.createContext(context, { codeGeneration: { strings: true, wasm: false } });
+      vm.runInContext(BOOT, context)(hostCall, libraries ?? {}, input ?? null);
+      const body = vm.runInContext(`(async function () { 'use strict';\n${code}\n})()`, context, { timeout: wall_ms });
+      body.then(
+        value => send({ type: 'done', value: JSON.stringify(value === undefined ? null : value) }),
+        error => send({ type: 'done', error: String((error && error.message) || error) }),
+      );
+    } catch (error) {
+      send({ type: 'done', error: String((error && error.message) || error) });
+    }
+  };
+  let buffer = '';
+  process.stdin.setEncoding('utf8');
+  process.stdin.on('data', chunk => {
+    buffer += chunk;
+    let at;
+    while ((at = buffer.indexOf('\n')) >= 0) {
+      const message = JSON.parse(buffer.slice(0, at));
+      buffer = buffer.slice(at + 1);
+      if (message.type === 'start') run(message);
+      else if (message.type === 'answer' && pending.has(message.id)) {
+        const reply = pending.get(message.id);
+        pending.delete(message.id);
+        reply(message.reply);
+      }
+    }
+  });
+}
+
+/** The arguments the child starts with: the permission model on, no allow flag, and the heap cap. The probe test uses the same list. */
+export const childArguments = heap_mb => ['--permission', `--max-old-space-size=${heap_mb}`, '--input-type=module',
+  '--eval', `import('node:vm').then(vm => (${childMain.toString()})(vm.default));`];
+
+/** Runs `code` (a function body; `return` the result) with `input` in a child process; resolves { value } or { error }. */
 export function runScript({ code, input = null, settings = sandboxSettings(), host = makeHostCalls({ settings }), wall_ms = settings.limits.wall_ms } = {}) {
   return new Promise(done => {
-    const worker = new Worker(new URL('./script-sandbox-worker.mjs', import.meta.url), {
-      workerData: { code, input, wall_ms, libraries: Object.fromEntries(settings.libraries.map(row => [row.name, row.source])) },
-      resourceLimits: { maxOldGenerationSizeMb: settings.limits.heap_mb, stackSizeMb: settings.limits.stack_mb },
-    });
+    const child = spawn(process.execPath, childArguments(settings.limits.heap_mb), { env: {}, stdio: ['pipe', 'pipe', 'pipe'] });
     let finished = false;
-    const finish = result => { if (finished) return; finished = true; clearTimeout(timer); worker.terminate(); done(result); };
+    let buffer = '';
+    const finish = result => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timer);
+      child.kill('SIGKILL');
+      done(result);
+    };
     const timer = setTimeout(() => finish({ error: fill(settings.words.timeout, { ms: wall_ms }) }), wall_ms + 50);
-    worker.on('message', async message => {
-      if (message.done) {
-        if (message.done.error) return finish({ error: fill(settings.words.threw, { error: message.done.error }) });
-        return message.done.value.length > settings.limits.result_chars
-          ? finish({ error: fill(settings.words.result_big, { chars: settings.limits.result_chars }) })
-          : finish({ value: JSON.parse(message.done.value) });
-      }
-      const { id, request } = message.call;
+    const send = message => { if (!finished) child.stdin.write(JSON.stringify(message) + '\n'); };
+    child.stdin.on('error', () => {});
+    child.on('error', error => finish({ error: fill(settings.words.threw, { error: String(error?.message ?? error) }) }));
+    child.on('exit', () => finish({ error: fill(settings.words.threw, { error: 'the script ended without a result' }) }));
+    const answer = async message => {
       let reply;
-      try { reply = { value: await host(request.kind, request.args) ?? null }; } catch (error) { reply = { error: String(error?.message ?? error) }; }
-      if (!finished) worker.postMessage({ id, reply });
+      try { reply = { value: await host(message.request.kind, message.request.args) ?? null }; } catch (error) { reply = { error: String(error?.message ?? error) }; }
+      send({ type: 'answer', id: message.id, reply });
+    };
+    const handle = line => {
+      const message = JSON.parse(line);
+      if (message.type === 'call') return answer(message);
+      if (message.type !== 'done') return;
+      if (message.error) return finish({ error: fill(settings.words.threw, { error: message.error }) });
+      return message.value.length > settings.limits.result_chars
+        ? finish({ error: fill(settings.words.result_big, { chars: settings.limits.result_chars }) })
+        : finish({ value: JSON.parse(message.value) });
+    };
+    child.stdout.setEncoding('utf8');
+    child.stdout.on('data', chunk => {
+      buffer += chunk;
+      if (buffer.length > settings.limits.result_chars * 4) return finish({ error: fill(settings.words.result_big, { chars: settings.limits.result_chars }) });
+      let at;
+      while ((at = buffer.indexOf('\n')) >= 0) {
+        const line = buffer.slice(0, at);
+        buffer = buffer.slice(at + 1);
+        handle(line);
+      }
     });
-    worker.on('error', error => finish({ error: fill(settings.words.threw, { error: String(error?.message ?? error) }) }));
-    worker.on('exit', () => finish({ error: fill(settings.words.threw, { error: 'the script ended without a result' }) }));
+    child.stdin.write(JSON.stringify({ type: 'start', code, input, wall_ms, libraries: Object.fromEntries(settings.libraries.map(row => [row.name, row.source])) }) + '\n');
   });
 }
