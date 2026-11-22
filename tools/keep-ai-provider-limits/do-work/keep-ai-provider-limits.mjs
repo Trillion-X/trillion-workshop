@@ -6,7 +6,8 @@
 //   was read in the quiet window, and writes only the rate-limit headers the proxy passes back (harness/claude-limits.mjs maps them).
 //   The store and the proxy come from the run's input (the person's wake row names them); nothing here names a product, a database or a path.
 //
-// Input (stdin JSON): { store: { credential_name }, provider, proxy_address, model, account, quiet_minutes }
+// Input (stdin JSON): { input: { store: { credential_name }, provider, model, account, quiet_minutes }, local_ports: { claude-proxy } }
+//   The proxy's port is the computer's own report (local_ports, filled by the run from the computer), never a number in the input.
 // Output (stdout JSON): { sent, reason, rows }
 //
 // Non-negotiable invariants
@@ -21,12 +22,16 @@ import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 import { rowsFromHeaders, upsertLimit } from '../../keep-and-wake-ai-sessions-on-this-computer/harness/claude-limits.mjs';
 
 const KEY_DESCRIPTOR = 4;
+const PROXY_DOOR = 'claude-proxy';
 
-const input = JSON.parse((await text(process.stdin)) || '{}');
-const { store, provider, proxy_address: proxyAddress, model, account, quiet_minutes: quietMinutes } = input;
-if (!store?.credential_name || !provider || !proxyAddress || !model || !account || !(quietMinutes > 0)) {
-  throw Object.assign(new Error('The input names the store, provider, proxy_address, model, account and quiet_minutes.'), { status: 400 });
+const request = JSON.parse((await text(process.stdin)) || '{}');
+const input = request.input ?? {};
+const { store, provider, model, account, quiet_minutes: quietMinutes } = input;
+const port = request.local_ports?.[PROXY_DOOR];
+if (!store?.credential_name || !provider || !model || !account || !(quietMinutes > 0) || !Number.isInteger(port)) {
+  throw Object.assign(new Error('The input names the store, provider, model, account and quiet_minutes, and the computer reports the claude-proxy port.'), { status: 400 });
 }
+const proxyAddress = `http://127.0.0.1:${port}`;
 
 const door = openRecordsDoor();
 const runSql = async (statement, params = []) => {

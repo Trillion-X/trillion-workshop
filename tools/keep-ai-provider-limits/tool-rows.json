@@ -213,7 +213,6 @@
           "required": [
             "store",
             "provider",
-            "proxy_address",
             "model",
             "account",
             "quiet_minutes"
@@ -233,10 +232,6 @@
               }
             },
             "provider": {
-              "type": "string",
-              "minLength": 1
-            },
-            "proxy_address": {
               "type": "string",
               "minLength": 1
             },
@@ -284,8 +279,16 @@
             "/opt/keep-ai-provider-limits/do-work/keep-ai-provider-limits.mjs"
           ],
           "stdin": {
-            "fill": {
-              "from": "input"
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "local_ports": {
+              "fill": {
+                "from": "computer",
+                "field": "local_ports"
+              }
             }
           },
           "credential_mounts": [
@@ -326,7 +329,13 @@
               }
             ]
           },
-          "capabilities": []
+          "capabilities": [],
+          "local_doors": [
+            {
+              "name": "claude-proxy",
+              "required": true
+            }
+          ]
         },
         "result_selector": "$",
         "provenance": {
