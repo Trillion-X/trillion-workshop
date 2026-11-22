@@ -1424,6 +1424,18 @@ fn untake_task_answers(run: &str, refused: &[(String, String)]) {
     std::fs::write(format!("{run}/answered_at.json"), serde_json::to_vec_pretty(&at_file).unwrap()).unwrap();
     std::fs::write(&file, serde_json::to_vec_pretty(&told).unwrap()).ok();
 }
+// A step answered here by hand that tell_waiting also gave as a task has that task finished with the same answer, so the
+// board keeps no To do task for a step that no longer waits (Nov 22 2026, lane give-to-a-taker: one lane's wf runs left
+// about 80 such tasks open in an hour). Only a task still To do changes; a failed write leaves the step answered and says so.
+fn finish_told_task(run: &str, step: &str, answer: &Value) {
+    let told = read(&format!("{run}/told_waiting.json"));
+    let Some(task) = told[step]["task"].as_str().filter(|id| plain_id(id)) else { return };
+    const FINISH: &str = "with done as (update calendar_tasks set status = 'Done', result = $2, finished_by = $3, finished_at = now()::text, changed_at = now() where id = $1 and status = 'To do' returning id) insert into task_changes (task_id, kind, status, title) select id, 'status', 'Done', 'Answered by hand in its wf run' from done returning task_id";
+    if let Err(e) = sql_rows(&setting("runs_database"), FINISH, json!([task, answer.to_string(), actor()])) {
+        eprintln!("  {step}: its task {task} stays To do ({e}); the step itself is answered");
+    }
+}
+
 async fn go(run: &str, print: bool) -> Value {
     let cancelled = read(&format!("{run}/cancelled.json"));
     if !cancelled.is_null() {
@@ -1751,6 +1763,7 @@ async fn main() {
                 eprintln!("the answer to {step} was refused and not kept; the run is {} and {step} waits again: {}", again["status"], refusal["error"]);
                 std::process::exit(2);
             }
+            if let Some(kept) = answers.get(step) { finish_told_task(run, step, kept); }
             println!("{}", serde_json::to_string_pretty(&shown).unwrap());
             // A run that completes keeps the path its work took, once.
             if shown["status"] == "completed" && read(&format!("{run}/recorded.json")).is_null() {
