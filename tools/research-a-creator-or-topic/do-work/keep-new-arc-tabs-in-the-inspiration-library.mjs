@@ -73,10 +73,12 @@ export async function keepNewArcTabs(input, { blake3Hex, oneMinuteLoad = () => l
       const hex = r.id.slice(-16);
       const file = join(WORK, `${hex}.png`);
       const ok = await shoot(obscura, r.url, file);
-      if (!ok) return { id: r.id, name: null, ok };
-      const png_base64 = readFileSync(file).toString('base64');
+      if (!ok) return { id: r.id, name: null, blake3: null, ok };
+      const png = readFileSync(file);
       rmSync(file);
-      return { id: r.id, name: `/library/inspiration/${r.kind}/${r.site.replace(/[^a-z0-9]+/g, '-')}-${hex}.png`, png_base64, ok };
+      // The shot's own identity: the BLAKE3 of its bytes, hex without the 1f: prefix, as screenshot_blake3 keeps it.
+      const blake3 = makeHashCodeHexFromBytes(png).slice(3);
+      return { id: r.id, name: `/library/inspiration/${r.kind}/${r.site.replace(/[^a-z0-9]+/g, '-')}-${hex}.png`, png_base64: png.toString('base64'), blake3, ok };
     }));
     shots.push(...results);
   }
@@ -89,8 +91,8 @@ export async function keepNewArcTabs(input, { blake3Hex, oneMinuteLoad = () => l
     counts: { ...counts, shots_ok: shotsOk.length, shots_failed: shots.length - shotsOk.length },
     // Rows for one parameterised insert; a row already in the library is left as it is.
     rows,
-    // One update per shot: the file name of a shot that worked, and the state either way.
-    shot_rows: shots.map(s => ({ id: s.id, name: s.ok ? s.name : null, state: s.ok ? 'none' : 'failed' })),
+    // One update per shot: the file name and BLAKE3 of a shot that worked, and the state either way.
+    shot_rows: shots.map(s => ({ id: s.id, name: s.ok ? s.name : null, blake3: s.blake3, state: s.ok ? 'none' : 'failed' })),
     waited: waited.count,
   };
 }

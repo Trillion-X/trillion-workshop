@@ -6,6 +6,9 @@ import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { keepNewArcTabs, blake3Hex } from '../do-work/keep-new-arc-tabs-in-the-inspiration-library.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+
+const blake3Bytes = bytes => makeHashCodeHexFromBytes(bytes).slice(3);
 
 const here = dirname(fileURLToPath(import.meta.url));
 const sidebar = join(here, 'fixtures', 'arc-sidebar-sample.json');
@@ -38,6 +41,11 @@ test('plans the new rows, shoots the design rows and bundles the shots into one 
     assert.ok(Buffer.from(shot.png_base64, 'base64').length > 0);
   }
   assert.deepEqual(shots.map(s => s.id), out.shot_rows.filter(s => s.name).map(s => s.id));
+  for (const row of out.shot_rows.filter(s => s.name)) {
+    assert.match(row.blake3, /^[0-9a-f]{64}$/);
+    const shot = shots.find(s => s.id === row.id);
+    assert.equal(row.blake3, blake3Bytes(Buffer.from(shot.png_base64, 'base64')), 'the identity is the BLAKE3 of the shot bytes');
+  }
   assert.equal(existsSync(join('work', 'StorableSidebar.copy.json')), false, 'the sidebar copy is removed');
   assert.equal(existsSync(join('work', 'ledger.json')), false, 'no ledger is written');
 });
@@ -79,7 +87,7 @@ test('marks a shot that fails as failed with no file name, keeps going, and bund
     pending_shots: [{ id: 'record:inspiration-item:0000000000000000', url: 'https://unreachable.example/', kind: 'site', site: 'unreachable.example' }],
   }, { blake3Hex, ...calm });
   const failed = out.shot_rows.find(s => s.id === 'record:inspiration-item:0000000000000000');
-  assert.deepEqual(failed, { id: 'record:inspiration-item:0000000000000000', name: null, state: 'failed' });
+  assert.deepEqual(failed, { id: 'record:inspiration-item:0000000000000000', name: null, blake3: null, state: 'failed' });
   assert.equal(out.counts.shots_failed, 1);
   const shots = shotsOut();
   assert.ok(!shots.some(s => s.id === failed.id));

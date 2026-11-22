@@ -4026,7 +4026,7 @@
          },
          "shot_rows": {
           "type": "array",
-          "description": "One entry per screenshot taken: { id, name (the Files name, or null), state (none or failed) }. The shots themselves are in the declared output out/shots.json."
+          "description": "One entry per screenshot taken: { id, name (the Files name, or null), blake3 (the BLAKE3 of the shot's bytes, hex, or null), state (none or failed) }. The shots themselves are in the declared output out/shots.json."
          },
          "waited": {
           "type": "integer",
