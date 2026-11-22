@@ -13,9 +13,10 @@
 # filled from the computer row, and keyed with host_keys. When keyed is true, standard input holds the SSH key the person's
 # vault keeps for the repository: it goes into an ssh-agent of the unit's user for that one fetch and is never written to a
 # file; the fetch's ssh reads no ssh_config, uses only that agent, and accepts only host_keys (the host's known_hosts lines). The build's own folders (its target
-# and cache) are the row's to name in environment; a target kept in the builds is reused by the next commit. memory is the
-# build's cap ({ high, max }, settings.json build_memory): the build runs in a systemd scope of its own with MemoryHigh, MemoryMax
-# and no swap, so a build that grows past it is slowed, then ended, alone, and the programs the computer serves keep their memory.
+# and cache) are the row's to name in environment; a target kept in the builds is reused by the next commit. limits are what
+# the build may use ({ memory_max, seconds }, settings.json build_limits): it runs in a systemd scope of its own with MemoryMax and
+# no swap, so a build that outgrows its memory is ended alone, and one that runs past its seconds is ended whole (build_over_time);
+# either way the apply fails and the programs the computer serves keep their memory and keep serving.
 set -eu
 # It runs at the lowest CPU and disk priority, and every program it starts inherits that, so the programs this computer
 # serves keep answering while it works (Nov 21 2026, 3:58-4:01 PM CST: a site's npm ci on a 2-core computer slowed every site
@@ -26,7 +27,7 @@ SOURCE=$1
 field() { printf '%s' "$SOURCE" | jq -r ".$1"; }
 user=$(field user); builds=$(field builds); commit=$(field commit); program=$(field program); output=$(field output)
 repository=$(field repository); keyed=$(field keyed); current=$(field current)
-memory_high=$(field memory.high); memory_max=$(field memory.max)
+memory_max=$(field limits.memory_max); seconds=$(field limits.seconds)
 at="$builds/$commit"
 # One build at a time in a builds folder: a second apply waits here, then finds the commit built by the first.
 exec 9>"$builds/.build.lock"
@@ -54,15 +55,24 @@ if [ ! -x "$at/$program" ]; then
   # 3.8 GB computer with no swap a build ended the running engine at 3:40:48 AM CST Nov 20 2026. Ended so, the build fails here
   # and the slot that serves keeps serving.
   # It runs in a scope of its own whose memory the kernel caps (Nov 21 2026, 6:12:04-6:12:29 PM CST: an npm ci with no cap ran
-  # the whole computer short, every site it served stalled for 25 s, and only then was the build ended).
+  # the whole computer short, every site it served stalled for 25 s, and only then was the build ended). The cap is a MemoryMax
+  # alone, which ends the build: a MemoryHigh below it only slowed one that outgrew it, for ever (8:07-8:21 PM CST). The build's
+  # time is bounded too; once it ends, the scope is stopped, so no program the build started outlives it.
   log="$builds/build-$commit.log"
+  scope="build-$user-$(printf '%.12s' "$commit")"
   status=0
-  systemd-run --scope --quiet --collect --unit="build-$user-$(printf '%.12s' "$commit")" \
-    -p MemoryHigh="$memory_high" -p MemoryMax="$memory_max" -p MemorySwapMax=0 -- \
+  started=$(date +%s)
+  systemd-run --scope --quiet --collect --unit="$scope" -p MemoryMax="$memory_max" -p MemorySwapMax=0 -- \
+    timeout -k 10 "$seconds" \
     runuser -u "$user" -- sh -c 'echo 1000 > /proc/self/oom_score_adj; cd "$0" && exec env "$@"' "$tree" "$@" > "$log" 2>&1 || status=$?
+  systemctl stop "$scope.scope" >/dev/null 2>&1 || true
   if [ "$status" -ne 0 ]; then
     grep -m1 -A1 '^error' "$log" >&2 || true
-    [ "$status" -eq 137 ] && echo "The build of $commit was ended at its memory cap ($memory_max); every program this computer serves kept its memory." >&2
+    if [ "$status" -eq 124 ] || [ $(( $(date +%s) - started )) -ge "$seconds" ]; then
+      echo "build_over_time: the build of $commit ran past its $seconds s (settings build_limits or its source's limits) and was ended whole." >&2
+    elif [ "$status" -eq 137 ]; then
+      echo "The build of $commit was ended at its memory cap ($memory_max); every program this computer serves kept its memory." >&2
+    fi
     echo "The build of $commit failed; its whole output is $log on this computer." >&2
     rm -rf "$tree"
     exit 1

@@ -35,10 +35,10 @@
   "runtime_preserve": "restart"
   },
   "prebuilt_store": "~/.cache/start-a-computer/built",
-  "build_memory": {
-    "_what": "The memory a source build on the computer may use, by the kind of build (its argv's program name; `default` for any other): `high`, where the kernel slows it and reclaims its pages, and `max`, where the kernel ends it alone. The build runs in a systemd scope with MemoryHigh, MemoryMax and MemorySwapMax=0, so a build that grows past its cap fails by itself and every program the computer serves keeps its memory (Nov 21 2026, 6:12:04-6:12:29 PM CST: a site's npm ci on the 3.8 GB always-on, which has no swap, stalled every site it served for 25 s before the kernel ended it). Sized for an 8 GB computer that also runs an engine (about 1.4 GB), a database and its sites. A unit's `source.memory` ({ high, max }) replaces its kind's.",
-    "default": { "high": "768M", "max": "1G" },
-    "npm": { "high": "1536M", "max": "2G" },
-    "cargo": { "high": "2560M", "max": "3G" }
+  "build_limits": {
+    "_what": "What a source build on the computer may use, by the kind of build (its argv's program name; `default` for any other): `memory_max`, the memory at which the kernel ends the build alone, and `seconds`, how long it may run before it is ended and the apply fails with build_over_time. The build runs in a systemd scope with MemoryMax and MemorySwapMax=0 and no MemoryHigh: a MemoryHigh below the max only slows a build that outgrows it, for ever (Nov 21 2026, 8:07-8:21 PM CST: a build held at 150M of a 200M cap crawled at 93% memory pressure, never ended, and held the apply), so a build past its memory is ended at once and a build past its time is ended whole (Nov 21 2026, 6:12:04-6:12:29 PM CST: a site's npm ci with no cap on the 3.8 GB always-on, which has no swap, stalled every site it served for 25 s). Sized for an 8 GB computer that also runs an engine (about 1.4 GB), a database and its sites. A unit's `source.limits` ({ memory_max, seconds }, either) replaces its kind's value.",
+    "default": { "memory_max": "1G", "seconds": 900 },
+    "npm": { "memory_max": "2G", "seconds": 900 },
+    "cargo": { "memory_max": "3G", "seconds": 3600 }
   }
 }

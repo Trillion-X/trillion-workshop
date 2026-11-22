@@ -423,17 +423,33 @@ test('a build on the computer is the first the kernel ends when memory runs out,
   assert.match(script, /runuser -u "\$user" -- sh -c 'echo 1000 > \/proc\/self\/oom_score_adj; cd "\$0" && exec env "\$@"'/);
 });
 
-test('a build runs in a scope of its own whose memory is capped, by its kind or its source, so it never takes the served programs\' memory', () => {
+test('a build runs in a scope of its own whose memory cap ends it and whose time is bounded, by its kind or its source', () => {
   const script = readFileSync(new URL('../do-work/build-from-source.sh', import.meta.url), 'utf8');
   const scope = script.slice(script.indexOf('systemd-run --scope'), script.indexOf('> "$log" 2>&1 || status=$?'));
-  for (const part of ['systemd-run --scope --quiet --collect --unit="build-$user-', '-p MemoryHigh="$memory_high" -p MemoryMax="$memory_max" -p MemorySwapMax=0 --', 'runuser -u "$user" -- sh -c \'echo 1000 > /proc/self/oom_score_adj']) {
+  for (const part of ['systemd-run --scope --quiet --collect --unit="$scope" -p MemoryMax="$memory_max" -p MemorySwapMax=0 --', 'timeout -k 10 "$seconds"', 'runuser -u "$user" -- sh -c \'echo 1000 > /proc/self/oom_score_adj']) {
     assert.ok(scope.includes(part), `the build's scope says ${part}`);
   }
-  assert.match(script, /memory_high=\$\(field memory\.high\); memory_max=\$\(field memory\.max\)/);
+  assert.ok(script.includes('systemctl stop "$scope.scope"'), 'the scope is stopped once the build ends, so nothing it started outlives it');
+  assert.match(script, /build_over_time: the build of \$commit ran past its \$seconds s/);
+  assert.match(script, /memory_max=\$\(field limits\.memory_max\); seconds=\$\(field limits\.seconds\)/);
   const unit = { unit: 'site.service', user: 'site', builds: '/var/lib/site/builds', program: 'serve.cjs',
     source: { repository: 'https://git.example.test/site.git', commit: 'c'.repeat(40), build: ['/opt/node/bin/npm', 'ci'], output: '{builds}/out' } };
-  assert.deepEqual(sourceOf(unit).memory, { high: '1536M', max: '2G' }, 'an npm build takes the npm cap');
-  assert.deepEqual(sourceOf({ ...unit, source: { ...unit.source, build: ['make'] } }).memory, { high: '768M', max: '1G' }, 'any other kind takes the default');
-  assert.deepEqual(sourceOf({ ...unit, source: { ...unit.source, memory: { high: '150M', max: '200M' } } }).memory, { high: '150M', max: '200M' }, 'the source\'s own cap replaces its kind\'s');
-  assert.throws(() => sourceOf({ ...unit, source: { ...unit.source, memory: { high: 'lots', max: '2G' } } }), /memory is \{ high, max \}/);
+  assert.deepEqual(sourceOf(unit).limits, { memory_max: '2G', seconds: 900 }, 'an npm build takes the npm limits');
+  assert.deepEqual(sourceOf({ ...unit, source: { ...unit.source, build: ['make'] } }).limits, { memory_max: '1G', seconds: 900 }, 'any other kind takes the default');
+  assert.deepEqual(sourceOf({ ...unit, source: { ...unit.source, limits: { memory_max: '200M' } } }).limits, { memory_max: '200M', seconds: 900 }, 'the source\'s own value replaces its kind\'s');
+  assert.throws(() => sourceOf({ ...unit, source: { ...unit.source, limits: { seconds: 0 } } }), /limits\.seconds is a whole number/);
+  assert.throws(() => sourceOf({ ...unit, source: { ...unit.source, limits: { memory_max: 'lots' } } }), /limits\.memory_max is a size/);
+  assert.throws(() => sourceOf({ ...unit, source: { ...unit.source, memory: { high: '150M', max: '200M' } } }), /memory was replaced by limits/);
+});
+
+test('a build scope has no memory high below its max: the cap ends a build instead of slowing it for ever', () => {
+  const script = readFileSync(new URL('../do-work/build-from-source.sh', import.meta.url), 'utf8');
+  assert.doesNotMatch(script, /-p MemoryHigh/, 'the build scope sets no MemoryHigh');
+  const { _what, ...kinds } = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8')).build_limits;
+  for (const [kind, limits] of Object.entries(kinds)) {
+    assert.deepEqual(Object.keys(limits).sort(), ['memory_max', 'seconds'], `${kind} names only memory_max and seconds`);
+  }
+  const unit = { unit: 'site.service', user: 'site', builds: '/var/lib/site/builds', program: 'serve.cjs',
+    source: { repository: 'https://git.example.test/site.git', commit: 'c'.repeat(40), build: ['npm', 'ci'], output: '{builds}/out', limits: { memory_high: '150M', memory_max: '200M' } } };
+  assert.throws(() => sourceOf(unit), /limits are memory_max and seconds only, not memory_high/);
 });

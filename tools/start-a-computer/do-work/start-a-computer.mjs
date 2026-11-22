@@ -236,18 +236,22 @@ export function sourceOf(unit) {
   const filled = text => fill(text, { ...unit, commit: source.commit }, where);
   return { user: unit.user, builds: unit.builds, commit: source.commit, program, current, repository: source.repository, credential: source.credential ?? null,
     host_keys: source.host_keys ?? [], output: filled(source.output), build: source.build.map(filled), environment: (source.environment ?? []).map(filled),
-    memory: buildMemory(source, where) };
+    limits: buildLimits(source, where) };
 }
 
-/** The memory cap a source build runs under ({ high, max }, systemd sizes): the source's own `memory`, else settings.json
- * `build_memory` for its kind (the build argv's program name), else that file's `default`. */
-export function buildMemory(source, where = 'source') {
+/** What a source build may use ({ memory_max, seconds }): settings.json `build_limits` for its kind (the build argv's program
+ * name), else that file's `default`, with the source's own `limits` over it. There is no memory_high: a MemoryHigh below the max
+ * only slows a build that outgrows it, for ever (Nov 21 2026, 8:07-8:21 PM CST), so the cap ends it and `seconds` bounds it. */
+export function buildLimits(source, where = 'source') {
+  if (source.memory !== undefined) throw refused(`${where} memory was replaced by limits ({ memory_max, seconds }): a build has one memory cap, which ends it, and a time it may run.`);
   const kind = String(source.build?.[0] ?? '').split('/').pop();
-  const { _what, ...kinds } = SETTINGS.build_memory;
-  const memory = source.memory ?? kinds[kind] ?? kinds.default;
-  const size = /^[1-9][0-9]*[KMGT]?$/;
-  if (!size.test(memory?.high ?? '') || !size.test(memory?.max ?? '')) throw refused(`${where} memory is { high, max }, each a size such as 1536M or 2G.`);
-  return { high: memory.high, max: memory.max };
+  const { _what, ...kinds } = SETTINGS.build_limits;
+  const limits = { ...(kinds[kind] ?? kinds.default), ...(source.limits ?? {}) };
+  const unknown = Object.keys(limits).filter(key => !['memory_max', 'seconds'].includes(key));
+  if (unknown.length) throw refused(`${where} limits are memory_max and seconds only, not ${unknown.join(', ')}.`);
+  if (!/^[1-9][0-9]*[KMGT]?$/.test(limits.memory_max ?? '')) throw refused(`${where} limits.memory_max is a size such as 200M or 2G.`);
+  if (!Number.isInteger(limits.seconds) || limits.seconds <= 0) throw refused(`${where} limits.seconds is a whole number of seconds above 0.`);
+  return { memory_max: limits.memory_max, seconds: limits.seconds };
 }
 
 /** Build a unit's source commit on the computer (do-work/build-from-source.sh): the computer fetches that commit itself from
