@@ -1,0 +1,87 @@
+{
+  "public": [],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "status": "active",
+      "licence_class": "licence:maker-own",
+      "maker": "maker:show-where-each-phrase-came-from",
+      "placements": [
+        "placement:your-computer"
+      ],
+      "listed_on": "2026-11-21T19:50:00Z",
+      "id": "tool:show-where-each-phrase-came-from",
+      "label": "Where each phrase came from",
+      "job": "Show the source of each phrase in a made piece, row by row",
+      "description": "A page that lists, for each phrase of a made piece, the span it sits in, the library row it came from, the quote and when it was recorded.",
+      "screen": {
+        "kind": "parts",
+        "icon": "Quote",
+        "surface": {
+          "route_paths": [
+            "/where-it-came-from"
+          ],
+          "surface_input": {}
+        },
+        "spec": {
+          "root": "page",
+          "elements": {
+            "page": {
+              "type": "Container",
+              "children": [
+                "heading",
+                "rows"
+              ]
+            },
+            "heading": {
+              "type": "Text",
+              "props": {
+                "text": "Where each phrase came from"
+              }
+            },
+            "rows": {
+              "type": "Card",
+              "children": []
+            }
+          },
+          "state": {
+            "piece": ""
+          },
+          "reads": {
+            "provenance": {
+              "request": "show"
+            }
+          }
+        },
+        "requests": {
+          "show": {
+            "run": {
+              "input_schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "piece",
+                  "credential_name"
+                ],
+                "properties": {
+                  "piece": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "pattern": "^[A-Za-z0-9:._-]{1,200}$",
+                    "description": "The piece id, as piece_provenance keeps it (piece_id)."
+                  },
+                  "credential_name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The held name of the database connection string: the vault name the person saved it under."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

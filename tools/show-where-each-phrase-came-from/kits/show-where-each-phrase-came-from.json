@@ -1,0 +1,141 @@
+{
+  "start_here": "Say to your AI: \"Show me where each phrase of this piece came from.\" It runs tool:show-where-each-phrase-came-from with piece set to that piece's id and credential_name set to the name you hold your database connection under.",
+  "lists": [
+    {
+      "list": "list:piece-provenance",
+      "label": "Piece provenance",
+      "row_type": "record:piece-provenance",
+      "holds": "One row per phrase of a made piece: the span it sits in, the library row it came from, its quote and when it was recorded.",
+      "fields": [
+        {
+          "id": "span",
+          "kind": "text",
+          "label": "Span",
+          "alike": [
+            "slide",
+            "section",
+            "position"
+          ]
+        },
+        {
+          "id": "library_table",
+          "kind": "text",
+          "label": "Library table",
+          "alike": [
+            "source table",
+            "collection"
+          ]
+        },
+        {
+          "id": "library_row_id",
+          "kind": "text",
+          "label": "Library row",
+          "alike": [
+            "source id",
+            "reference"
+          ]
+        },
+        {
+          "id": "quote",
+          "kind": "long-text",
+          "label": "Quote",
+          "alike": [
+            "phrase",
+            "text",
+            "words"
+          ]
+        },
+        {
+          "id": "recorded_at",
+          "kind": "date",
+          "label": "Recorded",
+          "alike": [
+            "date",
+            "created"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "slide-1",
+          "values": {
+            "span": "slide-1",
+            "library_table": "passages",
+            "library_row_id": "example-row-1",
+            "quote": "an example phrase from the source",
+            "recorded_at": "2026-11-21"
+          }
+        },
+        {
+          "id": "slide-2",
+          "values": {
+            "span": "slide-2",
+            "library_table": "passages",
+            "library_row_id": "example-row-2",
+            "quote": "a second example phrase from the source",
+            "recorded_at": "2026-11-21"
+          }
+        }
+      ],
+      "alike": [
+        "a source sheet beside a draft",
+        "citations in a research notes list"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:show-where-each-phrase-came-from"
+  ],
+  "instructions": [
+    "1. Hold your database's connection string in your vault under a name of your choosing, such as my-database-connection. The string is never typed into a request.",
+    "2. Say which piece you want in plain words. Your AI calls tools:run with tool tool:show-where-each-phrase-came-from, piece (the piece id) and credential_name.",
+    "3. Read the answer: piece_id, columns, rows and row_count. Each row is one phrase, matching list:piece-provenance.",
+    "4. The page at /where-it-came-from shows the same rows for the piece in its surface input."
+  ],
+  "worked_examples": [
+    {
+      "title": "Where each phrase of one made piece came from",
+      "ask": "Show me where each phrase of this piece came from.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "tools:run",
+        "input": {
+          "tool": "tool:show-where-each-phrase-came-from",
+          "input": {
+            "piece": "record:content-pieces:example-piece",
+            "credential_name": "my-database-connection"
+          }
+        }
+      },
+      "hands_back": "row_count 2 and two rows, for example span \"slide-1\" with quote \"an example phrase from the source\"."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Pour the two example rows into a provenance list the person already keeps, mapping the same fields; this tool changes neither list.",
+    "example": {
+      "kit_list": "list:piece-provenance",
+      "into": {
+        "list": "list:piece-provenance",
+        "row_type": "record:piece-provenance",
+        "fields": [
+          "span",
+          "library_table",
+          "library_row_id",
+          "quote",
+          "recorded_at"
+        ]
+      },
+      "field_map": {
+        "span": "span",
+        "library_table": "library_table",
+        "library_row_id": "library_row_id",
+        "quote": "quote",
+        "recorded_at": "recorded_at"
+      },
+      "least_coverage": 0.8
+    }
+  }
+}

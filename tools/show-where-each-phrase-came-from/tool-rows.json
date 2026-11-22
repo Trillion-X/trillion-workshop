@@ -1,0 +1,209 @@
+{
+  "kind": "package-set-records",
+  "record_set": "show-where-each-phrase-came-from-tool-rows",
+  "what_this_is": "The Workshop row that answers the provenance rows of one made piece, read from the person's own database's public.piece_provenance table with one bound parameter. The connection string is the person's held value under the name the run gives, handed to the one process on a private pipe (credential_mounts fd 3), as tool:run-sql-in-my-database hands it.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:show-where-each-phrase-came-from",
+        "label": "Show where each phrase came from",
+        "job": "Show the source of each phrase in a made piece, row by row",
+        "description": "Reads the provenance rows of one made piece (piece: its piece id) from public.piece_provenance in the database named by credential_name, one parameterized SELECT, and answers each row: the span, the library table and row it came from, the quote, and when it was recorded.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "piece",
+            "credential_name"
+          ],
+          "properties": {
+            "piece": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "pattern": "^[A-Za-z0-9:._-]{1,200}$",
+              "description": "The piece id, as piece_provenance keeps it (piece_id)."
+            },
+            "credential_name": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The held name of the database connection string: the vault name the person saved it under."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "piece_id",
+            "columns",
+            "rows",
+            "row_count"
+          ],
+          "properties": {
+            "piece_id": {
+              "type": "string"
+            },
+            "columns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "row_count": {
+              "type": "integer"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "internet": true,
+          "workdir": "/opt/show-where-each-phrase-came-from",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "--no-warnings",
+            "/opt/show-where-each-phrase-came-from/do-work/show-where.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "show-where-each-phrase-came-from",
+                "paths": [
+                  "do-work/show-where.mjs"
+                ],
+                "at": "/opt/show-where-each-phrase-came-from"
+              },
+              {
+                "package": "use-your-tools-from-a-shell",
+                "paths": [
+                  "do-work/ag-ui-agent.mjs",
+                  "do-work/ag-ui-wire.mjs",
+                  "do-work/command.json",
+                  "do-work/command.mjs",
+                  "do-work/keep-result.mjs",
+                  "do-work/keep-the-connection.mjs",
+                  "do-work/local-door.mjs",
+                  "do-work/packs/read-data/blake3.mjs",
+                  "do-work/packs/read-data/identity.mjs",
+                  "do-work/packs/tools/plan-tasks-and-todo-lists/run-a-task-move.mjs",
+                  "do-work/packs/tools/plan-tasks-and-todo-lists/task-moves.json",
+                  "do-work/replay-recorded-writes.json",
+                  "do-work/replay-recorded-writes.mjs",
+                  "do-work/settled-write.mjs"
+                ],
+                "at": "/opt/use-your-tools-from-a-shell"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": true
+        },
+        "maker": "maker:show-where-each-phrase-came-from",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "piece_provenance table written by the content pieces lane; the client is the pg package pinned in the run-sql-in-my-database tool's invoke.packages"
+        },
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "this computer's own door and a held database connection that reads public.piece_provenance",
+            "proved_on": null
+          }
+        ],
+        "screen": {
+          "kind": "parts",
+          "icon": "Quote",
+          "surface": {
+            "route_paths": [
+              "/where-it-came-from"
+            ],
+            "surface_input": {}
+          },
+          "spec": {
+            "root": "page",
+            "elements": {
+              "page": {
+                "type": "Container",
+                "children": [
+                  "heading",
+                  "rows"
+                ]
+              },
+              "heading": {
+                "type": "Text",
+                "props": {
+                  "text": "Where each phrase came from"
+                }
+              },
+              "rows": {
+                "type": "Card",
+                "children": []
+              }
+            },
+            "state": {
+              "piece": ""
+            },
+            "reads": {
+              "provenance": {
+                "request": "show"
+              }
+            }
+          },
+          "requests": {
+            "show": {
+              "run": {
+                "input_schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "piece",
+                    "credential_name"
+                  ],
+                  "properties": {
+                    "piece": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200,
+                      "pattern": "^[A-Za-z0-9:._-]{1,200}$",
+                      "description": "The piece id, taken from the route."
+                    },
+                    "credential_name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "The held name of the database connection string: the vault name the person saved it under."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
