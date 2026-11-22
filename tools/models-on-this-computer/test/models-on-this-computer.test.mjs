@@ -348,7 +348,7 @@ test('the local model chat builds its streamed answer as keyed parts through ask
   } finally { server.close(); }
 });
 
-test('every row runs on the person\'s computer through run-a-function with no internet; only the server check may start a program (its declared restart)', async () => {
+test('every row runs on the person\'s computer through run-a-function with no internet; none asks a capability (the restart of the server check is a /bin program the base sandbox starts)', async () => {
   const { readFileSync } = await import('node:fs');
   const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
   assert.deepEqual(rows.map(row => [row.id, row.invoke.argv.at(-1)]), [['tool:ask-a-model', 'ask'], ['tool:get-free-models', 'fit'], ['tool:check-the-model-server-and-restart-it-if-stuck', 'check']]);
@@ -356,7 +356,7 @@ test('every row runs on the person\'s computer through run-a-function with no in
     const file = row.invoke.argv.at(-1) === 'check' ? 'check-the-model-server.mjs' : 'models-on-this-computer.mjs';
     const module = await import(`../read-data/${file}`);
     assert.equal(row.invoke.kind, 'computer');
-    assert.deepEqual(row.invoke.capabilities, file === 'check-the-model-server.mjs' ? ['start-a-program'] : []);
+    assert.deepEqual(row.invoke.capabilities, []);
     assert.notEqual(row.invoke.internet, true);
     assert.deepEqual(row.placements, ['placement:your-computer']);
     assert.equal(row.result_selector, '$.result');

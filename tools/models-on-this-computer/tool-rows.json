@@ -797,9 +797,7 @@
         },
         "invoke": {
           "kind": "computer",
-          "capabilities": [
-            "start-a-program"
-          ],
+          "capabilities": [],
           "local_doors": [
             "local-model-server",
             {
