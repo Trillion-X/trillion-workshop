@@ -3,7 +3,7 @@
 //
 // The renderer's entry. It reads one JSON object on stdin and prints one JSON line per row:
 //   { rows: [workflow_recipes row, ...], parents: { "<parent id>": definition }, allow_lost: { "<row id>": ["step x"] },
-//     mode: "write" | "dry", kit_only: boolean, root: "<trillion-workshop checkout>" }
+//     mode: "write" | "dry", kit_only: boolean, root: "<workshop checkout>" }
 // A row is read from workflow_recipes by the caller (a SQL reader); this entry only plans and writes files. In write mode each
 // ready recipe goes to tools/workflows/recipes/<slug>.json and its kit to tools/workflows/kits/<slug>.json. A row is written only
 // when its plan has no problems; gate words are reported, not refused, because the recipe check and the landing gate decide them.
@@ -12,6 +12,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { planRender } from './render.mjs';
+import { CHECK_VOCABULARY, recipeProblems, sharedBlocks } from '../../workflows/read-data/recipe-problems.mjs';
 
 function originFile(root, path) {
   try {
@@ -24,6 +25,10 @@ function originFile(root, path) {
 const input = JSON.parse(readFileSync(0, 'utf8'));
 const root = input.root;
 const writing = input.mode === 'write';
+// Files are written under out (an export), while origin is still read from root.
+const out = input.out ?? root;
+// The shared blocks come from every workflow row that lists stands_for (input.block_rows), so a hand step that writes one out again is refused.
+const blocks = sharedBlocks(input.block_rows ?? []);
 for (const row of input.rows) {
   const parentId = row.recipe.split(':').length === 3 ? row.recipe.split(':').slice(0, 2).join(':') : null;
   const slug = row.recipe.slice('workflow:'.length).replace(/:/g, '_');
@@ -34,15 +39,17 @@ for (const row of input.rows) {
     originKit: kitText ? JSON.parse(kitText) : null,
     parent: parentId ? input.parents?.[parentId] : null,
     allowLost: input.allow_lost?.[row.recipe] ?? [],
+    gateWords: input.gate_words ?? [],
   });
+  if (plan.recipe && !plan.note) plan.problems.push(...recipeProblems(JSON.parse(plan.recipe.text).records[0].payload, CHECK_VOCABULARY, { blocks }));
   const ready = plan.problems.length === 0 && !plan.note;
   const written = { recipe: false, kit: false };
   if (writing && ready && !input.kit_only && plan.recipe) {
-    writeFileSync(join(root, 'tools/workflows/recipes', `${slug}.json`), plan.recipe.text);
+    writeFileSync(join(out, 'tools/workflows/recipes', `${slug}.json`), plan.recipe.text);
     written.recipe = true;
   }
   if (writing && ready && plan.kit) {
-    writeFileSync(join(root, 'tools/workflows/kits', `${slug}.json`), plan.kit.json);
+    writeFileSync(join(out, 'tools/workflows/kits', `${slug}.json`), plan.kit.json);
     written.kit = true;
   }
   console.log(JSON.stringify({

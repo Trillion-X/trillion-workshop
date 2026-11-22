@@ -5,8 +5,7 @@
 // A row is read through tool:run-sql-in-my-database; this module takes its values as plain objects.
 //
 // fileFromRow(row) -> { about, records: [{ payload }] }: the payload keeps the row's own steps (as `definition`), its
-// job, produces, input schema, source and fires_when, each wake with its input cut to its start step, and its records
-// with every tool its steps ask in records.runs. The store names
+// job, produces, input schema, source and fires_when, and each wake with its input cut to its start step. The store names
 // and account are not in the file: they come with each person's switch.
 // checkFile(file, row) -> problems: the file must be stamped with the row's kept_at, its name must be the id without
 // "workflow:" and hold no colon, and the row must be complete enough for the recipe validator to accept it.
@@ -30,7 +29,7 @@ function handAsks(definition) {
     .map(step => `hand ask: ${step.id}`);
 }
 
-// A run of a listed workflow row starts only the tools its row names in records.runs (trillion-rust run_capability.rs
+// A run of a listed workflow row starts only the tools its row names in records.runs (the engine run_capability.rs
 // Rights::declared; the engine hands no host actions to a row that names none), so a row whose steps ask a tool but whose
 // records name none fails every woken run at its first ask: a-piece-to-run (workflow:run-one-piece) and at-its-time
 // (workflow:send-each-post-at-its-time) on the Mac, 9:4x PM CST Nov 21 2026, "This run was not handed its host actions".
@@ -41,7 +40,7 @@ function handAsks(definition) {
 const TOOL_ID_START = 'tool:';
 const TELL = 'wake:arrive';
 const OWN_RECORDS = '@own-records';
-const MOST_RUNS = 32; // trillion-rust tool-runs.json runs.most: a row naming more is refused whole.
+const MOST_RUNS = 32; // the engine tool-runs.json runs.most: a row naming more is refused whole.
 
 export function toolsAsked(definition) {
   const asked = new Set();
@@ -92,8 +91,16 @@ function vaultNames(input, at = '') {
   ]);
 }
 
+// History notes (a step's context.changed_by, a fires_when rule's evidence) belong to the person's row, never to the shared file: they are dropped at render.
+const HISTORY_KEYS = ['changed_by', 'evidence'];
+export function withoutHistory(value) {
+  if (Array.isArray(value)) return value.map(withoutHistory);
+  if (value === null || typeof value !== 'object') return value;
+  return Object.fromEntries(Object.entries(value).filter(([key]) => !HISTORY_KEYS.includes(key)).map(([key, item]) => [key, withoutHistory(item)]));
+}
+
 export function fileFromRow(row) {
-  const definition = asObject(row.definition);
+  const definition = withoutHistory(asObject(row.definition));
   const wakes = isEmpty(row.wakes) ? [] : asObject(row.wakes);
   const problems = [];
   if (isEmpty(row.job)) problems.push('job is empty');
@@ -109,10 +116,10 @@ export function fileFromRow(row) {
     produces: row.produces,
     source: asObject(row.source) ?? {},
     input_schema: asObject(row.input_schema),
-    wakes: wakes.map(({ id, on, budget, input }) => ({ id, on, budget, input: { start_at: input?.start_at } })),
     definition,
   };
-  if (!isEmpty(row.fires_when)) payload.fires_when = asObject(row.fires_when);
+  if (wakes.length) payload.wakes = wakes.map(({ id, on, budget, input }) => ({ id, on, budget, input: { start_at: input?.start_at } }));
+  if (!isEmpty(row.fires_when)) payload.fires_when = withoutHistory(asObject(row.fires_when));
   const records = recordsOf(row, definition);
   if (records) payload.records = records;
   return { about: `${row.recipe}: rendered from its workflow_recipes row.`, records: [{ payload }] };
@@ -161,4 +168,129 @@ export function kitChanges(origin, next, usedTools, usedWorkflows) {
     }
   }
   return { refused, dropped };
+}
+
+// ---- planning one row: the file, the kit, the gate report and the colon-body rule ----------------------------------------------
+
+// A recipe file must not name a person, brand, store or connection. These words are the gate's own list (the recipe check reports them).
+// The brand and owner words are not in this file: the caller passes them (input.gate_words), from the brand row of the site that runs it.
+const GATE_PATTERN = /-connection\b|_for_who|instagram:\S+|@\w+/gi;
+const TOOL_ID = /tool:[a-z0-9][a-z0-9._:-]*[a-z0-9]/g;
+const WORKFLOW_ID = /workflow:[a-z0-9][a-z0-9:-]*[a-z0-9]/g;
+
+export function gateWordsIn(text, words = []) {
+  const brand = words.map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const pattern = brand.length ? new RegExp(`${brand.join('|')}|${GATE_PATTERN.source}`, 'gi') : GATE_PATTERN;
+  return [...new Set(text.match(pattern) ?? [])].sort();
+}
+
+// The tools and workflows a definition uses: its ask steps' names, every tool or definition_id key anywhere, and the ids its
+// ask do and submit text names (top-level steps only).
+export function usedIn(definition) {
+  const tools = new Set();
+  const workflows = new Set();
+  const walk = (value) => {
+    if (Array.isArray(value)) return value.forEach(walk);
+    if (value === null || typeof value !== 'object') return;
+    for (const [key, item] of Object.entries(value)) {
+      if (key === 'name' && typeof item === 'string' && item.startsWith('tool:')) tools.add(item);
+      if (key === 'tool' && typeof item === 'string' && item.startsWith('tool:')) tools.add(item);
+      if (key === 'definition_id' && typeof item === 'string') workflows.add(item.split('#')[0]);
+      walk(item);
+    }
+  };
+  walk(definition);
+  for (const step of definition?.steps ?? []) {
+    const input = step?.config?.input ?? {};
+    const text = JSON.stringify([input.do, input.submit]);
+    for (const tool of text.match(TOOL_ID) ?? []) tools.add(tool);
+    for (const workflow of text.match(WORKFLOW_ID) ?? []) workflows.add(workflow.split('#')[0]);
+  }
+  return { tools, workflows };
+}
+
+// The kit a recipe is served with: its tools and workflows as the walker finds them, the run tool always, and only recipe ids in
+// workflows.
+// The step a kit's worked example walks: the first top-level hand step (an ask that no tool answers), so the example names a step the person does.
+function exampleStep(definition) {
+  const hand = definition.steps.find(step => !step.id.includes('#') && step.kind === 'ask' && !String(step.config?.name ?? '').startsWith('tool:'));
+  return hand ?? definition.steps[0];
+}
+
+export function kitFromRow(row, used) {
+  const rid = row.recipe;
+  const definition = asObject(row.definition);
+  const workflows = [rid, ...[...used.workflows].sort().filter((w) => w && w !== rid && w.startsWith('workflow:') && w.split(':').length === 2)];
+  const tools = [...new Set([...used.tools, 'tool:run-workflow-definition'])].sort();
+  return {
+    start_here: `Say to your AI: "Run ${rid}." The wake starts it once its switch input is set.`,
+    lists: [],
+    no_lists_because: "The workflow works through the owner's own database tools and writes no list of its own.",
+    workflows,
+    tools,
+    instructions: ["1. Set the wake's switch input with the owner's store names.", `2. Say "Run ${rid}".`, '3. Read the answer the run hands back.'],
+    worked_examples: [{
+      title: row.title,
+      ask: `Run ${rid}.`,
+      mcp: { server: '{cli}', tool: 'do_one_thing_in_my_account', input: { method: 'tools:run', input: { tool: 'tool:run-workflow-definition', input: { row: rid } } } },
+      workflow: rid,
+      step: exampleStep(definition).id,
+      given: "The owner's own rows are in place.",
+      hands_back: 'The run finishes at the step "done" and answers the quoted "done".',
+    }],
+    drafted_from: `${rid} rendered from its row`,
+  };
+}
+
+// Sorted-key JSON, so two objects with the same content compare equal.
+export function canonical(value) {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
+  return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonical(value[key])}`).join(',')}}`;
+}
+
+// An id with two colons is a body that rides in its parent's definition.uses. It is not a file of its own: the body row and the parent's copy
+// must match, or the render is refused.
+export function bodyOf(id) {
+  const parts = String(id).split(':');
+  return parts.length === 3 ? parts.slice(0, 2).join(':') : null;
+}
+
+export function planRender(row, { origin = null, originKit = null, parent = null, allowLost = [], gateWords = [] } = {}) {
+  const slug = row.recipe.slice(PREFIX.length).replace(/:/g, '_');
+  const plan = { id: row.recipe, slug, kept_at: row.kept_at, problems: [], gate_words: [], recipe: null, kit: null, rides_in_parent: false };
+  const parentId = bodyOf(row.recipe);
+  if (parentId) {
+    const copy = (parent?.uses ?? []).find((body) => body.id === row.recipe);
+    plan.rides_in_parent = Boolean(copy);
+    if (copy && canonical(copy) === canonical(asObject(row.definition))) plan.note = `skipped: a body rides in its parent ${parentId}'s file`;
+    else plan.problems.push(`REFUSED: body ${row.recipe} differs from its parent ${parentId} copy or the parent does not carry it`);
+    return plan;
+  }
+  let file = null;
+  try {
+    file = fileFromRow(row);
+  } catch (error) {
+    plan.problems.push(`row is incomplete: ${error.message}`);
+  }
+  if (file) {
+    const payload = file.records[0].payload;
+    const lost = lostAgainstOrigin(payload, origin).filter((item) => !allowLost.includes(item));
+    if (lost.length) plan.problems.push(`lost against origin file: ${lost.join(', ')}`);
+    if ((payload.wakes ?? []).length) plan.problems.push(...handAsks(payload.definition ?? {}));
+    plan.recipe = { text: `${JSON.stringify(file, null, 2)}\n` };
+    plan.gate_words = gateWordsIn(plan.recipe.text, gateWords);
+    plan.problems.push(...checkFile(file, row, fileNameOf(row.recipe), origin).filter((item) => item.startsWith('vault name') || item.startsWith('stale')));
+  }
+  if (!asObject(row.definition)?.steps?.length) {
+    plan.problems.push('definition has no steps');
+    return plan;
+  }
+  const used = usedIn(asObject(row.definition));
+  const kit = kitFromRow(row, used);
+  const { refused, dropped } = kitChanges(originKit, kit, new Set(kit.tools), new Set(kit.workflows));
+  const seeAlso = [...new Set([...refused, ...dropped].map((entry) => entry.split(': ').slice(1).join(': ')))].sort();
+  if (seeAlso.length) kit.see_also = seeAlso;
+  plan.kit = { json: `${JSON.stringify(kit, null, 2)}\n`, refused, dropped, see_also: seeAlso };
+  return plan;
 }
