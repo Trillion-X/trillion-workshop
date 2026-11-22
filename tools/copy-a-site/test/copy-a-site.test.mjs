@@ -85,6 +85,17 @@ test('every flag the row passes is one the script reads, and the row packs no ad
   assert.deepEqual(tool.invoke.files.package_files.map(item => item.package), ['copy-a-site', 'headless-browser']);
 });
 
+test('the row brings its own headless browser as a declared, pinned program, found by the copier on PATH', () => {
+  const shell = tool.invoke.programs['chrome-headless-shell'].fetch;
+  for (const system of ['macos-aarch64', 'linux-x86_64']) {
+    assert.match(shell[system].url, /^https:\/\/storage\.googleapis\.com\/chrome-for-testing-public\/.+\.zip$/);
+    assert.match(shell[system].blake3, /^[0-9a-f]{64}$/);
+    assert.ok(shell[system].executable.endsWith('/chrome-headless-shell'));
+  }
+  const places = JSON.parse(readFileSync(resolve(root, '../headless-browser/browser-places.json'), 'utf8')).places;
+  assert.equal(places[0], 'chrome-headless-shell');
+});
+
 test('page and asset addresses become files the host serves', () => {
   assert.equal(pageFile('/'), 'index.html');
   assert.equal(pageFile('/guides/first'), 'guides/first/index.html');

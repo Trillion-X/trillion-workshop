@@ -35,3 +35,13 @@ test('no browser found says what to do', () => {
   try { found = browserExecutable('chromium', empty); } catch (error) { assert.ok(error instanceof BrowserProblem); assert.match(error.message, /Install Chrome|name one with --browser/); return; }
   assert.ok(found.startsWith('/'), 'this computer has an installed browser: ' + found);
 });
+
+test('a program the row declares and the engine fetches is found first, on the run PATH', () => {
+  const folder = tempFolder(join(tmpdir(), 'fetched-program-'));
+  const file = join(folder, 'chrome-headless-shell');
+  writeFileSync(file, '#!/bin/sh\n');
+  chmodSync(file, 0o755);
+  const before = process.env.PATH;
+  process.env.PATH = `${folder}:${before}`;
+  try { assert.equal(browserExecutable('chromium', '/nowhere'), file); } finally { process.env.PATH = before; }
+});

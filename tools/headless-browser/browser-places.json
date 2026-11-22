@@ -1,6 +1,7 @@
 {
-  "_what": "Where a Chromium-family browser is looked for on this computer when a tool is not told one (a bare name such as chromium, or none). In order; the first file found that can run wins. `~` is the person's home folder; `*` in a folder name matches any characters and the highest match is taken.",
+  "_what": "Where a Chromium-family browser is looked for on this computer when a tool is not told one (a bare name such as chromium, or none). In order; a name with no folder (chrome-headless-shell) is a program the row declares in invoke.programs, which the engine fetches and puts on the run's PATH; the first file found that can run wins. `~` is the person's home folder; `*` in a folder name matches any characters and the highest match is taken.",
   "places": [
+    "chrome-headless-shell",
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "~/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "/Applications/Chromium.app/Contents/MacOS/Chromium",

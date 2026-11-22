@@ -51,8 +51,9 @@ const quietSwitches = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.
 
 const places = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'browser-places.json'), 'utf8')).places;
 
-/** The files a place names: one file, or (with * in a folder name) every match, highest name first. */
+/** The files a place names: one file, a bare program name found on the run's PATH (where the engine puts a program the row fetches), or (with * in a folder name) every match, highest name first. */
 function expand(place, home) {
+  if (!place.includes('/')) return (process.env.PATH ?? '').split(':').filter(Boolean).map(folder => join(folder, place));
   let paths = [place.startsWith('~/') ? join(home, place.slice(2)) : place];
   while (paths.some(path => path.includes('*'))) {
     paths = paths.flatMap(path => {
@@ -72,7 +73,7 @@ function expand(place, home) {
 
 /**
  * The browser program to start. A path (any name with a folder in it) is used as given; a bare name such as
- * `chromium`, or none, is looked for in browser-places.json on this computer.
+ * `chromium`, or none, is looked for in browser-places.json on this computer (a program the row declares and the engine fetches is found first, on PATH).
  */
 export function browserExecutable(executable, home = userInfo().homedir) {
   if (executable && executable.includes('/')) return executable;
@@ -81,7 +82,7 @@ export function browserExecutable(executable, home = userInfo().homedir) {
       try { if (existsSync(path)) { accessSync(path, constants.X_OK); return path; } } catch { /* not runnable */ }
     }
   }
-  throw new BrowserProblem('No browser was found on this computer. Install Chrome, Chromium, Edge or Brave, or name one with --browser or BROWSER_EXECUTABLE.');
+  throw new BrowserProblem('No browser was found on this computer. Declare chrome-headless-shell in the row invoke.programs, install Chrome, Chromium, Edge or Brave, or name one with --browser or BROWSER_EXECUTABLE.');
 }
 
 /** A problem the person running the script can act on; its message is shown as it is. */
