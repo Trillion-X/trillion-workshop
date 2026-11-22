@@ -161,12 +161,15 @@ export async function runsState(machine, given, run = onMachine, { pages } = {})
   const builds = [], stale = [];
   const isActive = name => run(machine, `systemctl is-active --quiet ${q(name)} || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; });
   // A program run by an interpreter (`interpreter`: node, say) is not the process's own executable: it runs `current`'s build
-  // when its process started after `current` last moved (the link's own change time).
+  // when its process started after `current` last moved (the link's own change time). The start is now minus the process's
+  // elapsed seconds (`ps -o etimes`), never /proc/<pid>'s own time: procfs sets that when the entry is first looked up, so a
+  // process listed later (Nov 21 2026: the kernel's out-of-memory task dump) looked newer than a link moved after it started,
+  // and two new site builds were never started.
   // The process a unit runs is that file: its executable is the file, not a replaced one ("PATH (deleted)" once replaced under it).
   const runsFile = (unit, path) => run(machine, `pid=$(systemctl show -p MainPID --value ${q(unit.unit)}); [ "$pid" != 0 ] && [ "$(readlink -f /proc/$pid/exe)" = "$(readlink -f ${q(path)})" ] || exit 3`)
     .then(() => true, error => { if (error.code === 3) return false; throw error; });
   const runsLink = async (unit, program) => unit.interpreter
-    ? run(machine, `pid=$(systemctl show -p MainPID --value ${q(unit.unit)}); [ "$pid" != 0 ] && [ "$(stat -c %Y /proc/$pid)" -ge "$(stat -c %Z ${q(`${unit.builds}/${unit.current ?? 'current'}`)})" ] || exit 3`)
+    ? run(machine, `pid=$(systemctl show -p MainPID --value ${q(unit.unit)}); [ "$pid" != 0 ] && [ "$(( $(date +%s) - $(ps -o etimes= -p "$pid") ))" -ge "$(stat -c %Z ${q(`${unit.builds}/${unit.current ?? 'current'}`)})" ] || exit 3`)
       .then(() => true, error => { if (error.code === 3) return false; throw error; })
     : runsFile(unit, `${unit.builds}/${unit.current ?? 'current'}/${program}`);
   for (const unit of units.filter(row => row.source && !row.slot)) {

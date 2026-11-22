@@ -143,7 +143,9 @@ test('a program run by an interpreter runs current\'s build when its process sta
     return base.run(m, command, input);
   };
   assert.deepEqual(await runsDifferences(machine, interpreted, run), []);
-  assert.match(asked[0], /stat -c %Y \/proc\/\$pid\)" -ge "\$\(stat -c %Z '\/var\/lib\/example-place\/builds\/current'\)/);
+  // The process's start is now minus its elapsed seconds, never /proc/<pid>'s own time (procfs sets that at first lookup).
+  assert.match(asked[0], /\$\(date \+%s\) - \$\(ps -o etimes= -p "\$pid"\) \)\)" -ge "\$\(stat -c %Z '\/var\/lib\/example-place\/builds\/current'\)/);
+  assert.ok(!asked[0].includes('stat -c %Y /proc/'), 'the process start is not read from /proc/<pid>\'s own time');
   assert.ok(!asked[0].includes('/proc/$pid/exe'), 'the interpreter is never compared with the program');
 });
 
