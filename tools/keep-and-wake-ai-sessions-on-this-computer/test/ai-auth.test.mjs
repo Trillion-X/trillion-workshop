@@ -107,6 +107,26 @@ test('Codex takes the first free login from a pool, and each login is written ba
   } finally { f.cleanup(); }
 });
 
+test('a Codex run keeps its chats in the AI\'s chats folder, so they outlive the run while its login does not', () => {
+  const f = fixture({ values: { 'codex-subscription-auth-1': '{"n":"one"}' } });
+  try {
+    const vault = vaultOf(f);
+    const chats = join(f.root, 'kept-chats');
+    const run = acquireAiAuth({ codex_logins: ['codex-subscription-auth-1'], chats_folder: chats }, { folder: f.state, runId: 'c1', vault, staleMs: 60000 });
+    mkdirSync(join(run.env.CODEX_HOME, 'sessions', '2026', '11', '22'), { recursive: true });
+    writeFileSync(join(run.env.CODEX_HOME, 'sessions', '2026', '11', '22', 'rollout-x-s1.jsonl'), '{"type":"thread.started"}\n');
+    run.done();
+    assert.equal(existsSync(run.env.CODEX_HOME), false, 'the run\'s private home (its login) is removed');
+    assert.equal(readFileSync(join(chats, '2026', '11', '22', 'rollout-x-s1.jsonl'), 'utf8'), '{"type":"thread.started"}\n', 'its chat is kept');
+    const next = acquireAiAuth({ codex_logins: ['codex-subscription-auth-1'], chats_folder: chats }, { folder: f.state, runId: 'c2', vault, staleMs: 60000 });
+    assert.equal(existsSync(join(next.env.CODEX_HOME, 'sessions', '2026', '11', '22', 'rollout-x-s1.jsonl')), true, 'the next run sees the chat to resume');
+    next.done();
+    const plain = acquireAiAuth({ codex_logins: ['codex-subscription-auth-1'] }, { folder: f.state, runId: 'c3', vault, staleMs: 60000 });
+    assert.equal(existsSync(join(plain.env.CODEX_HOME, 'sessions')), false, 'with no chats folder nothing is linked');
+    plain.done();
+  } finally { f.cleanup(); }
+});
+
 test('a refreshed Codex login is written back to the vault before its lock is released', () => {
   const f = fixture({ values: { 'codex-subscription-auth-1': '{"tokens":{"refresh_token":"old"}}' } });
   try {

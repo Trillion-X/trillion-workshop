@@ -21,6 +21,8 @@ import { chmodSync, existsSync, mkdirSync, readFileSync, rmSync, statSync, write
 import { join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { readVaultValue, writeVaultValue } from './vault-value.mjs';
+import { symlinkSync } from 'node:fs';
+import { homedir } from 'node:os';
 
 const lockName = name => name.replace(/[^A-Za-z0-9_-]/g, '_');
 
@@ -83,6 +85,15 @@ export function acquireAiAuth(auth, { folder, runId, vault, staleMs, resting = {
     try {
       mkdirSync(home, { recursive: true, mode: 0o700 });
       chmodSync(home, 0o700);
+      // The run's chats outlive the run (its login does not): `chats_folder` is where this AI keeps them, and the private
+      // home's `sessions` is a link to it, so a later turn finds the chat and resumes it. Without it every Codex chat was
+      // removed with its run's home: the always-on's second turn waited for a chat that no longer existed (5:09 AM CST
+      // Nov 22 2026). Removing the home removes only the link.
+      if (typeof auth.chats_folder === 'string' && auth.chats_folder) {
+        const chats = auth.chats_folder.replace(/^~(?=\/|$)/, homedir());
+        mkdirSync(chats, { recursive: true, mode: 0o700 });
+        symlinkSync(chats, join(home, 'sessions'));
+      }
       const text = readVaultValue(vault, name);
       writeFileSync(file, text, { mode: 0o600 });
       before = makeHashCodeHexFromBytes(Buffer.from(text));
