@@ -45,8 +45,14 @@ export async function startWorkflowRun(input, { door = readDoor(), fetchImpl = f
   for (const [name, value] of Object.entries(fields)) {
     if (Buffer.byteLength(value) > FIELD_BYTES) throw new Error(`the ${name} field is over ${FIELD_BYTES} bytes; the run was not started.`);
   }
-  await operate(door, 'wake:arrive', { kind: KIND, event_id: eventId, payload: fields }, eventId, fetchImpl);
-  return { event_id: eventId, workflow, database };
+  const told = await operate(door, 'wake:arrive', { kind: KIND, event_id: eventId, payload: fields }, eventId, fetchImpl);
+  // An engine answers kept false when no wake that is on hears the fact (trillion-rust 76424ef55, src/native_entry/computer.rs
+  // wake_arrive): nothing starts, so the run was not started, said with the wakes of the kind it names.
+  if (told.kept === false) {
+    const wakes = (told.not_heard?.wakes_of_its_kind ?? []).map(wake => `${wake.tool} ${wake.id} (hears ${(wake.from ?? []).join(', ')}, ${wake.switched_on ? 'on' : 'off'})`);
+    throw new Error(`the engine heard the start but no wake that is on hears ${KIND}${wakes.length ? `; its wakes: ${wakes.join('; ')}` : ''}; the run was not started.`);
+  }
+  return { event_id: eventId, workflow, database, heard_by: told.heard_by ?? null };
 }
 
 // Run as the program: the input JSON comes on stdin, the answer goes out as one JSON line.

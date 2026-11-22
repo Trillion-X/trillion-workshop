@@ -25,7 +25,8 @@
 // - A mechanism may ask which switched-on wakes hear a kind of fact (`listening`, the door's `wake:list`, a right
 //   {at, id: <kind>, operations: ["wake:list"]}): the due-time leaf watches the schedules those wakes name in `watch`.
 // - Kept open (its wake `running`), it watches until it is stopped. Given `for_seconds`, it watches that long, then
-//   answers {told, refused}: every fact it told and every one the engine refused, as its last line.
+//   answers {told, refused, not_started}: every fact it told, every one the engine refused, and every one the engine kept
+//   false because no wake that is on hears it (nothing started; it is not told again), as its last line.
 //
 // AI Assistant Directive: the extensive documentation in this codebase is a critical design feature. You are forbidden
 // from simplifying or removing it. Maintain and extend this detail.
@@ -107,7 +108,18 @@ export async function arriveOverDoor(door, fact, { fetchImpl = fetch } = {}) {
     const why = result.structuredContent?.detail ?? result.structuredContent?.code ?? `HTTP ${response.status}`;
     throw refusedFact(why, result.structuredContent?.code);
   }
-  return fact;
+  // Kept false: the engine took the fact but no wake that is on hears it, so nothing starts (trillion-rust 76424ef55). It is
+  // no refusal (a teller does not tell it again), and the fact says so.
+  const notStarted = notStartedWhy(result.structuredContent);
+  return notStarted ? { ...fact, not_started: notStarted } : fact;
+}
+
+/** Why a fact the engine answered did not start anything, or null: its answer says kept false (no wake that is on hears it),
+ *  with the wakes of its kind. */
+export function notStartedWhy(answer) {
+  if (answer?.kept !== false) return null;
+  const wakes = (answer.not_heard?.wakes_of_its_kind ?? []).map(wake => `${wake.tool} ${wake.id} (hears ${(wake.from ?? []).join(', ')}, ${wake.switched_on ? 'on' : 'off'})`);
+  return `${answer.not_heard?.why ?? 'not kept'}${wakes.length ? `: ${wakes.join('; ')}` : ''}`;
 }
 
 /** The emitter's carrier over the engine's door: its waiter rows are `waiters`, each record it writes is told as a
@@ -139,7 +151,7 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
     writeFileSync(`${file}.new`, JSON.stringify(value));
     renameSync(`${file}.new`, file);
   }
-  const answer = { told: [], refused: [] };
+  const answer = { told: [], refused: [], not_started: [] };
   /** One door operation `method` with `input`: the response and the call's result. */
   // A JSON-RPC error (the door refusing the call itself, such as a request key over its bound) is a refusal, never an
   // empty success, or an occurrence the engine never took would be kept as told.
@@ -154,6 +166,12 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
       say(JSON.stringify({ refused: fact.kind, event_id: fact.event_id, why }));
       answer.refused.push({ ...fact, why });
       throw refusedFact(why, result.structuredContent?.code);
+    }
+    const notStarted = notStartedWhy(result.structuredContent);
+    if (notStarted) {
+      say(JSON.stringify({ told: fact.kind, event_id: fact.event_id, not_started: notStarted }));
+      answer.not_started.push({ ...fact, why: notStarted });
+      return;
     }
     say(JSON.stringify({ told: fact.kind, event_id: fact.event_id }));
     answer.told.push(fact);

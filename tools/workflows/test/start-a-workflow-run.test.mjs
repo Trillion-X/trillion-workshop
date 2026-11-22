@@ -63,3 +63,15 @@ test('two starts make two different event ids', async () => {
   const b = await start(fakeDoor());
   assert.notEqual(a.event_id, b.event_id);
 });
+
+test('a start no wake that is on hears is said as not started, with the wakes of its kind', async () => {
+  const fake = fakeDoor({ arrive: { kept: false, heard_by: 0, starts: 'nothing: no wake that is on hears it',
+    not_heard: { why: 'no_wake_hears', wakes_of_its_kind: [{ tool: 'tool:run-a-workflow', id: 'a-workflow-was-chosen', from: ['run'], switched_on: true }] } } });
+  await assert.rejects(start(fake), /no wake that is on hears workflow-chosen-from-rows; its wakes: tool:run-a-workflow a-workflow-was-chosen \(hears run, on\); the run was not started/);
+  assert.equal(fake.sent().length, 1);
+});
+
+test('a start a wake hears answers how many heard it', async () => {
+  const started = await start(fakeDoor());
+  assert.equal(started.heard_by, 1);
+});

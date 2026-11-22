@@ -25,3 +25,21 @@ test('the carrier\'s write of a record the door has no room for throws room full
   await assert.rejects(carrier.writeRecord({ addressLabel: 'where::something-changed', waiterRef: 'waiter:rows', pathLabels: [], payload: {}, eventKey: 'db:1:2' }),
     error => error.roomFull === true);
 });
+
+// A fact the engine answers kept false (no wake that is on hears it; trillion-rust 76424ef55) is no refusal: the teller does
+// not tell it again, and says it started nothing, naming the wakes of its kind.
+const unheard = async () => new Response(JSON.stringify({ result: { isError: false, structuredContent: { kept: false, heard_by: 0,
+  starts: 'nothing: no wake that is on hears it', not_heard: { why: 'no_wake_hears', wakes_of_its_kind: [{ tool: 'tool:a', id: 'w', from: ['run'], switched_on: true }] } } } }), { status: 200 });
+
+test('a fact no wake that is on hears is said as not started, never refused', async () => {
+  const told = await arriveOverDoor(door, { kind: 'k', from: 'x', event_id: 'e3', payload: {} }, { fetchImpl: unheard });
+  assert.equal(told.not_started, 'no_wake_hears: tool:a w (hears run, on)');
+  const waiter = { kind: 'notice-when-something-shows-up.waiter-descriptor', id: 'waiter:rows', is_active: true,
+    emitted_record: { change_kind: 'something-changed', address_label: 'where::something-changed', path_labels: [], payload_fields: [] } };
+  const said = [];
+  const carrier = engineCarrier({ door, waiters: [waiter], fetchImpl: unheard, say: line => said.push(JSON.parse(line)) });
+  await carrier.writeRecord({ addressLabel: 'where::something-changed', waiterRef: 'waiter:rows', pathLabels: [], payload: {}, eventKey: 'db:1:3' });
+  assert.equal(carrier.answer.told.length, 0);
+  assert.equal(carrier.answer.not_started.length, 1);
+  assert.match(said.at(-1).not_started, /no_wake_hears/);
+});
