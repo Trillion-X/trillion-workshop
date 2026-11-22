@@ -65,6 +65,7 @@ import { isFeedPiece } from '../../../../record-audio/do-work/always-recording';
 import { deviceAccount, PlanNeeded, postJson, readFileJson, readJson } from './api';
 import { runWorkshopTool } from './workshop-tool-api';
 import failureWords from './failure-words.json' with { type: 'json' };
+import transcriptWords from '../../../read-data/transcript-words.json';
 import { planNeededTitle, refusal, reasonOf } from './failure';
 import { goTo } from './open-screen';
 import { useWorkspacePreference, writeWorkspacePreference } from './records';
@@ -977,7 +978,9 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
           <React.Suspense fallback={null}>
             <FilePreview url={made.url} contentType={made.file.type} label={made.file.name} />
           </React.Suspense>
-          {saving.state === 'saved' ? (
+          {saving.state === 'saved' && !saving.kept.words.trim() ? (
+            <ScreenState state={{ status: 'empty', icon: 'Mic', title: transcriptWords.empty.title, description: transcriptWords.empty.description }} />
+          ) : saving.state === 'saved' ? (
             // The words keep the whole width after Done too; copying them is the same small mark in the corner.
             <Container position="relative" width="full">
               <Textarea

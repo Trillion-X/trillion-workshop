@@ -1,0 +1,7 @@
+{
+  "_what": "The words the Record screen shows when a recording's transcript is empty: nothing was heard that could be kept as words (DATA, read by web/src/workspace/record-screen.tsx). The recording itself is still kept in Files.",
+  "empty": {
+    "title": "No words were heard",
+    "description": "Nothing said in this recording could be kept as words. The recording itself is still in your Files."
+  }
+}
