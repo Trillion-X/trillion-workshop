@@ -1,4 +1,4 @@
-// The paste action (read-data/drive-the-screen.json `paste`, event run by read-data/screen-driver.swift): the text goes through a
+// The paste action (read-data/drive-the-screen.json `paste`, event run by read-data/screen-driver.js): the text goes through a
 // promised clipboard item, so the answer says whether the app really read it; a secret reference works as for type.
 import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
@@ -43,8 +43,8 @@ test('a paste the app never read is a refused dispatch naming it, and a secret r
   assert.equal(JSON.stringify(done).includes('hunter2-long'), false);
 });
 
-test('the Swift driver knows the paste event and keeps the focus check for it', () => {
-  const swift = readFileSync(new URL('../read-data/screen-driver.swift', import.meta.url), 'utf8');
-  assert.match(swift, /case "paste":/);
-  assert.match(swift, /"text", "paste", "ax_action"/);
+test('the driver program knows the paste event and keeps the focus check for it', () => {
+  const source = readFileSync(new URL('../read-data/screen-driver.js', import.meta.url), 'utf8');
+  assert.match(source, /case 'paste': {/);
+  assert.match(source, /'text', 'paste', 'ax_action'/);
 });

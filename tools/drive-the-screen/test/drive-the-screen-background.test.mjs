@@ -1,6 +1,6 @@
 // test/drive-the-screen-background.test.mjs
 //
-// Working in the background on this Mac (read-data/drive-the-screen.mjs, read-data/screen-driver.swift) on a pretend Mac:
+// Working in the background on this Mac (read-data/drive-the-screen.mjs, read-data/screen-driver.js) on a pretend Mac:
 // a background drive posts input to the process and never brings it forward; a foreground drive is unchanged.
 import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';

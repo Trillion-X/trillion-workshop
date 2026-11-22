@@ -11,7 +11,7 @@
 //   1. Blind: this file names no app, control, coordinate or flow. What an action is, how a screen element becomes
 //      comparable, how candidates rank, the limits, the key table and every word are ./drive-the-screen.json.
 //      A new action is a new row there (its steps are the operating system's input primitives that
-//      ./screen-driver.swift runs); nothing here is a list of actions.
+//      ./screen-driver.js runs); nothing here is a list of actions.
 //   2. Out of the box the screen is driven with no grant: a limit we impose by default never stops the person's work.
 //      The grant gate is a flippable policy (`consent.require_grant` in the DATA, default false). When the person turns
 //      it on, it is a floor the call cannot move: reading the screen and each action need an unexpired grant for that
@@ -423,7 +423,7 @@ export function masked(value, secrets, mask) {
 
 /** The tools, over the programs that touch the Mac, so tests hold a pretend one. */
 export function makeScreenDriver({ settings = screenSettings(), home = homedir(), now = () => Date.now(),
-  program = request => run(settings.driver.program, [join(HERE, settings.driver.script)], { input: JSON.stringify(request), timeout: settings.limits.program_timeout_ms }).then(value => JSON.parse(value)),
+  program = request => run(settings.driver.program, [...(settings.driver.arguments ?? []), join(HERE, settings.driver.script)], { input: JSON.stringify(request), timeout: settings.limits.program_timeout_ms }).then(value => JSON.parse(value)),
   capture = async () => {
     const folder = await mkdtemp(join(tmpdir(), 'trillion-screen-'));
     try {

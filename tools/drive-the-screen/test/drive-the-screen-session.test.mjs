@@ -1,7 +1,7 @@
 // test/drive-the-screen-session.test.mjs
 // The screen driver and the session it acts in (F-0188, F-0239, F-0206): a locked screen waits for the person and is
 // never unlocked, a host the app no longer owns refuses with a typed state, the person's stop key ends a drive, and the
-// real Swift program reports what it watches.
+// real driver program reports what it watches.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -53,17 +53,22 @@ test('the driver is told the stop key; a drive the person stopped says stop and 
   assert.deepEqual(act.stop, { enabled: true, key_code: 53, marker: 7210 });
 });
 
-test('the real Swift program reports the lock state, watches the stop key and puts back what it un-hid', { skip: process.platform !== 'darwin' }, () => {
-  const run = request => JSON.parse(execFileSync('/usr/bin/swift', [new URL('../read-data/screen-driver.swift', import.meta.url).pathname], { input: JSON.stringify(request), stdio: ['pipe', 'pipe', 'ignore'], encoding: 'utf8' }));
+test('the real driver program reports the lock state, watches the stop key and puts back what it un-hid', { skip: process.platform !== 'darwin' }, () => {
+  const run = request => JSON.parse(execFileSync('/usr/bin/osascript', ['-l', 'JavaScript', new URL('../read-data/screen-driver.js', import.meta.url).pathname], { input: JSON.stringify(request), stdio: ['pipe', 'pipe', 'ignore'], encoding: 'utf8' }));
   const read = run({ command: 'read', max_nodes: 0 });
   assert.equal(typeof read.readiness.screen_locked, 'boolean');
   const acted = run({ command: 'act', pid: 99999, events: [{ event: 'pause', ms: 1 }], stop: { enabled: true, key_code: 53, marker: 7210 } });
-  assert.equal(acted.completed, true);
-  assert.deepEqual(acted.rehidden, []);
-  assert.deepEqual(acted.released, [], 'a run that pressed nothing lets go of nothing');
+  if (read.readiness.screen_locked) {
+    // A locked screen takes no input: the program refuses before any event, in a field of its own.
+    assert.deepEqual(acted, { events: [], completed: false, refused: 'screen_locked' });
+  } else {
+    assert.equal(acted.completed, true);
+    assert.deepEqual(acted.rehidden, []);
+    assert.deepEqual(acted.released, [], 'a run that pressed nothing lets go of nothing');
+  }
   console.log('readback real driver:', JSON.stringify({ readiness: read.readiness, stop_key_watched: acted.stop_key_watched }));
-  const source = readFileSync(new URL('../read-data/screen-driver.swift', import.meta.url), 'utf8');
-  assert.match(source, /setIntegerValueField\(\.eventSourceUserData, value: stopMarker\)/, 'every posted event carries the marker');
+  const source = readFileSync(new URL('../read-data/screen-driver.js', import.meta.url), 'utf8');
+  assert.match(source, /CGEventSetIntegerValueField\(made, FIELD_SOURCE_USER_DATA, stopMarker\)/, 'every posted event carries the marker');
 });
 
 test('a button the drive still held when it ended was let go, and the answer says so, ended early or not', async () => {
@@ -76,6 +81,6 @@ test('a button the drive still held when it ended was let go, and the answer say
   const finished = mac({ act: request => ({ events: request.events.map(event => ({ event: event.event, ok: true, detail: '' })), completed: true, released: ['left'] }) });
   const answer = await driverOn(finished).drive({ action: 'press', target: 'Go' });
   assert.match(answer.said, /The left mouse button the drive still held when it ended was let go/);
-  const source = readFileSync(new URL('../read-data/screen-driver.swift', import.meta.url), 'utf8');
-  assert.match(source, /for \(button, at\) in pressed\.sorted/, 'the program lets go of every button it still holds before it answers');
+  const source = readFileSync(new URL('../read-data/screen-driver.js', import.meta.url), 'utf8');
+  assert.match(source, /for \(const button of Object\.keys\(pressed\)\.sort\(\)\)/, 'the program lets go of every button it still holds before it answers');
 });

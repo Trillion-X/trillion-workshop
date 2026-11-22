@@ -1,6 +1,6 @@
 // test/screen-driving-adoption.test.mjs
 //
-// What the findings on a screen-pointing assistant, an AI browser and a launcher added to the screen driver (read-data/drive-the-screen.mjs, screen-driver.swift):
+// What the findings on a screen-pointing assistant, an AI browser and a launcher added to the screen driver (read-data/drive-the-screen.mjs, screen-driver.js):
 // a guidance-only `point` action and a visible caption before each action (F-0404, F-0411), keys posted straight to a
 // background app (F-0403), the person's corner failsafe (F-0407), Secure Input named when it may have eaten the keys
 // (F-0350), and a refusal that says whether the same call may be tried again (F-0594). The last tests run the REAL native
@@ -84,23 +84,26 @@ test('a refusal says whether the same call may be tried again, and the Mac host 
 });
 
 test('the real native program reports Secure Input beside the readiness, and a failsafe stops a run before any event is posted', { skip: process.platform !== 'darwin' }, async () => {
-  const swift = new URL('../read-data/screen-driver.swift', import.meta.url).pathname;
-  const read = JSON.parse(await run('/usr/bin/swift', [swift], { input: JSON.stringify({ command: 'read', max_nodes: 0 }), timeout: 60_000 }));
+  const driver = ['-l', 'JavaScript', new URL('../read-data/screen-driver.js', import.meta.url).pathname];
+  const read = JSON.parse(await run('/usr/bin/osascript', driver, { input: JSON.stringify({ command: 'read', max_nodes: 0 }), timeout: 60_000 }));
   assert.equal(typeof read.secure_input.enabled, 'boolean');
-  const stopped = JSON.parse(await run('/usr/bin/swift', [swift], {
+  const stopped = JSON.parse(await run('/usr/bin/osascript', driver, {
     input: JSON.stringify({ command: 'act', pid: process.pid, failsafe: { corner_px: 1e9 }, events: [{ event: 'mouse_move', deliver: 'app', x: 5, y: 5 }] }), timeout: 60_000 }));
   assert.equal(stopped.completed, false);
+  // A locked screen takes no input at all: the program refuses before the failsafe is even read.
+  if (read.readiness.screen_locked) { assert.equal(stopped.refused, 'screen_locked'); return; }
   assert.equal(stopped.events[0].code, 'failsafe');
-  const gone = JSON.parse(await run('/usr/bin/swift', [swift], {
+  const gone = JSON.parse(await run('/usr/bin/osascript', driver, {
     input: JSON.stringify({ command: 'act', pid: 2147483647, events: [{ event: 'chord', deliver: 'app', keys: [1], modifiers: ['command'] }] }), timeout: 60_000 }));
   assert.equal(gone.completed, false);
   assert.match(gone.events[0].detail, /no longer running/);
 });
 
 test('the real native program shows a caption window that takes no focus and ends', { skip: process.platform !== 'darwin' }, async () => {
-  const swift = new URL('../read-data/screen-driver.swift', import.meta.url).pathname;
-  const shown = JSON.parse(await run('/usr/bin/swift', [swift], {
+  const driver = ['-l', 'JavaScript', new URL('../read-data/screen-driver.js', import.meta.url).pathname];
+  const shown = JSON.parse(await run('/usr/bin/osascript', driver, {
     input: JSON.stringify({ command: 'act', pid: process.pid, events: [{ event: 'caption', x: 300, y: 300, text: 'Trillion screen-driving test', ms: 300 }] }), timeout: 60_000 }));
+  if (shown.refused === 'screen_locked') { assert.deepEqual(shown, { events: [], completed: false, refused: 'screen_locked' }); return; }
   assert.equal(shown.completed, true);
   assert.deepEqual(shown.events, [{ event: 'caption', ok: true, detail: '' }]);
   assert.equal(shown.secure_input, undefined, 'a caption types nothing');
