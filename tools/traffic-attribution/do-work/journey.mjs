@@ -49,9 +49,12 @@ function cookieString(visitor, cookie) {
   ].filter(Boolean).join('; ');
 }
 
-/** Whether the site's consent cookie (read-data/consent.json) says analytics consent was granted. No cookie, or a denial, is no consent. */
-export function consentGrantedOf(cookieHeader) {
-  return cookieValue(cookieHeader, consentSettings.cookie_name) === consentSettings.granted;
+/**
+ * Whether the site's consent cookie says analytics consent was granted. The caller names the cookie (a site's own consent DATA);
+ * without a name the default in read-data/consent.json applies. No cookie, or a denial, is no consent.
+ */
+export function consentGrantedOf(cookieHeader, cookieName = consentSettings.cookie_name) {
+  return cookieValue(cookieHeader, cookieName) === consentSettings.granted;
 }
 
 /**
@@ -59,7 +62,7 @@ export function consentGrantedOf(cookieHeader) {
  * Without consent (consentGrantedOf: the site's consent cookie, read-data/consent.json) there is no id and no cookie:
  * { visitor: null, setCookie: null }. The caller may pass consent to decide it instead.
  */
-export function visitorOf(cookieHeader, cookie = settings.cookie, { consent = consentGrantedOf(cookieHeader) } = {}) {
+export function visitorOf(cookieHeader, cookie = settings.cookie, { consentCookieName = consentSettings.cookie_name, consent = consentGrantedOf(cookieHeader, consentCookieName) } = {}) {
   if (!consent) return { visitor: null, setCookie: null };
   const kept = cookieValue(cookieHeader, cookie.name);
   if (kept && COOKIE_VALUE.test(kept)) return { visitor: kept, setCookie: null };
@@ -109,7 +112,7 @@ export async function keepStep(query, step) {
  * touch cannot be read (the database is unreachable). The click step is best effort: a failed write never holds the visitor
  * back. The visitor is `visitor` when given, else the cookie's, and only with consent (none otherwise, and no cookie is set).
  */
-export async function goRedirect(query, touchId, { visitor, cookieHeader, refererHeader, cookie = settings.cookie, consent = consentGrantedOf(cookieHeader) } = {}) {
+export async function goRedirect(query, touchId, { visitor, cookieHeader, refererHeader, cookie = settings.cookie, consentCookieName = consentSettings.cookie_name, consent = consentGrantedOf(cookieHeader, consentCookieName) } = {}) {
   let found;
   try {
     found = (await query('SELECT id, destination, source FROM journey_touches WHERE id = $1', [touchId])).rows[0];
@@ -136,7 +139,7 @@ export async function goRedirect(query, touchId, { visitor, cookieHeader, refere
  * site's own origin and answers 204. A foreign origin, an unreadable or oversized body, or a failed write keeps nothing and
  * still answers 204. Without consent the visit keeps its touch id only.
  */
-export async function visitBeacon(query, { cookieHeader, body, siteOrigin, refererHeader, cookie = settings.cookie, consent = consentGrantedOf(cookieHeader) } = {}) {
+export async function visitBeacon(query, { cookieHeader, body, siteOrigin, refererHeader, cookie = settings.cookie, consentCookieName = consentSettings.cookie_name, consent = consentGrantedOf(cookieHeader, consentCookieName) } = {}) {
   const none = { status: 204, setCookie: null };
   if (typeof body !== 'string' || Buffer.byteLength(body) > settings.beacon.max_bytes) return none;
   let address;

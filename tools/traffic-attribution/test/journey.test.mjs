@@ -247,3 +247,12 @@ test('the site consent cookie decides consent: granted keeps the visitor, denied
   assert.deepEqual(visitorOf('site_consent=denied'), { visitor: null, setCookie: null });
 });
 
+
+test('a site names its own consent cookie (its DATA); without a name the default cookie is read', () => {
+  assert.equal(consentGrantedOf('partner_consent=granted', 'partner_consent'), true);
+  assert.equal(consentGrantedOf('partner_consent=denied', 'partner_consent'), false);
+  assert.equal(consentGrantedOf('site_consent=granted', 'partner_consent'), false);
+  assert.equal(consentGrantedOf('partner_consent=granted'), false);
+  assert.notEqual(visitorOf('partner_consent=granted', undefined, { consentCookieName: 'partner_consent' }).visitor, null);
+  assert.deepEqual(visitorOf('partner_consent=denied', undefined, { consentCookieName: 'partner_consent' }), { visitor: null, setCookie: null });
+});
