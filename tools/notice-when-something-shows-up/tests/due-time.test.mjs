@@ -9,6 +9,7 @@
 import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import assert from 'node:assert/strict';
 
+import { EventEmitter } from 'node:events';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -228,4 +229,41 @@ test('kept rows that name nothing, a malformed cadence, a failed read and a name
   assert.deepEqual(flaky.told.map((fact) => fact.detail.start.slice(11, 16)), ['10:10'], 'a failed read keeps what the last read found');
   assert.throws(() => readSettings({ from_rows: { table: 'workflow_recipes; drop table x' } }), /not a plain name/);
   assert.notEqual(readSettings({ from_rows: {} }), null, 'from_rows alone is something to wait for');
+});
+
+test('a connection lost between reads is opened again at the next read, said once, and never ends the waiter', async () => {
+  // Nov 22 2026, 2:02 to 2:48 AM CST on the Mac: the run proxy's tunnel closed while the waiter slept; pg emitted 'error'
+  // with no listener and the session crashed 8 times. A pg client is an EventEmitter: an 'error' no one hears throws.
+  let now = Date.parse('2026-11-21T10:00:30Z');
+  const jumps = ['2026-11-21T10:05:00Z', '2026-11-21T10:10:00Z', '2026-11-21T10:15:00Z', '2026-11-21T10:20:00Z'];
+  const told = [];
+  const said = [];
+  const clients = [];
+  const controller = new AbortController();
+  await watchForTransitions({ from_rows: {}, look_again_seconds: 60 }, {
+    signal: controller.signal,
+    nowMs: () => now,
+    sleep: async () => {
+      if (clients.length === 1 && now === Date.parse('2026-11-21T10:05:00Z')) clients[0].emit('error', new Error('Connection terminated unexpectedly'));
+      if (jumps.length === 0) controller.abort();
+      else now = Date.parse(jumps.shift());
+    },
+    say: (line) => said.push(line),
+    connection: 'postgres://stand-in',
+    connect: async () => {
+      const client = Object.assign(new EventEmitter(), { ended: false });
+      client.query = async () => {
+        if (client.ended) throw new Error('Client was closed and is not queryable');
+        return { rows: [{ wake: kept('a', { unit: 'minute', interval: 10 }) }] };
+      };
+      client.end = async () => { client.ended = true; };
+      clients.push(client);
+      return client;
+    },
+    onTransition: async (transition) => { told.push(transition); return true; },
+  });
+  assert.equal(clients.length, 2, 'the lost connection is let go and one new one is opened');
+  assert.ok(clients[0].ended, 'the lost one is ended');
+  assert.deepEqual(said.filter((line) => /connection was lost: Connection terminated unexpectedly/.test(line)).length, 1, `said once: ${said}`);
+  assert.deepEqual(told.map((fact) => fact.detail.start.slice(11, 16)), ['10:10', '10:20'], 'every time after the loss is still told');
 });

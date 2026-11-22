@@ -215,12 +215,23 @@ export async function watchForTransitions(settings, handlers) {
   let listeners = [];
   let rowWakes = [];
   // The kept rows' own database, opened once with the waiter's own credential (`from_rows`); a read that fails keeps the
-  // wakes the last read found, and is said once.
+  // wakes the last read found, and is said once. A connection lost between reads is let go and opened again at the next
+  // read: unheard, pg's 'error' ends the process. Nov 22 2026, 2:02 to 2:48 AM CST on the Mac: the run proxy's tunnel
+  // closed while the waiter slept, "Connection terminated unexpectedly" went unhandled, and its session crashed 8 times.
   let rowsClient = null;
+  const letGoRows = (client) => {
+    if (rowsClient === client) rowsClient = null;
+    Promise.resolve(client?.end?.()).catch(() => {});
+  };
   const readRows = async () => {
     if (rowsClient === null) {
       const connection = handlers.connection ?? readGivenCredential(handlers, 4);
-      rowsClient = await (handlers.connect ?? connectWithPg)(connection);
+      const client = await (handlers.connect ?? connectWithPg)(connection);
+      client.on?.("error", (error) => {
+        letGoRows(client);
+        tellOnce(`due-time: the kept rows' connection was lost: ${error?.message ?? error}`);
+      });
+      rowsClient = client;
     }
     return keptWakes(rowsClient, own.from_rows);
   };
@@ -237,7 +248,7 @@ export async function watchForTransitions(settings, handlers) {
       try {
         rowWakes = await readRows();
       } catch (error) {
-        rowsClient = null;
+        letGoRows(rowsClient);
         tellOnce(`due-time: the kept rows could not be read: ${error?.message ?? error}`);
       }
     }
