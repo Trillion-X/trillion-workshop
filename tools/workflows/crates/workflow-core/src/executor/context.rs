@@ -460,6 +460,21 @@ impl BindingResolver {
     /// Value of 32 is generous for any real workflow; production graphs rarely exceed 5.
     const MAX_BINDING_DEPTH: u32 = 32;
 
+    /// The scope and path a binding's `select` reads (`loop.last_output.held`) when what it selects is absent or null,
+    /// before any transform: a condition that reads nothing names it rather than coming to false. None for a value
+    /// that is no select binding, or one whose selection holds something.
+    pub fn unresolved_select(value: &Value, ctx: &ExecutionContext) -> Result<Option<String>, WorkflowError> {
+        let Some(select) = value.as_object()
+            .filter(|map| map.get("$kind").and_then(Value::as_str) == Some("binding"))
+            .and_then(|map| map.get("select")).and_then(Value::as_object) else { return Ok(None) };
+        let from = select.get("from").and_then(Value::as_str).unwrap_or_default();
+        let key = select.get("key").and_then(Value::as_str).unwrap_or_default();
+        let path = select.get("path").and_then(Value::as_str).unwrap_or_default();
+        let selected = Self::resolve_select_binding(ctx, from, key, path)?;
+        let named = [from, key, path].into_iter().filter(|part| !part.is_empty()).collect::<Vec<_>>().join(".");
+        Ok(selected.is_null().then_some(named))
+    }
+
     pub fn resolve_value(value: &Value, ctx: &ExecutionContext) -> Result<Value, WorkflowError> {
         Self::resolve_value_recursive(value, ctx, 0, false)
     }
@@ -1037,6 +1052,7 @@ impl BindingResolver {
                 &serde_json::Value::Bool(loop_state.last),
                 &segments[1..],
             )),
+            "last_output" => Ok(Self::select_json_path(ctx, &loop_state.last_output, &segments[1..])),
             item_key if item_key == loop_state.item_var => Ok(Self::select_json_path(
                 ctx,
                 &loop_state.item,
@@ -1049,7 +1065,7 @@ impl BindingResolver {
             other => Err(Self::unknown_scope_member(
                 "loop",
                 other,
-                &format!("index, total, first, last, {}", loop_state.item_var),
+                &format!("index, total, first, last, last_output, {}", loop_state.item_var),
             )),
         }
     }
@@ -1773,6 +1789,18 @@ mod tests {
         ctx
     }
 
+    #[test]
+    fn a_loop_reads_what_its_body_last_returned_and_names_an_empty_read() {
+        let ctx = test_context_with_loop();
+        let held = json!({"$kind": "binding", "select": {"from": "loop", "path": "last_output.held"}});
+        assert_eq!(BindingResolver::resolve_value(&held, &ctx).unwrap(), json!(false));
+        assert_eq!(BindingResolver::unresolved_select(&held, &ctx).unwrap(), None);
+        let missing = json!({"$kind": "binding", "select": {"from": "loop", "path": "last_output.nothing"},
+            "transform": [{"op": "op:core.not"}]});
+        assert_eq!(BindingResolver::unresolved_select(&missing, &ctx).unwrap().as_deref(), Some("loop.last_output.nothing"));
+        assert_eq!(BindingResolver::unresolved_select(&json!(true), &ctx).unwrap(), None, "a literal is no select");
+    }
+
     fn test_context_with_loop() -> ExecutionContext {
         let mut ctx = test_context();
         ctx.loop_state = Some(LoopState {
@@ -1782,6 +1810,7 @@ mod tests {
             total: 5,
             first: false,
             last: false,
+            last_output: json!({"held": false}),
         });
         ctx
     }

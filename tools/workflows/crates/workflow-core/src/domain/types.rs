@@ -1445,6 +1445,10 @@ pub struct LoopState {
     pub first: bool,
     /// Whether this is the last item
     pub last: bool,
+    /// What the previous pass of a do-while body returned (null before the first, and in for-each loops), so the
+    /// loop's condition can read what the body just said (`loop.last_output.held`).
+    #[serde(default)]
+    pub last_output: Value,
 }
 
 // ============================================================================

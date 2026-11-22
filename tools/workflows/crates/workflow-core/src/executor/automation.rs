@@ -1858,6 +1858,7 @@ async fn execute_loop_step(
                 total: t,
                 first: i == 0,
                 last: false, // do-while: last is unknown until condition becomes falsy
+                last_output: do_while_outputs.last().cloned().unwrap_or(Value::Null),
             });
 
             let iter_step_id = format!("{}{}{}", step_id, STEP_SUFFIX_ITER, iteration);
@@ -1873,11 +1874,36 @@ async fn execute_loop_step(
             } else {
                 do_while_outputs.push(Value::Null);
             }
+            // The condition reads what this pass returned as `loop.last_output`.
+            if let Some(state) = exec_ctx.loop_state.as_mut() {
+                state.last_output = do_while_outputs.last().cloned().unwrap_or(Value::Null);
+            }
 
             iteration += 1;
 
-            // Evaluate condition AFTER body — loop continues while truthy
+            // Evaluate condition AFTER body — loop continues while truthy. A condition that
+            // reads nothing (its selected path is absent or null, or it comes to null) is an
+            // error naming the path, never a quiet false that ends the loop after one pass.
+            if let Some(path) = BindingResolver::unresolved_select(condition_value, exec_ctx)? {
+                return Err(WorkflowError::LoopExecutionFailed {
+                    step_id: step_id.clone(),
+                    reason: format!(
+                        "Step '{}': the loop condition reads {}, which holds nothing after pass {}",
+                        step_id, path, iteration
+                    ),
+                    hint: "Read what the body returned through loop.last_output (e.g. loop.last_output.held), \
+                           or a step output the body writes"
+                        .to_string(),
+                });
+            }
             let resolved_condition = BindingResolver::resolve_value(condition_value, exec_ctx)?;
+            if resolved_condition.is_null() {
+                return Err(WorkflowError::LoopExecutionFailed {
+                    step_id: step_id.clone(),
+                    reason: format!("Step '{}': the loop condition came to null after pass {}", step_id, iteration),
+                    hint: "A do-while condition must come to a value; read loop.last_output".to_string(),
+                });
+            }
             if !is_truthy(&resolved_condition) {
                 break;
             }
@@ -1974,6 +2000,7 @@ async fn execute_loop_body_sequential(
             total: t,
             first: i == 0,
             last: i == t - 1,
+            last_output: Value::Null,
         });
 
         // If step has an definition_id, execute it as an action step for each iteration
@@ -2100,6 +2127,7 @@ async fn execute_loop_body_parallel(
                     total: t,
                     first: i == 0,
                     last: i == t - 1,
+                    last_output: Value::Null,
                 });
 
                 async move {
@@ -3854,6 +3882,43 @@ mod tests {
 
         assert_eq!(instance.status, ExecutionStatus::Completed);
         assert_eq!(instance.execution_context.steps["release"].output.as_array().unwrap().len(), 2);
+    }
+
+    // A do-while condition reads what its body just returned (`loop.last_output`), so it repeats until the body says
+    // held; a condition that reads nothing fails naming its path instead of ending the loop after one pass.
+    #[tokio::test]
+    async fn do_while_repeats_until_the_body_says_held_and_an_empty_read_fails_loud() {
+        let run = |condition: Value| async move {
+            let mut store = TestDefinitionStore::new();
+            store.register(make_action("try-once", vec![Step::return_value(json!({
+                "held": {"$kind":"binding","select":{"from":"loop","path":"index"},
+                    "transform":[{"op":"op:core.lt","args":{"value":2}},{"op":"op:core.not"}]}
+            })).with_id("answer")]));
+            let mut retry = Step::loop_step(json!({
+                "definition_id": "try-once",
+                "condition": condition,
+                "item_var": "attempt",
+                "max_iterations": 5
+            }));
+            retry.id = "retry".into();
+            store.register(make_workflow("wf-retry", vec![retry]));
+            make_executor_with_store(store)
+                .execute_workflow("wf-retry", StartData { start_type: "test_event".into(), input: json!({}),
+                    started_at: "2026-11-21T00:00:00Z".into(), start_id: None }, make_actor(), &RetryPolicy::default())
+                .await
+                .expect("failures are returned as failed instances")
+        };
+        let held = run(json!({"$kind":"binding","select":{"from":"loop","path":"last_output.held"},
+            "transform":[{"op":"op:core.not"}]})).await;
+        assert_eq!(held.status, ExecutionStatus::Completed, "{:?}", held.error_message);
+        let passes = held.execution_context.steps["retry"].output.as_array().unwrap().clone();
+        assert_eq!(passes.len(), 3, "two not-held passes, then held: {passes:?}");
+        assert_eq!(passes[2]["held"], json!(true));
+        let empty = run(json!({"$kind":"binding","select":{"from":"loop","path":"last_output.no_such"},
+            "transform":[{"op":"op:core.not"}]})).await;
+        assert_eq!(empty.status, ExecutionStatus::Failed);
+        let why = empty.error_message.unwrap_or_default();
+        assert!(why.contains("loop.last_output.no_such"), "{why}");
     }
 
     struct WaitBindingAccess(Mutex<Vec<(Value, Value)>>);
