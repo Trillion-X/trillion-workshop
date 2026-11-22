@@ -256,7 +256,7 @@ export async function readPrice({ request, provider, placement = {} }) {
  * changed in place and powered on, each action awaited within the row's bounds. The power-on is asked for once the power-off is
  * (even after a failure), and an error says what the machine reads back as. `keep_disk` must be true: a disk upgrade cannot be
  * undone. Answers { from, to, price_from, price_to, off_at, on_at, seconds_down, status }. */
-export async function resizeMachine({ request, store, provider, size, keep_disk = true, wait = pause, now = Date.now }) {
+export async function resizeMachine({ request, store, provider, size, keep_disk = true, dry_run = false, wait = pause, now = Date.now }) {
   const lease = await readLease(store), row = provider ?? readProvider(lease.providerFile), r = row.resize;
   if (!row.base || !r) throw new Error(`The ${row.name} description has no resize job, so it cannot change a machine's size.`);
   if (!Number.isSafeInteger(r.tries) || !Number.isSafeInteger(r.every_ms)) throw new Error(`The ${row.name} resize job needs whole-number tries and every_ms.`);
@@ -278,6 +278,8 @@ export async function resizeMachine({ request, store, provider, size, keep_disk 
   const location = lease.location;
   const price_from = await readPrice({ request, provider: row, placement: { size: before.type, location } });
   const price_to = await readPrice({ request, provider: row, placement: { size, location } });
+  // A dry run stops here: nothing is powered off or changed, and the answer is what the resize would read.
+  if (dry_run) return { dry_run: true, from: before.type, to: size, price_from, price_to, status: before.status };
   // Each step is asked (its action id answered), then its action is polled: at most `tries` polls after the first, `every_ms` apart.
   const act = async (name, extra) => at(await ask(request, row, r.steps, name, { ...ctx, ...extra }, id), r.action_at);
   const awaitAction = async actionId => {

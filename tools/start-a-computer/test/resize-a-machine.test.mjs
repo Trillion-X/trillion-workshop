@@ -79,6 +79,18 @@ test('a resize prices both sizes, powers off, changes the type keeping the disk,
   assert.equal((await store.read()).serverType, 'cx33');
 });
 
+test('a dry run reads both prices and the machine, and changes nothing: no power-off, no type change, lease kept', async () => {
+  const fake = machine(), store = await leaseIn(folder());
+  const answer = await resizing(fake, store, { dry_run: true });
+  assert.deepEqual(answer, { dry_run: true, from: 'cx23', to: 'cx33', price_from: { cents: 451, currency: 'EUR' }, price_to: { cents: 712, currency: 'EUR' }, status: 'running' });
+  assert.deepEqual(fake.state.calls, ['GET /servers/1234', 'GET /server_types?name=cx23', 'GET /server_types?name=cx33']);
+  assert.equal((await store.read()).serverType, 'cx23');
+});
+
+test('a dry run of a machine already at the size answers unchanged', async () => {
+  assert.deepEqual(await resizing(machine({ type: 'cx33' }), await leaseIn(folder()), { dry_run: true }), { unchanged: true, from: 'cx33', to: 'cx33' });
+});
+
 test('a machine already at the size answers unchanged and nothing is powered off', async () => {
   const fake = machine({ type: 'cx33' });
   assert.deepEqual(await resizing(fake, await leaseIn(folder())), { unchanged: true, from: 'cx33', to: 'cx33' });
