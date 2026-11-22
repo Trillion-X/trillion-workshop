@@ -182,12 +182,23 @@ export async function watchForTransitions(settings, handlers) {
   const keepState = handlers.keepState ?? (async () => {});
   const credential = handlers.credential ?? readGivenCredential(handlers, own.credential_fd);
   let state = handlers.state?.seen ? handlers.state : null;
+  const now = () => handlers.now?.() ?? Date.now();
+  const wait = (ms) => new Promise((resolve) => {
+    if (ms <= 0 || signal?.aborted) return resolve();
+    const timer = setTimeout(resolve, ms);
+    signal?.addEventListener("abort", () => { clearTimeout(timer); resolve(); }, { once: true });
+  });
   try {
+    // A run the engine starts again (its wake's time budget ended) keeps the state of the last run, read_at included:
+    // the next read waits out the rest of look_again_seconds instead of reading at once. On Nov 21 2026 seven treg
+    // waiters with look_again_seconds 1800 read about every 15 minutes, once per restart, at twice the intended cost.
+    if (Number.isFinite(state?.read_at)) await wait(state.read_at + own.look_again_ms - now());
     while (!signal?.aborted) {
       const { items, whole } = await readList(own, credential, handlers.fetch ?? fetch);
-      const readAt = new Date(handlers.now?.() ?? Date.now());
+      const readAt = new Date(now());
+      const read_at = readAt.getTime();
       if (state === null && !own.tell_what_is_there_at_first) {
-        state = { seen: compare({ own, seen: {}, items, whole: false, readAt }).now };
+        state = { seen: compare({ own, seen: {}, items, whole: false, readAt }).now, read_at };
         await keepState(state);
       } else {
         const seen = { ...(state?.seen ?? {}) };
@@ -197,18 +208,15 @@ export async function watchForTransitions(settings, handlers) {
           const next = { ...seen };
           if (one.print === null) delete next[one.key]; else next[one.key] = one.print;
           const told = await handlers.onTransition({ condition: "became-reachable", observed_identity: { where: own.where, place: one.detail.place },
-            event_key: `${own.where}:${one.detail.place}:${one.key}:${one.detail.change}:${one.print ?? one.detail.at}`, state: { seen: next }, detail: one.detail });
+            event_key: `${own.where}:${one.detail.place}:${one.key}:${one.detail.change}:${one.print ?? one.detail.at}`, state: { seen: next, read_at }, detail: one.detail });
           if (told === false) break;
           Object.assign(seen, next); for (const id of Object.keys(seen)) if (!(id in next)) delete seen[id];
         }
-        state = { seen };
+        state = { seen, read_at };
         await keepState(state);
       }
       if (signal?.aborted) return;
-      await new Promise((resolve) => {
-        const timer = setTimeout(resolve, own.look_again_ms);
-        signal?.addEventListener("abort", () => { clearTimeout(timer); resolve(); }, { once: true });
-      });
+      await wait(own.look_again_ms);
     }
   } finally {
     if (state) await keepState(state).catch(() => {});
