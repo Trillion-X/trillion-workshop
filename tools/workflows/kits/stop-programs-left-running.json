@@ -1,7 +1,7 @@
 {
-  "start_here": "Keep your rules first, then switch on the every-ten-minutes wake of workflow:stop-programs-left-running with store {\"where\": \"the person's own database\", \"language\": \"SQL (PostgreSQL)\", \"credential_name\": \"the-persons-database-connection\"}. From then on, every ten minutes, a program your left-behind rows describe and no never-stop row names is asked to end, each stop is kept as a program_stops row, and you are told once per sweep that stopped anything.",
+  "start_here": "Say to your AI: \"Run workflow:stop-programs-left-running.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "It names no list: its rules and its stops are rows of two tables in the person's own database, program_rules and program_stops, which its first steps make when they are missing, read and written with run-sql.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:stop-programs-left-running"
   ],
@@ -9,20 +9,18 @@
     "tool:choose-programs-left-running",
     "tool:list-running-programs",
     "tool:run-sql-in-my-database",
+    "tool:run-workflow-definition",
     "tool:stop-programs-left-running"
   ],
   "instructions": [
-    "1. Keep at least one never-stop row and one left-behind row in your own database, each one program_rules row: id, kind never-stop or left-behind, and rule (the rule as JSON). The first sweep makes program_rules and program_stops when they are missing, and refuses until a never-stop row is there. A never-stop row is {id, why, command_pattern and/or name_pattern}, like {\"id\": \"the-model-proxy\", \"why\": \"Every AI session on this computer talks through it\", \"command_pattern\": \"model-proxy\"}; name every program that must never be stopped, such as the programs your AI sessions talk through and the program that keeps them running. A left-behind row is {id, why, parent_pid and/or session_owner_gone, older_than_minutes, command_pattern and/or name_pattern, and optionally cpu_share_at_least}, like {\"id\": \"shell-loop-left-by-an-ended-session\", \"why\": \"A shell a closed session left behind, still busy\", \"parent_pid\": 1, \"session_owner_gone\": true, \"older_than_minutes\": 60, \"cpu_share_at_least\": 0.5, \"command_pattern\": \"^/bin/sh -c \"}. With no never-stop row the sweep refuses.",
-    "2. Grant tool:list-running-programs read-processes, and tool:stop-programs-left-running read-processes and close-apps, on this computer.",
-    "3. Switch on the every-ten-minutes wake of workflow:stop-programs-left-running with your store: the command line's schedule on, naming workflow:stop-programs-left-running and every-ten-minutes.",
-    "4. Read each notice when it comes, and the program_stops rows for every stop: outcome ended, still-running, already-gone, not-the-same-program or not-allowed. A program kept by a never-stop row is never stopped, and a program whose session still has an owner is always kept."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:stop-programs-left-running\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "One sweep stops a shell a closed session left looping",
-      "ask": "Run the left-running sweep once now with my database.",
-      "workflow": "workflow:stop-programs-left-running",
-      "step": "choose",
+      "title": "Stop programs left running",
+      "ask": "Run workflow:stop-programs-left-running.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -31,19 +29,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:stop-programs-left-running",
-              "store": {
-                "where": "the person's own database",
-                "language": "SQL (PostgreSQL)",
-                "credential_name": "the-persons-database-connection"
-              }
+              "row": "workflow:stop-programs-left-running"
             }
           }
         }
       },
-      "given": "One program: pid 4242, parent 1, its own session, started three hours ago, two hours forty of processor time, command \"/bin/sh -c while true; do run-tests; done\"; the rows {\"id\": \"shell-loop-left-by-an-ended-session\", \"why\": \"A shell a closed session left behind, still busy\", \"parent_pid\": 1, \"session_owner_gone\": true, \"older_than_minutes\": 60, \"cpu_share_at_least\": 0.5, \"command_pattern\": \"^/bin/sh -c \"} and {\"id\": \"the-model-proxy\", \"why\": \"Every AI session on this computer talks through it\", \"command_pattern\": \"model-proxy\"}.",
-      "hands_back": "choose picked pid 4242 by shell-loop-left-by-an-ended-session (cpu_share 0.89); stop asked it to end and it ended; one program_stops row program-stopped:4242:<its start> was kept; one notice \"Stopped 1 program left running\" was told."
+      "workflow": "workflow:stop-programs-left-running",
+      "step": "make-rules-table",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
   ],
-  "drafted_from": "workflow:stop-programs-left-running's own recipe file, tools/workflows/recipes/stop-programs-left-running.json (its wake, definition and steps), and the two tools it adds in tools/running-programs; read it before relying on it"
+  "drafted_from": "workflow:stop-programs-left-running rendered from its row"
 }

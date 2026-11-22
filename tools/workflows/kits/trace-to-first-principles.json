@@ -1,25 +1,22 @@
 {
-  "start_here": "Say to your AI: \"Run workflow:trace-to-first-principles on subject 'add a weekly digest email for new members' with framework 'framework:my-first-principles', and tell me which stage it really rests on.\"",
+  "start_here": "Say to your AI: \"Run workflow:trace-to-first-principles.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "The chain it reads is a framework file in the person's files and a traced decision gets a note on its own record, so it keeps no list of its own.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
-    "workflow:trace-to-first-principles",
-    "workflow:bring-in-a-framework"
+    "workflow:trace-to-first-principles"
   ],
   "tools": [
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Have your chain of first principles as a framework file in your files (kind framework, items in order from the most basic stage to the last, each with a title and text); if you have none, run workflow:bring-in-a-framework first.",
-    "2. Say \"Run workflow:trace-to-first-principles\" with subject (at least 5 characters: plain words or an id of a decision, workflow, tool or file) and framework (its name or identity).",
-    "3. Step read hands back the framework id, its stages in order and the subject; step walk says for every stage whether the subject shows up there, how, and the evidence (where and a quote).",
-    "4. Step root names the deepest stage it truly rests on, whether it reaches the last stage (a real change in the world), the stages it skips and the smallest change that would make it hold at each skipped one.",
-    "5. Make the changes it names to the subject; when you traced a decision, the result was added to it as a note."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:trace-to-first-principles\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "A weekly email is traced down to its deepest root",
-      "ask": "Trace the weekly digest email back through my first principles.",
+      "title": "Trace something back to first principles",
+      "ask": "Run workflow:trace-to-first-principles.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -28,18 +25,19 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:trace-to-first-principles",
-              "subject": "add a weekly digest email for new members",
-              "framework": "framework:my-first-principles"
+              "row": "workflow:trace-to-first-principles"
             }
           }
         }
       },
       "workflow": "workflow:trace-to-first-principles",
-      "step": "root",
-      "given": "Read from the root step of workflow:trace-to-first-principles in tools/workflows/recipes/workflows.json. The framework framework:my-first-principles has five stages in order: Truth, Need, Habit, Product, Change in the world. The walk step found the digest shows up at Need (new members say they forget to come back) and Habit (a weekly rhythm) and at Product, but not at Truth and not at Change in the world.",
-      "hands_back": "{\"root\":\"Habit\",\"reaches_last_stage\":false,\"skipped\":[\"Truth\",\"Change in the world\"],\"changes\":[{\"stage\":\"Truth\",\"change\":\"Write down the one thing a new member should learn in week one and make the digest carry only that.\"},{\"stage\":\"Change in the world\",\"change\":\"Count how many new members do the week-one action after reading the digest, and keep the digest only if that number rises.\"}]}"
+      "step": "read",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
   ],
-  "drafted_from": "workflow:trace-to-first-principles row (input_schema and steps read, walk, root)"
+  "drafted_from": "workflow:trace-to-first-principles rendered from its row",
+  "see_also": [
+    "workflow:bring-in-a-framework"
+  ]
 }

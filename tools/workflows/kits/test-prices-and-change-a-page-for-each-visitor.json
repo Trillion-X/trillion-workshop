@@ -1,7 +1,7 @@
 {
-  "start_here": "Say to your AI: \"Run workflow:test-prices-and-change-a-page-for-each-visitor on https://example.com/pricing: the plan card has three versions, 9, 12 and 15 a month; the page is shared in my newsletter and on a social ad account; count sign-ups and payments.\"",
+  "start_here": "Say to your AI: \"Run workflow:test-prices-and-change-a-page-for-each-visitor.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:test-prices-and-change-a-page-for-each-visitor",
     "workflow:tell-the-person"
@@ -15,16 +15,14 @@
     "tool:run-workflow-definition"
   ],
   "instructions": [
-    "1. Have the page address ready, each part of it that changes with its versions (for example the plan card: 9, 12, 15), the places you share it (a newsletter, an ad account) and what counts as a result (signed up, paid). No list is needed: the versions and the rule are kept as records the workflow writes.",
-    "2. Say \"Run workflow:test-prices-and-change-a-page-for-each-visitor\" with page, parts (each with its versions), and optionally channels, known_facts and outcomes.",
-    "3. Read every version's words and every rule it shows you in plain words and approve only the ones you want; nothing changes for visitors before your yes, and a new price goes live only once your payment provider holds it.",
-    "4. Use the tracked link it makes for each place you share the page; a visit through a link carries its source, so each visitor sees one version and keeps seeing it.",
-    "5. Each week read the counts per version and per source; a version with fewer than 100 views is reported as too early, not as a winner. Say yes to settle, add a version, remove one or keep going."
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:test-prices-and-change-a-page-for-each-visitor\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "A newsletter gets its own tracked link to the pricing page",
-      "ask": "Make me a tracked link for my newsletter for the price test.",
+      "title": "Test prices and change a page for each visitor",
+      "ask": "Run workflow:test-prices-and-change-a-page-for-each-visitor.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -33,34 +31,16 @@
           "input": {
             "tool": "tool:run-workflow-definition",
             "input": {
-              "row": "workflow:test-prices-and-change-a-page-for-each-visitor",
-              "page": "https://example.com/pricing",
-              "parts": [
-                {
-                  "part": "the plan card",
-                  "versions": [
-                    "9 a month",
-                    "12 a month",
-                    "15 a month"
-                  ]
-                }
-              ],
-              "channels": [
-                "newsletter"
-              ],
-              "outcomes": [
-                "signed up",
-                "paid"
-              ]
+              "row": "workflow:test-prices-and-change-a-page-for-each-visitor"
             }
           }
         }
       },
       "workflow": "workflow:test-prices-and-change-a-page-for-each-visitor",
-      "step": "make-tracked-links",
-      "given": "Read from tools/traffic-attribution/do-work/make-a-tracked-link.mjs (run with destination https://example.com/pricing, project bakery-pricing, source newsletter, campaign nov-price-test, medium email; the tool also requires a project id, which the step's own input does not list).",
-      "hands_back": "{\"links\":[{\"channel\":\"newsletter\",\"url\":\"https://example.com/pricing?bf_project=bakery-pricing&utm_source=newsletter&utm_campaign=nov-price-test&utm_medium=email\"}]}"
+      "step": "write-the-versions",
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
   ],
-  "drafted_from": "workflow:test-prices-and-change-a-page-for-each-visitor row and tools/traffic-attribution/do-work/make-a-tracked-link.mjs run on the example input"
+  "drafted_from": "workflow:test-prices-and-change-a-page-for-each-visitor rendered from its row"
 }

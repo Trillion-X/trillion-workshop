@@ -1,8 +1,7 @@
 {
-  "drafted_from": "workflow:tell-the-person-what-waits's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:tell-the-person-what-waits.\" It at the start of a chat and after finishing work, show the person in the chat everything that only they can do (sign in somewhere, approve, pay or top up, press a button on another site, answer), each with where to do it; and keep anything this AI could not do itself in their Waiting on you list, so no AI leaves the person not knowing what it needs from them.",
+  "start_here": "Say to your AI: \"Run workflow:tell-the-person-what-waits.\" The wake starts it once its switch input is set.",
   "lists": [],
-  "no_lists_because": "Its steps name no list and write no row: each step answers in the run itself.",
+  "no_lists_because": "The workflow works through the owner's own database tools and writes no list of its own.",
   "workflows": [
     "workflow:tell-the-person-what-waits"
   ],
@@ -11,15 +10,13 @@
     "tool:what-is-waiting-on-me"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:tell-the-person-what-waits\"; it starts it with tool:run-workflow-definition (row workflow:tell-the-person-what-waits).",
-    "2. Read what is waiting on them.",
-    "3. Keep what only they can do.",
-    "4. Show it in the chat.",
-    "5. Read what it gives back: what step show hands back"
+    "1. Set the wake's switch input with the owner's store names.",
+    "2. Say \"Run workflow:tell-the-person-what-waits\".",
+    "3. Read the answer the run hands back."
   ],
   "worked_examples": [
     {
-      "title": "Step read: Read what is waiting on them",
+      "title": "Tell the person what is waiting on them",
       "ask": "Run workflow:tell-the-person-what-waits.",
       "mcp": {
         "server": "{cli}",
@@ -27,33 +24,18 @@
         "input": {
           "method": "tools:run",
           "input": {
-            "tool": "tool:what-is-waiting-on-me",
+            "tool": "tool:run-workflow-definition",
             "input": {
-              "sources": [
-                {
-                  "id": "sample",
-                  "label": "Sample",
-                  "title": "{name}"
-                }
-              ],
-              "found": {
-                "sample": [
-                  {
-                    "id": "r1",
-                    "value": {
-                      "name": "A made-up thing"
-                    }
-                  }
-                ]
-              }
+              "row": "workflow:tell-the-person-what-waits"
             }
           }
         }
       },
       "workflow": "workflow:tell-the-person-what-waits",
       "step": "read",
-      "given": "The input {\"sources\":[{\"id\":\"sample\",\"label\":\"Sample\",\"title\":\"{name}\"}],\"found\":{\"sample\":[{\"id\":\"r1\",\"value\":{\"name\":\"A made-up thing\"}}]}}.",
-      "hands_back": "It answered {\"cards\":[{\"source\":\"sample\",\"label\":\"Sample\",\"id\":\"r1\",\"title\":\"A made-up thing\"}],\"sources\":[{\"id\":\"sample\",\"label\":\"Sample\",\"waiting\":1,\"skipped\":0,\"unread\":false}],\"count\":1,\"said\":\"1 thing is waiting on you.\"}."
+      "given": "The owner's own rows are in place.",
+      "hands_back": "The run finishes at the step \"done\" and answers the quoted \"done\"."
     }
-  ]
+  ],
+  "drafted_from": "workflow:tell-the-person-what-waits rendered from its row"
 }
