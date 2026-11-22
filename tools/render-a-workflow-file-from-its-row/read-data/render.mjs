@@ -59,6 +59,7 @@ export function fileFromRow(row) {
     definition,
   };
   if (!isEmpty(row.fires_when)) payload.fires_when = asObject(row.fires_when);
+  if (!isEmpty(row.records)) payload.records = asObject(row.records);
   return { about: `${row.recipe}: rendered from its workflow_recipes row.`, records: [{ payload }] };
 }
 
@@ -88,4 +89,21 @@ export function checkFile(file, row, fileName = fileNameOf(row.recipe), origin =
     for (const at of vaultNames(wake.input ?? {})) problems.push(`vault name in wake ${wake.id} input${at}`);
   }
   return problems;
+}
+
+// A kit regenerated from its row may not drop a tool or a workflow the origin kit lists while the row still uses it. An entry the row
+// no longer uses may go; it is reported in dropped so the change is visible.
+export function kitChanges(origin, next, usedTools, usedWorkflows) {
+  const refused = [];
+  const dropped = [];
+  for (const [field, used] of [['tools', usedTools], ['workflows', usedWorkflows]]) {
+    const was = origin?.[field] ?? [];
+    const now = new Set(next?.[field] ?? []);
+    for (const entry of was) {
+      if (now.has(entry)) continue;
+      if (used.has(entry)) refused.push(`${field}: ${entry}`);
+      else dropped.push(`${field}: ${entry}`);
+    }
+  }
+  return { refused, dropped };
 }

@@ -61,3 +61,20 @@ test('a render that drops a payload key, a definition key or a step the origin f
   assert.match(problems, /lost against origin file: rights, step kept-step/);
   assert.deepEqual(checkFile(file, stub, fileNameOf(stub.recipe), file), []);
 });
+
+test('a row records column is carried into the file as payload.records', () => {
+  const file = fileFromRow({ ...stub, records: { runs: ['tool:one'] } });
+  assert.deepEqual(file.records[0].payload.records, { runs: ['tool:one'] });
+});
+
+test('a regenerated kit may not drop a tool or workflow the row still uses, and reports the ones it drops', async () => {
+  const { kitChanges } = await import('../read-data/render.mjs');
+  const origin = { tools: ['tool:run-sql-in-my-database', 'tool:old-one'], workflows: ['workflow:a', 'workflow:gone'] };
+  const next = { tools: ['tool:run-sql-in-my-database'], workflows: ['workflow:a'] };
+  const used = { tools: new Set(['tool:run-sql-in-my-database', 'tool:old-one']), workflows: new Set(['workflow:a']) };
+  assert.deepEqual(kitChanges(origin, next, used.tools, used.workflows), {
+    refused: ['tools: tool:old-one'],
+    dropped: ['workflows: workflow:gone'],
+  });
+  assert.deepEqual(kitChanges(origin, origin, used.tools, used.workflows), { refused: [], dropped: [] });
+});
