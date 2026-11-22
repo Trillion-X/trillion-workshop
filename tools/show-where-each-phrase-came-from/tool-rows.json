@@ -113,6 +113,10 @@
                 "at": "/opt/node_modules/@noble/hashes"
               }
             ]
+          },
+          "records": {
+            "fd": 3,
+            "from_listed_row": true
           }
         },
         "result_selector": "$",
