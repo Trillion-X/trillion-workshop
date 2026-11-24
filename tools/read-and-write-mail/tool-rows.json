@@ -8558,7 +8558,7 @@
             },
             "name": {
               "type": "string",
-              "description": "The file name to keep the attachment under, when not its own"
+              "description": "Optional display name for the attachment. The Files keeper uses it as one plain name inside this tool's output folder, not as an absolute destination path. Read files.attachment.name for the actual Files name."
             }
           }
         },
@@ -8741,6 +8741,9 @@
               "name": "attachment",
               "path": "/opt/read-and-write-mail/out/attachment",
               "keep_in": "files",
+              "keep_as": {
+                "name_from": ["name"]
+              },
               "media_type": "application/octet-stream",
               "max_bytes": 16777216
             }

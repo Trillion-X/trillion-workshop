@@ -68,6 +68,23 @@ test('the provider file is the only place a vendor is named, apart from the adap
   assert.deepEqual(kits.map(name => `tool:${name.replace(/\.json$/, '')}`).sort(), rows.map(row => row.id).sort());
 });
 
+test('a kept attachment takes its optional display name from the input through the Files output contract', () => {
+  const row = rows.find(row => row.id === 'tool:keep-a-mail-attachment');
+  assert.equal(row.input_schema.properties.name.type, 'string');
+  assert.ok(!row.input_schema.required.includes('name'), 'an unnamed output keeps the Files keeper\'s default name');
+  assert.deepEqual(row.invoke.outputs, [{
+    name: 'attachment',
+    path: '/opt/read-and-write-mail/out/attachment',
+    keep_in: 'files',
+    keep_as: { name_from: ['name'] },
+    media_type: 'application/octet-stream',
+    max_bytes: 16777216,
+  }]);
+  assert.deepEqual(row.invoke.stdin, { fill: { from: 'input' } });
+  assert.match(row.input_schema.properties.name.description, /not as an absolute destination path/);
+  assert.match(row.input_schema.properties.name.description, /files\.attachment\.name/);
+});
+
 test('a neutral message names every header the neutral file says, and the two providers\' adapters agree on it', () => {
   assert.deepEqual(Object.keys(HEADER_FIELDS), ['from', 'to', 'cc', 'bcc', 'reply_to', 'subject', 'date', 'message_id', 'references', 'in_reply_to', 'list_unsubscribe']);
 });

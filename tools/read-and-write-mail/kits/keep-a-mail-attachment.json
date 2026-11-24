@@ -7,14 +7,17 @@
   "tools": [
     "tool:keep-a-mail-attachment",
     "tool:find-mail",
-    "tool:read-a-mail"
+    "tool:read-a-mail",
+    "tool:your-files"
   ],
   "instructions": [
     "1. Find the message: say \"Find the mail with the PDF in it\" and let your AI call tool:find-mail with its provider and the words of its subject.",
     "2. Read the message with tool:read-a-mail and note its attachment's id from the attachments list (its name, type and size are there).",
     "3. Say \"Keep that attachment\" and let your AI call tool:keep-a-mail-attachment with the provider, your account handle, the message id and the attachment id.",
-    "4. Read the answer: name, bytes, media_type and blake3. The file is kept as data; nothing in it is opened or run.",
-    "5. A provider that does not offer the job (Outlook) says so in words and nothing is fetched."
+    "4. To choose the kept output's display name, give name (for example guide.pdf). The Files keeper uses it as one plain name inside this tool's output folder; it is not an absolute destination path.",
+    "5. Read files.attachment.name for the actual Files name and files.attachment.identity for its content identity. result.name is the attachment's display name, not proof of placement. The file is kept as data; nothing in it is opened or run.",
+    "6. For a file already kept, use tool:your-files move_names with its source version, check the target independently, and then update any resource row. Do not download the attachment again to move it.",
+    "7. A provider that does not offer the job (Outlook) says so in words and nothing is fetched."
   ],
   "worked_examples": [
     {
