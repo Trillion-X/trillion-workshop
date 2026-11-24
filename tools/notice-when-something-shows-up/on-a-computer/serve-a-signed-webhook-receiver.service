@@ -1,0 +1,37 @@
+[Unit]
+Description={description}
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# The receiver reads its signing secret and its engine account key from the credentials named below. start-a-computer seals
+# each one for this computer (systemd-creds) at its file, and this unit names only where. Its settings file names the
+# address it listens on and the engine door it tells facts at.
+{credential_lines}
+Environment=HOME={state}
+Environment=PATH={node_bin}:/usr/bin:/bin
+Environment=npm_config_cache={workshop}/.npm-cache
+Type=simple
+User={user}
+Group={user}
+# The Workshop copy at {workshop} stays between starts: the row's pinned commit {workshop_commit} is fetched into it (only what
+# the copy lacks) and checked out. npm ci runs in {tool_folder} (the folder whose lock installs what the receiver imports) only when
+# that commit's lock is not the one installed last time, whose git id is kept in the copy's .git/npm-lock-id.
+ExecStartPre=/bin/sh -c 'test -d {workshop}/.git || git init -q {workshop}'
+ExecStartPre=/bin/sh -c 'git -C {workshop} fetch -q --depth 1 {repository} {workshop_commit} && git -C {workshop} checkout -q --detach {workshop_commit}'
+ExecStartPre=/bin/sh -c 'lock=$$(git -C {workshop} rev-parse {workshop_commit}:{tool_folder}/package-lock.json) && if [ "$$(cat {workshop}/.git/npm-lock-id 2>/dev/null)" != "$$lock" ]; then cd {workshop}/{tool_folder} && npm ci --omit=dev --no-audit --no-fund && echo "$$lock" > {workshop}/.git/npm-lock-id; fi'
+ExecStart=/bin/sh -c 'cd {workshop} && exec node {workshop}/tools/notice-when-something-shows-up/do-work/signed-webhook-receiver.mjs {settings_file}'
+Restart=always
+RestartSec=2
+KillSignal=SIGTERM
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths={writable}
+ProtectHome=true
+PrivateTmp=true
+LimitCORE=0
+
+[Install]
+WantedBy=multi-user.target

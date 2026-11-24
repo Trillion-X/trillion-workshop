@@ -25,7 +25,7 @@ const SHAPE = {
 };
 const CONFIG = receiverConfigOf({
   listen_host: '127.0.0.1', listen_port: 0, path: '/webhooks/comments', secret_credential: 'comment-app-secret',
-  verify: 'meta-x-hub-signature-256', shape: SHAPE, where: "comment-source", kind: 'comment-changed', door_file: '/unused',
+  verify: 'meta-x-hub-signature-256', shape: SHAPE, where: "comment-source", kind: 'comment-changed', door: 'http://127.0.0.1:7190',
   subscribe: { mode: 'subscribe', verify_credential: 'comment-subscribe-token' },
 });
 const signedCall = (body) => ({
@@ -97,7 +97,7 @@ test('a GET on the path is answered 405 when the service has no subscribe handsh
 });
 
 test('a subscribe config with a bad mode or a credential name that is not a name is refused by the field', () => {
-  const base = { listen_host: '127.0.0.1', listen_port: 0, path: '/w', secret_credential: 's', verify: 'meta-x-hub-signature-256', shape: SHAPE, where: 'x', kind: 'k', door_file: '/u' };
+  const base = { listen_host: '127.0.0.1', listen_port: 0, path: '/w', secret_credential: 's', verify: 'meta-x-hub-signature-256', shape: SHAPE, where: 'x', kind: 'k', door: 'http://127.0.0.1:7190' };
   assert.throws(() => receiverConfigOf({ ...base, subscribe: { mode: '', verify_credential: 'comment-subscribe-token' } }), /bad-subscribe/);
   assert.throws(() => receiverConfigOf({ ...base, subscribe: { mode: 'subscribe', verify_credential: 'has a space' } }), /bad-subscribe/);
   assert.equal(receiverConfigOf({ ...base, subscribe: { mode: 'subscribe', verify_credential: 'comment-subscribe-token' } }).subscribe.mode, 'subscribe');

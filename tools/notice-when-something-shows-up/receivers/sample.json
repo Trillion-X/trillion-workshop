@@ -1,0 +1,31 @@
+{
+  "listen_host": "127.0.0.1",
+  "listen_port": 8899,
+  "path": "/webhooks/sample",
+  "secret_credential": "sample-signing-secret",
+  "verify": "standard-webhooks",
+  "shape": {
+    "place": {
+      "path": "type"
+    },
+    "change": {
+      "path": "type",
+      "map": {
+        "thing.created": "changed",
+        "thing.updated": "changed"
+      }
+    },
+    "key": [
+      "data.thing_id"
+    ],
+    "at": [
+      "data.created_at",
+      "created_at"
+    ],
+    "at_unit": "iso"
+  },
+  "where": "sample-service",
+  "kind": "sample-event",
+  "body_byte_ceiling": 262144,
+  "door": "http://127.0.0.1:7190"
+}

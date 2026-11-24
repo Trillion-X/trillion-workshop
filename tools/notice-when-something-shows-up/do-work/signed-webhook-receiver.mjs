@@ -23,18 +23,23 @@
 //
 // Config (DATA: one JSON file per service, given to the unit as its argument)
 //   listen_host, listen_port   where it listens (127.0.0.1 behind the always-on's reverse proxy)
-//   path                       the one path it answers, for example /webhooks/resend
+//   path                       the one path it answers, for example /webhooks/sample
 //   secret_credential          the credential file name the unit is given, holding the signing secret
 //   verify                     a signing rule name in signing-rules.json, or a verify object (as the mechanism reads)
 //   shape                      where the change's place, change, key and time sit in the call (as the mechanism reads)
 //   where                      the connection name the facts carry
 //   kind                       the fact kind the engine's wake listens for
 //   body_byte_ceiling?         the most body bytes accepted (default 1048576)
+//   replay_window_seconds?     the timestamp tolerance (a positive number of seconds; absent: the signing rule's own)
+//   health_path?               a GET-only readiness address (absent: path + /health); it exposes no credential or event body
 //   url?                       the public address the service signed the call at, when its rule needs it
-//   door_file                  the JSON file holding the engine door {url, resource, capability} (run's own door shape)
+//   door                       the engine's door address the facts are told at (http or https)
 //   subscribe?                 { mode, verify_credential }: answers the service's subscribe handshake, a GET whose hub.mode is
 //                              mode and whose hub.verify_token is the credential's value, with hub.challenge as plain text.
 //                              Any other GET on the path is refused with 403. Absent: every GET is answered 405.
+//
+// The engine key is not in the config. The unit is given it as the credential `account-key` (CREDENTIALS_DIRECTORY/account-key),
+// and the receiver refuses to start without it. It is used as the door's bearer and is never logged.
 //
 // Usage
 //   node signed-webhook-receiver.mjs <config.json>     (CREDENTIALS_DIRECTORY must be set by the unit)
@@ -50,6 +55,8 @@ export const DEFAULT_BODY_CEILING = 1048576;
 /** How many event keys this process remembers as told, so a service's repeat is not sent to the engine twice. */
 const TOLD_LIMIT = 10000;
 const NAME = /^[A-Za-z0-9._-]{1,128}$/;
+/** The credential the unit is given the engine's account key under (CREDENTIALS_DIRECTORY/account-key). */
+export const ACCOUNT_KEY_CREDENTIAL = 'account-key';
 
 /** The config as the receiver reads it, or a thrown refusal naming the one field that is wrong. */
 export function receiverConfigOf(raw) {
@@ -59,13 +66,20 @@ export function receiverConfigOf(raw) {
   if (!Number.isInteger(raw.listen_port) || raw.listen_port < 0 || raw.listen_port > 65535) refuse('bad-listen-port');
   if (typeof raw.path !== 'string' || !raw.path.startsWith('/')) refuse('bad-path');
   if (typeof raw.secret_credential !== 'string' || !NAME.test(raw.secret_credential)) refuse('bad-secret-credential');
-  const verify = typeof raw.verify === 'string' ? signingRuleNamed(raw.verify) : raw.verify;
-  if (!verify || typeof verify !== 'object') refuse('unknown-verify-rule');
+  const rule = typeof raw.verify === 'string' ? signingRuleNamed(raw.verify) : raw.verify;
+  if (!rule || typeof rule !== 'object') refuse('unknown-verify-rule');
+  if (raw.replay_window_seconds !== undefined && (!Number.isInteger(raw.replay_window_seconds) || raw.replay_window_seconds <= 0)) refuse('bad-replay-window');
+  const verify = raw.replay_window_seconds === undefined ? rule : { ...rule, tolerance_seconds: raw.replay_window_seconds };
   if (!raw.shape || typeof raw.shape !== 'object') refuse('no-shape');
   if (typeof raw.where !== 'string' || !raw.where) refuse('no-where');
   if (typeof raw.kind !== 'string' || !raw.kind) refuse('no-fact-kind');
   const ceiling = raw.body_byte_ceiling ?? DEFAULT_BODY_CEILING;
   if (!Number.isInteger(ceiling) || ceiling <= 0) refuse('bad-body-ceiling');
+  let door;
+  try { door = new URL(raw.door); } catch { refuse('bad-door-address'); }
+  if (!['http:', 'https:'].includes(door.protocol) || door.username || door.password || door.hash) refuse('bad-door-address');
+  const healthPath = raw.health_path ?? `${raw.path}/health`;
+  if (typeof healthPath !== 'string' || !healthPath.startsWith('/') || healthPath === raw.path || /[?#]/.test(healthPath)) refuse('bad-health-path');
   const subscribe = raw.subscribe ?? null;
   if (subscribe !== null && (typeof subscribe !== 'object' || typeof subscribe.mode !== 'string' || !subscribe.mode || typeof subscribe.verify_credential !== 'string' || !NAME.test(subscribe.verify_credential))) refuse('bad-subscribe');
   return {
@@ -79,6 +93,8 @@ export function receiverConfigOf(raw) {
     kind: raw.kind,
     body_byte_ceiling: ceiling,
     url: typeof raw.url === 'string' && raw.url ? raw.url : null,
+    door: door.href,
+    health_path: healthPath,
     subscribe: subscribe === null ? null : { mode: subscribe.mode, verify_credential: subscribe.verify_credential },
   };
 }
@@ -97,6 +113,9 @@ function factOfChange(kind, change) {
  */
 export function createReceiver({ config, secret, arrive, now = () => Date.now(), subscribe = null }) {
   const told = new Set();
+  const pending = new Map();
+  let accepted = 0;
+  let lastAcceptedAt = null;
   const remember = (eventId) => {
     told.add(eventId);
     if (told.size > TOLD_LIMIT) told.delete(told.values().next().value);
@@ -107,6 +126,9 @@ export function createReceiver({ config, secret, arrive, now = () => Date.now(),
   };
   return createServer(async (request, response) => {
     const url = new URL(request.url ?? '/', 'http://receiver.invalid');
+    if (url.pathname === config.health_path && request.method === 'GET') {
+      return answer(response, 200, { ready: true, accepted, last_accepted_at: lastAcceptedAt });
+    }
     if (url.pathname !== config.path) return answer(response, 404, { recorded: false, reason: 'no-such-path' });
     if (request.method === 'GET' && subscribe) {
       const challenge = url.searchParams.get('hub.challenge');
@@ -145,8 +167,15 @@ export function createReceiver({ config, secret, arrive, now = () => Date.now(),
       for (const change of changes) {
         const fact = factOfChange(config.kind, change);
         if (told.has(fact.event_id)) { duplicates += 1; continue; }
-        await arrive(fact);
-        remember(fact.event_id);
+        if (pending.has(fact.event_id)) { await pending.get(fact.event_id); duplicates += 1; continue; }
+        const delivery = Promise.resolve().then(async () => {
+          if (await arrive(fact) === false) throw new Error('the engine did not take the fact');
+          remember(fact.event_id);
+          accepted += 1;
+          lastAcceptedAt = new Date(now()).toISOString();
+        });
+        pending.set(fact.event_id, delivery);
+        try { await delivery; } finally { pending.delete(fact.event_id); }
       }
     } catch (error) {
       return answer(response, 503, { recorded: false, reason: String(error?.message ?? error) });
@@ -155,32 +184,54 @@ export function createReceiver({ config, secret, arrive, now = () => Date.now(),
   });
 }
 
+/** One credential's value from the unit's credential folder, one trailing newline removed. Refuses, naming only the credential,
+ *  when the file is missing or empty. */
+export function readCredential(folder, name, what) {
+  let value;
+  try {
+    value = readFileSync(path.join(folder, name), 'utf8');
+  } catch {
+    throw new Error(`${what} is not handed to this unit: the credential ${name} is missing, so the receiver does not start.`);
+  }
+  value = value.replace(/\r?\n$/, '');
+  if (!value) throw new Error(`${what} is empty: the credential ${name} holds no value, so the receiver does not start.`);
+  return value;
+}
+
 /**
- * The unit's start: reads the config, the credential and the door, listens, and tells each fact through the door.
+ * The unit's start: reads the config and its two credentials, listens, and tells each fact through the engine's door.
  * @param {{configPath: string, env?: object, fetchImpl?: Function, say?: (line: string) => void}} args
  * @returns {Promise<import('node:http').Server>} the listening server
  */
 export async function startReceiver({ configPath, env = process.env, fetchImpl = fetch, say = (line) => console.error(line) }) {
-  const raw = JSON.parse(readFileSync(configPath, 'utf8'));
-  const config = receiverConfigOf(raw);
-  if (!env.CREDENTIALS_DIRECTORY) throw new Error('CREDENTIALS_DIRECTORY is not set: the unit must be given the signing secret as a credential.');
-  const secret = readFileSync(path.join(env.CREDENTIALS_DIRECTORY, config.secret_credential), 'utf8').replace(/\r?\n$/, '');
-  if (!secret) throw new Error(`the credential ${config.secret_credential} is empty`);
-  const subscribe = config.subscribe ? { mode: config.subscribe.mode, token: readFileSync(path.join(env.CREDENTIALS_DIRECTORY, config.subscribe.verify_credential), 'utf8').replace(/\r?\n$/, '') } : null;
-  if (subscribe && !subscribe.token) throw new Error(`the credential ${config.subscribe.verify_credential} is empty`);
-  const door = JSON.parse(readFileSync(raw.door_file, 'utf8'));
-  if (typeof door.url !== 'string' || typeof door.capability !== 'string') throw new Error('the door file must hold a url and a capability');
+  const config = receiverConfigOf(JSON.parse(readFileSync(configPath, 'utf8')));
+  const folder = env.CREDENTIALS_DIRECTORY;
+  if (!folder) throw new Error('CREDENTIALS_DIRECTORY is not set: the unit must be given its credentials.');
+  // Only the credential's name is ever said; its value is not in any message, log line or refusal.
+  const secret = readCredential(folder, config.secret_credential, 'the signing secret');
+  const accountKey = readCredential(folder, ACCOUNT_KEY_CREDENTIAL, 'the engine account key');
+  const door = { url: config.door, capability: accountKey };
+  const subscribe = config.subscribe ? { mode: config.subscribe.mode, token: readCredential(folder, config.subscribe.verify_credential, 'the subscribe verification value') } : null;
+  const privateValues = [secret, accountKey, subscribe?.token].filter(Boolean);
+  const safeMessage = (error) => privateValues.reduce((message, value) => message.replaceAll(value, '[redacted]'), String(error?.message ?? error));
   const arrive = async (fact) => {
     try {
       await arriveOverDoor(door, fact, { fetchImpl });
       say(JSON.stringify({ told: fact.kind, event_id: fact.event_id }));
     } catch (error) {
-      say(JSON.stringify({ refused: fact.kind, event_id: fact.event_id, why: error.message }));
-      throw error;
+      const why = safeMessage(error);
+      say(JSON.stringify({ refused: fact.kind, event_id: fact.event_id, why }));
+      throw new Error(why);
     }
   };
   const server = createReceiver({ config, secret, arrive, subscribe });
-  await new Promise((resolve) => server.listen(config.listen_port, config.listen_host, resolve));
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(config.listen_port, config.listen_host, () => {
+      server.off('error', reject);
+      resolve();
+    });
+  });
   say(JSON.stringify({ listening: `${config.listen_host}:${server.address().port}`, path: config.path }));
   return server;
 }
