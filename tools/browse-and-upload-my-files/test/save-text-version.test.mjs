@@ -154,6 +154,19 @@ test('a refused finish with the same current identity preserves its original ref
   assert.deepEqual(door.finished, []);
 });
 
+test('a refused finish with the same identity but a newer name version still reports that it changed elsewhere', async () => {
+  const draft = 'my unsaved draft';
+  door.lookupAnswers = [{ identity: 'id-A' }, { identity: 'id-A' }];
+  door.listingAnswers = [listing('id-A', 4), listing('id-A', 5)];
+  door.refuseFinish = conflict();
+  await assert.rejects(saveTextVersion(name, draft, 'id-A'), err => err.message === documents.changed_elsewhere);
+  assert.deepEqual(ops(), ['write_file_start', 'write_file_piece', 'write_file_finish', 'write_file_cancel']);
+  assert.equal(door.changes[0].input.expected_version, 4);
+  assert.equal(Buffer.from(door.changes[1].input.content_base64, 'base64').toString(), draft);
+  assert.equal(door.reads.length, 2);
+  assert.deepEqual(door.finished, []);
+});
+
 test('a read failure after a refused finish preserves that refusal rather than claiming another writer changed the name', async () => {
   const failure = conflict();
   door.lookupAnswers = [{ identity: 'id-A' }, new Error('lookup unavailable')];
