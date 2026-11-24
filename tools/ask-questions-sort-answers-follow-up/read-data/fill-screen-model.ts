@@ -69,7 +69,7 @@ function lookup(reg: CapabilityLookup, id: string): QuestionTypeCapability | und
 }
 
 function isEntered(value: unknown): boolean {
-  return value !== undefined && value !== null && value !== '';
+  return value !== undefined && value !== null && value !== '' && !(Array.isArray(value) && value.length === 0);
 }
 
 /** Merge per-question validation overrides OVER the capability default rules. */
@@ -110,7 +110,7 @@ export function buildFillScreenModel(
       : descriptor.options;
 
     const value = answers[descriptor.questionId];
-    const result = validateAnswer(value, coerce, rules);
+    const result = validateAnswer(value, coerce, rules, { options: resolvedOptions, multiple: descriptor.multiple, other: descriptor.other });
     if (!result.ok && firstInvalidId === null) firstInvalidId = descriptor.questionId;
 
     const show = reveal || isEntered(value);

@@ -128,7 +128,8 @@ export function readCapabilityRegistry(raw: unknown): Map<string, QuestionTypeCa
   return indexCapabilities(readCapabilityRows(raw));
 }
 
-function readDescriptor(raw: unknown): QuestionDescriptor | null {
+/** Decode one question descriptor, defensively (unknown fields are dropped, a malformed one is null). */
+export function readDescriptor(raw: unknown): QuestionDescriptor | null {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
   const d = raw as Record<string, unknown>;
   if (typeof d.questionId !== 'string' || typeof d.questionTypeId !== 'string') return null;
@@ -149,7 +150,18 @@ function readDescriptor(raw: unknown): QuestionDescriptor | null {
         ? (d.validation as QuestionDescriptor['validation'])
         : undefined,
     ...(afterSaved ? { afterSaved } : {}),
+    ...(d.multiple === true ? { multiple: true } : {}),
+    ...(readOptions([d.other])?.[0] ? { other: readOptions([d.other])![0] } : {}),
+    ...(typeof d.help === 'string' && d.help ? { help: d.help } : {}),
+    ...(readAbout(d.about) ? { about: readAbout(d.about)! } : {}),
   };
+}
+
+function readAbout(raw: unknown): QuestionDescriptor['about'] | null {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const a = raw as Record<string, unknown>;
+  const fromQuestionId = a.fromQuestionId ?? a.from_question_id;
+  return typeof a.name === 'string' && a.name && typeof fromQuestionId === 'string' && fromQuestionId ? { name: a.name, fromQuestionId } : null;
 }
 
 function readAfterSavedAction(raw: unknown): AfterSavedActionDescriptor | null {

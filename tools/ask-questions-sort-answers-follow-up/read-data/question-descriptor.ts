@@ -69,6 +69,54 @@ export interface QuestionDescriptor {
   /** Per-question validation overrides, merged OVER the capability defaults. */
   validation?: Partial<AnswerValidationRules>;
   afterSaved?: AfterSavedActionDescriptor;
+  /** Picks questions: several picks allowed (default one). */
+  multiple?: boolean;
+  /** Picks questions: the option that asks for the person's own words when picked. */
+  other?: QuestionOption;
+  /** Help shown under the question. */
+  help?: string;
+  /** What the answer is about, read from an earlier answer: its picked label replaces `{name}` in the
+   *  label and is kept with the answer, so the same question asked about another thing is another series. */
+  about?: QuestionAbout;
+}
+
+/** `name` is the word in the label ({name}) and the key kept with the answer; `fromQuestionId` the answer read. */
+export interface QuestionAbout {
+  name: string;
+  fromQuestionId: string;
+}
+
+function labelOfPick(question: QuestionDescriptor | undefined, value: unknown): string | null {
+  const picks = value && typeof value === 'object' && !Array.isArray(value) ? value as { picked?: unknown; other?: unknown } : null;
+  const first = typeof value === 'string' ? value : Array.isArray(picks?.picked) ? picks.picked[0] : null;
+  if (typeof first !== 'string' || !first) return null;
+  if (question?.other?.value === first && typeof picks?.other === 'string' && picks.other.trim()) return picks.other.trim();
+  return question?.options?.find((option) => option.value === first)?.label ?? first;
+}
+
+/** The question as it is asked now: its label with `{name}` filled from the earlier answer, and what it is about. */
+export function resolveAbout(
+  question: QuestionDescriptor,
+  questions: readonly QuestionDescriptor[],
+  answers: Readonly<Record<string, unknown>>,
+): { label: string; about: Record<string, string> | null } {
+  if (!question.about) return { label: question.label, about: null };
+  const from = questions.find((item) => item.questionId === question.about?.fromQuestionId);
+  const subject = labelOfPick(from, answers[question.about.fromQuestionId]);
+  if (!subject) return { label: question.label, about: null };
+  return { label: question.label.split(`{${question.about.name}}`).join(subject.toLowerCase()), about: { [question.about.name]: subject } };
+}
+
+/** An answer as words: picks by their labels joined with '; ' (the other option as '<label>: <words>'), the rest as given. */
+export function answerText(question: QuestionDescriptor, value: unknown): string {
+  if (value === undefined || value === null) return '';
+  if (typeof value !== 'object') return String(value);
+  const picks = value as { picked?: unknown; other?: unknown };
+  if (!Array.isArray(picks.picked)) return JSON.stringify(value);
+  return picks.picked.map((item) => {
+    if (question.other?.value === item) return `${question.other.label}: ${typeof picks.other === 'string' ? picks.other : ''}`.trim();
+    return question.options?.find((option) => option.value === item)?.label ?? String(item);
+  }).join('; ');
 }
 
 /** The input a question whose type is in no registry row falls back to (it coerces to a string). */

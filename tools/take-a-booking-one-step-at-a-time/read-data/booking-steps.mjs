@@ -1,6 +1,14 @@
 // The one-question-at-a-time path of a booking page: the steps a page asks, the next step a booking is waiting at, the answer
 // each step accepts, and the step a booking that was left reached last. A page is data (its questions, in order); this file
 // holds no question text, no product word and no calendar call. Every answer is a value a caller saves as its own row.
+// What a question is and how its answer is checked are the form owner's (tools/ask-questions-sort-answers-follow-up): a
+// question's type, its options (one pick or several, an other option with the person's own words), its rules and what it is
+// about are a question descriptor there, so a booking page asks any question a form can ask and checks it the same way.
+import { registry } from '../../ask-questions-sort-answers-follow-up/do-work/check-answers.mjs';
+import { validateAnswer, coerceAnswer } from '../../ask-questions-sort-answers-follow-up/read-data/validate-answer.ts';
+import { mergeRules } from '../../ask-questions-sort-answers-follow-up/read-data/fill-screen-model.ts';
+import { readDescriptor } from '../../ask-questions-sort-answers-follow-up/read-data/read-forms-data.ts';
+import { resolveAbout, answerText } from '../../ask-questions-sort-answers-follow-up/read-data/question-descriptor.ts';
 
 export const EMAIL_STEP = 'email';
 export const SLOT_STEP = 'slot';
@@ -10,8 +18,11 @@ export const questionStep = position => `question:${position}`;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_EMAIL = 254;
 const MAX_ANSWER = 2000;
+// A question that names no type is a written answer of at most MAX_ANSWER characters.
+const WRITTEN = { questionTypeId: 'long-text', validation: { max: MAX_ANSWER } };
 
-// page: { questions: [{ position, prompt, required? }] } in any order; the steps follow position order.
+// page: { questions: [{ position, prompt, required?, question? }] } in any order; the steps follow position order. `question`
+// is the rest of the form owner's question descriptor (questionId, questionTypeId, options, multiple, other, help, about...).
 export function stepsOf(page) {
   if (!page || !Array.isArray(page.questions)) throw new Error('A booking page states its questions as an array.');
   const positions = new Set();
@@ -21,25 +32,46 @@ export function stepsOf(page) {
     positions.add(question.position);
     if (typeof question.prompt !== 'string' || question.prompt.trim() === '') throw new Error(`Question at position ${question.position} needs a prompt.`);
     if (question.required !== undefined && typeof question.required !== 'boolean') throw new Error(`Question at position ${question.position} states required as true or false.`);
-    return { key: questionStep(question.position), kind: 'text', position: question.position, prompt: question.prompt, required: question.required !== false };
+    const required = question.required !== false;
+    const given = question.question && typeof question.question === 'object' ? question.question : {};
+    const descriptor = readDescriptor({ ...WRITTEN, questionId: String(question.position), ...given, label: question.prompt, required, validation: { ...(given.questionTypeId ? {} : WRITTEN.validation), ...(given.validation ?? {}) } });
+    if (!registry.has(descriptor.questionTypeId)) throw new Error(`Question at position ${question.position} names the type ${descriptor.questionTypeId}, which is not one of ${[...registry.keys()].join(', ')}.`);
+    return { key: questionStep(question.position), kind: 'question', position: question.position, prompt: question.prompt, required, question: descriptor };
   }).sort((a, b) => a.position - b.position);
+  const ids = new Set();
+  for (const step of questions) {
+    if (ids.has(step.question.questionId)) throw new Error(`Question id ${step.question.questionId} is stated more than once.`);
+    ids.add(step.question.questionId);
+  }
   return [{ key: EMAIL_STEP, kind: 'email' }, ...questions, { key: SLOT_STEP, kind: 'slot' }, { key: CONFIRM_STEP, kind: 'confirm' }];
 }
 
-// progress: { email: string | null, answers: { [position]: string }, slot: string | null }. An optional question is done once it has an answer, even an empty one.
+function answered(step, answer) {
+  if (answer === undefined) return false;
+  return !step.required || checkAnswer(step, answer).ok;
+}
+
+// progress: { email: string | null, answers: { [position]: value }, slot: string | null }. An optional question is done once it
+// has an answer, even an empty one; a required one once its answer passes its check.
 export function nextStepOf(page, progress) {
   const steps = stepsOf(page);
   const answers = progress?.answers ?? {};
   for (const step of steps) {
     if (step.key === EMAIL_STEP && !progress?.email) return step;
-    if (step.kind === 'text') {
-      const answer = answers[step.position];
-      if (answer === undefined || (step.required && answer.trim() === '')) return step;
-    }
+    if (step.kind === 'question' && !answered(step, answers[step.position])) return step;
     if (step.key === SLOT_STEP && !progress?.slot) return step;
     if (step.key === CONFIRM_STEP) return step;
   }
   return null;
+}
+
+// A question step as it is asked now: its prompt with what it is about filled in from an earlier answer, and that thing.
+export function askedStep(page, step, progress) {
+  if (step?.kind !== 'question') return { ...step, about: null };
+  const steps = stepsOf(page).filter(item => item.kind === 'question');
+  const byId = Object.fromEntries(steps.filter(item => progress?.answers?.[item.position] !== undefined).map(item => [item.question.questionId, progress.answers[item.position]]));
+  const { label, about } = resolveAbout(step.question, steps.map(item => item.question), byId);
+  return { ...step, prompt: label, about };
 }
 
 // The step a booking reached last: the latest step it has an answer for, in the page's order. null when nothing is answered yet.
@@ -48,13 +80,14 @@ export function lastStepReachedOf(page, progress) {
   let reached = null;
   for (const step of steps) {
     if (step.key === EMAIL_STEP && progress?.email) reached = step.key;
-    if (step.kind === 'text' && progress?.answers?.[step.position] !== undefined) reached = step.key;
+    if (step.kind === 'question' && progress?.answers?.[step.position] !== undefined) reached = step.key;
     if (step.key === SLOT_STEP && progress?.slot) reached = step.key;
   }
   return reached;
 }
 
-// The answer a step accepts, trimmed. A refusal names the rule, never the value given, so an email is not echoed back.
+// The answer a step accepts: a written answer trimmed, picks as { picked, other? }, with `text`, the answer in words for a
+// person to read. A refusal names the rule, never the value given, so an email is not echoed back.
 export function checkAnswer(step, value) {
   if (step.kind === 'email') {
     const email = typeof value === 'string' ? value.trim() : '';
@@ -66,12 +99,16 @@ export function checkAnswer(step, value) {
     if (!Number.isFinite(Date.parse(start))) return { ok: false, reason: 'A time to book is needed.' };
     return { ok: true, value: new Date(start).toISOString() };
   }
-  if (step.kind === 'text') {
-    if (typeof value !== 'string') return { ok: false, reason: 'An answer is written as text.' };
-    const answer = value.trim();
-    if (step.required && answer === '') return { ok: false, reason: 'This question needs an answer.' };
-    if (answer.length > MAX_ANSWER) return { ok: false, reason: `An answer is at most ${MAX_ANSWER} characters.` };
-    return { ok: true, value: answer };
+  if (step.kind === 'question') {
+    const type = registry.get(step.question.questionTypeId);
+    if (type.coerce === 'string' && typeof value !== 'string') return { ok: false, reason: 'An answer is written as text.' };
+    const given = typeof value === 'string' ? value.trim() : value;
+    const rules = mergeRules(type.validate?.rules, { ...(step.required ? { required: true } : {}), ...(step.question.validation ?? {}) });
+    const verdict = validateAnswer(given, type.coerce, rules, { options: step.question.options, multiple: step.question.multiple, other: step.question.other });
+    if (!verdict.ok) return { ok: false, reason: `${verdict.message}.` };
+    const coerced = coerceAnswer(given, type.coerce).value;
+    const kept = coerced === undefined ? '' : coerced;
+    return { ok: true, value: kept, text: answerText(step.question, kept) };
   }
   throw new Error(`A ${step.kind} step takes no answer here.`);
 }

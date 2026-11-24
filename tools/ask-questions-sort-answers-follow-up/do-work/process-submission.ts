@@ -32,10 +32,11 @@ export function buildProcessSubmission(
   config: DecideConfig,
   decidedAt: string,
   submissionId?: string,
+  abouts?: Readonly<Record<string, Readonly<Record<string, string>> | null>>,
 ): ProcessSubmissionPlan {
   const decision = decide(answers, config.scoreRules, config.segmentRules);
   const writes: RecordWrite[] = [
-    ...buildAnswerFactWrites(formId, respondentId, answers, decidedAt, submissionId),
+    ...buildAnswerFactWrites(formId, respondentId, answers, decidedAt, submissionId, abouts),
     buildSegmentAssignmentWrite(formId, respondentId, decision, decidedAt, submissionId),
   ];
   return {

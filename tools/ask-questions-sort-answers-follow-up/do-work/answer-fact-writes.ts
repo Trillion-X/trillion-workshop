@@ -21,6 +21,8 @@ export interface AnswerFact {
   value: unknown;
   answered_at: string;
   submissionId?: string;
+  /** What the answer is about (resolveAbout), e.g. { stroke: 'Forehand' }: the same question about another thing is another series. */
+  about?: Readonly<Record<string, string>>;
 }
 
 /** The record id of one answer. Without submissionId: (formId, respondentId, questionId), stable, resubmit
@@ -37,13 +39,14 @@ export function answerFactId(
     : `${base}:${questionId}`;
 }
 
-/** One record per answered question. Pass submissionId for repeated forms. */
+/** One record per answered question. Pass submissionId for repeated forms, and abouts (by questionId) for answers about a thing. */
 export function buildAnswerFactWrites(
   formId: string,
   respondentId: string,
   answers: Readonly<Record<string, unknown>>,
   answeredAt: string,
   submissionId?: string,
+  abouts?: Readonly<Record<string, Readonly<Record<string, string>> | null>>,
 ): Array<RecordWrite & { value: AnswerFact }> {
   return Object.keys(answers).map((questionId) => ({
     id: answerFactId(formId, respondentId, questionId, submissionId),
@@ -56,6 +59,7 @@ export function buildAnswerFactWrites(
       value: answers[questionId],
       answered_at: answeredAt,
       ...(submissionId ? { submissionId } : {}),
+      ...(abouts?.[questionId] ? { about: abouts[questionId] } : {}),
     },
   }));
 }

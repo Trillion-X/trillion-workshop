@@ -102,6 +102,40 @@
     }
    },
    "coerce": "number"
+  },
+  {
+   "kind": "question-type-capability",
+   "id": "ask-questions-sort-answers-follow-up.question-type.picks",
+   "questionTypeId": "picks",
+   "label": "Pick one or several",
+   "inputComponentKey": "picks",
+   "validate": {
+    "rules": {
+     "required": false,
+     "min": null,
+     "max": null,
+     "pattern": null,
+     "message": null
+    }
+   },
+   "coerce": "picks"
+  },
+  {
+   "kind": "question-type-capability",
+   "id": "ask-questions-sort-answers-follow-up.question-type.link",
+   "questionTypeId": "link",
+   "label": "Link",
+   "inputComponentKey": "link",
+   "validate": {
+    "rules": {
+     "required": false,
+     "min": null,
+     "max": 2000,
+     "pattern": "^https?://\\S+$",
+     "message": "Paste a full link, starting with https://"
+    }
+   },
+   "coerce": "string"
   }
  ]
 }

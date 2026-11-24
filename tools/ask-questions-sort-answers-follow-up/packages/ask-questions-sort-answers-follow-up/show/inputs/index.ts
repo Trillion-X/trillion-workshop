@@ -14,6 +14,8 @@ import { ChoiceInput } from './ChoiceInput';
 import { RatingInput } from './RatingInput';
 import { NumberInput } from './NumberInput';
 import { EvidenceReferenceInput } from './EvidenceReferenceInput';
+import { PicksInput } from './PicksInput';
+import { LinkInput } from './LinkInput';
 
 /** Stable fallback when a question references an unknown inputComponentKey:
  *  render it as free text rather than dropping the question (graceful). */
@@ -26,6 +28,8 @@ export const QUESTION_INPUT_COMPONENTS: Readonly<Record<string, QuestionInputCom
   rating: RatingInput,
   number: NumberInput,
   'evidence-reference': EvidenceReferenceInput,
+  picks: PicksInput,
+  link: LinkInput,
 };
 
 /** Resolve a leaf for an inputComponentKey, falling back to text. */
@@ -36,4 +40,4 @@ export function resolveInputComponent(key: string | null | undefined): QuestionI
   );
 }
 
-export { TextInput, MultilineTextInput, ChoiceInput, RatingInput, NumberInput, EvidenceReferenceInput };
+export { TextInput, MultilineTextInput, ChoiceInput, RatingInput, NumberInput, EvidenceReferenceInput, PicksInput, LinkInput };

@@ -238,6 +238,8 @@ export function FillSurface({
                 label={row.descriptor.label}
                 value={row.value}
                 options={row.resolvedOptions}
+                multiple={row.descriptor.multiple}
+                other={row.descriptor.other}
                 required={row.descriptor.required}
                 placeholder={row.descriptor.placeholder}
                 min={row.rules.min}

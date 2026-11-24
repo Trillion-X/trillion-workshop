@@ -10,9 +10,9 @@ Marked: **copied** from the package unchanged but for its import paths, **change
 
 | File | Purpose | From |
 |------|---------|------|
-| `read-data/validate-answer.ts` | Coerces an answer to its type and checks it against rules (required, min/max as length or value, pattern, message). | copied |
+| `read-data/validate-answer.ts` | Coerces an answer to its type and checks it against rules (required, min/max as length, value or number of picks, pattern, message). A `picks` answer (`{ picked, other? }`) is checked against the question's own options: one pick or several, and the other option's words. | changed: picks |
 | `read-data/evidence-reference.ts` | The wrapper a file or recording answer arrives in, checked without reading its body. | copied |
-| `read-data/question-descriptor.ts` | Question, question-type and form shapes, `indexCapabilities`, and `FALLBACK_INPUT_COMPONENT_KEY`. | changed: the fallback key lives here, not in the screen inputs |
+| `read-data/question-descriptor.ts` | Question, question-type and form shapes, `indexCapabilities`, and `FALLBACK_INPUT_COMPONENT_KEY`. A question may allow several picks (`multiple`), name an other option (`other`), carry `help`, and be `about` an earlier answer: `resolveAbout` fills `{name}` in its label from that answer and says what the answer is about; `answerText` writes an answer in words. | changed: the fallback key lives here, not in the screen inputs; picks, about |
 | `read-data/question-input-contract.ts` | The option shape and input props (types only). | copied |
 | `read-data/question-suggestions.ts` | Suggestions and options read from a named feed by path. | copied |
 | `read-data/fill-screen-model.ts` | `buildFillScreenModel`: every question's type rules with its own laid over them, each answer's verdict, all valid, first invalid. | copied |
@@ -29,7 +29,7 @@ Marked: **copied** from the package unchanged but for its import paths, **change
 | `read-data/synthesis-result.ts` | Keys and reads a saved synthesis result by (form, key). | copied |
 | `read-data/record-rows.ts` | `KeptRow`, `RecordWrite`, and `payloadRows`: kept rows as the payload-wrapped rows the readers take. | seam |
 | `read-data/kept-rows.mjs` | `givenRows(input)` and `readRows(rows, kind, { id, formId, respondentId })`: the rows a call is given, checked, and those of one kind matching the value's `formId` and `respondentId`, by id order. |
-| `do-work/answer-fact-writes.ts` | One answer-fact record per answered question (`answer-fact:<form>:<respondent>[:submission:<id>]:<question>`). | changed: a kept row `{ id, type, value }` where the package built an engine write-batch entry |
+| `do-work/answer-fact-writes.ts` | One answer-fact record per answered question (`answer-fact:<form>:<respondent>[:submission:<id>]:<question>`), with what it is `about` when the question is about an earlier answer, so the same question about another thing is its own series. | changed: a kept row `{ id, type, value }` where the package built an engine write-batch entry; about |
 | `do-work/segment-assignment-writes.ts` | The decision as one segment-assignment record. | changed: as above |
 | `do-work/process-submission.ts` | `buildProcessSubmission`: the answers, the decision and the selected follow-up, to be written together. | changed: `writes` for the engine `request`; the sender is gone |
 | `do-work/save-question-sequence.ts` | A draft form as one `question-sequence` record. | changed: as above |
@@ -38,10 +38,10 @@ Marked: **copied** from the package unchanged but for its import paths, **change
 | `do-work/check-answers.mjs` | The form answer check's command, and `registry`/`checkAnswers` for other tools. | seam; `registry` exported by this port |
 | `do-work/score-answers-and-pick-a-segment.mjs` | The scoring command. | seam (before this port) |
 | `do-work/form-tools.mjs` | The five form tools: `saveForm`, `submitFormAnswers`, `readFormResults`, `readAnswerProgress`, `readAnswerLines`; each is `fn(input)`, given `rows` and answering `keep`. | seam |
-| `data/question-types.json` | The question-type rows (text, long text, number, rating, choice, evidence reference) with their rules and coercion. | seam (before this port) |
+| `data/question-types.json` | The question-type rows (text, long text, number, rating, choice, picks, link, evidence reference) with their rules and coercion. | seam (before this port) |
 | `records.json` | The three container-only tool rows. | seam |
 | `tool-rows.json` | Lists `records.json` into the Workshop and holds the five form rows (each runs on `tools/workflows/do-work/run-a-function.mjs`, with no door and no held value). | seam |
-| `test/` | 26 test files carried from the package (see below) and `form-tools.test.mjs`, which runs the five tools over one stand-in for the person's rows (given as `rows`, taking each `keep`) and each shipped row as the engine runs it. | carried and seam |
+| `test/` | 27 test files (`picks-and-about.test.ts` for picks, links and about) carried from the package (see below) and `form-tools.test.mjs`, which runs the five tools over one stand-in for the person's rows (given as `rows`, taking each `keep`) and each shipped row as the engine runs it. | carried and seam |
 
 ## Rows the form tools make and read
 

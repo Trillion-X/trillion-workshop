@@ -14,10 +14,26 @@
 //    (`FormField.validation:{min,max,pattern,message}`) without redesigning it.
 //  - Empty + optional = valid; empty + required = invalid. Coercion failure is
 //    invalid regardless of `required`.
+//  - A `picks` answer is checked against the question's own listed options (passed in
+//    as `choice`), never against a list kept here: one pick or several, and the other
+//    option's own words when it is picked. `min`/`max` count the picks.
 
 import { isEvidenceReference, type EvidenceReference } from './evidence-reference.ts';
 
-export type CoerceKind = 'string' | 'number' | 'boolean' | 'evidence-reference';
+export type CoerceKind = 'string' | 'number' | 'boolean' | 'evidence-reference' | 'picks';
+
+/** A picks answer: the values picked, and the person's own words when the other option is one of them. */
+export interface Picks {
+  picked: string[];
+  other?: string;
+}
+
+/** What a picks answer is checked against: the question's options, one pick or several, and its other option. */
+export interface ChoiceShape {
+  options?: readonly { value: string; label?: string }[] | null;
+  multiple?: boolean | null;
+  other?: { value: string; label?: string } | null;
+}
 
 /** DATA carried on each `question-type-capability` row (payload.validate.rules)
  *  and/or overridden per-question on the scene node. */
@@ -35,7 +51,7 @@ export interface AnswerValidationRules {
 
 export interface CoerceResult {
   ok: boolean;
-  value?: string | number | boolean | EvidenceReference;
+  value?: string | number | boolean | EvidenceReference | Picks;
 }
 
 export interface ValidationResult {
@@ -68,17 +84,33 @@ export function coerceAnswer(raw: unknown, coerce: CoerceKind): CoerceResult {
     case 'evidence-reference':
       if (isEmpty(raw)) return { ok: true, value: undefined };
       return isEvidenceReference(raw) ? { ok: true, value: raw } : { ok: false };
+    case 'picks':
+      return coercePicks(raw);
     default:
       // coerce is a closed Physics set (string|number|boolean) — unreachable.
       return { ok: false };
   }
 }
 
-/** Validate a raw answer against the capability's rules + coerce kind. */
+/** A picks answer from `{ picked, other? }`, a list of values or one value; empty is `undefined`. */
+export function coercePicks(raw: unknown): CoerceResult {
+  if (isEmpty(raw)) return { ok: true, value: undefined };
+  const list = typeof raw === 'string' ? [raw] : Array.isArray(raw) ? raw : raw && typeof raw === 'object' ? (raw as { picked?: unknown }).picked : null;
+  if (!Array.isArray(list) || list.some((item) => typeof item !== 'string')) return { ok: false };
+  const picked = [...new Set((list as string[]).map((item) => item.trim()).filter(Boolean))];
+  if (picked.length === 0) return { ok: true, value: undefined };
+  const words = raw && typeof raw === 'object' && !Array.isArray(raw) ? (raw as { other?: unknown }).other : undefined;
+  if (words !== undefined && words !== null && typeof words !== 'string') return { ok: false };
+  const other = typeof words === 'string' ? words.trim() : '';
+  return { ok: true, value: other ? { picked, other } : { picked } };
+}
+
+/** Validate a raw answer against the capability's rules + coerce kind (and, for picks, the question's choice). */
 export function validateAnswer(
   raw: unknown,
   coerce: CoerceKind,
   rules: AnswerValidationRules | null | undefined,
+  choice?: ChoiceShape | null,
 ): ValidationResult {
   const r = rules ?? {};
   const fail = (fallback: string): ValidationResult => ({
@@ -114,6 +146,15 @@ export function validateAnswer(
     const num = coerced.value as number;
     if (r.min != null && num < r.min) return fail(`Must be at least ${r.min}`);
     if (r.max != null && num > r.max) return fail(`Must be at most ${r.max}`);
+  } else if (coerce === 'picks') {
+    const { picked, other } = coerced.value as Picks;
+    const otherValue = choice?.other?.value;
+    const listed = new Set([...(choice?.options ?? []).map((option) => option.value), ...(otherValue ? [otherValue] : [])]);
+    if (picked.some((value) => !listed.has(value))) return fail('Pick from the answers shown');
+    if (!choice?.multiple && picked.length > 1) return fail('Pick one answer');
+    if (r.min != null && picked.length < r.min) return fail(`Pick at least ${r.min}`);
+    if (r.max != null && picked.length > r.max) return fail(`Pick at most ${r.max}`);
+    if (otherValue && picked.includes(otherValue) && !other) return fail(`Say what ${choice?.other?.label ?? otherValue} is`);
   }
 
   return { ok: true };

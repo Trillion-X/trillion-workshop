@@ -22,6 +22,11 @@ bounds are caller DATA. Reads preserve multiline text and delimiter characters;
 stable row identities prevent other rows losing edits when one is removed.
 Appearance remains in screen-look/creative-workspace.css.
 
+`choice-rows.tsx` (`ChoiceRows`) draws one question's answers as full-width rows to press, one pick (Base UI Radio in
+the Coss Checkbox's look) or several (the Coss Checkbox), with an other row that opens an Input for the person's own
+words. It is the picks input of the form owner (`tools/ask-questions-sort-answers-follow-up`), for questions asked one
+at a time.
+
 The publication composer’s shared platform → account → format tree, including
 removal of saved destinations that are temporarily unavailable, is documented
 in [`publication-workspace.md`](./publication-workspace.md).

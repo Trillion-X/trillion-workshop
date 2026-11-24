@@ -15,6 +15,7 @@
 // Kinds of row read and made: question-sequence, answer-fact, segment-assignment, score-rule, segment-rule, follow-up-sequence,
 // owner-action-request.
 import { buildFillScreenModel } from '../read-data/fill-screen-model.ts';
+import { resolveAbout } from '../read-data/question-descriptor.ts';
 import { registry } from './check-answers.mjs';
 import { coerceAnswer } from '../read-data/validate-answer.ts';
 import { readFirstQuestionSequence } from '../read-data/read-forms-data.ts';
@@ -84,7 +85,10 @@ export async function submitFormAnswers(input) {
   const rules = [];
   for (const kind of ['score-rule', 'segment-rule', 'follow-up-sequence']) rules.push(...readRows(given, kind));
   const config = readDecideConfig(payloadRows(rules), formId);
-  const plan = buildProcessSubmission(formId, respondentId, kept, config, answeredAt, submissionId);
+  // An answer about a thing (a question with `about`) keeps the thing it was asked about.
+  const abouts = Object.fromEntries(sequence.questions.filter(question => question.about && Object.hasOwn(kept, question.questionId))
+    .map(question => [question.questionId, resolveAbout(question, sequence.questions, kept).about]));
+  const plan = buildProcessSubmission(formId, respondentId, kept, config, answeredAt, submissionId, abouts);
 
   const requests = [];
   await runAfterSavedActions({ answers: kept, respondentId, runId: submissionId, sequence, now: new Date(answeredAt) }, async request => { requests.push(request); });

@@ -27,6 +27,9 @@ export interface QuestionInputProps {
   requestValue?: () => unknown | Promise<unknown>;
   /** Bounded-choice options (choice input). Ignored by free-value inputs. */
   options?: readonly QuestionOption[];
+  /** Picks input: several picks allowed, and the option that asks for the person's own words. */
+  multiple?: boolean;
+  other?: QuestionOption;
   /** Validation/UX hints mirrored from the question node DATA. */
   required?: boolean;
   placeholder?: string;
