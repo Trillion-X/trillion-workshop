@@ -1,0 +1,15 @@
+{
+  "kind": "pull-limits",
+  "what_this_is": "The limits and the folder that keep-a-repository-as-text.mjs reads. Changing a number here changes what the tool keeps; no code changes are needed.",
+  "root": "~/Library/Application Support/pulled-files/repos",
+  "most_bytes_per_file": 200000,
+  "most_bundle_bytes": 8000000,
+  "binary_sniff_bytes": 8000,
+  "most_git_seconds": 150,
+  "most_licence_seconds": 15,
+  "licence_phrases": [
+    { "spdx": "MIT", "phrase": "Permission is hereby granted, free of charge" },
+    { "spdx": "Apache-2.0", "phrase": "Version 2.0, January 2004" },
+    { "spdx": "GPL-3.0-only", "phrase": "Version 3, 29 June 2007" }
+  ]
+}

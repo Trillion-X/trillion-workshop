@@ -1,0 +1,9 @@
+{
+  "exports": {
+    "keep-a-repository-as-text": "keep-a-repository-as-text.mjs"
+  },
+  "public": [
+    "keep-a-repository-as-text.mjs"
+  ],
+  "imported_by": []
+}

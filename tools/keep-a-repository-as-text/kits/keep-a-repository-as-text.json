@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "The tool's source and local fixture tests. Public repository bundles were checked by the source command, but this tool has not yet been proved through an installed Workshop row; the example below is illustrative, not an installed run.",
+  "start_here": "Say to your AI: \"Keep the public repository https://github.com/octocat/Hello-World as one text file. Tell me its commit, licence, file identity, and every file left out. Do not run any repository code.\"",
+  "lists": [],
+  "no_lists_because": "This tool reads a public repository and keeps one local text file. It reads and writes no account list or database row.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-a-repository-as-text"
+  ],
+  "instructions": [
+    "1. Give your AI the public repository's https address. If you need a particular branch, tag or commit, give its ref too.",
+    "2. Have the AI discover tool:keep-a-repository-as-text, read its schema, then run it with the address and optional ref. It runs on your computer and does not install or execute repository code.",
+    "3. Read the answer: the commit and licence, the bundle_path, bundle_bytes and bundle_blake3, files_kept, and files_skipped with each reason. A missing repository or ref gives an error instead of a bundle.",
+    "4. Read the text bundle at bundle_path. A skipped file is not covered by the bundle. A licence in a subfolder does not license the entire repository; keep the scope the answer names. Keep the original bundle unchanged when passing it to your library's owner."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep a public repository as text without running it",
+      "ask": "Keep https://github.com/octocat/Hello-World as a text bundle and report anything left out.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-a-repository-as-text",
+            "input": {
+              "url": "https://github.com/octocat/Hello-World"
+            }
+          },
+          "request_key": "keep-public-repository-as-text-example"
+        }
+      },
+      "given": "Illustrative input only. The installed tool still needs a real fixture run before this kit's draft mark can be removed.",
+      "hands_back": "The local fixture tests keep 3 text files and list picture.bin as binary, huge.txt as over the per-file cap, and link-to-readme as a symbolic link. An installed Workshop result for the example address has not been observed."
+    }
+  ]
+}

@@ -22016,6 +22016,39 @@
    "at": "/opt/node_modules/@noble/hashes"
   }
  ],
+ "tool:keep-a-repository-as-text": [
+  {
+   "package": "keep-a-repository-as-text",
+   "paths": [
+    "keep-a-repository-as-text.mjs",
+    "read-data/limits.json"
+   ],
+   "at": "/opt/keep-a-repository-as-text"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:keep-a-secret-by-name": [],
  "tool:keep-a-show-rule": [
   {
