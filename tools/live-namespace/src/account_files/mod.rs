@@ -774,11 +774,10 @@ impl AccountFiles {
         let (folders, _) =
             self.store
                 .ids(&tree.folders(folder), None, MAX_PAGE_ITEMS)?;
-        let mut revisions = Map::new();
-        for child in &folders {
-            let stamp = self.store.stamp(&tree.names(child))?;
-            revisions.insert(child.clone(), json!(format!("folder:{stamp}")));
-        }
+        // Every child's revision in one read (Rows::stamps), never one round trip per child.
+        let scopes: Vec<String> = folders.iter().map(|child| tree.names(child)).collect();
+        let stamps = self.store.stamps(&scopes.iter().map(String::as_str).collect::<Vec<_>>())?;
+        let revisions: Map<String, Value> = folders.iter().zip(stamps).map(|(child, stamp)| (child.clone(), json!(format!("folder:{stamp}")))).collect();
         Ok((folders, revisions))
     }
 

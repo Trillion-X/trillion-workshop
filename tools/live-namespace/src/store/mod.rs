@@ -211,6 +211,12 @@ pub trait Rows: Send + Sync {
     fn mutate(&self, scope: &str, input: Mutation) -> Result<Change, Error>;
     /// How many changes the scope has had; moves whenever any row of the scope changes.
     fn stamp(&self, scope: &str) -> Result<i64, Error>;
+    /// The stamps of several scopes, in their order, asked together: a folder's child folders' revisions are one read, not
+    /// one per child (Nov 21 2026: the root's listing made one round trip per child folder and took 44 to 77 s on this Mac's
+    /// link to the database computer). A store that has no batch answers them one by one.
+    fn stamps(&self, scopes: &[&str]) -> Result<Vec<i64>, Error> {
+        scopes.iter().map(|scope| self.stamp(scope)).collect()
+    }
     /// Every declared total.
     fn totals(&self) -> Result<Vec<Total>, Error>;
     /// The file rows whose names, together, hold every one of `words` (anywhere in a name, any case), at most `hits`, in id order.
@@ -864,6 +870,22 @@ impl Rows for SqlStore {
         Ok(Read { record: rows.into_iter().next().map(|(record, _, _)| record) })
     }
 
+    fn stamps(&self, scopes: &[&str]) -> Result<Vec<i64>, Error> {
+        let mut link = self.link()?;
+        let mut found = std::collections::BTreeMap::new();
+        for batch in scopes.chunks(IDS_AT_ONCE) {
+            let marks = vec!["?"; batch.len()].join(", ");
+            let params: Vec<Cell> = batch.iter().map(|scope| Cell::text(scope)).collect();
+            for cells in link.query(&format!("SELECT scope, stamp FROM ns_stamp WHERE scope IN ({marks})"), &params)? {
+                if let (Some(scope), Some(stamp)) = (cells[0].as_text(), cells[1].as_int()) {
+                    found.insert(scope, stamp);
+                }
+            }
+        }
+        // A scope with no row has had no change: 0, as `stamp` answers it.
+        Ok(scopes.iter().map(|scope| found.get(*scope).copied().unwrap_or(0)).collect())
+    }
+
     fn get_many(&self, scope: &str, ids: &[&str]) -> Result<Vec<Option<Record>>, Error> {
         let mut link = self.link()?;
         let mut found = std::collections::BTreeMap::new();
@@ -1144,6 +1166,21 @@ mod tests {
     }
     fn chunk(bytes: i64, origin: &str) -> Value {
         json!({"kind": "namespace-chunk", "byte_length": bytes, "origin": origin, "key": "k", "stored_at": "2026-11-16T00:00:00.000Z"})
+    }
+
+    /// Several scopes' stamps asked together answer what each `stamp` answers, in the asked order (Rows::stamps).
+    #[test]
+    fn several_stamps_are_one_read_and_equal_each_stamp() {
+        let store = SqlStore::memory().unwrap();
+        put(&store, "@namespace/names/a/", "x", 0, "k1", json!({"name": "/a/x"})).unwrap();
+        put(&store, "@namespace/names/a/", "y", 0, "k2", json!({"name": "/a/y"})).unwrap();
+        put(&store, "@namespace/names/b/", "z", 0, "k3", json!({"name": "/b/z"})).unwrap();
+        let scopes = ["@namespace/names/b/", "@namespace/names/never/", "@namespace/names/a/"];
+        let each: Vec<i64> = scopes.iter().map(|scope| store.stamp(scope).unwrap()).collect();
+        assert_eq!(store.stamps(&scopes).unwrap(), each, "in the asked order, a scope with no change at 0");
+        assert_eq!(each[1], 0);
+        assert!(each[2] > each[0] || each[2] != 0, "a scope with two changes has moved");
+        assert!(store.stamps(&[]).unwrap().is_empty());
     }
 
     /// A SQLite store, which has one writer, refuses a second connection; a pool of one is the store it always was, and the

@@ -25,9 +25,9 @@ use std::{
 };
 
 /// Every operation of `Rows`, by the name it crosses under.
-pub const OPERATIONS: [&str; 15] = [
-    "get", "get_many", "get_scoped", "held_record_with_version", "list_page", "ids", "mutate", "stamp", "totals", "search", "place", "order",
-    "changes", "minted", "wait_for_order",
+pub const OPERATIONS: [&str; 16] = [
+    "get", "get_many", "get_scoped", "held_record_with_version", "list_page", "ids", "mutate", "stamp", "stamps", "totals", "search", "place",
+    "order", "changes", "minted", "wait_for_order",
 ];
 
 /// One call: the operation's name and its arguments, answered with the JSON `answer` gives (`{"answer": ..}` or
@@ -123,6 +123,15 @@ impl Rows for RowsByCalls {
         int(&self.ask("stamp", json!({"scope": scope}))?)
     }
 
+    fn stamps(&self, scopes: &[&str]) -> Result<Vec<i64>, Error> {
+        match self.ask("stamps", json!({"scopes": scopes})) {
+            Ok(answer) => array(&answer)?.iter().map(int).collect(),
+            // A run that keeps the names from before `stamps` refuses it as not valid: ask it one scope at a time.
+            Err(Error::Invalid(..)) => scopes.iter().map(|scope| self.stamp(scope)).collect(),
+            Err(error) => Err(error),
+        }
+    }
+
     fn totals(&self) -> Result<Vec<Total>, Error> {
         array(&self.ask("totals", json!({}))?)?.iter().map(total).collect()
     }
@@ -215,6 +224,11 @@ fn answered(store: &dyn Rows, operation: &str, a: &Value) -> Result<Value, Error
             serde_json::to_value(store.mutate(&scope()?, mutation)?).map_err(|_| crate::cause!(Error::OutcomeUnknown))?
         }
         "stamp" => json!(store.stamp(&scope()?)?),
+        "stamps" => {
+            let scopes = array(&a["scopes"])?.iter().map(text).collect::<Result<Vec<_>, _>>()?;
+            let scopes: Vec<&str> = scopes.iter().map(String::as_str).collect();
+            json!(store.stamps(&scopes)?)
+        }
         "totals" => Value::Array(store.totals()?.iter().map(total_value).collect()),
         "search" => {
             let words = array(&a["words"])?.iter().map(text).collect::<Result<Vec<_>, _>>()?;
@@ -388,6 +402,33 @@ mod tests {
         let failing = RowsByCalls::new(Box::new(|_: &str, _: &Value, _: Duration| Err(crate::cause!(Error::Unavailable))));
         assert!(matches!(put(&failing, "@namespace/x", "one", 0, "k", json!({})), Err(Error::OutcomeUnknown(_))));
         assert!(matches!(failing.get("@namespace/x", "one"), Err(Error::Unavailable(_))));
+    }
+
+    /// Many scopes' stamps cross as one call; a run that keeps the names from before `stamps` refuses it as not valid, and
+    /// the same stamps are then asked one scope at a time.
+    #[test]
+    fn several_stamps_cross_as_one_call_and_an_older_run_is_asked_one_by_one() {
+        let store = Arc::new(SqlStore::memory().unwrap());
+        put(store.as_ref(), "@namespace/names/a/", "x", 0, "k", json!({"name": "/a/x"})).unwrap();
+        let scopes = ["@namespace/names/a/", "@namespace/names/b/"];
+        let asked = Arc::new(std::sync::Mutex::new(Vec::new()));
+        let (seen, held) = (asked.clone(), store.clone());
+        let rows = RowsByCalls::new(Box::new(move |operation: &str, arguments: &Value, _: Duration| {
+            seen.lock().unwrap().push(operation.to_owned());
+            Ok(answer(held.as_ref(), operation, arguments))
+        }));
+        let want: Vec<i64> = scopes.iter().map(|scope| store.stamp(scope).unwrap()).collect();
+        assert_eq!(rows.stamps(&scopes).unwrap(), want);
+        assert_eq!(*asked.lock().unwrap(), ["stamps"]);
+        let (seen, held) = (Arc::new(std::sync::Mutex::new(Vec::new())), store.clone());
+        let older_seen = seen.clone();
+        let older = RowsByCalls::new(Box::new(move |operation: &str, arguments: &Value, _: Duration| {
+            older_seen.lock().unwrap().push(operation.to_owned());
+            if operation == "stamps" { return Ok(answer(held.as_ref(), "no_such_operation", arguments)); }
+            Ok(answer(held.as_ref(), operation, arguments))
+        }));
+        assert_eq!(older.stamps(&scopes).unwrap(), want);
+        assert_eq!(*seen.lock().unwrap(), ["stamps", "stamp", "stamp"]);
     }
 
     #[test]
