@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join, posix, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { performance } from 'node:perf_hooks';
 import { isDeepStrictEqual } from 'node:util';
@@ -137,6 +137,11 @@ test('current released workflow component acceptance', {
     assert.equal(source?.invoke_with, runner?.id);
     assert.equal(runner?.id, 'tool:run-a-workflow');
     assert.equal(runner.invoke.argv[0], 'component');
+    const [, packageName, ...parts] = COMPONENT.split('/');
+    const modulePath = parts.join('/');
+    assert.ok(runner.invoke.files.package_files.some(item => item.package === packageName
+      && item.paths.includes(modulePath) && posix.join(item.at, modulePath) === runner.invoke.argv[1]),
+    'the declared argv must run the same packaged component bytes this suite fingerprints');
     assert.equal(runner.invoke.internet, false);
     child.diagnostic(JSON.stringify({ target: identity, declaration_only: true, live_wake_invocation_proved: false }));
   });
