@@ -1879,7 +1879,13 @@
                     "select": {
                       "from": "input",
                       "path": "output.rows.0.call_now"
-                    }
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.equals",
+                        "args": { "value": true }
+                      }
+                    ]
                   }
                 },
                 {
@@ -1891,7 +1897,13 @@
                     "select": {
                       "from": "input",
                       "path": "output.rows.0.write_now"
-                    }
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.equals",
+                        "args": { "value": true }
+                      }
+                    ]
                   }
                 },
                 {
