@@ -1,11 +1,14 @@
 # Build, notarize and Sparkle-sign any XcodeGen Mac app with Fastlane's own actions. It knows no app: the caller names
-# the app folder, scheme and carried files; the variable names they reach the build by come from the app's own data.
+# the app folder, scheme and each file the app carries; the app's own data (macos/native-release.json `carry_environment`)
+# maps each such option to the variable its project.yml reads the file's path from.
 #
-#   fastlane mac release app:<app repo> scheme:<scheme> engine:<program the app carries> host_events:<its declaration> \
+#   fastlane mac release app:<app repo> scheme:<scheme> <carried option>:<path>... \
 #     notary:<notarytool keychain profile> sparkle_account:<sign_update Keychain account>
 #
-# Signing: the Developer ID identity in the person's Keychain (Xcode's automatic signing). Notarization: the named
-# notarytool keychain profile. Update stamp: Sparkle's sign_update, which reads its key from the named Keychain account.
+# Signing: the Developer ID identity in the person's Keychain, with the export options the app's data names (else Xcode's
+# automatic signing); the export signs every program the app carries, and the disk image is signed by the same identity.
+# Notarization: the named notarytool keychain profile. Build number: the UTC minute, so each release is newer than the
+# last. Update stamp: Sparkle's sign_update, which reads its key from the named Keychain account.
 require "json"
 
 default_platform(:mac)
@@ -16,33 +19,38 @@ platform :mac do
     macos = File.join(app, "macos")
     out = File.join(app, ".build/release")
 
-    # The app's own data names the variables its build phase reads each carried file's path, BLAKE3 and size from.
+    # The app's own data names the variable its project reads each carried file's path from.
     release = JSON.parse(File.read(File.join(macos, "native-release.json")))
-    names = release.fetch("carry_environment")
-    archs = release["architectures"] ? " ARCHS=#{release["architectures"]} ONLY_ACTIVE_ARCH=NO" : ""
-    { "runtime" => o.fetch(:engine), "host_events" => o.fetch(:host_events) }.each do |prefix, path|
-      path = File.expand_path(path)
-      key = prefix == "runtime" ? "runtime_artifact" : "host_events_declaration"
-      ENV[names.fetch(key)] = path
-      ENV[names.fetch("#{prefix}_blake3")] = sh("b3sum", "--no-names", path, log: false).strip
-      ENV[names.fetch("#{prefix}_bytes")] = File.size(path).to_s
+    release.fetch("carry_environment").each do |option, variable|
+      path = File.expand_path(o.fetch(option.to_sym))
+      UI.user_error!("#{option}: #{path} is not a file; nothing was built.") unless File.file?(path)
+      ENV[variable] = path
     end
+    archs = release["architectures"] ? " ARCHS=#{release["architectures"]} ONLY_ACTIVE_ARCH=NO" : ""
+    number = Time.now.utc.strftime("%Y%m%d%H%M")
 
     Dir.chdir(app) { sh("npm", "ci", "--no-audit", "--no-fund") } if File.exist?(File.join(app, "package-lock.json"))
     sh("xcodegen", "generate", "--spec", File.join(macos, "project.yml"), "--project", macos)
     project = Dir[File.join(macos, "*.xcodeproj")].first
 
+    # Export options the app declares (its certificate and profiles) are Xcode's own; without them Xcode signs automatically.
+    export = release["export_options"] ? { export_options: release["export_options"] }
+                                       : { export_xcargs: "-allowProvisioningUpdates" }
     path = build_mac_app(project: project, scheme: o.fetch(:scheme), configuration: "Release",
                          export_method: "developer-id", output_directory: out, clean: true,
-                         xcargs: "-allowProvisioningUpdates#{archs}", export_xcargs: "-allowProvisioningUpdates")
+                         xcargs: "-allowProvisioningUpdates CURRENT_PROJECT_VERSION=#{number}#{archs}", **export)
 
     zip = File.join(out, "notarize.zip")
     sh("ditto", "-c", "-k", "--keepParent", path, zip)
     sh("xcrun", "notarytool", "submit", zip, "--keychain-profile", o.fetch(:notary), "--wait")
     sh("xcrun", "stapler", "staple", path)
 
+    # The disk image is signed by the identity the export signed the app with, so Gatekeeper accepts the image itself.
+    signer = sh("codesign", "-dvv", path, log: false)[/^Authority=(Developer ID Application: .+)$/, 1]
+    UI.user_error!("The exported app is not signed with a Developer ID Application identity.") unless signer
     dmg = File.join(out, "#{File.basename(path, '.app')}.dmg")
     sh("hdiutil", "create", "-volname", File.basename(path, ".app"), "-srcfolder", path, "-ov", "-format", "UDZO", dmg)
+    sh("codesign", "--sign", signer, "--timestamp", dmg)
     sh("xcrun", "notarytool", "submit", dmg, "--keychain-profile", o.fetch(:notary), "--wait")
     sh("xcrun", "stapler", "staple", dmg)
 
