@@ -9,7 +9,7 @@ Copies a live website into the file map a public app is published from: each pag
 | `part.json` | What other parts and tools may use from this part. |
 | `do-work/copy-a-site.mjs` | Opens each page in a headless browser, follows same-site links and a bounded same-site sitemap, fetches the files the pages use, reports pages left for another run, and leaves `<out>/site.json`; prints one JSON line. |
 | `do-work/copy-addresses.mjs` | The route and link rules: the file a page is kept as, and how addresses in a page or style sheet are pointed at the copy. |
-| `tool-rows.json` | The Workshop row for this folder: `tool:copy-a-site`, an internet:true container row that packs `do-work` and `tools/headless-browser`'s `devtools.mjs` and `quiet-switches.json`. |
+| `tool-rows.json` | The Workshop row for this folder: `tool:copy-a-site`, an internet:true container row that packs `do-work` and `tools/headless-browser`'s `devtools.mjs`, `quiet-switches.json` and `browser-places.json`; declares the BLAKE3-pinned Chrome for Testing headless shell the engine fetches and puts on the run's PATH. |
 | `test/` | The copier run on a small site reached only through a proxy (Playwright's Chromium), and its naming, sitemap and page-limit rules. |
 
 ## Key Types / Functions
@@ -19,11 +19,11 @@ Copies a live website into the file map a public app is published from: each pag
 | `pageFile` | `(pathname: string) => string` | The file a page is kept as: `/` is `index.html`, `/a/b` is `a/b/index.html`, `/a.html` stays `a.html`. |
 | `assetFile` | `(url: URL, contentType: string) => string` | The file an asset is kept as, with the extension the host serves for the type the site answered, and a query string folded into the name. |
 | `sitemapPages` | `(origin, fetchPage = fetch) => Promise<string[]>` | Same-origin page paths a sitemap or sitemap index lists, at most 8 sitemap files and 1 MB each. |
-| command | `node do-work/copy-a-site.mjs --url <address> --out <folder> [--max-pages 60] [--paths '["/a"]'] [--exclude-paths '["/kept"]'] [--width 1280] [--height 900] [--browser <path>]` | Prints `{ origin, pages[], remaining_paths[], redirects[], asset_paths[], files, bytes, skipped[], all_skipped[] }`; `site.json` is `{ files: { path: text \| data URL } }`. |
+| command | `node do-work/copy-a-site.mjs --url <address> --out <folder> [--max-pages 60] [--paths '["/a"]'] [--exclude-paths '["/kept"]'] [--width 1280] [--height 900] [--browser <path>]` | Prints `{ origin, pages[], viewports[], remaining_paths[], redirects[], asset_paths[], files, bytes, skipped[], all_skipped[] }`; each viewport is `{ path, width, height, device_scale_factor }` measured in the page after drawing; `site.json` is `{ files: { path: text \| data URL } }`. |
 
 ## Dependencies
 
-**Depends on:** `tools/headless-browser` (`devtools.mjs`, a Chromium spoken to over DevTools with `quiet-switches.json`); Node's own `fetch` and `WebSocket`; a Chromium (`--browser` or `BROWSER_EXECUTABLE`).
+**Depends on:** `tools/headless-browser` (`devtools.mjs`, a Chromium spoken to over DevTools with `quiet-switches.json`); Node's own `fetch`; the row's declared Chrome for Testing headless shell, fetched and checked by the engine on macOS arm64 and Linux x86_64. No browser installed on the host or browser-path input is needed for the tool. Direct local script runs can name their own browser with `--browser` or `BROWSER_EXECUTABLE`; that is not the installed tool's dependency proof.
 
 **Depended on by:** the Workshop row `tool:copy-a-site` (`tool-rows.json`).
 

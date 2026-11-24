@@ -246,6 +246,7 @@
        "required": [
         "origin",
         "pages",
+        "viewports",
         "files",
         "bytes",
         "skipped"
@@ -257,6 +258,21 @@
         "pages": {
          "type": "array",
          "minItems": 1
+        },
+        "viewports": {
+         "type": "array",
+         "minItems": 1,
+         "items": {
+          "type": "object",
+          "required": ["path", "width", "height", "device_scale_factor"],
+          "properties": {
+           "path": { "type": "string" },
+           "width": { "type": "integer", "minimum": 1 },
+           "height": { "type": "integer", "minimum": 1 },
+           "device_scale_factor": { "type": "number", "exclusiveMinimum": 0 }
+          }
+         },
+         "description": "Each copied page's measured CSS viewport, read from the browser, not echoed from the input."
         },
         "remaining_paths": {
          "type": "array",

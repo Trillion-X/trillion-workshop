@@ -21,7 +21,7 @@ import { realpathSync } from 'node:fs';
 //     [--width 1280] [--height 900] [--max-file-bytes 20000000] [--browser chromium, or BROWSER_EXECUTABLE]
 //
 // Leaves <out>/site.json: { files: { "<path>": "<text>" | "data:<type>;base64,..." } }, the input publish takes as
-// it is, and prints one JSON line: { origin, pages[], files, bytes, skipped[] }. On failure prints the reason on
+// it is, and prints one JSON line: { origin, pages[], viewports[], files, bytes, skipped[] }. On failure prints the reason on
 // standard error and exits 1.
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -129,7 +129,8 @@ const TAKE_PAGE = `async (origin) => {
   const query_links = [...document.querySelectorAll('a[href]')].map(a => { try { return new URL(a.getAttribute('href'), location.href); } catch { return null; } })
     .filter(url => url && url.origin === origin && url.search).map(url => url.href.split('#')[0]);
   const doctype = document.doctype ? '<!doctype ' + document.doctype.name + '>' : '';
-  return { html: doctype + document.documentElement.outerHTML, used: [...used], links: [...new Set(links)], query_links: [...new Set(query_links)], status: document.title };
+  return { html: doctype + document.documentElement.outerHTML, used: [...used], links: [...new Set(links)], query_links: [...new Set(query_links)], status: document.title,
+    viewport: { width: innerWidth, height: innerHeight, device_scale_factor: devicePixelRatio } };
 }`;
 
 export function omittedPages(queue, seen, origin, maxPages) {
@@ -268,6 +269,8 @@ async function main() {
   try {
     await browser.send('Page.enable');
     await browser.send('Runtime.enable');
+    // A headless shell's window size is not proof of its page size. Set the CSS viewport, then measure each page.
+    await browser.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
     let loaded = () => {};
     browser.on(event => { if (event.method === 'Page.loadEventFired') loaded(); });
     while (queue.length && pages.size < maxPages) {
@@ -360,6 +363,7 @@ async function main() {
   if (!files['index.html']) throw new BrowserProblem(`The start page ${start.href} could not be copied: ${skipped.map(s => s.reason).join('; ') || 'it answered no page'}.`);
   writeFileSync(join(out, 'site.json'), JSON.stringify({ files }));
   process.stdout.write(`${JSON.stringify({ origin, pages: [...pages.keys()], remaining_paths, redirects,
+    viewports: [...pages].map(([path, page]) => ({ path, ...page.viewport })),
     asset_paths: [...assets].map(([address, kept]) => ({ address, file: kept.file })),
     files: Object.keys(files).length, bytes, skipped: reportedSkipped(skipped, origin), all_skipped: skipped })}\n`);
 }

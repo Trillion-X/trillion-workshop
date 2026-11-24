@@ -104,15 +104,16 @@ test('page and asset addresses become files the host serves', () => {
   assert.equal(assetFile(new URL('https://x.example/p/a.png?w=400'), 'image/png'), 'p/a-w-400.png');
 });
 
-test('a live site copies through the proxy: drawn words kept, scripts gone, links and pictures point at the copy', { timeout: 120000 }, async () => {
+for (const width of [390, 1280]) test(`a site copies at ${width}px through the proxy: measured width, drawn words, no scripts, links and pictures`, { timeout: 120000 }, async () => {
   const out = tempFolder(join(tmpdir(), 'copy-a-site-test-'));
   try {
     await withProxy(async (proxy, asked) => {
       const origin = `http://${HOST}`;
-      const { status, stdout, stderr } = await runTool({ url: `${origin}/`, max_pages: 10 }, out, proxy);
+      const { status, stdout, stderr } = await runTool({ url: `${origin}/`, max_pages: 10, width }, out, proxy);
       assert.equal(status, 0, stderr);
       const result = JSON.parse(stdout.trim().split('\n').at(-1));
       assert.deepEqual(result.pages.sort(), ['/', '/guides/first', '/listed-only']);
+      assert.deepEqual(result.viewports, ['/', '/guides/first', '/listed-only'].map(path => ({ path, width, height: 900, device_scale_factor: 1 })));
       const { files } = JSON.parse(readFileSync(join(out, 'site.json'), 'utf8'));
       assert.deepEqual(Object.keys(files).sort(), ['favicon.ico', 'guides/first/index.html', 'index.html', 'listed-only/index.html', 'look/site.css', 'pictures/ball.png', 'pictures/court.png']);
       assert.match(files['favicon.ico'], /^data:image\/x-icon;base64,/);
