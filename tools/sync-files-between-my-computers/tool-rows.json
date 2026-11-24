@@ -627,7 +627,7 @@
             },
             "name": {
               "type": "string",
-              "description": "The name in Files: folders by slash; letters, digits, dots, dashes and underscores only"
+              "description": "An absolute file name in Files; slash separates folders. Spaces and Unicode are kept. At most 2048 UTF-8 bytes; no empty, . or .. segments or control characters."
             },
             "media_type": {
               "type": "string",
@@ -651,7 +651,7 @@
                   },
                   "name": {
                     "type": "string",
-                    "description": "The name in Files: folders by slash; letters, digits, dots, dashes and underscores only"
+                    "description": "An absolute file name in Files; slash separates folders. Spaces and Unicode are kept. At most 2048 UTF-8 bytes; no empty, . or .. segments or control characters."
                   },
                   "media_type": {
                     "type": "string",

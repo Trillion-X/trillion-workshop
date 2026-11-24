@@ -25,9 +25,16 @@ import { readFile } from 'node:fs/promises';
 
 const SETTINGS = JSON.parse(readFileSync(new URL('./keep-a-local-file.json', import.meta.url), 'utf8'));
 
-// A name in Files is absolute: it starts with the root's slash, as the engine's Files write contract requires.
-const NAME = /^\/[A-Za-z0-9][A-Za-z0-9._-]*(\/[A-Za-z0-9][A-Za-z0-9._-]*)*$/;
+// Files' name boundary (live-namespace/src/account_files/write.rs validate_name) preserves spaces and Unicode and
+// bounds UTF-8 bytes, not JavaScript characters. This keeper also refuses empty and traversal path segments.
+const NAME_MOST_BYTES = 2048;
 const MEDIA = /^[a-z]+\/[a-z0-9.+-]+$/;
+
+function validName(name) {
+  if (typeof name !== 'string' || !name.startsWith('/') || name.endsWith('/')
+      || Buffer.byteLength(name, 'utf8') > NAME_MOST_BYTES || /\p{Cc}/u.test(name)) return false;
+  return name.slice(1).split('/').every(part => part !== '' && part !== '.' && part !== '..');
+}
 
 function refuse(reason) {
   throw Object.assign(new Error(reason), { code: 'refused' });
@@ -35,7 +42,7 @@ function refuse(reason) {
 
 async function keepOne({ path, name, media_type = 'application/octet-stream' } = {}, context) {
   if (typeof path !== 'string' || !isAbsolute(path)) refuse('The local file must be named by its full path.');
-  if (typeof name !== 'string' || !NAME.test(name) || name.split('/').some(part => part === '..')) refuse('The name in Files is not a valid name.');
+  if (!validName(name)) refuse('The name in Files is not a valid name.');
   if (typeof media_type !== 'string' || !MEDIA.test(media_type)) refuse('The media type is not valid.');
   const info = await (context.stat ?? lstat)(path);
   if (info.isSymbolicLink()) refuse('A link is not kept; name the file itself.');

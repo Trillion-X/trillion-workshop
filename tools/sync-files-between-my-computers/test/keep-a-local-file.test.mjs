@@ -38,6 +38,76 @@ test('keeps a regular file in pieces and answers the door finish', async () => {
   assert.ok(door.calls.filter(call => call.op === 'write_file_piece').length >= 2);
 });
 
+for (const name of [
+  '/workspace screens/before/2026-11-24 3.58.07 AM CST media loading.txt',
+  '/notes/été/練習 🎾.txt',
+  '/notes/.drafts/Café (first take) #1.txt',
+]) {
+  test(`keeps the exact printable Files name ${name}`, async () => {
+    const dir = tempFolder(join(tmpdir(), 'keep-local-'));
+    const path = join(dir, 'neutral fixture.txt');
+    const bytes = Buffer.from('neutral fixture');
+    await writeFile(path, bytes);
+    const door = fakeDoor();
+    const answer = await keepALocalFile({ path, name, media_type: 'text/plain' }, door);
+    assert.deepEqual(answer.refused, []);
+    assert.equal(answer.kept[0].name, name);
+    assert.equal(answer.kept[0].finished.name, name);
+    assert.ok(door.calls.every(call => call.args.name === name));
+    const kept = Buffer.concat(door.calls.filter(call => call.op === 'write_file_piece').map(call => Buffer.from(call.args.content_base64, 'base64')));
+    assert.deepEqual(kept, bytes);
+  });
+}
+
+test('the Files name bound is 2048 UTF-8 bytes, not a count of JavaScript characters', async () => {
+  const dir = tempFolder(join(tmpdir(), 'keep-local-'));
+  const path = join(dir, 'neutral.txt');
+  await writeFile(path, 'neutral');
+  const name = `/${'é'.repeat(1023)}a`;
+  assert.equal(Buffer.byteLength(name), 2048);
+  const answer = await keepALocalFile({ path, name }, fakeDoor());
+  assert.deepEqual(answer.refused, []);
+  assert.equal(answer.kept[0].name, name);
+});
+
+for (const [kind, name] of [
+  ['relative', 'notes/a.txt'],
+  ['root', '/'],
+  ['empty segment', '/notes//a.txt'],
+  ['trailing slash', '/notes/'],
+  ['dot segment', '/notes/./a.txt'],
+  ['parent segment', '/notes/../a.txt'],
+  ['leading parent', '/../a.txt'],
+  ['NUL', '/notes/a\u0000.txt'],
+  ['line break', '/notes/a\n.txt'],
+  ['tab', '/notes/a\t.txt'],
+  ['DEL', '/notes/a\u007f.txt'],
+  ['C1 control', '/notes/a\u0085.txt'],
+  ['too many ASCII bytes', `/${'a'.repeat(2048)}`],
+  ['too many UTF-8 bytes', `/${'é'.repeat(1024)}`],
+]) {
+  test(`refuses a ${kind} Files name before reading a source or asking for files rights`, async () => {
+    const door = fakeDoor();
+    let stats = 0;
+    door.stat = async () => { stats++; throw new Error('the source must not be read'); };
+    const answer = await keepALocalFile({ path: '/fixture/neutral.txt', name }, door);
+    assert.deepEqual(answer.kept, []);
+    assert.equal(answer.refused[0].code, 'refused');
+    assert.equal(answer.refused[0].reason, 'The name in Files is not a valid name.');
+    assert.equal(stats, 0);
+    assert.deepEqual(door.calls, []);
+  });
+}
+
+test('a missing source is refused without starting a write', async () => {
+  const dir = tempFolder(join(tmpdir(), 'keep-local-'));
+  const door = fakeDoor();
+  const answer = await keepALocalFile({ path: join(dir, 'missing.txt'), name: '/notes/missing.txt' }, door);
+  assert.deepEqual(answer.kept, []);
+  assert.equal(answer.refused[0].code, 'ENOENT');
+  assert.deepEqual(door.calls, []);
+});
+
 test('a file above the whole-file threshold goes in raw pieces (writeLarge), not in base64 pieces', async () => {
   const dir = tempFolder(join(tmpdir(), 'keep-local-'));
   const path = join(dir, 'big.mov');
