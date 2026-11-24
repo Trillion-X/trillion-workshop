@@ -168,17 +168,26 @@ def reply_rows(text, rows_key):
     """The rows in a model's answer (json_values). A server that cannot hold the answer to the schema may write
     {rows_key: [...]}, a bare list of rows, or one object per row one after another; all three give the same rows. An answer
     with no JSON value, or whose values hold no rows key and no row objects, is an error (an answer of {rows_key: []} is none)."""
+    return rows_from_values(json_values(text), rows_key)
+
+
+def rows_from_values(values, rows_key):
+    """The same row shapes from already decoded values; transport guards need not decode twice."""
     rows, held = [], False
-    for value in json_values(text):
+    for value in values:
         if isinstance(value, dict) and rows_key in value:
+            if not isinstance(value[rows_key], list):
+                raise ValueError("The explicit rows member must be an array.")
             held = True
-            rows.extend(value[rows_key] or [])
+            rows.extend(value[rows_key])
         elif isinstance(value, list):
             held = True
             rows.extend(value)
         elif isinstance(value, dict):
             held = True
             rows.append(value)
+        else:
+            raise ValueError("Answer values must be row objects, arrays or row containers.")
     if not held:
         raise ValueError("no rows in the answer")
     return rows
@@ -253,7 +262,11 @@ def guest_of(rules, video):
     """The guest a video names, by the person's patterns over its fields ({field, pattern} with a named group `name`), first
     match wins; None when no pattern finds one."""
     for rule in rules or []:
-        match = re.search(rule["pattern"], str(video.get(rule["field"]) or ""))
+        value = video.get(rule["field"])
+        if isinstance(value, (dict, list)):
+            # Preserve the inherited Python-text matching convention, with canonical nested key order.
+            value = json.loads(json.dumps(value, sort_keys=True, ensure_ascii=False))
+        match = re.search(rule["pattern"], str(value or ""))
         if match and match.group("name"):
             return match.group("name").strip()
     return None
@@ -275,7 +288,10 @@ def rows_of_reply(asks, chunk, videos, captions_of, rows, base):
             continue
         number = row.get(part_field, 1 if len(chunk) == 1 else None)
         try:
-            part = chunk[int(number) - 1]
+            index = int(number)
+            if index < 1 or index > len(chunk):
+                raise ValueError("part outside the read chunk")
+            part = chunk[index - 1]
         except (TypeError, ValueError, IndexError):
             dropped.append({"why": "names no part it read", "row": row})
             continue
@@ -284,6 +300,8 @@ def rows_of_reply(asks, chunk, videos, captions_of, rows, base):
             dropped.append({"why": f"{named} is {row[named]}", "video": part["video"], "row": row})
             continue
         caption = captions_of(part["video"])
+        if row.get(quote_field) is not None and not isinstance(row[quote_field], str):
+            raise ValueError("A quote must be text.")
         placed = place_quote(caption, row.get(quote_field), caption.word_range(part["first_line"], part["end_line"]),
                              asks.get("quote_match_at_least", 0.8), asks.get("quote_most_words", 25))
         if placed is None:
@@ -292,6 +310,8 @@ def rows_of_reply(asks, chunk, videos, captions_of, rows, base):
         video = videos[part["video"]]
         rule = asks.get("carried_by_quote")
         if rule:
+            if row.get(rule["field"]) is not None and not isinstance(row[rule["field"]], str):
+                raise ValueError("The statement checked against its quote must be text.")
             within = caption.word_range(part["first_line"], part["end_line"])
             placed, missing = carried({"most_words": asks.get("quote_most_words", 25), **rule}, row.get(rule["field"]), caption, placed, within, video)
             if placed is None:

@@ -1,7 +1,7 @@
 // Runs the command for real on synthetic captions (five made-up videos from two made-up channels, made here) and checks what the
 // tool promises: a corpus that says how each video did against its channel's usual, the passages worth reading, an exact-quote
 // check that tells a wrong quote from a missing caption file, and a registry whose evidence is counted by independent channel.
-// Needs python3 only.
+// Extraction tests need the declared requirements-extract.txt dependencies.
 import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test, { before } from 'node:test';
 import assert from 'node:assert/strict';
@@ -15,7 +15,8 @@ import { makeRecord } from '../../settings/read-data/settings.mjs';
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const script = join(folder, 'do-work', 'cite_principles.py');
 const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records[0].payload;
-const run = (...argv) => spawnSync('python3', argv, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+const python = process.env.CAPTION_TEST_PYTHON || 'python3';
+const run = (...argv) => spawnSync(python, argv, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 const tool = (...argv) => run(script, ...argv);
 const lastLine = out => JSON.parse(out.trim().split('\n').pop()).result;
 const lines = path => readFileSync(path, 'utf8').trim().split('\n').map(line => JSON.parse(line));
@@ -36,7 +37,7 @@ test('the row runs on the person\'s computer and names the script that exists', 
 });
 
 test('the pure readers keep their promises', () => {
-  for (const file of ['test_captions.py', 'test_extraction.py', 'test_verify.py']) {
+  for (const file of ['test_captions.py', 'test_extraction.py', 'test_verify.py', 'test_model.py', 'test_workshop_receipt.py', 'test_model_safety.py']) {
     const out = run(join(folder, 'test', file));
     assert.equal(out.status, 0, out.stderr);
   }
@@ -302,13 +303,13 @@ test('coverage separately counts completed videos with no rows and emits only ci
 
 test('extract asks the model about every part, keeps each quote as the caption words it came from, and a stop loses nothing', async () => {
   const both = join(work, 'corpus-both.jsonl');
-  const server = spawn('python3', [join(folder, 'test', 'fake_chat.py')]);
+  const server = spawn(python, [join(folder, 'test', 'fake_chat.py')]);
   const port = await new Promise(resolve => server.stdout.once('data', data => resolve(String(data).trim())));
   try {
     const model = join(work, 'model.json');
     assert.equal(run(join(folder, 'test', 'write_json.py'), model, JSON.stringify({ url: `http://127.0.0.1:${port}/v1`, model: 'stand-in' })).status, 0);
     const out = join(work, 'extracted');
-    const extract = (...more) => spawnAsync('python3', [script, 'extract', '--corpus', both, '--asks', join(work, 'asks.json'), '--model', model, '--out', out, '--retry-seconds', '0', ...more]);
+    const extract = (...more) => spawnAsync(python, [script, 'extract', '--corpus', both, '--asks', join(work, 'asks.json'), '--model', model, '--out', out, '--retry-seconds', '0', ...more]);
     const progress = join(work, 'extract-progress.json');
     const first = await extract('--attempts', '1', '--concurrency', '2', '--coverage-out', progress, '--report-every', '1');
     assert.equal(first.status, 0, first.stderr);

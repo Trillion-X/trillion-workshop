@@ -40,8 +40,10 @@ class Handler(BaseHTTPRequestHandler):
             self.send_response(500)
             self.end_headers()
             return
-        content = "<think>thinking</think>```json\n" + json.dumps({"rows": rows_for(user)}) + "\n```"
-        answer = {"choices": [{"message": {"content": content}}], "usage": {"prompt_tokens": len(user.split()), "completion_tokens": 30}}
+        value = json.dumps({"rows": rows_for(user)})
+        content = "<think>thinking</think>```json\n" + value + "\n```"
+        answer = {"model": "stand-in", "choices": [{"finish_reason": "stop", "message": {"content": content}}],
+                  "usage": {"prompt_tokens": len(user.split()), "completion_tokens": 30}}
         data = json.dumps(answer).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
