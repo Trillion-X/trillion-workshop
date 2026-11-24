@@ -1,22 +1,22 @@
-"""Build thumbnail candidates from real frames with six layout templates, each candidate one row of values.
+"""Build still-image candidates from six fixed layouts or an ordered scene of layers.
 
 One JSON request (a file named as the first argument, or standard input), where
 a person's settings row (`settings_record`, the record itself) can hold their candidates; the last line printed is the answer,
 {"result": {"thumbnails": [paths]}}, or {"error": "..."} with what to change.
 
-Request: `frames` (folder of full-size frames, <name>.png), `cutouts` (folder of cut-outs, <name>_cut.png, cut from the crop
-whose top-left is `cut_offset` of the same frame), `out` (folder; each candidate is written as <id>.png), `font`
-({"file": a TrueType/OpenType file, "variable": true when it is a variable font with the named styles below}),
-`only` (candidate ids; all when absent), and `settings_record` / `settings` giving `candidates`: {id: {template, ...values}}.
-The layout functions are the templates (KEEP); a candidate's values are its slots. Templates: split_claim,
-face_right_stack, zoom_flaw, tags, hold_quote, corner_face (the README says which values each reads).
+`settings_record` / `settings` holds `candidates`: {id: {template, ...values} or {scene}}.
+The README describes the request, candidate values and scene limits.
 """
 import json
 import math
 import os
+import re
+import stat
 import sys
+import tempfile
+import warnings
 
-from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont, ImageOps
 
 sys.path.insert(0, '/opt/settings/read-data')
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'settings', 'read-data'))
@@ -53,18 +53,38 @@ def punch(im, contrast=1.22, colour=1.18, bright=1.0):
     return im.filter(ImageFilter.UnsharpMask(2, 60, 2))
 
 
-def frame(name):
-    path = os.path.join(K4, f"{name}.png")
+def safe_name(name, label):
+    if (not isinstance(name, str) or not name or name in ('.', '..') or not name.isprintable()
+            or any(c in name for c in '/\\:') or len(name.encode('utf-8')) > 240):
+        raise Refusal(f"{label} must be a safe file name without a path")
+
+
+def request_path(path, key):
+    if not isinstance(path, str) or not path or '\0' in path:
+        raise Refusal(f"the request needs `{key}` (see the README)")
+    return path
+
+
+def asset_path(folder, name, label, key, suffix):
+    safe_name(name, label)
+    root = os.path.realpath(request_path(folder, key))
+    filename = name + suffix
+    path = os.path.join(root, filename)
+    if os.path.commonpath((root, os.path.realpath(path))) != root:
+        raise Refusal(f"{label} {name} points outside `{key}`")
     if not os.path.isfile(path):
-        raise Refusal(f"no frame {name}: put {name}.png in the frames folder")
-    return Image.open(path).convert("RGB")
+        raise Refusal(f"no {label} {name}: put {filename} in the {label}s folder")
+    return path
+
+
+def frame(name):
+    with Image.open(asset_path(K4, name, "frame", "frames", ".png")) as im:
+        return im.convert("RGB")
 
 
 def cutout(name):
-    path = os.path.join(CUT, f"{name}_cut.png")
-    if not os.path.isfile(path):
-        raise Refusal(f"no cut-out {name}: put {name}_cut.png in the cut-outs folder")
-    return Image.open(path).convert("RGBA")
+    with Image.open(asset_path(CUT, name, "cut-out", "cutouts", "_cut.png")) as im:
+        return im.convert("RGBA")
 
 
 def crop_cover(im, cx, cy, w, h, out_w, out_h):
@@ -146,15 +166,15 @@ def arrow(canvas, p0, p1, bend=0.3, width=14, colour=RED, head=40, outline=WHITE
                     (1 - t) ** 2 * y0 + 2 * (1 - t) * t * cy + t * t * y1))
     ang = math.atan2(y1 - pts[-4][1], x1 - pts[-4][0])
     tip = (x1, y1)
-    l = (x1 - head * math.cos(ang - 0.5), y1 - head * math.sin(ang - 0.5))
-    r = (x1 - head * math.cos(ang + 0.5), y1 - head * math.sin(ang + 0.5))
+    left = (x1 - head * math.cos(ang - 0.5), y1 - head * math.sin(ang - 0.5))
+    right = (x1 - head * math.cos(ang + 0.5), y1 - head * math.sin(ang + 0.5))
     body = pts[:-3]
     d = ImageDraw.Draw(canvas)
     if outline:
         d.line(body, fill=outline, width=width + 8, joint="curve")
-        d.polygon([tip, l, r], fill=outline, outline=outline, width=8)
+        d.polygon([tip, left, right], fill=outline, outline=outline, width=8)
     d.line(body, fill=colour, width=width, joint="curve")
-    d.polygon([tip, l, r], fill=colour)
+    d.polygon([tip, left, right], fill=colour)
 
 
 def zoom_circle(canvas, src, src_c, src_r, at, r, ring=RED, line_to=None):
@@ -308,6 +328,157 @@ def t_corner_face(c):
 TEMPLATES = {"split_claim": t_split_claim, "face_right_stack": t_face_right_stack, "zoom_flaw": t_zoom_flaw,
              "tags": t_tags, "hold_quote": t_hold_quote, "corner_face": t_corner_face}
 
+# ---------- data-driven scenes ----------
+
+MAX_CANVAS = (4096, 8_388_608)  # longest side, total pixels
+MAX_FRAME = (8192, 24_000_000)
+MAX_LAYERS, MAX_SCENES = 16, 16
+MAX_TEXT, MAX_FONT_SIZE = 512, 512
+LAYER_FIELDS = {
+    'image': (('frame',), ()),
+    'rect': (('paint',), ()),
+    'text': (('paint', 'text', 'font_size'), ('min_font_size', 'font_style')),
+}
+
+
+def fields(obj, required, optional=()):
+    if not isinstance(obj, dict):
+        raise Refusal('expected a JSON object')
+    missing = set(required) - obj.keys()
+    extra = obj.keys() - set(required + optional)
+    if missing:
+        raise Refusal(f"missing fields: {', '.join(sorted(missing))}")
+    if extra:
+        raise Refusal(f"unknown fields: {', '.join(sorted(extra))}")
+
+
+def integer(value, label, low, high):
+    if type(value) is not int or not low <= value <= high:
+        raise Refusal(f'{label} must be an integer from {low} to {high}')
+    return value
+
+
+def dimensions(width, height, limit, label):
+    edge, pixels = limit
+    integer(width, f'{label} width', 1, edge)
+    integer(height, f'{label} height', 1, edge)
+    if width * height > pixels:
+        raise Refusal(f'{label} exceeds {pixels} pixels')
+    return width, height
+
+
+def scene_box(box, canvas):
+    fields(box, ('x', 'y', 'width', 'height'))
+    x = integer(box['x'], 'box.x', 0, canvas.width - 1)
+    y = integer(box['y'], 'box.y', 0, canvas.height - 1)
+    w = integer(box['width'], 'box.width', 1, canvas.width - x)
+    h = integer(box['height'], 'box.height', 1, canvas.height - y)
+    return x, y, x + w, y + h
+
+
+def paint(value, label):
+    if not isinstance(value, str) or not re.fullmatch(r'#[0-9A-Fa-f]{6}', value):
+        raise Refusal(f'{label} must be an RGB color like #142030')
+    return tuple(bytes.fromhex(value[1:]))
+
+
+def scene_image(name, size):
+    path = asset_path(K4, name, 'frame', 'frames', '.png')
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter('error', Image.DecompressionBombWarning)
+            with Image.open(path, formats=['PNG']) as im:
+                dimensions(*im.size, MAX_FRAME, 'frame')
+                if im.get_format_mimetype() == 'image/apng':
+                    raise Refusal(f'frame {name} must be a still PNG')
+                return ImageOps.fit(im.convert('RGBA'), size, Image.Resampling.LANCZOS)
+    except (OSError, ValueError, SyntaxError, Image.DecompressionBombError, Image.DecompressionBombWarning) as e:
+        raise Refusal(f'cannot read frame {name} as a still PNG: {e}') from e
+
+
+def fitted_text(layer, size):
+    text = layer['text']
+    if (not isinstance(text, str) or len(text) > MAX_TEXT or not text.strip()
+            or any(c != '\n' and not c.isprintable() for c in text)):
+        raise Refusal(f'text must contain 1 to {MAX_TEXT} printable characters, with optional line breaks')
+    high = integer(layer['font_size'], 'font_size', 1, MAX_FONT_SIZE)
+    low = integer(layer.get('min_font_size', min(high, 8)), 'min_font_size', 1, high)
+    style = layer.get('font_style', 'Condensed Heavy')
+    if not isinstance(style, str) or not style.isprintable() or not 1 <= len(style) <= 80:
+        raise Refusal('font_style must be a nonempty style name of at most 80 characters')
+    check_font(FONT)
+    if 'font_style' in layer and not FONT.get('variable'):
+        raise Refusal('font_style needs a variable font')
+
+    def signature(mask):
+        return mask.size, bytes(mask)
+
+    try:
+        # Pillow has no glyph-index API. Compare against the missing glyph at a
+        # probe size, so tiny fitted glyphs cannot be confused with its raster.
+        probe = font(48, style)
+        missing = signature(probe.getmask('\U0010ffff'))
+        for char in dict.fromkeys(text):
+            if not char.isspace() and signature(probe.getmask(char)) == missing:
+                raise Refusal(f'font cannot render {char!r} (U+{ord(char):04X})')
+
+        width, height = size
+        draw = ImageDraw.Draw(Image.new('L', (1, 1)))
+        fit = None
+        px = high  # Try the requested size before searching smaller sizes.
+        while low <= high:
+            face = font(px, style)
+            tw, th, ox, oy = text_size(draw, text, face)
+            if 0 < tw <= width and 0 < th <= height:
+                fit = face, tw, th, ox, oy
+                low = px + 1
+            else:
+                high = px - 1
+            px = (low + high) // 2
+        if fit is None:
+            raise Refusal('text does not fit its box at the allowed font sizes')
+        face, tw, th, ox, oy = fit
+        mask = Image.new('L', (tw, th))
+        ImageDraw.Draw(mask).text((-ox, -oy), text, font=face, fill=255)
+        if not mask.getbbox():
+            raise Refusal('font drew no visible text')
+        return mask
+    except (OSError, ValueError, NotImplementedError) as e:
+        raise Refusal(f'cannot render text with this font: {e}') from e
+
+
+def compose_scene(scene):
+    fields(scene, ('width', 'height', 'background', 'layers'))
+    size = dimensions(scene['width'], scene['height'], MAX_CANVAS, 'canvas')
+    layers = scene['layers']
+    if not isinstance(layers, list) or len(layers) > MAX_LAYERS:
+        raise Refusal(f'layers must be a list of at most {MAX_LAYERS} layers')
+    canvas = Image.new('RGB', size, paint(scene['background'], 'background'))
+    for index, layer in enumerate(layers, 1):
+        try:
+            kind = layer.get('type') if isinstance(layer, dict) else None
+            if not isinstance(kind, str) or kind not in LAYER_FIELDS:
+                raise Refusal('type must be image, rect or text')
+            required, optional = LAYER_FIELDS[kind]
+            fields(layer, ('type', 'box') + required, optional)
+            box = scene_box(layer['box'], canvas)
+            x, y, right, bottom = box
+            size = right - x, bottom - y
+            if kind == 'image':
+                tile = scene_image(layer['frame'], size)
+                canvas.paste(tile, (x, y), tile.getchannel('A'))
+            else:
+                color = paint(layer['paint'], 'paint')
+                if kind == 'rect':
+                    canvas.paste(color, box)
+                else:
+                    mask = fitted_text(layer, size)
+                    canvas.paste(color, (x, y, x + mask.width, y + mask.height), mask)
+        except Refusal as e:
+            raise Refusal(f'layer {index}: {e}') from e
+    return canvas
+
+
 def tuples(v):
     """JSON lists of numbers back to the tuples the templates add and unpack."""
     if isinstance(v, list):
@@ -319,43 +490,95 @@ def tuples(v):
     return v
 
 
+def check_font(config):
+    path = config.get('file') if isinstance(config, dict) else None
+    if not isinstance(path, str) or not path or not os.path.isfile(path):
+        raise Refusal('font.file must name a TrueType or OpenType file on this computer')
+
+
 def build(cid, c, out):
-    if c.get("template") not in TEMPLATES:
-        raise Refusal(f"candidate {cid}: template is one of {', '.join(TEMPLATES)}")
+    path = os.path.join(out, f'{cid}.png')
     try:
-        im = TEMPLATES[c["template"]](c).convert("RGB")
-    except KeyError as e:
-        raise Refusal(f"candidate {cid} ({c['template']}) needs the value {e}")
-    path = os.path.join(out, f"{cid}.png")
-    im.save(path)
+        target = os.lstat(path)
+    except FileNotFoundError:
+        target = None
+    if target and (not stat.S_ISREG(target.st_mode) or target.st_nlink != 1):
+        raise Refusal(f'candidate {cid}: output must not be a link or a special file')
+    if 'scene' in c:
+        if 'template' in c:
+            raise Refusal(f'candidate {cid}: give scene or template, not both')
+        try:
+            im = compose_scene(c['scene'])
+        except Refusal as e:
+            raise Refusal(f'candidate {cid}: {e}') from e
+    else:
+        template = c.get('template')
+        if not isinstance(template, str) or template not in TEMPLATES:
+            raise Refusal(f"candidate {cid}: template is one of {', '.join(TEMPLATES)}")
+        try:
+            im = TEMPLATES[template](tuples(c)).convert('RGB')
+        except KeyError as e:
+            raise Refusal(f'candidate {cid} ({template}) needs the value {e}') from e
+    handle, staged = tempfile.mkstemp(prefix='.thumbnail-', suffix='.png', dir=out)
+    try:
+        with os.fdopen(handle, 'wb') as target:
+            im.save(target, format='PNG')
+        os.replace(staged, path)
+    finally:
+        try:
+            os.unlink(staged)
+        except FileNotFoundError:
+            pass
     return path
 
 
 def main():
     global K4, CUT, CUT_OFF, FONT
     try:
-        raw = open(sys.argv[1]).read() if len(sys.argv) > 1 else sys.stdin.read()
+        if len(sys.argv) > 1:
+            with open(sys.argv[1], encoding='utf-8') as source:
+                raw = source.read()
+        else:
+            raw = sys.stdin.read()
         req = json.loads(raw or '{}')
-        for key in ("frames", "cutouts", "out", "font"):
-            if key not in req:
-                raise Refusal(f"the request needs `{key}` (see the README)")
-        if not req["font"].get("file") or not os.path.isfile(req["font"]["file"]):
-            raise Refusal("font.file must name a TrueType or OpenType file on this computer")
-        mine = person_settings.request_settings(req, {"candidates": {}}, folder=FOLDER,
-                                                tool="tool:compose-thumbnails-from-layout-templates")
-        candidates = tuples(mine.get("candidates") or {})
+        if not isinstance(req, dict):
+            raise Refusal('request must be a JSON object')
+        mine = person_settings.request_settings(req, {'candidates': {}}, folder=FOLDER,
+                                                tool='tool:compose-thumbnails-from-layout-templates')
+        candidates = mine.get('candidates')
         if not candidates:
             raise Refusal("no candidates: give settings_record (the person's row) or settings.candidates")
-        K4, CUT, FONT = req["frames"], req["cutouts"], req["font"]
-        CUT_OFF = tuple(req.get("cut_offset", CUT_OFF))
-        os.makedirs(req["out"], exist_ok=True)
-        ids = req.get("only") or list(candidates)
+        if not isinstance(candidates, dict):
+            raise Refusal('candidates must be a JSON object keyed by candidate id')
+        ids = req.get('only')
+        if ids is None or ids == []:
+            ids = list(candidates)
+        if not isinstance(ids, list):
+            raise Refusal('only must be a list of candidate ids')
+        for cid in ids:
+            safe_name(cid, 'candidate id')
         missing = [cid for cid in ids if cid not in candidates]
         if missing:
             raise Refusal(f"no candidate {', '.join(missing)} in the settings")
-        print(json.dumps({"result": {"thumbnails": [build(cid, candidates[cid], req["out"]) for cid in ids]}}))
-    except (Refusal, person_settings.SettingError) as e:
-        print(json.dumps({"error": str(e)}))
+        selected = [candidates[cid] for cid in ids]
+        for cid, c in zip(ids, selected):
+            if not isinstance(c, dict):
+                raise Refusal(f'candidate {cid} must be a JSON object')
+        scenes = sum('scene' in c for c in selected)
+        if scenes > MAX_SCENES:
+            raise Refusal(f'select at most {MAX_SCENES} scene candidates per request')
+        K4, CUT, FONT = req.get('frames'), req.get('cutouts'), req.get('font')
+        if scenes < len(ids):
+            for key in ('frames', 'cutouts', 'out', 'font'):
+                if key not in req:
+                    raise Refusal(f'the request needs `{key}` (see the README)')
+            check_font(FONT)
+            CUT_OFF = tuple(req.get('cut_offset', CUT_OFF))
+        out = request_path(req.get('out'), 'out')
+        os.makedirs(out, exist_ok=True)
+        print(json.dumps({'result': {'thumbnails': [build(cid, c, out) for cid, c in zip(ids, selected)]}}))
+    except (Refusal, person_settings.SettingError, OSError, ValueError) as e:
+        print(json.dumps({'error': str(e)}))
         sys.exit(1)
 
 

@@ -1,7 +1,7 @@
 {
  "kind": "tool-rows",
  "record_set": "compose-thumbnails-from-layout-templates-tool-rows",
- "what_this_is": "The Workshop row for the compose-thumbnails-from-layout-templates folder: a script the person's AI runs on the person's own computer to build thumbnail candidates from their frames.",
+ "what_this_is": "The Workshop row for the still-image and thumbnail compositor that runs on the person's computer.",
  "records": [
   {
    "id": "package::compose-thumbnails-from-layout-templates::tool::compose-thumbnails-from-layout-templates",
@@ -13,10 +13,10 @@
    "payload": {
     "kind": "ai-tool-descriptor",
     "id": "tool:compose-thumbnails-from-layout-templates",
-    "label": "Build thumbnail candidates from my frames with layout templates (runs on your computer)",
+    "label": "Build thumbnail candidates and still images from my frames (runs on your computer)",
     "status": "active",
-    "job": "Make thumbnail candidates for my video from real frames of my footage, laid out like proven thumbnails: my face, the thing, big words, arrows and tags",
-    "description": "Six layout templates read off strong reference thumbnails (a claim box across a split, a big face beside stacked words, a magnifier on a flaw, price tags on a flat backdrop, a held object with quoted words, a corner face with stroked words) compose 1280x720 candidates from the person's full-size frames and cut-outs: crops, punch-up, white sticker outlines with shadow, boxed or stroked words, curved arrows, price tags, a magnifier. Each candidate is one row of values in the person's settings row (which frame, face box, words, sizes, arrow ends); the font is the person's.",
+    "job": "Make thumbnails from six fixed layouts, or make still images from my own canvas, frame, shape and text settings.",
+    "description": "Each candidate uses either a scene or one of the six 1280x720 layouts: split_claim, face_right_stack, zoom_flaw, tags, hold_quote, corner_face. A scene sets its canvas width, height and background and paints ordered image, rect and text layers. An image layer center-crops a named PNG to cover its box. A rect layer fills its box. A text layer fits copy in its box with the person's font. Both kinds of candidate write one RGB PNG with the candidate ID as its name.",
     "input_schema": {
      "type": "object",
      "required": [
@@ -25,7 +25,7 @@
      "properties": {
       "request": {
        "type": "string",
-       "description": "A JSON file on the person's computer holding the request, put where {request} is in the command: frames, cutouts, out, font {file, variable}, cut_offset, only, settings_record (the person's row record:setting:compose-thumbnails-from-layout-templates~<scope_kind>~<scope_id>, handed as the record) and settings. The README lists the values each template reads."
+       "description": "Path to a JSON file on the person's computer. Give out and candidates from settings.candidates or the settings_record itself. Use only to select IDs. A scene candidate is {scene: {width, height, background, layers}}. Each layer has type and box {x, y, width, height}: image needs frame; rect needs paint; text needs paint, text, font_size and can set min_font_size or font_style. Give frames if using images and font {file, variable} if using text. Legacy candidates use {template, ...values} and still require frames, cutouts and font. See the README for limits and legacy values."
       }
      }
     },
@@ -62,7 +62,7 @@
      "needs": [
       "python"
      ],
-     "say": "This runs on the person's own computer, from the root of the Workshop checkout. Read the person's settings row (record:setting:compose-thumbnails-from-layout-templates~film~<their film>) from their records and put the record itself in settings_record; do not invent candidates. Write the request with their frames and cut-outs folders, an output folder and their font, pass its path as {request}, then name the thumbnails written or say what the error asks to change. If you cannot run commands, give them these steps."
+     "say": "Run from the root of the Workshop checkout on the person's computer. Use the person's settings record or give the requested candidates in settings.candidates. Use the person's existing frames and font. Pass the request file path as {request}. Name the PNGs written or say what the error asks to change. If you cannot run commands, give the person these steps."
     },
     "result_selector": "$.result",
     "licence_class": "licence:maker-own",
