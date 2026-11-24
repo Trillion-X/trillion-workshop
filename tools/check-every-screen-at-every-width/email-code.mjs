@@ -12,7 +12,9 @@
 //   2. The code is a secret of the run: it is never in a refusal's words, an answer, a log or a file. A refusal names only
 //      its status and the step that failed.
 //   3. Only a code sent to this address is accepted: a thread counts when its subject is the site's sign-in code and it is
-//      addressed to the email signed in; the newest of those, sent after this run asked for one, is the code.
+//      addressed to the email signed in; the newest with a recorded timestamp no earlier than five seconds before the ask
+//      marker is the code. This retained allowance does not prove strict after-request freshness: provider timestamp
+//      precision and clock alignment are unverified.
 //   4. Bounded: the code is waited for up to `wait_ms` (30 s) and polled every `poll_ms` (5 s), then the run refuses.
 //
 // SHAPE
@@ -28,14 +30,19 @@ export const AGENTMAIL = Object.freeze({
   descriptor: 4,
   wait_ms: 30000,
   poll_ms: 5000,
+  pages_per_poll: 20,
 });
 
-const CODE_SUBJECT = /sign-in code: (\d{6})/;
+const CODE_SUBJECT = /sign-in code: (\d{6})(?!\d)/;
 const KEY_LIMIT = 4096;
 const sleep = ms => new Promise(done => setTimeout(done, ms));
 
 function refuse(code, message) {
   return Object.assign(new Error(message), { code });
+}
+
+function checkScanTime(deadline, now, signal) {
+  if (now() >= deadline || signal?.aborted) throw refuse('agentmail_scan_incomplete', 'The AgentMail scan ran out of time.');
 }
 
 // The key the row mounts on its descriptor: read whole (the mount is written once and closed by the engine), trimmed.
@@ -55,52 +62,101 @@ export async function readAgentMailKey({ fd = AGENTMAIL.descriptor } = {}) {
 }
 
 // One tools/call on AgentMail's MCP server, under the session the server opened for this run.
-async function mcpCall({ apiKey, session, method, params, id }, fetchImpl) {
+async function mcpCall({ apiKey, session, method, params, id, signal }, fetchImpl) {
   const headers = { 'content-type': 'application/json', accept: 'application/json, text/event-stream', 'x-api-key': apiKey, ...(session ? { 'mcp-session-id': session } : {}) };
-  const response = await fetchImpl(AGENTMAIL.mcp, { method: 'POST', headers, body: JSON.stringify({ jsonrpc: '2.0', id, method, params }) });
+  let response, text;
+  try {
+    response = await fetchImpl(AGENTMAIL.mcp, { method: 'POST', headers, body: JSON.stringify({ jsonrpc: '2.0', id, method, params }), signal });
+    if (response.ok) text = (await response.text()).trim();
+  } catch {
+    if (signal.aborted) throw refuse('agentmail_scan_incomplete', 'The AgentMail scan ran out of time.');
+    throw refuse('agentmail_unavailable', `Could not read AgentMail's reply to ${method}.`);
+  }
   if (!response.ok) throw refuse('agentmail_refused', `AgentMail answered ${response.status} to ${method}.`);
-  const text = await response.text();
-  const data = text.startsWith('{') ? text : text.split('\n').filter(line => line.startsWith('data:')).map(line => line.slice(5)).pop();
-  return { session: response.headers.get('mcp-session-id') ?? session, body: JSON.parse(data ?? '{}') };
+  if (id === undefined && !text) return;
+  let replies;
+  try {
+    const data = text.startsWith('{') ? [text] : text.replace(/\r\n?/g, '\n').split('\n\n').flatMap(event => {
+      const fields = event.split('\n').filter(line => line === 'data' || line.startsWith('data:'))
+        .map(line => line === 'data' ? '' : line.slice(5).replace(/^ /, ''));
+      return fields.length ? [fields.join('\n')] : [];
+    });
+    replies = data.map(part => JSON.parse(part));
+  } catch { throw refuse('agentmail_bad_reply', `AgentMail returned unreadable JSON to ${method}.`); }
+  const matching = id === undefined ? replies : replies.filter(reply => reply?.id === id);
+  if (id !== undefined && matching.length !== 1) throw refuse('agentmail_bad_reply', `AgentMail returned no unique matching reply to ${method}.`);
+  const body = matching.at(-1);
+  if (!body || typeof body !== 'object' || Array.isArray(body)) throw refuse('agentmail_bad_reply', `AgentMail returned no matching reply to ${method}.`);
+  if (body.error) throw refuse('agentmail_refused', `AgentMail refused ${method}.`);
+  if (id !== undefined && (!body.result || typeof body.result !== 'object')) throw refuse('agentmail_bad_reply', `AgentMail returned no result to ${method}.`);
+  return { session: response.headers.get('mcp-session-id') ?? session, result: body.result };
 }
 
-// The threads of the test inbox: the server's list, which comes back as the JSON text of its one text part (threads: { threadId,
-// subject, recipients, timestamp, updatedAt, ... }).
 // The inbox an address reaches: the address without its +tag (trillion-proofs+gateway-live-check@agentmail.to is delivered to
 // trillion-proofs@agentmail.to).
 export const inboxOf = email => String(email).replace(/\+[^@]*@/, '@').toLowerCase();
 
-async function listThreads({ apiKey, inbox = AGENTMAIL.inbox }, fetchImpl) {
-  const opened = await mcpCall({ apiKey, session: null, method: 'initialize', id: 1, params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'live-screens', version: '1' } } }, fetchImpl);
-  await mcpCall({ apiKey, session: opened.session, method: 'notifications/initialized', id: 2, params: {} }, fetchImpl).catch(() => {});
-  const { body } = await mcpCall({ apiKey, session: opened.session, method: 'tools/call', id: 3, params: { name: 'list_threads', arguments: { inboxId: inbox } } }, fetchImpl);
-  const result = body.result ?? {};
-  if (result.isError) throw refuse('agentmail_refused', 'AgentMail refused the thread list.');
-  const listed = result.structuredContent ?? JSON.parse(result.content?.find(part => part.type === 'text')?.text ?? '{}');
-  return Array.isArray(listed.threads) ? listed.threads : [];
+// A poll walks the server's newest-first pages in one session. Only an absent continuation ends a completed scan.
+async function* threadPages({ apiKey, inbox, deadline, now }, fetchImpl) {
+  checkScanTime(deadline, now);
+  const signal = AbortSignal.timeout(Math.max(1, deadline - now()));
+  const opened = await mcpCall({ apiKey, method: 'initialize', id: 1, params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'live-screens', version: '1' } }, signal }, fetchImpl);
+  let { session } = opened;
+  checkScanTime(deadline, now, signal);
+  await mcpCall({ apiKey, session, method: 'notifications/initialized', signal }, fetchImpl);
+  const seen = new Set();
+  let pageToken;
+  for (let page = 0; page < AGENTMAIL.pages_per_poll; page++) {
+    checkScanTime(deadline, now, signal);
+    const args = pageToken === undefined ? { inboxId: inbox } : { inboxId: inbox, pageToken };
+    const answer = await mcpCall({ apiKey, session, method: 'tools/call', id: page + 2, params: { name: 'list_threads', arguments: args }, signal }, fetchImpl);
+    session = answer.session;
+    const { result } = answer;
+    if (result.isError) throw refuse('agentmail_refused', 'AgentMail refused the thread list.');
+    let listed;
+    try {
+      listed = result.structuredContent ?? JSON.parse(result.content?.find(part => part.type === 'text')?.text);
+    } catch { throw refuse('agentmail_bad_reply', 'AgentMail returned an unreadable thread list.'); }
+    if (!Array.isArray(listed?.threads)) throw refuse('agentmail_bad_reply', 'AgentMail returned no thread list.');
+    checkScanTime(deadline, now, signal);
+    yield listed.threads;
+    pageToken = listed.nextPageToken;
+    if (pageToken == null) return;
+    if (typeof pageToken !== 'string' || !pageToken || seen.has(pageToken)) throw refuse('agentmail_bad_reply', 'AgentMail returned an invalid thread continuation.');
+    seen.add(pageToken);
+  }
+  throw refuse('agentmail_scan_incomplete', 'The AgentMail scan ended before its last page.');
 }
 
-// The sign-in code of this address in the newest thread sent after the run asked for one, or null.
+// The sign-in code of this address in the newest qualifying thread on this page, or null.
 function codeIn(threads, email, sentAt) {
   const wanted = email.toLowerCase();
-  const mine = threads.filter(thread => {
-    const addressed = (thread.recipients ?? []).some(address => String(address).toLowerCase() === wanted);
+  let newest = -Infinity;
+  let code = null;
+  for (const thread of threads) {
+    if (!Array.isArray(thread?.recipients) || !thread.recipients.some(address => typeof address === 'string' && address.toLowerCase() === wanted)) continue;
     const sent = Date.parse(thread.timestamp ?? thread.updatedAt ?? thread.createdAt ?? '');
-    return addressed && CODE_SUBJECT.test(thread.subject ?? '') && (!Number.isFinite(sent) || sent >= sentAt - 5000);
-  });
-  mine.sort((a, b) => Date.parse(b.timestamp ?? b.updatedAt ?? 0) - Date.parse(a.timestamp ?? a.updatedAt ?? 0));
-  return mine[0] ? mine[0].subject.match(CODE_SUBJECT)[1] : null;
+    if (!Number.isFinite(sent) || sent < sentAt - 5000 || sent <= newest) continue;
+    const match = typeof thread.subject === 'string' && thread.subject.match(CODE_SUBJECT);
+    if (match) { newest = sent; code = match[1]; }
+  }
+  return code;
 }
 
 // The newest code the site sent to this address, polled until it arrives or the wait is spent. The code is returned, never logged.
 export async function latestSignInCode({ apiKey, email, sentAt }, { fetchImpl = fetch, wait = sleep, now = Date.now, waitMs = AGENTMAIL.wait_ms, pollMs = AGENTMAIL.poll_ms } = {}) {
   const deadline = now() + waitMs;
-  for (;;) {
-    const code = codeIn(await listThreads({ apiKey, inbox: inboxOf(email) }, fetchImpl), email, sentAt);
-    if (code) return code;
-    if (now() >= deadline) throw refuse('code_not_found', `No sign-in code reached ${email} within ${Math.round(waitMs / 1000)} seconds.`);
-    await wait(pollMs);
-  }
+  do {
+    for await (const threads of threadPages({ apiKey, inbox: inboxOf(email), deadline, now }, fetchImpl)) {
+      const code = codeIn(threads, email, sentAt);
+      checkScanTime(deadline, now);
+      if (code) return code;
+    }
+    const left = deadline - now();
+    if (left <= 0) break;
+    await wait(Math.min(pollMs, left));
+  } while (now() < deadline);
+  throw refuse('code_not_found', `No matching sign-in code was found within ${Math.round(waitMs / 1000)} seconds.`);
 }
 
 // The session cookies of a one-time code: the code is posted with the page's own origin, and each Set-Cookie it answers is kept.
@@ -140,13 +196,13 @@ export function cookieOfSetCookie(line, hostname, now = Date.now()) {
 // The whole sign-in: ask the site for a code to this address, read it from the inbox, exchange it for the session.
 export async function emailCodeSession({ origin, email }, deps = {}) {
   const { fetchImpl = fetch, now = Date.now, readKey = readAgentMailKey } = deps;
+  const sentAt = now();
   const sent = await fetchImpl(`${origin}/api/auth/email-otp/send-verification-otp`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', origin },
     body: JSON.stringify({ email, type: 'sign-in' }),
   });
   if (!sent.ok) throw refuse('code_not_sent', `The site did not send the sign-in code (status ${sent.status}).`);
-  const sentAt = now();
   const apiKey = await readKey();
   const code = await latestSignInCode({ apiKey, email, sentAt }, deps);
   return signInWithEmailCode({ origin, email, code }, deps);

@@ -5,6 +5,7 @@
 // the proof account's; the code value is marked spent; and a put names only the existing values with the accounts' hosts.
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { AGENTMAIL } from '../email-code.mjs';
 import { accountsOf, askForSignInCodes, hostsOf, keepSignInCodes, PROOF, signInWithKeptCodes } from '../proof-session-mint.mjs';
 
 const ACCOUNTS = [
@@ -63,6 +64,22 @@ test('step 1 asks each site for its proof account\'s code and answers statuses o
   await assert.rejects(askForSignInCodes({}, undefined, { fetchImpl: site({ sendStatus: 429 }).fetchImpl, accounts: ACCOUNTS }), error => error.code === 'code_not_sent');
 });
 
+test('the ask time precedes both send requests and reaches the code reader unchanged', async () => {
+  let clock = 1000;
+  const { door } = vault();
+  const sends = [];
+  const asked = await askForSignInCodes({}, undefined, {
+    accounts: ACCOUNTS, now: () => clock, fetchImpl: async () => { sends.push(clock); clock += 10000; return answer(200); },
+  });
+  assert.equal(asked.asked_at, 1000);
+  assert.deepEqual(sends, [1000, 11000]);
+  const reads = [];
+  await keepSignInCodes({ asked_at: asked.asked_at }, undefined, {
+    accounts: ACCOUNTS, door, readKey: async () => 'synthetic-key', latest: async ({ sentAt }) => { reads.push(sentAt); return CODE; },
+  });
+  assert.deepEqual(reads, [1000, 1000]);
+});
+
 test('step 2 puts the codes in the vault under the code value and answers origins only', async () => {
   const { puts, door } = vault();
   const latest = async ({ email }) => { if (email.includes('+b')) throw Object.assign(new Error('none'), { code: 'code_not_found' }); return CODE; };
@@ -74,6 +91,57 @@ test('step 2 puts the codes in the vault under the code value and answers origin
   assert.deepEqual(JSON.parse(puts[0].value), { 'https://a.example': { email: 'proofs+a@agentmail.to', code: CODE } });
   assert.ok(!JSON.stringify(kept).includes(CODE));
   await assert.rejects(keepSignInCodes({}, undefined, { door, accounts: ACCOUNTS }), /asked_at/);
+});
+
+test('step 2 distinguishes an empty completed scan from a refusal and keeps no value when all lookups fail', async () => {
+  const { puts, door } = vault();
+  const deps = { readKey: async () => 'key', door, accounts: ACCOUNTS };
+  const issue = (code) => Object.assign(new Error('synthetic private reply 123456'), { code });
+  const latest = async ({ email }) => { throw issue(email === ACCOUNTS[0].email ? 'agentmail_refused' : 'code_not_found'); };
+  for (const [origins, expected] of [[[ACCOUNTS[0].origin], 'agentmail_refused'], [[ACCOUNTS[1].origin], 'code_not_found'], [undefined, 'agentmail_lookup_failed']]) {
+    await assert.rejects(keepSignInCodes({ asked_at: 1000, origins }, undefined, { ...deps, latest }), error => {
+      assert.equal(error.code, expected);
+      assert.ok(!error.message.includes(CODE) && !error.message.includes('private reply'));
+      assert.match(error.message, /agentmail_refused|code_not_found/);
+      return true;
+    });
+  }
+  await assert.rejects(keepSignInCodes({ asked_at: 1000 }, undefined, {
+    ...deps, latest: async () => { throw issue('untrusted-private-code'); },
+  }), error => error.code === 'agentmail_lookup_failed' && !error.message.includes('untrusted-private-code'));
+  assert.deepEqual(puts, []);
+});
+
+test('step 2 keeps no value when every real-reader lookup fails', async () => {
+  const askedAt = Date.parse('2026-11-21T12:00:00Z');
+  for (const [issue, expected] of [['wrong-id', 'agentmail_bad_reply'], ['duplicate-id', 'agentmail_bad_reply'], ['refused-with-unrelated', 'agentmail_refused'], ['outside-window', 'code_not_found'], ['long-code', 'code_not_found'], ['late', 'agentmail_scan_incomplete']]) {
+    let clock = askedAt;
+    const { puts, door } = vault();
+    const fetchImpl = async (url, init) => {
+      assert.equal(url, AGENTMAIL.mcp);
+      const message = JSON.parse(init.body);
+      if (message.method === 'initialize') return answer(200, { jsonrpc: '2.0', id: message.id, result: {} });
+      if (message.method === 'notifications/initialized') return { ...answer(202), text: async () => '' };
+      if (issue === 'late') clock += AGENTMAIL.wait_ms;
+      const threads = ACCOUNTS.map(({ email }) => ({
+        recipients: [email], subject: `Your sign-in code: ${CODE}${issue === 'long-code' ? '7' : ''}`,
+        timestamp: new Date(askedAt + (issue === 'outside-window' ? -5001 : 1)).toISOString(),
+      }));
+      const reply = { jsonrpc: '2.0', id: message.id + (issue === 'wrong-id' ? 1 : 0), result: { structuredContent: { threads } } };
+      if (issue === 'duplicate-id' || issue === 'refused-with-unrelated') {
+        const replies = issue === 'duplicate-id' ? [reply, reply] : [
+          { jsonrpc: '2.0', id: message.id, error: { code: -32602, message: 'synthetic private reply 123456' } },
+          { jsonrpc: '2.0', id: message.id + 1, result: { structuredContent: { threads: [] } } },
+        ];
+        return { ...answer(200), text: async () => replies.map(one => `data: ${JSON.stringify(one)}\n\n`).join('') };
+      }
+      return answer(200, reply);
+    };
+    await assert.rejects(keepSignInCodes({ asked_at: askedAt }, undefined, {
+      accounts: ACCOUNTS, door, readKey: async () => 'synthetic-key', fetchImpl, now: () => clock, wait: async ms => { clock += ms; },
+    }), error => error.code === expected && !error.message.includes(CODE));
+    assert.deepEqual(puts, []);
+  }
 });
 
 test('step 3 keeps a session the site says is the proof account\'s, merges it with the others, and marks the code spent', async () => {

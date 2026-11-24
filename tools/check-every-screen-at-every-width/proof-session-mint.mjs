@@ -33,6 +33,7 @@ export const PROOF = JSON.parse(readFileSync(new URL('./proof-accounts.json', im
 const CODE_DESCRIPTOR = 4;
 const SESSION_DESCRIPTOR = 5;
 const SPENT = '{}';
+const INBOX_FAILURES = new Set(['code_not_found', 'agentmail_refused', 'agentmail_unavailable', 'agentmail_bad_reply', 'agentmail_scan_incomplete']);
 
 function refuse(code, message) {
   return Object.assign(new Error(message), { code });
@@ -83,11 +84,15 @@ export async function keepSignInCodes(input = {}, host, deps = {}) {
     try {
       codes[origin] = { email, code: await latest({ apiKey, email, sentAt: input.asked_at }, deps) };
     } catch (error) {
-      missing.push({ origin, reason: error?.code ?? 'code_not_found' });
+      const reason = INBOX_FAILURES.has(error?.code) ? error.code : 'agentmail_lookup_failed';
+      missing.push({ origin, reason });
     }
   }
   const kept = Object.keys(codes);
-  if (kept.length === 0) throw refuse('code_not_found', `No sign-in code reached the proof inboxes (${missing.map(one => one.origin).join(', ')}).`);
+  if (kept.length === 0) {
+    const reason = missing.every(one => one.reason === missing[0]?.reason) ? missing[0]?.reason : null;
+    throw refuse(reason ?? 'agentmail_lookup_failed', `No proof code was kept (${missing.map(one => `${one.origin}: ${one.reason}`).join(', ')}).`);
+  }
   await door.secrets('secrets:put', { name: PROOF.code_value, value: JSON.stringify(codes), hosts: hostsOf(accounts) });
   return { kept, missing };
 }
