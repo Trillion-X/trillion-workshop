@@ -5,18 +5,18 @@
 Purpose
     Each check is a row of a check list with a choice field `on`.
     The dispatcher asks `switched_off(state)` which guard ids are marked Off before it runs the chosen guards. The rows
-    are read from a local snapshot so a tool call never waits for the door; `refresh(state)` rewrites the snapshot from
-    the door and runs detached (`python3 check_switches.py refresh <state folder> <settings file>`), started by
+    are read from a local snapshot so a tool call never waits for the list reader; `refresh(state)` rewrites the snapshot
+    through the declared reader and runs detached (`python3 check_switches.py refresh <state folder>`), started by
     `start_refresh_if_stale`. The snapshot also keeps every row's value (`rows`), so a session that has no other copy
     of the rows can run them: `python3 check_switches.py run <settings file> < hook event`, which a repository's own
     hook settings start for every tool call (`run_the_check_list`). The person's check rows (`record:check`, read with
-    the door's `where { kind: "check" }` and kept as `checks`) are judged on each call by the one judge through
+    `where { kind: "check" }` and kept as `checks`) are judged on each call by the one judge through
     `check_rows.judge` (`judge_check_rows`): the rows whose `kinds` name the call's unit kind (`git-commit`, `git-push`,
     else `tool-call`).
 
-    The settings (the door's address, how its key is read, the list types) are the caller's DATA: `configure(rules)`
-    from a process that already holds them, else the JSON file named by CHECK_LIST_SETTINGS. On one computer the door
-    is that computer's own; in a session anywhere else it is the public door with the session's own key.
+    The settings (the list reader's command and the list types) are the caller's DATA: `configure(rules)` from a process
+    that already holds them, else the JSON file named by CHECK_LIST_SETTINGS. The existing list owner reads its own
+    database and returns a page on stdout; this runner owns no database layout, credential or retired records route.
 
 Non-negotiable invariants
     1. Off only on an exact "Off". Absent, "On", any other value, a missing row, an unreadable list, a failed refresh or
@@ -24,13 +24,13 @@ Non-negotiable invariants
     2. A failed refresh keeps the previous snapshot. The snapshot is replaced whole (written beside it, then renamed).
        A failed refresh is not tried again until `snapshot.failed_retry_seconds` (default `refresh_seconds`) after it
        failed: the old snapshot stays stale, so without this every tool call of every session started one more refresh.
-    3. The tool call never waits for the door: reading is one local file; refreshing is a detached process.
+    3. The tool call never waits for the list reader: reading is one local file; refreshing is a detached process.
     4. Honouring is DATA (`honour_off` in the settings). While it is false, a guard marked Off
        still runs and the dispatcher reports the mark, because any agent key can write "Off" until the engine
        requires the person's passkey for it.
-    5. The door key is read at refresh time, from where the settings say (`door.key_from`: {"keychain": item} or
-       {"env": name}), and sent only in the Authorization header. The door's address is `door.url`, or the environment
-       variable `door.url_from` names ({"env": name}), so a repository's files need not name anyone's door.
+    5. The reader command receives only the page request on stdin. It opens its account through its own authorized
+       database owner. Credentials, command output and row contents are never copied into failure messages; an auth
+       refusal, an empty answer or an invalid page is unchecked, never an empty successful list.
 """
 from __future__ import annotations
 
@@ -39,9 +39,6 @@ import os
 import subprocess
 import sys
 import time
-import urllib.error
-import urllib.request
-import uuid
 
 _CONFIGURED: dict | None = None
 
@@ -79,55 +76,82 @@ def is_off(value, rules: dict) -> bool:
     return isinstance(value, dict) and value.get(rules["field"]) == rules["off_value"]
 
 
-def door_key(rules: dict):
-    source = rules["door"]["key_from"]
-    if "env" in source:
-        return os.environ.get(source["env"]) or None
-    answer = subprocess.run(["security", "find-generic-password", "-s", source["keychain"], "-w"],
-                            capture_output=True, text=True, timeout=5)
-    return answer.stdout.strip() or None
+def reader_command(rules: dict) -> list[str]:
+    source = rules.get("rows_from") or {}
+    command = source.get("command")
+    if command is None:
+        name = (source.get("command_from") or {}).get("env")
+        encoded = os.environ.get(name or "")
+        if not encoded:
+            raise RuntimeError("no declared list reader")
+        try:
+            command = json.loads(encoded)
+        except ValueError:
+            raise RuntimeError("the declared list reader command is not valid JSON") from None
+    if not isinstance(command, list) or not command or any(not isinstance(part, str) or not part for part in command):
+        raise RuntimeError("the declared list reader command must be a nonempty argument list")
+    return command
 
 
-def door_url(rules: dict):
-    door = rules["door"]
-    return door.get("url") or os.environ.get((door.get("url_from") or {}).get("env") or "") or None
-
-
-def list_page(rules: dict, key: str, kind: dict, after) -> dict:
-    door = rules["door"]
-    payload = {"type": kind["type"], "limit": door["page"]}
+def list_page(rules: dict, kind: dict, after) -> dict:
+    source = rules["rows_from"]
+    limit, timeout = source["page"], source["timeout_seconds"]
+    if type(limit) is not int or not 1 <= limit <= 1000:
+        raise RuntimeError("the list reader page size is out of bounds")
+    if type(timeout) not in (int, float) or not 0 < timeout <= 180:
+        raise RuntimeError("the list reader timeout is out of bounds")
+    payload = {"type": kind["type"], "limit": limit}
     if kind.get("where"):
         payload["where"] = kind["where"]
     if after:
         payload["after"] = after
-    body = {"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "do_one_thing_in_my_account", "arguments": {
-        "address": door["address"], "method": door["method"],
-        "request_key": "check-switches:%s:%s" % (kind["type"], uuid.uuid4().hex), "input": payload}}}
-    request = urllib.request.Request(door_url(rules), data=json.dumps(body).encode(), method="POST", headers={
-        "content-type": "application/json", "accept": "application/json, text/event-stream", "authorization": f"Bearer {key}"})
-    with urllib.request.urlopen(request, timeout=door["timeout_seconds"]) as response:
-        answer = json.loads(response.read().decode() or "null")
-    result = (answer or {}).get("result") or {}
-    if result.get("isError"):
-        raise RuntimeError("the door refused records:list for %s" % kind["type"])
-    return result.get("structuredContent") or json.loads(result["content"][0]["text"])
+    command = reader_command(rules)
+    try:
+        done = subprocess.run(command, input=json.dumps(payload), capture_output=True, text=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        raise RuntimeError("the declared list reader timed out") from None
+    except OSError:
+        raise RuntimeError("the declared list reader could not start") from None
+    try:
+        page = json.loads(done.stdout)
+    except ValueError:
+        raise RuntimeError("the declared list reader returned no valid JSON page (exit %d)" % done.returncode) from None
+    error = page.get("error") if isinstance(page, dict) else None
+    if error is not None:
+        status = error.get("status") if isinstance(error, dict) else None
+        detail = " (status %d)" % status if type(status) is int and 100 <= status <= 599 else ""
+        raise RuntimeError("the declared list reader refused" + detail)
+    if done.returncode:
+        raise RuntimeError("the declared list reader failed (exit %d)" % done.returncode)
+    if not isinstance(page, dict) or not isinstance(page.get("records"), list) or "next" not in page:
+        raise RuntimeError("the declared list reader returned no valid page")
+    if page["next"] is not None and (not isinstance(page["next"], str) or not page["next"]):
+        raise RuntimeError("the declared list reader returned no valid cursor")
+    if any(not isinstance(row, dict) or not isinstance(row.get("id"), str)
+           or not isinstance(row.get("value"), dict) for row in page["records"]):
+        raise RuntimeError("the declared list reader returned an invalid row")
+    return page
 
 
-def read_rows(rules: dict, key: str) -> dict:
+def read_rows(rules: dict) -> dict:
     """{snapshot key: {row id: (record id, value)}} for every row of every declared type, across every page. A type is
     kept under its `into` (default "rows", the hook-guard rows) and read with its `where`, if it names one."""
     rows = {}
     for kind in rules["types"]:
         into = rows.setdefault(kind.get("into", "rows"), {})
         after = None
+        seen = set()
         while True:
-            page = list_page(rules, key, kind, after)
+            page = list_page(rules, kind, after)
             for record in page.get("records") or []:
                 if str(record.get("id", "")).startswith(kind["id_prefix"]):
                     into[record["id"][len(kind["id_prefix"]):]] = (record["id"], record.get("value") or {})
-            after = page.get("next")
-            if not after:
+            after = page["next"]
+            if after is None:
                 break
+            if after in seen:
+                raise RuntimeError("the declared list reader repeated a page cursor")
+            seen.add(after)
     return rows
 
 
@@ -138,20 +162,13 @@ def read_off(rules: dict, rows: dict) -> dict:
 
 
 def refresh(state) -> str | None:
-    """Rewrite the snapshot from the door. None when it did; else why not, in words, with the old snapshot kept and
-    the reason written beside it (`<snapshot>.unreachable`) for whoever reads the snapshot next."""
+    """Rewrite the snapshot through the declared list owner. None on success; otherwise keep the old snapshot and
+    write the reason beside it (`<snapshot>.unreachable`) for whoever reads the snapshot next."""
     rules = settings()
     path = snapshot_path(state, rules)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     try:
-        if not door_url(rules):
-            raise RuntimeError("no door (%s)" % json.dumps(rules["door"].get("url_from")))
-        key = door_key(rules)
-        if not key:
-            raise RuntimeError("no key (%s)" % json.dumps(rules["door"]["key_from"]))
-        rows = read_rows(rules, key)
-    except urllib.error.HTTPError as error:
-        return _unreachable(path, "%s %s" % (error.code, error.reason))
+        rows = read_rows(rules)
     except Exception as error:
         return _unreachable(path, str(error) or type(error).__name__)
     scratch = "%s.%d.tmp" % (path, os.getpid())
@@ -174,10 +191,8 @@ def _unreachable(path: str, why: str) -> str:
 
 
 def start_refresh_if_stale(state, rules: dict) -> None:
-    """Start a detached refresh when the snapshot is missing or older than refresh_seconds, and no refresh failed within
-    `failed_retry_seconds`; never waits for it. Nov 22 2026, 2:00-4:25 AM CST on the Mac: the records door refused this
-    refresh (401) and the snapshot (read 2026-11-16) stayed stale, so every tool call started another refresh, about one
-    a second, each one more call at the door (computer_events door-refused-caller agent=Python-urllib/3.10)."""
+    """Start a detached refresh when the snapshot is missing or stale, and no refresh failed within
+    `failed_retry_seconds`; never wait for it. A failed read must not become one more retry on every tool call."""
     try:
         path = snapshot_path(state, rules)
         age = time.time() - os.path.getmtime(path) if os.path.exists(path) else None
@@ -188,7 +203,7 @@ def start_refresh_if_stale(state, rules: dict) -> None:
         retry = rules["snapshot"].get("failed_retry_seconds", rules["snapshot"]["refresh_seconds"])
         if os.path.exists(failed) and time.time() - os.path.getmtime(failed) < retry:
             return
-        if os.path.exists(claim) and time.time() - os.path.getmtime(claim) < rules["door"]["timeout_seconds"] * 3:
+        if os.path.exists(claim) and time.time() - os.path.getmtime(claim) < rules["rows_from"]["timeout_seconds"] * 3:
             return
         os.makedirs(os.path.dirname(path), exist_ok=True)
         open(claim, "w").close()
@@ -306,7 +321,7 @@ def run_the_check_list(event: dict, settings_file: str) -> tuple[int, str, str]:
     {tool_input.<field>} one field of the call.
 
     A list that cannot be read is said on every call ("check list unreachable: <why>") and refuses nothing. A tool call
-    waits for the door only while there is no snapshot at all (the first call of a session)."""
+    waits for the list reader only while there is no snapshot at all (the first call of a session)."""
     import re
     import guard_rows
     os.environ["CHECK_LIST_SETTINGS"] = settings_file
@@ -316,7 +331,7 @@ def run_the_check_list(event: dict, settings_file: str) -> tuple[int, str, str]:
     failed = path + ".unreachable"
     if not os.path.exists(path) and not (os.path.exists(failed) and time.time() - os.path.getmtime(failed)
                                          < rules["snapshot"]["refresh_seconds"]):
-        refresh(state)  # the first call waits once; a door that just failed is asked again in the background
+        refresh(state)  # the first call waits once; a reader that just failed is asked again in the background
     why = None
     try:
         with open(failed, encoding="utf-8") as handle:

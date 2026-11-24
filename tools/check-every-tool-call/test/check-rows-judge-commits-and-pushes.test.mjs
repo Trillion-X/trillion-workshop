@@ -15,6 +15,7 @@ import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { addedLines, fixturesHold, fixtureUnit, judgeACall, unitsOfToolCall } from '../do-work/judge-check-rows.mjs';
 
 const RUNNER = resolve(import.meta.dirname, '..', 'do-work', 'check_switches.py');
+const READER = resolve(import.meta.dirname, 'fixtures', 'read-list-page.py');
 const JUDGE = resolve(import.meta.dirname, '..', 'do-work', 'judge-check-rows.mjs');
 const SETTINGS = JSON.parse(readFileSync(resolve(import.meta.dirname, '..', 'read-data', 'settings.json'), 'utf8'));
 
@@ -110,7 +111,8 @@ function settings(t, url) {
   const folder = tempFolder(join(tmpdir(), 'check-rows-'));
   t.after(() => rmSync(folder, { recursive: true, force: true }));
   const file = join(folder, 'settings.json');
-  writeFileSync(file, JSON.stringify({ ...SETTINGS, door: { ...SETTINGS.door, url, url_from: undefined, key_from: { env: 'MADE_UP_CHECK_LIST_KEY' } } }));
+  writeFileSync(file, JSON.stringify({ ...SETTINGS, rows_from: { ...SETTINGS.rows_from,
+    command: ['python3', '-I', READER, url, 'MADE_UP_CHECK_LIST_KEY'], command_from: undefined } }));
   return { file, state: join(folder, 'state') };
 }
 

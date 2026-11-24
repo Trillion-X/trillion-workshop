@@ -1,16 +1,11 @@
 {
-  "what_this_is": "The settings check_switches.py run uses when the session names none (CHECK_LIST_SETTINGS): the door and the key come from the session's environment, CHECK_LIST_DOOR (the person's door, https://<door>/mcp) and CHECK_LIST_KEY (the session's own key), so no repository names anyone's door. Without them every tool call says check list unreachable. The check rows (record:check, read with the door's where { kind: check }, kept as `checks` in the snapshot) are judged by check_rows.judge on each call: a Bash command matching a unit_kinds row's acts_on (the command match a hook-guard row's acts_on uses) is judged as that kind (git-commit, git-push), any other call as `otherwise` (tool-call); only rows whose kinds name the kind are kept.",
-  "door": {
-    "url_from": {
-      "env": "CHECK_LIST_DOOR"
+  "what_this_is": "The settings check_switches.py run uses when the session names none (CHECK_LIST_SETTINGS). CHECK_LIST_READER is a JSON argument list naming the person's existing authorized list reader. It receives {type, limit, where?, after?} on stdin and returns {records, next}; the reader opens its own database. This runner reads no key and owns no table layout. Without a reader every tool call says check list unreachable. The check rows (record:check, read with where {kind: check}, kept as checks) are judged by check_rows.judge on each call; only rows whose kinds name the call's unit kind are kept.",
+  "rows_from": {
+    "command_from": {
+      "env": "CHECK_LIST_READER"
     },
-    "address": "@own-records",
-    "method": "records:list",
-    "key_from": {
-      "env": "CHECK_LIST_KEY"
-    },
-    "page": 20,
-    "timeout_seconds": 10
+    "page": 200,
+    "timeout_seconds": 30
   },
   "types": [
     {

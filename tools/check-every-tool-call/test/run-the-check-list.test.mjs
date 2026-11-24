@@ -12,6 +12,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 
 const RUNNER = resolve(import.meta.dirname, '..', 'do-work', 'check_switches.py');
+const READER = resolve(import.meta.dirname, 'fixtures', 'read-list-page.py');
 
 function row(id, definition, value = {}) {
   return { id: `record:example-check:${id}`, type: 'record:example-check', value: { full_definition: JSON.stringify({ id, ...definition }), ...value } };
@@ -50,12 +51,12 @@ async function door(t, { status = 200, key = 'made-up-key', records = ROWS } = {
   return `http://127.0.0.1:${server.address().port}/mcp`;
 }
 
-function settings(t, url, door = { url }) {
+function settings(t, url, reader = { command: ['python3', '-I', READER, url, 'EXAMPLE_CHECK_LIST_KEY'] }) {
   const folder = tempFolder(join(tmpdir(), 'check-every-tool-call-'));
   t.after(() => rmSync(folder, { recursive: true, force: true }));
   const file = join(folder, 'check-list.json');
   writeFileSync(file, JSON.stringify({
-    door: { ...door, address: '@own-records', method: 'records:list', key_from: { env: 'EXAMPLE_CHECK_LIST_KEY' }, page: 100, timeout_seconds: 5 },
+    rows_from: { ...reader, page: 100, timeout_seconds: 5 },
     types: [{ type: 'record:example-check', id_prefix: 'record:example-check:' }],
     field: 'on', off_value: 'Off', detail_fields: ['why_off'],
     snapshot: { file: 'check-switches.json', refresh_seconds: 60 },
@@ -85,18 +86,18 @@ async function allowed(where, event, key, runner) {
   return answer;
 }
 
-test('with no key the list is unreachable: said on the call, nothing refused', async (t) => {
-  const where = settings(t, await door(t));
+test('with no declared reader the list is unreachable: said on the call, nothing refused', async (t) => {
+  const where = settings(t, await door(t), { command_from: { env: 'UNSET_SYNTHETIC_LIST_READER' } });
   const answer = await allowed(where, { tool_name: 'Bash', tool_input: { command: 'git commit -m x' } });
-  assert.match(answer.systemMessage, /^check list unreachable: no key/);
+  assert.match(answer.systemMessage, /^check list unreachable: no declared list reader/);
   assert.equal(answer.hookSpecificOutput, undefined);
 });
 
-test('a door that refuses the key is said with its status on every call', async (t) => {
+test('an authorized reader that encounters 401 is said with its status on every call', async (t) => {
   const where = settings(t, await door(t, { status: 401 }));
   for (let i = 0; i < 2; i += 1) {
     const answer = await allowed(where, { tool_name: 'Bash', tool_input: { command: 'ls' } }, 'made-up-key');
-    assert.match(answer.systemMessage, /^check list unreachable: 401/);
+    assert.match(answer.systemMessage, /^check list unreachable: the declared list reader refused \(status 401\)/);
     assert.equal(answer.hookSpecificOutput, undefined);
   }
 });
@@ -124,14 +125,14 @@ test('a row marked Off still runs while Off is not honoured, and the mark is sai
   assert.match(stderr, /^refused git commit -m x$/m);
 });
 
-test('the door can come from the environment, and without it the list is unreachable', async (t) => {
+test('the authorized reader command can come from the environment, and an absent command stays unchecked', async (t) => {
   const url = await door(t);
-  const where = settings(t, url, { url_from: { env: 'EXAMPLE_CHECK_LIST_DOOR' } });
+  const where = settings(t, url, { command_from: { env: 'EXAMPLE_CHECK_LIST_READER' } });
   const unnamed = await allowed(where, { tool_name: 'Bash', tool_input: { command: 'git commit -m x' } }, 'made-up-key');
-  assert.match(unnamed.systemMessage, /^check list unreachable: no door/);
+  assert.match(unnamed.systemMessage, /^check list unreachable: no declared list reader/);
   const named = { ...where, state: `${where.state}-named` };
-  process.env.EXAMPLE_CHECK_LIST_DOOR = url;
-  t.after(() => { delete process.env.EXAMPLE_CHECK_LIST_DOOR; });
+  process.env.EXAMPLE_CHECK_LIST_READER = JSON.stringify(['python3', '-I', READER, url, 'EXAMPLE_CHECK_LIST_KEY']);
+  t.after(() => { delete process.env.EXAMPLE_CHECK_LIST_READER; });
   const { status } = await call(named, { tool_name: 'Bash', tool_input: { command: 'git commit -m x' } }, 'made-up-key');
   assert.equal(status, 2);
 });
