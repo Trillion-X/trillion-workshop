@@ -16,18 +16,30 @@
 //                                    a person not signed in goes to sign-in, which comes back to the same address
 import Stripe from 'stripe';
 import { stripe } from '@better-auth/stripe';
+import journey from '../traffic-attribution/read-data/journey.json' with { type: 'json' };
 
 // The address a purchase starts at; the front door sends it here by on-a-computer/caddy-route-better-auth-buy.caddy.
 export const BUY_PATH = '/buy/';
+// Only the buy route chooses the offer and the metadata, through auth.api, not a public plugin request body.
+export const CHECKOUT_API_PATH = '/subscription/upgrade';
+
+// The plugin can send body metadata to Stripe before it builds Checkout (for example, when creating a customer).
+// Neither an HTTP nor a server-side API caller may assert a visitor in that body.
+export function stripCheckoutVisitor(body) {
+  if (body?.metadata && typeof body.metadata === 'object') {
+    delete body.metadata[journey.stripe.visitor_key];
+    delete body.metadata[journey.cookie.name];
+  }
+}
 
 const PLAIN = { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' };
 const NOT_FOUND = { status: 404, headers: PLAIN, body: 'Not found.\n' };
 const UNAVAILABLE = { status: 502, headers: PLAIN, body: 'Checkout is not available right now. Try again in a few minutes.\n' };
 const goTo = location => ({ status: 303, headers: { location, 'cache-control': 'no-store' }, body: null });
 
-// Only the attribution a buy address carries reaches Stripe, as the session's metadata (Stripe keeps 50 keys of up to 40 characters,
-// each value up to 500): jv (the journey visitor), ref and utm_*. Control characters never go.
-const ATTRIBUTION_KEY = /^(jv|ref|utm_[a-z_]{1,30})$/;
+// URL source labels are not proof of who visited. Do not copy a visitor key (including jv) from the address to Stripe.
+// Stripe keeps 50 keys of up to 40 characters, each value up to 500. Control characters never go.
+const ATTRIBUTION_KEY = /^(ref|utm_[a-z_]{1,30})$/;
 const METADATA_VALUE_LONGEST = 500;
 const METADATA_KEYS_MOST = 20;
 

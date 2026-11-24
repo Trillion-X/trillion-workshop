@@ -250,9 +250,11 @@ While `sell.enabled` is true, Better Auth's Stripe plugin (`@better-auth/stripe`
 payment_method_collection, on}`: the free days before the first charge (given once per account), whether Checkout asks for a card
 (`always`, Stripe's own default for a trial and the value when none is named, or `if_required`), and whether it is sold now (`on`,
 absent is true). `GET /buy/<offer id>` (the front door routes it here with `on-a-computer/caddy-route-better-auth-buy.caddy`) sends a
-signed-in person with a proven address to a Stripe Checkout on that offer's terms, with `?jv=`, `ref`, `utm_*` and the offer id as its
-metadata; a person not signed in goes to `sign_in_path` and back; an account that already holds the plan goes to `success_path`; an id
-the list does not name, or an offer that is off, is 404. The plan is the `subscription` row (referenceId the user id), written only from
+signed-in person with a proven address to a Stripe Checkout on that offer's terms. The Checkout's `client_reference_id` names the
+account, not a visitor. `ref`, `utm_*` and the offer id go in metadata; a visitor id typed into the address is not attribution proof
+and is not sent. The buy route calls the plugin server-side; the plugin's public upgrade path is disabled. A person not signed in
+goes to `sign_in_path` and back; an account that already holds the plan goes to `success_path`; an id the list does not name, or an
+offer that is off, is 404. The plan is the `subscription` row (referenceId the user id), written only from
 an event to `POST /api/auth/stripe/webhook` whose `Stripe-Signature` checks (`checkout.session.completed` puts it on,
 `customer.subscription.updated` changes it, `customer.subscription.deleted` takes it off); a bad or missing signature is 400 and writes
 nothing, and the same event again writes the same state. `GET /api/auth/subscription/list` reads a signed-in person's plans. The Stripe

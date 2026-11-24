@@ -114,8 +114,17 @@ test('a person not signed in goes to sign-in, which comes back to the same buy a
 test('a bought plan goes on the account by a signed event, a replay keeps one row, a bad signature changes nothing, and a cancel takes it off', async () => {
   const person = await signedIn('buyer@example.test');
 
-  // The buy: one Checkout for the offer's price, with its free days, made for this account.
-  const answer = await buy('/buy/offer%3Aexample-seat?jv=visitor-2&utm_source=school&other=dropped', person.headers);
+  // The public plugin path cannot choose its own offer or assert a visitor, even with a valid account session.
+  const before = sent.length;
+  const shortcut = await auth.handler(new Request(`${API}/subscription/upgrade`, {
+    method: 'POST', headers: { authorization: person.headers.get('authorization'), 'content-type': 'application/json', origin: ORIGIN },
+    body: JSON.stringify({ plan: PLAN, successUrl: '/welcome', cancelUrl: '/', metadata: { offer_id: OFFER, journey_visitor: 'visitor-2' } }),
+  }));
+  assert.equal(shortcut.status, 404);
+  assert.equal(sent.length, before);
+
+  // The buy: one Checkout for the offer's price, with its free days, made for this account. URL parameters alone prove no visitor.
+  const answer = await buy('/buy/offer%3Aexample-seat?jv=visitor-2&journey_visitor=visitor-3&utm_source=school&other=dropped', person.headers);
   assert.equal(answer.status, 303);
   assert.equal(answer.headers.location, 'https://checkout.stripe.test/c/pay/cs_test_example1');
   const made = sent.find(request => request.path === '/v1/checkout/sessions');
@@ -126,7 +135,9 @@ test('a bought plan goes on the account by a signed event, a replay keeps one ro
   assert.equal(made.form.get('payment_method_collection'), 'always', 'an offer that names no collection asks for a card, as Stripe does');
   assert.equal(made.form.get('client_reference_id'), person.id);
   assert.equal(made.form.get('customer'), 'cus_example_1');
-  assert.equal(made.form.get('metadata[jv]'), 'visitor-2');
+  assert.equal(made.form.get('metadata[jv]'), null);
+  assert.equal(made.form.get('metadata[journey_visitor]'), null);
+  assert.equal(made.form.get('subscription_data[metadata][journey_visitor]'), null);
   assert.equal(made.form.get('metadata[utm_source]'), 'school');
   assert.equal(made.form.get('metadata[offer_id]'), OFFER);
   assert.equal(made.form.get('metadata[other]'), null, 'only attribution reaches Stripe');
@@ -178,7 +189,7 @@ test('a bought plan goes on the account by a signed event, a replay keeps one ro
   assert.equal(again.form.get('subscription_data[trial_period_days]'), null);
 });
 
-test('an offer with if_required makes a Checkout that asks for no card while nothing is due, on the same plan', async () => {
+test('the supported server-side upgrade works without tracking, including an if_required offer', async () => {
   const person = await signedIn('proof@example.test');
   stripeState.subscription = null;
   assert.equal((await buy('/buy/offer%3Aexample-proof', person.headers)).status, 303);
@@ -187,7 +198,28 @@ test('an offer with if_required makes a Checkout that asks for no card while not
   assert.equal(made.form.get('subscription_data[trial_period_days]'), '7');
   assert.equal(made.form.get('line_items[0][price]'), PRICE);
   assert.equal(made.form.get('metadata[offer_id]'), 'offer:example-proof');
+  assert.equal(made.form.get('client_reference_id'), person.id);
+  assert.equal(made.form.get('metadata[journey_visitor]'), null);
+  assert.equal(made.form.get('subscription_data[metadata][journey_visitor]'), null);
   assert.deepEqual((await rows(person.id)).map(row => row.plan), [PLAN]);
+});
+
+test('the Stripe boundary strips caller-supplied visitor metadata even on the server API', async () => {
+  const person = await signedIn('metadata@example.test');
+  const before = sent.length;
+  const made = await auth.api.upgradeSubscription({
+    headers: person.headers,
+    body: { plan: PLAN, successUrl: '/welcome', cancelUrl: '/', metadata: { offer_id: OFFER, jv: 'raw-visitor', journey_visitor: 'forged-visitor' } },
+  });
+  assert.ok(made.url);
+  const writes = sent.slice(before).filter(request => request.method === 'POST');
+  assert.deepEqual(writes.map(request => request.path), ['/v1/customers', '/v1/checkout/sessions']);
+  for (const { form } of writes) {
+    for (const key of ['metadata[journey_visitor]', 'metadata[jv]', 'subscription_data[metadata][journey_visitor]', 'subscription_data[metadata][jv]']) {
+      assert.equal(form.has(key), false, key);
+    }
+  }
+  assert.equal(writes.at(-1).form.get('client_reference_id'), person.id);
 });
 
 test('the plugin starts only with its key, its signing secret and offers that name a listed plan', () => {

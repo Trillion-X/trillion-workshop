@@ -23,7 +23,7 @@ import { storeDriver } from './store.mjs';
 import { teamIdsOf, teamClaim } from './teams-claim.mjs';
 import { callBeforeDelete } from './before-delete-url.mjs';
 import { safeNext } from './pages/safe-next.mjs';
-import { sellPlugins } from './sell.mjs';
+import { CHECKOUT_API_PATH, sellPlugins, stripCheckoutVisitor } from './sell.mjs';
 import { randomBytes } from 'node:crypto';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
@@ -297,7 +297,7 @@ export const auth = betterAuth({
   database: pool,
   // The home origins, and every verified attached origin at request time (attached-origins.mjs).
   trustedOrigins: trustedOriginsFor(settings),
-  disabledPaths: settings.disabled_paths,
+  disabledPaths: settings.sell?.enabled ? [...settings.disabled_paths, CHECKOUT_API_PATH] : settings.disabled_paths,
   // The limits are kept per person, by the client address the front door forwards (the headers settings.rate_limit names, past its own
   // addresses in settings.rate_limit.trusted_proxies); with none found every person would share one bucket per path.
   advanced: { ...cookieOptions(settings), ipAddress: { ipAddressHeaders: settings.rate_limit.client_ip_headers, trustedProxies: settings.rate_limit.trusted_proxies } },
@@ -335,6 +335,7 @@ export const auth = betterAuth({
       if (ctx.path === '/oauth2/token') return holdLoopbackResources(ctx.context.adapter, settings.mcp.loopback_resources, settings.mcp.resource_scopes, ctx.body?.resource);
       if (ctx.path === '/oauth2/consent') return narrowConsent(ctx);
       if (ctx.path === '/api-key/create' && ctx.body) delete ctx.body.prefix;
+      if (settings.sell?.enabled && ctx.path === CHECKOUT_API_PATH) stripCheckoutVisitor(ctx.body);
     }),
   },
   plugins: [
