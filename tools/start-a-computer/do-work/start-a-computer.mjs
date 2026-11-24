@@ -27,7 +27,7 @@ import { spawn, execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { zstdCompressSync, constants as zlibConstants } from 'node:zlib';
 import { homedir } from 'node:os';
-import { promisify } from 'node:util';
+import { isDeepStrictEqual, promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
 import { fileURLToPath } from 'node:url';
@@ -395,6 +395,53 @@ async function applyCheckedFact(machine, run, { computer, unit, build, accessLog
   };
 }
 
+async function memoryForASlot(machine, group, target, run) {
+  const { margin_bytes: margin } = SETTINGS.slot_start;
+  let need = target.start_headroom_bytes;
+  if (need !== undefined && !(Number.isSafeInteger(need) && need >= 0)) throw refused(`${target.unit} start_headroom_bytes is a whole number of bytes, 0 or more.`);
+  if (need === undefined) {
+    need = 0;
+    for (const unit of group.active) {
+      const current = (await run(machine, `systemctl show -p MemoryCurrent --value ${q(unit.unit)}`)).trim();
+      if (!/^[0-9]+$/.test(current)) throw refused(`${target.unit} needs the memory ${unit.unit} uses (MemoryCurrent: ${current || 'nothing'}), or its row's start_headroom_bytes, before it can start beside it.`);
+      need += Number(current);
+    }
+    const measured = target.state ? (await run(machine, `cat ${q(`${target.state}/start-peak-bytes`)} 2>/dev/null || true`)).trim() : '';
+    if (/^[0-9]+$/.test(measured)) need = Math.max(need, Number(measured));
+  }
+  const available = Number((await run(machine, "awk '/^MemAvailable:/ { print $2 * 1024 }' /proc/meminfo")).trim());
+  if (!Number.isSafeInteger(available)) throw refused(`${target.unit} cannot be checked: the computer's MemAvailable in /proc/meminfo is not a number.`);
+  if (available >= need + margin) return;
+  throw refused(`${target.unit} was not started: it needs ${need + margin} bytes of MemAvailable and the computer has ${available}. ${group.active.length ? `${group.active.map(unit => unit.unit).join(' and ')} kept serving.` : 'No slot of it serves.'}`);
+}
+
+// The one overlap handoff: do not enable or retire anything before the candidate proves it can serve.
+async function overlapSlot(machine, group, target, run, { ready, notSwitched, beforeRetire, afterRetire, start = 'restart' }) {
+  await memoryForASlot(machine, group, target, run);
+  const changeSlot = (unit, phase, command) => run(machine, command).catch(cause => {
+    throw slotUnconfirmed(target, unit, phase, cause);
+  });
+  await changeSlot(target, start, `systemctl ${start} ${q(target.unit)}`);
+  try { await ready(); }
+  catch (error) {
+    await changeSlot(target, 'stop', `systemctl stop ${q(target.unit)}`);
+    error.message = `${error.message} Candidate stop succeeded; no incumbent retirement was requested for this unit.`;
+    if (await notSwitched()) error.slot_not_switched = { candidate: target.unit, incumbent: group.active[0].unit, candidate_stopped: true };
+    throw error;
+  }
+  await beforeRetire?.();
+  await changeSlot(target, 'enable', `systemctl enable ${q(target.unit)} >/dev/null 2>&1`);
+  for (const unit of group.units.filter(unit => unit !== target)) await changeSlot(unit, 'retire', `systemctl disable --now ${q(unit.unit)} >/dev/null 2>&1`);
+  try { await afterRetire?.(); } catch (cause) { throw slotUnconfirmed(target, target, 'readback', cause); }
+  return { to: target.unit, from: group.active.filter(unit => unit !== target).map(unit => unit.unit) };
+}
+
+function slotUnconfirmed(target, unit, phase, cause) {
+  return Object.assign(new Error(`The apply did not confirm ${phase} for ${unit.unit}; read back the slots before retrying.`, { cause }), {
+    exit: SLOT_SWITCH_UNCONFIRMED_EXIT, slot_switch_unconfirmed: { candidate: target.unit, affected_unit: unit.unit, phase },
+  });
+}
+
 export async function applyWhatItRuns(machine, given, run = onMachine, held = {}, deps = {}) {
   const applyStarted = Date.now();
   const { runs, rendered, live, present, strays, usersPresent, portsClosed, builds, stale, switches, keys } = await runsState(machine, given, run, deps);
@@ -553,65 +600,26 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   // over it, against the computer's MemAvailable. Too little is refused before anything stops, so the slot that
   // runs keeps serving (Nov 21 2026, 9:47 PM CST: the kernel's global out-of-memory killer ended a new slot that had reached 1.32 GB
   // beside an old one holding 1.26 GB on a 4 GB computer, and every site on the box timed out).
-  const memoryForASlot = async (group, target) => {
-    const { margin_bytes: margin } = SETTINGS.slot_start;
-    let need = target.start_headroom_bytes;
-    if (need !== undefined && !(Number.isSafeInteger(need) && need >= 0)) throw refused(`${target.unit} start_headroom_bytes is a whole number of bytes, 0 or more.`);
-    if (need === undefined) {
-      need = 0;
-      for (const unit of group.active) {
-        const current = (await run(machine, `systemctl show -p MemoryCurrent --value ${q(unit.unit)}`)).trim();
-        if (!/^[0-9]+$/.test(current)) throw refused(`${target.unit} needs the memory ${unit.unit} uses (MemoryCurrent: ${current || 'nothing'}), or its row's start_headroom_bytes, before it can start beside it.`);
-        need += Number(current);
-      }
-      const measured = target.state ? (await run(machine, `cat ${q(`${target.state}/start-peak-bytes`)} 2>/dev/null || true`)).trim() : '';
-      if (/^[0-9]+$/.test(measured)) need = Math.max(need, Number(measured));
-    }
-    const available = Number((await run(machine, "awk '/^MemAvailable:/ { print $2 * 1024 }' /proc/meminfo")).trim());
-    if (!Number.isSafeInteger(available)) throw refused(`${target.unit} cannot be checked: the computer's MemAvailable in /proc/meminfo is not a number.`);
-    if (available >= need + margin) return;
-    throw refused(`${target.unit} was not started: it needs ${need + margin} bytes of MemAvailable and the computer has ${available}. ${group.active.length ? `${group.active.map(unit => unit.unit).join(' and ')} kept serving.` : 'No slot of it serves.'}`);
-  };
   const switched = [], booted = [];
   for (const { group, target } of switching) {
-    await memoryForASlot(group, target);
-    const changeSlot = (unit, phase, command) => run(machine, command).catch(cause => {
-      throw Object.assign(new Error(`The apply did not confirm ${phase} for ${unit.unit}; read back the slots before retrying.`, { cause }), {
-        exit: SLOT_SWITCH_UNCONFIRMED_EXIT, slot_switch_unconfirmed: { candidate: target.unit, affected_unit: unit.unit, phase },
-      });
+    const answer = await overlapSlot(machine, group, target, run, {
+      ready: async () => {
+        await bootCheck(target.unit);
+        if (target.switch_check_command) {
+          const filled = target.switch_check_command.replaceAll('{unit}', target.unit).replaceAll('{listen}', target.health_listen ?? '');
+          await commandPasses(machine, filled, { run, wait: deps.wait ?? pause, tries: Math.max(1, Math.ceil((target.switch_check_seconds ?? 60) / 5)) }, `${target.unit}'s switch_check_command`);
+        }
+      },
+      notSwitched: async () => switching.length === 1 && group.active.length === 1 && !needsSetup && !writes.length && !present.length &&
+        !usersPresent.length && !missing.length && !keysOwed.length && !builds.length,
+      beforeRetire: async () => {
+        if (!target.state) return;
+        const peak = (await run(machine, `systemctl show -p MemoryPeak --value ${q(target.unit)}`).catch(() => '')).trim();
+        if (/^[0-9]+$/.test(peak)) await run(machine, `printf '%s\\n' ${q(peak)} > ${q(`${target.state}/start-peak-bytes`)}`).catch(() => {});
+      },
     });
-    await changeSlot(target, 'restart', `systemctl restart ${q(target.unit)}`);
-    try {
-      await bootCheck(target.unit);
-      // A slotted unit may name what must also hold on the new slot before the one that ran stops (`switch_check_command`, run
-      // on the computer with {unit} and {listen} filled, tried like check_command): an engine's slot that answers its health but
-      // dropped what the slot that ran was keeping (its kept-running sessions, Nov 19 2026 10:38 and 11:22 PM CST) fails here.
-      if (target.switch_check_command) {
-        const filled = target.switch_check_command.replaceAll('{unit}', target.unit).replaceAll('{listen}', target.health_listen ?? '');
-        await commandPasses(machine, filled, { run, wait: deps.wait ?? pause, tries: Math.max(1, Math.ceil((target.switch_check_seconds ?? 60) / 5)) }, `${target.unit}'s switch_check_command`);
-      }
-    }
-    catch (error) {
-      await changeSlot(target, 'stop', `systemctl stop ${q(target.unit)}`);
-      error.message = `${error.message} Candidate stop succeeded; no incumbent retirement was requested for this unit.`;
-      // Only the standby was prepared; no other changes to what serves were requested.
-      if (switching.length === 1 && group.active.length === 1 && !needsSetup && !writes.length && !present.length && !usersPresent.length &&
-          !missing.length && !keysOwed.length && !builds.length) {
-        error.slot_not_switched = { candidate: target.unit, incumbent: group.active[0].unit, candidate_stopped: true };
-      }
-      throw error;
-    }
     booted.push(target.unit);
-    // The new slot's peak since its start, now that it passed its checks, is the start peak the next switch must find room for.
-    // A peak the computer cannot report or keep never fails a switch that worked.
-    if (target.state) {
-      const peak = (await run(machine, `systemctl show -p MemoryPeak --value ${q(target.unit)}`).catch(() => '')).trim();
-      if (/^[0-9]+$/.test(peak)) await run(machine, `printf '%s\\n' ${q(peak)} > ${q(`${target.state}/start-peak-bytes`)}`).catch(() => {});
-    }
-    await changeSlot(target, 'enable', `systemctl enable ${q(target.unit)} >/dev/null 2>&1`);
-    const stopped = group.units.filter(unit => unit !== target);
-    for (const unit of stopped) await changeSlot(unit, 'retire', `systemctl disable --now ${q(unit.unit)} >/dev/null 2>&1`);
-    switched.push({ to: target.unit, from: group.active.filter(unit => unit !== target).map(unit => unit.unit) });
+    switched.push(answer);
   }
   for (const unit of units) {
     await run(machine, running.has(unit) ? `systemctl restart ${q(unit)}` : `systemctl enable --now ${q(unit)} >/dev/null 2>&1`);
@@ -703,6 +711,7 @@ export async function rentAMachine(request, { machineToken, nameToken, fetchImpl
 /** Rent (or adopt) the request's machine and apply its computer row to it: set-up, the units' source builds, the files the row
  * renders and the restarts, then the row's health page (`runs.health`) asked through its public name. */
 export async function startAComputer(request, { machineToken, nameToken, held = {}, fetchImpl = fetch, wait = pause, tries = 48, run = onMachine } = {}) {
+  if (Object.hasOwn(request, 'scope')) throw refused('engine scope is not supported by start; use the row apply owner.');
   const runs = runsOf(request);
   const rented = await rentAMachine(request, { machineToken, nameToken, fetchImpl, wait, run });
   if (rented.lease.state === 'waiting') return rented;
@@ -795,7 +804,197 @@ export function checkPagesFollowCommit(request) {
 
 /** Apply a computer's row to the computer the request names (`machine.address`, `ssh`), already running: the same
  * apply a start does, with the values its units name by vault name (`held`). */
-export async function applyAComputerRow(request, { held = {}, run = onMachine, fetchImpl = fetch } = {}) {
+export const ROW_ENGINE_SCOPE_PROTOCOL = 1;
+const ENGINE_TEMPLATE = 'tools/keep-an-engine-on-a-computer/serve-computer.service';
+const service = /^[A-Za-z0-9@._-]+\.service$/;
+const exactKeys = (value, names) => value && typeof value === 'object' && !Array.isArray(value) &&
+  Object.keys(value).length === names.length && names.every(name => Object.hasOwn(value, name));
+
+function pinnedEngineSource(source) {
+  if (!source || typeof source !== 'object' || Array.isArray(source) || typeof source.commit !== 'string' || !/^[0-9a-f]{40}$/.test(source.commit) ||
+      !exactKeys(source.prebuilt, ['blake3']) || typeof source.prebuilt.blake3 !== 'string' || !/^[0-9a-f]{64}$/.test(source.prebuilt.blake3)) {
+    throw refused('the engine scope needs a full commit and BLAKE3 pin for both the candidate and the retained rollback.');
+  }
+  return source;
+}
+
+const withReleasePins = (source, { commit, prebuilt }) => ({ ...source, commit, prebuilt });
+
+export function readEngineScope(scope, internal = false) {
+  if (!exactKeys(scope, internal ? ['kind', 'unit', 'incumbent', 'rollback'] : ['kind', 'unit', 'incumbent']) ||
+      scope.kind !== 'engine-slot' || typeof scope.unit !== 'string' || !service.test(scope.unit) ||
+      !exactKeys(scope.incumbent, ['unit', 'pid', 'invocation']) || typeof scope.incumbent.unit !== 'string' || !service.test(scope.incumbent.unit) ||
+      !Number.isSafeInteger(scope.incumbent.pid) || scope.incumbent.pid < 1 || typeof scope.incumbent.invocation !== 'string' || !/^(?!0{32}$)[0-9a-f]{32}$/.test(scope.incumbent.invocation)) {
+    throw refused('unsupported apply scope; engine-slot needs one declared unit and its incumbent unit, PID and invocation.');
+  }
+  if (internal) pinnedEngineSource(scope.rollback);
+  return scope;
+}
+
+const outsideEngine = ['prepare', 'site', 'owned_folders', 'files', 'script', 'switch_check_command'];
+
+function selectedEngine(row, scope) {
+  const actual = row?.runs?.units;
+  const selected = Array.isArray(actual) ? actual.filter(unit => unit.unit === scope.unit) : [];
+  const engine = selected[0];
+  if (selected.length !== 1 || engine.template !== ENGINE_TEMPLATE || !engine.slots || Object.keys(engine.slots).length !== 2 ||
+      outsideEngine.some(key => Object.hasOwn(engine, key))) {
+    throw refused('the engine scope needs one two-slot engine without a program prepare, owned files or custom switch commands.');
+  }
+  const effective = withSlots({ units: [engine] }).units;
+  const all = withSlots({ units: actual }).units;
+  const source = pinnedEngineSource(engine.source);
+  for (const slot of effective) {
+    if (slot.template !== ENGINE_TEMPLATE || outsideEngine.some(key => Object.hasOwn(slot, key)) || !isDeepStrictEqual(slot.parts, engine.parts) ||
+        !isDeepStrictEqual(slot.source, source) || all.filter(other => other.unit === slot.unit).length !== 1 ||
+        !/^127\.0\.0\.1:[1-9][0-9]{0,4}$/.test(slot.health_listen ?? '')) throw refused('the engine scope needs unique slots with the same release pin and their own loopback readiness addresses.');
+    sourceOf(slot);
+  }
+  if (effective[0].health_listen === effective[1].health_listen || !effective.some(slot => slot.unit === scope.incumbent.unit)) {
+    throw refused('the scope does not name the incumbent of two distinct engine slots.');
+  }
+  return { engine, effective, source };
+}
+
+const engineDoorSitePointers = { app_host: '/app_host', site_host: '/site_host', server_name: '/name', command_word: '/cli' };
+
+/** The selected engine may read door labels from the exact file the owner row binds to the `site` setting, nowhere else. */
+export function engineScopeSiteFile(row, scope) {
+  const { engine } = selectedEngine(row, scope);
+  if (engine.parts === undefined) return undefined;
+  if (engine.parts === null || typeof engine.parts !== 'object' || Array.isArray(engine.parts)) throw refused('engine site parts must be an object.');
+  const bindings = row.runs.units.filter(unit => unit.parts && Object.hasOwn(unit.parts, '/settings/site')).map(unit => unit.parts['/settings/site']);
+  const file = bindings[0]?.file;
+  if (bindings.length !== 1 || !exactKeys(bindings[0], ['file']) || typeof file !== 'string' ||
+      !/^(?:[A-Za-z0-9_-]+\/)+[A-Za-z0-9_-]+\.json$/.test(file)) {
+    throw refused('engine site parts need one relative owner file bound to the entire site setting.');
+  }
+  for (const [at, part] of Object.entries(engine.parts)) {
+    const field = /^\/settings\/doors\/(?:0|[1-9][0-9]*)\/(app_host|site_host|server_name|command_word)$/.exec(at)?.[1];
+    if (!field || !exactKeys(part, ['file', 'pointer']) || part.file !== file || part.pointer !== engineDoorSitePointers[field]) {
+      throw refused('engine site parts may fill only the declared door fields from their owner site setting.');
+    }
+  }
+  return file;
+}
+
+/** The fact that this is an engine release, not a partial whole-row reconcile, is proved by comparing the complete rows. */
+export function engineScopeForEdit(before, after, asked) {
+  const scope = readEngineScope(asked);
+  const old = selectedEngine(before, scope), next = selectedEngine(after, scope);
+  engineScopeSiteFile(after, scope);
+  const expected = structuredClone(before);
+  expected.runs.units.find(unit => unit.unit === scope.unit).source = withReleasePins(old.source, next.source);
+  if (!isDeepStrictEqual(expected, after) || old.source.commit === next.source.commit || old.source.prebuilt.blake3 === next.source.prebuilt.blake3) {
+    throw refused('an engine-slot apply changes just the selected unit’s source pin, not another field or the last whole-render pin.');
+  }
+  return { ...scope, rollback: old.source };
+}
+
+function checkedEngineRequest(request) {
+  const allowed = new Set(['machine', 'ssh', 'computer_row', 'scope']);
+  if (Object.keys(request).some(key => !allowed.has(key))) throw refused('the engine scope does not accept page, name or other apply arguments.');
+  const scope = readEngineScope(request.scope, true);
+  const next = selectedEngine(request.computer_row, scope);
+  if (next.engine.parts !== undefined) throw refused('the selected engine’s site parts were not hydrated by its request reader.');
+  if (!isDeepStrictEqual(withReleasePins(scope.rollback, next.source), next.source)) {
+    throw refused('the engine scope cannot change source metadata other than the commit and prebuilt byte pin.');
+  }
+  if (scope.rollback.commit === next.source.commit || scope.rollback.prebuilt.blake3 === next.source.prebuilt.blake3 ||
+      request.machine?.address !== request.computer_row.address) throw refused('the engine scope needs distinct pins and its owner row’s machine address.');
+  const incumbent = next.effective.find(unit => unit.unit === scope.incumbent.unit), candidate = next.effective.find(unit => unit !== incumbent);
+  const units = [incumbent, candidate];
+  const before = { ...incumbent, source: scope.rollback };
+  const rendered = renderWhatItRuns({ units: [before, candidate] });
+  if (!isDeepStrictEqual(rendered, renderWhatItRuns({ units }))) throw refused('the engine scope would change a rendered file; use its owner to reconcile that drift separately.');
+  return { scope, machine: { address: request.machine.address, ssh: request.ssh }, units, incumbent: before, candidate, rendered };
+}
+
+const slotFields = ['Id', 'LoadState', 'ActiveState', 'SubState', 'UnitFileState', 'MainPID', 'InvocationID', 'NeedDaemonReload', 'Job', 'FragmentPath', 'DropInPaths'];
+async function scopeSlotState(machine, unit, run) {
+  const output = await run(machine, `systemctl show ${slotFields.map(field => `-p ${field}`).join(' ')} ${q(unit.unit)}`);
+  const state = Object.fromEntries(output.trim().split('\n').map(line => [line.slice(0, line.indexOf('=')), line.slice(line.indexOf('=') + 1)]));
+  const fragment = `/etc/systemd/system/${unit.unit}`;
+  const dropIns = (unit.drop_ins ?? []).map(path => `${fragment}.d/${dropInName(path)}.conf`).sort();
+  if (state.Id !== unit.unit || state.LoadState !== 'loaded' || state.NeedDaemonReload !== 'no' || !['0', ''].includes(state.Job) ||
+      state.FragmentPath !== fragment || !isDeepStrictEqual(state.DropInPaths?.split(/\s+/).filter(Boolean).sort(), dropIns)) {
+    throw refused(`${unit.unit} has unmanaged unit or job drift; no scoped change is admitted.`);
+  }
+  return state;
+}
+
+async function scopedSlotProof(machine, unit, run, { running, enabled, expected }) {
+  const state = await scopeSlotState(machine, unit, run);
+  const { MainPID: pid, InvocationID: invocation } = state;
+  const process = running ? /^[1-9][0-9]*$/.test(pid) && /^(?!0{32}$)[0-9a-f]{32}$/.test(invocation) : pid === '0';
+  if (!process || state.ActiveState !== (running ? 'active' : 'inactive') || state.SubState !== (running ? 'running' : 'dead') ||
+      state.UnitFileState !== (enabled ? 'enabled' : 'disabled') || (expected && (Number(pid) !== expected.pid || invocation !== expected.invocation))) {
+    throw refused(`${unit.unit} does not match the expected running or standby identity.`);
+  }
+  const source = sourceOf(unit), file = `${source.builds}/${source.commit}/${source.program}`, link = `${source.builds}/${source.current}`;
+  const selected = (await run(machine, `readlink -- ${q(link)}`)).trim();
+  if (selected !== source.commit) throw refused(`${unit.unit} does not select the required resident release.`);
+  const actual = (await run(machine, `test -x ${q(file)} && [ "$(realpath -- ${q(file)})" = ${q(file)} ] && b3sum --no-names < ${q(file)}`)).trim();
+  if (actual !== source.prebuilt) throw refused(`${unit.unit} resident executable does not match the row’s BLAKE3 pin.`);
+  if (running && (await run(machine, `readlink -f -- /proc/${pid}/exe`)).trim() !== file) throw refused(`${unit.unit} does not run its selected resident executable.`);
+  if (!isDeepStrictEqual(state, await scopeSlotState(machine, unit, run))) throw refused(`${unit.unit} changed while its process and bytes were checked.`);
+  return { unit: unit.unit, pid: Number(pid), invocation, commit: source.commit, blake3: source.prebuilt };
+}
+
+async function admitScopedEngine(request, run) {
+  const planned = checkedEngineRequest(request);
+  const { scope, machine, incumbent, candidate, rendered } = planned;
+  const observed = await readAll(machine, run, rendered);
+  if (rendered.some(({ path, text }) => observed[path] !== text)) throw refused('the selected engine’s existing rendered files differ; the scoped apply does not write files.');
+  const incumbentProof = await scopedSlotProof(machine, incumbent, run, { running: true, enabled: true, expected: scope.incumbent });
+  const candidateProof = await scopedSlotProof(machine, candidate, run, { running: false, enabled: false });
+  return { ...planned, incumbentProof, candidateProof };
+}
+
+/** A read-only check of the exact renderer and the two resident pins. It does not prepare or select any bytes. */
+export async function checkScopedEngine(request, { run = onMachine } = {}) {
+  const { machine, incumbent, candidate, incumbentProof, candidateProof } = await admitScopedEngine(request, run);
+  await memoryForASlot(machine, { active: [incumbent] }, candidate, run);
+  return { incumbent: incumbentProof, candidate: candidateProof };
+}
+
+async function applyScopedEngine(request, run, wait) {
+  const { machine, units, scope, incumbent, candidate, incumbentProof } = await admitScopedEngine(request, run);
+  const final = async (unit, enabled, expected) => scopedSlotProof(machine, unit, run, { running: true, enabled, expected });
+  const standby = (unit, enabled = false) => scopedSlotProof(machine, unit, run, { running: false, enabled });
+  let running, confirmed;
+  const switched = await overlapSlot(machine, { units, active: [units[0]] }, candidate, run, {
+    start: 'start',
+    ready: async () => {
+      await commandPasses(machine, `curl --fail --silent --max-time 5 ${q(`http://${candidate.health_listen}/readyz`)}`, {
+        run: async (target, command) => {
+          const body = JSON.parse(await run(target, command));
+          if (body.release_commit !== candidate.source.commit || body.draining !== false) throw refused('the candidate readiness response did not prove the requested release.');
+        }, wait, tries: Math.max(1, Math.ceil((candidate.health?.wait_seconds ?? 60) / 5)),
+      }, `${candidate.unit} readiness`);
+      running = await final(candidate, false);
+      await final(incumbent, true, incumbentProof);
+    },
+    notSwitched: async () => {
+      await final(incumbent, true, incumbentProof);
+      await standby(candidate);
+      return true;
+    },
+    afterRetire: async () => {
+      confirmed = await final(candidate, true, running);
+      await standby(incumbent);
+    },
+  });
+  return { written: [], restarted: [], booted: [candidate.unit], switched: [switched], engine_scope: { unit: scope.unit, incumbent: incumbentProof, candidate: confirmed } };
+}
+
+function checkOrdinaryApplyFields(request) {
+  if (Object.keys(request).some(key => !['machine', 'ssh', 'computer_row', 'pages_folder', 'engine_call'].includes(key))) throw refused('unknown apply request field.');
+}
+
+export async function applyAComputerRow(request, { held = {}, run = onMachine, fetchImpl = fetch, wait = pause } = {}) {
+  if (Object.hasOwn(request, 'scope')) return applyScopedEngine(request, run, wait);
+  checkOrdinaryApplyFields(request);
   checkPagesFollowCommit(request);
   const applied = await applyWhatItRuns({ ssh: request.ssh, address: request.machine.address }, runsOf(request), run, held, { pages: readPages(request), computer: request.machine.name });
   try {
@@ -927,6 +1126,8 @@ export function readRequest(file) {
   resolveIn(request, 'pages_folder');
   // The computer's row may be its own file (`computer_row_file`): the row is that file's JSON, read here.
   let rowHere = here;
+  const scoped = Object.hasOwn(request, 'scope');
+  if (scoped) readEngineScope(request.scope, true);
   if (typeof request.computer_row_file === 'string') {
     const rowFile = resolvePath(here, request.computer_row_file);
     request.computer_row = JSON.parse(readFileSync(rowFile, 'utf8'));
@@ -937,13 +1138,23 @@ export function readRequest(file) {
   // Pointer (RFC 6901) into the unit (its settings, a web server's site, any field), each value `{ file, pointer }`, the value at
   // that pointer of the file's JSON (pointer "" or none: the whole file), read relative to the computer row's file. The tool
   // names no setting and no field: which value goes where is the person's.
-  for (const unit of request.computer_row?.runs?.units ?? []) {
+  const scopeSiteFile = scoped ? engineScopeSiteFile(request.computer_row, request.scope) : undefined;
+  let ownerSite;
+  if (scopeSiteFile) {
+    const source = resolvePath(realpathSync(rowHere), scopeSiteFile);
+    if (realpathSync(source) !== source) throw refused('the engine’s owner site setting file may not be redirected.');
+    ownerSite = JSON.parse(readFileSync(source, 'utf8'));
+  }
+  const partsUnits = scoped ? request.computer_row.runs.units.filter(unit => unit.unit === request.scope.unit) : request.computer_row?.runs?.units ?? [];
+  for (const unit of partsUnits) {
     for (const [target, part] of Object.entries(unit.parts ?? {})) {
       const where = `${unit.unit} parts ${target}`;
       if (!target.startsWith('/') || !part || typeof part.file !== 'string' || (part.pointer !== undefined && typeof part.pointer !== 'string')) {
         throw refused(`${where}: each key is a JSON Pointer into the unit (it starts with /) and each value { file, pointer }.`);
       }
-      const value = pointed(JSON.parse(readFileSync(resolvePath(rowHere, part.file), 'utf8')), part.pointer ?? '', `${where} reads ${part.file}`);
+      const content = scoped ? ownerSite : JSON.parse(readFileSync(resolvePath(rowHere, part.file), 'utf8'));
+      const value = pointed(content, part.pointer ?? '', `${where} reads ${part.file}`);
+      if (scoped && (typeof value !== 'string' || !value)) throw refused('the engine door field must be nonempty text in the owner site setting.');
       const keys = pointerKeys(target), last = keys.pop();
       const holder = keys.reduce((held, key) => held?.[key], unit);
       if (!holder || typeof holder !== 'object') throw refused(`${where}: the unit holds nothing at ${target.slice(0, target.lastIndexOf('/')) || '/'} to put it in.`);
@@ -991,7 +1202,11 @@ async function pipe(fd) {
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [operation, first, second, third] = process.argv.slice(2);
   const usage = 'usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | apply REQUEST_FILE | differences REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | remove LEASE_FILE | register LEASE_FILE ADDRESS (the one-time token from the rent line on fd 3) (machine credential on fd 3, name credential on fd 4, the values a computer row names by vault name on fd 5)';
-  const json = path => readRequest(resolvePath(path));
+  const json = path => {
+    const request = readRequest(resolvePath(path));
+    if (operation !== 'apply' && Object.hasOwn(request, 'scope')) throw refused('engine scope is not supported by this operation.');
+    return request;
+  };
   try {
     if (operation === 'register') {
       if (!first || !second || third) throw Object.assign(new Error(usage), { exit: 2 });
@@ -1001,9 +1216,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     }
     if (operation === 'apply' || operation === 'differences') {
       if (!first || second) throw Object.assign(new Error(usage), { exit: 2 });
-      const request = json(first), runs = await withPrepared(runsOf(request), { pages: readPages(request) });
-      const named = (request.computer_row?.runs?.names ?? []).length > 0;
-      const held = (operation === 'apply' && runs.units.some(needsHeld)) || named ? heldValues(await pipe(5)) : {};
+      const request = json(first), scoped = Object.hasOwn(request, 'scope');
+      if (!scoped && operation === 'apply') checkOrdinaryApplyFields(request);
+      const runs = scoped ? null : await withPrepared(runsOf(request), { pages: readPages(request) });
+      const named = !scoped && (request.computer_row?.runs?.names ?? []).length > 0;
+      const held = !scoped && ((operation === 'apply' && runs.units.some(needsHeld)) || named) ? heldValues(await pipe(5)) : {};
       const answer = operation === 'apply' ? await applyAComputerRow(request, { held }) : await computerRowDifferences(request, { held });
       process.stdout.write(`${JSON.stringify(operation === 'apply' ? computerRowApplyReceipt(answer) : answer)}\n`);
       process.exit(operation === 'apply' ? computerRowApplyExit(answer) : 0);

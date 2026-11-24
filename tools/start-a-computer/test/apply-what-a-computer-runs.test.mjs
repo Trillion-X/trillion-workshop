@@ -5,12 +5,18 @@
 import test from 'node:test';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readlinkSync, rmSync, symlinkSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readlinkSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { applyARow } from '../do-work/apply-a-computer-row.mjs';
+import { dirname, join } from 'node:path';
+import { once } from 'node:events';
+import { createServer } from 'node:http';
+import { setTimeout as delay } from 'node:timers/promises';
+import { fileURLToPath } from 'node:url';
+import { applyARow, checkApplyProtocol, engineProbeOf, startApplyProbe } from '../do-work/apply-a-computer-row.mjs';
 import { applyAComputerRow, applyWhatItRuns, computerRowApplyExit, computerRowApplyFailure, computerRowApplyReceipt, readRequest, runsDifferences } from '../do-work/start-a-computer.mjs';
-import { renderWhatItRuns } from '../do-work/render-what-a-computer-runs.mjs';
+import { renderWhatItRuns, withSlots } from '../do-work/render-what-a-computer-runs.mjs';
+import { checkScopedEngine, engineScopeForEdit, startAComputer } from '../do-work/start-a-computer.mjs';
+import { blake3 } from '@noble/hashes/blake3.js';
 
 const machine = { address: '192.0.2.9', ssh: { known_hosts: '/dev/null' } };
 const runs = {
@@ -733,5 +739,260 @@ test('a unit that runs a downloaded program is restarted when its process runs t
     };
     assert.deepEqual(await runsDifferences(machine, downloaded, run), exe === PROGRAM ? [] : [stale]);
     assert.deepEqual((await applyWhatItRuns(machine, downloaded, run)).restarted, restarted);
+  }
+});
+
+
+const scopeBuildMetadata = {
+  repository: 'git@example.test:example/engine.git', build: ['make', 'example'], output: 'dist/example',
+  credential: 'fixture-build-credential', host_keys: ['example.test ssh-ed25519 fixture-only'],
+  environment: ['RELEASE_COMMIT={commit}'],
+};
+
+test('one pinned engine scope overlaps only its own slots and refuses unrelated writes', async t => {
+  const digest = bytes => Buffer.from(blake3(bytes)).toString('hex');
+  const oldBytes = Buffer.from('fixture rollback executable'), nextBytes = Buffer.from('fixture candidate executable');
+  const old = { ...scopeBuildMetadata, commit: '1'.repeat(40), prebuilt: { blake3: digest(oldBytes) } };
+  const next = { ...scopeBuildMetadata, commit: '2'.repeat(40), prebuilt: { blake3: digest(nextBytes) } };
+  const lastWholeRender = '3'.repeat(40), renderer = '4'.repeat(40), name = 'example-box';
+  const a = 'example-place-a.service', b = 'example-place-b.service';
+  const invocationA = 'a'.repeat(32), invocationB = 'b'.repeat(32);
+  const scope = { kind: 'engine-slot', unit: 'example-place.service', incumbent: { unit: a, pid: 101, invocation: invocationA } };
+  const siteFile = 'brands/example.json';
+  const siteSetting = { app_host: 'page.example.test', site_host: 'site.example.test', name: 'Example Workspace', cli: 'example' };
+  const pointers = { app_host: '/app_host', site_host: '/site_host', server_name: '/name', command_word: '/cli' };
+  const door = { accepts_hosts: [siteSetting.app_host] };
+  const intake = Object.fromEntries(Object.entries(pointers).map(([field, pointer]) => [`/settings/doors/0/${field}`, { file: siteFile, pointer }]));
+  const engine = { ...runs.units[0], settings: { ...runs.units[0].settings, doors: [door] }, parts: intake, source: old, slots: {
+    a: { 'settings.listen': '127.0.0.1:7199', health_listen: '127.0.0.1:7199' },
+    b: { 'settings.listen': '127.0.0.1:7198', health_listen: '127.0.0.1:7198' },
+  } };
+  const initial = { name, address: machine.address, runs: {
+    ...runs, rendered_from_workshop: lastWholeRender, units: [engine,
+      { unit: 'caddy.service', prepare: 'tools/keep-a-caddy-front-door-on-a-computer/prepare-a-caddy-site.mjs', site: { site_file: 'single-name-front-door', door_host: 'page.example.test', engine_paths: ['/.well-known/oauth-protected-resource'], engine_routes: ['tools/keep-an-engine-on-a-computer/caddy-route-engine.caddy'], pools: { engine: { listen: ['127.0.0.1:7199', '127.0.0.1:7198'] } } }, owned_folders: ['/var/lib/example-pages'], parts: { '/site/made_pages/0/arguments/1': { file: 'never/read/caddy.json' } } },
+      { unit: 'sign-in.service', parts: { '/settings/site': { file: siteFile }, '/settings/email/sender': { file: 'never/read/sender.json' } } },
+    ],
+    names: [{ host_name: 'page.example.test', provider: 'never/ask/dns.json' }],
+  } };
+  const request = { computer: name, workshop_commit: renderer, scope, edits: [{ at: 'runs.units[unit=example-place.service].source', from: old, to: next }] };
+  const hydratedDoor = { ...door, app_host: siteSetting.app_host, site_host: siteSetting.site_host, server_name: siteSetting.name, command_word: siteSetting.cli };
+  const hydrated = { ...engine, settings: { ...engine.settings, doors: [hydratedDoor] } };
+  delete hydrated.parts;
+  const paths = Object.fromEntries(renderWhatItRuns(withSlots({ units: [hydrated] })).map(({ path, text }) => [path, text]));
+  const file = source => `${engine.builds}/${source.commit}/${engine.program}`;
+  for (const scenario of ['success', 'missing probe startup', 'final probe lost', 'bad initial readiness', 'lost retirement reply', 'old bytes drifted', 'unit files drifted', 'candidate link drifted', 'unretained rollback', 'unbound site part', 'non-door site pointer', 'missing site setting', 'unrelated edit', 'whole pin edit', 'page link', 'legacy archive', 'bad probe response', 'probe retry', 'missing probe sample', 'root-only route', 'wrong engine pool', 'wrong engine host', 'ambiguous front door']) {
+    await t.test(scenario, async t => {
+      const folder = mkdtempSync(join(tmpdir(), 'selected-engine-scope-'));
+      t.after(() => rmSync(folder, { recursive: true, force: true }));
+      const baseline = structuredClone(initial);
+      if (scenario === 'unretained rollback') delete baseline.runs.units[0].source.prebuilt;
+      if (scenario === 'unbound site part') baseline.runs.units[0].parts['/settings/doors/0/app_host'].file = 'brands/other.json';
+      if (scenario === 'non-door site pointer') baseline.runs.units[0].parts['/settings/doors/0/app_host'].pointer = '/unrelated';
+      if (scenario === 'root-only route') baseline.runs.units[1].site.engine_paths = ['/'];
+      if (scenario === 'wrong engine pool') baseline.runs.units[1].site.pools.engine.listen = ['127.0.0.1:7199'];
+      if (scenario === 'wrong engine host') baseline.runs.units[1].site.door_host = 'other.example.test';
+      if (scenario === 'ambiguous front door') baseline.runs.units.push(structuredClone(baseline.runs.units[1]));
+      let stored = structuredClone(baseline), writes = 0, probeStarted = false, probeStopped = false, requestsBeforeWrite = 0;
+      const hits = [];
+      let loopback;
+      if (scenario === 'success') {
+        const server = createServer((_, res) => { hits.push(Date.now()); res.end(JSON.stringify({ resource: 'https://page.example.test/mcp' })); });
+        server.listen(0, '127.0.0.1');
+        await once(server, 'listening');
+        loopback = `http://127.0.0.1:${server.address().port}/`;
+        t.after(() => { server.closeAllConnections(); return new Promise(done => server.close(done)); });
+      }
+      const states = {
+        [a]: { pid: 101, invocation: invocationA, enabled: true, source: old },
+        [b]: { pid: 0, invocation: '', enabled: false, source: next },
+      };
+      const commands = [];
+      const run = async (_, command, input) => {
+        commands.push(command);
+        assert.doesNotMatch(command, /caddy|example-pages|\b(?:tar|install|useradd|userdel|build-from-source)\b/i, 'scope must not request a Caddy/page/account/artifact write');
+        const named = /^systemctl show -p Id .* '([^']+)'$/.exec(command);
+        if (named) {
+          const unit = named[1], state = states[unit];
+          assert.ok(state, 'only the selected slots can be inspected');
+          const fragment = `/etc/systemd/system/${unit}`;
+          return Object.entries({ Id: unit, LoadState: 'loaded', ActiveState: state.pid ? 'active' : 'inactive', SubState: state.pid ? 'running' : 'dead',
+            UnitFileState: state.enabled ? 'enabled' : 'disabled', MainPID: state.pid, InvocationID: state.invocation,
+            NeedDaemonReload: 'no', Job: 0, FragmentPath: fragment, DropInPaths: `${fragment}.d/nofile.conf`,
+          }).map(([key, value]) => `${key}=${value}`).join('\n');
+        }
+        if (command.includes('sha256sum')) {
+          const requested = input.trim().split('\n');
+          assert.ok(requested.every(path => Object.hasOwn(paths, path)));
+          const live = scenario === 'unit files drifted' ? { ...paths, [requested[0]]: 'drifted' } : paths;
+          return hashesOf(live, input);
+        }
+        if (command === `readlink -- '${engine.builds}/current-a'`) return old.commit;
+        if (command === `readlink -- '${engine.builds}/current-b'`) return scenario === 'candidate link drifted' ? old.commit : next.commit;
+        if (command.startsWith('test -x ') && command.endsWith(`b3sum --no-names < '${file(old)}'`)) return digest(scenario === 'old bytes drifted' ? nextBytes : oldBytes);
+        if (command.startsWith('test -x ') && command.endsWith(`b3sum --no-names < '${file(next)}'`)) return digest(nextBytes);
+        if (command === 'readlink -f -- /proc/101/exe') { assert.equal(states[a].pid, 101); return file(old); }
+        if (command === 'readlink -f -- /proc/202/exe') { assert.equal(states[b].pid, 202); return file(next); }
+        if (command === `systemctl show -p MemoryCurrent --value '${a}'`) return '104857600';
+        if (command.startsWith("awk '/^MemAvailable:")) return '1000000000';
+        if (command === `cat '${engine.state}/start-peak-bytes' 2>/dev/null || true`) return '';
+        if (command === `systemctl start '${b}'`) { assert.equal(states[a].pid, 101); assert.equal(states[b].pid, 0); states[b].pid = 202; states[b].invocation = invocationB; return ''; }
+        if (command === "curl --fail --silent --max-time 5 'http://127.0.0.1:7198/readyz'") {
+          assert.equal(states[a].pid, 101); assert.equal(states[b].pid, 202);
+          return JSON.stringify({ release_commit: scenario === 'bad initial readiness' ? old.commit : next.commit, draining: false });
+        }
+        if (command === `systemctl stop '${b}'`) { states[b].pid = 0; return ''; }
+        if (command === `systemctl enable '${b}' >/dev/null 2>&1`) { assert.equal(states[b].pid, 202); states[b].enabled = true; return ''; }
+        if (command === `systemctl disable --now '${a}' >/dev/null 2>&1`) {
+          assert.equal(states[b].enabled, true); states[a].pid = 0; states[a].enabled = false;
+          if (scenario === 'lost retirement reply') throw Object.assign(new Error('fixture transport reply lost'), { code: 255 });
+          return '';
+        }
+        assert.fail(`scope requested an undeclared command: ${command}`);
+      };
+      const deps = {
+        store: { read: async () => ({ computer: structuredClone(stored), siteSetting: scenario === 'missing site setting' ? null : JSON.stringify(siteSetting) }),
+          write: async (_, row) => {
+            assert.equal(probeStarted, true);
+            if (writes === 0 && loopback) { requestsBeforeWrite = hits.length; assert.ok(requestsBeforeWrite > 0); }
+            writes++; stored = structuredClone(row); return { read_back_equal: true };
+          } },
+        targets: { machines: { [machine.address]: { ssh: { known_hosts: '/fixture-hosts', identity_file: '/fixture-id' }, pages_folder: '/do-not-read-pages' } }, probe: { startup_deadline_ms: 3000, stop_after_ms: 200 } },
+        isAncestor: async () => true, heldValues: () => assert.fail('no held values for an engine scope'), addressesOf: () => assert.fail('no DNS'),
+        startProbe: async args => {
+          assert.deepEqual(args.urls, ['https://page.example.test/.well-known/oauth-protected-resource']);
+          assert.equal(args.expectedResource, 'https://page.example.test/mcp');
+          assert.equal(writes, 0);
+          if (scenario === 'missing probe startup') return undefined;
+          const probe = loopback ? await startApplyProbe({ ...args, urls: [loopback] }) : null;
+          probeStarted = true;
+          return { stop: async () => {
+            probeStopped = true;
+            assert.ok(writes > 0);
+            if (probe) return probe.stop();
+            if (scenario === 'final probe lost') return null;
+            return { started: new Date(0).toISOString(), stopped: new Date(1).toISOString(), sent: 1, ok: ['bad probe response', 'probe retry'].includes(scenario) ? 0 : 1, failed: scenario === 'bad probe response' ? 1 : 0, retried: scenario === 'probe retry' ? 1 : 0, slow: 0, resource_checked: ['bad probe response', 'missing probe sample'].includes(scenario) ? 0 : 1 };
+          } };
+        }, now: Date.now, sleep: ms => loopback ? delay(ms) : Promise.resolve(),
+        runFolder: () => folder,
+        archive: async (_, tree) => {
+          if (scenario === 'legacy archive') {
+            const entry = join(tree, 'tools/start-a-computer/do-work/start-a-computer.mjs');
+            mkdirSync(dirname(entry), { recursive: true });
+            writeFileSync(entry, 'export const ROW_APPLY_RESULT_PROTOCOL = 1;');
+          } else if (loopback) {
+            const entry = join(tree, 'tools/start-a-computer/do-work/probe-while-applying.mjs');
+            mkdirSync(dirname(entry), { recursive: true });
+            symlinkSync(fileURLToPath(new URL('../do-work/probe-while-applying.mjs', import.meta.url)), entry);
+          } else mkdirSync(tree);
+        },
+        checkApplyProtocol: scenario === 'legacy archive' ? checkApplyProtocol : async (_, asked) => {
+          assert.equal(asked.unit, engine.unit);
+          return { readRequest, checkScopedEngine: input => checkScopedEngine(input, { run }) };
+        },
+        runApply: async ({ requestFile, held }) => {
+          assert.deepEqual(held, {});
+          const input = readRequest(requestFile);
+          assert.equal(input.pages_folder, undefined);
+          assert.equal(input.computer_row.runs.rendered_from_workshop, lastWholeRender);
+          assert.deepEqual(input.computer_row.runs.units[0].settings.doors[0], hydratedDoor);
+          assert.equal(input.computer_row.runs.units[0].parts, undefined);
+          assert.deepEqual(input.computer_row.runs.units.slice(1), initial.runs.units.slice(1));
+          try {
+            const answer = await applyAComputerRow(input, { run, wait: async () => {}, fetchImpl: () => assert.fail('no requests to providers') });
+            return { exit: computerRowApplyExit(answer), receipt: computerRowApplyReceipt(answer) };
+          } catch (error) { return { exit: error.exit ?? 1, receipt: computerRowApplyFailure(error) }; }
+        },
+      };
+      const given = structuredClone(request);
+      if (scenario === 'unretained rollback') given.edits[0].from = baseline.runs.units[0].source;
+      if (scenario === 'page link') given.links = { folder: '/do-not-read-pages', set: {} };
+      if (scenario === 'unrelated edit') given.edits.push({ at: 'runs.units[unit=caddy.service].prepare', to: 'another-page-maker.mjs' });
+      if (scenario === 'whole pin edit') given.edits.push({ at: 'runs.rendered_from_workshop', to: renderer });
+      if (['unrelated edit', 'whole pin edit', 'legacy archive', 'old bytes drifted', 'unit files drifted', 'candidate link drifted', 'unretained rollback', 'page link', 'unbound site part', 'non-door site pointer', 'missing site setting', 'missing probe startup', 'root-only route', 'wrong engine pool', 'wrong engine host', 'ambiguous front door'].includes(scenario)) {
+        await assert.rejects(applyARow(given, {}, deps), /changes just the selected|does not support the requested engine scope|BLAKE3 pin|selected engine’s existing rendered files differ|does not select the required resident release|does not accept page links|may fill only the declared door fields|needs the owner’s site setting|probe did not confirm startup|engine probe needs one declared front door|engine probe host must be/);
+        assert.deepEqual(stored, baseline); assert.equal(writes, 0); assert.equal(probeStarted, false);
+        assert.equal(states[a].pid, 101); assert.equal(states[b].pid, 0);
+        assert.ok(!commands.some(command => /^systemctl (?:start|stop|enable|disable) /.test(command)));
+        return;
+      }
+      const { code, summary } = await applyARow(given, {}, deps);
+      assert.equal(summary.unit, engine.unit);
+      assert.equal(summary.renderer, renderer);
+      assert.equal(summary.last_whole_render, lastWholeRender);
+      assert.equal(probeStopped, true);
+      assert.deepEqual(summary.probe.urls, ['https://page.example.test/.well-known/oauth-protected-resource']);
+      if (scenario === 'bad initial readiness') {
+        assert.equal(code, 1); assert.equal(summary.row_put_back, true);
+        assert.deepEqual(stored, initial); assert.equal(writes, 2);
+        assert.equal(states[a].pid, 101); assert.equal(states[b].pid, 0);
+        assert.ok(!commands.some(command => command.startsWith('systemctl disable --now')));
+      } else {
+        const expected = structuredClone(initial);
+        expected.runs.units[0].source = next;
+        assert.deepEqual(stored, expected); assert.equal(writes, 1);
+        assert.equal(states[b].pid, 202); assert.equal(states[a].pid, 0);
+        const read = commands.findIndex(cmd => cmd.startsWith('curl --fail'));
+        const retire = commands.findIndex(cmd => cmd.startsWith('systemctl disable --now'));
+        assert.ok(read >= 0 && retire > read);
+        if (scenario === 'lost retirement reply') {
+          assert.equal(code, 5); assert.equal(summary.apply_outcome, 'slot_switch_unconfirmed');
+          assert.equal(commands.length, retire + 1, 'no follow-up or undo after an unknown effect');
+        } else {
+          if (['final probe lost', 'bad probe response', 'probe retry', 'missing probe sample'].includes(scenario)) {
+            assert.equal(code, 7); assert.equal(summary.apply_exit, 0); assert.equal(summary.probe_outcome, 'evidence_unconfirmed');
+            assert.equal(summary.row_put_back, undefined);
+          } else {
+            assert.equal(code, 0);
+            assert.ok(summary.probe.sent >= requestsBeforeWrite + 2, 'the native probe kept asking across the switch and after-apply wait');
+          }
+          assert.deepEqual([summary.engine_scope.incumbent.blake3, summary.engine_scope.candidate.blake3, summary.engine_scope.candidate.pid], [old.prebuilt.blake3, next.prebuilt.blake3, 202]);
+        }
+      }
+    });
+  }
+});
+
+
+test('a scoped request cannot fall through to ordinary start or apply', async () => {
+  const noEffects = () => assert.fail('an unsupported scope reached a host or provider');
+  await assert.rejects(startAComputer({ scope: { kind: 'engine-slot' } }, { run: noEffects, fetchImpl: noEffects }), /scope is not supported by start/);
+  await assert.rejects(applyAComputerRow({ only_unit: 'example-place.service' }, { run: noEffects, fetchImpl: noEffects }), /unknown apply request field/);
+});
+
+
+test('the selected engine keeps the existing source metadata outside its two pins', async () => {
+  const base = { ...runs.units[0], source: { ...scopeBuildMetadata, commit: '1'.repeat(40), prebuilt: { blake3: 'a'.repeat(64) } },
+    slots: { a: { health_listen: '127.0.0.1:7199' }, b: { health_listen: '127.0.0.1:7198' } } };
+  const scope = { kind: 'engine-slot', unit: base.unit, incumbent: { unit: 'example-place-a.service', pid: 101, invocation: 'a'.repeat(32) } };
+  const before = { name: 'example-box', address: machine.address, runs: { units: [base] } };
+  const patch = { commit: '2'.repeat(40), prebuilt: { blake3: 'b'.repeat(64) } };
+  const proposed = structuredClone(before);
+  Object.assign(proposed.runs.units[0].source, patch);
+  assert.deepEqual(engineScopeForEdit(before, proposed, scope).rollback, base.source);
+  assert.deepEqual(proposed.runs.units[0].source, { ...scopeBuildMetadata, ...patch });
+  for (const field of Object.keys(scopeBuildMetadata)) {
+    const stripped = structuredClone(proposed); delete stripped.runs.units[0].source[field];
+    assert.throws(() => engineScopeForEdit(before, stripped, scope), /changes just the selected/);
+    const edited = structuredClone(proposed); edited.runs.units[0].source[field] = 'unrelated edit';
+    assert.throws(() => engineScopeForEdit(before, edited, scope), /changes just the selected/);
+  }
+  const missing = structuredClone(before); delete missing.runs.units[0].source.prebuilt;
+  assert.throws(() => engineScopeForEdit(missing, proposed, scope), /needs a full commit and BLAKE3 pin/);
+  const forged = { ...scope, rollback: { ...base.source, repository: 'https://other.example.test/engine.git' } };
+  await assert.rejects(checkScopedEngine({ machine, ssh: machine.ssh, computer_row: proposed, scope: forged }, {
+    run: () => assert.fail('the archived owner must check source metadata before contacting the host'),
+  }), /cannot change source metadata/);
+});
+
+
+test('an engine probe never infers an engine route from the public root or an unrelated pool', () => {
+  const engine = { unit: 'engine.service', settings: { doors: [{ accepts_hosts: ['engine.example.test'] }] }, slots: { a: { health_listen: '127.0.0.1:7101' }, b: { health_listen: '127.0.0.1:7102' } } };
+  const site = { site_file: 'single-name-front-door', door_host: 'engine.example.test', engine_routes: ['tools/keep-an-engine-on-a-computer/caddy-route-engine.caddy'], engine_paths: ['/.well-known/oauth-protected-resource'], pools: { engine: { listen: ['127.0.0.1:7102', '127.0.0.1:7101'] } } };
+  const front = { unit: 'caddy.service', prepare: 'tools/keep-a-caddy-front-door-on-a-computer/prepare-a-caddy-site.mjs', site };
+  const row = { runs: { units: [engine, front] } }, scope = { unit: engine.unit };
+  assert.deepEqual(engineProbeOf(row, scope), { url: 'https://engine.example.test/.well-known/oauth-protected-resource', expectedResource: 'https://engine.example.test/mcp' });
+  for (const change of [r => { r.runs.units.pop(); }, r => { r.runs.units[1].site.engine_paths = ['/']; }, r => { r.runs.units[1].site.engine_routes = []; }, r => { r.runs.units[1].site.pools.engine.listen.pop(); }, r => { r.runs.units[1].site.door_host = 'wrong.example.test'; }, r => { r.runs.units.push(structuredClone(front)); }]) {
+    const other = structuredClone(row); change(other);
+    assert.throws(() => engineProbeOf(other, scope), /engine probe/);
   }
 });

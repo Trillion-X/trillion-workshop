@@ -37,6 +37,8 @@ import { StringDecoder } from 'node:string_decoder';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isDeepStrictEqual, promisify } from 'node:util';
+import { engineScopeForEdit, engineScopeSiteFile, readEngineScope, ROW_ENGINE_SCOPE_PROTOCOL } from './start-a-computer.mjs';
+import { withSlots } from './render-what-a-computer-runs.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const run = promisify(execFile);
@@ -223,6 +225,32 @@ export function hostsOf(row) {
   return [...new Set(found.filter(host => /^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(host)))];
 }
 
+
+/** A scoped engine probe uses the existing front door's exact engine route and slot pool, never its root redirect. */
+export function engineProbeOf(row, scope) {
+  const units = row.runs.units;
+  const engines = units.filter(unit => unit.unit === scope.unit);
+  if (engines.length !== 1) throw refused('the engine probe needs its one declared engine.');
+  const engine = engines[0], slots = withSlots({ units: [engine] }).units;
+  const listen = slots.map(slot => slot.health_listen).sort();
+  const accepted = (engine.settings?.doors ?? []).flatMap(door => door.accepts_hosts ?? []);
+  const path = '/.well-known/oauth-protected-resource';
+  const doors = units.filter(unit => unit.prepare === 'tools/keep-a-caddy-front-door-on-a-computer/prepare-a-caddy-site.mjs' &&
+    unit.site?.site_file === 'single-name-front-door' &&
+    unit.site.engine_routes?.includes('tools/keep-an-engine-on-a-computer/caddy-route-engine.caddy') &&
+    unit.site.engine_paths?.includes(path) &&
+    Array.isArray(unit.site.pools?.engine?.listen) &&
+    isDeepStrictEqual([...unit.site.pools.engine.listen].sort(), listen));
+  if (doors.length !== 1 || listen.length !== 2 || new Set(listen).size !== 2) {
+    throw refused('the engine probe needs one declared front door with the exact engine pool and metadata path.');
+  }
+  const host = doors[0].site.door_host;
+  if (typeof host !== 'string' || !/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(host) || !accepted.includes(host)) {
+    throw refused('the engine probe host must be a public name the selected engine accepts.');
+  }
+  return { url: `https://${host}${path}`, expectedResource: `https://${host}/mcp` };
+}
+
 /** The vault names a row's units and names ask for: sealed secrets, credentials, a source's key and a name provider's key. A
  *  credential that says `held_on: "computer"` is read on the computer from its own vault, so it is never asked of the reader here. */
 export function heldNamesOf(row) {
@@ -239,6 +267,10 @@ const timeOf = ms => new Date(ms).toLocaleTimeString('en-US', { timeZoneName: 's
 /** The request, checked: every field it may carry and nothing the program would have to guess. */
 export function checkRequest(request) {
   if (!isObject(request)) throw refused('the request is one JSON object.');
+  const unknown = Object.keys(request).find(key => !['computer', 'workshop_commit', 'edits', 'links', 'scope'].includes(key));
+  if (unknown) throw refused(`unknown apply request field: ${unknown}.`);
+  const scope = Object.hasOwn(request, 'scope') ? readEngineScope(request.scope) : undefined;
+  if (scope && Object.hasOwn(request, 'links')) throw refused('the engine scope does not accept page links.');
   if (typeof request.computer !== 'string' || !request.computer) throw refused('the request needs `computer`, the row name.');
   if (!COMMIT.test(request.workshop_commit ?? '')) throw refused('the request needs `workshop_commit`, a full commit id.');
   if (request.edits !== undefined && !Array.isArray(request.edits)) throw refused('`edits` is an array.');
@@ -247,7 +279,7 @@ export function checkRequest(request) {
     throw refused('`links` is { folder, set: { name: target } }.');
   }
   if (links && Object.keys(links.set).some(name => !name || name.includes('/'))) throw refused('a link name is one folder entry, with no "/".');
-  return { computer: request.computer, workshop_commit: request.workshop_commit, edits: request.edits ?? [], links };
+  return { computer: request.computer, workshop_commit: request.workshop_commit, edits: request.edits ?? [], links, scope };
 }
 
 /**
@@ -261,46 +293,70 @@ export async function applyARow(rawRequest, { dryRun = false }, deps) {
   const request = checkRequest(rawRequest);
   const { computer, siteSetting } = await deps.store.read(request.computer);
   const { row, changes } = applyEdits(computer, request.edits);
+  const scope = request.scope ? engineScopeForEdit(computer, row, request.scope) : undefined;
+  const engineProbe = scope ? engineProbeOf(row, scope) : undefined;
   const machine = deps.targets.machines?.[row.address];
   if (!machine) throw refused(`${row.name} is at ${row.address}, which the targets file names no ssh identity for.`);
   const workshopCheck = await checkWorkshopCommit(computer, request.workshop_commit, deps.isAncestor);
-  if (dryRun) return { code: 0, summary: { dry_run: true, computer: row.name, workshop_check: workshopCheck, changes } };
+  if (dryRun) return { code: 0, summary: { dry_run: true, computer: row.name, workshop_check: workshopCheck, changes, ...(scope && { scope: scope.unit, renderer: request.workshop_commit }) } };
 
-  row.runs.rendered_from_workshop = request.workshop_commit;
-  const held = await deps.heldValues(heldNamesOf(row));
+  if (!scope) row.runs.rendered_from_workshop = request.workshop_commit;
+  const held = scope ? {} : await deps.heldValues(heldNamesOf(row));
   const changed = !isDeepStrictEqual(row, computer);
 
+  const siteFile = scope ? engineScopeSiteFile(row, scope) : (row.runs.units ?? []).map(unit => unit.parts?.['/settings/site']?.file).find(Boolean);
+  if (scope && siteFile) {
+    let owned;
+    try { if (typeof siteSetting === 'string') owned = JSON.parse(siteSetting); } catch { /* no readable site setting */ }
+    if (!isObject(owned)) throw refused('the selected engine needs the owner’s site setting from the same row-store read.');
+  }
   const log = deps.runFolder(row.name);
   const rowFolder = join(log, 'row'), tree = join(log, 'tree');
   mkdirSync(rowFolder, { recursive: true });
   writeFileSync(join(rowFolder, 'computer.json'), `${JSON.stringify(row, null, 1)}\n`);
-  const siteFile = (row.runs.units ?? []).map(unit => unit.parts?.['/settings/site']?.file).find(Boolean);
   if (siteFile && siteSetting) {
     mkdirSync(dirname(join(rowFolder, siteFile)), { recursive: true });
     writeFileSync(join(rowFolder, siteFile), `${siteSetting}\n`);
   }
   await deps.archive(request.workshop_commit, tree);
-  await deps.checkApplyProtocol(tree);
+  const renderer = await deps.checkApplyProtocol(tree, scope);
   const applyRequest = join(log, 'request.json');
   writeFileSync(applyRequest, `${JSON.stringify({
     machine: { address: row.address },
     ssh: { known_hosts: placed(machine.ssh.known_hosts), identity_file: placed(machine.ssh.identity_file) },
     computer_row_file: join(rowFolder, 'computer.json'),
-    ...(machine.pages_folder && { pages_folder: placed(machine.pages_folder) }),
+    ...(scope ? { scope } : machine.pages_folder && { pages_folder: placed(machine.pages_folder) }),
   }, null, 1)}\n`);
 
+  const preflight = scope ? await renderer.checkScopedEngine(renderer.readRequest(applyRequest)) : undefined;
   const hosts = hostsOf(row).slice(0, deps.targets.probe?.max_urls ?? 6);
-  const urls = hosts.length ? hosts.map(host => `https://${host}/`) : [`https://${row.address}/`];
+  const urls = engineProbe ? [engineProbe.url] : hosts.length ? hosts.map(host => `https://${host}/`) : [`https://${row.address}/`];
   const started = deps.now();
-  const probe = await deps.startProbe({ tree, urls, log: join(log, 'probe-requests.jsonl'), deadlineMs: deps.targets.probe?.startup_deadline_ms });
-  let written = false, applyStarted = false, put, code, ended, probed, putBack, failure, probeFailure;
+  const probe = await deps.startProbe({ tree, urls, log: join(log, 'probe-requests.jsonl'), deadlineMs: deps.targets.probe?.startup_deadline_ms, ...(engineProbe && { expectedResource: engineProbe.expectedResource }) });
+  if (typeof probe?.stop !== 'function') throw refused('the apply probe did not confirm startup; no row was written.');
+  let written = false, applyStarted = false, put, code, ended, probed, putBack, failure, probeFailure, engineProof;
   const problems = [];
   try {
     written = changed && (await deps.store.write(row.name, row)).read_back_equal === true;
     if (changed && !written) throw new Error('the database did not read back what was written; no apply was run.');
     if (request.links) put = setLinks(placed(request.links.folder), Object.fromEntries(Object.entries(request.links.set).map(([name, target]) => [name, placed(target)])));
     applyStarted = true;
-    code = confirmedApplyExit(await deps.runApply({ tree, requestFile: applyRequest, held, out: join(log, 'apply.out'), err: join(log, 'apply.err') }));
+    const report = await deps.runApply({ tree, requestFile: applyRequest, held, out: join(log, 'apply.out'), err: join(log, 'apply.err') });
+    const verified = confirmedApplyExit(report);
+    if (scope) {
+      if (verified === 0) {
+        engineProof = report.receipt.engine_scope;
+        const { candidate } = engineProof ?? {};
+        if (engineProof?.unit !== scope.unit || !isDeepStrictEqual(engineProof.incumbent, preflight.incumbent) ||
+            candidate?.unit !== preflight.candidate.unit || candidate.commit !== preflight.candidate.commit || candidate.blake3 !== preflight.candidate.blake3 ||
+            !Number.isSafeInteger(candidate.pid) || candidate.pid < 1 || !/^(?!0{32}$)[0-9a-f]{32}$/.test(candidate.invocation) ||
+            report.receipt.written.length || report.receipt.restarted.length) throw new Error('the scoped apply did not return its exact engine readback.');
+      } else if (verified === 1 || verified === 2) {
+        const stopped = report.receipt.slot_not_switched;
+        if (stopped.incumbent !== preflight.incumbent.unit || stopped.candidate !== preflight.candidate.unit) throw new Error('the scoped refusal does not identify the preflight slots.');
+      } else if (verified !== SWITCH_UNCONFIRMED) throw new Error('the scoped apply returned an unrelated result.');
+    }
+    code = verified;
   } catch (error) {
     failure = error;
     if (error?.apply_not_started === true) applyStarted = false;
@@ -321,6 +377,9 @@ export async function applyARow(rawRequest, { dryRun = false }, deps) {
     try {
       probed = await probe.stop();
       if (!completeProbeSummary(probed)) throw new Error('the probe did not report complete measurement totals.');
+      if (engineProbe && (probed.ok !== probed.sent || probed.failed || probed.retried || probed.resource_checked !== probed.sent)) {
+        probeFailure = 'The engine probe window was not clean: every dispatched request must report matching resource metadata, without a failure or retry.';
+      }
     } catch (error) { probeFailure = [probeFailure, error.message].filter(Boolean).join(' '); }
   }
   if (failure || problems.length) {
@@ -331,7 +390,7 @@ export async function applyARow(rawRequest, { dryRun = false }, deps) {
     });
   }
   const { failures, slow_requests, ...totals } = completeProbeSummary(probed) ? probed : {};
-  const elsewhere = code === 0 && !probeFailure ? await namesAnsweringElsewhere(row, deps.addressesOf) : [];
+  const elsewhere = !scope && code === 0 && !probeFailure ? await namesAnsweringElsewhere(row, deps.addressesOf) : [];
   return {
     code: elsewhere.length ? 6 : code || (probeFailure ? PROBE_EVIDENCE_UNCONFIRMED : 0),
     summary: {
@@ -341,7 +400,9 @@ export async function applyARow(rawRequest, { dryRun = false }, deps) {
       ...(request.links && { links: code === 1 || code === 2 ? 'put back' : 'set' }),
       ...(elsewhere.length && { names_answering_elsewhere: elsewhere }),
       ...(probeFailure && { probe_outcome: 'evidence_unconfirmed', probe_error: probeFailure }),
-      probe: { urls, ...totals }, log_folder: log,
+      ...(scope && { unit: scope.unit, renderer: request.workshop_commit, last_whole_render: row.runs.rendered_from_workshop, engine_scope: engineProof }),
+      probe: { urls, ...totals },
+      log_folder: log,
     },
   };
 }
@@ -456,11 +517,15 @@ export const runFolder = name => realpathSync(mkdtempSync(join(tmpdir(), `row-${
 const computerEntry = tree => join(tree, 'tools/start-a-computer/do-work/start-a-computer.mjs');
 
 /** Importing the pinned module verifies its declaration. The apply child is started only after the row CAS. */
-export async function checkApplyProtocol(tree) {
+export async function checkApplyProtocol(tree, scope) {
   const entry = computerEntry(tree);
   if (!existsSync(entry)) throw refused('the selected Workshop commit has no computer apply program.');
   const owner = await import(pathToFileURL(entry).href);
   if (owner.ROW_APPLY_RESULT_PROTOCOL !== APPLY_PROTOCOL) throw refused('the selected Workshop commit cannot report the required computer apply result; no changes were made.');
+  if (scope && (owner.ROW_ENGINE_SCOPE_PROTOCOL !== ROW_ENGINE_SCOPE_PROTOCOL || typeof owner.checkScopedEngine !== 'function' || typeof owner.readRequest !== 'function')) {
+    throw refused('the selected Workshop commit does not support the requested engine scope; no changes were made.');
+  }
+  return owner;
 }
 
 function completeProbeSummary(value) {
@@ -471,7 +536,7 @@ function completeProbeSummary(value) {
 }
 
 /** Admit the apply only after each URL produces a clean, completed response in this run's own probe log. */
-export async function startApplyProbe({ tree, urls, log, deadlineMs }) {
+export async function startApplyProbe({ tree, urls, log, deadlineMs, expectedResource }) {
   const script = join(tree, 'tools/start-a-computer/do-work/probe-while-applying.mjs');
   if (!existsSync(script)) throw new Error('the archived Workshop commit has no apply probe.');
   if (!Number.isSafeInteger(deadlineMs) || deadlineMs <= 0 || !urls.length) {
@@ -482,7 +547,7 @@ export async function startApplyProbe({ tree, urls, log, deadlineMs }) {
   const fd = openSync(log, 'wx+', 0o600);
   let child, closed, out = '';
   try {
-    child = spawn(process.execPath, [script, '--log', log, ...urls], { stdio: ['ignore', 'pipe', 'inherit'] });
+    child = spawn(process.execPath, [script, '--log', log, ...(expectedResource === undefined ? [] : ['--expected-resource', expectedResource]), ...urls], { stdio: ['ignore', 'pipe', 'inherit'] });
     child.stdout.on('data', chunk => { out += chunk; });
     closed = new Promise(done => child.once('close', (code, signal) => done({ code, signal })));
     await new Promise((done, fail) => child.once('spawn', done).on('error', fail));
@@ -504,7 +569,8 @@ export async function startApplyProbe({ tree, urls, log, deadlineMs }) {
         if (!isObject(sample) || !required.has(sample.url) || typeof sample.at !== 'string' || !Number.isFinite(Date.parse(sample.at)) ||
             !Number.isFinite(sample.ms) || sample.ms < 0 || !Number.isFinite(sample.lag_ms) || sample.lag_ms < 0) continue;
         if (Number.isInteger(sample.status) && sample.status >= 200 && sample.status < 400 &&
-            !Object.hasOwn(sample, 'error') && !Object.hasOwn(sample, 'retried')) pending.delete(sample.url);
+            !Object.hasOwn(sample, 'error') && !Object.hasOwn(sample, 'retried') &&
+            (expectedResource === undefined || (sample.status === 200 && sample.resource_ok === true))) pending.delete(sample.url);
         else pending.add(sample.url);
       }
       if (rest.length > 65536) throw new Error(`the probe log has an oversized unfinished line; see ${log}.`);

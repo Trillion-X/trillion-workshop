@@ -20,11 +20,15 @@ import { pathToFileURL } from 'node:url';
 export function parseArgs(argv) {
   const given = { every_ms: 50, slow_ms: 1000, lag_ms: 250, log: null, log_max_bytes: null, urls: [] };
   for (let i = 0; i < argv.length; i++) {
-    const flag = argv[i].match(/^--(every-ms|slow-ms|lag-ms|log|log-max-bytes)$/)?.[1];
+    const flag = argv[i].match(/^--(every-ms|slow-ms|lag-ms|log|log-max-bytes|expected-resource)$/)?.[1];
     if (!flag) { given.urls.push(argv[i]); continue; }
     const value = argv[++i];
     if (value === undefined) throw new Error(`--${flag} needs a value`);
-    if (flag === 'log') given.log = value;
+    if (flag === 'expected-resource') {
+      const parsed = new URL(value);
+      if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password || parsed.search || parsed.hash) throw new Error('--expected-resource is one plain HTTP resource URI');
+      given.expected_resource = value;
+    } else if (flag === 'log') given.log = value;
     else {
       const n = Number(value);
       if (!Number.isInteger(n) || n <= 0) throw new Error(`--${flag} is a whole number of ${flag === 'log-max-bytes' ? 'bytes' : 'milliseconds'} above 0`);
@@ -50,13 +54,39 @@ export function keptLog(file, maxBytes = null) {
 
 const CLOSED_BEFORE_ANSWER = new Set(['UND_ERR_SOCKET', 'ECONNRESET', 'EPIPE']);
 
+
+/** Bound the expected metadata body; neither valid nor refused response contents are printed or kept. */
+async function resourceMatches(response, expected) {
+  if (!response.body?.getReader) return false;
+  const reader = response.body.getReader(), chunks = [];
+  let size = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > 65536) { await reader.cancel(); return false; }
+      chunks.push(value);
+    }
+    if (response.status !== 200) return false;
+    return JSON.parse(Buffer.concat(chunks).toString('utf8'))?.resource === expected;
+  } catch (error) {
+    if (error instanceof SyntaxError) return false;
+    throw error;
+  } finally { reader.releaseLock(); }
+}
+
 /** One GET of `url` as the probe keeps it ({status, ms, answered_by} or {error, ms}, with `retried` when asked twice). */
-export async function askOnce(url, fetchImpl = fetch) {
+export async function askOnce(url, fetchImpl = fetch, expectedResource) {
   const t = performance.now(), kept = {};
   for (let tries = 1; ; tries++) {
     try {
       const r = await fetchImpl(url, { redirect: 'manual', signal: AbortSignal.timeout(5000) });
-      await r.arrayBuffer();
+      if (expectedResource === undefined) await r.arrayBuffer();
+      else {
+        kept.resource_ok = await resourceMatches(r, expectedResource);
+        if (!kept.resource_ok) kept.error = 'UNEXPECTED_RESOURCE_RESPONSE';
+      }
       return Object.assign(kept, { status: r.status, ms: Math.round(performance.now() - t), answered_by: r.headers.get('x-answered-by') });
     } catch (error) {
       const code = String(error.cause?.code ?? error.name ?? error).slice(0, 80);
@@ -75,6 +105,7 @@ export function summarize(requests, { slow_ms, lag_ms }, started, stopped) {
   const slow = timely.filter(r => r.ms > slow_ms);
   const retried = requests.filter(r => r.retried);
   return {
+    ...(requests.some(r => Object.hasOwn(r, 'resource_ok')) && { resource_checked: requests.filter(r => r.resource_ok === true).length }),
     // A request that needed a retry is its own number and never ok: a browser would have asked again, but the bar is 0 of them.
     started, stopped, sent: requests.length, ok: requests.length - failed.length - retried.filter(r => !failed.includes(r)).length, failed: failed.length,
     retried: retried.length,
@@ -91,7 +122,7 @@ async function main() {
   const standing = Boolean(given.log_max_bytes), log = given.log && keptLog(given.log, given.log_max_bytes);
   let i = 0, due = performance.now();
   const once = async (url, lag) => {
-    const kept = { at: new Date().toISOString(), url, lag_ms: Math.round(lag), ...await askOnce(url) };
+    const kept = { at: new Date().toISOString(), url, lag_ms: Math.round(lag), ...await askOnce(url, fetch, given.expected_resource) };
     if (!standing) requests.push(kept);
     if (log) log(`${JSON.stringify(kept)}\n`);
   };

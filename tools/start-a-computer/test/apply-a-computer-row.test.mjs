@@ -582,3 +582,11 @@ test('a run folder is named by its real path, so a program unpacked in it sees i
   const folder = runFolder('example-box');
   assert.equal(folder, realpathSync(folder));
 });
+
+
+test('an unknown or unsupported apply scope refuses before reading the computer row', async () => {
+  for (const extra of [{ only_unit: 'engine.service' }, { scope: { kind: 'not-implemented', unit: 'engine.service' } }]) {
+    const deps = { store: { read: () => assert.fail('scope was silently dropped before owner-row read') } };
+    await assert.rejects(applyARow(request(extra), {}, deps), /unsupported apply scope|unknown apply request field/);
+  }
+});

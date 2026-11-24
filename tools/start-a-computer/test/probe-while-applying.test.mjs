@@ -200,3 +200,35 @@ test('requests asked through a Caddy front door while it reloads five times all 
     assert.deepEqual(kept.filter(r => r.status !== 200), [], 'every request answered');
   } finally { running.kill('SIGTERM'); }
 });
+
+
+test('a semantic engine sample requires the exact completed resource document and never retains its body', async () => {
+  const expected = 'https://engine.example.test/mcp', url = 'https://engine.example.test/.well-known/oauth-protected-resource';
+  for (const [body, status, good] of [[JSON.stringify({ resource: expected }), 200, true], [JSON.stringify({ resource: 'https://other.example.test/mcp', secret: 'not-kept' }), 200, false], ['not json', 200, false], [JSON.stringify({ resource: expected }), 302, false], [JSON.stringify({ resource: expected }), 404, false], ['x'.repeat(65537), 200, false]]) {
+    const answer = await askOnce(url, async (_url, options) => { assert.equal(options.redirect, 'manual'); return new Response(body, { status }); }, expected);
+    assert.equal(answer.resource_ok, good);
+    assert.equal(answer.error, good ? undefined : 'UNEXPECTED_RESOURCE_RESPONSE');
+    assert.doesNotMatch(JSON.stringify(answer), /not-kept|other\.example/);
+    const summary = summarize([{ ...answer, at, url, lag_ms: 0 }], settings, at, at);
+    assert.equal(summary.failed, good ? 0 : 1);
+    assert.equal(summary.resource_checked, good ? 1 : 0);
+  }
+});
+
+test('semantic metadata does not count response headers before the body finishes', async () => {
+  const resource = 'https://engine.example.test/mcp';
+  let close, finished = false;
+  const body = new ReadableStream({ start(c) { c.enqueue(new TextEncoder().encode('{"resource":"https://engine.example.test/mcp"')); close = () => { c.enqueue(new TextEncoder().encode('}')); c.close(); }; } });
+  const pending = askOnce('https://engine.example.test/.well-known/oauth-protected-resource', async () => new Response(body), resource).then(answer => { finished = true; return answer; });
+  await new Promise(resolve => setTimeout(resolve, 20));
+  assert.equal(finished, false);
+  close();
+  assert.equal((await pending).resource_ok, true);
+});
+
+test('an expected resource is an explicit plain URI, not a credential or redirect request', () => {
+  assert.equal(parseArgs(['--expected-resource', 'https://engine.example.test/mcp', 'https://engine.example.test/.well-known/oauth-protected-resource']).expected_resource, 'https://engine.example.test/mcp');
+  for (const bad of ['https://user:password@example.test/mcp', 'https://engine.example.test/mcp?key=secret', 'file:///tmp/resource']) {
+    assert.throws(() => parseArgs(['--expected-resource', bad, 'https://engine.example.test/']), /plain HTTP resource URI/);
+  }
+});
