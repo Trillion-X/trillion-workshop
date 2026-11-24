@@ -1,6 +1,6 @@
 {
   "drafted_from": "tool:check-the-model-server-and-restart-it-if-stuck's own row and test/check-the-model-server.test.mjs (a stand-in server that answers, one that hangs then recovers after the declared restart, and report-only), run here Nov 22 2026",
-  "start_here": "Say to your AI: \"Check that my model server still loads models\", with {\"restart\": false} to only look. It runs tool:check-the-model-server-and-restart-it-if-stuck and answers {\"healthy\": true, \"probe\": {\"model\": \"gemma3:4b\", \"loads\": true, \"ms\": 16697}} when a small model loads in time, or what it saw before and after the server's declared restart when it did not.",
+  "start_here": "Say to your AI: \"Check that my model server still loads models\", with {\"restart\": false} to only look. A reply from a model that was not loaded at the start counts as a healthy load check. A reply from an already loaded model alone does not.",
   "lists": [],
   "no_lists_because": "It names no list of yours: it checks the server, may restart it, and answers; the workflow that runs it keeps the finding row.",
   "workflows": [
@@ -10,9 +10,9 @@
     "tool:check-the-model-server-and-restart-it-if-stuck"
   ],
   "instructions": [
-    "1. Put the server's health settings in read-data/models-on-this-computer.json server.health: the probe model (a small one no job keeps loaded), the limit a load may take, and restart.argv, the declared restart of your model server.",
-    "2. Say \"Check that my model server still loads models\"; the AI calls do_one_thing_in_my_account at @tools with method tools:run and tool tool:check-the-model-server-and-restart-it-if-stuck. Give {\"restart\": false} to only look, or {\"limit_seconds\": 1} to prove the restart path.",
-    "3. Read the answer: healthy with the probe's time, or the probe's failure, the models loaded before, the restart's exit and time, how long the server took to answer again and the probe after it. workflow:keep-the-model-server-loading-models runs it every 15 minutes and keeps a finding row when it restarted."
+    "1. In server.health, name the primary model, an optional installed standby, the probe limit, and the declared restart. The probe uses the standby only when the primary is loaded and the standby is not.",
+    "2. Say \"Check that my model server still loads models\"; the AI calls do_one_thing_in_my_account at @tools with method tools:run and tool tool:check-the-model-server-and-restart-it-if-stuck. Give {\"restart\": false} to check without restarting. Only shorten the limit on a test server or during an authorized service test.",
+    "3. Read the probe time and whether the model was already loaded. If a restart was attempted, read the command exit and the follow-up probe separately: a follow-up reply alone does not prove a restart. workflow:keep-the-model-server-loading-models runs every 15 minutes and records the outcome of restart attempts."
   ],
   "worked_examples": [
     {

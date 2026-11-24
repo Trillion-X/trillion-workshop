@@ -5,7 +5,8 @@
 //   (tool:check-the-model-server-and-restart-it-if-stuck). A server can keep answering the model it already holds while
 //   it never loads another: on Nov 22 2026 the server logged two "predicted to exceed available memory, evicting" lines
 //   at 01:18 and then made no load attempt for any other model for over an hour, while every job naming another model
-//   failed. Asking the loaded model would not see that, so the probe asks a model of its own, small and quick to load.
+//   failed. A reply from a model already loaded is not proof of a load. Check residency first and use an installed,
+//   unloaded standby when the primary is already resident.
 //
 // Non-negotiable invariants
 //   1. What is probed, how long a load may take, how the server is restarted and how long it may take to come back are
@@ -51,8 +52,32 @@ async function probe(health, at, seconds) {
   }
 }
 
-async function loaded(health, at) {
-  try { return ((await getJson(at(health.loaded), 5)).models ?? []).map(model => model.name); } catch { return null; }
+async function modelNames(url) {
+  try {
+    const { models } = await getJson(url, 5);
+    if (!Array.isArray(models)) return null;
+    const names = models.map(row => row?.name ?? row?.model);
+    return names.every(name => typeof name === 'string' && name.length) ? names : null;
+  } catch { return null; }
+}
+
+const modelKey = name => {
+  const key = name.toLowerCase();
+  return key.slice(key.lastIndexOf('/') + 1).includes(':') ? key : `${key}:latest`;
+};
+
+async function loadToCheck(health, at, modelsUrl) {
+  const resident = await modelNames(at(health.loaded));
+  if (!resident) return { resident, cold: null, health };
+  const warm = new Set(resident.map(modelKey));
+  if (!warm.has(modelKey(health.probe_model))) return { resident, cold: true, health };
+  if (typeof health.standby_model === 'string' && health.standby_model.length && !warm.has(modelKey(health.standby_model))) {
+    const installed = await modelNames(modelsUrl);
+    if (installed?.some(name => modelKey(name) === modelKey(health.standby_model))) {
+      return { resident, cold: true, health: { ...health, probe_model: health.standby_model } };
+    }
+  }
+  return { resident, cold: false, health };
 }
 
 function run(argv, seconds) {
@@ -66,8 +91,8 @@ function run(argv, seconds) {
 }
 
 /**
- * { healthy, probe } when the probe model loads in time; otherwise the restart and what followed:
- * { healthy: false, probe, before: { loaded }, restart, back_after_ms, after: { probe, loaded }, signature }.
+ * healthy is true only when a model not seen loaded at the start answers. A warm-only answer, or an answer without
+ * reliable residency evidence, is inconclusive (healthy: null). A failed request still reports the attempted recovery.
  * input.limit_seconds lowers the first probe's limit (never raises it); input.restart false reports without restarting.
  */
 export async function checkTheServer(input, settings, { uid = process.getuid?.() } = {}) {
@@ -81,10 +106,19 @@ export async function checkTheServer(input, settings, { uid = process.getuid?.()
   const at = path => `${base}${path}`;
   const limit = Math.min(Number(input.limit_seconds) > 0 ? Number(input.limit_seconds) : health.limit_seconds, health.limit_seconds);
   const at_start = new Date().toISOString();
-  const first = await probe(health, at, limit);
-  if (first.loads) return { healthy: true, checked_at: at_start, probe: { model: health.probe_model, limit_seconds: limit, ...first } };
-  const before = { loaded: await loaded(health, at) };
-  const result = { healthy: false, checked_at: at_start, probe: { model: health.probe_model, limit_seconds: limit, ...first }, before, signature: health.signature };
+  const target = await loadToCheck(health, at, settings.server.models);
+  const first = await probe(target.health, at, limit);
+  const checked = { checked_at: at_start, probe: {
+    model: target.health.probe_model, limit_seconds: limit, cold_before: target.cold, ...first,
+  } };
+  const before = { loaded: target.resident };
+  if (first.loads) {
+    if (target.cold === true) return { healthy: true, ...checked, before };
+    return { healthy: null, ...checked, before, said: target.cold === false
+      ? 'The resident model answered, but no installed standby was available to check a fresh load.'
+      : 'The model answered, but the server did not say which models were already loaded.' };
+  }
+  const result = { healthy: false, ...checked, before, signature: health.signature };
   if (input.restart === false) return { ...result, restart: null, said: 'report only: the request asked for no restart' };
   const argv = health.restart.argv.map(part => String(part).replaceAll('{uid}', String(uid)));
   result.restart = await run(argv, health.restart.run_seconds);
@@ -96,7 +130,7 @@ export async function checkTheServer(input, settings, { uid = process.getuid?.()
   result.back_after_ms = back;
   result.after = back === null
     ? { probe: { loads: false, why: `the server did not answer within ${health.restart.back_within_seconds} s of the restart` }, loaded: null }
-    : { probe: { model: health.probe_model, limit_seconds: health.limit_seconds, ...(await probe(health, at, health.limit_seconds)) }, loaded: await loaded(health, at) };
+    : { probe: { model: target.health.probe_model, limit_seconds: health.limit_seconds, ...(await probe(target.health, at, health.limit_seconds)) }, loaded: await modelNames(at(health.loaded)) };
   return result;
 }
 

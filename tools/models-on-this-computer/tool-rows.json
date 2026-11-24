@@ -265,7 +265,21 @@
         "invoke": {
           "kind": "computer",
           "capabilities": [],
-          "local_doors": ["local-model-server", {"name": "local-judge-server", "required": false}, {"name": "local-classifier-server", "required": false}, {"name": "codex-lb", "required": false}],
+          "local_doors": [
+            "local-model-server",
+            {
+              "name": "local-judge-server",
+              "required": false
+            },
+            {
+              "name": "local-classifier-server",
+              "required": false
+            },
+            {
+              "name": "codex-lb",
+              "required": false
+            }
+          ],
           "workdir": "/opt/models-on-this-computer",
           "stdout": "json",
           "argv": [
@@ -275,8 +289,17 @@
             "ask"
           ],
           "stdin": {
-            "input": {"fill": {"from": "input"}},
-            "local_ports": {"fill": {"from": "computer", "field": "local_ports"}}
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "local_ports": {
+              "fill": {
+                "from": "computer",
+                "field": "local_ports"
+              }
+            }
           },
           "files": {
             "package_files": [
@@ -299,7 +322,19 @@
           "max_run_ms": 1800000
         },
         "result_selector": "$.result",
-        "verify": [{"kind":"sample-run","input":{"messages":[{"role":"user","content":"Say hello to Ada Example."}]}}],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "messages": [
+                {
+                  "role": "user",
+                  "content": "Say hello to Ada Example."
+                }
+              ]
+            }
+          }
+        ],
         "needs": {
           "expected_seconds": 8,
           "network_egress": false
@@ -538,7 +573,21 @@
         "invoke": {
           "kind": "computer",
           "capabilities": [],
-          "local_doors": ["local-model-server", {"name": "local-judge-server", "required": false}, {"name": "local-classifier-server", "required": false}, {"name": "codex-lb", "required": false}],
+          "local_doors": [
+            "local-model-server",
+            {
+              "name": "local-judge-server",
+              "required": false
+            },
+            {
+              "name": "local-classifier-server",
+              "required": false
+            },
+            {
+              "name": "codex-lb",
+              "required": false
+            }
+          ],
           "workdir": "/opt/models-on-this-computer",
           "stdout": "json",
           "argv": [
@@ -548,8 +597,17 @@
             "fit"
           ],
           "stdin": {
-            "input": {"fill": {"from": "input"}},
-            "local_ports": {"fill": {"from": "computer", "field": "local_ports"}}
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "local_ports": {
+              "fill": {
+                "from": "computer",
+                "field": "local_ports"
+              }
+            }
           },
           "files": {
             "package_files": [
@@ -572,7 +630,12 @@
           "max_run_ms": 7200000
         },
         "result_selector": "$.result",
-        "verify": [{"kind":"sample-run","input":{}}],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {}
+          }
+        ],
         "needs": {
           "expected_seconds": 10,
           "network_egress": false
@@ -780,8 +843,8 @@
         "id": "tool:check-the-model-server-and-restart-it-if-stuck",
         "label": "Check that my model server still loads models, and restart it when it is stuck",
         "status": "active",
-        "job": "Notice when the model server on my computer stops loading models, and restart it so every job that uses a local model works again",
-        "description": "Asks the person's own model server (by its local door) for a few words from a small model no job keeps loaded, so a load really happens. When the load answers within the server's limit, says it is healthy and how long it took. When it does not, records which models were loaded, runs the server's declared restart (DATA: server.health.restart.argv in read-data/models-on-this-computer.json), waits for the server to answer again and probes once more, and answers what it saw before and after with the known signature of the stall. A server can keep answering the model it holds while it loads no other, which is why the probe uses a model of its own.",
+        "job": "Check whether the local model server still loads models and report the effect of its declared restart attempt when a probe fails",
+        "description": "Asks the local model server which models are resident, then probes the primary or an installed, unloaded standby. A warm answer or unavailable residency data does not establish a fresh load. When the probe fails, optionally attempts the configured restart (server.health.restart.argv), checks for a server reply, and probes once more. The answer records the restart command's result separately from the follow-up probe: the operating system may refuse the attempt.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -797,7 +860,7 @@
         },
         "output_schema": {
           "type": "object",
-          "description": "{ healthy, checked_at, probe: { model, limit_seconds, loads, ms, why? } } and, when not healthy: before: { loaded }, restart: { argv, exit, ms, said? }, back_after_ms, after: { probe, loaded }, signature."
+          "description": "{ healthy: true (load checked), false (probe failed), or null (no cold load verified), checked_at, probe: { model, limit_seconds, cold_before, loads, ms, why? }, before: { loaded } }. A restart attempt adds { restart: { argv, exit, ms, said? }, back_after_ms, after: { probe, loaded }, signature }; a follow-up reply does not prove that a failed restart ran."
         },
         "invoke": {
           "kind": "computer",
