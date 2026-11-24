@@ -1,0 +1,1775 @@
+{
+  "draft": true,
+  "drafted_from": "Three independent accounts of the same three timing conditions. The example signs and thresholds are invented; the reversible decisions are a planning safeguard.",
+  "start_here": "Help me tell whether this pickup coordination idea is ready for one small test.",
+  "lists": [],
+  "no_lists_because": "This workflow asks for three evidence notes and returns a decision without reading or changing stored lists.",
+  "workflows": [
+    "workflow:test-whether-the-timing-is-right-for-an-idea"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "Name the idea and the people it is for.",
+    "Give one evidence note each for technology, economics, and readiness.",
+    "Read the next move and the observation that would change it; do not launch."
+  ],
+  "worked_examples": [
+    {
+      "title": "Three observed conditions",
+      "ask": "Can I run one pickup planning rehearsal?",
+      "given": "A working integration, a route comparison and example shops already coordinating pickups.",
+      "hands_back": "One reversible rehearsal with a stop signal.",
+      "workflow": "workflow:test-whether-the-timing-is-right-for-an-idea",
+      "step": "weigh-three-timing-signals-and-choose-one-next-move",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "recipe": {
+                "kind": "workflow-recipe",
+                "id": "workflow:test-whether-the-timing-is-right-for-an-idea",
+                "label": "Test whether the timing is right for an idea",
+                "job": "Use evidence of what technology enables, what the economics now reward and what people are ready to do to choose the next timing test.",
+                "produces": "Three evidence notes and a reversible next move, including a signal that would change the decision.",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "additionalProperties": false
+                },
+                "source": {
+                  "author": "Pete Flint",
+                  "title": "Why Startup Timing is Everything",
+                  "url": "https://www.youtube.com/watch?v=2MM3oxQj4mQ",
+                  "narrator": "Kristin O’Brien",
+                  "references": [
+                    {
+                      "url": "https://www.youtube.com/watch?v=2MM3oxQj4mQ",
+                      "basis": "Flint’s essay narrated by Kristin O’Brien: the three timing conditions."
+                    },
+                    {
+                      "url": "https://www.youtube.com/watch?v=bmFc5wyrY1A",
+                      "basis": "Flint explains the economic impetus, technology catalyst and cultural acceptance."
+                    },
+                    {
+                      "url": "https://www.youtube.com/watch?v=hwnh-HtByaY",
+                      "basis": "Flint explains the three conditions in a Stanford GSB interview and illustrates them with examples."
+                    }
+                  ]
+                },
+                "steps": [
+                  {
+                    "id": "weigh-three-timing-signals-and-choose-one-next-move",
+                    "title": "Weigh three timing signals and choose one next move",
+                    "do": "In the same answer, name the idea and its intended users. For technology, say what became possible and what was observed. For economics, name who has a reason to adopt, what cost or incentive changed, and what was observed. For readiness, say what the intended users already do and what behavior would have to change. Mark each condition observed, missing evidence, or contradicted; give its evidence or gap and what could change the verdict. Believe observations, not plausible stories. Wait for a stated condition if any prerequisite is contradicted. If none is contradicted but at least one lacks evidence, check the gap first. If all three are observed, propose one small reversible test. State why, the next move, and the observation that would reverse it. Return an internal plan only. Do not launch or commit resources.",
+                    "submit": {
+                      "type": "object",
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "decision": {
+                              "const": "test-now"
+                            },
+                            "idea": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "intended_users": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "technology": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "economics": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "readiness": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "reason": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "next_move": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "reversal_signal": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            }
+                          },
+                          "required": [
+                            "decision",
+                            "idea",
+                            "intended_users",
+                            "technology",
+                            "economics",
+                            "readiness",
+                            "reason",
+                            "next_move",
+                            "reversal_signal"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "decision": {
+                              "const": "check-missing-evidence"
+                            },
+                            "idea": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "intended_users": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "technology": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed",
+                                    "missing-evidence"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "economics": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed",
+                                    "missing-evidence"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "readiness": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed",
+                                    "missing-evidence"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "reason": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "next_move": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "reversal_signal": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            }
+                          },
+                          "required": [
+                            "decision",
+                            "idea",
+                            "intended_users",
+                            "technology",
+                            "economics",
+                            "readiness",
+                            "reason",
+                            "next_move",
+                            "reversal_signal"
+                          ],
+                          "additionalProperties": false,
+                          "anyOf": [
+                            {
+                              "properties": {
+                                "technology": {
+                                  "properties": {
+                                    "state": {
+                                      "const": "missing-evidence"
+                                    }
+                                  },
+                                  "required": [
+                                    "state"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "technology"
+                              ]
+                            },
+                            {
+                              "properties": {
+                                "economics": {
+                                  "properties": {
+                                    "state": {
+                                      "const": "missing-evidence"
+                                    }
+                                  },
+                                  "required": [
+                                    "state"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "economics"
+                              ]
+                            },
+                            {
+                              "properties": {
+                                "readiness": {
+                                  "properties": {
+                                    "state": {
+                                      "const": "missing-evidence"
+                                    }
+                                  },
+                                  "required": [
+                                    "state"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "readiness"
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "decision": {
+                              "const": "wait-for-a-condition"
+                            },
+                            "idea": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "intended_users": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "technology": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed",
+                                    "missing-evidence",
+                                    "contradicted"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "economics": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed",
+                                    "missing-evidence",
+                                    "contradicted"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "readiness": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed",
+                                    "missing-evidence",
+                                    "contradicted"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "reason": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "next_move": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "reversal_signal": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            }
+                          },
+                          "required": [
+                            "decision",
+                            "idea",
+                            "intended_users",
+                            "technology",
+                            "economics",
+                            "readiness",
+                            "reason",
+                            "next_move",
+                            "reversal_signal"
+                          ],
+                          "additionalProperties": false,
+                          "anyOf": [
+                            {
+                              "properties": {
+                                "technology": {
+                                  "properties": {
+                                    "state": {
+                                      "const": "contradicted"
+                                    }
+                                  },
+                                  "required": [
+                                    "state"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "technology"
+                              ]
+                            },
+                            {
+                              "properties": {
+                                "economics": {
+                                  "properties": {
+                                    "state": {
+                                      "const": "contradicted"
+                                    }
+                                  },
+                                  "required": [
+                                    "state"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "economics"
+                              ]
+                            },
+                            {
+                              "properties": {
+                                "readiness": {
+                                  "properties": {
+                                    "state": {
+                                      "const": "contradicted"
+                                    }
+                                  },
+                                  "required": [
+                                    "state"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "readiness"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "done_when": "All three verdicts and evidence notes are present and lead to one reversible test, one evidence check, or one stated condition to wait for.",
+                    "why": "A strong signal in one condition does not repair missing or adverse evidence in another.",
+                    "came_from": [
+                      "Pete Flint, Why Startup Timing is Everything, Precondition 1: enabling technologies. https://www.youtube.com/watch?v=2MM3oxQj4mQ",
+                      "https://www.youtube.com/watch?v=bmFc5wyrY1A",
+                      "https://www.youtube.com/watch?v=hwnh-HtByaY",
+                      "Pete Flint, Why Startup Timing is Everything, Precondition 2: economic impetus. https://www.youtube.com/watch?v=2MM3oxQj4mQ",
+                      "Pete Flint, Why Startup Timing is Everything, Precondition 3: cultural acceptance. https://www.youtube.com/watch?v=2MM3oxQj4mQ",
+                      "Pete Flint, Why Startup Timing is Everything, The confluence of technologies, economic impetus and cultural acceptance. https://www.youtube.com/watch?v=2MM3oxQj4mQ"
+                    ]
+                  }
+                ]
+              },
+              "input": {},
+              "answers": {
+                "weigh-three-timing-signals-and-choose-one-next-move": {
+                  "idea": "Shared pickup planning for neighborhood repair shops",
+                  "intended_users": "Repair shops with several pickup partners",
+                  "technology": {
+                    "state": "observed",
+                    "evidence": "A synthetic integration test sent a correct pickup change to every participant.",
+                    "what_would_change_it": "Errors in a larger rehearsal would remove this positive signal."
+                  },
+                  "economics": {
+                    "state": "observed",
+                    "evidence": "Five synthetic route comparisons found fewer trips than separate pickups.",
+                    "what_would_change_it": "Count wait time as a cost when checking the route."
+                  },
+                  "readiness": {
+                    "state": "observed",
+                    "evidence": "Two example shops already share pickup times in chat.",
+                    "what_would_change_it": "Test whether they will keep participating when a change needs confirmation."
+                  },
+                  "decision": "test-now",
+                  "reason": "The integration works in the example and shops already coordinate the job; time savings still need observation.",
+                  "next_move": "Run one reversible pickup rehearsal with the two example shops.",
+                  "reversal_signal": "Pause if wait time wipes out the savings or shops stop coordinating."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Find the missing comparison",
+      "ask": "What is my next test if I have not compared pickup costs?",
+      "given": "The integration and behavior are observed but economics is not.",
+      "hands_back": "One evidence check, not a launch.",
+      "workflow": "workflow:test-whether-the-timing-is-right-for-an-idea",
+      "step": "weigh-three-timing-signals-and-choose-one-next-move",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "recipe": {
+                "kind": "workflow-recipe",
+                "id": "workflow:test-whether-the-timing-is-right-for-an-idea",
+                "label": "Test whether the timing is right for an idea",
+                "job": "Use evidence of what technology enables, what the economics now reward and what people are ready to do to choose the next timing test.",
+                "produces": "Three evidence notes and a reversible next move, including a signal that would change the decision.",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "additionalProperties": false
+                },
+                "source": {
+                  "author": "Pete Flint",
+                  "title": "Why Startup Timing is Everything",
+                  "url": "https://www.youtube.com/watch?v=2MM3oxQj4mQ",
+                  "narrator": "Kristin O’Brien",
+                  "references": [
+                    {
+                      "url": "https://www.youtube.com/watch?v=2MM3oxQj4mQ",
+                      "basis": "Flint’s essay narrated by Kristin O’Brien: the three timing conditions."
+                    },
+                    {
+                      "url": "https://www.youtube.com/watch?v=bmFc5wyrY1A",
+                      "basis": "Flint explains the economic impetus, technology catalyst and cultural acceptance."
+                    },
+                    {
+                      "url": "https://www.youtube.com/watch?v=hwnh-HtByaY",
+                      "basis": "Flint explains the three conditions in a Stanford GSB interview and illustrates them with examples."
+                    }
+                  ]
+                },
+                "steps": [
+                  {
+                    "id": "weigh-three-timing-signals-and-choose-one-next-move",
+                    "title": "Weigh three timing signals and choose one next move",
+                    "do": "In the same answer, name the idea and its intended users. For technology, say what became possible and what was observed. For economics, name who has a reason to adopt, what cost or incentive changed, and what was observed. For readiness, say what the intended users already do and what behavior would have to change. Mark each condition observed, missing evidence, or contradicted; give its evidence or gap and what could change the verdict. Believe observations, not plausible stories. Wait for a stated condition if any prerequisite is contradicted. If none is contradicted but at least one lacks evidence, check the gap first. If all three are observed, propose one small reversible test. State why, the next move, and the observation that would reverse it. Return an internal plan only. Do not launch or commit resources.",
+                    "submit": {
+                      "type": "object",
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "decision": {
+                              "const": "test-now"
+                            },
+                            "idea": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "intended_users": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "technology": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "economics": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "readiness": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "reason": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "next_move": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "reversal_signal": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            }
+                          },
+                          "required": [
+                            "decision",
+                            "idea",
+                            "intended_users",
+                            "technology",
+                            "economics",
+                            "readiness",
+                            "reason",
+                            "next_move",
+                            "reversal_signal"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "decision": {
+                              "const": "check-missing-evidence"
+                            },
+                            "idea": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "intended_users": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "technology": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed",
+                                    "missing-evidence"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "economics": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed",
+                                    "missing-evidence"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "readiness": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed",
+                                    "missing-evidence"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "reason": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "next_move": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "reversal_signal": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            }
+                          },
+                          "required": [
+                            "decision",
+                            "idea",
+                            "intended_users",
+                            "technology",
+                            "economics",
+                            "readiness",
+                            "reason",
+                            "next_move",
+                            "reversal_signal"
+                          ],
+                          "additionalProperties": false,
+                          "anyOf": [
+                            {
+                              "properties": {
+                                "technology": {
+                                  "properties": {
+                                    "state": {
+                                      "const": "missing-evidence"
+                                    }
+                                  },
+                                  "required": [
+                                    "state"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "technology"
+                              ]
+                            },
+                            {
+                              "properties": {
+                                "economics": {
+                                  "properties": {
+                                    "state": {
+                                      "const": "missing-evidence"
+                                    }
+                                  },
+                                  "required": [
+                                    "state"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "economics"
+                              ]
+                            },
+                            {
+                              "properties": {
+                                "readiness": {
+                                  "properties": {
+                                    "state": {
+                                      "const": "missing-evidence"
+                                    }
+                                  },
+                                  "required": [
+                                    "state"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "readiness"
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "decision": {
+                              "const": "wait-for-a-condition"
+                            },
+                            "idea": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "intended_users": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "technology": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed",
+                                    "missing-evidence",
+                                    "contradicted"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "economics": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed",
+                                    "missing-evidence",
+                                    "contradicted"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "readiness": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed",
+                                    "missing-evidence",
+                                    "contradicted"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "reason": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "next_move": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "reversal_signal": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            }
+                          },
+                          "required": [
+                            "decision",
+                            "idea",
+                            "intended_users",
+                            "technology",
+                            "economics",
+                            "readiness",
+                            "reason",
+                            "next_move",
+                            "reversal_signal"
+                          ],
+                          "additionalProperties": false,
+                          "anyOf": [
+                            {
+                              "properties": {
+                                "technology": {
+                                  "properties": {
+                                    "state": {
+                                      "const": "contradicted"
+                                    }
+                                  },
+                                  "required": [
+                                    "state"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "technology"
+                              ]
+                            },
+                            {
+                              "properties": {
+                                "economics": {
+                                  "properties": {
+                                    "state": {
+                                      "const": "contradicted"
+                                    }
+                                  },
+                                  "required": [
+                                    "state"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "economics"
+                              ]
+                            },
+                            {
+                              "properties": {
+                                "readiness": {
+                                  "properties": {
+                                    "state": {
+                                      "const": "contradicted"
+                                    }
+                                  },
+                                  "required": [
+                                    "state"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "readiness"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "done_when": "All three verdicts and evidence notes are present and lead to one reversible test, one evidence check, or one stated condition to wait for.",
+                    "why": "A strong signal in one condition does not repair missing or adverse evidence in another.",
+                    "came_from": [
+                      "Pete Flint, Why Startup Timing is Everything, Precondition 1: enabling technologies. https://www.youtube.com/watch?v=2MM3oxQj4mQ",
+                      "https://www.youtube.com/watch?v=bmFc5wyrY1A",
+                      "https://www.youtube.com/watch?v=hwnh-HtByaY",
+                      "Pete Flint, Why Startup Timing is Everything, Precondition 2: economic impetus. https://www.youtube.com/watch?v=2MM3oxQj4mQ",
+                      "Pete Flint, Why Startup Timing is Everything, Precondition 3: cultural acceptance. https://www.youtube.com/watch?v=2MM3oxQj4mQ",
+                      "Pete Flint, Why Startup Timing is Everything, The confluence of technologies, economic impetus and cultural acceptance. https://www.youtube.com/watch?v=2MM3oxQj4mQ"
+                    ]
+                  }
+                ]
+              },
+              "input": {},
+              "answers": {
+                "weigh-three-timing-signals-and-choose-one-next-move": {
+                  "idea": "Shared pickup planning for neighborhood repair shops",
+                  "intended_users": "Repair shops with several pickup partners",
+                  "technology": {
+                    "state": "observed",
+                    "evidence": "A synthetic integration test sent a correct pickup change to every participant.",
+                    "what_would_change_it": "Errors in a larger rehearsal would remove this positive signal."
+                  },
+                  "economics": {
+                    "state": "missing-evidence",
+                    "evidence": "No travel or waiting time comparison is available.",
+                    "what_would_change_it": "Measure trips and waiting time against the current practice."
+                  },
+                  "readiness": {
+                    "state": "observed",
+                    "evidence": "Two example shops already share pickup times in chat.",
+                    "what_would_change_it": "Test whether they will keep participating when a change needs confirmation."
+                  },
+                  "decision": "check-missing-evidence",
+                  "reason": "A working integration does not establish an economic reason for the shops to switch.",
+                  "next_move": "Compare actual pickup travel and waiting time before proposing a trial.",
+                  "reversal_signal": "Resume timing review once the same comparison includes both costs."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Wait for reliable notifications",
+      "ask": "Should I ask people to try the system when dispatch notifications did not arrive?",
+      "given": "A required capability failed in a synthetic rehearsal.",
+      "hands_back": "Wait for the stated reliability condition before proposing a test.",
+      "workflow": "workflow:test-whether-the-timing-is-right-for-an-idea",
+      "step": "weigh-three-timing-signals-and-choose-one-next-move",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "recipe": {
+                "kind": "workflow-recipe",
+                "id": "workflow:test-whether-the-timing-is-right-for-an-idea",
+                "label": "Test whether the timing is right for an idea",
+                "job": "Use evidence of what technology enables, what the economics now reward and what people are ready to do to choose the next timing test.",
+                "produces": "Three evidence notes and a reversible next move, including a signal that would change the decision.",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "additionalProperties": false
+                },
+                "source": {
+                  "author": "Pete Flint",
+                  "title": "Why Startup Timing is Everything",
+                  "url": "https://www.youtube.com/watch?v=2MM3oxQj4mQ",
+                  "narrator": "Kristin O’Brien",
+                  "references": [
+                    {
+                      "url": "https://www.youtube.com/watch?v=2MM3oxQj4mQ",
+                      "basis": "Flint’s essay narrated by Kristin O’Brien: the three timing conditions."
+                    },
+                    {
+                      "url": "https://www.youtube.com/watch?v=bmFc5wyrY1A",
+                      "basis": "Flint explains the economic impetus, technology catalyst and cultural acceptance."
+                    },
+                    {
+                      "url": "https://www.youtube.com/watch?v=hwnh-HtByaY",
+                      "basis": "Flint explains the three conditions in a Stanford GSB interview and illustrates them with examples."
+                    }
+                  ]
+                },
+                "steps": [
+                  {
+                    "id": "weigh-three-timing-signals-and-choose-one-next-move",
+                    "title": "Weigh three timing signals and choose one next move",
+                    "do": "In the same answer, name the idea and its intended users. For technology, say what became possible and what was observed. For economics, name who has a reason to adopt, what cost or incentive changed, and what was observed. For readiness, say what the intended users already do and what behavior would have to change. Mark each condition observed, missing evidence, or contradicted; give its evidence or gap and what could change the verdict. Believe observations, not plausible stories. Wait for a stated condition if any prerequisite is contradicted. If none is contradicted but at least one lacks evidence, check the gap first. If all three are observed, propose one small reversible test. State why, the next move, and the observation that would reverse it. Return an internal plan only. Do not launch or commit resources.",
+                    "submit": {
+                      "type": "object",
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "decision": {
+                              "const": "test-now"
+                            },
+                            "idea": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "intended_users": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "technology": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "economics": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "readiness": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "reason": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "next_move": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "reversal_signal": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            }
+                          },
+                          "required": [
+                            "decision",
+                            "idea",
+                            "intended_users",
+                            "technology",
+                            "economics",
+                            "readiness",
+                            "reason",
+                            "next_move",
+                            "reversal_signal"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "decision": {
+                              "const": "check-missing-evidence"
+                            },
+                            "idea": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "intended_users": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "technology": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed",
+                                    "missing-evidence"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "economics": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed",
+                                    "missing-evidence"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "readiness": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed",
+                                    "missing-evidence"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "reason": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "next_move": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "reversal_signal": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            }
+                          },
+                          "required": [
+                            "decision",
+                            "idea",
+                            "intended_users",
+                            "technology",
+                            "economics",
+                            "readiness",
+                            "reason",
+                            "next_move",
+                            "reversal_signal"
+                          ],
+                          "additionalProperties": false,
+                          "anyOf": [
+                            {
+                              "properties": {
+                                "technology": {
+                                  "properties": {
+                                    "state": {
+                                      "const": "missing-evidence"
+                                    }
+                                  },
+                                  "required": [
+                                    "state"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "technology"
+                              ]
+                            },
+                            {
+                              "properties": {
+                                "economics": {
+                                  "properties": {
+                                    "state": {
+                                      "const": "missing-evidence"
+                                    }
+                                  },
+                                  "required": [
+                                    "state"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "economics"
+                              ]
+                            },
+                            {
+                              "properties": {
+                                "readiness": {
+                                  "properties": {
+                                    "state": {
+                                      "const": "missing-evidence"
+                                    }
+                                  },
+                                  "required": [
+                                    "state"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "readiness"
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "decision": {
+                              "const": "wait-for-a-condition"
+                            },
+                            "idea": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "intended_users": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "technology": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed",
+                                    "missing-evidence",
+                                    "contradicted"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "economics": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed",
+                                    "missing-evidence",
+                                    "contradicted"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "readiness": {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": [
+                                    "observed",
+                                    "missing-evidence",
+                                    "contradicted"
+                                  ]
+                                },
+                                "evidence": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "what_would_change_it": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "state",
+                                "evidence",
+                                "what_would_change_it"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "reason": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "next_move": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "reversal_signal": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            }
+                          },
+                          "required": [
+                            "decision",
+                            "idea",
+                            "intended_users",
+                            "technology",
+                            "economics",
+                            "readiness",
+                            "reason",
+                            "next_move",
+                            "reversal_signal"
+                          ],
+                          "additionalProperties": false,
+                          "anyOf": [
+                            {
+                              "properties": {
+                                "technology": {
+                                  "properties": {
+                                    "state": {
+                                      "const": "contradicted"
+                                    }
+                                  },
+                                  "required": [
+                                    "state"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "technology"
+                              ]
+                            },
+                            {
+                              "properties": {
+                                "economics": {
+                                  "properties": {
+                                    "state": {
+                                      "const": "contradicted"
+                                    }
+                                  },
+                                  "required": [
+                                    "state"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "economics"
+                              ]
+                            },
+                            {
+                              "properties": {
+                                "readiness": {
+                                  "properties": {
+                                    "state": {
+                                      "const": "contradicted"
+                                    }
+                                  },
+                                  "required": [
+                                    "state"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "readiness"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "done_when": "All three verdicts and evidence notes are present and lead to one reversible test, one evidence check, or one stated condition to wait for.",
+                    "why": "A strong signal in one condition does not repair missing or adverse evidence in another.",
+                    "came_from": [
+                      "Pete Flint, Why Startup Timing is Everything, Precondition 1: enabling technologies. https://www.youtube.com/watch?v=2MM3oxQj4mQ",
+                      "https://www.youtube.com/watch?v=bmFc5wyrY1A",
+                      "https://www.youtube.com/watch?v=hwnh-HtByaY",
+                      "Pete Flint, Why Startup Timing is Everything, Precondition 2: economic impetus. https://www.youtube.com/watch?v=2MM3oxQj4mQ",
+                      "Pete Flint, Why Startup Timing is Everything, Precondition 3: cultural acceptance. https://www.youtube.com/watch?v=2MM3oxQj4mQ",
+                      "Pete Flint, Why Startup Timing is Everything, The confluence of technologies, economic impetus and cultural acceptance. https://www.youtube.com/watch?v=2MM3oxQj4mQ"
+                    ]
+                  }
+                ]
+              },
+              "input": {},
+              "answers": {
+                "weigh-three-timing-signals-and-choose-one-next-move": {
+                  "idea": "Shared pickup planning for neighborhood repair shops",
+                  "intended_users": "Repair shops with several pickup partners",
+                  "technology": {
+                    "state": "contradicted",
+                    "evidence": "The invented rehearsal failed to notify a participant on each of three changes.",
+                    "what_would_change_it": "A repeatable test shows every participant is notified."
+                  },
+                  "economics": {
+                    "state": "observed",
+                    "evidence": "Five synthetic route comparisons found fewer trips than separate pickups.",
+                    "what_would_change_it": "Count wait time as a cost when checking the route."
+                  },
+                  "readiness": {
+                    "state": "observed",
+                    "evidence": "Two example shops already share pickup times in chat.",
+                    "what_would_change_it": "Test whether they will keep participating when a change needs confirmation."
+                  },
+                  "decision": "wait-for-a-condition",
+                  "reason": "A missed pickup change means the essential notification path cannot be relied on.",
+                  "next_move": "Wait until the integration reliably delivers changes before asking shops to try it.",
+                  "reversal_signal": "Every participant receives every update during a repeated fixture rehearsal."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

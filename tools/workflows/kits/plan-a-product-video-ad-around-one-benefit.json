@@ -1,0 +1,499 @@
+{
+  "draft": true,
+  "drafted_from": "Three independent teaching passages on a product video opening, benefit and support. Two linked pieces of the same teaching count once. Examples are invented.",
+  "start_here": "Help me outline a short video for a bag clip without overstating the demonstration.",
+  "lists": [],
+  "no_lists_because": "This workflow returns a draft from the facts given in the prompt and does not read or keep any separate list.",
+  "workflows": [
+    "workflow:plan-a-product-video-ad-around-one-benefit"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "Name the product and the viewer in one answer.",
+    "Describe the opening and only the benefit that can actually be shown, or say what remains unverified.",
+    "Give the viewer one next action. Read the plan without publishing it."
+  ],
+  "worked_examples": [
+    {
+      "title": "Show the bag the clip fits",
+      "ask": "Outline a bag clip video using an owned demonstration.",
+      "given": "An invented tabletop video showing a single size of bag and one clear viewer action.",
+      "hands_back": "One filmable opening, one limited claim and an action to see supported sizes.",
+      "workflow": "workflow:plan-a-product-video-ad-around-one-benefit",
+      "step": "outline-one-benefit-or-hold-the-claim",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "recipe": {
+                "kind": "workflow-recipe",
+                "id": "workflow:plan-a-product-video-ad-around-one-benefit",
+                "label": "Plan a product video ad around one benefit",
+                "job": "Turn a product benefit into a short video ad outline with a clear opening, something that makes the benefit believable, and one next action.",
+                "produces": "A draft outline that distinguishes what you can show today from claims that still need checking.",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "additionalProperties": false
+                },
+                "source": {
+                  "author": "Nick Shackelford",
+                  "url": "https://www.youtube.com/watch?v=URPHuHLGAxg",
+                  "references": [
+                    {
+                      "url": "https://www.youtube.com/watch?v=URPHuHLGAxg",
+                      "other_parts": [
+                        "https://www.youtube.com/watch?v=XAJWy_CUgsM"
+                      ],
+                      "basis": "Count these two linked uploads once. They teach a hook, product in use or validation, benefits, and a call to action. The second part applies the components to examples."
+                    },
+                    {
+                      "url": "https://www.youtube.com/watch?v=TbvHsRinR9E",
+                      "basis": "This segment of a different series lays out the hook and angle, problem and solution, feature or benefit, proof or objection, and requested action."
+                    },
+                    {
+                      "url": "https://www.youtube.com/watch?v=jp0v-vJu55c",
+                      "basis": "The interview explains choosing a hook and showing the benefit with a demonstration, testimonial, or story for the intended audience. It supports the core hook-and-benefit method, not a fixed script order."
+                    }
+                  ]
+                },
+                "steps": [
+                  {
+                    "id": "outline-one-benefit-or-hold-the-claim",
+                    "title": "Outline one benefit or hold the claim",
+                    "do": "In the same answer, name the product, the intended viewer, and a situation they recognize. Outline one short video around one practical benefit. If there is a real demonstration, measured comparison, or genuine customer example you may use, describe what it actually shows, what you may use, and the limit of the claim. Give the opening, the supported benefit, and one next action that fits the viewer. Say what to check before considering release. If evidence or permission is missing, keep the intended benefit as an internal question, not a promise in the opening or next action. Write a neutral opening, name the gap, and say how to verify it. Return a planning outline only. Do not publish, contact customers, or buy placement.",
+                    "submit": {
+                      "type": "object",
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "decision": {
+                              "const": "outline-with-existing-evidence"
+                            },
+                            "product": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "intended_viewer": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "viewer_situation": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "next_action": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "opening": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "benefit": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "evidence": {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "enum": [
+                                    "demonstration",
+                                    "measured-comparison",
+                                    "permitted-customer-example"
+                                  ]
+                                },
+                                "observable_support": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "use_rights_or_ownership": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "observable_support",
+                                "use_rights_or_ownership"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "claim_boundary": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "release_check": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            }
+                          },
+                          "required": [
+                            "decision",
+                            "product",
+                            "intended_viewer",
+                            "viewer_situation",
+                            "next_action",
+                            "opening",
+                            "benefit",
+                            "evidence",
+                            "claim_boundary",
+                            "release_check"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "decision": {
+                              "const": "hold-the-claim"
+                            },
+                            "product": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "intended_viewer": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "viewer_situation": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "next_action": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "neutral_opening": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "unverified_benefit": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "missing_evidence": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "verification_to_attempt": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            }
+                          },
+                          "required": [
+                            "decision",
+                            "product",
+                            "intended_viewer",
+                            "viewer_situation",
+                            "next_action",
+                            "neutral_opening",
+                            "unverified_benefit",
+                            "missing_evidence",
+                            "verification_to_attempt"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "done_when": "The outline has one opening, one benefit or verification gap, and one next action, without publishing anything.",
+                    "why": "One relevant opening and one action keep attention on the practical benefit; evidence sets the strongest claim the outline can make.",
+                    "came_from": [
+                      "https://www.youtube.com/watch?v=URPHuHLGAxg",
+                      "https://www.youtube.com/watch?v=TbvHsRinR9E",
+                      "https://www.youtube.com/watch?v=jp0v-vJu55c",
+                      "https://www.youtube.com/watch?v=XAJWy_CUgsM"
+                    ]
+                  }
+                ]
+              },
+              "input": {},
+              "answers": {
+                "outline-one-benefit-or-hold-the-claim": {
+                  "decision": "outline-with-existing-evidence",
+                  "product": "A clip that holds a bag open",
+                  "intended_viewer": "Someone sorting scraps with one hand",
+                  "viewer_situation": "The bag folds closed while someone fills it.",
+                  "next_action": "See the sizes the clip fits.",
+                  "opening": "Show the bag falling closed with one hand occupied.",
+                  "benefit": "The clip holds this bag open while it is filled.",
+                  "evidence": {
+                    "kind": "demonstration",
+                    "observable_support": "Show the same bag being filled with the clip in place. Synthetic example: a filmed tabletop demonstration shows one bag held open during filling.",
+                    "use_rights_or_ownership": "Invented example: the product team filmed and owns the demonstration."
+                  },
+                  "claim_boundary": "The clip held this bag in the rehearsal; do not promise it fits every bag.",
+                  "release_check": "Check the displayed bag size before using this demonstration."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Hold the claim for a thicker bag",
+      "ask": "Write a neutral opening while I check fit on a thicker bag.",
+      "given": "No example yet shows the thicker bag filled with the clip on.",
+      "hands_back": "A verification task, an opening with no unproved claim, and a next action.",
+      "workflow": "workflow:plan-a-product-video-ad-around-one-benefit",
+      "step": "outline-one-benefit-or-hold-the-claim",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "recipe": {
+                "kind": "workflow-recipe",
+                "id": "workflow:plan-a-product-video-ad-around-one-benefit",
+                "label": "Plan a product video ad around one benefit",
+                "job": "Turn a product benefit into a short video ad outline with a clear opening, something that makes the benefit believable, and one next action.",
+                "produces": "A draft outline that distinguishes what you can show today from claims that still need checking.",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "additionalProperties": false
+                },
+                "source": {
+                  "author": "Nick Shackelford",
+                  "url": "https://www.youtube.com/watch?v=URPHuHLGAxg",
+                  "references": [
+                    {
+                      "url": "https://www.youtube.com/watch?v=URPHuHLGAxg",
+                      "other_parts": [
+                        "https://www.youtube.com/watch?v=XAJWy_CUgsM"
+                      ],
+                      "basis": "Count these two linked uploads once. They teach a hook, product in use or validation, benefits, and a call to action. The second part applies the components to examples."
+                    },
+                    {
+                      "url": "https://www.youtube.com/watch?v=TbvHsRinR9E",
+                      "basis": "This segment of a different series lays out the hook and angle, problem and solution, feature or benefit, proof or objection, and requested action."
+                    },
+                    {
+                      "url": "https://www.youtube.com/watch?v=jp0v-vJu55c",
+                      "basis": "The interview explains choosing a hook and showing the benefit with a demonstration, testimonial, or story for the intended audience. It supports the core hook-and-benefit method, not a fixed script order."
+                    }
+                  ]
+                },
+                "steps": [
+                  {
+                    "id": "outline-one-benefit-or-hold-the-claim",
+                    "title": "Outline one benefit or hold the claim",
+                    "do": "In the same answer, name the product, the intended viewer, and a situation they recognize. Outline one short video around one practical benefit. If there is a real demonstration, measured comparison, or genuine customer example you may use, describe what it actually shows, what you may use, and the limit of the claim. Give the opening, the supported benefit, and one next action that fits the viewer. Say what to check before considering release. If evidence or permission is missing, keep the intended benefit as an internal question, not a promise in the opening or next action. Write a neutral opening, name the gap, and say how to verify it. Return a planning outline only. Do not publish, contact customers, or buy placement.",
+                    "submit": {
+                      "type": "object",
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "decision": {
+                              "const": "outline-with-existing-evidence"
+                            },
+                            "product": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "intended_viewer": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "viewer_situation": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "next_action": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "opening": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "benefit": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "evidence": {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "enum": [
+                                    "demonstration",
+                                    "measured-comparison",
+                                    "permitted-customer-example"
+                                  ]
+                                },
+                                "observable_support": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                "use_rights_or_ownership": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "observable_support",
+                                "use_rights_or_ownership"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "claim_boundary": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "release_check": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            }
+                          },
+                          "required": [
+                            "decision",
+                            "product",
+                            "intended_viewer",
+                            "viewer_situation",
+                            "next_action",
+                            "opening",
+                            "benefit",
+                            "evidence",
+                            "claim_boundary",
+                            "release_check"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "decision": {
+                              "const": "hold-the-claim"
+                            },
+                            "product": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "intended_viewer": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "viewer_situation": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "next_action": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "neutral_opening": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "unverified_benefit": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "missing_evidence": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "verification_to_attempt": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            }
+                          },
+                          "required": [
+                            "decision",
+                            "product",
+                            "intended_viewer",
+                            "viewer_situation",
+                            "next_action",
+                            "neutral_opening",
+                            "unverified_benefit",
+                            "missing_evidence",
+                            "verification_to_attempt"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "done_when": "The outline has one opening, one benefit or verification gap, and one next action, without publishing anything.",
+                    "why": "One relevant opening and one action keep attention on the practical benefit; evidence sets the strongest claim the outline can make.",
+                    "came_from": [
+                      "https://www.youtube.com/watch?v=URPHuHLGAxg",
+                      "https://www.youtube.com/watch?v=TbvHsRinR9E",
+                      "https://www.youtube.com/watch?v=jp0v-vJu55c",
+                      "https://www.youtube.com/watch?v=XAJWy_CUgsM"
+                    ]
+                  }
+                ]
+              },
+              "input": {},
+              "answers": {
+                "outline-one-benefit-or-hold-the-claim": {
+                  "decision": "hold-the-claim",
+                  "product": "A clip that holds a bag open",
+                  "intended_viewer": "Someone sorting scraps with one hand",
+                  "viewer_situation": "The bag folds closed while someone fills it.",
+                  "next_action": "See the sizes the clip fits.",
+                  "neutral_opening": "Show a folded bag and the clip side by side without showing an untested fit.",
+                  "unverified_benefit": "Can the clip hold a thicker bag open while it is filled?",
+                  "missing_evidence": "No footage or measurement yet shows it holding the thicker bag.",
+                  "verification_to_attempt": "Film the stated size during filling and check that the clip remains on before making the claim."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
