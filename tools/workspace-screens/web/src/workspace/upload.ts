@@ -15,20 +15,21 @@
 //   3. The account itself is reached only through this page's signed-in session (/work/api/...). The growing files below
 //      (a recording still being made) still ask the retired growing routes; record-audio owns that path.
 //   4. A refusal is shown as the Worker's words; nothing is reported as uploaded unless the Worker said it is stored.
-//   5. A text document is saved only at the version the editor opened (saveTextVersion): a name changed since is never
-//      overwritten, and the save says so in words.
+//   5. A text document replaces a name only while it still holds what the editor opened (saveTextVersion). The identity
+//      checked and the version protecting that write come from the same name row; a changed name is never overwritten.
 //   6. A recording still being made goes in through `growingFiles` (the person's own session, the namespace's growing
 //      files whose length is not known yet), and every refusal reaches the sender as a SendProblem saying whether to
 //      send again, start again from the device copy, or stop and say why.
 
 import { loadChunking } from '../../../../live-namespace/do-work/content-chunks-browser.mjs';
-import { PlanNeeded, files, postJson, readFileLookup, readJson } from './api';
+import { PlanNeeded, files, postJson, readJson } from './api';
 import { putFile } from './files-door.mjs';
 import { needsPlanTitle } from '../plan-needs.mjs';
 import { SendProblem, type GrowingClient } from '../../../../record-audio/do-work/send-while-recording';
 import { readOrMakePreview } from '../../../../ui/show/media-preview';
 import { previewStore } from './made-previews';
 import documents from './documents-words.json';
+import failureWords from './failure-words.json';
 // The chunker's compiled bytes, served under their content name (scripts/build-workspace.mjs).
 import chunkingBytesAddress from 'trillion-workshop/tools/browse-and-upload-my-files/built-stored-bytes/content-chunks/content_chunks_bg.wasm';
 
@@ -116,34 +117,38 @@ export const growingFiles: GrowingClient = {
 /** Keeps `text` in the person's Files under `name` (a path), replacing what the name pointed at. */
 export const keepText = (name: string, text: string) => files.change('write_file', { name, text, media_type: 'text/plain; charset=utf-8' }) as Promise<{ identity: string }>;
 
-/** The version of one name (the row's own number every write's expected_version names; 0: not made yet), read from its
- *  folder's list. Nothing is written by it. */
-async function versionOf(name: string): Promise<number | null> {
+/** One name's identity and compare-and-set version from the same folder row. A missing name is null; a failed or
+ *  incomplete read is never treated as a new name. */
+async function nameSnapshot(name: string): Promise<{ identity: string; version: number } | null> {
   const folder = name.slice(0, name.lastIndexOf('/')) || '/';
   for (let after: string | undefined; ;) {
-    const page = await files.read('list_files', { folder, limit: 500, ...(after ? { after } : {}) }) as { names?: { name: string; version: number }[]; next_after?: string | null };
-    const found = page.names?.find(row => row.name === name);
-    if (found) return found.version;
+    const page = await files.read('list_files', { folder, limit: 500, ...(after ? { after } : {}) }) as { names: { name: string; identity: string; version: number }[]; next_after?: string | null };
+    if (!page || !Array.isArray(page.names)) throw new Error(failureWords.broke);
+    const found = page.names.find(row => row.name === name);
+    if (found) {
+      if (typeof found.identity !== 'string' || !found.identity || !Number.isSafeInteger(found.version) || found.version < 1) throw new Error(failureWords.broke);
+      return { identity: found.identity, version: found.version };
+    }
     if (!page.next_after) return null;
     after = page.next_after;
   }
 }
 
-/** Saves a text document as new immutable bytes, at the version the editor opened: a name changed since it was opened
- *  is never overwritten; the save says so in words (documents-words.json) and changes nothing. */
+/** Saves new immutable bytes only while the name still holds what the editor opened. Its identity and the version
+ *  protecting the write come from one snapshot, so a concurrent writer's version can never authorize a stale edit. */
 export async function saveTextVersion(name: string, text: string, expectedIdentity: string | null, mediaType = 'text/plain; charset=utf-8') {
-  const current = await readFileLookup<{ identity: string }>(name).catch(() => null);
-  const version = await versionOf(name);
-  if (current ? current.identity !== expectedIdentity : expectedIdentity !== null) throw new Error(documents.changed_elsewhere);
+  const current = await nameSnapshot(name);
+  if ((current?.identity ?? null) !== expectedIdentity) throw new Error(documents.changed_elsewhere);
   // Namespace files have at least one byte; a visually empty document is kept as one line break.
   const file = new Blob([text || '\n'], { type: mediaType });
   try {
-    const kept = await putFile(files.change, { source: sourceOf(file), name, mediaType, expectedVersion: version ?? 0, onBytes: () => {} }) as { identity: string };
+    const kept = await putFile(files.change, { source: sourceOf(file), name, mediaType, expectedVersion: current?.version ?? 0, onBytes: () => {} }) as { identity: string };
     return { identity: kept.identity, previous_identity: expectedIdentity };
   } catch (error) {
-    // Refused or failed: when the name no longer holds what the editor opened, someone changed it since.
-    const after = await readFileLookup<{ identity: string }>(name).catch(() => null);
-    if (after ? after.identity !== expectedIdentity : expectedIdentity !== null) throw new Error(documents.changed_elsewhere);
+    // Refused or failed: only a successful read can establish that the name changed. Otherwise keep the actual refusal.
+    let after: Awaited<ReturnType<typeof nameSnapshot>>;
+    try { after = await nameSnapshot(name); } catch { throw error; }
+    if ((after?.identity ?? null) !== expectedIdentity || after?.version !== current?.version) throw new Error(documents.changed_elsewhere);
     throw error;
   }
 }
