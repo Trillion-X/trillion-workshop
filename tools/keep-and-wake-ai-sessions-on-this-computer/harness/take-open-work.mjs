@@ -99,6 +99,11 @@ const givenOf = item => {
 // The receipt field keeps its name (job_contract): a receipt written before this change keeps its attempt count.
 const taskContract = (task, settings) => Object.fromEntries((settings.tasks?.revision_fields ?? []).map(field => [field, task?.[field] ?? null]));
 const home = path => String(path).replace(/^~(?=\/|$)/, homedir());
+// The original take belongs to one nonempty actor identity and one valid exact timestamp. A later claim by the same
+// actor is not this run's, and missing local fences cannot be filled from a later read. State is checked by each caller.
+const sameClaim = (task, job) => typeof job?.agent_id === 'string' && job.agent_id.trim() !== ''
+  && typeof job.taken_at === 'string' && Number.isFinite(Date.parse(job.taken_at))
+  && task?.taken_by === job.agent_id && task.taken_at === job.taken_at;
 // The file a task run writes its answer to ({result, evidence}); this computer checks it and finishes the task (finishFromAnswer).
 export const resultFileOf = (settings, handoff_id) => join(home(settings.state_folder), 'results', `${encodeURIComponent(handoff_id)}.json`);
 
@@ -697,7 +702,7 @@ export async function finishWithAnswer(call, settings, { job, read, answer, evid
   const acceptance = { outcome, target, rules: [{ id: 'outcome', path: 'answer', required: true }] };
   const check = { target, outcome, checked_at: at.toISOString(), evidence: [evidence], obligations: [] };
   try {
-    await call('/handoffs/answer', { handoff_id: job.handoff_id, answer });
+    await call('/handoffs/answer', { handoff_id: job.handoff_id, agent_id: job.agent_id, taken_at: job.taken_at, answer });
     // A retry finds the acceptance an earlier attempt saved; a different saved acceptance is never replaced (the shared plan refuses it).
     if (!sameAcceptance(read.acceptance, acceptance)) await call('/handoffs/plan', { handoff_id: job.handoff_id, agent_id: job.agent_id, taken_at: job.taken_at, acceptance });
     await call('/handoffs/finish', { handoff_id: job.handoff_id, agent_id: job.agent_id, taken_at: job.taken_at, result: JSON.stringify(answer), check });
@@ -1058,8 +1063,7 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
       try {
         const current = (await call('/handoffs/read', { handoff_id: job.handoff_id }))?.handoff;
         busyChecks = 0;
-        if (call.tasks && !stoppedClaim && (!current || current.state !== 'taken'
-          || current.taken_by !== job.agent_id || current.taken_at !== job.taken_at)) {
+        if (call.tasks && !stoppedClaim && (current?.state !== 'taken' || !sameClaim(current, job))) {
           stoppedClaim = true;
           log({ did: 'stopped, claim ended or changed', handoff_id: job.handoff_id, pid: child.pid });
           child.kill('SIGTERM');
@@ -1129,7 +1133,7 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
       // A task run is finished by this computer from the result file the run wrote, checked against the step's submit shape
       // (finishFromAnswer). The run never finishes its own task. A refusal gives the task back with its reason.
       let refusal = null;
-      if (call.tasks && code === 0 && read?.state === 'taken' && read.taken_by === job.agent_id) {
+      if (call.tasks && code === 0 && read?.state === 'taken' && sameClaim(read, job)) {
         refusal = job.mode === 'turn'
           ? await finishTurn(call, settings, { job, read, out: readFileSync(replyPath, 'utf8'), outPath: replyPath, logPath, computer, at: now() })
           : await finishFromAnswer(call, settings, { job, read, logPath, at: now() });
@@ -1285,6 +1289,9 @@ export function taskCaller(call, settings, { now = () => new Date(), computer = 
     if (path === '/handoffs/answer') {
       const before = await operation('@own-records', 'records:read', { id: body.handoff_id });
       if (!before) throw new Error('The task was not found to record its answer.');
+      // The final read may already be stale. Check the same original claim at this mutation's own read, then let
+      // the conditional write refuse any replacement after it; no older run writes a newer claim's answer.
+      if (workerStateOfTask(before) !== 'taken' || !sameClaim(before, body)) throw new Error('The task is not held by this exact run; its answer was not written.');
       await operation('@own-records', 'records:write', { records: [{ id: body.handoff_id, type: rules.kind, value: { ...before, answer: body.answer }, expected: { type: rules.kind, value: before } }] });
       return { recorded: true };
     }
