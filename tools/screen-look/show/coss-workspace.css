@@ -99,7 +99,7 @@
    filter-chip remove icon with a visible box. */
 :where(.coss-ui) *, :where(.coss-ui) *::before, :where(.coss-ui) *::after {box-sizing:border-box;border-color:var(--color-input)}
 :where(.coss-ui) [data-slot] {border-style:solid;border-width:0}
-:where(.coss-ui) :is([data-slot=dialog-popup],[data-slot=input-control],[data-slot=textarea-control],[data-slot=checkbox],[data-slot=button]) {border-width:1px}
+:where(.coss-ui) :is([data-slot=dialog-popup],[data-slot=input-control],[data-slot=textarea-control],[data-slot=checkbox],[data-slot=radio],[data-slot=button]) {border-width:1px}
 .coss-ui [data-slot=input] {background:transparent;color:inherit;font:inherit;border:0;transition:none}
 .coss-ui [data-slot=input-control]>[data-slot=input] {width:100%;max-width:none;min-width:0;flex:1;background:transparent}
 .coss-ui [data-slot=button] {font:inherit}
