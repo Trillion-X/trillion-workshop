@@ -749,6 +749,7 @@
                 {
                   "kind": "notice-when-something-shows-up.waiter-descriptor",
                   "id": "waiter:repository-main-line",
+                  "where": "workshop-main-line",
                   "is_active": true,
                   "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::repository-main-line",
                   "mechanism_leaf": "repository-main-line.mjs",
@@ -808,6 +809,7 @@
                 {
                   "kind": "notice-when-something-shows-up.waiter-descriptor",
                   "id": "waiter:replay-parked-folders-removed-out-of-the-workshop",
+                  "where": "workshop-main-line",
                   "is_active": true,
                   "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::repository-main-line",
                   "mechanism_leaf": "repository-main-line.mjs",
@@ -850,6 +852,7 @@
                 {
                   "kind": "notice-when-something-shows-up.waiter-descriptor",
                   "id": "waiter:replay-two-files-removed-no-new-home",
+                  "where": "workshop-main-line",
                   "is_active": true,
                   "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::repository-main-line",
                   "mechanism_leaf": "repository-main-line.mjs",
@@ -892,6 +895,7 @@
                 {
                   "kind": "notice-when-something-shows-up.waiter-descriptor",
                   "id": "waiter:replay-parked-files-left-with-additions",
+                  "where": "workshop-main-line",
                   "is_active": true,
                   "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::repository-main-line",
                   "mechanism_leaf": "repository-main-line.mjs",
@@ -934,6 +938,7 @@
                 {
                   "kind": "notice-when-something-shows-up.waiter-descriptor",
                   "id": "waiter:replay-line-endings-across-25-files",
+                  "where": "workshop-main-line",
                   "is_active": true,
                   "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::repository-main-line",
                   "mechanism_leaf": "repository-main-line.mjs",
@@ -976,6 +981,7 @@
                 {
                   "kind": "notice-when-something-shows-up.waiter-descriptor",
                   "id": "waiter:replay-additions-only",
+                  "where": "workshop-main-line",
                   "is_active": true,
                   "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::repository-main-line",
                   "mechanism_leaf": "repository-main-line.mjs",
@@ -1018,6 +1024,7 @@
                 {
                   "kind": "notice-when-something-shows-up.waiter-descriptor",
                   "id": "waiter:replay-additions-and-three-lines-removed",
+                  "where": "workshop-main-line",
                   "is_active": true,
                   "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::repository-main-line",
                   "mechanism_leaf": "repository-main-line.mjs",
@@ -1060,6 +1067,7 @@
                 {
                   "kind": "notice-when-something-shows-up.waiter-descriptor",
                   "id": "waiter:replay-rename-with-additions-and-small-removals",
+                  "where": "workshop-main-line",
                   "is_active": true,
                   "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::repository-main-line",
                   "mechanism_leaf": "repository-main-line.mjs",
