@@ -89,7 +89,7 @@
  *                       idle_in_transaction_session_timeout, so a hold the server
  *                       ends itself is never told)
  */
-import { readFileSync } from "node:fs";
+import { readGivenCredential } from "./given-credential.mjs";
 
 export const MECHANISM_REF = "package::notice-when-something-shows-up::mechanism::row-changes";
 const NAME = /^[a-z_][a-z0-9_]*$/;
@@ -290,7 +290,7 @@ export async function watchForTransitions(settings, handlers) {
   const own = readSettings(settings);
   const signal = handlers.signal;
   const keepState = handlers.keepState ?? (async () => {});
-  const connection = handlers.connection ?? readFileSync(handlers.credentialFd ?? own.connection_fd, "utf8").trim();
+  const connection = handlers.connection ?? readGivenCredential(handlers, own.connection_fd);
   let client;
   try {
     client = await (handlers.connect ?? connectWithPg)(connection);
