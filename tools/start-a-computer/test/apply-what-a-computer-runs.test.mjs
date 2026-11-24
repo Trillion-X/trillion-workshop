@@ -5,7 +5,11 @@
 import test from 'node:test';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
-import { applyWhatItRuns, runsDifferences } from '../do-work/start-a-computer.mjs';
+import { mkdirSync, mkdtempSync, readlinkSync, rmSync, symlinkSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { applyARow } from '../do-work/apply-a-computer-row.mjs';
+import { applyAComputerRow, applyWhatItRuns, computerRowApplyExit, computerRowApplyFailure, computerRowApplyReceipt, readRequest, runsDifferences } from '../do-work/start-a-computer.mjs';
 import { renderWhatItRuns } from '../do-work/render-what-a-computer-runs.mjs';
 
 const machine = { address: '192.0.2.9', ssh: { known_hosts: '/dev/null' } };
@@ -402,7 +406,7 @@ test('a new release starts in the other slot, and the slot that ran stops only o
 
 test('a release that never answers is stopped again, and the slot that ran keeps serving', async () => {
   const { run, commands } = slotComputer({ active: ['example-place-a.service'], links: { 'current-a': 'b'.repeat(40) }, answers: { '127.0.0.1:7198': '502' } });
-  await assert.rejects(applyWhatItRuns(machine, slotted, run, {}, { wait: async () => {} }), /example-place-b\.service answered 502 on \/readyz, not 200, after its restart\. example-place-a\.service kept serving\./);
+  await assert.rejects(applyWhatItRuns(machine, slotted, run, {}, { wait: async () => {} }), /example-place-b\.service answered 502 on \/readyz, not 200, after its restart\. Candidate stop succeeded; no incumbent retirement was requested for this unit\./);
   assert.ok(commands.some(({ command }) => command === "systemctl stop 'example-place-b.service'"));
   assert.equal(commands.some(({ command }) => command.includes("'example-place-a.service'") && /disable|stop|restart/.test(command)), false);
 });
@@ -414,7 +418,7 @@ test('a new slot that answers but fails its switch_check_command is stopped agai
     if (command.startsWith('check-kept ')) { failing.commands.push({ command }); throw Object.assign(new Error('2 kept sessions not running'), { code: 1 }); }
     return failing.run(m, command, input);
   };
-  await assert.rejects(applyWhatItRuns(machine, checked, run, {}, { wait: async () => {} }), /example-place-b\.service's switch_check_command did not pass after the restart: 2 kept sessions not running example-place-a\.service kept serving\./);
+  await assert.rejects(applyWhatItRuns(machine, checked, run, {}, { wait: async () => {} }), /example-place-b\.service's switch_check_command did not pass after the restart: 2 kept sessions not running Candidate stop succeeded; no incumbent retirement was requested for this unit\./);
   assert.equal(failing.commands.filter(({ command }) => command === 'check-kept example-place-b.service 127.0.0.1:7198').length, 2, 'tried every 5 s for switch_check_seconds');
   assert.ok(failing.commands.some(({ command }) => command === "systemctl stop 'example-place-b.service'"));
   assert.equal(failing.commands.some(({ command }) => command.includes("'example-place-a.service'") && /disable|stop|restart/.test(command)), false);
@@ -423,6 +427,139 @@ test('a new slot that answers but fails its switch_check_command is stopped agai
   assert.deepEqual((await applyWhatItRuns(machine, checked, ok)).switched, [{ to: 'example-place-b.service', from: ['example-place-a.service'] }]);
   const at = text => passing.commands.findIndex(({ command }) => command.startsWith(text));
   assert.ok(at('check-kept ') < at("systemctl disable --now 'example-place-a.service'"), 'the slot that ran stops only after the check passed');
+});
+
+test('a provider refusal after a slot switch keeps the row and pages aligned with the running process', async t => {
+  const oldCommit = 'b'.repeat(40);
+  const incumbent = 'example-place-a.service', candidate = 'example-place-b.service';
+  const host = 'place.example.test', tree = 'e'.repeat(40);
+  const candidateProof = `check-release ${candidate} 127.0.0.1:7198`;
+  const stopOldSlot = `systemctl disable --now '${incumbent}'`;
+  for (const [scenario, expectedExit] of [['before switch', 1], ['retirement reply lost', 5], ['provider refuses', 4], ['ordinary reload reply lost', 1]]) {
+    await t.test(scenario, async t => {
+      const root = mkdtempSync(join(tmpdir(), 'row-slot-dns-'));
+      t.after(() => rmSync(root, { recursive: true, force: true }));
+      const pages = join(root, 'pages');
+      for (const folder of [pages, join(root, oldCommit), join(root, SOURCE_COMMIT)]) mkdirSync(folder);
+      const site = join(pages, host);
+      symlinkSync(join(root, oldCommit), site);
+      const original = { name: 'example-box', address: machine.address, runs: {
+        ...slotted, rendered_from_workshop: oldCommit,
+        units: [{ ...slotted.units[0], pages_hosts: [host], source: { ...slotted.units[0].source, commit: oldCommit },
+          switch_check_command: 'check-release {unit} {listen}', switch_check_seconds: 5 }],
+        names: [{ host_name: host, provider: 'tools/start-a-computer/providers/hetzner-dns.json' }],
+      } };
+      if (scenario === 'ordinary reload reply lost') original.runs.units[0].files = [
+        { path: '/etc/example-place/reload.conf', text: 'new\n', then: [['example-reload']] },
+      ];
+      let row = structuredClone(original), writes = 0, dnsReads = 0, stoppedProbes = 0, receipt;
+      const active = [incumbent], selected = { 'current-a': oldCommit };
+      const pids = new Map([[incumbent, 101]]), enabled = new Set([incumbent]);
+      const fixture = slotComputer({ active, links: selected });
+      const remove = unit => {
+        assert.ok(pids.delete(unit), `${unit} must have a live process to remove`);
+        active.splice(active.indexOf(unit), 1);
+      };
+      const run = async (machine, command, input) => {
+        if (command.startsWith('sh -c ')) {
+          const sent = sourceSent(command);
+          assert.equal(sent.current, 'current-b');
+          assert.equal(sent.commit, SOURCE_COMMIT);
+          selected['current-b'] = sent.commit;
+        }
+        if (command === `systemctl restart '${candidate}'`) { active.push(candidate); pids.set(candidate, 202); }
+        if (command.startsWith('check-release ')) {
+          assert.equal(command, candidateProof);
+          assert.equal(pids.get(candidate), 202);
+          assert.equal(selected['current-b'], SOURCE_COMMIT);
+          if (scenario === 'before switch') throw new Error('candidate did not prove its release');
+          return '';
+        }
+        if (command === `systemctl stop '${candidate}'`) remove(candidate);
+        if (command.startsWith(`systemctl enable '${candidate}'`)) enabled.add(candidate);
+        if (command.startsWith(stopOldSlot)) {
+          remove(incumbent);
+          enabled.delete(incumbent);
+          if (scenario === 'retirement reply lost') throw new Error('retirement reply lost');
+        }
+        if (command === "'example-reload'") {
+          assert.equal(scenario, 'ordinary reload reply lost');
+          assert.deepEqual([...pids], [[candidate, 202]]);
+          throw Object.assign(new Error('ordinary reload reply lost'), { code: 255 });
+        }
+        return fixture.run(machine, command, input);
+      };
+      let failure;
+      const outcome = await applyARow({
+        computer: row.name, workshop_commit: tree,
+        edits: [{ at: 'runs.units[unit=example-place.service].source.commit', from: oldCommit, to: SOURCE_COMMIT }],
+        links: { folder: pages, set: { [host]: join(root, SOURCE_COMMIT) } },
+      }, {}, {
+        targets: { machines: { [machine.address]: { ssh: { known_hosts: '/hosts', identity_file: '/key' }, pages_folder: pages } } },
+        store: {
+          read: async () => ({ computer: structuredClone(row), siteSetting: null }),
+          write: async (_, value) => { writes++; row = structuredClone(value); return { read_back_equal: true }; },
+        },
+        isAncestor: async () => true, heldValues: async () => ({ 'hetzner-api-token': 'fixture-only-dns-token' }),
+        runFolder: () => root, archive: async (_, folder) => mkdirSync(folder), checkApplyProtocol: async () => {},
+        startProbe: async () => ({ stop: async () => { stoppedProbes++; return { started: new Date(0).toISOString(), stopped: new Date(1).toISOString(), sent: 1, ok: 1, failed: 0, retried: 0, slow: 0 }; } }),
+        now: () => 0, sleep: async () => {},
+        runApply: async ({ requestFile, held }) => {
+          try {
+            receipt = await applyAComputerRow(readRequest(requestFile), { run, held, fetchImpl: async () => {
+              dnsReads++;
+              assert.deepEqual([...pids], [[candidate, 202]], 'the provider is contacted only after retirement');
+              return new Response('{"error":{"message":"fixture refused the DNS update"}}', { status: 403 });
+            } });
+            return { exit: computerRowApplyExit(receipt), receipt: computerRowApplyReceipt(receipt) };
+          } catch (error) {
+            assert.match(error.message, scenario === 'before switch' ? /Candidate stop succeeded/ : scenario === 'retirement reply lost' ? /did not confirm retire/ : /reply lost/);
+            const exit = error.exit ?? 1, typed = computerRowApplyFailure(error);
+            if (scenario === 'ordinary reload reply lost') {
+              assert.equal(exit, 1);
+              assert.equal(typed, undefined);
+            }
+            return { exit, receipt: typed };
+          }
+        },
+      }).catch(error => { failure = error; });
+      assert.equal(outcome?.code ?? failure?.exit, expectedExit);
+      assert.equal(stoppedProbes, 1);
+      if (scenario === 'before switch') {
+        assert.deepEqual([...pids], [[incumbent, 101]]);
+        assert.deepEqual([...enabled], [incumbent]);
+        assert.equal(selected['current-a'], oldCommit);
+        assert.deepEqual(row, original);
+        assert.equal(outcome.summary.row_put_back, true);
+        assert.equal(readlinkSync(site), join(root, oldCommit));
+        assert.equal(writes, 2);
+      } else {
+        assert.deepEqual([...pids], [[candidate, 202]]);
+        assert.deepEqual([...enabled], [candidate]);
+        assert.equal(selected['current-b'], SOURCE_COMMIT);
+        const expectedRow = structuredClone(original);
+        expectedRow.runs.rendered_from_workshop = tree;
+        expectedRow.runs.units[0].source.commit = SOURCE_COMMIT;
+        assert.deepEqual(row, expectedRow);
+        assert.equal(outcome?.summary.row_put_back, undefined);
+        assert.equal(readlinkSync(site), join(root, SOURCE_COMMIT));
+        assert.equal(writes, 1);
+        if (scenario === 'ordinary reload reply lost') {
+          assert.equal(failure?.apply_outcome, 'unknown_needs_readback');
+          assert.equal(failure.child_exit, 1, failure.cause?.stack ?? failure.stack);
+          assert.match(failure.message, /outcome is unknown/i);
+        }
+      }
+      if (scenario === 'provider refuses') {
+        assert.equal(dnsReads, 1);
+        assert.deepEqual(receipt.switched, [{ to: candidate, from: [incumbent] }]);
+        assert.match(receipt.names_unconfirmed, /403|refused/);
+      } else {
+        assert.equal(dnsReads, 0);
+        if (scenario === 'retirement reply lost') assert.equal(outcome.summary.apply_outcome, 'slot_switch_unconfirmed');
+      }
+    });
+  }
 });
 
 // A slot boots only when MemAvailable holds what it needs (the unit's start_headroom_bytes, else the running slot's MemoryCurrent)

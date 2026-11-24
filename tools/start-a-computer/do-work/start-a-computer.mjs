@@ -471,7 +471,8 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   // and pages (a site's bundles) can be larger than one argument may be.
   // A unit that keeps its key sealed has set-up make no plain key file.
   const setUpUnits = runs.units.map(({ unit, user, state, builds, key_file, key_sealed_file, folders, node_bin }) => ({ unit, user, state, builds, key_file: key_sealed_file ? undefined : key_file, folders, node_bin }));
-  if (accounts.includes(false) || nodeMissing || foldersMissing || programsMissing || portsClosed.length) await run(machine, `sh -s -- ${q(JSON.stringify({ units: setUpUnits }))} ${q(JSON.stringify(machineData))}`, readFileSync(SETUP));
+  const needsSetup = accounts.includes(false) || nodeMissing || foldersMissing || programsMissing || portsClosed.length > 0;
+  if (needsSetup) await run(machine, `sh -s -- ${q(JSON.stringify({ units: setUpUnits }))} ${q(JSON.stringify(machineData))}`, readFileSync(SETUP));
   await sealTheKeys(machine, keys, run);
   for (const unit of missing) {
     if (unit.on_computer) { await run(machine, onComputerSeal(readOf, unit)).catch(error => { throw error.code === 4 ? notOnComputer(unit) : error; }); continue; }
@@ -574,7 +575,12 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   const switched = [], booted = [];
   for (const { group, target } of switching) {
     await memoryForASlot(group, target);
-    await run(machine, `systemctl restart ${q(target.unit)}`);
+    const changeSlot = (unit, phase, command) => run(machine, command).catch(cause => {
+      throw Object.assign(new Error(`The apply did not confirm ${phase} for ${unit.unit}; read back the slots before retrying.`, { cause }), {
+        exit: SLOT_SWITCH_UNCONFIRMED_EXIT, slot_switch_unconfirmed: { candidate: target.unit, affected_unit: unit.unit, phase },
+      });
+    });
+    await changeSlot(target, 'restart', `systemctl restart ${q(target.unit)}`);
     try {
       await bootCheck(target.unit);
       // A slotted unit may name what must also hold on the new slot before the one that ran stops (`switch_check_command`, run
@@ -586,8 +592,14 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
       }
     }
     catch (error) {
-      await run(machine, `systemctl stop ${q(target.unit)}`).catch(() => {});
-      throw Object.assign(error, { message: `${error.message} ${group.active.length ? `${group.active.map(unit => unit.unit).join(' and ')} kept serving.` : 'No slot of it serves.'}` });
+      await changeSlot(target, 'stop', `systemctl stop ${q(target.unit)}`);
+      error.message = `${error.message} Candidate stop succeeded; no incumbent retirement was requested for this unit.`;
+      // Only the standby was prepared; no other changes to what serves were requested.
+      if (switching.length === 1 && group.active.length === 1 && !needsSetup && !writes.length && !present.length && !usersPresent.length &&
+          !missing.length && !keysOwed.length && !builds.length) {
+        error.slot_not_switched = { candidate: target.unit, incumbent: group.active[0].unit, candidate_stopped: true };
+      }
+      throw error;
     }
     booted.push(target.unit);
     // The new slot's peak since its start, now that it passed its checks, is the start peak the next switch must find room for.
@@ -596,9 +608,9 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
       const peak = (await run(machine, `systemctl show -p MemoryPeak --value ${q(target.unit)}`).catch(() => '')).trim();
       if (/^[0-9]+$/.test(peak)) await run(machine, `printf '%s\\n' ${q(peak)} > ${q(`${target.state}/start-peak-bytes`)}`).catch(() => {});
     }
-    await run(machine, `systemctl enable ${q(target.unit)} >/dev/null 2>&1`);
+    await changeSlot(target, 'enable', `systemctl enable ${q(target.unit)} >/dev/null 2>&1`);
     const stopped = group.units.filter(unit => unit !== target);
-    for (const unit of stopped) await run(machine, `systemctl disable --now ${q(unit.unit)} >/dev/null 2>&1`);
+    for (const unit of stopped) await changeSlot(unit, 'retire', `systemctl disable --now ${q(unit.unit)} >/dev/null 2>&1`);
     switched.push({ to: target.unit, from: group.active.filter(unit => unit !== target).map(unit => unit.unit) });
   }
   for (const unit of units) {
@@ -786,8 +798,25 @@ export function checkPagesFollowCommit(request) {
 export async function applyAComputerRow(request, { held = {}, run = onMachine, fetchImpl = fetch } = {}) {
   checkPagesFollowCommit(request);
   const applied = await applyWhatItRuns({ ssh: request.ssh, address: request.machine.address }, runsOf(request), run, held, { pages: readPages(request), computer: request.machine.name });
-  const names = await keepTheNames(request, { held, fetchImpl, apply: true });
-  return names.length ? { ...applied, names } : applied;
+  try {
+    const names = await keepTheNames(request, { held, fetchImpl, apply: true });
+    return names.length ? { ...applied, names } : applied;
+  } catch (error) {
+    // Successful unit apply is distinct from names that the provider did not confirm.
+    return { ...applied, names_unconfirmed: error instanceof Error ? error.message : 'DNS failed without a verified result.' };
+  }
+}
+
+export const ROW_APPLY_RESULT_PROTOCOL = 1;
+export const SLOT_SWITCH_UNCONFIRMED_EXIT = 5;
+export const computerRowApplyExit = answer => answer.names_unconfirmed !== undefined || (answer.names ?? []).some(name => name.unanswered) ? 4 : 0;
+export const computerRowApplyReceipt = answer => ({ ...answer, row_apply_protocol: ROW_APPLY_RESULT_PROTOCOL });
+
+export function computerRowApplyFailure(error) {
+  const { apply_checked, slot_not_switched, slot_switch_unconfirmed } = error;
+  if (apply_checked || slot_not_switched || slot_switch_unconfirmed) {
+    return computerRowApplyReceipt({ apply_checked, slot_not_switched, slot_switch_unconfirmed, error: error.message });
+  }
 }
 
 /** What the computer the request names runs that its row does not render: [] when it matches. A name of the row that does not
@@ -976,9 +1005,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       const named = (request.computer_row?.runs?.names ?? []).length > 0;
       const held = (operation === 'apply' && runs.units.some(needsHeld)) || named ? heldValues(await pipe(5)) : {};
       const answer = operation === 'apply' ? await applyAComputerRow(request, { held }) : await computerRowDifferences(request, { held });
-      process.stdout.write(`${JSON.stringify(answer)}\n`);
-      // 4: the units are applied and a name's DNS provider did not answer, so that name was left as it was (1 stays a failed apply).
-      process.exit(operation === 'apply' && (answer.names ?? []).some(name => name.unanswered) ? 4 : 0);
+      process.stdout.write(`${JSON.stringify(operation === 'apply' ? computerRowApplyReceipt(answer) : answer)}\n`);
+      process.exit(operation === 'apply' ? computerRowApplyExit(answer) : 0);
     }
     if (!first || third || !['price', 'rent', 'start', 'status', 'unit', 'remove'].includes(operation) || (operation === 'unit') !== Boolean(second)) throw Object.assign(new Error(usage), { exit: 2 });
     const asked = ['price', 'rent', 'start'].includes(operation), lease = asked ? null : await readLease(fileStore(resolvePath(first)));
@@ -995,7 +1023,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.stdout.write(`${JSON.stringify(answer)}\n`);
     if (answer.alert === true) process.exitCode = 3;
   } catch (error) {
-    if (error.apply_checked) process.stdout.write(`${JSON.stringify({ apply_checked: error.apply_checked, error: error.message })}\n`);
+    const receipt = computerRowApplyFailure(error);
+    if (receipt) process.stdout.write(`${JSON.stringify(receipt)}\n`);
     process.stderr.write(`${error.message}\n`);
     process.exitCode = error.exit ?? 1;
   }

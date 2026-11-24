@@ -1,5 +1,7 @@
 // apply-a-computer-row.mjs [--dry-run] --targets FILE REQUEST_FILE   (the database connection string on descriptor 3)
 //
+// Verify the selected child's result contract and a completed response from every probe URL before a row or link write.
+// Missing machine results need readback; missing final probe evidence is separate and never rolls back a verified switch.
 // Changes a computer's row in its database and applies it to that computer, in one run: read the row, make the request's
 // compare-and-set edits, write it back (read back equal), unpack the Workshop commit whose start-a-computer applies, probe the
 // computer's public addresses while the apply runs, run the apply, and print one JSON summary. The exit code is the apply's.
@@ -28,16 +30,40 @@
 // check, says what the check found, and writes nothing.
 import { spawn, execFile } from 'node:child_process';
 import { resolve4 } from 'node:dns/promises';
-import { closeSync, createReadStream, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, readlinkSync, realpathSync, renameSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { closeSync, createReadStream, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, readlinkSync, readSync, realpathSync, renameSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { StringDecoder } from 'node:string_decoder';
+import { setTimeout as delay } from 'node:timers/promises';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isDeepStrictEqual, promisify } from 'node:util';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const run = promisify(execFile);
 const refused = message => Object.assign(new Error(message), { exit: 2 });
 const COMMIT = /^[0-9a-f]{40}$/;
+const APPLY_PROTOCOL = 1;
+const SWITCH_UNCONFIRMED = 5;
+const PROBE_EVIDENCE_UNCONFIRMED = 7;
+
+function confirmedApplyExit({ exit, receipt } = {}) {
+  if (receipt?.row_apply_protocol === APPLY_PROTOCOL) {
+    if (exit === SWITCH_UNCONFIRMED && isObject(receipt.slot_switch_unconfirmed)) return exit;
+    const stopped = receipt.slot_not_switched;
+    if ((exit === 1 || exit === 2) && stopped?.candidate_stopped === true &&
+        typeof stopped.incumbent === 'string' && typeof stopped.candidate === 'string' && stopped.incumbent !== stopped.candidate) return exit;
+    const validUnits = !Object.hasOwn(receipt, 'error') && Array.isArray(receipt.written) && receipt.written.every(path => typeof path === 'string') &&
+      Array.isArray(receipt.restarted) && receipt.restarted.every(unit => typeof unit === 'string');
+    const validNames = receipt.names === undefined || (Array.isArray(receipt.names) && receipt.names.every(isObject));
+    if (validUnits && validNames && (receipt.names_unconfirmed === undefined || typeof receipt.names_unconfirmed === 'string')) {
+      const namesPending = receipt.names_unconfirmed !== undefined || (receipt.names ?? []).some(name => name.unanswered);
+      if (exit === (namesPending ? 4 : 0)) return exit;
+    }
+  }
+  throw Object.assign(new Error(`the apply ${Number.isInteger(exit) ? `exited ${exit}` : 'did not report an exit'} without a matching machine result.`), {
+    exit: exit || 1, child_exit: exit,
+  });
+}
 
 /** A path of the DATA: `{home}` is the home of whoever runs this, read at run time. */
 const placed = (path, tokens = {}) => Object.entries({ home: homedir(), ...tokens }).reduce((text, [name, value]) => text.replaceAll(`{${name}}`, value), path);
@@ -141,25 +167,44 @@ export function applyEdits(row, edits) {
   return { row: edited, changes };
 }
 
-/** The symlinks of `folder` set to `set` (name to target); the returned function puts each back as it was (absent, or its old target). */
+/** Set the links and return their undo. If installation fails partway through, undo the links already set. */
 export function setLinks(folder, set) {
-  const before = Object.keys(set).map(name => {
+  const readTarget = path => {
+    try { return readlinkSync(path); } catch (error) { if (error.code !== 'ENOENT') throw error; return null; }
+  };
+  const changes = Object.entries(set).map(([name, to]) => {
     const path = join(folder, name);
-    let target = null;
-    try { target = readlinkSync(path); } catch (error) { if (error.code !== 'ENOENT' && error.code !== 'EINVAL') throw error; }
-    return { path, target };
-  });
+    return { path, from: readTarget(path), to };
+  }).filter(({ from, to }) => from !== to);
   const remove = path => { try { unlinkSync(path); } catch (error) { if (error.code !== 'ENOENT') throw error; } };
   const point = (path, target) => {
     const staged = `${path}.apply-${process.pid}`;
-    remove(staged);
     symlinkSync(target, staged);
-    renameSync(staged, path);
+    try { renameSync(staged, path); } catch (error) { remove(staged); throw error; }
   };
-  for (const [name, target] of Object.entries(set)) point(join(folder, name), target);
-  return () => {
-    for (const { path, target } of before) { if (target === null) remove(path); else point(path, target); }
+  const installed = [];
+  const put = () => {
+    const errors = [];
+    for (const { path, from, to } of installed) {
+      try {
+        const current = readTarget(path);
+        if (current === from) continue;
+        if (current !== to) throw new Error(`${path} changed since this run set it`);
+        if (from === null) remove(path); else point(path, from);
+      } catch (error) { errors.push(error); }
+    }
+    if (errors.length) throw new AggregateError(errors, errors.map(error => error.message).join('; '));
   };
+  try {
+    for (const change of changes) {
+      point(change.path, change.to);
+      installed.push(change);
+    }
+  } catch (error) {
+    try { put(); } catch (restoreError) { throw new Error(`${error.message}; could not restore links: ${restoreError.message}`, { cause: error }); }
+    throw error;
+  }
+  return put;
 }
 
 /** The host names a row says it answers (`host_name`, `host`, `hosts`, `accepts_hosts` anywhere in it), in the order found. */
@@ -224,8 +269,6 @@ export async function applyARow(rawRequest, { dryRun = false }, deps) {
   row.runs.rendered_from_workshop = request.workshop_commit;
   const held = await deps.heldValues(heldNamesOf(row));
   const changed = !isDeepStrictEqual(row, computer);
-  const written = changed && (await deps.store.write(row.name, row)).read_back_equal === true;
-  if (changed && !written) throw new Error('the database did not read back what was written; no apply was run.');
 
   const log = deps.runFolder(row.name);
   const rowFolder = join(log, 'row'), tree = join(log, 'tree');
@@ -237,6 +280,7 @@ export async function applyARow(rawRequest, { dryRun = false }, deps) {
     writeFileSync(join(rowFolder, siteFile), `${siteSetting}\n`);
   }
   await deps.archive(request.workshop_commit, tree);
+  await deps.checkApplyProtocol(tree);
   const applyRequest = join(log, 'request.json');
   writeFileSync(applyRequest, `${JSON.stringify({
     machine: { address: row.address },
@@ -245,34 +289,58 @@ export async function applyARow(rawRequest, { dryRun = false }, deps) {
     ...(machine.pages_folder && { pages_folder: placed(machine.pages_folder) }),
   }, null, 1)}\n`);
 
-  const put = request.links ? setLinks(placed(request.links.folder), Object.fromEntries(Object.entries(request.links.set).map(([name, target]) => [name, placed(target)]))) : () => {};
   const hosts = hostsOf(row).slice(0, deps.targets.probe?.max_urls ?? 6);
   const urls = hosts.length ? hosts.map(host => `https://${host}/`) : [`https://${row.address}/`];
-  const probe = await deps.startProbe({ tree, urls, log: join(log, 'probe-requests.jsonl') });
   const started = deps.now();
-  let code = 1, ended = started, probed = null, putBack = null;
+  const probe = await deps.startProbe({ tree, urls, log: join(log, 'probe-requests.jsonl'), deadlineMs: deps.targets.probe?.startup_deadline_ms });
+  let written = false, applyStarted = false, put, code, ended, probed, putBack, failure, probeFailure;
+  const problems = [];
   try {
-    await deps.sleep(deps.targets.probe?.start_wait_ms ?? 0);
-    code = await deps.runApply({ tree, requestFile: applyRequest, held, out: join(log, 'apply.out'), err: join(log, 'apply.err') });
+    written = changed && (await deps.store.write(row.name, row)).read_back_equal === true;
+    if (changed && !written) throw new Error('the database did not read back what was written; no apply was run.');
+    if (request.links) put = setLinks(placed(request.links.folder), Object.fromEntries(Object.entries(request.links.set).map(([name, target]) => [name, placed(target)])));
+    applyStarted = true;
+    code = confirmedApplyExit(await deps.runApply({ tree, requestFile: applyRequest, held, out: join(log, 'apply.out'), err: join(log, 'apply.err') }));
+  } catch (error) {
+    failure = error;
+    if (error?.apply_not_started === true) applyStarted = false;
+    if (applyStarted && code === undefined) problems.push(`The apply outcome is unknown; the row and links were not put back. Read back the machine before retrying; logs are in ${log}.`);
   } finally {
     ended = deps.now();
-    if (code !== 0) {
-      put();
-      if (written) putBack = await deps.store.write(row.name, computer).then(({ read_back_equal }) => ({ row_put_back: read_back_equal }), error => ({ row_put_back: false, row_put_back_error: error.message }));
+    if (!applyStarted || code === 1 || code === 2) {
+      try { put?.(); } catch (error) { problems.push(`Links were not all put back: ${error.message}`); }
+      if (written) {
+        try {
+          const { read_back_equal } = await deps.store.write(row.name, computer);
+          putBack = { row_put_back: read_back_equal };
+        } catch (error) { putBack = { row_put_back: false, row_put_back_error: error.message }; }
+      }
     }
-    await deps.sleep(deps.targets.probe?.stop_after_ms ?? 0);
-    probed = await probe.stop();
+    try { if (applyStarted) await deps.sleep(deps.targets.probe?.stop_after_ms ?? 0); }
+    catch (error) { probeFailure = `The probe's after-apply wait failed: ${error.message}`; }
+    try {
+      probed = await probe.stop();
+      if (!completeProbeSummary(probed)) throw new Error('the probe did not report complete measurement totals.');
+    } catch (error) { probeFailure = [probeFailure, error.message].filter(Boolean).join(' '); }
   }
-  const { failures, slow_requests, ...totals } = probed ?? {};
-  // The probe keeps its connections open, so it never sees a second address a name answers with; each name is looked up fresh.
-  const elsewhere = code === 0 ? await namesAnsweringElsewhere(row, deps.addressesOf) : [];
+  if (failure || problems.length) {
+    if (!problems.length) throw failure;
+    throw Object.assign(new Error([failure?.message, ...problems].filter(Boolean).join(' '), { cause: failure }), {
+      exit: failure?.exit ?? (code || 1),
+      ...(applyStarted && code === undefined && { apply_outcome: 'unknown_needs_readback', child_exit: failure?.child_exit, log_folder: log }),
+    });
+  }
+  const { failures, slow_requests, ...totals } = completeProbeSummary(probed) ? probed : {};
+  const elsewhere = code === 0 && !probeFailure ? await namesAnsweringElsewhere(row, deps.addressesOf) : [];
   return {
-    code: elsewhere.length ? 6 : code,
+    code: elsewhere.length ? 6 : code || (probeFailure ? PROBE_EVIDENCE_UNCONFIRMED : 0),
     summary: {
       computer: row.name, workshop_commit: request.workshop_commit, workshop_check: workshopCheck, row_written: written, ...putBack,
       started: timeOf(started), ended: timeOf(ended), apply_exit: code,
-      ...(request.links && { links: code === 0 ? 'set' : 'put back' }),
+      ...(code === SWITCH_UNCONFIRMED && { apply_outcome: 'slot_switch_unconfirmed' }),
+      ...(request.links && { links: code === 1 || code === 2 ? 'put back' : 'set' }),
       ...(elsewhere.length && { names_answering_elsewhere: elsewhere }),
+      ...(probeFailure && { probe_outcome: 'evidence_unconfirmed', probe_error: probeFailure }),
       probe: { urls, ...totals }, log_folder: log,
     },
   };
@@ -325,21 +393,26 @@ const objectsOf = ({ columns, rows }) => rows.map(row => (Array.isArray(row) ? O
  */
 export function sqlRowStore(sql) {
   const readAs = new Map();
+  const valuesOf = ({ address, os, arch, libc, what_this_is, runs }) => [address, os, arch, libc, what_this_is, runs];
   return {
     async read(name) {
       const [row] = objectsOf(await sql("select name, address, os, arch, libc, what_this_is, runs::text as runs, (select value::text from setting where name = 'site') as site from computer where name = $1", [name]));
       if (!row) throw refused(`no computer row named ${name}`);
-      readAs.set(name, { runs: row.runs, what_this_is: row.what_this_is });
+      readAs.set(name, valuesOf(row));
       const computer = { _what: row.what_this_is, name: row.name, address: row.address, os: row.os, arch: row.arch, ...(row.libc ? { libc: row.libc } : {}), runs: JSON.parse(row.runs) };
       return { computer, siteSetting: row.site ?? null };
     },
     async write(name, computer) {
       const was = readAs.get(name);
-      const [now] = objectsOf(await sql('update computer set address = $2, os = $3, arch = $4, libc = $5, what_this_is = $6, runs = $7 where name = $1 and runs::text = $8 and what_this_is is not distinct from $9 returning runs::text as runs',
-        [name, computer.address, computer.os, computer.arch, computer.libc ?? null, computer._what, JSON.stringify(computer.runs), was.runs, was.what_this_is]));
+      const next = [computer.address, computer.os, computer.arch, computer.libc ?? null, computer._what, JSON.stringify(computer.runs)];
+      const [now] = objectsOf(await sql(`update computer set address = $2, os = $3, arch = $4, libc = $5, what_this_is = $6, runs = $7
+        where name = $1 and address is not distinct from $8 and os is not distinct from $9 and arch is not distinct from $10
+        and libc is not distinct from $11 and what_this_is is not distinct from $12 and runs::text = $13
+        returning address, os, arch, libc, what_this_is, runs::text as runs`, [name, ...next, ...was]));
       if (!now) throw new Error(`the ${name} row changed since it was read; read it again and redo the edit`);
-      readAs.set(name, { runs: now.runs, what_this_is: computer._what });
-      return { read_back_equal: now.runs === JSON.stringify(computer.runs) };
+      const read_back_equal = isDeepStrictEqual(valuesOf(now), next);
+      if (read_back_equal) readAs.set(name, next);
+      return { read_back_equal };
     },
   };
 }
@@ -380,6 +453,84 @@ const heldValuesBy = reader => async names => {
  *  start-a-computer exited 0 having done nothing (12:58 AM CST Nov 22). */
 export const runFolder = name => realpathSync(mkdtempSync(join(tmpdir(), `row-${name}-`)));
 
+const computerEntry = tree => join(tree, 'tools/start-a-computer/do-work/start-a-computer.mjs');
+
+/** Importing the pinned module verifies its declaration. The apply child is started only after the row CAS. */
+export async function checkApplyProtocol(tree) {
+  const entry = computerEntry(tree);
+  if (!existsSync(entry)) throw refused('the selected Workshop commit has no computer apply program.');
+  const owner = await import(pathToFileURL(entry).href);
+  if (owner.ROW_APPLY_RESULT_PROTOCOL !== APPLY_PROTOCOL) throw refused('the selected Workshop commit cannot report the required computer apply result; no changes were made.');
+}
+
+function completeProbeSummary(value) {
+  return isObject(value) && ['sent', 'ok', 'failed', 'retried', 'slow'].every(key => Number.isSafeInteger(value[key]) && value[key] >= 0) &&
+    value.sent > 0 && value.ok + value.failed <= value.sent && value.retried <= value.sent && value.slow <= value.sent &&
+    typeof value.started === 'string' && typeof value.stopped === 'string' &&
+    Number.isFinite(Date.parse(value.started)) && Date.parse(value.stopped) >= Date.parse(value.started);
+}
+
+/** Admit the apply only after each URL produces a clean, completed response in this run's own probe log. */
+export async function startApplyProbe({ tree, urls, log, deadlineMs }) {
+  const script = join(tree, 'tools/start-a-computer/do-work/probe-while-applying.mjs');
+  if (!existsSync(script)) throw new Error('the archived Workshop commit has no apply probe.');
+  if (!Number.isSafeInteger(deadlineMs) || deadlineMs <= 0 || !urls.length) {
+    throw refused('the apply probe needs a positive startup deadline and at least one URL.');
+  }
+  const until = performance.now() + deadlineMs;
+  // Exclusive create makes stale lines unusable even if a caller accidentally reuses the run folder.
+  const fd = openSync(log, 'wx+', 0o600);
+  let child, closed, out = '';
+  try {
+    child = spawn(process.execPath, [script, '--log', log, ...urls], { stdio: ['ignore', 'pipe', 'inherit'] });
+    child.stdout.on('data', chunk => { out += chunk; });
+    closed = new Promise(done => child.once('close', (code, signal) => done({ code, signal })));
+    await new Promise((done, fail) => child.once('spawn', done).on('error', fail));
+    const required = new Set(urls), pending = new Set(required);
+    const bytes = Buffer.alloc(4096), decode = new StringDecoder('utf8');
+    let rest = '';
+    for (;;) {
+      if (child.exitCode !== null || child.signalCode !== null) {
+        throw new Error(`the probe exited (${child.signalCode ?? child.exitCode}) before each URL completed a clean response; see ${log}.`);
+      }
+      if (performance.now() >= until) throw new Error(`the probe did not complete a clean response before its startup deadline for: ${[...pending].join(', ')}; see ${log}.`);
+      const count = readSync(fd, bytes, 0, bytes.length, null);
+      rest += decode.write(bytes.subarray(0, count));
+      const lines = rest.split('\n');
+      rest = lines.pop();
+      for (const line of lines) {
+        let sample;
+        try { sample = JSON.parse(line); } catch { continue; }
+        if (!isObject(sample) || !required.has(sample.url) || typeof sample.at !== 'string' || !Number.isFinite(Date.parse(sample.at)) ||
+            !Number.isFinite(sample.ms) || sample.ms < 0 || !Number.isFinite(sample.lag_ms) || sample.lag_ms < 0) continue;
+        if (Number.isInteger(sample.status) && sample.status >= 200 && sample.status < 400 &&
+            !Object.hasOwn(sample, 'error') && !Object.hasOwn(sample, 'retried')) pending.delete(sample.url);
+        else pending.add(sample.url);
+      }
+      if (rest.length > 65536) throw new Error(`the probe log has an oversized unfinished line; see ${log}.`);
+      if (!pending.size && count < bytes.length) break;
+      if (count < bytes.length) await delay(Math.max(0, Math.min(25, until - performance.now())));
+    }
+  } catch (error) {
+    if (child) child.kill('SIGKILL');
+    await closed;
+    throw error;
+  } finally { closeSync(fd); }
+  return { async stop() {
+    const asked = child.kill('SIGTERM');
+    // A last request can take two five-second attempts; do not wait forever when the child cannot finish.
+    const bounded = setTimeout(() => child.kill('SIGKILL'), 12000);
+    let result;
+    try { result = await closed; } finally { clearTimeout(bounded); }
+    const { code, signal } = result;
+    if (!asked || code !== 0 || signal !== null) throw new Error(`the probe closed without a normal measurement finish (${signal ?? code}); see ${log}.`);
+    let summary;
+    try { summary = JSON.parse(out); } catch { throw new Error(`the probe produced no valid final summary; see ${log}.`); }
+    if (!completeProbeSummary(summary)) throw new Error(`the probe did not report complete measurement totals; see ${log}.`);
+    return summary;
+  } };
+}
+
 const realDeps = ({ store, targets, workshop }) => ({
   store, targets,
   heldValues: heldValuesBy(targets.held_value_reader),
@@ -394,20 +545,35 @@ const realDeps = ({ store, targets, workshop }) => ({
     });
     if (existsSync(join(workshop, 'node_modules'))) symlinkSync(join(workshop, 'node_modules'), join(folder, 'node_modules'));
   },
-  async startProbe({ tree, urls, log }) {
-    const child = spawn(process.execPath, [join(tree, 'tools/start-a-computer/do-work/probe-while-applying.mjs'), '--log', log, ...urls], { stdio: ['ignore', 'pipe', 'inherit'] });
-    let out = '';
-    child.stdout.on('data', chunk => { out += chunk; });
-    const exited = new Promise(done => child.on('exit', done));
-    return { async stop() { child.kill('SIGTERM'); await exited; try { return JSON.parse(out); } catch { return null; } } };
-  },
+  checkApplyProtocol,
+  startProbe: startApplyProbe,
   async runApply({ tree, requestFile, held, out, err }) {
-    const [outFd, errFd] = [openSync(out, 'w'), openSync(err, 'w')];
+    let outFd, errFd, child;
     try {
-      const child = spawn(process.execPath, [join(tree, 'tools/start-a-computer/do-work/start-a-computer.mjs'), 'apply', requestFile], { cwd: tree, stdio: ['ignore', outFd, errFd, 'ignore', 'ignore', 'pipe'] });
-      child.stdio[5].end(JSON.stringify(held));
-      return await new Promise((done, fail) => child.on('error', fail).on('exit', (code, signal) => done(code ?? (signal ? 128 : 1))));
-    } finally { closeSync(outFd); closeSync(errFd); }
+      try {
+        outFd = openSync(out, 'w');
+        errFd = openSync(err, 'w');
+        child = spawn(process.execPath, [computerEntry(tree), 'apply', requestFile], { cwd: tree, stdio: ['ignore', outFd, errFd, 'ignore', 'ignore', 'pipe'] });
+      } catch (error) { throw Object.assign(error, { apply_not_started: true }); }
+      return await new Promise((done, fail) => {
+        let spawned = false;
+        child.once('spawn', () => { spawned = true; }).on('error', error => fail(Object.assign(error, { apply_not_started: !spawned })));
+        child.once('close', (exit, signal) => {
+          if (exit === null) {
+            fail(Object.assign(new Error(`the apply exited on ${signal} without reporting a result.`), { exit: 128 }));
+            return;
+          }
+          let receipt;
+          try { receipt = JSON.parse(readFileSync(out, 'utf8')); } catch { /* An absent or invalid receipt cannot attest to host effects. */ }
+          done({ exit, receipt });
+        });
+        // An apply that does not need held values may close its input without reading it. The child's result still decides.
+        child.stdio[5].on('error', () => {}).end(JSON.stringify(held));
+      });
+    } finally {
+      if (outFd !== undefined) closeSync(outFd);
+      if (errFd !== undefined) closeSync(errFd);
+    }
   },
   addressesOf: host => resolve4(host),
   isAncestor: isAncestorIn(workshop),
@@ -432,6 +598,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.stdout.write(`${JSON.stringify(summary, null, 1)}\n`);
     process.exitCode = code;
   } catch (error) {
+    const { apply_outcome, child_exit, log_folder } = error;
+    if (apply_outcome) process.stdout.write(`${JSON.stringify({ apply_outcome, child_exit, log_folder })}\n`);
     process.stderr.write(`${error.message}\n`);
     process.exitCode = error.exit ?? 1;
   }
