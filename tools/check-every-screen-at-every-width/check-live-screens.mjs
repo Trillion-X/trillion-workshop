@@ -22,16 +22,19 @@
 //
 // SHAPE
 //   checkLiveScreens({ pages, views?, until? }, host) -> { run, seconds, pages: [{ id, views: [{ view, new, old?, taps? }] }] }
-//     pages   [{ id, url, old_url?, sign_in?, ready?, taps? }]: id is a name for the page; url is the address a person opens;
+//     pages   [{ id, url, old_url?, sign_in?, reach?, ready?, finds?, taps? }]: id is a name for the page; url is the address a person opens;
 //             old_url is the address of the old way, measured the same way; sign_in is { kind: 'held-session' } (the cookies of
 //             the page's origin, read from the proof session the signed-in row mounts on fd 4); ready is a CSS selector that must be visible before the page is usable;
+//             finds is [{ name, text } or { name, appears: css }], read together on the new side before taps; each reports found and rendered.
 //             taps is [{ name, selector, expect: { appears?: css, text?: string, url_changes?: true, changes?: true } }], each tap
 //             made on the new side after its load, one after another, with every expect named there holding to count as worked.
 //     views   the view ids of views.json (phone, tablet, desktop); all of them when left out. A view's throttle is in live-screens.json.
 //     until   epoch milliseconds; a view not begun by then is answered as { view, skipped: 'until' }.
 //   A side is { status, first_paint_ms, first_contentful_paint_ms, usable_ms, blank_ms, longest_task_ms, console_errors,
-//   console_error_count, failed_requests, failed_request_count, picture, picture_kept, reason?, png_base64?, error?, signed_out? }.
+//   console_error_count, failed_requests, failed_request_count, picture, picture_kept, reason?, png_base64?, error?, signed_out?, finds? }.
 //   signed_out is true when a signed-in view ended on a sign-in path (live-screens.json sign_in_paths).
+//   capture_changed is true when the document or DOM changed across the picture: usable_ms and the finds' found/rendered
+//   are then null, with error capture_changed on each find. The witness measures DOM consistency, not pixel-only motion.
 //   A tap is { name, worked, ms, detail, picture, picture_kept, reason?, png_base64? }.
 //   Refuses (code refused, nothing is opened) a page without an id, url or unique id, an address that is not http or https, a
 //   view views.json does not name, an expect with no known key, and a sign-in cookie without a name or value. The signed-in row's
@@ -99,6 +102,20 @@ function reachOf(reach, what) {
   });
 }
 
+// finds: [{ name, text? | appears? }] read after the screen is usable, without a tap: whether the text is on the page or the
+// selector shows, and what it shows. A label a script renders is found only once the script has run.
+function findsOf(finds, what) {
+  if (finds === undefined) return [];
+  if (!Array.isArray(finds)) throw refuse(`${what}: finds is a list of { name, text } or { name, appears }.`);
+  return finds.map((find, at) => {
+    if (!find || typeof find.name !== 'string' || !find.name) throw refuse(`${what}: finds[${at}] needs a name.`);
+    const keys = Object.keys(find).filter(key => key !== 'name');
+    if (keys.length !== 1 || !['text', 'appears'].includes(keys[0])) throw refuse(`${what}: finds[${at}] names text or appears, one of them.`);
+    if (typeof find[keys[0]] !== 'string' || !find[keys[0]]) throw refuse(`${what}: finds[${at}].${keys[0]} is a non-empty string.`);
+    return find;
+  });
+}
+
 function tapsOf(taps, what) {
   if (taps === undefined) return [];
   if (!Array.isArray(taps)) throw refuse(`${what}: taps is a list of { name, selector, expect }.`);
@@ -145,6 +162,7 @@ export function planOf(input) {
       reach: reachOf(page.reach, what),
       ready: page.ready ?? null,
       taps: tapsOf(page.taps, what),
+      finds: findsOf(page.finds, what),
     };
   });
   return {
@@ -174,15 +192,77 @@ function measureInit({ idleMs, ready }) {
     live.lastLongEnd = Math.max(live.lastLongEnd, entry.startTime + entry.duration);
   });
   const shown = element => {
+    if (!element) return false;
     const box = element.getBoundingClientRect();
-    const style = getComputedStyle(element);
-    return box.width > 0 && box.height > 0 && style.visibility !== 'hidden' && style.display !== 'none' && Number(style.opacity) > 0;
+    if (box.width <= 0 || box.height <= 0) return false;
+    for (let parent = element; parent; parent = parent.parentElement) {
+      const style = getComputedStyle(parent);
+      if (style.visibility === 'hidden' || style.display === 'none' || Number(style.opacity) === 0) return false;
+    }
+    return true;
   };
   const painted = element => {
     if (!shown(element)) return false;
     if (/^(IMG|SVG|CANVAS|VIDEO|PICTURE|IFRAME|INPUT|BUTTON|SELECT|TEXTAREA)$/i.test(element.tagName)) return true;
     return [...element.childNodes].some(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '');
   };
+  // The same in-document check serves the first ready frame, reach steps and the final read. Keep it out of the timings.
+  const drawn = element => shown(element) && (painted(element) || [...element.querySelectorAll('*')].some(painted));
+  const hasDrawnReady = () => {
+    if (!ready) return true;
+    try { return [...document.querySelectorAll(ready)].some(drawn); } catch { return false; }
+  };
+  const visibleText = element => {
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    const parts = [];
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (node.textContent.trim() && shown(node.parentElement)) parts.push(node.textContent);
+    }
+    return parts.join(' ').replace(/\s+/g, ' ').trim();
+  };
+  const readFinds = finds => finds.map(find => {
+    const key = 'text' in find ? 'text' : 'appears';
+    try {
+      if (key === 'text') {
+        const text = find.text.replace(/\s+/g, ' ').trim();
+        const found = document.body ? visibleText(document.body).includes(text) : false;
+        return { ...find, found, rendered: found ? find.text : null };
+      }
+      const match = [...document.querySelectorAll(find.appears)].find(shown);
+      return { ...find, found: Boolean(match), rendered: match ? visibleText(match).slice(0, 200) : null };
+    } catch (error) {
+      return { ...find, found: false, rendered: null, error: String(error.message).split('\n')[0].slice(0, 300) };
+    }
+  });
+  // A capture is bracketed by one synchronous read on either side. The witness survives an empty-then-restored pane,
+  // but ignores the caret-only style writes Playwright itself makes while taking a picture.
+  let capture = null;
+  const withoutCaret = css => {
+    const style = document.createElement('span').style;
+    style.cssText = css ?? '';
+    style.removeProperty('caret-color');
+    return style.cssText;
+  };
+  const changedBy = records => records.some(record => record.type !== 'attributes' || record.attributeName !== 'style'
+    || withoutCaret(record.oldValue) !== withoutCaret(record.target.getAttribute('style')));
+  const snapshot = finds => ({ ...live, readyNow: hasDrawnReady(), finds: readFinds(finds) });
+  Object.defineProperties(live, {
+    hasDrawnReady: { value: hasDrawnReady },
+    beginCapture: { value: (finds, id) => {
+      const witness = { id, finds, changed: false, observer: new MutationObserver(records => { witness.changed ||= changedBy(records); }) };
+      witness.observer.observe(document, { subtree: true, childList: true, attributes: true, characterData: true, attributeOldValue: true });
+      capture = witness;
+      return { ...snapshot(finds), captureId: id };
+    } },
+    endCapture: { value: () => {
+      if (!capture) return null;
+      const witness = capture;
+      capture = null;
+      witness.changed ||= changedBy(witness.observer.takeRecords());
+      witness.observer.disconnect();
+      return { ...snapshot(witness.finds), captureId: witness.id, changed: witness.changed };
+    } },
+  });
   // A task that keeps the main thread busy shows as a gap between two frames; the observer may report it only later, so the
   // gap itself counts too (a frame that comes this long after the last one ran a task that long).
   let lastFrame = performance.now();
@@ -194,12 +274,7 @@ function measureInit({ idleMs, ready }) {
     }
     lastFrame = now;
     if (live.blankAt === null && document.body && [...document.body.querySelectorAll('*')].some(painted)) live.blankAt = now;
-    if (live.readyAt === null && ready) {
-      // The ready element counts only when it draws something (text, a picture or a control) inside it: a page's ready mark
-      // set on an empty pane is not a screen a person can use.
-      const drawn = element => shown(element) && (painted(element) || [...element.querySelectorAll('*')].some(painted));
-      try { if ([...document.querySelectorAll(ready)].some(drawn)) live.readyAt = now; } catch { /* a selector the page cannot match */ }
-    }
+    if (live.readyAt === null && ready && hasDrawnReady()) live.readyAt = now;
     if (live.loadAt === null && document.readyState === 'complete') live.loadAt = now;
     const settled = ready ? live.readyAt : live.loadAt;
     if (live.usableAt === null && settled !== null && now - live.lastLongEnd >= idleMs) live.usableAt = now;
@@ -334,24 +409,13 @@ async function reachSteps(page, reach) {
 
 // The screen after its reach steps is usable when its ready selector is visible with something drawn in it and the main
 // thread has been idle for usable_idle_ms; measured from the last reach tap (the screen's own time, not the page's load).
-async function usableAfter(page, ready, since) {
+async function usableAfter(page, since) {
   const deadline = Date.now() + LIVE.usable_within_ms;
   while (Date.now() < deadline) {
-    const usable = await page.evaluate(({ ready, idle }) => {
-      const shown = element => {
-        const box = element.getBoundingClientRect();
-        const style = getComputedStyle(element);
-        return box.width > 0 && box.height > 0 && style.visibility !== 'hidden' && style.display !== 'none' && Number(style.opacity) > 0;
-      };
-      const painted = element => {
-        if (!shown(element)) return false;
-        if (/^(IMG|SVG|CANVAS|VIDEO|PICTURE|IFRAME|INPUT|BUTTON|SELECT|TEXTAREA)$/i.test(element.tagName)) return true;
-        return [...element.childNodes].some(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '');
-      };
-      const drawn = element => shown(element) && (painted(element) || [...element.querySelectorAll('*')].some(painted));
-      const seen = !ready || [...document.querySelectorAll(ready)].some(drawn);
-      return seen && performance.now() - (window.__live?.lastLongEnd ?? 0) >= idle;
-    }, { ready, idle: LIVE.usable_idle_ms }).catch(() => false);
+    const usable = await page.evaluate(idle => {
+      const live = window.__live;
+      return live?.hasDrawnReady() && performance.now() - live.lastLongEnd >= idle;
+    }, LIVE.usable_idle_ms).catch(() => false);
     if (usable) return Date.now() - since;
     await new Promise(done => setTimeout(done, POLL_MS));
   }
@@ -359,7 +423,7 @@ async function usableAfter(page, ready, since) {
 }
 
 // One side of a view: a cold load in its own context, its reach steps, measured, pictured and (on the new side) tapped.
-async function measureSide({ browser, url, view, signIn, ready, reach = [], name, run, keep, taps = [] }) {
+async function measureSide({ browser, url, view, signIn, ready, reach = [], name, run, keep, capture, taps = [], finds = [] }) {
   const context = await browser.newContext({ viewport: view.viewport, isMobile: !!view.mobile, hasTouch: !!view.mobile, deviceScaleFactor: 1 });
   const errors = [];
   const failed = [];
@@ -389,13 +453,22 @@ async function measureSide({ browser, url, view, signIn, ready, reach = [], name
     if (!error && reach.length > 0) {
       try {
         reached = await reachSteps(page, reach);
-        usable = await usableAfter(page, ready, reached.lastTapAt ?? Date.now());
+        usable = await usableAfter(page, reached.lastTapAt ?? Date.now());
       } catch (caught) {
         error = `reach failed: ${firstLine(caught)}`;
       }
     }
-    const live = await page.evaluate(() => window.__live ?? null).catch(() => null);
-    const bytes = await page.screenshot({ type: 'png', caret: 'hide' }).catch(() => null);
+    const captureId = randomUUID();
+    const documentsBefore = documents.length;
+    const before = await page.evaluate(({ finds, id }) => window.__live?.beginCapture(finds, id) ?? null,
+      { finds: error ? [] : finds, id: captureId }).catch(() => null);
+    const bytes = await capture(page).catch(() => null);
+    const after = await page.evaluate(() => window.__live?.endCapture() ?? null).catch(() => null);
+    const captureChanged = !before || !after || before.captureId !== after.captureId || after.changed
+      || documents.length !== documentsBefore || before.readyNow !== after.readyNow || JSON.stringify(before.finds) !== JSON.stringify(after.finds);
+    const live = after ?? before;
+    const found = finds.length > 0 && !error ? (captureChanged
+      ? finds.map(find => ({ ...find, found: null, rendered: null, error: 'capture_changed' })) : after.finds) : null;
     const shot = bytes ? await keep(`${SHOT_FOLDER}/${run}/${name}.png`, bytes) : { picture: null, picture_kept: false, reason: 'no_picture' };
     const side = {
       status,
@@ -403,12 +476,15 @@ async function measureSide({ browser, url, view, signIn, ready, reach = [], name
       first_paint_ms: ms(sinceBegan(loaded, loaded?.firstPaint, began)),
       first_contentful_paint_ms: ms(sinceBegan(loaded, loaded?.firstContentful, began)),
       load_usable_ms: ms(sinceBegan(loaded, loaded?.usableAt, began)),
-      // With reach steps, the screen's own time from its last tap; without, the page's time from its load.
-      usable_ms: reach.length > 0 ? ms(usable) : ms(sinceBegan(loaded, loaded?.usableAt, began)),
+      // With reach steps, time from the last tap; without, time from the load. An earlier ready frame does not count
+      // if the marked content has since disappeared from the screen being pictured.
+      usable_ms: captureChanged || (ready && live?.readyNow !== true) ? null : reach.length > 0 ? ms(usable) : ms(sinceBegan(live, live?.usableAt, began)),
+      ...(captureChanged ? { capture_changed: true } : {}),
       ...(documents.length > 1 ? { documents: documents.slice(0, LIST_LIMIT) } : {}),
       // A signed-in view that ends on a sign-in path measured the sign-in page, not the screen asked for.
       ...(signIn && LIVE.sign_in_paths.includes(new URL(page.url()).pathname) ? { signed_out: true } : {}),
       ...(reach.length > 0 ? { reach: reached.steps } : {}),
+      ...(found ? { finds: found } : {}),
       // A screen that never showed anything is blank for the whole wait.
       blank_ms: ms(sinceBegan(live, live?.blankAt, began) ?? Date.now() - began),
       longest_task_ms: ms(Math.max(longest, live?.longest ?? 0)),
@@ -439,7 +515,7 @@ export async function checkLiveScreensSignedIn(input = {}, host, deps) {
 }
 
 /** Every page at every view on a real browser, measured and pictured; see the header for the shapes. */
-export async function checkLiveScreens(input = {}, host, { keep = (name, bytes) => keepPicture(host, name, bytes), readHeld = readHeldSessions } = {}) {
+export async function checkLiveScreens(input = {}, host, { keep = (name, bytes) => keepPicture(host, name, bytes), readHeld = readHeldSessions, capture = page => page.screenshot({ type: 'png', caret: 'hide' }) } = {}) {
   const plan = planOf(input);
   const started = Date.now();
   const run = randomUUID().slice(0, 8);
@@ -468,9 +544,9 @@ export async function checkLiveScreens(input = {}, host, { keep = (name, bytes) 
         }
         const name = `${page.slug}-${view.id}`;
         const answer = { view: view.id };
-        const shared = { browser, view, ready: page.ready, run, keep };
+        const shared = { browser, view, ready: page.ready, run, keep, capture };
         await spaced(page.signIn);
-        const current = await measureSide({ ...shared, url: page.url, signIn: page.signIn && signIns.get(page.url), reach: page.reach, name: `${name}-new`, taps: page.taps });
+        const current = await measureSide({ ...shared, url: page.url, signIn: page.signIn && signIns.get(page.url), reach: page.reach, name: `${name}-new`, taps: page.taps, finds: page.finds });
         answer.new = current.side;
         if (page.taps.length > 0) answer.taps = current.taps;
         if (page.oldUrl) {

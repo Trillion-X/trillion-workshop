@@ -48,6 +48,22 @@ test('the live row takes the reach and until inputs and names its picture output
   assert.equal(row.input_schema.properties.window, undefined);
 });
 
+test('both live rows take read-only finds with exactly one kind of match', () => {
+  const findsOf = tool => tool.input_schema.properties.pages.items.properties.finds;
+  const finds = findsOf(row);
+  assert.deepEqual(findsOf(signed), finds);
+  assert.match(finds.description, /found and rendered as null with error capture_changed/);
+  assert.match(finds.description, /do not judge screen correctness or pixel-only motion/);
+  for (const tool of [row, signed]) assert.match(tool.input_schema.properties.pages.items.properties.ready.description, /usable_ms is null/);
+  assert.equal(finds.type, 'array');
+  assert.equal(finds.items.additionalProperties, false);
+  assert.deepEqual(finds.items.required, ['name']);
+  assert.deepEqual(finds.items.oneOf, [{ required: ['text'] }, { required: ['appears'] }]);
+  for (const name of ['name', 'text', 'appears']) {
+    assert.deepEqual(finds.items.properties[name], { type: 'string', minLength: 1 });
+  }
+});
+
 test('the expiry row mounts the proof session, reaches nothing, and runs heldSessionExpiries', () => {
   const expiry = rows.records.map(record => record.payload).find(payload => payload.id === 'tool:read-when-the-proof-session-ends');
   assert.deepEqual(expiry.invoke.credential_mounts, [{ secret_name: 'proof-sessions', fd: 4 }]);

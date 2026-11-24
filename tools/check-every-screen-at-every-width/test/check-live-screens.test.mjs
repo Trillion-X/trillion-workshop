@@ -12,7 +12,22 @@ import { windowPicture } from '../window-picture.mjs';
 
 const pageOf = (body, script = '') => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>fixture</title></head><body style="margin:0;padding:16px;font:16px sans-serif"><main id="app">${body}</main><script>${script}</script></body></html>`;
 
+// The shared parts render the funnel body with a titled surface card per source and label/value siblings.
+const funnelTitle = '<h2>Funnel by source</h2>';
+const emptyFunnel = 'No journeys recorded yet for this client.';
+const funnelCard = (source, visits) => `<div class="glass-surface"><h3>${source}</h3><span>Visits</span><p>${visits}</p></div>`;
+const funnel = content => pageOf(`<section data-screen-ready data-pane-state="content">${funnelTitle}<div data-parts-screen>${content}</div></section>`);
 const FIXTURES = {
+  '/proof-refused': funnel('<p>The resource operation was refused.</p>'),
+  '/proof-loading': funnel('<div role="status">Loading…</div>'),
+  '/proof-title': funnel(funnelTitle),
+  '/proof-blank': pageOf('<h1>Fixture host</h1><section data-screen-ready data-pane-state="content" style="height:200px"></section>'),
+  '/proof-stale': funnel(funnelCard('fixture-newsletter', 12)).replace('data-pane-state="content"', 'data-pane-state="stale"'),
+  '/proof-incomplete': funnel(funnelCard('fixture-newsletter', '')),
+  '/proof-empty': funnel(`<p>${emptyFunnel}</p>`),
+  '/proof-wrong-source': funnel(funnelCard('fixture-newsletter', 2) + funnelCard('fixture-other', 12)),
+  '/proof-populated': funnel(funnelCard('fixture-newsletter', 12)),
+  '/hidden-finds': pageOf('<h1>Visible</h1><input id="field" value="Ready"><p hidden>Hidden label</p><div style="opacity:0"><p id="transparent">Transparent label</p></div>'),
   '/answers': pageOf('<h1>Members</h1><button id="show">Show</button><p id="empty"></p>',
     `document.getElementById('show').addEventListener('click', () => { const note = document.createElement('p'); note.id = 'done'; note.textContent = 'Opened'; document.getElementById('app').append(note); });`),
   '/hop': pageOf('<h1>Starting</h1>', `setTimeout(() => location.replace('/hop-through'), 600);`),
@@ -23,6 +38,14 @@ const FIXTURES = {
   '/sign-in': pageOf('<h1>Sign in or create an account</h1>', ''),
   '/asks-a-limited-call': pageOf('<h1>Board</h1>', `fetch('/limited').catch(() => {});`),
   '/empty-pane': pageOf('<h1>Board</h1><section id="pane" data-ready style="height:200px"></section>', `setTimeout(() => { document.getElementById('pane').textContent = 'Drawn'; }, 1500);`),
+  '/ready-then-blank': pageOf('<h1>Board</h1><section id="pane" data-ready style="height:200px"><p id="row">Source and count</p></section>', `
+    function clearOnceMeasured() {
+      if (window.__live?.usableAt == null) requestAnimationFrame(clearOnceMeasured);
+      else document.getElementById('row').remove();
+    }
+    requestAnimationFrame(clearOnceMeasured);`),
+  '/labelled': pageOf('<h1>Labels</h1><button id="show">Show</button>', ''),
+  '/capture-pane': pageOf('<h1>Board</h1><button id="show">Show</button><section id="pane" data-ready><p id="row">Source and count</p></section>', ''),
   '/late': pageOf('<h1 id="late" hidden>Late</h1>', `setTimeout(() => { document.getElementById('late').hidden = false; }, 1200);`),
 };
 
@@ -66,6 +89,10 @@ test('a page list is checked before any browser opens: a missing url, a bad addr
   assert.throws(() => planOf({ pages: [{ id: 'a' }] }), /needs url/);
   assert.throws(() => planOf({ pages: [{ id: 'a', url: 'file:///etc/passwd' }] }), /full address \(http or https\)/);
   assert.throws(() => planOf({ pages: [{ id: 'a', url: origin }], views: ['watch'] }), /views is a list of/);
+  assert.throws(() => planOf({ pages: [{ id: 'a', url: origin, finds: [{ name: 'x' }] }] }), /names text or appears/);
+  assert.throws(() => planOf({ pages: [{ id: 'a', url: origin, finds: [{ name: 'x', text: 'a', appears: 'b' }] }] }), /names text or appears/);
+  assert.throws(() => planOf({ pages: [{ id: 'a', url: origin, finds: [{ text: 'a' }] }] }), /needs a name/);
+  assert.deepEqual(planOf({ pages: [{ id: 'a', url: origin, finds: [{ name: 'label', text: 'Show' }] }] }).pages[0].finds, [{ name: 'label', text: 'Show' }]);
   assert.throws(() => planOf({ pages: [{ id: 'a', url: origin, taps: [{ name: 'x', selector: 'button', expect: { shown: true } }] }] }), /expect names/);
   assert.throws(() => planOf({ pages: [{ id: 'a', url: origin, sign_in: { cookies: [{ name: 'session', value: 'v' }] } }] }), /held-session/);
   assert.throws(() => planOf({ pages: [{ id: 'a', url: origin }, { id: 'A', url: origin }] }), /another page has the name/);
@@ -272,4 +299,106 @@ test('a ready element that is visible but draws nothing is not usable until some
   const answer = await checkLiveScreens({ pages: [{ id: 'empty-pane', url: `${origin}/empty-pane`, ready: '#pane[data-ready]' }], views: ['desktop'] }, undefined, { keep: recorder().keep });
   const side = answer.pages[0].views[0].new;
   assert.ok(side.usable_ms >= 1500, `usable at ${side.usable_ms} ms, before the pane drew anything`);
+});
+
+test('a pane that empties after its first usable frame is not usable in the report', async () => {
+  const { kept, keep } = recorder();
+  const answer = await checkLiveScreens({ pages: [{ id: 'ready-then-blank', url: `${origin}/ready-then-blank`, ready: '#pane[data-ready]', finds: [{ name: 'row', appears: '#row' }] }], views: ['desktop'] }, undefined, { keep });
+  const side = answer.pages[0].views[0].new;
+  assert.equal(side.status, 200);
+  assert.equal(side.picture_kept, true);
+  assert.ok(kept[0].size > 0);
+  assert.equal(side.finds[0].found, false, 'the row is gone before the screenshot');
+  assert.equal(side.usable_ms, null);
+});
+
+test('finds read a label and a selector on the page without a tap, and say what they show', async () => {
+  const kept = recorder();
+  const answer = await checkLiveScreens({ pages: [{ id: 'labelled', url: `${origin}/labelled`, finds: [{ name: 'button', text: 'Show' }, { name: 'control', appears: '#show' }, { name: 'missing', text: 'Not on the page' }] }], views: ['desktop'] }, undefined, { keep: kept.keep });
+  const finds = answer.pages[0].views[0].new.finds;
+  assert.deepEqual(finds.map(find => [find.name, find.found]), [['button', true], ['control', true], ['missing', false]]);
+  assert.equal(finds[1].rendered, 'Show');
+});
+
+test('a ready pane cleared inside capture has no current readiness or positive finds, even after reach', async () => {
+  const capture = async page => {
+    await page.evaluate(() => document.getElementById('row').remove());
+    return page.screenshot({ type: 'png', caret: 'hide' });
+  };
+  const answer = await checkLiveScreens({ pages: [{ id: 'capture-pane', url: `${origin}/capture-pane`, ready: '#pane', reach: [{ tap: '#show' }], finds: [{ name: 'row', appears: '#row' }] }], views: ['desktop'] }, undefined, { keep: recorder().keep, capture });
+  const side = answer.pages[0].views[0].new;
+  assert.equal(side.picture_kept, true);
+  assert.equal(typeof side.load_usable_ms, 'number', 'initial load timing remains historical');
+  assert.equal(side.reach[0].tap, '#show');
+  assert.equal(side.usable_ms, null);
+  assert.equal(side.capture_changed, true);
+  assert.equal(side.finds[0].found, null, 'a changing capture is unknown, not a successful find');
+  assert.equal(side.finds[0].rendered, null);
+  assert.equal(side.finds[0].error, 'capture_changed');
+});
+
+test('a pane cleared for the picture and restored before the final read is still stale capture evidence', async () => {
+  const capture = async page => {
+    await page.evaluate(() => {
+      window.savedRow = document.getElementById('row');
+      window.savedRow.remove();
+    });
+    const bytes = await page.screenshot({ type: 'png', caret: 'hide' });
+    await page.evaluate(() => document.getElementById('pane').append(window.savedRow));
+    return bytes;
+  };
+  const answer = await checkLiveScreens({ pages: [{ id: 'capture-pane', url: `${origin}/capture-pane`, ready: '#pane', finds: [{ name: 'row', text: 'Source and count' }] }], views: ['desktop'] }, undefined, { keep: recorder().keep, capture });
+  const side = answer.pages[0].views[0].new;
+  assert.equal(side.picture_kept, true);
+  assert.equal(side.usable_ms, null);
+  assert.equal(side.capture_changed, true, 'before and after match, but the picture was of an empty pane');
+  assert.equal(side.finds[0].found, null);
+});
+
+test('a new document with the same content during capture cannot reuse the prior document findings', async () => {
+  const capture = async page => {
+    await page.reload({ waitUntil: 'load' });
+    return page.screenshot({ type: 'png', caret: 'hide' });
+  };
+  const answer = await checkLiveScreens({ pages: [{ id: 'capture-pane', url: `${origin}/capture-pane`, ready: '#pane', finds: [{ name: 'row', appears: '#row' }] }], views: ['desktop'] }, undefined, { keep: recorder().keep, capture });
+  const side = answer.pages[0].views[0].new;
+  assert.equal(side.picture_kept, true);
+  assert.equal(side.usable_ms, null);
+  assert.equal(side.capture_changed, true);
+  assert.equal(side.finds[0].found, null);
+});
+
+test('finds exclude hidden text and ancestors, isolate an invalid selector, and ignore capture-only caret styles', async () => {
+  const answer = await checkLiveScreens({ pages: [{ id: 'hidden-finds', url: `${origin}/hidden-finds`, ready: '#field', finds: [
+    { name: 'visible', text: 'Visible' },
+    { name: 'hidden', text: 'Hidden label' },
+    { name: 'transparent text', text: 'Transparent label' },
+    { name: 'transparent selector', appears: '#transparent' },
+    { name: 'bad selector', appears: '[' },
+  ] }], views: ['desktop'] }, undefined, { keep: recorder().keep });
+  const side = answer.pages[0].views[0].new;
+  assert.equal(typeof side.usable_ms, 'number');
+  assert.equal(side.capture_changed, undefined);
+  assert.deepEqual(side.finds.map(find => find.found), [true, false, false, false, false]);
+  assert.ok(side.finds[4].error);
+});
+
+test('a successful capture is populated-funnel evidence only when it reports the seeded row and metric together', async () => {
+  const cases = ['sign-in', 'proof-refused', 'proof-loading', 'proof-title', 'proof-blank', 'proof-stale', 'proof-incomplete', 'proof-empty', 'proof-wrong-source', 'proof-populated'];
+  const finds = [
+    { name: 'source card', appears: '[data-pane-state="content"] [data-parts-screen] .glass-surface:has(> h3):has(> span + p)' },
+    { name: 'empty state', text: emptyFunnel },
+  ];
+  const { kept, keep } = recorder();
+  const answer = await checkLiveScreens({ pages: cases.map(id => ({ id, url: `${origin}/${id}`, ready: '#app', finds })), views: ['desktop'] }, undefined, { keep });
+  assert.equal(kept.length, cases.length);
+  for (const { id, views: [{ new: side }] } of answer.pages) {
+    assert.equal(side.status, 200, id);
+    assert.equal(side.picture_kept, true, id);
+    assert.equal(side.capture_changed, undefined, id);
+    const [card, empty] = side.finds;
+    const populated = card.found && card.rendered.replace(/\s+/g, ' ') === 'fixture-newsletter Visits 12';
+    assert.equal(populated, id === 'proof-populated', id);
+    assert.equal(empty.found, id === 'proof-empty', id);
+  }
 });
