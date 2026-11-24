@@ -130,6 +130,7 @@ function page({ origin, path, title, description, listed, structured, body }) {
 export function sharePages({ origin, name, copy, listed }) {
   const rows = listRows(copy) ?? [];
   const visible = shownRows(copy);
+  const files = new Map((copy.body.files ?? []).map(file => [file.identity, file]));
   const listPath = sharePath(name);
   const changed = latestDay(copy);
   const title = copy.title ?? name;
@@ -144,12 +145,14 @@ export function sharePages({ origin, name, copy, listed }) {
     const rowPath = sharePath(name, `/${row.address}`);
     const summary = rowSummary(copy, row) || title;
     const fields = (copy.body.fields ?? []).filter(field => !field.media && valueWords(row.values[field.id]) && valueWords(row.values[field.id]) !== row.title);
-    // The row's first picture, video or sound, served from files/<identity>.
-    const file = (copy.body.fields ?? []).filter(field => field.media).map(field => (copy.body.files ?? []).find(item => [row.values[field.id]].flat().includes(item.identity))).find(Boolean);
-    const type = file?.media_type ?? '';
-    const media = !file ? [] : type.startsWith('image/') ? [`<img src="${esc(filePath(file.identity))}" alt="${esc(row.title ?? title)}">`]
-      : type.startsWith('video/') ? [`<video controls src="${esc(filePath(file.identity))}"></video>`]
-      : type.startsWith('audio/') ? [`<audio controls src="${esc(filePath(file.identity))}"></audio>`] : [];
+    // Every picture, video or sound, in the row's field and value order, served from files/<identity>.
+    const media = (copy.body.fields ?? []).filter(field => field.media).flatMap(field => [row.values[field.id]].flat()).flatMap(identity => {
+      const file = files.get(identity);
+      const type = file?.media_type ?? '';
+      return !file ? [] : type.startsWith('image/') ? [`<img src="${esc(filePath(file.identity))}" alt="${esc(row.title ?? title)}">`]
+        : type.startsWith('video/') ? [`<video controls src="${esc(filePath(file.identity))}"></video>`]
+        : type.startsWith('audio/') ? [`<audio controls src="${esc(filePath(file.identity))}"></audio>`] : [];
+    });
     pages.push({ path: `${name}/${row.address}/index.html`, text: page({ origin, path: rowPath, title: row.title ?? title, description: summary, listed, structured: [
       { '@context': 'https://schema.org', '@type': 'Article', headline: row.title ?? title, description: summary, url: `${origin}${rowPath}`, ...(row.changed ? { dateModified: row.changed } : {}),
         isPartOf: { '@type': 'CollectionPage', name: title, url: `${origin}${listPath}` } },

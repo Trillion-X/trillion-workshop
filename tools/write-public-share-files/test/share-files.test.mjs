@@ -9,7 +9,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { filterRecords } from '../do-work/formula-engine.mjs';
-import { linkOpen, listRows, shareFiles } from '../do-work/share-files.mjs';
+import { linkOpen, listRows, shareFiles, sharePages } from '../do-work/share-files.mjs';
 
 const ORIGIN = 'https://share.example';
 const NOW = Date.parse('2026-10-05T12:00:00Z');
@@ -78,6 +78,49 @@ test('a shared list reads as data with its rows and the files they name, whole a
   assert.equal(at(out, `files/${hidden}`), undefined, 'only files a shown row names');
   assert.doesNotMatch(JSON.stringify(out), /private-bucket|Draft/);
   assert.match(at(out, 'changelog/lists-share-as-pages/index.html').text, new RegExp(`<img src="/share/files/${identity}"`));
+});
+
+test('a row shows both videos in its media field in the order named, not the files table order', () => {
+  const first = `1f:${'a'.repeat(64)}`, second = `1f:${'b'.repeat(64)}`;
+  const pages = sharePages({ origin: ORIGIN, name: 'two-clips', listed: false, copy: { title: 'Two clips', body: {
+    fields: [{ id: 'clips', kind: 'file', media: true }],
+    rows: [{ id: 'r1', title: 'A pair', values: { clips: [first, second] } }],
+    files: [{ identity: second, media_type: 'video/mp4', name: '/Private/second.mp4' }, { identity: first, media_type: 'video/mp4', name: '/Private/first.mp4' }],
+  } } });
+  const row = pages.find(page => page.path === 'two-clips/a-pair/index.html').text;
+  assert.deepEqual([...row.matchAll(/<video controls src="([^"]+)"><\/video>/g)].map(match => match[1]),
+    [`/share/files/${first}`, `/share/files/${second}`]);
+  assert.doesNotMatch(row, /\/Private\/|first\.mp4|second\.mp4/);
+});
+
+test('every media field is shown with escaped words and addresses, without an unshared row or its files', async () => {
+  const picture = `1f:${'a'.repeat(64)}`, sound = `1f:${'b'.repeat(64)}`, hidden = `1f:${'c'.repeat(64)}`;
+  const asked = [];
+  const out = await run([share({ grant: grantOf({ address: 'mixed-media' }), list: { label: 'Mixed media', fields: [
+    { id: 'title', kind: 'text' }, { id: 'picture', kind: 'file' }, { id: 'sound', kind: 'file' }, { id: 'shown', kind: 'shown-when' },
+  ] }, rows: [
+    { id: 'r1', title: 'A "picture" <img src=x onerror=alert(1)>', values: { picture: '/Private/picture.png', sound: '/Private/sound.mp3' } },
+    { id: 'r2', title: 'Private row', values: { picture: '/Private/hidden.png', shown: { kind: 'rule', field: 'title', operator: 'is_any_of', params: { values: ['Never'] } } } },
+  ], fileOf: async name => {
+    asked.push(name);
+    return name.endsWith('picture.png') ? { identity: picture, media_type: 'image/png', name, origin: 'private-bucket' }
+      : name.endsWith('sound.mp3') ? { identity: sound, media_type: 'audio/mpeg', name, origin: 'private-bucket' }
+        : { identity: hidden, media_type: 'image/png', name };
+  } })]);
+  const row = out.files.find(file => file.path.startsWith('mixed-media/') && file.path !== 'mixed-media/index.html').text;
+  assert.deepEqual(asked, ['/Private/picture.png', '/Private/sound.mp3']);
+  assert.match(row, new RegExp(`<img src="/share/files/${picture}" alt="A &quot;picture&quot; &lt;img src=x onerror=alert\\(1\\)&gt;">`));
+  assert.match(row, new RegExp(`<audio controls src="/share/files/${sound}"></audio>`));
+  assert.ok(row.indexOf(`<img src="/share/files/${picture}"`) < row.indexOf(`<audio controls src="/share/files/${sound}"`));
+  assert.doesNotMatch(row, /\/Private\/|private-bucket|Private row|<img src=x/);
+  assert.equal(at(out, `files/${hidden}`), undefined);
+  const escaped = sharePages({ origin: ORIGIN, name: 'escaped', listed: false, copy: { title: 'Escaped', body: {
+    fields: [{ id: 'clips', media: true }], rows: [{ id: 'r1', title: 'Clips', values: { clips: ['first" onerror="bad', 'second&more'] } }],
+    files: [{ identity: 'first" onerror="bad', media_type: 'image/png' }, { identity: 'second&more', media_type: 'audio/mpeg' }],
+  } } }).find(page => page.path === 'escaped/clips/index.html').text;
+  assert.match(escaped, /src="\/share\/files\/first&quot; onerror=&quot;bad"/);
+  assert.match(escaped, /src="\/share\/files\/second&amp;more"/);
+  assert.doesNotMatch(escaped, /" onerror="bad/);
 });
 
 test('comparison evidence rows stay out of sitemap and llms listings', async () => {
