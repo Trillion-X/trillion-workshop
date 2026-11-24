@@ -2,6 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { fencedReadOf, NO_USE_BINDING } from '../read-data/consent-fence.mjs';
+import data from '../read-data/table-lists.json' with { type: 'json' };
 
 test('a fenced table this use is not allowed for is refused, with no rows drawn', () => {
   assert.deepEqual(fencedReadOf({ fenced: true, allowed: false, rows: '[{"id":1}]' }), { refused: true, rows: [{ id: 1 }] });
@@ -18,4 +19,31 @@ test('an unfenced table draws its rows as they are', () => {
 test('a database with no use_binding schema is recognised by its error', () => {
   assert.match('ERROR: schema "use_binding" does not exist', NO_USE_BINDING);
   assert.doesNotMatch('ERROR: relation "x" does not exist', NO_USE_BINDING);
+});
+
+const unreadable = answer => assert.throws(() => fencedReadOf(answer), { message: data.words.not_read });
+
+test('an unreadable fence answer is not an empty table', () => {
+  for (const answer of [undefined, null, {}, { fenced: null, rows: [] }, { fenced: 'true', allowed: true, rows: [] }]) unreadable(answer);
+});
+
+test('a fenced table with no readable allow decision is not an empty table', () => {
+  for (const allowed of [undefined, null, 'true', 1]) unreadable({ fenced: true, allowed, rows: [] });
+});
+
+test('an allowed or unfenced table with an unreadable row payload is not an empty table', () => {
+  for (const rows of [undefined, null, {}, '{}', 'not json']) {
+    unreadable({ fenced: true, allowed: true, rows });
+    unreadable({ fenced: false, allowed: null, rows });
+  }
+});
+
+test('a valid empty answer stays empty, and a valid row answer keeps its rows', () => {
+  assert.deepEqual(fencedReadOf({ fenced: true, allowed: true, rows: [] }), { refused: false, rows: [] });
+  assert.deepEqual(fencedReadOf({ fenced: false, allowed: null, rows: '[]' }), { refused: false, rows: [] });
+  assert.deepEqual(fencedReadOf({ fenced: true, allowed: true, rows: [{ id: 3 }] }), { refused: false, rows: [{ id: 3 }] });
+});
+
+test('a missing fence function is not permission to read without a fence', () => {
+  assert.doesNotMatch('ERROR: function use_binding.fenced(regclass) does not exist', NO_USE_BINDING);
 });
