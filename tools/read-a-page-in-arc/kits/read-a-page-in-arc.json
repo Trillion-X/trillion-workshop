@@ -23,7 +23,10 @@
           "method": "tools:run",
           "input": {
             "tool": "tool:read-a-page-in-arc",
-            "input": { "url": "https://example.com/" }
+            "input": {
+              "url": "https://example.com/",
+              "computer": { "automate-an-app": { "app": "company.thebrowser.Browser" } }
+            }
           }
         }
       },

@@ -42,6 +42,16 @@ const GONE = /Can.t get (tab|window) id|Can.t get (tab|window)|Can.t get tab|mis
 const CONNECTION_INVALID = /-609|Connection is invalid/i;
 /** Arc's own words for this Mac not allowing the run to control Arc (-1743): never retried. */
 const NOT_ALLOWED = /-1743|not allowed to send Apple events|Not authorized to send Apple events/i;
+/** A script that could not compile will not become ready by waiting. */
+const SYNTAX_ERROR = /syntax error:/i;
+
+/** A permission, script or tab failure that waiting for page readiness cannot fix. */
+export class ArcTerminalError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'ArcTerminalError';
+  }
+}
 
 /** The most characters of osascript's own error line an answer carries. */
 const MOST_SAID_CHARS = 500;
@@ -72,13 +82,14 @@ export function arcTab({ exec = run, timeout_ms, retry_wait_ms = 2000 }) {
       const { stdout } = await exec('osascript', ['-e', SCRIPT, ...args], { timeout: timeout_ms, maxBuffer: most_output_bytes });
       return stdout;
     } catch (error) {
-      const said = String(error.stderr || error.message);
-      if (NOT_ALLOWED.test(said)) throw new Error('Arc refused control from this Mac (-1743): allow automation for Arc in System Settings, Privacy & Security, Automation, then ask again.');
+      const said = arcSaid(error);
+      if (NOT_ALLOWED.test(said)) throw new ArcTerminalError('Arc refused Apple events from this tool run (-1743).');
+      if (SYNTAX_ERROR.test(said)) throw new ArcTerminalError(said);
+      if (GONE.test(said)) throw new ArcTerminalError('The tab this read opened is no longer open in Arc.');
       if (CONNECTION_INVALID.test(said) && !retried) {
         await new Promise(done => setTimeout(done, retry_wait_ms));
         return call(args, true);
       }
-      if (GONE.test(said)) throw new Error('The tab this read opened is no longer open in Arc.');
       throw error;
     }
   }

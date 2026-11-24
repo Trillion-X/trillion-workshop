@@ -10,6 +10,7 @@ import { join } from 'node:path';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import { htmlToText, pullAPageInArc, settings as realSettings } from '../pull-a-page-in-arc.mjs';
+import { readPageInArc } from '../read-a-page-in-arc.mjs';
 
 const noSleep = async () => {};
 const fastSleep = (ms) => new Promise((done) => setTimeout(done, Math.min(ms, 5)));
@@ -42,6 +43,8 @@ function fakeArc(pages) {
       return { stdout: `window-1|${id}\n` };
     }
     if (operation === 'close') {
+      assert.equal(argv[3], 'window-1', 'close names the window the read opened');
+      assert.match(argv[1], /close \(tab id \(item 3 of argv\) of window id \(item 2 of argv\)\)/);
       const id = argv[4];
       if (!tabs.has(id)) throw Object.assign(new Error('Can’t get tab id'), { stderr: 'Can’t get tab id' });
       tabs.delete(id);
@@ -49,6 +52,8 @@ function fakeArc(pages) {
       return { stdout: 'closed\n' };
     }
     assert.equal(operation, 'js');
+    assert.equal(argv[3], 'window-1', 'execute names the window the read opened');
+    assert.match(argv[1], /execute \(tab id \(item 3 of argv\) of window id \(item 2 of argv\)\) javascript \(item 4 of argv\)/);
     const id = argv[4];
     const tab = tabs.get(id);
     if (!tab) throw Object.assign(new Error('Can’t get tab id'), { stderr: 'Can’t get tab id' });
@@ -701,4 +706,47 @@ function findSchema(value) {
     if (found) return found;
   }
   return null;
+}
+
+// This proves the owned program accepts the descriptor's forwarded input; it does not run engine admission or AppleEvents.
+const engineFixture = JSON.parse(readFileSync(new URL('./fixtures/engine-invocation.json', import.meta.url), 'utf8'));
+for (const [id, read] of [
+  ['tool:read-a-page-in-arc', readPageInArc],
+  ['tool:pull-a-page-in-arc', pullAPageInArc],
+]) {
+  test(`${id} declares input on stdin and accepts the scoped fixture without changing tabs`, async () => {
+    const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+    const { invoke, input_schema: schema } = rows.records.find(({ payload }) => payload.id === id).payload;
+    assert.equal(invoke.kind, 'computer');
+    assert.deepEqual(invoke.capabilities, ['automate-an-app']);
+    assert.deepEqual(invoke.stdin, { fill: { from: 'input' } });
+    assert.equal(schema.additionalProperties, false);
+    assert.ok(schema.required.includes('computer'));
+    assert.deepEqual(schema.properties.computer.required, ['automate-an-app']);
+    const { input, page } = structuredClone(engineFixture);
+    assert.equal(input.computer['automate-an-app'].app, schema.properties.computer.properties['automate-an-app'].properties.app.const);
+    const arc = fakeArc({ [input.url]: page });
+    const answer = await read(input, { exec: arc.exec, sleep: noSleep });
+    assert.equal(answer.error, undefined, answer.error);
+    assert.equal(answer.url, input.url);
+    assert.equal(answer.title, page.title);
+    assert.equal(answer.text, page.text);
+    assert.deepEqual(arc.log.opened, [input.url]);
+    assert.equal(arc.log.closed, 1);
+    assert.equal(arc.isOpen(), false);
+  });
+
+  test(`${id} kit examples carry the app target required by its descriptor`, () => {
+    const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+    const schema = rows.records.find(({ payload }) => payload.id === id).payload.input_schema;
+    const kit = JSON.parse(readFileSync(new URL(`../kits/${id.slice('tool:'.length)}.json`, import.meta.url), 'utf8'));
+    const examples = kit.worked_examples.filter(({ mcp }) => mcp.input.input.tool === id);
+    assert.ok(examples.length > 0);
+    for (const { title, mcp } of examples) {
+      const input = mcp.input.input.input;
+      for (const field of schema.required) assert.ok(Object.hasOwn(input, field), `${title}: missing ${field}`);
+      for (const field of Object.keys(input)) assert.ok(Object.hasOwn(schema.properties, field), `${title}: unknown ${field}`);
+      assert.deepEqual(input.computer, engineFixture.input.computer, title);
+    }
+  });
 }

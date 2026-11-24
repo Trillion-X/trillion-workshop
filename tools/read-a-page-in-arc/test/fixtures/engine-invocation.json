@@ -1,0 +1,16 @@
+{
+  "what_this_is": "Synthetic input forwarded by the computer tool row's invoke.stdin.fill.from=input, not a live browser result or an authority grant created by this fixture. The engine validates caller ownership and the app target before launching the program; the program must accept the forwarded computer field.",
+  "input": {
+    "url": "https://fixture.example.test/guide",
+    "computer": {
+      "automate-an-app": {
+        "app": "company.thebrowser.Browser"
+      }
+    }
+  },
+  "page": {
+    "title": "Fixture guide",
+    "text": "Synthetic fixture content. This is not a real signed-in page.",
+    "baseHeight": 1000
+  }
+}

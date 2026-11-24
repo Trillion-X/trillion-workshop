@@ -25,6 +25,7 @@
             "tool": "tool:pull-a-page-in-arc",
             "input": {
               "url": "https://example.notion.site/Creative-Library-example",
+              "computer": { "automate-an-app": { "app": "company.thebrowser.Browser" } },
               "scroll_selector": ".notion-scroller"
             }
           }
@@ -45,6 +46,7 @@
             "tool": "tool:pull-a-page-in-arc",
             "input": {
               "url": "https://docs.google.com/document/d/DOC_ID/edit",
+              "computer": { "automate-an-app": { "app": "company.thebrowser.Browser" } },
               "save": { "folder": "~/Library/Application Support/pulled-pages-in-arc/docs", "format": "txt" }
             }
           }

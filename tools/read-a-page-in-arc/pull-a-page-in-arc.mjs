@@ -26,7 +26,7 @@ import { extname, isAbsolute, join, resolve, sep } from 'node:path';
 import { text } from 'node:stream/consumers';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { arcSaid, arcTab } from './arc-tab.mjs';
+import { ArcTerminalError, arcSaid, arcTab } from './arc-tab.mjs';
 import {
   base64PieceScript,
   downloadStateScript,
@@ -230,6 +230,7 @@ async function waitUntilLoaded(tab, s, sleep) {
     try {
       state = await tab.evaluate(readyStateScript());
     } catch (error) {
+      if (error instanceof ArcTerminalError) throw error;
       lastError = failure(error);
     }
     if (state !== 'complete') await sleep(s.wait.poll_ms);
