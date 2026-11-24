@@ -17,7 +17,6 @@ import { realpathSync } from 'node:fs';
 //                                     equal or larger is kept. The key column must be unique in the destination.
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import pg from 'pg';
 import { throughProxy } from '../../run-sql-in-my-database/do-work/through-the-run-proxy.mjs';
 
 const SOURCE_DESCRIPTOR = 3;
@@ -78,9 +77,10 @@ export async function copyRows({ source, destination, input, connect = connectTo
       for (const key of shape.keys) {
         const { rows } = await from.query(`SELECT to_jsonb(t) AS body, md5(to_jsonb(t)::text) AS version FROM ${shape.tableText} t WHERE t.${shape.key}::text = $1`, [key]);
         if (!rows.length) { answered.push({ key, result: 'missing', source_version: null, destination_version: await versionOf(to, shape, key) }); continue; }
-        const before = await versionOf(to, shape, key);
+        const before = update ? await versionOf(to, shape, key) : null;
         const wrote = await to.query(write, [JSON.stringify(rows[0].body)]);
-        const result = before === null ? 'copied' : wrote.rowCount === 1 ? 'updated' : 'kept';
+        // A competing insert can win after a read. A write that affected no rows never owns the row it found.
+        const result = wrote.rowCount !== 1 ? 'kept' : before === null ? 'copied' : 'updated';
         answered.push({ key, result, source_version: rows[0].version, destination_version: await versionOf(to, shape, key) });
       }
       await to.query('COMMIT');
@@ -98,6 +98,7 @@ export async function copyRows({ source, destination, input, connect = connectTo
 
 async function connectTo(connection) {
   // A run the engine sandboxes reaches its databases by address through the run's own proxy (through-the-run-proxy.mjs).
+  const { default: pg } = await import('pg');
   const proxy = process.env.HTTPS_PROXY;
   const client = new pg.Client({ connectionString: connection, ...(proxy ? { stream: throughProxy(proxy) } : {}) });
   await client.connect();
