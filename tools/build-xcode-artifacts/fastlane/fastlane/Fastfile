@@ -1,0 +1,49 @@
+# Build, notarize and Sparkle-sign any XcodeGen Mac app with Fastlane's own actions. It knows no app: the caller names
+# the app folder, scheme and carried files; the variable names they reach the build by come from the app's own data.
+#
+#   fastlane mac release app:<app repo> scheme:<scheme> engine:<program the app carries> host_events:<its declaration> \
+#     notary:<notarytool keychain profile> sparkle_account:<sign_update Keychain account>
+#
+# Signing: the Developer ID identity in the person's Keychain (Xcode's automatic signing). Notarization: the named
+# notarytool keychain profile. Update stamp: Sparkle's sign_update, which reads its key from the named Keychain account.
+require "json"
+
+default_platform(:mac)
+
+platform :mac do
+  lane :release do |o|
+    app = File.expand_path(o.fetch(:app))
+    macos = File.join(app, "macos")
+    out = File.join(app, ".build/release")
+
+    # The app's own data names the variables its build phase reads each carried file's path, BLAKE3 and size from.
+    names = JSON.parse(File.read(File.join(macos, "native-release.json"))).fetch("carry_environment")
+    { "runtime" => o.fetch(:engine), "host_events" => o.fetch(:host_events) }.each do |prefix, path|
+      path = File.expand_path(path)
+      key = prefix == "runtime" ? "runtime_artifact" : "host_events_declaration"
+      ENV[names.fetch(key)] = path
+      ENV[names.fetch("#{prefix}_blake3")] = sh("b3sum", "--no-names", path, log: false).strip
+      ENV[names.fetch("#{prefix}_bytes")] = File.size(path).to_s
+    end
+
+    Dir.chdir(app) { sh("npm", "ci", "--no-audit", "--no-fund") } if File.exist?(File.join(app, "package-lock.json"))
+    sh("xcodegen", "generate", "--spec", File.join(macos, "project.yml"), "--project", macos)
+    project = Dir[File.join(macos, "*.xcodeproj")].first
+
+    path = build_mac_app(project: project, scheme: o.fetch(:scheme), configuration: "Release",
+                         export_method: "developer-id", output_directory: out, clean: true)
+
+    zip = File.join(out, "notarize.zip")
+    sh("ditto", "-c", "-k", "--keepParent", path, zip)
+    sh("xcrun", "notarytool", "submit", zip, "--keychain-profile", o.fetch(:notary), "--wait")
+    sh("xcrun", "stapler", "staple", path)
+
+    dmg = File.join(out, "#{File.basename(path, '.app')}.dmg")
+    sh("hdiutil", "create", "-volname", File.basename(path, ".app"), "-srcfolder", path, "-ov", "-format", "UDZO", dmg)
+    sh("xcrun", "notarytool", "submit", dmg, "--keychain-profile", o.fetch(:notary), "--wait")
+    sh("xcrun", "stapler", "staple", dmg)
+
+    sh(o[:sign_update] || "sign_update", "--account", o.fetch(:sparkle_account), dmg)
+    UI.success("Notarized, stapled and Sparkle-signed: #{dmg}")
+  end
+end
