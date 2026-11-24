@@ -485,8 +485,10 @@ async function pipe(fd) {
   return text.trim();
 }
 
-/** One statement run by the SQL tool's own process (argv from the DATA; the statement on its stdin, the connection on its descriptor 3). */
-const sqlBy = (argv, connection) => (statement, params) => new Promise((done, fail) => {
+/** One statement run by the SQL tool's own process (argv from the DATA; the statement on its stdin, the connection on its descriptor 3).
+ * The SQL tool refuses a request that names no connection (Nov 21 2026), so each one names the held connection the targets file says
+ * this run was handed (`row_connection_name`). */
+export const sqlBy = (argv, connection, connectionName) => (statement, params) => new Promise((done, fail) => {
   const child = spawn(argv[0], argv.slice(1), { stdio: ['pipe', 'pipe', 'pipe', 'pipe'] });
   let out = '', err = '';
   child.stdout.on('data', chunk => { out += chunk; });
@@ -496,7 +498,7 @@ const sqlBy = (argv, connection) => (statement, params) => new Promise((done, fa
     else done(JSON.parse(out));
   });
   child.stdio[3].end(connection);
-  child.stdin.end(JSON.stringify({ sql: statement, params }));
+  child.stdin.end(JSON.stringify({ credential_name: connectionName, sql: statement, params }));
 });
 
 /** The held value of each vault name, read by the program the DATA names (`held_value_reader` argv, the name last). A name that
@@ -535,7 +537,9 @@ function completeProbeSummary(value) {
     Number.isFinite(Date.parse(value.started)) && Date.parse(value.stopped) >= Date.parse(value.started);
 }
 
-/** Admit the apply only after each URL produces a clean, completed response in this run's own probe log. */
+/** Admit the apply only after each URL produces a clean, completed response in this run's own probe log. Clean is the probe's own
+ * rule for an answer that is up (probe-while-applying.mjs: no error and under 500): a name with no page at / answers 404 and is up,
+ * and refusing it kept every apply of a computer that serves one from starting (Nov 24 2026). */
 export async function startApplyProbe({ tree, urls, log, deadlineMs, expectedResource }) {
   const script = join(tree, 'tools/start-a-computer/do-work/probe-while-applying.mjs');
   if (!existsSync(script)) throw new Error('the archived Workshop commit has no apply probe.');
@@ -568,7 +572,7 @@ export async function startApplyProbe({ tree, urls, log, deadlineMs, expectedRes
         try { sample = JSON.parse(line); } catch { continue; }
         if (!isObject(sample) || !required.has(sample.url) || typeof sample.at !== 'string' || !Number.isFinite(Date.parse(sample.at)) ||
             !Number.isFinite(sample.ms) || sample.ms < 0 || !Number.isFinite(sample.lag_ms) || sample.lag_ms < 0) continue;
-        if (Number.isInteger(sample.status) && sample.status >= 200 && sample.status < 400 &&
+        if (Number.isInteger(sample.status) && sample.status >= 200 && sample.status < 500 &&
             !Object.hasOwn(sample, 'error') && !Object.hasOwn(sample, 'retried') &&
             (expectedResource === undefined || (sample.status === 200 && sample.resource_ok === true))) pending.delete(sample.url);
         else pending.add(sample.url);
@@ -658,8 +662,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const defaults = JSON.parse(readFileSync(join(here, '../read-data/apply-a-computer-row.json'), 'utf8'));
     const targets = { ...defaults, ...JSON.parse(readFileSync(targetsFile, 'utf8')) };
     if (!Array.isArray(targets.held_value_reader)) throw refused(`${targetsFile} names no held_value_reader (an argv).`);
+    if (typeof targets.row_connection_name !== 'string' || !targets.row_connection_name) throw refused(`${targetsFile} names no row_connection_name (the vault name of the connection on descriptor 3).`);
     const workshop = (await run('git', ['-C', here, 'rev-parse', '--show-toplevel'])).stdout.trim();
-    const sql = sqlBy(targets.sql_runner.map(part => placed(part, { workshop })), connection);
+    const sql = sqlBy(targets.sql_runner.map(part => placed(part, { workshop })), connection, targets.row_connection_name);
     const { code, summary } = await applyARow(JSON.parse(readFileSync(file, 'utf8')), { dryRun }, realDeps({ store: sqlRowStore(sql), targets, workshop }));
     process.stdout.write(`${JSON.stringify(summary, null, 1)}\n`);
     process.exitCode = code;

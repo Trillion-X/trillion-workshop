@@ -412,7 +412,7 @@ test('apply probe refuses an exited child, stale log, and unhealthy, retried or 
   await assert.rejects(startApplyProbe({ tree, urls, log, deadlineMs: 2000 }), { code: 'EEXIST' });
 
   const sample = (url, result) => JSON.stringify({ at: '2026-11-22T06:00:00Z', ms: 12, lag_ms: 0, url, ...result });
-  const invalid = [sample(urls[0], { status: 404 }), sample(urls[1], { error: 'TimeoutError' }),
+  const invalid = [sample(urls[0], { status: 503 }), sample(urls[1], { error: 'TimeoutError' }),
     sample(urls[2], { status: 200, retried: 'UND_ERR_SOCKET' }), sample(urls[3], { status: 200 })].join('\n');
   writeFileSync(entry, `import { appendFileSync } from 'node:fs';\nappendFileSync(process.argv[3], ${JSON.stringify(invalid)});\nsetInterval(() => {}, 20);\n`);
   await assert.rejects(startApplyProbe({ tree, urls, log: join(tree, 'bad.jsonl'), deadlineMs: 500 }), error => {
@@ -420,6 +420,20 @@ test('apply probe refuses an exited child, stale log, and unhealthy, retried or 
     for (const url of urls) assert.ok(error.message.includes(url));
     return true;
   });
+});
+
+test('apply probe admits a name that is up but has no page at / (404), as the probe itself counts it up', async t => {
+  const tree = mkdtempSync(join(tmpdir(), 'apply-probe-fixture-'));
+  t.after(() => rmSync(tree, { recursive: true, force: true }));
+  const entry = probeEntry(tree);
+  mkdirSync(dirname(entry), { recursive: true });
+  const urls = ['https://files.example.test/', 'https://site.example.test/'];
+  const sample = (url, status) => JSON.stringify({ at: '2026-11-24T13:00:00Z', ms: 12, lag_ms: 0, url, status });
+  const up = `${[sample(urls[0], 404), sample(urls[1], 200)].join('\n')}\n`;
+  writeFileSync(entry, `import { appendFileSync } from 'node:fs';\nappendFileSync(process.argv[3], ${JSON.stringify(up)});\nsetInterval(() => {}, 20);\n`);
+  const probe = await startApplyProbe({ tree, urls, log: join(tree, 'up.jsonl'), deadlineMs: 2000 });
+  assert.ok(probe);
+  await probe.stop().catch(() => {}); // the fixture writes no final summary; admission is what is checked here
 });
 
 test('a refused write or one that does not read back equal stops the probe and never sets links or applies', async () => {
