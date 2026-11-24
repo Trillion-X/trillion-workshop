@@ -9,6 +9,7 @@ import { resolve } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 import { visitorOf, consentGrantedOf, sourceOf, visitStep, keepStep, goRedirect, visitBeacon, checkoutAttribution, bookedStep, bookingStepOf, leadStep, saleStepOf, emailKey, makeTouch } from '../do-work/journey.mjs';
 import { makeATrackedLink } from '../do-work/make-a-tracked-link.mjs';
+import { funnelBySource } from '../do-work/show-funnel-by-source.mjs';
 
 const sql = readFileSync(resolve(import.meta.dirname, '../read-data/journey-steps.sql'), 'utf8');
 const SITE = 'https://site.example';
@@ -77,6 +78,24 @@ test('a /go/ link keeps a click for the visitor and redirects with the touch fie
   assert.deepEqual(await goRedirect(query, 'no-such-touch', N), { status: 404, location: null, setCookie: null });
 });
 
+test('an explicitly anonymous tracked redirect does not need a consent cookie name or honor the old visitor', async () => {
+  const { query } = await database();
+  const touch = makeTouch({ destination: `${SITE}/offer`, source: { utm_source: 'newsletter' }, base: SITE });
+  await writeTouch(query, touch);
+  const cookieHeader = 'old_consent=granted; jv=visitor-one-1';
+  const unreadableCookie = { toString() { throw new Error('anonymous redirects must not read cookies'); } };
+  const answer = await goRedirect(query, touch.row.id, { consent: false, visitor: 'visitor-one-1', cookieHeader: unreadableCookie });
+  assert.equal(answer.status, 302);
+  assert.equal(answer.setCookie, null);
+  assert.equal(new URL(answer.location).searchParams.get('t'), touch.row.id);
+  assert.deepEqual((await query('SELECT step, visitor, touch_id FROM journey_steps')).rows, [
+    { step: 'click', visitor: null, touch_id: touch.row.id },
+  ]);
+  await assert.rejects(goRedirect(query, touch.row.id, { cookieHeader }), /consentCookieName/);
+  await assert.rejects(goRedirect(query, touch.row.id, { consent: true, cookieHeader }), /consentCookieName/);
+  await assert.rejects(goRedirect(query, touch.row.id, { consent: false, consentCookieName: 'invalid=name' }), /consentCookieName/);
+});
+
 test('checkout fields stay inside Stripe\'s limits: invalid characters dropped, lengths capped, empty values left out', () => {
   const out = checkoutAttribution(`abc def/${'x'.repeat(300)}`, { utm_source: 'a'.repeat(600), utm_campaign: 'spring', gclid: 'g', [`${'k'.repeat(41)}`]: 'too long a key' });
   assert.match(out.client_reference_id, /^[A-Za-z0-9_-]{1,200}$/);
@@ -104,19 +123,46 @@ test('a booking keeps the email as its key, never the email, once per booking, a
   assert.equal(JSON.stringify(rows).includes('ana@example.com'), false);
 });
 
-test('a paid session joins to its visitor by client_reference_id, or by the email when no visitor is on it', () => {
-  const paid = saleStepOf({ id: 'cs_1', client_reference_id: 'visitor-one-1', customer_details: { email: 'ANA@example.com ' }, amount_total: 4900, metadata: { offer_id: 'course' } });
+test('a paid session joins by its journey metadata, not its checkout account reference', () => {
+  const paid = saleStepOf({ id: 'cs_1', client_reference_id: 'account-one-1', customer_details: { email: 'ANA@example.com ' }, amount_total: 4900, metadata: { offer_id: 'course', journey_visitor: 'visitor-one-1' } });
   assert.equal(paid.visitor, 'visitor-one-1');
-  assert.equal(paid.joined_by, 'client_reference_id');
+  assert.equal(paid.joined_by, 'journey_visitor');
   assert.equal(paid.email_key, emailKey('ana@example.com'));
   assert.equal(paid.offer_id, 'course');
   assert.equal(paid.value_cents, 4900);
   assert.equal(paid.ref, 'cs_1');
+});
 
-  const byEmail = saleStepOf({ id: 'cs_2', customer_email: 'ana@example.com', amount_total: 9900, metadata: {} });
+test('a paid session without canonical journey metadata joins by email or stays unlinked', () => {
+  const account = { id: 'cs_2', client_reference_id: 'account-one-1', amount_total: 9900 };
+  const byEmail = saleStepOf({ ...account, customer_email: 'ana@example.com', metadata: { jv: 'not-a-metadata-visitor' } });
   assert.equal(byEmail.visitor, null);
   assert.equal(byEmail.joined_by, 'email');
-  assert.equal(byEmail.email_key, paid.email_key);
+  assert.equal(byEmail.email_key, emailKey('ana@example.com'));
+
+  const unlinked = saleStepOf({ ...account, metadata: { journey_visitor: ' ' } });
+  assert.equal(unlinked.visitor, null);
+  assert.equal(unlinked.joined_by, null);
+});
+
+test('the funnel board credits the visitor’s source, even if the checkout account matches a different visitor', async (t) => {
+  const { db, query } = await database();
+  t.after(() => db.close());
+  const buyer = 'visitor-buyer-1';
+  const account = 'visitor-other-1';
+  for (const [visitor, source] of [[buyer, 'newsletter'], [account, 'instagram']]) {
+    const touch = makeTouch({ destination: `${SITE}/offer`, source: { utm_source: source }, base: SITE });
+    await writeTouch(query, touch);
+    const { location } = await goRedirect(query, touch.row.id, { ...N, visitor, consent: true });
+    await keepStep(query, visitStep({ url: location, visitor }));
+  }
+  const sale = saleStepOf({ id: 'cs_funnel', client_reference_id: account, metadata: { journey_visitor: buyer }, amount_total: 4900 });
+  assert.deepEqual(await keepStep(query, sale), { kept: true });
+  assert.deepEqual(await keepStep(query, sale), { kept: false });
+
+  const { rows } = await funnelBySource({ connection: 'fixture', proxy: '', connect: async () => ({ query: ({ text }) => query(text), end: async () => {} }) });
+  const bySource = Object.fromEntries(rows.map(row => [row.source, [Number(row.visit_steps), Number(row.sales), row.revenue_text]]));
+  assert.deepEqual(bySource, { newsletter: [1, 1, '$49.00'], instagram: [1, 0, '$0.00'] });
 });
 
 test('the tracked-link tool answers a touch row and a short link only when given go_base', () => {

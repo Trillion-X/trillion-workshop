@@ -34,7 +34,7 @@
         "value_cents": "(attributes->>'amount_due_today_cents')::bigint"
       },
       "joined_by": "email",
-      "joined_by_visitor": "client_reference_id",
+      "joined_by_visitor": "journey_visitor",
       "cutoff_column": "made_at",
       "requires_columns": ["id", "event_kind", "occurred_at", "attributes", "made_at", "offers.id"]
     },
@@ -52,7 +52,7 @@
         "value_cents": "amount_cents"
       },
       "joined_by": "email",
-      "joined_by_visitor": "client_reference_id",
+      "joined_by_visitor": "journey_visitor",
       "cutoff_column": "made_at",
       "requires_columns": ["event_id", "event_kind", "occurred_at", "offer_id", "customer_email", "amount_cents", "payment_status", "attributes", "made_at", "offers.offer_id"]
     }

@@ -164,9 +164,10 @@ export async function purgeProofRows(query) {
  * fields and the touch id. Resolves to { status: 404 } for an unknown touch, and to { status: 503, retryAfter } when the
  * touch cannot be read (the database is unreachable). The click step is best effort: a failed write never holds the visitor
  * back. The visitor is `visitor` when given, else the cookie's, and only with consent (none otherwise, and no cookie is set).
+ * When a site cannot read its consent settings, it can pass explicit `consent: false` without a name to redirect anonymously.
  */
 export async function goRedirect(query, touchId, { visitor, cookieHeader, refererHeader, cookie = settings.cookie, consentCookieName, consent = consentGrantedOf(cookieHeader, consentCookieName) } = {}) {
-  requireConsentCookieName(consentCookieName);
+  if (consent !== false || consentCookieName !== undefined) requireConsentCookieName(consentCookieName);
   let found;
   try {
     found = (await query('SELECT id, destination, source FROM journey_touches WHERE id = $1', [touchId])).rows[0];
@@ -299,20 +300,20 @@ export function leadStep({ visitor = null, email, offer_id = null, source = {}, 
 }
 
 /**
- * The sale step from a paid Stripe Checkout Session: the visitor from client_reference_id (else the metadata's visitor),
- * the email's key from the customer's email, the offer from the metadata, the amount in the currency's minor units.
+ * The sale step from a paid Stripe Checkout Session: the visitor from journey metadata, never the account or attempt
+ * reference, the email's key from the customer's email, the offer from metadata, and the amount in minor units.
  * Its ref is the session id, so a webhook delivered twice keeps one sale.
  */
 export function saleStepOf(session) {
   const limits = settings.stripe;
   const metadata = session?.metadata ?? {};
-  const visitor = text(session?.client_reference_id) || text(metadata[limits.visitor_key]) || null;
+  const visitor = text(metadata[limits.visitor_key]) || null;
   const email_key = emailKey(session?.customer_details?.email ?? session?.customer_email);
   return stepOf({
     visitor,
     step: 'sale',
     ref: text(session?.id) || null,
-    joined_by: visitor ? 'client_reference_id' : email_key ? 'email' : null,
+    joined_by: visitor ? limits.visitor_key : email_key ? 'email' : null,
     email_key,
     offer_id: text(metadata[limits.offer_key]) || null,
     value_cents: Number.isInteger(session?.amount_total) ? session.amount_total : null,

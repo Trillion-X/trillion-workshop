@@ -49,7 +49,7 @@ const mappings = [
       ref: 'id::text', at: 'occurred_at', email: "attributes->>'customer_email'", visitor: "attributes->>'journey_visitor'",
       offer_id: "attributes->>'offer_id'", value_cents: "(attributes->>'amount_due_today_cents')::bigint",
     },
-    joined_by: 'email', joined_by_visitor: 'client_reference_id',
+    joined_by: 'email', joined_by_visitor: 'journey_visitor',
   },
 ];
 
@@ -66,7 +66,7 @@ test('the statements booking and the in-scope paid sale are kept once; a second 
   const { rows: steps } = await db.query("SELECT step, ref, visitor, email_key, offer_id, value_cents, joined_by, source FROM journey_steps WHERE step IN ('booking', 'sale') ORDER BY step");
   assert.deepEqual(steps.map(({ step, ref, visitor, offer_id, value_cents, joined_by, source }) => ({ step, ref, visitor, offer_id, value_cents, joined_by, source })), [
     { step: 'booking', ref: 'tidycal:b1', visitor: null, offer_id: null, value_cents: null, joined_by: 'email', source: { starts_at: '2026-11-25T10:00:00Z' } },
-    { step: 'sale', ref: 'pe1', visitor: 'visitor-a-1', offer_id: 'offer:course', value_cents: 4900, joined_by: 'client_reference_id', source: null },
+    { step: 'sale', ref: 'pe1', visitor: 'visitor-a-1', offer_id: 'offer:course', value_cents: 4900, joined_by: 'journey_visitor', source: null },
   ]);
   assert.equal(steps[0].email_key, emailKey('ana@example.com'));
   assert.equal(JSON.stringify(steps).includes('Ana@Example.com'), false);
@@ -281,6 +281,8 @@ test('each shape of payment_events is read through its own mapping: the first sh
   const first = await pursuitDatabase();
   const firstAnswer = await keepStepsFromRows({ query: (sql, params) => first.query(sql, params), mappings: settings.mappings });
   assert.deepEqual(firstAnswer.mappings.filter(item => item.step === 'sale'), [{ id: 'stripe-sales-from-payment-events', step: 'sale', read: 1, kept: 1 }]);
+  const { rows: firstSales } = await first.query("SELECT visitor, joined_by FROM journey_steps WHERE step = 'sale'");
+  assert.deepEqual(firstSales, [{ visitor: 'visitor-a-1', joined_by: 'journey_visitor' }]);
 
   const other = await otherShapeDatabase();
   const otherAnswer = await keepStepsFromRows({ query: (sql, params) => other.query(sql, params), mappings: settings.mappings });
@@ -289,8 +291,32 @@ test('each shape of payment_events is read through its own mapping: the first sh
     { id: 'stripe-sales-from-payment-events-by-columns', step: 'sale', read: 1, kept: 1 },
   ]);
   const { rows } = await other.query("SELECT ref, visitor, email_key, offer_id, value_cents, joined_by FROM journey_steps WHERE step = 'sale'");
-  assert.deepEqual(rows, [{ ref: 'evt-1', visitor: 'visitor-d-1', email_key: emailKey('dee@example.com'), offer_id: 'offer:course', value_cents: 2900, joined_by: 'client_reference_id' }]);
+  assert.deepEqual(rows, [{ ref: 'evt-1', visitor: 'visitor-d-1', email_key: emailKey('dee@example.com'), offer_id: 'offer:course', value_cents: 2900, joined_by: 'journey_visitor' }]);
   assert.equal(JSON.stringify(rows).includes('Dee@Example.com'), false);
+});
+
+test('replaying a saved sale in either format keeps its journey visitor and writes no duplicate', async () => {
+  for (const [makeDatabase, ref, visitor] of [[pursuitDatabase, 'pe1', 'visitor-a-1'], [otherShapeDatabase, 'evt-1', 'visitor-d-1']]) {
+    const db = await makeDatabase();
+    const query = (sql, params) => db.query(sql, params);
+    try {
+      await query("UPDATE payment_events SET attributes = attributes || jsonb_build_object('client_reference_id', 'visitor-account-1')");
+      const first = await keepStepsFromRows({ query, refs: [ref] });
+      assert.deepEqual(first.mappings.filter(item => item.step === 'sale').map(({ read, kept }) => ({ read, kept })), [{ read: 1, kept: 1 }]);
+      const readSale = () => query("SELECT id, at, ref, visitor, joined_by, email_key, offer_id, value_cents FROM journey_steps WHERE step = 'sale'");
+      const { rows: before } = await readSale();
+      assert.equal(before.length, 1);
+      assert.equal(before[0].visitor, visitor);
+      assert.equal(before[0].joined_by, 'journey_visitor');
+      for (let replay = 0; replay < 2; replay += 1) {
+        const again = await keepStepsFromRows({ query, refs: [ref] });
+        assert.deepEqual(again.mappings.filter(item => item.step === 'sale').map(({ read, kept }) => ({ read, kept })), [{ read: 1, kept: 0 }]);
+        assert.deepEqual((await readSale()).rows, before);
+      }
+    } finally {
+      await db.close();
+    }
+  }
 });
 
 test('a table that fits none of its shapes is reported with its columns, and the run still succeeds', async () => {
