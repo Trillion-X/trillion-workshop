@@ -17,6 +17,7 @@
 import { buildFillScreenModel } from '../read-data/fill-screen-model.ts';
 import { resolveAbout } from '../read-data/question-descriptor.ts';
 import { registry } from './check-answers.mjs';
+import { holds } from './rule-engine.mjs';
 import { coerceAnswer } from '../read-data/validate-answer.ts';
 import { readFirstQuestionSequence } from '../read-data/read-forms-data.ts';
 import { readDecideConfig } from '../read-data/read-decide-config.ts';
@@ -63,7 +64,7 @@ export async function submitFormAnswers(input) {
   const sequence = stored ? readFirstQuestionSequence(payloadRows([stored])) : null;
   if (!sequence) throw new Error(`The rows given hold no form ${formId} (${questionSequenceId(formId)}): give its question-sequence row, or make it with the save-a-form tool.`);
 
-  const model = buildFillScreenModel(sequence.questions, registry, answers, { revealErrors: true });
+  const model = buildFillScreenModel(sequence.questions, registry, answers, { revealErrors: true, holds });
   if (!model.allValid) {
     return {
       accepted: false,

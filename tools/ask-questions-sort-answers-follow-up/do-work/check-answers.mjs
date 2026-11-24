@@ -10,6 +10,7 @@
 import { readFileSync, realpathSync } from 'node:fs';
 import { buildFillScreenModel } from '../read-data/fill-screen-model.ts';
 import { indexCapabilities } from '../read-data/question-descriptor.ts';
+import { holds } from './rule-engine.mjs';
 import { pathToFileURL } from 'node:url';
 
 export const registry = indexCapabilities(JSON.parse(readFileSync(new URL('../data/question-types.json', import.meta.url), 'utf8')).rows);
@@ -20,7 +21,7 @@ export function checkAnswers(input) {
   const unnamed = input.questions.findIndex(question => !object(question) || typeof question.questionId !== 'string' || typeof question.questionTypeId !== 'string');
   if (unnamed >= 0) throw new Error(`questions[${unnamed}] needs a questionId and a questionTypeId (${[...registry.keys()].join(', ')}).`);
   const answers = object(input.answers) ? input.answers : {};
-  const model = buildFillScreenModel(input.questions, registry, answers, { revealErrors: true });
+  const model = buildFillScreenModel(input.questions, registry, answers, { revealErrors: true, holds });
   return {
     all_valid: model.allValid,
     first_invalid: model.firstInvalidId,

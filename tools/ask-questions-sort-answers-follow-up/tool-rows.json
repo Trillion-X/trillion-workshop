@@ -448,7 +448,8 @@
               {
                 "package": "query-and-change-list-rows",
                 "paths": [
-                  "src/list-aggregates.mjs"
+                  "src/list-aggregates.mjs",
+                  "src/formula-engine.mjs"
                 ],
                 "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
               },
@@ -843,7 +844,8 @@
               {
                 "package": "query-and-change-list-rows",
                 "paths": [
-                  "src/list-aggregates.mjs"
+                  "src/list-aggregates.mjs",
+                  "src/formula-engine.mjs"
                 ],
                 "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
               },
@@ -1181,7 +1183,8 @@
               {
                 "package": "query-and-change-list-rows",
                 "paths": [
-                  "src/list-aggregates.mjs"
+                  "src/list-aggregates.mjs",
+                  "src/formula-engine.mjs"
                 ],
                 "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
               },
@@ -1544,7 +1547,8 @@
               {
                 "package": "query-and-change-list-rows",
                 "paths": [
-                  "src/list-aggregates.mjs"
+                  "src/list-aggregates.mjs",
+                  "src/formula-engine.mjs"
                 ],
                 "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
               },
@@ -1884,7 +1888,8 @@
               {
                 "package": "query-and-change-list-rows",
                 "paths": [
-                  "src/list-aggregates.mjs"
+                  "src/list-aggregates.mjs",
+                  "src/formula-engine.mjs"
                 ],
                 "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
               },

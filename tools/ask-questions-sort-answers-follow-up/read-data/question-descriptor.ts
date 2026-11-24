@@ -78,6 +78,42 @@ export interface QuestionDescriptor {
   /** What the answer is about, read from an earlier answer: its picked label replaces `{name}` in the
    *  label and is kept with the answer, so the same question asked about another thing is another series. */
   about?: QuestionAbout;
+  /** When the question is asked: a rule tree of the formula engine (tools/formula-engine: groups of rules, each a question id,
+   *  an operator from its rule-operators.json and params), read over the answers so far as facts (answerFacts). Absent: always. */
+  showWhen?: QuestionRuleTree;
+  /** When the question is not asked, though showWhen holds: the same kind of rule tree. */
+  hideWhen?: QuestionRuleTree;
+}
+
+/** A formula-engine rule tree: { kind: 'group', combinator: 'and' | 'or', negate, rules: [tree] } or
+ *  { kind: 'rule', field: <questionId>, operator: <rule-operators.json id>, params }. Kept as the engine reads it. */
+export type QuestionRuleTree = Readonly<Record<string, unknown>>;
+
+/** The answers so far as the facts a rule tree reads, keyed by question id: a picks answer gives its picked values (a list), any
+ *  other answer itself. An unanswered question gives no fact, so a rule about it does not hold (the engine's unknown). */
+export function answerFacts(answers: Readonly<Record<string, unknown>>): Record<string, unknown> {
+  const facts: Record<string, unknown> = {};
+  for (const [questionId, value] of Object.entries(answers)) {
+    if (value === undefined || value === null) continue;
+    const picked = value && typeof value === 'object' && !Array.isArray(value) ? (value as { picked?: unknown }).picked : undefined;
+    facts[questionId] = Array.isArray(picked) ? picked : value;
+  }
+  return facts;
+}
+
+/** Whether a question is asked given the answers so far (by question id). `holds` is the loaded formula engine's
+ *  holds({ tree, facts }) -> boolean, given by the host (Node or a page loads the engine its own way). A question with a rule
+ *  tree and no engine to read it is refused, never shown or skipped by guess. */
+export function isAsked(
+  question: QuestionDescriptor,
+  answers: Readonly<Record<string, unknown>>,
+  holds?: (request: { tree: QuestionRuleTree; facts: Record<string, unknown> }) => boolean,
+): boolean {
+  if (!question.showWhen && !question.hideWhen) return true;
+  if (typeof holds !== 'function') throw new Error(`Question ${question.questionId} is asked only when its rules hold, and no rule engine was given to read them.`);
+  const facts = answerFacts(answers);
+  if (question.showWhen && !holds({ tree: question.showWhen, facts })) return false;
+  return !(question.hideWhen && holds({ tree: question.hideWhen, facts }));
 }
 
 /** `name` is the word in the label ({name}) and the key kept with the answer; `fromQuestionId` the answer read. */

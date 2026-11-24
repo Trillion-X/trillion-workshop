@@ -8,7 +8,8 @@ import { registry } from '../../ask-questions-sort-answers-follow-up/do-work/che
 import { validateAnswer, coerceAnswer } from '../../ask-questions-sort-answers-follow-up/read-data/validate-answer.ts';
 import { mergeRules } from '../../ask-questions-sort-answers-follow-up/read-data/fill-screen-model.ts';
 import { readDescriptor } from '../../ask-questions-sort-answers-follow-up/read-data/read-forms-data.ts';
-import { resolveAbout, answerText } from '../../ask-questions-sort-answers-follow-up/read-data/question-descriptor.ts';
+import { resolveAbout, answerText, isAsked } from '../../ask-questions-sort-answers-follow-up/read-data/question-descriptor.ts';
+import { holds } from '../../ask-questions-sort-answers-follow-up/do-work/rule-engine.mjs';
 
 export const EMAIL_STEP = 'email';
 export const SLOT_STEP = 'slot';
@@ -51,13 +52,21 @@ function answered(step, answer) {
   return !step.required || checkAnswer(step, answer).ok;
 }
 
+// The answers so far keyed by question id, as the form owner's rules read them.
+function answersById(steps, answers) {
+  return Object.fromEntries(steps.filter(step => step.kind === 'question' && answers[step.position] !== undefined).map(step => [step.question.questionId, answers[step.position]]));
+}
+
 // progress: { email: string | null, answers: { [position]: value }, slot: string | null }. An optional question is done once it
-// has an answer, even an empty one; a required one once its answer passes its check.
+// has an answer, even an empty one; a required one once its answer passes its check. A question asked only when its rules hold
+// (the form owner's showWhen and hideWhen, read by the formula engine over the answers so far) is passed by while they do not.
 export function nextStepOf(page, progress) {
   const steps = stepsOf(page);
   const answers = progress?.answers ?? {};
+  const byId = answersById(steps, answers);
   for (const step of steps) {
     if (step.key === EMAIL_STEP && !progress?.email) return step;
+    if (step.kind === 'question' && !isAsked(step.question, byId, holds)) continue;
     if (step.kind === 'question' && !answered(step, answers[step.position])) return step;
     if (step.key === SLOT_STEP && !progress?.slot) return step;
     if (step.key === CONFIRM_STEP) return step;
@@ -69,7 +78,7 @@ export function nextStepOf(page, progress) {
 export function askedStep(page, step, progress) {
   if (step?.kind !== 'question') return { ...step, about: null };
   const steps = stepsOf(page).filter(item => item.kind === 'question');
-  const byId = Object.fromEntries(steps.filter(item => progress?.answers?.[item.position] !== undefined).map(item => [item.question.questionId, progress.answers[item.position]]));
+  const byId = answersById(steps, progress?.answers ?? {});
   const { label, about } = resolveAbout(step.question, steps.map(item => item.question), byId);
   return { ...step, prompt: label, about };
 }

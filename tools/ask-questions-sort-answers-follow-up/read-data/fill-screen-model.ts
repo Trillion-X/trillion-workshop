@@ -22,7 +22,7 @@ import {
   type QuestionSuggestion,
 } from './question-suggestions.ts';
 import type { QuestionOption } from './question-input-contract.ts';
-import { FALLBACK_INPUT_COMPONENT_KEY } from './question-descriptor.ts';
+import { FALLBACK_INPUT_COMPONENT_KEY, isAsked, type QuestionRuleTree } from './question-descriptor.ts';
 
 export interface FillRow {
   descriptor: QuestionDescriptor;
@@ -58,6 +58,9 @@ export interface BuildFillOptions {
    *  through the existing bitfield-input-descriptor path. Blind: unknown or
    *  absent names simply produce no suggestions/options. */
   suggestionFeeds?: Readonly<Record<string, unknown>>;
+  /** The loaded formula engine's holds({ tree, facts }), for questions asked only when their rules hold (showWhen, hideWhen).
+   *  A question that is not asked now has no row and is not checked. */
+  holds?: (request: { tree: QuestionRuleTree; facts: Record<string, unknown> }) => boolean;
 }
 
 type CapabilityLookup =
@@ -89,7 +92,7 @@ export function buildFillScreenModel(
   const reveal = options.revealErrors ?? false;
   let firstInvalidId: string | null = null;
 
-  const rows: FillRow[] = questions.map((descriptor) => {
+  const rows: FillRow[] = questions.filter((descriptor) => isAsked(descriptor, answers, options.holds)).map((descriptor) => {
     const cap = lookup(registry, descriptor.questionTypeId);
     // Graceful: an unknown question type renders as text and coerces to string,
     // rather than dropping the question (mirrors resolveInputComponent fallback).

@@ -154,7 +154,16 @@ export function readDescriptor(raw: unknown): QuestionDescriptor | null {
     ...(readOptions([d.other])?.[0] ? { other: readOptions([d.other])![0] } : {}),
     ...(typeof d.help === 'string' && d.help ? { help: d.help } : {}),
     ...(readAbout(d.about) ? { about: readAbout(d.about)! } : {}),
+    ...(readRuleTree(d.showWhen ?? d.show_when) ? { showWhen: readRuleTree(d.showWhen ?? d.show_when)! } : {}),
+    ...(readRuleTree(d.hideWhen ?? d.hide_when) ? { hideWhen: readRuleTree(d.hideWhen ?? d.hide_when)! } : {}),
   };
+}
+
+/** A rule tree is kept as given when it is a formula-engine group or rule; the engine itself checks the rest when it reads it. */
+function readRuleTree(raw: unknown): QuestionDescriptor['showWhen'] | null {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const kind = (raw as Record<string, unknown>).kind;
+  return kind === 'group' || kind === 'rule' ? (raw as QuestionDescriptor['showWhen'])! : null;
 }
 
 function readAbout(raw: unknown): QuestionDescriptor['about'] | null {

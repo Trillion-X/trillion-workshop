@@ -123,3 +123,20 @@ test('a question about an earlier answer is asked with that answer in it, and sa
   assert.deepEqual(askedStep(PICKS_PAGE, next, progress).about, { stroke: 'Serve' });
   assert.equal(nextStepOf(PICKS_PAGE, { ...progress, answers: { 0: { picked: ['lob'] } } }).key, 'question:0');
 });
+
+test('a question asked only when its rules hold is passed by while they do not, and asked once they do', () => {
+  const rule = (field, operator, params = {}) => ({ kind: 'rule', field, operator, params });
+  const page = {
+    questions: [
+      { position: 0, prompt: 'Who is this for?', question: { questionId: 'who', questionTypeId: 'picks', options: [{ value: 'me', label: 'Me' }, { value: 'child', label: 'My child' }] } },
+      { position: 1, prompt: 'How old are you?', question: { questionId: 'parent-age', questionTypeId: 'number', showWhen: { kind: 'group', combinator: 'and', negate: false, rules: [rule('who', 'has_any_of', { values: ['child'] })] } } },
+      { position: 2, prompt: 'Your goal?', question: { questionId: 'own-goal', questionTypeId: 'text', hideWhen: rule('who', 'has_any_of', { values: ['child'] }) } },
+    ],
+  };
+  const at = answers => nextStepOf(page, { email: 'a@example.com', answers, slot: null }).key;
+  assert.equal(at({}), 'question:0');
+  assert.equal(at({ 0: { picked: ['me'] } }), 'question:2', 'the parent question is passed by for the player');
+  assert.equal(at({ 0: { picked: ['me'] }, 2: 'Win more' }), SLOT_STEP);
+  assert.equal(at({ 0: { picked: ['child'] } }), 'question:1', 'the parent question is asked for a parent');
+  assert.equal(at({ 0: { picked: ['child'] }, 1: 41 }), SLOT_STEP, 'the player goal is hidden for a parent');
+});

@@ -7,6 +7,7 @@ The one-question-at-a-time path of a booking page: the email first, then each qu
 - **Refusals do not echo the value.** `checkAnswer` names the rule that failed, never the value given, so an email is not repeated in an error.
 - **A question is a form question.** Its type, options (one pick or several, an other option asking for the person's own words), rules and what it is about are the form owner's question descriptor (`tools/ask-questions-sort-answers-follow-up`), checked by that owner's checker. A question that names no type is a written answer.
 - **A question can be about an earlier answer.** `askedStep` fills `{name}` in its prompt from the answer it reads (for example the stroke picked) and says what the answer is about, so the caller keeps that with the answer.
+- **A question can be asked only when its rules hold.** A question's `showWhen` and `hideWhen` (the form owner's rule trees, read by the formula engine over the answers so far) decide whether `nextStepOf` asks it or passes it by, so a page branches on its own answers with no branch written here.
 
 ## Files
 
