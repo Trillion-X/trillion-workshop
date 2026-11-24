@@ -64839,5 +64839,15 @@
    ],
    "at": "/opt/node_modules/tldts-core"
   }
+ ],
+ "tool:prepare-a-newsletter-audience": [
+  {
+   "package": "serve-articles-and-signup",
+   "paths": [
+    "do-work/prepare-audience.mjs",
+    "do-work/subscriber-audience.mjs"
+   ],
+   "at": "/opt/serve-articles-and-signup"
+  }
  ]
 }

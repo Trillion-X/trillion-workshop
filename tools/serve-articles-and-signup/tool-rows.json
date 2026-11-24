@@ -1,0 +1,81 @@
+{
+  "kind": "tool-rows",
+  "record_set": "serve-articles-and-signup-tool-rows",
+  "what_this_is": "The site's subscriber audience and one-click links, shared by its signup routes and its newsletter workflow. The caller reads one bounded page from the pursuit's own store; this tool filters it and signs links with the site's held key. It sends nothing and reads no database.",
+  "records": [
+    {
+      "id": "package::ai-tool-catalog::tool::prepare-a-newsletter-audience",
+      "address": "package::ai-tool-catalog::tool::prepare-a-newsletter-audience",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:prepare-a-newsletter-audience",
+        "label": "Prepare a newsletter audience",
+        "job": "Select confirmed subscribers by their tags and give each their site's own one-click unsubscribe link",
+        "description": "Give one page of subscribers read from this pursuit's own store (id, email, status, tags), the site's HTTPS origin and the vault name of its link key. Only confirmed rows matching every required_tags tag and none of excluded_tags are returned. The key is mounted on a private descriptor, never handed back. Links use the same signer as the site's unsubscribe route. Malformed tags or conflicting identities refuse the page; unknown subscriber states are never sent. Nothing is sent here: claim each issue/recipient in the pursuit's send table before using tool:send-an-email.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["subscribers", "origin", "key_name"],
+          "properties": {
+            "subscribers": {
+              "type": "array",
+              "maxItems": 1000,
+              "items": {
+                "type": "object",
+                "required": ["id", "email", "status"],
+                "properties": {
+                  "id": { "type": "string", "minLength": 1 },
+                  "email": { "type": "string", "minLength": 1 },
+                  "status": { "type": "string" },
+                  "tags": { "type": ["string", "array"], "items": { "type": "string" } }
+                }
+              }
+            },
+            "origin": { "type": "string", "pattern": "^https://" },
+            "key_name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$" },
+            "required_tags": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+            "excluded_tags": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["audience", "count", "excluded"],
+          "properties": {
+            "audience": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "email", "status", "tags", "unsubscribe_url"],
+                "properties": {
+                  "id": { "type": "string" },
+                  "email": { "type": "string" },
+                  "status": { "type": "string" },
+                  "tags": { "type": "array", "items": { "type": "string" } },
+                  "unsubscribe_url": { "type": "string" }
+                }
+              }
+            },
+            "count": { "type": "integer" },
+            "excluded": { "type": "integer" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/serve-articles-and-signup",
+          "stdout": "json",
+          "argv": ["node", "/opt/serve-articles-and-signup/do-work/prepare-audience.mjs"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": { "package_files": { "package": "serve-articles-and-signup", "paths": ["do-work/prepare-audience.mjs", "do-work/subscriber-audience.mjs"], "at": "/opt/serve-articles-and-signup" } },
+          "credential_mounts": [{ "secret_name_from_input": "key_name", "fd": 3 }]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 1, "network_egress": false },
+        "read_only": true,
+        "placements": ["placement:your-computer"]
+      }
+    }
+  ]
+}

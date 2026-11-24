@@ -184,6 +184,8 @@ const journey = (mail) => async (sql, params = []) => {
   if (sql.startsWith('SELECT * FROM subscribers WHERE id')) return params[0] === 'sub-1' ? [pending] : [];
   if (sql.startsWith('SELECT id, status FROM subscribers')) return params[0] === 'sub-1' ? [{ id: 'sub-1', status: 'confirmed' }] : [];
   if (sql.startsWith('SELECT * FROM subscribers WHERE email')) return [];
+  if (sql.startsWith('INSERT INTO subscribers')) return [{ id: params[0] }];
+  if (sql.startsWith("UPDATE subscribers SET status = 'confirmed'")) return [{ id: params[1] }];
   return [];
 };
 

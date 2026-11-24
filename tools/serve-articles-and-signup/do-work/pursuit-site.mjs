@@ -23,6 +23,7 @@
 import { createHmac, randomBytes, randomUUID } from 'node:crypto';
 import { documentPageHtml } from '../../ui/show/document-page/document-page-html.mjs';
 import { withSearchHead } from '../../publish-content-for-discovery/do-work/site-search-head.mjs';
+import { subscriberLinks, subscriberTags } from './subscriber-audience.mjs';
 
 const EMAIL_SHAPE = /^[^\s@<>()[\]\\,;:"]{1,64}@[a-z0-9-]+(\.[a-z0-9-]+)+$/i;
 const SIGNUPS_PER_NETWORK_PER_HOUR = 5;
@@ -69,14 +70,17 @@ export function bodyHtml(markdown) {
   }).join('\n');
 }
 
-export function createSite({ db, mail, origin, brand, secret, signupText, layout = null, stylesheets = [], themeAttributes = {}, tokens = {}, author = null, now = nowIso, draw = null }) {
+export function createSite({ db, mail, origin, brand, secret, signupText, signupTags = [], sourceTags = {}, layout = null, stylesheets = [], themeAttributes = {}, tokens = {}, author = null, now = nowIso, draw = null }) {
   if (!secret || secret.length < 32) throw new Error('createSite needs a secret of at least 32 characters (the caller holds it).');
   const keyed = (purpose, value) => createHmac('sha256', secret).update(`${purpose}\n${value}`).digest('base64url');
   const absolute = (path) => new URL(path, origin).toString();
   const tokenStyle = tokenAliasesHtml(tokens);
+  const baseTags = subscriberTags(signupTags);
+  const tagsBySource = new Map(Object.entries(sourceTags).map(([path, tags]) => [path, subscriberTags(tags)]));
+  const tagsFor = (source, existing = []) => subscriberTags([...subscriberTags(existing), ...baseTags, ...(tagsBySource.get(new URL(source, origin).pathname) ?? [])]);
 
   const previewToken = (slug) => keyed('preview', slug);
-  const unsubscribeLink = (id) => absolute(`/unsubscribe?s=${encodeURIComponent(id)}&t=${keyed('unsubscribe', id)}`);
+  const unsubscribeLink = subscriberLinks({ origin, secret });
 
   // A page with its search head from withSearchHead, the one writer of that head. A site that passes `layout` gets its bare markup
   // (`bare()`) wrapped in its own layout, as it always was; a site that does not gets document-page, whose own head facts are left
@@ -217,33 +221,44 @@ export function createSite({ db, mail, origin, brand, secret, signupText, layout
     const type = request.headers.get('content-type') ?? '';
     const form = type.includes('application/json') ? await request.json() : Object.fromEntries(await request.formData());
     const email = String(form.email ?? '').trim().toLowerCase();
-    const source = String(form.source ?? '').startsWith('/') ? String(form.source).slice(0, 200) : '/';
+    const givenSource = String(form.source ?? '');
+    const source = givenSource.startsWith('/') && !givenSource.startsWith('//') && !/[\\\r\n]/.test(givenSource) ? givenSource.slice(0, 200) : '/';
     if (!EMAIL_SHAPE.test(email) || email.length > 254) return utility('/subscribe', { heading: 'That address does not look right', status: 400 });
     const network = keyed('network', request.headers.get('cf-connecting-ip') ?? request.headers.get('x-forwarded-for') ?? 'unknown');
     const since = new Date(Date.now() - 3600_000).toISOString();
     const [{ n }] = await db(`SELECT count(*)::int AS n FROM subscribers WHERE network_digest = $1 AND confirm_sent_at > $2`, [network, since]);
     if (n >= SIGNUPS_PER_NETWORK_PER_HOUR) return utility('/subscribe', { heading: 'Too many sign-ups from here', status: 429 });
     const [existing] = await db('SELECT * FROM subscribers WHERE email = $1', [email]);
-    if (existing?.status === 'confirmed' || existing?.status === 'suppressed') return checkInbox(source);
+    if (existing?.status === 'confirmed') {
+      await db("UPDATE subscribers SET tags = $1 WHERE id = $2 AND status = 'confirmed'", [JSON.stringify(tagsFor(source, existing.tags ?? [])), existing.id]);
+      return checkInbox(source);
+    }
+    // Only a pending signup or a deliberate re-opt-in may be renewed. A suppression (including a bounce or complaint) never is.
+    if (existing && existing.status !== 'pending' && existing.status !== 'unsubscribed') return checkInbox(source);
     const id = existing?.id ?? randomUUID();
+    const tags = JSON.stringify(tagsFor(source, existing?.tags ?? []));
     const token = randomBytes(24).toString('base64url');
     const at = now();
     const consent = { text: signupText.consent, at, page: source, ip: keyed('ip', request.headers.get('cf-connecting-ip') ?? 'unknown') };
+    let changed;
     if (existing) {
-      await db(`UPDATE subscribers SET status = 'pending', confirm_digest = $1, confirm_sent_at = $2, source_path = $3, network_digest = $4,
-        confirmed_at = NULL, ended_at = NULL, ended_reason = NULL, consent_text = $5, consent_at = $6, consent_page = $7, consent_ip_digest = $8 WHERE id = $9`,
-      [keyed('confirm', `${id}:${token}`), at, source, network, consent.text, consent.at, consent.page, consent.ip, id]);
+      changed = await db(`UPDATE subscribers SET status = 'pending', confirm_digest = $1, confirm_sent_at = $2, source_path = $3, network_digest = $4,
+        confirmed_at = NULL, ended_at = NULL, ended_reason = NULL, consent_text = $5, consent_at = $6, consent_page = $7, consent_ip_digest = $8, tags = $9
+        WHERE id = $10 AND status IN ('pending', 'unsubscribed') RETURNING id`,
+      [keyed('confirm', `${id}:${token}`), at, source, network, consent.text, consent.at, consent.page, consent.ip, tags, id]);
     } else {
-      await db(`INSERT INTO subscribers (id, email, status, confirm_digest, confirm_sent_at, source_path, network_digest, created_at, tags,
-        consent_text, consent_at, consent_page, consent_ip_digest) VALUES ($1, $2, 'pending', $3, $4, $5, $6, $4, '[]', $7, $8, $9, $10)`,
-      [id, email, keyed('confirm', `${id}:${token}`), at, source, network, consent.text, consent.at, consent.page, consent.ip]);
+      changed = await db(`INSERT INTO subscribers (id, email, status, confirm_digest, confirm_sent_at, source_path, network_digest, created_at, tags,
+        consent_text, consent_at, consent_page, consent_ip_digest) VALUES ($1, $2, 'pending', $3, $4, $5, $6, $4, $7, $8, $9, $10, $11)
+        ON CONFLICT (email) DO NOTHING RETURNING id`,
+      [id, email, keyed('confirm', `${id}:${token}`), at, source, network, tags, consent.text, consent.at, consent.page, consent.ip]);
     }
+    if (!changed.length) return checkInbox(source);
     const link = absolute(`/subscribe/confirm?s=${encodeURIComponent(id)}&t=${token}`);
     try {
       await mail({ to: email, subject: signupText.confirm.subject, text: `${signupText.confirm.body}\n\n${link}`,
         html: `<p>${esc(signupText.confirm.body)}</p><p><a href="${esc(link)}">${esc(signupText.confirm.button)}</a></p>` });
     } catch (error) {
-      await db('UPDATE subscribers SET confirm_sent_at = NULL WHERE id = $1', [id]);
+      await db("UPDATE subscribers SET confirm_sent_at = NULL WHERE id = $1 AND status = 'pending' AND confirm_digest = $2", [id, keyed('confirm', `${id}:${token}`)]);
       console.error('confirmation send failed', error?.code ?? '', error?.message ?? '');
       return utility('/subscribe', { heading: 'We could not send the email. Try again later.', status: 502 });
     }
@@ -264,11 +279,14 @@ export function createSite({ db, mail, origin, brand, secret, signupText, layout
     const token = url.searchParams.get('t') ?? '';
     const [row] = await db('SELECT * FROM subscribers WHERE id = $1', [id]);
     if (row?.status === 'confirmed') return utility('/subscribe/confirm', { heading: 'You are already subscribed' });
-    const fresh = row && Date.now() - Date.parse(row.confirm_sent_at) < CONFIRM_HOURS * 3600_000;
+    const age = row ? Date.parse(now()) - Date.parse(row.confirm_sent_at) : NaN;
+    const fresh = age >= 0 && age < CONFIRM_HOURS * 3600_000;
     if (!(row?.status === 'pending' && fresh && row.confirm_digest === keyed('confirm', `${id}:${token}`))) {
       return utility('/subscribe/confirm', { heading: 'This link is no longer valid', text: 'Sign up again to get a new one.', status: 400 });
     }
-    await db(`UPDATE subscribers SET status = 'confirmed', confirmed_at = $1, confirm_digest = NULL WHERE id = $2`, [now(), id]);
+    const changed = await db(`UPDATE subscribers SET status = 'confirmed', confirmed_at = $1, confirm_digest = NULL
+      WHERE id = $2 AND status = 'pending' AND confirm_digest = $3 RETURNING id`, [now(), id, row.confirm_digest]);
+    if (!changed.length) return utility('/subscribe/confirm', { heading: 'This link is no longer valid', text: 'Sign up again to get a new one.', status: 400 });
     return utility('/subscribe/confirm', { heading: 'You are subscribed', text: 'Thank you.' });
   }
 
@@ -278,7 +296,8 @@ export function createSite({ db, mail, origin, brand, secret, signupText, layout
     const [row] = await db('SELECT id, status FROM subscribers WHERE id = $1', [id]);
     if (!row || token !== keyed('unsubscribe', id)) return utility('/unsubscribe', { heading: 'This link is not valid', status: 400 });
     if (row.status === 'confirmed' || row.status === 'pending') {
-      await db(`UPDATE subscribers SET status = 'unsubscribed', ended_at = $1, ended_reason = $2 WHERE id = $3`,
+      await db(`UPDATE subscribers SET status = 'unsubscribed', ended_at = $1, ended_reason = $2
+        WHERE id = $3 AND status IN ('confirmed', 'pending')`,
         [now(), request.method === 'POST' ? 'one-click' : 'link', id]);
     }
     if (request.method === 'POST') return new Response(null, { status: 200 });

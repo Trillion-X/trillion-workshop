@@ -6,8 +6,10 @@ Articles and a double opt-in newsletter signup for one pursuit's site, drawn at 
 
 | File | Purpose |
 |------|---------|
-| `do-work/pursuit-site.mjs` | `createSite({ db, mail, origin, brand, secret, signupText, layout, stylesheets, themeAttributes, tokens, author, now, draw })`: `handle(request)` answers `GET`/`HEAD` on `/articles`, `/articles/<slug>`, `/articles/rss.xml`, and `POST /subscribe`, `GET /subscribe/confirm`, `GET|POST /unsubscribe`; it returns null for any other path. Drafts answer only with `previewToken(slug)`. |
-| `test/pursuit-site.test.mjs` | Markdown escaping, route dispatch, 404 and draft preview, search head, token names, stylesheets, the signup form, HEAD. |
+| `do-work/pursuit-site.mjs` | `createSite({ db, mail, origin, brand, secret, signupText, signupTags, sourceTags, layout, stylesheets, themeAttributes, tokens, author, now, draw })`: `handle(request)` answers `GET`/`HEAD` on `/articles`, `/articles/<slug>`, `/articles/rss.xml`, and `POST /subscribe`, `GET /subscribe/confirm`, `GET|POST /unsubscribe`; it returns null for any other path. Drafts answer only with `previewToken(slug)`. |
+| `do-work/subscriber-audience.mjs` | The shared subscriber tag normalization and one-click link signer; `newsletterAudience` filters a page by confirmed state and tag selectors. |
+| `do-work/prepare-audience.mjs`, `tool-rows.json` | `tool:prepare-a-newsletter-audience`: the link key is mounted on descriptor 3 by its vault name; no database is opened and nothing is sent. |
+| `test/` | Article rendering and routes; signup tags and consent; suppression races; confirmation; plain and one-click unsubscribe, replays and bad tokens; audience filtering and isolated site keys. |
 
 ## How a page is drawn
 
@@ -19,9 +21,15 @@ A site that passes `layout` gets its bare markup inside its layout (see below). 
 - `layout`: still accepted. A site that passes `layout({ title, description, body })` keeps its own page parts: its layout wraps the bare markup of every page the module draws (signup, confirmation, unsubscribe, not found, and the index and articles when there is no `draw`), so its consent bar and parts stay on them. New callers prefer `stylesheets`, `themeAttributes` and `tokens`; those apply to the document-page pages only, so a layout site keeps its styles in its layout. A site that passes `layout` today keeps it unchanged. To move a layout site to document-page's look, it passes `stylesheets`, `themeAttributes` and `tokens`, for example `tokens: { 'button-bg': 'button-primary-bg' }` where its stylesheet names the button background `--button-primary-bg`.
 - `draw`: a site's own draw hooks (`index(rows)`, `article(row, { preview })`), which answer the whole page themselves. The module's own drawing is not used then.
 
+## Subscriber tags and sends
+
+The site's own DATA supplies `signupTags` (tags on every signup) and `sourceTags` (path to tag arrays, such as `{ '/guide': ['guide'] }`). Only these declared tags are trusted; tags in a submitted form are ignored. Existing tags are kept, normalized and deduplicated. A confirmed signup may gain tags without another confirmation email; an unsubscribed address must confirm a deliberate re-opt-in. Suppressed, bounced, complained and unknown states cannot be reactivated by the signup route. The subscribers table must have a unique email key; a concurrent insert sends no second confirmation, and every state-changing update compares the state it read.
+
+`tool:prepare-a-newsletter-audience` takes a bounded page of subscriber rows, the site's origin, its held link key's name, and optional `required_tags` / `excluded_tags`. It returns only confirmed matches, each with the same unsubscribe link the site accepts. No database is read and no mail is sent. A newsletter workflow claims each issue/recipient in the pursuit's send table before calling the existing email sender, and uses the link in its footer and one-click headers. A claim is never silently retried after an unknown dispatch outcome. Signup, confirmation and unsubscribe retain their first valid transition; a concurrent suppression cannot be lowered.
+
 ## Vendoring
 
-A site that vendors this module copies the same relative paths the Workshop has, so the imports resolve: `do-work/pursuit-site.mjs` with `../../publish-content-for-discovery/do-work/site-search-head.mjs`, `../../ui/show/document-page/`, and the document-page closure: `ui/show/server-rendered-page/escape-html.mjs`, `ui/show/share-row/` (`share-row-html.mjs`, `share-row.json`), `ui/show/site-nav/site-nav-look.mjs`, `ui/show/layer-diagram/` (`layer-diagram.mjs`, `graph-contract.mjs`, `graph-contract.json`), `ui/show/safe-error-card/sanitize-error-text.ts`, and `live-namespace/do-work/blake3.mjs`. The site also installs `@noble/hashes` (a dependency of blake3 and the graph contract). The `.ts` file needs a Node that strips types, or a bundler.
+A site that vendors this module copies the same relative paths the Workshop has, so the imports resolve: `do-work/pursuit-site.mjs` and `do-work/subscriber-audience.mjs` with `../../publish-content-for-discovery/do-work/site-search-head.mjs`, `../../ui/show/document-page/`, and the document-page closure: `ui/show/server-rendered-page/escape-html.mjs`, `ui/show/share-row/` (`share-row-html.mjs`, `share-row.json`), `ui/show/site-nav/site-nav-look.mjs`, `ui/show/layer-diagram/` (`layer-diagram.mjs`, `graph-contract.mjs`, `graph-contract.json`), `ui/show/safe-error-card/sanitize-error-text.ts`, and `live-namespace/do-work/blake3.mjs`. The site also installs `@noble/hashes` (a dependency of blake3 and the graph contract). The `.ts` file needs a Node that strips types, or a bundler.
 
 ## Known gaps
 

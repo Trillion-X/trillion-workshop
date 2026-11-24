@@ -1,0 +1,51 @@
+{
+  "drafted_from": "tool:prepare-a-newsletter-audience and the signer used by createSite's unsubscribe route; its tag, duplicate, suppression and token tests",
+  "start_here": "Read one page of subscribers from the pursuit's own database. Run tool:prepare-a-newsletter-audience with that page, its HTTPS origin, the vault name of the site's link key and any required or excluded tags. It sends nothing.",
+  "lists": [],
+  "no_lists_because": "It reads no store and creates no list. The newsletter workflow supplies the pursuit's existing subscriber rows and claims each send in that pursuit's own send table.",
+  "workflows": [],
+  "tools": ["tool:prepare-a-newsletter-audience", "tool:send-an-email"],
+  "instructions": [
+    "The site's createSite configuration owns signupTags and sourceTags. The form never supplies trusted tags. Pending subscribers wait for the confirmation link; only confirmed subscribers enter an issue's audience.",
+    "Pass subscribers with id, email, status and tags (an array or its JSON text), origin such as https://example.test, and key_name naming the site's held link secret. The value is mounted on descriptor 3 and never goes in the request.",
+    "required_tags matches all of its tags; excluded_tags excludes any of its tags. Empty selectors mean the whole confirmed page. Unknown states, pending rows and suppressions cannot enter the audience.",
+    "For each returned recipient, use unsubscribe_url in the message footer, List-Unsubscribe and List-Unsubscribe-Post: List-Unsubscribe=One-Click. Claim the issue and subscriber in the pursuit's newsletter_sends table before tool:send-an-email. A repeated claim must send nothing.",
+    "The site's own unsubscribe route accepts the same signed link. A plain link and one-click POST end the subscription; replays do not change the first end time. A bad token cannot change a subscriber, and no unsubscribe can lower a concurrent suppression.",
+    "Page the store by subscriber id for larger lists. Keep recipients and signed links private. Record the provider message id and read its delivery event before calling an issue delivered."
+  ],
+  "worked_examples": [
+    {
+      "title": "Prepare one tagged confirmed recipient; exclude a suppression",
+      "ask": "Select this page's guide subscribers and give them their site's unsubscribe links, without sending anything",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:prepare-a-newsletter-audience",
+            "input": {
+              "subscribers": [
+                { "id": "reader-one", "email": "reader@example.test", "status": "confirmed", "tags": "[\"guide\"]" },
+                { "id": "reader-two", "email": "stopped@example.test", "status": "suppressed", "tags": "[\"guide\"]" }
+              ],
+              "origin": "https://example.test",
+              "key_name": "example-site-link-key",
+              "required_tags": ["guide"]
+            }
+          }
+        }
+      },
+      "input": {
+        "subscribers": [
+          { "id": "reader-one", "email": "reader@example.test", "status": "confirmed", "tags": "[\"guide\"]" },
+          { "id": "reader-two", "email": "stopped@example.test", "status": "suppressed", "tags": "[\"guide\"]" }
+        ],
+        "origin": "https://example.test",
+        "key_name": "example-site-link-key",
+        "required_tags": ["guide"]
+      },
+      "hands_back": "One audience row for reader-one, with its signed unsubscribe_url, count 1 and excluded 1. Nothing is sent; reader-two stays excluded."
+    }
+  ]
+}
