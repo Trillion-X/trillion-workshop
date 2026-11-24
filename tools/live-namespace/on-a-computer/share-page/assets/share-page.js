@@ -28,8 +28,8 @@
       const shown = at === n;
       item.classList.toggle('is-shown', shown);
       buttons[at].setAttribute('aria-current', shown ? 'true' : 'false');
-      // Only the item shown asks for its media's first bytes; the others ask for nothing until they are picked.
-      item.querySelectorAll('video,audio').forEach(media => { if (shown) { if (media.preload === 'none') media.preload = 'metadata'; } else media.pause(); });
+      // Choosing what is shown is not playback intent: only the shared player decides when to warm its source.
+      if (!shown) item.querySelectorAll('video,audio').forEach(media => media.pause());
     });
     if (chosen) {
       history.replaceState(null, '', `#item-${n}`);

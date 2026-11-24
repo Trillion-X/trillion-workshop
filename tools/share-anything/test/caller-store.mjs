@@ -6,11 +6,25 @@
 // written blind). Every name, label and time in the tests is made up.
 import { mkdirSync, readFileSync, renameSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import assert from 'node:assert/strict';
 import { shareAnything } from '../do-work/share-anything.mjs';
 import { endSharesWhoseConditionFailed } from '../do-work/end-shares-whose-condition-failed.mjs';
 import { listRecordId } from '../read-data/share-label.mjs';
 
 const same = (a, b) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+
+/** The function has no record authority. `uses_tools` is the generator's conservative source-fetch closure, not a grant. */
+export function assertNoRecordReach(row) {
+  assert.equal(row.invoke.kind, 'container');
+  assert.equal(row.invoke.internet, false);
+  for (const field of ['records', 'credential_mounts', 'local_doors', 'parent_actions', 'by_input']) assert.equal(row.invoke[field], undefined, `no ${field}`);
+  assert.equal(row.invoke_with, undefined, 'no redirection to another row');
+  assert.equal(row.stored, undefined, 'no stored rights');
+  assert.deepEqual(Object.keys(row.invoke.files), ['package_files'], 'only the declared source files are mounted');
+  const { uses_tools: uses, ...admitted } = row;
+  assert.ok(uses === undefined || (Array.isArray(uses) && uses.every(value => typeof value === 'string')), 'fetch dependencies are names only');
+  assert.equal(/records:(read|write|list)|records-door|sharing\.(keep|list|withdraw)|@own-records/.test(JSON.stringify(admitted)), false, 'no records target or method is declared');
+}
 
 /** A Map store: the reference the other two must agree with. */
 export function memoryStore(seed = {}) {

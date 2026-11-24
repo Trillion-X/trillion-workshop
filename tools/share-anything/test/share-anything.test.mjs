@@ -5,12 +5,11 @@
 // the run shares, what is refused, and the row's shape (no records door, no records rights). Every record is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { shareAnything } from '../do-work/share-anything.mjs';
 import { grantOf, labelOf } from '../read-data/share-label.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
-import { applyWrites, callTool, memoryStore } from './caller-store.mjs';
+import { applyWrites, assertNoRecordReach, callTool, memoryStore } from './caller-store.mjs';
 
 const digest = key => makeHashCodeHexFromBytes(new TextEncoder().encode(key)).slice(3);
 const list = { label: 'Sample list', row_type: 'sample-row', fields: [{ id: 'title', label: 'Title' }] };
@@ -192,11 +191,28 @@ test('an end rule is kept beside the run grant, set again by op end, and a share
   assert.throws(() => shareAnything({ op: 'end', can: ['view'], grant, stored: { kept: null } }), /Only a share that runs tools/);
 });
 
-test('the row declares no records door: a function row with its files, and no records rights or method anywhere', () => {
-  assert.equal(shareRow.invoke.records, undefined, 'no records fd');
-  assert.equal(shareRow.stored, undefined, 'no stored rights');
+test('the row is a function with its source files, not record authority from a source-fetch dependency', () => {
+  assertNoRecordReach(shareRow);
   assert.deepEqual(shareRow.invoke.argv.slice(1), ['/opt/workflows/do-work/run-a-function.mjs', '/opt/share-anything/do-work/share-anything.mjs', 'shareAnything']);
-  assert.equal(shareRow.uses_tools.includes('trillion-workshop/records-door'), false);
-  const text = readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8');
-  assert.equal(/records:(read|write|list)|records-door|sharing\.(keep|list|withdraw)|@own-records/.test(text), false, 'no records method is named');
+});
+
+test('the row contract allows fetch-only dependencies but rejects actual record grants, targets and host reach', () => {
+  const fetchOnly = structuredClone(shareRow);
+  fetchOnly.uses_tools = ['trillion-workshop/records-door'];
+  assert.doesNotThrow(() => assertNoRecordReach(fetchOnly));
+  for (const change of [
+    row => { row.invoke.records = { fd: 4, runs: ['tool:run-sql-in-my-database'] }; },
+    row => { row.stored = [{ at: '@own-records', operations: ['records:read'] }]; },
+    row => { row.invoke.argv.push('records:write'); },
+    row => { row.invoke.files.package_files.push({ package: 'records-door', paths: ['do-work'], at: '/opt/records-door' }); },
+    row => { row.invoke.local_doors = ['records']; },
+    row => { row.invoke.parent_actions = { operations: ['records:read'] }; },
+    row => { row.invoke.by_input = { input: 'op', variants: { share: { records: { fd: 4, runs: ['tool:run-sql-in-my-database'] } } } }; },
+    row => { row.invoke_with = 'tool:run-sql-in-my-database'; },
+    row => { row.uses_tools = [{ records: { fd: 4 } }]; },
+  ]) {
+    const bad = structuredClone(fetchOnly);
+    change(bad);
+    assert.throws(() => assertNoRecordReach(bad), assert.AssertionError);
+  }
 });

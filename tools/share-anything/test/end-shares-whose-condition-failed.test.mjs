@@ -5,10 +5,9 @@
 // engine reads none of it, so a share ends when the sweep's write withdraws it. Every name, label and time is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import { endOf, endSharesWhoseConditionFailed } from '../do-work/end-shares-whose-condition-failed.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
-import { callSweep, callTool, memoryStore } from './caller-store.mjs';
+import { assertNoRecordReach, callSweep, callTool, memoryStore } from './caller-store.mjs';
 
 const DAY = 86_400_000;
 const T = Date.parse('2026-01-01T00:00:00.000Z');
@@ -77,11 +76,8 @@ test('endOf reads the earlier of until and unused_days, and never ends a share w
 });
 
 test('the sweep row is a function over its runs: its own invoke, no records door, and its withdrawals are writes', () => {
-  assert.equal(sweepRow.invoke.records, undefined);
-  assert.equal(sweepRow.stored, undefined);
+  assertNoRecordReach(sweepRow);
   assert.deepEqual(sweepRow.invoke.argv.slice(1), ['/opt/workflows/do-work/run-a-function.mjs', '/opt/share-anything/do-work/end-shares-whose-condition-failed.mjs', 'endSharesWhoseConditionFailed']);
-  const text = readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8');
-  assert.equal(/records:(read|write|list)|records-door|sharing\.(keep|list|withdraw)|@own-records/.test(text), false);
   const ends = { until: at(30), since: at(0) };
   const answer = endSharesWhoseConditionFailed({ now: at(40), runs: [{ label: 'sharing:w', grant: { tools: [] }, people: [], ends, last_used: null }] });
   assert.deepEqual(answer.writes, [{ kind: 'run-share', address: 'sharing:w', value: null, expect: { grant: { tools: [] }, people: [], ends } }]);
