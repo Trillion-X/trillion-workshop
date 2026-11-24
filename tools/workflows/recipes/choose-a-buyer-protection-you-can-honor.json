@@ -35,361 +35,716 @@
             }
           ]
         },
-        "steps": [
-          {
-            "id": "choose-one-protection-and-write-its-limits",
-            "title": "Choose one protection you can honor",
-            "do": "Name one buyer concern. In the same answer, write the evidence, what the business can control, and the cost limit. Keep unknowns visible. If evidence or costs are unresolved, or the remedy is unaffordable, choose no added protection and say what to check next. Otherwise choose one protection you can honor: a refund without extra eligibility, a remedy with clear eligibility, or payment based on a measured result. Read the draft as a buyer: check what triggers the protection, how it works, and how to request or dispute it. Do not obscure existing rights or promise outcomes. Draft only: do not publish, charge, enroll anyone, or issue a refund.",
-            "submit": {
-              "type": "object",
-              "oneOf": [
-                {
-                  "type": "object",
-                  "required": [
-                    "evidence",
-                    "choice",
-                    "reason",
-                    "next_check"
-                  ],
-                  "properties": {
-                    "evidence": {
-                      "type": "object",
-                      "required": [
-                        "buyer_concern",
-                        "observed_evidence_or_gap",
-                        "delivery_boundary",
-                        "cost_limit_or_gap",
-                        "evidence_status",
-                        "affordability_status"
-                      ],
-                      "properties": {
-                        "buyer_concern": {
-                          "type": "string",
-                          "minLength": 1,
-                          "pattern": "\\S"
+        "definition": {
+          "steps": [
+            {
+              "id": "choose-one-protection-and-write-its-limits",
+              "kind": "ask",
+              "config": {
+                "name": "ai",
+                "input": {
+                  "do": "Name one buyer concern. In the same answer, write the evidence, what the business can control, and the cost limit. Keep unknowns visible. If evidence or costs are unresolved, or the remedy is unaffordable, choose no added protection and say what to check next. Otherwise choose one protection you can honor: a refund without extra eligibility, a remedy with clear eligibility, or payment based on a measured result. Read the draft as a buyer: check what triggers the protection, how it works, and how to request or dispute it. Do not obscure existing rights or promise outcomes. Draft only: do not publish, charge, enroll anyone, or issue a refund.",
+                  "submit": {
+                    "type": "object",
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "required": [
+                          "evidence",
+                          "choice",
+                          "reason",
+                          "next_check"
+                        ],
+                        "properties": {
+                          "evidence": {
+                            "type": "object",
+                            "required": [
+                              "buyer_concern",
+                              "observed_evidence_or_gap",
+                              "delivery_boundary",
+                              "cost_limit_or_gap",
+                              "evidence_status",
+                              "affordability_status"
+                            ],
+                            "properties": {
+                              "buyer_concern": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "observed_evidence_or_gap": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "delivery_boundary": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "cost_limit_or_gap": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "evidence_status": {
+                                "type": "string",
+                                "enum": [
+                                  "supported",
+                                  "unresolved"
+                                ]
+                              },
+                              "affordability_status": {
+                                "type": "string",
+                                "enum": [
+                                  "affordable",
+                                  "unresolved",
+                                  "unaffordable"
+                                ]
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "choice": {
+                            "type": "string",
+                            "enum": [
+                              "no-added-protection"
+                            ]
+                          },
+                          "reason": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "next_check": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          }
                         },
-                        "observed_evidence_or_gap": {
-                          "type": "string",
-                          "minLength": 1,
-                          "pattern": "\\S"
-                        },
-                        "delivery_boundary": {
-                          "type": "string",
-                          "minLength": 1,
-                          "pattern": "\\S"
-                        },
-                        "cost_limit_or_gap": {
-                          "type": "string",
-                          "minLength": 1,
-                          "pattern": "\\S"
-                        },
-                        "evidence_status": {
-                          "type": "string",
-                          "enum": [
-                            "supported",
-                            "unresolved"
-                          ]
-                        },
-                        "affordability_status": {
-                          "type": "string",
-                          "enum": [
-                            "affordable",
-                            "unresolved",
-                            "unaffordable"
-                          ]
-                        }
+                        "additionalProperties": false
                       },
-                      "additionalProperties": false
-                    },
-                    "choice": {
-                      "type": "string",
-                      "enum": [
-                        "no-added-protection"
-                      ]
-                    },
-                    "reason": {
-                      "type": "string",
-                      "minLength": 1,
-                      "pattern": "\\S"
-                    },
-                    "next_check": {
-                      "type": "string",
-                      "minLength": 1,
-                      "pattern": "\\S"
-                    }
+                      {
+                        "type": "object",
+                        "required": [
+                          "evidence",
+                          "choice",
+                          "refund_window",
+                          "how_to_request",
+                          "refund_terms"
+                        ],
+                        "properties": {
+                          "evidence": {
+                            "type": "object",
+                            "required": [
+                              "buyer_concern",
+                              "observed_evidence_or_gap",
+                              "delivery_boundary",
+                              "cost_limit_or_gap",
+                              "evidence_status",
+                              "affordability_status"
+                            ],
+                            "properties": {
+                              "buyer_concern": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "observed_evidence_or_gap": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "delivery_boundary": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "cost_limit_or_gap": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "evidence_status": {
+                                "type": "string",
+                                "enum": [
+                                  "supported"
+                                ]
+                              },
+                              "affordability_status": {
+                                "type": "string",
+                                "enum": [
+                                  "affordable"
+                                ]
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "choice": {
+                            "type": "string",
+                            "enum": [
+                              "refund-without-extra-eligibility"
+                            ]
+                          },
+                          "refund_window": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "how_to_request": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "refund_terms": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "evidence",
+                          "choice",
+                          "eligibility",
+                          "remedy",
+                          "response_time",
+                          "how_to_request"
+                        ],
+                        "properties": {
+                          "evidence": {
+                            "type": "object",
+                            "required": [
+                              "buyer_concern",
+                              "observed_evidence_or_gap",
+                              "delivery_boundary",
+                              "cost_limit_or_gap",
+                              "evidence_status",
+                              "affordability_status"
+                            ],
+                            "properties": {
+                              "buyer_concern": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "observed_evidence_or_gap": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "delivery_boundary": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "cost_limit_or_gap": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "evidence_status": {
+                                "type": "string",
+                                "enum": [
+                                  "supported"
+                                ]
+                              },
+                              "affordability_status": {
+                                "type": "string",
+                                "enum": [
+                                  "affordable"
+                                ]
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "choice": {
+                            "type": "string",
+                            "enum": [
+                              "conditional-remedy"
+                            ]
+                          },
+                          "eligibility": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "remedy": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "response_time": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "how_to_request": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "evidence",
+                          "choice",
+                          "measurable_result",
+                          "measurement_window",
+                          "who_verifies",
+                          "how_payment_is_calculated",
+                          "how_to_dispute"
+                        ],
+                        "properties": {
+                          "evidence": {
+                            "type": "object",
+                            "required": [
+                              "buyer_concern",
+                              "observed_evidence_or_gap",
+                              "delivery_boundary",
+                              "cost_limit_or_gap",
+                              "evidence_status",
+                              "affordability_status"
+                            ],
+                            "properties": {
+                              "buyer_concern": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "observed_evidence_or_gap": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "delivery_boundary": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "cost_limit_or_gap": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "evidence_status": {
+                                "type": "string",
+                                "enum": [
+                                  "supported"
+                                ]
+                              },
+                              "affordability_status": {
+                                "type": "string",
+                                "enum": [
+                                  "affordable"
+                                ]
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "choice": {
+                            "type": "string",
+                            "enum": [
+                              "payment-tied-to-result"
+                            ]
+                          },
+                          "measurable_result": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "measurement_window": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "who_verifies": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "how_payment_is_calculated": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "how_to_dispute": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    ]
                   },
-                  "additionalProperties": false
+                  "checks": []
                 },
-                {
-                  "type": "object",
-                  "required": [
-                    "evidence",
-                    "choice",
-                    "refund_window",
-                    "how_to_request",
-                    "refund_terms"
-                  ],
-                  "properties": {
-                    "evidence": {
-                      "type": "object",
-                      "required": [
-                        "buyer_concern",
-                        "observed_evidence_or_gap",
-                        "delivery_boundary",
-                        "cost_limit_or_gap",
-                        "evidence_status",
-                        "affordability_status"
-                      ],
-                      "properties": {
-                        "buyer_concern": {
-                          "type": "string",
-                          "minLength": 1,
-                          "pattern": "\\S"
+                "context": {
+                  "step_id": "choose-one-protection-and-write-its-limits",
+                  "title": "Choose one protection you can honor",
+                  "do": "Name one buyer concern. In the same answer, write the evidence, what the business can control, and the cost limit. Keep unknowns visible. If evidence or costs are unresolved, or the remedy is unaffordable, choose no added protection and say what to check next. Otherwise choose one protection you can honor: a refund without extra eligibility, a remedy with clear eligibility, or payment based on a measured result. Read the draft as a buyer: check what triggers the protection, how it works, and how to request or dispute it. Do not obscure existing rights or promise outcomes. Draft only: do not publish, charge, enroll anyone, or issue a refund.",
+                  "submit": {
+                    "type": "object",
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "required": [
+                          "evidence",
+                          "choice",
+                          "reason",
+                          "next_check"
+                        ],
+                        "properties": {
+                          "evidence": {
+                            "type": "object",
+                            "required": [
+                              "buyer_concern",
+                              "observed_evidence_or_gap",
+                              "delivery_boundary",
+                              "cost_limit_or_gap",
+                              "evidence_status",
+                              "affordability_status"
+                            ],
+                            "properties": {
+                              "buyer_concern": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "observed_evidence_or_gap": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "delivery_boundary": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "cost_limit_or_gap": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "evidence_status": {
+                                "type": "string",
+                                "enum": [
+                                  "supported",
+                                  "unresolved"
+                                ]
+                              },
+                              "affordability_status": {
+                                "type": "string",
+                                "enum": [
+                                  "affordable",
+                                  "unresolved",
+                                  "unaffordable"
+                                ]
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "choice": {
+                            "type": "string",
+                            "enum": [
+                              "no-added-protection"
+                            ]
+                          },
+                          "reason": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "next_check": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          }
                         },
-                        "observed_evidence_or_gap": {
-                          "type": "string",
-                          "minLength": 1,
-                          "pattern": "\\S"
-                        },
-                        "delivery_boundary": {
-                          "type": "string",
-                          "minLength": 1,
-                          "pattern": "\\S"
-                        },
-                        "cost_limit_or_gap": {
-                          "type": "string",
-                          "minLength": 1,
-                          "pattern": "\\S"
-                        },
-                        "evidence_status": {
-                          "type": "string",
-                          "enum": [
-                            "supported"
-                          ]
-                        },
-                        "affordability_status": {
-                          "type": "string",
-                          "enum": [
-                            "affordable"
-                          ]
-                        }
+                        "additionalProperties": false
                       },
-                      "additionalProperties": false
-                    },
-                    "choice": {
-                      "type": "string",
-                      "enum": [
-                        "refund-without-extra-eligibility"
-                      ]
-                    },
-                    "refund_window": {
-                      "type": "string",
-                      "minLength": 1,
-                      "pattern": "\\S"
-                    },
-                    "how_to_request": {
-                      "type": "string",
-                      "minLength": 1,
-                      "pattern": "\\S"
-                    },
-                    "refund_terms": {
-                      "type": "string",
-                      "minLength": 1,
-                      "pattern": "\\S"
-                    }
-                  },
-                  "additionalProperties": false
-                },
-                {
-                  "type": "object",
-                  "required": [
-                    "evidence",
-                    "choice",
-                    "eligibility",
-                    "remedy",
-                    "response_time",
-                    "how_to_request"
-                  ],
-                  "properties": {
-                    "evidence": {
-                      "type": "object",
-                      "required": [
-                        "buyer_concern",
-                        "observed_evidence_or_gap",
-                        "delivery_boundary",
-                        "cost_limit_or_gap",
-                        "evidence_status",
-                        "affordability_status"
-                      ],
-                      "properties": {
-                        "buyer_concern": {
-                          "type": "string",
-                          "minLength": 1,
-                          "pattern": "\\S"
+                      {
+                        "type": "object",
+                        "required": [
+                          "evidence",
+                          "choice",
+                          "refund_window",
+                          "how_to_request",
+                          "refund_terms"
+                        ],
+                        "properties": {
+                          "evidence": {
+                            "type": "object",
+                            "required": [
+                              "buyer_concern",
+                              "observed_evidence_or_gap",
+                              "delivery_boundary",
+                              "cost_limit_or_gap",
+                              "evidence_status",
+                              "affordability_status"
+                            ],
+                            "properties": {
+                              "buyer_concern": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "observed_evidence_or_gap": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "delivery_boundary": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "cost_limit_or_gap": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "evidence_status": {
+                                "type": "string",
+                                "enum": [
+                                  "supported"
+                                ]
+                              },
+                              "affordability_status": {
+                                "type": "string",
+                                "enum": [
+                                  "affordable"
+                                ]
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "choice": {
+                            "type": "string",
+                            "enum": [
+                              "refund-without-extra-eligibility"
+                            ]
+                          },
+                          "refund_window": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "how_to_request": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "refund_terms": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          }
                         },
-                        "observed_evidence_or_gap": {
-                          "type": "string",
-                          "minLength": 1,
-                          "pattern": "\\S"
-                        },
-                        "delivery_boundary": {
-                          "type": "string",
-                          "minLength": 1,
-                          "pattern": "\\S"
-                        },
-                        "cost_limit_or_gap": {
-                          "type": "string",
-                          "minLength": 1,
-                          "pattern": "\\S"
-                        },
-                        "evidence_status": {
-                          "type": "string",
-                          "enum": [
-                            "supported"
-                          ]
-                        },
-                        "affordability_status": {
-                          "type": "string",
-                          "enum": [
-                            "affordable"
-                          ]
-                        }
+                        "additionalProperties": false
                       },
-                      "additionalProperties": false
-                    },
-                    "choice": {
-                      "type": "string",
-                      "enum": [
-                        "conditional-remedy"
-                      ]
-                    },
-                    "eligibility": {
-                      "type": "string",
-                      "minLength": 1,
-                      "pattern": "\\S"
-                    },
-                    "remedy": {
-                      "type": "string",
-                      "minLength": 1,
-                      "pattern": "\\S"
-                    },
-                    "response_time": {
-                      "type": "string",
-                      "minLength": 1,
-                      "pattern": "\\S"
-                    },
-                    "how_to_request": {
-                      "type": "string",
-                      "minLength": 1,
-                      "pattern": "\\S"
-                    }
-                  },
-                  "additionalProperties": false
-                },
-                {
-                  "type": "object",
-                  "required": [
-                    "evidence",
-                    "choice",
-                    "measurable_result",
-                    "measurement_window",
-                    "who_verifies",
-                    "how_payment_is_calculated",
-                    "how_to_dispute"
-                  ],
-                  "properties": {
-                    "evidence": {
-                      "type": "object",
-                      "required": [
-                        "buyer_concern",
-                        "observed_evidence_or_gap",
-                        "delivery_boundary",
-                        "cost_limit_or_gap",
-                        "evidence_status",
-                        "affordability_status"
-                      ],
-                      "properties": {
-                        "buyer_concern": {
-                          "type": "string",
-                          "minLength": 1,
-                          "pattern": "\\S"
+                      {
+                        "type": "object",
+                        "required": [
+                          "evidence",
+                          "choice",
+                          "eligibility",
+                          "remedy",
+                          "response_time",
+                          "how_to_request"
+                        ],
+                        "properties": {
+                          "evidence": {
+                            "type": "object",
+                            "required": [
+                              "buyer_concern",
+                              "observed_evidence_or_gap",
+                              "delivery_boundary",
+                              "cost_limit_or_gap",
+                              "evidence_status",
+                              "affordability_status"
+                            ],
+                            "properties": {
+                              "buyer_concern": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "observed_evidence_or_gap": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "delivery_boundary": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "cost_limit_or_gap": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "evidence_status": {
+                                "type": "string",
+                                "enum": [
+                                  "supported"
+                                ]
+                              },
+                              "affordability_status": {
+                                "type": "string",
+                                "enum": [
+                                  "affordable"
+                                ]
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "choice": {
+                            "type": "string",
+                            "enum": [
+                              "conditional-remedy"
+                            ]
+                          },
+                          "eligibility": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "remedy": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "response_time": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "how_to_request": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          }
                         },
-                        "observed_evidence_or_gap": {
-                          "type": "string",
-                          "minLength": 1,
-                          "pattern": "\\S"
-                        },
-                        "delivery_boundary": {
-                          "type": "string",
-                          "minLength": 1,
-                          "pattern": "\\S"
-                        },
-                        "cost_limit_or_gap": {
-                          "type": "string",
-                          "minLength": 1,
-                          "pattern": "\\S"
-                        },
-                        "evidence_status": {
-                          "type": "string",
-                          "enum": [
-                            "supported"
-                          ]
-                        },
-                        "affordability_status": {
-                          "type": "string",
-                          "enum": [
-                            "affordable"
-                          ]
-                        }
+                        "additionalProperties": false
                       },
-                      "additionalProperties": false
-                    },
-                    "choice": {
-                      "type": "string",
-                      "enum": [
-                        "payment-tied-to-result"
-                      ]
-                    },
-                    "measurable_result": {
-                      "type": "string",
-                      "minLength": 1,
-                      "pattern": "\\S"
-                    },
-                    "measurement_window": {
-                      "type": "string",
-                      "minLength": 1,
-                      "pattern": "\\S"
-                    },
-                    "who_verifies": {
-                      "type": "string",
-                      "minLength": 1,
-                      "pattern": "\\S"
-                    },
-                    "how_payment_is_calculated": {
-                      "type": "string",
-                      "minLength": 1,
-                      "pattern": "\\S"
-                    },
-                    "how_to_dispute": {
-                      "type": "string",
-                      "minLength": 1,
-                      "pattern": "\\S"
-                    }
+                      {
+                        "type": "object",
+                        "required": [
+                          "evidence",
+                          "choice",
+                          "measurable_result",
+                          "measurement_window",
+                          "who_verifies",
+                          "how_payment_is_calculated",
+                          "how_to_dispute"
+                        ],
+                        "properties": {
+                          "evidence": {
+                            "type": "object",
+                            "required": [
+                              "buyer_concern",
+                              "observed_evidence_or_gap",
+                              "delivery_boundary",
+                              "cost_limit_or_gap",
+                              "evidence_status",
+                              "affordability_status"
+                            ],
+                            "properties": {
+                              "buyer_concern": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "observed_evidence_or_gap": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "delivery_boundary": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "cost_limit_or_gap": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "evidence_status": {
+                                "type": "string",
+                                "enum": [
+                                  "supported"
+                                ]
+                              },
+                              "affordability_status": {
+                                "type": "string",
+                                "enum": [
+                                  "affordable"
+                                ]
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "choice": {
+                            "type": "string",
+                            "enum": [
+                              "payment-tied-to-result"
+                            ]
+                          },
+                          "measurable_result": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "measurement_window": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "who_verifies": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "how_payment_is_calculated": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "how_to_dispute": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    ]
                   },
-                  "additionalProperties": false
+                  "checks": [],
+                  "came_from": [
+                    "https://www.youtube.com/watch?v=sKSsHWJfXVk",
+                    "https://www.youtube.com/watch?v=5MHQr-Z17Hc",
+                    "https://www.youtube.com/watch?v=s7QA1TJKlbQ",
+                    "The instruction to preserve buyer rights and avoid unsupported claims is a drafting safeguard, not attributed to the cited recordings."
+                  ],
+                  "why": "A buyer can judge the risk only when the options, evidence, and limits are explicit.",
+                  "done_when": "One answer records the concern, evidence, and cost limit alongside eligible terms or a reason to decline. Nothing is offered or enacted."
                 }
-              ]
-            },
-            "done_when": "One answer records the concern, evidence, and cost limit alongside eligible terms or a reason to decline. Nothing is offered or enacted.",
-            "why": "A buyer can judge the risk only when the options, evidence, and limits are explicit.",
-            "came_from": [
-              "https://www.youtube.com/watch?v=sKSsHWJfXVk",
-              "https://www.youtube.com/watch?v=5MHQr-Z17Hc",
-              "https://www.youtube.com/watch?v=s7QA1TJKlbQ",
-              "The instruction to preserve buyer rights and avoid unsupported claims is a drafting safeguard, not attributed to the cited recordings."
-            ]
-          }
-        ]
+              }
+            }
+          ],
+          "edges": []
+        }
       }
     }
   ]
