@@ -17,7 +17,9 @@ platform :mac do
     out = File.join(app, ".build/release")
 
     # The app's own data names the variables its build phase reads each carried file's path, BLAKE3 and size from.
-    names = JSON.parse(File.read(File.join(macos, "native-release.json"))).fetch("carry_environment")
+    release = JSON.parse(File.read(File.join(macos, "native-release.json")))
+    names = release.fetch("carry_environment")
+    archs = release["architectures"] ? " ARCHS=#{release["architectures"]} ONLY_ACTIVE_ARCH=NO" : ""
     { "runtime" => o.fetch(:engine), "host_events" => o.fetch(:host_events) }.each do |prefix, path|
       path = File.expand_path(path)
       key = prefix == "runtime" ? "runtime_artifact" : "host_events_declaration"
@@ -31,7 +33,8 @@ platform :mac do
     project = Dir[File.join(macos, "*.xcodeproj")].first
 
     path = build_mac_app(project: project, scheme: o.fetch(:scheme), configuration: "Release",
-                         export_method: "developer-id", output_directory: out, clean: true)
+                         export_method: "developer-id", output_directory: out, clean: true,
+                         xcargs: "-allowProvisioningUpdates#{archs}", export_xcargs: "-allowProvisioningUpdates")
 
     zip = File.join(out, "notarize.zip")
     sh("ditto", "-c", "-k", "--keepParent", path, zip)
