@@ -53,8 +53,21 @@ export function captionShellClass(background: boolean, color: 'white' | 'black')
   return [captionReaderLook.shell, background ? color === 'white' ? 'bg-black/70 shadow-lg backdrop-blur-sm' : 'bg-white/50 shadow-lg backdrop-blur-sm' : 'bg-transparent'].join(' ');
 }
 
+/** The caption reader's own controls take the caption's colour, not the page's: the shared buttons read their colours from the
+ *  page's text and glass variables, which on the reader's dark (or light) ground would draw them dark on dark. White captions
+ *  give white controls (seven tenths, full under the pointer, a faint white fill), black captions the same in black; with no
+ *  background each control keeps a faint dark disc of its own, so it reads over any picture. */
+const CAPTION_CONTROL_COLOURS = {
+  white: '[--text-muted:rgba(255,255,255,0.7)] [--text-primary:#fff] [--glass-bg-hover:rgba(255,255,255,0.2)] [--glass-bg-active:rgba(255,255,255,0.1)]',
+  black: '[--text-muted:rgba(0,0,0,0.7)] [--text-primary:#000] [--glass-bg-hover:rgba(0,0,0,0.2)] [--glass-bg-active:rgba(0,0,0,0.1)]',
+} as const;
+
 export function captionToolbarClass(background: boolean, color: 'white' | 'black') {
-  return [captionReaderLook.toolbar, background ? color === 'white' ? 'border-t border-white/10' : 'border-t border-black/10' : ''].join(' ');
+  return [
+    captionReaderLook.toolbar,
+    background ? CAPTION_CONTROL_COLOURS[color] : CAPTION_CONTROL_COLOURS.white,
+    background ? color === 'white' ? 'border-t border-white/10' : 'border-t border-black/10' : '[&_button]:bg-black/30 [&_button:hover]:bg-black/50',
+  ].join(' ');
 }
 
 /** The existing caption/reader appearance, shared by every timed-word action. */

@@ -25,10 +25,16 @@ import type { MediaEmbedControl, MediaSourceRecord } from '../../show-any-file-a
 import { privateObjectControl, privateObjectView } from '../../show-any-file-as-itself/read-data/private-object-request';
 import type { PrivateObjectCopy, PrivateObjectReply } from '../../show-any-file-as-itself/read-data/private-object-request';
 
-/** The one play mark every player in Trillion draws over a still or a paused picture: a frosted dark disc with a white
- *  glyph (the icon's own box is the disc), drawn the same for a browser video, an embedded one and a paused one. */
+/** The one play mark every player in Trillion draws over a still or a paused picture, the same for a browser video, an
+ *  embedded one and a paused one: a round frosted container (dark at half, darker under the pointer, a little larger under
+ *  it and smaller while pressed) holding a white filled glyph. The glyph's triangle carries its weight left of its box, so
+ *  it is moved right by the distance between the box's centre and the triangle's (1/18 of its width) to sit centred. */
 function PlayDisc() {
-  return <Play aria-hidden="true" className="pointer-events-none size-16 rounded-full [corner-shape:round] border border-white/20 bg-black/45 py-[18px] pl-[21px] pr-[15px] text-white shadow-[0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-md" fill="currentColor" />;
+  return (
+    <span aria-hidden="true" className="pointer-events-none flex items-center justify-center rounded-full [corner-shape:round] bg-black/50 p-4 text-white backdrop-blur-sm transition-[background-color,transform] duration-150 group-hover/play:scale-110 group-hover/play:bg-black/70 group-active/play:scale-95">
+      <Play className="size-12 translate-x-[2.67px]" fill="currentColor" />
+    </span>
+  );
 }
 
 export type MediaPlaybackSurfaceProps = {
@@ -1812,18 +1818,20 @@ export function BrowserMediaPlayer({
             video with no src can otherwise be announced as failed media by the
             browser even while its poster and Play action are usable. */}
         <video {...mediaProps} disablePictureInPicture={!controlShown(PICTURE_IN_PICTURE_CONTROL)} aria-hidden="true" ref={setVideoElement} style={sourceFailed ? { visibility: 'hidden' } : undefined} />
-        {/* The centre disc is the paused affordance; with the caption reader open it would sit on the captions (on a short picture,
-            on the caption toolbar too). The picture's click and the bar's Play button still play. */}
-        {!isPlaying && !hasEnded && !showCaptions ? (
-          <button
-            aria-label={sourceFailed ? 'Try video again' : 'Play video'}
-            title={sourceFailed ? 'Try video again' : undefined}
-            className="absolute inset-0 z-30 flex h-full w-full items-center justify-center bg-transparent focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white"
-            onClick={(event) => { event.preventDefault(); event.stopPropagation(); void togglePlay(); }}
-            type="button"
-          >
-            <PlayDisc />
-          </button>
+        {/* The centre disc is the paused affordance, shown whenever the picture is paused, captions or not. Only the disc takes
+            the press: the layer around it lets every press through, so the caption reader and its controls stay usable. */}
+        {!isPlaying && !hasEnded ? (
+          <span className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center">
+            <button
+              aria-label={sourceFailed ? 'Try video again' : 'Play video'}
+              title={sourceFailed ? 'Try video again' : undefined}
+              className="group/play pointer-events-auto rounded-full [corner-shape:round] bg-transparent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              onClick={(event) => { event.preventDefault(); event.stopPropagation(); void togglePlay(); }}
+              type="button"
+            >
+              <PlayDisc />
+            </button>
+          </span>
         ) : null}
         {showCaptions && captionPlacement === 'over-picture' ? <TimedTextCaptionOverlay controlsVisible={controlsVisible} currentTime={currentTime} onSeek={seekToSeconds} segments={timedTextSegments} storageScope={media.id} /> : null}
         <PlaybackCompletionOverlay
@@ -2308,7 +2316,7 @@ function ControlledEmbedPlayer({
       {posterUrl && !hasStarted ? (
         <button
           aria-label={`Play ${media.label ?? 'media'}`}
-          className="absolute inset-0 z-10 h-full w-full cursor-pointer overflow-hidden bg-black text-white"
+          className="group/play absolute inset-0 z-10 h-full w-full cursor-pointer overflow-hidden bg-black text-white"
           data-media-custom-poster={media.id}
           type="button"
           onClick={handlePosterClick}
@@ -2328,7 +2336,7 @@ function ControlledEmbedPlayer({
       {hasStarted && !isPlaying && !hasEnded ? (
         <button
           aria-label={`Resume ${media.label ?? 'media'}`}
-          className="absolute inset-0 z-10 flex h-full w-full items-center justify-center bg-transparent text-white"
+          className="group/play absolute inset-0 z-10 flex h-full w-full items-center justify-center bg-transparent text-white"
           data-media-paused-overlay={media.id}
           type="button"
           onClick={handlePosterClick}
