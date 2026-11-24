@@ -9,6 +9,7 @@ import { Dropdown } from '../../ui/show/dropdown';
 import { widestTextWidth } from '../../ui/read-data/widest-text';
 import { captionHalo, captionReaderLook, captionShellClass, captionToolbarClass, timedPassageClass, timedWordClass, type TimedWordLook } from '../../screen-look/show/timed-text-style';
 import { timedTextSegmentLookup } from '../read-data/timed-text-index';
+import { mediaSpanOf } from '../read-data/media-span';
 import { transcriptSegmentsForSpeaker, transcriptSpeakers } from '../../transcript-reader/read-data/read-transcript-records';
 import { readOrMakePreview, type MadePreviewStore } from '../../ui/show/media-preview';
 import { MediaFrame } from '../../show-any-file-as-itself/show/MediaFrame';
@@ -389,7 +390,7 @@ function youtubePlayerVarValue(value: string) {
   return /^-?\d+(\.\d+)?$/.test(value) ? Number(value) : value;
 }
 
-export function youtubePlayerVars(control: MediaEmbedControl | undefined, videoId: string) {
+export function youtubePlayerVars(control: MediaEmbedControl | undefined, videoId: string, sourceUrl?: string) {
   const vars: Record<string, number | string> = {
     // cc_load_policy:0 = do NOT auto-show YouTube's native captions. The surface
     // renders its own caption reader, so the built-in track is redundant. This is
@@ -410,6 +411,14 @@ export function youtubePlayerVars(control: MediaEmbedControl | undefined, videoI
   for (const param of control?.query_params ?? []) {
     const value = param.value ?? valueFromToken(param.value_from);
     if (typeof value === 'string') vars[param.key] = youtubePlayerVarValue(value);
+  }
+
+  // The part of the video the address asks for (#t=start,end): the embedded player is told to start and stop there, as a
+  // browser video does by itself. YouTube takes whole seconds.
+  const span = mediaSpanOf(sourceUrl);
+  if (span) {
+    vars.start = Math.floor(span.start);
+    if (span.end !== undefined) vars.end = Math.ceil(span.end);
   }
 
   // DATA may configure other embed options, but the YouTube transport controls
@@ -2038,7 +2047,7 @@ function ControlledEmbedPlayer({
       const player = new window.YT.Player(playerMount, {
         height: '100%',
         host: YOUTUBE_EMBED_ORIGIN,
-        playerVars: youtubePlayerVars(media.embed_control, controlledYouTubeVideoId),
+        playerVars: youtubePlayerVars(media.embed_control, controlledYouTubeVideoId, sourceUrl),
         videoId: controlledYouTubeVideoId,
         width: '100%',
         events: {
@@ -2092,7 +2101,7 @@ function ControlledEmbedPlayer({
       // Clear the throwaway mount so a re-run of this effect starts clean.
       playerHostRef.current?.replaceChildren();
     };
-  }, [controlledYouTubeVideoId, controlledSourceUrl, media.embed_control, media.id, publishTiming]);
+  }, [controlledYouTubeVideoId, controlledSourceUrl, sourceUrl, media.embed_control, media.id, publishTiming]);
 
   React.useEffect(() => {
     function updateFullscreenState() {
