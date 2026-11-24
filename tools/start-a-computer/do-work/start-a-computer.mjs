@@ -19,6 +19,7 @@ import { differences, renderWhatItRuns, dropInName, withPrepared, withSlots, pub
 import { addressesOfName, declaredSetsOf, dnsClient, keepHealthyRecords, keepRecordSets, recordSetsOf } from '../../move-the-public-door/do-work/portable-dns-cutover.mjs';
 import { fill } from './fill-fields.mjs';
 import { keyState, keyDifferences, sealTheKeys, removeThePlainKeys } from './keep-the-key-sealed.mjs';
+import { surplusBuilds, surplusDifferences, dropSurplusBuilds } from './keep-recent-builds.mjs';
 import { readAll, writeAll } from './files-in-one-go.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { readFileSync, readdirSync, realpathSync, statSync, createReadStream } from 'node:fs';
@@ -206,7 +207,10 @@ export async function runsState(machine, given, run = onMachine, { pages } = {})
     switches.push(group);
     if (reason) found.push({ path: group.of, reason });
   }
-  return { runs, rendered, live, found, present, strays, usersPresent, portsClosed, builds, stale, switches, keys };
+  // A build beyond the newest the unit keeps, that no `current` link runs, is a difference the apply removes (keep-recent-builds.mjs).
+  const surplus = await surplusBuilds(machine, units, run, SETTINGS.builds.keep);
+  found.push(...surplusDifferences(surplus));
+  return { runs, rendered, live, found, present, strays, usersPresent, portsClosed, builds, stale, switches, keys, surplus };
 }
 
 /** A unit's `source` with its fields filled from the unit: the git `repository` address the computer fetches from (any host;
@@ -444,7 +448,7 @@ function slotUnconfirmed(target, unit, phase, cause) {
 
 export async function applyWhatItRuns(machine, given, run = onMachine, held = {}, deps = {}) {
   const applyStarted = Date.now();
-  const { runs, rendered, live, present, strays, usersPresent, portsClosed, builds, stale, switches, keys } = await runsState(machine, given, run, deps);
+  const { runs, rendered, live, present, strays, usersPresent, portsClosed, builds, stale, switches, keys, surplus } = await runsState(machine, given, run, deps);
   // A sealed key the computer lacks is made, and a plain key it still holds is removed once its unit runs from the sealed one: that unit restarts.
   const keysOwed = keys.filter(({ sealed, plain }) => !sealed || plain).map(({ unit }) => unit.unit);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
@@ -509,7 +513,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   const changed = new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit)]);
   const switching = switches.filter(group => group.reason || group.units.some(unit => changed.has(unit.unit)))
     .map(group => ({ group, target: group.units.find(unit => !group.active.includes(unit)) ?? group.units.at(-1) }));
-  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !triggersOff.length && !builds.length && !stale.length && !usersPresent.length && !present.length && !portsClosed.length && !switching.length && !keysOwed.length) return { written: [], restarted: [] };
+  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !triggersOff.length && !builds.length && !stale.length && !usersPresent.length && !present.length && !portsClosed.length && !switching.length && !keysOwed.length && !surplus.length) return { written: [], restarted: [] };
   // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
   // none, and running it would refresh the package lists on every apply.
   const accounts = await Promise.all(runs.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
@@ -525,6 +529,8 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
     if (unit.on_computer) { await run(machine, onComputerSeal(readOf, unit)).catch(error => { throw error.code === 4 ? notOnComputer(unit) : error; }); continue; }
     await run(machine, `install -d -m 0700 ${q(dirname(unit.secret_file))} && umask 077 && systemd-creds encrypt --name=${q(unit.secret_name)} - ${q(unit.secret_file)}`, held[unit.secret_vault_key]);
   }
+  // The builds a unit keeps no longer go before the next is built: the disk they held may be what a build needs.
+  await dropSurplusBuilds(machine, surplus, run);
   // A unit behind its row's source commit is built there once set-up has made its user, builds folder and toolchain.
   const built = [];
   for (const { unit, from } of builds) built.push({ unit: unit.unit, from: from || null, commit: await buildOnTheComputer(machine, unit, held, run) });
@@ -640,7 +646,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
     booted.push(unit);
   }
   const plainKeysRemoved = await removeThePlainKeys(machine, keys, booted, run);
-  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(plainKeysRemoved.length ? { plain_keys_removed: plainKeysRemoved } : {}), ...(switched.length ? { switched } : {}), ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}), ...(built.length ? { built } : {}), ...removed, ...(checked.length ? { apply_checked: checked } : {}) };
+  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(plainKeysRemoved.length ? { plain_keys_removed: plainKeysRemoved } : {}), ...(switched.length ? { switched } : {}), ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}), ...(built.length ? { built } : {}), ...(surplus.length ? { builds_removed: surplus.flatMap(({ builds, commits }) => commits.map(commit => `${builds}/${commit}`)) } : {}), ...removed, ...(checked.length ? { apply_checked: checked } : {}) };
 }
 
 const refused = message => Object.assign(new Error(message), { exit: 2 });

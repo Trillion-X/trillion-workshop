@@ -3,6 +3,10 @@
   "journal": {
     "system_max_use": "500M"
   },
+  "builds": {
+    "_what": "How many built commits a unit built from source keeps in its builds folder besides the ones its `current` and `current-<slot>` links run (a unit's own `keep_builds` replaces it). Older ones, with their build logs, are a difference the apply removes (do-work/keep-recent-builds.mjs): every deploy adds a build of 15 to 210 MB, and on Nov 24 2026 the computer that serves the sites was 98% full of them.",
+    "keep": 5
+  },
   "health": {
     "path": "/readyz",
     "status": 200,
