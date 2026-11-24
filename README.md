@@ -229,6 +229,7 @@ Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-c
 | `published-destinations` | `tool:check-a-destination-is-honest`, `tool:find-a-destination` |
 | `pull-a-time-window-from-a-stored-camera-file` | `tool:pull-a-time-window-from-a-stored-camera-file` |
 | `pull-from-connected-accounts` | `tool:link-signal-on-this-computer`, `tool:pull-my-discord-messages`, `tool:pull-my-instagram-comments`, `tool:pull-my-instagram-messages`, `tool:pull-my-messenger-messages`, `tool:pull-my-pinterest-pins`, `tool:pull-my-signal-messages`, `tool:pull-my-slack-messages`, `tool:pull-my-telegram-messages`, `tool:pull-my-x-bookmarks`, `tool:read-my-signal-messages-on-this-computer` |
+| `put-an-object-in-an-s3-store` | `tool:put-an-object-in-an-s3-store` |
 | `put-picked-options-into-a-filmcraft-project` | `tool:build-a-filmcraft-option-preview`, `tool:make-a-fresh-viewer-review-pack-of-a-preview`, `tool:make-a-working-preview-of-a-stitched-opening`, `tool:publish-a-checked-filmcraft-preview`, `tool:put-a-picked-option-into-a-filmcraft-project` |
 | `quote-untrusted-words` | `tool:quote-untrusted-words` |
 | `rank-library-formats-against-concepts` | `tool:rank-library-formats-against-concepts` |

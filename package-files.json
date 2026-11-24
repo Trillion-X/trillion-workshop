@@ -39429,6 +39429,22 @@
    "at": "/opt/put-picked-options-into-a-filmcraft-project/do-work"
   }
  ],
+ "tool:put-an-object-in-an-s3-store": [
+  {
+   "package": "put-an-object-in-an-s3-store",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/put-an-object-in-an-s3-store"
+  },
+  {
+   "package": "read-objects-in-an-s3-store",
+   "paths": [
+    "do-work/read-objects.mjs"
+   ],
+   "at": "/opt/read-objects-in-an-s3-store"
+  }
+ ],
  "tool:put-records-into-my-account": [
   {
    "package": "export-records-as-list-rows",

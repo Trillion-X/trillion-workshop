@@ -1,0 +1,42 @@
+{
+  "drafted_from": "tool:put-an-object-in-an-s3-store row in tool-rows.json, do-work/put-object.mjs and test/put-object.test.mjs",
+  "start_here": "Say to your AI: \"Put App.dmg from my release folder into my downloads store as App-202611241617.dmg.\" It runs tool:put-an-object-in-an-s3-store with that folder granted and answers the size, SHA-256 and address of the object.",
+  "lists": [],
+  "no_lists_because": "It names no list: it writes one file into one key of a bucket whose key the person keeps in their vault.",
+  "workflows": [],
+  "tools": [
+    "tool:put-an-object-in-an-s3-store"
+  ],
+  "instructions": [
+    "1. Keep the store's five values in your vault under one name: <store>-key-id, <store>-secret, <store>-endpoint (an https root), <store>-bucket and <store>-region, each reaching only the store's host. The key never appears in a request.",
+    "2. Say which file in which folder goes to which key; your AI calls do_one_thing_in_my_account with method tools:run, tool tool:put-an-object-in-an-s3-store and input {store, file, key, content_type, cache_control?, computer: {\"read-a-folder\": {folder}}}.",
+    "3. Read the answer: key, size, sha256, the store's etag and the address the object was put at. A public bucket serves it to anyone from then on; putting the same key again replaces it.",
+    "4. If the store refuses the key (401 or 403), keep a current key for that store in the vault."
+  ],
+  "worked_examples": [
+    {
+      "title": "Put an update feed at its fixed key",
+      "ask": "Put appcast.xml into my downloads store at appcast.xml, cached for one minute.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:put-an-object-in-an-s3-store",
+            "input": {
+              "store": "downloads-store",
+              "file": "appcast.xml",
+              "key": "appcast.xml",
+              "content_type": "application/xml",
+              "cache_control": "max-age=60",
+              "computer": { "read-a-folder": { "folder": "/Volumes/release" } }
+            }
+          }
+        }
+      },
+      "given": "From tools/put-an-object-in-an-s3-store/test/put-object.test.mjs: the store's made-up endpoint https://s3.example-region-1.store.example.test, bucket example-downloads and region example-region-1, and a 27-byte appcast.xml in the granted folder. The tool sends one PUT to that endpoint only, signed for example-region-1 with the file's SHA-256 as the payload hash.",
+      "hands_back": "{key, size: 27, sha256: <the file's SHA-256>, etag: \"abc123\", address: \"https://s3.example-region-1.store.example.test/example-downloads/...\"}. A 403 from the store answers \"The store refused the held key (403). Keep a current key for downloads-store in the vault.\""
+    }
+  ]
+}

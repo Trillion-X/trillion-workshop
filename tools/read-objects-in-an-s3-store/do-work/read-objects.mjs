@@ -30,8 +30,9 @@ export function signingKey(secret, date, region = REGION, service = SERVICE) {
   return hmac(hmac(hmac(hmac(`AWS4${secret}`, date), region), service), 'aws4_request');
 }
 
-// The headers that sign one request: { 'x-amz-date', 'x-amz-content-sha256', authorization }.
-export function signRequest({ method, url, body = '', keyId, secret, now = new Date() }) {
+// The headers that sign one request: { 'x-amz-date', 'x-amz-content-sha256', authorization }. A caller that streams a body
+// it cannot hold gives its SHA-256 as `payloadHash`; a store that names its own region (Backblaze B2's us-east-005) gives `region`.
+export function signRequest({ method, url, body = '', payloadHash = sha256Hex(body), region = REGION, keyId, secret, now = new Date() }) {
   const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '');
   const date = amzDate.slice(0, 8);
   const target = new URL(url);
@@ -39,15 +40,14 @@ export function signRequest({ method, url, body = '', keyId, secret, now = new D
     .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
     .map(([name, value]) => `${encodeRfc3986(name)}=${encodeRfc3986(value)}`)
     .join('&');
-  const payloadHash = sha256Hex(body);
   const headers = { host: target.host, 'x-amz-content-sha256': payloadHash, 'x-amz-date': amzDate };
   const names = Object.keys(headers).sort();
   const signedHeaders = names.join(';');
   const canonicalHeaders = names.map(name => `${name}:${headers[name]}\n`).join('');
   const canonicalRequest = [method, target.pathname, query, canonicalHeaders, signedHeaders, payloadHash].join('\n');
-  const scope = `${date}/${REGION}/${SERVICE}/aws4_request`;
+  const scope = `${date}/${region}/${SERVICE}/aws4_request`;
   const stringToSign = ['AWS4-HMAC-SHA256', amzDate, scope, sha256Hex(canonicalRequest)].join('\n');
-  const signature = createHmac('sha256', signingKey(secret, date)).update(stringToSign).digest('hex');
+  const signature = createHmac('sha256', signingKey(secret, date, region)).update(stringToSign).digest('hex');
   return {
     'x-amz-date': amzDate,
     'x-amz-content-sha256': payloadHash,
