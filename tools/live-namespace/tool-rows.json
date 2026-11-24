@@ -341,24 +341,24 @@
             "live-namespace": {
               "fetch": {
                 "macos-aarch64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.18-read-once/live-namespace-0.1.18-read-once-macos-aarch64.tar.gz",
-                  "version": "0.1.18-read-once",
-                  "blake3": "ad5aca1418534fd4ad37c61ddb4792dcb9198fbb60adb255c01c7ac1e42bd99f",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.19-folder-stamps/live-namespace-0.1.19-folder-stamps-macos-aarch64.tar.gz",
+                  "version": "0.1.19-folder-stamps",
+                  "blake3": "1647e6f52c0e25b22fd8f63582f69a22e0776da2214fe42fb087894ec7b56ac1",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.18-read-once/live-namespace-0.1.18-read-once-macos-aarch64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.19-folder-stamps/live-namespace-0.1.19-folder-stamps-macos-aarch64.tar.gz.b3"
                 },
                 "macos-x86_64": {
-                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.18-read-once)."
+                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.19-folder-stamps)."
                 },
                 "linux-x86_64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.18-read-once/live-namespace-0.1.18-read-once-linux-x86_64.tar.gz",
-                  "version": "0.1.18-read-once",
-                  "blake3": "d7c49aae49f95c9a65eff4ebf15763a37aab3fc151d1849dc5c39c2e3f113901",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.19-folder-stamps/live-namespace-0.1.19-folder-stamps-linux-x86_64.tar.gz",
+                  "version": "0.1.19-folder-stamps",
+                  "blake3": "492c2af455745f088ed309986288c7e25f314dda9eb601f2a77aa45693729fb7",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.18-read-once/live-namespace-0.1.18-read-once-linux-x86_64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.19-folder-stamps/live-namespace-0.1.19-folder-stamps-linux-x86_64.tar.gz.b3"
                 },
                 "linux-aarch64": {
-                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.18-read-once)."
+                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.19-folder-stamps)."
                 }
               },
               "search": "live-namespace"
@@ -631,24 +631,24 @@
             "live-namespace": {
               "fetch": {
                 "macos-aarch64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.18-read-once/live-namespace-0.1.18-read-once-macos-aarch64.tar.gz",
-                  "version": "0.1.18-read-once",
-                  "blake3": "ad5aca1418534fd4ad37c61ddb4792dcb9198fbb60adb255c01c7ac1e42bd99f",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.19-folder-stamps/live-namespace-0.1.19-folder-stamps-macos-aarch64.tar.gz",
+                  "version": "0.1.19-folder-stamps",
+                  "blake3": "1647e6f52c0e25b22fd8f63582f69a22e0776da2214fe42fb087894ec7b56ac1",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.18-read-once/live-namespace-0.1.18-read-once-macos-aarch64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.19-folder-stamps/live-namespace-0.1.19-folder-stamps-macos-aarch64.tar.gz.b3"
                 },
                 "macos-x86_64": {
-                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.18-read-once)."
+                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.19-folder-stamps)."
                 },
                 "linux-x86_64": {
-                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.18-read-once/live-namespace-0.1.18-read-once-linux-x86_64.tar.gz",
-                  "version": "0.1.18-read-once",
-                  "blake3": "d7c49aae49f95c9a65eff4ebf15763a37aab3fc151d1849dc5c39c2e3f113901",
+                  "url": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.19-folder-stamps/live-namespace-0.1.19-folder-stamps-linux-x86_64.tar.gz",
+                  "version": "0.1.19-folder-stamps",
+                  "blake3": "492c2af455745f088ed309986288c7e25f314dda9eb601f2a77aa45693729fb7",
                   "executable": "live-namespace",
-                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.18-read-once/live-namespace-0.1.18-read-once-linux-x86_64.tar.gz.b3"
+                  "checked_against": "https://github.com/Trillion-X/trillion-workshop/releases/download/live-namespace-v0.1.19-folder-stamps/live-namespace-0.1.19-folder-stamps-linux-x86_64.tar.gz.b3"
                 },
                 "linux-aarch64": {
-                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.18-read-once)."
+                  "unverified": "No build of this program is published for this system yet: macos-aarch64 and linux-x86_64 are (release live-namespace-v0.1.19-folder-stamps)."
                 }
               },
               "search": "live-namespace"
