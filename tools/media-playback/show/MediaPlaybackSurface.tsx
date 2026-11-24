@@ -2202,6 +2202,17 @@ function ControlledEmbedPlayer({
     publishTiming(0, 0);
   }, [controlledSourceUrl, media.id, publishTiming]);
 
+  // The part of the video the address names (#t=start,end), as the bar shows it: time from the part's start, the part's
+  // length, and progress through it. The player and the captions keep the video's own seconds; only the bar is the part's.
+  const span = React.useMemo(() => mediaSpanOf(sourceUrl), [sourceUrl]);
+  const part = React.useMemo(() => {
+    const start = span?.start ?? 0;
+    const end = span?.end ?? duration;
+    const length = span ? Math.max(0, Math.min(end, duration > 0 ? duration : end) - start) : duration;
+    const time = Math.min(Math.max(currentTime - start, 0), length);
+    return { start, length, time, progress: span ? (length > 0 ? (time / length) * 100 : 0) : progress };
+  }, [span, duration, currentTime, progress]);
+
   function seekToSeconds(nextSeconds: number) {
     const limit = previewLimitRef.current;
     const ceiling = typeof limit === 'number' && limit > 0 ? limit : Infinity;
@@ -2213,10 +2224,9 @@ function ControlledEmbedPlayer({
   }
 
   function seekByProgress(value: number) {
-    if (duration <= 0) return;
+    if (part.length <= 0) return;
     const boundedValue = Math.min(Math.max(value, 0), 100);
-    const seconds = (boundedValue / 100) * duration;
-    seekToSeconds(seconds);
+    seekToSeconds(part.start + (boundedValue / 100) * part.length);
   }
 
   async function togglePlay() {
@@ -2245,7 +2255,7 @@ function ControlledEmbedPlayer({
   }
 
   async function restartPlayback() {
-    seekToSeconds(0);
+    seekToSeconds(part.start);
     setStarted(true);
     setEndedMediaId(null);
     applyEmbedCommand('play');
@@ -2373,8 +2383,8 @@ function ControlledEmbedPlayer({
         visible={hasEnded}
       />
       <PlaybackControls
-        currentTime={currentTime}
-        duration={duration}
+        currentTime={part.time}
+        duration={part.length}
         isFullscreen={isFullscreen}
         isMuted={isMuted}
         isPlaying={isPlaying}
@@ -2390,7 +2400,7 @@ function ControlledEmbedPlayer({
         onVolumeChange={changeVolume}
         playbackSpeed={playbackSpeed}
         popoverContainer={controlPortalContainer}
-        progress={progress}
+        progress={part.progress}
         showCaptions={showCaptions}
         showControls={showControls}
         showTranscript={showTranscript}
