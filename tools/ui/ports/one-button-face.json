@@ -1,0 +1,52 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-UI-SHOW-ONE-BUTTON-FACE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "button-face lane, Nov 24 2026: a site's buttons look different from its sign-in page's button",
+  "message_multihash": "1f:0ae49f3b4101145fd8f64e950c86b07a2ae65b55be0cc240c7c369dc2eb8df05",
+  "quote": "there is also an inconsistency in the buttons ... i want to know where all these things are even coming from"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "one button face for every site: the one Button draws links and takes other kits' names for its faces, and its face becomes a stylesheet painted by a site's own look for a page without the part sheet",
+ "sources": [],
+ "targets": [
+  { "path": "tools/ui/show/button/Button.tsx" },
+  { "path": "tools/ui/show/button/button-face-css.mjs" }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  { "repository": "trillion-workshop", "path": "tools/ui/show/button/", "why": "The one Button's own folder: its README, its test and the list of faces still to move describe and check this job; they do not do it." },
+  { "repository": "trillion-workshop", "path": "tools/ui/show/coss/ui/button.tsx", "why": "The coss kit's button, now the one Button with the coss defaults set; it names NAMES_FROM_OTHER_KITS in its note and draws nothing of its own." },
+  { "repository": "trillion-workshop", "path": "tools/ui/show/marketing-page/MarketingPagePrimitives.tsx", "why": "Places the one Button on a marketing page (a call to action spans a phone's column by selecting data-button-face); it draws no face." },
+  { "repository": "trillion-workshop", "path": "tools/ui/ports/one-button-face.json", "why": "This contract." }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "one button face for every site: the one Button draws links and takes other kits' names for its faces, and its face becomes a stylesheet painted by a site's own look",
+    "data button face",
+    "names from other kits",
+    "button face css"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "data-button-face",
+    "NAMES_FROM_OTHER_KITS",
+    "buttonFaceCss"
+   ],
+   "repositories": [
+    { "repository": "trillion", "commit": "c856e58b8f37cfc612d5f2aa5b7d0fb962d400d7" },
+    { "repository": "trillion-rust", "commit": "c0858f50004610d858a3d0c5a9ae5e3938dc69c6" },
+    { "repository": "trillion-workshop", "commit": "72d48487f7a563abae031a87084bf498dbac7fee" },
+    { "repository": "trillion-site", "commit": "26c8afaa6a546c7c671025d6c465120b47fb922a" },
+    { "repository_multihash": "1f:7194f5aeee028c1b6843e2a7f56b491474b9df140a5f2fbaa1a1c6fb23039055", "commit": "0ee13bf733b7eea9283b58c84d760f339b12b5d4" },
+    { "repository": "bitfield-packages", "commit": "bbc1ac0983d757235efe6a2fc20f3a4b084de827" }
+   ]
+  },
+  "test_refs": ["tools/ui/show/button/one-button-face.test.mjs"]
+ }
+}

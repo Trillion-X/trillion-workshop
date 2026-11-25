@@ -5,13 +5,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.root :global(.bitfield-cta-button) {
-  --bf-cta-light: #3fbf8a;
-  --bf-cta-mid: #008652;
-  --bf-cta-deep: #006b41;
-  --bf-cta-shadow: 0, 107, 65;
-}
-
 .root .heroShell {
   padding-left: 0;
   padding-right: 0;

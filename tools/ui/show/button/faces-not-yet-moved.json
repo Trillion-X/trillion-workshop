@@ -1,0 +1,31 @@
+{
+  "_what": "Button faces drawn outside the one Button (tools/ui/show/button/Button.tsx), each still to be moved onto it. one-button-face.test.mjs refuses any face not listed here, and refuses a listed one that no longer exists, so this list only shrinks. Never add a row to let a new face in: draw it with the Button (a link is Button href=..., a face on another element is Button render=...).",
+  "components": {
+    "tools/organize-the-sidebar/show/item-renderers.tsx": "ShelfToolButton: the sidebar shelf's tool tile",
+    "tools/ui/show/sketch/Sketch.tsx": "DoodleButton: the sketch pad's drawing tools",
+    "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/composer.tsx": "assistant-ui upstream source, kept byte for byte",
+    "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/image.tsx": "assistant-ui upstream source, kept byte for byte",
+    "tools/ui/show/assistant-ui/source/components/react/ui/base/button.tsx": "assistant-ui upstream source, kept byte for byte",
+    "tools/ui/show/assistant-ui/source/components/react/ui/base/code-block.tsx": "assistant-ui upstream source, kept byte for byte",
+    "tools/ui/show/assistant-ui/source/components/react/ui/base/sidebar.tsx": "assistant-ui upstream source, kept byte for byte",
+    "tools/ui/show/assistant-ui/source/components/react/ui/radix/button-group.tsx": "assistant-ui upstream source, kept byte for byte",
+    "tools/ui/show/assistant-ui/source/components/react/ui/radix/button.tsx": "assistant-ui upstream source, kept byte for byte",
+    "tools/ui/show/assistant-ui/source/components/react/ui/radix/code-block.tsx": "assistant-ui upstream source, kept byte for byte",
+    "tools/ui/show/assistant-ui/source/components/react/ui/radix/input-group.tsx": "assistant-ui upstream source, kept byte for byte",
+    "tools/ui/show/assistant-ui/source/components/react/ui/radix/sidebar.tsx": "assistant-ui upstream source, kept byte for byte"
+  },
+  "sheets": {
+    "tools/edit-a-document-together/packages/documents/show/DocumentsSurface.tsx": "ca-format-btn: the document editor's format bar",
+    "tools/organize-my-files/parts/ui/show/document-page/document-page-html.mjs": "doc-button: a document page drawn as plain HTML",
+    "tools/plan-trips/packages/travel-operations/show/TravelOperationsPanel.tsx": "trip-board-create-button",
+    "tools/plan-trips/show/TravelOperationsPanel.tsx": "trip-board-create-button",
+    "tools/poker/packages/poker-table/show/PokerTablePanel.tsx": "casino-*-button: the poker table's own controls",
+    "tools/poker/show/PokerTablePanel.tsx": "casino-*-button: the poker table's own controls",
+    "tools/screen-look/show/marketplace-listing.mjs": "page-section--cta: a listing page drawn as plain HTML",
+    "tools/screen-look/show/styles/bitfield-site-global-look.css": "offer-plan-button, account-sidebar-menu-button: the retired Bitfield site's sheet",
+    "tools/screen-look/show/styles/portal-global-look-live-20260711.css": "account-sidebar-menu-button: the retired portal's sheet",
+    "tools/ui/show/consent-banner/consent-banner-style.mjs": "consent-banner-button: the cookie bar, plain DOM put on a page before any script, painted from the look's names",
+    "tools/ui/show/consent-banner/consent-banner.css": "consent-banner-button: the cookie bar, plain DOM put on a page before any script, painted from the look's names",
+    "tools/ui/show/document-page/document-page-html.mjs": "doc-button: a document page drawn as plain HTML"
+  }
+}

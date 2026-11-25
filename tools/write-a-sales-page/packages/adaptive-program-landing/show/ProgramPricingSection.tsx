@@ -6,7 +6,8 @@
 
 import React from 'react';
 import { SectionShell, TextColumn } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
-import { CtaButton, Text, Button, Container, ShowcaseStrip } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { Text, Container, ShowcaseStrip } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { Button } from '../../../../ui/show/button/Button';
 import { LANDING_PRICING_SECTION_ID } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
 import { PROGRAM_HERO_ENGRAVED_HEADING_STYLE } from './programHeroTypography';
 import { useProgramLandingData } from './ProgramLandingData';
@@ -197,7 +198,7 @@ export function ProgramPricingSection({ flatSurfaces, instanceId, embedded = fal
         .program-pricing-currency { align-items: center; border: 1px solid rgba(15,23,42,0.25); border-right: 0; display: flex; font-size: 13px; padding: 0 10px; text-transform: uppercase; }
         .program-pricing-custom-input { background: rgba(255,255,255,0.5); border: 1px solid rgba(15,23,42,0.25); box-sizing: border-box; font: inherit; min-height: 44px; min-width: 0; padding: 8px 10px; width: 100%; }
         .program-pricing-more { display: grid; gap: 12px; }
-        .program-pricing-more-toggle { box-shadow: 0 2px 8px rgba(15,23,42,0.05); color: #0f172a; font-size: 15px; font-weight: 700; justify-self: center; text-decoration: none; }
+        .program-pricing-more-toggle { justify-self: center; }
       `}</style>
       {!embedded ? <TextColumn measure="hero" align="center" className="gap-3 mb-10 md:mb-12">
         <Text
@@ -334,9 +335,8 @@ function OfferCard({ offerId, copy, card, idSuffix, flatSurfaces }: {
   const payDisabled = next?.kind === 'voluntary' ? validAmountCents == null || opening : !next || opening;
   const payButton = (
     <Button
-      variant="hardware"
+      variant="primary"
       size="lg"
-      flat={flatSurfaces}
       fullWidth
       disabled={payDisabled}
       onClick={startPayment}
@@ -369,7 +369,7 @@ function OfferCard({ offerId, copy, card, idSuffix, flatSurfaces }: {
       {next == null ? (
         <div className="grid gap-3" role="alert">
           <p className="m-0 text-[15px] leading-[1.5]">Live pricing for this offer is unavailable right now.</p>
-          <Button flat={flatSurfaces} onClick={() => window.location.reload()} size="md" type="button" variant="hardware">
+          <Button onClick={() => window.location.reload()} size="md" type="button" variant="primary">
             Try again
           </Button>
         </div>
@@ -381,7 +381,6 @@ function OfferCard({ offerId, copy, card, idSuffix, flatSurfaces }: {
             aria-controls={showMoreAmounts ? `program-pricing-more-amounts-${offerId.replace(/[^a-zA-Z0-9]+/g, '-')}${idSuffix}` : undefined}
             aria-expanded={showMoreAmounts}
             className="program-pricing-more-toggle"
-            flat={flatSurfaces}
             onClick={toggleMoreAmounts}
             size="md"
             type="button"
@@ -394,15 +393,14 @@ function OfferCard({ offerId, copy, card, idSuffix, flatSurfaces }: {
             <div aria-label="Suggested contribution amounts" className="program-pricing-tier-rail">
               {[policy!.minCents, ...policy!.suggestedCents.filter((amountCents) => amountCents > policy!.minCents)].map((amountCents) => (
                 <Button
-                  aria-pressed={!customEditing && selectedCents === amountCents}
+                  active={!customEditing && selectedCents === amountCents}
                   className="program-pricing-tier"
                   data-highlighted={policy!.highlightedCents === amountCents ? 'true' : undefined}
-                  flat={flatSurfaces}
                   key={amountCents}
                   onClick={() => chooseSuggestedAmount(amountCents)}
                   size="md"
                   type="button"
-                  variant="hardware"
+                  variant="quiet"
                 >
                   {!customEditing && selectedCents === amountCents ? '✓ ' : ''}
                   {formatMoneyCents(amountCents, policy!.currency)}
@@ -464,7 +462,7 @@ function OfferCard({ offerId, copy, card, idSuffix, flatSurfaces }: {
       {next?.kind === 'voluntary' ? payButton : null}
       {next?.kind === 'checkout' ? payButton : null}
       {next?.kind === 'booking' && beforeBooking ? <BeforeBookingForm action={beforeBooking} label={copy.ctaLabel ?? 'Book a call'} /> : null}
-      {next?.kind === 'booking' && !beforeBooking ? <CtaButton href={next.bookingUrl} label={copy.ctaLabel ?? 'Book a call'} /> : null}
+      {next?.kind === 'booking' && !beforeBooking ? <Button href={next.bookingUrl} size="lg" variant="primary">{copy.ctaLabel ?? 'Book a call'}</Button> : null}
       {checkoutError ? (
         <p className="m-0 rounded-xl border border-red-700/25 bg-red-50 p-3 text-[15px] leading-[1.5] text-red-800" role="alert">
           {checkoutError}

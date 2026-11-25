@@ -4,7 +4,8 @@ import React from 'react';
 import { Form } from '../../../../ui/show/form/Form';
 import { Input } from '../../../../ui/show/input/Input';
 import { Checkbox } from '../../../../ui/show/coss/ui/checkbox';
-import { Button, SectionShell } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { Button } from '../../../../ui/show/button/Button';
+import { SectionShell } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
 import { useProgramLandingData } from './ProgramLandingData';
 import styles from '../../../../screen-look/show/adaptive-program-landing/ProgramLandingSurface.module.css';
 
@@ -82,7 +83,7 @@ export function ProgramEmailCourseSection() {
                 <Checkbox checked={consent} onCheckedChange={(checked) => setConsent(checked === true)} />
                 <span>{course.consentText}</span>
               </label>
-              <Button disabled={!consent || state === 'submitting'} fullWidth size="lg" type="submit" variant="hardware">
+              <Button disabled={!consent || state === 'submitting'} fullWidth size="lg" type="submit" variant="primary">
                 {state === 'submitting' ? (course.deliveryMode === 'lessons' ? 'Sending your first lesson…' : 'Saving your request…') : course.submitLabel}
               </Button>
               {state === 'error' ? <p className={styles.emailCourseError} role="alert">{error}</p> : null}
