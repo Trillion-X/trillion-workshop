@@ -73,6 +73,8 @@ for table in ${TABLES_ONLY:-}; do set -- "$@" --table="public.\"$table\""; done
 for table in ${TABLES_LEFT_OUT:-}; do set -- "$@" --exclude-table="public.\"$table\""; done
 dump=$(mktemp)
 if [ -n "${FROM_STORE:-}" ]; then
+  # WAL-G writes only a file that is not there yet.
+  rm -f "$dump"
   wal-g st get --no-decompress "$FROM_STORE" "$dump" >/dev/null
 else
   pg_dump --dbname="$from" --no-owner --no-privileges --no-publications --no-subscriptions "$@" > "$dump"
