@@ -31,7 +31,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 ## The tools
 
 <!-- tool-catalogue:start -->
-Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-catalogue.mjs`; do not edit it by hand. 1470 tools in 318 folders. A tool's job, inputs, outputs and sample run are in its row. `test/tool-catalogue-is-current.test.mjs` fails when this table is stale.
+Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-catalogue.mjs`; do not edit it by hand. 1471 tools in 319 folders. A tool's job, inputs, outputs and sample run are in its row. `test/tool-catalogue-is-current.test.mjs` fails when this table is stale.
 
 | Folder | Tools |
 |---|---|
@@ -304,6 +304,7 @@ Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-c
 | `sort-youtube-watch-later-into-playlists` | `tool:make-youtube-playlists-from-a-sort-plan`, `tool:plan-sorting-youtube-watch-later-into-playlists`, `tool:read-my-youtube-watch-later-and-playlists` |
 | `space-members` | `tool:check-someone-is-in-a-space`, `tool:choose-the-name-i-show-in-a-space`, `tool:join-a-space`, `tool:leave-a-space`, `tool:list-a-spaces-members` |
 | `start-a-computer` | `tool:check-a-sign-up`, `tool:give-back-a-computer`, `tool:read-a-computer`, `tool:read-a-computer-price`, `tool:rent-a-machine`, `tool:start-a-computer` |
+| `start-a-site-in-a-container` | `tool:compare-site-starter-stages` |
 | `stream-an-answer-in-keyed-parts` | `tool:merge-a-streamed-answer` |
 | `suggest-connections-from-links` | `tool:suggest-connections-from-links` |
 | `suggest-what-to-ask-on-a-screen` | `tool:list-ideas-for-what-to-ask-on-a-screen` |

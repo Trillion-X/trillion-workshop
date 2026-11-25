@@ -1,0 +1,36 @@
+{
+  "drafted_from": "tool:compare-site-starter-stages's own row (its words, input schema and invoke) and do-work/compare-site-starter-stages.mjs",
+  "start_here": "Say to your AI: \"Before I deploy this site, check that every site on the server fetches its container starter the same way.\" It reads each site's Dockerfile from its deploy branch and answers same, with each site's stage and pinned commit.",
+  "lists": [],
+  "no_lists_because": "It keeps no row: it compares the Dockerfiles it is given and answers; the deploy step that calls it decides whether to go on.",
+  "workflows": [
+    "workflow:move-a-site-onto-elestio"
+  ],
+  "tools": [
+    "tool:compare-site-starter-stages"
+  ],
+  "instructions": [
+    "1. For every site that runs in a container on the server, read its Dockerfile from the branch its pipeline deploys (git show <branch>:Dockerfile).",
+    "2. Call this tool with one { site, dockerfile } for each.",
+    "3. Deploy only when same is true. When it is false, move the sites whose starter_commit differs to the newest pin first, each as its own deploy; a site with stage null still carries its own starter and takes the stage at its own next deploy."
+  ],
+  "worked_examples": [
+    {
+      "title": "Two sites pinned to two starter commits",
+      "ask": "Check the sites' starter stages before I deploy the new site.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:compare-site-starter-stages",
+            "input": { "sites": [ { "site": "first-site", "dockerfile": "ARG STARTER_COMMIT=c2afd75...\\nFROM node:22-slim AS starter\\n..." }, { "site": "new-site", "dockerfile": "ARG STARTER_COMMIT=038fe313e...\\nFROM node:22-slim AS starter\\n..." } ] }
+          }
+        }
+      },
+      "given": "Two Dockerfiles whose starter stages pin different Workshop commits.",
+      "hands_back": "{\"same\":false,\"stages\":2,\"sites\":[{\"site\":\"first-site\",\"stage\":\"6a2f937a...\",\"starter_commit\":\"c2afd75...\"},{\"site\":\"new-site\",\"stage\":\"d5c91cb3...\",\"starter_commit\":\"038fe313e...\"}]}"
+    }
+  ]
+}

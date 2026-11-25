@@ -3,6 +3,7 @@
     "start-with-engine-keys": "start-with-engine-keys.mjs"
   },
   "public": [
-    "start-with-engine-keys.mjs"
+    "start-with-engine-keys.mjs",
+    "do-work/compare-site-starter-stages.mjs"
   ]
 }

@@ -1,0 +1,170 @@
+{
+  "kind": "tool-rows",
+  "record_set": "start-a-site-in-a-container-tool-rows",
+  "what_this_is": "The Workshop row for the tool in tools/start-a-site-in-a-container: compares how every site's Dockerfile fetches this folder's starter, so no two sites drift onto different starters.",
+  "records": [
+    {
+      "id": "package::start-a-site-in-a-container::tool::compare-site-starter-stages",
+      "address": "package::start-a-site-in-a-container::tool::compare-site-starter-stages",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "id": "tool:compare-site-starter-stages",
+        "label": "Compare how every site fetches its container starter",
+        "job": "Before deploying any site that runs this folder's starter, check that every site's Dockerfile fetches the starter the same way (the same pinned commit and BLAKE3, the same stage), so no site drifts onto another starter. A deploy waits while they differ.",
+        "description": "Takes each site's Dockerfile text as its deploy branch holds it and cuts its starter stage: the ARG STARTER_* lines and every line from \"FROM ... AS starter\" to the next FROM. Each stage is named by the BLAKE3 of its text, with the STARTER_COMMIT it pins. A site with no stage still carries its own starter copy and is listed with stage null; it takes the stage at its own next deploy. same is true when every staged site has one stage, false as soon as two differ; stages counts the distinct ones. Reads nothing but its input and reaches no network.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "sites"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "sites": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "site",
+                  "dockerfile"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "site": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "dockerfile": {
+                    "type": "string",
+                    "description": "The Dockerfile's text from the site's deploy branch (git show <branch>:Dockerfile)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "same",
+            "stages",
+            "sites"
+          ],
+          "properties": {
+            "same": {
+              "type": "boolean"
+            },
+            "stages": {
+              "type": "integer"
+            },
+            "sites": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "site": {
+                    "type": "string"
+                  },
+                  "stage": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "starter_commit": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "result_selector": "$",
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/start-a-site-in-a-container",
+          "stdout": "json",
+          "argv": [
+            "/usr/local/bin/node",
+            "/opt/start-a-site-in-a-container/do-work/compare-site-starter-stages.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "start-a-site-in-a-container",
+                "paths": [
+                  "do-work/compare-site-starter-stages.mjs"
+                ],
+                "at": "/opt/start-a-site-in-a-container"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 5,
+          "memory_mb": 64
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:start-a-site-in-a-container",
+        "provenance": {
+          "source": "Written for the Workshop on Nov 25 2026, when two sites pinned two different starter commits within an hour and only a check kept in a scratch folder caught it"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "sites": [
+                {
+                  "site": "first",
+                  "dockerfile": "ARG STARTER_COMMIT=038fe313e11c74775e3587794772d3804aa29baa\nARG STARTER_BLAKE3=010fe21f\n\nFROM node:22-slim AS starter\nRUN echo starter\n\nFROM node:22-slim\nCMD [\"node\"]\n"
+                },
+                {
+                  "site": "second",
+                  "dockerfile": "ARG STARTER_COMMIT=038fe313e11c74775e3587794772d3804aa29baa\nARG STARTER_BLAKE3=010fe21f\n\nFROM node:22-slim AS starter\nRUN echo starter\n\nFROM node:22-slim\nCMD [\"node\", \"other\"]\n"
+                },
+                {
+                  "site": "third",
+                  "dockerfile": "FROM node:22-slim\nCMD [\"node\", \"its-own-starter.mjs\"]\n"
+                }
+              ]
+            },
+            "output_selector": "$.same",
+            "contains": "true"
+          }
+        ]
+      }
+    }
+  ]
+}

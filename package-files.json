@@ -10514,6 +10514,31 @@
    "at": "/opt/node_modules/@noble/hashes"
   }
  ],
+ "tool:compare-site-starter-stages": [
+  {
+   "package": "start-a-site-in-a-container",
+   "paths": [
+    "do-work/compare-site-starter-stages.mjs"
+   ],
+   "at": "/opt/start-a-site-in-a-container"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:compare-two-ai-builds-on-trap-tasks": [
   {
    "package": "compare-two-ai-builds-on-trap-tasks",
