@@ -55,6 +55,9 @@ export const containerVariants = cva('', {
       md: 'gap-3',
       lg: 'gap-4',
       xl: 'gap-6',
+      /** Room between large blocks side by side (two cards of a section): 40px, then 60px. */
+      '2xl': 'gap-10',
+      '3xl': 'gap-15',
     },
     padding: {
       none: '',
