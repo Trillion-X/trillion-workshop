@@ -1,0 +1,39 @@
+{
+  "start_here": "Say to your AI: \"Follow the tracked link abc123.\" It runs tool:follow-a-short-link, which keeps the click and answers where the tracked link goes.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it works on the form_rows the pursuit database you name already holds, and a sitting is one row there.",
+  "workflows": [],
+  "tools": [
+    "tool:follow-a-short-link"
+  ],
+  "instructions": [
+    "1. Name the pursuit database that holds the form rows, such as example_for_who_runs_it; the computer opens it with the login its vault holds.",
+    "2. Say what you want in plain words; your AI calls tools:run with tool tool:follow-a-short-link and the input.",
+    "3. Read the answer and show it with the page's screen; the tool reads and changes one sitting."
+  ],
+  "worked_examples": [
+    {
+      "title": "Follow a short link",
+      "ask": "Follow the tracked link abc123.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:follow-a-short-link",
+            "input": {
+              "database": "example_for_who_runs_it",
+              "code": "abc123",
+              "consent_cookie_name": "site_consent"
+            }
+          }
+        }
+      },
+      "given": "The database holds the page and form rows the step reads (made-up values).",
+      "hands_back": "{\"status\":302,\"location\":\"https://site.example.com/offer?utm_source=instagram&t=abc123\",\"set_cookie\":null}"
+    }
+  ],
+  "drafted_from": "tool row in tools/traffic-attribution/tool-rows.json and routes/follow-a-short-link.ts"
+}

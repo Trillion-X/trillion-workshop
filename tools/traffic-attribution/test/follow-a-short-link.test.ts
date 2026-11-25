@@ -1,0 +1,58 @@
+// A short link on a real Postgres engine (PGlite): the redirect with its source fields, the click kept once with its visitor only
+// when the visitor consented, and the refusals. Every address is invented.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { PGlite } from '@electric-sql/pglite';
+import { followAShortLink } from '../routes/follow-a-short-link.ts';
+
+const schema = readFileSync(new URL('../read-data/journey-steps.sql', import.meta.url), 'utf8');
+const consent = JSON.parse(readFileSync(new URL('../read-data/consent.json', import.meta.url), 'utf8'));
+
+async function fresh() {
+  const db = new PGlite();
+  await db.exec(schema);
+  await db.query('INSERT INTO journey_touches (id, destination, source) VALUES ($1, $2, $3::jsonb)', ['abc123', 'https://site.example.test/offer?x=1', JSON.stringify({ utm_source: 'instagram', utm_campaign: 'reel' })]);
+  return { db, query: (sql: string, params?: unknown[]) => db.query(sql, params) as Promise<{ rows: Record<string, unknown>[]; rowCount?: number }> };
+}
+const given = (extra: Record<string, unknown> = {}) => ({ database: 'd', code: 'abc123', consent_cookie_name: 'site_consent', ...extra }) as never;
+
+test('a known code answers the destination with its source fields and the touch id, and keeps one click with the referring host', async () => {
+  const { db, query } = await fresh();
+  const went = await followAShortLink(given({ referer: 'https://www.instagram.com/p/x' }), query);
+  assert.equal(went.status, 302);
+  const location = new URL(went.location as string);
+  assert.equal(`${location.origin}${location.pathname}`, 'https://site.example.test/offer');
+  assert.deepEqual([location.searchParams.get('x'), location.searchParams.get('utm_source'), location.searchParams.get('utm_campaign'), location.searchParams.get('t')], ['1', 'instagram', 'reel', 'abc123']);
+  const { rows } = await db.query("SELECT step, touch_id, source->>'referrer_host' AS host FROM journey_steps");
+  assert.deepEqual(rows, [{ step: 'click', touch_id: 'abc123', host: 'www.instagram.com' }]);
+});
+
+test('without consent no visitor is kept and no cookie is answered; with it the visitor and a cookie are', async () => {
+  const { db, query } = await fresh();
+  const anonymous = await followAShortLink(given({ cookie_header: 'jv=visitor-one-1' }), query);
+  assert.equal(anonymous.set_cookie, null);
+  assert.equal(((await db.query('SELECT visitor FROM journey_steps')).rows[0] as { visitor: string | null }).visitor, null);
+  const granted = await followAShortLink(given({ cookie_header: `site_consent=${consent.granted}` }), query);
+  assert.equal(granted.status, 302);
+  assert.match(granted.set_cookie ?? '', /^jv=[A-Za-z0-9_-]{8,128};/);
+  const visitors = (await db.query('SELECT visitor FROM journey_steps ORDER BY id')).rows as { visitor: string | null }[];
+  assert.equal(visitors[1].visitor, (granted.set_cookie as string).split(';')[0].slice(3));
+});
+
+test('an unknown code is 404 with no location and keeps nothing; a missing code or consent cookie name is refused', async () => {
+  const { db, query } = await fresh();
+  assert.deepEqual(await followAShortLink(given({ code: 'nope' }), query), { status: 404, location: null, set_cookie: null });
+  assert.equal(((await db.query('SELECT count(*)::int n FROM journey_steps')).rows[0] as { n: number }).n, 0);
+  await assert.rejects(followAShortLink(given({ code: '' }), query), /Give code/);
+  await assert.rejects(followAShortLink(given({ consent_cookie_name: '' }), query), /consent_cookie_name/);
+});
+
+test('an unreadable link answers 503 with when to retry, and a click that cannot be kept never holds the visitor back', async () => {
+  const { query } = await fresh();
+  const down = await followAShortLink(given(), async () => { throw new Error('the database is down'); });
+  assert.deepEqual([down.status, down.location], [503, null]);
+  assert.ok(typeof down.retry_after === 'number');
+  const failingWrite = async (sql: string, params?: unknown[]) => { if (/INSERT INTO journey_steps/.test(sql)) throw new Error('write refused'); return query(sql, params); };
+  assert.equal((await followAShortLink(given(), failingWrite)).status, 302);
+});
