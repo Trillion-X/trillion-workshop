@@ -55,6 +55,28 @@
       "joined_by_visitor": "journey_visitor",
       "cutoff_column": "made_at",
       "requires_columns": ["event_id", "event_kind", "occurred_at", "offer_id", "customer_email", "amount_cents", "payment_status", "attributes", "made_at", "offers.offer_id"]
+    },
+    {
+      "id": "site-form-leads-from-statements",
+      "_what": "A lead a site's own form keeps through its action row (serve-a-sites-pages-from-its-rows actions): one statements row, place site-form, meaning lead, its key the action's new id, after holding email, visitor (only with analytics consent), offer_id and self_reported. The same lead step and identity use as a lead the journey kit keeps.",
+      "table": "statements",
+      "step": "lead",
+      "where": "place = 'site-form' AND meaning = 'lead'",
+      "fields": {
+        "ref": "'site-form:' || key",
+        "at": "at",
+        "email": "after->>'email'",
+        "visitor": "after->>'visitor'",
+        "offer_id": "after->>'offer_id'"
+      },
+      "source": {
+        "self_reported": "after->>'self_reported'"
+      },
+      "joined_by": "email",
+      "joined_by_visitor": "cookie",
+      "identity_consumer": "lead",
+      "cutoff_column": "recorded_at",
+      "requires_columns": ["key", "place", "meaning", "after", "at", "recorded_at"]
     }
   ]
 }
