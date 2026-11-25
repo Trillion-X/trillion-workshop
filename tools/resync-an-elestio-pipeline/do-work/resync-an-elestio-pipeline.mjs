@@ -2,29 +2,46 @@
 // tools/resync-an-elestio-pipeline/do-work/resync-an-elestio-pipeline.mjs
 //
 // PURPOSE: tool:resync-an-elestio-pipeline, run in the tool container. Reads the request on stdin ({ email, project_id, vm_id,
-// pipeline_id, commit, since?, wait_seconds?, poll_seconds? }) and redeploys one Elestio CI/CD pipeline from its branch:
+// pipeline_id, commit, wait_seconds?, poll_seconds? }) and redeploys one Elestio CI/CD pipeline from its branch:
 // 1. trades the vault's Elestio API token (descriptor 4, elestio-api-key) for a session (auth/checkAPIToken);
-// 2. reads the pipeline once (cicd/getPipelineDetails) for the commit it serves before;
-// 3. asks for a resync (cicd/doActionOnPipeline, action reSyncPipeline): Elestio fetches the branch and builds it again;
-// 4. reads the pipeline every poll_seconds until its deployedCommit is `commit` and its lastUpdate is after `since` (the
-//    moment the resync was asked, by default) and after the stamp the ask itself writes, its status deployed and its build
-//    success; a failed build ends it at once.
-// The answer is ok, the commits before and after, the seconds it took and the pipeline's own status words. No answer or
-// error carries the token or the session, and only the named fields of the pipeline are passed on (its details also hold the
+// 2. reads the pipeline's run history (cicd/doActionOnPipeline, action getHistory: one row per run, each with its own id) and
+//    the commit it serves (cicd/getPipelineDetails);
+// 3. asks for a resync (cicd/doActionOnPipeline, action reSyncPipeline): Elestio queues a run that fetches the branch and
+//    builds it again;
+// 4. reads the history every poll_seconds until the first Resync run with an id above every id read in 2 has ended: Success
+//    on `commit` is ok; Failed, Canceled, or Success on another commit is not. Queue, Stuck and the running words wait.
+// Done is that run's own record, never a clock: Elestio stamps the pipeline's lastUpdate both when a resync is asked and
+// when it has run, minutes apart (school, 2:28:24 and 2:31:25 AM CST Nov 25 2026), so a time says nothing about which.
+// The answer is ok, the run (id, status, times, seconds), the commits before and after and the seconds waited. No answer
+// or error carries the token or the session, and only the named fields are passed on (the pipeline's details also hold the
 // deploy key and the webhook secret).
 import { readFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const API = 'https://api.elest.io/api';
 const HELD_DESCRIPTOR = 4;
-const ASK_STAMP_MS = 5000;
+// The run statuses that end a run; every other word (Queue, Stuck, a running step) means wait.
+const ENDED = new Set(['Success', 'Failed', 'Canceled']);
 
 // The fields of a pipeline's details passed on; everything else stays here.
 const pick = details => ({
   deployed_commit: details?.deployedCommit ?? null,
   status: details?.status ?? null,
   build_status: details?.buildStatus ?? null,
-  last_update: details?.lastUpdate ?? null,
+});
+
+// The fields of one history run passed on.
+const runOf = run => ({
+  id: run.id,
+  action: run.action ?? null,
+  status: run.status ?? null,
+  commit: run.commitID && run.commitID !== 'NULL' ? run.commitID : null,
+  created: run.creationDate ?? null,
+  started: run.startTime ?? null,
+  ended: run.endTime ?? null,
+  seconds: Number.isFinite(run.duration) ? run.duration : null,
+  log: run.logID ?? null,
+  ...(run.errorMessage ? { error: String(run.errorMessage).slice(0, 300) } : {}),
 });
 
 // Elestio answers some reads as { data }, some as a list and some bare: the one object either way.
@@ -51,8 +68,7 @@ export function makeElestio({ send = fetch } = {}) {
   };
 }
 
-const matches = (deployed, commit) => typeof deployed === 'string' && commit.length >= 7 && deployed.startsWith(commit);
-const after = (lastUpdate, since) => Number.isFinite(Date.parse(lastUpdate)) && Date.parse(lastUpdate) > since;
+const matches = (deployed, commit) => typeof deployed === 'string' && deployed.toLowerCase().startsWith(commit);
 
 /** The resync answer for one request. `read` gives the held token, `post` sends one API call, `wait` waits ms, `now` is ms. */
 export async function resyncAnElestioPipeline(request, {
@@ -73,36 +89,38 @@ export async function resyncAnElestioPipeline(request, {
   if (typeof jwt !== 'string' || !jwt) throw new Error('auth/checkAPIToken answered no session');
   const ids = { jwt, projectID: String(projectID), vmID: String(vmID), pipelineID: String(pipelineID) };
   const details = async () => pick(one(await post('getPipelineDetails', 'cicd/getPipelineDetails', ids)));
+  const history = async () => {
+    const runs = (await post('getHistory', 'cicd/doActionOnPipeline', { ...ids, action: 'getHistory' })).data;
+    if (!Array.isArray(runs)) throw new Error('getHistory answered no list of runs');
+    return runs.filter(run => Number.isInteger(run?.id));
+  };
 
   const before = await details();
+  const known = Math.max(0, ...(await history()).map(run => run.id));
   const askedAt = now();
   await post('reSyncPipeline', 'cicd/doActionOnPipeline', { ...ids, action: 'reSyncPipeline' });
-  // Elestio stamps lastUpdate in whole seconds, so the resync counts from the second it was asked in.
-  const since = request.since ? Date.parse(request.since) : Math.floor(askedAt / 1000) * 1000 - 1000;
-  if (!Number.isFinite(since)) throw new Error('since must be a date and time, like 2026-11-25T07:39:38Z');
 
-  // Elestio stamps lastUpdate twice: when the resync is asked (status still deployed, the old build still serving) and when
-  // it has run, which can be minutes later (school, 2:28:24 and 2:31:25 AM CST Nov 25 2026). A stamp within ASK_STAMP_MS of
-  // the ask is the ask's own, so only a later one counts.
-  let latest = before, reads = 0, settle = since;
+  let run = null, reads = 0;
   for (;;) {
-    latest = await details();
+    const ours = (await history()).filter(row => row.id > known && row.action === 'Resync').sort((a, b) => a.id - b.id)[0];
     reads += 1;
-    if (reads === 1 && Math.abs(Date.parse(latest.last_update) - askedAt) <= ASK_STAMP_MS) settle = Math.max(since, Date.parse(latest.last_update));
-    const done = matches(latest.deployed_commit, commit) && after(latest.last_update, settle)
-      && latest.status === 'deployed' && latest.build_status === 'success';
-    const failed = after(latest.last_update, settle) && /fail|error/i.test(String(latest.build_status));
-    if (done || failed || now() - askedAt >= waitMs) {
-      const reason = done ? null
-        : failed ? `the build ended ${latest.build_status}`
-        : !matches(latest.deployed_commit, commit) ? `still serving ${latest.deployed_commit ?? 'nothing'} after ${Math.round(waitMs / 1000)} s`
-        : `not redeployed after ${Math.round(waitMs / 1000)} s (status ${latest.status}, build ${latest.build_status}, last update ${latest.last_update})`;
+    if (ours) run = runOf(ours);
+    const ended = run && ENDED.has(run.status);
+    if (ended || now() - askedAt >= waitMs) {
+      const after = await details();
+      const ok = Boolean(ended && run.status === 'Success' && (matches(run.commit, commit) || (!run.commit && matches(after.deployed_commit, commit))));
+      const reason = ok ? null
+        : !run ? `no new Resync run appeared in ${Math.round(waitMs / 1000)} s`
+        : !ended ? `run ${run.id} is still ${run.status} after ${Math.round(waitMs / 1000)} s`
+        : run.status !== 'Success' ? `run ${run.id} ended ${run.status}${run.error ? `: ${run.error}` : ''}`
+        : `run ${run.id} deployed ${run.commit ?? after.deployed_commit}, not ${commit}`;
       return {
-        ok: done,
+        ok,
         pipeline_id: String(pipelineID),
         commit,
+        run,
         before,
-        after: latest,
+        after,
         asked_at: new Date(askedAt).toISOString(),
         seconds: Math.round((now() - askedAt) / 1000),
         reads,

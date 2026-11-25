@@ -16,7 +16,7 @@
         "id": "tool:resync-an-elestio-pipeline",
         "label": "Resync an Elestio pipeline and confirm it serves the pushed commit",
         "job": "Redeploy one Elestio CI/CD pipeline from its branch after a push (a push alone does not redeploy it) and say whether it now serves the pushed commit. Any site moved onto Elestio deploys a change with it, in one call, with no dashboard clicks.",
-        "description": "Trades the vault's Elestio API token (elestio-api-key, bound only to api.elest.io) for a session, reads the pipeline's deployed commit, asks Elestio to resync it (cicd/doActionOnPipeline, action reSyncPipeline: fetch the branch, build again, run the pipeline's Post Deploy command), then reads the pipeline every poll_seconds until its deployedCommit is the given commit, its lastUpdate is after the resync was asked (or after since) and after the stamp the ask itself writes (Elestio sets lastUpdate when a resync is asked, while the old build still serves, and again when it has run, sometimes minutes later), its status is deployed and its build success. A failed build ends it at once; after wait_seconds (900 by default) it ends with ok false and the reason. Returns ok, the commit, before and after (deployed commit, status, build status, last update), when it was asked, the seconds it took and the number of reads. It passes on no other field of the pipeline (its details also hold the deploy key and the webhook secret) and never the token or the session. It does not measure the site's own downtime: probe the site's address alongside it for that.",
+        "description": "Trades the vault's Elestio API token (elestio-api-key, bound only to api.elest.io) for a session, reads the pipeline's run history (cicd/doActionOnPipeline, action getHistory: one row per run with its own id) and its deployed commit, asks Elestio to resync it (action reSyncPipeline: fetch the branch, run the Pre Deploy command, down, run the Post Deploy command), then reads the history every poll_seconds until the first Resync run with an id above every id read before the ask has ended. Done is that run's own record, never a clock: Elestio stamps the pipeline's lastUpdate both when a resync is asked and when it has run, minutes apart, and holds a run in Queue first. Success on the given commit (or, when the run names no commit, the commit the pipeline then serves) is ok; Failed, Canceled or another commit is ok false with the reason; Queue, Stuck and the running words wait, up to wait_seconds (900 by default). Returns ok, the run (id, action, status, commit, created, started, ended, seconds, log), the pipeline before and after (deployed commit, status, build status), when it was asked, the seconds waited and the number of history reads. It passes on no other field (the pipeline's details also hold the deploy key and the webhook secret) and never the token or the session. Holding a key, it reaches only api.elest.io, so it cannot ask the site itself: prove the live site (its address, and its downtime by probing once a second) in a step without a key.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -51,10 +51,6 @@
               "pattern": "^[0-9a-fA-F]{7,40}$",
               "description": "The commit pushed to the pipeline's branch, whole or its first 7 or more characters."
             },
-            "since": {
-              "type": "string",
-              "description": "Count the pipeline as redeployed only once its lastUpdate is after this time; the moment the resync is asked by default."
-            },
             "wait_seconds": {
               "type": "integer",
               "minimum": 0,
@@ -73,6 +69,7 @@
             "ok",
             "pipeline_id",
             "commit",
+            "run",
             "before",
             "after",
             "asked_at",
@@ -88,6 +85,68 @@
             },
             "commit": {
               "type": "string"
+            },
+            "run": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "action": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "status": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "commit": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "created": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "started": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "ended": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "seconds": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "log": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "error": {
+                  "type": "string"
+                }
+              }
             },
             "before": {
               "$ref": "#/$defs/state"
@@ -125,12 +184,6 @@
                   ]
                 },
                 "build_status": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
-                },
-                "last_update": {
                   "type": [
                     "string",
                     "null"
@@ -195,7 +248,7 @@
               "vm_id": "170000000",
               "pipeline_id": "20000",
               "commit": "e545104",
-              "since": "2026-11-25T07:39:00Z",
+              "wait_seconds": 0,
               "poll_seconds": 1
             },
             "held": {
@@ -224,7 +277,6 @@
                   "pipelineName": "sample-site",
                   "status": "deployed",
                   "buildStatus": "success",
-                  "lastUpdate": "2026-11-25T07:42:46.000Z",
                   "deployedCommit": "e54510478825db70e7126c4dd1dabd5f7fb5db54",
                   "webhookSecret": "made-up-webhook-secret"
                 }
@@ -236,12 +288,28 @@
                 },
                 "status": 200,
                 "body": {
-                  "status": "OK"
+                  "status": "OK",
+                  "data": [
+                    {
+                      "id": 323016,
+                      "pipelineID": "20000",
+                      "action": "Resync",
+                      "status": "Success",
+                      "logID": "2026-11-25-07.39.38.205.log",
+                      "startTime": "2026-11-25T07:42:36.000Z",
+                      "endTime": "2026-11-25T07:42:46.000Z",
+                      "commitID": "e54510478825db70e7126c4dd1dabd5f7fb5db54",
+                      "commitMessage": "NULL",
+                      "creationDate": "2026-11-25T07:39:38.000Z",
+                      "errorMessage": null,
+                      "duration": 10
+                    }
+                  ]
                 }
               }
             ],
             "shape_read_at": "2026-11-25",
-            "output_selector": "$.after.deployed_commit",
+            "output_selector": "$.before.deployed_commit",
             "contains": "e54510478825db70e7126c4dd1dabd5f7fb5db54"
           }
         ]

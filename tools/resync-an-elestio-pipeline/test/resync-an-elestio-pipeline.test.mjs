@@ -7,89 +7,110 @@ const COMMIT = 'e54510478825db70e7126c4dd1dabd5f7fb5db54';
 const OLD = '8a9490d2a1f0c3b4d5e6f708192a3b4c5d6e7f80';
 const request = { email: 'owner@example.test', project_id: '90000', vm_id: '170000000', pipeline_id: '20000', commit: 'e545104', poll_seconds: 1 };
 
-// A stand-in Elestio: answers each call from `states` in turn (the last one repeats) and keeps what was asked.
-function standIn(states, { session = 'made-up-session' } = {}) {
+// The run before the ask, as getHistory answered it for the school pipeline on Nov 25 2026.
+const earlier = { id: 323016, pipelineID: '20000', action: 'Resync', status: 'Success', logID: '2026-11-25-07.39.38.205.log', startTime: '2026-11-25T07:42:36.000Z', endTime: '2026-11-25T07:42:46.000Z', commitID: COMMIT, commitMessage: 'NULL', creationDate: '2026-11-25T07:39:38.000Z', errorMessage: null, duration: 10 };
+const ours = (fields = {}) => ({ id: 323072, pipelineID: '20000', action: 'Resync', status: 'Queue', logID: '2026-11-25-08.28.24.226.log', startTime: null, endTime: null, commitID: 'NULL', commitMessage: 'NULL', creationDate: '2026-11-25T08:28:24.000Z', errorMessage: null, duration: null, ...fields });
+
+// A stand-in Elestio: each getHistory read answers the next of `histories` (the last repeats); details answer `deployed`.
+function standIn(histories, { deployed = COMMIT } = {}) {
   const asked = [];
   let read = 0;
   const post = async (step, path, body) => {
-    asked.push({ path, body });
-    if (path === 'auth/checkAPIToken') return { status: 'OK', jwt: session };
-    if (path === 'cicd/doActionOnPipeline') return { status: 'OK' };
-    const state = states[Math.min(read, states.length - 1)];
+    asked.push({ step, body });
+    if (path === 'auth/checkAPIToken') return { status: 'OK', jwt: 'made-up-session' };
+    if (path === 'cicd/getPipelineDetails') return { ...{ deployedCommit: deployed, status: 'deployed', buildStatus: 'success' }, deployPrivateKey: 'made-up-deploy-key', webhookSecret: 'made-up-webhook-secret' };
+    if (body.action === 'reSyncPipeline') return { status: 'OK' };
+    const runs = histories[Math.min(read, histories.length - 1)];
     read += 1;
-    return { data: [{ ...state, deployPrivateKey: 'made-up-deploy-key', webhookSecret: 'made-up-webhook-secret' }] };
+    return { status: 'OK', data: runs };
   };
   return { asked, post };
 }
 
-// A clock that moves one second each time it is read or waited on.
-function clock(start = Date.parse('2026-11-25T07:39:38Z')) {
+// A clock that moves only when waited on.
+function clock(start = Date.parse('2026-11-25T08:28:24Z')) {
   let at = start;
   return { now: () => at, wait: async ms => { at += ms; } };
 }
+const run = (histories, extra = {}, options) => {
+  const { asked, post } = standIn(histories, options);
+  return resyncAnElestioPipeline({ ...request, ...extra }, { read: () => 'made-up-token\n', post, ...clock() }).then(answer => ({ answer, asked }));
+};
 
-const state = (deployedCommit, lastUpdate, status = 'deployed', buildStatus = 'success') => ({ deployedCommit, lastUpdate, status, buildStatus });
-
-test('a resync that redeploys the pushed commit answers ok with before and after', async () => {
-  const { asked, post } = standIn([
-    state(OLD, '2026-11-25T07:00:00.000Z'),
-    state(OLD, '2026-11-25T07:00:00.000Z'),
-    state(OLD, '2026-11-25T07:39:50.000Z', 'deploying', 'building'),
-    state(COMMIT, '2026-11-25T07:42:46.000Z'),
+test('the new Resync run ending Success on the pushed commit is done, read from the school run of Nov 25 2026', async () => {
+  // The real order: lastUpdate moved at the ask (08:28:24) while the run sat in Queue, and the run ran 08:31:16-08:31:25.
+  const { answer, asked } = await run([
+    [earlier],
+    [ours(), earlier],
+    [ours({ status: 'Building', startTime: '2026-11-25T08:31:16.000Z' }), earlier],
+    [ours({ status: 'Success', startTime: '2026-11-25T08:31:16.000Z', endTime: '2026-11-25T08:31:25.000Z', commitID: COMMIT, duration: 9 }), earlier],
   ]);
-  const answer = await resyncAnElestioPipeline(request, { read: () => 'made-up-token\n', post, ...clock() });
   assert.equal(answer.ok, true);
-  assert.equal(answer.before.deployed_commit, OLD);
-  assert.equal(answer.after.deployed_commit, COMMIT);
+  assert.deepEqual(answer.run, { id: 323072, action: 'Resync', status: 'Success', commit: COMMIT, created: '2026-11-25T08:28:24.000Z', started: '2026-11-25T08:31:16.000Z', ended: '2026-11-25T08:31:25.000Z', seconds: 9, log: '2026-11-25-08.28.24.226.log' });
   assert.equal(answer.reads, 3);
   assert.equal(answer.reason, undefined);
   assert.deepEqual(asked[0].body, { email: 'owner@example.test', token: 'made-up-token' });
-  assert.deepEqual(asked[2].body, { jwt: 'made-up-session', projectID: '90000', vmID: '170000000', pipelineID: '20000', action: 'reSyncPipeline' });
+  assert.deepEqual(asked.find(call => call.body.action === 'reSyncPipeline').body, { jwt: 'made-up-session', projectID: '90000', vmID: '170000000', pipelineID: '20000', action: 'reSyncPipeline' });
   assert.ok(!JSON.stringify(answer).includes('made-up'), 'no token, session, deploy key or webhook secret in the answer');
 });
 
-test('the same commit already deployed is not done until the pipeline is deployed again', async () => {
-  const { post } = standIn([
-    state(COMMIT, '2026-11-25T07:00:00.000Z'),
-    state(COMMIT, '2026-11-25T07:00:00.000Z'),
-    state(COMMIT, '2026-11-25T07:42:46.000Z'),
+test('a run that only appears late, or sits in Queue and Stuck, is waited for; no clock decides', async () => {
+  const { answer } = await run([
+    [earlier],
+    [earlier],
+    [earlier],
+    [ours(), earlier],
+    [ours({ status: 'Stuck' }), earlier],
+    [ours({ status: 'Success', commitID: COMMIT, endTime: '2026-11-25T08:31:25.000Z' }), earlier],
   ]);
-  const answer = await resyncAnElestioPipeline(request, { read: () => 'made-up-token', post, ...clock() });
   assert.equal(answer.ok, true);
-  assert.equal(answer.reads, 2);
+  assert.equal(answer.reads, 5);
 });
 
-test('the stamp the ask itself writes is not the deploy: only a later one counts', async () => {
-  // Read from Elestio Nov 25 2026: lastUpdate went to the ask's second (status still deployed) and again when the build ran.
-  const { post } = standIn([
-    state(COMMIT, '2026-11-25T07:00:00.000Z'),
-    state(COMMIT, '2026-11-25T07:39:38.000Z'),
-    state(COMMIT, '2026-11-25T07:39:38.000Z'),
-    state(COMMIT, '2026-11-25T07:42:41.000Z'),
-  ]);
-  const answer = await resyncAnElestioPipeline(request, { read: () => 'made-up-token', post, ...clock() });
+test('a run that ends within a second of the ask is done on its own record', async () => {
+  const { answer } = await run([[earlier], [ours({ status: 'Success', commitID: COMMIT, startTime: '2026-11-25T08:28:24.000Z', endTime: '2026-11-25T08:28:25.000Z', duration: 1 }), earlier]]);
   assert.equal(answer.ok, true);
-  assert.equal(answer.reads, 3);
-  assert.equal(answer.after.last_update, '2026-11-25T07:42:41.000Z');
+  assert.equal(answer.reads, 1);
 });
 
-test('a failed build ends at once with its words', async () => {
-  const { post } = standIn([state(OLD, '2026-11-25T07:00:00.000Z'), state(OLD, '2026-11-25T07:40:10.000Z', 'failed', 'failed')]);
-  const answer = await resyncAnElestioPipeline(request, { read: () => 'made-up-token', post, ...clock() });
+test('the earlier run, and a newer run that is not a Resync, are never taken for ours', async () => {
+  const webhook = { ...ours({ id: 323073, action: 'GitWebhook', status: 'Success', commitID: COMMIT }) };
+  const { answer } = await run([[earlier], [webhook, earlier]], { wait_seconds: 2 });
   assert.equal(answer.ok, false);
-  assert.equal(answer.reason, 'the build ended failed');
+  assert.equal(answer.run, null);
+  assert.equal(answer.reason, 'no new Resync run appeared in 2 s');
 });
 
-test('a pipeline still on the old commit after wait_seconds answers ok false and why', async () => {
-  const { post } = standIn([state(OLD, '2026-11-25T07:00:00.000Z')]);
-  const answer = await resyncAnElestioPipeline({ ...request, wait_seconds: 3 }, { read: () => 'made-up-token', post, ...clock() });
+test('a failed or canceled run ends at once with its words', async () => {
+  const failed = await run([[earlier], [ours({ status: 'Failed', errorMessage: 'build exited 1' }), earlier]]);
+  assert.equal(failed.answer.ok, false);
+  assert.equal(failed.answer.reason, 'run 323072 ended Failed: build exited 1');
+  const canceled = await run([[earlier], [ours({ status: 'Canceled' }), earlier]]);
+  assert.equal(canceled.answer.reason, 'run 323072 ended Canceled');
+});
+
+test('a Success on another commit is not ok', async () => {
+  const { answer } = await run([[earlier], [ours({ status: 'Success', commitID: OLD }), earlier]]);
   assert.equal(answer.ok, false);
-  assert.equal(answer.reason, `still serving ${OLD} after 3 s`);
+  assert.equal(answer.reason, `run 323072 deployed ${OLD}, not e545104`);
+});
+
+test('a run with no commit in its record is judged by the commit the pipeline then serves', async () => {
+  const served = await run([[earlier], [ours({ status: 'Success' }), earlier]]);
+  assert.equal(served.answer.ok, true);
+  const other = await run([[earlier], [ours({ status: 'Success' }), earlier]], {}, { deployed: OLD });
+  assert.equal(other.answer.ok, false);
+});
+
+test('a run still queued after wait_seconds answers ok false and why', async () => {
+  const { answer } = await run([[earlier], [ours(), earlier]], { wait_seconds: 3 });
+  assert.equal(answer.ok, false);
+  assert.equal(answer.reason, 'run 323072 is still Queue after 3 s');
   assert.equal(answer.reads, 4);
 });
 
 test('an empty held token and a bad commit are refused before any call', async () => {
-  const { asked, post } = standIn([state(OLD, '2026-11-25T07:00:00.000Z')]);
+  const { asked, post } = standIn([[earlier]]);
   await assert.rejects(resyncAnElestioPipeline(request, { read: () => '\n', post }), /held Elestio token is empty/);
   await assert.rejects(resyncAnElestioPipeline({ ...request, commit: 'main' }, { read: () => 'x', post }), /commit must be/);
   assert.equal(asked.length, 0);

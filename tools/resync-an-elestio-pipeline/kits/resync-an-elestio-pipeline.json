@@ -13,7 +13,7 @@
     "1. Hold an Elestio API token in the vault as elestio-api-key, bound only to api.elest.io (Elestio dashboard, Account, Security, Create token, for the pipeline's project).",
     "2. Push the change to the branch the pipeline builds; a push alone does not redeploy it.",
     "3. Call this tool with the account email, the project id, the CI/CD target's vmID, the pipeline id and the pushed commit.",
-    "4. Read ok: true means the pipeline was deployed again after the call and serves that commit; otherwise reason says what it saw (a failed build, still the old commit, or no new deploy within wait_seconds).",
+    "4. Read ok: true means the Resync run the call made (a new row in the pipeline's history) ended Success on that commit; otherwise reason says what it saw (the run failed or was canceled, deployed another commit, or did not end within wait_seconds).",
     "5. For the site's downtime, probe its address once a second while this runs; this tool reads only Elestio's own record."
   ],
   "worked_examples": [
@@ -32,7 +32,7 @@
         }
       },
       "given": "A pipeline that builds the branch the commit was pushed to, and elestio-api-key in the vault.",
-      "hands_back": "{\"ok\":true,\"pipeline_id\":\"26310\",\"commit\":\"e545104\",\"before\":{\"deployed_commit\":\"e545104...\",...},\"after\":{\"deployed_commit\":\"e545104...\",\"status\":\"deployed\",\"build_status\":\"success\",...},\"seconds\":190,\"reads\":38}"
+      "hands_back": "{\"ok\":true,\"pipeline_id\":\"26310\",\"commit\":\"e545104\",\"before\":{\"deployed_commit\":\"e545104...\",...},\"after\":{\"deployed_commit\":\"e545104...\",\"status\":\"deployed\",\"build_status\":\"success\",...},\"seconds\":190,\"reads\":38,\"run\":{\"id\":323072,\"status\":\"Success\",\"started\":\"...08:31:16Z\",\"ended\":\"...08:31:25Z\",...}}"
     }
   ]
 }
