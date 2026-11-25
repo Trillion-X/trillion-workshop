@@ -1,0 +1,9 @@
+	@acme_challenge_elsewhere {
+		host {names}
+		path /.well-known/acme-challenge/*
+	}
+	handle @acme_challenge_elsewhere {
+		reverse_proxy {to} {
+			header_up Host {http.request.host}
+		}
+	}

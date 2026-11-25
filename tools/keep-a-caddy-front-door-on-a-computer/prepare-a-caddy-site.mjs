@@ -164,6 +164,34 @@ const servedElsewhereAsk = site => {
   const names = servedElsewhereOf(site)?.names ?? [];
   return names.length ? `\t@served_elsewhere expression {query.domain} in [${names.map(name => `'${name}'`).join(', ')}]\n\trespond @served_elsewhere 200` : '';
 };
+// A name about to move to another computer whose front door gets its certificate on the first handshake from an ACME HTTP-01
+// check (acme_challenge_elsewhere: { to: "http://<address>", names: [host names] }) has only that check's path,
+// /.well-known/acme-challenge/*, sent there with its own Host (routes/acme-challenge-elsewhere.fragment); every other request is
+// served here as before. So the other computer gets its certificate while DNS still points here, and the name moves with no
+// moment without one (Nov 25 2026: a name moved before its new host had a certificate, the ACME check reached the old
+// computer five times and the name was locked out of new certificates for an hour). A listed name must answer here at its own
+// name: a name the www rule sends on to another name (a bare name www_first_names lists, or www.<name> of any other) is
+// refused, since its check would be redirected before this route, and so is a name served_elsewhere already sends there whole. Absent: no line.
+const ACME_CHALLENGE_ELSEWHERE = readFileSync(new URL('./routes/acme-challenge-elsewhere.fragment', import.meta.url), 'utf8').trimEnd();
+const acmeChallengeElsewhere = site => {
+  const asked = site.acme_challenge_elsewhere;
+  if (asked === undefined) return '';
+  const where = 'caddy.acme_challenge_elsewhere';
+  if (asked === null || typeof asked !== 'object' || Array.isArray(asked)) throw new Error(`${where} is { to, names }`);
+  if (typeof asked.to !== 'string' || !/^http:\/\/[A-Za-z0-9.-]+(?::[0-9]+)?$/.test(asked.to)) throw new Error(`${where} to is http://<address>, with no path: the check is plain HTTP`);
+  if (!Array.isArray(asked.names) || !asked.names.length || !asked.names.every(name => typeof name === 'string' && HOST_NAME.test(name))) {
+    throw new Error(`${where} names lists one or more host names in small letters`);
+  }
+  // The https block's map sends a name on (308) unless it is its own canonical name: a bare name www_first_names lists goes to
+  // www.<name>, and www.<name> of any other bare name goes to the bare name.
+  const wwwFirst = new Set(site.www_first_names ?? []), whole = new Set(servedElsewhereOf(site)?.names ?? []);
+  const sentOn = name => !whole.has(name) && (name.startsWith('www.') ? !wwwFirst.has(name.slice(4)) : wwwFirst.has(name));
+  const sent = asked.names.find(sentOn);
+  if (sent) throw new Error(`${where} ${sent} is sent on to another name here (the www rule), so its check would be redirected before this route`);
+  const both = asked.names.find(name => whole.has(name));
+  if (both) throw new Error(`${where} ${both} is already sent elsewhere whole (served_elsewhere)`);
+  return ACME_CHALLENGE_ELSEWHERE.replaceAll('{names}', asked.names.join(' ')).replaceAll('{to}', asked.to);
+};
 // A site that asks for its request log (access_log: { keep_ip?, file? }) gets one JSON line per request: its method, its address
 // without the query, its status and how long it took; no header, cookie, TLS detail or query value. The client address is kept
 // only when keep_ip is true. Every line goes to the journal, where start-a-computer's apply-checked fact reads it, and, when the
@@ -204,7 +232,7 @@ const logFileOwner = (site, unit) => {
 };
 // The fields a site file fills with lines made from the row: absent or empty, a line that is only the field's slot is no line.
 const LINE_FIELDS = { site_sockets: siteSockets, www_first_names: wwwFirstNames, access_log: accessLog, served_elsewhere: servedElsewhere,
-  served_elsewhere_names: servedElsewhereNames, served_elsewhere_ask: servedElsewhereAsk };
+  served_elsewhere_names: servedElsewhereNames, served_elsewhere_ask: servedElsewhereAsk, acme_challenge_elsewhere: acmeChallengeElsewhere };
 const wholeFile = (site, texts) => {
   const where = `caddy site file ${site.site_file}`;
   const routes = key => (site[key] ?? []).map(path => routeText(texts, path, site)).join('\n');

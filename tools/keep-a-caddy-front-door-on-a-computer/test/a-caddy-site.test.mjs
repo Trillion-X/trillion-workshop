@@ -374,3 +374,38 @@ test('each name its own folder: Caddy reads a site with a name served elsewhere'
   assert.match(json, /"tls":\{"server_name":"\{http\.request\.host\}"\}/);
   assert.match(json, /"dial":"192\.0\.2\.20:443"/);
 });
+
+// A name about to move (acme_challenge_elsewhere) sends only its ACME HTTP-01 check path to the other computer, with its own
+// Host, so that computer gets its certificate while DNS still points here (Nov 25 2026: a name moved before its new host had a
+// certificate and was locked out of new ones for an hour). Every other request is served here as before.
+const challengeTo = { to: 'http://192.0.2.30', names: ['www.moving.example.test'] };
+test('each name its own folder: a name about to move sends only its ACME check path there, before any page or program', async () => {
+  const plain = (await siteFile(elsewhereFolders)).text;
+  assert.doesNotMatch(plain, /@acme_challenge_elsewhere|acme-challenge\/\*/, 'absent: no line');
+  const text = (await siteFile({ ...elsewhereFolders, www_first_names: ['moving.example.test'], acme_challenge_elsewhere: challengeTo })).text;
+  const https = text.slice(text.indexOf('https:// {'));
+  assert.match(https, /\t@acme_challenge_elsewhere \{\n\t\thost www\.moving\.example\.test\n\t\tpath \/\.well-known\/acme-challenge\/\*\n\t\}\n\thandle @acme_challenge_elsewhere \{\n\t\treverse_proxy http:\/\/192\.0\.2\.30 \{\n\t\t\theader_up Host \{http\.request\.host\}\n/);
+  assert.ok(https.indexOf('handle @acme_challenge_elsewhere') < https.indexOf('handle @page'), 'before any page or program of this computer');
+  assert.doesNotMatch(text.slice(0, text.indexOf('https:// {')), /@acme_challenge_elsewhere/, 'the certificate question and the door address are unchanged');
+  assert.doesNotMatch(text, /\{\{/);
+});
+
+test('an acme_challenge_elsewhere that is not one http address and host names, or names a name sent on or sent elsewhere, is refused', async () => {
+  const bad = [null, [], { names: challengeTo.names }, { to: 'https://192.0.2.30', names: challengeTo.names }, { to: 'http://192.0.2.30/path', names: challengeTo.names },
+    { to: challengeTo.to }, { to: challengeTo.to, names: [] }, { to: challengeTo.to, names: ['WWW.Moving.Example'] }];
+  for (const acme_challenge_elsewhere of bad) await assert.rejects(siteFile({ ...elsewhereFolders, acme_challenge_elsewhere }), /caddy\.acme_challenge_elsewhere/, JSON.stringify(acme_challenge_elsewhere));
+  await assert.rejects(siteFile({ ...elsewhereFolders, www_first_names: ['moving.example.test'], acme_challenge_elsewhere: { to: challengeTo.to, names: ['moving.example.test'] } }), /sent on to another name/, 'a bare name sent on to www');
+  await assert.rejects(siteFile({ ...elsewhereFolders, acme_challenge_elsewhere: challengeTo }), /sent on to another name/, 'www.<name> of a bare name that answers itself');
+  await assert.rejects(siteFile({ ...elsewhereFolders, served_elsewhere: { to: 'https://192.0.2.20', names: ['www.moving.example.test'] }, acme_challenge_elsewhere: challengeTo }), /served_elsewhere/);
+});
+
+test('each name its own folder: Caddy reads a site with a name about to move, the check path proxied over plain HTTP', { skip: spawnSync('caddy', ['version']).status !== 0 && 'caddy is not installed' }, async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'acme-challenge-elsewhere-'));
+  const path = join(dir, 'Caddyfile');
+  writeFileSync(path, (await siteFile({ ...elsewhereFolders, www_first_names: ['moving.example.test'], acme_challenge_elsewhere: challengeTo })).text);
+  const adapted = spawnSync('caddy', ['adapt', '--config', path, '--adapter', 'caddyfile'], { encoding: 'utf8' });
+  assert.equal(adapted.status, 0, adapted.stderr);
+  const json = adapted.stdout;
+  assert.match(json, /"path":\["\/\.well-known\/acme-challenge\/\*"\]/);
+  assert.match(json, /"dial":"192\.0\.2\.30:80"/);
+});

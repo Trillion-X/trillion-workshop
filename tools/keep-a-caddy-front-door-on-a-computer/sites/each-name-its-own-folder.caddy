@@ -16,6 +16,9 @@
 # every request for it goes there whole, with its own Host and its own name for TLS (routes/served-elsewhere.fragment), so a
 # visitor or crawler whose DNS still points here gets the live site's answer, not a stale copy (Nov 25 2026: a site
 # moved to another host and the old copy here answered a page with 503). Such a name keeps its certificate here and is never redirected.
+# A name the row's `acme_challenge_elsewhere` lists (`{ to, names }`; absent: none, and no line) is about to move: only its ACME
+# HTTP-01 check path goes to the other computer (routes/acme-challenge-elsewhere.fragment), so that computer gets its certificate
+# before DNS moves; everything else is served here.
 {
 	admin localhost:2019
 	grace_period {{grace_period}}
@@ -75,6 +78,7 @@ https:// {
 	# its own when the row names one. Absent: no line.
 {{access_log}}
 {{served_elsewhere}}
+{{acme_challenge_elsewhere}}
 {{routes}}
 	# A screen's address under its route_prefix is answered by that prefix's page in this name's folder: a copy of the workspace
 	# page named for the prefix's one or two segments (workspace-pages.mjs makes each), so /file/<id> gets file.prefix.html and
