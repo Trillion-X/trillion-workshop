@@ -1061,11 +1061,25 @@ fn keep_run_row(run: &str, workflow: &str, started: &str, shown: &Value) {
 fn made_pieces(answers: &BTreeMap<String, Value>) -> Vec<(String, Value)> {
     answers.iter().flat_map(|(step, answer)| answer["made"].as_array().into_iter().flatten().map(move |piece| (step.clone(), piece.clone()))).collect()
 }
+// A failed review loops back to make in a later round of the same run (a step such as "round-2:make", then
+// "round-2:review"): each piece is judged by the file its latest-answered make step made. The files it replaced keep
+// their own decisions but no longer hold the run.
+fn newest_of_each_piece(made: &[(String, Value)], answered_at: &BTreeMap<String, String>) -> BTreeMap<String, String> {
+    let mut newest: BTreeMap<String, (String, String)> = BTreeMap::new();
+    for (step, piece) in made {
+        let (Some(thing), Some(identity)) = (piece["piece"].as_str(), piece["file_identity"].as_str()) else { continue };
+        let at = answered_at.get(step).cloned().unwrap_or_default();
+        if newest.get(thing).is_none_or(|(seen, _)| at >= *seen) { newest.insert(thing.to_string(), (at, identity.to_string())); }
+    }
+    newest.into_iter().map(|(thing, (_, identity))| (thing, identity)).collect()
+}
 fn piece_gate(run: &str) -> Result<(), Vec<String>> {
     let answers: BTreeMap<String, Value> = serde_json::from_value(read(&format!("{run}/answers.json"))).unwrap_or_default();
     let made = made_pieces(&answers);
     if made.is_empty() { return Ok(()); }
     let answered_by: BTreeMap<String, String> = serde_json::from_value(read(&format!("{run}/answered_by.json"))).unwrap_or_default();
+    let answered_at: BTreeMap<String, String> = serde_json::from_value(read(&format!("{run}/answered_at.json"))).unwrap_or_default();
+    let newest = newest_of_each_piece(&made, &answered_at);
     let starter = read(&format!("{run}/started_by.json")).as_str().unwrap_or_default().to_string();
     // Its makers: whoever started the run and whoever answered a step that made a piece.
     let mut makers: BTreeSet<String> = made.iter().filter_map(|(step, _)| answered_by.get(step).cloned()).collect();
@@ -1122,7 +1136,7 @@ fn piece_gate(run: &str) -> Result<(), Vec<String>> {
         }
         decisions.push(json!({ "run": run.rsplit('/').next().unwrap_or(run), "piece": thing, "file_identity": identity, "kind": kind, "passed": here.is_empty(),
             "misses": here, "maker": makers.iter().cloned().collect::<Vec<_>>().join(","), "reviewer": reviewer, "steps": decision_steps(run, &answers) }));
-        misses.extend(here);
+        if newest.get(&thing).is_none_or(|id| *id == identity) { misses.extend(here); }
     }
     if plain(&store) {
         let text = Value::Array(decisions).to_string();
@@ -1756,6 +1770,28 @@ mod tests {
     fn a_home_relative_path_is_expanded_and_an_absolute_one_is_kept() {
         assert_eq!(expand("~/x/y"), format!("{}/x/y", home()));
         assert_eq!(expand("/abs/z"), "/abs/z");
+    }
+}
+
+#[cfg(test)]
+mod piece_round_tests {
+    use super::newest_of_each_piece;
+    use serde_json::json;
+    use std::collections::BTreeMap;
+
+    #[test]
+    fn a_piece_made_again_in_a_later_round_is_judged_by_its_newest_file_and_other_pieces_keep_theirs() {
+        let made = vec![
+            ("make".to_string(), json!({ "piece": "clip:a", "file_identity": "1f:first" })),
+            ("make".to_string(), json!({ "piece": "clip:b", "file_identity": "1f:only" })),
+            ("round-2:make".to_string(), json!({ "piece": "clip:a", "file_identity": "1f:second" })),
+            ("round-2:make".to_string(), json!({ "file_identity": "1f:no-piece" })),
+        ];
+        let at = BTreeMap::from([("make".to_string(), "2026-11-25T03:00:00Z".to_string()), ("round-2:make".to_string(), "2026-11-25T03:10:00Z".to_string())]);
+        let newest = newest_of_each_piece(&made, &at);
+        assert_eq!(newest["clip:a"], "1f:second");
+        assert_eq!(newest["clip:b"], "1f:only");
+        assert_eq!(newest.len(), 2);
     }
 }
 
