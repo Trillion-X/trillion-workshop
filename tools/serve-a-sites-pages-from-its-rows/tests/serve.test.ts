@@ -11,7 +11,7 @@ import type { ToolRun } from '../do-work/door.ts';
 import { pageStyles } from '../do-work/page-styles.ts';
 import { PageBundles } from '../do-work/render.ts';
 import { ScreenFiles } from '../do-work/screen-files.ts';
-import { handlerOf, passOnFor, serverTiming, settingsOf, Site } from '../do-work/serve.ts';
+import { handlerOf, MOST_ACTION_BYTES, passOnFor, serverTiming, settingsOf, Site } from '../do-work/serve.ts';
 import type { Settings } from '../do-work/serve.ts';
 
 const tools = join(import.meta.dirname, '..', '..');
@@ -26,6 +26,19 @@ const PAGES = [
   { path: '/old/:slug', title: 'Moved', access: 'public', tool: null, input: null, collection: null, updated_at: null, layout: { go_to: '/notes/:slug' } },
   { path: '/moved', title: 'Members area', access: 'public', tool: null, input: null, collection: null, updated_at: null, layout: { go_to: 'https://app.site.example.test/' } },
   { path: '/broken', title: 'Broken', access: 'public', tool: 'tool:fails', input: {}, collection: null, updated_at: null, layout: null },
+];
+
+const ACTIONS = [
+  { path: '/checkout', host: null, access: 'public', tool: 'tool:start-a-checkout', failed: 'Checkout could not start.', answer: { redirect_from: 'redirectUrl' }, input: {
+    offerId: { $: 'body', key: 'offerId' }, amount: { $: 'number', of: { $: 'body', key: 'amount' } }, email: { $: 'member', claim: 'email' },
+    visitor: { $: 'cookie', name: 'visitor', when: { cookie: 'consent', is: 'granted' } }, offers: { $: 'rows', database: 'a_site_for_who_runs_it', sql: 'SELECT * FROM offers WHERE id = $1', params: [{ $: 'body', key: 'offerId' }] },
+    success_url: { $: 'origin', then: '/welcome' }, attempt: { $: 'new_id' }, at: { $: 'now' },
+  } },
+  { path: '/book/:offer', host: null, access: 'public', tool: 'tool:keep-a-lead', failed: 'Booking could not start.', input: { offer: { $: 'path', name: 'offer' }, email: { $: 'body', key: 'email' } },
+    answer: { redirect_to: { $: 'url', base: 'https://book.example.test/call', query: { email: { $: 'body', key: 'email' }, name: { $: 'body', key: 'name' }, kept: { $: 'answer', key: 'kept' } } } } },
+  { path: '/members-only', host: null, access: 'members', tool: 'tool:keep-a-lead', failed: 'No.', input: {}, answer: { json: ['kept'] } },
+  { path: '/fails', host: null, access: 'public', tool: 'tool:fails', failed: 'That did not work.', input: {}, answer: { json: ['x'] } },
+  { path: '/bad', host: null, access: 'public', tool: 'tool:x', failed: 'x', input: { a: { $: 'shell', run: 'rm' } }, answer: { json: ['x'] } },
 ];
 
 // An engine door on loopback: tools:run of run-sql answers the rows, read-a-greeting answers a Text screen's props, and every
@@ -43,7 +56,11 @@ async function door() {
       if (run.tool === 'tool:run-sql-in-my-database') {
         assert.deepEqual(run.input.use, { purpose: 'serve the site', surface: 'site pages' }, 'every read runs under the declared use');
         const sql = run.input.sql!;
-        result = { rows: sql.includes('FROM pages') ? PAGES : sql.includes('FROM site_look') ? [{ name: 'theme', value: 'paper' }, { name: 'font-face.body-400', value: 'Body Sans|400|normal|/assets/fonts/body.woff2' }, { name: 'brand-ink', value: '#123456' }] : [{ slug: 'first' }, { slug: 'second one' }] };
+        result = { rows: sql.includes('FROM "site_actions"') ? ACTIONS : sql.includes('FROM offers') ? [{ id: 'offer:one', params: run.input.params }] : sql.includes('FROM pages') ? PAGES : sql.includes('FROM site_look') ? [{ name: 'theme', value: 'paper' }, { name: 'font-face.body-400', value: 'Body Sans|400|normal|/assets/fonts/body.woff2' }, { name: 'brand-ink', value: '#123456' }] : [{ slug: 'first' }, { slug: 'second one' }] };
+      } else if (run.tool === 'tool:start-a-checkout') {
+        result = { redirectUrl: 'https://pay.example.test/session/1', sessionId: 's1' };
+      } else if (run.tool === 'tool:keep-a-lead') {
+        result = { kept: 1 };
       } else if (run.tool === 'tool:read-the-site-head') {
         result = { head: '<script>window.consentFirst=1</script>', body_start: '<noscript>tags off</noscript>' };
       } else if (run.tool === 'tool:read-a-greeting') {
@@ -77,7 +94,7 @@ async function siteOn(address: string, more: Record<string, unknown> = {}) {
     settings: settings(address, more), tools,
     run: (pass, call) => runTool({ address }, pass, call),
     sitePass: 'the-site-pass',
-    passes: { memberOfCookie: async cookie => cookie === 'session=member' ? { pass: 'the-member-pass', subject: 'user-1', teams: ['team-members'] } : null },
+    passes: { memberOfCookie: async cookie => cookie?.split('; ').includes('session=member') ? { pass: 'the-member-pass', subject: 'user-1', teams: ['team-members'], claims: { sub: 'user-1', email: 'member@example.test' } } : null },
     storeKey: null,
     bundles: new PageBundles(tools, styles, files),
     palette: theme => styles.palette(theme),
@@ -324,5 +341,52 @@ test('the site head tool\'s markup opens every page\'s head and body, members pa
     const plain = await siteOn(d.address);
     assert.doesNotMatch(String((await plain.answer('GET', '/', undefined)).body), /consentFirst/, 'a site with no site_head carries none');
     await assert.rejects(siteOn(d.address, { site_head: { tool: 'tool:fails', input: {} } }), /tool:fails/);
+  } finally { d.server.close(); }
+});
+
+test('a posted form or JSON body runs its action row\'s tool with the input made from the request, and answers as the row says', async () => {
+  const d = await door();
+  try {
+    const site = await siteOn(d.address, { actions: 'site_actions' });
+    const host = 'site.example.test';
+    const form = (fields: Record<string, string>) => ({ contentType: 'application/x-www-form-urlencoded', origin: 'https://site.example.test', bytes: Buffer.from(new URLSearchParams(fields).toString()) });
+    const sent = await site.act('/checkout', 'consent=granted; visitor=v-1', host, form({ offerId: 'offer:one', amount: '120' }));
+    assert.equal(sent.status, 303);
+    assert.equal(sent.headers.location, 'https://pay.example.test/session/1', 'a form post is sent on to the address the tool answered');
+    const run = d.calls.find(call => call.run.tool === 'tool:start-a-checkout')!.run.input as Record<string, unknown>;
+    assert.equal(run.offerId, 'offer:one');
+    assert.equal(run.amount, 120, 'a number source makes the form\'s words a number');
+    assert.equal(run.visitor, 'v-1', 'a cookie with its consent given is carried');
+    assert.equal(run.success_url, 'https://site.example.test/welcome');
+    assert.deepEqual(run.offers, [{ id: 'offer:one', params: ['offer:one'] }], 'a rows source reads a database with its values');
+    assert.equal((d.calls.find(call => String((call.run.input as { sql?: string }).sql).includes('FROM offers'))!.run.input as { database: string }).database, 'a_site_for_who_runs_it', 'as the site, on the database it names');
+    assert.match(String(run.attempt), /^[0-9a-f-]{36}$/);
+    assert.ok(!Number.isNaN(Date.parse(String(run.at))));
+    assert.ok(!('email' in run), 'a signed-out visitor has no member claim, so the key is left out');
+    d.calls.length = 0;
+    const asJson = await site.act('/checkout', 'visitor=v-1; session=member', host, { contentType: 'application/json', bytes: Buffer.from(JSON.stringify({ offerId: 'offer:one' })) });
+    assert.equal(asJson.status, 200);
+    assert.deepEqual(JSON.parse(String(asJson.body)), { redirect: 'https://pay.example.test/session/1' }, 'a JSON post gets the address as JSON');
+    const memberRun = d.calls.find(call => call.run.tool === 'tool:start-a-checkout')!;
+    assert.equal(memberRun.pass, 'the-member-pass', 'a signed-in member\'s action runs as the member');
+    const input = memberRun.run.input as Record<string, unknown>;
+    assert.equal(input.email, 'member@example.test');
+    assert.ok(!('visitor' in input), 'a cookie whose consent is not given is not carried');
+    const booked = await site.act('/book/offer%3Aone', undefined, host, form({ email: 'a@example.test', name: '' }));
+    assert.equal(booked.status, 303);
+    assert.equal(booked.headers.location, 'https://book.example.test/call?email=a%40example.test&kept=1', 'an empty value is left out of the address; the answer can fill it');
+    assert.deepEqual(d.calls.at(-1)!.run.input, { offer: 'offer:one', email: 'a@example.test' });
+    assert.equal((await site.act('/members-only', undefined, host, form({}))).status, 403);
+    assert.deepEqual(JSON.parse(String((await site.act('/members-only', 'session=member', host, form({}))).body)), { kept: 1 });
+    const failed = await site.act('/fails', undefined, host, { contentType: 'application/json', bytes: Buffer.from('{}') });
+    assert.equal(failed.status, 502);
+    assert.deepEqual(JSON.parse(String(failed.body)), { error: 'That did not work.' });
+    assert.equal((await site.act('/fails', undefined, host, form({}))).status, 502, 'a form post that fails gets a page of the row\'s words');
+    assert.equal((await site.act('/bad', undefined, host, form({}))).status, 404, 'a row with a source that is not one is set aside');
+    assert.equal((await site.act('/nowhere', undefined, host, form({}))).status, 404);
+    assert.equal((await site.act('/checkout', undefined, host, { ...form({}), origin: 'https://elsewhere.example.test' })).status, 403, 'another site\'s page cannot post here');
+    assert.equal((await site.act('/checkout', undefined, host, { contentType: 'text/plain', bytes: Buffer.from('x') })).status, 400);
+    assert.equal((await site.act('/checkout', undefined, host, { contentType: 'application/json', bytes: Buffer.alloc(MOST_ACTION_BYTES + 1, 32) })).status, 413);
+    assert.throws(() => settingsOf({ ...settings(d.address), actions: 'site actions' }), /actions/);
   } finally { d.server.close(); }
 });

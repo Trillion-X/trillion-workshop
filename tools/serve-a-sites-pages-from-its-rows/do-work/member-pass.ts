@@ -36,6 +36,8 @@ export interface Member {
   pass: string;
   subject: string;
   teams: string[];
+  /** Every claim of the checked pass (email, name, ...), as the sign-in tool wrote it. */
+  claims: Record<string, unknown>;
 }
 
 const ALGORITHMS: Record<string, { hash: string | null; dsa?: 'ieee-p1363' }> = {
@@ -90,7 +92,7 @@ export class MemberPasses {
     if (typeof claims.nbf === 'number' && claims.nbf > seconds) return null;
     const teams = claims[this.#signIn.team_claim];
     if (!Array.isArray(teams) || !teams.includes(this.#signIn.members_team) || typeof claims.sub !== 'string') return null;
-    return { pass, subject: claims.sub, teams: teams.filter((team): team is string => typeof team === 'string') };
+    return { pass, subject: claims.sub, teams: teams.filter((team): team is string => typeof team === 'string'), claims };
   }
 
   /** The member a request's cookie is signed in as, or null. */

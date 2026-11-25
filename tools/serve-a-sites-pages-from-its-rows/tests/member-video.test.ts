@@ -30,7 +30,7 @@ test('only a key under a declared prefix with no empty, dot or dot-dot part is a
 
 test('a member gets 302 to a path-style link that lives link_seconds; anyone else 403; both private, no-store', () => {
   const now = new Date('2026-11-25T08:00:00Z');
-  const yes = memberFileAnswer(store, files, key, 'lessons/one/video 1.mp4', { pass: 'p', subject: 's', teams: ['t'] }, now);
+  const yes = memberFileAnswer(store, files, key, 'lessons/one/video 1.mp4', { pass: 'p', subject: 's', teams: ['t'], claims: {} }, now);
   assert.equal(yes.status, 302);
   assert.equal(yes.headers['cache-control'], 'private, no-store');
   const link = new URL(yes.headers.location);
@@ -94,7 +94,9 @@ test('a signed-in member of the members team is a member, with their own pass', 
   const s = await signInWith(good());
   try {
     const member = await new MemberPasses(s.signIn).memberOfCookie('session=good');
-    assert.deepEqual(member, { pass: s.token, subject: 'user-1', teams: ['team-other', 'team-members'] });
+    const { claims, ...who } = member!;
+    assert.deepEqual(who, { pass: s.token, subject: 'user-1', teams: ['team-other', 'team-members'] });
+    assert.equal(claims.sub, 'user-1', 'the pass\'s claims ride with the member');
   } finally { s.server.close(); }
 });
 

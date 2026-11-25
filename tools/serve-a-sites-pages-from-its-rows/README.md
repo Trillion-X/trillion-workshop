@@ -34,6 +34,7 @@ credentials folder is where the computer seals the site's door pass and the file
 | `/screen-files/<identity>.<kind>` | a page's mount script, its stylesheet, or a font the shared looks name, by BLAKE3 identity, kept for good |
 | `<member_files.path><key>` | for a member: 302 to a presigned GET of `key_prefix` + key; for anyone else: 403; always `private, no-store` |
 | a path under `public_files.paths` | 302 to a presigned GET of `key_prefix` + the path without its leading slash, `public, max-age=cache_seconds` |
+| a POST to an action row's address | that row's tool, its input made from the posted form or JSON, the cookies, the member's pass and the site's rows; a form is sent on (303), JSON gets JSON |
 | `/sitemap.xml` | every public page address; a template page lists one address per `slug` of its collection |
 | a page row's address | the page, drawn on the server; a members page only for a member, sent `private, no-store` |
 | a members address, signed out | `sign_in.signed_out: "redirect"`: 302 to `sign_in.page?next=<address>`; `"draw"`: the page row at `sign_in.page`, drawn at that address, 200 |
@@ -89,6 +90,41 @@ refuses the set. Two names are not variables:
   rule whose file is read once (a public file from the files store) and served from this site by identity, so no
   cross-origin font rule is needed. Example: `font-face.body-400` = `Body Sans|400|normal|/assets/fonts/body-regular.woff2`.
 
+## Actions
+
+A form or a script on a page posts to an address; the site's action row for it (table `settings.actions`) names the tool that
+does the job. A screen part posts a plain form, or JSON, to the address the page row gives it; it holds no callback.
+
+| Column | Holds |
+|---|---|
+| `path` | the address pattern, as a page's (`/checkout`, `/book/:offer`) |
+| `host` | the one host it answers on, or null for every host |
+| `access` | `public` (run as the site, or as the member when one is signed in) or `members` (members only) |
+| `tool` | the tool that does the job |
+| `input` | jsonb: the tool's input; a value `{ "$": "<source>", ... }` is filled from the request |
+| `answer` | jsonb: `{ "redirect_from": "<answer key>" }`, `{ "redirect_to": <value> }` or `{ "json": ["<answer key>", ...] }` |
+| `failed` | the words a visitor gets when the tool fails |
+
+Sources: `body` (`key`, dotted into JSON), `path` (`name`), `cookie` (`name`, and `when: { cookie, is }` for a consent),
+`member` (`claim` of the member's pass), `origin` (`then`), `rows` (`sql`, `params`, `database`: a statement run as the site),
+`url` (`base`, `query`), `number` (`of`), `answer` (`key`, in `redirect_to` only), `now`, `new_id`. A source that gives nothing
+leaves its key out, so the tool's own schema refuses a missing required value. A form post is answered 303 to the address; a
+JSON post gets `{ "redirect": address }` or the listed keys; a failure is 502 with the row's `failed` words. A post whose
+`Origin` is another site is refused (403); a body over 64 KB is refused (413).
+
+Example, a checkout button's form:
+
+```json
+{ "path": "/checkout", "access": "public", "tool": "tool:start-a-stripe-checkout", "failed": "Checkout could not start. Please try again.",
+  "answer": { "redirect_from": "redirectUrl" },
+  "input": { "seller_connection": "service_connection:stripe:<account>", "offerId": { "$": "body", "key": "offerId" },
+    "priceOptionId": { "$": "body", "key": "priceOptionId" }, "customerSelectedAmountCents": { "$": "number", "of": { "$": "body", "key": "amountCents" } },
+    "consent": { "billing": true, "legal": true }, "checkoutAttemptId": { "$": "new_id" }, "checkoutStartedAt": { "$": "now" },
+    "offers": { "$": "rows", "database": "a_site_for_who_runs_it", "sql": "SELECT * FROM offers" },
+    "customer": { "email": { "$": "member", "claim": "email" } },
+    "success_url": { "$": "origin", "then": "/welcome?checkout={CHECKOUT_SESSION_ID}" }, "cancel_url": { "$": "origin", "then": "/#pricing" } } }
+```
+
 ## Settings
 
 ```json
@@ -100,6 +136,7 @@ refuses the set. Two names are not variables:
   "door": { "address": "unix:/run/engine/door.sock", "pass_credential": "site-door-pass" },
   "pages": { "database": "a_site_for_who_uses_it", "use": { "purpose": "serve the site", "surface": "site pages" }, "refresh_seconds": 60, "answer_seconds": 60 },
   "sign_in": { "address": "unix:/run/sign-in/sign-in.sock", "page": "/sign-in", "issuer": "https://example.com", "audience": "https://example.com", "team_claim": "team_ids", "members_team": "<team id>", "signed_out": "redirect" },
+  "actions": "site_actions",
   "site_head": { "tool": "tool:read-the-site-head", "input": { "database": "a_site_for_who_uses_it", "site": "a-site" } },
   "files_store": { "endpoint": "https://s3.us-east-005.backblazeb2.com", "region": "us-east-005", "bucket": "<bucket>", "style": "path", "credential": "files-store-read-key" },
   "member_files": { "path": "/member-files/", "key_prefix": "site-files/", "prefixes": ["lessons/"], "link_seconds": 21600 },
@@ -130,6 +167,7 @@ refuses the set. Two names are not variables:
 |---|---|
 | `tool-rows.json` | the card: a program on your computer, `node do-work/serve.ts {settings}` |
 | `do-work/serve.ts` | settings, the request order above, kept rows and answers, listening on the socket or port |
+| `do-work/actions.ts` | action rows checked, a request's values filled into a tool's input, the address a visitor is sent to |
 | `do-work/pages.ts` | page rows checked, path matching, `:name` values, the sitemap's slugs |
 | `do-work/render.ts` | a page's tree filled with tool answers, bundled once per set of modules, drawn as a whole document |
 | `do-work/render-layout.ts` | the one tree drawer, used by the server bundle and the browser's mount script alike |

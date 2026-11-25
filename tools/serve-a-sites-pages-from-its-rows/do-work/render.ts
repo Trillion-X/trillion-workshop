@@ -98,7 +98,7 @@ export function treeOf(page: PageRow, params: Record<string, string>): LayoutNod
     if ('main' in node) return node.props ? { ...main!, props: node.props } as LayoutNode : main!;
     if ('go_to' in node) return node;
     if ('nodes' in node) return { nodes: node.nodes.map(swap) };
-    if ('part' in node && node.children) return { ...node, children: node.children.map(swap) };
+    if ('children' in node && node.children) return { ...node, children: node.children.map(swap) };
     return node;
   };
   return swap(page.layout);
@@ -111,7 +111,7 @@ export function runsOf(tree: LayoutNode): ToolRun[] {
   const runs = new Map<string, ToolRun>();
   const walk = (node: LayoutNode) => {
     if ('tool' in node) runs.set(runKey(node.tool, node.input), { tool: node.tool, input: node.input ?? {} });
-    if ('part' in node) for (const child of node.children ?? []) walk(child);
+    if ('children' in node) for (const child of node.children ?? []) walk(child);
     if ('nodes' in node) node.nodes.forEach(walk);
   };
   walk(tree);
@@ -122,7 +122,7 @@ export function runsOf(tree: LayoutNode): ToolRun[] {
 function toolNodesOf(node: LayoutNode): Extract<LayoutNode, { tool: string }>[] {
   if ('tool' in node) return [node];
   if ('nodes' in node) return node.nodes.flatMap(toolNodesOf);
-  if ('part' in node) return (node.children ?? []).flatMap(toolNodesOf);
+  if ('children' in node) return (node.children ?? []).flatMap(toolNodesOf);
   return [];
 }
 

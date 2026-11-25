@@ -61,8 +61,8 @@ export interface PageRow {
   host: string | null;
 }
 
-export interface Matched {
-  page: PageRow;
+export interface Matched<T extends { path: string } = PageRow> {
+  page: T;
   params: Record<string, string>;
 }
 
@@ -70,10 +70,10 @@ export class PageRowError extends Error {}
 
 const PART_FILE = /^[a-z0-9][a-z0-9-]*(\/[A-Za-z0-9_][A-Za-z0-9_.-]*)*\/show(\/[A-Za-z0-9_][A-Za-z0-9_.-]*)*\/[A-Za-z0-9_-]+\.tsx?$/;
 const EXPORT_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
-const TOOL_ID = /^tool:[a-z0-9][a-z0-9-]*$/;
+export const TOOL_ID = /^tool:[a-z0-9][a-z0-9-]*$/;
 const PATH_PART = /^(?::[a-z_][a-z0-9_]*|[A-Za-z0-9._~-]+)$/;
-const TABLE = /^[a-z_][a-z0-9_]*$/;
-const HOST = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
+export const TABLE = /^[a-z_][a-z0-9_]*$/;
+export const HOST = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
 
 /** The SQL that reads every page row, with the columns this file reads, in one statement. */
 // `host` is read through the row's JSON, so a table made without the column reads every row as for every host.
@@ -124,17 +124,17 @@ function checkNode(node: unknown, where: string, hasTool: boolean): LayoutNode {
     return { tool: n.tool, input: n.input ?? {}, part: partOf(n.part, where), export: exportOf(n.export, where), ...propsOf(n.props, where) };
   }
   const name = exportOf(n.export, where);
-  partOf(n.part, where);
+  const part = partOf(n.part, where);
   if (n.props !== undefined && (typeof n.props !== 'object' || n.props === null || Array.isArray(n.props))) throw new PageRowError(`${where}: props is an object.`);
   if (n.children !== undefined && !Array.isArray(n.children)) throw new PageRowError(`${where}: children is a list of nodes.`);
   const children = (n.children as unknown[] | undefined)?.map((child, i) => checkNode(child, `${where}.children[${i}]`, hasTool));
-  return { part: n.part, export: name, ...(n.props ? { props: n.props as Record<string, unknown> } : {}), ...(children ? { children } : {}) };
+  return { part, export: name, ...(n.props ? { props: n.props as Record<string, unknown> } : {}), ...(children ? { children } : {}) };
 }
 
 /** One row checked against the rules above; a broken row throws with its path and why. */
 export function pageOf(row: Record<string, unknown>): PageRow {
   const path = row.path;
-  if (typeof path !== 'string' || !path.startsWith('/') || (path !== '/' && path.slice(1).split('/').some(part => !PATH_PART.test(part)))) {
+  if (!isPathPattern(path)) {
     throw new PageRowError(`page ${JSON.stringify(path)}: path is "/" or "/" and parts of letters, digits, ._~- or ":name".`);
   }
   const where = `page ${path}`;
@@ -222,10 +222,15 @@ export function pagesOn(pages: PageRow[], host: string): PageRow[] {
   return [...own, ...pages.filter(page => page.host === null && !taken.has(page.path))];
 }
 
-/** The page a path is, and the values of its ":name" parts; a literal part beats a ":name" part. */
-export function matchPage(pages: PageRow[], pathname: string): Matched | null {
+/** A path pattern: "/" or "/" parts each a literal or a ":name". */
+export function isPathPattern(path: unknown): path is string {
+  return typeof path === 'string' && path.startsWith('/') && (path === '/' || path.slice(1).split('/').every(part => PATH_PART.test(part)));
+}
+
+/** The row a path is (a page, an action), and the values of its ":name" parts; a literal part beats a ":name" part. */
+export function matchPage<T extends { path: string }>(pages: T[], pathname: string): Matched<T> | null {
   const asked = pathname === '/' ? [] : pathname.replace(/\/+$/, '').slice(1).split('/');
-  let best: { matched: Matched; literals: number[] } | null = null;
+  let best: { matched: Matched<T>; literals: number[] } | null = null;
   for (const page of pages) {
     const parts = page.path === '/' ? [] : page.path.slice(1).split('/');
     if (parts.length !== asked.length) continue;

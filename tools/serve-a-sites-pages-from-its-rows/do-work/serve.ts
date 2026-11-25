@@ -9,6 +9,7 @@
 //     a path under public_files.paths     a public file: 302 to a presigned link, cached (member-video.ts)
 //     /sitemap.xml                        every public page address, template pages listed from their collection
 //     a page row's address                the page (pages.ts, render.ts); a members page only for a member
+//     a POST to an action row's address   that action's tool, its input made from the request, and its answer (actions.ts)
 //   and the page row "/404" (or plain words) for any other address. Its pages, look and tool answers are read through the
 //   engine's door (door.ts) as a caller: the site's own pass for public pages, the member's own pass for members pages.
 //
@@ -35,6 +36,7 @@
 //                    themselves (the sign-in tool's pages and /api/auth; a program's actions that have no tool yet): a request
 //                    under one of `paths`, or at one of `exact`, on one of `hosts` (every host when left out), is passed to
 //                    `address` whole, its answer passed back whole; the first entry that takes it wins
+//     actions        (optional) the table of the site's action rows (actions.ts), read with the pages
 //     site_head      (optional) { tool, input }: the tool whose answer { head, body_start } every page carries at the top of its
 //                    <head> and the start of its <body> (the consent default and bar, then the site's declared tags; the
 //                    Workshop's tool:read-the-site-head), read with the rows and placed by that tool's own withSiteHead
@@ -67,6 +69,8 @@ import { filesStoreOf, isPublicPath, memberFileAnswer, memberFilesOf, objectKeyO
 import type { FilesStore, MemberFiles, PublicFiles, StoreKey } from './member-video.ts';
 import { filledInput, matchPage, pagesOf, pagesOn, pathWith, PAGES_SQL, paramsOf, slugsSql } from './pages.ts';
 import type { PageRow, Refused } from './pages.ts';
+import { actionsOf, actionsSql, bodyOf, cookiesOf, filled, matchAction, sendableAddress } from './actions.ts';
+import type { ActionRow, Asked } from './actions.ts';
 import { pageStyles } from './page-styles.ts';
 import { withSiteHead } from '../../site-head-from-its-rows/do-work/site-head.ts';
 import type { SiteHeadMarkup } from '../../site-head-from-its-rows/do-work/site-head.ts';
@@ -87,6 +91,7 @@ export interface Settings {
   sign_in: SignIn & { page: string; signed_out: 'redirect' | 'draw' };
   pass_on: PassOn[];
   site_head?: { tool: string; input: Record<string, unknown> };
+  actions?: string;
   files_store?: FilesStore & { credential: string };
   member_files?: MemberFiles;
   public_files?: PublicFiles;
@@ -95,6 +100,8 @@ export interface Settings {
 const RUN_SQL = 'tool:run-sql-in-my-database';
 const LOOK_SQL = 'SELECT name, value FROM site_look ORDER BY name';
 const MOST_KEPT_ANSWERS = 1000;
+/** The most bytes an action's posted body may hold. */
+export const MOST_ACTION_BYTES = 65536;
 const NOT_FOUND = '/404';
 export const LOCAL_LISTEN = '127.0.0.1:18440';
 // Stands for the site's own caller when reads go through a command: no pass is held then.
@@ -134,6 +141,7 @@ export function settingsOf(value: unknown): Settings {
     || !s.site_head.input || typeof s.site_head.input !== 'object' || Array.isArray(s.site_head.input))) {
     throw new Error('site_head is { tool: "tool:<id>", input: { ... } }: the tool whose answer { head, body_start } every page carries.');
   }
+  if (s.actions !== undefined && (typeof s.actions !== 'string' || !/^[a-z_][a-z0-9_]*$/.test(s.actions))) throw new Error('actions is the table name of the site\'s action rows, such as "site_actions".');
   if (s.files_store !== undefined) {
     filesStoreOf(s.files_store);
     if (typeof s.files_store.credential !== 'string') throw new Error('files_store.credential names the store\'s read key in the unit\'s credentials.');
@@ -186,6 +194,8 @@ export class Site {
   #parts: SiteParts;
   #pages: PageRow[] = [];
   #refused: Refused[] = [];
+  #actions: ActionRow[] = [];
+  #refusedActions: Refused[] = [];
   #look = '';
   #head: SiteHeadMarkup | null = null;
   #readAt = 0;
@@ -198,8 +208,9 @@ export class Site {
     this.#log = parts.log ?? (line => console.error(line));
   }
 
-  #sql(sql: string, params: unknown[] = []): Promise<Record<string, unknown>[]> {
-    const { database, use } = this.#parts.settings.pages;
+  #sql(sql: string, params: unknown[] = [], other?: string): Promise<Record<string, unknown>[]> {
+    const { database: own, use } = this.#parts.settings.pages;
+    const database = other ?? own;
     return this.#parts.run(this.#parts.sitePass, { tool: RUN_SQL, input: { database, sql, params, ...(use ? { use } : {}) } })
       .then(answer => {
         const rows = (answer as { rows?: unknown } | null)?.rows;
@@ -210,10 +221,15 @@ export class Site {
 
   /** Reads the page and look rows; throws when they cannot be read or a row is broken. */
   async read(): Promise<void> {
-    const [pages, look, head] = await Promise.all([this.#sql(PAGES_SQL), this.#sql(LOOK_SQL), this.#siteHead()]);
+    const table = this.#parts.settings.actions;
+    const [pages, look, head, actionRows] = await Promise.all([this.#sql(PAGES_SQL), this.#sql(LOOK_SQL), this.#siteHead(), table ? this.#sql(actionsSql(table)) : []]);
+    const { actions, refused: refusedActions } = actionsOf(actionRows);
+    for (const { path, why } of refusedActions) if (!this.#refusedActions.some(r => r.path === path && r.why === why)) this.#log(`action row set aside: ${why}`);
     const { pages: good, refused } = pagesOf(pages);
     for (const { path, why } of refused) if (!this.#refused.some(r => r.path === path && r.why === why)) this.#log(`page row set aside: ${why}`);
     this.#pages = good;
+    this.#actions = actions;
+    this.#refusedActions = refusedActions;
     this.#refused = refused;
     const theme = look.find(row => row.name === THEME_ROW)?.value;
     const faces = await Promise.all(fontFacesOf(look).map(async face => ({ ...face, address: await this.#parts.keepFont(face.src) })));
@@ -320,11 +336,51 @@ export class Site {
     return { status: 200, headers: { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=300' }, body };
   }
 
+  /**
+   * The answer for one posted action: the action row for the host and path, its tool run with the input made from the request
+   * (as the member when one is signed in, else as the site), and the row's answer. A form post is sent on with 303; a JSON
+   * post gets JSON ({ "redirect": address } for a redirect).
+   */
+  async act(address: string, cookie: string | undefined, host: string, request: { contentType?: string; origin?: string; bytes: Buffer }): Promise<Answer> {
+    const pathname = new URL(address, 'http://site.invalid').pathname;
+    const json = (status: number, value: unknown): Answer => ({ status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }, body: JSON.stringify(value) });
+    this.#fresh();
+    const matched = matchAction(this.#actions, host, pathname);
+    if (!matched) return json(404, { error: 'Nothing is done at this address.' });
+    if (request.origin !== undefined && request.origin !== 'null') {
+      let from = '';
+      try { from = new URL(request.origin).hostname; } catch { from = ''; }
+      if (this.hostOf(from, undefined) !== from) return json(403, { error: 'This is done only from this site\'s own pages.' });
+    }
+    if (request.bytes.length > MOST_ACTION_BYTES) return json(413, { error: 'Too large.' });
+    let posted: { body: Record<string, unknown>; form: boolean };
+    try { posted = bodyOf(request.contentType, request.bytes); } catch (error) { return json(400, { error: (error as Error).message }); }
+    const { page: action, params } = matched;
+    const member = await this.#parts.passes.memberOfCookie(cookie);
+    if (action.access === 'members' && !member) return json(403, { error: 'Sign in as a member first.' });
+    const failed = async (status: number): Promise<Answer> => (posted.form ? this.#words(status, 'That did not go through', action.failed, host, pathname) : json(status, { error: action.failed }));
+    try {
+      const asked: Asked = {
+        body: posted.body, params, cookies: cookiesOf(cookie), claims: member?.claims ?? null, origin: this.#originOf(host),
+        rows: (sql, values, database) => this.#sql(sql, values, database), answer: null,
+      };
+      const input = await filled(action.input, asked);
+      const answer = await this.#parts.run(member ? member.pass : this.#parts.sitePass, { tool: action.tool, input }) as Record<string, unknown> | null;
+      if ('json' in action.answer) return json(200, Object.fromEntries(action.answer.json.map(key => [key, answer?.[key] ?? null])));
+      const to = sendableAddress('redirect_from' in action.answer ? answer?.[action.answer.redirect_from] : await filled(action.answer.redirect_to, { ...asked, answer }));
+      if (!to) throw new Error(`${action.tool} answered no address to send the visitor to.`);
+      return posted.form ? { status: 303, headers: { location: to, 'cache-control': 'no-store' }, body: '' } : json(200, { redirect: to });
+    } catch (error) {
+      this.#log(`POST ${pathname}: ${(error as Error).message}`);
+      return failed(error instanceof DoorError && error.status === 403 ? 403 : 502);
+    }
+  }
+
   /** The answer for one request: its method, its address (path and query), its cookie and its host (hostOf). */
   async answer(method: string, address: string, cookie: string | undefined, host = this.hostOf(undefined, undefined)): Promise<Answer> {
     const url = new URL(address, 'http://site.invalid');
     const pathname = url.pathname;
-    if (method !== 'GET' && method !== 'HEAD') return { status: 405, headers: { allow: 'GET, HEAD', 'content-type': 'text/plain; charset=utf-8' }, body: 'This address answers GET and HEAD.\n' };
+    if (method !== 'GET' && method !== 'HEAD') return { status: 405, headers: { allow: 'GET, HEAD, POST', 'content-type': 'text/plain; charset=utf-8' }, body: 'This address answers GET and HEAD, and POST where the site does something.\n' };
     const file = this.#parts.files.answer(pathname);
     if (file) return file;
     this.#fresh();
@@ -405,6 +461,18 @@ async function passOnTo(address: string, host: string, request: http.IncomingMes
   response.end(request.method === 'HEAD' ? undefined : answer.body);
 }
 
+/** A request's body, or null once it holds more than an action may. */
+async function bytesOf(request: http.IncomingMessage): Promise<Buffer | null> {
+  const chunks: Buffer[] = [];
+  let size = 0;
+  for await (const chunk of request) {
+    size += (chunk as Buffer).length;
+    if (size > MOST_ACTION_BYTES) return null;
+    chunks.push(chunk as Buffer);
+  }
+  return Buffer.concat(chunks);
+}
+
 /** The program's node:http handler over a site. */
 export function handlerOf(site: Site, passOn: PassOn[] = []): http.RequestListener {
   return (request, response) => {
@@ -419,7 +487,12 @@ export function handlerOf(site: Site, passOn: PassOn[] = []): http.RequestListen
       });
       return;
     }
-    site.answer(request.method ?? 'GET', request.url ?? '/', request.headers.cookie, host)
+    const answering = request.method === 'POST'
+      ? bytesOf(request).then(bytes => bytes === null
+        ? { status: 413, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }, body: JSON.stringify({ error: 'Too large.' }) }
+        : site.act(request.url ?? '/', request.headers.cookie, host, { contentType: request.headers['content-type'], origin: request.headers.origin, bytes }))
+      : site.answer(request.method ?? 'GET', request.url ?? '/', request.headers.cookie, host);
+    answering
       .then(answer => {
         response.writeHead(answer.status, { 'x-content-type-options': 'nosniff', ...answer.headers });
         response.end(request.method === 'HEAD' ? undefined : answer.body);
