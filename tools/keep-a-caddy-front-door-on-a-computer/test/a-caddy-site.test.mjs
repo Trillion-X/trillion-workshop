@@ -239,7 +239,7 @@ const wwwCases = async () => ({
   empty: (await siteFile({ ...wwwFolders, www_first_names: [] })).text,
   one: (await siteFile({ ...wwwFolders, www_first_names: ['place.example.test'] })).text,
 });
-const canonicalLines = text => text.slice(text.indexOf('https:// {')).match(/\tmap \{host\} \{site\} \{canonical\} \{\n[\s\S]*?\n\t\}\n\t@not_canonical .*\n\tredir .*\n/)[0];
+const canonicalLines = text => text.slice(text.indexOf('https:// {')).match(/\tmap \{host\} \{site\} \{canonical\} \{\n[\s\S]*?\n\t\}\n\t@not_canonical \{\n[\s\S]*?\n\t\}\n\tredir .*\n/)[0];
 const askBlock = text => text.slice(text.indexOf(':5601 {'), text.indexOf('\n}\n', text.indexOf(':5601 {')));
 
 test('each name its own folder: a name the row lists in www_first_names answers at www.<name>, and its bare name is sent there', async () => {
@@ -250,7 +250,12 @@ test('each name its own folder: a name the row lists in www_first_names answers 
     '\t\t~^www\\.(.+)$ ${1} ${1}',
     '\t\tdefault {host} {host}',
     '\t}',
-    '\t@not_canonical expression {host} != {canonical}',
+    '\t@not_canonical {',
+    "\t\t# An ACME HTTP-01 check is never sent on: Let's Encrypt asks it at the name it validates, and a check this computer",
+    '\t\t# forwards (acme_challenge_elsewhere) must reach the other computer at that same name.',
+    '\t\texpression {host} != {canonical}',
+    '\t\tnot path /.well-known/acme-challenge/*',
+    '\t}',
     '\tredir @not_canonical https://{canonical}{uri} 308',
     '',
   ].join('\n'), 'no listed name: every www.<name> is sent to <name>, path and query kept');
@@ -261,7 +266,12 @@ test('each name its own folder: a name the row lists in www_first_names answers 
     '\t\t~^www\\.(.+)$ ${1} ${1}',
     '\t\tdefault {host} {host}',
     '\t}',
-    '\t@not_canonical expression {host} != {canonical}',
+    '\t@not_canonical {',
+    "\t\t# An ACME HTTP-01 check is never sent on: Let's Encrypt asks it at the name it validates, and a check this computer",
+    '\t\t# forwards (acme_challenge_elsewhere) must reach the other computer at that same name.',
+    '\t\texpression {host} != {canonical}',
+    '\t\tnot path /.well-known/acme-challenge/*',
+    '\t}',
     '\tredir @not_canonical https://{canonical}{uri} 308',
     '',
   ].join('\n'), 'a listed name: its lines go first, so its bare name is sent to www.<name> and www.<name> answers from <name>');
@@ -381,7 +391,7 @@ test('each name its own folder: Caddy reads a site with a name served elsewhere'
 const challengeTo = { to: 'http://192.0.2.30', names: ['www.moving.example.test'] };
 test('each name its own folder: a name about to move sends only its ACME check path there, before any page or program', async () => {
   const plain = (await siteFile(elsewhereFolders)).text;
-  assert.doesNotMatch(plain, /@acme_challenge_elsewhere|acme-challenge\/\*/, 'absent: no line');
+  assert.doesNotMatch(plain, /@acme_challenge_elsewhere/, 'absent: no line');
   const text = (await siteFile({ ...elsewhereFolders, www_first_names: ['moving.example.test'], acme_challenge_elsewhere: challengeTo })).text;
   const https = text.slice(text.indexOf('https:// {'));
   assert.match(https, /\t@acme_challenge_elsewhere \{\n\t\thost www\.moving\.example\.test\n\t\tpath \/\.well-known\/acme-challenge\/\*\n\t\}\n\thandle @acme_challenge_elsewhere \{\n\t\treverse_proxy http:\/\/192\.0\.2\.30 \{\n\t\t\theader_up Host \{http\.request\.host\}\n/);
@@ -394,8 +404,6 @@ test('an acme_challenge_elsewhere that is not one http address and host names, o
   const bad = [null, [], { names: challengeTo.names }, { to: 'https://192.0.2.30', names: challengeTo.names }, { to: 'http://192.0.2.30/path', names: challengeTo.names },
     { to: challengeTo.to }, { to: challengeTo.to, names: [] }, { to: challengeTo.to, names: ['WWW.Moving.Example'] }];
   for (const acme_challenge_elsewhere of bad) await assert.rejects(siteFile({ ...elsewhereFolders, acme_challenge_elsewhere }), /caddy\.acme_challenge_elsewhere/, JSON.stringify(acme_challenge_elsewhere));
-  await assert.rejects(siteFile({ ...elsewhereFolders, www_first_names: ['moving.example.test'], acme_challenge_elsewhere: { to: challengeTo.to, names: ['moving.example.test'] } }), /sent on to another name/, 'a bare name sent on to www');
-  await assert.rejects(siteFile({ ...elsewhereFolders, acme_challenge_elsewhere: challengeTo }), /sent on to another name/, 'www.<name> of a bare name that answers itself');
   await assert.rejects(siteFile({ ...elsewhereFolders, served_elsewhere: { to: 'https://192.0.2.20', names: ['www.moving.example.test'] }, acme_challenge_elsewhere: challengeTo }), /served_elsewhere/);
 });
 
@@ -408,4 +416,20 @@ test('each name its own folder: Caddy reads a site with a name about to move, th
   const json = adapted.stdout;
   assert.match(json, /"path":\["\/\.well-known\/acme-challenge\/\*"\]/);
   assert.match(json, /"dial":"192\.0\.2\.30:80"/);
+});
+
+test('each name its own folder: the www redirect never takes an ACME check, so a name it sends on can have its check forwarded at its own name', async () => {
+  const text = (await siteFile({ ...elsewhereFolders, acme_challenge_elsewhere: challengeTo })).text;
+  const https = text.slice(text.indexOf('https:// {'));
+  assert.match(https, /\t@not_canonical \{\n\t\t# An ACME[^\n]*\n\t\t# forwards[^\n]*\n\t\texpression \{host\} != \{canonical\}\n\t\tnot path \/\.well-known\/acme-challenge\/\*\n\t\}\n\tredir @not_canonical https:\/\/\{canonical\}\{uri\} 308/);
+  assert.match(https, /host www\.moving\.example\.test\n\t\tpath \/\.well-known\/acme-challenge\/\*/, 'www.<name> of a bare name that answers itself is listed');
+});
+
+test('each name its own folder: Caddy reads the redirect that leaves out the ACME path', { skip: spawnSync('caddy', ['version']).status !== 0 && 'caddy is not installed' }, async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'acme-not-redirected-'));
+  const path = join(dir, 'Caddyfile');
+  writeFileSync(path, (await siteFile({ ...elsewhereFolders, acme_challenge_elsewhere: challengeTo })).text);
+  const adapted = spawnSync('caddy', ['adapt', '--config', path, '--adapter', 'caddyfile'], { encoding: 'utf8' });
+  assert.equal(adapted.status, 0, adapted.stderr);
+  assert.match(adapted.stdout, /"not":\[\{"path":\["\/\.well-known\/acme-challenge\/\*"\]\}\]/);
 });

@@ -169,9 +169,10 @@ const servedElsewhereAsk = site => {
 // /.well-known/acme-challenge/*, sent there with its own Host (routes/acme-challenge-elsewhere.fragment); every other request is
 // served here as before. So the other computer gets its certificate while DNS still points here, and the name moves with no
 // moment without one (Nov 25 2026: a name moved before its new host had a certificate, the ACME check reached the old
-// computer five times and the name was locked out of new certificates for an hour). A listed name must answer here at its own
-// name: a name the www rule sends on to another name (a bare name www_first_names lists, or www.<name> of any other) is
-// refused, since its check would be redirected before this route, and so is a name served_elsewhere already sends there whole. Absent: no line.
+// computer five times and the name was locked out of new certificates for an hour). The www rule's redirect never takes that
+// path (the site file's @not_canonical leaves it out), so a name the www rule sends on, www.<name> of a bare name that answers
+// itself, is listed too and its check reaches the other computer at its own name (Nov 25 2026: www.ethosschooloftennis.com).
+// A name served_elsewhere already sends there whole is refused. Absent: no line.
 const ACME_CHALLENGE_ELSEWHERE = readFileSync(new URL('./routes/acme-challenge-elsewhere.fragment', import.meta.url), 'utf8').trimEnd();
 const acmeChallengeElsewhere = site => {
   const asked = site.acme_challenge_elsewhere;
@@ -182,12 +183,7 @@ const acmeChallengeElsewhere = site => {
   if (!Array.isArray(asked.names) || !asked.names.length || !asked.names.every(name => typeof name === 'string' && HOST_NAME.test(name))) {
     throw new Error(`${where} names lists one or more host names in small letters`);
   }
-  // The https block's map sends a name on (308) unless it is its own canonical name: a bare name www_first_names lists goes to
-  // www.<name>, and www.<name> of any other bare name goes to the bare name.
-  const wwwFirst = new Set(site.www_first_names ?? []), whole = new Set(servedElsewhereOf(site)?.names ?? []);
-  const sentOn = name => !whole.has(name) && (name.startsWith('www.') ? !wwwFirst.has(name.slice(4)) : wwwFirst.has(name));
-  const sent = asked.names.find(sentOn);
-  if (sent) throw new Error(`${where} ${sent} is sent on to another name here (the www rule), so its check would be redirected before this route`);
+  const whole = new Set(servedElsewhereOf(site)?.names ?? []);
   const both = asked.names.find(name => whole.has(name));
   if (both) throw new Error(`${where} ${both} is already sent elsewhere whole (served_elsewhere)`);
   return ACME_CHALLENGE_ELSEWHERE.replaceAll('{names}', asked.names.join(' ')).replaceAll('{to}', asked.to);

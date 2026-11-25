@@ -69,7 +69,12 @@ https:// {
 		~^www\.(.+)$ ${1} ${1}
 		default {host} {host}
 	}
-	@not_canonical expression {host} != {canonical}
+	@not_canonical {
+		# An ACME HTTP-01 check is never sent on: Let's Encrypt asks it at the name it validates, and a check this computer
+		# forwards (acme_challenge_elsewhere) must reach the other computer at that same name.
+		expression {host} != {canonical}
+		not path /.well-known/acme-challenge/*
+	}
 	redir @not_canonical https://{canonical}{uri} 308
 	# Every answer, a page or a program's, is sent compressed when the browser takes it (Nov 21 2026: a 15.3 MB members
 	# script went whole, 3.4 MB as gzip, on a phone that waited 79 s).
