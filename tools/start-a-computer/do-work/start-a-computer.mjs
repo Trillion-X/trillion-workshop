@@ -210,7 +210,18 @@ export async function runsState(machine, given, run = onMachine, { pages } = {})
   // A build beyond the newest the unit keeps, that no `current` link runs, is a difference the apply removes (keep-recent-builds.mjs).
   const surplus = await surplusBuilds(machine, units, run, SETTINGS.builds.keep);
   found.push(...surplusDifferences(surplus));
-  return { runs, rendered, live, found, present, strays, usersPresent, portsClosed, builds, stale, switches, keys, surplus };
+  // A link of `live_links` that does not point at the one slot that runs is a difference the apply puts right.
+  const linksOff = [];
+  for (const { active } of switches.filter(group => group.active.length === 1)) {
+    for (const [link, target] of Object.entries(active[0].live_links ?? {})) {
+      const now = (await run(machine, `readlink -- ${q(link)} || true`)).trim();
+      if (now !== target) {
+        linksOff.push({ link, target });
+        found.push({ path: link, reason: `points at ${now || 'nothing'}; the slot that runs, ${active[0].unit}, is at ${target}` });
+      }
+    }
+  }
+  return { runs, rendered, live, found, present, strays, usersPresent, portsClosed, builds, stale, switches, keys, surplus, linksOff };
 }
 
 /** A unit's `source` with its fields filled from the unit: the git `repository` address the computer fetches from (any host;
@@ -440,6 +451,16 @@ async function overlapSlot(machine, group, target, run, { ready, notSwitched, be
   return { to: target.unit, from: group.active.filter(unit => unit !== target).map(unit => unit.unit) };
 }
 
+/** Point `link` at `target` with one rename, so a reader finds the old target or the new one and never no file. */
+const pointLink = (link, target) => `ln -sfn ${q(target)} ${q(`${link}.link-new`)} && mv -Tf ${q(`${link}.link-new`)} ${q(link)}`;
+
+/** Point each of a slot's `live_links` at that slot's own path; answers the links moved. */
+async function pointLiveLinks(machine, slot, run) {
+  const links = Object.entries(slot.live_links ?? {});
+  for (const [link, target] of links) await run(machine, pointLink(link, target));
+  return links.map(([link]) => link);
+}
+
 function slotUnconfirmed(target, unit, phase, cause) {
   return Object.assign(new Error(`The apply did not confirm ${phase} for ${unit.unit}; read back the slots before retrying.`, { cause }), {
     exit: SLOT_SWITCH_UNCONFIRMED_EXIT, slot_switch_unconfirmed: { candidate: target.unit, affected_unit: unit.unit, phase },
@@ -448,7 +469,7 @@ function slotUnconfirmed(target, unit, phase, cause) {
 
 export async function applyWhatItRuns(machine, given, run = onMachine, held = {}, deps = {}) {
   const applyStarted = Date.now();
-  const { runs, rendered, live, present, strays, usersPresent, portsClosed, builds, stale, switches, keys, surplus } = await runsState(machine, given, run, deps);
+  const { runs, rendered, live, present, strays, usersPresent, portsClosed, builds, stale, switches, keys, surplus, linksOff } = await runsState(machine, given, run, deps);
   // A sealed key the computer lacks is made, and a plain key it still holds is removed once its unit runs from the sealed one: that unit restarts.
   const keysOwed = keys.filter(({ sealed, plain }) => !sealed || plain).map(({ unit }) => unit.unit);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
@@ -513,7 +534,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   const changed = new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit)]);
   const switching = switches.filter(group => group.reason || group.units.some(unit => changed.has(unit.unit)))
     .map(group => ({ group, target: group.units.find(unit => !group.active.includes(unit)) ?? group.units.at(-1) }));
-  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !triggersOff.length && !builds.length && !stale.length && !usersPresent.length && !present.length && !portsClosed.length && !switching.length && !keysOwed.length && !surplus.length) return { written: [], restarted: [] };
+  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !triggersOff.length && !builds.length && !stale.length && !usersPresent.length && !present.length && !portsClosed.length && !switching.length && !keysOwed.length && !surplus.length && !linksOff.length) return { written: [], restarted: [] };
   // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
   // none, and running it would refresh the package lists on every apply.
   const accounts = await Promise.all(runs.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
@@ -608,7 +629,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   // over it, against the computer's MemAvailable. Too little is refused before anything stops, so the slot that
   // runs keeps serving (Nov 21 2026, 9:47 PM CST: the kernel's global out-of-memory killer ended a new slot that had reached 1.32 GB
   // beside an old one holding 1.26 GB on a 4 GB computer, and every site on the box timed out).
-  const switched = [], booted = [];
+  const switched = [], booted = [], linked = [];
   for (const { group, target } of switching) {
     const answer = await overlapSlot(machine, group, target, run, {
       ready: async () => {
@@ -621,6 +642,9 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
       notSwitched: async () => switching.length === 1 && group.active.length === 1 && !needsSetup && !writes.length && !present.length &&
         !usersPresent.length && !missing.length && !keysOwed.length && !builds.length,
       beforeRetire: async () => {
+        // The new slot answers and the one that ran still serves: its fixed paths move to the new slot now, so no reader is
+        // sent to a slot that is stopping.
+        linked.push(...await pointLiveLinks(machine, target, run));
         if (!target.state) return;
         const peak = (await run(machine, `systemctl show -p MemoryPeak --value ${q(target.unit)}`).catch(() => '')).trim();
         if (/^[0-9]+$/.test(peak)) await run(machine, `printf '%s\\n' ${q(peak)} > ${q(`${target.state}/start-peak-bytes`)}`).catch(() => {});
@@ -628,6 +652,13 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
     });
     booted.push(target.unit);
     switched.push(answer);
+  }
+  // A link that is off while no switch moves it (a link the row names for the first time, or one changed by hand) is put back.
+  const switchedGroups = new Set(switching.map(({ group }) => group.of));
+  for (const { link, target } of linksOff) {
+    if (switchedGroups.has(runs.units.find(unit => Object.hasOwn(unit.live_links ?? {}, link))?.slot?.of)) continue;
+    await run(machine, pointLink(link, target));
+    linked.push(link);
   }
   for (const unit of units) {
     await run(machine, running.has(unit) ? `systemctl restart ${q(unit)}` : `systemctl enable --now ${q(unit)} >/dev/null 2>&1`);
@@ -648,7 +679,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
     booted.push(unit);
   }
   const plainKeysRemoved = await removeThePlainKeys(machine, keys, booted, run);
-  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(plainKeysRemoved.length ? { plain_keys_removed: plainKeysRemoved } : {}), ...(switched.length ? { switched } : {}), ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}), ...(built.length ? { built } : {}), ...(surplus.length ? { builds_removed: surplus.flatMap(({ builds, commits }) => commits.map(commit => `${builds}/${commit}`)) } : {}), ...removed, ...(checked.length ? { apply_checked: checked } : {}) };
+  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(plainKeysRemoved.length ? { plain_keys_removed: plainKeysRemoved } : {}), ...(switched.length ? { switched } : {}), ...(linked.length ? { linked } : {}), ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}), ...(built.length ? { built } : {}), ...(surplus.length ? { builds_removed: surplus.flatMap(({ builds, commits }) => commits.map(commit => `${builds}/${commit}`)) } : {}), ...removed, ...(checked.length ? { apply_checked: checked } : {}) };
 }
 
 const refused = message => Object.assign(new Error(message), { exit: 2 });
@@ -970,7 +1001,7 @@ async function applyScopedEngine(request, run, wait) {
   const { machine, units, scope, incumbent, candidate, incumbentProof } = await admitScopedEngine(request, run);
   const final = async (unit, enabled, expected) => scopedSlotProof(machine, unit, run, { running: true, enabled, expected });
   const standby = (unit, enabled = false) => scopedSlotProof(machine, unit, run, { running: false, enabled });
-  let running, confirmed;
+  let running, confirmed, linked = [];
   const switched = await overlapSlot(machine, { units, active: [units[0]] }, candidate, run, {
     start: 'start',
     ready: async () => {
@@ -988,12 +1019,13 @@ async function applyScopedEngine(request, run, wait) {
       await standby(candidate);
       return true;
     },
+    beforeRetire: async () => { linked = await pointLiveLinks(machine, candidate, run); },
     afterRetire: async () => {
       confirmed = await final(candidate, true, running);
       await standby(incumbent);
     },
   });
-  return { written: [], restarted: [], booted: [candidate.unit], switched: [switched], engine_scope: { unit: scope.unit, incumbent: incumbentProof, candidate: confirmed } };
+  return { written: [], restarted: [], booted: [candidate.unit], switched: [switched], ...(linked.length ? { linked } : {}), engine_scope: { unit: scope.unit, incumbent: incumbentProof, candidate: confirmed } };
 }
 
 function checkOrdinaryApplyFields(request) {

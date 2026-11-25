@@ -363,12 +363,14 @@ const slotted = { ...built, units: [{ ...built.units[0], stop_seconds: 170, heal
 const MiB = 1024 ** 2;
 // `memory` is what the computer reports: MemAvailable, and the MemoryCurrent every running slot shows (bytes); `kept` is the start
 // peak a switch measured before (start-peak-bytes), and `peak` the MemoryPeak a new slot shows once it passes its checks.
-const slotComputer = ({ active, links, answers = {}, memory = { available: 4096 * MiB, current: 1260 * MiB } }) => {
-  const live = Object.fromEntries(renderWhatItRuns(slotted).map(({ path, text }) => [path, text]));
+const slotComputer = ({ active, links, answers = {}, memory = { available: 4096 * MiB, current: 1260 * MiB }, row = slotted, liveLinks = {} }) => {
+  const live = Object.fromEntries(renderWhatItRuns(row).map(({ path, text }) => [path, text]));
   const base = computer(live);
   const run = async (m, command, input) => {
     const activeAsked = command.match(/^systemctl is-active --quiet '([^']+)'/);
     if (activeAsked) { base.commands.push({ command }); if (active.includes(activeAsked[1])) return ''; throw Object.assign(new Error('inactive'), { code: 3 }); }
+    const liveLink = command.match(/^readlink -- '([^']+)' \|\| true$/);
+    if (liveLink) { base.commands.push({ command }); return liveLinks[liveLink[1]] ?? ''; }
     const link = command.match(/^readlink '[^']+\/(current[^']*)'/);
     if (link) return links[link[1]] ?? '';
     if (command.startsWith('systemctl show -p MemoryCurrent')) { base.commands.push({ command }); return `${memory.current}\n`; }
@@ -417,6 +419,49 @@ test('a release that never answers is stopped again, and the slot that ran keeps
   await assert.rejects(applyWhatItRuns(machine, slotted, run, {}, { wait: async () => {} }), /example-place-b\.service answered 502 on \/readyz, not 200, after its restart\. Candidate stop succeeded; no incumbent retirement was requested for this unit\./);
   assert.ok(commands.some(({ command }) => command === "systemctl stop 'example-place-b.service'"));
   assert.equal(commands.some(({ command }) => command.includes("'example-place-a.service'") && /disable|stop|restart/.test(command)), false);
+});
+
+// `live_links`: a fixed path (an engine's agent socket, its settings file, its build link) points at the slot that runs, so a
+// reader never reaches a stopped slot's file. Nov 24 2026, 8:06 PM CST: both slots of the always-on's engine bound one socket
+// path, the retiring slot restarted after an out-of-memory kill and took that path from the serving slot, and every agent
+// call on it was refused until the next switch.
+const linked = { ...slotted, units: [{ ...slotted.units[0], live_links: { '/var/lib/example-place/agent.sock': '/var/lib/example-place/agent-{slot}.sock' },
+  slots: { a: { ...slotted.units[0].slots.a, 'settings.agent_socket': '/var/lib/example-place/agent-a.sock' }, b: { ...slotted.units[0].slots.b, 'settings.agent_socket': '/var/lib/example-place/agent-b.sock' } } }] };
+const pointed = (link, target) => `ln -sfn '${target}' '${link}.link-new' && mv -Tf '${link}.link-new' '${link}'`;
+
+test('a switch points the live links at the new slot after it answers and before the slot that ran stops', async () => {
+  const { run, commands } = slotComputer({ row: linked, active: ['example-place-a.service'], links: { 'current-a': 'b'.repeat(40) }, liveLinks: { '/var/lib/example-place/agent.sock': '/var/lib/example-place/agent-a.sock' } });
+  const answer = await applyWhatItRuns(machine, linked, run);
+  assert.deepEqual(answer.switched, [{ to: 'example-place-b.service', from: ['example-place-a.service'] }]);
+  assert.deepEqual(answer.linked, ['/var/lib/example-place/agent.sock']);
+  const at = text => commands.findIndex(({ command }) => command.startsWith(text));
+  const move = at(pointed('/var/lib/example-place/agent.sock', '/var/lib/example-place/agent-b.sock'));
+  assert.ok(move >= 0, 'the link moves to the new slot');
+  assert.ok(at("curl -s -o /dev/null -w '%{http_code}' -H 'Host: place.example.test' 'http://127.0.0.1:7198/readyz'") < move, 'only after the new slot answers');
+  assert.ok(move < at("systemctl disable --now 'example-place-a.service'"), 'before the slot that ran stops');
+  assert.equal(commands.filter(({ command }) => command.startsWith('ln -sfn')).length, 1, 'once');
+});
+
+test('a live link off the running slot is a difference, and the apply points it back without a switch or a restart', async () => {
+  const { run, commands } = slotComputer({ row: linked, active: ['example-place-a.service'], links: { 'current-a': SOURCE_COMMIT }, liveLinks: { '/var/lib/example-place/agent.sock': '/var/lib/example-place/agent-b.sock' } });
+  assert.deepEqual((await runsDifferences(machine, linked, run)).filter(({ path }) => path === '/var/lib/example-place/agent.sock'),
+    [{ path: '/var/lib/example-place/agent.sock', reason: 'points at /var/lib/example-place/agent-b.sock; the slot that runs, example-place-a.service, is at /var/lib/example-place/agent-a.sock' }]);
+  const answer = await applyWhatItRuns(machine, linked, run);
+  assert.deepEqual(answer.linked, ['/var/lib/example-place/agent.sock']);
+  assert.equal(answer.switched, undefined);
+  assert.deepEqual(answer.restarted, []);
+  assert.ok(commands.some(({ command }) => command === pointed('/var/lib/example-place/agent.sock', '/var/lib/example-place/agent-a.sock')));
+});
+
+test('a live link that already points at the running slot changes nothing', async () => {
+  const { run } = slotComputer({ row: linked, active: ['example-place-a.service'], links: { 'current-a': SOURCE_COMMIT }, liveLinks: { '/var/lib/example-place/agent.sock': '/var/lib/example-place/agent-a.sock' } });
+  assert.deepEqual(await applyWhatItRuns(machine, linked, run), { written: [], restarted: [] });
+});
+
+test('live links map absolute paths to absolute paths that name the slot', () => {
+  for (const bad of [{ 'agent.sock': '/x/agent-{slot}.sock' }, { '/x/agent.sock': '/x/agent-a.sock' }, ['/x'], null]) {
+    assert.throws(() => renderWhatItRuns({ ...linked, units: [{ ...linked.units[0], live_links: bad }] }), /live_links maps absolute paths/);
+  }
 });
 
 test('a new slot that answers but fails its switch_check_command is stopped again, and the slot that ran keeps serving', async () => {

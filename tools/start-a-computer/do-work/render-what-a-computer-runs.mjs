@@ -80,9 +80,18 @@ export function withSlots(runs) {
     }
     const { slots, ...unit } = given;
     const unitsOf = names.map(name => named(unit.unit, name));
+    // `live_links` maps a fixed path to the path of the slot that runs, with `{slot}` where the slot's name goes: the apply
+    // points each link at the running slot's own file once that slot serves (a socket, a settings file, a build link), so
+    // whoever reads the fixed path reaches the slot that runs and never a stopped one's file.
+    const links = Object.entries(unit.live_links ?? {});
+    if (unit.live_links !== undefined && (unit.live_links === null || typeof unit.live_links !== 'object' || Array.isArray(unit.live_links) ||
+        !links.every(([link, target]) => /^\/[A-Za-z0-9._\/-]+$/.test(link) && typeof target === 'string' && /^\/[A-Za-z0-9._\/{}-]+$/.test(target) && target.includes('{slot}')))) {
+      throw new Error(`${where}: live_links maps absolute paths to absolute paths that name {slot}`);
+    }
     for (const name of names) {
       const slot = structuredClone(unit);
-      Object.assign(slot, { unit: named(unit.unit, name), current: `current-${name}`, slot: { of: unit.unit, units: unitsOf } });
+      Object.assign(slot, { unit: named(unit.unit, name), current: `current-${name}`, slot: { of: unit.unit, units: unitsOf, name } });
+      if (links.length) slot.live_links = Object.fromEntries(links.map(([link, target]) => [link, target.replaceAll('{slot}', name)]));
       if (typeof unit.settings_file === 'string') slot.settings_file = named(unit.settings_file, name);
       for (const [path, value] of Object.entries(slots[name] ?? {})) {
         const keys = path.split('.');
