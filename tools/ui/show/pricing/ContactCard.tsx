@@ -21,12 +21,14 @@ import { Input } from '../coss/ui/input.tsx';
 import { Button } from '../coss/ui/button.tsx';
 import { Form } from '../form/Form.tsx';
 import { Text } from '../text/Text.tsx';
-import { CARD_NAME, CARD_NOTE } from './card-type.ts';
+import { CARD_FRAME, CARD_NAME, CARD_NOTE } from './card-type.ts';
 import { Labelled } from '../../../ask-questions-sort-answers-follow-up/show/FormSteps.tsx';
 
 export type ContactField = { name: string; label: string; type?: 'text' | 'email'; required?: boolean; value?: string };
 
 export type ContactCardProps = {
+  /** The card draws its own surface (see CARD_FRAME) instead of sitting on the page's card. */
+  framed?: boolean;
   title: string;
   /** A line under the heading. */
   lead?: string;
@@ -44,13 +46,13 @@ export type ContactCardProps = {
   onSubmit?: (values: Record<string, string>) => void;
 };
 
-export function View({ title, lead, fields, button, note, error = '', sending = false, action, hiddenFields, onChange, onSubmit }: ContactCardProps) {
+export function View({ framed, title, lead, fields, button, note, error = '', sending = false, action, hiddenFields, onChange, onSubmit }: ContactCardProps) {
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     onSubmit?.(Object.fromEntries(fields.map(field => [field.name, field.value ?? ''])));
   };
   return (
-    <Text as="article" className="coss-ui grid gap-4" data-contact-card>
+    <Text as="article" className="coss-ui grid gap-4" style={framed ? CARD_FRAME : undefined} data-contact-card>
       <Text as="h3" style={CARD_NAME}>{title}</Text>
       {lead ? <Text as="p" style={CARD_NOTE}>{lead}</Text> : null}
       <Form {...(action === undefined ? { onSubmit: submit } : { method: 'post', action, hiddenFields })} className="flex flex-col gap-4">

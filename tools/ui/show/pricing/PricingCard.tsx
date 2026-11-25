@@ -27,7 +27,7 @@ import { Input } from '../coss/ui/input.tsx';
 import { Container } from '../container/index.ts';
 import { Form } from '../form/Form.tsx';
 import { ShowcaseStrip, Text } from '../marketing-page/MarketingPagePrimitives.tsx';
-import { CARD_CADENCE, CARD_FEATURE, CARD_NAME, CARD_NOTE, CARD_PRICE, centsOf } from './card-type.ts';
+import { CARD_CADENCE, CARD_FEATURE, CARD_FRAME, CARD_NAME, CARD_NOTE, CARD_PRICE, centsOf } from './card-type.ts';
 
 export type PricingFeature = {
   id: string;
@@ -58,6 +58,8 @@ const moneyOf = (cents: number, currency = 'USD') => new Intl.NumberFormat('en-U
 export type PricingAttempt = { id_field: string; started_field: string; /** The field that carries this page's origin (location.origin) when the receiving page asks for where to send the buyer back. */ origin_field?: string };
 
 export type PricingCardProps = {
+  /** The card draws its own surface (see CARD_FRAME) instead of sitting on the page's card. */
+  framed?: boolean;
   /** The fields the post carries its attempt in (see PricingAttempt); none when the page that receives the post asks for none. */
   attempt?: PricingAttempt;
   /** The amounts a buyer may pay instead of the price shown (see invariant 1). */
@@ -97,7 +99,7 @@ function Cta({ cta, onCheckout, pending, posts }: Pick<PricingCardProps, 'cta' |
 }
 
 export function View(props: PricingCardProps) {
-  const { id, name, price: given, cadence, note, amounts, features = [], cta: ctaGiven, onCheckout, action, hiddenFields: fields, pending, error, footnote, more, attempt, repeatCta = features.length > 2 } = props;
+  const { id, name, price: given, cadence, note, amounts, features = [], cta: ctaGiven, onCheckout, action, hiddenFields: fields, pending, error, footnote, more, attempt, framed, repeatCta = features.length > 2 } = props;
   const [open, setOpen] = useState(false);
   const [picked, setPicked] = useState<{ cents: number; label: string } | null>(null);
   const [typed, setTyped] = useState<string | null>(null);
@@ -181,7 +183,7 @@ export function View(props: PricingCardProps) {
     </>
   );
   return (
-    <Text as="article" className="grid gap-4" data-offer-card={id}>
+    <Text as="article" className="grid gap-4" style={framed ? CARD_FRAME : undefined} data-offer-card={id}>
       {posts ? <Form method="post" action={action} hiddenFields={hiddenFields} onSubmit={attempt ? stamp : undefined} className="grid gap-4">{body}</Form> : body}
     </Text>
   );

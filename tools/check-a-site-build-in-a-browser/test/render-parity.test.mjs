@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { alignBy, differences } from '../do-work/render-parity.mjs';
 
-const text = (words, extra = {}) => ({ text: words, tag: 'p', heading: null, fontSize: 16, fontWeight: '400', color: 'rgb(0, 0, 0)', accent: false, lineHeight: 24, textAlign: 'start', fontFamily: 'Inter', left: 10, width: 300, right: 310, top: 0, gap: 8, ...extra });
+const text = (words, extra = {}) => ({ text: words, tag: 'p', heading: null, fontSize: 16, fontWeight: '400', color: 'rgb(0, 0, 0)', accents: '', lineHeight: 24, textAlign: 'start', fontFamily: 'Inter', left: 10, width: 300, right: 310, top: 0, gap: 8, ...extra });
 const page = (texts, extra = {}) => ({ texts, pictures: [], headings: [], h1: 1, scrollWidth: 390, clientWidth: 390, scrollHeight: 2000, over: [], ...extra });
 
 test('equal pages have no differences', () => {
@@ -14,7 +14,7 @@ test('equal pages have no differences', () => {
 });
 
 test('each kind of difference is one entry with both values, and a missing text does not shift the rest', () => {
-  const old = page([text('Heading', { tag: 'h1', fontSize: 64, accent: true }), text('Lead', { fontWeight: '500' }), text('Last')]);
+  const old = page([text('Heading', { tag: 'h1', fontSize: 64, accents: 'x' }), text('Lead', { fontWeight: '500' }), text('Last')]);
   const now = page([text('Lead', { fontWeight: '400' }), text('Last', { fontSize: 18 })], { h1: 0, scrollWidth: 500 });
   const found = differences(old, now, 1280);
   const by = Object.fromEntries(found.map(item => [`${item.kind}:${item.where}`, item]));

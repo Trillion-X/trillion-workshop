@@ -12,7 +12,7 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import React from 'react';
-import { StatementText, Text } from './MarketingPagePrimitives.tsx';
+import { SectionShell, StatementText, Text } from './MarketingPagePrimitives.tsx';
 
 /** The heading split into plain and solid parts: the last occurrence of `highlight`, else (solid_last) the last word. */
 export function statementLinesOf(heading: string, highlight?: string, solidLast = false) {
@@ -28,8 +28,25 @@ export type HeadingProps = {
   highlight?: string;
   solid_last?: boolean;
   as?: 'h1' | 'h2' | 'h3';
+  /** Room above and below the heading, easing in with the width (53px each at 1280, 28px on a phone). */
+  spaced?: boolean;
 };
 
-export function Heading({ text, highlight, solid_last = false, as = 'h2' }: HeadingProps) {
-  return <Text as={as}><StatementText align="center" size="page" lines={statementLinesOf(text, highlight, solid_last)} /></Text>;
+const SPACED = { margin: 'clamp(1.743rem,4.15vw,3.32rem) 0' } as const;
+
+export function Heading({ text, highlight, solid_last = false, as = 'h2', spaced = false }: HeadingProps) {
+  return <Text as={as} style={spaced ? SPACED : undefined}><StatementText align="center" size="page" lines={statementLinesOf(text, highlight, solid_last)} /></Text>;
+}
+
+export type SectionProps = {
+  children?: React.ReactNode;
+  /** The widest the section is: narrow (1024), default (1152) or wide (1280). */
+  size?: 'narrow' | 'default' | 'wide';
+  /** The space above and below the section. */
+  padding?: 'none' | 'compact' | 'default' | 'hero';
+};
+
+/** A page section as the marketing pages draw one: a centred column of its size with its side margins and its own padding. */
+export function Section({ children, size = 'default', padding = 'default' }: SectionProps) {
+  return <SectionShell size={size} paddingY={padding}>{children}</SectionShell>;
 }

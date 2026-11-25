@@ -326,6 +326,7 @@
 }
 
 .itemCopy strong {
+  font-weight: 700;
   color: var(--swing-ink);
   font-size: 0.9375rem;
   line-height: 1.45;

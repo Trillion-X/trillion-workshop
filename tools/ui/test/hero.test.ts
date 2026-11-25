@@ -38,3 +38,12 @@ test('the lead can draw named words solid, and a section Heading is an h2 with i
   assert.match(heading, /<h2[^>]*>.*Train with .*<span[^>]*>us\.<\/span>/s);
   assert.doesNotMatch(heading, /<h1/);
 });
+
+test('a spaced Heading has its own room, a framed card draws its own surface, and a Section is the shell of its size', async () => {
+  const spaced = await renderAView(new URL('./heading-as-view.tsx', import.meta.url).pathname, { text: 'Train with us.', spaced: true });
+  assert.match(spaced, /margin:clamp\(1\.743rem,4\.15vw,3\.32rem\) 0/);
+  const framed = await renderAView(new URL('../show/pricing/ContactCard.tsx', import.meta.url).pathname, { framed: true, title: 'T', fields: [], button: 'Go' });
+  assert.match(framed, /border-radius:22px/);
+  const plain = await renderAView(new URL('../show/pricing/ContactCard.tsx', import.meta.url).pathname, { title: 'T', fields: [], button: 'Go' });
+  assert.doesNotMatch(plain, /border-radius:22px/);
+});

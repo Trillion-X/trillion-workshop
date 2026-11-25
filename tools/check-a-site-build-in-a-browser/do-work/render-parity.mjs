@@ -48,15 +48,24 @@ function collect() {
     const key = `${text}@${Math.round(box.top)}`;
     if (seen.has(key)) continue;
     seen.add(key);
-    const blockBox = block.getBoundingClientRect();
+    const isAccent = heading !== null && element !== heading && style.color !== getComputedStyle(heading).color;
+    // Words of one block that a page splits into several elements (a price and its cadence, a highlighted phrase) are one text.
+    const last = out[out.length - 1];
+    if (last && last.block === block && Math.abs(last.rightTop - Math.round(box.top + scrollY)) < 40) {
+      last.text = `${last.text} ${text}`;
+      last.accents = isAccent ? `${last.accents} ${text}`.trim() : last.accents;
+      continue;
+    }
     out.push({
+      block,
+      rightTop: Math.round(box.top + scrollY),
+      accents: isAccent ? text : '',
       text,
       tag: element.tagName.toLowerCase(),
       heading: heading ? heading.tagName.toLowerCase() : null,
       fontSize: parseFloat(style.fontSize),
       fontWeight: style.fontWeight,
       color: style.color,
-      accent: heading !== null && element !== heading && style.color !== getComputedStyle(heading).color,
       lineHeight: style.lineHeight === 'normal' ? 'normal' : parseFloat(style.lineHeight),
       textAlign: style.textAlign,
       fontFamily: style.fontFamily.split(',')[0].replace(/["']/g, '').trim(),
@@ -68,6 +77,7 @@ function collect() {
     });
     prevBottom = box.bottom + scrollY;
   }
+  for (const item of out) { delete item.block; delete item.rightTop; }
   const pictures = [...document.querySelectorAll('img,video,canvas,svg')].filter(visible).map(element => {
     const box = element.getBoundingClientRect();
     return { tag: element.tagName.toLowerCase(), left: Math.round(box.left), width: Math.round(box.width), height: Math.round(box.height), top: Math.round(box.top + scrollY) };
@@ -117,7 +127,9 @@ export function differences(old, now, width, tolerance = TOLERANCE) {
   const add = (kind, where, was, is) => found.push({ width, kind, where, was, is });
   const pairs = alignBy(old.texts, now.texts);
   const inOld = new Set(pairs.map(([i]) => i)), inNew = new Set(pairs.map(([, j]) => j));
-  old.texts.forEach((item, i) => { if (!inOld.has(i)) add('text missing', item.text.slice(0, 60), `${item.tag} ${item.fontSize}px`, null); });
+  // A glyph that one page draws as text and the other as a picture (an arrow, a tick) is the same mark.
+  const glyph = item => /^[→✓]+$/.test(item.text);
+  old.texts.forEach((item, i) => { if (!inOld.has(i) && !glyph(item)) add('text missing', item.text.slice(0, 60), `${item.tag} ${item.fontSize}px`, null); });
   now.texts.forEach((item, j) => { if (!inNew.has(j)) add('text added', item.text.slice(0, 60), null, `${item.tag} ${item.fontSize}px`); });
   let previous = null;
   for (const [i, j] of pairs) {
@@ -133,7 +145,7 @@ export function differences(old, now, width, tolerance = TOLERANCE) {
     if (!near(lineOf(a), lineOf(b), 2.5)) add('line height', where, a.lineHeight, b.lineHeight);
     if (!near(a.left, b.left, tolerance.px)) add('left edge', where, a.left, b.left);
     if (!near(a.width, b.width, tolerance.px * 2)) add('box width', where, a.width, b.width);
-    if (a.accent !== b.accent) add('highlight', where, a.accent, b.accent);
+    if (a.accents !== b.accents) add('highlight', where, a.accents, b.accents);
     if ((a.heading ?? '') !== (b.heading ?? '')) add('heading level', where, a.heading, b.heading);
     if (previous && a.gap !== null && b.gap !== null && previous.i + 1 === i && previous.j + 1 === j && !near(a.gap, b.gap, tolerance.gap)) add('gap above', where, a.gap, b.gap);
     previous = { i, j };
