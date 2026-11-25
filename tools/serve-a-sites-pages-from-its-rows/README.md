@@ -24,7 +24,12 @@ own socket). With no `listen` in the settings it listens on `127.0.0.1:18440` (a
 `curl -H 'X-Forwarded-Host: example.com' http://127.0.0.1:18440/sitemap.xml` reads it as the front web server would.
 
 On a computer it is a unit its computer row starts (`tool:start-a-computer`), behind the computer's front web server; the unit's
-credentials folder is where the computer seals the site's door pass and the files store's read key. It needs Node 26.13 or newer
+credentials folder is where the computer seals the site's door pass and the files store's read key. The unit's template is
+`on-a-computer/serve-a-sites-pages.service`: the row gives `tool_folder`, `repository`, `workshop`, `workshop_commit`,
+`node_bin`, `user`, `group` (the web server's, so it can reach the sockets), `runtime_directory` (`sites/<name>` for each host
+name, whose `http.sock` the front web server's each-name-its-own-folder site sends that name's requests to when no page file
+answers), `settings_file` and `settings`, `credentials`, `stop_seconds` and `writable`. A stop (SIGTERM) finishes the calls
+already taken, for up to 25 seconds. It needs Node 26.13 or newer
 (TypeScript runs as it is, with no build) and the Workshop's packages (`npm ci` at the Workshop's top folder).
 
 ## What it answers
@@ -169,6 +174,7 @@ Example, a checkout button's form:
 
 | File | What |
 |---|---|
+| `on-a-computer/serve-a-sites-pages.service` | the unit template a computer row names to run it |
 | `tool-rows.json` | the card: a program on your computer, `node do-work/serve.ts {settings}` |
 | `do-work/serve.ts` | settings, the request order above, kept rows and answers, listening on each socket or port |
 | `do-work/actions.ts` | action rows checked, a request's values filled into a tool's input, the address a visitor is sent to |

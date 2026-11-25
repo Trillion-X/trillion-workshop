@@ -1,0 +1,43 @@
+[Unit]
+Description={description}
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# Serves a whole site from its rows: node do-work/serve.ts {settings_file}, the settings start-a-computer writes from the row's
+# `settings`. Its held values (the site's door pass, the files store's read key) are sealed credentials it reads from
+# $CREDENTIALS_DIRECTORY by the names its settings give; this unit names only where they are.
+{credential_lines}
+Environment=PATH={node_bin}:/usr/bin:/bin
+Environment=npm_config_cache={workshop}/.npm-cache
+Type=simple
+User={user}
+Group={group}
+# The Workshop copy at {workshop} stays between starts: the row's pinned commit {workshop_commit} is fetched into it (only what
+# the copy lacks) and checked out. npm ci runs at the Workshop's top only when that commit's package-lock.json is not the one
+# installed last time, whose git id is kept in the copy's .git/npm-lock-id.
+ExecStartPre=/bin/sh -c 'test -d {workshop}/.git || git init -q {workshop}'
+ExecStartPre=/bin/sh -c 'git -C {workshop} fetch -q --depth 1 {repository} {workshop_commit} && git -C {workshop} checkout -q --detach {workshop_commit}'
+ExecStartPre=/bin/sh -c 'lock=$$(git -C {workshop} rev-parse {workshop_commit}:package-lock.json) && if [ "$$(cat {workshop}/.git/npm-lock-id 2>/dev/null)" != "$$lock" ]; then cd {workshop} && npm ci --omit=dev --no-audit --no-fund && echo "$$lock" > {workshop}/.git/npm-lock-id; fi'
+WorkingDirectory={workshop}/{tool_folder}
+ExecStart={node_bin}/node do-work/serve.ts {settings_file}
+# Its own folders under /run are {runtime_directory} (one per host name the front web server sends to it, the socket
+# <folder>/http.sock in each), owned by {user} and readable by the group {group}, the web server's. A restart keeps them, so
+# the web server waits for the new program on the same sockets instead of finding no folder.
+RuntimeDirectory={runtime_directory}
+RuntimeDirectoryMode=0750
+RuntimeDirectoryPreserve=restart
+KillMode=mixed
+TimeoutStopSec={stop_seconds}
+Restart=always
+RestartSec=3
+UMask=0007
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths={writable}
+ProtectHome=true
+PrivateTmp=true
+LimitCORE=0
+
+[Install]
+WantedBy=multi-user.target

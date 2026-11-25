@@ -103,6 +103,8 @@ const LOOK_SQL = 'SELECT name, value FROM site_look ORDER BY name';
 const MOST_KEPT_ANSWERS = 1000;
 /** The most bytes an action's posted body may hold. */
 export const MOST_ACTION_BYTES = 65536;
+/** The longest a stop waits for the calls already taken, inside a unit's 30 s stop time. */
+const STOP_MS = 25_000;
 const NOT_FOUND = '/404';
 export const LOCAL_LISTEN = '127.0.0.1:18440';
 // Stands for the site's own caller when reads go through a command: no pass is held then.
@@ -601,7 +603,16 @@ if (started) {
     console.error('usage: node do-work/serve.ts <settings.json>');
     process.exit(2);
   }
-  start(file).catch(error => {
+  start(file).then(servers => {
+    // A stop (SIGTERM, from a restart) drops nothing: each socket stops taking calls, the calls already taken finish, then the
+    // program ends; a stop that takes longer than STOP_MS ends anyway, inside the unit's own stop time.
+    process.once('SIGTERM', () => {
+      console.error('stopping: finishing the calls already taken');
+      setTimeout(() => process.exit(0), STOP_MS).unref();
+      let open = servers.length;
+      for (const server of servers) server.close(() => { open -= 1; if (open === 0) process.exit(0); });
+    });
+  }).catch(error => {
     console.error(`The site did not start: ${(error as Error).message}`);
     process.exit(1);
   });
