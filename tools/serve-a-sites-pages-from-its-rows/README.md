@@ -110,14 +110,14 @@ gives it, or reads it; it holds no callback.
 | `access` | `public` (run as the site, or as the member when one is signed in) or `members` (members only) |
 | `tool` | the tool that does the job |
 | `input` | jsonb: the tool's input; a value `{ "$": "<source>", ... }` is filled from the request |
-| `answer` | jsonb: `{ "redirect_from": "<answer key>" }`, `{ "redirect_to": <value> }` or `{ "json": ["<answer key>", ...] }` |
+| `answer` | jsonb: `{ "redirect_from": "<answer key>" }`, `{ "redirect_to": <value> }` or `{ "json": ["<answer key>", ...] }`, and optionally beside it `"cookie": { "name", "value": <value>, "max_age_days", "http_only" (default true) }`: once the tool has answered, that cookie is set (Path=/, SameSite=Lax, Secure) when its value is words of letters, digits and `._-` the request does not already carry |
 | `failed` | the words a visitor gets when the tool fails |
 
 Sources: `body` (`key`, dotted into JSON), `path` (`name`), `query` (`key`: the address's query value), `cookie` (`name`, and `when: { cookie, is }` for a consent),
 `member` (`claim` of the member's pass), `origin` (`then`), `rows` (`sql`, `params`, `database`: a statement run as the site),
-`url` (`base`, `query`), `number` (`of`), `first` (`of`: values tried in order, the first that gives something), `boolean` (`of`: true, "true", "on", "yes", "1" and their opposites), `answer` (`key`, in `redirect_to` only), `now`, `new_id`. A source that gives nothing
+`url` (`base`, `query`), `number` (`of`), `first` (`of`: values tried in order, the first that gives something), `boolean` (`of`: true, "true", "on", "yes", "1" and their opposites), `when` (`cookie`, `is`, `then`: the value only while that cookie holds that word, a consent), `address` (`of`, `part`: `origin`, `host`, `path` or `query`, the query as an object), `answer` (`key`) and `input` (`key`: the input the tool was given), in the answer only, `now`, `new_id`. A source that gives nothing
 leaves its key out, and an object all of whose values gave nothing is left out too (a signed-out buyer sends no
-`customer`), so the tool's own schema refuses a missing required value. A form post is answered 303 to the address; a
+`customer`), so the tool's own schema refuses a missing required value. A page's beacon may send its JSON as `text/plain`. A form post is answered 303 to the address; a
 JSON post gets `{ "redirect": address }` or the listed keys; a GET gets the listed keys, or is sent on (303); a failure is 502 with the row's `failed` words. A post whose
 `Origin` is neither one of the site's hosts nor the address the post was sent to is refused (403); a body over 64 KB is refused (413).
 
@@ -132,6 +132,17 @@ Example, a checkout button's form:
     "offers": { "$": "rows", "database": "a_site_for_who_runs_it", "sql": "SELECT * FROM offers" },
     "customer": { "email": { "$": "member", "claim": "email" } },
     "success_url": { "$": "origin", "then": "/welcome?checkout={CHECKOUT_SESSION_ID}" }, "cancel_url": { "$": "origin", "then": "/#pricing" } } }
+```
+
+Example, a page's visit beacon (a visitor id only with consent, set as a cookie once kept):
+
+```json
+{ "path": "/observe/visit", "access": "public", "tool": "tool:run-sql-in-my-database", "failed": "The visit was not kept.",
+  "answer": { "json": ["row_count"], "cookie": { "name": "v", "value": { "$": "input", "key": "params.0" }, "max_age_days": 395 } },
+  "input": { "database": "a_site_for_who_runs_it", "sql": "INSERT INTO statements ... SELECT ... WHERE $2 = $3",
+    "params": [{ "$": "when", "cookie": "consent", "is": "granted", "then": { "$": "first", "of": [{ "$": "cookie", "name": "v" }, { "$": "new_id" }] } },
+      { "$": "address", "of": { "$": "body", "key": "href" }, "part": "origin" }, { "$": "origin" },
+      { "$": "address", "of": { "$": "body", "key": "href" }, "part": "query" }] } }
 ```
 
 ## Settings

@@ -19,6 +19,9 @@
 //     answer    jsonb: { "redirect_from": "<key of the tool's answer>" }  the visitor is sent to that address
 //                      { "redirect_to": <value> }                         the visitor is sent to that address
 //                      { "json": ["<key>", ...] }                        those keys of the tool's answer, as JSON
+//               and beside it, optionally, "cookie": { "name": "v", "value": <value>, "max_age_days": 395, "http_only": true }:
+//               once the tool has answered, that cookie is set (Path=/, SameSite=Lax, Secure) when its value gives words of
+//               letters, digits and ._- and the request does not already carry that value (a visitor id kept only with consent)
 //     failed    the words a visitor gets when the tool fails
 //
 //   A value's sources:
@@ -35,7 +38,12 @@
 //     { "$": "url", "base": <value>, "query": { "k": <value> } }
 //                                                   an address with query values set; a value that is nothing is left out
 //     { "$": "number", "of": <value> }              a value as a number; nothing when it is not one
-//     { "$": "answer", "key": "a.b" }               a key of the tool's answer (only in answer.redirect_to)
+//     { "$": "when", "cookie": "c", "is": "v", "then": <value> }
+//                                                   the value, only while cookie c holds v (a consent); else nothing
+//     { "$": "address", "of": <value>, "part": "origin" | "host" | "path" | "query" }
+//                                                   a part of an absolute address (query: its values as an object)
+//     { "$": "answer", "key": "a.b" }               a key of the tool's answer (only in the answer)
+//     { "$": "input", "key": "a.b" }                a key of the input the tool was given (only in the answer)
 //     { "$": "now" }                                the time now, as ISO 8601
 //     { "$": "new_id" }                             a new random id
 //     { "$": "first", "of": [<value>, ...] }        the first value that gives something (the page's attempt id, else a new one)
@@ -57,7 +65,15 @@ import { randomUUID } from 'node:crypto';
 import { HOST, isPathPattern, matchPage, PageRowError, TABLE, TOOL_ID } from './pages.ts';
 import type { Matched, Refused } from './pages.ts';
 
-export type ActionAnswer = { redirect_from: string } | { redirect_to: unknown } | { json: string[] };
+/** A cookie an action's answer sets once its tool has answered. */
+export interface ActionCookie {
+  name: string;
+  value: unknown;
+  max_age_days: number;
+  http_only: boolean;
+}
+
+export type ActionAnswer = ({ redirect_from: string } | { redirect_to: unknown } | { json: string[] }) & { cookie?: ActionCookie };
 
 export type ActionMethod = 'GET' | 'POST';
 
@@ -81,8 +97,10 @@ export interface Asked {
   claims: Record<string, unknown> | null;
   origin: string;
   rows: (sql: string, params: unknown[], database?: string) => Promise<Record<string, unknown>[]>;
-  /** The tool's answer, once the tool has answered (for answer.redirect_to); null while its input is made. */
+  /** The tool's answer, once the tool has answered (for the row's answer); null while its input is made. */
   answer: Record<string, unknown> | null;
+  /** The input the tool was given, once it has answered; null while the input is made. */
+  input: unknown;
 }
 
 const SOURCES: Record<string, (value: Record<string, unknown>, where: string) => void> = {
@@ -117,10 +135,24 @@ const SOURCES: Record<string, (value: Record<string, unknown>, where: string) =>
     if (!Array.isArray(v.of) || v.of.length === 0) throw new PageRowError(`${where}.of lists the values to try in order.`);
     v.of.forEach((item, i) => checkValue(item, `${where}.of[${i}]`));
   },
+  when: (v, where) => {
+    words(v.cookie, `${where}.cookie`);
+    words(v.is, `${where}.is`);
+    checkValue(v.then, `${where}.then`);
+  },
+  address: (v, where) => {
+    checkValue(v.of, `${where}.of`);
+    if (!ADDRESS_PARTS.includes(v.part as string)) throw new PageRowError(`${where}.part is one of ${ADDRESS_PARTS.join(', ')}.`);
+  },
   answer: (v, where) => words(v.key, `${where}.key`),
+  input: (v, where) => words(v.key, `${where}.key`),
   now: () => {},
   new_id: () => {},
 };
+
+const ADDRESS_PARTS = ['origin', 'host', 'path', 'query'];
+const COOKIE_NAME = /^[A-Za-z0-9_-]{1,64}$/;
+const COOKIE_VALUE = /^[A-Za-z0-9._-]{1,256}$/;
 
 function words(value: unknown, where: string): void {
   if (typeof value !== 'string' || !value.trim()) throw new PageRowError(`${where} is words.`);
@@ -154,9 +186,20 @@ export function actionOf(row: Record<string, unknown>): ActionRow {
   if (typeof row.tool !== 'string' || !TOOL_ID.test(row.tool)) throw new PageRowError(`${where}: tool is a tool id such as tool:start-a-checkout.`);
   checkValue(row.input ?? {}, `${where} input`);
   const answer = row.answer as Record<string, unknown> | null;
-  const kinds = answer && typeof answer === 'object' ? Object.keys(answer) : [];
+  const kinds = answer && typeof answer === 'object' ? Object.keys(answer).filter(key => key !== 'cookie') : [];
   if (kinds.length !== 1 || !['redirect_from', 'redirect_to', 'json'].includes(kinds[0])) {
-    throw new PageRowError(`${where}: answer is { "redirect_from": key }, { "redirect_to": value } or { "json": [keys] }.`);
+    throw new PageRowError(`${where}: answer is { "redirect_from": key }, { "redirect_to": value } or { "json": [keys] }, with an optional "cookie".`);
+  }
+  if ('cookie' in answer!) {
+    const cookie = answer.cookie as Record<string, unknown> | null;
+    if (!cookie || typeof cookie !== 'object' || Array.isArray(cookie)) throw new PageRowError(`${where}: answer.cookie is { name, value, max_age_days, http_only }.`);
+    const extra = Object.keys(cookie).filter(key => !['name', 'value', 'max_age_days', 'http_only'].includes(key));
+    if (extra.length) throw new PageRowError(`${where}: answer.cookie has unknown keys ${extra.join(', ')}.`);
+    if (typeof cookie.name !== 'string' || !COOKIE_NAME.test(cookie.name)) throw new PageRowError(`${where}: answer.cookie.name is letters, digits, _ and -.`);
+    checkValue(cookie.value, `${where} answer.cookie.value`);
+    if (!Number.isInteger(cookie.max_age_days) || (cookie.max_age_days as number) < 1) throw new PageRowError(`${where}: answer.cookie.max_age_days is a whole number of days.`);
+    if (cookie.http_only !== undefined && typeof cookie.http_only !== 'boolean') throw new PageRowError(`${where}: answer.cookie.http_only is true or false.`);
+    answer.cookie = { name: cookie.name, value: cookie.value, max_age_days: cookie.max_age_days, http_only: cookie.http_only ?? true };
   }
   if ('redirect_from' in answer!) words(answer.redirect_from, `${where} answer.redirect_from`);
   if ('redirect_to' in answer!) checkValue(answer.redirect_to, `${where} answer.redirect_to`);
@@ -213,17 +256,20 @@ export function cookiesOf(header: string | undefined): Record<string, string> {
   return cookies;
 }
 
-/** A posted body: JSON or a urlencoded form; anything else is refused. */
+/**
+ * A posted body: JSON or a urlencoded form; anything else is refused. A page's beacon (navigator.sendBeacon or a fetch of a
+ * string) sends JSON as text/plain, so text/plain is read as JSON too.
+ */
 export function bodyOf(contentType: string | undefined, bytes: Buffer): { body: Record<string, unknown>; form: boolean } {
   const type = String(contentType ?? '').split(';')[0].trim().toLowerCase();
   const text = bytes.toString('utf8');
   if (type === 'application/x-www-form-urlencoded') return { body: Object.fromEntries(new URLSearchParams(text)), form: true };
-  if (type === 'application/json' || (type === '' && text.trim() === '')) {
+  if (type === 'application/json' || type === 'text/plain' || (type === '' && text.trim() === '')) {
     const body = text.trim() ? JSON.parse(text) : {};
     if (!body || typeof body !== 'object' || Array.isArray(body)) throw new SyntaxError('The body is not a JSON object.');
     return { body: body as Record<string, unknown>, form: false };
   }
-  throw new SyntaxError('The body is a form (application/x-www-form-urlencoded) or JSON (application/json).');
+  throw new SyntaxError('The body is a form (application/x-www-form-urlencoded) or JSON (application/json, or text/plain from a beacon).');
 }
 
 const TRUE = new Set(['true', 'on', 'yes', '1']);
@@ -231,7 +277,8 @@ const FALSE = new Set(['false', 'off', 'no', '0']);
 
 function dotted(value: unknown, key: string): unknown {
   if (value && typeof value === 'object' && !Array.isArray(value) && Object.hasOwn(value, key)) return (value as Record<string, unknown>)[key];
-  return key.split('.').reduce<unknown>((at, part) => (at && typeof at === 'object' && !Array.isArray(at) ? (at as Record<string, unknown>)[part] : undefined), value);
+  // A part reads a key of an object, or a place in a list ("params.0").
+  return key.split('.').reduce<unknown>((at, part) => (Array.isArray(at) ? (/^\d+$/.test(part) ? at[Number(part)] : undefined) : at && typeof at === 'object' ? (at as Record<string, unknown>)[part] : undefined), value);
 }
 
 /** A value with every source filled from the request; a source that gives nothing is undefined. */
@@ -280,7 +327,20 @@ export async function filled(value: unknown, asked: Asked): Promise<unknown> {
         const word = typeof got === 'string' || typeof got === 'number' ? String(got).trim().toLowerCase() : '';
         return TRUE.has(word) ? true : FALSE.has(word) ? false : undefined;
       }
+      case 'when': return asked.cookies[value.cookie as string] === value.is ? filled(value.then, asked) : undefined;
+      case 'address': {
+        const got = await filled(value.of, asked);
+        let address: URL;
+        try { address = new URL(String(got)); } catch { return undefined; }
+        if (typeof got !== 'string' || (address.protocol !== 'https:' && address.protocol !== 'http:')) return undefined;
+        if (value.part === 'origin') return address.origin;
+        if (value.part === 'host') return address.hostname;
+        if (value.part === 'path') return address.pathname;
+        const query = Object.fromEntries(address.searchParams);
+        return Object.keys(query).length ? query : undefined;
+      }
       case 'answer': return asked.answer ? dotted(asked.answer, value.key as string) : undefined;
+      case 'input': return asked.input !== null && asked.input !== undefined ? dotted(asked.input, value.key as string) : undefined;
       case 'now': return new Date().toISOString();
       case 'new_id': return randomUUID();
       default: throw new Error(`"$": ${JSON.stringify(value.$)} is not a source.`);
@@ -297,6 +357,12 @@ export async function filled(value: unknown, asked: Asked): Promise<unknown> {
     return entries.length > 0 && Object.keys(out).length === 0 ? undefined : out;
   }
   return value;
+}
+
+/** The Set-Cookie header an action's cookie gives, or null when its value is not cookie words or the request carries it already. */
+export function setCookieOf(cookie: ActionCookie, value: unknown, cookies: Record<string, string>): string | null {
+  if (typeof value !== 'string' || !COOKIE_VALUE.test(value) || cookies[cookie.name] === value) return null;
+  return [`${cookie.name}=${value}`, `Max-Age=${cookie.max_age_days * 86_400}`, 'Path=/', 'SameSite=Lax', ...(cookie.http_only ? ['HttpOnly'] : []), 'Secure'].join('; ');
 }
 
 /** An address a visitor may be sent to: an http(s) address, or a path of this site; else null. */

@@ -70,7 +70,7 @@ import { filesStoreOf, isPublicPath, memberFileAnswer, memberFilesOf, objectKeyO
 import type { FilesStore, MemberFiles, PublicFiles, StoreKey } from './member-video.ts';
 import { filledInput, matchPage, pagesOf, pagesOn, pathWith, PAGES_SQL, paramsOf, slugsSql } from './pages.ts';
 import type { PageRow, Refused } from './pages.ts';
-import { actionsOf, actionsSql, bodyOf, cookiesOf, filled, matchAction, sendableAddress } from './actions.ts';
+import { actionsOf, actionsSql, bodyOf, cookiesOf, filled, matchAction, sendableAddress, setCookieOf } from './actions.ts';
 import type { ActionRow, Asked } from './actions.ts';
 import { pageStyles } from './page-styles.ts';
 import { withSiteHead } from '../../site-head-from-its-rows/do-work/site-head.ts';
@@ -390,14 +390,17 @@ export class Site {
     try {
       const asked: Asked = {
         body: posted.body, params, query: url.searchParams, cookies: cookiesOf(cookie), claims: member?.claims ?? null, origin: this.#originOf(host),
-        rows: (sql, values, database) => this.#sql(sql, values, database), answer: null,
+        rows: (sql, values, database) => this.#sql(sql, values, database), answer: null, input: null,
       };
       const input = await filled(action.input, asked);
       const answer = await this.#parts.run(member ? member.pass : this.#parts.sitePass, { tool: action.tool, input }) as Record<string, unknown> | null;
-      if ('json' in action.answer) return json(200, Object.fromEntries(action.answer.json.map(key => [key, answer?.[key] ?? null])));
-      const to = sendableAddress('redirect_from' in action.answer ? answer?.[action.answer.redirect_from] : await filled(action.answer.redirect_to, { ...asked, answer }));
+      const answered: Asked = { ...asked, answer, input };
+      const setCookie = action.answer.cookie ? setCookieOf(action.answer.cookie, await filled(action.answer.cookie.value, answered), asked.cookies) : null;
+      const withCookie = (sent: Answer): Answer => (setCookie ? { ...sent, headers: { ...sent.headers, 'set-cookie': setCookie } } : sent);
+      if ('json' in action.answer) return withCookie(json(200, Object.fromEntries(action.answer.json.map(key => [key, answer?.[key] ?? null]))));
+      const to = sendableAddress('redirect_from' in action.answer ? answer?.[action.answer.redirect_from] : await filled(action.answer.redirect_to, answered));
       if (!to) throw new Error(`${action.tool} answered no address to send the visitor to.`);
-      return posted.form ? { status: 303, headers: { location: to, 'cache-control': 'no-store' }, body: '' } : json(200, { redirect: to });
+      return withCookie(posted.form ? { status: 303, headers: { location: to, 'cache-control': 'no-store' }, body: '' } : json(200, { redirect: to }));
     } catch (error) {
       this.#log(`${method} ${pathname}: ${(error as Error).message}`);
       return failed(error instanceof DoorError && error.status === 403 ? 403 : 502);

@@ -41,6 +41,13 @@ const ACTIONS = [
   { path: '/fails', host: null, access: 'public', tool: 'tool:fails', failed: 'That did not work.', input: {}, answer: { json: ['x'] } },
   { path: '/bad', host: null, access: 'public', tool: 'tool:x', failed: 'x', input: { a: { $: 'shell', run: 'rm' } }, answer: { json: ['x'] } },
   { path: '/target/state', host: null, method: 'GET', access: 'public', tool: 'tool:keep-a-lead', failed: 'No state.', input: { checkout: { $: 'query', key: 'checkout' } }, answer: { json: ['kept'] } },
+  { path: '/observe/visit', host: null, access: 'public', tool: 'tool:keep-a-lead', failed: 'Not kept.', input: {
+    visitor: { $: 'when', cookie: 'consent', is: 'granted', then: { $: 'first', of: [{ $: 'cookie', name: 'jv' }, { $: 'new_id' }] } },
+    origin: { $: 'address', of: { $: 'body', key: 'href' }, part: 'origin' }, path: { $: 'address', of: { $: 'body', key: 'href' }, part: 'path' },
+    query: { $: 'address', of: { $: 'body', key: 'href' }, part: 'query' }, from: { $: 'address', of: { $: 'body', key: 'referrer' }, part: 'host' },
+  }, answer: { json: ['kept'], cookie: { name: 'jv', value: { $: 'input', key: 'visitor' }, max_age_days: 395 } } },
+  { path: '/observe/listed', host: null, access: 'public', tool: 'tool:keep-a-lead', failed: 'x', input: { params: [{ $: 'new_id' }] }, answer: { json: ['kept'], cookie: { name: 'n', value: { $: 'input', key: 'params.0' }, max_age_days: 1, http_only: false } } },
+  { path: '/bad-cookie', host: null, access: 'public', tool: 'tool:x', failed: 'x', input: {}, answer: { json: ['x'], cookie: { name: 'a b', value: 'x', max_age_days: 1 } } },
   { path: '/target/state', host: null, method: 'PUT', access: 'public', tool: 'tool:x', failed: 'x', input: {}, answer: { json: ['x'] } },
 ];
 
@@ -414,6 +421,22 @@ test('a posted form or JSON body runs its action row\'s tool with the input made
     assert.equal((await site.act('/target/state', undefined, host, { method: 'HEAD', bytes: Buffer.alloc(0) })).status, 200, 'a GET row answers HEAD');
     assert.equal((await site.act('/target/state', undefined, host, form({}))).status, 404, 'a POST to an address only a GET row names does nothing');
     assert.equal((await site.act('/checkout', undefined, host, { method: 'GET', bytes: Buffer.alloc(0) })).status, 404, 'a GET to an address only a POST row names does nothing');
+    const beacon = (cookie: string | undefined, href: string) => site.act('/observe/visit', cookie, host, { contentType: 'text/plain;charset=UTF-8', bytes: Buffer.from(JSON.stringify({ href, referrer: 'https://www.search.example.test/q?x=1' })) });
+    const first = await beacon('consent=granted', 'https://site.example.test/courses/a?utm_source=post&t=t1');
+    assert.equal(first.status, 200, 'a beacon\'s text/plain JSON is read');
+    const visitor = (d.calls.at(-1)!.run.input as { visitor: string }).visitor;
+    assert.match(visitor, /^[0-9a-f-]{36}$/, 'with consent and no visitor cookie, a new id');
+    assert.equal(first.headers['set-cookie'], `jv=${visitor}; Max-Age=34128000; Path=/; SameSite=Lax; HttpOnly; Secure`, 'the cookie is the id the tool was given');
+    assert.deepEqual(d.calls.at(-1)!.run.input, { visitor, origin: 'https://site.example.test', path: '/courses/a', query: { utm_source: 'post', t: 't1' }, from: 'www.search.example.test' });
+    const again = await beacon(`consent=granted; jv=${visitor}`, 'https://site.example.test/');
+    assert.equal(again.headers['set-cookie'], undefined, 'a visitor cookie already carried is not set again');
+    assert.deepEqual(d.calls.at(-1)!.run.input, { visitor, origin: 'https://site.example.test', path: '/', from: 'www.search.example.test' }, 'an address with no query gives no query');
+    const declined = await beacon('consent=denied; jv=old-visitor-1', 'not an address');
+    assert.equal(declined.headers['set-cookie'], undefined, 'without consent no cookie is set');
+    assert.deepEqual(d.calls.at(-1)!.run.input, { from: 'www.search.example.test' }, 'without consent no visitor; a value that is not an address gives no part');
+    assert.equal((await site.act('/bad-cookie', undefined, host, form({}))).status, 404, 'a row whose cookie breaks a rule is set aside');
+    const listed = await site.act('/observe/listed', undefined, host, form({}));
+    assert.equal(listed.headers['set-cookie'], `n=${(d.calls.at(-1)!.run.input as { params: string[] }).params[0]}; Max-Age=86400; Path=/; SameSite=Lax; Secure`, 'a dotted key reads a place in a list');
   } finally { d.server.close(); }
 });
 
