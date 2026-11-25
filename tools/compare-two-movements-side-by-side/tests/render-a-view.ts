@@ -22,6 +22,8 @@ export const html = props => renderToStaticMarkup(createElement(View, props));`,
     format: 'cjs',
     jsx: 'automatic',
     define: { 'process.env.NODE_ENV': '"production"' },
+    // A CSS module draws as its own class names (each key answers itself), so a screen's markup shows which classes it asks for.
+    plugins: [{ name: 'css-module-names', setup: b => b.onLoad({ filter: /\.module\.css$/ }, () => ({ contents: 'export default new Proxy({}, { get: (_, key) => String(key) });', loader: 'js' })) }],
     logLevel: 'silent',
     loader: { '.ts': 'ts', '.tsx': 'tsx', '.json': 'json', '.css': 'empty' },
   });
