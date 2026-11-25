@@ -94,7 +94,7 @@ export function treeOf(page: PageRow, params: Record<string, string>): LayoutNod
   const main: LayoutNode | null = page.tool ? { tool: page.tool, input: filledInput(page.input, params) } : null;
   if (!page.layout) return main!;
   const swap = (node: LayoutNode): LayoutNode => {
-    if ('main' in node) return main!;
+    if ('main' in node) return node.props ? { ...main!, props: node.props } as LayoutNode : main!;
     if ('go_to' in node) return node;
     if ('nodes' in node) return { nodes: node.nodes.map(swap) };
     if ('part' in node && node.children) return { ...node, children: node.children.map(swap) };
@@ -135,7 +135,7 @@ export async function drawnTreeOf(tree: LayoutNode, screens: Map<string, Screen>
     if ('nodes' in node) return { nodes: node.nodes.map(drawn) };
     if ('tool' in node) {
       const screen = screens.get(node.tool)!;
-      return { module: moduleKey(screen.file, screen.export), props: answers.get(runKey(node.tool, node.input)) };
+      return { module: moduleKey(screen.file, screen.export), props: { ...(node.props ?? {}), ...answers.get(runKey(node.tool, node.input)) } };
     }
     if ('main' in node) throw new Error('A main node was left in the tree.');
     return { module: moduleKey(node.part, node.export ?? 'View'), ...(node.props ? { props: node.props } : {}), ...(node.children ? { children: node.children.map(drawn) } : {}) };

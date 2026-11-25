@@ -54,3 +54,12 @@ test('every tool card with a module screen is found, by its folder and entry', (
     assert.match(screen.file, /^[a-z0-9-]+\/.+\.(tsx?|mjs|jsx?)$/, id);
   }
 });
+
+test('a tool or main node\'s props are the page\'s own words under the answer, which always wins', async () => {
+  const page = pageOf({
+    path: '/l', title: 'L', access: 'public', tool: 'tool:read-c', input: {}, collection: null, updated_at: null,
+    layout: [{ main: true, props: { heading: 'Articles', title: 'row words lose' } }],
+  });
+  const { drawn } = await drawnTreeOf(treeOf(page, {}), new Map([['tool:read-c', { file: 'c/show/C.tsx', export: 'View' }]]), async () => ({ title: 'Seen' }));
+  assert.deepEqual(drawn, { nodes: [{ module: 'c/show/C.tsx#View', props: { heading: 'Articles', title: 'Seen' } }] });
+});

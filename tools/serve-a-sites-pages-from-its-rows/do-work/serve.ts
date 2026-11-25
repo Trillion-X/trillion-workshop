@@ -29,7 +29,8 @@
 //     sign_in        { address, page, issuer, audience, team_claim, members_team }: the site's sign-in tool, the site path a
 //                    visitor is sent to for a members page, and how a member's pass is checked (member-pass.ts);
 //                    signed_out "redirect" (302 to page?next=<address>, when left out) or "draw" (the page row at `page` is
-//                    drawn at the members address itself, 200, private, no-store)
+//                    drawn at the members address itself, 200, private, no-store); paths: the site paths the sign-in tool
+//                    answers itself (its pages and /api/auth), each request under them passed to it whole
 //     member_files   (optional) member-video.ts's settings, plus `credential`: the name of the store's read key in the unit's
 //                    credentials
 //   Credentials are files of the unit's credentials folder ($CREDENTIALS_DIRECTORY), sealed there by the computer from the vault.
@@ -48,7 +49,7 @@ import { chmodSync, existsSync, readFileSync, realpathSync, statSync, unlinkSync
 import http from 'node:http';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { commandOf, DoorError, runTool, runToolAsCommand } from './door.ts';
+import { ask, commandOf, DoorError, runTool, runToolAsCommand } from './door.ts';
 import type { Door, ToolRun } from './door.ts';
 import { MemberPasses } from './member-pass.ts';
 import type { Member, SignIn } from './member-pass.ts';
@@ -71,7 +72,7 @@ export interface Settings {
   lang: string;
   door: { address: string; pass_credential?: string; pins?: string[] };
   pages: { database: string; use?: { purpose: string; surface: string }; refresh_seconds: number; answer_seconds: number };
-  sign_in: SignIn & { page: string; signed_out: 'redirect' | 'draw' };
+  sign_in: SignIn & { page: string; signed_out: 'redirect' | 'draw'; paths: string[] };
   member_files?: MemberFiles & { credential: string };
 }
 
@@ -87,7 +88,7 @@ const HOST_NAME = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])
 /** Checks a settings file's value; a wrong one throws with what it should be. */
 export function settingsOf(value: unknown): Settings {
   const given = value as Partial<Settings> | null;
-  const s = given ? { ...given, listen: given.listen ?? LOCAL_LISTEN, hosts: given.hosts ?? [], sign_in: given.sign_in ? { ...given.sign_in, signed_out: given.sign_in.signed_out ?? 'redirect' } : given.sign_in } : null;
+  const s = given ? { ...given, listen: given.listen ?? LOCAL_LISTEN, hosts: given.hosts ?? [], sign_in: given.sign_in ? { ...given.sign_in, signed_out: given.sign_in.signed_out ?? 'redirect', paths: given.sign_in.paths ?? [] } : given.sign_in } : null;
   if (!s || typeof s.listen !== 'string' || !/^(unix:\/.+|[0-9.]+:\d+|\[[0-9a-f:]+\]:\d+)$/i.test(s.listen)) throw new Error('listen is "unix:/path/to.sock" or "host:port".');
   if (typeof s.origin !== 'string' || !/^https?:\/\/[^/]+$/.test(s.origin)) throw new Error('origin is the site\'s address, such as https://example.com.');
   if (!Array.isArray(s.hosts) || s.hosts.some(host => typeof host !== 'string' || !HOST_NAME.test(host))) throw new Error('hosts lists lower-case host names, such as ["app.example.com"].');
@@ -107,6 +108,7 @@ export function settingsOf(value: unknown): Settings {
     throw new Error('sign_in is { address, page (a site path), issuer, audience, team_claim, members_team }.');
   }
   if (i.signed_out !== 'redirect' && i.signed_out !== 'draw') throw new Error('sign_in.signed_out is "redirect" or "draw".');
+  if (!Array.isArray(i.paths) || i.paths.some(path => typeof path !== 'string' || !/^\/[A-Za-z0-9._~\/-]*$/.test(path))) throw new Error('sign_in.paths lists the site paths the sign-in tool answers, such as ["/sign-in", "/api/auth"].');
   if (s.member_files !== undefined) {
     memberFilesOf(s.member_files);
     if (typeof s.member_files.credential !== 'string') throw new Error('member_files.credential names the store\'s read key in the unit\'s credentials.');
@@ -224,7 +226,8 @@ export class Site {
 
   async #drawn(page: PageRow, params: Record<string, string>, host: string, pathname: string, run: (call: ToolRun) => Promise<unknown>, status: number, cache: string): Promise<Answer> {
     if (page.layout && 'go_to' in page.layout) {
-      const body = await this.#document(page.title ?? page.layout.go_to, host, pathname, wordsTree(page.title ?? '', page.layout.go_to), page.layout.go_to);
+      const goTo = pathWith(page.layout.go_to, params);
+      const body = await this.#document(page.title ?? goTo, host, pathname, wordsTree(page.title ?? '', goTo), goTo);
       return { status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': cache }, body };
     }
     const { drawn, timed, answerOf } = await drawnTreeOf(treeOf(page, params), this.#parts.screens, run);
@@ -310,10 +313,41 @@ export function serverTiming(timed: Timed[]): string {
   return timed.map((t, i) => `run${i};dur=${t.ms};desc="${t.tool.replace(/[^a-z0-9:-]/g, '')}"`).join(', ');
 }
 
+const HOP = new Set(['connection', 'keep-alive', 'transfer-encoding', 'upgrade', 'proxy-connection', 'te', 'trailer', 'content-length', 'host']);
+
+/** A path the sign-in tool answers: the path itself or one under it. */
+export function signInPath(paths: string[], pathname: string): boolean {
+  return paths.some(path => pathname === path || pathname.startsWith(path.endsWith('/') ? path : `${path}/`));
+}
+
+/** One request passed whole to the sign-in tool, and its answer passed back whole (its cookies too). */
+async function passToSignIn(address: string, host: string, request: http.IncomingMessage, response: http.ServerResponse): Promise<void> {
+  const chunks: Buffer[] = [];
+  for await (const chunk of request) chunks.push(chunk as Buffer);
+  const headers: Record<string, string | string[]> = {};
+  for (const [name, value] of Object.entries(request.headers)) if (value !== undefined && !HOP.has(name)) headers[name] = value;
+  headers['x-forwarded-host'] = host;
+  headers['x-forwarded-proto'] = 'https';
+  if (!address.startsWith('unix:')) headers.host = new URL(address).host;
+  const answer = await ask(address, request.url ?? '/', { method: request.method ?? 'GET', headers, ...(chunks.length ? { body: Buffer.concat(chunks) } : {}) });
+  const back: Record<string, string | string[]> = {};
+  for (const [name, value] of Object.entries(answer.headers)) if (value !== undefined && !HOP.has(name) && name !== 'content-encoding') back[name] = value;
+  response.writeHead(answer.status, back);
+  response.end(request.method === 'HEAD' ? undefined : answer.body);
+}
+
 /** The program's node:http handler over a site. */
-export function handlerOf(site: Site): http.RequestListener {
+export function handlerOf(site: Site, signIn?: { address: string; paths: string[] }): http.RequestListener {
   return (request, response) => {
     const forwarded = request.headers['x-forwarded-host'];
+    if (signIn && signInPath(signIn.paths, new URL(request.url ?? '/', 'http://site.invalid').pathname)) {
+      passToSignIn(signIn.address, site.hostOf(Array.isArray(forwarded) ? forwarded[0] : forwarded, request.headers.host), request, response).catch(error => {
+        console.error(`${request.method} ${request.url}: the sign-in tool did not answer: ${(error as Error).message}`);
+        if (!response.headersSent) response.writeHead(502, { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' });
+        response.end('Signing in is not answering. Try again in a minute.\n');
+      });
+      return;
+    }
     site.answer(request.method ?? 'GET', request.url ?? '/', request.headers.cookie, site.hostOf(Array.isArray(forwarded) ? forwarded[0] : forwarded, request.headers.host))
       .then(answer => {
         response.writeHead(answer.status, { 'x-content-type-options': 'nosniff', ...answer.headers });
@@ -351,7 +385,7 @@ export async function start(settingsFile: string): Promise<http.Server> {
     screens: screensOfTools(tools),
   });
   await site.read();
-  const server = http.createServer(handlerOf(site));
+  const server = http.createServer(handlerOf(site, settings.sign_in));
   await new Promise<void>((resolve, reject) => {
     server.once('error', reject);
     if (settings.listen.startsWith('unix:')) {

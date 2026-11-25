@@ -11,7 +11,7 @@ import type { ToolRun } from '../do-work/door.ts';
 import { pageStyles } from '../do-work/page-styles.ts';
 import { PageBundles } from '../do-work/render.ts';
 import { ScreenFiles } from '../do-work/screen-files.ts';
-import { handlerOf, serverTiming, settingsOf, Site } from '../do-work/serve.ts';
+import { handlerOf, serverTiming, settingsOf, signInPath, Site } from '../do-work/serve.ts';
 import type { Settings } from '../do-work/serve.ts';
 
 const tools = join(import.meta.dirname, '..', '..');
@@ -23,6 +23,7 @@ const PAGES = [
   { path: '/members', title: 'Members', access: 'members', tool: 'tool:read-a-greeting', input: { who: 'member' }, collection: null, updated_at: null, layout: null },
   { path: '/', title: 'App home', access: 'public', tool: 'tool:read-a-greeting', input: { who: 'the app' }, collection: null, updated_at: null, layout: null, host: 'app.site.example.test' },
   { path: '/sign-in', title: 'Sign in', access: 'public', tool: 'tool:read-a-greeting', input: { who: 'a visitor, please sign in' }, collection: null, updated_at: null, layout: null },
+  { path: '/old/:slug', title: 'Moved', access: 'public', tool: null, input: null, collection: null, updated_at: null, layout: { go_to: '/notes/:slug' } },
   { path: '/moved', title: 'Members area', access: 'public', tool: null, input: null, collection: null, updated_at: null, layout: { go_to: 'https://app.site.example.test/' } },
   { path: '/broken', title: 'Broken', access: 'public', tool: 'tool:fails', input: {}, collection: null, updated_at: null, layout: null },
 ];
@@ -243,4 +244,39 @@ test('a moved page answers 200 and sends the browser on, kept out of engines', a
     assert.match(html, /<meta name="robots" content="noindex"\/>/);
     assert.match(html, /<link rel="canonical" href="https:\/\/app.site.example.test\/"\/>/);
   } finally { d.server.close(); }
+});
+
+test('a moved template page sends the browser on to its new address with the same slug', async () => {
+  const d = await door();
+  try {
+    const site = await siteOn(d.address);
+    assert.match(String((await site.answer('GET', '/old/first%20note', undefined)).body), /url=\/notes\/first%20note"/);
+  } finally { d.server.close(); }
+});
+
+test('the sign-in tool\'s paths are passed to it whole, cookies and all; every other path is the site\'s', async () => {
+  const seen: { method?: string; url?: string; forwardedHost?: string; body: string }[] = [];
+  const signIn = http.createServer((request, response) => {
+    let body = '';
+    request.on('data', c => { body += c; });
+    request.on('end', () => {
+      seen.push({ method: request.method, url: request.url, forwardedHost: String(request.headers['x-forwarded-host']), body });
+      response.writeHead(200, { 'content-type': 'application/json', 'set-cookie': ['a=1; Path=/', 'b=2; Path=/'] });
+      response.end('{"ok":true}');
+    });
+  });
+  await new Promise<void>(resolve => signIn.listen(0, '127.0.0.1', resolve));
+  const d = await door();
+  const server = http.createServer(handlerOf(await siteOn(d.address), { address: `http://127.0.0.1:${(signIn.address() as AddressInfo).port}`, paths: ['/sign-in', '/api/auth'] }));
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const at = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    const answer = await fetch(`${at}/api/auth/sign-in/email`, { method: 'POST', body: '{"email":"x"}', headers: { 'x-forwarded-host': 'app.site.example.test' } });
+    assert.equal(answer.status, 200);
+    assert.deepEqual(answer.headers.getSetCookie(), ['a=1; Path=/', 'b=2; Path=/']);
+    assert.deepEqual(seen[0], { method: 'POST', url: '/api/auth/sign-in/email', forwardedHost: 'app.site.example.test', body: '{"email":"x"}' });
+    assert.match(await (await fetch(`${at}/`)).text(), /Hello, everyone/, 'the site answers its own paths');
+    assert.equal(signInPath(['/sign-in'], '/sign-in-later'), false, 'a path is the prefix and what is under it, never a longer word');
+    assert.equal(signInPath(['/sign-in'], '/sign-in/done'), true);
+  } finally { server.close(); signIn.close(); d.server.close(); }
 });

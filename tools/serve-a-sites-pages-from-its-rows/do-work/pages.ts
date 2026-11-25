@@ -18,11 +18,14 @@
 //
 //   A layout is one node or a list of nodes (drawn one after another). A layout node is one of:
 //     { "part": "<folder under tools>/show/.../<File>.tsx", "export": "<Name>", "props": {...}, "children": [node...] }
-//     { "tool": "tool:<id>", "input": {...} }   that tool's screen, drawn with its answer
-//     { "main": true }                          the page row's own tool screen
+//     { "tool": "tool:<id>", "input": {...}, "props": {...} }   that tool's screen, drawn with its answer
+//     { "main": true, "props": {...} }          the page row's own tool screen
+//   A screen's props are its tool's answer; a tool or main node's `props` are the page's own words the screen also takes
+//   (a heading, a lede), under the answer, so a row never changes what the tool answered.
 //     { "text": "..." }                         words
 //     { "go_to": "<address>" }                  the whole layout of a page that has moved: it answers 200 and the browser goes on
-//                                               to that address (an http(s) address, or a path of this site)
+//                                               to that address (an http(s) address, or a path of this site); a
+//                                               ":name" part in it takes the path's value, as in /articles/:slug
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Nothing about any one site is in this file: the table's rows are the site.
@@ -37,8 +40,8 @@ export type Access = 'public' | 'members';
 
 export type LayoutNode =
   | { part: string; export?: string; props?: Record<string, unknown>; children?: LayoutNode[] }
-  | { tool: string; input?: unknown }
-  | { main: true }
+  | { tool: string; input?: unknown; props?: Record<string, unknown> }
+  | { main: true; props?: Record<string, unknown> }
   | { text: string }
   | { nodes: LayoutNode[] }
   | { go_to: string };
@@ -73,6 +76,12 @@ const HOST = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/
 // `host` is read through the row's JSON, so a table made without the column reads every row as for every host.
 export const PAGES_SQL = "SELECT p.path, p.title, p.access, p.layout, p.tool, p.input, p.collection, p.updated_at::text AS updated_at, to_jsonb(p)->>'host' AS host FROM pages p ORDER BY 1, 9 NULLS LAST";
 
+function propsOf(props: unknown, where: string): { props?: Record<string, unknown> } {
+  if (props === undefined || props === null) return {};
+  if (typeof props !== 'object' || Array.isArray(props)) throw new PageRowError(`${where}: props is an object.`);
+  return { props: props as Record<string, unknown> };
+}
+
 function checkNode(node: unknown, where: string, hasTool: boolean): LayoutNode {
   if (Array.isArray(node)) return { nodes: node.map((child, i) => checkNode(child, `${where}[${i}]`, hasTool)) };
   const n = node as Record<string, unknown> | null;
@@ -88,11 +97,11 @@ function checkNode(node: unknown, where: string, hasTool: boolean): LayoutNode {
   }
   if ('main' in n) {
     if (n.main !== true || !hasTool) throw new PageRowError(`${where}: {"main": true} stands only in a page whose row names a tool.`);
-    return { main: true };
+    return { main: true, ...propsOf(n.props, where) };
   }
   if ('tool' in n) {
     if (typeof n.tool !== 'string' || !TOOL_ID.test(n.tool)) throw new PageRowError(`${where}: tool is a tool id such as tool:read-the-courses.`);
-    return { tool: n.tool, input: n.input ?? {} };
+    return { tool: n.tool, input: n.input ?? {}, ...propsOf(n.props, where) };
   }
   if (typeof n.part !== 'string' || !PART_FILE.test(n.part) || n.part.split('/').includes('..')) {
     throw new PageRowError(`${where}: part is a screen file under the tools folder, such as ui/show/pricing/Pricing.tsx.`);
