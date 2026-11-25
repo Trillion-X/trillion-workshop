@@ -197,6 +197,18 @@ Example, a page's visit beacon (a visitor id only with consent, set as a cookie 
 - `public_files`: a page row names a public file by its site path; the file sits in the store at `key_prefix` + that path, so
   moving the site's files into the store changes no row. `cache_seconds` is at most half of `link_seconds`.
 
+## The site key's rights
+
+The site's own door key needs exactly what its rows run as the site, and `do-work/rights.ts` makes that grant from them, never
+by hand: the run-sql of its rows on `pages.database` (under `pages.use`), the site head, each public page's tool and layout tools,
+and each public action's tool, undo and inner `tool` and `rows` sources. Members pages and actions run with the member's own
+pass and add nothing. For each tool, the grant lists only the names its rows give where that tool opens a held value (the
+database whose login it opens), as `held_inputs_by_tool`, so one tool's database is never a name another may give. A call a
+share cannot make as written is listed in `refused` with why: a held name filled from the request, a held value that binds no
+use or a row that declares none, or SQL through run-sql that is not a read (under a share it opens the reader login; a write is a
+declared write tool). Read the rows with `PAGES_SQL` and `actionsSql` and run
+`node do-work/rights.ts SETTINGS_FILE PAGES_FILE ACTIONS_FILE` to print `{ grant, refused }`.
+
 ## Files
 
 | File | What |
@@ -214,6 +226,7 @@ Example, a page's visit beacon (a visitor id only with consent, set as a cookie 
 | `do-work/member-pass.ts` | who a request is: the sign-in tool's pass, checked |
 | `do-work/member-video.ts` | a member's file: the right check and the presigned GET (signature version 4) |
 | `do-work/door.ts` | one request to a URL or unix socket; one tool run on the engine's door |
+| `do-work/rights.ts` | the site key's grant made from its public rows, per tool, and every call a share cannot make as written |
 | `show/PageDocument.tsx` | the page's document around the drawn tree, its mount the shared Container |
 | `tests/*.test.ts` | `node --test`: rows, drawing, a loopback door and sign-in, the published signature example |
 
