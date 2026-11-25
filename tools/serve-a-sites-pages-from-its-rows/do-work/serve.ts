@@ -336,6 +336,11 @@ export class Site {
     return { status: 200, headers: { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=300' }, body };
   }
 
+  /** True when an action row answers a POST to this host and path. */
+  acts(host: string, pathname: string): boolean {
+    return matchAction(this.#actions, host, pathname) !== null;
+  }
+
   /**
    * The answer for one posted action: the action row for the host and path, its tool run with the input made from the request
    * (as the member when one is signed in, else as the site), and the row's answer. A form post is sent on with 303; a JSON
@@ -478,7 +483,9 @@ export function handlerOf(site: Site, passOn: PassOn[] = []): http.RequestListen
   return (request, response) => {
     const forwarded = request.headers['x-forwarded-host'];
     const host = site.hostOf(Array.isArray(forwarded) ? forwarded[0] : forwarded, request.headers.host);
-    const on = passOnFor(passOn, host, new URL(request.url ?? '/', 'http://site.invalid').pathname);
+    const pathname = new URL(request.url ?? '/', 'http://site.invalid').pathname;
+    // A POST the site's own action rows name is the site's, even under a path another program answers.
+    const on = request.method === 'POST' && site.acts(host, pathname) ? null : passOnFor(passOn, host, pathname);
     if (on) {
       passOnTo(on.address, host, request, response).catch(error => {
         console.error(`${request.method} ${request.url}: ${on.name} did not answer: ${(error as Error).message}`);

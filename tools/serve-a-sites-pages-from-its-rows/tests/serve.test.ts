@@ -390,3 +390,20 @@ test('a posted form or JSON body runs its action row\'s tool with the input made
     assert.throws(() => settingsOf({ ...settings(d.address), actions: 'site actions' }), /actions/);
   } finally { d.server.close(); }
 });
+
+test('over node:http, a POST an action row names is the site\'s even under a passed-on path; other POSTs there are passed on', async () => {
+  const seen: string[] = [];
+  const other = http.createServer((request, response) => { seen.push(`${request.method} ${request.url}`); response.end('{"other":true}'); });
+  await new Promise<void>(resolve => other.listen(0, '127.0.0.1', resolve));
+  const d = await door();
+  const server = http.createServer(handlerOf(await siteOn(d.address, { actions: 'site_actions' }), [{ name: 'the old program', address: `http://127.0.0.1:${(other.address() as AddressInfo).port}`, paths: ['/checkout', '/target'] }]));
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const at = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    const sent = await fetch(`${at}/checkout`, { method: 'POST', redirect: 'manual', body: 'offerId=offer%3Aone', headers: { 'content-type': 'application/x-www-form-urlencoded', 'x-forwarded-host': 'site.example.test' } });
+    assert.equal(sent.status, 303);
+    assert.equal(sent.headers.get('location'), 'https://pay.example.test/session/1');
+    assert.equal((await fetch(`${at}/target/other`, { method: 'POST', body: '{}' })).status, 200);
+    assert.deepEqual(seen, ['POST /target/other'], 'only the POST no action row names went to the other program');
+  } finally { server.close(); other.close(); d.server.close(); }
+});
