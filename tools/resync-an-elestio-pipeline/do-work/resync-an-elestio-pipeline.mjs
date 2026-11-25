@@ -7,7 +7,8 @@
 // 2. reads the pipeline once (cicd/getPipelineDetails) for the commit it serves before;
 // 3. asks for a resync (cicd/doActionOnPipeline, action reSyncPipeline): Elestio fetches the branch and builds it again;
 // 4. reads the pipeline every poll_seconds until its deployedCommit is `commit` and its lastUpdate is after `since` (the
-//    moment the resync was asked, by default), its status deployed and its build success; a failed build ends it at once.
+//    moment the resync was asked, by default) and after the stamp the ask itself writes, its status deployed and its build
+//    success; a failed build ends it at once.
 // The answer is ok, the commits before and after, the seconds it took and the pipeline's own status words. No answer or
 // error carries the token or the session, and only the named fields of the pipeline are passed on (its details also hold the
 // deploy key and the webhook secret).
@@ -16,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 
 const API = 'https://api.elest.io/api';
 const HELD_DESCRIPTOR = 4;
+const ASK_STAMP_MS = 5000;
 
 // The fields of a pipeline's details passed on; everything else stays here.
 const pick = details => ({
@@ -79,13 +81,17 @@ export async function resyncAnElestioPipeline(request, {
   const since = request.since ? Date.parse(request.since) : Math.floor(askedAt / 1000) * 1000 - 1000;
   if (!Number.isFinite(since)) throw new Error('since must be a date and time, like 2026-11-25T07:39:38Z');
 
-  let latest = before, reads = 0;
+  // Elestio stamps lastUpdate twice: when the resync is asked (status still deployed, the old build still serving) and when
+  // it has run, which can be minutes later (school, 2:28:24 and 2:31:25 AM CST Nov 25 2026). A stamp within ASK_STAMP_MS of
+  // the ask is the ask's own, so only a later one counts.
+  let latest = before, reads = 0, settle = since;
   for (;;) {
     latest = await details();
     reads += 1;
-    const done = matches(latest.deployed_commit, commit) && after(latest.last_update, since)
+    if (reads === 1 && Math.abs(Date.parse(latest.last_update) - askedAt) <= ASK_STAMP_MS) settle = Math.max(since, Date.parse(latest.last_update));
+    const done = matches(latest.deployed_commit, commit) && after(latest.last_update, settle)
       && latest.status === 'deployed' && latest.build_status === 'success';
-    const failed = after(latest.last_update, since) && /fail|error/i.test(String(latest.build_status));
+    const failed = after(latest.last_update, settle) && /fail|error/i.test(String(latest.build_status));
     if (done || failed || now() - askedAt >= waitMs) {
       const reason = done ? null
         : failed ? `the build ended ${latest.build_status}`

@@ -59,6 +59,20 @@ test('the same commit already deployed is not done until the pipeline is deploye
   assert.equal(answer.reads, 2);
 });
 
+test('the stamp the ask itself writes is not the deploy: only a later one counts', async () => {
+  // Read from Elestio Nov 25 2026: lastUpdate went to the ask's second (status still deployed) and again when the build ran.
+  const { post } = standIn([
+    state(COMMIT, '2026-11-25T07:00:00.000Z'),
+    state(COMMIT, '2026-11-25T07:39:38.000Z'),
+    state(COMMIT, '2026-11-25T07:39:38.000Z'),
+    state(COMMIT, '2026-11-25T07:42:41.000Z'),
+  ]);
+  const answer = await resyncAnElestioPipeline(request, { read: () => 'made-up-token', post, ...clock() });
+  assert.equal(answer.ok, true);
+  assert.equal(answer.reads, 3);
+  assert.equal(answer.after.last_update, '2026-11-25T07:42:41.000Z');
+});
+
 test('a failed build ends at once with its words', async () => {
   const { post } = standIn([state(OLD, '2026-11-25T07:00:00.000Z'), state(OLD, '2026-11-25T07:40:10.000Z', 'failed', 'failed')]);
   const answer = await resyncAnElestioPipeline(request, { read: () => 'made-up-token', post, ...clock() });
