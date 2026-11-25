@@ -19,6 +19,7 @@
 //   4. The clone folder is removed in every case; the bundle is the only thing that stays.
 import { execFile } from 'node:child_process';
 import { lstat, mkdtemp, readdir, readFile, rename, rm, mkdir, writeFile } from 'node:fs/promises';
+import { realpathSync } from 'node:fs';
 import { homedir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -249,7 +250,7 @@ export async function keepRepositoryAsText(input, { root, fetchImpl } = {}) {
   }
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   let input;
   try {
     input = JSON.parse(await text(process.stdin));
