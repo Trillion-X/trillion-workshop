@@ -3,14 +3,25 @@
   "writes": {
     "site-lead": {
       "_what": "A lead from a site form (book a call): one statement of meaning lead, kept only when the email has an email's shape.",
-      "sql": "INSERT INTO statements (source, told, place, meaning, at, key, after) SELECT 'site-form', 'site-form:lead:' || $1, 'site-form', 'lead', now(), $1, jsonb_strip_nulls(jsonb_build_object('email', lower(trim($2::text)), 'name', nullif(trim($3::text), ''), 'self_reported', nullif(trim($4::text), ''), 'offer_id', $5::text, 'visitor', $6::text)) WHERE $2::text ~ '^[^[:space:]@]+@[^[:space:]@]+\\.[^[:space:]@]+$'",
+      "sql": "INSERT INTO statements (source, told, place, meaning, at, key, after) SELECT 'site-form', 'site-form:lead:' || $1, 'site-form', 'lead', now(), $1, jsonb_strip_nulls(jsonb_build_object('email', lower(trim($2::text)), 'name', nullif(trim($3::text), ''), 'self_reported', nullif(trim($4::text), ''), 'offer_id', $5::text, 'visitor', $6::text, 'touch_id', $7::text)) WHERE $2::text ~ '^[^[:space:]@]+@[^[:space:]@]+\\.[^[:space:]@]+$'",
       "values": [
         { "name": "key", "type": "text", "most": 200, "required": true },
         { "name": "email", "type": "text", "most": 320 },
         { "name": "name", "type": "text", "most": 200 },
         { "name": "self_reported", "type": "text", "most": 2000 },
         { "name": "offer_id", "type": "text", "most": 200 },
-        { "name": "visitor", "type": "text", "most": 200 }
+        { "name": "visitor", "type": "text", "most": 200 },
+        { "name": "touch_id", "type": "text", "most": 200 }
+      ]
+    },
+    "site-checkout": {
+      "_what": "One checkout a buyer started (a journey step), kept once per attempt: its key is the attempt, and a second keep of the same attempt keeps nothing. It is the statement the checkout row's run-sql `then` sent, without RETURNING (the writer login cannot read the rows it adds).",
+      "sql": "INSERT INTO statements (source, told, place, meaning, at, key, after) VALUES ('site-checkout', 'site-checkout:checkout:' || $1, 'site-checkout', 'checkout', now(), $1, jsonb_strip_nulls(jsonb_build_object('attempt', $1::text, 'offer_id', $2::text, 'visitor', $3::text, 'touch_id', $4::text))) ON CONFLICT DO NOTHING",
+      "values": [
+        { "name": "attempt", "type": "text", "most": 200, "required": true },
+        { "name": "offer_id", "type": "text", "most": 200 },
+        { "name": "visitor", "type": "text", "most": 200 },
+        { "name": "touch_id", "type": "text", "most": 200 }
       ]
     },
     "site-visit": {

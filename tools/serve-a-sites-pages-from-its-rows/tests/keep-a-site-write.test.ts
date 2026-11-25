@@ -9,6 +9,7 @@ import { keepASiteWrite, statementOf } from '../do-work/keep-a-site-write.ts';
 
 const DDL = `
   create table statements (id bigint generated always as identity primary key, source text not null, told text not null, place text, meaning text, at timestamptz, key text, after jsonb);
+  create unique index statements_told on statements (told);
   create table offers (id text primary key);
   insert into offers values ('offer:one'), ('offer:two');
   create table price_views (offer_id text not null, day date not null, views integer not null default 0, primary key (offer_id, day));
@@ -38,6 +39,24 @@ test('a lead is kept as the action row kept it, and only when the email has an e
   assert.equal((await keepASiteWrite({ write: 'site-lead', values: { key: 'k2', email: 'not an email' } }, query)).row_count, 0);
   // The shape is checked on the email as sent, as the action row's statement did: a padded one is not kept.
   assert.equal((await keepASiteWrite({ write: 'site-lead', values: { key: 'k3', email: ' made.up@example.test' } }, query)).row_count, 0);
+  // The touch the referer named is kept with the lead.
+  await keepASiteWrite({ write: 'site-lead', values: { key: 'k4', email: 'made.up@example.test', touch_id: 'touch-1' } }, query);
+  assert.deepEqual(await one(db, "select after from statements where key = 'k4'"), [{ after: { email: 'made.up@example.test', touch_id: 'touch-1' } }]);
+});
+
+test('a started checkout is kept once per attempt, with its offer, visitor and touch', async () => {
+  const { db, query } = await fresh();
+  const values = { attempt: 'attempt-1', offer_id: 'offer:one', visitor: 'visitor-1', touch_id: 'touch-1' };
+  assert.deepEqual(await keepASiteWrite({ write: 'site-checkout', values }, query), { write: 'site-checkout', row_count: 1, rows: [] });
+  assert.deepEqual(await one(db, "select source, told, place, meaning, key, after from statements"), [{
+    source: 'site-checkout', told: 'site-checkout:checkout:attempt-1', place: 'site-checkout', meaning: 'checkout', key: 'attempt-1',
+    after: { attempt: 'attempt-1', offer_id: 'offer:one', visitor: 'visitor-1', touch_id: 'touch-1' },
+  }]);
+  assert.equal((await keepASiteWrite({ write: 'site-checkout', values }, query)).row_count, 0, 'the same attempt again keeps nothing');
+  // A visitor who did not consent has no visitor cookie: left out of what is kept.
+  await keepASiteWrite({ write: 'site-checkout', values: { attempt: 'attempt-2', offer_id: 'offer:one' } }, query);
+  assert.deepEqual(await one(db, "select after from statements where key = 'attempt-2'"), [{ after: { attempt: 'attempt-2', offer_id: 'offer:one' } }]);
+  assert.throws(() => statementOf({ write: 'site-checkout', values: { offer_id: 'offer:one' } }), /needs attempt/);
 });
 
 test('a visit is kept only when its address is on the request\'s origin', async () => {
@@ -64,7 +83,7 @@ test('the welcome stop answers where to go: stopped for a token that matched, in
 });
 
 test('only a named write with the values it takes is sent: never SQL from the input', () => {
-  assert.throws(() => statementOf({ write: 'drop-everything', values: {} }), /write must be one of site-lead, site-visit, price-view, welcome-series-stop/);
+  assert.throws(() => statementOf({ write: 'drop-everything', values: {} }), /write must be one of site-lead, site-checkout, site-visit, price-view, welcome-series-stop/);
   assert.throws(() => statementOf({ write: 'site-lead', values: { key: 'k', sql: 'delete from statements' } }), /takes no sql/);
   assert.throws(() => statementOf({ write: 'site-lead', values: { email: 'made.up@example.test' } }), /needs key/);
   assert.throws(() => statementOf({ write: 'site-lead', values: { key: 'k', email: 'x'.repeat(321) } }), /at most 320 characters/);

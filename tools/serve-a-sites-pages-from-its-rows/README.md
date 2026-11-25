@@ -252,8 +252,8 @@ Example, a page's visit beacon (a visitor id only with consent, set as a cookie 
 
 ## Named writes
 
-`tool:keep-a-site-write` keeps one of the site's named writes (`read-data/site-writes.json`: `site-lead`, `site-visit`, `price-view`,
-`welcome-series-stop`) from the values an action row gives: `{ database, use, write, values }`, the statement fixed in the file and
+`tool:keep-a-site-write` keeps one of the site's named writes (`read-data/site-writes.json`: `site-lead`, `site-checkout`, `site-visit`,
+`price-view`, `welcome-series-stop`) from the values an action row gives: `{ database, use, write, values }`, the statement fixed in the file and
 every value a parameter, so a post never sends SQL. Under the site's use the computer opens the database with its writer login
 (`<database>-writer-connection`, role recipe `may-write-named-columns-under-a-use` in run-sql-in-my-database: only the columns and
 functions these writes need), and the write's one transaction claims the use first. The welcome stop calls the owner's
