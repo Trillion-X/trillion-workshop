@@ -71,7 +71,10 @@ if [ -z "${TO_STORE:-}" ]; then has=$(ask "SELECT count(*) FROM pg_tables WHERE 
 if [ "$has" != "0" ]; then echo "$TO_DATABASE already has $has tables; nothing copied."; exit 0; fi
 for table in ${TABLES_ONLY:-}; do set -- "$@" --table="public.\"$table\""; done
 for table in ${TABLES_LEFT_OUT:-}; do set -- "$@" --exclude-table="public.\"$table\""; done
+# The dump is made in TMPDIR (a unit sets it to a folder on the database disk: a private /tmp is RAM, and a large database
+# does not fit, as a 3.2 GB runs database did not at 9:15 AM CST Nov 25 2026) and removed however the copy ends.
 dump=$(mktemp)
+trap 'rm -f "$dump"' EXIT
 if [ -n "${FROM_STORE:-}" ]; then
   # WAL-G writes only a file that is not there yet.
   rm -f "$dump"
