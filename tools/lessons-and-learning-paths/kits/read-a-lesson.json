@@ -1,0 +1,39 @@
+{
+  "start_here": "Say to your AI: \"Open lesson grip of first-principles.\" It runs tool:read-a-lesson and shows the recording with its transcript.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it reads the lessons, recording links and timed words of the pursuit database and changes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-lesson"
+  ],
+  "instructions": [
+    "1. Name the pursuit database that holds the rows, such as example_for_who_uses_it; the computer opens it with the read login its vault holds.",
+    "2. Say what you want in plain words; your AI calls tools:run with tool tool:read-a-lesson and the input.",
+    "3. Read the answer: the lesson with its recording, timed passages and the lessons around it. Show it with the screen the tool names."
+  ],
+  "worked_examples": [
+    {
+      "title": "Open a lesson",
+      "ask": "Open lesson grip of first-principles.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-lesson",
+            "input": {
+              "database": "example_for_who_uses_it",
+              "course": "first-principles",
+              "lesson": "grip"
+            }
+          }
+        }
+      },
+      "given": "The database holds the rows the read names (made-up values).",
+      "hands_back": "{\"lesson\":{\"id\":\"grip\",\"position\":1,\"title\":\"Grip\",\"done\":false},\"video\":null,\"segments\":[]}"
+    }
+  ],
+  "drafted_from": "tool row in tools/lessons-and-learning-paths/tool-rows.json and tools/lessons-and-learning-paths/do-work/courses.ts"
+}
