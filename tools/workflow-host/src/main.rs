@@ -615,8 +615,7 @@ impl OneRule {
 // out: SQL literals, e-mail addresses, long numbers and connection strings never reach the row.
 fn record(run: &str) -> Result<Value, String> {
     let name = run.rsplit('/').next().unwrap_or(run).to_string();
-    // A chat may name the run by its leading number alone (run_of takes it), so that is what is looked for.
-    let short = name.split('-').next().unwrap_or(&name).to_string();
+    // A chat worked the run when a wf call of it ran and wf's own answer to the call names the run.
     let started = read(&format!("{run}/started_at.json")).as_str().unwrap_or_default().to_string();
     // Transcripts written since the run started: minutes since then, read from the start's own UTC time.
     let started_secs: u64 = Command::new("date").args(["-j", "-u", "-f", "%Y-%m-%dT%H:%M:%SZ", &started, "+%s"]).output()
@@ -692,8 +691,8 @@ fn record(run: &str) -> Result<Value, String> {
                     o["payload"]["content"].as_array().into_iter().flatten().filter_map(|x| x["text"].as_str()).collect::<Vec<_>>().join(" ") }
                 else { String::new() };
             // A brief or message that arrives wrapped in system reminders still carries its words: they are the ask.
-            let asked_text = re(r"(?s)<system-reminder>.*?</system-reminder>").replace_all(&asked_text, "");
-            let asked_text = asked_text.trim();
+            let asked_text = asked_words(&asked_text);
+            let asked_text = asked_text.as_str();
             if !asked_text.is_empty() && !asked_text.starts_with("<system-reminder>") && !asked_text.starts_with("<task-notification") && at.as_str() <= started.as_str() {
                 file_steps.clear();
                 open.clear();
@@ -733,7 +732,7 @@ fn record(run: &str) -> Result<Value, String> {
                 let input_text = input.to_string();
                 let command = input["command"].as_str().or(input["cmd"].as_str()).unwrap_or(&input_text);
                 let is_wf = names_wf(command, "start|answer|show|cancel");
-                if names_wf(command, "start|answer|cancel") && (acts_on_run(command, &short) || (names_wf(command, "start") && text.contains(&short))) { worked_until = Some(at.clone()); }
+                if names_wf(command, "start|answer|cancel") && text.contains(&name) { worked_until = Some(at.clone()); }
                 if is_wf {
                     if let Some(c) = re(r#""step":\s*"([^"]+)""#).captures_iter(&text).last() { waits_on = c[1].to_string(); }
                 }
@@ -937,13 +936,9 @@ fn names_wf(command: &str, verbs: &str) -> bool {
     re(r#"\b([A-Za-z_][A-Za-z0-9_]*)=["']?[^\s"';|&]*/wf(?:[^\w-]|$)"#).captures_iter(command)
         .any(|c| is_like(&format!(r#"{START}"?\$(?:\{{{v}\}}|{v}\b)"?\s+({verbs})\b"#, v = &c[1]), command))
 }
-// A wf start, answer or cancel call acts on the run when the run's id follows the verb, or follows it as a variable the same
-// command sets to the id (`R=1795...-run; $W answer $R step`). A call that names the run only elsewhere is not one on it.
-fn acts_on_run(command: &str, short: &str) -> bool {
-    const VERBS: &str = "start|answer|cancel";
-    is_like(&format!(r#"\b({VERBS})\s+["']?\S*{short}"#), command)
-        || re(&format!(r#"\b([A-Za-z_][A-Za-z0-9_]*)=["']?[^\s"';|&]*{short}"#)).captures_iter(command)
-            .any(|c| is_like(&format!(r#"\b({VERBS})\s+"?\$(?:\{{{v}\}}|{v}\b)"#, v = &c[1]), command))
+// What a person, peer or lane asked in a message: its words without the system reminders wrapped around them.
+fn asked_words(message: &str) -> String {
+    re(r"(?s)<system-reminder>.*?</system-reminder>").replace_all(message, "").trim().to_string()
 }
 // A pattern is compiled once per process: record walks every call of every chat that names the run, and compiling its
 // patterns per call made a long chat take minutes (a 187 MB transcript held wf record past 60 s, Nov 21 4:3x AM CST).
@@ -1756,7 +1751,7 @@ mod json_arg_tests {
 
 #[cfg(test)]
 mod names_wf_tests {
-    use super::{acts_on_run, names_wf};
+    use super::{asked_words, names_wf};
 
     const ANY: &str = "start|answer|show|cancel";
     const WORKS: &str = "start|answer|cancel";
@@ -1800,11 +1795,10 @@ mod names_wf_tests {
     }
 
     #[test]
-    fn a_call_acts_on_a_run_only_when_its_id_follows_the_verb() {
-        assert!(acts_on_run("wf answer 1795563437-7391-workflow_x step '{}'", "1795563437"));
-        assert!(acts_on_run("R=1795563437-7391-workflow_x; $W answer $R step '{}'", "1795563437"));
-        assert!(acts_on_run("R=\"1795563437-x\"; ${W} cancel \"$R\"", "1795563437"));
-        assert!(!acts_on_run("R=1795563437-x; wf record $R", "1795563437"));
-        assert!(!acts_on_run("R=1795563437-x; $W answer $Q step", "1795563437"));
+    fn a_brief_wrapped_in_system_reminders_is_asked_by_its_own_words() {
+        let wrapped = "<system-reminder>\nrules\n</system-reminder>\n<teammate-message>fix the recorder</teammate-message>\n<system-reminder>more</system-reminder>";
+        assert_eq!(asked_words(wrapped), "<teammate-message>fix the recorder</teammate-message>");
+        assert_eq!(asked_words("<system-reminder>only rules</system-reminder>"), "");
+        assert_eq!(asked_words("  plain ask "), "plain ask");
     }
 }
