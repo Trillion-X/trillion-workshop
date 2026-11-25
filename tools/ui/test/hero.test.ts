@@ -53,3 +53,9 @@ test('the hero call to action takes the look\'s call-to-action weight', async ()
   const html = await renderAView(entry, { heading: 'A headline here', cta: { label: 'See pricing', href: '/pricing' } });
   assert.match(html, /--cta-font-weight/);
 });
+
+// A heading balances its lines unless the look says otherwise: a site whose headings fill each line gives --statement-text-wrap.
+test('the heading takes its line filling from the look and balances by default', async () => {
+  const html = await renderAView(entry, { heading: 'A headline here', cta: { label: 'Go', href: '/go' } });
+  assert.match(html, /text-wrap:\s*var\(--statement-text-wrap, balance\)/);
+});
