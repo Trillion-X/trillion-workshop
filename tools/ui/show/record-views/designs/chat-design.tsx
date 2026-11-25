@@ -15,7 +15,9 @@
 //   2. Every press a list added (a menu row, a reaction, a shared thing's Open) is reported to the list through
 //      designAction with the record's id under `post`; replying reaches compose.send with the record as `parent`.
 //   3. A list whose compose draws its own box (`compose.box`) is handed what the next message answers; one without
-//      its own box gets the shared composer.
+//      its own box gets the shared composer. A list with no compose that keeps changes to its words field is written
+//      through its own write (composeOf); a list that takes no words draws no box, and its empty words say none is
+//      below (`empty_read_only`).
 
 import * as React from 'react'
 import {ChatThread, type ChatAttachment, type ChatEntry, type ReactionChoice} from '../../chat'
@@ -25,10 +27,10 @@ import {MediaPreview} from '../../media-preview/MediaPreview'
 import {recordKindAppearance} from '../../record-kind/RecordKindMark'
 import {nestedByIdentity} from 'trillion-workshop/tools/turn-frames-into-slides/read-data/group-graph.ts'
 import type {ThreadAction, ThreadPost} from '../../coss/thread'
-import {slotFields, wordsOf, type ViewDesignProps} from '../view-designs'
+import {composeOf, slotFields, wordsOf, type ViewDesignProps} from '../view-designs'
 import type {FieldDescriptor} from '../record-views'
 
-type ChatOptions = {empty?: string; reply?: string; words?: Record<string, string>}
+type ChatOptions = {empty?: string; empty_read_only?: string; reply?: string; words?: Record<string, string>}
 
 const SLOTS = ['body', 'title', 'author', 'when'] as const
 
@@ -43,7 +45,9 @@ const instantOf = (field: FieldDescriptor | undefined, record: any): number => {
 export function ChatDesign({context, row}: ViewDesignProps) {
   const options = (row.options ?? {}) as ChatOptions
   const slots = slotFields(row, context.fields, SLOTS)
-  const {records, identify, compose, designExtras, designAction, nesting, label} = context
+  const {records, identify, designExtras, designAction, nesting, label} = context
+  const compose = React.useMemo(() => composeOf(context, slots.body),
+    [context.compose, context.readOnly, context.write, slots.body, records, identify, nesting])
   const [replyTo, setReplyTo] = React.useState<string | null>(null)
 
   const entries = React.useMemo(() => {
@@ -106,7 +110,7 @@ export function ChatDesign({context, row}: ViewDesignProps) {
       <ChatThread
         entries={entries}
         ariaLabel={label}
-        empty={options.empty ?? 'Nothing here yet.'}
+        empty={(compose ? options.empty : options.empty_read_only) ?? 'Nothing here yet.'}
         markOf={speaker => <DisplayMark spec={{name: speaker.name}} size="sm"/>}
         composer={box}
         replying={replying ? {name: replying.speaker.mine ? (options.words?.yourself ?? 'yourself') : replying.speaker.name, text: replying.text || replying.attachment?.title || '', onCancel: done} : null}

@@ -1,5 +1,8 @@
 /* tools/workspace-screens/web/members-page/members-page.css: the page's frame, a sidebar column and the screens beside it. */
 html, body { height: 100%; margin: 0; }
-.members-page__frame { display: flex; height: 100vh; }
+/* While the cookie bar is open it reserves its own measured height (--consent-banner-reserve, set and removed by
+   tools/ui/show/consent-banner) and ends the page with a spacer that tall, so the frame stops above the bar: the sidebar's and
+   the screens' last rows scroll into view instead of sitting under it. */
+.members-page__frame { display: flex; height: calc(100vh - var(--consent-banner-reserve, 0px)); }
 .members-page__sidebar { width: 260px; flex: none; overflow: auto; }
 .members-page__arrangement { flex: 1; min-width: 0; }

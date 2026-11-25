@@ -22,7 +22,7 @@
 
 import React, { useMemo, useRef } from 'react';
 import { Container } from '../../../../ui';
-import { slotFields, writable, type ViewDesignProps } from '../../../../ui/show/record-views/view-designs';
+import { newRecordId, slotFields, writable, type ViewDesignProps } from '../../../../ui/show/record-views/view-designs';
 import { OPEN_ACTION, recordsOnABoard } from '../../../../ui/show/record-views/designs/records-on-a-board';
 import type { RecordAddRow } from '../../../../ui/show/record-views/record-views';
 import { BoardOf, type BoardOfSource } from './board-of';
@@ -81,7 +81,7 @@ export function DrawDesign({ context, row }: ViewDesignProps) {
         const now = latest.current;
         const named = slotFields(row, now.fields, ['title']).title;
         if (!writable(now, named)) return null;
-        const id = crypto.randomUUID();
+        const id = newRecordId(now.records, now.identify);
         await now.write!([{ id, create: true, values: { [named.id]: typed.current || options.new_label || options.add_label! } }]);
         return { id };
       },

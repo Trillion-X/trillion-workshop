@@ -11,6 +11,7 @@
       ],
       "options": {
         "empty": "Nothing here yet. Write the first message below.",
+        "empty_read_only": "Nothing here yet.",
         "reply": "Reply"
       }
     },
@@ -26,7 +27,8 @@
         "style": "cards",
         "box": "top",
         "order": "newest-first",
-        "empty": "Nothing here yet. Write the first post above."
+        "empty": "Nothing here yet. Write the first post above.",
+        "empty_read_only": "Nothing here yet."
       }
     },
     {
@@ -43,7 +45,8 @@
         "box": "top",
         "order": "newest-first",
         "reply": "Reply",
-        "empty": "No topics yet. Start the first one above."
+        "empty": "No topics yet. Start the first one above.",
+        "empty_read_only": "No topics yet."
       }
     },
     {

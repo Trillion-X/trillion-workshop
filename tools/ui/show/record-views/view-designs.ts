@@ -20,8 +20,9 @@
 //   3. A row is offered only to a list whose fields fill every slot it `needs`.
 
 import type {ReactNode} from 'react'
-import type {FieldDescriptor, RecordView, RecordViewContext} from './record-views'
+import type {FieldDescriptor, RecordCompose, RecordView, RecordViewContext} from './record-views'
 import {dayStart, isWholeDay} from '../schedule-calendar/schedule-placement.mjs'
+import {nestedByIdentity} from '../../../turn-frames-into-slides/read-data/group-graph.ts'
 import type {ScrollFadeEdge} from '../scrollable-surface/scroll-fade'
 
 /** One designed view, as DATA. `slots` maps a slot to a field id of a particular list; left out, roles decide. */
@@ -156,6 +157,29 @@ export function toneOf(field: FieldDescriptor | undefined, record: any): string 
 /** Whether a view may write a field's value: the list keeps changes and the field is not marked as worked out. */
 export function writable(context: RecordViewContext, field: FieldDescriptor | undefined): field is FieldDescriptor {
   return Boolean(context.write && field && field.editable !== false)
+}
+
+/** A new record's id in the form the list's own records carry: what comes before the last `:` of a record's id (nothing
+ *  for a bare id, and for a list with no records yet), then a fresh UUID. */
+export function newRecordId(records: readonly any[], identify: (record: any) => string): string {
+  const sample = records.length ? String(identify(records[0])) : ''
+  return `${sample.slice(0, sample.lastIndexOf(':') + 1)}${crypto.randomUUID()}`
+}
+
+/** How a design that takes words writes them into the list: the list's own compose when it gives one; else, when the list
+ *  keeps changes and lets `body` (the field the design's words slot names) be typed into, one new record holding the
+ *  words, and for a reply the record it answers holding the new one as its last member (the list's nesting). Undefined
+ *  when the list takes no words, so the design draws no box. */
+export function composeOf(context: RecordViewContext, body: FieldDescriptor | undefined): RecordCompose | undefined {
+  if (context.compose) return context.compose
+  if (context.readOnly || !writable(context, body)) return undefined
+  return {
+    send: async ({text, parent}) => {
+      const id = newRecordId(context.records, context.identify)
+      const under = parent && context.nesting ? nestedByIdentity(context.nesting.graph, context.nesting.identityOf).children.get(parent) ?? [] : []
+      await context.write!([{id, create: true, values: {[body.id]: text}}, ...(parent ? [{id: parent, members: [...under, id]}] : [])])
+    },
+  }
 }
 
 /** A field's value as words, the way every view reads a value it only shows. */

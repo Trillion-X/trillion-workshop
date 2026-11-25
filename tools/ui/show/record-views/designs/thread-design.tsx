@@ -13,15 +13,17 @@
 //   2. Replies nest by the list's nesting (the group graph every view reads, ../../group/group-graph nestedByIdentity)
 //      to any depth; a record whose parent is not among the records drawn is a post.
 //   3. A list's extras for this design (designExtras('thread', record): a vote, a menu, a shared thing, mentions) are
-//      laid over the post the slots made; the list's compose writes every new post and reply.
+//      laid over the post the slots made; the list's compose writes every new post and reply. A list with no compose
+//      that keeps changes to its words field is written through its own write (composeOf); with no box drawn, the empty
+//      words are the ones that point at none (`empty_read_only`).
 
 import * as React from 'react'
 import {Thread, type ThreadAction, type ThreadPost} from '../../coss/thread'
 import {nestedByIdentity} from 'trillion-workshop/tools/turn-frames-into-slides/read-data/group-graph.ts'
-import {slotFields, wordsOf, type ViewDesignProps} from '../view-designs'
+import {composeOf, slotFields, wordsOf, type ViewDesignProps} from '../view-designs'
 import type {FieldDescriptor} from '../record-views'
 
-type ThreadOptions = {style?: 'cards' | 'discussion'; order?: 'newest-first' | 'newest-last'; box?: 'top' | 'bottom' | 'none'; empty?: string; reply?: string}
+type ThreadOptions = {style?: 'cards' | 'discussion'; order?: 'newest-first' | 'newest-last'; box?: 'top' | 'bottom' | 'none'; empty?: string; empty_read_only?: string; reply?: string}
 
 const SLOTS = ['body', 'title', 'author', 'when'] as const
 
@@ -36,7 +38,9 @@ const instantOf = (field: FieldDescriptor | undefined, record: any): number => {
 export function ThreadDesign({context, row}: ViewDesignProps) {
   const options = (row.options ?? {}) as ThreadOptions
   const slots = slotFields(row, context.fields, SLOTS)
-  const {records, identify, compose, designExtras, nesting} = context
+  const {records, identify, designExtras, nesting} = context
+  const compose = React.useMemo(() => composeOf(context, slots.body),
+    [context.compose, context.readOnly, context.write, slots.body, records, identify, nesting])
   const replyRuns = React.useRef(new WeakMap<object, string>())
   const posts = React.useMemo(() => {
     const loaded = new Set(records.map(identify))
@@ -77,7 +81,7 @@ export function ThreadDesign({context, row}: ViewDesignProps) {
   return (
     <div className="record-views-design" data-design={row.design} data-box={box}>
       {box === 'top' ? ownBox : null}
-      <Thread thread={{posts, style: options.style ?? 'cards', order, empty: options.empty ?? 'Nothing here yet.', ...(plainBox ? {compose: plainBox} : {})}} onAction={onAction}/>
+      <Thread thread={{posts, style: options.style ?? 'cards', order, empty: (compose && box !== 'none' ? options.empty : options.empty_read_only) ?? 'Nothing here yet.', ...(plainBox ? {compose: plainBox} : {})}} onAction={onAction}/>
       {box === 'bottom' ? ownBox : null}
     </div>
   )
