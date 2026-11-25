@@ -25,6 +25,10 @@ Marked: **copied** from the package unchanged but for its import paths, **change
 | `read-data/session-progress-rows.ts` | Turns folded sessions into ordered rows by a caller-given field map. | copied |
 | `read-data/progress-model.ts` | One respondent's rows, trend series and latest row. | copied |
 | `read-data/results-model.ts` | Segment assignments into result rows and a count per segment. | copied |
+| `read-data/answers-over-time.mjs` | `answersOverTime`: one person's sittings of one form in time order, each with its segment and which way it moved, each question as a series (one per question and per thing it was about), what changed between the last two sittings and the latest segment's follow-up. `latestStandingOf`: a count per segment and each person's latest segment, the one before and the move, newest first. Segments rank by their rules' `min`. Pure, browser-safe. | seam |
+| `read-data/answers-over-time-words.json` | Every word of the two screens below, each replaceable by a screen row's `words`. | seam |
+| `web/answers-over-time-screen-mount.tsx` | A members-page screen module: where the person stands now (segment, meaning, move, Answer it again at the row's `answer_at`), what to do next, what changed since last time (before and now; a numeric question as its trend), each sitting on a timeline, and every answer behind one fold per question. Reads the form, the person's facts and assignments (by id prefix), segment rules and follow-ups through the records door; whose rows a person may read is the site door's rule. | seam |
+| `web/latest-standing-screen-mount.tsx` | A members-page screen module for a form's owner: a tile per segment with how many stand in it now, then one row per person (segment, move, times answered, last date) opening that person's answers over time. | seam |
 | `read-data/synthesis-answer-lines.ts` | The latest answers as prose lines, each labelled with its question. | copied |
 | `read-data/synthesis-result.ts` | Keys and reads a saved synthesis result by (form, key). | copied |
 | `read-data/record-rows.ts` | `KeptRow`, `RecordWrite`, and `payloadRows`: kept rows as the payload-wrapped rows the readers take. | seam |
@@ -42,7 +46,7 @@ Marked: **copied** from the package unchanged but for its import paths, **change
 | `data/question-types.json` | The question-type rows (text, long text, number, rating, choice, picks, link, evidence reference) with their rules and coercion. | seam (before this port) |
 | `records.json` | The three container-only tool rows. | seam |
 | `tool-rows.json` | Lists `records.json` into the Workshop and holds the five form rows (each runs on `tools/workflows/do-work/run-a-function.mjs`, with no door and no held value). | seam |
-| `test/` | 27 test files (`picks-and-about.test.ts` for picks, links and about; `show-when.test.ts` for questions asked only when their rules hold) carried from the package (see below) and `form-tools.test.mjs`, which runs the five tools over one stand-in for the person's rows (given as `rows`, taking each `keep`) and each shipped row as the engine runs it. | carried and seam |
+| `test/` | 29 test files (`answers-over-time.test.mjs` for the sittings, series, changes and standing) (`picks-and-about.test.ts` for picks, links and about; `show-when.test.ts` for questions asked only when their rules hold) carried from the package (see below) and `form-tools.test.mjs`, which runs the five tools over one stand-in for the person's rows (given as `rows`, taking each `keep`) and each shipped row as the engine runs it. | carried and seam |
 
 ## Rows the form tools make and read
 

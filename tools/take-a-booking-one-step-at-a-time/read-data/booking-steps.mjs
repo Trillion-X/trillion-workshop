@@ -1,6 +1,11 @@
 // The one-question-at-a-time path of a booking page: the steps a page asks, the next step a booking is waiting at, the answer
-// each step accepts, and the step a booking that was left reached last. A page is data (its questions, in order); this file
-// holds no question text, no product word and no calendar call. Every answer is a value a caller saves as its own row.
+// each step accepts, and the step a booking that was left reached last. A page is data (its questions, in order, and the steps
+// around them); this file holds no question text, no product word and no calendar call. Every answer is a value a caller saves
+// as its own row.
+// The steps around the questions are the page's `around`: { before, after }, each a list of step names. A booking asks the email
+// before and a slot and a confirm after (BOOKING_AROUND, the default); a page that asks first and is kept later states
+// { before: [], after: ['result'] }. A step is waiting while the progress holds no value under its name (progress.email,
+// progress.slot); a step whose name the progress never holds (confirm, result) is where the page stops and draws that step.
 // What a question is and how its answer is checked are the form owner's (tools/ask-questions-sort-answers-follow-up): a
 // question's type, its options (one pick or several, an other option with the person's own words), its rules and what it is
 // about are a question descriptor there, so a booking page asks any question a form can ask and checks it the same way.
@@ -15,6 +20,8 @@ export const EMAIL_STEP = 'email';
 export const SLOT_STEP = 'slot';
 export const CONFIRM_STEP = 'confirm';
 export const questionStep = position => `question:${position}`;
+// The steps around a booking's questions: what a page that states no `around` asks.
+export const BOOKING_AROUND = Object.freeze({ before: Object.freeze([EMAIL_STEP]), after: Object.freeze([SLOT_STEP, CONFIRM_STEP]) });
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_EMAIL = 254;
@@ -22,8 +29,27 @@ const MAX_ANSWER = 2000;
 // A question that names no type is a written answer of at most MAX_ANSWER characters.
 const WRITTEN = { questionTypeId: 'long-text', validation: { max: MAX_ANSWER } };
 
-// page: { questions: [{ position, prompt, required?, question? }] } in any order; the steps follow position order. `question`
-// is the rest of the form owner's question descriptor (questionId, questionTypeId, options, multiple, other, help, about...).
+// The step names a page's `around` states before or after its questions, checked: a list of names, none a question's, none twice.
+function aroundOf(page) {
+  const around = page.around ?? BOOKING_AROUND;
+  if (!around || typeof around !== 'object' || Array.isArray(around)) throw new Error('A page states the steps around its questions as { before, after }.');
+  const seen = new Set();
+  const named = side => {
+    const list = around[side] ?? [];
+    if (!Array.isArray(list)) throw new Error(`The steps ${side} the questions are a list of step names.`);
+    return list.map(name => {
+      if (typeof name !== 'string' || !/^[a-z][a-z0-9-]*$/.test(name)) throw new Error(`A step ${side} the questions is named in lowercase words joined by dashes.`);
+      if (seen.has(name)) throw new Error(`The step ${name} is stated more than once.`);
+      seen.add(name);
+      return { key: name, kind: name };
+    });
+  };
+  return { before: named('before'), after: named('after') };
+}
+
+// page: { questions: [{ position, prompt, required?, question? }], around? } in any order; the steps follow position order.
+// `question` is the rest of the form owner's question descriptor (questionId, questionTypeId, options, multiple, other, help,
+// about...). `around` names the steps before and after the questions (BOOKING_AROUND when it is not stated).
 export function stepsOf(page) {
   if (!page || !Array.isArray(page.questions)) throw new Error('A booking page states its questions as an array.');
   const positions = new Set();
@@ -44,7 +70,8 @@ export function stepsOf(page) {
     if (ids.has(step.question.questionId)) throw new Error(`Question id ${step.question.questionId} is stated more than once.`);
     ids.add(step.question.questionId);
   }
-  return [{ key: EMAIL_STEP, kind: 'email' }, ...questions, { key: SLOT_STEP, kind: 'slot' }, { key: CONFIRM_STEP, kind: 'confirm' }];
+  const { before, after } = aroundOf(page);
+  return [...before, ...questions, ...after];
 }
 
 function answered(step, answer) {
@@ -57,19 +84,25 @@ function answersById(steps, answers) {
   return Object.fromEntries(steps.filter(step => step.kind === 'question' && answers[step.position] !== undefined).map(step => [step.question.questionId, answers[step.position]]));
 }
 
-// progress: { email: string | null, answers: { [position]: value }, slot: string | null }. An optional question is done once it
-// has an answer, even an empty one; a required one once its answer passes its check. A question asked only when its rules hold
-// (the form owner's showWhen and hideWhen, read by the formula engine over the answers so far) is passed by while they do not.
+// A step around the questions holds its value in the progress under its own name (progress.email, progress.slot).
+const heldOf = (progress, step) => progress?.[step.key];
+
+// progress: { answers: { [position]: value }, email?, slot?, ... }. An optional question is done once it has an answer, even an
+// empty one; a required one once its answer passes its check. A question asked only when its rules hold (the form owner's
+// showWhen and hideWhen, read by the formula engine over the answers so far) is passed by while they do not. A step around the
+// questions waits until the progress holds its value; one whose value the progress never holds (confirm, result) is where the
+// page stops.
 export function nextStepOf(page, progress) {
   const steps = stepsOf(page);
   const answers = progress?.answers ?? {};
   const byId = answersById(steps, answers);
   for (const step of steps) {
-    if (step.key === EMAIL_STEP && !progress?.email) return step;
-    if (step.kind === 'question' && !isAsked(step.question, byId, holds)) continue;
-    if (step.kind === 'question' && !answered(step, answers[step.position])) return step;
-    if (step.key === SLOT_STEP && !progress?.slot) return step;
-    if (step.key === CONFIRM_STEP) return step;
+    if (step.kind === 'question') {
+      if (!isAsked(step.question, byId, holds)) continue;
+      if (!answered(step, answers[step.position])) return step;
+      continue;
+    }
+    if (!heldOf(progress, step)) return step;
   }
   return null;
 }
@@ -88,9 +121,7 @@ export function lastStepReachedOf(page, progress) {
   const steps = stepsOf(page);
   let reached = null;
   for (const step of steps) {
-    if (step.key === EMAIL_STEP && progress?.email) reached = step.key;
-    if (step.kind === 'question' && progress?.answers?.[step.position] !== undefined) reached = step.key;
-    if (step.key === SLOT_STEP && progress?.slot) reached = step.key;
+    if (step.kind === 'question' ? progress?.answers?.[step.position] !== undefined : Boolean(heldOf(progress, step))) reached = step.key;
   }
   return reached;
 }

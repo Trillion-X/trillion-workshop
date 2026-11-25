@@ -1,7 +1,7 @@
 // The one-question-at-a-time path: step order, the next step, the drop-off step and each answer's refusals.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { stepsOf, nextStepOf, lastStepReachedOf, checkAnswer, askedStep, EMAIL_STEP, SLOT_STEP, CONFIRM_STEP } from '../read-data/booking-steps.mjs';
+import { stepsOf, nextStepOf, lastStepReachedOf, checkAnswer, askedStep, EMAIL_STEP, SLOT_STEP, CONFIRM_STEP, BOOKING_AROUND } from '../read-data/booking-steps.mjs';
 
 const PAGE = {
   questions: [
@@ -139,4 +139,36 @@ test('a question asked only when its rules hold is passed by while they do not, 
   assert.equal(at({ 0: { picked: ['me'] }, 2: 'Win more' }), SLOT_STEP);
   assert.equal(at({ 0: { picked: ['child'] } }), 'question:1', 'the parent question is asked for a parent');
   assert.equal(at({ 0: { picked: ['child'] }, 1: 41 }), SLOT_STEP, 'the player goal is hidden for a parent');
+});
+
+test('a page states the steps around its questions: asked first and kept later, it stops at its own step after the last question', () => {
+  const page = { ...PAGE, around: { before: [], after: ['result'] } };
+  assert.deepEqual(stepsOf(page).map(step => step.key), ['question:0', 'question:1', 'question:2', 'result']);
+  assert.equal(nextStepOf(page, { answers: {} }).key, 'question:0');
+  assert.equal(nextStepOf(page, { answers: { 0: 'x', 1: 'y', 2: '' } }).key, 'result');
+  assert.equal(nextStepOf(page, { answers: { 0: 'x', 1: 'y', 2: '' }, email: 'a@example.com' }).key, 'result');
+  assert.equal(lastStepReachedOf(page, { answers: { 0: 'x' } }), 'question:0');
+});
+
+test('a page with no around asks what a booking asks; a page may ask nothing around its questions', () => {
+  assert.deepEqual(stepsOf({ ...PAGE, around: BOOKING_AROUND }).map(step => step.key), stepsOf(PAGE).map(step => step.key));
+  const bare = { ...PAGE, around: { before: [], after: [] } };
+  assert.deepEqual(stepsOf(bare).map(step => step.key), ['question:0', 'question:1', 'question:2']);
+  assert.equal(nextStepOf(bare, { answers: { 0: 'x', 1: 'y', 2: '' } }), null);
+});
+
+test('a step before the questions that the progress holds is passed; one it lacks is waited at', () => {
+  const page = { ...PAGE, around: { before: ['email', 'name'], after: ['result'] } };
+  assert.equal(nextStepOf(page, { answers: {} }).key, 'email');
+  assert.equal(nextStepOf(page, { answers: {}, email: 'a@example.com' }).key, 'name');
+  assert.equal(nextStepOf(page, { answers: {}, email: 'a@example.com', name: 'Ann' }).key, 'question:0');
+  assert.equal(lastStepReachedOf(page, { answers: {}, email: 'a@example.com', name: 'Ann' }), 'name');
+});
+
+test('the steps around are refused when they are not lists of names, repeat a name or are not { before, after }', () => {
+  assert.throws(() => stepsOf({ ...PAGE, around: [] }), /before, after/);
+  assert.throws(() => stepsOf({ ...PAGE, around: { before: 'email' } }), /list of step names/);
+  assert.throws(() => stepsOf({ ...PAGE, around: { before: ['email'], after: ['email'] } }), /more than once/);
+  assert.throws(() => stepsOf({ ...PAGE, around: { after: ['Result Page'] } }), /lowercase/);
+  assert.throws(() => stepsOf({ ...PAGE, around: { after: [''] } }), /lowercase/);
 });
