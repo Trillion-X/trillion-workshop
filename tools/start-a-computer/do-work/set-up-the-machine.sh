@@ -100,11 +100,20 @@ printf '%s' "$RUNS" | jq -r '[.units[] | .node_bin // empty] | unique[]' | while
   tar -xzf "$download" -C "$(dirname "$bin")" --strip-components=1
   rm -f "$download"
 done
-printf '%s' "$RUNS" | jq -r '.units[] | [.user, (.state // ""), (.builds // ""), (.key_file // "")] | @tsv' | while IFS="$(printf '\t')" read -r user state builds key; do
+printf '%s' "$RUNS" | jq -r '.units[] | [.user, (.uid // "-" | tostring), (.state // ""), (.builds // ""), (.key_file // "")] | @tsv' | while IFS="$(printf '\t')" read -r user uid state builds key; do
+  # A tab is a space to `read`, so an empty field would shift the ones after it: the uid comes before them, "-" when absent.
+  [ "$uid" != - ] || uid=""
+  # A unit that names `uid` runs as that user id, made with it and checked on every set-up, because something else on the
+  # computer names the unit by its id (an engine's socket rows admit a peer by its OS user id, the kernel's peer credentials).
+  # An account that already has another id is refused, never changed: a file or row that names the old id would follow it.
+  case "$uid" in ''|*[!0-9]*) [ -z "$uid" ] || { echo "Unit user $user names uid $uid, which is not a number." >&2; exit 2; } ;; esac
+  if [ -n "$uid" ] && id -u "$user" >/dev/null 2>&1 && [ "$(id -u "$user")" != "$uid" ]; then
+    echo "Unit user $user has uid $(id -u "$user") on this computer, not the row's $uid: the account is left as it is." >&2; exit 2
+  fi
   # A unit that runs as an account the machine already has (root, say) and names no state of its own needs nothing made here.
   if [ -z "$state" ] && id -u "$user" >/dev/null 2>&1; then continue; fi
   [ -n "$state" ] || { echo "Unit user $user needs state in the computer row." >&2; exit 2; }
-  id -u "$user" >/dev/null 2>&1 || useradd --system --home-dir "$state" --create-home --shell /usr/sbin/nologin "$user"
+  id -u "$user" >/dev/null 2>&1 || useradd --system ${uid:+--uid "$uid"} --home-dir "$state" --create-home --shell /usr/sbin/nologin "$user"
   install -d -o "$user" -g "$user" -m 0700 "$state"
   [ -z "$builds" ] || install -d -o "$user" -g "$user" -m 0755 "$builds"
   if [ -n "$key" ] && [ ! -s "$key" ]; then

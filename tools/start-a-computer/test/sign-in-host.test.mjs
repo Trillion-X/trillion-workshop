@@ -99,6 +99,26 @@ test('set-up refuses a node download whose sha256 is not the one the set-up data
   assert.match(none.stderr, /no node release for riscv64/);
 });
 
+test('a unit that names uid is made with that user id, and an account that already has another id is refused, not changed', () => {
+  const { tarball, sha256 } = fakeNodeTarball();
+  const data = { packages: ['git'], node: { version: 'v24.0.0', files: { x86_64: { url: 'https://releases.example.test/node-x64.tar.gz', sha256 } } } };
+  const machine = standInMachine({ tarball });
+  const ran = setUp(machine, { units: [signInUnit(machine.root, { uid: 1104 })] }, data);
+  assert.equal(ran.status, 0, ran.stderr);
+  assert.match(readFileSync(machine.log, 'utf8'), /^useradd --system --uid 1104 --home-dir \S+\/var\/lib\/example-sign-in /m);
+  // The same account already made with another id: set-up refuses before it makes anything.
+  const other = standInMachine({ tarball });
+  writeFileSync(join(other.bin, 'id'), '#!/bin/sh\necho 997\n');
+  chmodSync(join(other.bin, 'id'), 0o755);
+  const refused = setUp(other, { units: [signInUnit(other.root, { uid: 1104 })] }, data);
+  assert.equal(refused.status, 2);
+  assert.match(refused.stderr, /has uid 997 on this computer, not the row's 1104/);
+  assert.doesNotMatch(readFileSync(other.log, 'utf8'), /^useradd /m);
+  const bad = setUp(standInMachine({ tarball }), { units: [signInUnit(machine.root, { uid: 'root' })] }, data);
+  assert.equal(bad.status, 2);
+  assert.match(bad.stderr, /names uid root, which is not a number/);
+});
+
 // A computer whose sealed credentials and files are kept in `live`; `commands` records every command and what reached its stdin.
 const computer = (live, { accounts = true } = {}) => {
   const commands = [];
