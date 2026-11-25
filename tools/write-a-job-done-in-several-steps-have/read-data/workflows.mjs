@@ -53,6 +53,7 @@ import interruptions from '../../workflow-interruptions/src/workflow-interruptio
 import { actorPolicyProblems, actorAdmissionProblems, submittedActorEvidence } from '../../require-that-a-workflow-steps-ai-answer-comes/src/workflow-actor-policy.mjs';
 import { authoringNotes } from '../../shared-code/src/workflow-authoring-guidance.mjs';
 import { compareToPin, pinProblems, pinnedRecipe, runsKeepWords, stepVersionsOf, upgradeNeeded, upgradedRecipe, withoutPins } from '../../shared-code/src/workflow-step-versions.mjs';
+import { droppedPipeProblems } from '../../workflows/read-data/kept-piped-values.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
@@ -165,6 +166,7 @@ function definitionProblems(definition) {
   for (const step of definition.steps.filter(step => step?.kind === 'ask')) problems.push(...actorPolicyProblems(step.config?.context?.actor_policy, {
     name: `definition.steps.${step.id}.config.context`, step_id: step.id, asks: actorAsks, prior: id => id !== step.id && actorAsks.has(id) && precedes(id, step.id),
   }));
+  problems.push(...droppedPipeProblems(definition));
   return problems;
 }
 

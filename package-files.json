@@ -31534,6 +31534,13 @@
     "built-stored-bytes/formula-engine/formula_engine_bg.wasm"
    ],
    "at": "/opt/formula-engine"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/kept-piped-values.mjs"
+   ],
+   "at": "/opt/workflows"
   }
  ],
  "tool:measure-speech-in-my-recordings": [],
@@ -50917,7 +50924,8 @@
     "read-data/public-recipes.mjs",
     "read-data/recipe-rows.mjs",
     "recipe-check-kinds.json",
-    "recipes"
+    "recipes",
+    "read-data/kept-piped-values.mjs"
    ],
    "at": "/opt/workflows"
   },
@@ -62095,7 +62103,8 @@
     "read-data/wake-problems.mjs",
     "recipe-check-kinds.json",
     "host-tools.json",
-    "recipe-wake-causes.json"
+    "recipe-wake-causes.json",
+    "read-data/kept-piped-values.mjs"
    ],
    "at": "/opt/workflows"
   },

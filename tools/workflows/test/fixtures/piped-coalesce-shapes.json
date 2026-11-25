@@ -1,0 +1,2095 @@
+{
+ "_what": "One real binding of every shape of `select | op:core.coalesce` in one pursuit's workflow_recipes on Nov 24 2026 (284 rows, 2,742 such bindings; `uses` is how many bindings had that shape), and the 5 bindings that dropped their run's own input, as their rows held them before that day's fix. tools/workflows/test/kept-piped-values.test.mjs reads it.",
+ "kept": [
+  {
+   "recipe": "workflow:a-paying-student-gets-in",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": ""
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "period",
+          "path": "output.current_period_end"
+         }
+        },
+        ""
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  },
+  {
+   "recipe": "workflow:a-paying-student-gets-in",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": false
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "voice",
+          "path": "output.voice.rows.0.passed"
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  },
+  {
+   "recipe": "workflow:act-on-my-notice",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": null
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "id"
+         }
+        },
+        ""
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 7
+  },
+  {
+   "recipe": "workflow:admit-an-audience-question-to-private-drafts",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": null
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "store.credential_name"
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 180
+  },
+  {
+   "recipe": "workflow:admit-an-audience-question-to-private-drafts",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": null
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "store.database"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "database"
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 525
+  },
+  {
+   "recipe": "workflow:admit-an-audience-question-to-private-drafts",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": null
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "look",
+          "path": "output"
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 305
+  },
+  {
+   "recipe": "workflow:admit-an-audience-question-to-private-drafts",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": 0
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "prove#again",
+          "path": "output"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "prove",
+          "path": "output"
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 608
+  },
+  {
+   "recipe": "workflow:answer-a-question-before-it-reaches-the-person",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": 0
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "question"
+         }
+        },
+        null
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 138
+  },
+  {
+   "recipe": "workflow:answer-a-question-before-it-reaches-the-person",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": 0
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "read-the-rulings",
+          "path": "output.read"
+         }
+        },
+        null
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 420
+  },
+  {
+   "recipe": "workflow:answer-a-question-before-it-reaches-the-person",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "input",
+     "path": "store.credential_name"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "store.credential_name"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "store.credential_name"
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 6
+  },
+  {
+   "recipe": "workflow:answer-a-question-before-it-reaches-the-person",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "input",
+     "path": "dry_run"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "dry_run"
+         }
+        },
+        false
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 10
+  },
+  {
+   "recipe": "workflow:answer-a-question-before-it-reaches-the-person",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "input",
+     "path": "notices_store.credential_name"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "notices_store.credential_name"
+         }
+        },
+        "own-rows-postgres-mac-ai-connection"
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 39
+  },
+  {
+   "recipe": "workflow:answer-comments-and-messages",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": null
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "literal",
+          "value": null
+         },
+         "transform": [
+          {
+           "args": {
+            "values": [
+             {
+              "$kind": "binding",
+              "select": {
+               "from": "input",
+               "path": "store.credential_name"
+              }
+             },
+             {
+              "$kind": "binding",
+              "select": {
+               "from": "input",
+               "path": "business.credential_name"
+              }
+             }
+            ]
+           },
+           "op": "op:core.coalesce"
+          }
+         ]
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 33
+  },
+  {
+   "recipe": "workflow:bring-in-my-processes",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "vars",
+     "key": "$item"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "vars",
+          "key": "$item",
+          "path": "tolerated_error.item"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "vars",
+          "key": "$item",
+          "path": "id"
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 220
+  },
+  {
+   "recipe": "workflow:check-an-answer-against-its-steps-lessons",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": null
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "judge#parse",
+          "path": "output.findings"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "literal",
+          "value": []
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 7
+  },
+  {
+   "recipe": "workflow:co-write-and-publish-with-others",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": null
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "channel"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "literal",
+          "value": "web"
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 16
+  },
+  {
+   "recipe": "workflow:compare-writing-methods-on-real-prospects",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "input",
+     "path": "rules_scopes"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "rules_scopes"
+         }
+        },
+        null
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 36
+  },
+  {
+   "recipe": "workflow:compare-writing-methods-on-real-prospects",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "steps",
+     "key": "read-rules",
+     "path": "output.rows.0.rules"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "read-rules",
+          "path": "output.rows.0.rules"
+         }
+        },
+        ""
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 13
+  },
+  {
+   "recipe": "workflow:compare-writing-methods-on-real-prospects",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "steps",
+     "key": "judge",
+     "path": "output"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "judge",
+          "path": "output"
+         }
+        },
+        null
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 92
+  },
+  {
+   "recipe": "workflow:get-found-in-search-and-answer-engines",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": 0
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "place-each-fix#again",
+          "path": "output"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "place-each-fix",
+          "path": "output"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "place-each-fix#parse",
+          "path": "output"
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 8
+  },
+  {
+   "recipe": "workflow:know-a-person-before-asking-about-them",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "input",
+     "path": "treg_max_cost_usd"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "treg_max_cost_usd"
+         }
+        },
+        0.01
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 2
+  },
+  {
+   "recipe": "workflow:know-a-person-before-asking-about-them",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "steps",
+     "key": "judge-identity",
+     "path": "output.rows.0.facts"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "judge-identity",
+          "path": "output.rows.0.facts"
+         }
+        },
+        []
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 2
+  },
+  {
+   "recipe": "workflow:know-a-person-before-asking-about-them",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "steps",
+     "key": "treg-call",
+     "path": "output.output"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "treg-call",
+          "path": "output.output"
+         }
+        },
+        {}
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  },
+  {
+   "recipe": "workflow:know-a-person-before-asking-about-them",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "input",
+     "path": "identifiers"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "identifiers"
+         }
+        },
+        []
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 2
+  },
+  {
+   "recipe": "workflow:make-a-carousel-and-post-it-on-instagram",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": 0
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "format": {
+          "$kind": "binding",
+          "select": {
+           "from": "steps",
+           "key": "judge",
+           "path": "output"
+          }
+         },
+         "voice": {
+          "$kind": "binding",
+          "select": {
+           "from": "steps",
+           "key": "voice",
+           "path": "output"
+          }
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 2
+  },
+  {
+   "recipe": "workflow:make-short-videos-from-footage",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": 0
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "footage.folder"
+         }
+        },
+        "/"
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 3
+  },
+  {
+   "recipe": "workflow:make-short-videos-from-footage",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": null
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "list-footage",
+          "path": "output.rows"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "list-footage",
+          "path": "output.rows"
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  },
+  {
+   "recipe": "workflow:make-short-videos-from-footage",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": 0
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "hear-the-recording",
+          "path": "output.segments"
+         }
+        },
+        []
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  },
+  {
+   "recipe": "workflow:put-words-in-the-owners-voice-and-judge-them",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": 0
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "store.credential_name"
+         }
+        },
+        {
+         "$kind": "binding",
+         "resolve_nested_bindings": true,
+         "select": {
+          "from": "input",
+          "path": "kept_in.database"
+         },
+         "transform": [
+          {
+           "args": {
+            "values": [
+             {
+              "$kind": "binding",
+              "select": {
+               "from": "input",
+               "path": "kept_in.database"
+              }
+             },
+             "-connection"
+            ]
+           },
+           "op": "op:core.concat"
+          }
+         ]
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  },
+  {
+   "recipe": "workflow:put-words-in-the-owners-voice-and-judge-them",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": 0
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "store.credential_name"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "kept_in.database"
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 6
+  },
+  {
+   "recipe": "workflow:put-words-in-the-owners-voice-and-judge-them",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": 0
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "v2-shape",
+          "path": "output"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "rewrite#model",
+          "path": "output.choices.0.message.content"
+         },
+         "transform": [
+          {
+           "args": {
+            "pattern": "(?s)\\{.*\\}"
+           },
+           "op": "op:core.regex_extract"
+          },
+          {
+           "op": "op:core.first"
+          },
+          {
+           "op": "op:core.json_parse"
+          }
+         ]
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 2
+  },
+  {
+   "recipe": "workflow:put-words-in-the-owners-voice-and-judge-them",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "vars",
+     "key": "$pattern"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "take": "all",
+         "transform": [
+          {
+           "args": {
+            "item_var": "$text",
+            "template": {
+             "$kind": "binding",
+             "select": {
+              "from": "vars",
+              "key": "$text"
+             },
+             "transform": [
+              {
+               "op": "op:core.to_string"
+              }
+             ]
+            }
+           },
+           "op": "op:core.map_to_nodes"
+          },
+          {
+           "args": {
+            "delimiter": "\n"
+           },
+           "op": "op:core.join"
+          }
+         ],
+         "values": [
+          [
+           "input",
+           "piece",
+           "pages"
+          ],
+          [
+           "input",
+           "piece",
+           "caption"
+          ]
+         ]
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 4
+  },
+  {
+   "recipe": "workflow:put-words-in-the-owners-voice-and-judge-them",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": 0
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "loop",
+          "path": "last_output.caption"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "loop",
+          "path": "last_output.rows.0.caption"
+         }
+        },
+        {
+         "$kind": "binding",
+         "resolve_nested_bindings": true,
+         "select": {
+          "from": "literal",
+          "value": 0
+         },
+         "transform": [
+          {
+           "args": {
+            "values": [
+             {
+              "$kind": "binding",
+              "select": {
+               "from": "steps",
+               "key": "refit",
+               "path": "output.rows.0.caption"
+              }
+             },
+             {
+              "$kind": "binding",
+              "select": {
+               "from": "steps",
+               "key": "fit-the-channel",
+               "path": "output.rows.0.caption"
+              }
+             }
+            ]
+           },
+           "op": "op:core.coalesce"
+          }
+         ]
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 2
+  },
+  {
+   "recipe": "workflow:put-words-in-the-owners-voice-and-judge-them",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": 0
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "lp-apply",
+          "path": "output.rows.0.pages"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "pages"
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 2
+  },
+  {
+   "recipe": "workflow:reach-local-businesses-by-zip-code",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "input",
+     "path": "count"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "count"
+         }
+        },
+        10
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 4
+  },
+  {
+   "recipe": "workflow:reach-local-businesses-by-zip-code",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "steps",
+     "key": "search",
+     "path": "output"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "search",
+          "path": "output.rows"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "search",
+          "path": "output.output.places"
+         }
+        },
+        []
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  },
+  {
+   "recipe": "workflow:reach-local-businesses-by-zip-code",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "vars",
+     "key": "$item",
+     "path": "rating"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "vars",
+          "key": "$item",
+          "path": "rating"
+         }
+        },
+        0
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  },
+  {
+   "recipe": "workflow:reach-local-businesses-by-zip-code",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "vars",
+     "key": "$item",
+     "path": "review_count"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "vars",
+          "key": "$item",
+          "path": "review_count"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "vars",
+          "key": "$item",
+          "path": "reviews"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "vars",
+          "key": "$item",
+          "path": "reviews_count"
+         }
+        },
+        0
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  },
+  {
+   "recipe": "workflow:reach-local-businesses-by-zip-code",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "vars",
+     "key": "$item",
+     "path": "business_status"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "vars",
+          "key": "$item",
+          "path": "business_status"
+         }
+        },
+        "operational"
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  },
+  {
+   "recipe": "workflow:reach-local-businesses-by-zip-code",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": 0
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "email",
+          "path": "output.body"
+         }
+        },
+        {
+         "$kind": "binding",
+         "resolve_nested_bindings": true,
+         "select": {
+          "from": "literal",
+          "value": 0
+         },
+         "transform": [
+          {
+           "args": {
+            "values": [
+             "I saw \u201c",
+             {
+              "$kind": "binding",
+              "select": {
+               "from": "steps",
+               "key": "email",
+               "path": "output.detail"
+              }
+             },
+             "\u201d on your site. ",
+             {
+              "$kind": "binding",
+              "select": {
+               "from": "steps",
+               "key": "email",
+               "path": "output.reaction"
+              }
+             },
+             "\n\n",
+             {
+              "$kind": "binding",
+              "select": {
+               "from": "steps",
+               "key": "email",
+               "path": "output.offer_line"
+              }
+             },
+             "\n\n",
+             {
+              "$kind": "binding",
+              "select": {
+               "from": "steps",
+               "key": "email",
+               "path": "output.question"
+              }
+             }
+            ]
+           },
+           "op": "op:core.concat"
+          }
+         ]
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  },
+  {
+   "recipe": "workflow:read-glance-feeds",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": null
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "loop",
+          "path": "feed.credential_name"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "store.credential_name"
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  },
+  {
+   "recipe": "workflow:read-glance-feeds",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": null
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "limit"
+         }
+        },
+        50
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  },
+  {
+   "recipe": "workflow:read-glance-feeds",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": null
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "loop",
+          "path": "feed.sql"
+         }
+        },
+        "SELECT NULL::text AS row_id WHERE false LIMIT $1::int"
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  },
+  {
+   "recipe": "workflow:release-a-mac-app-with-apples-own-tools",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "input",
+     "path": "signing_keychain"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "self"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "literal",
+          "value": ""
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 11
+  },
+  {
+   "recipe": "workflow:release-a-mac-app-with-apples-own-tools",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "steps",
+     "key": "build-again",
+     "path": "output.log"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "self"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "build",
+          "path": "output.log"
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 3
+  },
+  {
+   "recipe": "workflow:release-a-mac-app-with-apples-own-tools",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "steps",
+     "key": "probe-the-update-key-again",
+     "path": "output.public_key"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "self"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "probe-the-update-key",
+          "path": "output.public_key"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "literal",
+          "value": ""
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  },
+  {
+   "recipe": "workflow:release-a-mac-app-with-apples-own-tools",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "input",
+     "path": "publish_to"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "self"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "approve-where-to-publish",
+          "path": "output.destination"
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  },
+  {
+   "recipe": "workflow:route-each-row-change-from-rows",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": []
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "own.over_installed"
+         }
+        },
+        []
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  },
+  {
+   "recipe": "workflow:run-statements-in-order",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": null
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "loop",
+          "path": "statement.params"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "literal",
+          "value": []
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 2
+  },
+  {
+   "recipe": "workflow:run-statements-in-order",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": null
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "loop",
+          "path": "statement.name"
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  },
+  {
+   "recipe": "workflow:set-up-from-a-saved-list",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "input",
+     "path": "secret_shapes"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "secret_shapes"
+         },
+         "transform": [
+          {
+           "op": "op:core.array_length"
+          }
+         ]
+        },
+        0
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  },
+  {
+   "recipe": "workflow:stand-up-a-client-pursuits-offer-pages-and-first-lessons",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": 0
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "judge-the-lessons",
+          "path": "output.voice.rows.0.passed"
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  },
+  {
+   "recipe": "workflow:tell-the-owner-what-changed-for-each-person",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": 0
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "literal",
+          "value": 0
+         },
+         "transform": [
+          {
+           "args": {
+            "values": [
+             {
+              "$kind": "binding",
+              "select": {
+               "from": "steps",
+               "key": "voice-the-draft",
+               "path": "output.voice.rows.0.score"
+              }
+             },
+             {
+              "$kind": "binding",
+              "select": {
+               "from": "steps",
+               "key": "no-voice-score",
+               "path": "output.rows.0.lowest"
+              }
+             },
+             "not scored: the voice judge refused the draft or did not answer"
+            ]
+           },
+           "op": "op:core.coalesce"
+          },
+          {
+           "op": "op:core.to_string"
+          }
+         ]
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "no-voice-score",
+          "path": "output.said"
+         }
+        },
+        "not scored, reason: the SQL voice judge did not answer (its run says why)"
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 2
+  },
+  {
+   "recipe": "workflow:tell-the-owner-what-changed-for-each-person",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": 0
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "voice-the-draft",
+          "path": "output.voice.rows.0.score"
+         }
+        },
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "steps",
+          "key": "no-voice-score",
+          "path": "output.rows.0.lowest"
+         }
+        },
+        "not scored: the voice judge refused the draft or did not answer"
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 4
+  },
+  {
+   "recipe": "workflow:keep-chat-exports-as-a-pursuits-passages",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "literal",
+     "value": 0
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "input",
+          "path": "most_spans"
+         }
+        },
+        600
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   },
+   "uses": 1
+  }
+ ],
+ "dropped": [
+  {
+   "recipe": "workflow:bring-a-shared-checkout-back-to-main",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "input",
+     "path": "land_with"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "literal",
+          "value": "the repository's own landing road"
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   }
+  },
+  {
+   "recipe": "workflow:find-who-is-in-a-clip",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "input",
+     "path": "purpose"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "literal",
+          "value": "publish/social/instagram"
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   }
+  },
+  {
+   "recipe": "workflow:find-who-is-in-a-clip",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "input",
+     "path": "surface"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "literal",
+          "value": "social/instagram"
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   }
+  },
+  {
+   "recipe": "workflow:place-each-allowed-clip-where-the-site-reads-it",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "input",
+     "path": "stills"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "literal",
+          "value": {}
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   }
+  },
+  {
+   "recipe": "workflow:place-each-allowed-clip-where-the-site-reads-it",
+   "binding": {
+    "$kind": "binding",
+    "select": {
+     "from": "input",
+     "path": "extra"
+    },
+    "transform": [
+     {
+      "args": {
+       "values": [
+        {
+         "$kind": "binding",
+         "select": {
+          "from": "literal",
+          "value": {}
+         }
+        }
+       ]
+      },
+      "op": "op:core.coalesce"
+     }
+    ]
+   }
+  }
+ ]
+}

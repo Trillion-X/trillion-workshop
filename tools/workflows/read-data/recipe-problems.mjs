@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import { wakeProblems, WAKE_VOCABULARY } from './wake-problems.mjs';
 import { conditionProblems, FIRES_WHEN } from './fires-when.mjs';
 import { CHECK_VOCABULARY, checkProblems } from './check-bindings.mjs';
+import { droppedPipeProblems } from './kept-piped-values.mjs';
 
 export { CHECK_VOCABULARY };
 
@@ -274,6 +275,7 @@ function definitionProblems(definition, vocabulary) {
   for (const step of definition.steps.filter(step => step?.kind === 'ask')) problems.push(...actorPolicyProblems(step.config?.context?.actor_policy, {
     name: `definition.steps.${step.id}.config.context`, step_id: step.id, asks: actorAsks, prior: id => id !== step.id && actorAsks.has(id) && precedes(id, step.id),
   }));
+  problems.push(...droppedPipeProblems(definition));
   return problems;
 }
 
