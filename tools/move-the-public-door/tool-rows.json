@@ -1110,7 +1110,7 @@
           "stdout": "json",
           "argv": ["node", "/opt/workflows/do-work/run-a-function.mjs", "/opt/move-the-public-door/do-work/door-tools.mjs", "cutAHostnameOver"],
           "stdin": { "fill": { "from": "input" } },
-          "credential_mounts": [{ "secret_name_from_input": "dns.vault_key", "env": "DNS_API_TOKEN" }]
+          "credential_mounts": [{ "secret_name_from_input": "dns.vault_key", "env": "DNS_API_TOKEN", "only_when": { "input": "dns.vault_key", "present": true } }]
         },
         "result_selector": "$.result",
         "verify": [{
