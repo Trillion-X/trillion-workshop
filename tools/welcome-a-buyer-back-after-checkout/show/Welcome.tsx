@@ -7,8 +7,10 @@
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Rendering is pure: nothing is fetched and no window is read while it renders; the server draws the state `none`. After
-//      it is mounted, an effect reads `?checkout=` from the address and, when one is named, asks
-//      `<status_path>?checkout=<id>` (answering { state }); a failed or unreadable answer is the state `waiting`.
+//      it is mounted, an effect reads `?checkout=` from the address and, when one is named and is shaped as a Stripe checkout
+//      id, asks `<status_path>?checkout=<id>` (answering { payment_status, status }, the checkout's own words). `checkoutState`
+//      turns the answer into a state: `paid` when the checkout is complete and paid (or needs no payment), `waiting` for any other
+//      answer, `none` when the id is not shaped as a checkout id or the read failed.
 //   2. Every word is a state of `states`; a state the rows do not hold falls back to `none`, and a page with no `none` state
 //      draws nothing.
 //   3. Props are plain JSON: `states`, `status_path`.
@@ -19,6 +21,7 @@
 import React, { useEffect, useState } from 'react';
 import { CtaBlock, SectionShell, StatementText, Text, TextColumn } from '../../ui/show/marketing-page/MarketingPagePrimitives.tsx';
 import type { WelcomeState } from '../reads/read-the-welcome-page.ts';
+import { CHECKOUT_ID, checkoutState } from './checkout-state.ts';
 
 export type WelcomeProps = {
   states: Record<string, WelcomeState>;
@@ -29,11 +32,11 @@ export function View({ states, status_path = '/target/checkout-status' }: Welcom
   const [state, setState] = useState('none');
   useEffect(() => {
     const checkout = new URLSearchParams(window.location.search).get('checkout') ?? '';
-    if (checkout === '') return;
+    if (!CHECKOUT_ID.test(checkout)) return;
     void fetch(`${status_path}?checkout=${encodeURIComponent(checkout)}`)
-      .then(response => (response.ok ? response.json() : { state: 'waiting' }))
-      .catch(() => ({ state: 'waiting' }))
-      .then((answer: { state?: unknown }) => setState(typeof answer.state === 'string' ? answer.state : 'waiting'));
+      .then(response => (response.ok ? response.json() : null))
+      .catch(() => null)
+      .then(answer => setState(checkoutState(answer)));
   }, [status_path]);
   const section = states[state] ?? states.none;
   if (!section) return null;
