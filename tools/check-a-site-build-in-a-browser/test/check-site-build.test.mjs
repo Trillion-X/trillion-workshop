@@ -10,6 +10,7 @@ import test from 'node:test';
 import { promisify } from 'node:util';
 import { chromiumExecutable } from '../../../test-helpers/chromium.mjs';
 import { argumentsOfRequest, checkSiteBuild, defaultOut, defaultSettings, pictureName, refusalSummary } from '../do-work/check-site-build.mjs';
+import { judge } from '../do-work/judge.mjs';
 import { pageKinds } from '../do-work/page-kinds.mjs';
 import { serveBuild } from '../do-work/serve-build.mjs';
 
@@ -368,4 +369,41 @@ test('a blank page is refused where the live page shows text, even when the live
   const { result } = await candidateRun({ ...liveRoutes, '/sign-in': { body: '' } }, { options: { paths: ['/sign-in'] } });
   assert.equal(byKind(result, '/sign-in').refused, true);
   assert.equal(byKind(result, '/sign-in').height_to_live >= 0.5, true);
+});
+
+// The Nov 25 2026 home drawn from rows beside the live home: the same height class, a sans reading font and no new error, so
+// the first rules passed it, but a third of live's pictures and controls, under two thirds of its videos and none of its form
+// fields (measured in Chromium at 1440 x 900, 3:5x AM CST).
+const ROWS_HOME = { height: 4709, font: '"SF Pro Text", system-ui', text: 6000, path: '/', errors: [], parts: { pictures: 3, videos: 18, controls: 7, fields: 0 } };
+const LIVE_HOME = { height: 5743, font: '"SF Pro Text", system-ui', text: 7000, path: '/', errors: [], parts: { pictures: 9, videos: 31, controls: 19, fields: 3 } };
+
+test('the Nov 25 home from rows is refused for having too few of live\'s pictures, videos, controls and form fields', () => {
+  const row = judge({ kind: '/', url: 'http://candidate/', liveUrl: 'https://live/', built: ROWS_HOME, live: LIVE_HOME, shots: {}, settings: defaultSettings() });
+  assert.equal(row.refused, true);
+  assert.deepEqual(row.fewer_parts, ['pictures', 'videos', 'controls', 'fields']);
+  assert.equal(row.why.length, 4, 'height, font and errors pass: only the parts refuse it');
+  assert.match(row.why[0], /it shows 3 pictures where the live page shows 9/);
+  assert.match(refusalSummary([row], defaultSettings()).join('\n'), /3\/9 pictures; 18\/31 videos; 7\/19 controls; 0\/3 fields/);
+  const same = judge({ kind: '/', url: 'http://candidate/', liveUrl: 'https://live/', built: { ...ROWS_HOME, parts: { pictures: 9, videos: 30, controls: 17, fields: 3 } }, live: LIVE_HOME, shots: {}, settings: defaultSettings() });
+  assert.equal(same.refused, false, 'within 80% of every kind passes');
+  const few = judge({ kind: '/', url: 'http://candidate/', liveUrl: 'https://live/', built: { ...ROWS_HOME, parts: { pictures: 0, videos: 0, controls: 0, fields: 0 } }, live: { ...LIVE_HOME, parts: { pictures: 1, videos: 0, controls: 1, fields: 1 } }, shots: {}, settings: defaultSettings() });
+  assert.equal(few.refused, false, 'a kind live shows fewer than min_live_parts of is not counted');
+});
+
+test('in Chromium, a page with live\'s words and height but not its pictures and buttons is refused; the same parts pass', async () => {
+  const dot = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
+  const withParts = (pictures, buttons) => page({ body: `<div style="height:3000px"><p style="${SANS}">The reading text of the page.</p>${`<img width="40" height="40" src="${dot}">`.repeat(pictures)}${'<button>Go</button>'.repeat(buttons)}</div>` });
+  const live = await serveBuild({ root: folder({ 'index.html': withParts(5, 4) }), settings });
+  try {
+    const out = () => mkdtempSync(join(tmpdir(), 'site-build-out-'));
+    const bare = await checkSiteBuild({ pages: folder({ 'sitemap.xml': sitemap(['/']), 'index.html': withParts(1, 1) }), live: live.origin, out: out(), settings, browser });
+    const row = byKind(bare, '/');
+    assert.equal(row.refused, true, JSON.stringify(row));
+    assert.deepEqual(row.fewer_parts, ['pictures', 'controls'], JSON.stringify({ parts: row.parts, live: row.live_parts }));
+    assert.deepEqual(row.live_parts, { pictures: 5, videos: 0, controls: 4, fields: 0 });
+    const whole = await checkSiteBuild({ pages: folder({ 'sitemap.xml': sitemap(['/']), 'index.html': withParts(5, 4) }), live: live.origin, out: out(), settings, browser });
+    assert.equal(byKind(whole, '/').refused, false, JSON.stringify(byKind(whole, '/').why));
+  } finally {
+    await live.close();
+  }
 });

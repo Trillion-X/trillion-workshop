@@ -1,5 +1,5 @@
 {
-  "_what": "What tool:check-a-site-build-in-a-browser measures and when it refuses a page. viewport is the browser window every page is opened in. navigation_timeout_ms is how long a page may take to fire its load event (waitUntil load, never network idle: streaming media keeps the network busy for ever). settle_ms is how long scripts are given to draw after load. min_height_to_live is the share of the live page's height below which a built page is refused (a blank page). reading_selector names the element whose computed font-family is the reading font (the first match on the page; body is not used: some sites compute a serif body even when the page draws correctly). serif_pattern is a regular expression a font-family list matches when its first family is a serif default. check_query is the query a page view carries so the live site can tell this traffic apart; data calls (paths under data_call_prefix) are passed to the live site with no query added and with their Referer and Origin rewritten to the live host. words.server_rendered is said for a kind under a --server-rendered prefix. max_screenshot_px caps the height of a kept picture. pictures_folder is where the pictures go when the caller names no folder: the folder named by the environment variable `under` when it is set, else `else` ('~' is the home folder), then `folder`; a folder per commit is made inside it, so a gate's evidence outlives the run. summary_line_chars caps each line of the refusal summary that ends the output, so the last few hundred characters a workflow keeps name every refused kind. candidate_error_header marks the 502 the candidate door answers when the candidate cannot be reached. words holds the sentences a refusal says, each with its {fields}. Each value is a row a person changes, never code.",
+  "_what": "What tool:check-a-site-build-in-a-browser measures and when it refuses a page. viewport is the browser window every page is opened in. navigation_timeout_ms is how long a page may take to fire its load event (waitUntil load, never network idle: streaming media keeps the network busy for ever). settle_ms is how long scripts are given to draw after load. min_height_to_live is the share of the live page's height below which a built page is refused (a blank page). reading_selector names the element whose computed font-family is the reading font (the first match on the page; body is not used: some sites compute a serif body even when the page draws correctly). serif_pattern is a regular expression a font-family list matches when its first family is a serif default. check_query is the query a page view carries so the live site can tell this traffic apart; data calls (paths under data_call_prefix) are passed to the live site with no query added and with their Referer and Origin rewritten to the live host. words.server_rendered is said for a kind under a --server-rendered prefix. max_screenshot_px caps the height of a kept picture. pictures_folder is where the pictures go when the caller names no folder: the folder named by the environment variable `under` when it is set, else `else` ('~' is the home folder), then `folder`; a folder per commit is made inside it, so a gate's evidence outlives the run. summary_line_chars caps each line of the refusal summary that ends the output, so the last few hundred characters a workflow keeps name every refused kind. candidate_error_header marks the 502 the candidate door answers when the candidate cannot be reached. words holds the sentences a refusal says, each with its {fields}. Each value is a row a person changes, never code. parts names each kind of part a person sees (a CSS selector, and ready: loaded for a picture that drew, playable for a video that can play, any); min_parts_to_live is the share of the live page's count of a kind below which a built page is refused, for each kind the live page shows at least min_live_parts of.",
   "viewport": {
     "width": 1440,
     "height": 900
@@ -7,6 +7,26 @@
   "navigation_timeout_ms": 60000,
   "settle_ms": 4000,
   "min_height_to_live": 0.5,
+  "min_parts_to_live": 0.8,
+  "min_live_parts": 2,
+  "parts": {
+    "pictures": {
+      "selector": "img",
+      "ready": "loaded"
+    },
+    "videos": {
+      "selector": "video",
+      "ready": "playable"
+    },
+    "controls": {
+      "selector": "button, [role=button], input[type=submit], input[type=button]",
+      "ready": "any"
+    },
+    "fields": {
+      "selector": "input:not([type=hidden]):not([type=submit]):not([type=button]), textarea, select",
+      "ready": "any"
+    }
+  },
   "reading_selector": "#root p",
   "serif_pattern": "^\\s*[\"']?(Times New Roman|Times|serif)[\"']?\\s*(,|$)",
   "check_query": {
@@ -42,7 +62,9 @@
     "answer_differs": "it first answers {here} here and {there} on the live site",
     "landing_differs": "the browser ends at {here} here and at {there} on the live site",
     "blank": "the built page shows no text and the live page shows {live_text} characters",
-    "summary_blank": "no text where live has text"
+    "summary_blank": "no text where live has text",
+    "fewer_parts": "it shows {count} {part} where the live page shows {live_count} (refused under {min_parts_to_live} of live's)",
+    "summary_parts": "{count}/{live_count} {part}"
   },
   "candidate_error_header": "x-site-check-candidate-unreachable"
 }

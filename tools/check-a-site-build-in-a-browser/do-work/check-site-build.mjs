@@ -239,6 +239,7 @@ export function refusalSummary(rows, settings) {
       if (row.live_height_px !== null && row.visible_text_chars < 1 && row.live_visible_text_chars >= 1) parts.push(words.summary_blank);
       if (row.new_page_errors.length) parts.push(fill(words.summary_errors, { error: row.new_page_errors[0] }));
       if (row.serif_where_live_is_not) parts.push(fill(words.summary_serif, { font: row.reading_font, live_font: row.live_reading_font ?? 'none' }));
+      for (const part of row.fewer_parts ?? []) parts.push(fill(words.summary_parts, { part, count: row.parts[part], live_count: row.live_parts[part] }));
       if (row.live_height_px === null) parts.push(...row.why);
       parts.push(...(row.also ?? []));
     }
