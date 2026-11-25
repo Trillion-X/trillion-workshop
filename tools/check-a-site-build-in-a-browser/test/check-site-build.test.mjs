@@ -60,7 +60,8 @@ test('a blank course page that throws TypeError (toUpperCase) against a tall liv
   assert.ok(row.height_to_live < 0.5);
   assert.equal(row.new_page_errors.length, 1);
   assert.match(row.new_page_errors[0], /Cannot read properties of undefined \(reading 'toUpperCase'\)/);
-  assert.equal(row.why.length, 2);
+  assert.equal(row.why.length, 3);
+  assert.match(row.why[1], /shows no text/);
   assert.equal(result.refused, 1);
 });
 
@@ -133,7 +134,7 @@ test('three refused kinds are each named in the last 600 characters a workflow k
     // The workflow host keeps the last 600 characters of standard output followed by standard error.
     const tail = `${ran.stdout}${ran.stderr}`.slice(-600);
     assert.match(tail, /REFUSED \/: serif [^\n]*Times[^\n]* where live is Arial/);
-    assert.match(tail, /REFUSED \/courses\/\*: 0\.\d+ of the live height; new page error TypeError/);
+    assert.match(tail, /REFUSED \/courses\/\*: 0\.\d+ of the live height; no text where live has text; new page error TypeError/);
     assert.match(tail, /REFUSED \/about: the build holds no file for this path/);
     assert.match(tail, /3 page kind\(s\) refused: \/, \/courses\/\*, \/about\n$/);
   } finally {
@@ -356,4 +357,15 @@ test('a candidate sitemap of many pages opens one page per kind, and a kind live
   assert.match(byKind(throws.result, '/events/*').why[0], /no live page exists and the built page threw/);
   const blank = await candidateRun({ ...routes, '/events/opening': { body: page({}) } });
   assert.match(byKind(blank.result, '/events/*').why.join(' '), /shows no text/);
+});
+
+test('a blank page is refused where the live page shows text, even when the live page is short enough to pass the height rule', async () => {
+  const { judge } = await import('../do-work/judge.mjs');
+  const row = judge({ kind: '/sign-in', url: 'a', liveUrl: 'b', built: { height: 900, font: null, text: 0, errors: [] }, live: { height: 900, font: 'Arial', text: 154, errors: [] }, shots: {}, settings });
+  assert.equal(row.refused, true);
+  assert.match(row.why[0], /shows no text and the live page shows 154 characters/);
+  assert.deepEqual(refusalSummary([row], settings), ['REFUSED /sign-in: no text where live has text', '1 page kind(s) refused: /sign-in']);
+  const { result } = await candidateRun({ ...liveRoutes, '/sign-in': { body: '' } }, { options: { paths: ['/sign-in'] } });
+  assert.equal(byKind(result, '/sign-in').refused, true);
+  assert.equal(byKind(result, '/sign-in').height_to_live >= 0.5, true);
 });

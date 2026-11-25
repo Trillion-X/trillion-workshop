@@ -40,7 +40,9 @@
     "pictures_in": "pictures in {out}",
     "candidate_unreadable": "the candidate could not be read: {error}",
     "answer_differs": "it first answers {here} here and {there} on the live site",
-    "landing_differs": "the browser ends at {here} here and at {there} on the live site"
+    "landing_differs": "the browser ends at {here} here and at {there} on the live site",
+    "blank": "the built page shows no text and the live page shows {live_text} characters",
+    "summary_blank": "no text where live has text"
   },
   "candidate_error_header": "x-site-check-candidate-unreachable"
 }

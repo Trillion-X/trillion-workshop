@@ -80,7 +80,7 @@ const underPrefix = (path, prefixes) => prefixes.some(prefix => path === prefix 
 
 /** The row of a kind the caller named as drawn by the commit's server code: neither refused nor passed here. */
 const notCheckedHere = ({ kind, url, liveUrl, settings }) => ({ kind, url, live_url: liveUrl, height_px: null, live_height_px: null, height_to_live: null,
-  new_page_errors: [], reading_font: null, live_reading_font: null, serif_where_live_is_not: false, visible_text_chars: null,
+  new_page_errors: [], reading_font: null, live_reading_font: null, serif_where_live_is_not: false, visible_text_chars: null, live_visible_text_chars: null,
   screenshots: { local: null, live: null }, refused: false, checked_here: false, why: [settings.words.server_rendered] });
 
 /** Checks every page kind of the built `pages` folder (and `app` folder when given) against the live origins. Answers { refused, not_checked_here, pages }. */
@@ -236,6 +236,7 @@ export function refusalSummary(rows, settings) {
     if (row.height_px === null) parts.push(row.why[0]);
     else {
       if (row.live_height_px !== null && row.height_px / row.live_height_px < settings.min_height_to_live) parts.push(fill(words.summary_short, { height_to_live: row.height_to_live }));
+      if (row.live_height_px !== null && row.visible_text_chars < 1 && row.live_visible_text_chars >= 1) parts.push(words.summary_blank);
       if (row.new_page_errors.length) parts.push(fill(words.summary_errors, { error: row.new_page_errors[0] }));
       if (row.serif_where_live_is_not) parts.push(fill(words.summary_serif, { font: row.reading_font, live_font: row.live_reading_font ?? 'none' }));
       if (row.live_height_px === null) parts.push(...row.why);
