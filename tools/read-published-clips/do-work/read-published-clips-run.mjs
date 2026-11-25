@@ -48,7 +48,7 @@ export async function readPublishedClips(input, { door, runQuery } = {}) {
     throw new Error('Give use: { purpose, surface }, the use the clips are shown for.');
   }
   const request = clipsRequest({ purpose: input.use.purpose, surface: input.use.surface, kind: input.kind, limit: input.limit });
-  const query = runQuery ?? (async () => (await import('/opt/run-sql-in-my-database/do-work/run-sql.mjs')).runSql({
+  const query = runQuery ?? (async () => (await import(new URL('../../run-sql-in-my-database/do-work/run-sql.mjs', import.meta.url).href)).runSql({
     connection: held(CONNECTION_DESCRIPTOR),
     ticket: held(TICKET_DESCRIPTOR),
     input: { database: input.database, sql: CLIPS_SQL, params: clipsParams(request), use: { purpose: request.purpose, surface: request.surface } },
