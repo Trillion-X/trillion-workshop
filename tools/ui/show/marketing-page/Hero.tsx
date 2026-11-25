@@ -25,6 +25,10 @@ export type HeroProps = {
   lead?: string;
   /** The words of the lead drawn solid, as the heading's are. */
   lead_highlight?: string;
+  /** The most the hero's section is wide (px, with its side padding); the narrow section's 1024 when left out. */
+  width?: number;
+  /** The space above and below the hero: `hero` when left out, `none` for a hero that sits right under the page's header. */
+  padding?: 'none' | 'compact' | 'hero';
   /** The one action: its words and where it goes. */
   cta?: { label: string; href: string };
   /** A short line under the action. */
@@ -33,10 +37,10 @@ export type HeroProps = {
 
 const LEAD = { color: 'rgba(15,23,42,.74)', fontSize: 'clamp(1.12rem,2vw,1.55rem)', fontWeight: 500, lineHeight: 1.45, margin: '18px auto 0', maxWidth: 820 } as const;
 
-export function Hero({ heading, highlight, lead, lead_highlight, cta, note }: HeroProps) {
+export function Hero({ heading, highlight, lead, lead_highlight, width, padding = 'hero', cta, note }: HeroProps) {
   const parts = lead && lead_highlight && lead.includes(lead_highlight) ? lead.split(lead_highlight) : null;
   return (
-    <SectionShell paddingY="hero" size="narrow">
+    <SectionShell paddingY={padding} size="narrow" style={width ? { maxWidth: width } : undefined}>
       <TextColumn align="center">
         <Text as="h1"><StatementText align="center" size="page" lines={statementLinesOf(heading, highlight, true)} /></Text>
         {lead ? <Text style={LEAD}>{parts ? <>{parts.slice(0, -1).map((part, index) => <React.Fragment key={index}>{part}<span style={{ color: '#008652' }}>{lead_highlight}</span></React.Fragment>)}{parts[parts.length - 1]}</> : lead}</Text> : null}

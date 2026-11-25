@@ -39,7 +39,8 @@ function collect() {
     const range = document.createRange();
     range.selectNodeContents(node);
     const box = range.getBoundingClientRect();
-    if (box.width === 0) continue;
+    // Text a reader never sees (a screen-reader-only line is a pixel box) is not part of how the page looks.
+    if (box.width < 3 || box.height < 3) continue;
     const style = getComputedStyle(element);
     const parentStyle = element.parentElement ? getComputedStyle(element.parentElement) : style;
     const block = element.closest('h1,h2,h3,h4,h5,h6,p,li,button,a,label,figcaption,blockquote,div') ?? element;
@@ -55,12 +56,12 @@ function collect() {
       fontSize: parseFloat(style.fontSize),
       fontWeight: style.fontWeight,
       color: style.color,
-      accent: heading !== null && style.color !== parentStyle.color,
+      accent: heading !== null && element !== heading && style.color !== getComputedStyle(heading).color,
       lineHeight: style.lineHeight === 'normal' ? 'normal' : parseFloat(style.lineHeight),
       textAlign: style.textAlign,
       fontFamily: style.fontFamily.split(',')[0].replace(/["']/g, '').trim(),
       left: Math.round(box.left),
-      width: Math.round(blockBox.width),
+      width: Math.round(box.width),
       right: Math.round(box.right),
       top: Math.round(box.top + scrollY),
       gap: prevBottom === null ? null : Math.round(box.top + scrollY - prevBottom),
@@ -127,7 +128,9 @@ export function differences(old, now, width, tolerance = TOLERANCE) {
     if (a.fontFamily !== b.fontFamily) add('font family', where, a.fontFamily, b.fontFamily);
     // A button or link centres its words by its own flex box, so its text-align says nothing about how it looks.
     if (!['a', 'button'].includes(a.tag) && a.textAlign !== b.textAlign && !['start', 'left'].includes(a.textAlign) !== !['start', 'left'].includes(b.textAlign)) add('alignment', where, a.textAlign, b.textAlign);
-    if (a.lineHeight !== b.lineHeight && !(typeof a.lineHeight === 'number' && typeof b.lineHeight === 'number' && near(a.lineHeight, b.lineHeight, 1.5))) add('line height', where, a.lineHeight, b.lineHeight);
+    // `normal` is about 1.2 of the font size, so it is compared as that.
+    const lineOf = (item) => (item.lineHeight === 'normal' ? item.fontSize * 1.2 : item.lineHeight);
+    if (!near(lineOf(a), lineOf(b), 2.5)) add('line height', where, a.lineHeight, b.lineHeight);
     if (!near(a.left, b.left, tolerance.px)) add('left edge', where, a.left, b.left);
     if (!near(a.width, b.width, tolerance.px * 2)) add('box width', where, a.width, b.width);
     if (a.accent !== b.accent) add('highlight', where, a.accent, b.accent);

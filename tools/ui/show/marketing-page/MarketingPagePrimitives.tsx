@@ -36,6 +36,7 @@ export const MARKETING_PAGE_LAYOUT_CSS = `
     padding-right: 16px;
     width: 100%;
   }
+  .bitfield-section-padding-none { padding-bottom: 0; padding-top: 0; }
   .bitfield-section-padding-compact { padding-bottom: 64px; padding-top: 64px; }
   .bitfield-section-padding-default { padding-bottom: 80px; padding-top: 80px; }
   .bitfield-section-padding-hero { padding-bottom: 96px; padding-top: 112px; }
@@ -142,7 +143,7 @@ const SECTION_MAX_WIDTH = { narrow: 1024, default: 1152, wide: 1280 } as const;
 // one place it could not afford one — with nothing in the source to explain it.
 export function SectionShell({ children, className = '', id, size = 'default', paddingY = 'default', style }: any) {
   const resolvedSize = size in SECTION_MAX_WIDTH ? size as keyof typeof SECTION_MAX_WIDTH : 'default';
-  const resolvedPadding = ['compact', 'default', 'hero'].includes(paddingY) ? paddingY : 'default';
+  const resolvedPadding = ['none', 'compact', 'default', 'hero'].includes(paddingY) ? paddingY : 'default';
   return (
     <section
       className={`bitfield-section-shell bitfield-section-padding-${resolvedPadding} ${className}`.trim()}

@@ -27,7 +27,7 @@ import { Input } from '../coss/ui/input.tsx';
 import { Container } from '../container/index.ts';
 import { Form } from '../form/Form.tsx';
 import { ShowcaseStrip, Text } from '../marketing-page/MarketingPagePrimitives.tsx';
-import { CARD_CADENCE, CARD_NAME, CARD_NOTE, CARD_PRICE, centsOf } from './card-type.ts';
+import { CARD_CADENCE, CARD_FEATURE, CARD_NAME, CARD_NOTE, CARD_PRICE, centsOf } from './card-type.ts';
 
 export type PricingFeature = {
   id: string;
@@ -118,7 +118,7 @@ export function View(props: PricingCardProps) {
       {more ? (
         <Container layout="vertical" gap="sm" width="full" data-pricing-more>
           {more.line ? <Text as="p" color="muted">{more.line}</Text> : null}
-          <Button type="button" variant="ghost" size="md" aria-expanded={open} onClick={() => setOpen(value => !value)}>{open ? more.hide ?? more.toggle : more.toggle}</Button>
+          <Button type="button" variant="quiet" size="md" aria-expanded={open} onClick={() => setOpen(value => !value)}>{open ? more.hide ?? more.toggle : more.toggle}</Button>
           {open ? (
             <Container layout="vertical" gap="sm" width="full" role="group" aria-label={more.legend}>
               {more.legend ? <Text as="p" weight="medium" color="strong">{more.legend}</Text> : null}
@@ -152,7 +152,7 @@ export function View(props: PricingCardProps) {
         <Text as="ul" className="m-0 grid list-none gap-4 p-0" aria-label={`${name} includes`}>
           {features.map(feature => (
             <Text as="li" key={feature.id} className="grid gap-2" data-feature={feature.id}>
-              <Text as="p" weight="medium" className="flex items-start gap-3"><Text as="span" aria-hidden="true" className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[#0f172a] text-white"><Check size={14} strokeWidth={3} /></Text>{feature.label}</Text>
+              <Text as="p" style={CARD_FEATURE} className="flex items-start gap-3"><Text as="span" aria-hidden="true" className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[#0f172a] text-white"><Check size={14} strokeWidth={3} /></Text>{feature.label}</Text>
               {feature.showcase?.length ? <ShowcaseStrip ariaLabel={`${feature.label} showcase`} items={feature.showcase} /> : null}
             </Text>
           ))}

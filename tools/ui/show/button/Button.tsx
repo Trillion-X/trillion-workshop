@@ -69,7 +69,7 @@ const buttonVariants = cva(
   // face reads as a broken button, so no state removes the sheen or the drop.
   // A press at work is drawn from its state, over any variant: pending keeps full strength (it is not unavailable), done
   // fills with the look's good colour, failed reads in its danger colour.
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-[background-color,color,scale] motion-reduce:transition-none active:scale-[var(--button-pressed-scale)] cursor-pointer outline-hidden focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring-color)] disabled:opacity-40 disabled:cursor-not-allowed data-[work=pending]:cursor-progress data-[work=pending]:disabled:opacity-100 data-[work=done]:bg-status-success data-[work=done]:text-white data-[work=done]:shadow-none data-[work=error]:text-status-error [&_svg]:shrink-0',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap font-[number:var(--button-font-weight,500)] transition-[background-color,color,scale] motion-reduce:transition-none active:scale-[var(--button-pressed-scale)] cursor-pointer outline-hidden focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring-color)] disabled:opacity-40 disabled:cursor-not-allowed data-[work=pending]:cursor-progress data-[work=pending]:disabled:opacity-100 data-[work=done]:bg-status-success data-[work=done]:text-white data-[work=done]:shadow-none data-[work=error]:text-status-error [&_svg]:shrink-0',
   {
     variants: {
       variant: {
@@ -81,7 +81,7 @@ const buttonVariants = cva(
         outline: 'border border-[var(--border-primary)] bg-transparent text-[var(--text-primary)] hover:bg-[var(--glass-bg-hover)]',
         /** Quiet: the second choice beside the strong action, the face a site's sign-in page gives "Sign in with a
          *  passkey": the page's card colour, the look's firmer line and its words, no sheen and no drop. */
-        quiet: 'border border-[var(--border-secondary)] bg-[var(--bg-surface)] text-[var(--text-primary)] font-semibold hover:bg-[var(--glass-bg-hover)]',
+        quiet: 'border border-[var(--border-secondary)] bg-[var(--bg-surface)] text-[var(--text-primary)] font-[number:var(--button-font-weight,600)] hover:bg-[var(--glass-bg-hover)]',
         /** Destructive: the look's danger colour in the words and edge on a neutral face, never a fill, so it can never
          *  be mistaken for the strong action, which wears the look's accent (one-look-rules `destructive-is-never-a-fill`). */
         danger: 'border border-status-error/40 bg-transparent text-status-error font-semibold hover:bg-status-error/10',
