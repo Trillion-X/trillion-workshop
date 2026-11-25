@@ -31,6 +31,8 @@ export type ContactField = { name: string; label: string; type?: 'text' | 'email
 export type ContactCardProps = {
   /** The card draws its own surface (see CARD_FRAME) instead of sitting on the page's card. */
   framed?: boolean;
+  /** The face of the send button: the strong action (default), the quiet outline, or the look's strongest ink. */
+  buttonVariant?: 'primary' | 'quiet' | 'strong';
   title: string;
   /** A line under the heading. */
   lead?: string;
@@ -48,7 +50,7 @@ export type ContactCardProps = {
   onSubmit?: (values: Record<string, string>) => void;
 };
 
-export function View({ framed, title, lead, fields, button, note, error = '', sending = false, action, hiddenFields, onChange, onSubmit }: ContactCardProps) {
+export function View({ framed, buttonVariant = 'primary', title, lead, fields, button, note, error = '', sending = false, action, hiddenFields, onChange, onSubmit }: ContactCardProps) {
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     onSubmit?.(Object.fromEntries(fields.map(field => [field.name, field.value ?? ''])));
@@ -64,7 +66,7 @@ export function View({ framed, title, lead, fields, button, note, error = '', se
           </Labelled>
         ))}
         {error === '' ? null : <Text as="p" role="alert" color="error">{error}</Text>}
-        <Container layout="horizontal"><Button type="submit" variant="primary" size="lg" disabled={sending}>{button}</Button></Container>
+        <Container layout="horizontal"><Button type="submit" variant={buttonVariant} size="lg" disabled={sending}>{button}</Button></Container>
       </Form>
       {note ? <Text as="p" style={CARD_FOOT}>{note}</Text> : null}
     </Text>

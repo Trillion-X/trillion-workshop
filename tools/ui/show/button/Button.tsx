@@ -37,6 +37,7 @@ import React from 'react';
 import { mergeProps } from '@base-ui/react/merge-props';
 import { useRender } from '@base-ui/react/use-render';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { ArrowRight } from 'lucide-react';
 import { cn } from '../cn';
 import { PressWorkFace, usePressWork, type ButtonWork } from './press-work';
 import { InsideTooltipContext, Tooltip } from '../tooltip/Tooltip';
@@ -81,6 +82,8 @@ const buttonVariants = cva(
         outline: 'border border-[var(--border-primary)] bg-transparent text-[var(--text-primary)] hover:bg-[var(--glass-bg-hover)]',
         /** Quiet: the second choice beside the strong action, the face a site's sign-in page gives "Sign in with a
          *  passkey": the page's card colour, the look's firmer line and its words, no sheen and no drop. */
+        /** Strong: the look's strongest ink as the fill (a checkout beside softer choices), the page's ground as its words. */
+        strong: 'border-transparent bg-[var(--button-strong-bg,var(--text-primary))] text-[var(--button-strong-text,var(--bg-primary))] hover:opacity-90',
         quiet: 'border border-[var(--border-secondary)] bg-[var(--bg-surface)] text-[var(--text-primary)] font-[number:var(--button-font-weight,600)] hover:bg-[var(--glass-bg-hover)]',
         /** Destructive: the look's danger colour in the words and edge on a neutral face, never a fill, so it can never
          *  be mistaken for the strong action, which wears the look's accent (one-look-rules `destructive-is-never-a-fill`). */
@@ -202,6 +205,8 @@ interface ButtonProps
   wrap?: boolean;
   /** `cta`: the label's weight is the look's --cta-font-weight (else --button-font-weight), see the `emphasis` face above. */
   emphasis?: 'cta' | null;
+  /** A trailing arrow after the label (a call to action that goes on). */
+  arrow?: boolean;
   /** The work this button runs elsewhere, said in the button; a press that returns a promise needs none. `null`: the
    *  button draws its own work, so a promise its press returns is not said again. */
   work?: ButtonWork | null;
@@ -255,7 +260,7 @@ function variantForSolidColor(color: ButtonProps['color']) {
  * ```
  */
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant: givenVariant, size: givenSize, radius, fullWidth, wrap, emphasis, loading, work: givenWork, pendingLabel, doneLabel, errorLabel, disabled, active, tone, color, targetRole = 'action', children, onClick, href, render, ...props }, ref) => {
+  ({ className, variant: givenVariant, size: givenSize, radius, fullWidth, wrap, emphasis, arrow, loading, work: givenWork, pendingLabel, doneLabel, errorLabel, disabled, active, tone, color, targetRole = 'action', children, onClick, href, render, ...props }, ref) => {
     const insideTooltip = React.useContext(InsideTooltipContext);
     const named = ownVariant(givenVariant);
     const variant: OwnVariant = named === 'solid' ? variantForSolidColor(color) : named ?? (tone ? variantForTone(tone) : 'secondary');
@@ -289,7 +294,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ...(link
           ? { href: disabled || pending ? undefined : href, 'aria-disabled': disabled || pending || undefined }
           : { disabled: disabled || pending }),
-        children: <PressWorkFace work={work} iconOnly={iconOnly} pendingLabel={pendingLabel} doneLabel={doneLabel} errorLabel={errorLabel}>{children}</PressWorkFace>,
+        children: <PressWorkFace work={work} iconOnly={iconOnly} pendingLabel={pendingLabel} doneLabel={doneLabel} errorLabel={errorLabel}>{children}{arrow ? <ArrowRight aria-hidden="true" /> : null}</PressWorkFace>,
       } as Record<string, unknown>, { ...props, onClick: press } as Record<string, unknown>),
     });
     const label = props['aria-label'];

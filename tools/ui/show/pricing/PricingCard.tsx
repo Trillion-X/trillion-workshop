@@ -60,6 +60,8 @@ export type PricingAttempt = { id_field: string; started_field: string; /** The 
 export type PricingCardProps = {
   /** The card draws its own surface (see CARD_FRAME) instead of sitting on the page's card. */
   framed?: boolean;
+  /** The face of the Checkout button: the strong action (default) or the look's strongest ink. */
+  ctaVariant?: 'primary' | 'strong';
   /** The fields the post carries its attempt in (see PricingAttempt); none when the page that receives the post asks for none. */
   attempt?: PricingAttempt;
   /** The amounts a buyer may pay instead of the price shown (see invariant 1). */
@@ -90,16 +92,16 @@ export type PricingCardProps = {
   repeatCta?: boolean;
 };
 
-function Cta({ cta, onCheckout, pending, posts }: Pick<PricingCardProps, 'cta' | 'onCheckout' | 'pending'> & { posts: boolean }) {
+function Cta({ cta, onCheckout, pending, posts, variant = 'primary' }: Pick<PricingCardProps, 'cta' | 'onCheckout' | 'pending'> & { posts: boolean; variant?: 'primary' | 'strong' }) {
   return (
-    <Button variant="primary" size="lg" fullWidth href={cta.href} disabled={pending} type={posts && !cta.href ? 'submit' : undefined} onClick={cta.href || posts ? undefined : onCheckout} data-pricing-cta>
+    <Button variant={variant} size="lg" fullWidth href={cta.href} disabled={pending} type={posts && !cta.href ? 'submit' : undefined} onClick={cta.href || posts ? undefined : onCheckout} data-pricing-cta>
       {cta.label}
     </Button>
   );
 }
 
 export function View(props: PricingCardProps) {
-  const { id, name, price: given, cadence, note, amounts, features = [], cta: ctaGiven, onCheckout, action, hiddenFields: fields, pending, error, footnote, more, attempt, framed, repeatCta = features.length > 2 } = props;
+  const { id, name, price: given, cadence, note, amounts, features = [], cta: ctaGiven, onCheckout, action, hiddenFields: fields, pending, error, footnote, more, attempt, framed, ctaVariant, repeatCta = features.length > 2 } = props;
   const [open, setOpen] = useState(false);
   const [picked, setPicked] = useState<{ cents: number; label: string } | null>(null);
   const [typed, setTyped] = useState<string | null>(null);
@@ -138,7 +140,7 @@ export function View(props: PricingCardProps) {
       {more ? (
         <Container layout="vertical" gap="sm" width="full" data-pricing-more>
           {more.line ? <Text as="p" color="muted">{more.line}</Text> : null}
-          <Button type="button" variant="quiet" size="md" aria-expanded={open} onClick={() => setOpen(value => !value)}>{open ? more.hide ?? more.toggle : more.toggle}</Button>
+          <Button type="button" variant="quiet" size="md" radius="full" aria-expanded={open} onClick={() => setOpen(value => !value)}>{open ? more.hide ?? more.toggle : more.toggle}</Button>
           {open ? (
             <Container layout="vertical" gap="sm" width="full" role="group" aria-label={more.legend}>
               {more.legend ? <Text as="p" weight="medium" color="strong">{more.legend}</Text> : null}
@@ -166,7 +168,7 @@ export function View(props: PricingCardProps) {
           ) : null}
         </Container>
       ) : null}
-      <Cta cta={cta} onCheckout={onCheckout} pending={pending || blocked} posts={posts} />
+      <Cta cta={cta} onCheckout={onCheckout} pending={pending || blocked} posts={posts} variant={ctaVariant} />
       {error ? <Text as="p" role="alert" color="error">{error}</Text> : null}
       {features.length === 0 ? null : (
         <Text as="ul" className="m-0 grid list-none gap-4 p-0" aria-label={`${name} includes`}>
@@ -178,7 +180,7 @@ export function View(props: PricingCardProps) {
           ))}
         </Text>
       )}
-      {repeatCta ? <Cta cta={cta} onCheckout={onCheckout} pending={pending || blocked} posts={posts} /> : null}
+      {repeatCta ? <Cta cta={cta} onCheckout={onCheckout} pending={pending || blocked} posts={posts} variant={ctaVariant} /> : null}
       {footnote ? <Text as="p" variant="caption" color="muted">{footnote}</Text> : null}
     </>
   );

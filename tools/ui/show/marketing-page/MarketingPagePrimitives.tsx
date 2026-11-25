@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { Button } from '../button/Button';
 import { ScrollViewport } from '../scrollable-surface/ScrollViewport';
 
@@ -168,7 +168,7 @@ export function Text({ as: Tag = 'p', children, className = '', color, style, ..
 export function CtaBlock({ href, id, label, note }: { href: string; id?: string; label: string; note?: string }) {
   return (
     <Container className="bitfield-cta-block" data-cta-block={id ?? 'cta'} data-testid="landing-cta-block" id={id}>
-      <Button data-testid="landing-cta-button" href={href} size="lg" variant="primary" emphasis="cta">{label}<ArrowRight aria-hidden="true" /></Button>
+      <Button data-testid="landing-cta-button" href={href} size="lg" variant="primary" emphasis="cta" arrow>{label}</Button>
       {note ? <Text className="bitfield-cta-block__note">{note}</Text> : null}
     </Container>
   );

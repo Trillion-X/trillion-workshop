@@ -107,3 +107,11 @@ test('a card that names its attempt fields carries them, empty, in its form, and
   const without = await renderAView(card, { ...offer, action: '/buy', hiddenFields: { offerId: 'o1' } });
   assert.doesNotMatch(without, /checkoutAttemptId/);
 });
+
+test('the checkout and the contact button wear the face the row names', async () => {
+  const strong = await renderAView(card, { ...offer, ctaVariant: 'strong' });
+  assert.match(strong, /data-button-face="strong"/);
+  assert.doesNotMatch(await renderAView(card, offer), /data-button-face="strong"/);
+  const sent = await renderAView(contact, { title: 'Book a call', fields: [], button: 'Send', buttonVariant: 'quiet' });
+  assert.match(sent, /data-button-face="quiet"/);
+});

@@ -23,3 +23,12 @@ test('a button with emphasis cta takes its weight from the look\'s cta weight', 
   const plain = await renderAView(entry, { children: 'See pricing', variant: 'primary' });
   assert.doesNotMatch(plain, /--cta-font-weight/);
 });
+
+// The strong face fills with the look's strongest ink, and `arrow` draws a trailing arrow after the label.
+test('a strong button wears the strongest ink and an arrow follows its label when asked', async () => {
+  const strong = await renderAView(entry, { children: 'Checkout', variant: 'strong', arrow: true });
+  assert.match(strong, /--button-strong-bg/);
+  assert.match(strong, /<svg/);
+  const plain = await renderAView(entry, { children: 'Checkout', variant: 'strong' });
+  assert.doesNotMatch(plain, /<svg/);
+});
