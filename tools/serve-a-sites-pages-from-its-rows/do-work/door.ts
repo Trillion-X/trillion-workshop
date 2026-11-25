@@ -134,7 +134,9 @@ async function callDoor(door: Door, pass: string, method: string, input: unknown
   });
   const text = answer.body.toString('utf8');
   if (answer.status < 200 || answer.status > 299) {
-    throw new DoorError(`The engine door answered ${answer.status} for ${what}: ${quoted(text)}`, answer.status === 401 || answer.status === 403 ? 403 : 502);
+    // A door that is busy or timed out (503, 504) says so, so a page may try again; a refused pass is 403; anything else is 502.
+    const status = answer.status === 401 || answer.status === 403 ? 403 : answer.status === 503 || answer.status === 504 ? answer.status : 502;
+    throw new DoorError(`The engine door answered ${answer.status} for ${what}: ${quoted(text)}`, status);
   }
   const reply = replyOf(text);
   if (!reply) throw new DoorError(`The engine door gave no reply to ${what}: ${quoted(text)}`);

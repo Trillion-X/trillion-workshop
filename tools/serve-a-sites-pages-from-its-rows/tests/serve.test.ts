@@ -64,6 +64,7 @@ const ACTIONS = [
     next: [{ when: { $: 'pick', of: { $: 'answer', key: 'echo.outcome' }, from: { send_confirmation: true }, else: false }, tool: 'tool:fails', input: { mail: { $: 'answer', key: 'echo.attempt' } },
       failed: { tool: 'tool:echo', input: { action: 'send_failed', attempt: { $: 'answer', key: 'echo.attempt' } } } }],
     answer: { reply: { status: { $: 'pick', of: { $: 'answer', key: 'echo.outcome' }, from: { invalid_email: 400, too_many: 429 }, else: 200 }, json: ['echo'] } } },
+  { path: '/busy', host: null, access: 'public', tool: 'tool:busy', failed: 'Not now.', input: {}, answer: { json: ['x'] } },
   { path: '/bad-reply', host: null, access: 'public', tool: 'tool:echo', failed: 'x', input: {}, answer: { reply: { status: 200, headers: { 'x-forwarded-for': 'a' } } } },
   { path: '/bad-next', host: null, access: 'public', tool: 'tool:echo', failed: 'x', input: {}, answer: { json: ['echo'] }, next: [{ tool: 'tool:echo', input: {}, also: 1 }] },
   { path: '/refuses-tells', host: null, access: 'public', tool: 'tool:refuses', failed: 'That answer was not kept.', input: {}, answer: { json: ['next'] }, says_why: true },
@@ -102,6 +103,9 @@ async function door() {
         result = { redirectUrl: 'https://pay.example.test/session/1', sessionId: 's1' };
       } else if (run.tool === 'tool:refuses') {
         return response.end(JSON.stringify({ jsonrpc: '2.0', id: 1, result: { structuredContent: { tool: run.tool, exit_code: 1, error: 'An answer is written as text.', result: null } } }));
+      } else if (run.tool === 'tool:busy') {
+        response.writeHead(503, { 'content-type': 'text/plain' });
+        return response.end('Not ready.');
       } else if (run.tool === 'tool:echo') {
         result = { echo: run.input };
       } else if (run.tool === 'tool:keep-a-lead') {
@@ -457,6 +461,7 @@ test('a reply answers as the tool says (status, location, set-cookie, retry-afte
       ['tool:echo', { outcome: 'send_confirmation', attempt: 'a-1' }], ['tool:fails', { mail: 'a-1' }], ['tool:echo', { action: 'send_failed', attempt: 'a-1' }],
     ], 'the failed step runs with what the row\'s tool answered');
     assert.equal((await site.act('/bad-reply', undefined, host, json({}))).status, 404, 'a reply naming a header outside the list is set aside');
+    assert.equal((await site.act('/busy', undefined, host, json({}))).status, 503, 'a busy door is told as 503, so a page tries again, never a 502 refusal');
     assert.equal((await site.act('/bad-next', undefined, host, json({}))).status, 404, 'a next step with an unknown key is set aside');
   } finally { d.server.close(); }
 });

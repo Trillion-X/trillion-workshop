@@ -509,7 +509,9 @@ export class Site {
     } catch (error) {
       this.#log(`${method} ${pathname}: ${(error as Error).message}`);
       const said = why(error);
-      return failed(said ? 422 : error instanceof DoorError && error.status === 403 ? 403 : 502, said);
+      // A busy or timed-out door (503, 504) is told as such, so a page tries again; a refusal is 422 or 403; anything else 502.
+      const passed = error instanceof DoorError && [403, 503, 504].includes(error.status) ? error.status : 502;
+      return failed(said ? 422 : passed, said);
     }
   }
 

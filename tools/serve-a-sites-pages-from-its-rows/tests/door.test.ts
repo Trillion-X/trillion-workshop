@@ -19,6 +19,10 @@ test('a reply that is not a tool run is quoted with its code and words', () => {
 
 test('over a door: an engine refusal and a 401 throw with the door\'s own words', async () => {
   const server = http.createServer((request, response) => {
+    if (request.headers.authorization === 'Bearer busy-pass' || request.headers.authorization === 'Bearer slow-pass') {
+      response.writeHead(request.headers.authorization === 'Bearer busy-pass' ? 503 : 504, { 'content-type': 'text/plain' });
+      return response.end('Not ready.');
+    }
     if (request.headers.authorization === 'Bearer refused-pass') {
       response.writeHead(401, { 'content-type': 'application/json' });
       return response.end('{"error":"This pass is not admitted at this door."}');
@@ -33,6 +37,8 @@ test('over a door: an engine refusal and a 401 throw with the door\'s own words'
       /The engine door refused tool:read-the-site-head: tools_tool_unknown: No tool has this id on this computer\./);
     await assert.rejects(runTool(door, 'refused-pass', { tool: 'tool:x', input: {} }),
       (error: Error & { status?: number }) => /answered 401 for tool:x: \{"error":"This pass is not admitted at this door\."\}/.test(error.message) && error.status === 403 && !error.message.includes('refused-pass'));
+    await assert.rejects(runTool(door, 'busy-pass', { tool: 'tool:x', input: {} }), (error: Error & { status?: number }) => error.status === 503, 'a busy door stays 503, so a page tries again');
+    await assert.rejects(runTool(door, 'slow-pass', { tool: 'tool:x', input: {} }), (error: Error & { status?: number }) => error.status === 504);
   } finally { server.close(); }
 });
 
