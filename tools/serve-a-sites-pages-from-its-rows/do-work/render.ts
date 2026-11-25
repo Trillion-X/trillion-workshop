@@ -50,6 +50,8 @@ export interface Shell {
   title: string;
   canonical: string;
   look: string;
+  /** The address a moved page sends the browser on to (pages.ts go_to). */
+  goTo?: string;
 }
 
 export interface PageBundle {
@@ -93,6 +95,8 @@ export function treeOf(page: PageRow, params: Record<string, string>): LayoutNod
   if (!page.layout) return main!;
   const swap = (node: LayoutNode): LayoutNode => {
     if ('main' in node) return main!;
+    if ('go_to' in node) return node;
+    if ('nodes' in node) return { nodes: node.nodes.map(swap) };
     if ('part' in node && node.children) return { ...node, children: node.children.map(swap) };
     return node;
   };
@@ -107,13 +111,14 @@ export function runsOf(tree: LayoutNode): ToolRun[] {
   const walk = (node: LayoutNode) => {
     if ('tool' in node) runs.set(runKey(node.tool, node.input), { tool: node.tool, input: node.input ?? {} });
     if ('part' in node) for (const child of node.children ?? []) walk(child);
+    if ('nodes' in node) node.nodes.forEach(walk);
   };
   walk(tree);
   return [...runs.values()];
 }
 
 /** The tree with every tool node drawn by its screen with its answer, ready for render-layout.ts. */
-export async function drawnTreeOf(tree: LayoutNode, screens: Map<string, Screen>, run: (call: ToolRun) => Promise<unknown>): Promise<{ drawn: DrawnNode; timed: Timed[] }> {
+export async function drawnTreeOf(tree: LayoutNode, screens: Map<string, Screen>, run: (call: ToolRun) => Promise<unknown>): Promise<{ drawn: DrawnNode; timed: Timed[]; answerOf: (call: ToolRun) => Record<string, unknown> | undefined }> {
   const runs = runsOf(tree);
   for (const call of runs) if (!screens.has(call.tool)) throw new Error(`${call.tool} has no module screen in its card, so no page can draw it.`);
   const timed: Timed[] = [];
@@ -126,6 +131,8 @@ export async function drawnTreeOf(tree: LayoutNode, screens: Map<string, Screen>
   })));
   const drawn = (node: LayoutNode): DrawnNode => {
     if ('text' in node) return { text: node.text };
+    if ('go_to' in node) return { text: node.go_to };
+    if ('nodes' in node) return { nodes: node.nodes.map(drawn) };
     if ('tool' in node) {
       const screen = screens.get(node.tool)!;
       return { module: moduleKey(screen.file, screen.export), props: answers.get(runKey(node.tool, node.input)) };
@@ -133,7 +140,7 @@ export async function drawnTreeOf(tree: LayoutNode, screens: Map<string, Screen>
     if ('main' in node) throw new Error('A main node was left in the tree.');
     return { module: moduleKey(node.part, node.export ?? 'View'), ...(node.props ? { props: node.props } : {}), ...(node.children ? { children: node.children.map(drawn) } : {}) };
   };
-  return { drawn: drawn(tree), timed };
+  return { drawn: drawn(tree), timed, answerOf: call => answers.get(runKey(call.tool, call.input)) };
 }
 
 /** A page of plain words: a heading and a line, each the shared Text part. */
@@ -209,15 +216,16 @@ export class PageBundles {
   }
 }
 
-const LOOK_NAME = /^[a-z][a-z0-9-]*$/;
+// A name may group with dots (colour.accent); its variable joins with dashes (--colour-accent).
+const LOOK_NAME = /^[a-z][a-z0-9-]*(\.[a-z0-9][a-z0-9-]*)*$/;
 const LOOK_VALUE = /^[^;{}<>\\\n\r]+$/;
 
 /** The site's look rows ({name, value}) as CSS variables on :root; a row that could end a declaration refuses the set. */
 export function lookCss(rows: Record<string, unknown>[]): string {
   const pairs = rows.map(row => {
-    if (typeof row.name !== 'string' || !LOOK_NAME.test(row.name)) throw new Error(`look ${JSON.stringify(row.name)}: a name is lower-case words with dashes.`);
+    if (typeof row.name !== 'string' || !LOOK_NAME.test(row.name)) throw new Error(`look ${JSON.stringify(row.name)}: a name is lower-case words with dashes, grouped by dots.`);
     if (typeof row.value !== 'string' || !LOOK_VALUE.test(row.value)) throw new Error(`look ${row.name}: a value is one CSS value, with no ; { } < > or backslash.`);
-    return `--${row.name}:${row.value};`;
+    return `--${row.name.replaceAll('.', '-')}:${row.value};`;
   });
   return pairs.length ? `:root{${pairs.join('')}}` : '';
 }

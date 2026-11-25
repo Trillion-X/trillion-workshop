@@ -42,6 +42,7 @@ test('a drawn tree whose module the bundle lacks is never drawn with it left out
 test('look rows become CSS variables only when no value can end its declaration', () => {
   assert.equal(lookCss([{ name: 'brand-ink', value: '#123456' }, { name: 'reading-font', value: '"Source Serif", serif' }]), ':root{--brand-ink:#123456;--reading-font:"Source Serif", serif;}');
   assert.equal(lookCss([]), '');
+  assert.equal(lookCss([{ name: 'colour.accent-deep', value: '#006b41' }]), ':root{--colour-accent-deep:#006b41;}');
   for (const value of ['red;} body{display:none', 'x</style><script>', 'a\\62 c']) assert.throws(() => lookCss([{ name: 'ink', value }]), /one CSS value/);
   assert.throws(() => lookCss([{ name: 'Ink', value: 'red' }]), /lower-case/);
 });

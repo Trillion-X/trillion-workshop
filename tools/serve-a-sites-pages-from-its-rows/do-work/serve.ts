@@ -54,8 +54,8 @@ import { MemberPasses } from './member-pass.ts';
 import type { Member, SignIn } from './member-pass.ts';
 import { memberFileAnswer, memberFilesOf, objectKeyOf, storeKeyOf } from './member-video.ts';
 import type { MemberFiles, StoreKey } from './member-video.ts';
-import { matchPage, pagesOf, pagesOn, pathWith, PAGES_SQL, paramsOf, slugsSql } from './pages.ts';
-import type { PageRow } from './pages.ts';
+import { filledInput, matchPage, pagesOf, pagesOn, pathWith, PAGES_SQL, paramsOf, slugsSql } from './pages.ts';
+import type { PageRow, Refused } from './pages.ts';
 import { pageStyles } from './page-styles.ts';
 import { drawnTreeOf, lookCss, PageBundles, screensOfTools, treeOf, wordsTree } from './render.ts';
 import type { Screen, Timed } from './render.ts';
@@ -142,6 +142,7 @@ const xml = (text: string): string => text.replace(/[&<>"']/g, c => ({ '&': '&am
 export class Site {
   #parts: SiteParts;
   #pages: PageRow[] = [];
+  #refused: Refused[] = [];
   #look = '';
   #readAt = 0;
   #reading: Promise<void> | null = null;
@@ -166,7 +167,10 @@ export class Site {
   /** Reads the page and look rows; throws when they cannot be read or a row is broken. */
   async read(): Promise<void> {
     const [pages, look] = await Promise.all([this.#sql(PAGES_SQL), this.#sql(LOOK_SQL)]);
-    this.#pages = pagesOf(pages);
+    const { pages: good, refused } = pagesOf(pages);
+    for (const { path, why } of refused) if (!this.#refused.some(r => r.path === path && r.why === why)) this.#log(`page row set aside: ${why}`);
+    this.#pages = good;
+    this.#refused = refused;
     this.#look = lookCss(look);
     this.#readAt = Date.now();
   }
@@ -181,6 +185,10 @@ export class Site {
 
   get pages(): PageRow[] {
     return this.#pages;
+  }
+
+  get refused(): Refused[] {
+    return this.#refused;
   }
 
   async #publicRun(call: ToolRun): Promise<unknown> {
@@ -209,14 +217,21 @@ export class Site {
     return `${new URL(this.#parts.settings.origin).protocol}//${host}`;
   }
 
-  async #document(title: string, host: string, pathname: string, tree: DrawnNode): Promise<string> {
+  async #document(title: string, host: string, pathname: string, tree: DrawnNode, goTo?: string): Promise<string> {
     const bundle = await this.#parts.bundles.bundleFor(modulesOf(tree));
-    return bundle.html({ lang: this.#parts.settings.lang, title, canonical: `${this.#originOf(host)}${pathname}`, look: this.#look }, tree);
+    return bundle.html({ lang: this.#parts.settings.lang, title, canonical: `${this.#originOf(host)}${pathname}`, look: this.#look, ...(goTo ? { goTo } : {}) }, tree);
   }
 
   async #drawn(page: PageRow, params: Record<string, string>, host: string, pathname: string, run: (call: ToolRun) => Promise<unknown>, status: number, cache: string): Promise<Answer> {
-    const { drawn, timed } = await drawnTreeOf(treeOf(page, params), this.#parts.screens, run);
-    const body = await this.#document(page.title, host, pathname, drawn);
+    if (page.layout && 'go_to' in page.layout) {
+      const body = await this.#document(page.title ?? page.layout.go_to, host, pathname, wordsTree(page.title ?? '', page.layout.go_to), page.layout.go_to);
+      return { status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': cache }, body };
+    }
+    const { drawn, timed, answerOf } = await drawnTreeOf(treeOf(page, params), this.#parts.screens, run);
+    const answered = page.tool ? answerOf({ tool: page.tool, input: filledInput(page.input, params) })?.title : undefined;
+    const title = page.title ?? (typeof answered === 'string' && answered.trim() ? answered : null);
+    if (title === null) throw new Error(`page ${page.path}: its row has no title and ${page.tool} answered none.`);
+    const body = await this.#document(title, host, pathname, drawn);
     return { status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': cache, 'server-timing': serverTiming(timed) }, body };
   }
 
@@ -265,6 +280,9 @@ export class Site {
     try {
       if (pathname === '/sitemap.xml') return await this.#sitemap(pages, host);
       const matched = matchPage(pages, pathname);
+      if (!matched && matchPage(this.#refused.filter(r => r.path.startsWith('/')).map(r => ({ path: r.path }) as PageRow), pathname)) {
+        return await this.#words(503, 'This page is not ready', 'This page is being made. Try again soon.', host, pathname);
+      }
       if (!matched || matched.page.path === NOT_FOUND) return await this.#notFound(pages, host, pathname);
       const { page, params } = matched;
       if (page.access === 'public') return await this.#drawn(page, params, host, pathname, call => this.#publicRun(call), 200, 'public, max-age=0, must-revalidate');
@@ -349,7 +367,7 @@ export async function start(settingsFile: string): Promise<http.Server> {
       server.listen(Number(settings.listen.slice(at + 1)), settings.listen.slice(0, at).replace(/^\[|\]$/g, ''), () => resolve());
     }
   });
-  console.error(`serving ${site.pages.length} pages of ${settings.origin} on ${settings.listen}`);
+  console.error(`serving ${site.pages.length} pages (${site.refused.length} rows set aside) of ${settings.origin} on ${settings.listen}`);
   return server;
 }
 

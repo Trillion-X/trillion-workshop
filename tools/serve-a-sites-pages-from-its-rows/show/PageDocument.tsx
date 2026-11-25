@@ -20,6 +20,8 @@ export interface PageDocumentProps {
   lang: string;
   title: string;
   canonical: string;
+  /** A page that has moved: the browser is sent on to this address at once, and engines are told not to keep this one. */
+  goTo?: string;
   sheet: string;
   look: string;
   script: string;
@@ -30,14 +32,16 @@ export interface PageDocumentProps {
   children?: ReactNode;
 }
 
-export function PageDocument({ lang, title, canonical, sheet, look, script, tree, mount, children }: PageDocumentProps) {
+export function PageDocument({ lang, title, canonical, goTo, sheet, look, script, tree, mount, children }: PageDocumentProps) {
   return (
     <html lang={lang}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{title}</title>
-        {canonical ? <link rel="canonical" href={canonical} /> : null}
+        {goTo ? <meta name="robots" content="noindex" /> : null}
+        {goTo ? <meta httpEquiv="refresh" content={`0; url=${goTo}`} /> : null}
+        {canonical ? <link rel="canonical" href={goTo ?? canonical} /> : null}
         <link rel="stylesheet" href={sheet} />
         {look ? <style dangerouslySetInnerHTML={{ __html: look }} /> : null}
       </head>

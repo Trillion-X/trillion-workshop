@@ -7,7 +7,7 @@
 //
 //   One row is one page:
 //     path        the address pattern: "/", "/articles", "/courses/:slug" (a ":name" part takes one path part)
-//     title       the page's title
+//     title       the page's title; null for a template page, whose title is its main tool answer's `title`
 //     access      "public" or "members"
 //     layout      the page's tree of parts (LayoutNode below), or null when the page is only its tool's screen
 //     tool        the tool whose screen is the page's main screen (a template page), or null
@@ -16,11 +16,13 @@
 //     updated_at  when the row last changed (the sitemap's lastmod)
 //     host        the one host name the page answers on, or null for every host the site answers
 //
-//   A layout node is one of:
+//   A layout is one node or a list of nodes (drawn one after another). A layout node is one of:
 //     { "part": "<folder under tools>/show/.../<File>.tsx", "export": "<Name>", "props": {...}, "children": [node...] }
 //     { "tool": "tool:<id>", "input": {...} }   that tool's screen, drawn with its answer
 //     { "main": true }                          the page row's own tool screen
 //     { "text": "..." }                         words
+//     { "go_to": "<address>" }                  the whole layout of a page that has moved: it answers 200 and the browser goes on
+//                                               to that address (an http(s) address, or a path of this site)
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Nothing about any one site is in this file: the table's rows are the site.
@@ -37,11 +39,13 @@ export type LayoutNode =
   | { part: string; export?: string; props?: Record<string, unknown>; children?: LayoutNode[] }
   | { tool: string; input?: unknown }
   | { main: true }
-  | { text: string };
+  | { text: string }
+  | { nodes: LayoutNode[] }
+  | { go_to: string };
 
 export interface PageRow {
   path: string;
-  title: string;
+  title: string | null;
   access: Access;
   layout: LayoutNode | null;
   tool: string | null;
@@ -66,11 +70,18 @@ const TABLE = /^[a-z_][a-z0-9_]*$/;
 const HOST = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
 
 /** The SQL that reads every page row, with the columns this file reads, in one statement. */
-export const PAGES_SQL = 'SELECT path, title, access, layout, tool, input, collection, updated_at::text AS updated_at, host FROM pages ORDER BY path, host NULLS LAST';
+// `host` is read through the row's JSON, so a table made without the column reads every row as for every host.
+export const PAGES_SQL = "SELECT p.path, p.title, p.access, p.layout, p.tool, p.input, p.collection, p.updated_at::text AS updated_at, to_jsonb(p)->>'host' AS host FROM pages p ORDER BY 1, 9 NULLS LAST";
 
 function checkNode(node: unknown, where: string, hasTool: boolean): LayoutNode {
+  if (Array.isArray(node)) return { nodes: node.map((child, i) => checkNode(child, `${where}[${i}]`, hasTool)) };
   const n = node as Record<string, unknown> | null;
-  if (!n || typeof n !== 'object' || Array.isArray(n)) throw new PageRowError(`${where}: a layout node is an object.`);
+  if (!n || typeof n !== 'object') throw new PageRowError(`${where}: a layout node is an object or a list of them.`);
+  if ('go_to' in n) {
+    if (where.endsWith(' layout') === false) throw new PageRowError(`${where}: go_to is a whole layout, never a part of one.`);
+    if (typeof n.go_to !== 'string' || !/^(https?:\/\/[^\s"'<>]+|\/[^\s"'<>]*)$/.test(n.go_to)) throw new PageRowError(`${where}: go_to is an http(s) address or a path.`);
+    return { go_to: n.go_to };
+  }
   if ('text' in n) {
     if (typeof n.text !== 'string') throw new PageRowError(`${where}: text is words.`);
     return { text: n.text };
@@ -101,11 +112,15 @@ export function pageOf(row: Record<string, unknown>): PageRow {
     throw new PageRowError(`page ${JSON.stringify(path)}: path is "/" or "/" and parts of letters, digits, ._~- or ":name".`);
   }
   const where = `page ${path}`;
-  if (typeof row.title !== 'string' || !row.title.trim()) throw new PageRowError(`${where}: title is words.`);
+  const title = row.title ?? null;
+  if (title === null ? row.tool === null || row.tool === undefined : typeof title !== 'string' || !title.trim()) {
+    throw new PageRowError(`${where}: title is words, or null when the page's tool answers its title.`);
+  }
   if (row.access !== 'public' && row.access !== 'members') throw new PageRowError(`${where}: access is "public" or "members".`);
   const tool = row.tool ?? null;
   if (tool !== null && (typeof tool !== 'string' || !TOOL_ID.test(tool))) throw new PageRowError(`${where}: tool is a tool id or null.`);
-  if (tool === null && (row.layout === null || row.layout === undefined)) throw new PageRowError(`${where}: a page has a layout, a tool, or both.`);
+  const layout = row.layout === undefined || (Array.isArray(row.layout) && row.layout.length === 0) ? null : row.layout;
+  if (tool === null && layout === null) throw new PageRowError(`${where}: a page has a layout, a tool, or both.`);
   const collection = row.collection ?? null;
   if (collection !== null && (typeof collection !== 'string' || !TABLE.test(collection))) throw new PageRowError(`${where}: collection is a table name or null.`);
   const host = row.host ?? null;
@@ -116,9 +131,9 @@ export function pageOf(row: Record<string, unknown>): PageRow {
   }
   return {
     path,
-    title: row.title,
+    title: title as string | null,
     access: row.access,
-    layout: row.layout === null || row.layout === undefined ? null : checkNode(row.layout, `${where} layout`, tool !== null),
+    layout: layout === null ? null : checkNode(layout, `${where} layout`, tool !== null),
     tool: tool as string | null,
     input: row.input ?? {},
     collection: collection as string | null,
@@ -127,16 +142,32 @@ export function pageOf(row: Record<string, unknown>): PageRow {
   };
 }
 
-/** Every row checked; the first broken row refuses the whole set, so a site never serves a set with a page missing. */
-export function pagesOf(rows: Record<string, unknown>[]): PageRow[] {
-  const pages = rows.map(pageOf);
+export interface Refused {
+  path: string;
+  why: string;
+}
+
+/**
+ * Every row checked. A broken row is set aside with why, never served half right; its address answers "not ready" (serve.ts)
+ * while every good row is served. A second row with the same pattern on the same host is set aside too.
+ */
+export function pagesOf(rows: Record<string, unknown>[]): { pages: PageRow[]; refused: Refused[] } {
+  const pages: PageRow[] = [];
+  const refused: Refused[] = [];
   const seen = new Set<string>();
-  for (const page of pages) {
-    const shape = `${page.host ?? '*'} ${page.path.replace(/:[a-z_][a-z0-9_]*/g, ':')}`;
-    if (seen.has(shape)) throw new PageRowError(`page ${page.path}: another row has the same address pattern on the same host.`);
-    seen.add(shape);
+  for (const row of rows) {
+    try {
+      const page = pageOf(row);
+      const shape = `${page.host ?? '*'} ${page.path.replace(/:[a-z_][a-z0-9_]*/g, ':')}`;
+      if (seen.has(shape)) throw new PageRowError(`page ${page.path}: another row has the same address pattern on the same host.`);
+      seen.add(shape);
+      pages.push(page);
+    } catch (error) {
+      if (!(error instanceof PageRowError)) throw error;
+      refused.push({ path: typeof row.path === 'string' ? row.path : '', why: error.message });
+    }
   }
-  return pages;
+  return { pages, refused };
 }
 
 export function paramsOf(pattern: string): string[] {

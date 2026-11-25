@@ -17,7 +17,8 @@ import type { ComponentType, ReactNode } from 'react';
 
 export type DrawnNode =
   | { module: string; props?: Record<string, unknown>; children?: DrawnNode[] }
-  | { text: string };
+  | { text: string }
+  | { nodes: DrawnNode[] };
 
 export type Modules = Record<string, ComponentType<Record<string, unknown>>>;
 
@@ -26,6 +27,7 @@ export const moduleKey = (file: string, name: string): string => `${file}#${name
 
 function drawn(node: DrawnNode, modules: Modules, key: number): ReactNode {
   if ('text' in node) return node.text;
+  if ('nodes' in node) return createElement(Fragment, { key }, ...node.nodes.map((child, i) => drawn(child, modules, i)));
   const component = modules[node.module];
   if (!component) throw new Error(`The page's bundle holds no module ${node.module}.`);
   const children = (node.children ?? []).map((child, i) => drawn(child, modules, i));
@@ -42,6 +44,7 @@ export function modulesOf(tree: DrawnNode): string[] {
   const keys = new Set<string>();
   const walk = (node: DrawnNode) => {
     if ('text' in node) return;
+    if ('nodes' in node) { node.nodes.forEach(walk); return; }
     keys.add(node.module);
     for (const child of node.children ?? []) walk(child);
   };

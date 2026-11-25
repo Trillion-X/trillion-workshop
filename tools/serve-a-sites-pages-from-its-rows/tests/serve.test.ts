@@ -23,6 +23,7 @@ const PAGES = [
   { path: '/members', title: 'Members', access: 'members', tool: 'tool:read-a-greeting', input: { who: 'member' }, collection: null, updated_at: null, layout: null },
   { path: '/', title: 'App home', access: 'public', tool: 'tool:read-a-greeting', input: { who: 'the app' }, collection: null, updated_at: null, layout: null, host: 'app.site.example.test' },
   { path: '/sign-in', title: 'Sign in', access: 'public', tool: 'tool:read-a-greeting', input: { who: 'a visitor, please sign in' }, collection: null, updated_at: null, layout: null },
+  { path: '/moved', title: 'Members area', access: 'public', tool: null, input: null, collection: null, updated_at: null, layout: { go_to: 'https://app.site.example.test/' } },
   { path: '/broken', title: 'Broken', access: 'public', tool: 'tool:fails', input: {}, collection: null, updated_at: null, layout: null },
 ];
 
@@ -229,4 +230,17 @@ test('a local run with no listen setting listens on 127.0.0.1:18440', () => {
   assert.equal(settingsOf(rest).listen, '127.0.0.1:18440');
   assert.throws(() => settingsOf({ ...rest, hosts: ['Not A Host'] }), /hosts/);
   assert.throws(() => settingsOf({ ...rest, sign_in: { ...rest.sign_in, signed_out: 'maybe' } }), /signed_out/);
+});
+
+test('a moved page answers 200 and sends the browser on, kept out of engines', async () => {
+  const d = await door();
+  try {
+    const site = await siteOn(d.address);
+    const page = await site.answer('GET', '/moved', undefined);
+    assert.equal(page.status, 200);
+    const html = String(page.body);
+    assert.match(html, /<meta http-equiv="refresh" content="0; url=https:\/\/app.site.example.test\/"\/>/);
+    assert.match(html, /<meta name="robots" content="noindex"\/>/);
+    assert.match(html, /<link rel="canonical" href="https:\/\/app.site.example.test\/"\/>/);
+  } finally { d.server.close(); }
 });
