@@ -33,6 +33,7 @@ const ACTIONS = [
     offerId: { $: 'body', key: 'offerId' }, amount: { $: 'number', of: { $: 'body', key: 'amount' } }, email: { $: 'member', claim: 'email' },
     visitor: { $: 'cookie', name: 'visitor', when: { cookie: 'consent', is: 'granted' } }, offers: { $: 'rows', database: 'a_site_for_who_runs_it', sql: 'SELECT * FROM offers WHERE id = $1', params: [{ $: 'body', key: 'offerId' }] },
     success_url: { $: 'origin', then: '/welcome' }, attempt: { $: 'new_id' }, at: { $: 'now' },
+    consent: { billing: { $: 'boolean', of: { $: 'body', key: 'consent.billing' } }, legal: true }, customer: { email: { $: 'member', claim: 'email' } },
   } },
   { path: '/book/:offer', host: null, access: 'public', tool: 'tool:keep-a-lead', failed: 'Booking could not start.', input: { offer: { $: 'path', name: 'offer' }, email: { $: 'body', key: 'email' } },
     answer: { redirect_to: { $: 'url', base: 'https://book.example.test/call', query: { email: { $: 'body', key: 'email' }, name: { $: 'body', key: 'name' }, kept: { $: 'answer', key: 'kept' } } } } },
@@ -350,7 +351,7 @@ test('a posted form or JSON body runs its action row\'s tool with the input made
     const site = await siteOn(d.address, { actions: 'site_actions' });
     const host = 'site.example.test';
     const form = (fields: Record<string, string>) => ({ contentType: 'application/x-www-form-urlencoded', origin: 'https://site.example.test', bytes: Buffer.from(new URLSearchParams(fields).toString()) });
-    const sent = await site.act('/checkout', 'consent=granted; visitor=v-1', host, form({ offerId: 'offer:one', amount: '120' }));
+    const sent = await site.act('/checkout', 'consent=granted; visitor=v-1', host, form({ offerId: 'offer:one', amount: '120', 'consent.billing': 'on' }));
     assert.equal(sent.status, 303);
     assert.equal(sent.headers.location, 'https://pay.example.test/session/1', 'a form post is sent on to the address the tool answered');
     const run = d.calls.find(call => call.run.tool === 'tool:start-a-checkout')!.run.input as Record<string, unknown>;
@@ -363,6 +364,8 @@ test('a posted form or JSON body runs its action row\'s tool with the input made
     assert.match(String(run.attempt), /^[0-9a-f-]{36}$/);
     assert.ok(!Number.isNaN(Date.parse(String(run.at))));
     assert.ok(!('email' in run), 'a signed-out visitor has no member claim, so the key is left out');
+    assert.ok(!('customer' in run), 'an object all of whose values gave nothing is left out');
+    assert.deepEqual(run.consent, { billing: true, legal: true }, 'a form field named with a dot is read whole, and "on" is true');
     d.calls.length = 0;
     const asJson = await site.act('/checkout', 'visitor=v-1; session=member', host, { contentType: 'application/json', bytes: Buffer.from(JSON.stringify({ offerId: 'offer:one' })) });
     assert.equal(asJson.status, 200);
@@ -371,6 +374,8 @@ test('a posted form or JSON body runs its action row\'s tool with the input made
     assert.equal(memberRun.pass, 'the-member-pass', 'a signed-in member\'s action runs as the member');
     const input = memberRun.run.input as Record<string, unknown>;
     assert.equal(input.email, 'member@example.test');
+    assert.deepEqual(input.customer, { email: 'member@example.test' });
+    assert.deepEqual(input.consent, { legal: true }, 'a boolean source with nothing to read gives nothing');
     assert.ok(!('visitor' in input), 'a cookie whose consent is not given is not carried');
     const booked = await site.act('/book/offer%3Aone', undefined, host, form({ email: 'a@example.test', name: '' }));
     assert.equal(booked.status, 303);
@@ -385,6 +390,8 @@ test('a posted form or JSON body runs its action row\'s tool with the input made
     assert.equal((await site.act('/bad', undefined, host, form({}))).status, 404, 'a row with a source that is not one is set aside');
     assert.equal((await site.act('/nowhere', undefined, host, form({}))).status, 404);
     assert.equal((await site.act('/checkout', undefined, host, { ...form({}), origin: 'https://elsewhere.example.test' })).status, 403, 'another site\'s page cannot post here');
+    assert.equal((await site.act('/checkout', undefined, host, { ...form({ offerId: 'offer:one' }), origin: 'http://127.0.0.1:18440', hostHeader: '127.0.0.1:18440' })).status, 303, 'a page on the very address the post was sent to may post');
+    assert.equal((await site.act('/checkout', undefined, host, { ...form({}), origin: 'http://127.0.0.1:9', hostHeader: '127.0.0.1:18440' })).status, 403);
     assert.equal((await site.act('/checkout', undefined, host, { contentType: 'text/plain', bytes: Buffer.from('x') })).status, 400);
     assert.equal((await site.act('/checkout', undefined, host, { contentType: 'application/json', bytes: Buffer.alloc(MOST_ACTION_BYTES + 1, 32) })).status, 413);
     assert.throws(() => settingsOf({ ...settings(d.address), actions: 'site actions' }), /actions/);

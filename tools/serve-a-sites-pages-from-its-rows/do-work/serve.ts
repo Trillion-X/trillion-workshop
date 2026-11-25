@@ -346,16 +346,19 @@ export class Site {
    * (as the member when one is signed in, else as the site), and the row's answer. A form post is sent on with 303; a JSON
    * post gets JSON ({ "redirect": address } for a redirect).
    */
-  async act(address: string, cookie: string | undefined, host: string, request: { contentType?: string; origin?: string; bytes: Buffer }): Promise<Answer> {
+  async act(address: string, cookie: string | undefined, host: string, request: { contentType?: string; origin?: string; hostHeader?: string; bytes: Buffer }): Promise<Answer> {
     const pathname = new URL(address, 'http://site.invalid').pathname;
     const json = (status: number, value: unknown): Answer => ({ status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }, body: JSON.stringify(value) });
     this.#fresh();
     const matched = matchAction(this.#actions, host, pathname);
     if (!matched) return json(404, { error: 'Nothing is done at this address.' });
+    // A browser names the page a post came from (Origin): it must be one of the site's hosts, or the very address this
+    // request was sent to (the page and the post on one origin, as a local run is).
     if (request.origin !== undefined && request.origin !== 'null') {
-      let from = '';
-      try { from = new URL(request.origin).hostname; } catch { from = ''; }
-      if (this.hostOf(from, undefined) !== from) return json(403, { error: 'This is done only from this site\'s own pages.' });
+      let from: URL | null = null;
+      try { from = new URL(request.origin); } catch { from = null; }
+      const own = from !== null && (this.hostOf(from.hostname, undefined) === from.hostname || (request.hostHeader !== undefined && from.host === request.hostHeader));
+      if (!own) return json(403, { error: 'This is done only from this site\'s own pages.' });
     }
     if (request.bytes.length > MOST_ACTION_BYTES) return json(413, { error: 'Too large.' });
     let posted: { body: Record<string, unknown>; form: boolean };
@@ -497,7 +500,7 @@ export function handlerOf(site: Site, passOn: PassOn[] = []): http.RequestListen
     const answering = request.method === 'POST'
       ? bytesOf(request).then(bytes => bytes === null
         ? { status: 413, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }, body: JSON.stringify({ error: 'Too large.' }) }
-        : site.act(request.url ?? '/', request.headers.cookie, host, { contentType: request.headers['content-type'], origin: request.headers.origin, bytes }))
+        : site.act(request.url ?? '/', request.headers.cookie, host, { contentType: request.headers['content-type'], origin: request.headers.origin, hostHeader: request.headers.host, bytes }))
       : site.answer(request.method ?? 'GET', request.url ?? '/', request.headers.cookie, host);
     answering
       .then(answer => {

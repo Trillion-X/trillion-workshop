@@ -107,10 +107,11 @@ does the job. A screen part posts a plain form, or JSON, to the address the page
 
 Sources: `body` (`key`, dotted into JSON), `path` (`name`), `cookie` (`name`, and `when: { cookie, is }` for a consent),
 `member` (`claim` of the member's pass), `origin` (`then`), `rows` (`sql`, `params`, `database`: a statement run as the site),
-`url` (`base`, `query`), `number` (`of`), `answer` (`key`, in `redirect_to` only), `now`, `new_id`. A source that gives nothing
-leaves its key out, so the tool's own schema refuses a missing required value. A form post is answered 303 to the address; a
+`url` (`base`, `query`), `number` (`of`), `boolean` (`of`: true, "true", "on", "yes", "1" and their opposites), `answer` (`key`, in `redirect_to` only), `now`, `new_id`. A source that gives nothing
+leaves its key out, and an object all of whose values gave nothing is left out too (a signed-out buyer sends no
+`customer`), so the tool's own schema refuses a missing required value. A form post is answered 303 to the address; a
 JSON post gets `{ "redirect": address }` or the listed keys; a failure is 502 with the row's `failed` words. A post whose
-`Origin` is another site is refused (403); a body over 64 KB is refused (413).
+`Origin` is neither one of the site's hosts nor the address the post was sent to is refused (403); a body over 64 KB is refused (413).
 
 Example, a checkout button's form:
 

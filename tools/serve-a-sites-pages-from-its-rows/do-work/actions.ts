@@ -33,8 +33,11 @@
 //     { "$": "answer", "key": "a.b" }               a key of the tool's answer (only in answer.redirect_to)
 //     { "$": "now" }                                the time now, as ISO 8601
 //     { "$": "new_id" }                             a new random id
-//   A source that gives nothing leaves its key out of an object (null in a list), so a tool's optional input stays absent
-//   and its required input is refused by the tool's own schema, never guessed.
+//     { "$": "boolean", "of": <value> }             true for true, "true", "on", "yes" or "1"; false for their opposites
+//   A source that gives nothing leaves its key out of an object (null in a list), and an object all of whose values gave
+//   nothing is itself nothing, so a tool's optional input stays absent (a signed-out buyer sends no customer) and its
+//   required input is refused by the tool's own schema, never guessed. A body key is read whole first ("consent.billing"
+//   as a form field's name), then dotted into JSON.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Nothing about any one site is in this file: the rows are the site's actions.
@@ -98,6 +101,7 @@ const SOURCES: Record<string, (value: Record<string, unknown>, where: string) =>
     for (const [key, value] of Object.entries((v.query ?? {}) as Record<string, unknown>)) checkValue(value, `${where}.query.${key}`);
   },
   number: (v, where) => checkValue(v.of, `${where}.of`),
+  boolean: (v, where) => checkValue(v.of, `${where}.of`),
   answer: (v, where) => words(v.key, `${where}.key`),
   now: () => {},
   new_id: () => {},
@@ -203,7 +207,11 @@ export function bodyOf(contentType: string | undefined, bytes: Buffer): { body: 
   throw new SyntaxError('The body is a form (application/x-www-form-urlencoded) or JSON (application/json).');
 }
 
+const TRUE = new Set(['true', 'on', 'yes', '1']);
+const FALSE = new Set(['false', 'off', 'no', '0']);
+
 function dotted(value: unknown, key: string): unknown {
+  if (value && typeof value === 'object' && !Array.isArray(value) && Object.hasOwn(value, key)) return (value as Record<string, unknown>)[key];
   return key.split('.').reduce<unknown>((at, part) => (at && typeof at === 'object' && !Array.isArray(at) ? (at as Record<string, unknown>)[part] : undefined), value);
 }
 
@@ -239,6 +247,12 @@ export async function filled(value: unknown, asked: Asked): Promise<unknown> {
         const number = typeof got === 'number' ? got : typeof got === 'string' && got.trim() ? Number(got) : NaN;
         return Number.isFinite(number) ? number : undefined;
       }
+      case 'boolean': {
+        const got = await filled(value.of, asked);
+        if (typeof got === 'boolean') return got;
+        const word = typeof got === 'string' || typeof got === 'number' ? String(got).trim().toLowerCase() : '';
+        return TRUE.has(word) ? true : FALSE.has(word) ? false : undefined;
+      }
       case 'answer': return asked.answer ? dotted(asked.answer, value.key as string) : undefined;
       case 'now': return new Date().toISOString();
       case 'new_id': return randomUUID();
@@ -248,11 +262,12 @@ export async function filled(value: unknown, asked: Asked): Promise<unknown> {
   if (Array.isArray(value)) return Promise.all(value.map(async item => (await filled(item, asked)) ?? null));
   if (value && typeof value === 'object') {
     const out: Record<string, unknown> = {};
-    for (const [key, item] of Object.entries(value)) {
+    const entries = Object.entries(value);
+    for (const [key, item] of entries) {
       const got = await filled(item, asked);
       if (got !== undefined && got !== null) out[key] = got;
     }
-    return out;
+    return entries.length > 0 && Object.keys(out).length === 0 ? undefined : out;
   }
   return value;
 }
