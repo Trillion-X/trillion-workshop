@@ -14,6 +14,9 @@ export const CARD_NAME = { color: '#0f172a', fontFamily: DISPLAY, fontSize: 'cla
 export const CARD_PRICE = { color: '#0f172a', fontFamily: DISPLAY, fontSize: 'clamp(2.925rem,4vw,3.5rem)', fontWeight: 700, letterSpacing: '-.045em', lineHeight: 1, margin: 0 } as const;
 /** A card that draws its own surface (`framed`): the program pages' white card, 460 wide, its padding easing in on a phone. */
 export const CARD_FRAME = { background: 'rgba(255,255,255,.72)', borderRadius: 22, boxShadow: '0 18px 50px -22px rgba(15,23,42,.28), 0 0 0 1px rgba(15,23,42,.06)', boxSizing: 'border-box', padding: 'clamp(20px,2.03vw,26px) clamp(16px,2.03vw,26px) clamp(18px,1.72vw,22px)', width: 'min(460px, 100%)' } as const;
+/** A field's label and the line under a card's button, as the program pages set them. */
+export const CARD_LABEL = { fontSize: '15px', fontWeight: 400 } as const;
+export const CARD_FOOT = { color: 'rgba(15,23,42,.62)', fontSize: '15px', textAlign: 'center' } as const;
 export const CARD_CADENCE = { color: 'rgba(15,23,42,.55)', fontFamily: 'var(--font-primary, inherit)', fontSize: '.95rem', fontWeight: 650, letterSpacing: 'normal', marginLeft: 6 } as const;
 export const CARD_FEATURE = { color: '#172033', fontSize: 'clamp(1rem,1.35vw,1.08rem)', fontWeight: 680, lineHeight: 1.45 } as const;
 export const CARD_NOTE = { background: 'rgba(37,148,107,.1)', border: '1px solid rgba(37,148,107,.28)', borderRadius: 12, color: 'rgba(15,23,42,.86)', fontSize: 'clamp(1rem,1.35vw,1.08rem)', fontWeight: 730, lineHeight: 1.45, margin: '1.08rem 0', padding: '14px 16px' } as const;

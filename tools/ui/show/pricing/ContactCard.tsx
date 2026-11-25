@@ -12,16 +12,18 @@
 //      adds the values the person does not type, such as which form this is. The page that receives the post is the host's.
 //   2. Every word (heading, line, labels, button, note) is a prop; none is held here. A field is drawn required only when it is
 //      given `required`.
-//   3. Built from the shared Form, the licensed Coss Input and Button, and Text; no raw HTML, no inline styling.
+//   3. Built from the shared Form and Button (not the coss kit's, whose `.coss-ui [data-slot=button]` rule makes a button inherit its
+//      host's type and so overrides the Button's own size and weight), the licensed Coss Input, and Text; no raw HTML, no inline
+//      styling beyond the cards' own type (card-type.ts).
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import React from 'react';
 import { Container } from '../container/index.ts';
 import { Input } from '../coss/ui/input.tsx';
-import { Button } from '../coss/ui/button.tsx';
+import { Button } from '../button/Button.tsx';
 import { Form } from '../form/Form.tsx';
 import { Text } from '../text/Text.tsx';
-import { CARD_FRAME, CARD_NAME, CARD_NOTE } from './card-type.ts';
+import { CARD_FOOT, CARD_FRAME, CARD_LABEL, CARD_NAME, CARD_NOTE } from './card-type.ts';
 import { Labelled } from '../../../ask-questions-sort-answers-follow-up/show/FormSteps.tsx';
 
 export type ContactField = { name: string; label: string; type?: 'text' | 'email'; required?: boolean; value?: string };
@@ -57,14 +59,14 @@ export function View({ framed, title, lead, fields, button, note, error = '', se
       {lead ? <Text as="p" style={CARD_NOTE}>{lead}</Text> : null}
       <Form {...(action === undefined ? { onSubmit: submit } : { method: 'post', action, hiddenFields })} className="flex flex-col gap-4">
         {fields.map(field => (
-          <Labelled key={field.name} label={field.label}>
+          <Labelled key={field.name} label={field.label} labelStyle={CARD_LABEL}>
             <Input name={field.name} type={field.type ?? 'text'} required={field.required} size="lg" {...(action === undefined ? { value: field.value ?? '', onChange: (event: React.ChangeEvent<HTMLInputElement>) => onChange?.(field.name, event.target.value) } : { defaultValue: field.value ?? '' })} />
           </Labelled>
         ))}
         {error === '' ? null : <Text as="p" role="alert" color="error">{error}</Text>}
-        <Container layout="horizontal"><Button type="submit" size="lg" disabled={sending}>{button}</Button></Container>
+        <Container layout="horizontal"><Button type="submit" variant="primary" size="lg" disabled={sending}>{button}</Button></Container>
       </Form>
-      {note ? <Text as="p" variant="caption" color="muted">{note}</Text> : null}
+      {note ? <Text as="p" style={CARD_FOOT}>{note}</Text> : null}
     </Text>
   );
 }

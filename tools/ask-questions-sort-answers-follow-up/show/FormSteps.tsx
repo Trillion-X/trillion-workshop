@@ -27,10 +27,10 @@ export type Next = { key: string; kind: string; position?: number; prompt?: stri
 export type Answer = string | ChoiceRowsValue | null;
 
 // One labelled field: the label above, the control, then its refusal or its help line.
-export function Labelled({ label, help, error, children }: { label: string; help?: string; error?: string; children: React.ReactNode }) {
+export function Labelled({ label, help, error, labelStyle, children }: { label: string; help?: string; error?: string; /** The label's own type, when the page that draws it sets one. */ labelStyle?: React.CSSProperties; children: React.ReactNode }) {
   return (
     <FieldPrimitive.Root className="flex w-full flex-col items-start gap-2" invalid={Boolean(error)}>
-      <FieldPrimitive.Label className="font-medium text-base text-foreground sm:text-sm">{label}</FieldPrimitive.Label>
+      <FieldPrimitive.Label className="font-medium text-base text-foreground sm:text-sm" style={labelStyle}>{label}</FieldPrimitive.Label>
       {children}
       {error ? <Text as="p" role="alert" variant="caption" className="text-destructive-foreground text-xs">{error}</Text> : help ? <FieldPrimitive.Description className="text-muted-foreground text-xs">{help}</FieldPrimitive.Description> : null}
     </FieldPrimitive.Root>
