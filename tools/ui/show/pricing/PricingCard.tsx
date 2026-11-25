@@ -54,8 +54,8 @@ export type PricingMore = {
 const moneyOf = (cents: number, currency = 'USD') => new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: cents % 100 === 0 ? 0 : 2, maximumFractionDigits: 2 }).format(cents / 100);
 
 /** A post that names one checkout attempt: the form carries an id and the time the buyer pressed Checkout, made when it is
- *  submitted (a new pair for every press), in these fields. */
-export type PricingAttempt = { id_field: string; started_field: string };
+ *  submitted (a new pair for every press), in these fields, and, when `origin_field` is named, this page's origin. */
+export type PricingAttempt = { id_field: string; started_field: string; /** The field that carries this page's origin (location.origin) when the receiving page asks for where to send the buyer back. */ origin_field?: string };
 
 export type PricingCardProps = {
   /** The fields the post carries its attempt in (see PricingAttempt); none when the page that receives the post asks for none. */
@@ -108,7 +108,7 @@ export function View(props: PricingCardProps) {
   const cta = { ...ctaGiven, label: ctaGiven.label.replace('{price}', picked?.label ?? given ?? '') };
   const blocked = typed !== null && picked === null;
   const chosen = more && picked ? { ...fields, [more.field]: String(picked.cents) } : fields;
-  const hiddenFields = attempt ? { ...chosen, [attempt.id_field]: '', [attempt.started_field]: '' } : chosen;
+  const hiddenFields = attempt ? { ...chosen, [attempt.id_field]: '', [attempt.started_field]: '', ...(attempt.origin_field ? { [attempt.origin_field]: '' } : {}) } : chosen;
   // The attempt is made as the form is submitted, so every press is its own: an id of letters, digits and dashes, and the time.
   const stamp = (event: React.FormEvent<HTMLFormElement>) => {
     if (!attempt) return;
@@ -117,6 +117,8 @@ export function View(props: PricingCardProps) {
     const started = form.namedItem(attempt.started_field) as HTMLInputElement | null;
     if (id) id.value = typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : `attempt-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
     if (started) started.value = new Date().toISOString();
+    const origin = attempt.origin_field ? (form.namedItem(attempt.origin_field) as HTMLInputElement | null) : null;
+    if (origin) origin.value = window.location.origin;
   };
   const body = (
     <>

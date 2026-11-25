@@ -149,12 +149,12 @@ export function differences(old, now, width, tolerance = TOLERANCE) {
 }
 
 /** Opens both pages at each width and returns { count, byKind, differences, pictures }. */
-export async function compareRenders({ browser, old, now, widths = [1280, 390], height = 900, settleMs = 1500, shots = null }) {
+export async function compareRenders({ browser, newBrowser = browser, old, now, widths = [1280, 390], height = 900, settleMs = 1500, shots = null }) {
   const all = [];
   for (const width of widths) {
     const rendered = [];
-    for (const [name, open] of [['old', old], ['new', now]]) {
-      const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1 });
+    for (const [name, open, opener] of [['old', old, browser], ['new', now, newBrowser]]) {
+      const context = await opener.newContext({ viewport: { width, height }, deviceScaleFactor: 1 });
       const page = await context.newPage();
       await open(page);
       await page.waitForTimeout(settleMs);
@@ -178,10 +178,13 @@ if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).
   const require = createRequire(process.env.PLAYWRIGHT_FROM ?? `${process.cwd()}/package.json`);
   const { chromium } = require('playwright');
   const [oldUrl, newUrl, out, widthsText] = process.argv.slice(2);
+  // CHROMIUM_ARGS (space-separated) are the browser args of the NEW page only, e.g. --host-resolver-rules="MAP name 127.0.0.1".
   const browser = await chromium.launch();
+  const newBrowser = process.env.CHROMIUM_ARGS ? await chromium.launch({ args: process.env.CHROMIUM_ARGS.split(/\s+(?=--)/).filter(Boolean) }) : browser;
   const opener = url => async page => { await page.goto(url, { waitUntil: 'load', timeout: 60000 }); };
-  const result = await compareRenders({ browser, old: opener(oldUrl), now: opener(newUrl), widths: (widthsText ?? '1280,390').split(',').map(Number), shots: out });
+  const result = await compareRenders({ browser, newBrowser, old: opener(oldUrl), now: opener(newUrl), widths: (widthsText ?? '1280,390').split(',').map(Number), shots: out });
   await browser.close();
+  if (newBrowser !== browser) await newBrowser.close();
   writeFileSync(`${out}/parity.json`, JSON.stringify(result, null, 1));
   console.log(JSON.stringify({ count: result.count, byKind: result.byKind }));
 }
