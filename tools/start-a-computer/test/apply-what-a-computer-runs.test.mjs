@@ -950,6 +950,25 @@ const scopeBuildMetadata = {
   environment: ['RELEASE_COMMIT={commit}'],
 };
 
+test('an engine release keeps a settings part read from a Workshop file, and refuses one outside tools/ or the settings', () => {
+  const old = { ...scopeBuildMetadata, commit: '1'.repeat(40), prebuilt: { blake3: '5'.repeat(64) } };
+  const next = { ...scopeBuildMetadata, commit: '2'.repeat(40), prebuilt: { blake3: '6'.repeat(64) } };
+  const scope = { kind: 'engine-slot', unit: 'example-place.service', incumbent: { unit: 'example-place-a.service', pid: 101, invocation: 'a'.repeat(32) } };
+  const card = 'tools/ui/show/run-the-screen-an-ai-wrote/show-a-screen.json';
+  const rowWith = (parts, source) => ({ name: 'example-box', address: machine.address, runs: { ...runs, rendered_from_workshop: '3'.repeat(40), units: [{
+    ...runs.units[0], settings: { ...runs.units[0].settings, doors: [{ accepts_hosts: ['page.example.test'], show_tools: [] }] }, parts, source, slots: {
+      a: { 'settings.listen': '127.0.0.1:7199', health_listen: '127.0.0.1:7199' },
+      b: { 'settings.listen': '127.0.0.1:7198', health_listen: '127.0.0.1:7198' },
+    } }] } });
+  const shown = { '/settings/doors/0/show_tools/0': { workshop_file: card } };
+  assert.equal(engineScopeForEdit(rowWith(shown, old), rowWith(shown, next), scope).unit, scope.unit);
+  for (const bad of [
+    { '/settings/doors/0/show_tools/0': { workshop_file: 'tools/../package.json' } },
+    { '/units/0': { workshop_file: card } },
+    { '/settings/doors/0/show_tools/0': { workshop_file: card, file: 'brands/example.json' } },
+  ]) assert.throws(() => engineScopeForEdit(rowWith(bad, old), rowWith(bad, next), scope), /engine Workshop parts may put only a JSON file under tools\//);
+});
+
 test('one pinned engine scope overlaps only its own slots and refuses unrelated writes', async t => {
   const digest = bytes => Buffer.from(blake3(bytes)).toString('hex');
   const oldBytes = Buffer.from('fixture rollback executable'), nextBytes = Buffer.from('fixture candidate executable');

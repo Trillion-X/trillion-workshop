@@ -2,7 +2,7 @@
 
 The one page an AI app (Claude, ChatGPT, any MCP Apps host) loads to show the answer of a call through the door. It runs the screen an AI wrote for that answer: one HTML document with any CSS and script, carried in the call's `screen` field. It draws nothing of its own. There are no parts, no list of kinds, and no rule about what an answer looks like. The code decides.
 
-The `screen` field is laid on the door's one tool by the door owner's row (trillion-rust `src/mcp/hosts.rs` `tool_input`), and the door takes it out of the call before running anything. The app streams the call's arguments to this page while the AI types them (`ui/notifications/tool-input-partial`), so the screen appears as it is written.
+The `screen` field is an argument of `show_a_screen`, a tool the chat app calls directly, beside the door's one tool. Its definition is `show-a-screen.json` here; a computer's row names that file's fields as parts of its engine's door (`/settings/doors/0/show_tools/0/<field>`, `{ workshop_file, pointer }`, tools/start-a-computer), and the engine lists it as one of the door's `show_tools` (the engine's `src/mcp/hosts.rs`). A call of it runs nothing on the engine. The app streams the call's arguments to this page while the AI types them (`ui/notifications/tool-input-partial`), so the screen appears as it is written.
 
 ## Files
 
@@ -10,6 +10,7 @@ The `screen` field is laid on the door's one tool by the door owner's row (trill
 |------|---------|
 | `runner.mjs` | `runScreens(win, { connect, words })`. It holds the code, paints it as it grows (at most once per animation frame, scripts inert), runs its scripts once the input is whole, and gives the code `window.door`. If the call carried no code, it tries the requests the words name in order. |
 | `boot.mjs` | The page's start: reads its own words (`#screen-words`) and connects the AI app's bridge (`../ai-app-bridge/ai-app-bridge.mjs`). |
+| `show-a-screen.json` | The `show_a_screen` tool as the chat app lists it: its name, title, words, input (`screen`, `answer`, `address`, `method`, `input`) and annotations. A computer row fills its door's `show_tools` entry with these fields, so every computer that offers the tool offers the same words; the row keeps only the entry's `_meta`, the address of its own copy of this page. |
 | `make-screen-document.mjs` | `node make-screen-document.mjs <owner-words.json> <out.html>`. It writes the page with the runner and the bridge inside it (about 16 KB), so the page reads nothing from anywhere to start. |
 | `test/runner.test.mjs` | The page in real Chromium inside a stand-in MCP Apps host (an opaque-origin frame, as Claude and ChatGPT frame it). |
 

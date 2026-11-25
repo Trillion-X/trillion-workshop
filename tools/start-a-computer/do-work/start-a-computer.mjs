@@ -39,6 +39,10 @@ import {
 
 const SETUP = fileURLToPath(new URL('./set-up-the-machine.sh', import.meta.url));
 const CAP_JOURNAL = fileURLToPath(new URL('./cap-the-journal.sh', import.meta.url));
+// The Workshop this program is part of: a unit's part may read one of its files (`workshop_file`), so a setting such as a tool an
+// engine's door lists is rendered from the same Workshop commit as everything else the apply renders.
+const WORKSHOP_ROOT = new URL('../../../', import.meta.url);
+const WORKSHOP_PART = /^tools\/(?:[A-Za-z0-9_-]+\/)+[A-Za-z0-9_-]+\.json$/;
 const BUILD = readFileSync(new URL('./build-from-source.sh', import.meta.url), 'utf8');
 const SETTINGS = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
 const q = text => `'${String(text).replace(/'/g, `'\\''`)}'`;
@@ -1038,13 +1042,22 @@ export function engineScopeSiteFile(row, scope) {
   const { engine } = selectedEngine(row, scope);
   if (engine.parts === undefined) return undefined;
   if (engine.parts === null || typeof engine.parts !== 'object' || Array.isArray(engine.parts)) throw refused('engine site parts must be an object.');
+  const readsWorkshop = part => Boolean(part) && typeof part === 'object' && Object.hasOwn(part, 'workshop_file');
+  const fromWorkshop = Object.entries(engine.parts).filter(([, part]) => readsWorkshop(part));
+  for (const [at, part] of fromWorkshop) {
+    if (!(exactKeys(part, ['workshop_file']) || exactKeys(part, ['workshop_file', 'pointer'])) || !WORKSHOP_PART.test(part.workshop_file) || !at.startsWith('/settings/')) {
+      throw refused('engine Workshop parts may put only a JSON file under tools/ of the Workshop into the engine settings.');
+    }
+  }
+  const doorParts = Object.entries(engine.parts).filter(([, part]) => !readsWorkshop(part));
+  if (!doorParts.length) return undefined;
   const bindings = row.runs.units.filter(unit => unit.parts && Object.hasOwn(unit.parts, '/settings/site')).map(unit => unit.parts['/settings/site']);
   const file = bindings[0]?.file;
   if (bindings.length !== 1 || !exactKeys(bindings[0], ['file']) || typeof file !== 'string' ||
       !/^(?:[A-Za-z0-9_-]+\/)+[A-Za-z0-9_-]+\.json$/.test(file)) {
     throw refused('engine site parts need one relative owner file bound to the entire site setting.');
   }
-  for (const [at, part] of Object.entries(engine.parts)) {
+  for (const [at, part] of doorParts) {
     const field = /^\/settings\/doors\/(?:0|[1-9][0-9]*)\/(app_host|site_host|server_name|command_word)$/.exec(at)?.[1];
     if (!field || !exactKeys(part, ['file', 'pointer']) || part.file !== file || part.pointer !== engineDoorSitePointers[field]) {
       throw refused('engine site parts may fill only the declared door fields from their owner site setting.');
@@ -1317,8 +1330,9 @@ export function readRequest(file) {
   }
   // A unit's `parts` fill it from what the person keeps (any file: their own description, a provider's): each key is a JSON
   // Pointer (RFC 6901) into the unit (its settings, a web server's site, any field), each value `{ file, pointer }`, the value at
-  // that pointer of the file's JSON (pointer "" or none: the whole file), read relative to the computer row's file. The tool
-  // names no setting and no field: which value goes where is the person's.
+  // that pointer of the file's JSON (pointer "" or none: the whole file), read relative to the computer row's file, or
+  // `{ workshop_file, pointer }`, read from a JSON file under tools/ of the Workshop this program runs from (the commit the apply
+  // renders). The tool names no setting and no field: which value goes where is the person's.
   const scopeSiteFile = scoped ? engineScopeSiteFile(request.computer_row, request.scope) : undefined;
   let ownerSite;
   if (scopeSiteFile) {
@@ -1330,12 +1344,15 @@ export function readRequest(file) {
   for (const unit of partsUnits) {
     for (const [target, part] of Object.entries(unit.parts ?? {})) {
       const where = `${unit.unit} parts ${target}`;
-      if (!target.startsWith('/') || !part || typeof part.file !== 'string' || (part.pointer !== undefined && typeof part.pointer !== 'string')) {
-        throw refused(`${where}: each key is a JSON Pointer into the unit (it starts with /) and each value { file, pointer }.`);
+      const fromWorkshop = Boolean(part) && typeof part === 'object' && Object.hasOwn(part, 'workshop_file');
+      const named = fromWorkshop ? part.workshop_file : part?.file;
+      if (!target.startsWith('/') || !part || typeof named !== 'string' || (fromWorkshop && Object.hasOwn(part, 'file')) || (part.pointer !== undefined && typeof part.pointer !== 'string')) {
+        throw refused(`${where}: each key is a JSON Pointer into the unit (it starts with /) and each value { file, pointer } or { workshop_file, pointer }.`);
       }
-      const content = scoped ? ownerSite : JSON.parse(readFileSync(resolvePath(rowHere, part.file), 'utf8'));
-      const value = pointed(content, part.pointer ?? '', `${where} reads ${part.file}`);
-      if (scoped && (typeof value !== 'string' || !value)) throw refused('the engine door field must be nonempty text in the owner site setting.');
+      if (fromWorkshop && !WORKSHOP_PART.test(named)) throw refused(`${where}: workshop_file is a JSON file under tools/ of the Workshop, named without . or .. parts.`);
+      const content = fromWorkshop ? JSON.parse(readFileSync(new URL(named, WORKSHOP_ROOT), 'utf8')) : scoped ? ownerSite : JSON.parse(readFileSync(resolvePath(rowHere, part.file), 'utf8'));
+      const value = pointed(content, part.pointer ?? '', `${where} reads ${named}`);
+      if (scoped && !fromWorkshop && (typeof value !== 'string' || !value)) throw refused('the engine door field must be nonempty text in the owner site setting.');
       const keys = pointerKeys(target), last = keys.pop();
       const holder = keys.reduce((held, key) => held?.[key], unit);
       if (!holder || typeof holder !== 'object') throw refused(`${where}: the unit holds nothing at ${target.slice(0, target.lastIndexOf('/')) || '/'} to put it in.`);

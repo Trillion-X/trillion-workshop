@@ -1,0 +1,35 @@
+{
+  "annotations": {
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "readOnlyHint": true,
+    "title": "Show a screen"
+  },
+  "description": "Show the person something to see or touch, for an answer you already have. It runs nothing itself. A screen for the person: one HTML document (any CSS and script), shown while you write it. window.door.answer is the answer you pass in `answer`; window.door.onAnswer(fn) hears it; window.door.run(method, input) does one thing in the person's account as them, such as run('tools:list', {}), and resolves with its answer (use it for every button, slider or field that should change something real); window.door.tell(text) says text in this chat as the person, so you hear what they picked or did on the screen and go on from it (use it for every choice that should continue the conversation); window.door.size() fits the frame. The page already wears the person's look: use its CSS variables for every color, size and font, such as --bg-surface, --text-primary, --text-secondary, --accent-primary, --border-primary, --radius-card, --space-4, --font-display. Show only what matters. Leave `screen` out to open the screen already kept for this kind of answer.",
+  "inputSchema": {
+    "additionalProperties": false,
+    "properties": {
+      "address": {
+        "description": "The address of the operation the answer came from, so the screen is kept for that kind of answer.",
+        "type": "string"
+      },
+      "answer": {
+        "description": "The answer the screen shows (window.door.answer)."
+      },
+      "input": {
+        "type": "object"
+      },
+      "method": {
+        "type": "string"
+      },
+      "screen": {
+        "description": "A screen for the person: one HTML document (any CSS and script), shown while you write it. window.door.answer is the answer you pass in `answer`; window.door.onAnswer(fn) hears it; window.door.run(method, input) does one thing in the person's account as them, such as run('tools:list', {}), and resolves with its answer (use it for every button, slider or field that should change something real); window.door.tell(text) says text in this chat as the person, so you hear what they picked or did on the screen and go on from it (use it for every choice that should continue the conversation); window.door.size() fits the frame. The page already wears the person's look: use its CSS variables for every color, size and font, such as --bg-surface, --text-primary, --text-secondary, --accent-primary, --border-primary, --radius-card, --space-4, --font-display. Show only what matters. Leave `screen` out to open the screen already kept for this kind of answer.",
+        "type": "string"
+      }
+    },
+    "type": "object"
+  },
+  "name": "show_a_screen",
+  "title": "Show a screen"
+}

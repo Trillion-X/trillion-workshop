@@ -283,6 +283,31 @@ test('a settings part puts any value of any file at any place in the settings, e
   }
 });
 
+test('a settings part may read a JSON file of the Workshop the apply renders from, never one outside its tools', () => {
+  const dir = tempFolder(join(tmpdir(), 'settings-parts-workshop-'));
+  mkdirSync(join(dir, 'rows'), { recursive: true });
+  const card = 'tools/ui/show/run-the-screen-an-ai-wrote/show-a-screen.json';
+  const parts = { '/settings/doors/0/show_tools/0': { workshop_file: card }, '/settings/doors/0/tool_title': { workshop_file: card, pointer: '/title' } };
+  const engine = { unit: 'engine.service', settings: { doors: [{ id: 'front', accepts_hosts: ['acme.example.test'], show_tools: [] }] }, parts };
+  writeFileSync(join(dir, 'rows', 'computer.json'), JSON.stringify({ name: 'example-computer', runs: { units: [engine] } }));
+  writeFileSync(join(dir, 'request.json'), JSON.stringify({ computer_row_file: 'rows/computer.json' }));
+  const [read] = readRequest(join(dir, 'request.json')).computer_row.runs.units;
+  const shown = JSON.parse(readFileSync(new URL(`../../../${card}`, import.meta.url), 'utf8'));
+  assert.equal(shown.name, 'show_a_screen');
+  assert.deepEqual(read.settings.doors[0].show_tools, [shown]);
+  assert.equal(read.settings.doors[0].tool_title, shown.title);
+  assert.equal(read.parts, undefined);
+  for (const [bad, said] of [
+    [{ workshop_file: 'tools/../package.json' }, /workshop_file is a JSON file under tools\//],
+    [{ workshop_file: '/etc/passwd.json' }, /workshop_file is a JSON file under tools\//],
+    [{ workshop_file: 'README.md' }, /workshop_file is a JSON file under tools\//],
+    [{ workshop_file: card, file: 'mine.json' }, /\{ workshop_file, pointer \}/],
+  ]) {
+    writeFileSync(join(dir, 'rows', 'computer.json'), JSON.stringify({ name: 'example-computer', runs: { units: [{ ...engine, parts: { '/settings/doors/0/show_tools/0': bad } }] } }));
+    assert.throws(() => readRequest(join(dir, 'request.json')), said);
+  }
+});
+
 // The vault is the original: a credential the computer holds that differs from the value now handed is sealed again and its unit
 // restarts, and one that matches is left alone.
 test('a held credential whose handed value differs from the sealed one is sealed again, and a matching one is left', async () => {
