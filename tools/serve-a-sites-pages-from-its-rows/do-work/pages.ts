@@ -19,6 +19,9 @@
 //   A layout is one node or a list of nodes (drawn one after another). A layout node is one of:
 //     { "part": "<folder under tools>/show/.../<File>.tsx", "export": "<Name>", "props": {...}, "children": [node...] }
 //     { "tool": "tool:<id>", "input": {...}, "props": {...} }   that tool's screen, drawn with its answer
+//     { "tool": "tool:<id>", "input": {...}, "part": "...", "export": "<Name>", "props": {...} }
+//                                               another screen file of the tools folder, drawn with that tool's answer
+//                                               (a second look at the same answer, such as a carousel of the same pairs)
 //     { "main": true, "props": {...} }          the page row's own tool screen
 //   A screen's props are its tool's answer; a tool or main node's `props` are the page's own words the screen also takes
 //   (a heading, a lede), under the answer, so a row never changes what the tool answered.
@@ -40,7 +43,7 @@ export type Access = 'public' | 'members';
 
 export type LayoutNode =
   | { part: string; export?: string; props?: Record<string, unknown>; children?: LayoutNode[] }
-  | { tool: string; input?: unknown; props?: Record<string, unknown> }
+  | { tool: string; input?: unknown; part?: string; export?: string; props?: Record<string, unknown> }
   | { main: true; props?: Record<string, unknown> }
   | { text: string }
   | { nodes: LayoutNode[] }
@@ -82,6 +85,19 @@ function propsOf(props: unknown, where: string): { props?: Record<string, unknow
   return { props: props as Record<string, unknown> };
 }
 
+function partOf(part: unknown, where: string): string {
+  if (typeof part !== 'string' || !PART_FILE.test(part) || part.split('/').includes('..')) {
+    throw new PageRowError(`${where}: part is a screen file under the tools folder, such as ui/show/pricing/Pricing.tsx.`);
+  }
+  return part;
+}
+
+function exportOf(name: unknown, where: string): string {
+  const given = name ?? 'View';
+  if (typeof given !== 'string' || !EXPORT_NAME.test(given)) throw new PageRowError(`${where}: export is the name the part's file exports.`);
+  return given;
+}
+
 function checkNode(node: unknown, where: string, hasTool: boolean): LayoutNode {
   if (Array.isArray(node)) return { nodes: node.map((child, i) => checkNode(child, `${where}[${i}]`, hasTool)) };
   const n = node as Record<string, unknown> | null;
@@ -101,13 +117,14 @@ function checkNode(node: unknown, where: string, hasTool: boolean): LayoutNode {
   }
   if ('tool' in n) {
     if (typeof n.tool !== 'string' || !TOOL_ID.test(n.tool)) throw new PageRowError(`${where}: tool is a tool id such as tool:read-the-courses.`);
-    return { tool: n.tool, input: n.input ?? {}, ...propsOf(n.props, where) };
+    if (n.part === undefined) {
+      if (n.export !== undefined) throw new PageRowError(`${where}: export names a part's export, and this tool node names no part.`);
+      return { tool: n.tool, input: n.input ?? {}, ...propsOf(n.props, where) };
+    }
+    return { tool: n.tool, input: n.input ?? {}, part: partOf(n.part, where), export: exportOf(n.export, where), ...propsOf(n.props, where) };
   }
-  if (typeof n.part !== 'string' || !PART_FILE.test(n.part) || n.part.split('/').includes('..')) {
-    throw new PageRowError(`${where}: part is a screen file under the tools folder, such as ui/show/pricing/Pricing.tsx.`);
-  }
-  const name = n.export ?? 'View';
-  if (typeof name !== 'string' || !EXPORT_NAME.test(name)) throw new PageRowError(`${where}: export is the name the part's file exports.`);
+  const name = exportOf(n.export, where);
+  partOf(n.part, where);
   if (n.props !== undefined && (typeof n.props !== 'object' || n.props === null || Array.isArray(n.props))) throw new PageRowError(`${where}: props is an object.`);
   if (n.children !== undefined && !Array.isArray(n.children)) throw new PageRowError(`${where}: children is a list of nodes.`);
   const children = (n.children as unknown[] | undefined)?.map((child, i) => checkNode(child, `${where}.children[${i}]`, hasTool));

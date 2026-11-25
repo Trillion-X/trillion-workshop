@@ -118,10 +118,19 @@ export function runsOf(tree: LayoutNode): ToolRun[] {
   return [...runs.values()];
 }
 
+/** Every tool node of a tree, in tree order. */
+function toolNodesOf(node: LayoutNode): Extract<LayoutNode, { tool: string }>[] {
+  if ('tool' in node) return [node];
+  if ('nodes' in node) return node.nodes.flatMap(toolNodesOf);
+  if ('part' in node) return (node.children ?? []).flatMap(toolNodesOf);
+  return [];
+}
+
 /** The tree with every tool node drawn by its screen with its answer, ready for render-layout.ts. */
 export async function drawnTreeOf(tree: LayoutNode, screens: Map<string, Screen>, run: (call: ToolRun) => Promise<unknown>): Promise<{ drawn: DrawnNode; timed: Timed[]; answerOf: (call: ToolRun) => Record<string, unknown> | undefined }> {
   const runs = runsOf(tree);
-  for (const call of runs) if (!screens.has(call.tool)) throw new Error(`${call.tool} has no module screen in its card, so no page can draw it.`);
+  const unscreened = toolNodesOf(tree).find(node => node.part === undefined && !screens.has(node.tool));
+  if (unscreened) throw new Error(`${unscreened.tool} has no module screen in its card, so no page can draw it.`);
   const timed: Timed[] = [];
   const answers = new Map(await Promise.all(runs.map(async call => {
     const started = performance.now();
@@ -135,7 +144,7 @@ export async function drawnTreeOf(tree: LayoutNode, screens: Map<string, Screen>
     if ('go_to' in node) return { text: node.go_to };
     if ('nodes' in node) return { nodes: node.nodes.map(drawn) };
     if ('tool' in node) {
-      const screen = screens.get(node.tool)!;
+      const screen = node.part === undefined ? screens.get(node.tool)! : { file: node.part, export: node.export ?? 'View' };
       return { module: moduleKey(screen.file, screen.export), props: { ...(node.props ?? {}), ...answers.get(runKey(node.tool, node.input)) } };
     }
     if ('main' in node) throw new Error('A main node was left in the tree.');

@@ -71,6 +71,8 @@ A layout node is one of:
 ```
 { "part": "ui/show/pricing/Pricing.tsx", "export": "Pricing", "props": { ... }, "children": [ ...nodes ] }
 { "tool": "tool:read-published-articles", "input": { ... } }    that tool's screen with its answer
+{ "tool": "tool:read-movement-pairs", "input": { ... }, "part": "<folder>/show/<Other>.tsx", "export": "View" }
+                                                                another screen file, drawn with that tool's answer
 { "main": true }                                                the page's own tool screen
 { "text": "words" }
 ```

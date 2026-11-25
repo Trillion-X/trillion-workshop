@@ -72,3 +72,12 @@ test('a font-face row is a family, weight, style and font file; anything else re
   }
   assert.equal(lookCss([{ name: 'font-face.x', value: 'SF|400|normal|/x.woff2' }]), '');
 });
+
+test('a tool node may name another screen file, drawn with that tool\'s answer and needing no card screen', async () => {
+  const page = pageOf({
+    path: '/p', title: 'P', access: 'public', tool: null, input: null, collection: null, updated_at: null,
+    layout: [{ tool: 'tool:read-pairs', input: { n: 1 }, part: 'pairs/show/Showcase.tsx', export: 'View', props: { label: 'All pairs' } }],
+  });
+  const { drawn } = await drawnTreeOf(treeOf(page, {}), new Map(), async () => ({ pairs: [1, 2] }));
+  assert.deepEqual(drawn, { nodes: [{ module: 'pairs/show/Showcase.tsx#View', props: { label: 'All pairs', pairs: [1, 2] } }] });
+});

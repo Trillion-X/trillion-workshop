@@ -40,6 +40,8 @@ test('a row that breaks a rule is refused with its path and why', () => {
     [row({ path: '/a', layout: { part: 'ui/show/text/Text.tsx', export: 'Text; evil' } }), /export/],
     [row({ path: '/a', tool: null, layout: { main: true } }), /main/],
     [row({ path: '/a', layout: { part: 'ui/show/text/Text.tsx', children: [{ tool: 'nope' }] } }), /children\[0\]: tool/],
+    [row({ path: '/a', layout: { tool: 'tool:read-c', part: 'c/do-work/c.ts' } }), /screen file/],
+    [row({ path: '/a', layout: { tool: 'tool:read-c', export: 'Other' } }), /names no part/],
   ];
   for (const [bad, why] of cases) assert.throws(() => pageOf(bad), why, JSON.stringify(bad));
   const twice = pagesOf([row({ path: '/c/:a' }), row({ path: '/c/:b' }), row({ path: 'bad' })]);
