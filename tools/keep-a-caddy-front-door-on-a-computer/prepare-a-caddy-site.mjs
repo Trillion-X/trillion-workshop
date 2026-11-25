@@ -135,6 +135,35 @@ const wwwFirstNames = site => {
     return WWW_FIRST_NAME.replaceAll('{name}', name);
   }).join('\n');
 };
+// A name whose site moved to another computer (served_elsewhere: { to: "https://<address>", names: [host names] }) is sent
+// there whole (routes/served-elsewhere.fragment), with its own Host and its own name for TLS, so a visitor or crawler whose DNS
+// still points here gets the live site's answer (Nov 25 2026: two sites moved to another host, and the old
+// copy of one here answered a page with 503 to a visitor whose DNS was stale). Each name is its own canonical name in the map, so none is redirected, and the
+// certificate question answers 200 for it, so it keeps its certificate here. Absent: no line in any of the three places.
+const SERVED_ELSEWHERE = readFileSync(new URL('./routes/served-elsewhere.fragment', import.meta.url), 'utf8').trimEnd();
+const servedElsewhereOf = site => {
+  const asked = site.served_elsewhere;
+  if (asked === undefined) return null;
+  const where = 'caddy.served_elsewhere';
+  if (asked === null || typeof asked !== 'object' || Array.isArray(asked)) throw new Error(`${where} is { to, names }`);
+  if (typeof asked.to !== 'string' || !/^https:\/\/[A-Za-z0-9.-]+(?::[0-9]+)?$/.test(asked.to)) throw new Error(`${where} to is https://<address>, with no path`);
+  if (!Array.isArray(asked.names) || !asked.names.length || !asked.names.every(name => typeof name === 'string' && HOST_NAME.test(name))) {
+    throw new Error(`${where} names lists one or more host names in small letters`);
+  }
+  const taken = new Set([...Object.keys(site.site_sockets ?? {}), ...(site.www_first_names ?? []).flatMap(name => [name, `www.${name}`])]);
+  const both = asked.names.find(name => taken.has(name));
+  if (both) throw new Error(`${where} ${both} is also served here (site_sockets or www_first_names); a name is served in one place`);
+  return asked;
+};
+const servedElsewhere = site => {
+  const asked = servedElsewhereOf(site);
+  return asked ? SERVED_ELSEWHERE.replaceAll('{names}', asked.names.join(' ')).replaceAll('{to}', asked.to) : '';
+};
+const servedElsewhereNames = site => (servedElsewhereOf(site)?.names ?? []).map(name => `\t\t${name} ${name} ${name}`).join('\n');
+const servedElsewhereAsk = site => {
+  const names = servedElsewhereOf(site)?.names ?? [];
+  return names.length ? `\t@served_elsewhere expression {query.domain} in [${names.map(name => `'${name}'`).join(', ')}]\n\trespond @served_elsewhere 200` : '';
+};
 // A site that asks for its request log (access_log: { keep_ip?, file? }) gets one JSON line per request: its method, its address
 // without the query, its status and how long it took; no header, cookie, TLS detail or query value. The client address is kept
 // only when keep_ip is true. Every line goes to the journal, where start-a-computer's apply-checked fact reads it, and, when the
@@ -174,7 +203,8 @@ const logFileOwner = (site, unit) => {
   return [['install', '-d', '-o', unit.user, '-g', unit.user, '-m', '0755', LOG_FOLDER], ['chown', `${unit.user}:${unit.user}`, path]];
 };
 // The fields a site file fills with lines made from the row: absent or empty, a line that is only the field's slot is no line.
-const LINE_FIELDS = { site_sockets: siteSockets, www_first_names: wwwFirstNames, access_log: accessLog };
+const LINE_FIELDS = { site_sockets: siteSockets, www_first_names: wwwFirstNames, access_log: accessLog, served_elsewhere: servedElsewhere,
+  served_elsewhere_names: servedElsewhereNames, served_elsewhere_ask: servedElsewhereAsk };
 const wholeFile = (site, texts) => {
   const where = `caddy site file ${site.site_file}`;
   const routes = key => (site[key] ?? []).map(path => routeText(texts, path, site)).join('\n');

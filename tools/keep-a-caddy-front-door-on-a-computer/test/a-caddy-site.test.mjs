@@ -338,3 +338,39 @@ test('each name its own folder: Caddy reads a request log to the journal and to 
     assert.equal(logs[name].encoder.fields['request>remote_ip'].filter, 'delete');
   }
 });
+
+// A name whose site moved to another computer (served_elsewhere) is sent there whole, with its own Host and TLS name, keeps its
+// certificate here and is never redirected (Nov 25 2026: an old copy answered a page with 503 to stale-DNS visitors).
+const elsewhereFolders = { site_file: 'each-name-its-own-folder', door_host: '192.0.2.10', certificate_profile: 'shortlived', grace_period: '5s', pages_root: '/var/lib/example-sites', programs_root: '/run/example-sites' };
+const elsewhere = { to: 'https://192.0.2.20', names: ['moved.example.test', 'www.moved.example.test'] };
+test('each name its own folder: a name served elsewhere is sent there whole, keeps its certificate and is never redirected', async () => {
+  const plain = (await siteFile(elsewhereFolders)).text;
+  assert.doesNotMatch(plain, /@served_elsewhere|moved\.example/, 'absent: no line in any of the three places');
+  const text = (await siteFile({ ...elsewhereFolders, served_elsewhere: elsewhere })).text;
+  const ask = text.slice(text.indexOf('http://127.0.0.1:5601 {'), text.indexOf('192.0.2.10 {'));
+  assert.match(ask, /\t@served_elsewhere expression \{query\.domain\} in \['moved\.example\.test', 'www\.moved\.example\.test'\]\n\trespond @served_elsewhere 200\n/);
+  const https = text.slice(text.indexOf('https:// {'));
+  assert.match(https, /map \{host\} \{site\} \{canonical\} \{\n\t\tmoved\.example\.test moved\.example\.test moved\.example\.test\n\t\twww\.moved\.example\.test www\.moved\.example\.test www\.moved\.example\.test\n/, 'each name is its own canonical name, so the www redirect never sends it on');
+  assert.match(https, /\t@served_elsewhere host moved\.example\.test www\.moved\.example\.test\n\thandle @served_elsewhere \{\n\t\treverse_proxy https:\/\/192\.0\.2\.20 \{\n\t\t\theader_up Host \{http\.request\.host\}\n\t\t\ttransport http \{\n\t\t\t\ttls_server_name \{http\.request\.host\}\n/);
+  assert.ok(https.indexOf('handle @served_elsewhere') < https.indexOf('handle @page'), 'before any page or program of this computer');
+  assert.doesNotMatch(text, /\{\{/);
+});
+
+test('a served_elsewhere that is not one https address and host names, or names a name also served here, is refused', async () => {
+  const bad = [null, [], { names: elsewhere.names }, { to: 'http://192.0.2.20', names: elsewhere.names }, { to: 'https://192.0.2.20/path', names: elsewhere.names },
+    { to: elsewhere.to }, { to: elsewhere.to, names: [] }, { to: elsewhere.to, names: ['Moved.Example'] }];
+  for (const served_elsewhere of bad) await assert.rejects(siteFile({ ...elsewhereFolders, served_elsewhere }), /caddy\.served_elsewhere/, JSON.stringify(served_elsewhere));
+  await assert.rejects(siteFile({ ...elsewhereFolders, served_elsewhere: elsewhere, site_sockets: { 'moved.example.test': ['/run/example-sites/moved.example.test/http.sock'] } }), /served in one place/);
+  await assert.rejects(siteFile({ ...elsewhereFolders, served_elsewhere: elsewhere, www_first_names: ['moved.example.test'] }), /served in one place/);
+});
+
+test('each name its own folder: Caddy reads a site with a name served elsewhere', { skip: spawnSync('caddy', ['version']).status !== 0 && 'caddy is not installed' }, async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'served-elsewhere-'));
+  const path = join(dir, 'Caddyfile');
+  writeFileSync(path, (await siteFile({ ...elsewhereFolders, served_elsewhere: elsewhere })).text);
+  const adapted = spawnSync('caddy', ['adapt', '--config', path, '--adapter', 'caddyfile'], { encoding: 'utf8' });
+  assert.equal(adapted.status, 0, adapted.stderr);
+  const json = adapted.stdout;
+  assert.match(json, /"tls":\{"server_name":"\{http\.request\.host\}"\}/);
+  assert.match(json, /"dial":"192\.0\.2\.20:443"/);
+});

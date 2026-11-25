@@ -1,0 +1,9 @@
+	@served_elsewhere host {names}
+	handle @served_elsewhere {
+		reverse_proxy {to} {
+			header_up Host {http.request.host}
+			transport http {
+				tls_server_name {http.request.host}
+			}
+		}
+	}

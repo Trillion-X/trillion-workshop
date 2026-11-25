@@ -12,6 +12,10 @@
 # the other serves (Nov 21 2026: a site program restarted in place made its names wait up to 1.5 s).
 # A name the row's `www_first_names` lists (absent: none, and no line) is answered at www.<name> instead, and its bare name is
 # sent there (routes/www-first-name.fragment), for a bare name that also answers at an address this computer does not hold.
+# A name the row's `served_elsewhere` lists (`{ to, names }`; absent: none, and no line) is a site that moved to another computer:
+# every request for it goes there whole, with its own Host and its own name for TLS (routes/served-elsewhere.fragment), so a
+# visitor or crawler whose DNS still points here gets the live site's answer, not a stale copy (Nov 25 2026: a site
+# moved to another host and the old copy here answered a page with 503). Such a name keeps its certificate here and is never redirected.
 {
 	admin localhost:2019
 	grace_period {{grace_period}}
@@ -25,6 +29,7 @@
 # socket folder or its slots' socket folder (<name>-slots, give-a-site-program-slots.mjs), 404 otherwise. Loopback only.
 http://127.0.0.1:5601 {
 	bind 127.0.0.1
+{{served_elsewhere_ask}}
 	map {query.domain} {site} {
 		~^www\.(.+)$ ${1}
 		default {query.domain}
@@ -56,6 +61,7 @@ https:// {
 	# answers, <name> (or www.<name> for a listed name, whose lines go first), and the other is sent there with a 308 that keeps
 	# the path and query.
 	map {host} {site} {canonical} {
+{{served_elsewhere_names}}
 {{www_first_names}}
 		~^www\.(.+)$ ${1} ${1}
 		default {host} {host}
@@ -68,6 +74,7 @@ https:// {
 	# The site's request log, when the row asks for it (access_log): one JSON line per request, to the journal and to a file of
 	# its own when the row names one. Absent: no line.
 {{access_log}}
+{{served_elsewhere}}
 {{routes}}
 	# A screen's address under its route_prefix is answered by that prefix's page in this name's folder: a copy of the workspace
 	# page named for the prefix's one or two segments (workspace-pages.mjs makes each), so /file/<id> gets file.prefix.html and
