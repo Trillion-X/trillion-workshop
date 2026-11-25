@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { Button } from '../../../../ui/show/button/Button';
 
 // The booking card's first step, when the landing DATA names a before-booking address: an email (with a name, and how the booker
 // heard of us, if they like) goes to that address as a plain form POST, so it works without JS. The address keeps the email as the
@@ -20,7 +20,7 @@ export function BeforeBookingForm({ action, label }: { action: string; label: st
         <span>How did you hear about us? (optional)</span>
         <input type="text" name="self_reported" />
       </label>
-      <Button type="submit">{label}</Button>
+      <Button fullWidth size="lg" type="submit" variant="primary">{label}</Button>
     </form>
   );
 }
