@@ -58,6 +58,9 @@ async function checkOne({ kind, path, root, live, out, name, settings, browser, 
   return judge({ kind, url, liveUrl, built, live: seen, shots, settings });
 }
 
+/** The file name a kind's pictures take: "*" is said as "each", so /courses and /courses/* never share a picture. */
+export const pictureName = label => label.replace(/\*/g, 'each').replace(/\W+/g, '-').replace(/^-|-$/g, '') || 'home';
+
 const underPrefix = (path, prefixes) => prefixes.some(prefix => path === prefix || path.startsWith(`${prefix.replace(/\/+$/, '')}/`));
 
 /** The row of a kind the caller named as drawn by the commit's server code: neither refused nor passed here. */
@@ -81,7 +84,7 @@ export async function checkSiteBuild({ pages, app = null, live, liveApp = null, 
           rows.push(notCheckedHere({ kind: label, url: withCheck(server.origin, path, settings), liveUrl: withCheck(place.live, path, settings), settings }));
           continue;
         }
-        rows.push(await checkOne({ kind: label, path, root: place.root, live: place.live, out, name: label.replace(/\W+/g, '-').replace(/^-|-$/g, '') || 'home', settings, browser, localOrigin: server.origin }));
+        rows.push(await checkOne({ kind: label, path, root: place.root, live: place.live, out, name: pictureName(label), settings, browser, localOrigin: server.origin }));
       }
     } finally {
       await server.close();

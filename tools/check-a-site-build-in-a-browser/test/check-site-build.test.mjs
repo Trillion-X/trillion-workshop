@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 import { promisify } from 'node:util';
 import { chromiumExecutable } from '../../../test-helpers/chromium.mjs';
-import { checkSiteBuild, defaultSettings } from '../do-work/check-site-build.mjs';
+import { checkSiteBuild, defaultSettings, pictureName } from '../do-work/check-site-build.mjs';
 import { pageKinds } from '../do-work/page-kinds.mjs';
 import { serveBuild } from '../do-work/serve-build.mjs';
 
@@ -100,6 +100,14 @@ test('a page kind with no live page passes with text and no error, and is refuse
   assert.match(byKind(errors, '/events/*').why[0], /no live page exists and the built page threw/);
   const blank = await run({ 'sitemap.xml': sitemap(['/events/summer']), 'events/summer.html': page({}) });
   assert.match(byKind(blank, '/events/*').why[0], /shows no text/);
+});
+
+test('each kind keeps its own pictures: /courses and /courses/* never share a file name', () => {
+  assert.equal(pictureName('/courses'), 'courses');
+  assert.equal(pictureName('/courses/*'), 'courses-each');
+  assert.equal(pictureName('/'), 'home');
+  assert.equal(pictureName('app /'), 'app');
+  assert.equal(pictureName('app /courses/*'), 'app-courses-each');
 });
 
 test('a sitemap path with no file in the build is refused, never skipped', async () => {
