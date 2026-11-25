@@ -47,6 +47,13 @@ const ACTIONS = [
     query: { $: 'address', of: { $: 'body', key: 'href' }, part: 'query' }, from: { $: 'address', of: { $: 'body', key: 'referrer' }, part: 'host' },
   }, answer: { json: ['kept'], cookie: { name: 'jv', value: { $: 'input', key: 'visitor' }, max_age_days: 395 } } },
   { path: '/observe/listed', host: null, access: 'public', tool: 'tool:keep-a-lead', failed: 'x', input: { params: [{ $: 'new_id' }] }, answer: { json: ['kept'], cookie: { name: 'n', value: { $: 'input', key: 'params.0' }, max_age_days: 1, http_only: false } } },
+  { path: '/chain', host: null, access: 'public', tool: 'tool:keep-a-lead', failed: 'x', answer: { json: ['kept'] }, input: {
+    event: { $: 'tool', tool: 'tool:echo', input: { busy: { $: 'tool', tool: 'tool:echo', input: { n: 1 }, key: 'echo.n' } }, key: 'echo' },
+    account: { $: 'rows', sql: 'SELECT id FROM offers', key: '0.id' },
+  } },
+  { path: '/chain-undo', host: null, access: 'public', tool: 'tool:fails', failed: 'Not booked.', answer: { json: ['x'] },
+    input: { event: { $: 'tool', tool: 'tool:echo', input: { id: 'ev-1' }, key: 'echo' } }, undo: { tool: 'tool:echo', input: { cancel: { $: 'input', key: 'event.id' } } } },
+  { path: '/bad-undo', host: null, access: 'public', tool: 'tool:x', failed: 'x', input: {}, answer: { json: ['x'] }, undo: { tool: 'not a tool' } },
   { path: '/bad-cookie', host: null, access: 'public', tool: 'tool:x', failed: 'x', input: {}, answer: { json: ['x'], cookie: { name: 'a b', value: 'x', max_age_days: 1 } } },
   { path: '/target/state', host: null, method: 'PUT', access: 'public', tool: 'tool:x', failed: 'x', input: {}, answer: { json: ['x'] } },
 ];
@@ -69,6 +76,8 @@ async function door() {
         result = { rows: sql.includes('FROM "site_actions"') ? ACTIONS : sql.includes('FROM offers') ? [{ id: 'offer:one', params: run.input.params }] : sql.includes('FROM pages') ? PAGES : sql.includes('FROM site_look') ? [{ name: 'theme', value: 'paper' }, { name: 'font-face.body-400', value: 'Body Sans|400|normal|/assets/fonts/body.woff2' }, { name: 'brand-ink', value: '#123456' }] : [{ slug: 'first' }, { slug: 'second one' }] };
       } else if (run.tool === 'tool:start-a-checkout') {
         result = { redirectUrl: 'https://pay.example.test/session/1', sessionId: 's1' };
+      } else if (run.tool === 'tool:echo') {
+        result = { echo: run.input };
       } else if (run.tool === 'tool:keep-a-lead') {
         result = { kept: 1 };
       } else if (run.tool === 'tool:read-the-site-head') {
@@ -440,6 +449,17 @@ test('a posted form or JSON body runs its action row\'s tool with the input made
     assert.equal(declined.headers['set-cookie'], undefined, 'without consent no cookie is set');
     assert.deepEqual(d.calls.at(-1)!.run.input, { from: 'www.search.example.test' }, 'without consent no visitor; a value that is not an address gives no part');
     assert.equal((await site.act('/bad-cookie', undefined, host, form({}))).status, 404, 'a row whose cookie breaks a rule is set aside');
+    d.calls.length = 0;
+    assert.equal((await site.act('/chain', undefined, host, form({}))).status, 200);
+    const chained = d.calls.filter(call => call.run.tool !== 'tool:run-sql-in-my-database').map(call => [call.run.tool, call.run.input]);
+    assert.deepEqual(chained, [['tool:echo', { n: 1 }], ['tool:echo', { busy: 1 }], ['tool:keep-a-lead', { event: { busy: 1 }, account: 'offer:one' }]],
+      'nested tool sources run once each, innermost first, and a key reads into an answer or a place in rows');
+    d.calls.length = 0;
+    const unbooked = await site.act('/chain-undo', undefined, host, { contentType: 'application/json', bytes: Buffer.from('{}') });
+    assert.equal(unbooked.status, 502, 'the visitor still gets the failure');
+    assert.deepEqual(d.calls.map(call => [call.run.tool, call.run.input]), [['tool:echo', { id: 'ev-1' }], ['tool:fails', { event: { id: 'ev-1' } }], ['tool:echo', { cancel: 'ev-1' }]],
+      'when the row\'s own tool fails, its undo runs with what that tool was given');
+    assert.equal((await site.act('/bad-undo', undefined, host, form({}))).status, 404, 'a row whose undo breaks a rule is set aside');
     const listed = await site.act('/observe/listed', undefined, host, form({}));
     assert.equal(listed.headers['set-cookie'], `n=${(d.calls.at(-1)!.run.input as { params: string[] }).params[0]}; Max-Age=86400; Path=/; SameSite=Lax; Secure`, 'a dotted key reads a place in a list');
   } finally { d.server.close(); }

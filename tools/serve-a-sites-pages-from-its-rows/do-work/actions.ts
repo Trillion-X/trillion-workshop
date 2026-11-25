@@ -23,6 +23,9 @@
 //               once the tool has answered, that cookie is set (Path=/, SameSite=Lax, Secure) when its value gives words of
 //               letters, digits and ._- and the request does not already carry that value (a visitor id kept only with consent)
 //     failed    the words a visitor gets when the tool fails
+//     undo      jsonb or null: { "tool": "tool:<id>", "input": <value> }, run when the row's own tool was started and failed, to
+//               put back what the tools its input ran had done (a calendar event put before the booking could be kept); its
+//               input may read { "$": "input" } (what the failed tool was given). The visitor still gets the failure.
 //
 //   A value's sources:
 //     { "$": "body", "key": "a.b" }                 a field of the posted form or JSON body (a dotted key reads into JSON)
@@ -32,9 +35,13 @@
 //                                                   a cookie's value; with `when`, only while cookie c holds v (a consent)
 //     { "$": "member", "claim": "email" }           a claim of the signed-in member's pass; nothing when signed out
 //     { "$": "origin", "then": "/welcome" }         the request's own site address, then the words given
-//     { "$": "rows", "sql": "SELECT ...", "params": [values], "database": "name" }
+//     { "$": "rows", "sql": "SELECT ...", "params": [values], "database": "name", "key": "0.a" }
 //                                                   the rows of a statement, run as the site, on the site's own pages database
-//                                                   or the one named
+//                                                   or the one named; with key, that place in them
+//     { "$": "tool", "tool": "tool:<id>", "input": <value>, "key": "a.b" }
+//                                                   the answer of another tool, run first as the action runs (the member, or the
+//                                                   site); with key, that key of it. Tools that feed each other nest: a tool's
+//                                                   input names the tool whose answer it takes, and each runs once.
 //     { "$": "url", "base": <value>, "query": { "k": <value> } }
 //                                                   an address with query values set; a value that is nothing is left out
 //     { "$": "number", "of": <value> }              a value as a number; nothing when it is not one
@@ -77,6 +84,12 @@ export type ActionAnswer = ({ redirect_from: string } | { redirect_to: unknown }
 
 export type ActionMethod = 'GET' | 'POST';
 
+/** A tool run when the action's own tool failed, to put back what was done before it. */
+export interface ActionUndo {
+  tool: string;
+  input: unknown;
+}
+
 export interface ActionRow {
   path: string;
   host: string | null;
@@ -86,6 +99,7 @@ export interface ActionRow {
   input: unknown;
   answer: ActionAnswer;
   failed: string;
+  undo: ActionUndo | null;
 }
 
 /** What one request carries, for filling an action's input. */
@@ -97,6 +111,8 @@ export interface Asked {
   claims: Record<string, unknown> | null;
   origin: string;
   rows: (sql: string, params: unknown[], database?: string) => Promise<Record<string, unknown>[]>;
+  /** Runs a tool as the action runs, for a tool source. */
+  tool: (tool: string, input: unknown) => Promise<unknown>;
   /** The tool's answer, once the tool has answered (for the row's answer); null while its input is made. */
   answer: Record<string, unknown> | null;
   /** The input the tool was given, once it has answered; null while the input is made. */
@@ -123,6 +139,12 @@ const SOURCES: Record<string, (value: Record<string, unknown>, where: string) =>
     if (v.database !== undefined && (typeof v.database !== 'string' || !TABLE.test(v.database))) throw new PageRowError(`${where}.database is a database name.`);
     if (v.params !== undefined && !Array.isArray(v.params)) throw new PageRowError(`${where}.params is a list.`);
     (v.params as unknown[] | undefined)?.forEach((param, i) => checkValue(param, `${where}.params[${i}]`));
+    if (v.key !== undefined) words(v.key, `${where}.key`);
+  },
+  tool: (v, where) => {
+    if (typeof v.tool !== 'string' || !TOOL_ID.test(v.tool)) throw new PageRowError(`${where}.tool is a tool id.`);
+    checkValue(v.input ?? {}, `${where}.input`);
+    if (v.key !== undefined) words(v.key, `${where}.key`);
   },
   url: (v, where) => {
     checkValue(v.base, `${where}.base`);
@@ -207,7 +229,16 @@ export function actionOf(row: Record<string, unknown>): ActionRow {
     throw new PageRowError(`${where}: answer.json lists the answer's keys to send.`);
   }
   words(row.failed, `${where}: failed`);
-  return { path, host: host as string | null, method, access: row.access, tool: row.tool, input: row.input ?? {}, answer: answer as ActionAnswer, failed: row.failed as string };
+  const undo = (row.undo ?? null) as Record<string, unknown> | null;
+  if (undo !== null) {
+    if (typeof undo !== 'object' || Array.isArray(undo) || Object.keys(undo).some(key => key !== 'tool' && key !== 'input')) throw new PageRowError(`${where}: undo is { tool, input } or null.`);
+    if (typeof undo.tool !== 'string' || !TOOL_ID.test(undo.tool)) throw new PageRowError(`${where}: undo.tool is a tool id.`);
+    checkValue(undo.input ?? {}, `${where} undo.input`);
+  }
+  return {
+    path, host: host as string | null, method, access: row.access, tool: row.tool, input: row.input ?? {}, answer: answer as ActionAnswer, failed: row.failed as string,
+    undo: undo === null ? null : { tool: undo.tool as string, input: undo.input ?? {} },
+  };
 }
 
 /** The checked rows, and the rows set aside with why; a second row for one address, host and method is set aside. */
@@ -230,7 +261,7 @@ export function actionsOf(rows: Record<string, unknown>[]): { actions: ActionRow
 /** The sql that reads a site's action rows from its table. */
 export function actionsSql(table: string): string {
   if (!TABLE.test(table)) throw new PageRowError(`actions ${JSON.stringify(table)} is not a table name.`);
-  return `SELECT a.path, a.access, a.tool, a.input, a.answer, a.failed, to_jsonb(a)->>'host' AS host, to_jsonb(a)->>'method' AS method FROM "${table}" a ORDER BY 1, 7 NULLS LAST, 8`;
+  return `SELECT a.path, a.access, a.tool, a.input, a.answer, a.failed, to_jsonb(a)->>'host' AS host, to_jsonb(a)->>'method' AS method, to_jsonb(a)->'undo' AS undo FROM "${table}" a ORDER BY 1, 7 NULLS LAST, 8`;
 }
 
 /** The action a request's method, host and path are (HEAD asks a GET row); a host's own row wins over a row for every host. */
@@ -297,7 +328,12 @@ export async function filled(value: unknown, asked: Asked): Promise<unknown> {
       case 'origin': return `${asked.origin}${(value.then as string | undefined) ?? ''}`;
       case 'rows': {
         const params = await Promise.all(((value.params ?? []) as unknown[]).map(async param => (await filled(param, asked)) ?? null));
-        return asked.rows(value.sql as string, params, value.database as string | undefined);
+        const rows = await asked.rows(value.sql as string, params, value.database as string | undefined);
+        return value.key === undefined ? rows : dotted(rows, value.key as string);
+      }
+      case 'tool': {
+        const answer = await asked.tool(value.tool as string, (await filled(value.input ?? {}, asked)) ?? {});
+        return value.key === undefined ? answer : dotted(answer, value.key as string);
       }
       case 'url': {
         const base = await filled(value.base, asked);

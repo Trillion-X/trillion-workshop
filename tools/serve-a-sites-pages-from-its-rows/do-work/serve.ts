@@ -396,14 +396,27 @@ export class Site {
     else try { posted = bodyOf(request.contentType, request.bytes); } catch (error) { return json(400, { error: (error as Error).message }); }
     const member = await this.#parts.passes.memberOfCookie(cookie);
     if (action.access === 'members' && !member) return json(403, { error: 'Sign in as a member first.' });
+    const pass = member ? member.pass : this.#parts.sitePass;
     const failed = async (status: number): Promise<Answer> => (posted.form ? this.#words(status, 'That did not go through', action.failed, host, pathname) : json(status, { error: action.failed }));
     try {
       const asked: Asked = {
         body: posted.body, params, query: url.searchParams, cookies: cookiesOf(cookie), claims: member?.claims ?? null, origin: this.#originOf(host),
         rows: (sql, values, database) => this.#sql(sql, values, database), answer: null, input: null,
+        tool: (tool, input) => this.#parts.run(pass, { tool, input }),
       };
       const input = await filled(action.input, asked);
-      const answer = await this.#parts.run(member ? member.pass : this.#parts.sitePass, { tool: action.tool, input }) as Record<string, unknown> | null;
+      let answer: Record<string, unknown> | null;
+      try {
+        answer = await this.#parts.run(pass, { tool: action.tool, input }) as Record<string, unknown> | null;
+      } catch (error) {
+        // The row's own tool failed after its input's tools had done their part: the undo puts that back.
+        if (action.undo) {
+          const undo = action.undo;
+          await this.#parts.run(pass, { tool: undo.tool, input: (await filled(undo.input, { ...asked, input })) ?? {} })
+            .catch(undone => this.#log(`${method} ${pathname}: ${undo.tool} did not undo: ${(undone as Error).message}`));
+        }
+        throw error;
+      }
       const answered: Asked = { ...asked, answer, input };
       const setCookie = action.answer.cookie ? setCookieOf(action.answer.cookie, await filled(action.answer.cookie.value, answered), asked.cookies) : null;
       const withCookie = (sent: Answer): Answer => (setCookie ? { ...sent, headers: { ...sent.headers, 'set-cookie': setCookie } } : sent);
