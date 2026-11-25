@@ -182,6 +182,9 @@ test('a config that names no real rule, port, secret or door is refused by the f
   assert.throws(() => receiverConfigOf({ ...base, pins: [] }), { reason: 'bad-pins' });
   assert.throws(() => receiverConfigOf({ ...base, pins: ['has space'] }), { reason: 'bad-pins' });
   assert.throws(() => receiverConfigOf({ ...base, pins: 'one-computer' }), { reason: 'bad-pins' });
+  assert.throws(() => receiverConfigOf({ ...base, door_socket: 'relative/door.sock' }), { reason: 'bad-door-socket' });
+  assert.throws(() => receiverConfigOf({ ...base, door_socket: '/run/../etc/door.sock' }), { reason: 'bad-door-socket' });
+  assert.throws(() => receiverConfigOf({ ...base, door: 'https://door.example.test/mcp', door_socket: '/run/door.sock' }), { reason: 'bad-door-socket' });
 });
 
 /** A stand-in engine door: it records each door call's bearer and method, and answers the call as taken. */
@@ -355,3 +358,65 @@ test('a config that names pins sends them as the route of every door call, so a 
     rmSync(unit.fixture, { recursive: true, force: true });
   }
 });
+
+/** A stand-in engine on a unix socket, answering wake:arrive the way a computer's own socket does (trillion-rust, the
+ *  vault_socket operations row): `mode` picks the answer: kept, kept while its wake is off, not kept, refused input, or a
+ *  403 with no body for a peer whose uid has no row. It records each call's headers and arguments. */
+async function standInSocketEngine(mode) {
+  const socketPath = path.join(tmpdir(), `rwe-${process.pid}-${Math.random().toString(36).slice(2, 8)}.sock`);
+  const calls = [];
+  const engine = createHttpServer((req, res) => {
+    let text = '';
+    req.on('data', (chunk) => { text += chunk; });
+    req.on('end', () => {
+      const call = JSON.parse(text);
+      const { arguments: args } = call.params;
+      calls.push({ path: req.url, authorization: req.headers.authorization, args });
+      if (mode === 'no-row') { res.writeHead(403); return res.end(); }
+      const { kind, event_id } = args.input;
+      const results = {
+        kept: { kind, event_id, from: 'sender', kept: true, starts: 'now', heard_by: 1 },
+        'kept-off': { kind, event_id, from: 'sender', kept: true, starts: 'when a wake that is off and keeps it is switched on', heard_by: 0 },
+        'not-kept': { kind, event_id, from: 'sender', kept: false, heard_by: 0, starts: 'nothing: no wake that is on hears it', not_heard: { why: 'no_wake_hears', wakes_of_its_kind: [] } },
+      };
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      if (mode === 'refused') return res.end(JSON.stringify({ jsonrpc: '2.0', id: call.id, error: { code: 'original_input_refused', message: 'the fact is too large' } }));
+      res.end(JSON.stringify({ jsonrpc: '2.0', id: call.id, result: { structuredContent: results[mode] } }));
+    });
+  });
+  await new Promise((resolve) => engine.listen(socketPath, resolve));
+  return { socketPath, calls, close: () => new Promise((resolve) => engine.close(resolve)) };
+}
+
+for (const [mode, status] of [['kept', 200], ['kept-off', 200], ['not-kept', 200], ['refused', 503], ['no-row', 503]]) {
+  test(`a door on the engine's socket (${mode}) is called with no key and no address, and the receiver answers ${status}`, async () => {
+    const engine = await standInSocketEngine(mode);
+    const unit = unitFixture({ withAccountKey: false });
+    writeFileSync(unit.configPath, JSON.stringify({ ...CONFIG, listen_port: 0, door: 'http://localhost/mcp', door_socket: engine.socketPath }));
+    const says = [];
+    const server = await startReceiver({ configPath: unit.configPath, env: { CREDENTIALS_DIRECTORY: unit.credentials }, say: (line) => says.push(line) });
+    try {
+      const body = event();
+      const headers = signed(body, { ts: Math.floor(Date.now() / 1000) });
+      const answer = await post(server.address().port, '/webhooks/sample', headers, body);
+      assert.equal(answer.status, status);
+      assert.equal(engine.calls.length, 1);
+      assert.equal(engine.calls[0].path, '/mcp');
+      assert.equal(engine.calls[0].authorization, undefined, 'no bearer goes to the socket');
+      assert.equal(engine.calls[0].args.address, undefined, 'no address is named on the socket');
+      assert.equal(engine.calls[0].args.method, 'wake:arrive');
+      assert.deepEqual(Object.keys(engine.calls[0].args.input).sort(), ['event_id', 'kind', 'payload']);
+      if (status === 200) {
+        // A repeat of the same call is told once: the engine is not asked again.
+        const again = await post(server.address().port, '/webhooks/sample', headers, body);
+        assert.deepEqual(again.json, { recorded: true, changes: 1, duplicates: 1 });
+        assert.equal(engine.calls.length, 1);
+      }
+      if (mode === 'not-kept') assert.ok(says.some((line) => line.includes('"not_started"') && line.includes('no_wake_hears')), 'the log says the engine kept it false');
+    } finally {
+      await new Promise((resolve) => server.close(resolve));
+      await engine.close();
+      rmSync(unit.fixture, { recursive: true, force: true });
+    }
+  });
+}

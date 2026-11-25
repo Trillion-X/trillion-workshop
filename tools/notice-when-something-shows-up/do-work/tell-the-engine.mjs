@@ -120,6 +120,9 @@ export function wakeOf(argv = process.argv.slice(2)) {
  *  receiver (do-work/signed-webhook-receiver.mjs), so both reach the engine one way.
  *  A door that names `pins` (computer ids, as `{cli} op --pin` sends them) sends them as the call's route, so a door that carries
  *  calls to several computers (a meeting point) meets the call at that computer; a door without pins is called as before.
+ *  A door with no `capability` sends no Authorization header: a door on a computer's own socket admits its caller by the
+ *  kernel's peer credentials, not by a bearer. A door whose `resource` is null names no address, so the call is the bare
+ *  operation that door takes; a door that names none is called at '@own-records' as before.
  *  A call, its answer read whole, that takes longer than `timeoutMs` (DATA door-call.json timeout_ms) is given up and
  *  answered as refused `door_timeout`, which a teller tells again (`tellAgain`): fetch has no time limit of its own, so a
  *  door that never answered held the waiter's pass for ever (wake-engine, Nov 22 2026, 3:2x AM CST). */
@@ -127,12 +130,12 @@ export async function operateOverDoor(door, method, input, requestKey, { fetchIm
   const body = JSON.stringify({ jsonrpc: '2.0', id, method: 'tools/call', params: { name: 'do_one_thing_in_my_account',
     // A fact's own key (a due time's occurrence key names its schedule, its zone and four times) can be longer than the
     // door takes; content-identity gives a longer one a fixed-length name of its own, so the same fact keeps one key.
-    arguments: { address: door.resource ?? '@own-records', method, request_key: requestKeyForEngine(requestKey), input, ...(door.pins?.length ? { pins: door.pins } : {}) } } });
+    arguments: { ...(door.resource === null ? {} : { address: door.resource ?? '@own-records' }), method, request_key: requestKeyForEngine(requestKey), input, ...(door.pins?.length ? { pins: door.pins } : {}) } } });
   const signal = AbortSignal.timeout(timeoutMs);
   let response;
   let raw;
   try {
-    response = await fetchImpl(door.url, { method: 'POST', body, signal, headers: { authorization: `Bearer ${door.capability}`,
+    response = await fetchImpl(door.url, { method: 'POST', body, signal, headers: { ...(typeof door.capability === 'string' ? { authorization: `Bearer ${door.capability}` } : {}),
       'content-type': 'application/json', accept: 'application/json, text/event-stream', 'mcp-protocol-version': '2025-06-18' } });
     raw = await response.text();
   } catch (error) {

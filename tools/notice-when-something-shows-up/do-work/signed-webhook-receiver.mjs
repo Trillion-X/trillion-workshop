@@ -37,18 +37,24 @@
 //   pins?                      the computer ids the door meets each call at (a meeting point's door that carries calls to
 //                              several computers, a meeting point's own /mcp): 1 to 64 ids, each 1 to 128 letters,
 //                              digits, dashes or underscores (trillion-rust src/tool_runs/reach.rs). Absent: the door's own engine.
+//   door_socket?               the absolute path of the local engine's socket the door is reached on (a computer config's
+//                              vault_socket): each call goes to `door`'s path over that socket, with no Authorization header and
+//                              no address, and the engine admits the caller by its OS user id (a vault_socket row that names this
+//                              unit's uid with the operation wake:arrive). `door` is then an http address whose host is not used.
+//                              With door_socket the unit is given no account key.
 //   subscribe?                 { mode, verify_credential }: answers the service's subscribe handshake, a GET whose hub.mode is
 //                              mode and whose hub.verify_token is the credential's value, with hub.challenge as plain text.
 //                              Any other GET on the path is refused with 403. Absent: every GET is answered 405.
 //
 // The engine key is not in the config. The unit is given it as the credential `account-key` (CREDENTIALS_DIRECTORY/account-key),
-// and the receiver refuses to start without it. It is used as the door's bearer and is never logged.
+// and the receiver refuses to start without it. It is used as the door's bearer and is never logged. A config that names
+// door_socket needs no account key: the socket's peer credentials say who calls.
 //
 // Usage
 //   node signed-webhook-receiver.mjs <config.json>     (CREDENTIALS_DIRECTORY must be set by the unit)
 import { readFileSync } from 'node:fs';
 import { timingSafeEqual } from 'node:crypto';
-import { createServer } from 'node:http';
+import { createServer, request as httpRequest } from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { carried, changesOf, checkSignature, signingRuleNamed } from './mechanisms/signed-service-calls.mjs';
@@ -88,6 +94,8 @@ export function receiverConfigOf(raw) {
   if (typeof healthPath !== 'string' || !healthPath.startsWith('/') || healthPath === raw.path || /[?#]/.test(healthPath)) refuse('bad-health-path');
   const pins = raw.pins ?? null;
   if (pins !== null && (!Array.isArray(pins) || pins.length === 0 || pins.length > MOST_PINS || !pins.every((pin) => typeof pin === 'string' && PIN.test(pin)))) refuse('bad-pins');
+  const doorSocket = raw.door_socket ?? null;
+  if (doorSocket !== null && (typeof doorSocket !== 'string' || !path.isAbsolute(doorSocket) || doorSocket.split('/').includes('..') || door.protocol !== 'http:')) refuse('bad-door-socket');
   const subscribe = raw.subscribe ?? null;
   if (subscribe !== null && (typeof subscribe !== 'object' || typeof subscribe.mode !== 'string' || !subscribe.mode || typeof subscribe.verify_credential !== 'string' || !NAME.test(subscribe.verify_credential))) refuse('bad-subscribe');
   return {
@@ -103,6 +111,7 @@ export function receiverConfigOf(raw) {
     url: typeof raw.url === 'string' && raw.url ? raw.url : null,
     door: door.href,
     pins,
+    door_socket: doorSocket,
     health_path: healthPath,
     subscribe: subscribe === null ? null : { mode: subscribe.mode, verify_credential: subscribe.verify_credential },
   };
@@ -193,6 +202,26 @@ export function createReceiver({ config, secret, arrive, now = () => Date.now(),
   });
 }
 
+/** A fetch that reaches `url`'s path over the unix socket at `socketPath` (a local engine's door), answering what
+ *  operateOverDoor reads: { ok, status, text() }. The host of `url` is not used; `signal` ends the call. */
+export function socketFetch(socketPath) {
+  return (url, { method = 'POST', body = '', headers = {}, signal } = {}) => new Promise((resolve, reject) => {
+    const target = new URL(url);
+    const call = httpRequest({ socketPath, path: `${target.pathname}${target.search}`, method, signal,
+      headers: { host: 'localhost', 'content-length': Buffer.byteLength(body), ...headers } }, (answer) => {
+      const chunks = [];
+      answer.on('data', (chunk) => chunks.push(chunk));
+      answer.on('error', reject);
+      answer.on('end', () => {
+        const text = Buffer.concat(chunks).toString('utf8');
+        resolve({ ok: answer.statusCode >= 200 && answer.statusCode < 300, status: answer.statusCode, text: async () => text });
+      });
+    });
+    call.on('error', reject);
+    call.end(body);
+  });
+}
+
 /** One credential's value from the unit's credential folder, one trailing newline removed. Refuses, naming only the credential,
  *  when the file is missing or empty. */
 export function readCredential(folder, name, what) {
@@ -218,15 +247,18 @@ export async function startReceiver({ configPath, env = process.env, fetchImpl =
   if (!folder) throw new Error('CREDENTIALS_DIRECTORY is not set: the unit must be given its credentials.');
   // Only the credential's name is ever said; its value is not in any message, log line or refusal.
   const secret = readCredential(folder, config.secret_credential, 'the signing secret');
-  const accountKey = readCredential(folder, ACCOUNT_KEY_CREDENTIAL, 'the engine account key');
-  const door = { url: config.door, capability: accountKey, ...(config.pins ? { pins: config.pins } : {}) };
+  // A door on the engine's own socket admits this unit by its OS user id: no key is read, and no address is named.
+  const accountKey = config.door_socket ? null : readCredential(folder, ACCOUNT_KEY_CREDENTIAL, 'the engine account key');
+  const door = { url: config.door, ...(accountKey ? { capability: accountKey } : { resource: null }), ...(config.pins ? { pins: config.pins } : {}) };
+  const callDoor = config.door_socket ? socketFetch(config.door_socket) : fetchImpl;
   const subscribe = config.subscribe ? { mode: config.subscribe.mode, token: readCredential(folder, config.subscribe.verify_credential, 'the subscribe verification value') } : null;
   const privateValues = [secret, accountKey, subscribe?.token].filter(Boolean);
   const safeMessage = (error) => privateValues.reduce((message, value) => message.replaceAll(value, '[redacted]'), String(error?.message ?? error));
   const arrive = async (fact) => {
     try {
-      await arriveOverDoor(door, fact, { fetchImpl });
-      say(JSON.stringify({ told: fact.kind, event_id: fact.event_id }));
+      const taken = await arriveOverDoor(door, fact, { fetchImpl: callDoor });
+      // Kept false (no wake that is on hears it) is still taken: it is said, so the unit's log shows what the engine answered.
+      say(JSON.stringify({ told: fact.kind, event_id: fact.event_id, ...(taken?.not_started ? { not_started: taken.not_started } : {}) }));
     } catch (error) {
       const why = safeMessage(error);
       say(JSON.stringify({ refused: fact.kind, event_id: fact.event_id, why }));
