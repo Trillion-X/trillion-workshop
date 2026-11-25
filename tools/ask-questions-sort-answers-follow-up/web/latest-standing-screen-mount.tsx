@@ -99,11 +99,11 @@ function LatestStanding({ input }: { input: Input }) {
             return (
               <Container as="li" key={person.respondent_id} layout="vertical" gap="none" width="full">
                 <Button type="button" variant="ghost" size="option-row" fullWidth onClick={() => open(person.respondent_id)} aria-label={fill(words.open_person, { name: person.respondent_id })} className="items-center gap-4">
-                  <Badge variant="accent" size="lg" className="min-w-10 justify-center">{person.segment?.title ?? words.no_segment}</Badge>
+                  <Badge variant="neutral" size="lg" className="min-w-10 justify-center">{person.segment?.title ?? words.no_segment}</Badge>
                   <Container layout="vertical" gap="none" flex={1} className="min-w-0">
                     <Text as="span" variant="body" weight="medium" color="strong" truncate>{person.respondent_id}</Text>
                     <Text as="span" variant="label" color="secondary" truncate>
-                      {fill(words.standing_row, { sittings: fill(words.sittings_count, { count: person.sittings }), date: dateOf(person.at) })}
+                      {fill(words.standing_row, { sittings: person.sittings === 1 ? words.sittings_one : fill(words.sittings_count, { count: person.sittings }), date: dateOf(person.at) })}
                     </Text>
                   </Container>
                   {moved && person.previous ? (

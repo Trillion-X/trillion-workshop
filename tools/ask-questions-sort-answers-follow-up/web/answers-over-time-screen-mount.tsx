@@ -21,6 +21,8 @@
 //   2. Everything shown comes from read-data/answers-over-time.mjs; nothing here scores, ranks or names a segment.
 //   3. Every word is read-data/answers-over-time-words.json, each replaceable by the row's `words`. "Answer it again" goes to
 //      the row's `answer_at` (the address that asks the form). Nothing here writes a row.
+//   4. A row with `show_segments: false` draws no segment, move or follow-up (the owner has not said yes to them yet): the
+//      sittings, the changes and every answer are drawn the same.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
@@ -39,6 +41,7 @@ type Input = {
   respondent_id?: string;
   subject_email?: string;
   answer_at?: string;
+  show_segments?: boolean;
   words?: Partial<Words>;
   floating_frame?: unknown;
 };
@@ -143,16 +146,17 @@ function AnswersOverTime({ input }: { input: Input }) {
     body = <EmptyState icon={<NamedIcon name="ClipboardList" size="lg" />} title={words.none} description={words.none_why} action={answerAgain ? words.start : undefined} onAction={answerAgain} />;
   } else {
     const latest = model.latest;
-    const moved = movedWords(words, model.moved, model.previous?.segment);
+    const segments = input.show_segments !== false;
+    const moved = segments ? movedWords(words, model.moved, model.previous?.segment) : null;
     body = (
       <Container layout="vertical" width="full" className="gap-10">
         <Container layout="vertical" gap="sm" width="full">
           {model.title ? <Text variant="label" color="secondary" weight="medium">{model.title}</Text> : null}
-          <Text as="h1" variant="display" color="strong" className="text-balance">{latest.segment?.title ?? words.no_segment}</Text>
-          {latest.segment?.meaning ? <Text as="p" variant="body-lg" color="secondary" className="text-pretty">{latest.segment.meaning}</Text> : null}
+          <Text as="h1" variant="display" color="strong" className="text-balance">{segments ? latest.segment?.title ?? words.no_segment : words.answers_title}</Text>
+          {segments && latest.segment?.meaning ? <Text as="p" variant="body-lg" color="secondary" className="text-pretty">{latest.segment.meaning}</Text> : null}
           <Container layout="horizontal" gap="sm" alignItems="center" className="flex-wrap pt-1">
-            {moved ? <Badge variant={MOVED_TONE[model.moved as keyof typeof MOVED_TONE]} size="lg">{moved}</Badge> : <Badge size="lg">{words.first_time}</Badge>}
-            <Text variant="label" color="secondary">{fill(words.sitting_of, { date: dateOf(latest.at) })} · {fill(words.sittings_count, { count: model.sittings.length })}</Text>
+            {moved ? <Badge variant={MOVED_TONE[model.moved as keyof typeof MOVED_TONE]} size="lg">{moved}</Badge> : segments || !model.previous ? <Badge size="lg">{words.first_time}</Badge> : null}
+            <Text variant="label" color="secondary">{fill(words.sitting_of, { date: dateOf(latest.at) })} · {(model.sittings.length === 1 ? words.sittings_one : fill(words.sittings_count, { count: model.sittings.length }))}</Text>
           </Container>
           {answerAgain ? (
             <Container layout="horizontal" gap="sm" className="pt-3">
@@ -164,7 +168,7 @@ function AnswersOverTime({ input }: { input: Input }) {
           ) : null}
         </Container>
 
-        {model.follow_up.length || latest.segment?.next_step ? (
+        {segments && (model.follow_up.length || latest.segment?.next_step) ? (
           <Section title={words.next_steps}>
             <Container as="ol" layout="vertical" gap="xs" width="full" className="list-none">
               {latest.segment?.next_step ? (
@@ -200,8 +204,8 @@ function AnswersOverTime({ input }: { input: Input }) {
             items={[...model.sittings].reverse().map(sitting => ({
               id: sitting.id || 'one',
               time: dateOf(sitting.at),
-              title: sitting.segment?.title ?? words.no_segment,
-              detail: [movedWords(words, sitting.moved, model.sittings[model.sittings.indexOf(sitting) - 1]?.segment) ?? (model.sittings.indexOf(sitting) ? null : words.first_time),
+              title: segments ? sitting.segment?.title ?? words.no_segment : words.no_segment,
+              detail: [(segments ? movedWords(words, sitting.moved, model.sittings[model.sittings.indexOf(sitting) - 1]?.segment) : null) ?? (model.sittings.indexOf(sitting) ? null : words.first_time),
                 model.sittings.indexOf(sitting) ? changedWords(words, sitting.changed) : null].filter(Boolean).join(' · '),
             }))}
           />
