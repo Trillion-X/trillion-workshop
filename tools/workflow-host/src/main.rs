@@ -732,7 +732,8 @@ fn record(run: &str) -> Result<Value, String> {
             for (id, text, failed) in results {
                 let Some((tool, input, why, at)) = open.remove(&id) else { continue };
                 let input_text = input.to_string();
-                let command = input["command"].as_str().or(input["cmd"].as_str()).unwrap_or(&input_text);
+                let command = without_heredoc_bodies(input["command"].as_str().or(input["cmd"].as_str()).unwrap_or(&input_text));
+                let command = command.as_str();
                 let is_wf = names_wf(command, "start|answer|show|cancel");
                 if names_wf(command, "start|answer|cancel") && (text.contains(&name) || acts_on_run(command, &short)) { worked_until = Some(at.clone()); }
                 if is_wf {
@@ -951,6 +952,21 @@ fn acts_on_run(command: &str, short: &str) -> bool {
     let callers: Vec<String> = std::iter::once(r"(?:\S*/wf|wf)".to_string())
         .chain(wf_vars.iter().map(|v| format!(r#""?\$(?:\{{{v}\}}|{v}\b)"?"#))).collect();
     callers.iter().any(|caller| ids.iter().any(|id| is_like(&format!(r"{START}{caller}\s+(answer|cancel)\s+{id}"), command)))
+}
+// A command's heredoc bodies are data given to a program, never calls: the lines after `<<TAG` up to the line TAG are dropped.
+fn without_heredoc_bodies(command: &str) -> String {
+    let opener = re(r#"<<-?\s*(?:'([^']+)'|"([^"]+)"|\\?([A-Za-z_]\w*))"#);
+    let mut kept: Vec<&str> = vec![];
+    let mut ends: Option<String> = None;
+    for line in command.lines() {
+        if let Some(tag) = &ends {
+            if line.trim() == tag { ends = None; }
+            continue;
+        }
+        kept.push(line);
+        if let Some(c) = opener.captures(line) { ends = c.get(1).or(c.get(2)).or(c.get(3)).map(|m| m.as_str().to_string()); }
+    }
+    kept.join("\n")
 }
 // What a person, peer or lane asked in a message: its words without the system reminders wrapped around them.
 fn asked_words(message: &str) -> String {
@@ -1767,7 +1783,7 @@ mod json_arg_tests {
 
 #[cfg(test)]
 mod names_wf_tests {
-    use super::{acts_on_run, asked_words, names_wf};
+    use super::{acts_on_run, asked_words, names_wf, without_heredoc_bodies};
 
     const ANY: &str = "start|answer|show|cancel";
     const WORKS: &str = "start|answer|cancel";
@@ -1820,6 +1836,14 @@ mod names_wf_tests {
         assert!(!acts_on_run(&format!("W=/opt/otfh/bin/wf; {run}; $W show $R"), "1795559594"));
         assert!(!acts_on_run(&format!("{run}; $W answer $R step"), "1795559594"));
         assert!(!acts_on_run("W=/opt/otfh/bin/wf; cat note <<EOF\nthe call wf answer 1795559594-x is how\nEOF", "1795559594"));
+    }
+
+    #[test]
+    fn a_heredoc_body_is_data_and_its_header_line_is_the_call() {
+        let command = "R=1795559594-x; cat <<'EOF' | $W answer $R step\nW=/opt/otfh/bin/wf; $W answer 1795559594-y step\nEOF\necho done";
+        let kept = without_heredoc_bodies(command);
+        assert_eq!(kept, "R=1795559594-x; cat <<'EOF' | $W answer $R step\necho done");
+        assert!(!acts_on_run(&without_heredoc_bodies("W=/opt/otfh/bin/wf; cat > f <<EOF\nR=1795559594-y; $W answer $R step\nEOF"), "1795559594"));
     }
 
     #[test]
