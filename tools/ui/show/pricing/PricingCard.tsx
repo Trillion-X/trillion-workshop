@@ -21,6 +21,7 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import React, { useState } from 'react';
+import { Check } from 'lucide-react';
 import { Button } from '../button/Button.tsx';
 import { Input } from '../coss/ui/input.tsx';
 import { Container } from '../container/index.ts';
@@ -151,7 +152,7 @@ export function View(props: PricingCardProps) {
         <Text as="ul" className="m-0 grid list-none gap-4 p-0" aria-label={`${name} includes`}>
           {features.map(feature => (
             <Text as="li" key={feature.id} className="grid gap-2" data-feature={feature.id}>
-              <Text as="p" weight="medium">{`✓ ${feature.label}`}</Text>
+              <Text as="p" weight="medium" className="flex items-start gap-3"><Text as="span" aria-hidden="true" className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[#0f172a] text-white"><Check size={14} strokeWidth={3} /></Text>{feature.label}</Text>
               {feature.showcase?.length ? <ShowcaseStrip ariaLabel={`${feature.label} showcase`} items={feature.showcase} /> : null}
             </Text>
           ))}

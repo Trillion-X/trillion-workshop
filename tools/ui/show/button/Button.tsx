@@ -128,12 +128,19 @@ const buttonVariants = cva(
         true: 'w-full',
         false: '',
       },
+      /** A long label may wrap inside the pill instead of running past the screen: the face grows taller and keeps its label
+       *  centred. Only a button that is given `wrap` does; every other label stays on one line (see whitespace-nowrap above). */
+      wrap: {
+        true: 'h-auto max-w-full whitespace-normal py-2 text-center',
+        false: '',
+      },
     },
     defaultVariants: {
       variant: 'secondary',
       size: 'md',
       radius: 'md',
       fullWidth: false,
+      wrap: false,
     },
   }
 );
@@ -186,6 +193,8 @@ interface ButtonProps
   render?: useRender.RenderProp;
   /** Loading state — shows spinner, disables button */
   loading?: boolean;
+  /** Let a long label wrap inside the button (see the `wrap` face above). */
+  wrap?: boolean;
   /** The work this button runs elsewhere, said in the button; a press that returns a promise needs none. `null`: the
    *  button draws its own work, so a promise its press returns is not said again. */
   work?: ButtonWork | null;
@@ -239,7 +248,7 @@ function variantForSolidColor(color: ButtonProps['color']) {
  * ```
  */
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant: givenVariant, size: givenSize, radius, fullWidth, loading, work: givenWork, pendingLabel, doneLabel, errorLabel, disabled, active, tone, color, targetRole = 'action', children, onClick, href, render, ...props }, ref) => {
+  ({ className, variant: givenVariant, size: givenSize, radius, fullWidth, wrap, loading, work: givenWork, pendingLabel, doneLabel, errorLabel, disabled, active, tone, color, targetRole = 'action', children, onClick, href, render, ...props }, ref) => {
     const insideTooltip = React.useContext(InsideTooltipContext);
     const named = ownVariant(givenVariant);
     const variant: OwnVariant = named === 'solid' ? variantForSolidColor(color) : named ?? (tone ? variantForTone(tone) : 'secondary');
@@ -257,7 +266,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       ref,
       props: mergeProps<'button'>({
         className: cn(
-          buttonVariants({ variant, size, radius, fullWidth }),
+          buttonVariants({ variant, size, radius, fullWidth, wrap }),
           controlTargetClass(targetRole),
           active && ACTIVE_CLASS,
           className,

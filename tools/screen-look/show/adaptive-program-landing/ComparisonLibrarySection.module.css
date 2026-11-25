@@ -98,6 +98,10 @@
 }
 
 .libraryBlock {
+  /* Inside the page's width with its margins, as the sections around it are. */
+  box-sizing: border-box;
+  margin-inline: auto;
+  width: min(1136px, calc(100% - 32px));
   --swing-accent: #315c49;
   --swing-ink: #0f172a;
   --swing-muted: #64748b;
