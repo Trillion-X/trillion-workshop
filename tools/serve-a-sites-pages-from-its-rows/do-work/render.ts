@@ -71,6 +71,7 @@ export const MOUNT = 'root';
 
 /** Words drawn with the shared Text part, for a page of plain words (not found, refused, not reachable). */
 export const TEXT_PART = 'ui/show/text/Text.tsx#Text';
+export const BUTTON_PART = 'ui/show/button/Button.tsx#Button';
 
 /** Every tool's module screen, read once from the cards of the Workshop folder this program runs from. */
 export function screensOfTools(tools: string): Map<string, Screen> {
@@ -157,11 +158,13 @@ export async function drawnTreeOf(tree: LayoutNode, screens: Map<string, Screen>
 }
 
 /** A page of plain words: a heading and a line, each the shared Text part. */
-export function wordsTree(heading: string, words: string): DrawnNode {
+export function wordsTree(heading: string, words: string, back?: { href: string; label: string }): DrawnNode {
   return {
     module: TEXT_PART, props: { as: 'section', variant: 'body' }, children: [
       { module: TEXT_PART, props: { variant: 'heading-xl' }, children: [{ text: heading }] },
       { module: TEXT_PART, props: { variant: 'body' }, children: [{ text: words }] },
+      // A failed form's way back to the form it came from: the shared Button, drawn as a link.
+      ...(back ? [{ module: BUTTON_PART, props: { href: back.href, variant: 'outline' }, children: [{ text: back.label }] }] : []),
     ],
   };
 }

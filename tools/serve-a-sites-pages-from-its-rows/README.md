@@ -208,6 +208,10 @@ Example, a page's visit beacon (a visitor id only with consent, set as a cookie 
   Secure`, `HttpOnly` unless `http_only` is false, and `Domain=<domain>` when the request's host is that domain or under it.
   An action reads it back with `{ "$": "cookie", "name": "<cookie>" }` (a checkout's referral code). Example:
   `{ "query": "ref", "cookie": "site_ref", "pattern": "[A-Z0-9][A-Z0-9-]{3,31}", "upper_case": true, "max_age_days": 30, "domain": "example.com" }`.
+- A browser's form post (a form body, `Accept` naming `text/html`) never gets raw JSON back: when a passed-on program answers
+  JSON (it was made for its own page script), a 2xx naming an address (`redirect`, `redirectUrl` or `url`) becomes a 303 there,
+  and anything else, or no answer at all, is the site's own "That did not go through" page with the program's error words and
+  a Back link to the form's page (the Referer's path). A site's own action that fails a form post answers the same page.
 - `pass_on` entries with `"stream": true` are piped both ways as they come: every request header passes unchanged (Host,
   `Authorization`, `Mcp-Session-Id`), the answer streams back (an MCP door's event stream, a GET that stays open), and the
   other program's call ends when the visitor's does. Never with `site_head`. Example, an engine's MCP door on an app host:

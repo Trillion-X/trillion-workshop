@@ -466,6 +466,47 @@ test('a reply answers as the tool says (status, location, set-cookie, retry-afte
   } finally { d.server.close(); }
 });
 
+test('a browser form post never gets raw JSON: another program\'s JSON error is the site\'s own page with a way back, its JSON address a 303', async () => {
+  const old = http.createServer((request, response) => {
+    if (request.url === '/target/pay') { response.writeHead(200, { 'content-type': 'application/json', 'set-cookie': 'kept=1; Path=/' }); return response.end('{"redirect":"https://pay.example.test/s/1"}'); }
+    response.writeHead(500, { 'content-type': 'application/json' });
+    response.end('{"error":"Something went wrong. Please try again."}');
+  });
+  await new Promise<void>(resolve => old.listen(0, '127.0.0.1', resolve));
+  const d = await door();
+  const oldAt = `http://127.0.0.1:${(old.address() as AddressInfo).port}`;
+  const site = await siteOn(d.address, { actions: 'site_actions' });
+  const server = http.createServer(handlerOf(site, [
+    { name: 'the old program', address: oldAt, exact: ['/target/pay', '/target/broken'] },
+    { name: 'a program that is down', address: 'http://127.0.0.1:1', exact: ['/target/down'] },
+  ]));
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const at = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    const formPost = (path: string, accept = 'text/html,application/xhtml+xml') => fetch(`${at}${path}`, { method: 'POST', redirect: 'manual', body: 'consent.billing=true&offerId=offer:one',
+      headers: { 'content-type': 'application/x-www-form-urlencoded', accept, referer: 'https://site.example.test/pricing?plan=a', 'x-forwarded-host': 'site.example.test' } });
+    const broken = await formPost('/target/broken');
+    assert.equal(broken.status, 500, 'the program\'s status is kept');
+    assert.match(broken.headers.get('content-type') ?? '', /^text\/html/);
+    const page = await broken.text();
+    assert.match(page, /That did not go through/);
+    assert.match(page, /Something went wrong\. Please try again\./, 'the program\'s own words');
+    assert.match(page, /href="\/pricing\?plan=a"/, 'a way back to the form it came from, on this site');
+    assert.equal(page.includes('{"error"'), false, 'never the raw JSON');
+    const pay = await formPost('/target/pay');
+    assert.equal(pay.status, 303);
+    assert.equal(pay.headers.get('location'), 'https://pay.example.test/s/1');
+    assert.deepEqual(pay.headers.getSetCookie(), ['kept=1; Path=/'], 'the program\'s cookies are kept');
+    const down = await formPost('/target/down');
+    assert.equal(down.status, 502);
+    assert.match(await down.text(), /That did not go through/, 'a program that does not answer is the same page');
+    const script = await formPost('/target/broken', 'application/json');
+    assert.deepEqual(await script.json(), { error: 'Something went wrong. Please try again.' }, 'a page script asking for JSON gets the JSON as it is');
+    const own = await site.act('/fails', undefined, 'site.example.test', { contentType: 'application/x-www-form-urlencoded', referer: 'https://site.example.test/book?x=1', bytes: Buffer.from('a=1') });
+    assert.match(String(own.body), /href="\/book\?x=1"/, 'the site\'s own failed action has the same way back');
+  } finally { server.close(); old.close(); d.server.close(); }
+});
+
 test('a part\'s own CSS module comes with the page: its local class is on the markup and its rule in the page\'s stylesheet', async () => {
   const bundle = await new PageBundles(tools, styles, files).bundleFor(['serve-a-sites-pages-from-its-rows/tests/show/Styled.tsx#View']);
   const html = bundle.html({ lang: 'en', title: 'T', canonical: 'https://site.example.test/', look: '' }, { module: 'serve-a-sites-pages-from-its-rows/tests/show/Styled.tsx#View', props: { words: 'Styled words' } });
