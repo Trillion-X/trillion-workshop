@@ -343,3 +343,17 @@ test('exactly one of a built folder and a candidate is checked; a candidate is a
   assert.deepEqual(argumentsOfRequest({ candidate: 'http://10.0.0.5:8081', live: 'https://live.example', paths: ['/', '/members'], pages: '' }),
     { candidate: 'http://10.0.0.5:8081', live: 'https://live.example', paths: '/,/members' });
 });
+
+test('a candidate sitemap of many pages opens one page per kind, and a kind live lacks gets the new-page rule', async () => {
+  const courses = Array.from({ length: 40 }, (_, at) => `/courses/c${at}`);
+  const map = sitemap(['/', ...courses, '/events/opening', '/events/closing']);
+  const routes = { ...liveRoutes, '/sitemap.xml': { body: map }, ...Object.fromEntries(courses.map(path => [path, { body: tall(3490) }])) };
+  const drawn = await candidateRun({ ...routes, '/events/opening': { body: page({ body: '<p>We open in spring.</p>' }) } });
+  assert.deepEqual(drawn.result.pages.map(row => row.kind), ['/', '/courses/*', '/members', '/events/*']);
+  assert.equal(byKind(drawn.result, '/events/*').live_height_px, null);
+  assert.equal(byKind(drawn.result, '/events/*').refused, false);
+  const throws = await candidateRun({ ...routes, '/events/opening': { body: page({ body: '<p>We open in spring.</p>', script: 'null.x' }) } });
+  assert.match(byKind(throws.result, '/events/*').why[0], /no live page exists and the built page threw/);
+  const blank = await candidateRun({ ...routes, '/events/opening': { body: page({}) } });
+  assert.match(byKind(blank.result, '/events/*').why.join(' '), /shows no text/);
+});
