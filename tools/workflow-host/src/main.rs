@@ -734,7 +734,7 @@ fn record(run: &str) -> Result<Value, String> {
                 let input_text = input.to_string();
                 let command = input["command"].as_str().or(input["cmd"].as_str()).unwrap_or(&input_text);
                 let is_wf = names_wf(command, "start|answer|show|cancel");
-                if names_wf(command, "start|answer|cancel") && text.contains(&name) { worked_until = Some(at.clone()); }
+                if names_wf(command, "start|answer|cancel") && (text.contains(&name) || acts_on_run(command, &short)) { worked_until = Some(at.clone()); }
                 if is_wf {
                     if let Some(c) = re(r#""step":\s*"([^"]+)""#).captures_iter(&text).last() { waits_on = c[1].to_string(); }
                 }
@@ -937,6 +937,20 @@ fn names_wf(command: &str, verbs: &str) -> bool {
     if is_like(&format!(r"{START}(?:\S*/wf|wf)\s+({verbs})\b"), command) { return true; }
     re(r#"\b([A-Za-z_][A-Za-z0-9_]*)=["']?[^\s"';|&]*/wf(?:[^\w-]|$)"#).captures_iter(command)
         .any(|c| is_like(&format!(r#"{START}"?\$(?:\{{{v}\}}|{v}\b)"?\s+({verbs})\b"#, v = &c[1]), command))
+}
+// A wf answer or cancel acts on the run when its command line gives the run's id right after the verb, directly or through a
+// variable the same command sets to it (`R=1795...-run; cat x | $W answer $R step`): wf prints nothing for an answer given on
+// a pipe, so its output cannot name the run. Both the wf call and the id must sit where a command starts or ends its words, so a
+// note or script that only holds such text does not count.
+fn acts_on_run(command: &str, short: &str) -> bool {
+    const START: &str = r"(?m)(?:^|[;&|(])\s*(?:[A-Za-z_]\w*=\S*\s+)*";
+    let wf_vars: Vec<String> = re(r#"\b([A-Za-z_][A-Za-z0-9_]*)=["']?[^\s"';|&]*/wf(?:[^\w-]|$)"#).captures_iter(command).map(|c| c[1].to_string()).collect();
+    let run_vars: Vec<String> = re(&format!(r#"\b([A-Za-z_][A-Za-z0-9_]*)=["']?[^\s"';|&]*{short}"#)).captures_iter(command).map(|c| c[1].to_string()).collect();
+    let ids: Vec<String> = std::iter::once(format!(r#"["']?\S*{short}"#))
+        .chain(run_vars.iter().map(|r| format!(r#""?\$(?:\{{{r}\}}|{r}\b)"#))).collect();
+    let callers: Vec<String> = std::iter::once(r"(?:\S*/wf|wf)".to_string())
+        .chain(wf_vars.iter().map(|v| format!(r#""?\$(?:\{{{v}\}}|{v}\b)"?"#))).collect();
+    callers.iter().any(|caller| ids.iter().any(|id| is_like(&format!(r"{START}{caller}\s+(answer|cancel)\s+{id}"), command)))
 }
 // What a person, peer or lane asked in a message: its words without the system reminders wrapped around them.
 fn asked_words(message: &str) -> String {
@@ -1753,7 +1767,7 @@ mod json_arg_tests {
 
 #[cfg(test)]
 mod names_wf_tests {
-    use super::{asked_words, names_wf};
+    use super::{acts_on_run, asked_words, names_wf};
 
     const ANY: &str = "start|answer|show|cancel";
     const WORKS: &str = "start|answer|cancel";
@@ -1794,6 +1808,18 @@ mod names_wf_tests {
         assert!(names_wf("wf answer R step '{}'", WORKS));
         assert!(names_wf("W=/opt/otfh/bin/wf; ${W} cancel R", WORKS));
         assert!(names_wf("wf start workflow:x '{}'", WORKS));
+    }
+
+    #[test]
+    fn an_answer_given_on_a_pipe_acts_on_the_run_its_variable_names() {
+        let run = "R=1795559594-5575-workflow_do-a-job-no-workflow-fits-yet";
+        assert!(acts_on_run(&format!("W=/opt/otfh/bin/wf; {run}; cat <<'EOF' | $W answer $R say-the-job\n{{}}\nEOF"), "1795559594"));
+        assert!(acts_on_run(&format!("W=/opt/otfh/bin/wf; {run}; ${{W}} cancel \"$R\""), "1795559594"));
+        assert!(acts_on_run("/opt/otfh/bin/wf answer 1795559594-5575-w step '{}'", "1795559594"));
+        assert!(!acts_on_run("assert!(call(\"wf answer 1795559594-5575-w step\"))", "1795559594"));
+        assert!(!acts_on_run(&format!("W=/opt/otfh/bin/wf; {run}; $W show $R"), "1795559594"));
+        assert!(!acts_on_run(&format!("{run}; $W answer $R step"), "1795559594"));
+        assert!(!acts_on_run("W=/opt/otfh/bin/wf; cat note <<EOF\nthe call wf answer 1795559594-x is how\nEOF", "1795559594"));
     }
 
     #[test]
