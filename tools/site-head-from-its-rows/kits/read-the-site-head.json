@@ -1,0 +1,38 @@
+{
+  "start_here": "Say to your AI: \"Read the head markup for my site main.\" It runs tool:read-the-site-head and answers what every page carries in its head.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it reads the site_head and site_head_parts tables of the pursuit database you name and changes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:read-the-site-head"
+  ],
+  "instructions": [
+    "1. Name the pursuit database that holds the rows, such as example_for_who_uses_it; the computer opens it with the read login its vault holds.",
+    "2. Say what you want in plain words; your AI calls tools:run with tool tool:read-the-site-head and the input.",
+    "3. Read the answer: the head markup (consent default first) and the body-start markup. Show it with the screen the tool names."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the site head",
+      "ask": "Read the head markup for my site main.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-the-site-head",
+            "input": {
+              "database": "example_for_who_uses_it",
+              "site": "main"
+            }
+          }
+        }
+      },
+      "given": "The database holds the rows the read names (made-up values).",
+      "hands_back": "{\"head\":\"<script>window.dataLayer=window.dataLayer||[];...\",\"body_start\":\"\"}"
+    }
+  ],
+  "drafted_from": "tool row in tools/site-head-from-its-rows/tool-rows.json, do-work/site-head.ts and reads/read-the-site-head.ts"
+}
