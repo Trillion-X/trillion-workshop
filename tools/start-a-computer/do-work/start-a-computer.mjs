@@ -379,7 +379,9 @@ const notOnComputer = secret => refused(`${secret.unit} needs the value held und
 /** Apply what a computer's row says it runs: set it up, seal each secret a unit names that the computer does not hold yet, write only
  * the files that differ from what the row renders, and restart what those change. A computer that already matches gets
  * nothing written, no set-up run and nothing restarted. A file that is replaced keeps its previous bytes beside it as
- * `NAME.bak-STAMP`. `held` maps a unit's `secret_vault_key` to the value the person's vault holds under that name; the value
+ * `NAME.bak-STAMP` only for the apply's own rollback: the copies go once every restarted unit passed its boot check, and when
+ * the apply fails after it began writing, each is moved back over its file (`putBackTheFiles`).
+ * `held` maps a unit's `secret_vault_key` to the value the person's vault holds under that name; the value
  * reaches the computer only on the SSH channel's standard input, sealed there by systemd-creds at the unit's `secret_file`. */
 // The error answers (status 400 and up) the access log's unit holds since `since` (epoch seconds): each route (path only), status,
 // ip_hash (the BLAKE3 identity of the client address, never the address) and time. Read over the same route as the boot check.
@@ -578,108 +580,157 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   // Those files are written in one command too, first, so a site file that names a page finds it.
   const inOwned = ownedFolders(runs);
   await writeAll(machine, run, writes.filter(({ path, check }) => inOwned(path) && !check));
-  for (const { path, text, binary, check } of writes.filter(({ path, check }) => !inOwned(path) || check)) {
-    if (live[path] !== undefined && !inOwned(path)) await run(machine, `cp -p ${q(path)} ${q(`${path}.bak-${stamp}`)}`);
-    // Through a temporary file and one rename: `install /dev/stdin FILE` fails on Ubuntu 26.04's coreutils (uutils 0.10.0)
-    // whenever FILE already exists. The destination follows this text as its last word.
-    const write = `install -d -m 0755 ${q(dirname(path))} && t=$(mktemp ${q(`${dirname(path)}/.write.XXXXXX`)}) && ${binary ? 'base64 -d' : 'cat'} > "$t" && chmod 0644 "$t" && chown root:root "$t" && mv -f "$t"`;
-    // A file that names `check` (an argv, `{file}` the new text's path) is written beside the live one and replaces it only
-    // once that command passes: a site file its own server validates, so a bad one never reaches the running program.
-    if (check) await run(machine, `${write} ${q(`${path}.new`)} && ${check.map(word => q(word.replaceAll('{file}', `${path}.new`))).join(' ')} >/dev/null && mv ${q(`${path}.new`)} ${q(path)}`, text);
-    else await run(machine, `${write} ${q(path)}`, text);
-  }
-  // The strays of the owned folders go now, in one command: the pages written above no longer name them, and a page served
-  // before this apply could load one until its replacement was in place (Nov 20 2026: old workspace bundles were removed one by
-  // one, before the new pages, so a page loading then could miss its own scripts).
-  if (strays.length) await run(machine, 'while IFS= read -r p; do rm -f -- "$p"; done', `${strays.join('\n')}\n`);
-  const builtUnits = [...builds.map(({ unit }) => unit.unit), ...stale.map(({ unit }) => unit.unit)];
-  const units = [...new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit), ...keysOwed, ...triggersOff, ...builtUnits].filter(Boolean))]
-    .filter(unit => !slotted.has(unit));
-  // A unit whose file or drop-in was there before is restarted. A new drop-in changes how a running unit starts, so it restarts
-  // it too, unless the unit's own file is new as well: a new unit is enabled and started.
-  // (A unit with no template is the computer's own, so it was there.)
-  const unitFile = path => path.match(/^(.+)\.d\/[^/]+$/)?.[1];
-  const startedBefore = path => live[path] !== undefined || !rendered.some(file => file.path === path);
-  const running = new Set([...writes.filter(({ path }) => live[path] !== undefined || (unitFile(path) && startedBefore(unitFile(path)))).flatMap(({ path }) => unitsOf(path)),
-    ...[...missing.map(unit => unit.unit), ...keysOwed, ...builtUnits].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);
-  if (units.length || switching.length) await run(machine, 'systemctl daemon-reload');
-  // The boot check: each restarted unit must answer its own health row (`health`, `health_listen`, and the Host its request
-  // names, `health.host`), else the one the computer row
-  // names, else the tool default, on the machine itself, so a unit that starts and crashes, or a route that is not served, fails the apply instead of passing it.
-  const bootCheck = async unit => {
-    const row = runs.units.find(given => given.unit === unit) ?? {};
-    // A unit that is not an HTTP server names the command that tells it is well (`check_command`, run on the computer, exit 0).
-    if (row.check_command) return commandPasses(machine, row.check_command, { run, wait: deps.wait ?? pause, tries: 12 }, `${unit}'s check_command`);
-    const health = healthOf(row.health ?? runs.health);
-    const listen = row.health_listen ?? runs.health_listen;
-    if (!listen) throw refused(`${unit} restarted, and neither it nor its computer's row names health_listen: the address its boot check asks.`);
-    // A unit whose first start is long (a slot fetching and installing its own copy) names how long its health may take to
-    // answer (`health.wait_seconds`); it is asked every 5 s.
-    const tries = Math.max(1, Math.ceil((health.wait_seconds ?? 60) / 5));
-    const status = await healthStatus(machine, { listen }, health.host ?? '', { ...health, where: 'machine' }, { fetchImpl: undefined, wait: deps.wait ?? pause, tries, run });
-    if (status !== health.status) throw Object.assign(new Error(`${unit} answered ${status ?? 'nothing'} on ${health.path}, not ${health.status}, after its restart.`), { unit, status });
-  };
-  // A switch starts the other slot, and only once it answers its boot check is it the one that starts with the computer and is
-  // the slot that ran stopped: that one stops taking calls and finishes those it holds (its stop_seconds). A slot that never
-  // answers is stopped again, and the slot that ran keeps serving.
-  // A slot boots beside the one that runs only when the computer has the memory for both (settings.json `slot_start`): the
-  // unit's `start_headroom_bytes` (what a new slot takes to start), else the larger of the memory the running slots use now
-  // (their MemoryCurrent) and the start peak the last switch measured (the new slot's MemoryPeak once it passed its checks, kept
-  // in the unit's state folder as `start-peak-bytes`: a release can outgrow the one it replaces while it starts), and the margin
-  // over it, against the computer's MemAvailable. Too little is refused before anything stops, so the slot that
-  // runs keeps serving (Nov 21 2026, 9:47 PM CST: the kernel's global out-of-memory killer ended a new slot that had reached 1.32 GB
-  // beside an old one holding 1.26 GB on a 4 GB computer, and every site on the box timed out).
-  const switched = [], booted = [], linked = [];
-  for (const { group, target } of switching) {
-    const answer = await overlapSlot(machine, group, target, run, {
-      ready: async () => {
-        await bootCheck(target.unit);
-        if (target.switch_check_command) {
-          const filled = target.switch_check_command.replaceAll('{unit}', target.unit).replaceAll('{listen}', target.health_listen ?? '');
-          await commandPasses(machine, filled, { run, wait: deps.wait ?? pause, tries: Math.max(1, Math.ceil((target.switch_check_seconds ?? 60) / 5)) }, `${target.unit}'s switch_check_command`);
-        }
-      },
-      notSwitched: async () => switching.length === 1 && group.active.length === 1 && !needsSetup && !writes.length && !present.length &&
-        !usersPresent.length && !missing.length && !keysOwed.length && !builds.length,
-      beforeRetire: async () => {
-        // The new slot answers and the one that ran still serves: its fixed paths move to the new slot now, so no reader is
-        // sent to a slot that is stopping.
-        linked.push(...await pointLiveLinks(machine, target, run));
-        if (!target.state) return;
-        const peak = (await run(machine, `systemctl show -p MemoryPeak --value ${q(target.unit)}`).catch(() => '')).trim();
-        if (/^[0-9]+$/.test(peak)) await run(machine, `printf '%s\\n' ${q(peak)} > ${q(`${target.state}/start-peak-bytes`)}`).catch(() => {});
-      },
-    });
-    booted.push(target.unit);
-    switched.push(answer);
-  }
-  // A link that is off while no switch moves it (a link the row names for the first time, or one changed by hand) is put back.
-  const switchedGroups = new Set(switching.map(({ group }) => group.of));
-  for (const { link, target } of linksOff) {
-    if (switchedGroups.has(runs.units.find(unit => Object.hasOwn(unit.live_links ?? {}, link))?.slot?.of)) continue;
-    await run(machine, pointLink(link, target));
-    linked.push(link);
-  }
-  for (const unit of units) {
-    await run(machine, running.has(unit) ? `systemctl restart ${q(unit)}` : `systemctl enable --now ${q(unit)} >/dev/null 2>&1`);
-  }
-  // A file that names commands to run once it changed (`then`: a server's reload of its site file, the meeting point's user
-  // and its ssh server's reload) runs them, each once, in order, once every unit it may send to has started.
-  const thens = [...new Map(writes.flatMap(({ then }) => then ?? []).map(argv => [JSON.stringify(argv), argv])).values()];
-  for (const argv of thens) await run(machine, argv.map(q).join(' '));
-  const computer = deps.computer ?? machine.address, checked = [];
-  for (const unit of units) {
-    const common = { computer, unit, build: runs.units.find(given => given.unit === unit)?.commit ?? null, accessLogUnit: runs.access_log_unit, since: applyStarted };
-    try { await bootCheck(unit); }
-    catch (error) {
-      error.apply_checked = [...checked, await applyCheckedFact(machine, run, { ...common, check: 'failed', reason: error.message })];
-      throw error;
+  // The copies kept beside replaced files (`NAME.bak-STAMP`) are this apply's rollback only, never left for a later one: once
+  // every restarted unit passed its boot check they go, and if anything fails from the first write on, they are moved back over
+  // their files and the units that read them restart on them (Nov 25 2026: 21 copies no row named had piled up under /etc on
+  // one computer, and one inside a config folder would be read by whatever binds that folder).
+  const backups = [];
+  let switched, booted, linked, checked, computer, units;
+  try {
+    for (const { path, text, binary, check } of writes.filter(({ path, check }) => !inOwned(path) || check)) {
+      if (live[path] !== undefined && !inOwned(path)) {
+        await run(machine, `cp -p ${q(path)} ${q(`${path}.bak-${stamp}`)}`);
+        backups.push({ path, backup: `${path}.bak-${stamp}` });
+      }
+      // Through a temporary file and one rename: `install /dev/stdin FILE` fails on Ubuntu 26.04's coreutils (uutils 0.10.0)
+      // whenever FILE already exists. The destination follows this text as its last word.
+      const write = `install -d -m 0755 ${q(dirname(path))} && t=$(mktemp ${q(`${dirname(path)}/.write.XXXXXX`)}) && ${binary ? 'base64 -d' : 'cat'} > "$t" && chmod 0644 "$t" && chown root:root "$t" && mv -f "$t"`;
+      // A file that names `check` (an argv, `{file}` the new text's path) is written beside the live one and replaces it only
+      // once that command passes: a site file its own server validates, so a bad one never reaches the running program.
+      if (check) await run(machine, `${write} ${q(`${path}.new`)} && ${check.map(word => q(word.replaceAll('{file}', `${path}.new`))).join(' ')} >/dev/null && mv ${q(`${path}.new`)} ${q(path)}`, text);
+      else await run(machine, `${write} ${q(path)}`, text);
     }
-    checked.push(await applyCheckedFact(machine, run, { ...common, check: 'passed' }));
-    booted.push(unit);
+    // The strays of the owned folders go now, in one command: the pages written above no longer name them, and a page served
+    // before this apply could load one until its replacement was in place (Nov 20 2026: old workspace bundles were removed one by
+    // one, before the new pages, so a page loading then could miss its own scripts).
+    if (strays.length) await run(machine, 'while IFS= read -r p; do rm -f -- "$p"; done', `${strays.join('\n')}\n`);
+    const builtUnits = [...builds.map(({ unit }) => unit.unit), ...stale.map(({ unit }) => unit.unit)];
+    units = [...new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit), ...keysOwed, ...triggersOff, ...builtUnits].filter(Boolean))]
+      .filter(unit => !slotted.has(unit));
+    // A unit whose file or drop-in was there before is restarted. A new drop-in changes how a running unit starts, so it restarts
+    // it too, unless the unit's own file is new as well: a new unit is enabled and started.
+    // (A unit with no template is the computer's own, so it was there.)
+    const unitFile = path => path.match(/^(.+)\.d\/[^/]+$/)?.[1];
+    const startedBefore = path => live[path] !== undefined || !rendered.some(file => file.path === path);
+    const running = new Set([...writes.filter(({ path }) => live[path] !== undefined || (unitFile(path) && startedBefore(unitFile(path)))).flatMap(({ path }) => unitsOf(path)),
+      ...[...missing.map(unit => unit.unit), ...keysOwed, ...builtUnits].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);
+    if (units.length || switching.length) await run(machine, 'systemctl daemon-reload');
+    // The boot check: each restarted unit must answer its own health row (`health`, `health_listen`, and the Host its request
+    // names, `health.host`), else the one the computer row
+    // names, else the tool default, on the machine itself, so a unit that starts and crashes, or a route that is not served, fails the apply instead of passing it.
+    const bootCheck = async unit => {
+      const row = runs.units.find(given => given.unit === unit) ?? {};
+      // A unit that is not an HTTP server names the command that tells it is well (`check_command`, run on the computer, exit 0).
+      if (row.check_command) return commandPasses(machine, row.check_command, { run, wait: deps.wait ?? pause, tries: 12 }, `${unit}'s check_command`);
+      const health = healthOf(row.health ?? runs.health);
+      const listen = row.health_listen ?? runs.health_listen;
+      if (!listen) throw refused(`${unit} restarted, and neither it nor its computer's row names health_listen: the address its boot check asks.`);
+      // A unit whose first start is long (a slot fetching and installing its own copy) names how long its health may take to
+      // answer (`health.wait_seconds`); it is asked every 5 s.
+      const tries = Math.max(1, Math.ceil((health.wait_seconds ?? 60) / 5));
+      const status = await healthStatus(machine, { listen }, health.host ?? '', { ...health, where: 'machine' }, { fetchImpl: undefined, wait: deps.wait ?? pause, tries, run });
+      if (status !== health.status) throw Object.assign(new Error(`${unit} answered ${status ?? 'nothing'} on ${health.path}, not ${health.status}, after its restart.`), { unit, status });
+    };
+    // A switch starts the other slot, and only once it answers its boot check is it the one that starts with the computer and is
+    // the slot that ran stopped: that one stops taking calls and finishes those it holds (its stop_seconds). A slot that never
+    // answers is stopped again, and the slot that ran keeps serving.
+    // A slot boots beside the one that runs only when the computer has the memory for both (settings.json `slot_start`): the
+    // unit's `start_headroom_bytes` (what a new slot takes to start), else the larger of the memory the running slots use now
+    // (their MemoryCurrent) and the start peak the last switch measured (the new slot's MemoryPeak once it passed its checks, kept
+    // in the unit's state folder as `start-peak-bytes`: a release can outgrow the one it replaces while it starts), and the margin
+    // over it, against the computer's MemAvailable. Too little is refused before anything stops, so the slot that
+    // runs keeps serving (Nov 21 2026, 9:47 PM CST: the kernel's global out-of-memory killer ended a new slot that had reached 1.32 GB
+    // beside an old one holding 1.26 GB on a 4 GB computer, and every site on the box timed out).
+    switched = []; booted = []; linked = [];
+    for (const { group, target } of switching) {
+      const answer = await overlapSlot(machine, group, target, run, {
+        ready: async () => {
+          await bootCheck(target.unit);
+          if (target.switch_check_command) {
+            const filled = target.switch_check_command.replaceAll('{unit}', target.unit).replaceAll('{listen}', target.health_listen ?? '');
+            await commandPasses(machine, filled, { run, wait: deps.wait ?? pause, tries: Math.max(1, Math.ceil((target.switch_check_seconds ?? 60) / 5)) }, `${target.unit}'s switch_check_command`);
+          }
+        },
+        notSwitched: async () => switching.length === 1 && group.active.length === 1 && !needsSetup && !writes.length && !present.length &&
+          !usersPresent.length && !missing.length && !keysOwed.length && !builds.length,
+        beforeRetire: async () => {
+          // The new slot answers and the one that ran still serves: its fixed paths move to the new slot now, so no reader is
+          // sent to a slot that is stopping.
+          linked.push(...await pointLiveLinks(machine, target, run));
+          if (!target.state) return;
+          const peak = (await run(machine, `systemctl show -p MemoryPeak --value ${q(target.unit)}`).catch(() => '')).trim();
+          if (/^[0-9]+$/.test(peak)) await run(machine, `printf '%s\\n' ${q(peak)} > ${q(`${target.state}/start-peak-bytes`)}`).catch(() => {});
+        },
+      });
+      booted.push(target.unit);
+      switched.push(answer);
+    }
+    // A link that is off while no switch moves it (a link the row names for the first time, or one changed by hand) is put back.
+    const switchedGroups = new Set(switching.map(({ group }) => group.of));
+    for (const { link, target } of linksOff) {
+      if (switchedGroups.has(runs.units.find(unit => Object.hasOwn(unit.live_links ?? {}, link))?.slot?.of)) continue;
+      await run(machine, pointLink(link, target));
+      linked.push(link);
+    }
+    for (const unit of units) {
+      await run(machine, running.has(unit) ? `systemctl restart ${q(unit)}` : `systemctl enable --now ${q(unit)} >/dev/null 2>&1`);
+    }
+    // A file that names commands to run once it changed (`then`: a server's reload of its site file, the meeting point's user
+    // and its ssh server's reload) runs them, each once, in order, once every unit it may send to has started.
+    const thens = [...new Map(writes.flatMap(({ then }) => then ?? []).map(argv => [JSON.stringify(argv), argv])).values()];
+    for (const argv of thens) await run(machine, argv.map(q).join(' '));
+    computer = deps.computer ?? machine.address; checked = [];
+    for (const unit of units) {
+      const common = { computer, unit, build: runs.units.find(given => given.unit === unit)?.commit ?? null, accessLogUnit: runs.access_log_unit, since: applyStarted };
+      try { await bootCheck(unit); }
+      catch (error) {
+        error.apply_checked = [...checked, await applyCheckedFact(machine, run, { ...common, check: 'failed', reason: error.message })];
+        throw error;
+      }
+      checked.push(await applyCheckedFact(machine, run, { ...common, check: 'passed' }));
+      booted.push(unit);
+    }
+  } catch (error) {
+    error.rolled_back = await putBackTheFiles(machine, run, backups, { unitsOf, slotted, writes });
+    throw error;
   }
+  const backupsLeft = await dropTheBackups(machine, run, backups);
   const plainKeysRemoved = await removeThePlainKeys(machine, keys, booted, run);
-  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(plainKeysRemoved.length ? { plain_keys_removed: plainKeysRemoved } : {}), ...(switched.length ? { switched } : {}), ...(linked.length ? { linked } : {}), ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}), ...(built.length ? { built } : {}), ...(surplus.length ? { builds_removed: surplus.flatMap(({ builds, commits }) => commits.map(commit => `${builds}/${commit}`)) } : {}), ...removed, ...(checked.length ? { apply_checked: checked } : {}) };
+  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(plainKeysRemoved.length ? { plain_keys_removed: plainKeysRemoved } : {}), ...(switched.length ? { switched } : {}), ...(linked.length ? { linked } : {}), ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}), ...(built.length ? { built } : {}), ...(surplus.length ? { builds_removed: surplus.flatMap(({ builds, commits }) => commits.map(commit => `${builds}/${commit}`)) } : {}), ...removed, ...(checked.length ? { apply_checked: checked } : {}), ...(backupsLeft.length ? { backups_left: backupsLeft } : {}) };
+}
+
+/** Puts back the files an apply replaced, from the copies it kept beside them, once the apply failed after it began writing:
+ * each copy is moved over its file (so the copy is gone too), systemd reloads when a unit file or drop-in came back, each unit
+ * that reads a restored file restarts on it (a slotted unit is left to its own switch, which keeps the slot that ran), and a
+ * restored file's `then` commands run once more. A file the apply made new has no previous bytes and stays; what the apply
+ * removed, sealed or built is not undone here. Returns the paths put back, and each one that could not be with why (its copy
+ * is kept, and named, for whoever looks next). */
+export async function putBackTheFiles(machine, run, backups, { unitsOf, slotted, writes }) {
+  const restored = [], failed = [];
+  for (const { path, backup } of backups) {
+    try { await run(machine, `mv -f ${q(backup)} ${q(path)}`); restored.push(path); }
+    catch (error) { failed.push({ path, backup, reason: error.message }); }
+  }
+  const restart = [...new Set(restored.flatMap(unitsOf).filter(unit => unit && !slotted.has(unit)))];
+  const thens = [...new Map(writes.filter(({ path }) => restored.includes(path)).flatMap(({ then }) => then ?? []).map(argv => [JSON.stringify(argv), argv])).values()];
+  const steps = [
+    ...(restored.some(path => path.startsWith('/etc/systemd/system/')) ? ['systemctl daemon-reload'] : []),
+    ...restart.map(unit => `systemctl restart ${q(unit)}`),
+    ...thens.map(argv => argv.map(q).join(' ')),
+  ];
+  for (const command of steps) {
+    try { await run(machine, command); }
+    catch (error) { failed.push({ command, reason: error.message }); }
+  }
+  return { restored, restarted: restart, ...(failed.length ? { failed } : {}) };
+}
+
+/** Removes the copies an apply kept for its rollback, once its checks passed, in one command. A copy that could not be removed
+ * does not fail an apply that worked: it is returned, so the answer names it. */
+export async function dropTheBackups(machine, run, backups) {
+  if (!backups.length) return [];
+  try { await run(machine, 'while IFS= read -r p; do rm -f -- "$p"; done', `${backups.map(({ backup }) => backup).join('\n')}\n`); return []; }
+  catch { return backups.map(({ backup }) => backup); }
 }
 
 const refused = message => Object.assign(new Error(message), { exit: 2 });
@@ -1052,9 +1103,9 @@ export const computerRowApplyExit = answer => answer.names_unconfirmed !== undef
 export const computerRowApplyReceipt = answer => ({ ...answer, row_apply_protocol: ROW_APPLY_RESULT_PROTOCOL });
 
 export function computerRowApplyFailure(error) {
-  const { apply_checked, slot_not_switched, slot_switch_unconfirmed } = error;
+  const { apply_checked, slot_not_switched, slot_switch_unconfirmed, rolled_back } = error;
   if (apply_checked || slot_not_switched || slot_switch_unconfirmed) {
-    return computerRowApplyReceipt({ apply_checked, slot_not_switched, slot_switch_unconfirmed, error: error.message });
+    return computerRowApplyReceipt({ apply_checked, slot_not_switched, slot_switch_unconfirmed, ...(rolled_back ? { rolled_back } : {}), error: error.message });
   }
 }
 

@@ -79,7 +79,7 @@ test('a fresh computer is set up from the row, then gets every file the row rend
   assert.ok(commands.some(({ command }) => command.includes('systemctl enable') && command.includes('example-place.service')));
 });
 
-test('a file that differs keeps its previous bytes beside it, and only that file is written', async () => {
+test('a file that differs keeps its previous bytes beside it until its unit passes, and only that file is written', async () => {
   const rendered = renderWhatItRuns(runs);
   const live = Object.fromEntries(rendered.map(({ path, text }) => [path, text]));
   live['/etc/systemd/system/example-place.service'] = 'an older unit\n';
@@ -87,8 +87,37 @@ test('a file that differs keeps its previous bytes beside it, and only that file
   const { written, restarted } = await applyWhatItRuns(machine, runs, run);
   assert.deepEqual(written, ['/etc/systemd/system/example-place.service']);
   assert.deepEqual(restarted, ['example-place.service']);
-  assert.ok(commands.some(({ command }) => /^cp -p '\/etc\/systemd\/system\/example-place\.service' '\/etc\/systemd\/system\/example-place\.service\.bak-/.test(command)));
+  const copy = commands.findIndex(({ command }) => /^cp -p '\/etc\/systemd\/system\/example-place\.service' '\/etc\/systemd\/system\/example-place\.service\.bak-/.test(command));
+  assert.ok(copy >= 0, 'the previous unit file is kept beside it while the apply runs');
   assert.equal(commands.filter(({ command }) => command.startsWith('sh -s')).length, 0, 'an existing account is not set up again');
+  // Once the restarted unit passed its boot check, the copy goes: it was the apply's rollback, and no row names it.
+  const restart = commands.findIndex(({ command }) => command === "systemctl restart 'example-place.service'");
+  const drop = commands.findIndex(({ command }) => command.startsWith('while IFS= read -r p; do rm -f'));
+  assert.ok(restart > copy && drop > restart, 'the copy is removed only after the restart and its boot check');
+  assert.match(commands[drop].input, /^\/etc\/systemd\/system\/example-place\.service\.bak-[^\n]+\n$/);
+  assert.ok(!commands.some(({ command }) => command.startsWith('mv -f ') && command.includes('.bak-')), 'nothing is rolled back');
+});
+
+test('an apply whose restarted unit fails its boot check moves each kept copy back over its file and restarts the unit on it', async () => {
+  const rendered = renderWhatItRuns(runs);
+  const live = Object.fromEntries(rendered.map(({ path, text }) => [path, text]));
+  live['/etc/systemd/system/example-place.service'] = 'an older unit\n';
+  const base = computer(live);
+  // The unit answers 500 after its restart with the new file, so its boot check fails.
+  const run = async (m, command, input) => command.includes('curl') ? (base.commands.push({ command }), '500') : base.run(m, command, input);
+  const failure = await applyWhatItRuns(machine, runs, run, {}, { wait: async () => {} }).then(() => null, error => error);
+  assert.ok(failure, 'the apply fails');
+  assert.match(failure.message, /example-place\.service answered 500/);
+  const { commands } = base;
+  const copy = commands.find(({ command }) => command.startsWith('cp -p ')).command.match(/ '([^']+\.bak-[^']+)'$/)[1];
+  const back = commands.findIndex(({ command }) => command === `mv -f '${copy}' '/etc/systemd/system/example-place.service'`);
+  assert.ok(back >= 0, 'the kept copy is moved back over the unit file, so the copy is gone too');
+  const after = commands.slice(back + 1).map(({ command }) => command);
+  assert.ok(after.includes('systemctl daemon-reload'), 'systemd reads the unit file that came back');
+  assert.ok(after.includes("systemctl restart 'example-place.service'"), 'the unit restarts on its previous file');
+  assert.ok(!commands.some(({ command }) => command.startsWith('while IFS= read -r p; do rm -f')), 'a failed apply removes no copy: the rollback used it');
+  assert.deepEqual(failure.rolled_back, { restored: ['/etc/systemd/system/example-place.service'], restarted: ['example-place.service'] });
+  assert.equal(computerRowApplyFailure(failure).rolled_back, failure.rolled_back, 'the failed apply\'s receipt names what was put back');
 });
 
 // A unit with a `source` runs the program built from that commit on the computer: the computer fetches the commit itself from
