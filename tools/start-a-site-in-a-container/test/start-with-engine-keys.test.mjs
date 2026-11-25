@@ -37,9 +37,10 @@ const ask = (port, path, { method = 'GET', headers = {}, body } = {}) => new Pro
 });
 
 // Lays a site folder with keys.json, starts the starter on a free port and waits until it joins: { port, stop, log }.
-async function start(keys, { engine } = {}) {
+async function start(keys, { engine, lay = () => {} } = {}) {
   const folder = mkdtempSync(join(realpathSync(tmpdir()), 'starter-site-'));
   mkdirSync(join(folder, 'site-data'));
+  lay(folder);
   writeFileSync(join(folder, 'site-data/keys.json'), JSON.stringify({ program: 'site.cjs', environment: { MODE: 'from-keys-json' }, ...keys }));
   writeFileSync(join(folder, 'site.cjs'), SITE);
   const port = await free();
@@ -124,5 +125,66 @@ test('a route whose origin does not answer is 502, and the site still answers', 
   try {
     assert.equal((await ask(site.port, '/webhooks/receiver')).status, 502);
     assert.equal((await ask(site.port, '/')).status, 404);
+  } finally { await site.stop(); }
+});
+
+// A pages folder: an index, a page reached without its .html, a nested page, a stylesheet and a font.
+const layPages = folder => {
+  mkdirSync(join(folder, 'public/work'), { recursive: true });
+  mkdirSync(join(folder, 'public/fonts'), { recursive: true });
+  writeFileSync(join(folder, 'public/index.html'), '<h1>home</h1>');
+  writeFileSync(join(folder, 'public/provenance.html'), '<h1>provenance</h1>');
+  writeFileSync(join(folder, 'public/work/first-client.html'), '<h1>first client</h1>');
+  writeFileSync(join(folder, 'public/site.css'), 'body{}');
+  writeFileSync(join(folder, 'public/fonts/a.woff2'), Buffer.from([0, 1, 2, 3]));
+  writeFileSync(join(folder, 'secret.txt'), 'outside the folder');
+};
+const pagesSite = () => start({ files: { folder: 'public', cache_control: 'public, max-age=300' }, program_paths: ['/go/*', '/observe/visit', '/before-booking/*'] }, { lay: layPages });
+
+test('files: pages are served from the folder the way the front door served them, with clean paths', async () => {
+  const site = await pagesSite();
+  try {
+    const home = await ask(site.port, '/');
+    assert.equal(home.status, 200);
+    assert.equal(home.body, '<h1>home</h1>');
+    assert.equal(home.headers['content-type'], 'text/html; charset=utf-8');
+    assert.equal(home.headers['cache-control'], 'public, max-age=300');
+    assert.ok(home.headers.etag && home.headers['last-modified']);
+    assert.equal((await ask(site.port, '/index.html')).body, '<h1>home</h1>');
+    assert.equal((await ask(site.port, '/provenance')).body, '<h1>provenance</h1>');
+    assert.equal((await ask(site.port, '/work/first-client?x=1')).body, '<h1>first client</h1>');
+    assert.equal((await ask(site.port, '/site.css')).headers['content-type'], 'text/css; charset=utf-8');
+    assert.equal((await ask(site.port, '/fonts/a.woff2')).headers['content-type'], 'font/woff2');
+    const cached = await ask(site.port, '/', { headers: { 'if-none-match': home.headers.etag } });
+    assert.equal(cached.status, 304);
+    const head = await ask(site.port, '/provenance', { method: 'HEAD' });
+    assert.equal(head.status, 200);
+    assert.equal(head.headers['content-length'], String('<h1>provenance</h1>'.length));
+  } finally { await site.stop(); }
+});
+
+test('files: a missing page, a folder with no index, a POST and a path out of the folder are 404 Not found', async () => {
+  const site = await pagesSite();
+  try {
+    for (const [path, method] of [['/nope', 'GET'], ['/work/', 'GET'], ['/', 'POST'], ['/../secret.txt', 'GET'], ['/%2e%2e/secret.txt', 'GET'], ['/%E0%A4%A', 'GET']]) {
+      const answer = await ask(site.port, path, { method });
+      assert.equal(answer.status, 404, `${method} ${path}`);
+      assert.equal(answer.body, 'Not found');
+      assert.equal(answer.headers['content-type'], 'text/plain; charset=utf-8');
+    }
+  } finally { await site.stop(); }
+});
+
+test('files: only program_paths reach the program, with Cache-Control no-store', async () => {
+  const site = await pagesSite();
+  try {
+    for (const path of ['/go/check', '/go/a/b', '/observe/visit', '/before-booking/offer-1']) {
+      const answer = await ask(site.port, path, { method: path === '/go/check' ? 'GET' : 'POST' });
+      assert.equal(answer.headers['x-from'], 'site', path);
+      assert.equal(JSON.parse(answer.body).url, path);
+      assert.equal(answer.headers['cache-control'], 'no-store', path);
+    }
+    for (const path of ['/go', '/observe/visit/x', '/observe']) assert.equal((await ask(site.port, path)).body, 'Not found', path);
+    assert.match(site.log(), /files from public, \/go\/\* \/observe\/visit \/before-booking\/\* to the program/);
   } finally { await site.stop(); }
 });
