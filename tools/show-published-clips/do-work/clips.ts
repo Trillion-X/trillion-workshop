@@ -51,4 +51,52 @@ export async function readClips(input: ClipsInput, rows: Rows): Promise<Clips> {
   return clipsOf(await rows(`select ${SOURCE.columns.join(', ')} from ${SOURCE.table} where published order by position, id`), limit);
 }
 
-if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) await serveARead({ readClips });
+// ---- The clips a pursuit has published to its own site (recording_moment rows) ----
+//
+// A published clip is a recording_moment row whose published_file_name is /published-clips/<64 hex>.mp4 and whose extra.surfaces
+// holds the use { purpose: publish, surface: site }. The read asks the consent fence itself for that use, the same one the
+// reader login's row rule applies, so a clip whose people have not allowed the site is never answered. Each clip is answered with
+// its files at the site's own addresses (/published-clips/<hex>.mp4, .jpg, -left.jpg, -right.jpg), the site serves them; no
+// link, identity or recording address is answered. The answer is show/ClipStrips.tsx's props.
+const HEX = '[0-9a-f]{64}';
+export const SITE_CLIPS_SQL = `
+SELECT id, moment, published_file_name, captured_day, extra::jsonb AS extra
+  FROM recording_moment
+ WHERE published_file_name ~ '^/published-clips/${HEX}\\.mp4$'
+   AND moment IN ('clip', 'comparison', 'reel')
+   AND extra::jsonb->'surfaces' @> '[{"purpose": "publish", "surface": "site"}]'::jsonb
+   AND material_allowed('recording/' || recording, NULLIF(start, '')::numeric, NULLIF("end", '')::numeric, 'publish', 'site')
+   AND ($1::text IS NULL OR extra::jsonb->>'kind' = $1::text)
+ ORDER BY captured_day DESC NULLS LAST, id
+ LIMIT $2::int`;
+
+export type SiteClipsInput = { database: string; kind?: 'swing' | 'comparison' | 'reel'; limit?: number; use?: { purpose: string; surface: string } };
+const KINDS = ['swing', 'comparison', 'reel'];
+
+const hexOf = (name: string) => name.slice('/published-clips/'.length, -'.mp4'.length);
+
+// One row as the page draws it.
+export function siteClipOf(row: Record<string, unknown>) {
+  const extra = (typeof row.extra === 'string' ? JSON.parse(row.extra) : (row.extra ?? {})) as Record<string, any>;
+  const hex = hexOf(text(row.published_file_name));
+  const side = (part: any, which: string) => ({ person: part?.person ?? null, day: part?.day ?? null, picture_url: `/published-clips/${hex}-${which}.jpg` });
+  return {
+    id: text(row.id),
+    moment: text(row.moment),
+    kind: extra.kind ?? null,
+    aspect: extra.aspect ?? null,
+    speed: extra.speed ?? null,
+    captured_day: row.captured_day ?? null,
+    cut_url: `/published-clips/${hex}.mp4`,
+    picture_url: extra.pair ? null : `/published-clips/${hex}.jpg`,
+    pair: extra.pair ? { left: side(extra.pair.left, 'left'), right: side(extra.pair.right, 'right') } : null,
+  };
+}
+
+export async function readSiteClips(input: SiteClipsInput, rows: Rows) {
+  if (input.kind !== undefined && !KINDS.includes(input.kind)) throw new Error(`kind must be one of ${KINDS.join(', ')}.`);
+  const limit = limitOf(input.limit);
+  return { clips: (await rows(SITE_CLIPS_SQL, [input.kind ?? null, limit])).map(siteClipOf) };
+}
+
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) await serveARead({ readClips, readSiteClips });

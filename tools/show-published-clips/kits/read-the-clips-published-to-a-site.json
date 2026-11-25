@@ -1,0 +1,42 @@
+{
+  "start_here": "Say to your AI: \"Show the reels and transformations on my site.\" It runs tool:read-the-clips-published-to-a-site and shows strips of stills that play on tap.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it reads the clips the pursuit database has published to its own site and changes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:read-the-clips-published-to-a-site"
+  ],
+  "instructions": [
+    "1. Name the pursuit database that holds the recording moments, such as example_for_who_runs_it; the computer opens it with the read login its vault holds, under the use publish on the site.",
+    "2. Say what you want in plain words; your AI calls tools:run with tool tool:read-the-clips-published-to-a-site and the input.",
+    "3. Read the answer: the clips with their files at the site's own addresses. Show it with the screen the tool names."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the site's reels",
+      "ask": "Show the reels on my site.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-the-clips-published-to-a-site",
+            "input": {
+              "database": "example_for_who_runs_it",
+              "kind": "reel",
+              "use": {
+                "purpose": "publish",
+                "surface": "site"
+              }
+            }
+          }
+        }
+      },
+      "given": "The database holds recording moments published to the site (made-up values).",
+      "hands_back": "{\"clips\":[{\"id\":\"r1\",\"moment\":\"reel\",\"kind\":\"reel\",\"aspect\":\"9x16\",\"cut_url\":\"/published-clips/<hex>.mp4\",\"picture_url\":\"/published-clips/<hex>.jpg\",\"pair\":null}]}"
+    }
+  ],
+  "drafted_from": "tool row in tools/show-published-clips/tool-rows.json and tools/show-published-clips/do-work/clips.ts"
+}
