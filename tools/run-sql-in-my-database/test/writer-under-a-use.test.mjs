@@ -84,7 +84,7 @@ before(async () => {
   ]) await runSql({ connection: owner, input: { sql } });
   // The reader recipe makes the use binding and keeps the key; the writer recipe needs it.
   await runSql({ connection: maker, roleConnection: reader, input: { recipe: { name: 'a-login', action: 'create' } } });
-  await runSql({ connection: owner, heldValue: KEY, input: { recipe: { name: 'may-read-under-row-rules', action: 'create', role: READER, tables: ['public.offers'] } } });
+  await runSql({ connection: owner, heldValue: KEY, input: { recipe: { name: 'may-read-under-row-rules', action: 'create', role: READER, tables: [{ table: 'public.offers', columns: ['id'] }, 'public.price_views'] } } });
   await runSql({ connection: maker, roleConnection: writer, input: { recipe: { name: 'a-login', action: 'create' } } });
   await runSql({ connection: owner, input: { recipe: { name: 'may-write-named-columns-under-a-use', action: 'create', role: WRITER, writes: WRITES } } });
 });
@@ -109,6 +109,16 @@ test('a price view is counted with its upsert, from offers it may read only by i
   await assert.rejects(one('SELECT price_options FROM offers'), /permission denied for table offers/);
 });
 
+test('a reader\'s table entry may name its columns: it reads those and no other, while a whole-table entry reads every column', async () => {
+  const read = sql => runSql({ connection: reader, ticket: ticketOf(publish), input: { database: DATABASE, use: publish, sql } });
+  assert.deepEqual((await read('SELECT id FROM offers ORDER BY id')).rows, [{ id: 'offer:one' }, { id: 'offer:two' }]);
+  await assert.rejects(read('SELECT price_options FROM offers'), /permission denied for table offers/);
+  await assert.rejects(read('SELECT * FROM offers'), /permission denied for table offers/);
+  assert.equal((await read('SELECT * FROM price_views')).columns.length, 3);
+  await assert.rejects(runSql({ connection: owner, heldValue: KEY, input: { recipe: { name: 'may-read-under-row-rules', action: 'create', role: READER, tables: [{ table: 'public.offers', columns: [] }] } } }), /columns must be a list/);
+  await assert.rejects(runSql({ connection: owner, heldValue: KEY, input: { recipe: { name: 'may-read-under-row-rules', action: 'create', role: READER, tables: [{ table: 'offers', columns: ['id'] }] } } }), /schema.table/);
+});
+
 test('the welcome stop goes through the owner\'s function: the writer can never list a token', async () => {
   assert.deepEqual((await one("SELECT public.stop_welcome_series('made-up-token') AS matched")).rows, [{ matched: true }]);
   assert.deepEqual((await one("SELECT public.stop_welcome_series('no-such-token') AS matched")).rows, [{ matched: false }]);
@@ -120,6 +130,7 @@ test('a step\'s reads and writes are one transaction claimed once: a refusal kee
   const claimed = await step(async query => {
     await query("INSERT INTO form_rows (id, type, value) VALUES ('form-sitting:s1', 'form-sitting', '{}')");
     await query("UPDATE form_rows SET value = value || '{\"lastStep\": \"q1\"}', kept_at = now() WHERE id = 'form-sitting:s1'");
+    assert.notEqual((await query('SELECT pg_current_xact_id_if_assigned() AS xact')).rows[0].xact, null, 'under a use the writes stay in the step\'s one transaction');
     return (await query('SELECT use_binding.run_purpose() AS purpose, (SELECT count(*)::int FROM form_rows) AS rows')).rows[0];
   });
   assert.deepEqual(claimed, { purpose: 'publish', rows: 1 });

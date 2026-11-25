@@ -145,6 +145,18 @@ const runInOneTransaction = async (client, shape, ticket) => {
 // databases). An absent, null or empty name is not given: the engine mounts the connection only for a request that names one.
 export const namesTarget = input => ['credential_name', 'database'].some(name => input?.[name] !== undefined && input[name] !== null && input[name] !== '');
 
+// A per-table recipe's tables: each schema.table (the whole table) or { table: schema.table, columns: [...] } (only those columns).
+const tablesOf = tables => {
+  if (!Array.isArray(tables)) throw new Error('recipe.tables must be a list of schema.table names, or { table, columns } entries.');
+  return tables.map((entry, index) => {
+    const { table, columns } = typeof entry === 'string' ? { table: entry, columns: null } : (entry !== null && typeof entry === 'object' && !Array.isArray(entry) && Object.keys(entry).every(key => key === 'table' || key === 'columns') ? entry : {});
+    if (typeof table !== 'string' || !TABLE_NAME.test(table)) throw new Error(`recipe.tables must be a list of schema.table names, one each, or { table: schema.table, columns: [...] } entries: recipe.tables[${index}] is neither.`);
+    if (table.startsWith('use_binding.')) throw new Error('recipe.tables may not name the use_binding schema: its keys and claims are the login\'s to call into, never to read.');
+    if (columns !== null && (!Array.isArray(columns) || columns.length === 0 || columns.some(column => typeof column !== 'string' || column === ''))) throw new Error(`recipe.tables[${index}].columns must be a list of column names.`);
+    return { table, columns };
+  });
+};
+
 // A per-write recipe's writes: each entry a table with the column rights it names (and delete: true), or one function.
 const writesOf = (name, writes) => {
   if (RECIPES[name].per_write === undefined) throw new Error(`recipe.writes is for a recipe that grants per write (${perWriteRecipes.join(', ')}), not ${name}.`);
@@ -228,11 +240,10 @@ export function shapeOf(input) {
       } else if (columns !== undefined || fixed !== undefined) throw new Error('recipe.columns and recipe.fixed are given when the rights are made: give them with create.');
     }
     if (tables !== undefined && RECIPES[name].per_table === undefined) throw new Error(`recipe.tables is for a recipe that grants per table (${perTableRecipes.join(', ')}), not ${name}.`);
-    if (tables !== undefined && (!Array.isArray(tables) || tables.some(named => !TABLE_NAME.test(named ?? '')))) throw new Error('recipe.tables must be a list of schema.table names, one each.');
-    if (tables?.some(named => named.startsWith('use_binding.'))) throw new Error('recipe.tables may not name the use_binding schema: its keys and claims are the login\'s to call into, never to read.');
+    const named = tables === undefined ? [] : tablesOf(tables);
     if (RECIPES[name].per_write !== undefined && writes === undefined) throw new Error(`The ${name} recipe grants only what recipe.writes names: give writes.`);
     if (writes !== undefined) writesOf(name, writes);
-    return { kind: 'recipe', name, action, role, validUntil, verifier, limits, table, columns, fixed: fixed ?? {}, tables: tables ?? [], writes: writes ?? [] };
+    return { kind: 'recipe', name, action, role, validUntil, verifier, limits, table, columns, fixed: fixed ?? {}, tables: named.map(entry => entry.table), tableColumns: named, writes: writes ?? [] };
   }
   if (hasSql) {
     if (typeof asked.sql !== 'string' || asked.sql.trim() === '') throw new Error('sql must be a statement as text.');
@@ -287,6 +298,20 @@ const recipeLogin = (shape, roleConnection) => {
   return { role: shape.role ?? `${shape.name.replace(/[^a-z0-9]/g, '_')}_${randomBytes(6).toString('hex')}`, password: randomBytes(32).toString('base64url'), validUntil: shape.validUntil, minted: true };
 };
 
+// A per-table recipe's statements, [template, schema, table, %13$s] each: %13$s is the entry's columns, server-quoted in brackets,
+// or nothing when the entry is the whole table.
+const perTableSteps = async (client, recipe, shape) => {
+  const templates = recipe.per_table?.[shape.action] ?? [];
+  const steps = [];
+  for (const { table, columns } of shape.tableColumns ?? []) {
+    const [schema, name] = table.split('.');
+    let listed = '';
+    if (columns !== null) ({ rows: [{ listed }] } = await runOne(client, "SELECT '(' || string_agg(format('%I', each), ', ') || ')' AS listed FROM unnest($1::text[]) AS columns(each)", [columns]));
+    for (const template of templates) steps.push([template, schema, name, listed]);
+  }
+  return steps;
+};
+
 // A per-write recipe's statements, [template, schema, table, %13$s] each: per table entry its schema's USAGE and one statement for each
 // right it names, the columns quoted by the server; per function entry the function the server resolves (one it cannot find is
 // refused, never granted by a guessed name). A drop takes each table's and function's rights back whatever the entry named.
@@ -335,7 +360,7 @@ const runRecipe = async (client, shape, connection, roleConnection, heldValue) =
     // The whole public schema is read only when no tables are named: with recipe.tables the login reads exactly those tables.
     const publicGrants = shape.action === 'create' && shape.tables.length === 0 ? recipe.public_grants?.create ?? [] : [];
     const steps = [...[...recipe[shape.action], ...publicGrants].map(template => [template, null, null, null]),
-      ...(recipe.per_table?.[shape.action] ?? []).flatMap(template => shape.tables.map(named => [template, ...named.split('.'), null])),
+      ...await perTableSteps(client, recipe, shape),
       ...await perWriteSteps(client, recipe, shape)];
     // The functions the named tables' row policies call get EXECUTE for the login, and no other: read from pg_depend, so a
     // helper a policy names is granted and nothing a policy does not name. A policy function that is SECURITY INVOKER would run

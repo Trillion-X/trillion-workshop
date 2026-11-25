@@ -130,3 +130,37 @@ test('a write the database refuses keeps nothing of the step: the writes are one
   await assert.rejects(store.apply([{ kind: 'insert', id: `form-sitting:${attemptId}`, type: 'form-sitting', value: {} }, { kind: 'upsert', id: 'later', type: 'x', value: {} }]), /Something went wrong/);
   assert.equal(((await db.query("SELECT count(*)::int n FROM form_rows WHERE id = 'later'")).rows[0] as { n: number }).n, 0);
 });
+
+// The form steps write form_rows with a login whose rights cover every row type (the writer recipe grants by column, not by row),
+// so the fence on the form's own setup rows is the ids the steps make: every id a step writes starts with the kind of row it is
+// (form-sitting, answer-fact, segment-assignment, owner-action-request), so no visitor's attempt id or email can name a form page,
+// a question sequence or a rule. Proved over a whole sitting, with an attempt id and an email that try to name setup rows.
+test('every row a sitting writes is one of the four kinds a step makes, so no setup row can be named or changed', async () => {
+  const { db, store, ids } = await freshDb();
+  const KINDS = ['form-sitting', 'answer-fact', 'segment-assignment', 'owner-action-request'];
+  const written: { id: string; type?: string }[] = [];
+  const watched: Store = { ...store, apply: async writes => {
+    for (const write of writes) {
+      if (write.kind === 'delete_many') written.push(...write.ids.map(id => ({ id })));
+      else if (write.kind !== 'sql') written.push({ id: write.id, ...('type' in write ? { type: write.type } : {}) });
+    }
+    return store.apply(writes);
+  } };
+  const setup = async () => (await db.query("SELECT id, value FROM form_rows WHERE type NOT IN ('form-sitting', 'answer-fact', 'segment-assignment', 'owner-action-request') ORDER BY id")).rows;
+  const before = await setup();
+  const hostile = 'x:form-page:check';
+  await assert.rejects(answerFormQuestion(watched, { attemptId: 'form-page:check', value: '12' }));
+  await assert.rejects(answerFormQuestion(watched, { attemptId: hostile, value: '12' }));
+  const { attemptId } = await startSitting(watched, { slug: 'check' }, clock(ids));
+  await answerFormQuestion(watched, { attemptId, value: '12' });
+  await answerFormQuestion(watched, { attemptId, value: { picked: ['no'] } });
+  await answerFormQuestion(watched, { attemptId, value: 'Money' });
+  await keepSitting(watched, { attemptId, email: 'form-page:check@example.test' });
+  assert.ok(written.length > 0);
+  for (const { id, type } of written) {
+    const kind = KINDS.find(each => id.startsWith(`${each}:`));
+    assert.ok(kind, `${id} starts with the kind of row a step makes`);
+    if (type !== undefined) assert.equal(type, kind, `${id} is written as its own kind`);
+  }
+  assert.deepEqual(await setup(), before, 'no setup row changed');
+});

@@ -52,3 +52,11 @@ test('a step\'s writes are one statement: all kept together, and a refused part 
   assert.deepEqual((await execute('select id, value from form_rows order by id')).map(row => [row.id, row.value]), [['a', { n: 1, m: 3 }]]);
   });
 });
+
+test('without a use a step opens no transaction: each statement stands alone, so its statements are the ones sent before', async () => {
+  await aStep(async execute => {
+    await execute('create table if not exists alone (id int primary key)');
+    await execute('insert into alone values (1)');
+    assert.equal((await execute('select pg_current_xact_id_if_assigned() as xact'))[0].xact, null, 'the insert was committed on its own');
+  });
+});

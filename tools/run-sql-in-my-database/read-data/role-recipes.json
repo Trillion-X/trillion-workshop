@@ -177,11 +177,11 @@
           "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO %1$I"
         ]
       },
-      "_per_table_what": "Named tables (recipe.tables, each schema.table) the login may read in a schema other than public. Only the named table is granted: a schema's other tables may hold rows no row rule guards (a subject's name, a consent record), so no whole-schema SELECT and no default privilege is given here. %11$I is the schema, %12$I the table.",
+      "_per_table_what": "Named tables (recipe.tables, each schema.table) the login may read in a schema other than public. Only the named table is granted: a schema's other tables may hold rows no row rule guards (a subject's name, a consent record), so no whole-schema SELECT and no default privilege is given here. An entry may be { table: schema.table, columns: [...] } instead: then only those columns are readable (a table holding a note or a link no page shows). %11$I is the schema, %12$I the table, %13$s the server-quoted columns in brackets, or nothing for the whole table.",
       "per_table": {
         "create": [
           "GRANT USAGE ON SCHEMA %11$I TO %1$I",
-          "GRANT SELECT ON TABLE %11$I.%12$I TO %1$I"
+          "GRANT SELECT %13$s ON TABLE %11$I.%12$I TO %1$I"
         ],
         "drop": [
           "REVOKE SELECT ON TABLE %11$I.%12$I FROM %1$I",
