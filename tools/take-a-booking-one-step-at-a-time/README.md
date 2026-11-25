@@ -30,3 +30,7 @@ The one-question-at-a-time path of a page that asks a form: the steps the page n
 ## Dependencies
 
 **Depends on:** `tools/ask-questions-sort-answers-follow-up` (the question types, the descriptor decoder, the answer check, `resolveAbout` and `answerText`). **Depended on by:** the booking page server code of each site that runs a page; the site reads the page's questions from its own rows.
+
+## The booking page as a screen
+
+`tool:read-a-booking-page` (`reads/read-a-booking-page.ts`) answers one live booking page: its title, time zone, session length, windows and the questions its form asks. `show/BookingPage.tsx` is its screen: plain JSON props (`page`, `title`, `timezone`, `duration_minutes`, `questions`, `words`, `api_base`); the server draws the email step, and after mount it calls the site's `<api_base>/book.start|answer|slots|slot|confirm`. Test: `node --test tools/take-a-booking-one-step-at-a-time/test/booking-page.test.ts`.
