@@ -212,6 +212,8 @@ Example, a page's visit beacon (a visitor id only with consent, set as a cookie 
   JSON (it was made for its own page script), a 2xx naming an address (`redirect`, `redirectUrl` or `url`) becomes a 303 there,
   and anything else, or no answer at all, is the site's own "That did not go through" page with the program's error words and
   a Back link to the form's page (the Referer's path). A site's own action that fails a form post answers the same page.
+- An old address of a page, `<path>.html` or `<path>/index.html` (a bookmark, a link from an old site), answers 301 to the page
+  at `<path>` with its query kept, unless a page row has that exact address; with no page at `<path>` it stays 404.
 - `pass_on` entries with `"stream": true` are piped both ways as they come: every request header passes unchanged (Host,
   `Authorization`, `Mcp-Session-Id`), the answer streams back (an MCP door's event stream, a GET that stays open), and the
   other program's call ends when the visitor's does. Never with `site_head`. Example, an engine's MCP door on an app host:

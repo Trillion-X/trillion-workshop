@@ -507,6 +507,21 @@ test('a browser form post never gets raw JSON: another program\'s JSON error is 
   } finally { server.close(); old.close(); d.server.close(); }
 });
 
+test('an old ".html" address of a page is 301 to the page, query kept; one with no page stays 404', async () => {
+  const d = await door();
+  try {
+    const site = await siteOn(d.address);
+    const get = (address: string) => site.answer('GET', address, undefined, 'site.example.test');
+    const moved = await get('/sign-in.html');
+    assert.equal(moved.status, 301);
+    assert.equal(moved.headers.location, '/sign-in');
+    assert.equal((await get('/sign-in.html?checkout=x&y=1')).headers.location, '/sign-in?checkout=x&y=1', 'the query is kept');
+    assert.equal((await get('/index.html')).headers.location, '/', 'the home\'s index.html is the home');
+    assert.equal((await get('/notes/first.html')).headers.location, '/notes/first', 'a template page\'s old address too');
+    assert.equal((await get('/nothing-here.html')).status, 404, 'no page at the clean address: still 404');
+  } finally { d.server.close(); }
+});
+
 test('a part\'s own CSS module comes with the page: its local class is on the markup and its rule in the page\'s stylesheet', async () => {
   const bundle = await new PageBundles(tools, styles, files).bundleFor(['serve-a-sites-pages-from-its-rows/tests/show/Styled.tsx#View']);
   const html = bundle.html({ lang: 'en', title: 'T', canonical: 'https://site.example.test/', look: '' }, { module: 'serve-a-sites-pages-from-its-rows/tests/show/Styled.tsx#View', props: { words: 'Styled words' } });

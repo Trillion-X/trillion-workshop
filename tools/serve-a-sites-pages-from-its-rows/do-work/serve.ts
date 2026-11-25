@@ -562,6 +562,13 @@ export class Site {
     try {
       if (pathname === '/sitemap.xml') return await this.#sitemap(pages, host);
       const matched = matchPage(pages, pathname);
+      // An old address of a page, "<path>.html" or "<path>/index.html" (a bookmark, a link from the old site), is 301 to the page
+      // at "<path>", its query kept, unless a page row has that exact address.
+      const clean = pathname.endsWith('/index.html') ? pathname.slice(0, -'/index.html'.length) || '/' : pathname.endsWith('.html') ? pathname.slice(0, -'.html'.length) : null;
+      if (clean && clean !== pathname && !(matched && paramsOf(matched.page.path).length === 0)) {
+        const page = matchPage(pages, clean);
+        if (page && page.page.path !== NOT_FOUND) return { status: 301, headers: { location: `${clean}${url.search}`, 'cache-control': 'public, max-age=3600' }, body: '' };
+      }
       if (!matched && matchPage(this.#refused.filter(r => r.path.startsWith('/')).map(r => ({ path: r.path }) as PageRow), pathname)) {
         return await this.#words(503, 'This page is not ready', 'This page is being made. Try again soon.', host, pathname);
       }
