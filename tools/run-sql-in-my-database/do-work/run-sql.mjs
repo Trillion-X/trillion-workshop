@@ -381,7 +381,7 @@ export function timeLimitOf(asked, usedMs = Math.ceil(process.uptime() * 1000), 
 // past a shorter one the login or its database already holds (a recipe's per-login statement_timeout stays the login's).
 const ENDS_BY = ['statement_timeout', 'idle_in_transaction_session_timeout'];
 
-async function connectTo(connection, timeLimit) {
+export async function connectTo(connection, timeLimit) {
   // A run the engine sandboxes reaches its database by address through the run's own proxy (through-the-run-proxy.mjs).
   // The server ends a statement or an open transaction past the run's time itself (timeLimitOf), so nothing outlives the run.
   const proxy = process.env.HTTPS_PROXY;
