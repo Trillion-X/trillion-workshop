@@ -2410,6 +2410,25 @@
               "type": "string",
               "minLength": 1,
               "description": "The signed-in member's email, named by the trusted caller (the page's own sign-in); never chosen by a browser or an AI's arguments."
+            },
+            "use": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "purpose",
+                "surface"
+              ],
+              "description": "The use this step runs for (a site's declared pages use, or a recipe step's config.context.use). Given with database, the computer opens the database with its writer login (one that may add or change only the columns the writer recipe may-write-named-columns-under-a-use named, and never change a table) instead of the owner's, and hands the run a ticket of this use that it signed; the step's one transaction claims it first. A share act's run must give it. Absent: the owner's own work, with the owner's login.",
+              "properties": {
+                "purpose": {
+                  "type": "string",
+                  "description": "The purpose path, such as publish."
+                },
+                "surface": {
+                  "type": "string",
+                  "description": "The surface path, such as site/example.com; empty for any surface."
+                }
+              }
             }
           }
         },
@@ -2454,6 +2473,12 @@
               "only_when": {
                 "input": "database",
                 "present": true
+              },
+              "under_use": {
+                "use_from_input": "use",
+                "ticket_fd": 5,
+                "held_suffix": "-writer-connection",
+                "key_suffix": "-use-key"
               }
             }
           ],
@@ -2814,6 +2839,25 @@
             },
             "value": {
               "description": "The answer as the question's type takes it: text, a number or { picked, other? }."
+            },
+            "use": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "purpose",
+                "surface"
+              ],
+              "description": "The use this step runs for (a site's declared pages use, or a recipe step's config.context.use). Given with database, the computer opens the database with its writer login (one that may add or change only the columns the writer recipe may-write-named-columns-under-a-use named, and never change a table) instead of the owner's, and hands the run a ticket of this use that it signed; the step's one transaction claims it first. A share act's run must give it. Absent: the owner's own work, with the owner's login.",
+              "properties": {
+                "purpose": {
+                  "type": "string",
+                  "description": "The purpose path, such as publish."
+                },
+                "surface": {
+                  "type": "string",
+                  "description": "The surface path, such as site/example.com; empty for any surface."
+                }
+              }
             }
           }
         },
@@ -2854,6 +2898,12 @@
               "only_when": {
                 "input": "database",
                 "present": true
+              },
+              "under_use": {
+                "use_from_input": "use",
+                "ticket_fd": 5,
+                "held_suffix": "-writer-connection",
+                "key_suffix": "-use-key"
               }
             }
           ],
@@ -3210,6 +3260,25 @@
               "type": "string",
               "minLength": 1,
               "description": "The sitting's id, as the start step answered it."
+            },
+            "use": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "purpose",
+                "surface"
+              ],
+              "description": "The use this step runs for (a site's declared pages use, or a recipe step's config.context.use). Given with database, the computer opens the database with its writer login (one that may add or change only the columns the writer recipe may-write-named-columns-under-a-use named, and never change a table) instead of the owner's, and hands the run a ticket of this use that it signed; the step's one transaction claims it first. A share act's run must give it. Absent: the owner's own work, with the owner's login.",
+              "properties": {
+                "purpose": {
+                  "type": "string",
+                  "description": "The purpose path, such as publish."
+                },
+                "surface": {
+                  "type": "string",
+                  "description": "The surface path, such as site/example.com; empty for any surface."
+                }
+              }
             }
           }
         },
@@ -3254,6 +3323,12 @@
               "only_when": {
                 "input": "database",
                 "present": true
+              },
+              "under_use": {
+                "use_from_input": "use",
+                "ticket_fd": 5,
+                "held_suffix": "-writer-connection",
+                "key_suffix": "-use-key"
               }
             }
           ],
@@ -3610,6 +3685,25 @@
               "type": "string",
               "minLength": 1,
               "description": "The sitting's id, as the start step answered it."
+            },
+            "use": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "purpose",
+                "surface"
+              ],
+              "description": "The use this step runs for (a site's declared pages use, or a recipe step's config.context.use). Given with database, the computer opens the database with its writer login (one that may add or change only the columns the writer recipe may-write-named-columns-under-a-use named, and never change a table) instead of the owner's, and hands the run a ticket of this use that it signed; the step's one transaction claims it first. A share act's run must give it. Absent: the owner's own work, with the owner's login.",
+              "properties": {
+                "purpose": {
+                  "type": "string",
+                  "description": "The purpose path, such as publish."
+                },
+                "surface": {
+                  "type": "string",
+                  "description": "The surface path, such as site/example.com; empty for any surface."
+                }
+              }
             }
           }
         },
@@ -3664,6 +3758,12 @@
               "only_when": {
                 "input": "database",
                 "present": true
+              },
+              "under_use": {
+                "use_from_input": "use",
+                "ticket_fd": 5,
+                "held_suffix": "-writer-connection",
+                "key_suffix": "-use-key"
               }
             }
           ],
@@ -4026,6 +4126,25 @@
               "type": "string",
               "minLength": 1,
               "description": "The signed-in member's email, named by the trusted caller (the page's own sign-in); never chosen by a browser or an AI's arguments."
+            },
+            "use": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "purpose",
+                "surface"
+              ],
+              "description": "The use this step runs for (a site's declared pages use, or a recipe step's config.context.use). Given with database, the computer opens the database with its writer login (one that may add or change only the columns the writer recipe may-write-named-columns-under-a-use named, and never change a table) instead of the owner's, and hands the run a ticket of this use that it signed; the step's one transaction claims it first. A share act's run must give it. Absent: the owner's own work, with the owner's login.",
+              "properties": {
+                "purpose": {
+                  "type": "string",
+                  "description": "The purpose path, such as publish."
+                },
+                "surface": {
+                  "type": "string",
+                  "description": "The surface path, such as site/example.com; empty for any surface."
+                }
+              }
             }
           }
         },
@@ -4080,6 +4199,12 @@
               "only_when": {
                 "input": "database",
                 "present": true
+              },
+              "under_use": {
+                "use_from_input": "use",
+                "ticket_fd": 5,
+                "held_suffix": "-writer-connection",
+                "key_suffix": "-use-key"
               }
             }
           ],

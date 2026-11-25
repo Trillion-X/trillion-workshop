@@ -188,6 +188,37 @@
           "REVOKE USAGE ON SCHEMA %11$I FROM %1$I"
         ]
       }
+    },
+    "may-write-named-columns-under-a-use": {
+      "_what": "The rights of a login another login made (a-login) that writes only the named columns of the named tables of a pursuit's database, for runs whose use the engine binds (the tool row's credential item says under_use with held_suffix -writer-connection): it may connect, call the use binding's claim, and per recipe.writes entry read, add or change exactly the columns named, remove rows only where the entry says delete, and run only the functions named (an owner-made SECURITY DEFINER function stands in for a read the login must not hold, such as a token it matches on). It may make nothing (temporary tables included: TEMPORARY on the database is taken from it and from PUBLIC), reach no other database and hold no default privilege; a login that bypasses row rules, is a superuser, or may act as the owner is refused. Run by the database's owner in that database, after may-read-under-row-rules has made the use binding (it is refused without one: the key and the claims are that recipe's). The drop takes every right on each named table and function back (a table's REVOKE ALL takes its column rights too) and leaves the login.",
+      "grants_only": true,
+      "create": [
+        "DO $check$ BEGIN IF (SELECT rolsuper OR rolbypassrls FROM pg_catalog.pg_roles WHERE rolname = %1$L) OR pg_catalog.pg_has_role(%1$L, current_user, 'MEMBER') THEN RAISE EXCEPTION 'The login %% may get round the row rules (a superuser, one that bypasses row rules, or a member of the owner); give a login a-login made.', %1$L; END IF; END $check$",
+        "DO $check$ BEGIN IF pg_catalog.to_regprocedure('use_binding.claim_use(text)') IS NULL THEN RAISE EXCEPTION 'This database has no use binding: run may-read-under-row-rules first, so a writer''s runs claim a use the database keeps a key for.'; END IF; END $check$",
+        "REVOKE TEMPORARY ON DATABASE %4$I FROM PUBLIC, %1$I",
+        "GRANT CONNECT ON DATABASE %4$I TO %1$I",
+        "GRANT EXECUTE ON FUNCTION use_binding.claim_use(text) TO %1$I"
+      ],
+      "drop": [
+        "REVOKE EXECUTE ON FUNCTION use_binding.claim_use(text) FROM %1$I",
+        "REVOKE CONNECT ON DATABASE %4$I FROM %1$I"
+      ],
+      "_per_write_what": "Each recipe.writes entry is { table: schema.table, select?, insert?, update?: [column, ...], delete?: true } or { function: 'schema.name(argument types)' }. Each right the entry names is one statement below, %11$I the schema, %12$I the table and %13$s the server-quoted columns (or the function the server resolves by to_regprocedure); a right the entry does not name is never granted. The drop runs the drop statements once per entry.",
+      "per_write": {
+        "create": {
+          "usage": "GRANT USAGE ON SCHEMA %11$I TO %1$I",
+          "select": "GRANT SELECT (%13$s) ON TABLE %11$I.%12$I TO %1$I",
+          "insert": "GRANT INSERT (%13$s) ON TABLE %11$I.%12$I TO %1$I",
+          "update": "GRANT UPDATE (%13$s) ON TABLE %11$I.%12$I TO %1$I",
+          "delete": "GRANT DELETE ON TABLE %11$I.%12$I TO %1$I",
+          "function": "GRANT EXECUTE ON FUNCTION %13$s TO %1$I"
+        },
+        "drop": {
+          "table": "REVOKE ALL ON TABLE %11$I.%12$I FROM %1$I",
+          "usage": "REVOKE USAGE ON SCHEMA %11$I FROM %1$I",
+          "function": "REVOKE EXECUTE ON FUNCTION %13$s FROM %1$I"
+        }
+      }
     }
   }
 }

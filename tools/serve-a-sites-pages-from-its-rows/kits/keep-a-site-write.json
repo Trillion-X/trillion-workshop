@@ -1,0 +1,48 @@
+{
+  "drafted_from": "tool:keep-a-site-write's own row (tool-rows.json), do-work/keep-a-site-write.ts and read-data/site-writes.json",
+  "start_here": "Say to your AI: \"Keep this lead from my site's book-a-call form.\" It runs tool:keep-a-site-write with the write site-lead and the form's values, and the lead is one row of the database's statements.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: each write adds or changes rows of the tables its fixed statement names in the pursuit database you give (statements, price_views, the welcome stop through stop_welcome_series).",
+  "workflows": [],
+  "tools": [
+    "tool:keep-a-site-write"
+  ],
+  "instructions": [
+    "1. Name the pursuit database the write goes to, such as example_for_who_runs_it, and the site's use; the computer opens it with the writer login its vault holds.",
+    "2. Name the write (site-lead, site-visit, price-view or welcome-series-stop) and give its values by name; never SQL.",
+    "3. Read the answer: the write, how many rows it kept, and for the welcome stop the page to go to."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep a lead from a site form",
+      "ask": "Keep this lead from my site's book-a-call form.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-a-site-write",
+            "input": {
+              "database": "example_for_who_runs_it",
+              "use": {
+                "purpose": "publish",
+                "surface": "site/example.com"
+              },
+              "write": "site-lead",
+              "values": {
+                "key": "lead-1",
+                "email": "someone@example.com",
+                "name": "Someone",
+                "offer_id": "offer:example-call"
+              }
+            }
+          }
+        }
+      },
+      "given": "The database holds a statements table and the writer login the computer made (made-up values).",
+      "hands_back": "{\"write\":\"site-lead\",\"row_count\":1,\"rows\":[]}"
+    }
+  ]
+}

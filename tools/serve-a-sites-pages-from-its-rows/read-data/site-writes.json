@@ -1,0 +1,45 @@
+{
+  "_what": "The writes a site's action rows may ask tool:keep-a-site-write for, by name. Each is one fixed statement and the values it takes, in parameter order ($1 is the first value): a caller sends a name and values only, never SQL. A value is text (at most `most` characters) or a list of texts (at most `most` of them); one not given is null, unless it is required. The statements are the ones a site's run-sql action rows sent (Nov 25 2026), changed only where the writer login may not do what they did: no RETURNING (the login cannot read the rows it adds), and the welcome stop through the owner's stop_welcome_series(token), so the login never reads a token.",
+  "writes": {
+    "site-lead": {
+      "_what": "A lead from a site form (book a call): one statement of meaning lead, kept only when the email has an email's shape.",
+      "sql": "INSERT INTO statements (source, told, place, meaning, at, key, after) SELECT 'site-form', 'site-form:lead:' || $1, 'site-form', 'lead', now(), $1, jsonb_strip_nulls(jsonb_build_object('email', lower(trim($2::text)), 'name', nullif(trim($3::text), ''), 'self_reported', nullif(trim($4::text), ''), 'offer_id', $5::text, 'visitor', $6::text)) WHERE $2::text ~ '^[^[:space:]@]+@[^[:space:]@]+\\.[^[:space:]@]+$'",
+      "values": [
+        { "name": "key", "type": "text", "most": 200, "required": true },
+        { "name": "email", "type": "text", "most": 320 },
+        { "name": "name", "type": "text", "most": 200 },
+        { "name": "self_reported", "type": "text", "most": 2000 },
+        { "name": "offer_id", "type": "text", "most": 200 },
+        { "name": "visitor", "type": "text", "most": 200 }
+      ]
+    },
+    "site-visit": {
+      "_what": "A visit a page tells the site of: kept only when the address it names is on the origin the request came from.",
+      "sql": "INSERT INTO statements (key, source, place, meaning, after, at) SELECT $1, 'site-visit', 'site-visit', 'visit', jsonb_build_object('href', $3::text, 'referrer', $4::text, 'visitor', $2::text), now() WHERE $5::text = $6::text",
+      "values": [
+        { "name": "key", "type": "text", "most": 200, "required": true },
+        { "name": "visitor", "type": "text", "most": 200 },
+        { "name": "href", "type": "text", "most": 2000 },
+        { "name": "referrer", "type": "text", "most": 2000 },
+        { "name": "href_origin", "type": "text", "most": 400 },
+        { "name": "origin", "type": "text", "most": 400 }
+      ]
+    },
+    "price-view": {
+      "_what": "One view of each offer whose price a page showed, counted per offer and day; only offers that exist, at most 20 a time.",
+      "sql": "INSERT INTO price_views (offer_id, day, views) SELECT id, (now() AT TIME ZONE 'UTC')::date, 1 FROM offers WHERE id = ANY(($1::text[])[1:20]) ON CONFLICT (offer_id, day) DO UPDATE SET views = price_views.views + 1",
+      "values": [
+        { "name": "offer_ids", "type": "texts", "most": 20, "required": true }
+      ]
+    },
+    "welcome-series-stop": {
+      "_what": "Stops the welcome emails of the token's address (the owner's stop_welcome_series, which matches the token and keeps the first stop), and answers the page to go to: stopped_path when the token matched, invalid_path when not.",
+      "sql": "SELECT CASE WHEN public.stop_welcome_series(coalesce($1::text, '')) THEN $2::text ELSE $3::text END AS goto",
+      "values": [
+        { "name": "token", "type": "text", "most": 200 },
+        { "name": "stopped_path", "type": "text", "most": 400, "required": true },
+        { "name": "invalid_path", "type": "text", "most": 400, "required": true }
+      ]
+    }
+  }
+}

@@ -26,6 +26,8 @@ import { realpathSync } from 'node:fs';
 // A recipe that grants per table (`per_table`, may-read-under-row-rules) also takes { tables: ['schema.table', ...] }: each named
 // table, and USAGE on its schema, and nothing else in that schema (a schema's other tables may hold rows no row rule guards).
 // Named tables also mean no whole-public read: the public_grants block (every public table) is given only when no tables are named.
+// A recipe that grants per write (`per_write`, may-write-named-columns-under-a-use) takes { writes: [{ table, select?, insert?,
+// update?, delete? } | { function }] }: each right an entry names, on exactly the columns it names, and nothing it does not name.
 // A recipe runs in one transaction unless it says `in_one_transaction: false`: Postgres runs CREATE DATABASE and DROP
 // DATABASE only outside a transaction block, so such a recipe's statements run one by one on the same connection.
 // A recipe that takes a held value (`takes_held_value`) is handed it on descriptor 6 (value_credential_name) and fills it in
@@ -62,6 +64,10 @@ const ROW = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url
 
 const rowAddingRecipes = Object.keys(RECIPES).filter(name => RECIPES[name].adds_rows === true);
 const perTableRecipes = Object.keys(RECIPES).filter(name => RECIPES[name].per_table !== undefined);
+const perWriteRecipes = Object.keys(RECIPES).filter(name => RECIPES[name].per_write !== undefined);
+// The column rights a writes entry may name, and a function as schema.name(argument types).
+const COLUMN_RIGHTS = ['select', 'insert', 'update'];
+const FUNCTION_NAME = /^[^.\s]+\.[^.\s(]+\([^()]*\)$/;
 // A named table is schema.table: two identifiers, each without a dot or a space.
 const TABLE_NAME = /^[^.\s]+\.[^.\s]+$/;
 
@@ -139,6 +145,31 @@ const runInOneTransaction = async (client, shape, ticket) => {
 // databases). An absent, null or empty name is not given: the engine mounts the connection only for a request that names one.
 export const namesTarget = input => ['credential_name', 'database'].some(name => input?.[name] !== undefined && input[name] !== null && input[name] !== '');
 
+// A per-write recipe's writes: each entry a table with the column rights it names (and delete: true), or one function.
+const writesOf = (name, writes) => {
+  if (RECIPES[name].per_write === undefined) throw new Error(`recipe.writes is for a recipe that grants per write (${perWriteRecipes.join(', ')}), not ${name}.`);
+  if (!Array.isArray(writes) || writes.length === 0) throw new Error('recipe.writes must be a list of { table, select?, insert?, update?, delete? } or { function } entries.');
+  for (const [index, entry] of writes.entries()) {
+    const at = `recipe.writes[${index}]`;
+    if (entry === null || typeof entry !== 'object' || Array.isArray(entry)) throw new Error(`${at} must be an object.`);
+    if (Object.hasOwn(entry, 'function')) {
+      if (Object.keys(entry).length !== 1 || typeof entry.function !== 'string' || !FUNCTION_NAME.test(entry.function)) throw new Error(`${at} must be { function: 'schema.name(argument types)' } alone.`);
+      if (entry.function.startsWith('use_binding.')) throw new Error(`${at} may not name the use_binding schema: the recipe gives its claim and nothing else there.`);
+      continue;
+    }
+    const unknown = Object.keys(entry).filter(key => !['table', ...COLUMN_RIGHTS, 'delete'].includes(key));
+    if (unknown.length) throw new Error(`${at} names ${unknown.join(', ')}: an entry has table, select, insert, update and delete only.`);
+    if (typeof entry.table !== 'string' || !TABLE_NAME.test(entry.table)) throw new Error(`${at}.table must be a schema.table name.`);
+    if (entry.table.startsWith('use_binding.')) throw new Error(`${at}.table may not be in the use_binding schema: its keys and claims are never the login's to read or change.`);
+    for (const right of COLUMN_RIGHTS) {
+      const named = entry[right];
+      if (named !== undefined && (!Array.isArray(named) || named.length === 0 || named.some(column => typeof column !== 'string' || column === ''))) throw new Error(`${at}.${right} must be a list of column names.`);
+    }
+    if (entry.delete !== undefined && entry.delete !== true) throw new Error(`${at}.delete is true or left out.`);
+    if (!COLUMN_RIGHTS.some(right => entry[right] !== undefined) && entry.delete !== true) throw new Error(`${at} names no right: give select, insert, update or delete.`);
+  }
+};
+
 // The request's two shapes: { sql, params? } and { recipe }. Anything else is refused with its reason.
 export function shapeOf(input) {
   const asked = input !== null && typeof input === 'object' && !Array.isArray(input) ? input : {};
@@ -163,9 +194,10 @@ export function shapeOf(input) {
     return { kind: 'statements', statements: each, then, use: usedOf(asked.use) };
   }
   if (hasRecipe) {
-    const { name, action, role, valid_until: validUntil, password_verifier: verifier, limits = {}, table, columns, fixed, tables: tablesGiven } = asked.recipe ?? {};
+    const { name, action, role, valid_until: validUntil, password_verifier: verifier, limits = {}, table, columns, fixed, tables: tablesGiven, writes: writesGiven } = asked.recipe ?? {};
     // A workflow input that is not given binds null: no tables named, the same as leaving them out.
     const tables = tablesGiven ?? undefined;
+    const writes = writesGiven ?? undefined;
     if (!Object.hasOwn(RECIPES, name ?? '')) throw new Error(`recipe.name must be one of ${Object.keys(RECIPES).join(', ')}.`);
     if (!['create', 'drop', 'reset'].includes(action)) throw new Error('recipe.action must be create, drop or reset.');
     if (RECIPES[name][action] === undefined) throw new Error(`The ${name} recipe has no ${action}.`);
@@ -198,7 +230,9 @@ export function shapeOf(input) {
     if (tables !== undefined && RECIPES[name].per_table === undefined) throw new Error(`recipe.tables is for a recipe that grants per table (${perTableRecipes.join(', ')}), not ${name}.`);
     if (tables !== undefined && (!Array.isArray(tables) || tables.some(named => !TABLE_NAME.test(named ?? '')))) throw new Error('recipe.tables must be a list of schema.table names, one each.');
     if (tables?.some(named => named.startsWith('use_binding.'))) throw new Error('recipe.tables may not name the use_binding schema: its keys and claims are the login\'s to call into, never to read.');
-    return { kind: 'recipe', name, action, role, validUntil, verifier, limits, table, columns, fixed: fixed ?? {}, tables: tables ?? [] };
+    if (RECIPES[name].per_write !== undefined && writes === undefined) throw new Error(`The ${name} recipe grants only what recipe.writes names: give writes.`);
+    if (writes !== undefined) writesOf(name, writes);
+    return { kind: 'recipe', name, action, role, validUntil, verifier, limits, table, columns, fixed: fixed ?? {}, tables: tables ?? [], writes: writes ?? [] };
   }
   if (hasSql) {
     if (typeof asked.sql !== 'string' || asked.sql.trim() === '') throw new Error('sql must be a statement as text.');
@@ -253,6 +287,36 @@ const recipeLogin = (shape, roleConnection) => {
   return { role: shape.role ?? `${shape.name.replace(/[^a-z0-9]/g, '_')}_${randomBytes(6).toString('hex')}`, password: randomBytes(32).toString('base64url'), validUntil: shape.validUntil, minted: true };
 };
 
+// A per-write recipe's statements, [template, schema, table, %13$s] each: per table entry its schema's USAGE and one statement for each
+// right it names, the columns quoted by the server; per function entry the function the server resolves (one it cannot find is
+// refused, never granted by a guessed name). A drop takes each table's and function's rights back whatever the entry named.
+const perWriteSteps = async (client, recipe, shape) => {
+  const rights = recipe.per_write?.[shape.action];
+  if (!rights) return [];
+  const steps = [];
+  for (const entry of shape.writes) {
+    if (entry.function !== undefined) {
+      const { rows: [{ resolved }] } = await runOne(client, 'SELECT pg_catalog.to_regprocedure($1)::text AS resolved', [entry.function]);
+      if (resolved === null) throw new Error(`There is no function ${entry.function} in this database: the owner makes it first.`);
+      steps.push([rights.function, null, null, resolved]);
+      continue;
+    }
+    const [schema, table] = entry.table.split('.');
+    if (shape.action === 'drop') {
+      steps.push([rights.table, schema, table, null], [rights.usage, schema, table, null]);
+      continue;
+    }
+    steps.push([rights.usage, schema, table, null]);
+    for (const right of COLUMN_RIGHTS) {
+      if (entry[right] === undefined) continue;
+      const { rows: [{ listed }] } = await runOne(client, "SELECT string_agg(format('%I', each), ', ') AS listed FROM unnest($1::text[]) AS columns(each)", [entry[right]]);
+      steps.push([rights[right], schema, table, listed]);
+    }
+    if (entry.delete === true) steps.push([rights.delete, schema, table, null]);
+  }
+  return steps;
+};
+
 // One recipe action, in one transaction unless the recipe says otherwise: each statement is filled by the server's format()
 // and then run. %4$I is the database the connection names; %5$I the one the held role connection names.
 const runRecipe = async (client, shape, connection, roleConnection, heldValue) => {
@@ -270,8 +334,9 @@ const runRecipe = async (client, shape, connection, roleConnection, heldValue) =
     // A recipe that grants per table runs its per_table statements once for each named table, %11$I its schema and %12$I its table.
     // The whole public schema is read only when no tables are named: with recipe.tables the login reads exactly those tables.
     const publicGrants = shape.action === 'create' && shape.tables.length === 0 ? recipe.public_grants?.create ?? [] : [];
-    const steps = [...[...recipe[shape.action], ...publicGrants].map(template => [template, null, null]),
-      ...(recipe.per_table?.[shape.action] ?? []).flatMap(template => shape.tables.map(named => [template, ...named.split('.')]))];
+    const steps = [...[...recipe[shape.action], ...publicGrants].map(template => [template, null, null, null]),
+      ...(recipe.per_table?.[shape.action] ?? []).flatMap(template => shape.tables.map(named => [template, ...named.split('.'), null])),
+      ...await perWriteSteps(client, recipe, shape)];
     // The functions the named tables' row policies call get EXECUTE for the login, and no other: read from pg_depend, so a
     // helper a policy names is granted and nothing a policy does not name. A policy function that is SECURITY INVOKER would run
     // as the login and read what the login may not, so its grant is refused; the owner makes it SECURITY DEFINER first.
@@ -281,8 +346,8 @@ const runRecipe = async (client, shape, connection, roleConnection, heldValue) =
       if (invoked.length) throw new Error(`A row policy of ${shape.tables.join(', ')} calls ${invoked.join(', ')}, which is SECURITY INVOKER: it would run as the login. The owner makes it SECURITY DEFINER with a fixed search_path, then this grant.`);
       for (const { statement } of functions.rows) await runOne(client, statement);
     }
-    for (const [template, schema, tableName] of steps) {
-      const { rows: [{ statement }] } = await runOne(client, "SELECT format($1, $2::text, $3::text, $4::text, $5::text, $6::text, $7::text, $8::text, $9::text, left('rule_' || $2::text, 63), $10::text, $11::text, $12::text) AS statement", [template, login.role, login.password, login.validUntil, database, roleDatabase, shape.table ?? null, listed, rule, heldValue || null, schema, tableName]);
+    for (const [template, schema, tableName, named] of steps) {
+      const { rows: [{ statement }] } = await runOne(client, "SELECT format($1, $2::text, $3::text, $4::text, $5::text, $6::text, $7::text, $8::text, $9::text, left('rule_' || $2::text, 63), $10::text, $11::text, $12::text, $13::text) AS statement", [template, login.role, login.password, login.validUntil, database, roleDatabase, shape.table ?? null, listed, rule, heldValue || null, schema, tableName, named]);
       await runOne(client, statement);
     }
     for (const [limit, value] of Object.entries(shape.limits ?? {})) {
@@ -332,19 +397,31 @@ export async function runSql({ connection, roleConnection = '', ticket = '', hel
 // A computed read may need several bounded statements, but its use ticket is claimed once, in the transaction all of
 // them read. The query callback holds no login or client. Without a declared use the transaction is read-only; with one,
 // claim_use must write its claim, and the existing database reader login and row rules still own every statement's rights.
-export async function withSqlRead({ connection, ticket = '', use, statement_timeout_ms: timeout, usedMs, ceilingMs, connect = connectTo }, read) {
+export const withSqlRead = (options, read) => onOneConnection(options, read, { writes: false });
+
+// A step that reads and writes (a form's or a booking's step, a site's named write) runs every statement on one connection. Under
+// a use it is one transaction that claims the use ticket once at its start (a ticket's nonce is claimed once, so a step of many
+// transactions could hold its use for the first only), and the first statement the database refuses keeps nothing of the step;
+// without one each statement stands alone (a step's writes are already one statement, store.ts oneStatementOf), so the owner's own
+// step sends no transaction round trips. The login's grants (writer recipe may-write-named-columns-under-a-use) own what each
+// statement may touch.
+export const withSqlWrite = (options, work) => onOneConnection(options, work, { writes: true });
+
+async function onOneConnection({ connection, ticket = '', use, statement_timeout_ms: timeout, usedMs, ceilingMs, connect = connectTo }, work, { writes }) {
   connectionOf(connection);
   const used = usedOf(use);
   if (used && !ticket) throw new Error("A use is bound only by the engine's ticket: give database, so the computer opens it with the database's reader login and hands this run the ticket of its use.");
-  if (typeof read !== 'function') throw new Error('A computed read needs its statement function.');
+  if (typeof work !== 'function') throw new Error(writes ? 'A step needs its statement function.' : 'A computed read needs its statement function.');
   const bound = timeLimitOf(timeout, usedMs, { ceilingMs }), client = await connect(connection, bound);
   let timer, closing;
   const close = () => closing ??= client.end().catch(() => {});
-  const work = async () => {
+  const run = async () => {
+    const query = (sql, params = []) => runOne(client, sql, params);
+    if (writes && !used) return work(query);
     await runOne(client, used ? 'BEGIN' : 'BEGIN READ ONLY');
     try {
       if (used) await runOne(client, 'SELECT * FROM use_binding.claim_use($1)', [ticket]);
-      const result = await read((sql, params = []) => runOne(client, sql, params));
+      const result = await work(query);
       await runOne(client, 'COMMIT');
       return result;
     } catch (error) {
@@ -354,9 +431,9 @@ export async function withSqlRead({ connection, ticket = '', use, statement_time
   };
   try {
     const expired = new Promise((_, reject) => {
-      timer = setTimeout(() => { void close(); reject(new Error('The computed read exceeded its transaction time bound.')); }, bound);
+      timer = setTimeout(() => { void close(); reject(new Error(writes ? 'The step exceeded its transaction time bound.' : 'The computed read exceeded its transaction time bound.')); }, bound);
     });
-    return await Promise.race([work(), expired]);
+    return await Promise.race([run(), expired]);
   } finally {
     clearTimeout(timer);
     await close();

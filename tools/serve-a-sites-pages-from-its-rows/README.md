@@ -206,6 +206,24 @@ Example, a page's visit beacon (a visitor id only with consent, set as a cookie 
 - `public_files`: a page row names a public file by its site path; the file sits in the store at `key_prefix` + that path, so
   moving the site's files into the store changes no row. `cache_seconds` is at most half of `link_seconds`.
 
+## Named writes
+
+`tool:keep-a-site-write` keeps one of the site's named writes (`read-data/site-writes.json`: `site-lead`, `site-visit`, `price-view`,
+`welcome-series-stop`) from the values an action row gives: `{ database, use, write, values }`, the statement fixed in the file and
+every value a parameter, so a post never sends SQL. Under the site's use the computer opens the database with its writer login
+(`<database>-writer-connection`, role recipe `may-write-named-columns-under-a-use` in run-sql-in-my-database: only the columns and
+functions these writes need), and the write's one transaction claims the use first. The welcome stop calls the owner's
+`stop_welcome_series(token)` (SECURITY DEFINER), so the writer never reads a token. Example, the visit beacon above as a named write:
+
+```json
+{ "path": "/observe/visit", "access": "public", "tool": "tool:keep-a-site-write", "failed": "The visit was not kept.",
+  "answer": { "json": ["row_count"], "cookie": { "name": "v", "value": { "$": "input", "key": "values.visitor" }, "max_age_days": 395 } },
+  "input": { "database": "a_site_for_who_runs_it", "use": { "purpose": "publish", "surface": "site/example.com" }, "write": "site-visit",
+    "values": { "key": { "$": "new_id" }, "visitor": { "$": "when", "cookie": "consent", "is": "granted", "then": { "$": "first", "of": [{ "$": "cookie", "name": "v" }, { "$": "new_id" }] } },
+      "href": { "$": "body", "key": "href" }, "referrer": { "$": "body", "key": "referrer" },
+      "href_origin": { "$": "address", "of": { "$": "body", "key": "href" }, "part": "origin" }, "origin": { "$": "origin" } } } }
+```
+
 ## Files
 
 | File | What |
@@ -223,6 +241,9 @@ Example, a page's visit beacon (a visitor id only with consent, set as a cookie 
 | `do-work/member-pass.ts` | who a request is: the sign-in tool's pass, checked |
 | `do-work/member-video.ts` | a member's file: the right check and the presigned GET (signature version 4) |
 | `do-work/door.ts` | one request to a URL or unix socket; one tool run on the engine's door |
+| `do-work/keep-a-site-write.ts` | `tool:keep-a-site-write`: one named write, its values checked and sent as parameters, in one claimed transaction (run-sql's withSqlWrite) |
+| `read-data/site-writes.json` | the named writes: each one fixed statement and the values it takes, in parameter order |
+| `kits/keep-a-site-write.json` | start here and a worked example |
 | `show/PageDocument.tsx` | the page's document around the drawn tree, its mount the shared Container |
 | `tests/*.test.ts` | `node --test`: rows, drawing, a loopback door and sign-in, the published signature example |
 
