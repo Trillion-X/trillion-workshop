@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { checkFromInside, enginesOf, holdAgainScript, readScript } from '../do-work/check-from-inside.mjs';
+import { checkFromInside, enginesOf, holdAgainScript, readScript, unitsOf } from '../do-work/check-from-inside.mjs';
 
 const HOST_KEY = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMadeUpMadeUpMadeUpMadeUpMadeUpMadeUpMadeUp';
 const OWNER = 'made-up-person_0001';
@@ -24,7 +24,7 @@ const DF = [
 const ready = persons => JSON.stringify({ draining: false, persons, offers: [] });
 
 /** A made-up computer: answers each script with the df above and each listen's ready answer from `answers`. */
-function computerAnswering(answers, { addStatus = '200', afterAdd = {}, folders = '' } = {}) {
+function computerAnswering(answers, { addStatus = '200', afterAdd = {}, folders = '', systemd = {} } = {}) {
   const scripts = [];
   let added = false;
   const run = script => {
@@ -38,6 +38,11 @@ function computerAnswering(answers, { addStatus = '200', afterAdd = {}, folders 
       lines.push(`@@${mark[1]}${mark[2] ? ` ${mark[2]}` : ''}${mark[3] ? ` ${mark[3]}` : ''}`);
       if (mark[1] === 'persons') lines.push(folders);
       if (mark[1] === 'df') lines.push(DF);
+      if (mark[1] === 'units') for (const unitLine of script.split('\n').filter(item => /^echo 'unit /.test(item))) {
+        const name = unitLine.slice("echo 'unit ".length, -1);
+        const [load, active, result] = systemd[name] ?? ['loaded', 'inactive', 'success'];
+        lines.push(`unit ${name}`, `Result=${result}`, `LoadState=${load}`, `ActiveState=${active}`);
+      }
       if (mark[1] === 'ready') lines.push(now[mark[3]] ?? '');
     }
     return { status: 0, stdout: `${lines.join('\n')}\n`, stderr: '' };
@@ -134,6 +139,27 @@ test('a computer that does not answer is one alert, and one with no usable addre
   assert.deepEqual([given.checked, given.findings], [false, []]);
   const keyless = await checkFromInside(computer([engineUnit], { host_key: undefined }), { run: () => assert.fail('not asked') });
   assert.match(keyless.why, /host_key is missing/);
+});
+
+test('every unit the row runs is asked of systemd: a failed run, a stopped timer and a missing unit are findings', async () => {
+  const backup = { unit: 'a-backup.service', user: 'postgres' };
+  const timer = { unit: 'a-backup.timer', runs: 'a-backup.service' };
+  const watch = { unit: 'a-watch.path' };
+  const gone = { unit: 'a-gone.service' };
+  const units = [engineUnit, siteUnit, backup, timer, watch, gone];
+  assert.deepEqual(unitsOf({ units }), ['a-site.service', 'a-backup.service', 'a-backup.timer', 'a-watch.path', 'a-gone.service'], 'a unit run in slots is read as its engine');
+  const { run, scripts } = computerAnswering({ '127.0.0.1:7198': ready(1) }, { systemd: {
+    'a-site.service': ['loaded', 'active', 'success'], 'a-backup.service': ['loaded', 'failed', 'exit-code'],
+    'a-backup.timer': ['loaded', 'inactive', 'success'], 'a-watch.path': ['loaded', 'active', 'success'], 'a-gone.service': ['not-found', 'inactive', 'success'] } });
+  const seen = await checkFromInside(computer(units), { run });
+  assert.match(scripts[0], /^systemctl show -p LoadState -p ActiveState -p Result 'a-backup\.service' 2>\/dev\/null$/m);
+  assert.deepEqual(seen.units.find(unit => unit.unit === 'a-backup.service'), { unit: 'a-backup.service', load: 'loaded', active: 'failed', result: 'exit-code' });
+  assert.deepEqual(seen.findings.map(finding => [finding.kind, finding.level, finding.about]), [
+    ['unit-failed', 'alert', 'a-backup.service'], ['unit-not-running', 'alert', 'a-backup.timer'], ['unit-missing', 'warn', 'a-gone.service']]);
+  assert.match(seen.findings[0].said, /a-backup\.service last ended in exit-code, not success/);
+  const pretended = await checkFromInside(computer([siteUnit], { pretend: { units: { 'a-site.service': 'exit-code' } } }), { run });
+  assert.deepEqual(pretended.findings.map(finding => [finding.kind, finding.about, finding.pretend]), [['unit-failed', 'a-site.service', true]]);
+  assert.throws(() => readScript([], ['a unit; rm -rf /']), /A unit name was refused/);
 });
 
 test('nothing outside its shape is written into a command', () => {

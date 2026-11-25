@@ -88,6 +88,13 @@
                 "unreachable": {
                   "type": "boolean",
                   "description": "Pretend the computer did not answer; nothing is asked."
+                },
+                "units": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "description": "Unit to the systemd Result to pretend its last run ended in (exit-code: a failed run)."
                 }
               }
             }
@@ -245,6 +252,35 @@
                   },
                   "pretend": {
                     "type": "boolean"
+                  }
+                }
+              }
+            },
+            "units": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "unit": {
+                    "type": "string"
+                  },
+                  "load": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "active": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "result": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
                 }
               }

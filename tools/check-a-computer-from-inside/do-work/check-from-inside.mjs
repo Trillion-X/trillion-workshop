@@ -16,8 +16,12 @@ import { realpathSync } from 'node:fs';
 // held again (unless hold_again is false): engine.add_person_path with {"person": ...} on the engine's own agent socket,
 // as the engine's own user, the one road the engine takes a person on; then it is read again. Each person folder in the
 // engine's settings.persons folder is measured (du) with its settings.json persons.largest_files largest files, so a
-// caller can keep its size each run and see what grows. Everything else only reads.
-// `pretend` replaces what was read ({disks: {mount: used_pct}, engines: {unit: persons}, unreachable: true}) so a caller
+// caller can keep its size each run and see what grows. Every other unit the row runs (a service, a timer, a path) is read
+// from systemd (its LoadState, ActiveState and Result): a unit whose last run did not end in success (a base backup that
+// failed) is unit-failed, a timer or path that is not active is unit-not-running, and a unit the computer does not have is
+// unit-missing. A unit that runs in slots is read as its engine, not here. Everything else only reads.
+// `pretend` replaces what was read ({disks: {mount: used_pct}, engines: {unit: persons}, units: {unit: result},
+// unreachable: true}) so a caller
 // can see the findings of a full disk, an empty engine or a lost computer without making one; a pretended empty engine is
 // never held again, and each finding it makes says pretend: true.
 //
@@ -63,8 +67,17 @@ export function enginesOf(runs, program) {
   }).filter(engine => typeof engine.unit === 'string' && UNIT.test(engine.unit));
 }
 
-/** The one shell script that reads every disk and every engine's ready answer, each part after its own mark line. */
-export function readScript(engines) {
+/** The units of a computer row systemd is asked about: every unit name the row runs, except one run in slots (each slot
+ *  is its own unit, read as an engine). */
+export function unitsOf(runs) {
+  const units = Array.isArray(runs?.units) ? runs.units : [];
+  return unique(units.filter(unit => unit && !(unit.slots && typeof unit.slots === 'object')).map(unit => unit.unit)
+    .filter(name => typeof name === 'string' && UNIT.test(name)));
+}
+
+/** The one shell script that reads every disk, every engine's ready answer and what systemd says of each unit, each part
+ *  after its own mark line. */
+export function readScript(engines, units = []) {
   const seconds = Number(SETTINGS.engine.ask_seconds);
   const lines = [`echo '${MARK}df'`, 'df -P -T -B1 2>/dev/null'];
   engines.forEach((engine, index) => engine.listens.forEach(listen => {
@@ -79,6 +92,11 @@ export function readScript(engines) {
     lines.push(`echo '${MARK}persons ${index}'`,
       `for d in ${engine.persons_folder}/*/; do [ -d "$d" ] || continue; n=$(basename "$d"); echo "folder $n $(du -sb "$d" 2>/dev/null | cut -f1)"; find "$d" -xdev -type f -printf '%s %P\\n' 2>/dev/null | sort -nr | head -${largest} | sed "s#^#file $n #"; done`);
   });
+  lines.push(`echo '${MARK}units'`);
+  for (const unit of units) {
+    if (!UNIT.test(unit)) throw new Error(`A unit name was refused: ${unit}.`);
+    lines.push(`echo 'unit ${unit}'`, `systemctl show -p LoadState -p ActiveState -p Result '${unit}' 2>/dev/null`);
+  }
   lines.push(`echo '${MARK}end'`);
   return `${lines.join('\n')}\n`;
 }
@@ -95,6 +113,7 @@ export function parseRead(stdout) {
   const disks = [];
   const ready = [];
   const folders = [];
+  const units = [];
   const skip = new Set(SETTINGS.disk.skip_types);
   let part = null;
   for (const line of String(stdout).split('\n')) {
@@ -113,6 +132,11 @@ export function parseRead(stdout) {
       const usedBytes = Number(used);
       const room = usedBytes + Number(available);
       disks.push({ mount, type, size_bytes: Number(size), used_bytes: usedBytes, available_bytes: Number(available), used_pct: room > 0 ? Math.round((usedBytes / room) * 1000) / 10 : 0 });
+    } else if (part === 'units') {
+      const named = line.match(/^unit (\S+)$/);
+      const field = line.match(/^(LoadState|ActiveState|Result)=(.*)$/);
+      if (named) units.push({ unit: named[1], load: null, active: null, result: null });
+      else if (field && units.length) units.at(-1)[{ LoadState: 'load', ActiveState: 'active', Result: 'result' }[field[1]]] = field[2].trim();
     } else if (part && typeof part === 'object' && 'persons' in part) {
       const folder = line.match(/^folder ([A-Za-z0-9_-]+) ([0-9]+)$/);
       const file = line.match(/^file ([A-Za-z0-9_-]+) ([0-9]+) (.+)$/);
@@ -120,7 +144,7 @@ export function parseRead(stdout) {
       else if (file) folders.findLast(item => item.index === part.persons && item.person === file[1])?.largest.push({ path: file[3], bytes: Number(file[2]) });
     } else if (part && typeof part === 'object') part.lines.push(line);
   }
-  return { disks, folders, ready: ready.map(({ index, listen, lines }) => ({ index, listen, answer: lines.join('\n').trim() })) };
+  return { disks, folders, units, ready: ready.map(({ index, listen, lines }) => ({ index, listen, answer: lines.join('\n').trim() })) };
 }
 
 const readyOf = answer => {
@@ -140,7 +164,7 @@ export function enginesAsRead(engines, ready) {
 }
 
 /** The findings of what was read, by the thresholds: [{kind, level, about, said, pretend?}]. */
-export function findingsOf({ disks, engines }, { warn, alert, pretended = new Set() }) {
+export function findingsOf({ disks, engines, units = [] }, { warn, alert, pretended = new Set() }) {
   const findings = [];
   for (const disk of disks) {
     const level = disk.used_pct >= alert ? 'alert' : disk.used_pct >= warn ? 'warn' : null;
@@ -165,6 +189,16 @@ export function findingsOf({ disks, engines }, { warn, alert, pretended = new Se
       : held.persons > 0 ? `It was held again on its own agent socket (answered ${held.status}) and now holds ${held.persons}.`
       : `Holding it again failed (answered ${held.status ?? 'nothing'}${held.error ? `: ${held.error}` : ''}); it still holds none, so every signed-in call to it is refused.`;
     findings.push({ kind: 'engine-held-no-person', level, about: engine.unit, said: `${engine.unit} held no person, though its row names ${engine.owners.length === 1 ? 'one' : engine.owners.length}. ${what}`, ...pretend });
+  }
+  for (const unit of units) {
+    const pretend = pretended.has(`unit:${unit.unit}`) ? { pretend: true } : {};
+    if (unit.load === 'not-found') {
+      findings.push({ kind: 'unit-missing', level: 'warn', about: unit.unit, said: `${unit.unit} is in this computer's row, but the computer has no such unit.`, ...pretend });
+    } else if (unit.result && unit.result !== 'success') {
+      findings.push({ kind: 'unit-failed', level: 'alert', about: unit.unit, said: `${unit.unit} last ended in ${unit.result}, not success (it is ${unit.active ?? 'in an unknown state'} now); its journal says why.`, ...pretend });
+    } else if (/\.(timer|path)$/.test(unit.unit) && unit.load === 'loaded' && unit.active !== 'active') {
+      findings.push({ kind: 'unit-not-running', level: 'alert', about: unit.unit, said: `${unit.unit} is ${unit.active ?? 'in an unknown state'}, so what it starts no longer runs.`, ...pretend });
+    }
   }
   return findings;
 }
@@ -202,14 +236,18 @@ export async function checkFromInside(input, options = {}) {
   const run = options.run ?? sshRunner(host, options.keyFile);
   const pretend = input.pretend && typeof input.pretend === 'object' ? input.pretend : {};
   const engines = enginesOf(input.runs, input.engine_program);
-  const read = pretend.unreachable ? { status: 255, stdout: '', stderr: 'pretended: no answer' } : run(readScript(engines));
+  const read = pretend.unreachable ? { status: 255, stdout: '', stderr: 'pretended: no answer' } : run(readScript(engines, unitsOf(input.runs)));
   if (read.status !== 0 || !read.stdout.includes(`${MARK}end`)) {
     const said = `${name} could not be read over SSH: ${(read.stderr || `exit ${read.status}`).trim().split('\n').at(-1)}.`;
     return { ...base, checked: false, why: said, disks: [], engines: [],
       findings: named([{ kind: 'unreachable', level: 'alert', about: host.address, said, ...(pretend.unreachable ? { pretend: true } : {}) }]) };
   }
-  const { disks, ready, folders } = parseRead(read.stdout);
+  const { disks, ready, folders, units } = parseRead(read.stdout);
   const pretended = new Set();
+  for (const [name, result] of Object.entries(pretend.units ?? {})) {
+    const unit = units.find(item => item.unit === name);
+    if (unit && typeof result === 'string') { unit.result = result; pretended.add(`unit:${name}`); }
+  }
   for (const [mount, used] of Object.entries(pretend.disks ?? {})) {
     const disk = disks.find(item => item.mount === mount);
     if (disk && Number.isFinite(Number(used))) { const room = disk.used_bytes + disk.available_bytes; disk.used_pct = Number(used); disk.used_bytes = Math.round(room * Number(used) / 100); disk.available_bytes = room - disk.used_bytes; pretended.add(`disk:${mount}`); }
@@ -235,7 +273,7 @@ export async function checkFromInside(input, options = {}) {
       if (now?.persons > 0) { engine.persons = now.persons; engine.listens = now.listens; }
     } catch (error) { engine.held_again = { person: given.owners[0], status: null, persons: null, error: error.message }; }
   }
-  return { ...base, checked: true, disks, engines: asRead, findings: named(findingsOf({ disks, engines: asRead }, { warn, alert, pretended })) };
+  return { ...base, checked: true, disks, engines: asRead, units, findings: named(findingsOf({ disks, engines: asRead, units }, { warn, alert, pretended })) };
 }
 
 const startedAsProgram = (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]));
