@@ -251,7 +251,14 @@ fn signed_in_account() -> String {
 }
 // Who may answer for a person's runs is a row: answer_rights(person, actor) in the runs database.
 // A chat that is neither the run's starter nor one of its person's answerers is refused; a run with no person stamp is refused too.
-fn holder_refusal(run: &str) -> Option<String> {
+// A step waiting for anyone (or an AI) takes its answer from any chat, recorded with that chat's identity: an independent
+// review must come from a chat that did not make the files. Only a step meant for whoever holds the run stays with the starter.
+fn open_to_any_chat(last: &Value, step: &str) -> bool {
+    last["waiting"].as_array().into_iter().flatten()
+        .any(|w| w["step"] == step && matches!(w["for"].as_str(), Some("anyone" | "ai")))
+}
+fn holder_refusal(run: &str, step: &str) -> Option<String> {
+    if open_to_any_chat(&read(&format!("{run}/last.json")), step) { return None; }
     let owner = read(&format!("{run}/started_by.json")).as_str().unwrap_or_default().to_string();
     let me = actor();
     if owner.is_empty() || me.is_empty() || owner == me { return None; }
@@ -1627,7 +1634,7 @@ async fn main() {
         }
         Some("answer") if a.len() > 4 => {
             let (run, step) = (&run_of(&a[2]), &a[3]);
-            if let Some(refusal) = holder_refusal(run) { eprintln!("{refusal}"); std::process::exit(1); }
+            if let Some(refusal) = holder_refusal(run, step) { eprintln!("{refusal}"); std::process::exit(1); }
             if !read(&format!("{run}/cancelled.json")).is_null() { eprintln!("run {run} is cancelled"); std::process::exit(1); }
             let value: Value = match serde_json::from_str(&json_arg(&a[4])) { Ok(v) => v, Err(e) => { eprintln!("the answer is not JSON: {e}"); std::process::exit(1); } };
             // Only a step that waits for whoever holds the run, or one the engine refused, is answered here; a tool's or
@@ -1749,6 +1756,25 @@ mod tests {
     fn a_home_relative_path_is_expanded_and_an_absolute_one_is_kept() {
         assert_eq!(expand("~/x/y"), format!("{}/x/y", home()));
         assert_eq!(expand("/abs/z"), "/abs/z");
+    }
+}
+
+#[cfg(test)]
+mod open_step_tests {
+    use super::open_to_any_chat;
+    use serde_json::json;
+
+    #[test]
+    fn a_step_for_anyone_or_an_ai_takes_an_answer_from_any_chat_and_the_makers_step_does_not() {
+        let last = json!({ "waiting": [
+            { "step": "review", "for": "anyone" },
+            { "step": "judge", "for": "ai" },
+            { "step": "make", "for": "whoever-holds-the-run" } ] });
+        assert!(open_to_any_chat(&last, "review"));
+        assert!(open_to_any_chat(&last, "judge"));
+        assert!(!open_to_any_chat(&last, "make"));
+        assert!(!open_to_any_chat(&last, "not-waiting"));
+        assert!(!open_to_any_chat(&json!({}), "review"));
     }
 }
 
