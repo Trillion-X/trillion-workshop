@@ -58,7 +58,7 @@
     },
     {
       "id": "site-form-leads-from-statements",
-      "_what": "A lead a site's own form keeps through its action row (serve-a-sites-pages-from-its-rows actions): one statements row, place site-form, meaning lead, its key the action's new id, after holding email, visitor (only with analytics consent), offer_id and self_reported. The same lead step and identity use as a lead the journey kit keeps.",
+      "_what": "A lead a site's own form keeps through its action row (serve-a-sites-pages-from-its-rows actions): one statements row, place site-form, meaning lead, its key the action's new id, after holding email, visitor (only with analytics consent), offer_id, self_reported and touch_id (the t of the page the form was sent from, carried, never joined by). The same lead step and identity use as a lead the journey kit keeps.",
       "table": "statements",
       "step": "lead",
       "where": "place = 'site-form' AND meaning = 'lead'",
@@ -67,7 +67,8 @@
         "at": "at",
         "email": "after->>'email'",
         "visitor": "after->>'visitor'",
-        "offer_id": "after->>'offer_id'"
+        "offer_id": "after->>'offer_id'",
+        "touch_id": "after->>'touch_id'"
       },
       "source": {
         "self_reported": "after->>'self_reported'"
