@@ -61,8 +61,9 @@ export async function cutAHostnameOver(input, { env = process.env, fetchImpl = f
   const answer = receipt => ({ state: receipt.state, hostname: receipt.hostname, address: receipt.address, mode: receipt.mode,
     original: receipt.original ?? receipt.before.records.find(x => at(x, input.dns.record.id_at ?? 'id') === receipt.targetId) ?? null, current: receipt.afterTarget ?? null, guarded_lists_preserved: receipt.before.guards.length, receipt });
   if (input.action === 'status') return answer(await readCutover(receipts, CUTOVER));
-  // A description reached through the engine (transport "engine") holds no key: its requests go through `call`, which only a
-  // runner outside the container hands in (cut-over-through-this-computers-engine.mjs); in a container dnsClient refuses it.
+  // A description reached through the engine (transport "engine") holds no key: its requests go through `call`, which only
+  // stepACutover hands in (a workflow sends each request, tool:step-a-hostname-cut-over-through-the-engine); in a container
+  // dnsClient refuses it.
   const provider = input.dns, request = dnsClient(provider?.transport === 'engine' ? null : heldFrom(DNS_KEY, env), { fetchImpl, provider, call });
   if (input.action === 'keep-healthy') {
     const probe = candidate => probeHealthy({ hostname: input.hostname, address: candidate.address, path: candidate.health_path ?? input.health_path ?? '/' });
