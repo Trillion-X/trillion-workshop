@@ -30,6 +30,23 @@ function collect() {
     const style = getComputedStyle(element);
     return box.width > 0 && box.height > 0 && style.visibility !== 'hidden' && style.display !== 'none' && Number(style.opacity) !== 0;
   };
+  // The box a text sits on: the nearest ancestor that paints a colour, a picture or a line of its own. Its colour as three numbers
+  // (the browser writes `rgb(...)` or `color(srgb ...)`), whether it has a gradient, its corner, its border, shadow and height.
+  const surfaces = new Map();
+  const rgbOf = value => { const m = value.match(/^rgba?\(([^)]*)\)/); if (m) { const p = m[1].split(/[ ,/]+/).map(Number); return { rgb: p.slice(0, 3), alpha: p[3] ?? 1 }; } const c = value.match(/^color\(srgb ([^)]*)\)/); if (c) { const p = c[1].split(/[ /]+/).map(Number); return { rgb: p.slice(0, 3).map(n => Math.round(n * 255)), alpha: p[3] ?? 1 }; } return { rgb: [0, 0, 0], alpha: 0 }; };
+  const surfaceOf = element => {
+    for (let e = element; e && e !== document.documentElement; e = e.parentElement) {
+      const s = getComputedStyle(e);
+      const bg = rgbOf(s.backgroundColor);
+      const border = parseFloat(s.borderTopWidth) > 0 && rgbOf(s.borderTopColor).alpha > 0.02;
+      if (bg.alpha > 0.02 || s.backgroundImage !== 'none' || border) {
+        if (!surfaces.has(e)) surfaces.set(e, surfaces.size);
+        const box = e.getBoundingClientRect();
+        return { id: surfaces.get(e), colour: bg.alpha > 0.02 ? bg.rgb : null, gradient: s.backgroundImage.includes('gradient'), corner: Math.round(parseFloat(s.borderTopLeftRadius) || 0), border: border ? Math.round(parseFloat(s.borderTopWidth)) : 0, shadow: s.boxShadow !== 'none', height: Math.round(box.height), width: Math.round(box.width) };
+      }
+    }
+    return null;
+  };
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   let prevBottom = null;
   for (let node = walker.nextNode(); node; node = walker.nextNode()) {
@@ -66,6 +83,7 @@ function collect() {
       fontSize: parseFloat(style.fontSize),
       fontWeight: style.fontWeight,
       color: style.color,
+      surface: surfaceOf(element),
       lineHeight: style.lineHeight === 'normal' ? 'normal' : parseFloat(style.lineHeight),
       textAlign: style.textAlign,
       fontFamily: style.fontFamily.split(',')[0].replace(/["']/g, '').trim(),
@@ -132,12 +150,25 @@ export function differences(old, now, width, tolerance = TOLERANCE) {
   old.texts.forEach((item, i) => { if (!inOld.has(i) && !glyph(item)) add('text missing', item.text.slice(0, 60), `${item.tag} ${item.fontSize}px`, null); });
   now.texts.forEach((item, j) => { if (!inNew.has(j)) add('text added', item.text.slice(0, 60), null, `${item.tag} ${item.fontSize}px`); });
   let previous = null;
+  const seenSurface = new Set();
   for (const [i, j] of pairs) {
     const a = old.texts[i], b = now.texts[j], where = a.text.slice(0, 60);
     if (!near(a.fontSize, b.fontSize, tolerance.size)) add('font size', where, a.fontSize, b.fontSize);
     if (a.fontWeight !== b.fontWeight) add('font weight', where, a.fontWeight, b.fontWeight);
     if (a.color !== b.color) add('colour', where, a.color, b.color);
     if (a.fontFamily !== b.fontFamily) add('font family', where, a.fontFamily, b.fontFamily);
+    // The box under the words, once per box: its colour, gradient, corner, border, shadow and height.
+    const sa = a.surface, sb = b.surface;
+    if (sa && sb && !seenSurface.has(sa.id)) {
+      seenSurface.add(sa.id);
+      const rgb = value => (value ? `rgb(${value.join(',')})` : 'none');
+      if ((sa.colour === null) !== (sb.colour === null) || (sa.colour && sb.colour && sa.colour.some((n, k) => Math.abs(n - sb.colour[k]) > 3))) add('surface colour', where, rgb(sa.colour), rgb(sb.colour));
+      if (sa.gradient !== sb.gradient) add('surface gradient', where, sa.gradient, sb.gradient);
+      if (Math.abs(sa.corner - sb.corner) > 1) add('corner', where, sa.corner, sb.corner);
+      if (sa.border !== sb.border) add('border', where, sa.border, sb.border);
+      if (sa.shadow !== sb.shadow) add('shadow', where, sa.shadow, sb.shadow);
+      if (sa.height < 400 && !near(sa.height, sb.height, 2.5)) add('box height', where, sa.height, sb.height);
+    } else if (!sa !== !sb && !seenSurface.has(`${i}`)) { seenSurface.add(`${i}`); add('surface', where, sa ? 'a box' : 'none', sb ? 'a box' : 'none'); }
     // A button or link centres its words by its own flex box, so its text-align says nothing about how it looks.
     if (!['a', 'button'].includes(a.tag) && a.textAlign !== b.textAlign && !['start', 'left'].includes(a.textAlign) !== !['start', 'left'].includes(b.textAlign)) add('alignment', where, a.textAlign, b.textAlign);
     // `normal` is about 1.2 of the font size, so it is compared as that.

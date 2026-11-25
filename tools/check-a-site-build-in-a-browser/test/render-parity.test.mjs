@@ -36,3 +36,13 @@ test('a button\'s text-align is not a difference', () => {
   const now = page([text('Go', { tag: 'a', textAlign: 'start' })]);
   assert.deepEqual(differences(old, now, 390), []);
 });
+
+test('the box under a text is compared once per box: its colour, corner, border, shadow, gradient and height', () => {
+  const box = (extra = {}) => ({ id: 0, colour: [245, 245, 245], gradient: false, corner: 12, border: 1, shadow: false, height: 54, width: 200, ...extra });
+  const old = page([text('Pay', { surface: box() }), text('now', { surface: box() })]);
+  const same = page([text('Pay', { surface: box({ colour: [244, 246, 245] }) }), text('now', { surface: box() })]);
+  assert.deepEqual(differences(old, same, 1280), []);
+  const other = page([text('Pay', { surface: box({ colour: [255, 253, 248], corner: 8, border: 0, shadow: true, gradient: true, height: 40 }) }), text('now', { surface: box({ colour: [255, 253, 248], corner: 8 }) })]);
+  const kinds = differences(old, other, 1280).map(item => item.kind).sort();
+  assert.deepEqual(kinds, ['border', 'box height', 'corner', 'shadow', 'surface colour', 'surface gradient']);
+});
