@@ -727,7 +727,7 @@ fn record(run: &str) -> Result<Value, String> {
             for (id, text, failed) in results {
                 let Some((tool, input, why, at)) = open.remove(&id) else { continue };
                 let input_text = input.to_string();
-                let is_wf = is_like(r"\bwf (start|answer|show|cancel)\b", &input_text);
+                let is_wf = names_wf(&input_text);
                 if is_wf && (input_text.contains(&short) || (input_text.contains("wf start") && text.contains(&short))) { worked_until = Some(at.clone()); }
                 if is_wf {
                     if let Some(c) = re(r#""step":\s*"([^"]+)""#).captures_iter(&text).last() { waits_on = c[1].to_string(); }
@@ -920,6 +920,15 @@ fn record(run: &str) -> Result<Value, String> {
     Ok(cut_names(&path, &person))
 }
 fn is_like(pattern: &str, text: &str) -> bool { re(pattern).is_match(text) }
+// A call is wf's own when it runs `wf start|answer|show|cancel` by name or path, or through a variable the same command sets
+// to a path ending in /wf (`W=/path/bin/wf; $W answer R step`, `${W} show R`): helper agents write it that way, and the
+// ai-command-center turn-run guard (making-a-deliverable-needs-a-wf-run.py WF_VARIABLE) counts the same form.
+fn names_wf(call: &str) -> bool {
+    const VERBS: &str = "start|answer|show|cancel";
+    if is_like(&format!(r"\bwf ({VERBS})\b"), call) { return true; }
+    re(r#"\b([A-Za-z_][A-Za-z0-9_]*)=\\?["']?[^\s"';|&\\]*/wf(?:[^\w-]|$)"#).captures_iter(call)
+        .any(|c| is_like(&format!(r#"\$(?:\{{{v}\}}|{v}\b)\\?"?\s+({VERBS})\b"#, v = &c[1]), call))
+}
 // A pattern is compiled once per process: record walks every call of every chat that names the run, and compiling its
 // patterns per call made a long chat take minutes (a 187 MB transcript held wf record past 60 s, Nov 21 4:3x AM CST).
 fn re(pattern: &str) -> regex::Regex {
@@ -1726,5 +1735,34 @@ mod json_arg_tests {
         let text = json_text("not json", || panic!("stdin is not read for a plain argument")).unwrap();
         assert_eq!(text, "not json");
         assert!(serde_json::from_str::<serde_json::Value>(&text).is_err());
+    }
+}
+
+#[cfg(test)]
+mod names_wf_tests {
+    use super::names_wf;
+    use serde_json::json;
+
+    fn counts(command: &str) -> bool { names_wf(&json!({ "command": command }).to_string()) }
+
+    #[test]
+    fn wf_by_name_or_path_counts() {
+        assert!(counts("wf answer R step '{}'"));
+        assert!(counts("/opt/otfh/bin/wf answer R step '{}'"));
+    }
+
+    #[test]
+    fn wf_through_a_variable_set_to_its_path_counts() {
+        assert!(counts("W=/opt/otfh/bin/wf; R=1795-run; $W answer $R step '{}'"));
+        assert!(counts("W=\"/opt/otfh/bin/wf\"; ${W} show R"));
+        assert!(counts("W=/opt/otfh/bin/wf\n\"$W\" start id"));
+    }
+
+    #[test]
+    fn a_variable_not_set_to_wf_does_not_count() {
+        assert!(!counts("X=/usr/bin/other; $X answer R step"));
+        assert!(!counts("$X answer R step"));
+        assert!(!counts("W=/opt/otfh/bin/wf; $V answer R step"));
+        assert!(!counts("W=/opt/otfh/bin/wf-other; $W answer R step"));
     }
 }
