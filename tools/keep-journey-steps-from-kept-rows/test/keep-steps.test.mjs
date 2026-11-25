@@ -290,6 +290,7 @@ test('each shape of payment_events is read through its own mapping: the first sh
     { id: 'tidycal-bookings-from-statements', step: 'booking', skipped: 'no statements here' },
     { id: 'stripe-sales-from-payment-events-by-columns', step: 'sale', read: 1, kept: 1 },
     { id: 'site-form-leads-from-statements', step: 'lead', skipped: 'no statements here' },
+    { id: 'site-visits-from-statements', step: 'visit', skipped: 'no statements here' },
   ]);
   const { rows } = await other.query("SELECT ref, visitor, email_key, offer_id, value_cents, joined_by FROM journey_steps WHERE step = 'sale'");
   assert.deepEqual(rows, [{ ref: 'evt-1', visitor: 'visitor-d-1', email_key: emailKey('dee@example.com'), offer_id: 'offer:course', value_cents: 2900, joined_by: 'journey_visitor' }]);

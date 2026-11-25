@@ -77,6 +77,23 @@
       "identity_consumer": "lead",
       "cutoff_column": "recorded_at",
       "requires_columns": ["key", "place", "meaning", "after", "at", "recorded_at"]
+    },
+    {
+      "id": "site-visits-from-statements",
+      "_what": "A visit a site's page beacon keeps through its action row (serve-a-sites-pages-from-its-rows actions): one statements row, place site-visit, meaning visit, its key the action's new id, after holding href (the page's address, on the site's own origin), referrer, and visitor (only with analytics consent). The journey kit's own visit step for that address (visitStep: its kept parameters, the touch it followed, joined by touch, else cookie); a direct visit or a check keeps nothing.",
+      "table": "statements",
+      "step": "visit",
+      "where": "place = 'site-visit' AND meaning = 'visit'",
+      "fields": {
+        "ref": "'site-visit:' || key",
+        "at": "at",
+        "visitor": "after->>'visitor'",
+        "url": "after->>'href'",
+        "referrer": "after->>'referrer'"
+      },
+      "joined_by": null,
+      "cutoff_column": "recorded_at",
+      "requires_columns": ["key", "place", "meaning", "after", "at", "recorded_at"]
     }
   ]
 }

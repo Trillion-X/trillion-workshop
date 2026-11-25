@@ -2,7 +2,8 @@ import { realpathSync } from 'node:fs';
 // tools/keep-journey-steps-from-kept-rows/do-work/keep-steps.mjs
 //
 // The container tool `tool:keep-journey-steps-from-kept-rows` (tool-rows.json): reads the kept rows that stand for a visitor's
-// steps (read-data/journey-kept-rows.json: bookings from the statements table, sales from payment_events) and keeps each one in
+// steps (read-data/journey-kept-rows.json: bookings, site-form leads and site visits from the statements table, sales from
+// payment_events) and keeps each one in
 // the pursuit's journey_steps table through keepStep (do-work/journey.mjs). A row is read from the newest kept step of its kind
 // (or from `since` when given), and a step with a ref already kept is left as it is, so running it again adds nothing.
 //
@@ -11,7 +12,7 @@ import { realpathSync } from 'node:fs';
 // and never written raw. The mapping's SQL is DATA written by the pursuit's owner; the one input value (since) is a bound parameter.
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { emailKey, keepStep, purgeProofRows } from '../../traffic-attribution/do-work/journey.mjs';
+import { emailKey, keepStep, purgeProofRows, visitStep } from '../../traffic-attribution/do-work/journey.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { throughProxy } from '../../run-sql-in-my-database/do-work/through-the-run-proxy.mjs';
 import settings from '../read-data/journey-kept-rows.json' with { type: 'json' };
@@ -61,9 +62,17 @@ export function readSql(mapping, { byRef = false } = {}) {
     + `ORDER BY ${mapping.fields.at}, ${mapping.fields.ref}`;
 }
 
-/** The journey step one read row stands for. The raw email is turned into its key here and no further. */
+/**
+ * The journey step one read row stands for. The raw email is turned into its key here and no further. A mapping whose fields
+ * name a url (the address a page was seen at, and its referrer) is a visit: the journey kit's own visit step for that address
+ * (its kept parameters, touch and join), with the row's ref, or null when the address keeps no source (a direct visit, a check).
+ */
 export function stepOf(mapping, row) {
   const visitor = text(row.f_visitor) || null;
+  if (mapping.fields.url) {
+    const visit = visitStep({ url: text(row.f_url), refererHeader: text(row.f_referrer) || undefined, visitor });
+    return visit && { ...visit, ref: text(row.f_ref) || null };
+  }
   const source = Object.fromEntries(Object.keys(mapping.source ?? {}).map(name => [name, row[`s_${name}`] ?? null]).filter(([, value]) => value !== null));
   return {
     visitor,
@@ -137,6 +146,8 @@ export async function keepStepsFromRows({ query, since = null, refs = null, mapp
     const { rows } = refs ? await query(readSql(mapping, { byRef: true }), [refs]) : await query(readSql(mapping), [since, mapping.step]);
     let kept = 0;
     for (const row of rows) {
+      // A visit whose address keeps no source is no step.
+      if (stepOf(mapping, row) === null) continue;
       const result = await keepStep(query, stepOf(mapping, row));
       if (result.kept) kept += 1;
     }
