@@ -34,6 +34,19 @@
  *     live once, on its own row: a row switched on, changed or taken away is
  *     watched, rewatched or let go at the next look, with no hand-kept list.
  *     A row that is no list, or an entry with no watch, names nothing.
+ *     from_rows also takes {computer?, unplaced?}. An entry of a kept row may name
+ *     `computer`, the plain id of the computer it runs on (1 to 64 letters, digits,
+ *     `-` and `_`). Each computer's waiter says its own id in `computer` and watches
+ *     only the entries that name it. An entry that names no computer is unplaced:
+ *     it goes to the waiters that say `unplaced: true`, which is the default for a
+ *     waiter that names no computer (and false for one that does). So every
+ *     existing row and waiter keeps working with no change, and a waiter that
+ *     names no computer never fires another computer's entries. An entry whose
+ *     `computer` is not a string matches no waiter and is named once on standard
+ *     error. Why the choice is made in this one reader: the engine's admit-once
+ *     marker is per computer, so an occurrence told on two computers would run
+ *     twice; each entry must be told on exactly one. No computer id is written
+ *     in this file: every id comes from the waiter's own input.
  *
  * Non-negotiable invariants
  *   - Exactly once. Each occurrence is told under its own event key (timed-
@@ -56,7 +69,7 @@
  *   No credential, no network, no filesystem access, but with from_rows: then
  *   one read-only SELECT of the named table over the waiter's own credential,
  *   through the run's proxy (row-changes.mjs `clientOptions`); the table and
- *   column are plain names checked before use, never text put in the query. Hostile settings can only
+ *   column are plain names checked before use, and the computer id is a query parameter, never text put in the query. Hostile settings can only
  *   change when it tells; timed-action refuses a schedule it cannot read
  *   (rejected_schedules), said on standard error.
  */
@@ -110,24 +123,44 @@ export function readSettings(settings = {}) {
 /** A plain SQL name: lower-case letters, digits and `_`, not starting with a digit. */
 const PLAIN_NAME = /^[a-z_][a-z0-9_]{0,62}$/;
 
-/** `from_rows` as {table, column}, or null when it is not asked for; a name that is not plain refuses the settings. */
+/** A computer id: letters, digits, `-` and `_`, 1 to 64 characters. */
+const PLAIN_COMPUTER = /^[A-Za-z0-9_-]{1,64}$/;
+
+/** `from_rows` as {table, column, computer, unplaced}, or null when it is not asked for; a name, computer or flag that is
+ *  not plain refuses the settings. A waiter that names no computer takes the unplaced entries unless it says otherwise. */
 export function rowsSource(value) {
   if (value === undefined || value === null || value === false) return null;
   const table = value?.table ?? "workflow_recipes";
   const column = value?.column ?? "wakes";
   if (!PLAIN_NAME.test(table) || !PLAIN_NAME.test(column)) throw new Error(`due-time from_rows names a table or column that is not a plain name: ${table}.${column}`);
-  return { table, column };
+  const computer = value?.computer ?? null;
+  if (computer !== null && (typeof computer !== "string" || !PLAIN_COMPUTER.test(computer))) throw new Error("due-time from_rows names a computer that is not a plain id (1 to 64 letters, digits, - and _)");
+  const unplaced = value?.unplaced ?? computer === null;
+  if (typeof unplaced !== "boolean") throw new Error("due-time from_rows unplaced is not true or false");
+  return { table, column, computer, unplaced };
 }
 
-/** The query that reads every switched-on wake entry of the kept rows, one per row of the answer. */
-export const keptWakesSql = ({ table, column }) => `SELECT w AS wake FROM ${table} r,
+/** The query that reads the switched-on wake entries of the kept rows this waiter watches, one per row of the answer.
+ *  $1 is the waiter's computer (null when it names none), $2 whether it takes the entries that name no computer. An
+ *  entry whose `computer` is not a string is read with `misplaced` true, so it can be named; it is never watched. */
+export const keptWakesSql = ({ table, column }) => `SELECT w AS wake, (w ? 'computer' AND jsonb_typeof(w -> 'computer') <> 'string') AS misplaced
+  FROM ${table} r,
   jsonb_array_elements(CASE WHEN jsonb_typeof(r.${column}) = 'array' THEN r.${column} ELSE '[]'::jsonb END) w
-  WHERE jsonb_typeof(w) = 'object' AND w ->> 'switched_on' = 'true'`;
+  WHERE jsonb_typeof(w) = 'object' AND w ->> 'switched_on' = 'true'
+  AND ((w ? 'computer' AND jsonb_typeof(w -> 'computer') <> 'string')
+    OR (w ? 'computer' AND w ->> 'computer' = $1) OR (NOT (w ? 'computer') AND $2::boolean))`;
 
-/** The switched-on wake entries of the kept rows, read once through `client` ({query(sql) -> {rows}}). */
-export async function keptWakes(client, source) {
-  const answer = await client.query(keptWakesSql(source));
-  return (answer?.rows ?? []).map((row) => row.wake).filter((wake) => wake && typeof wake === "object");
+/** The switched-on wake entries of the kept rows this waiter watches, read once through `client` ({query(sql, params) ->
+ *  {rows}}). `onMisplaced` hears each entry whose `computer` is not a string; such an entry is not returned. */
+export async function keptWakes(client, source, onMisplaced = () => {}) {
+  const answer = await client.query(keptWakesSql(source), [source.computer ?? null, source.unplaced]);
+  const wakes = [];
+  for (const row of answer?.rows ?? []) {
+    if (!row.wake || typeof row.wake !== "object") continue;
+    if (row.misplaced === true) onMisplaced(row.wake);
+    else wakes.push(row.wake);
+  }
+  return wakes;
 }
 
 /** The rule with what the listening wakes ask to be watched (each wake's `watch`) added; a schedule or action two
@@ -233,7 +266,7 @@ export async function watchForTransitions(settings, handlers) {
       });
       rowsClient = client;
     }
-    return keptWakes(rowsClient, own.from_rows);
+    return keptWakes(rowsClient, own.from_rows, (wake) => tellOnce(`due-time: the kept wake ${wake?.id ?? "(no id)"} names a computer that is not a string, so no waiter watches it`));
   };
 
   while (!signal?.aborted) {

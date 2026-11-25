@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { PGlite } from '@electric-sql/pglite';
-import { keptWakes, watchForTransitions } from '../do-work/mechanisms/due-time.mjs';
+import { keptWakes, rowsSource, watchForTransitions } from '../do-work/mechanisms/due-time.mjs';
 
 const wake = (id, due_at, extra = {}) => ({
   id,
@@ -36,7 +36,7 @@ async function watch(db, { start, jumps = [], answers = [], change = async () =>
     state,
     nowMs: () => now,
     connection: 'postgres://replay',
-    connect: async () => ({ query: sql => db.query(sql), end: async () => {} }),
+    connect: async () => ({ query: (sql, params) => db.query(sql, params), end: async () => {} }),
     keepState: keep,
     say: line => said.push(line),
     sleep: async () => {
@@ -63,7 +63,7 @@ test('two kept one-off wakes survive a row read and fire only at their own times
   const secondAt = '2026-12-22T10:00:00Z';
   const wakes = [wake('release-a-14', firstAt), wake('release-a-28', secondAt)];
   const db = await store(t, wakes);
-  assert.deepEqual(await keptWakes(db, { table: 'workflow_recipes', column: 'wakes' }), wakes, 'registration is read from PostgreSQL, not a returned plan');
+  assert.deepEqual(await keptWakes(db, rowsSource({})), wakes, 'registration is read from PostgreSQL, not a returned plan');
   const before = await watch(db, { start: '2026-11-24T10:00:00Z', jumps: ['2026-12-08T09:59:59Z'] });
   assert.deepEqual(before.told, []);
   const first = await watch(db, { start: firstAt, jumps: [firstAt] });
@@ -88,7 +88,7 @@ test('the real kept-row query excludes switched-off wakes and malformed containe
   const active = wake('on', '2026-12-08T10:00:00Z');
   const db = await store(t, [null, 'not-a-wake', wake('off', '2026-12-08T10:00:00Z', { switched_on: false }), active]);
   await db.query('INSERT INTO workflow_recipes (recipe,wakes) VALUES ($1,$2::jsonb),($3,$4::jsonb)', ['workflow:null', 'null', 'workflow:object', '{}']);
-  assert.deepEqual(await keptWakes(db, { table: 'workflow_recipes', column: 'wakes' }), [active]);
+  assert.deepEqual(await keptWakes(db, rowsSource({})), [active]);
   assert.deepEqual(pairs((await watch(db, { start: '2026-12-08T10:00:00Z' })).told), [['on', 'measure', '2026-12-08T10:00:00Z']]);
 });
 

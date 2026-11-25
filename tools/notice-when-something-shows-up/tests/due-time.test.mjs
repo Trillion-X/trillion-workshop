@@ -13,7 +13,7 @@ import { EventEmitter } from 'node:events';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { readSettings, watchForTransitions } from '../do-work/mechanisms/due-time.mjs';
+import { keptWakes, readSettings, rowsSource, watchForTransitions } from '../do-work/mechanisms/due-time.mjs';
 import { engineCarrier } from '../do-work/tell-the-engine.mjs';
 
 const action = { operation: 'tell', owner_ref: 'wake:arrive', owner_dispatch: { name: 'wake:arrive', input: {} }, completion: { mode: 'synchronous-owner-return' } };
@@ -266,4 +266,74 @@ test('a connection lost between reads is opened again at the next read, said onc
   assert.ok(clients[0].ended, 'the lost one is ended');
   assert.deepEqual(said.filter((line) => /connection was lost: Connection terminated unexpectedly/.test(line)).length, 1, `said once: ${said}`);
   assert.deepEqual(told.map((fact) => fact.detail.start.slice(11, 16)), ['10:10', '10:20'], 'every time after the loss is still told');
+});
+
+// Placement: each computer's waiter watches only the kept entries that name it (`from_rows.computer` / `unplaced`).
+test('from_rows placement: the settings, the query parameters and the refusals', () => {
+  assert.deepEqual(rowsSource({}), { table: 'workflow_recipes', column: 'wakes', computer: null, unplaced: true });
+  assert.equal(rowsSource({ computer: 'computer-b' }).unplaced, false, 'a waiter that names a computer leaves the unplaced entries alone');
+  assert.equal(rowsSource({ computer: 'computer-a', unplaced: true }).unplaced, true);
+  for (const computer of ['has space', "quo'te", 'x'.repeat(65), '', 5]) {
+    assert.throws(() => rowsSource({ computer }), /not a plain id/, String(computer));
+  }
+  assert.throws(() => rowsSource({ unplaced: 'yes' }), /unplaced is not true or false/);
+  assert.equal(rowsSource({ computer: 'x'.repeat(64) }).computer.length, 64);
+});
+
+test('from_rows placement: the real query picks each waiter its own entries and names a computer that is no string', async () => {
+  const { PGlite } = await import('@electric-sql/pglite');
+  const db = new PGlite();
+  try {
+    await db.exec('CREATE TABLE workflow_recipes (recipe text PRIMARY KEY, wakes jsonb)');
+    const entries = [
+      { id: 'unplaced', switched_on: true },
+      { id: 'elestio', switched_on: true, computer: 'computer-b' },
+      { id: 'mac', switched_on: true, computer: 'computer-a' },
+      { id: 'off', switched_on: false, computer: 'computer-a' },
+      { id: 'number', switched_on: true, computer: 5 },
+      { id: 'object', switched_on: true, computer: { a: 1 } },
+      { id: 'null', switched_on: true, computer: null },
+    ];
+    await db.query('INSERT INTO workflow_recipes (recipe,wakes) VALUES ($1,$2::jsonb)', ['workflow:example', JSON.stringify(entries)]);
+    const ids = async (from_rows) => {
+      const misplaced = [];
+      const wakes = await keptWakes(db, rowsSource(from_rows), (wake) => misplaced.push(wake.id));
+      return { watched: wakes.map((wake) => wake.id).sort(), misplaced: misplaced.sort() };
+    };
+    const named = ['null', 'number', 'object'];
+    assert.deepEqual(await ids({}), { watched: ['unplaced'], misplaced: named }, 'no computer: only the unplaced entries');
+    assert.deepEqual(await ids({ computer: 'computer-b', unplaced: false }), { watched: ['elestio'], misplaced: named });
+    assert.deepEqual(await ids({ computer: 'computer-a', unplaced: true }), { watched: ['mac', 'unplaced'], misplaced: named });
+    assert.deepEqual(await ids({ computer: '5' }), { watched: [], misplaced: named }, 'a number 5 is not the computer "5"');
+  } finally {
+    await db.close();
+  }
+});
+
+test('from_rows placement: an entry whose computer is no string is named once and never told', async () => {
+  const bad = { id: 'bad', switched_on: true, computer: 5, on: { fact: { watch: { schedules: [] } } } };
+  const calls = [];
+  let now = Date.parse('2026-11-21T10:00:30Z');
+  const said = [];
+  const controller = new AbortController();
+  let passes = 0;
+  await watchForTransitions({ from_rows: { computer: 'c1' }, look_again_seconds: 60 }, {
+    signal: controller.signal,
+    nowMs: () => now,
+    sleep: async () => { now += 60000; if (++passes >= 3) controller.abort(); },
+    say: (line) => said.push(line),
+    connection: 'postgres://stand-in',
+    connect: async () => ({ query: async (sql, params) => { calls.push(params); return { rows: [{ wake: bad, misplaced: true }] }; } }),
+    onTransition: async () => true,
+  });
+  assert.deepEqual(calls[0], ['c1', false]);
+  assert.deepEqual(said, ['due-time: the kept wake bad names a computer that is not a string, so no waiter watches it']);
+});
+
+test('from_rows placement: the default {} passes [null, true] to the query', async () => {
+  const calls = [];
+  await keptWakes({ query: async (sql, params) => { calls.push({ sql, params }); return { rows: [] }; } }, rowsSource({}));
+  assert.deepEqual(calls[0].params, [null, true]);
+  assert.match(calls[0].sql, /\$1/);
+  assert.doesNotMatch(calls[0].sql, /computer-[ab]/);
 });
