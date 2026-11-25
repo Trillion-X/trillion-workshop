@@ -47,3 +47,9 @@ test('a spaced Heading has its own room, a framed card draws its own surface, an
   const plain = await renderAView(new URL('../show/pricing/ContactCard.tsx', import.meta.url).pathname, { title: 'T', fields: [], button: 'Go' });
   assert.doesNotMatch(plain, /border-radius:22px/);
 });
+
+// The hero's call to action is the Button's `cta` emphasis, so its weight is the look's --cta-font-weight.
+test('the hero call to action takes the look\'s call-to-action weight', async () => {
+  const html = await renderAView(entry, { heading: 'A headline here', cta: { label: 'See pricing', href: '/pricing' } });
+  assert.match(html, /--cta-font-weight/);
+});
