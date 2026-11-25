@@ -872,7 +872,7 @@ export function retryGap(retry, attempt, asked = null, random = Math.random) {
  * with one request_key, reused on every retry) and `whoami()` (MCP initialize: the account in result._meta). A refusal
  * names the door: 401 is the door refusing this credential, 404 is a route the door does not serve.
  */
-export function engineClient({ door, credential, fetchImpl = fetch, rules = settings, wait = pause, random = Math.random, timeoutSeconds = rules.retry.attempt_seconds, renew = null, uploadAt = null, postAt = postNamingHost } = {}) {
+export function engineClient({ door, credential, fetchImpl = fetch, rules = settings, wait = pause, random = Math.random, timeoutSeconds = rules.retry.attempt_seconds, renew = null, uploadAt = null, postAt = postNamingHost, say = text => process.stderr.write(`${text}\n`) } = {}) {
   if (!credential?.bearer) throw new CommandError(rules.words.no_credential, { status: 3 });
   const headers = { 'content-type': 'application/json', accept: 'application/json, text/event-stream', authorization: `Bearer ${credential.bearer}`, 'user-agent': `${cliName()}-cli` };
   let next = 0, renewed = false;
@@ -892,8 +892,14 @@ export function engineClient({ door, credential, fetchImpl = fetch, rules = sett
         : () => fetchImpl(door.mcp, { method: 'POST', headers: also ? { ...headers, ...also } : headers, body, signal: signal() });
       try { response = await post(); } catch (error) { failure = error; }
       const passing = failure || response.status === 429 || response.status >= 500;
-      // Every try carries the same request_key, so a try after a lost or slow answer is answered as the first was.
-      if (passing && !once && attempt < rules.retry.count) { await wait(gap(attempt) * 1000); continue; }
+      // Every try carries the same request_key, so a try after a lost or slow answer is answered as the first was: a run that
+      // may still be going is followed under its key, never started again (Nov 25 2026: a resync the gateway cut at 120 s was
+      // asked again under its key and, on an engine that started a cut run again, deployed twice). The person is told so.
+      if (passing && !once && attempt < rules.retry.count) {
+        if (failure?.name === 'TimeoutError') say(fill(rules.words.asking_again, { which: door.name, seconds: timeoutSeconds, tries: attempt + 2, most: rules.retry.count + 1 }));
+        await wait(gap(attempt) * 1000);
+        continue;
+      }
       // A call sent `once` is still sent again, one time after the first retry gap, when its connection ended before any
       // answer (not a timeout): a front door that reloads closes its idle kept-alive connections, and a call already on one is
       // lost unread (RFC 9110 9.2.2 lets a client resend an idempotent request then). The gap lets the other kept connections
@@ -955,8 +961,13 @@ export function engineClient({ door, credential, fetchImpl = fetch, rules = sett
       const error = answer?.error ?? {};
       // The engine names why in a code (structuredContent.code); its words say which door refused what.
       const code = answer?.code ?? error.code ?? null;
-      // The same request_key rides on every attempt, so a retried call is answered as the first one was.
-      if ((error.retryable === true || rules.retry.codes.includes(code)) && attempt < rules.retry.count) { await wait(gap(attempt, error.retry_after_seconds) * 1000); continue; }
+      // The same request_key rides on every attempt, so a retried call is answered as the first one was; a run still going is
+      // followed to its end under that key, never started again.
+      if ((error.retryable === true || rules.retry.codes.includes(code)) && attempt < rules.retry.count) {
+        if (code === rules.engine.still_going_code) say(fill(rules.words.following, { which: door.name, tries: attempt + 2, most: rules.retry.count + 1 }));
+        await wait(gap(attempt, error.retry_after_seconds) * 1000);
+        continue;
+      }
       const words = code ? rules.words.codes[code] ?? rules.words.refused_code_named : null;
       // The engine names the step that refused in `cause` (file, line, and the error); the message names the door and the code.
       const cause = typeof answer?.cause === 'string' ? ` Cause: ${answer.cause}` : '';
@@ -1066,10 +1077,12 @@ export async function opWhole(client, address, method, input, { requestKey = ran
   try {
     return await opWholeOnce(client, address, method, input, { requestKey, rules, route, upload });
   } catch (error) {
-    // Every refusal names the key it was sent under, so a caller can quote it. A call that times out may still have landed under
-    // this key: the same key answers it, so the way to ask again is the key.
+    // Every refusal names the key it was sent under, so a caller can quote it. A call that times out, or that the engine
+    // answers with an unknown outcome (`outcome: "unknown"`: its run may still be going, or was cut), may still have landed
+    // under this key: the same key answers it, so the way to ask again is the key, said with its exact flag.
     const line = fill(rules.words.request_key_line, { key: requestKey });
-    const hint = error instanceof CommandError && error.status === 4 ? ` ${fill(rules.words.retry_with_key, { key: requestKey, flag: '--request-key' })}` : '';
+    const unknown = error instanceof CommandError && (error.status === 4 || error.answer?.outcome === 'unknown');
+    const hint = unknown ? ` ${fill(rules.words.retry_with_key, { key: requestKey, flag: '--request-key' })}` : '';
     if (error instanceof CommandError) {
       throw Object.assign(new CommandError(`${error.message} ${line}${hint}`, { status: error.status, detail: error.detail }), { answer: error.answer, code: error.code });
     }
@@ -1566,7 +1579,7 @@ const HELP = `{cli}: see your AIs and their tasks, and run your {site_name}'s to
   {cli} op METHOD JSON|-|@FILE [--pin ID]...           any engine operation by its method (do_one_thing_in_my_account); op --dry-run shows the request and sends nothing
   --pin ID  meet the op or schedule call at this computer first, then the next --pin in order (repeat it, or give IDs separated by commas; at most ${settings.engine.pins.most})
   --upload FILE      (op, call) send FILE's bytes as the call's raw body (at most ${settings.direct_calls.upload_most_bytes} bytes): a session tool takes it as the file argument its row names (byte_argument)
-  --timeout SECONDS  wait this long for one try of a call (default ${settings.retry.attempt_seconds}); a try with no answer is asked again, up to ${settings.retry.count} more times, under the same request key
+  --timeout SECONDS  wait this long for one try of a call (default ${settings.retry.attempt_seconds}); a try with no answer may still be running: it is asked again under the same request key, up to ${settings.retry.count} more times, which follows that run to its end and never starts it again
   {cli} schedule list [--first-page] | on TOOL WAKE_ID | off TOOL WAKE_ID | cancel RUN_KEY [--pin ID]...   the wakes your tool rows declare (a list reads every page; --first-page prints only the first and the cursor after it): list, switch, or cancel one admitted run (a wake is made, changed or removed in its row's wakes list). Each answer says which computer answered it on its first line; an unpinned list has one block per carried computer
   {cli} update                                        who updates this command (it never updates itself)
   ${basename(settings.install.link)} records replay-from-transcripts --since TIME            list the rows this computer's AIs wrote, to keep in your own store (writes nothing)
