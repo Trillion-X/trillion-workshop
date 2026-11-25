@@ -1,0 +1,49 @@
+{
+  "start_here": "Say to your AI: \"Sign sam@example.com up to the newsletter.\" It runs tool:keep-a-newsletter-signup, which keeps a double opt-in signup and answers the confirmation mail to send.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it works on the form_rows the pursuit database you name already holds, and a sitting is one row there.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-a-newsletter-signup"
+  ],
+  "instructions": [
+    "1. Name the pursuit database that holds the form rows, such as example_for_who_runs_it; the computer opens it with the login its vault holds.",
+    "2. Say what you want in plain words; your AI calls tools:run with tool tool:keep-a-newsletter-signup and the input.",
+    "3. Read the answer and show it with the page's screen; the tool reads and changes one sitting."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep a newsletter signup",
+      "ask": "Sign sam@example.com up to the newsletter.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-a-newsletter-signup",
+            "input": {
+              "database": "example_for_who_runs_it",
+              "secret": "example-articles-secret",
+              "action": "subscribe",
+              "origin": "https://site.example.com",
+              "email": "sam@example.com",
+              "signup": {
+                "consent": "You agree to get our letter.",
+                "confirm": {
+                  "subject": "Confirm",
+                  "body": "Press the button.",
+                  "button": "Confirm now"
+                }
+              }
+            }
+          }
+        }
+      },
+      "given": "The database holds the page and form rows the step reads (made-up values).",
+      "hands_back": "{\"outcome\":\"send_confirmation\",\"attempt\":{\"id\":\"s1\",\"digest\":\"d1\"},\"mail\":{\"to\":\"sam@example.com\",\"subject\":\"Confirm\",\"text\":\"Press the button.\\n\\nhttps://site.example.com/subscribe/confirm?s=s1&t=t1\",\"link\":\"https://site.example.com/subscribe/confirm?s=s1&t=t1\",\"button\":\"Confirm now\"}}"
+    }
+  ],
+  "drafted_from": "tool row in tools/serve-articles-and-signup/tool-rows.json and routes/keep-a-newsletter-signup.ts"
+}
