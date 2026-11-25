@@ -14,8 +14,8 @@
       ]
     },
     "site-visit": {
-      "_what": "A visit a page tells the site of: kept only when the address it names is on the origin the request came from.",
-      "sql": "INSERT INTO statements (key, source, place, meaning, after, at) SELECT $1, 'site-visit', 'site-visit', 'visit', jsonb_build_object('href', $3::text, 'referrer', $4::text, 'visitor', $2::text), now() WHERE $5::text = $6::text",
+      "_what": "A visit a page tells the site of: kept only when the address it names is on the origin the request came from. It names what was told (site-visit:visit:<key>), as the lead does: statements.told is required, and the action row this came from left it out, so every visit it sent was refused (found by the writer proof on the live database, 12:33 PM CST Nov 25 2026).",
+      "sql": "INSERT INTO statements (key, source, told, place, meaning, after, at) SELECT $1, 'site-visit', 'site-visit:visit:' || $1, 'site-visit', 'visit', jsonb_build_object('href', $3::text, 'referrer', $4::text, 'visitor', $2::text), now() WHERE $5::text = $6::text",
       "values": [
         { "name": "key", "type": "text", "most": 200, "required": true },
         { "name": "visitor", "type": "text", "most": 200 },

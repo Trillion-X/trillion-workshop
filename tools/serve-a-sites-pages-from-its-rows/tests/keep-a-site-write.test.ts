@@ -8,7 +8,7 @@ import { PGlite } from '@electric-sql/pglite';
 import { keepASiteWrite, statementOf } from '../do-work/keep-a-site-write.ts';
 
 const DDL = `
-  create table statements (id bigint generated always as identity primary key, source text not null, told text, place text, meaning text, at timestamptz, key text, after jsonb);
+  create table statements (id bigint generated always as identity primary key, source text not null, told text not null, place text, meaning text, at timestamptz, key text, after jsonb);
   create table offers (id text primary key);
   insert into offers values ('offer:one'), ('offer:two');
   create table price_views (offer_id text not null, day date not null, views integer not null default 0, primary key (offer_id, day));
@@ -45,7 +45,7 @@ test('a visit is kept only when its address is on the request\'s origin', async 
   const visit = (key: string, hrefOrigin: string) => keepASiteWrite({ write: 'site-visit', values: { key, visitor: 'v1', href: `${hrefOrigin}/`, referrer: '', href_origin: hrefOrigin, origin: 'https://example.test' } }, query);
   assert.equal((await visit('v-own', 'https://example.test')).row_count, 1);
   assert.equal((await visit('v-other', 'https://elsewhere.test')).row_count, 0);
-  assert.deepEqual(await one(db, "select key, after->>'visitor' as visitor from statements"), [{ key: 'v-own', visitor: 'v1' }]);
+  assert.deepEqual(await one(db, "select key, told, after->>'visitor' as visitor from statements"), [{ key: 'v-own', told: 'site-visit:visit:v-own', visitor: 'v1' }]);
 });
 
 test('a price view counts each offer that exists once a day', async () => {
