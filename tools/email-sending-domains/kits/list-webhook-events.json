@@ -1,0 +1,38 @@
+{
+  "start_here": "Say to your AI: \"Which events did my Resend account send to webhook 00000000-0000-4000-8000-000000000011, and did each arrive?\" It runs tool:list-webhook-events.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it reads the events your email-sending account sent to one webhook and writes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:list-webhook-events"
+  ],
+  "instructions": [
+    "1. Connect your Resend account once, so its key is held in your vault under a name of yours (a key with full access). The key is never typed into the request.",
+    "2. Get the webhook's id from tool:list-resend-webhooks.",
+    "3. Say to your AI: \"List the events of my Resend webhook <id>\", and give the held key's name. It calls tools:run with tool tool:list-webhook-events and {\"key_name\": \"<that name>\", \"webhook_id\": \"<id>\"}.",
+    "4. Read each event's id (msg_...), type, time and status. An event whose status is failed never reached your address; tool:replay-a-webhook-event sends it again."
+  ],
+  "worked_examples": [
+    {
+      "title": "One event delivered, one failed",
+      "ask": "Which events did my Resend webhook 00000000-0000-4000-8000-000000000011 get, and did each arrive?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-webhook-events",
+            "input": {
+              "key_name": "resend-api-key-of-my-shop",
+              "webhook_id": "00000000-0000-4000-8000-000000000011"
+            }
+          }
+        }
+      },
+      "given": "Read from tools/email-sending-domains/tool-rows.json: the row sends GET https://api.resend.com/webhooks/00000000-0000-4000-8000-000000000011/events?limit=100 with your key in the Authorization header and returns Resend's reply unchanged. The events are a synthetic sample in the shape of Resend's list-events reference.",
+      "hands_back": "{\"object\":\"list\",\"has_more\":false,\"data\":[{\"id\":\"msg_1srOsB4mXhCqCVwAxYRNnpFZhb3\",\"type\":\"email.delivered\",\"created_at\":\"2026-11-22T15:28:00.000Z\",\"status\":\"failed\"},{\"id\":\"msg_1srOrx2ZWZBpBUvZwXKQmoEYga2\",\"type\":\"email.delivered\",\"created_at\":\"2026-11-25T14:45:47.000Z\",\"status\":\"success\"}]}"
+    }
+  ],
+  "drafted_from": "tools/email-sending-domains/tool-rows.json (its row) and Resend's list-events reference (https://resend.com/docs/api-reference/webhooks/list-events, read 2026-11-25)"
+}

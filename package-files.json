@@ -69377,5 +69377,7 @@
    ],
    "at": "/opt/email-sending-domains"
   }
- ]
+ ],
+ "tool:list-webhook-events": [],
+ "tool:replay-a-webhook-event": []
 }

@@ -785,6 +785,178 @@
           }
         ]
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-webhook-events",
+        "label": "List a webhook's events",
+        "job": "See the email events my email-sending account sent to one of my webhooks, and whether each delivery succeeded or failed",
+        "description": "Reads the newest events (at most 100) the person's connected email-sending account (Resend) sent to one of its webhooks, by the webhook's id, with the key they connected: each event's id, type, when it happened and its delivery status (success, failed, attempting or pending), and whether there are more. It never shows the key or the webhook's signing secret, and changes nothing.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "key_name",
+            "webhook_id"
+          ],
+          "properties": {
+            "key_name": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+            },
+            "webhook_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9-]{1,64}$"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "data"
+          ],
+          "properties": {
+            "has_more": {
+              "type": "boolean"
+            },
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://api.resend.com/webhooks/{webhook_id}/events?limit=100",
+          "method": "GET",
+          "timeout_seconds": 30,
+          "credential_injections": [
+            {
+              "hosts": [
+                "api.resend.com"
+              ],
+              "secret_name_from_input": "key_name",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer "
+              }
+            }
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "provider": "Resend",
+          "api": "https://resend.com/docs/api-reference/webhooks/list-events"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:replay-a-webhook-event",
+        "label": "Replay a webhook event",
+        "job": "Have my email-sending account send one email event to my webhook again, as it first sent it",
+        "description": "Asks the person's connected email-sending account (Resend) to deliver one event to one of its webhooks once more, by the webhook's id and the event's id (msg_...), with the key they connected: the same event, with its own id, time and signature, the same as the dashboard's Replay button. It answers the event's id. It never shows the key, and changes nothing else.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "key_name",
+            "webhook_id",
+            "event_id"
+          ],
+          "properties": {
+            "key_name": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+            },
+            "webhook_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9-]{1,64}$"
+            },
+            "event_id": {
+              "type": "string",
+              "pattern": "^msg_[A-Za-z0-9]{1,64}$"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "object": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://api.resend.com/webhooks/{webhook_id}/events/{event_id}/replay",
+          "method": "POST",
+          "timeout_seconds": 30,
+          "credential_injections": [
+            {
+              "hosts": [
+                "api.resend.com"
+              ],
+              "secret_name_from_input": "key_name",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer "
+              }
+            }
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "provider": "Resend",
+          "api": "https://resend.com/docs/api-reference/webhooks/replay-event"
+        }
+      }
     }
   ]
 }

@@ -1,0 +1,40 @@
+{
+  "start_here": "Say to your AI: \"My webhook missed event msg_1srOsB4mXhCqCVwAxYRNnpFZhb3; have Resend send it to webhook 00000000-0000-4000-8000-000000000011 again.\" It runs tool:replay-a-webhook-event.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it asks your email-sending account to deliver one event again and writes nothing of its own.",
+  "workflows": [],
+  "tools": [
+    "tool:replay-a-webhook-event"
+  ],
+  "instructions": [
+    "1. Connect your Resend account once, so its key is held in your vault under a name of yours (a key with full access). The key is never typed into the request.",
+    "2. Find the event with tool:list-webhook-events: its id starts msg_, and a failed status means it never reached your address.",
+    "3. Fix what answers at the webhook's address first, so the new delivery can arrive.",
+    "4. Say to your AI: \"Replay event <msg id> on my Resend webhook <id>\", and give the held key's name. It calls tools:run with tool tool:replay-a-webhook-event and {\"key_name\": \"<that name>\", \"webhook_id\": \"<id>\", \"event_id\": \"<msg id>\"}.",
+    "5. The account delivers that one event again at once, with its own id, time and signature. A receiver that keeps each event id once treats a second replay as a duplicate."
+  ],
+  "worked_examples": [
+    {
+      "title": "One failed event sent again",
+      "ask": "Replay event msg_1srOsB4mXhCqCVwAxYRNnpFZhb3 on my Resend webhook 00000000-0000-4000-8000-000000000011.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:replay-a-webhook-event",
+            "input": {
+              "key_name": "resend-api-key-of-my-shop",
+              "webhook_id": "00000000-0000-4000-8000-000000000011",
+              "event_id": "msg_1srOsB4mXhCqCVwAxYRNnpFZhb3"
+            }
+          }
+        }
+      },
+      "given": "Read from tools/email-sending-domains/tool-rows.json: the row sends POST https://api.resend.com/webhooks/00000000-0000-4000-8000-000000000011/events/msg_1srOsB4mXhCqCVwAxYRNnpFZhb3/replay with your key in the Authorization header and returns Resend's reply unchanged. The ids are a synthetic sample in the shape of Resend's replay-event reference.",
+      "hands_back": "{\"object\":\"webhook_event\",\"id\":\"msg_1srOsB4mXhCqCVwAxYRNnpFZhb3\"}"
+    }
+  ],
+  "drafted_from": "tools/email-sending-domains/tool-rows.json (its row) and Resend's replay-event reference (https://resend.com/docs/api-reference/webhooks/replay-event, read 2026-11-25)"
+}
