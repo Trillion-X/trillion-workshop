@@ -6,6 +6,7 @@ import { wakeProblems, WAKE_VOCABULARY } from './wake-problems.mjs';
 import { conditionProblems, FIRES_WHEN } from './fires-when.mjs';
 import { CHECK_VOCABULARY, checkProblems } from './check-bindings.mjs';
 import { droppedPipeProblems } from './kept-piped-values.mjs';
+import { askStepIdProblems } from './ask-step-ids.mjs';
 
 export { CHECK_VOCABULARY };
 
@@ -276,6 +277,7 @@ function definitionProblems(definition, vocabulary) {
     name: `definition.steps.${step.id}.config.context`, step_id: step.id, asks: actorAsks, prior: id => id !== step.id && actorAsks.has(id) && precedes(id, step.id),
   }));
   problems.push(...droppedPipeProblems(definition));
+  problems.push(...askStepIdProblems(definition));
   return problems;
 }
 

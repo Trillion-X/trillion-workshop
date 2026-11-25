@@ -54,6 +54,7 @@ import { actorPolicyProblems, actorAdmissionProblems, submittedActorEvidence } f
 import { authoringNotes } from '../../shared-code/src/workflow-authoring-guidance.mjs';
 import { compareToPin, pinProblems, pinnedRecipe, runsKeepWords, stepVersionsOf, upgradeNeeded, upgradedRecipe, withoutPins } from '../../shared-code/src/workflow-step-versions.mjs';
 import { droppedPipeProblems } from '../../workflows/read-data/kept-piped-values.mjs';
+import { askStepIdProblems } from '../../workflows/read-data/ask-step-ids.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
@@ -167,6 +168,7 @@ function definitionProblems(definition) {
     name: `definition.steps.${step.id}.config.context`, step_id: step.id, asks: actorAsks, prior: id => id !== step.id && actorAsks.has(id) && precedes(id, step.id),
   }));
   problems.push(...droppedPipeProblems(definition));
+  problems.push(...askStepIdProblems(definition));
   return problems;
 }
 
