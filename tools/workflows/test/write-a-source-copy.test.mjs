@@ -56,7 +56,9 @@ test('the tool row writes only where the resolver reads', () => {
   assert.deepEqual(rightsOf(row).filter(item => item.kind), [], 'no records kinds');
   assert.ok(rightsOf(row).every(item => item.operations === undefined), 'no door operations');
   assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
-  assert.ok(!JSON.stringify(row).includes('records-door'), 'the row mounts and names no records door');
+  // uses_tools is the generated closure of every tool the row's runner may reach, not what the row mounts or names.
+  const { uses_tools: _closure, ...mounted } = row;
+  assert.ok(!JSON.stringify(mounted).includes('records-door'), 'the row mounts and names no records door');
 });
 
 test('a run reads only what is handed in and answers keep with what each file was', async () => {
