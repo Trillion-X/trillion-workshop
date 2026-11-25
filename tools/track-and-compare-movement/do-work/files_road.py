@@ -2,12 +2,12 @@
 
 Both go through tool:your-files (the run's own Files right), never around it:
 - fetch: share_file for a few minutes, read it whole with curl, stop_share at once (any size, ranged).
-- keep: write_file_start, one raw piece (the engine command's --upload, at most 32 MiB), write_file_finish; the answer's
+- keep: write_file_start, one raw piece per 32 MiB at its offset (the engine command's --upload), write_file_finish; the answer's
   identity is compared with the local file's BLAKE3 before it is trusted.
 `call` is the caller's command that runs one engine operation up to its method, given in the job (for example the
 engine's command line with the computer that holds the Files right); this file names no command of its own.
 """
-import json, os, secrets, subprocess, time
+import json, os, secrets, subprocess, tempfile, time
 
 MAX_PIECE = 33554432
 
@@ -42,23 +42,33 @@ def fetch(call, identity, dest, seconds=1800):
     return dest
 
 
-def keep(call, path, name, media_type, tries=4):
+def keep(call, path, name, media_type, tries=4, piece=MAX_PIECE):
+    """Keep a local file of any size: start, one raw piece per `piece` bytes at its offset, finish. The answer is
+    trusted only when its identity is the local file's BLAKE3; a refused piece restarts the whole upload."""
     size = os.path.getsize(path)
-    if size > MAX_PIECE:
-        raise RuntimeError(f"{path} is {size} bytes; one piece holds at most {MAX_PIECE}")
     want = blake3_identity(path)
-    for t in range(tries):
-        if t:
-            time.sleep(15 * t)
-        u = secrets.token_hex(16)
-        s = _op(call, "write_file_start", {"app": "tool:track-and-compare-movement", "byte_length": size,
-                                     "media_type": media_type, "name": name, "upload_id": u})
-        if s.get("state") != "open":
-            continue
-        p = _op(call, "write_file_piece", {"name": name, "upload_id": u, "offset": 0}, upload=path)
-        if p.get("next_offset") != size:
-            continue
-        f = _op(call, "write_file_finish", {"name": name, "upload_id": u})
-        if f.get("identity") == want:
-            return want
+    with tempfile.TemporaryDirectory() as scratch:
+        for t in range(tries):
+            if t:
+                time.sleep(15 * t)
+            u = secrets.token_hex(16)
+            s = _op(call, "write_file_start", {"app": "tool:track-and-compare-movement", "byte_length": size,
+                                         "media_type": media_type, "name": name, "upload_id": u})
+            if s.get("state") != "open":
+                continue
+            offset = 0
+            with open(path, "rb") as source:
+                while offset < size:
+                    chunk = os.path.join(scratch, "piece")
+                    with open(chunk, "wb") as out:
+                        out.write(source.read(piece))
+                    p = _op(call, "write_file_piece", {"name": name, "upload_id": u, "offset": offset}, upload=chunk)
+                    if p.get("next_offset") != min(offset + piece, size):
+                        break
+                    offset = p["next_offset"]
+            if offset != size:
+                continue
+            f = _op(call, "write_file_finish", {"name": name, "upload_id": u})
+            if f.get("identity") == want:
+                return want
     return None

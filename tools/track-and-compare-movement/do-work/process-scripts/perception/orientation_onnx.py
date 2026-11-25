@@ -50,7 +50,7 @@ from pose_estimate_onnx import _probe_video, _iter_frames   # the Fly ffmpeg fra
 from model_location import model_path               # where the models are found at run time (never a tracked link)
 
 DEFAULT_CLIP_CHECKPOINT = model_path("clip_vitb32_visual.onnx")
-DEFAULT_CLIP_AXES = str(_HERE / "clip_axes.npz")
+DEFAULT_CLIP_AXES = model_path("clip_axes.npz")  # data like every model: MATCH_VENDOR_ROOT first, then beside this file
 DEFAULT_POSE_CHECKPOINT = pose_onnx.__dict__.get("DEFAULT_ONNX_CHECKPOINT", model_path("yolo11n-pose.onnx"))
 DEFAULT_FFMPEG = os.environ.get("MATCH_FFMPEG", "ffmpeg")
 # open_clip ViT-B-32 normalization (CLIP/laion2b)
