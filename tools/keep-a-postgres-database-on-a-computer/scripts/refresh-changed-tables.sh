@@ -21,6 +21,8 @@ for t in $REFRESH_TABLES; do args="$args --table=$t"; done
   echo "SET session_replication_role = replica;"
   for t in $REFRESH_TABLES; do echo "DELETE FROM $t;"; done
   # shellcheck disable=SC2086
-  pg_dump --data-only --no-owner --no-privileges $args "$url"
+  # A pg_dump that stops part way would hand psql a part of the rows, and a pipe hides its exit status: on failure it writes a
+  # statement that fails, so ON_ERROR_STOP rolls the whole transaction back, the DELETEs with it.
+  pg_dump --data-only --no-owner --no-privileges $args "$url" || echo "SELECT the_old_database_could_not_be_read;"
 } | psql -X -q -v ON_ERROR_STOP=1 --single-transaction -d "$TO_DATABASE"
 echo "refreshed $(echo $REFRESH_TABLES | wc -w | tr -d ' ') tables of $TO_DATABASE from the old database"
