@@ -92,6 +92,7 @@ export const SITE_NAV_CSS = `
 .site-nav__brand{display:inline-flex;align-items:center;flex:0 0 auto;min-width:0;color:var(--words-primary, var(--ink));text-decoration:none;font-weight:600}
 .site-nav__brand[data-brand-text="wordmark"]{font:600 24px/1.3 var(--font-display,Georgia,serif)}
 .site-nav__brand-mark{display:block;width:10.5rem;max-width:100%;height:auto}
+.site-nav__brand-image{display:block;max-width:100%}
 .site-nav__panel{flex:1 1 auto;display:flex;align-items:center;justify-content:space-between;gap:24px}
 .site-nav__list{list-style:none;margin:0 auto;padding:0;display:flex;align-items:center;gap:24px}
 .site-nav__item{position:static;margin:0}

@@ -19,7 +19,7 @@ The server-sent renderer is `headerHtml` in `../document-page/document-page-html
 | nav DATA | `{ label, items: [{ label, href } \| { label, menu: { heading, items: [{ id, name, line, icon, href, preview: { src, alt, width, height } }], footer: { label, line, href } } }], actions: [{ label, href, primary }] }` | An entry with `menu` opens a menu of feature rows with an icon and one plain line; rows with a `preview` also show a picture beside the list; `footer` is the menu's closing link (e.g. all new features). `primary: true` marks the call to action. |
 | `siteNavEntries(nav)` | nav -> `{ label, items, actions }` | Drops rows missing a name or address; gives each menu its element id |
 | `siteNavItems(nav)` | nav -> `[{ label, href }]` | Menu button (href `null`), its features, its footer, links, actions, in reading order |
-| `SiteNav` | `{ nav, icons: { name: [[shape, attributes]] }, brand, renderPrimary?, toggleLabel? }` | React navbar |
+| `SiteNav` | `{ nav, icons: { name: [[shape, attributes]] }, brand?, brand_image?: { src, alt, width, height }, renderPrimary?, toggleLabel? }` | React navbar; `brand_image` is the brand as plain data, so a page row (JSON only) can give it |
 | `siteNavHover(item, api, delays?)` | element, `{ isOpen, isSoft, show, hide }` -> `{ cancel, destroy }` | Mouse hover for one menu item: opens softly after 120 ms of rest, closes a softly opened menu 180 ms after the pointer leaves, and keeps waiting while the pointer is inside the triangle from where it left to the card's top edge. Whole in itself, so the script can carry its source. |
 | `SITE_NAV_CSS` / `SITE_NAV_SCRIPT` | strings | The shared look; the server page's open-and-close script |
 

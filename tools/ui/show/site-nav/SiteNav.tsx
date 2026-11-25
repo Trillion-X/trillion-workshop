@@ -28,8 +28,10 @@ export interface SiteNavProps {
   readonly nav: unknown;
   /** Icon shape rows by icon name (the Lucide icon-node form), the same map server-sent pages get. */
   readonly icons: Readonly<Record<string, readonly IconNode[]>>;
-  /** The brand mark, linking home. */
-  readonly brand: ReactNode;
+  /** The brand mark, linking home. Left out when `brand_image` gives it. */
+  readonly brand?: ReactNode;
+  /** The brand mark as plain data (a page row can only give JSON): drawn at its own width and height, linking home. */
+  readonly brand_image?: { readonly src: string; readonly alt: string; readonly width: number; readonly height: number };
   /** Draws the primary action in the page's own look; the plain filled link when left out. */
   readonly renderPrimary?: (action: { label: string; href: string }) => ReactNode;
   readonly toggleLabel?: string;
@@ -221,7 +223,7 @@ function useSectionLinks() {
   }, []);
 }
 
-export function SiteNav({ nav, icons, brand, renderPrimary, toggleLabel = 'Menu' }: SiteNavProps) {
+export function SiteNav({ nav, icons, brand, brand_image, renderPrimary, toggleLabel = 'Menu' }: SiteNavProps) {
   const entries = siteNavEntries(nav) as { label: string; items: ({ label: string; href: string } | MenuEntry)[]; actions: { label: string; href: string; primary: boolean }[] };
   const rootRef = useRef<HTMLElement>(null);
   const [openMenu, setOpenMenu] = useState<{ id: string; soft: boolean } | null>(null);
@@ -244,7 +246,9 @@ export function SiteNav({ nav, icons, brand, renderPrimary, toggleLabel = 'Menu'
     <header className="site-nav" data-site-nav="" data-nav-ready="" ref={rootRef}>
       <style>{SITE_NAV_CSS}</style>
       <div className="site-nav__bar">
-        <a className="site-nav__brand" href="/">{brand}</a>
+        <a className="site-nav__brand" href="/">
+          {brand_image ? <img className="site-nav__brand-image" src={brand_image.src} alt={brand_image.alt} width={brand_image.width} height={brand_image.height} /> : brand}
+        </a>
         {hasPanel ? (
           <>
             <button className="site-nav__toggle" type="button" aria-expanded={panelOpen} aria-controls="site-nav-panel" onClick={() => setPanelOpen((value) => !value)}>
