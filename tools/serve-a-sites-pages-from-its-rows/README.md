@@ -11,6 +11,10 @@ cd tools/serve-a-sites-pages-from-its-rows
 CREDENTIALS_DIRECTORY=/path/to/the/units/credentials node do-work/serve.ts /path/to/settings.json
 ```
 
+For a local run on a person's own computer with no door pass, set `"door": {"address": "cli:<command>", "pins": ["<computer pin>"]}`:
+each read is run by that computer's own signed-in command (the Workshop's `use-your-tools-from-a-shell` door-op), and no pass is
+held. Members pages are then refused (403): they need the member's own pass on the engine door.
+
 With no `listen` in the settings it listens on `127.0.0.1:18440` (a local run); then
 `curl -H 'X-Forwarded-Host: example.com' http://127.0.0.1:18440/sitemap.xml` reads it as the front web server would.
 

@@ -4,7 +4,8 @@
 //   The two calls this program makes to other programs: `ask`, one HTTP request to an address that is a URL or a unix socket
 //   (`unix:/path/to.sock`), and `runTool`, one tool run on the engine's door (`tools:run`, sent as the engine's /mcp tools/call of
 //   do_one_thing_in_my_account), made as the caller whose pass is given. The tool holds its own keys in the engine; this program
-//   holds only a pass.
+//   holds only a pass. A local run on a person's own computer may instead run each tool as that computer's own signed-in
+//   command (`cli:<command>`, through use-your-tools-from-a-shell's door-op), so it holds no pass at all.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. A pass is only sent: it is never in an error, a log line or an answer.
@@ -13,6 +14,7 @@
 //   3. Every call ends by its time limit.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
+import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import http from 'node:http';
 import https from 'node:https';
@@ -109,4 +111,32 @@ export async function runTool(door: Door, pass: string, run: ToolRun, timeoutMs 
   if (!reply || reply.error || !reply.result) throw new DoorError(`The engine door gave no reply to ${run.tool}.`);
   const content = reply.result.structuredContent ?? JSON.parse(reply.result.content?.[0]?.text ?? 'null');
   return toolAnswerOf(content);
+}
+
+/** The command a `cli:<command>` door address names, or null for a door reached over HTTP. */
+export function commandOf(address: string): string | null {
+  const command = /^cli:([a-z][a-z0-9-]*)$/.exec(address)?.[1];
+  return command ?? null;
+}
+
+/**
+ * Runs one tool as this computer's own signed-in command (door-op.mjs of the Workshop this program runs from), with the pins
+ * given, and answers the tool's own answer. It carries the computer owner's rights, so the site uses it only for its own reads.
+ */
+export function runToolAsCommand(doorOp: string, command: string, pins: string[], run: ToolRun, timeoutMs = 120_000): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [doorOp], { stdio: ['pipe', 'pipe', 'pipe'] });
+    const out: Buffer[] = [];
+    const err: Buffer[] = [];
+    const timer = setTimeout(() => child.kill('SIGTERM'), timeoutMs);
+    child.stdout.on('data', (chunk: Buffer) => out.push(chunk));
+    child.stderr.on('data', (chunk: Buffer) => err.push(chunk));
+    child.on('error', error => { clearTimeout(timer); reject(new DoorError(`${command} could not be started: ${error.message}`)); });
+    child.on('close', status => {
+      clearTimeout(timer);
+      if (status !== 0) return reject(new DoorError(`${command} ran ${run.tool} and stopped (${status}): ${Buffer.concat(err).toString('utf8').replace(/\s+/g, ' ').trim().slice(0, 300)}`));
+      try { resolve(toolAnswerOf(JSON.parse(Buffer.concat(out).toString('utf8')))); } catch (error) { reject(error instanceof DoorError ? error : new DoorError(`${command} answered ${run.tool} with something that is not JSON.`)); }
+    });
+    child.stdin.end(JSON.stringify({ cli: command, kind: 'op', method: 'tools:run', input: run, ...(pins.length ? { pins } : {}), request_key: randomUUID() }));
+  });
 }

@@ -18,7 +18,10 @@
 //                    X-Forwarded-Host when the front web server sets it, else its Host; its pages are the rows for that host
 //                    and the rows for every host (pages.ts host); an unknown host is answered as origin's
 //     lang           the pages' language, such as "en"
-//     door           { address, pass_credential }: the engine door, and the name of the site's pass in the unit's credentials
+//     door           { address, pass_credential, pins }: the engine door, and the name of the site's pass in the unit's
+//                    credentials; or, for a local run on a person's own computer, address "cli:<command>" (that computer's
+//                    own signed-in command runs each read, with the pins given, and no pass is held). A members page is
+//                    never drawn through a command: it needs the member's own pass on the door.
 //     pages          { database, use: { purpose, surface }, refresh_seconds, answer_seconds }: the database holding the
 //                    `pages` and `site_look` tables, the declared use its reads run under (the reader login), how often the rows
 //                    are read again, and how long a public page's tool answer is kept
@@ -43,7 +46,7 @@ import { chmodSync, existsSync, readFileSync, realpathSync, statSync, unlinkSync
 import http from 'node:http';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { DoorError, runTool } from './door.ts';
+import { commandOf, DoorError, runTool, runToolAsCommand } from './door.ts';
 import type { Door, ToolRun } from './door.ts';
 import { MemberPasses } from './member-pass.ts';
 import type { Member, SignIn } from './member-pass.ts';
@@ -64,7 +67,7 @@ export interface Settings {
   origin: string;
   hosts: string[];
   lang: string;
-  door: { address: string; pass_credential: string };
+  door: { address: string; pass_credential?: string; pins?: string[] };
   pages: { database: string; use: { purpose: string; surface: string }; refresh_seconds: number; answer_seconds: number };
   sign_in: SignIn & { page: string; signed_out: 'redirect' | 'draw' };
   member_files?: MemberFiles & { credential: string };
@@ -75,6 +78,8 @@ const LOOK_SQL = 'SELECT name, value FROM site_look ORDER BY name';
 const MOST_KEPT_ANSWERS = 1000;
 const NOT_FOUND = '/404';
 export const LOCAL_LISTEN = '127.0.0.1:18440';
+// Stands for the site's own caller when reads go through a command: no pass is held then.
+const COMMAND_PASS = 'the computer\'s own command';
 const HOST_NAME = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
 
 /** Checks a settings file's value; a wrong one throws with what it should be. */
@@ -85,7 +90,11 @@ export function settingsOf(value: unknown): Settings {
   if (typeof s.origin !== 'string' || !/^https?:\/\/[^/]+$/.test(s.origin)) throw new Error('origin is the site\'s address, such as https://example.com.');
   if (!Array.isArray(s.hosts) || s.hosts.some(host => typeof host !== 'string' || !HOST_NAME.test(host))) throw new Error('hosts lists lower-case host names, such as ["app.example.com"].');
   if (typeof s.lang !== 'string' || !/^[a-z]{2,3}(-[A-Za-z0-9]+)*$/.test(s.lang)) throw new Error('lang is a language tag, such as "en".');
-  if (!s.door || typeof s.door.address !== 'string' || typeof s.door.pass_credential !== 'string') throw new Error('door is { address, pass_credential }.');
+  const byCommand = s.door && typeof s.door.address === 'string' && commandOf(s.door.address) !== null;
+  if (!s.door || typeof s.door.address !== 'string' || (!byCommand && typeof s.door.pass_credential !== 'string')
+    || (s.door.pins !== undefined && (!Array.isArray(s.door.pins) || s.door.pins.some(pin => typeof pin !== 'string')))) {
+    throw new Error('door is { address, pass_credential } (or { address: "cli:<command>", pins } for a local run).');
+  }
   const p = s.pages;
   if (!p || typeof p.database !== 'string' || !p.use || typeof p.use.purpose !== 'string' || typeof p.use.surface !== 'string'
     || !Number.isInteger(p.refresh_seconds) || p.refresh_seconds < 1 || !Number.isInteger(p.answer_seconds) || p.answer_seconds < 0) {
@@ -303,12 +312,18 @@ export async function start(settingsFile: string): Promise<http.Server> {
   const settings = settingsOf(JSON.parse(readFileSync(settingsFile, 'utf8')));
   const tools = join(import.meta.dirname, '..', '..');
   const door: Door = { address: settings.door.address };
+  const command = commandOf(door.address);
+  const doorOp = join(tools, 'use-your-tools-from-a-shell', 'do-work', 'door-op.mjs');
   const files = new ScreenFiles();
+  // Through a command the site's own reads carry the computer owner's rights; a member's pass is refused, never swapped for them.
+  const run = command
+    ? (pass: string, call: ToolRun) => pass === COMMAND_PASS ? runToolAsCommand(doorOp, command, settings.door.pins ?? [], call) : Promise.reject(new DoorError('A members page needs the engine door, not a command.', 403))
+    : (pass: string, call: ToolRun) => runTool(door, pass, call);
   const site = new Site({
     settings,
     tools,
-    run: (pass, call) => runTool(door, pass, call),
-    sitePass: credential(settings.door.pass_credential),
+    run,
+    sitePass: command ? COMMAND_PASS : credential(settings.door.pass_credential!),
     passes: new MemberPasses(settings.sign_in),
     storeKey: settings.member_files ? storeKeyOf(credential(settings.member_files.credential)) : null,
     bundles: new PageBundles(tools, await pageStyles(tools, files), files),
