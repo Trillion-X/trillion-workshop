@@ -6,7 +6,7 @@
         "id": "tool:check-a-computer-from-inside",
         "label": "Check a computer from inside",
         "job": "read how full each disk of one of my computers is and whether each engine it runs holds its person, from another computer, and hold the person again when an engine lost them",
-        "description": "Give the computer's row (its name, address and runs) and its pinned SSH host key. An engine is any unit of the row that declares a ready check: a loopback listen address and a persons folder (settings.persons); one that runs in a container names ready_in_container (a container name, or {compose_project, service} for its compose labels) and is asked inside that container's network. It signs in as the computer's administrator with the held key server-administration-ssh-key, reads every disk (df) and asks each engine the row runs for the persons it holds (its ready check on the loopback). A disk at or past warn_used_pct (85 unless given) is a warning and at or past alert_used_pct (92) an alert. An engine that holds no person while its row names one (settings.local_agents) is held again through the engine's own road, POST /persons/add on its agent socket as its own user, read again, and told: a warning when it holds the person again, an alert when it still holds none. Each person folder in the engine's settings.persons folder is measured (du) with its five largest files, as a reading for the caller to keep and compare run by run. A computer that does not answer is an alert; one with no usable address or host key is not checked. pretend replaces what was read ({disks: {mount: percent}, engines: {unit: persons}, unreachable: true}) to see those findings without making them; a pretended engine is never asked. It changes nothing else.",
+        "description": "Give the computer's row (its name, address and runs) and its pinned SSH host key. An engine is any unit of the row that declares a ready check: a loopback listen address and a persons folder (settings.persons); one that runs in a container names ready_in_container (a container name, or {compose_project, service} for its compose labels) and is asked inside that container's network. It signs in as the computer's administrator with the held key server-administration-ssh-key, reads every disk (df) and asks each engine the row runs for the persons it holds (its ready check on the loopback). A disk at or past warn_used_pct (85 unless given) is a warning and at or past alert_used_pct (92) an alert. An engine that holds no person while its row names one (settings.local_agents) is held again through the engine's own road, POST /persons/add on its agent socket as its own user, read again, and told: a warning when it holds the person again, an alert when it still holds none. Each person folder in the engine's settings.persons folder is measured (du) with its five largest files, as a reading for the caller to keep and compare run by run. A computer that does not answer is an alert; one with no usable address or host key is not checked. pretend replaces what was read ({disks: {mount: percent}, engines: {unit: persons}, unreachable: true}) to see those findings without making them; a pretended engine is never asked. It changes nothing else. It also reads each engine's wake book (wake:list, every page) on its agent socket, for an engine whose row names a local agent: an engine with switched-on due-time wakes but no switched-on teller (a wake of tool:notice-when-something-shows-up named keep-noticing or keep-noticing/<name>, standing) is `due-time-wakes-without-a-teller` (alert), and a book that could not be read is `wake-book-not-read` (warn), never read as no due-time wakes.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -95,12 +95,41 @@
                     "type": "string"
                   },
                   "description": "Unit to the systemd Result to pretend its last run ended in (exit-code: a failed run)."
+                },
+                "wake_books": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "oneOf": [
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "object"
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "refused"
+                        ],
+                        "properties": {
+                          "refused": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "description": "Engine unit to the wakes to pretend its book holds (a list, each as wake:list gives it: tool, id, switched_on, switch_stands, on), or {refused: why} to pretend the book could not be read."
                 }
               }
             },
             "row_read_at": {
               "type": "string",
               "description": "When the caller read the computer row these runs came from (an ISO time), read in the same statement as the runs. A row read more than settings.json row.max_age_seconds (300) before the check, or a call without it, is answered checked: false, so a unit the row has since dropped or added is never misread."
+            },
+            "read_wake_books": {
+              "type": "boolean",
+              "description": "false: do not read the engines' wake books (read by default)."
             }
           }
         },
@@ -301,6 +330,43 @@
                 "type": "string"
               },
               "description": "Every unit name the row's runs named and systemd was asked about."
+            },
+            "wake_books": {
+              "type": "array",
+              "description": "Each engine whose wake book was asked: whether it was read, and the standing due-time wakes and tellers in it (or why it was not read).",
+              "items": {
+                "type": "object",
+                "required": [
+                  "unit",
+                  "read"
+                ],
+                "properties": {
+                  "unit": {
+                    "type": "string"
+                  },
+                  "read": {
+                    "type": "boolean"
+                  },
+                  "why": {
+                    "type": "string"
+                  },
+                  "due_time_wakes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "tellers": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "pretend": {
+                    "type": "boolean"
+                  }
+                }
+              }
             }
           }
         },

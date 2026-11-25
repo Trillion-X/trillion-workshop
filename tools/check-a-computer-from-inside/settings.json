@@ -1,5 +1,5 @@
 {
-  "_what": "What tool:check-a-computer-from-inside reads on a computer and when it calls something a finding. disk.warn_used_pct and disk.alert_used_pct are the used share of a filesystem at which it warns and alerts (a caller may give its own in the input); disk.skip_types are filesystem types that hold no kept data (memory, an image, the boot firmware). The program a unit runs when it is an engine is the caller's own word (input engine_program), never this file's. engine.ready_path answers the persons it holds, engine.add_person_path holds a person again, asked on the engine's own agent socket as the engine's own user (the only way the engine adds a person). persons.largest_files is how many of each person folder's largest files are named. ssh holds the administrator login used when the input names none, and how long one read may take. Each value is a row a person changes, never code. row.max_age_seconds is the oldest a computer row the caller passes may be (its row_read_at): an older one is not checked, so what was dropped from or added to the row since is never misread.",
+  "_what": "What tool:check-a-computer-from-inside reads on a computer and when it calls something a finding. disk.warn_used_pct and disk.alert_used_pct are the used share of a filesystem at which it warns and alerts (a caller may give its own in the input); disk.skip_types are filesystem types that hold no kept data (memory, an image, the boot firmware). The program a unit runs when it is an engine is the caller's own word (input engine_program), never this file's. engine.ready_path answers the persons it holds, engine.add_person_path holds a person again, asked on the engine's own agent socket as the engine's own user (the only way the engine adds a person). persons.largest_files is how many of each person folder's largest files are named. ssh holds the administrator login used when the input names none, and how long one read may take. Each value is a row a person changes, never code. row.max_age_seconds is the oldest a computer row the caller passes may be (its row_read_at): an older one is not checked, so what was dropped from or added to the row since is never misread. wakes: how an engine's wake book is read and what a teller is. mcp_path is the route the agent socket serves, ask_seconds how long one page may take, most_pages how many pages one book may have before it is not read; a due-time wake is one that hears facts of `kind`; a teller is a wake of `teller_tool` whose id is one of `teller_ids` or starts with `teller_prefix` (keep-noticing and a copy of it, one per computer); most_named is how many wake ids a finding names.",
   "disk": {
     "warn_used_pct": 85,
     "alert_used_pct": 92,
@@ -28,5 +28,17 @@
   },
   "row": {
     "max_age_seconds": 300
+  },
+  "wakes": {
+    "mcp_path": "/mcp",
+    "ask_seconds": 10,
+    "most_pages": 20,
+    "kind": "due-time",
+    "teller_tool": "tool:notice-when-something-shows-up",
+    "teller_ids": [
+      "keep-noticing"
+    ],
+    "teller_prefix": "keep-noticing/",
+    "most_named": 8
   }
 }

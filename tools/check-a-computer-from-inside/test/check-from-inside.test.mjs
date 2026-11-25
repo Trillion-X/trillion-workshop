@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { checkFromInside, enginesOf, holdAgainScript, readScript, unitsOf } from '../do-work/check-from-inside.mjs';
+import { checkFromInside, enginesOf, holdAgainScript, parseWakePage, readScript, readWakeBook, tellersIn, unitsOf, wakeListScript } from '../do-work/check-from-inside.mjs';
 
 const HOST_KEY = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMadeUpMadeUpMadeUpMadeUpMadeUpMadeUpMadeUp';
 const OWNER = 'made-up-person_0001';
@@ -27,11 +27,18 @@ const DF = [
 const ready = persons => JSON.stringify({ draining: false, persons, offers: [] });
 
 /** A made-up computer: answers each script with the df above and each listen's ready answer from `answers`. */
-function computerAnswering(answers, { addStatus = '200', afterAdd = {}, folders = '', systemd = {} } = {}) {
+function computerAnswering(answers, { addStatus = '200', afterAdd = {}, folders = '', systemd = {}, wakePages = [{ wakes: [], next: null }] } = {}) {
   const scripts = [];
   let added = false;
   const run = script => {
     scripts.push(script);
+    if (script.includes('wake:list')) {
+      // One page of the wake book per ask, in order; a page that is a string is the raw body the socket gave, an Error a failed ask.
+      const page = wakePages[Math.min(scripts.filter(item => item.includes('wake:list')).length - 1, wakePages.length - 1)];
+      if (page instanceof Error) return { status: 7, stdout: '', stderr: page.message };
+      const body = typeof page === 'string' ? page : JSON.stringify({ jsonrpc: '2.0', id: 1, result: { structuredContent: page } });
+      return { status: 0, stdout: `${body}\n`, stderr: '' };
+    }
     if (script.includes('/persons/add')) { added = true; return { status: 0, stdout: `${addStatus}\n`, stderr: '' }; }
     const now = added ? { ...answers, ...afterAdd } : answers;
     const lines = [];
@@ -246,4 +253,105 @@ test('an engine in a container is found by its ready check and asked inside that
   assert.ok(labelled.scripts[0].includes(`nsenter -t "$(docker inspect -f '{{.State.Pid}}' "$(docker ps -q --filter 'label=com.docker.compose.project=the-engine' --filter 'label=com.docker.compose.service=engine' | head -1)" 2>/dev/null)" -n curl`), 'a compose project and service find the container by its labels');
   assert.equal(found.engines[0].persons, 1);
   assert.equal(enginesOf({ units: [{ ...containerUnit, ready_in_container: { compose_project: "p'x", service: 'engine' } }] })[0].container, null, 'a label outside its shape is never written into a command');
+});
+
+// The wake book of an engine that names a local agent: a due-time wake with no teller on its computer is told; a book that
+// was not read is told as its own finding, never as "no due-time wakes".
+const wake = (id, more = {}) => ({ tool: 'tool:keep-something', id, on: { fact: { kind: 'due-time', from: ['run'], match: {} } }, switched_on: true, switch_stands: true, ...more });
+const teller = (id, more = {}) => ({ tool: 'tool:notice-when-something-shows-up', id, on: { running: {} }, switched_on: true, switch_stands: true, ...more });
+const kindsOf = seen => seen.findings.map(finding => [finding.kind, finding.level, finding.about]);
+const withBook = async (wakePages, extra = {}) => {
+  const { run, scripts } = computerAnswering({ '127.0.0.1:7198': ready(1) }, { wakePages });
+  return { seen: await checkFromInside(computer([engineUnit], extra), { run }), scripts };
+};
+
+test('the wake list is asked on the engine\'s agent socket, a page at a time, and nothing outside its shape is written into it', () => {
+  const [engine] = enginesOf({ units: [engineUnit] });
+  const first = wakeListScript(engine, null, 'wakes:a:0');
+  assert.match(first, /--unix-socket \/var\/lib\/engine-for-someone\/agent\.sock -X POST/);
+  assert.match(first, /"method":"wake:list","request_key":"wakes:a:0","input":\{\}/);
+  assert.match(wakeListScript(engine, 'chosen--a:b', 'wakes:a:1'), /"input":\{"after":"chosen--a:b"\}/);
+  assert.throws(() => wakeListScript(engine, "x'; reboot", 'k'), /cursor was refused/);
+  assert.throws(() => wakeListScript(engine, null, "k' k"), /request key was refused/);
+  assert.throws(() => wakeListScript({ ...engine, socket: null }, null, 'k'), /no usable agent socket/);
+});
+
+test('a page is read from plain JSON or an event stream, and a refusal or a non-list is a reason', () => {
+  const page = { wakes: [wake('w')], next: 'w' };
+  assert.deepEqual(parseWakePage(JSON.stringify({ result: { structuredContent: page } })), page);
+  assert.deepEqual(parseWakePage(`event: message\ndata: ${JSON.stringify({ result: { content: [{ type: 'text', text: JSON.stringify({ wakes: [], next: null }) }] } })}\n`), { wakes: [], next: null });
+  assert.match(parseWakePage('').why, /no answer/);
+  assert.match(parseWakePage('not json').why, /not JSON/);
+  assert.match(parseWakePage(JSON.stringify({ error: { message: 'no caller' } })).why, /refused: no caller/);
+  assert.match(parseWakePage(JSON.stringify({ result: { isError: true, structuredContent: { code: 'scope_refused' } } })).why, /scope_refused/);
+  assert.match(parseWakePage(JSON.stringify({ result: { structuredContent: { computer: 'x' } } })).why, /no list of wakes/);
+});
+
+test('a due-time wake and a teller are only those switched on that stand; a copy of the teller counts and a one-source teller does not', () => {
+  const book = [wake('a'), wake('off', { switched_on: false }), wake('not-standing', { switch_stands: false }), wake('other', { on: { fact: { kind: 'something-changed' } } }),
+    teller('keep-noticing/elestio'), teller('keep-noticing'), teller('keep-noticing-one-source/kept-workflow-times'), teller('keep-noticing/off', { switched_on: false }),
+    { ...teller('keep-noticing/another-tool'), tool: 'tool:other' }];
+  assert.deepEqual(tellersIn(book), { due_time_wakes: ['a'], tellers: ['keep-noticing/elestio', 'keep-noticing'] });
+});
+
+test('due-time wakes with no teller are an alert naming the wakes; with a teller, or with no due-time wake, there is none', async () => {
+  const none = await withBook([{ wakes: [wake('keep-steps/a'), wake('keep-steps/b'), teller('keep-noticing-one-source/kept-workflow-times')], next: null }]);
+  assert.deepEqual(kindsOf(none.seen), [['due-time-wakes-without-a-teller', 'alert', 'engine-for-someone.service']]);
+  assert.match(none.seen.findings[0].said, /2 switched-on due-time wakes \(keep-steps\/a, keep-steps\/b\)/);
+  assert.deepEqual(none.seen.wake_books, [{ unit: 'engine-for-someone.service', read: true, due_time_wakes: ['keep-steps/a', 'keep-steps/b'], tellers: [] }]);
+  assert.deepEqual((await withBook([{ wakes: [wake('keep-steps/a'), teller('keep-noticing/elestio')], next: null }])).seen.findings, []);
+  assert.deepEqual((await withBook([{ wakes: [wake('keep-steps/a'), teller('keep-noticing')], next: null }])).seen.findings, [], 'a copy id is not needed: the plain id is a teller too');
+  assert.deepEqual((await withBook([{ wakes: [teller('keep-noticing/off', { switched_on: false })], next: null }])).seen.findings, [], 'no due-time wake needs no teller');
+});
+
+test('a teller switched off, or one that does not stand, is no teller; a due-time wake that does not stand needs none', async () => {
+  const off = await withBook([{ wakes: [wake('w'), teller('keep-noticing/elestio', { switched_on: false })], next: null }]);
+  assert.deepEqual(kindsOf(off.seen), [['due-time-wakes-without-a-teller', 'alert', 'engine-for-someone.service']]);
+  const unstanding = await withBook([{ wakes: [wake('w'), teller('keep-noticing/elestio', { switch_stands: false })], next: null }]);
+  assert.deepEqual(kindsOf(unstanding.seen), [['due-time-wakes-without-a-teller', 'alert', 'engine-for-someone.service']]);
+  assert.deepEqual((await withBook([{ wakes: [wake('w', { switch_stands: false })], next: null }])).seen.findings, [], 'a wake switched on whose switch does not stand is not heard, so it asks for no teller');
+});
+
+test('the wake book is read page after page, and a teller on a later page counts', async () => {
+  const { seen, scripts } = await withBook([{ wakes: [wake('w')], next: 'w' }, { wakes: [teller('keep-noticing/elestio')], next: null }]);
+  assert.deepEqual(seen.findings, []);
+  const asks = scripts.filter(script => script.includes('wake:list'));
+  assert.equal(asks.length, 2);
+  assert.match(asks[1], /"input":\{"after":"w"\}/);
+});
+
+test('a wake book that was not read is its own finding, never "no due-time wakes"', async () => {
+  const refused = await withBook([JSON.stringify({ error: { message: 'peer not admitted' } })]);
+  assert.deepEqual(kindsOf(refused.seen), [['wake-book-not-read', 'warn', 'engine-for-someone.service']]);
+  assert.match(refused.seen.findings[0].said, /peer not admitted/);
+  assert.deepEqual(refused.seen.wake_books, [{ unit: 'engine-for-someone.service', read: false, why: 'the door refused: peer not admitted' }]);
+  assert.deepEqual(kindsOf((await withBook([new Error('curl: (7) connection refused')])).seen), [['wake-book-not-read', 'warn', 'engine-for-someone.service']], 'an unreachable engine socket');
+  assert.deepEqual(kindsOf((await withBook([{ wakes: [wake('w')], next: 'w' }, JSON.stringify({ result: { structuredContent: { oops: true } } })])).seen), [['wake-book-not-read', 'warn', 'engine-for-someone.service']], 'a page that is not a list loses the book, not just the page');
+  assert.deepEqual(kindsOf((await withBook(['<html>bad gateway</html>'])).seen), [['wake-book-not-read', 'warn', 'engine-for-someone.service']]);
+  const looping = readWakeBook(enginesOf({ units: [engineUnit] })[0], () => ({ status: 0, stdout: JSON.stringify({ result: { structuredContent: { wakes: [], next: 'same' } } }), stderr: '' }));
+  assert.match(looping.why, /same next page twice/);
+});
+
+test('an engine whose row names no local agent holds no one and its book is not read; read_wake_books false skips every book', async () => {
+  const { run, scripts } = computerAnswering({ '127.0.0.1:7299': ready(0) });
+  const seen = await checkFromInside(computer([gatewayUnit]), { run });
+  assert.deepEqual(seen.findings, []);
+  assert.equal(scripts.filter(script => script.includes('wake:list')).length, 0);
+  const skipped = computerAnswering({ '127.0.0.1:7198': ready(1) });
+  assert.deepEqual((await checkFromInside(computer([engineUnit], { read_wake_books: false }), { run: skipped.run })).wake_books, []);
+  assert.equal(skipped.scripts.filter(script => script.includes('wake:list')).length, 0);
+});
+
+test('a pretended wake book makes the same findings without asking the engine, each saying pretend', async () => {
+  const { run, scripts } = computerAnswering({ '127.0.0.1:7198': ready(1) });
+  const bare = await checkFromInside(computer([engineUnit], { pretend: { wake_books: { 'engine-for-someone.service': [wake('w')] } } }), { run });
+  assert.deepEqual(bare.findings.map(finding => [finding.kind, finding.pretend]), [['due-time-wakes-without-a-teller', true]]);
+  const refused = await checkFromInside(computer([engineUnit], { pretend: { wake_books: { 'engine-for-someone.service': { refused: 'no socket' } } } }), { run });
+  assert.deepEqual(refused.findings.map(finding => [finding.kind, finding.pretend]), [['wake-book-not-read', true]]);
+  assert.equal(scripts.filter(script => script.includes('wake:list')).length, 0, 'a pretended book is never asked');
+});
+
+test('a computer that does not answer is told as unreachable, and its book is not asked', async () => {
+  const seen = await checkFromInside(computer([engineUnit], { pretend: { unreachable: true } }), { run: () => { throw new Error('asked'); } });
+  assert.deepEqual(kindsOf(seen), [['unreachable', 'alert', '192.0.2.10']]);
 });

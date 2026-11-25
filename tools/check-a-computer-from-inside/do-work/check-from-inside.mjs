@@ -28,8 +28,16 @@ import { realpathSync } from 'node:fs';
 // (`row_read_at`), or a row read longer ago than settings.json row.max_age_seconds, is not checked: it would answer a computer green, or name
 // as missing a unit the row has since dropped (Nov 25 2026: a copy of a row read 44 minutes earlier named five units
 // another apply had removed, and a call with no units checked none and answered no finding).
+// The wake book of each engine that names a local agent is read too: wake:list on its agent socket, as the administrator
+// the SSH login is (the socket admits a caller by its OS user, and the row's local agent is root), page by page (`after`).
+// An engine's due-time wakes need a teller on that same computer (a wake of settings.json wakes.teller_tool whose id is
+// one of wakes.teller_ids or starts with a wakes.teller_prefix, switched on and standing), or no occurrence of theirs is
+// ever told: Nov 25 2026, 6:40 AM CST, the Elestio engine held a due-time wake with no teller and a 6:45 school tick was
+// missed with nothing said. Such an engine is `due-time-wakes-without-a-teller`; a book that could not be read (the socket
+// refused the caller, a page did not answer, the answer was no list) is its own finding, `wake-book-not-read`, and never
+// read as "no due-time wakes". An engine whose row names no local agent holds no one (a meeting point) and is not read.
 // `pretend` replaces what was read ({disks: {mount: used_pct}, engines: {unit: persons}, units: {unit: result},
-// unreachable: true}) so a caller
+// wake_books: {unit: [wake, ...] | {refused: why}}, unreachable: true}) so a caller
 // can see the findings of a full disk, an empty engine or a lost computer without making one; a pretended empty engine is
 // never held again, and each finding it makes says pretend: true.
 //
@@ -137,6 +145,67 @@ export function holdAgainScript(engine, person) {
   return `runuser -u ${engine.user} -- curl -s -m ${Number(SETTINGS.engine.ask_seconds) * 2} -o /dev/null -w '%{http_code}\\n' --unix-socket ${engine.socket} -X POST -H 'content-type: application/json' --data '${body}' http://engine${SETTINGS.engine.add_person_path}\n`;
 }
 
+const CURSOR = /^[A-Za-z0-9:_./#@+=-]{1,512}$/;
+
+/** The script that asks one page of an engine's wake book (wake:list) on its agent socket: the request, then its status
+ *  code after a mark line. `after` is the cursor the last page named (null for the first page). */
+export function wakeListScript(engine, after, requestKey) {
+  if (!SOCKET.test(engine.socket ?? '')) throw new Error(`The engine ${engine.unit} cannot be asked for its wakes: its row names no usable agent socket.`);
+  if (after !== null && !CURSOR.test(after)) throw new Error('A wake list cursor was refused.');
+  if (!/^[A-Za-z0-9:_.-]{1,64}$/.test(requestKey)) throw new Error('A request key was refused.');
+  const body = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'do_one_thing_in_my_account',
+    arguments: { method: 'wake:list', request_key: requestKey, input: after === null ? {} : { after } } } });
+  return `curl -s -m ${Number(SETTINGS.wakes.ask_seconds)} --unix-socket ${engine.socket} -X POST -H 'content-type: application/json' -H 'accept: application/json, text/event-stream' -H 'mcp-protocol-version: 2025-06-18' --data '${body}' http://engine${SETTINGS.wakes.mcp_path}; echo\n`;
+}
+
+/** One wake list page as the door answered it (plain JSON or an event stream): { wakes, next } or { why }. */
+export function parseWakePage(stdout) {
+  const text = String(stdout).trim();
+  if (text === '') return { why: 'the agent socket gave no answer' };
+  const json = text.startsWith('{') ? text : text.split('\n').filter(line => line.startsWith('data:')).map(line => line.slice(5).trim()).join('');
+  let answer;
+  try { answer = JSON.parse(json); } catch { return { why: `the agent socket's answer was not JSON: ${text.slice(0, 120)}` }; }
+  if (answer?.error) return { why: `the door refused: ${answer.error.message ?? answer.error.code ?? 'no reason given'}` };
+  const result = answer?.result;
+  let content = result?.structuredContent;
+  if (!content && typeof result?.content?.[0]?.text === 'string') { try { content = JSON.parse(result.content[0].text); } catch { content = null; } }
+  if (result?.isError) return { why: `the door refused: ${content?.detail ?? content?.code ?? 'no reason given'}` };
+  if (!Array.isArray(content?.wakes)) return { why: 'the door answered no list of wakes' };
+  return { wakes: content.wakes, next: typeof content.next === 'string' && content.next !== '' ? content.next : null };
+}
+
+/** The whole wake book of one engine, every page: { wakes } or { why } when any page was not read. `now` makes the request keys. */
+export function readWakeBook(engine, run, now = Date.now()) {
+  const wakes = [];
+  const seen = new Set();
+  let after = null;
+  for (let page = 0; page < Number(SETTINGS.wakes.most_pages); page += 1) {
+    let asked;
+    try { asked = run(wakeListScript(engine, after, `wakes:${now.toString(36)}:${page}`)); } catch (error) { return { why: error.message }; }
+    if (asked.status !== 0) return { why: `${(asked.stderr || `exit ${asked.status}`).trim().split('\n').at(-1)}` };
+    const read = parseWakePage(asked.stdout);
+    if (read.why) return { why: read.why };
+    wakes.push(...read.wakes);
+    if (read.next === null) return { wakes };
+    if (seen.has(read.next)) return { why: 'the wake list named the same next page twice' };
+    seen.add(read.next);
+    after = read.next;
+  }
+  return { why: `the wake list has more than ${SETTINGS.wakes.most_pages} pages` };
+}
+
+const standing = wake => wake?.switched_on === true && wake?.switch_stands === true;
+
+/** What a wake book holds of due-time wakes and tellers: { due_time_wakes: [id], tellers: [id] }, only wakes switched on that stand. */
+export function tellersIn(wakes) {
+  const { teller_tool: tool, teller_ids: ids, teller_prefix: prefix } = SETTINGS.wakes;
+  const isTeller = wake => wake.tool === tool && typeof wake.id === 'string' && (ids.includes(wake.id) || wake.id.startsWith(prefix));
+  return {
+    due_time_wakes: wakes.filter(wake => standing(wake) && wake?.on?.fact?.kind === SETTINGS.wakes.kind).map(wake => wake.id),
+    tellers: wakes.filter(wake => standing(wake) && isTeller(wake)).map(wake => wake.id),
+  };
+}
+
 /** What one read script printed: { disks, ready: [{index, listen, answer}] }. */
 export function parseRead(stdout) {
   const disks = [];
@@ -232,6 +301,25 @@ export function findingsOf({ disks, engines, units = [] }, { warn, alert, preten
   return findings;
 }
 
+/** The findings of the wake books read: [{kind, level, about, said, pretend?}]. `books` are [{unit, wakes?|why?, pretend?}]. */
+export function wakeBookFindings(books) {
+  const findings = [];
+  for (const book of books) {
+    const pretend = book.pretend ? { pretend: true } : {};
+    if (book.why !== undefined) {
+      findings.push({ kind: 'wake-book-not-read', level: 'warn', about: book.unit, said: `The wakes of ${book.unit} could not be read: ${book.why}. So whether its due-time wakes have a teller is not known.`, ...pretend });
+      continue;
+    }
+    const held = tellersIn(book.wakes);
+    if (held.due_time_wakes.length === 0 || held.tellers.length > 0) continue;
+    const shown = held.due_time_wakes.slice(0, SETTINGS.wakes.most_named);
+    const more = held.due_time_wakes.length - shown.length;
+    findings.push({ kind: 'due-time-wakes-without-a-teller', level: 'alert', about: book.unit,
+      said: `${book.unit} has ${held.due_time_wakes.length} switched-on due-time wake${held.due_time_wakes.length === 1 ? '' : 's'} (${shown.join(', ')}${more > 0 ? `, and ${more} more` : ''}) but no switched-on ${SETTINGS.wakes.teller_tool} wake named ${SETTINGS.wakes.teller_ids.join(' or ')} or ${SETTINGS.wakes.teller_prefix}<name>, so nothing tells them when they are due.`, ...pretend });
+  }
+  return findings;
+}
+
 /** One remote script run over SSH: { status, stdout, stderr }. */
 function sshRunner(host, keyFile) {
   return script => {
@@ -315,7 +403,21 @@ export async function checkFromInside(input, options = {}) {
       if (now?.persons > 0) { engine.persons = now.persons; engine.listens = now.listens; }
     } catch (error) { engine.held_again = { person: given.owners[0], status: null, persons: null, error: error.message }; }
   }
-  return { ...base, checked: true, disks, engines: asRead, units, findings: named(findingsOf({ disks, engines: asRead, units }, { warn, alert, pretended })) };
+  // The wake book of each engine that names a local agent (an engine whose row names none holds no one and has no book to read).
+  const books = [];
+  if (input.read_wake_books !== false) {
+    for (const engine of engines.filter(item => item.owners.length > 0)) {
+      const pretended = pretend.wake_books?.[engine.unit];
+      if (pretended !== undefined) {
+        books.push(Array.isArray(pretended) ? { unit: engine.unit, wakes: pretended, pretend: true } : { unit: engine.unit, why: String(pretended?.refused ?? 'pretended refusal'), pretend: true });
+        continue;
+      }
+      books.push({ unit: engine.unit, ...readWakeBook(engine, run) });
+    }
+  }
+  const wakeBooks = books.map(book => ({ unit: book.unit, read: book.why === undefined, ...(book.why === undefined ? tellersIn(book.wakes) : { why: book.why }), ...(book.pretend ? { pretend: true } : {}) }));
+  return { ...base, checked: true, disks, engines: asRead, units, wake_books: wakeBooks,
+    findings: named([...findingsOf({ disks, engines: asRead, units }, { warn, alert, pretended }), ...wakeBookFindings(books)]) };
 }
 
 const startedAsProgram = (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]));
