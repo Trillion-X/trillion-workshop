@@ -216,8 +216,9 @@ export function settingsOf(value: unknown): Settings {
     || !(Array.isArray(on.paths ?? []) && (on.paths ?? []).every(sitePath)) || !(Array.isArray(on.exact ?? []) && (on.exact ?? []).every(sitePath))
     || !(Array.isArray(on.hosts ?? []) && (on.hosts ?? []).every(host => typeof host === 'string' && HOST_NAME.test(host)))
     || (on.site_head !== undefined && typeof on.site_head !== 'boolean') || (on.first !== undefined && typeof on.first !== 'boolean')
-    || (on.stream !== undefined && (typeof on.stream !== 'boolean' || (on.stream && on.site_head === true))))) {
-    throw new Error('pass_on lists { name, address, paths (a path and what is under it), exact (that path only, before the site\'s own rows), hosts (only these hosts; every host when left out), first (true: its paths too come before the site\'s own rows), site_head (true: its pages carry the site head too), stream (true: piped as it comes, every header unchanged, never with site_head) }.');
+    || (on.stream !== undefined && (typeof on.stream !== 'boolean' || (on.stream && on.site_head === true)))
+    || (on.form_as_json !== undefined && (typeof on.form_as_json !== 'boolean' || (on.form_as_json && on.stream === true))))) {
+    throw new Error('pass_on lists { name, address, paths (a path and what is under it), exact (that path only, before the site\'s own rows), hosts (only these hosts; every host when left out), first (true: its paths too come before the site\'s own rows), site_head (true: its pages carry the site head too), stream (true: piped as it comes, every header unchanged, never with site_head), form_as_json (true: a browser\'s form post reaches it as JSON, never with stream) }.');
   }
   const named = addresses as Record<string, string>;
   for (const on of s.pass_on) {
@@ -675,6 +676,13 @@ export interface PassOn {
    * Mcp-Session-Id) and the answer streams back (an MCP door's event stream). Never with site_head.
    */
   stream?: boolean;
+  /**
+   * A browser's form post (a URL-encoded form, or a multipart form with no file in it) reaches this program as JSON: a dotted
+   * name is a nested object (consent.billing), a repeated name a list, a whole number or decimal written plainly a number,
+   * "true" and "false" booleans (formJsonOf). For a program made for its own page script's JSON, so a page drawn from rows
+   * can post it a plain form. Never with stream.
+   */
+  form_as_json?: boolean;
 }
 
 // The other program is asked for its answer as it is (no compression), so it is passed back byte for byte with headers
@@ -732,17 +740,56 @@ export async function formAnswerOf(answer: { status: number; headers: http.Incom
   return to ? { status: 303, headers: { location: to, 'cache-control': 'no-store' }, body: '' } : failedForm(502);
 }
 
+const PLAIN_NUMBER = /^-?(0|[1-9][0-9]{0,14})(\.[0-9]+)?$/;
+
+/**
+ * A form's fields as the JSON a page script would have sent: "a.b" is { a: { b } }, a name given twice is a list, a number
+ * written plainly ("9900", "-1.5", never "007" or "1e3") a number, "true" and "false" booleans, anything else its text. Null
+ * when the form cannot be JSON: a multipart form holding a file, or names that clash ("a" and "a.b").
+ */
+export async function formJsonOf(contentType: string | undefined, bytes: Buffer): Promise<Buffer | null> {
+  let fields: [string, FormDataEntryValue][];
+  try {
+    fields = [...(await new Request('http://form.invalid/', { method: 'POST', headers: { 'content-type': String(contentType ?? '') }, body: bytes }).formData()).entries()];
+  } catch {
+    return null;
+  }
+  if (fields.some(([, value]) => typeof value !== 'string')) return null;
+  const valueOf = (text: string): unknown => (PLAIN_NUMBER.test(text) ? Number(text) : text === 'true' ? true : text === 'false' ? false : text);
+  const root: Record<string, unknown> = {};
+  for (const [name, text] of fields as [string, string][]) {
+    const parts = name.split('.');
+    if (parts.some(part => part === '' || part === '__proto__' || part === 'constructor' || part === 'prototype')) return null;
+    let at = root;
+    for (const part of parts.slice(0, -1)) {
+      const next = Object.hasOwn(at, part) ? at[part] : (at[part] = {});
+      if (!next || typeof next !== 'object' || Array.isArray(next)) return null;
+      at = next as Record<string, unknown>;
+    }
+    const last = parts[parts.length - 1];
+    const value = valueOf(text);
+    if (!Object.hasOwn(at, last)) at[last] = value;
+    else if (Array.isArray(at[last])) (at[last] as unknown[]).push(value);
+    else if (at[last] !== null && typeof at[last] === 'object') return null;
+    else at[last] = [at[last], value];
+  }
+  return Buffer.from(JSON.stringify(root));
+}
+
 /**
  * One request passed whole to another program, and its answer passed back whole (its cookies too). A browser's form post is
  * never given raw JSON or a bare failure: when the program answers JSON, or does not answer, `failedForm` draws the answer
  * from the posted bytes.
  */
-async function passOnTo(address: string, host: string, request: http.IncomingMessage, response: http.ServerResponse, head: SiteHeadMarkup | null, cookies: string[] = [], failedForm?: (status: number, bytes: Buffer) => Promise<Answer>): Promise<void> {
+async function passOnTo(address: string, host: string, request: http.IncomingMessage, response: http.ServerResponse, head: SiteHeadMarkup | null, cookies: string[] = [], failedForm?: (status: number, bytes: Buffer) => Promise<Answer>, formAsJson = false): Promise<void> {
   const chunks: Buffer[] = [];
   for await (const chunk of request) chunks.push(chunk as Buffer);
   const bytes = Buffer.concat(chunks);
   const headers: Record<string, string | string[]> = {};
   for (const [name, value] of Object.entries(request.headers)) if (value !== undefined && !NOT_ASKED.has(name)) headers[name] = value;
+  // A browser's form, to a program that reads JSON: the same fields as its own page script sends them.
+  const asJson = formAsJson && isBrowserFormPost(request) ? await formJsonOf(request.headers['content-type'], bytes) : null;
+  if (asJson) headers['content-type'] = 'application/json';
   headers['x-forwarded-host'] = host;
   headers['x-forwarded-proto'] = 'https';
   if (!address.startsWith('unix:')) headers.host = new URL(address).host;
@@ -753,7 +800,7 @@ async function passOnTo(address: string, host: string, request: http.IncomingMes
   };
   let answer: Awaited<ReturnType<typeof ask>>;
   try {
-    answer = await ask(address, request.url ?? '/', { method: request.method ?? 'GET', headers, ...(chunks.length ? { body: bytes } : {}) });
+    answer = await ask(address, request.url ?? '/', { method: request.method ?? 'GET', headers, ...(asJson ? { body: asJson } : chunks.length ? { body: bytes } : {}) });
   } catch (error) {
     if (!asked) throw error;
     console.error(`${request.method} ${request.url}: ${address} did not answer: ${(error as Error).message}`);
@@ -871,7 +918,7 @@ export function handlerOf(site: Site, passOn: PassOn[] = [], addressCookies: Add
     }
     if (on) {
       const failedForm = (status: number, bytes: Buffer) => site.failedForm(status, host, { action: pathname, words: null, referer: request.headers.referer, cookie: request.headers.cookie, values: formValuesOf(request.headers['content-type'], bytes) });
-      passOnTo(on.address, host, request, response, on.site_head ? site.siteHead : null, cookies, failedForm).catch(error => {
+      passOnTo(on.address, host, request, response, on.site_head ? site.siteHead : null, cookies, failedForm, on.form_as_json === true).catch(error => {
         console.error(`${request.method} ${request.url}: ${on.name} did not answer: ${(error as Error).message}`);
         if (response.headersSent) return void response.end();
         response.writeHead(502, { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' });

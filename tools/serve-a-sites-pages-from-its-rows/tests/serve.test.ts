@@ -551,6 +551,64 @@ test('a browser form post that fails, by its action\'s tool, a refused right or 
   } finally { plain.server.close(); }
 });
 
+test('a browser form posted on to a program marked form_as_json reaches it as the JSON its own page script sent, and its JSON address is a 303', async () => {
+  const seen: { type: string | undefined; body: unknown }[] = [];
+  // The old checkout as it is: it JSON.parses the body, and answers 500 when that fails.
+  const old = http.createServer((request, response) => {
+    let body = '';
+    request.on('data', chunk => { body += chunk; });
+    request.on('end', () => {
+      try {
+        seen.push({ type: request.headers['content-type'], body: JSON.parse(body) });
+        response.writeHead(200, { 'content-type': 'application/json' });
+        response.end('{"redirect":"https://pay.example.test/s/1"}');
+      } catch {
+        response.writeHead(500, { 'content-type': 'application/json' });
+        response.end('{"error":"Something went wrong. Please try again."}');
+      }
+    });
+  });
+  await new Promise<void>(resolve => old.listen(0, '127.0.0.1', resolve));
+  const d = await door();
+  const site = await siteOn(d.address, { actions: 'site_actions' });
+  const oldAt = `http://127.0.0.1:${(old.address() as AddressInfo).port}`;
+  const server = http.createServer(handlerOf(site, [
+    { name: 'the old checkout', address: oldAt, exact: ['/target/checkout.start-checkout'], form_as_json: true },
+    { name: 'a program that reads forms', address: oldAt, exact: ['/target/as-sent'] },
+  ]));
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const at = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    // The live checkout form's exact fields.
+    const fields = 'consent.billing=true&consent.legal=true&customerSelectedAmountCents=9900&offerId=offer%3Aone&priceOptionId=price%3Aone%3Amonthly&note=007';
+    const post = (path: string, body: string | FormData, type?: string) => fetch(`${at}${path}`, { method: 'POST', redirect: 'manual', body,
+      headers: { ...(type ? { 'content-type': type } : {}), accept: 'text/html', referer: 'https://site.example.test/', 'x-forwarded-host': 'site.example.test' } });
+    const sent = await post('/target/checkout.start-checkout', fields, 'application/x-www-form-urlencoded');
+    assert.equal(sent.status, 303, 'the program\'s JSON address sends the browser on');
+    assert.equal(sent.headers.get('location'), 'https://pay.example.test/s/1');
+    assert.equal(seen[0].type, 'application/json');
+    assert.deepEqual(seen[0].body, { consent: { billing: true, legal: true }, customerSelectedAmountCents: 9900, offerId: 'offer:one', priceOptionId: 'price:one:monthly', note: '007' },
+      'dotted names nested, plain numbers numbers, true a boolean, "007" kept as text');
+    const multipart = new FormData();
+    multipart.append('consent.billing', 'true');
+    multipart.append('tag', 'a');
+    multipart.append('tag', 'b');
+    assert.equal((await post('/target/checkout.start-checkout', multipart)).status, 303);
+    assert.deepEqual(seen[1].body, { consent: { billing: true }, tag: ['a', 'b'] }, 'a multipart form too, a repeated name a list');
+    assert.equal((await post('/target/as-sent', fields, 'application/x-www-form-urlencoded')).status, 500, 'an entry not marked passes the form as it came');
+  } finally { server.close(); old.close(); d.server.close(); }
+});
+
+test('a form that cannot be JSON (a file, clashing names) is passed as it came', async () => {
+  const { formJsonOf } = await import('../do-work/serve.ts');
+  assert.equal(await formJsonOf('application/x-www-form-urlencoded', Buffer.from('a=1&a.b=2')), null);
+  assert.equal(await formJsonOf('application/x-www-form-urlencoded', Buffer.from('__proto__.x=1')), null);
+  const withFile = new FormData();
+  withFile.append('picture', new Blob(['bytes']), 'a.jpg');
+  const encoded = new Response(withFile);
+  assert.equal(await formJsonOf(encoded.headers.get('content-type') ?? '', Buffer.from(await encoded.arrayBuffer())), null);
+});
+
 test('every words page (not found, a failed form with no page to go back to) wears the not-found row\'s frame at its words place, as a centred card', async () => {
   const frame = { path: '/404', title: 'Not found', access: 'public', tool: null, input: {}, collection: null, updated_at: null,
     layout: [{ part: TEXT, export: 'Text', props: { as: 'nav' }, children: [{ text: 'The site nav' }] }, { words: true }] };

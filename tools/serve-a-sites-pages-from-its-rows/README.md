@@ -226,6 +226,12 @@ Example, a page's visit beacon (a visitor id only with consent, set as a cookie 
   (`redirect`, `redirectUrl` or `url`) becomes a 303 there. A page script asking for JSON gets JSON as before.
 - An old address of a page, `<path>.html` or `<path>/index.html` (a bookmark, a link from an old site), answers 301 to the page
   at `<path>` with its query kept, unless a page row has that exact address; with no page at `<path>` it stays 404.
+- A `pass_on` entry with `"form_as_json": true` is a program that reads JSON (made for its own page script): a browser's form
+  post to it (URL-encoded, or multipart with no file) reaches it as JSON with the same fields, a dotted name a nested object
+  (`consent.billing=true` is `{ "consent": { "billing": true } }`), a name given twice a list, a plainly written number a
+  number (`9900`; `007` stays text), `true` and `false` booleans. A form that cannot be JSON (a file, clashing names) passes
+  as it came. Its JSON answer naming an address is a 303 there, as above. Never with `stream`. Example:
+  `{ "name": "the site program", "address": "unix:/run/program.sock", "exact": ["/target/checkout.start-checkout"], "form_as_json": true }`.
 - `pass_on` entries with `"stream": true` are piped both ways as they come: every request header passes unchanged (Host,
   `Authorization`, `Mcp-Session-Id`), the answer streams back (an MCP door's event stream, a GET that stays open), and the
   other program's call ends when the visitor's does. Never with `site_head`. Example, an engine's MCP door on an app host:
