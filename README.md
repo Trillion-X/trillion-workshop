@@ -31,7 +31,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 ## The tools
 
 <!-- tool-catalogue:start -->
-Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-catalogue.mjs`; do not edit it by hand. 1469 tools in 317 folders. A tool's job, inputs, outputs and sample run are in its row. `test/tool-catalogue-is-current.test.mjs` fails when this table is stale.
+Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-catalogue.mjs`; do not edit it by hand. 1470 tools in 318 folders. A tool's job, inputs, outputs and sample run are in its row. `test/tool-catalogue-is-current.test.mjs` fails when this table is stale.
 
 | Folder | Tools |
 |---|---|
@@ -44,8 +44,8 @@ Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-c
 | `assemble-a-plan-into-a-cut` | `tool:apply-new-titles-to-my-plans`, `tool:assemble-a-plan-into-a-cut`, `tool:regroup-a-plans-segments`, `tool:string-my-cuts-into-one-reel`, `tool:voice-the-lines-of-my-plans` |
 | `audio-transcription` | `tool:hear-a-link`, `tool:hear-a-recording`, `tool:move-word-starts-to-where-the-voice-starts`, `tool:read-transcript-files-and-captions-into-timed-words`, `tool:time-words-in-a-recording`, `tool:transcribe-audio-and-repair-whisper-loops` |
 | `benchmark-small-local-models` | `tool:check-takes-are-complete-with-a-small-local-model`, `tool:fill-a-scripts-blanks-with-small-local-models`, `tool:label-video-frames-with-small-local-models`, `tool:rank-candidate-clips-for-a-slot-with-small-local-models`, `tool:rank-my-titles-with-a-small-local-model`, `tool:sample-shots-and-frames-from-my-format-library`, `tool:score-small-model-labels-against-my-labels`, `tool:time-a-small-local-decider` |
-| `better-auth` | `tool:run-better-auth-sign-in` |
 | `better-auth-official` | `tool:run-official-better-auth` |
+| `better-auth` | `tool:run-better-auth-sign-in` |
 | `book-time` | `tool:cancel-a-booking-on-my-calendar`, `tool:change-a-booking-status`, `tool:check-when-i-am-busy`, `tool:find-open-times`, `tool:make-a-calendar-invite`, `tool:move-a-booking-on-my-calendar`, `tool:put-a-booking-on-my-calendar`, `tool:request-a-booking` |
 | `brand-kit` | `tool:resolve-a-brand` |
 | `bring-in-new-items-from-this-computer` | `tool:look-for-the-places-on-this-computer` |
@@ -244,8 +244,8 @@ Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-c
 | `read-the-menu-bar-settings` | `tool:read-the-menu-bar-settings` |
 | `read-what-is-on-screen` | `tool:parse-snapshot`, `tool:read-what-is-on-screen` |
 | `receive-files-over-ftp` | `tool:receive-files-over-ftp` |
-| `recently-deleted` | `tool:read-deleted-files-keep-for` |
 | `recently-deleted-and-storage` | `tool:delete-archive-and-put-back-my-files`, `tool:set-deleted-files-keep-for` |
+| `recently-deleted` | `tool:read-deleted-files-keep-for` |
 | `record-a-job-shown-once` | `tool:record-a-demonstration` |
 | `record-a-web-page` | `tool:record-a-web-demo` |
 | `record-cameras-and-microphones-all-day` | `tool:plan-clock-aligned-recording-pieces` |
@@ -259,6 +259,7 @@ Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-c
 | `reply-by-keyword-rule` | `tool:decide-the-replies`, `tool:send-a-reply-on-instagram`, `tool:send-a-reply-on-youtube` |
 | `reply-templates` | `tool:expand-a-reply-template` |
 | `research-a-creator-or-topic` | `tool:brief-a-prospect`, `tool:keep-a-prospect`, `tool:keep-channels-latest-videos-and-captions`, `tool:keep-forum-posts-from-a-public-archive`, `tool:keep-public-posts-by-link`, `tool:list-a-channels-latest-videos`, `tool:list-the-items-in-a-saved-file`, `tool:list-the-latest-items-of-a-feed`, `tool:read-a-videos-captions`, `tool:search-the-public-web`, `tool:write-a-profile-request` |
+| `resync-an-elestio-pipeline` | `tool:resync-an-elestio-pipeline` |
 | `revenue-ledger` | `tool:add-up-revenue` |
 | `review-what-a-list-says` | `tool:find-cold-rows`, `tool:find-rows-needing-review`, `tool:heat-of-a-row` |
 | `run-a-signed-events-effects-once` | `tool:turn-signed-events-into-effects-once` |

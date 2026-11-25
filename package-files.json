@@ -3599,78 +3599,6 @@
    "at": "/opt/node_modules/@noble/hashes"
   }
  ],
- "tool:check-the-model-server-and-restart-it-if-stuck": [
-  {
-   "package": "models-on-this-computer",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/models-on-this-computer"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "do-work/run-a-function.mjs"
-   ],
-   "at": "/opt/workflows"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "do-work/send-a-file-to-a-namespace.mjs",
-    "do-work/send-retry.mjs",
-    "do-work/send-window.mjs",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "choose-an-answerer",
-   "paths": [
-    "read-data/choose-an-answerer.mjs",
-    "read-data/load-choices.mjs"
-   ],
-   "at": "/opt/choose-an-answerer"
-  },
-  {
-   "package": "codex-usage-read",
-   "paths": [
-    "read-data/codex-limits.mjs"
-   ],
-   "at": "/opt/codex-usage-read"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data/blake3.mjs",
-    "read-data/identity.mjs"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "package": "records-door",
-   "paths": [
-    "read-data/large-file.json",
-    "read-data/raw-pieces.mjs"
-   ],
-   "at": "/opt/records-door"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "read-data/host-actions.mjs",
-    "read-data/large-file.json",
-    "read-data/whole-file.mjs"
-   ],
-   "at": "/opt/workflows"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  }
- ],
  "tool:ask-a-small-model-for-a-verdict": [],
  "tool:ask-a-web-address-or-give-the-last-answer": [
   {
@@ -9522,6 +9450,78 @@
     "src/workspace/screens.mjs"
    ],
    "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  }
+ ],
+ "tool:check-the-model-server-and-restart-it-if-stuck": [
+  {
+   "package": "models-on-this-computer",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/models-on-this-computer"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "choose-an-answerer",
+   "paths": [
+    "read-data/choose-an-answerer.mjs",
+    "read-data/load-choices.mjs"
+   ],
+   "at": "/opt/choose-an-answerer"
+  },
+  {
+   "package": "codex-usage-read",
+   "paths": [
+    "read-data/codex-limits.mjs"
+   ],
+   "at": "/opt/codex-usage-read"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
   }
  ],
  "tool:check-the-x-connection": [],
@@ -22494,6 +22494,70 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:keep-ai-provider-limits": [
+  {
+   "package": "keep-ai-provider-limits",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/keep-ai-provider-limits"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "harness/claude-limits.mjs",
+    "harness/claude-limits.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:keep-an-ai-activity-row": [
   {
    "package": "see-what-my-ais-did",
@@ -23431,70 +23495,6 @@
     "_md.js",
     "_u64.js",
     "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  }
- ],
- "tool:keep-ai-provider-limits": [
-  {
-   "package": "keep-ai-provider-limits",
-   "paths": [
-    "do-work"
-   ],
-   "at": "/opt/keep-ai-provider-limits"
-  },
-  {
-   "package": "keep-and-wake-ai-sessions-on-this-computer",
-   "paths": [
-    "harness/claude-limits.mjs",
-    "harness/claude-limits.json"
-   ],
-   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "do-work/run-a-function.mjs"
-   ],
-   "at": "/opt/workflows"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "do-work/send-a-file-to-a-namespace.mjs",
-    "do-work/send-retry.mjs",
-    "do-work/send-window.mjs",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data/blake3.mjs",
-    "read-data/identity.mjs"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "package": "records-door",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/records-door"
-  },
-  {
-   "package": "workflows",
-   "paths": [
-    "read-data/host-actions.mjs",
-    "read-data/large-file.json",
-    "read-data/whole-file.mjs"
-   ],
-   "at": "/opt/workflows"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
    ],
    "at": "/opt/node_modules/@noble/hashes"
   }
@@ -37580,6 +37580,16 @@
    "at": "/opt/opponent-game-plan"
   }
  ],
+ "tool:prepare-a-newsletter-audience": [
+  {
+   "package": "serve-articles-and-signup",
+   "paths": [
+    "do-work/prepare-audience.mjs",
+    "do-work/subscriber-audience.mjs"
+   ],
+   "at": "/opt/serve-articles-and-signup"
+  }
+ ],
  "tool:prepare-ad-conversions": [
   {
    "package": "traffic-attribution",
@@ -50159,6 +50169,15 @@
    "at": "/opt/conversations/read-data"
   }
  ],
+ "tool:resync-an-elestio-pipeline": [
+  {
+   "package": "resync-an-elestio-pipeline",
+   "paths": [
+    "do-work/resync-an-elestio-pipeline.mjs"
+   ],
+   "at": "/opt/resync-an-elestio-pipeline"
+  }
+ ],
  "tool:retire-a-copied-ai-reply": [
   {
    "package": "retire-a-copied-ai-reply",
@@ -50379,6 +50398,95 @@
     "node_modules/react"
    ],
    "at": "/opt/node_modules/react"
+  }
+ ],
+ "tool:run-a-script": [
+  {
+   "package": "bring-in-new-items-from-this-computer",
+   "paths": [
+    "computer/computer-sources.json"
+   ],
+   "at": "/opt/bring-in-new-items-from-this-computer"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-a-folder-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "computer-programs",
+   "paths": [
+    "read-data/program-here.mjs"
+   ],
+   "at": "/opt/computer-programs"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "http-client",
+   "paths": [
+    "do-work/same-origin.mjs"
+   ],
+   "at": "/opt/http-client"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "harness/local-door.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "run-on-a-persons-computer",
+   "paths": [
+    "confined-run.mjs",
+    "file-type.json",
+    "file-type.mjs",
+    "helper-sandbox.mjs",
+    "keep-drive-files.mjs",
+    "observe-visual.mjs",
+    "run-a-script.mjs",
+    "script-sandbox.mjs",
+    "see-a-recording.mjs",
+    "side-files.json",
+    "side-files.mjs"
+   ],
+   "at": "/opt/run-on-a-persons-computer"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/tldts"
+   ],
+   "at": "/opt/node_modules/tldts"
+  },
+  {
+   "packages": [
+    "node_modules/tldts-core"
+   ],
+   "at": "/opt/node_modules/tldts-core"
   }
  ],
  "tool:run-a-session-step": [
@@ -61148,6 +61256,81 @@
    "at": "/opt/node_modules/@opencoredev/social-sdk"
   }
  ],
+ "tool:take-given-tasks-on-this-computer": [
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "harness/take-open-work-in-a-run.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "judge-words",
+   "paths": [
+    "do-work/evidence-checks.mjs",
+    "do-work/judge-words.mjs"
+   ],
+   "at": "/opt/judge-words"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "harness/account-call.mjs",
+    "harness/account-key.json",
+    "harness/account-key.mjs",
+    "harness/ai-auth.mjs",
+    "harness/answer-shape.mjs",
+    "harness/chosen-ai.mjs",
+    "harness/take-open-work.json",
+    "harness/take-open-work.mjs",
+    "harness/tool-config-switches.mjs",
+    "harness/triage-open-work.mjs",
+    "harness/vault-value.mjs",
+    "harness/wake-handlers/take-open-work.mjs",
+    "harness/wake-sessions.json",
+    "src/inbound-words.json",
+    "src/own-work.mjs"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "move-records-through-declared-states",
+   "paths": [
+    "do-work/move-records-through-declared-states.mjs"
+   ],
+   "at": "/opt/move-records-through-declared-states"
+  },
+  {
+   "package": "plan-tasks-and-todo-lists",
+   "paths": [
+    "run-a-task-move.mjs",
+    "task-moves.json",
+    "task-moves.mjs"
+   ],
+   "at": "/opt/plan-tasks-and-todo-lists"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:take-me-there": [
   {
    "package": "take-me-there",
@@ -64323,6 +64506,17 @@
    "at": "/opt/lessons-and-learning-paths"
   }
  ],
+ "tool:workflow-host": [
+  {
+   "package": "workflow-host",
+   "paths": [
+    "Cargo.toml",
+    "Cargo.lock",
+    "src"
+   ],
+   "at": "/opt/tools/workflow-host"
+  }
+ ],
  "tool:workflow-run-cancel": [
   {
    "package": "workflows",
@@ -64706,190 +64900,5 @@
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:write-with-a-persons-writing-adapter": [],
  "tool:your-files": [],
- "tool:your-files-names": [],
- "tool:take-given-tasks-on-this-computer": [
-  {
-   "package": "keep-and-wake-ai-sessions-on-this-computer",
-   "paths": [
-    "harness/take-open-work-in-a-run.mjs"
-   ],
-   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data/blake3.mjs",
-    "read-data/identity.mjs"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "package": "judge-words",
-   "paths": [
-    "do-work/evidence-checks.mjs",
-    "do-work/judge-words.mjs"
-   ],
-   "at": "/opt/judge-words"
-  },
-  {
-   "package": "keep-and-wake-ai-sessions-on-this-computer",
-   "paths": [
-    "harness/account-call.mjs",
-    "harness/account-key.json",
-    "harness/account-key.mjs",
-    "harness/ai-auth.mjs",
-    "harness/answer-shape.mjs",
-    "harness/chosen-ai.mjs",
-    "harness/take-open-work.json",
-    "harness/take-open-work.mjs",
-    "harness/tool-config-switches.mjs",
-    "harness/triage-open-work.mjs",
-    "harness/vault-value.mjs",
-    "harness/wake-handlers/take-open-work.mjs",
-    "harness/wake-sessions.json",
-    "src/inbound-words.json",
-    "src/own-work.mjs"
-   ],
-   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
-  },
-  {
-   "package": "move-records-through-declared-states",
-   "paths": [
-    "do-work/move-records-through-declared-states.mjs"
-   ],
-   "at": "/opt/move-records-through-declared-states"
-  },
-  {
-   "package": "plan-tasks-and-todo-lists",
-   "paths": [
-    "run-a-task-move.mjs",
-    "task-moves.json",
-    "task-moves.mjs"
-   ],
-   "at": "/opt/plan-tasks-and-todo-lists"
-  },
-  {
-   "package": "formula-engine",
-   "paths": [
-    "built-stored-bytes/formula-engine"
-   ],
-   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  }
- ],
- "tool:workflow-host": [
-  {
-   "package": "workflow-host",
-   "paths": [
-    "Cargo.toml",
-    "Cargo.lock",
-    "src"
-   ],
-   "at": "/opt/tools/workflow-host"
-  }
- ],
- "tool:run-a-script": [
-  {
-   "package": "bring-in-new-items-from-this-computer",
-   "paths": [
-    "computer/computer-sources.json"
-   ],
-   "at": "/opt/bring-in-new-items-from-this-computer"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "built-stored-bytes/content-chunks/content_chunks.js",
-    "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
-    "do-work/content-chunks.mjs",
-    "do-work/namespace-client.mjs",
-    "do-work/send-a-file-to-a-namespace.mjs",
-    "do-work/send-a-folder-to-a-namespace.mjs",
-    "do-work/send-retry.mjs",
-    "do-work/send-window.mjs",
-    "do-work/shared-file-reference.mjs",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "computer-programs",
-   "paths": [
-    "read-data/program-here.mjs"
-   ],
-   "at": "/opt/computer-programs"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data/blake3.mjs",
-    "read-data/identity.mjs"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "package": "http-client",
-   "paths": [
-    "do-work/same-origin.mjs"
-   ],
-   "at": "/opt/http-client"
-  },
-  {
-   "package": "keep-and-wake-ai-sessions-on-this-computer",
-   "paths": [
-    "harness/local-door.mjs"
-   ],
-   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
-  },
-  {
-   "package": "run-on-a-persons-computer",
-   "paths": [
-    "confined-run.mjs",
-    "file-type.json",
-    "file-type.mjs",
-    "helper-sandbox.mjs",
-    "keep-drive-files.mjs",
-    "observe-visual.mjs",
-    "run-a-script.mjs",
-    "script-sandbox.mjs",
-    "see-a-recording.mjs",
-    "side-files.json",
-    "side-files.mjs"
-   ],
-   "at": "/opt/run-on-a-persons-computer"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  },
-  {
-   "packages": [
-    "node_modules/tldts"
-   ],
-   "at": "/opt/node_modules/tldts"
-  },
-  {
-   "packages": [
-    "node_modules/tldts-core"
-   ],
-   "at": "/opt/node_modules/tldts-core"
-  }
- ],
- "tool:prepare-a-newsletter-audience": [
-  {
-   "package": "serve-articles-and-signup",
-   "paths": [
-    "do-work/prepare-audience.mjs",
-    "do-work/subscriber-audience.mjs"
-   ],
-   "at": "/opt/serve-articles-and-signup"
-  }
- ]
+ "tool:your-files-names": []
 }
