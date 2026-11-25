@@ -338,6 +338,25 @@ test('a ready_in_container outside its shape restarts no container', async () =>
   }
 });
 
+test('a machine file the row adds to a computer already set up is a difference, and the apply writes it and restarts nothing', async () => {
+  // Nov 25 2026, 8:47 AM CST: 99-no-automatic-reboot was added to machine.files; the apply exited 0 with written [] because only
+  // set-up writes machine files and set-up was not owed.
+  const file = { path: '/etc/apt/apt.conf.d/99-no-automatic-reboot', text: 'Unattended-Upgrade::Automatic-Reboot "false";\n' };
+  const withFile = { ...runs, machine: { files: [file] } };
+  const live = Object.fromEntries(renderWhatItRuns(runs).map(({ path, text }) => [path, text]));
+  const base = computer(live);
+  assert.deepEqual(await runsDifferences(machine, withFile, base.run), [{ path: file.path, reason: 'missing on the computer' }]);
+  const applied = computer(live);
+  const answer = await applyWhatItRuns(machine, withFile, applied.run);
+  assert.deepEqual(answer.written, [file.path]);
+  assert.deepEqual(answer.restarted, [], 'no unit reads a machine file, so nothing restarts');
+  assert.ok(applied.commands.some(({ command, input }) => command.endsWith(` '${file.path}'`) && input === file.text), 'the file is written with its text');
+  // Once the computer has it, the row matches.
+  const after = computer({ ...live, [file.path]: file.text });
+  assert.deepEqual(await runsDifferences(machine, withFile, after.run), []);
+  assert.throws(() => renderWhatItRuns({ ...runs, machine: { files: [{ path: 'relative', text: '' }] } }), /machine\.files takes \{ path, text \}/);
+});
+
 test('a computer missing a package or program its row names is set up, and one that has them all is not', async () => {
   const data = { ...runs, machine: { packages: ['jq'], downloads: [{ path: '/usr/local/bin/example-tool' }] } };
   const live = Object.fromEntries(renderWhatItRuns(data).map(({ path, text }) => [path, text]));

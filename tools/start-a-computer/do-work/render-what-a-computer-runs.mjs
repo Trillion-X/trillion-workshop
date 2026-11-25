@@ -135,7 +135,10 @@ const withCredentials = (unit, where) => {
 
 /** Every file a computer's `runs` declares: { path, text, binary?, check?, then? }. A unit's drop-ins are the files it lists in
  * `drop_ins`. A unit with no `template` is one whose unit file the computer already has (a package's own); only its drop-ins and
- * files are written. */
+ * files are written. The machine's own files (`machine.files`: a file that decides how a package installs) are rendered too, so
+ * `differences` compares them and an apply writes one that changed: set-up writes them only when it runs, so a file added to
+ * the row of a computer already set up was never written while the apply exited 0 (Nov 25 2026, 8:47 AM CST:
+ * /etc/apt/apt.conf.d/99-no-automatic-reboot). */
 export function renderWhatItRuns(given) {
   const runs = withSlots(given);
   const files = [];
@@ -148,6 +151,10 @@ export function renderWhatItRuns(given) {
     const { steps } = renderMeetingPoint({ way, relay_host: { hostname: runs.meeting_point.values?.host ?? 'localhost' }, computers: [], values: runs.meeting_point.values ?? {} });
     const then = steps.filter(step => step.run).map(step => step.run);
     files.push(...steps.filter(step => step.file).map(step => ({ path: step.file.path, text: step.file.text, then })));
+  }
+  for (const file of runs.machine?.files ?? []) {
+    if (typeof file?.path !== 'string' || !file.path.startsWith('/') || typeof file.text !== 'string') throw new Error('machine.files takes { path, text }: an absolute path and its text');
+    files.push({ path: file.path, text: file.text });
   }
   for (const unit of runs.units ?? []) {
     const where = `unit ${unit.unit}`;
