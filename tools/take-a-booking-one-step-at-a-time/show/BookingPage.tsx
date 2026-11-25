@@ -11,7 +11,8 @@
 //      every call to `<api_base>/book.start|answer|slots|slot|confirm` is made from an effect or a press.
 //   2. Props are plain JSON: `page` (the page's name), `title`, `timezone`, `duration_minutes`, `questions`
 //      ([{position, prompt, required}]), `words` (any of the words below, replacing the plain defaults) and `api_base`.
-//   3. A refusal the routes make on purpose carries its own words as `error`; any other failure shows `words.failed`.
+//   3. A refusal the routes make on purpose carries its own words as `error`, and when the step tool refused in its own words
+//      `why` too: the error line shows `why` when it is there and `error` when it is not; any other failure shows `words.failed`.
 //   4. A question is a form question: its type picks its control through ./FormSteps (shared with the form page), and the server
 //      checks the answer the same way. Times are drawn in the page's time zone.
 //   5. Everything drawn is a shared part (Container, Text, Button, ProgressBar, the Coss Input and TimeSlotPicker); no raw HTML,
@@ -28,6 +29,7 @@ import { Button } from '../../ui/show/coss/ui/button.tsx';
 import { TimeSlotPicker } from '../../ui/show/coss/time-slot-picker.tsx';
 import { SectionShell, TextColumn } from '../../ui/show/marketing-page/MarketingPagePrimitives.tsx';
 import { AnswerControl, Labelled, answered, type Answer, type Next as AskedNext } from '../../ask-questions-sort-answers-follow-up/show/FormSteps.tsx';
+import { refusalWords } from '../../ask-questions-sort-answers-follow-up/show/refusal-words.ts';
 
 export type BookingWords = Record<string, string>;
 export type BookingPageProps = {
@@ -73,7 +75,7 @@ function calendarLinkOf(title: string, details: string, slot: Slot, timezone: st
 async function call<T>(base: string, step: string, failed: string, body: unknown): Promise<T> {
   const response = await fetch(`${base}/${step}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   const answer = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(typeof answer.error === 'string' ? answer.error : failed);
+  if (!response.ok) throw new Error(refusalWords(answer, failed));
   return answer as T;
 }
 

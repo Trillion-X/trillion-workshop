@@ -11,7 +11,8 @@
 //      Every call to the site's routes and every use of this browser's storage happens after it is mounted, in an effect or
 //      a press.
 //   2. The routes are `<api_base>/form.start|answer|next|result|keep`, each answering JSON, and a refusal carries its own
-//      words as `error`; a database or network failure shows the page's `words.failed`, never its own text.
+//      words as `error`, and when the step tool refused in its own words `why` too: the error line shows `why` when it is there and
+//      `error` when it is not; a database or network failure shows the page's `words.failed`, never its own text.
 //   3. The sitting's id is kept in this browser under a key made from the page name, so a page opened again goes on where it
 //      was; a sitting that is already kept is let go of.
 //   4. Props are plain JSON: `page`, `title`, `words`, `questions`, `keep_on`, `signed_in`, `api_base`.
@@ -20,6 +21,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View as FormPage, type PageInfo, type Result, type Screen } from './FormPage.tsx';
 import type { Answer, Next } from './FormSteps.tsx';
+import { refusalWords } from './refusal-words.ts';
 
 export type FormPageScreenProps = {
   /** The form page's name: its address names its row (`form-page:<page>`). */
@@ -36,7 +38,7 @@ export type FormPageScreenProps = {
 async function call<T>(base: string, step: string, failed: string, body?: unknown): Promise<T> {
   const response = await fetch(`${base}/${step}`, body === undefined ? undefined : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   const answer = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(typeof answer.error === 'string' ? answer.error : failed);
+  if (!response.ok) throw new Error(refusalWords(answer, failed));
   return answer as T;
 }
 
