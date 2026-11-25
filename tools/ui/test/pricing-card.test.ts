@@ -82,3 +82,19 @@ test('a card whose buyer may pay more draws its line and a button that opens the
   assert.doesNotMatch(html, /\$199/);
   assert.match(html, /name="customerSelectedAmountCents"[^>]*value="9900"|value="9900"[^>]*name="customerSelectedAmountCents"/);
 });
+
+test('a typed amount is read as dollars, with or without cents, and only an amount is one', async () => {
+  const { centsOf } = await import('../show/pricing/card-type.ts');
+  assert.equal(centsOf('150'), 15000);
+  assert.equal(centsOf('$1,980.50'), 198050);
+  assert.equal(centsOf('99.5'), 9950);
+  assert.equal(centsOf('abc'), null);
+  assert.equal(centsOf('1.234'), null);
+  assert.equal(centsOf(''), null);
+});
+
+test('a card with a custom amount keeps its box closed until the amounts are opened', async () => {
+  const more = { toggle: 'More?', field: 'amountCents', options: [{ cents: 9900, label: '$99' }], custom: { label: 'Your own amount', min_cents: 9900, too_low: 'At least {min}.' } };
+  const closed = await renderAView(card, { ...offer, more });
+  assert.doesNotMatch(closed, /Your own amount/);
+});

@@ -22,10 +22,11 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import React, { useState } from 'react';
 import { Button } from '../button/Button.tsx';
+import { Input } from '../coss/ui/input.tsx';
 import { Container } from '../container/index.ts';
 import { Form } from '../form/Form.tsx';
 import { ShowcaseStrip, Text } from '../marketing-page/MarketingPagePrimitives.tsx';
-import { CARD_CADENCE, CARD_NAME, CARD_NOTE, CARD_PRICE } from './card-type.ts';
+import { CARD_CADENCE, CARD_NAME, CARD_NOTE, CARD_PRICE, centsOf } from './card-type.ts';
 
 export type PricingFeature = {
   id: string;
@@ -44,7 +45,12 @@ export type PricingMore = {
   /** The form field the amount in cents is posted in (it replaces the same name in `hiddenFields`). */
   field: string;
   options: readonly { cents: number; label: string }[];
+  /** One more choice: an amount the buyer types, at least `min_cents`. Its words are the row's: the label of the box and what
+   *  is said of an amount under the least (`too_low`, `{min}` is filled in). `currency` (ISO code) draws the amount; USD when left out. */
+  custom?: { label: string; min_cents: number; too_low?: string; currency?: string };
 };
+
+const moneyOf = (cents: number, currency = 'USD') => new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: cents % 100 === 0 ? 0 : 2, maximumFractionDigits: 2 }).format(cents / 100);
 
 export type PricingCardProps = {
   /** The amounts a buyer may pay instead of the price shown (see invariant 1). */
@@ -87,9 +93,13 @@ export function View(props: PricingCardProps) {
   const { id, name, price: given, cadence, note, amounts, features = [], cta: ctaGiven, onCheckout, action, hiddenFields: fields, pending, error, footnote, more, repeatCta = features.length > 2 } = props;
   const [open, setOpen] = useState(false);
   const [picked, setPicked] = useState<{ cents: number; label: string } | null>(null);
+  const [typed, setTyped] = useState<string | null>(null);
+  const typedCents = typed === null ? null : centsOf(typed);
+  const tooLow = typed !== null && typed.trim() !== '' && more?.custom !== undefined && (typedCents === null || typedCents < more.custom.min_cents);
   const posts = action !== undefined;
   const price = picked?.label ?? given;
   const cta = { ...ctaGiven, label: ctaGiven.label.replace('{price}', picked?.label ?? given ?? '') };
+  const blocked = typed !== null && picked === null;
   const hiddenFields = more && picked ? { ...fields, [more.field]: String(picked.cents) } : fields;
   const body = (
     <>
@@ -113,16 +123,29 @@ export function View(props: PricingCardProps) {
               {more.legend ? <Text as="p" weight="medium" color="strong">{more.legend}</Text> : null}
               <Container layout="horizontal" gap="sm" className="flex-wrap">
                 {more.options.map(option => (
-                  <Button key={option.cents} type="button" variant="outline" size="md" aria-pressed={picked?.cents === option.cents} onClick={() => setPicked(option)}>
-                    {`${picked?.cents === option.cents ? '✓ ' : ''}${option.label}`}
+                  <Button key={option.cents} type="button" variant="outline" size="md" aria-pressed={picked?.cents === option.cents} onClick={() => { setTyped(null); setPicked(option); }}>
+                    {`${typed === null && picked?.cents === option.cents ? '✓ ' : ''}${option.label}`}
                   </Button>
                 ))}
               </Container>
+              {more.custom ? (
+                <Container layout="vertical" gap="xs" width="full">
+                  <Text as="label" weight="medium" color="strong">{more.custom.label}</Text>
+                  <Input type="text" inputMode="decimal" autoComplete="off" size="lg" aria-label={more.custom.label} aria-invalid={tooLow} value={typed ?? ''} placeholder={moneyOf(more.custom.min_cents, more.custom.currency)}
+                    onChange={event => {
+                      const text = event.target.value;
+                      setTyped(text);
+                      const cents = centsOf(text);
+                      setPicked(cents !== null && cents >= (more.custom?.min_cents ?? 0) ? { cents, label: moneyOf(cents, more.custom?.currency) } : null);
+                    }} />
+                  {tooLow ? <Text as="p" role="alert" color="error">{(more.custom.too_low ?? '').replace('{min}', moneyOf(more.custom.min_cents, more.custom.currency))}</Text> : null}
+                </Container>
+              ) : null}
             </Container>
           ) : null}
         </Container>
       ) : null}
-      <Cta cta={cta} onCheckout={onCheckout} pending={pending} posts={posts} />
+      <Cta cta={cta} onCheckout={onCheckout} pending={pending || blocked} posts={posts} />
       {error ? <Text as="p" role="alert" color="error">{error}</Text> : null}
       {features.length === 0 ? null : (
         <Text as="ul" className="m-0 grid list-none gap-4 p-0" aria-label={`${name} includes`}>
@@ -134,7 +157,7 @@ export function View(props: PricingCardProps) {
           ))}
         </Text>
       )}
-      {repeatCta ? <Cta cta={cta} onCheckout={onCheckout} pending={pending} posts={posts} /> : null}
+      {repeatCta ? <Cta cta={cta} onCheckout={onCheckout} pending={pending || blocked} posts={posts} /> : null}
       {footnote ? <Text as="p" variant="caption" color="muted">{footnote}</Text> : null}
     </>
   );
