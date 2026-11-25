@@ -12,7 +12,7 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import { newRunKey, runWorkshopTool } from '#workspace/workshop-tool-api';
-import type { BillingFlow, BillingPage } from '../../../packages/billing/show/BillingScreen';
+import type { BillingFlow, BillingPage } from '../../../packages/billing/read-data/billing-guide';
 import targets from './billing-targets.json' with { type: 'json' };
 import { sellerAccountOf } from './seller-account';
 import { readHeldNames } from './seller-account-names';

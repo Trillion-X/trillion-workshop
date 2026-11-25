@@ -1,0 +1,85 @@
+{
+  "_what": "The account screen's own words (web/account-guide.ts lays them out on the shared guide); the sign-in's words it shares with the /account page stay in pages/words.json. {name} is filled from the account. `browsers` and `systems` name a signed-in device from its browser's user agent: the first row whose `match` the user agent holds wins. Where each part came from: the guide layout (sections of rows, each with a status and its actions, a confirm asked in place) is the first platform repository's Account & security screen's (src/account-screens.mjs, drawn by the guide); Sessions with this device marked and the others with Sign out, and Passkeys with Add at the section, are Linear's and Railway's security settings on Mobbin; Delete account last in the danger tone with a password box is the 21st.dev Account Settings Danger Zone (id 46773) and Delete Account Form (id 25081).",
+  "title": "Account",
+  "lead": "Your name and email, how you sign in, and where you are signed in.",
+  "profile_heading": "Profile",
+  "verified": "Verified",
+  "not_verified": "Not verified",
+  "ways_heading": "How you sign in",
+  "ways_body": "Every way into your account. A passkey is the fastest and safest.",
+  "email_code": "Email code",
+  "email_code_detail": "We email you a code each time you sign in.",
+  "on": "On",
+  "off": "Off",
+  "connected": "Connected",
+  "passkeys_body": "Sign in with your face, your fingerprint or your device's screen lock instead of a code.",
+  "passkey_detail": "Added {when}",
+  "sessions_heading": "Where you are signed in",
+  "sessions_body": "Sign out of any browser or device you do not use any more.",
+  "session_detail": "Last active {when}",
+  "this_device": "This device",
+  "unknown_device": "A browser",
+  "device_name": "{browser} on {system}",
+  "sign_out_others": "Sign out everywhere else",
+  "sign_out_others_confirm": "Sign out of every other browser and device?",
+  "signed_out_others": "Signed out everywhere else.",
+  "sign_out_here": "Sign out",
+  "delete_heading": "Delete account",
+  "delete_body": "Your account and everything kept with it are deleted. This cannot be undone.",
+  "delete_confirm": "Delete your account for good?",
+  "failed": "That did not work. Try again in a moment.",
+  "browsers": [
+    {
+      "match": "Edg/",
+      "name": "Edge"
+    },
+    {
+      "match": "Firefox/",
+      "name": "Firefox"
+    },
+    {
+      "match": "CriOS/",
+      "name": "Chrome"
+    },
+    {
+      "match": "Chrome/",
+      "name": "Chrome"
+    },
+    {
+      "match": "Safari/",
+      "name": "Safari"
+    }
+  ],
+  "systems": [
+    {
+      "match": "iPhone",
+      "name": "iPhone"
+    },
+    {
+      "match": "iPad",
+      "name": "iPad"
+    },
+    {
+      "match": "Android",
+      "name": "Android"
+    },
+    {
+      "match": "Mac OS X",
+      "name": "Mac"
+    },
+    {
+      "match": "Windows",
+      "name": "Windows"
+    },
+    {
+      "match": "Linux",
+      "name": "Linux"
+    }
+  ],
+  "providers": {
+    "google": "Google",
+    "apple": "Apple",
+    "github": "GitHub"
+  },
+  "try_again": "Try again"
+}
