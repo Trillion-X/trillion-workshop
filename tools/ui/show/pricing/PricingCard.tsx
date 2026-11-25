@@ -10,6 +10,9 @@
 //      the button is pressed, or the button is a link when `cta.href` is given. A page that owns the amount the buyer picks
 //      passes it as `price` and its picker as `amounts`.
 //   2. Nothing about payment is decided here: the words of the button, the price and its cadence are the offer's own, passed in.
+//      A page row that has no callbacks gives `action` instead: the card is then one plain form (method post) and the
+//      Checkout button submits it with `hiddenFields` (name -> value, such as which plan) and whatever fields `amounts`
+//      draws. The page that receives the post is the host's.
 //   3. A feature's pictures are the shared ShowcaseStrip's; a feature with none draws its line alone.
 //   4. Built from shared parts (Text, Container, Button, ShowcaseStrip); no raw HTML, no inline styling.
 //
@@ -17,6 +20,7 @@
 import React from 'react';
 import { Button } from '../button/Button.tsx';
 import { Container } from '../container/index.ts';
+import { Form } from '../form/Form.tsx';
 import { ShowcaseStrip, Text } from '../marketing-page/MarketingPagePrimitives.tsx';
 
 export type PricingFeature = {
@@ -40,6 +44,10 @@ export type PricingCardProps = {
   features?: readonly PricingFeature[];
   cta: { label: string; href?: string };
   onCheckout?: () => void;
+  /** Where the card posts when the button is pressed; the card is then a plain form and needs no callback. */
+  action?: string;
+  /** Values the post carries besides those typed into `amounts`: name -> value. */
+  hiddenFields?: Readonly<Record<string, string>>;
   /** True while the checkout is opening. */
   pending?: boolean;
   /** Why a press did nothing. */
@@ -49,18 +57,19 @@ export type PricingCardProps = {
   repeatCta?: boolean;
 };
 
-function Cta({ cta, onCheckout, pending }: Pick<PricingCardProps, 'cta' | 'onCheckout' | 'pending'>) {
+function Cta({ cta, onCheckout, pending, posts }: Pick<PricingCardProps, 'cta' | 'onCheckout' | 'pending'> & { posts: boolean }) {
   return (
-    <Button variant="primary" size="lg" fullWidth href={cta.href} disabled={pending} onClick={cta.href ? undefined : onCheckout} data-pricing-cta>
+    <Button variant="primary" size="lg" fullWidth href={cta.href} disabled={pending} type={posts && !cta.href ? 'submit' : undefined} onClick={cta.href || posts ? undefined : onCheckout} data-pricing-cta>
       {cta.label}
     </Button>
   );
 }
 
 export function View(props: PricingCardProps) {
-  const { id, name, price, cadence, note, amounts, features = [], cta, onCheckout, pending, error, footnote, repeatCta = features.length > 2 } = props;
-  return (
-    <Text as="article" className="grid gap-4" data-offer-card={id}>
+  const { id, name, price, cadence, note, amounts, features = [], cta, onCheckout, action, hiddenFields, pending, error, footnote, repeatCta = features.length > 2 } = props;
+  const posts = action !== undefined;
+  const body = (
+    <>
       <Container layout="horizontal" justifyContent="between" alignItems="baseline" width="full">
         <Text as="h3" variant="heading-lg" color="strong">{name}</Text>
         {price ? (
@@ -72,7 +81,7 @@ export function View(props: PricingCardProps) {
       </Container>
       {note ? <Text as="p" color="muted">{note}</Text> : null}
       {amounts ?? null}
-      <Cta cta={cta} onCheckout={onCheckout} pending={pending} />
+      <Cta cta={cta} onCheckout={onCheckout} pending={pending} posts={posts} />
       {error ? <Text as="p" role="alert" color="error">{error}</Text> : null}
       {features.length === 0 ? null : (
         <Text as="ul" className="m-0 grid list-none gap-4 p-0" aria-label={`${name} includes`}>
@@ -84,8 +93,13 @@ export function View(props: PricingCardProps) {
           ))}
         </Text>
       )}
-      {repeatCta ? <Cta cta={cta} onCheckout={onCheckout} pending={pending} /> : null}
+      {repeatCta ? <Cta cta={cta} onCheckout={onCheckout} pending={pending} posts={posts} /> : null}
       {footnote ? <Text as="p" variant="caption" color="muted">{footnote}</Text> : null}
+    </>
+  );
+  return (
+    <Text as="article" className="grid gap-4" data-offer-card={id}>
+      {posts ? <Form method="post" action={action} hiddenFields={hiddenFields} className="grid gap-4">{body}</Form> : body}
     </Text>
   );
 }

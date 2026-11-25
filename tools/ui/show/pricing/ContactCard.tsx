@@ -7,6 +7,9 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. Pure: no fetch and no window while it renders. The host owns the typed values, the error and whether a send is under way;
 //      every change is `onChange(name, value)` and the press is `onSubmit(values)`.
+//      A page row that has no callbacks gives `action`: the card is then a plain form (method post) whose fields are
+//      named as given here, so the browser posts them itself and nothing runs on the page. `hiddenFields` (name -> value)
+//      adds the values the person does not type, such as which form this is. The page that receives the post is the host's.
 //   2. Every word (heading, line, labels, button, note) is a prop; none is held here. A field is drawn required only when it is
 //      given `required`.
 //   3. Built from the shared Form, the licensed Coss Input and Button, and Text; no raw HTML, no inline styling.
@@ -32,11 +35,15 @@ export type ContactCardProps = {
   note?: string;
   error?: string;
   sending?: boolean;
+  /** Where the card posts when its button is pressed; given, the card needs no callback. */
+  action?: string;
+  /** Values the post carries besides the typed fields: name -> value. */
+  hiddenFields?: Readonly<Record<string, string>>;
   onChange?: (name: string, value: string) => void;
   onSubmit?: (values: Record<string, string>) => void;
 };
 
-export function View({ title, lead, fields, button, note, error = '', sending = false, onChange, onSubmit }: ContactCardProps) {
+export function View({ title, lead, fields, button, note, error = '', sending = false, action, hiddenFields, onChange, onSubmit }: ContactCardProps) {
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     onSubmit?.(Object.fromEntries(fields.map(field => [field.name, field.value ?? ''])));
@@ -45,10 +52,10 @@ export function View({ title, lead, fields, button, note, error = '', sending = 
     <Text as="article" className="coss-ui grid gap-4" data-contact-card>
       <Text as="h3" variant="heading-lg" color="strong">{title}</Text>
       {lead ? <Text as="p" color="muted">{lead}</Text> : null}
-      <Form onSubmit={submit} className="flex flex-col gap-4">
+      <Form {...(action === undefined ? { onSubmit: submit } : { method: 'post', action, hiddenFields })} className="flex flex-col gap-4">
         {fields.map(field => (
           <Labelled key={field.name} label={field.label}>
-            <Input name={field.name} type={field.type ?? 'text'} required={field.required} size="lg" value={field.value ?? ''} onChange={event => onChange?.(field.name, event.target.value)} />
+            <Input name={field.name} type={field.type ?? 'text'} required={field.required} size="lg" {...(action === undefined ? { value: field.value ?? '', onChange: (event: React.ChangeEvent<HTMLInputElement>) => onChange?.(field.name, event.target.value) } : { defaultValue: field.value ?? '' })} />
           </Labelled>
         ))}
         {error === '' ? null : <Text as="p" role="alert" color="error">{error}</Text>}

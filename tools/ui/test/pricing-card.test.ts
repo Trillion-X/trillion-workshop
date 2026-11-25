@@ -46,3 +46,30 @@ test('sending disables the button and an error shows as an alert', async () => {
   assert.match(html, /<button[^>]*disabled=""[^>]*>Send</);
   assert.match(html, /role="alert"[^>]*>Try again\./);
 });
+
+test('a card given an action is one plain post form: hidden fields, a submit button, no callback needed', async () => {
+  const html = await renderAView(card, { ...offer, action: '/target/start-checkout', hiddenFields: { plan: 'membership', cadence: 'month' } });
+  assert.match(html, /<form[^>]*method="post"[^>]*>|<form[^>]*action="\/target\/start-checkout"[^>]*>/);
+  assert.match(html, /action="\/target\/start-checkout"/);
+  assert.match(html, /<input[^>]*type="hidden"[^>]*name="plan"[^>]*value="membership"|<input[^>]*name="plan"[^>]*type="hidden"/);
+  assert.match(html, /name="cadence"/);
+  assert.equal((html.match(/<button[^>]*type="submit"[^>]*data-pricing-cta|<button[^>]*data-pricing-cta[^>]*type="submit"/g) ?? []).length, 2);
+  assert.equal((html.match(/<form/g) ?? []).length, 1);
+});
+
+test('a card with no action draws no form; a link button with an action stays a link', async () => {
+  assert.doesNotMatch(await renderAView(card, offer), /<form/);
+  const link = await renderAView(card, { id: 'call', name: 'Book a call', cta: { label: 'Book', href: '/book' }, action: '/target/x' });
+  assert.match(link, /href="\/book"/);
+  assert.doesNotMatch(link, /type="submit"/);
+});
+
+test('the contact card given an action posts its named fields as a plain form, with typed values as defaults', async () => {
+  const html = await renderAView(contact, { title: 'T', fields, button: 'Send', action: '/target/contact', hiddenFields: { form: 'contact' } });
+  assert.match(html, /<form[^>]*action="\/target\/contact"/);
+  assert.match(html, /method="post"/);
+  assert.match(html, /name="form"[^>]*value="contact"|value="contact"[^>]*name="form"/);
+  assert.match(html, /name="email"/);
+  assert.match(html, /value="a@example\.com"/);
+  assert.match(html, /<button[^>]*type="submit"/);
+});
