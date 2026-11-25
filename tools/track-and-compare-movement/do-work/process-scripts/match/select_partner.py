@@ -319,6 +319,7 @@ def select(target_desc_path, target_kp, win, index_dir, weights=None, max_dist=1
     gated_view=max(0, seen-len(cand))                             # windows outside the view family (the gate the index applied)
     pool=[]; gated_q=0; gated_heading=0; gated_elev=0; gated_trunc=0; gated_motion=0; gated_self=0
     others=[]; gated_unlabelled=0                                 # labelled mode: contrast-class distances; unlabelled refs
+    nearest_same=None                                             # labelled mode: nearest wanted-class distance, before the bound
     _reccache={}                                                  # load each candidate's desc/kp file ONCE
     for key,i,f in cand:
         if Path(f).resolve()==tgt: continue                      # exclude the query's own clip by PATH (leave-one-clip-out)
@@ -361,6 +362,8 @@ def select(target_desc_path, target_kp, win, index_dir, weights=None, max_dist=1
             gated_elev+=1; continue
         bc=MC.descriptor_at(str(kp), w.get("t0",0), w.get("t1",0), salience_keypoints=salience_keypoints, spec=comparison_spec)  # CERTIFIED descriptor (iter4); crop salience = DATA (iter46); comparison channels = DATA (iter73)
         cs,gpar=MC.dist(qc, bc, mode="worst", spec=comparison_spec)                           # CERTIFIED same-motion admission: worst reliable (SAME spec as the descriptors — iter73)
+        if labels is not None and cs is not None:
+            nearest_same=cs if nearest_same is None else min(nearest_same, cs)
         if cs is None or cs>cert_admit:                                                      # channel must agree + observability fail-closed.
             gated_motion+=1; continue                                                       # REPLACES the unsafe geom τ gate (L101, D13).
         gd=cs                                                                                # certified score IS the ranking distance now
@@ -377,8 +380,11 @@ def select(target_desc_path, target_kp, win, index_dir, weights=None, max_dist=1
     if labels is not None:
         near=min(others) if others else None
         diag["gated_unlabelled"]=gated_unlabelled
-        diag["class_check"]={"want":want,"same":(round(min(it["geom_dist"] for it in pool),4) if pool else None),
+        by_class={}
+        for od,lab in others: by_class[lab]=min(by_class.get(lab,od),od)
+        diag["class_check"]={"want":want,"same":(None if nearest_same is None else round(nearest_same,4)),
                              "other":(round(near[0],4) if near else None),"other_class":(near[1] if near else None),
+                             "by_class":{k:round(v,4) for k,v in sorted(by_class.items())},
                              "contrast_windows":len(others),"margin":class_margin,"admit":cert_admit}
     if not pool: return {"no_match":True,**diag,"reason":"no_admissible_motion_in_view_family"}
     if labels is not None:

@@ -107,6 +107,14 @@ class LabelledMatch(unittest.TestCase):
         self.assertEqual(self.select({"fh1": "forehand", "bh1": "backhand"})["reason"],
                          "no_admissible_motion_in_view_family")
 
+    def test_a_run_that_admits_nothing_still_reports_every_class_distance(self):
+        self.index({"fh1": 0.33, "fh2": 0.45, "bh1": 0.52, "sl1": 0.47})
+        got = self.select({"fh1": "forehand", "fh2": "forehand", "bh1": "backhand", "sl1": "slice"}, admit=0.0)
+        self.assertTrue(got["no_match"])
+        self.assertEqual(got["class_check"]["same"], 0.33)
+        self.assertEqual(got["class_check"]["by_class"], {"backhand": 0.52, "slice": 0.47})
+        self.assertEqual(got["class_check"]["other_class"], "slice")
+
     def test_without_labels_the_label_free_gate_is_unchanged(self):
         self.index({"fh1": 0.33, "bh1": 0.52})
         self.assertEqual(self.select()["reason"], "no_admissible_motion_in_view_family")  # 0.33 > cert_admit 0.22
