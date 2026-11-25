@@ -98,6 +98,7 @@ refuses the set. Two names are not variables:
   "door": { "address": "unix:/run/engine/door.sock", "pass_credential": "site-door-pass" },
   "pages": { "database": "a_site_for_who_uses_it", "use": { "purpose": "serve the site", "surface": "site pages" }, "refresh_seconds": 60, "answer_seconds": 60 },
   "sign_in": { "address": "unix:/run/sign-in/sign-in.sock", "page": "/sign-in", "issuer": "https://example.com", "audience": "https://example.com", "team_claim": "team_ids", "members_team": "<team id>", "signed_out": "redirect" },
+  "site_head": { "tool": "tool:read-the-site-head", "input": { "database": "a_site_for_who_uses_it", "site": "a-site" } },
   "files_store": { "endpoint": "https://s3.us-east-005.backblazeb2.com", "region": "us-east-005", "bucket": "<bucket>", "style": "path", "credential": "files-store-read-key" },
   "member_files": { "path": "/member-files/", "key_prefix": "site-files/", "prefixes": ["lessons/"], "link_seconds": 21600 },
   "public_files": { "paths": ["/assets/", "/images/", "/favicon.png"], "key_prefix": "site-files/", "link_seconds": 604800, "cache_seconds": 86400 }
@@ -109,6 +110,10 @@ refuses the set. Two names are not variables:
 - `pass_on`: `[{ "name", "address", "paths", "exact", "hosts" }]`. A request under one of `paths` (a path and what is under it),
   or at one of `exact` (that path only), on one of `hosts` (every host when left out), is passed to `address` whole; the first
   entry that takes it wins. Example: `{ "name": "the sign-in tool", "address": "unix:/run/sign-in/sign-in.sock", "paths": ["/sign-in", "/api/auth"] }`.
+- `site_head`: `{ "tool", "input" }`, the tool whose answer `{ head, body_start }` every page, members pages too, carries at
+  the top of its `<head>` and the start of its `<body>`: the consent default first, the Accept and Decline bar, then the site's
+  declared tags (`tool:read-the-site-head {database, site}`, placed by that tool's own `withSiteHead`). It is read with the
+  rows; a first read that fails stops the start, a later one keeps the last good markup. Left out, pages carry none.
 - `sign_in`: a members page asks the sign-in tool (`tools/better-auth-official`) for the visitor's pass (`/api/auth/token`), checks
   it against that tool's keys (`/api/auth/jwks`): EdDSA, ES256 or RS256, issuer, audience, end, and `team_claim` holding
   `members_team`. That pass is the caller for the page's tool runs, so the door judges the member by their own pass. No pass:

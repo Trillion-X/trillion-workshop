@@ -44,6 +44,8 @@ async function door() {
         assert.deepEqual(run.input.use, { purpose: 'serve the site', surface: 'site pages' }, 'every read runs under the declared use');
         const sql = run.input.sql!;
         result = { rows: sql.includes('FROM pages') ? PAGES : sql.includes('FROM site_look') ? [{ name: 'theme', value: 'paper' }, { name: 'font-face.body-400', value: 'Body Sans|400|normal|/assets/fonts/body.woff2' }, { name: 'brand-ink', value: '#123456' }] : [{ slug: 'first' }, { slug: 'second one' }] };
+      } else if (run.tool === 'tool:read-the-site-head') {
+        result = { head: '<script>window.consentFirst=1</script>', body_start: '<noscript>tags off</noscript>' };
       } else if (run.tool === 'tool:read-a-greeting') {
         result = { as: 'p', children: `Hello, ${run.input.who}` };
       } else {
@@ -199,6 +201,8 @@ test('settings that are not a site are refused with what they should be', () => 
   assert.throws(() => settingsOf({ ...good, pages: { ...good.pages, use: { purpose: 'x' } } }), /pages is/);
   assert.throws(() => settingsOf({ ...good, sign_in: { ...good.sign_in, page: 'sign-in' } }), /sign_in/);
   assert.equal(serverTiming([{ tool: 'tool:a"b', ms: 5 }]), 'run0;dur=5;desc="tool:ab"');
+  assert.throws(() => settingsOf({ ...good, site_head: { tool: 'read-the-site-head', input: {} } }), /site_head/);
+  assert.throws(() => settingsOf({ ...good, site_head: { tool: 'tool:read-the-site-head', input: [] } }), /site_head/);
 });
 
 test('one unit answers each of its hosts by X-Forwarded-Host, else Host; a host\'s own row wins, an unknown host is origin\'s', async () => {
@@ -302,4 +306,23 @@ test('a part\'s own CSS module comes with the page: its local class is on the ma
   assert.ok(css.includes(`.${local} {`) || css.includes(`.${local}{`), `the sheet holds the rule for ${local}`);
   assert.match(css, /color: ?(rgb\(1, ?2, ?3\)|#010203)/, 'the part\'s own rule is in the sheet');
   assert.ok(String(files.answer(bundle.script)!.body).includes(local), 'the browser draws the same local class');
+});
+
+test('the site head tool\'s markup opens every page\'s head and body, members pages too; a head that cannot be read stops the start', async () => {
+  const d = await door();
+  try {
+    const head = { tool: 'tool:read-the-site-head', input: { database: 'a_site_for_who_uses_it', site: 'a-site' } };
+    const site = await siteOn(d.address, { site_head: head });
+    const call = d.calls.find(c => c.run.tool === head.tool)!;
+    assert.deepEqual(call.run.input, head.input, 'the head tool is run with its settings input');
+    assert.equal(call.pass, 'the-site-pass');
+    for (const [path, cookie] of [['/', undefined], ['/members', 'session=member']] as const) {
+      const html = String((await site.answer('GET', path, cookie)).body);
+      assert.match(html, /^<!doctype html><html lang="en"><head><script>window.consentFirst=1<\/script>/, `${path}: the head markup is first in <head>`);
+      assert.match(html, /<body[^>]*><noscript>tags off<\/noscript>/, `${path}: the body-start markup opens <body>`);
+    }
+    const plain = await siteOn(d.address);
+    assert.doesNotMatch(String((await plain.answer('GET', '/', undefined)).body), /consentFirst/, 'a site with no site_head carries none');
+    await assert.rejects(siteOn(d.address, { site_head: { tool: 'tool:fails', input: {} } }), /tool:fails/);
+  } finally { d.server.close(); }
 });

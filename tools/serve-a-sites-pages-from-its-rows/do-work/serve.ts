@@ -35,6 +35,9 @@
 //                    themselves (the sign-in tool's pages and /api/auth; a program's actions that have no tool yet): a request
 //                    under one of `paths`, or at one of `exact`, on one of `hosts` (every host when left out), is passed to
 //                    `address` whole, its answer passed back whole; the first entry that takes it wins
+//     site_head      (optional) { tool, input }: the tool whose answer { head, body_start } every page carries at the top of its
+//                    <head> and the start of its <body> (the consent default and bar, then the site's declared tags; the
+//                    Workshop's tool:read-the-site-head), read with the rows and placed by that tool's own withSiteHead
 //     files_store    (optional) { endpoint, region, bucket, style, credential }: the site's files store, and the name of its read
 //                    key in the unit's credentials (member-video.ts)
 //     member_files   (optional, needs files_store) { path, key_prefix, prefixes, link_seconds }: members' files
@@ -65,6 +68,8 @@ import type { FilesStore, MemberFiles, PublicFiles, StoreKey } from './member-vi
 import { filledInput, matchPage, pagesOf, pagesOn, pathWith, PAGES_SQL, paramsOf, slugsSql } from './pages.ts';
 import type { PageRow, Refused } from './pages.ts';
 import { pageStyles } from './page-styles.ts';
+import { withSiteHead } from '../../site-head-from-its-rows/do-work/site-head.ts';
+import type { SiteHeadMarkup } from '../../site-head-from-its-rows/do-work/site-head.ts';
 import { drawnTreeOf, fontFaceCss, fontFacesOf, lookCss, PageBundles, screensOfTools, THEME_ROW, treeOf, wordsTree } from './render.ts';
 import type { Screen, Timed } from './render.ts';
 import { modulesOf } from './render-layout.ts';
@@ -81,6 +86,7 @@ export interface Settings {
   pages: { database: string; use?: { purpose: string; surface: string }; refresh_seconds: number; answer_seconds: number };
   sign_in: SignIn & { page: string; signed_out: 'redirect' | 'draw' };
   pass_on: PassOn[];
+  site_head?: { tool: string; input: Record<string, unknown> };
   files_store?: FilesStore & { credential: string };
   member_files?: MemberFiles;
   public_files?: PublicFiles;
@@ -123,6 +129,10 @@ export function settingsOf(value: unknown): Settings {
     || !(Array.isArray(on.paths ?? []) && (on.paths ?? []).every(sitePath)) || !(Array.isArray(on.exact ?? []) && (on.exact ?? []).every(sitePath))
     || !(Array.isArray(on.hosts ?? []) && (on.hosts ?? []).every(host => typeof host === 'string' && HOST_NAME.test(host))))) {
     throw new Error('pass_on lists { name, address, paths (a path and what is under it), exact (that path only), hosts (only these hosts; every host when left out) }.');
+  }
+  if (s.site_head !== undefined && (!s.site_head || typeof s.site_head.tool !== 'string' || !s.site_head.tool.startsWith('tool:')
+    || !s.site_head.input || typeof s.site_head.input !== 'object' || Array.isArray(s.site_head.input))) {
+    throw new Error('site_head is { tool: "tool:<id>", input: { ... } }: the tool whose answer { head, body_start } every page carries.');
   }
   if (s.files_store !== undefined) {
     filesStoreOf(s.files_store);
@@ -177,6 +187,7 @@ export class Site {
   #pages: PageRow[] = [];
   #refused: Refused[] = [];
   #look = '';
+  #head: SiteHeadMarkup | null = null;
   #readAt = 0;
   #reading: Promise<void> | null = null;
   #answers = new Map<string, Kept>();
@@ -199,7 +210,7 @@ export class Site {
 
   /** Reads the page and look rows; throws when they cannot be read or a row is broken. */
   async read(): Promise<void> {
-    const [pages, look] = await Promise.all([this.#sql(PAGES_SQL), this.#sql(LOOK_SQL)]);
+    const [pages, look, head] = await Promise.all([this.#sql(PAGES_SQL), this.#sql(LOOK_SQL), this.#siteHead()]);
     const { pages: good, refused } = pagesOf(pages);
     for (const { path, why } of refused) if (!this.#refused.some(r => r.path === path && r.why === why)) this.#log(`page row set aside: ${why}`);
     this.#pages = good;
@@ -207,7 +218,17 @@ export class Site {
     const theme = look.find(row => row.name === THEME_ROW)?.value;
     const faces = await Promise.all(fontFacesOf(look).map(async face => ({ ...face, address: await this.#parts.keepFont(face.src) })));
     this.#look = `${fontFaceCss(faces)}${this.#parts.palette(typeof theme === 'string' ? theme : null)}${lookCss(look)}`;
+    this.#head = head;
     this.#readAt = Date.now();
+  }
+
+  // The site head's markup, read by its tool with the rows; a site with no site_head carries none.
+  async #siteHead(): Promise<SiteHeadMarkup | null> {
+    const call = this.#parts.settings.site_head;
+    if (!call) return null;
+    const answer = await this.#parts.run(this.#parts.sitePass, call) as { head?: unknown; body_start?: unknown } | null;
+    if (typeof answer?.head !== 'string' || typeof answer.body_start !== 'string') throw new DoorError(`${call.tool} answered no { head, body_start }.`);
+    return { head: answer.head, bodyStart: answer.body_start };
   }
 
   // Rows older than refresh_seconds are read again behind the request; the last good set answers meanwhile.
@@ -254,7 +275,8 @@ export class Site {
 
   async #document(title: string, host: string, pathname: string, tree: DrawnNode, goTo?: string): Promise<string> {
     const bundle = await this.#parts.bundles.bundleFor(modulesOf(tree));
-    return bundle.html({ lang: this.#parts.settings.lang, title, canonical: `${this.#originOf(host)}${pathname}`, look: this.#look, ...(goTo ? { goTo } : {}) }, tree);
+    const html = bundle.html({ lang: this.#parts.settings.lang, title, canonical: `${this.#originOf(host)}${pathname}`, look: this.#look, ...(goTo ? { goTo } : {}) }, tree);
+    return this.#head ? withSiteHead(html, this.#head) : html;
   }
 
   async #drawn(page: PageRow, params: Record<string, string>, host: string, pathname: string, run: (call: ToolRun) => Promise<unknown>, status: number, cache: string): Promise<Answer> {
