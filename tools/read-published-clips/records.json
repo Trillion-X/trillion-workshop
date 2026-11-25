@@ -503,7 +503,7 @@
             ]
           }
         },
-        "result_selector": "$",
+        "result_selector": "$.result",
         "read_only": true,
         "needs": {
           "expected_seconds": 20,
