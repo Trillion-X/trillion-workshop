@@ -6,6 +6,7 @@
 //   socket or port the settings name. For each request it answers, in this order:
 //     /screen-files/<identity>.<js|css>   a page's mount script or stylesheet (screen-files.ts)
 //     <member_files.path><key>            a member's file: 302 to a presigned link, for members only (member-video.ts)
+//     a path under public_files.paths     a public file: 302 to a presigned link, cached (member-video.ts)
 //     /sitemap.xml                        every public page address, template pages listed from their collection
 //     a page row's address                the page (pages.ts, render.ts); a members page only for a member
 //   and the page row "/404" (or plain words) for any other address. Its pages, look and tool answers are read through the
@@ -31,9 +32,12 @@
 //                    signed_out "redirect" (302 to page?next=<address>, when left out) or "draw" (the page row at `page` is
 //                    drawn at the members address itself, 200, private, no-store); paths: the site paths the sign-in tool
 //                    answers itself (its pages and /api/auth), each request under them passed to it whole
-//     member_files   (optional) member-video.ts's settings, plus `credential`: the name of the store's read key in the unit's
-//                    credentials
+//     files_store    (optional) { endpoint, region, bucket, style, credential }: the site's files store, and the name of its read
+//                    key in the unit's credentials (member-video.ts)
+//     member_files   (optional, needs files_store) { path, key_prefix, prefixes, link_seconds }: members' files
+//     public_files   (optional, needs files_store) { paths, key_prefix, link_seconds, cache_seconds }: the site's public files
 //   Credentials are files of the unit's credentials folder ($CREDENTIALS_DIRECTORY), sealed there by the computer from the vault.
+//   A local run with no credentials folder takes its one credential on standard input, piped from the vault's held-value read.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. It holds no database login: every row is read by the engine's run-sql tool, as the site's caller, under a declared use
@@ -53,8 +57,8 @@ import { ask, commandOf, DoorError, runTool, runToolAsCommand } from './door.ts'
 import type { Door, ToolRun } from './door.ts';
 import { MemberPasses } from './member-pass.ts';
 import type { Member, SignIn } from './member-pass.ts';
-import { memberFileAnswer, memberFilesOf, objectKeyOf, storeKeyOf } from './member-video.ts';
-import type { MemberFiles, StoreKey } from './member-video.ts';
+import { filesStoreOf, isPublicPath, memberFileAnswer, memberFilesOf, objectKeyOf, publicFileAnswer, publicFilesOf, publicKeyOf, storeKeyOf } from './member-video.ts';
+import type { FilesStore, MemberFiles, PublicFiles, StoreKey } from './member-video.ts';
 import { filledInput, matchPage, pagesOf, pagesOn, pathWith, PAGES_SQL, paramsOf, slugsSql } from './pages.ts';
 import type { PageRow, Refused } from './pages.ts';
 import { pageStyles } from './page-styles.ts';
@@ -73,7 +77,9 @@ export interface Settings {
   door: { address: string; pass_credential?: string; pins?: string[] };
   pages: { database: string; use?: { purpose: string; surface: string }; refresh_seconds: number; answer_seconds: number };
   sign_in: SignIn & { page: string; signed_out: 'redirect' | 'draw'; paths: string[] };
-  member_files?: MemberFiles & { credential: string };
+  files_store?: FilesStore & { credential: string };
+  member_files?: MemberFiles;
+  public_files?: PublicFiles;
 }
 
 const RUN_SQL = 'tool:run-sql-in-my-database';
@@ -109,18 +115,30 @@ export function settingsOf(value: unknown): Settings {
   }
   if (i.signed_out !== 'redirect' && i.signed_out !== 'draw') throw new Error('sign_in.signed_out is "redirect" or "draw".');
   if (!Array.isArray(i.paths) || i.paths.some(path => typeof path !== 'string' || !/^\/[A-Za-z0-9._~\/-]*$/.test(path))) throw new Error('sign_in.paths lists the site paths the sign-in tool answers, such as ["/sign-in", "/api/auth"].');
-  if (s.member_files !== undefined) {
-    memberFilesOf(s.member_files);
-    if (typeof s.member_files.credential !== 'string') throw new Error('member_files.credential names the store\'s read key in the unit\'s credentials.');
+  if (s.files_store !== undefined) {
+    filesStoreOf(s.files_store);
+    if (typeof s.files_store.credential !== 'string') throw new Error('files_store.credential names the store\'s read key in the unit\'s credentials.');
   }
-  return s as Settings;
+  if ((s.member_files !== undefined || s.public_files !== undefined) && s.files_store === undefined) throw new Error('member_files and public_files need files_store.');
+  return {
+    ...s,
+    ...(s.member_files !== undefined ? { member_files: memberFilesOf(s.member_files) } : {}),
+    ...(s.public_files !== undefined ? { public_files: publicFilesOf(s.public_files) } : {}),
+  } as Settings;
 }
 
 /** One credential of the unit, by name, from its credentials folder. */
 export function credential(name: string, folder = process.env.CREDENTIALS_DIRECTORY): string {
-  if (!folder || !/^[A-Za-z0-9._-]+$/.test(name)) throw new Error(`The credential ${name} is not in this unit's credentials.`);
-  return readFileSync(join(folder, name), 'utf8').trim();
+  if (!/^[A-Za-z0-9._-]+$/.test(name)) throw new Error(`The credential ${name} is not a credential name.`);
+  if (folder) return readFileSync(join(folder, name), 'utf8').trim();
+  // A local run: the one credential arrives on standard input, piped from the vault's held-value read; it is read once.
+  if (process.stdin.isTTY) throw new Error(`The credential ${name} is not in this unit's credentials, and nothing is piped in.`);
+  if (piped.name !== null && piped.name !== name) throw new Error(`Standard input holds the credential ${piped.name}; a local run takes one credential.`);
+  piped.name = name;
+  piped.value ??= readFileSync(0, 'utf8').trim();
+  return piped.value;
 }
+const piped: { name: string | null; value: string | null } = { name: null, value: null };
 
 export interface SiteParts {
   settings: Settings;
@@ -273,11 +291,16 @@ export class Site {
     const file = this.#parts.files.answer(pathname);
     if (file) return file;
     this.#fresh();
-    const memberFiles = this.#parts.settings.member_files;
-    if (memberFiles && pathname.startsWith(memberFiles.path)) {
+    const { files_store: store, member_files: memberFiles, public_files: publicFiles } = this.#parts.settings;
+    if (store && memberFiles && pathname.startsWith(memberFiles.path)) {
       const key = objectKeyOf(memberFiles, pathname);
       if (!key || !this.#parts.storeKey) return { status: 404, headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'private, no-store' }, body: 'No such file.\n' };
-      return memberFileAnswer(memberFiles, this.#parts.storeKey, key, await this.#parts.passes.memberOfCookie(cookie));
+      return memberFileAnswer(store, memberFiles, this.#parts.storeKey, key, await this.#parts.passes.memberOfCookie(cookie));
+    }
+    if (store && publicFiles && isPublicPath(publicFiles, pathname)) {
+      const key = publicKeyOf(publicFiles, pathname);
+      if (!key || !this.#parts.storeKey) return { status: 404, headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' }, body: 'No such file.\n' };
+      return publicFileAnswer(store, publicFiles, this.#parts.storeKey, key);
     }
     const pages = pagesOn(this.#pages, host);
     try {
@@ -379,7 +402,7 @@ export async function start(settingsFile: string): Promise<http.Server> {
     run,
     sitePass: command ? COMMAND_PASS : credential(settings.door.pass_credential!),
     passes: new MemberPasses(settings.sign_in),
-    storeKey: settings.member_files ? storeKeyOf(credential(settings.member_files.credential)) : null,
+    storeKey: settings.files_store ? storeKeyOf(credential(settings.files_store.credential)) : null,
     bundles: new PageBundles(tools, await pageStyles(tools, files), files),
     files,
     screens: screensOfTools(tools),

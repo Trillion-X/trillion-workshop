@@ -11,6 +11,10 @@ cd tools/serve-a-sites-pages-from-its-rows
 CREDENTIALS_DIRECTORY=/path/to/the/units/credentials node do-work/serve.ts /path/to/settings.json
 ```
 
+A local run with no credentials folder takes its one credential (the files store's read key) on standard input, piped from the
+vault's held-value read (`sh read-a-held-value.sh read <store key name> | node do-work/serve.ts /path/to/settings.json`), so the
+key is never in a file or an argument.
+
 For a local run on a person's own computer with no door pass, set `"door": {"address": "cli:<command>", "pins": ["<computer pin>"]}`:
 each read is run by that computer's own signed-in command (the Workshop's `use-your-tools-from-a-shell` door-op), and no pass is
 held. Members pages are then refused (403): they need the member's own pass on the engine door.
@@ -27,7 +31,8 @@ credentials folder is where the computer seals the site's door pass and the file
 | Address | Answer |
 |---|---|
 | `/screen-files/<identity>.<kind>` | a page's mount script, its stylesheet, or a font the shared looks name, by BLAKE3 identity, kept for good |
-| `<member_files.path><key>` | for a member: 302 to a presigned GET of that key; for anyone else: 403; always `private, no-store` |
+| `<member_files.path><key>` | for a member: 302 to a presigned GET of `key_prefix` + key; for anyone else: 403; always `private, no-store` |
+| a path under `public_files.paths` | 302 to a presigned GET of `key_prefix` + the path without its leading slash, `public, max-age=cache_seconds` |
 | `/sitemap.xml` | every public page address; a template page lists one address per `slug` of its collection |
 | a page row's address | the page, drawn on the server; a members page only for a member, sent `private, no-store` |
 | a members address, signed out | `sign_in.signed_out: "redirect"`: 302 to `sign_in.page?next=<address>`; `"draw"`: the page row at `sign_in.page`, drawn at that address, 200 |
@@ -86,7 +91,9 @@ site's rows win. A value holding `; { } < >` or a backslash refuses the set.
   "door": { "address": "unix:/run/engine/door.sock", "pass_credential": "site-door-pass" },
   "pages": { "database": "a_site_for_who_uses_it", "use": { "purpose": "serve the site", "surface": "site pages" }, "refresh_seconds": 60, "answer_seconds": 60 },
   "sign_in": { "address": "unix:/run/sign-in/sign-in.sock", "page": "/sign-in", "issuer": "https://example.com", "audience": "https://example.com", "team_claim": "team_ids", "members_team": "<team id>", "signed_out": "redirect" },
-  "member_files": { "path": "/member-files/", "endpoint": "https://s3.us-west-004.backblazeb2.com", "region": "us-west-004", "bucket": "<bucket>", "style": "path", "prefixes": ["lessons/"], "link_seconds": 21600, "credential": "member-files-read-key" }
+  "files_store": { "endpoint": "https://s3.us-east-005.backblazeb2.com", "region": "us-east-005", "bucket": "<bucket>", "style": "path", "credential": "files-store-read-key" },
+  "member_files": { "path": "/member-files/", "key_prefix": "site-files/", "prefixes": ["lessons/"], "link_seconds": 21600 },
+  "public_files": { "paths": ["/assets/", "/images/", "/favicon.png"], "key_prefix": "site-files/", "link_seconds": 604800, "cache_seconds": 86400 }
 }
 ```
 
@@ -97,6 +104,8 @@ site's rows win. A value holding `; { } < >` or a backslash refuses the set.
   `members_team`. That pass is the caller for the page's tool runs, so the door judges the member by their own pass. No pass:
   302 to `sign_in.page?next=<address>`.
 - `member_files.link_seconds`: at least the longest video, at most 604800; the player asks for a new link on a 403.
+- `public_files`: a page row names a public file by its site path; the file sits in the store at `key_prefix` + that path, so
+  moving the site's files into the store changes no row. `cache_seconds` is at most half of `link_seconds`.
 
 ## Files
 
