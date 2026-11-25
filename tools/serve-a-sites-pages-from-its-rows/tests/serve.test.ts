@@ -43,7 +43,7 @@ async function door() {
       if (run.tool === 'tool:run-sql-in-my-database') {
         assert.deepEqual(run.input.use, { purpose: 'serve the site', surface: 'site pages' }, 'every read runs under the declared use');
         const sql = run.input.sql!;
-        result = { rows: sql.includes('FROM pages') ? PAGES : sql.includes('FROM site_look') ? [{ name: 'brand-ink', value: '#123456' }] : [{ slug: 'first' }, { slug: 'second one' }] };
+        result = { rows: sql.includes('FROM pages') ? PAGES : sql.includes('FROM site_look') ? [{ name: 'theme', value: 'paper' }, { name: 'brand-ink', value: '#123456' }] : [{ slug: 'first' }, { slug: 'second one' }] };
       } else if (run.tool === 'tool:read-a-greeting') {
         result = { as: 'p', children: `Hello, ${run.input.who}` };
       } else {
@@ -78,6 +78,7 @@ async function siteOn(address: string, more: Record<string, unknown> = {}) {
     passes: { memberOfCookie: async cookie => cookie === 'session=member' ? { pass: 'the-member-pass', subject: 'user-1', teams: ['team-members'] } : null },
     storeKey: null,
     bundles: new PageBundles(tools, styles, files),
+    palette: theme => styles.palette(theme),
     files,
     screens: new Map([['tool:read-a-greeting', { file: TEXT, export: 'Text' }], ['tool:fails', { file: TEXT, export: 'Text' }]]),
     log: () => {},
@@ -96,7 +97,11 @@ test('a public page is drawn on the server from its layout, its tool answer and 
     assert.match(html, /^<!doctype html><html lang="en">/);
     assert.match(html, /<title>Home<\/title>/);
     assert.match(html, /<link rel="canonical" href="https:\/\/site.example.test\/"\/>/);
-    assert.match(html, /<style>:root\{--brand-ink:#123456;\}<\/style>/);
+    const look = html.match(/<style>(:root\{[^<]*)<\/style>/)![1];
+    assert.ok(look.startsWith(styles.palette('paper')), 'the site\'s theme row picks its Screen Look palette first');
+    assert.ok(look.endsWith(':root{--brand-ink:#123456;}'), 'the site\'s own look rows follow, so they win');
+    assert.notEqual(styles.palette('paper'), styles.palette(null), 'a named theme is not the starting one');
+    assert.throws(() => styles.palette('no-such-look'), /does not offer/);
     assert.match(html, /<main[^>]*>Welcome<p[^>]*>Hello, everyone<\/p><\/main>/, 'the part holds its words and the tool screen drawn with its answer');
     assert.match(page.headers['server-timing'], /^run0;dur=\d+;desc="tool:read-a-greeting"$/);
     const script = html.match(/<script type="module" src="([^"]+)"/)![1];
@@ -279,4 +284,14 @@ test('the sign-in tool\'s paths are passed to it whole, cookies and all; every o
     assert.equal(signInPath(['/sign-in'], '/sign-in-later'), false, 'a path is the prefix and what is under it, never a longer word');
     assert.equal(signInPath(['/sign-in'], '/sign-in/done'), true);
   } finally { server.close(); signIn.close(); d.server.close(); }
+});
+
+test('a part\'s own CSS module comes with the page: its local class is on the markup and its rule in the page\'s stylesheet', async () => {
+  const bundle = await new PageBundles(tools, styles, files).bundleFor(['serve-a-sites-pages-from-its-rows/tests/show/Styled.tsx#View']);
+  const html = bundle.html({ lang: 'en', title: 'T', canonical: 'https://site.example.test/', look: '' }, { module: 'serve-a-sites-pages-from-its-rows/tests/show/Styled.tsx#View', props: { words: 'Styled words' } });
+  const local = html.match(/class="([^"]*box[^"]*)"[^>]*>Styled words/)![1].split(' ').find(name => name.includes('box'))!;
+  const css = String(files.answer(bundle.sheet)!.body);
+  assert.ok(css.includes(`.${local} {`) || css.includes(`.${local}{`), `the sheet holds the rule for ${local}`);
+  assert.match(css, /color: ?(rgb\(1, ?2, ?3\)|#010203)/, 'the part\'s own rule is in the sheet');
+  assert.ok(String(files.answer(bundle.script)!.body).includes(local), 'the browser draws the same local class');
 });

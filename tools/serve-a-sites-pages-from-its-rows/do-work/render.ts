@@ -31,6 +31,7 @@ import type { LayoutNode, PageRow } from './pages.ts';
 import { moduleKey } from './render-layout.ts';
 import type { DrawnNode } from './render-layout.ts';
 import type { PageStyles } from './page-styles.ts';
+import { kindOf } from './screen-files.ts';
 import type { ScreenFiles } from './screen-files.ts';
 import type { ToolRun } from './door.ts';
 
@@ -173,7 +174,14 @@ const BROWSER_END = `import { createRoot } from 'react-dom/client';
 const tree = JSON.parse(document.getElementById(${JSON.stringify(`${MOUNT}-tree`)}).textContent);
 createRoot(document.getElementById(${JSON.stringify(MOUNT)})).render(layoutElement(tree, modules));`;
 
-const LOADERS = { '.ts': 'ts', '.tsx': 'tsx', '.json': 'json', '.css': 'empty' } as const;
+// A part's own stylesheet comes with it: plain .css as it is, .module.css with its class names made local to the file. Fonts
+// and pictures a stylesheet or a part names are emitted as files, then kept by identity (screen-files.ts).
+const LOADERS = {
+  '.ts': 'ts', '.tsx': 'tsx', '.json': 'json', '.css': 'css', '.module.css': 'local-css',
+  '.woff2': 'file', '.woff': 'file', '.ttf': 'file', '.otf': 'file', '.png': 'file', '.jpg': 'file', '.jpeg': 'file', '.gif': 'file', '.webp': 'file', '.svg': 'file',
+} as const;
+// Where the emitted files are named in the bundles' text before each is given its identity address.
+const ASSETS = '/screen-files-assets-to-keep/';
 
 type ServerHtml = (shell: Shell, tree: DrawnNode, files: { script: string; sheet: string }, json: string) => string;
 
@@ -202,16 +210,33 @@ export class PageBundles {
   }
 
   async #make(keys: string[]): Promise<PageBundle> {
-    const common = { bundle: true, write: false, jsx: 'automatic', logLevel: 'silent', loader: LOADERS, define: { 'process.env.NODE_ENV': '"production"' } } as const;
+    // Both builds name every local class and emitted file the same way (no identifier minifying), so the server's markup and
+    // the browser's draw read the same stylesheet.
+    const common = {
+      bundle: true, write: false, jsx: 'automatic', logLevel: 'silent', loader: LOADERS, define: { 'process.env.NODE_ENV': '"production"' },
+      outdir: join(HERE, 'page-bundle'), entryNames: 'page', assetNames: '[name]-[hash]', publicPath: ASSETS,
+    } as const;
     const [server, browser] = await Promise.all([
       build({ ...common, stdin: { contents: entryOf(this.#tools, keys, SERVER_END), resolveDir: HERE, loader: 'ts' }, platform: 'node', format: 'cjs' }),
-      build({ ...common, stdin: { contents: entryOf(this.#tools, keys, BROWSER_END), resolveDir: HERE, loader: 'ts' }, platform: 'browser', format: 'esm', minify: true }),
+      build({ ...common, stdin: { contents: entryOf(this.#tools, keys, BROWSER_END), resolveDir: HERE, loader: 'ts' }, platform: 'browser', format: 'esm', minifyWhitespace: true, minifySyntax: true }),
     ]);
+    // Each emitted file is kept by its identity, and every name of it in the bundles becomes that address.
+    const addresses = new Map<string, string>();
+    for (const file of browser.outputFiles) {
+      const name = file.path.slice(file.path.lastIndexOf('/') + 1);
+      if (name.startsWith('page.')) continue;
+      const kind = kindOf(name);
+      if (!kind) throw new Error(`A part names ${name}, which is not a kind of file a page may load.`);
+      addresses.set(`${ASSETS}${name}`, this.#files.keep(Buffer.from(file.contents), kind));
+    }
+    const placed = (text: string) => [...addresses].reduce((done, [from, to]) => done.replaceAll(from, to), text);
+    const outputOf = (result: { outputFiles: { path: string; text: string }[] }, ending: string) => result.outputFiles.find(file => file.path.endsWith(`/page.${ending}`))?.text ?? '';
     const loaded: { exports: { html?: ServerHtml } } = { exports: {} };
-    new Function('module', 'exports', 'require', server.outputFiles[0].text)(loaded, loaded.exports, createRequire(import.meta.url));
+    new Function('module', 'exports', 'require', placed(outputOf(server, 'js')))(loaded, loaded.exports, createRequire(import.meta.url));
     const draw = loaded.exports.html!;
-    const text = browser.outputFiles[0].text;
-    const files = { script: this.#files.keep(text, 'js'), sheet: this.#files.keep(this.#styles.sheetFor(text), 'css') };
+    const text = placed(outputOf(browser, 'js'));
+    const partsCss = placed(outputOf(browser, 'css'));
+    const files = { script: this.#files.keep(text, 'js'), sheet: this.#files.keep(`${this.#styles.sheetFor(`${text}\n${partsCss}`)}\n${partsCss}`, 'css') };
     return { html: (shell, tree) => draw(shell, tree, files, safeJson(tree)), ...files };
   }
 }
@@ -220,9 +245,12 @@ export class PageBundles {
 const LOOK_NAME = /^[a-z][a-z0-9-]*(\.[a-z0-9][a-z0-9-]*)*$/;
 const LOOK_VALUE = /^[^;{}<>\\\n\r]+$/;
 
+/** The look row that names the site's Screen Look theme; every other row is a CSS variable. */
+export const THEME_ROW = 'theme';
+
 /** The site's look rows ({name, value}) as CSS variables on :root; a row that could end a declaration refuses the set. */
 export function lookCss(rows: Record<string, unknown>[]): string {
-  const pairs = rows.map(row => {
+  const pairs = rows.filter(row => row.name !== THEME_ROW).map(row => {
     if (typeof row.name !== 'string' || !LOOK_NAME.test(row.name)) throw new Error(`look ${JSON.stringify(row.name)}: a name is lower-case words with dashes, grouped by dots.`);
     if (typeof row.value !== 'string' || !LOOK_VALUE.test(row.value)) throw new Error(`look ${row.name}: a value is one CSS value, with no ; { } < > or backslash.`);
     return `--${row.name.replaceAll('.', '-')}:${row.value};`;

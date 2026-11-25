@@ -62,7 +62,7 @@ import type { FilesStore, MemberFiles, PublicFiles, StoreKey } from './member-vi
 import { filledInput, matchPage, pagesOf, pagesOn, pathWith, PAGES_SQL, paramsOf, slugsSql } from './pages.ts';
 import type { PageRow, Refused } from './pages.ts';
 import { pageStyles } from './page-styles.ts';
-import { drawnTreeOf, lookCss, PageBundles, screensOfTools, treeOf, wordsTree } from './render.ts';
+import { drawnTreeOf, lookCss, PageBundles, screensOfTools, THEME_ROW, treeOf, wordsTree } from './render.ts';
 import type { Screen, Timed } from './render.ts';
 import { modulesOf } from './render-layout.ts';
 import type { DrawnNode } from './render-layout.ts';
@@ -150,6 +150,8 @@ export interface SiteParts {
   passes: { memberOfCookie(cookie: string | undefined): Promise<Member | null> };
   storeKey: StoreKey | null;
   bundles: PageBundles;
+  /** The CSS variables of the site's Screen Look theme (page-styles.ts palette). */
+  palette: (theme: string | null) => string;
   files: ScreenFiles;
   screens: Map<string, Screen>;
   log?: (line: string) => void;
@@ -191,7 +193,8 @@ export class Site {
     for (const { path, why } of refused) if (!this.#refused.some(r => r.path === path && r.why === why)) this.#log(`page row set aside: ${why}`);
     this.#pages = good;
     this.#refused = refused;
-    this.#look = lookCss(look);
+    const theme = look.find(row => row.name === THEME_ROW)?.value;
+    this.#look = `${this.#parts.palette(typeof theme === 'string' ? theme : null)}${lookCss(look)}`;
     this.#readAt = Date.now();
   }
 
@@ -392,6 +395,7 @@ export async function start(settingsFile: string): Promise<http.Server> {
   const command = commandOf(door.address);
   const doorOp = join(tools, 'use-your-tools-from-a-shell', 'do-work', 'door-op.mjs');
   const files = new ScreenFiles();
+  const styles = await pageStyles(tools, files);
   // Through a command the site's own reads carry the computer owner's rights; a member's pass is refused, never swapped for them.
   const run = command
     ? (pass: string, call: ToolRun) => pass === COMMAND_PASS ? runToolAsCommand(doorOp, command, settings.door.pins ?? [], call) : Promise.reject(new DoorError('A members page needs the engine door, not a command.', 403))
@@ -403,7 +407,8 @@ export async function start(settingsFile: string): Promise<http.Server> {
     sitePass: command ? COMMAND_PASS : credential(settings.door.pass_credential!),
     passes: new MemberPasses(settings.sign_in),
     storeKey: settings.files_store ? storeKeyOf(credential(settings.files_store.credential)) : null,
-    bundles: new PageBundles(tools, await pageStyles(tools, files), files),
+    bundles: new PageBundles(tools, styles, files),
+    palette: theme => styles.palette(theme),
     files,
     screens: screensOfTools(tools),
   });

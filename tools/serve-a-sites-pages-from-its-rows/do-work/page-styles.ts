@@ -4,9 +4,10 @@
 //   The stylesheet a page's shared parts draw with: the recipe the Workshop's own web build uses
 //   (tools/workspace-screens/web/scripts/build-workspace.mjs), here for one page's bundle: Screen Look's Tailwind source compiled
 //   for exactly the class names the bundle holds, then the parts' own looks in the web build's order
-//   (workspace-screens/web/scripts/workspace-looks.json), then the light theme's tokens those read, after the starting palette.
-//   The site's own look (its colours, fonts and logo) is not here: render.ts writes it from the site's look rows as CSS variables
-//   after this sheet, so a site's rows win over the palette.
+//   (workspace-screens/web/scripts/workspace-looks.json), then the light theme's tokens those read. The palette (the role tokens
+//   the parts read: --ink, --thread, --button-primary-bg, ...) is the Screen Look theme the site's look rows name (`theme`),
+//   resolved by the one Screen Look resolver (page-look.mjs lookFor); the site's other look rows follow it as CSS variables, so a
+//   site's rows win over its theme.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Every file is read from the Workshop folder this program runs from; nothing is copied.
@@ -31,6 +32,8 @@ interface Compiled { build(candidates: string[]): string }
 export interface PageStyles {
   /** The stylesheet for a bundle whose text is `script`. */
   sheetFor(script: string): string;
+  /** The CSS variables of a Screen Look theme the Workshop's pages offer, by its id (null: the one they start with). */
+  palette(theme: string | null): string;
 }
 
 const RELATIVE_URL = /url\(\s*(['"]?)(?!data:|https?:|\/|#)([^'")]+)\1\s*\)/g;
@@ -55,9 +58,10 @@ export async function pageStyles(tools: string, files: ScreenFiles): Promise<Pag
     alias: { 'trillion-workshop': workshop }, bundle: true, entryPoints: [join(tools, 'workspace-screens', 'web', 'src', 'page-look.mjs')],
     format: 'cjs', logLevel: 'silent', platform: 'node', write: false,
   });
-  const loaded: { exports: { wornLook?: (worn: null) => { palette: Record<string, string> } } } = { exports: {} };
+  type Look = { palette: Record<string, string> };
+  const loaded: { exports: { PAGE_LOOK?: Look; lookFor?: (theme: string) => Look } } = { exports: {} };
   new Function('module', 'exports', bundled.outputFiles[0].text)(loaded, loaded.exports);
-  const palette = `:root{${Object.entries(loaded.exports.wornLook!(null).palette).map(([name, value]) => `${name}:${value};`).join('')}}`;
+  const paletteCss = (look: Look) => `:root{${Object.entries(look.palette).map(([name, value]) => `${name}:${value};`).join('')}}`;
   const source: string = workspaceUtilitySource(look('coss-workspace.css'));
   const compiled = await tailwind.compile(source, { base: join(workshop, 'node_modules', 'tailwindcss'), onDependency: () => {} });
   return {
@@ -65,7 +69,10 @@ export async function pageStyles(tools: string, files: ScreenFiles): Promise<Pag
       const literals = script.match(/"[^"\n]*"|'[^'\n]*'|`[^`]*`/g) ?? [];
       const candidates = new Set(literals.flatMap(literal => literal.slice(1, -1).split(/\s+/)).filter(Boolean));
       const utilities = compiled.build([...candidates]);
-      return [palette, utilities, ...looks, lightThemeCss(tools, [source, utilities, ...looks, script])].join('\n');
+      return [utilities, ...looks, lightThemeCss(tools, [source, utilities, ...looks, script])].join('\n');
+    },
+    palette(theme: string | null): string {
+      return paletteCss(theme === null ? loaded.exports.PAGE_LOOK! : loaded.exports.lookFor!(theme));
     },
   };
 }

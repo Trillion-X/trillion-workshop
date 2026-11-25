@@ -18,7 +18,7 @@ export const SCREEN_FILES = '/screen-files/';
 const TYPES = {
   js: 'text/javascript; charset=utf-8', css: 'text/css; charset=utf-8',
   woff2: 'font/woff2', woff: 'font/woff', ttf: 'font/ttf', otf: 'font/otf',
-  png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp', gif: 'image/gif', svg: 'image/svg+xml',
+  png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', gif: 'image/gif', svg: 'image/svg+xml',
 } as const;
 export type ScreenFileKind = keyof typeof TYPES;
 
