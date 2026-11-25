@@ -1,0 +1,297 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-a-computer-from-inside",
+        "label": "Check a computer from inside",
+        "job": "read how full each disk of one of my computers is and whether each engine it runs holds its person, from another computer, and hold the person again when an engine lost them",
+        "description": "Give the computer's row (its name, address and runs), the program its engines run (engine_program) and its pinned SSH host key. It signs in as the computer's administrator with the held key server-administration-ssh-key, reads every disk (df) and asks each engine the row runs for the persons it holds (its ready check on the loopback). A disk at or past warn_used_pct (85 unless given) is a warning and at or past alert_used_pct (92) an alert. An engine that holds no person while its row names one (settings.local_agents) is held again through the engine's own road, POST /persons/add on its agent socket as its own user, read again, and told: a warning when it holds the person again, an alert when it still holds none. A computer that does not answer is an alert; one with no usable address or host key is not checked. pretend replaces what was read ({disks: {mount: percent}, engines: {unit: persons}, unreachable: true}) to see those findings without making them; a pretended engine is never asked. It changes nothing else.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "address",
+            "runs",
+            "engine_program",
+            "host_key"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The computer's name, as its row names it."
+            },
+            "address": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The computer's address (an IPv4 address or a DNS name). Anything else is answered checked: false."
+            },
+            "runs": {
+              "type": "object",
+              "description": "The row's runs: its units that run engine_program are its engines, read for their listen addresses, agent socket and owner persons."
+            },
+            "engine_program": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The program a unit of the row runs when it is an engine (its runs.units[].program); the caller's own word."
+            },
+            "host_key": {
+              "type": "string",
+              "description": "The computer's SSH host public key, \"<type> <base64>\", pinned for this connection alone."
+            },
+            "admin_user": {
+              "type": "string",
+              "description": "The administrator to sign in as (settings.json ssh.admin_user when not given)."
+            },
+            "ssh_port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            "warn_used_pct": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 100,
+              "description": "A disk this full or fuller is a warning."
+            },
+            "alert_used_pct": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 100,
+              "description": "A disk this full or fuller is an alert."
+            },
+            "hold_again": {
+              "type": "boolean",
+              "description": "false: only tell an engine that holds no person, never ask it to hold them again."
+            },
+            "pretend": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "A test: what was read is replaced by these values, and each finding they make says pretend: true.",
+              "properties": {
+                "disks": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "number"
+                  },
+                  "description": "Mount point to the used percent to pretend."
+                },
+                "engines": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "description": "Engine unit to the persons to pretend it holds."
+                },
+                "unreachable": {
+                  "type": "boolean",
+                  "description": "Pretend the computer did not answer; nothing is asked."
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "name",
+            "address",
+            "checked",
+            "checked_at",
+            "disks",
+            "engines",
+            "findings"
+          ],
+          "properties": {
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "address": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "checked": {
+              "type": "boolean"
+            },
+            "why": {
+              "type": "string"
+            },
+            "checked_at": {
+              "type": "string"
+            },
+            "disks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "mount": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "size_bytes": {
+                    "type": "number"
+                  },
+                  "used_bytes": {
+                    "type": "number"
+                  },
+                  "available_bytes": {
+                    "type": "number"
+                  },
+                  "used_pct": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "engines": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "unit": {
+                    "type": "string"
+                  },
+                  "user": {
+                    "type": "string"
+                  },
+                  "owners": {
+                    "type": "array"
+                  },
+                  "persons": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "listens": {
+                    "type": "array"
+                  },
+                  "held_again": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "findings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "computer",
+                  "at",
+                  "kind",
+                  "level",
+                  "about",
+                  "said"
+                ],
+                "properties": {
+                  "computer": {
+                    "type": "string"
+                  },
+                  "at": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "level": {
+                    "enum": [
+                      "warn",
+                      "alert"
+                    ]
+                  },
+                  "about": {
+                    "type": "string"
+                  },
+                  "said": {
+                    "type": "string"
+                  },
+                  "pretend": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/check-a-computer-from-inside",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/check-a-computer-from-inside/do-work/check-from-inside.mjs",
+            "/run/held/server-administration-ssh-key"
+          ],
+          "programs": {
+            "ssh": {
+              "search": "ssh",
+              "search_path": [
+                "/usr/bin"
+              ]
+            },
+            "nc": {
+              "search": "nc",
+              "search_path": [
+                "/usr/bin"
+              ]
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "server-administration-ssh-key",
+              "mount_path": "/run/held/server-administration-ssh-key"
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "check-a-computer-from-inside",
+                "paths": [
+                  "do-work",
+                  "settings.json"
+                ],
+                "at": "/opt/check-a-computer-from-inside"
+              },
+              {
+                "package": "administer-a-rented-host",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/administer-a-rented-host"
+              }
+            ]
+          }
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 20,
+          "memory_mb": 128
+        },
+        "maker": "maker:check-a-computer-from-inside",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Nov 23 2026: the always-on computer filled its disk, its engine came back holding no person and refused every signed-in call for a day, and nothing noticed. Node's own child_process and the system ssh, through tools/administer-a-rented-host; no package."
+        }
+      }
+    }
+  ]
+}

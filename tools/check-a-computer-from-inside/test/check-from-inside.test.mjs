@@ -1,0 +1,154 @@
+// tools/check-a-computer-from-inside: each disk past its line is one finding, an engine whose row names a person but holds
+// none is held again on its own agent socket and told, a computer that does not answer is one finding, and a pretended
+// reading makes the same findings without asking the engine anything. Every computer here is made up (192.0.2.x).
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import test from 'node:test';
+import { checkFromInside, enginesOf, holdAgainScript, readScript } from '../do-work/check-from-inside.mjs';
+
+const HOST_KEY = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMadeUpMadeUpMadeUpMadeUpMadeUpMadeUpMadeUp';
+const OWNER = 'made-up-person_0001';
+const engineUnit = { unit: 'engine-for-someone.service', user: 'engine-for-someone', program: 'the-engine',
+  slots: { a: { health_listen: '127.0.0.1:7199' }, b: { health_listen: '127.0.0.1:7198' } },
+  settings: { agent_socket: '/var/lib/engine-for-someone/agent.sock', local_agents: [{ id: 'root', uid: 0, person: OWNER }] } };
+const gatewayUnit = { unit: 'passes-requests.service', user: 'passes-requests', program: 'the-engine', health_listen: '127.0.0.1:7299', settings: { listen: '127.0.0.1:7299' } };
+const siteUnit = { unit: 'a-site.service', user: 'a-site', program: 'serve.mjs' };
+const computer = (units, more = {}) => ({ name: 'made-up', address: '192.0.2.10', host_key: HOST_KEY, engine_program: 'the-engine', runs: { units }, ...more });
+
+const DF = [
+  'Filesystem     Type     1024-blocks        Used   Available Capacity Mounted on',
+  '/dev/sda1      ext4     40000000000 20000000000 20000000000      50% /',
+  'tmpfs          tmpfs     1000000000           0  1000000000       0% /run',
+  '/dev/sda15     vfat       264281088      148992   264132096       1% /boot/efi',
+].join('\n');
+const ready = persons => JSON.stringify({ draining: false, persons, offers: [] });
+
+/** A made-up computer: answers each script with the df above and each listen's ready answer from `answers`. */
+function computerAnswering(answers, { addStatus = '200', afterAdd = {} } = {}) {
+  const scripts = [];
+  let added = false;
+  const run = script => {
+    scripts.push(script);
+    if (script.includes('/persons/add')) { added = true; return { status: 0, stdout: `${addStatus}\n`, stderr: '' }; }
+    const now = added ? { ...answers, ...afterAdd } : answers;
+    const lines = [];
+    for (const line of script.split('\n')) {
+      const mark = line.match(/^echo '@@(\w+)(?: (\d+) (\S+))?'$/);
+      if (!mark) continue;
+      lines.push(`@@${mark[1]}${mark[2] ? ` ${mark[2]} ${mark[3]}` : ''}`);
+      if (mark[1] === 'df') lines.push(DF);
+      if (mark[1] === 'ready') lines.push(now[mark[3]] ?? '');
+    }
+    return { status: 0, stdout: `${lines.join('\n')}\n`, stderr: '' };
+  };
+  return { run, scripts };
+}
+
+test('an engine is read from its row: its slots, its agent socket and the persons it must hold', () => {
+  const [engine, gateway] = enginesOf({ units: [engineUnit, gatewayUnit, siteUnit] }, 'the-engine');
+  assert.deepEqual(engine, { unit: 'engine-for-someone.service', user: 'engine-for-someone', listens: ['127.0.0.1:7199', '127.0.0.1:7198'], socket: '/var/lib/engine-for-someone/agent.sock', owners: [OWNER] });
+  assert.deepEqual(gateway.owners, [], 'an engine whose row names no local agent must hold no one');
+  assert.equal(enginesOf({ units: [siteUnit] }, 'the-engine').length, 0);
+  assert.equal(enginesOf({ units: [engineUnit] }).length, 0, 'with no engine program named, no unit is an engine');
+  assert.deepEqual(enginesOf({ units: [{ ...gatewayUnit, health_listen: '0.0.0.0:7299', settings: {} }] }, 'the-engine')[0].listens, [], 'only a loopback address is asked');
+});
+
+test('a disk under its warning line and an engine that holds its person are no finding', async () => {
+  const { run } = computerAnswering({ '127.0.0.1:7198': ready(1) });
+  const seen = await checkFromInside(computer([engineUnit]), { run });
+  assert.equal(seen.checked, true);
+  assert.deepEqual(seen.disks.map(disk => [disk.mount, disk.used_pct]), [['/', 50], ['/boot/efi', 0.1]], 'memory filesystems are left out');
+  assert.equal(seen.engines[0].persons, 1);
+  assert.deepEqual(seen.findings, []);
+});
+
+test('a disk pretended 86% full warns and one pretended 93% full alerts, each saying it was pretended', async () => {
+  const { run } = computerAnswering({ '127.0.0.1:7198': ready(1) });
+  const warned = await checkFromInside(computer([engineUnit], { pretend: { disks: { '/': 86 } } }), { run });
+  assert.deepEqual(warned.findings.map(finding => [finding.kind, finding.level, finding.about, finding.pretend]), [['disk-filling', 'warn', '/', true]]);
+  const alerted = await checkFromInside(computer([engineUnit], { pretend: { disks: { '/': 93 } } }), { run });
+  assert.deepEqual(alerted.findings.map(finding => [finding.kind, finding.level, finding.pretend]), [['disk-nearly-full', 'alert', true]]);
+  assert.match(alerted.findings[0].said, /93% full/);
+  const own = await checkFromInside(computer([engineUnit], { warn_used_pct: 40, alert_used_pct: 60 }), { run });
+  assert.deepEqual(own.findings.map(finding => finding.kind), ['disk-filling'], 'the caller\'s own lines replace the settings');
+});
+
+test('an engine that holds no one is held again as its own user on its own socket, then read again and told', async () => {
+  const { run, scripts } = computerAnswering({ '127.0.0.1:7198': ready(0) }, { afterAdd: { '127.0.0.1:7198': ready(1) } });
+  const seen = await checkFromInside(computer([engineUnit]), { run });
+  const add = scripts.find(script => script.includes('/persons/add'));
+  assert.match(add, /^runuser -u engine-for-someone -- curl /);
+  assert.match(add, /--unix-socket \/var\/lib\/engine-for-someone\/agent\.sock -X POST/);
+  assert.ok(add.includes(`--data '{"person":"${OWNER}"}'`));
+  assert.deepEqual(seen.engines[0].held_again, { person: OWNER, status: '200', persons: 1 });
+  assert.deepEqual(seen.findings.map(finding => [finding.kind, finding.level]), [['engine-held-no-person', 'warn']]);
+  assert.match(seen.findings[0].said, /held again .* now holds 1/);
+});
+
+test('an engine that stays empty after it is held again is an alert', async () => {
+  const { run } = computerAnswering({ '127.0.0.1:7198': ready(0) }, { addStatus: '403' });
+  const seen = await checkFromInside(computer([engineUnit]), { run });
+  assert.deepEqual(seen.findings.map(finding => [finding.kind, finding.level]), [['engine-held-no-person', 'alert']]);
+  assert.match(seen.findings[0].said, /answered 403/);
+});
+
+test('a pretended empty engine is told as an alert and its engine is never asked to hold anyone', async () => {
+  const { run, scripts } = computerAnswering({ '127.0.0.1:7198': ready(1) });
+  const seen = await checkFromInside(computer([engineUnit], { pretend: { engines: { 'engine-for-someone.service': 0 } } }), { run });
+  assert.equal(scripts.some(script => script.includes('/persons/add')), false);
+  assert.deepEqual(seen.findings.map(finding => [finding.kind, finding.level, finding.pretend]), [['engine-held-no-person', 'alert', true]]);
+});
+
+test('with hold_again false an empty engine is only told', async () => {
+  const { run, scripts } = computerAnswering({ '127.0.0.1:7198': ready(0) });
+  const seen = await checkFromInside(computer([engineUnit], { hold_again: false }), { run });
+  assert.equal(scripts.some(script => script.includes('/persons/add')), false);
+  assert.deepEqual(seen.findings.map(finding => finding.level), ['alert']);
+});
+
+test('an engine whose row names no person may hold none, and an engine that answers on no address is an alert', async () => {
+  const quiet = computerAnswering({ '127.0.0.1:7299': ready(0) });
+  assert.deepEqual((await checkFromInside(computer([gatewayUnit]), { run: quiet.run })).findings, []);
+  const silent = computerAnswering({});
+  const seen = await checkFromInside(computer([engineUnit]), { run: silent.run });
+  assert.deepEqual(seen.findings.map(finding => [finding.kind, finding.level]), [['engine-not-answering', 'alert']]);
+});
+
+test('a computer with no engine is read for its disks alone', async () => {
+  const { run, scripts } = computerAnswering({});
+  const seen = await checkFromInside(computer([siteUnit], { pretend: { disks: { '/': 93 } } }), { run });
+  assert.equal(scripts[0].includes('@@ready'), false);
+  assert.deepEqual(seen.engines, []);
+  assert.deepEqual(seen.findings.map(finding => finding.kind), ['disk-nearly-full']);
+});
+
+test('a computer that does not answer is one alert, and one with no usable address is not checked', async () => {
+  const lost = await checkFromInside(computer([engineUnit]), { run: () => ({ status: 255, stdout: '', stderr: 'ssh: connect to host 192.0.2.10 port 22: Operation timed out\n' }) });
+  assert.equal(lost.checked, false);
+  assert.deepEqual(lost.findings.map(finding => [finding.kind, finding.level, finding.about]), [['unreachable', 'alert', '192.0.2.10']]);
+  assert.match(lost.findings[0].said, /timed out/);
+  const pretended = await checkFromInside(computer([engineUnit], { pretend: { unreachable: true } }), { run: () => assert.fail('a pretended lost computer is not asked') });
+  assert.deepEqual(pretended.findings.map(finding => [finding.kind, finding.pretend]), [['unreachable', true]]);
+  const given = await checkFromInside(computer([engineUnit], { address: 'none: given back' }), { run: () => assert.fail('not asked') });
+  assert.deepEqual([given.checked, given.findings], [false, []]);
+  const keyless = await checkFromInside(computer([engineUnit], { host_key: undefined }), { run: () => assert.fail('not asked') });
+  assert.match(keyless.why, /host_key is missing/);
+});
+
+test('nothing outside its shape is written into a command', () => {
+  assert.throws(() => holdAgainScript({ unit: 'x.service', user: 'engine', socket: '/tmp/a.sock; reboot' }, OWNER), /cannot be asked/);
+  assert.throws(() => holdAgainScript({ unit: 'x.service', user: 'engine', socket: '/tmp/a.sock' }, "a'b"), /cannot be asked/);
+  assert.throws(() => readScript([{ unit: 'x', listens: ['127.0.0.1:1; rm -rf /'] }]), /was refused/);
+});
+
+test('the row runs this script with the held key at the path its argument names, and packs the SSH helper beside it', () => {
+  const { records } = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+  const row = records.map(record => record.payload).find(payload => payload.id === 'tool:check-a-computer-from-inside');
+  const { argv, credential_mounts: mounts, files } = row.invoke;
+  assert.equal(argv[1], '/opt/check-a-computer-from-inside/do-work/check-from-inside.mjs');
+  assert.equal(mounts.length, 1);
+  assert.equal(mounts[0].mount_path, argv[2], 'the key file the script reads is the one mounted');
+  const packed = Object.fromEntries(files.package_files.map(item => [item.package, item.at]));
+  assert.equal(packed['check-a-computer-from-inside'], '/opt/check-a-computer-from-inside');
+  assert.equal(packed['administer-a-rented-host'], '/opt/administer-a-rented-host', 'the helper is imported as ../../administer-a-rented-host');
+});

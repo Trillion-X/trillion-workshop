@@ -1,0 +1,26 @@
+{
+  "_what": "What tool:check-a-computer-from-inside reads on a computer and when it calls something a finding. disk.warn_used_pct and disk.alert_used_pct are the used share of a filesystem at which it warns and alerts (a caller may give its own in the input); disk.skip_types are filesystem types that hold no kept data (memory, an image, the boot firmware). The program a unit runs when it is an engine is the caller's own word (input engine_program), never this file's. engine.ready_path answers the persons it holds, engine.add_person_path holds a person again, asked on the engine's own agent socket as the engine's own user (the only way the engine adds a person). ssh holds the administrator login used when the input names none, and how long one read may take. Each value is a row a person changes, never code.",
+  "disk": {
+    "warn_used_pct": 85,
+    "alert_used_pct": 92,
+    "skip_types": [
+      "tmpfs",
+      "devtmpfs",
+      "overlay",
+      "squashfs",
+      "efivarfs",
+      "proc",
+      "sysfs"
+    ]
+  },
+  "engine": {
+    "ready_path": "/readyz",
+    "add_person_path": "/persons/add",
+    "ask_seconds": 5
+  },
+  "ssh": {
+    "admin_user": "root",
+    "port": 22,
+    "run_seconds": 45
+  }
+}

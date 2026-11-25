@@ -6890,6 +6890,23 @@
   }
  ],
  "tool:check-a-compiled-packaging-template-against-the-ledger": [],
+ "tool:check-a-computer-from-inside": [
+  {
+   "package": "check-a-computer-from-inside",
+   "paths": [
+    "do-work",
+    "settings.json"
+   ],
+   "at": "/opt/check-a-computer-from-inside"
+  },
+  {
+   "package": "administer-a-rented-host",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/administer-a-rented-host"
+  }
+ ],
  "tool:check-a-computer-from-outside": [
   {
    "package": "check-a-computer-from-outside",

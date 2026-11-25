@@ -1,0 +1,47 @@
+{
+  "start_here": "Say to your AI: \"Check my computer at 203.0.113.20 from inside: how full are its disks, and does its engine still hold me?\" It runs tool:check-a-computer-from-inside with that computer's row and tells you each disk past 85% or 92%, and each engine that lost its person (holding them again first).",
+  "lists": [],
+  "no_lists_because": "It keeps nothing: it reads one computer and answers what it read and its findings. The workflow that runs it every fifteen minutes keeps the readings and tells the findings.",
+  "workflows": [
+    "workflow:check-every-computer-from-inside"
+  ],
+  "tools": [
+    "tool:check-a-computer-from-inside"
+  ],
+  "instructions": [
+    "1. Read the computer's row from wherever you keep it: its name, address, runs and SSH host key.",
+    "2. Call tools:run with tool tool:check-a-computer-from-inside and input {name, address, runs, engine_program, host_key}. The administrator key is the held value server-administration-ssh-key; it reaches only the hosts its vault entry names.",
+    "3. Read findings: disk-filling (warn) and disk-nearly-full (alert), engine-held-no-person (warn when it was held again and holds them now, alert when not), engine-not-answering and unreachable (alert).",
+    "4. To see a finding without making it, give pretend: {disks: {\"/\": 93}}, {engines: {\"<unit>\": 0}} or {unreachable: true}; a pretended engine is never asked to hold anyone.",
+    "5. To check every computer every fifteen minutes and tell each finding, run workflow:check-every-computer-from-inside."
+  ],
+  "worked_examples": [
+    {
+      "title": "A computer's disk is past its warning line",
+      "ask": "Check my data computer from inside.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-computer-from-inside",
+            "input": {
+              "name": "data",
+              "address": "203.0.113.20",
+              "host_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMadeUpMadeUpMadeUpMadeUpMadeUpMadeUpMadeUp",
+              "runs": {
+                "units": []
+              },
+              "engine_program": "the-engine",
+              "hold_again": false
+            }
+          }
+        }
+      },
+      "given": "Read on Nov 24 2026 against one real computer (shown here as the documentation address 203.0.113.20) whose root disk was 86.2% full.",
+      "hands_back": "{\"checked\":true,\"disks\":[{\"mount\":\"/\",\"type\":\"ext4\",\"used_pct\":86.2}],\"engines\":[],\"findings\":[{\"computer\":\"data\",\"kind\":\"disk-filling\",\"level\":\"warn\",\"about\":\"/\",\"said\":\"/ is 86.2% full (at or past 85%); 5.4 GB free of 40 GB.\"}]}"
+    }
+  ],
+  "drafted_from": "tools/check-a-computer-from-inside/tool-rows.json and its read of three computers on Nov 24 2026"
+}
