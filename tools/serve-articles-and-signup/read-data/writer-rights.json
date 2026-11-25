@@ -1,0 +1,47 @@
+{
+  "_what": "The column rights tool:keep-a-newsletter-signup needs from a pursuit's writer login (run-sql-in-my-database role recipe may-write-named-columns-under-a-use, recipe.writes): what it reads to decide, what a signup adds, and what a confirm, unsubscribe, renewal or failed mail changes. Nothing else of the database. test/keep-a-newsletter-signup.test.ts runs every action as a login holding exactly these.",
+  "writes": [
+    {
+      "table": "public.subscribers",
+      "select": [
+        "id",
+        "email",
+        "status",
+        "tags",
+        "confirm_digest",
+        "confirm_sent_at",
+        "network_digest"
+      ],
+      "insert": [
+        "id",
+        "email",
+        "status",
+        "confirm_digest",
+        "confirm_sent_at",
+        "source_path",
+        "network_digest",
+        "created_at",
+        "tags",
+        "consent_text",
+        "consent_at",
+        "consent_page",
+        "consent_ip_digest"
+      ],
+      "update": [
+        "status",
+        "confirm_digest",
+        "confirm_sent_at",
+        "source_path",
+        "network_digest",
+        "confirmed_at",
+        "ended_at",
+        "ended_reason",
+        "consent_text",
+        "consent_at",
+        "consent_page",
+        "consent_ip_digest",
+        "tags"
+      ]
+    }
+  ]
+}

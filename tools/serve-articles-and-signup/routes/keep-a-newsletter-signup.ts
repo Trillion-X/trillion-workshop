@@ -15,6 +15,8 @@
 //   3. A raw address of the network is never kept: the network and the consent address are kept as keyed digests.
 //   4. Each action's writes are one statement, so each is kept whole or not at all.
 //   5. The secret is the held key the engine mounts on descriptor 4; it never appears in an answer.
+//   6. Under a use (input `use`, a site's act), the database is opened with its writer login and the run's one transaction claims the
+//      use first; the tool reads only the columns it decides on, so the login needs only read-data/writer-rights.json.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { createHmac, randomBytes, randomUUID } from 'node:crypto';
@@ -31,7 +33,7 @@ const CONFIRM_HOURS = 72;
 export type SignupText = { consent: string; confirm: { subject: string; body: string; button: string } };
 export type Given = {
   action: 'subscribe' | 'confirm' | 'unsubscribe' | 'send_failed';
-  secret: string; origin: string;
+  secret: string; origin: string; database?: string; use?: { purpose: string; surface: string } | null;
   email?: string; source?: string; ip?: string; forwarded_for?: string; signup?: SignupText; tags?: string[]; source_tags?: Record<string, string[]>;
   s?: string; t?: string; method?: string; id?: string; digest?: string;
 };
@@ -47,7 +49,7 @@ export async function keepANewsletterSignup(input: Given, execute: Execute, { no
 
   if (input.action === 'confirm') {
     const id = text(input.s), token = text(input.t);
-    const [row] = await execute('SELECT * FROM subscribers WHERE id = $1', [id]) as any[];
+    const [row] = await execute('SELECT status, confirm_sent_at, confirm_digest FROM subscribers WHERE id = $1', [id]) as any[];
     if (row?.status === 'confirmed') return { outcome: 'already_subscribed' };
     const age = row ? Date.parse(now()) - Date.parse(row.confirm_sent_at) : NaN;
     if (!(row?.status === 'pending' && age >= 0 && age < CONFIRM_HOURS * 3600_000 && row.confirm_digest === keyed('confirm', `${id}:${token}`))) return { outcome: 'invalid_link' };
@@ -83,7 +85,7 @@ export async function keepANewsletterSignup(input: Given, execute: Execute, { no
   const since = new Date(Date.parse(now()) - 3600_000).toISOString();
   const [{ n }] = await execute('SELECT count(*)::int AS n FROM subscribers WHERE network_digest = $1 AND confirm_sent_at > $2', [network, since]) as any[];
   if (Number(n) >= SIGNUPS_PER_NETWORK_PER_HOUR) return { outcome: 'too_many' };
-  const [existing] = await execute('SELECT * FROM subscribers WHERE email = $1', [email]) as any[];
+  const [existing] = await execute('SELECT id, status, tags FROM subscribers WHERE email = $1', [email]) as any[];
   const base = subscriberTags(input.tags ?? []);
   const sourceTags = subscriberTags((input.source_tags ?? {})[source] ?? []);
   const tagsFor = (existingTags: unknown) => subscriberTags([...subscriberTags((existingTags as string[]) ?? []), ...base, ...sourceTags]);
@@ -112,19 +114,21 @@ export async function keepANewsletterSignup(input: Given, execute: Execute, { no
 }
 
 if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
-  let connection = '';
+  let connection = '', ticket = '';
   try {
     const input = JSON.parse(readFileSync(0, 'utf8')) as Given;
     connection = readFileSync(3, 'utf8').trim();
     const secret = readFileSync(4, 'utf8').trim();
-    // One connection for the whole run (run-sql.mjs withSqlWrite), closed at the end.
-    const kept = await withSqlWrite({ connection }, (query: (sql: string, params?: unknown[]) => Promise<{ rows: Record<string, unknown>[] }>) => {
+    // An unmounted descriptor may be Node's own queue: descriptor 5 is read only when the input makes the engine mount a ticket.
+    if (input.use !== undefined && input.use !== null && typeof input.database === 'string') ticket = readFileSync(5, 'utf8').trim();
+    // One connection for the whole run (run-sql.mjs withSqlWrite), its one transaction claiming the use first, closed at the end.
+    const kept = await withSqlWrite({ connection, ticket, use: input.use ?? undefined }, (query: (sql: string, params?: unknown[]) => Promise<{ rows: Record<string, unknown>[] }>) => {
       const execute: Execute = async (sql, params = []) => (await query(sql, params)).rows;
       return keepANewsletterSignup({ ...input, secret }, execute);
     });
     console.log(JSON.stringify(kept));
   } catch (error) {
-    console.error(sayWithout(error, connection));
+    console.error(sayWithout(error, connection, ticket));
     process.exitCode = 1;
   }
 }

@@ -107,12 +107,22 @@
             "database": {
               "type": "string",
               "minLength": 1,
-              "description": "The name of the pursuit database to use, bound by the trusted caller. The engine opens it with the login its vault holds as that name and -connection; no caller supplies a login."
+              "description": "The name of the pursuit database to use, bound by the trusted caller. The engine opens it with the login its vault holds as that name and -writer-connection under a use (-connection without one); no caller supplies a login."
+            },
+            "use": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["purpose", "surface"],
+              "description": "The use this run is for: the site's declared use, such as purpose publish and surface site/example.com. Given with database, the computer opens the database with its writer login (only the column rights read-data/writer-rights.json names) and hands the run a ticket of this use, which its one transaction claims first. A share's run (a site's act) must give it.",
+              "properties": {
+                "purpose": { "type": "string", "minLength": 1 },
+                "surface": { "type": "string" }
+              }
             },
             "secret": {
               "type": "string",
               "minLength": 1,
-              "description": "The vault name of the key that makes the confirm and unsubscribe digests; the engine mounts its value, which never appears in an answer."
+              "description": "The vault name of the key that makes the confirm and unsubscribe digests; the engine mounts its value, which never appears in an answer. A share's run (a site's act) opens it only when its grant lists that very name."
             },
             "action": {
               "type": "string",
@@ -220,10 +230,17 @@
               "only_when": {
                 "input": "database",
                 "present": true
+              },
+              "under_use": {
+                "use_from_input": "use",
+                "ticket_fd": 5,
+                "held_suffix": "-writer-connection",
+                "key_suffix": "-use-key"
               }
             },
             {
               "secret_name_from_input": "secret",
+              "share_by_listing": true,
               "fd": 4,
               "only_when": {
                 "input": "secret",

@@ -31,6 +31,15 @@ The site's own DATA supplies `signupTags` (tags on every signup) and `sourceTags
 
 A site that vendors this module copies the same relative paths the Workshop has, so the imports resolve: `do-work/pursuit-site.mjs` and `do-work/subscriber-audience.mjs` with `../../publish-content-for-discovery/do-work/site-search-head.mjs`, `../../ui/show/document-page/`, and the document-page closure: `ui/show/server-rendered-page/escape-html.mjs`, `ui/show/share-row/` (`share-row-html.mjs`, `share-row.json`), `ui/show/site-nav/site-nav-look.mjs`, `ui/show/layer-diagram/` (`layer-diagram.mjs`, `graph-contract.mjs`, `graph-contract.json`), `ui/show/safe-error-card/sanitize-error-text.ts`, and `live-namespace/do-work/blake3.mjs`. The site also installs `@noble/hashes` (a dependency of blake3 and the graph contract). The `.ts` file needs a Node that strips types, or a bundler.
 
+## As a site's act
+
+A site's action rows run `tool:keep-a-newsletter-signup` as the site's share, never as its owner: they give `database` and `use`
+(the site's declared use), so the computer opens the database with its writer login under that use, and the run's one transaction
+claims it first. That login holds only the column rights `read-data/writer-rights.json` names, which the database's owner gives it
+with the role recipe `may-write-named-columns-under-a-use`. The link key (`secret`, its vault name) is opened for a share only when
+the site's grant lists that very name (its mount is marked `share_by_listing`). Links already sent keep working: the confirm and
+unsubscribe digests are the same keyed digests the module's routes make.
+
 ## Known gaps
 
 - Real database and mail round-trips are not proven by this folder's tests; they are proven on the site (see the lane record).

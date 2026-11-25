@@ -3,6 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { PGlite } from '@electric-sql/pglite';
 import { keepANewsletterSignup, type Given } from '../routes/keep-a-newsletter-signup.ts';
 
@@ -90,4 +91,35 @@ test('an unsubscribe link ends that subscription only, by link or one click, and
   const rows = (await db.query('select email, status, ended_reason from subscribers order by email')).rows as any[];
   assert.deepEqual(rows.map(row => [row.email, row.status, row.ended_reason]), [['a@example.test', 'unsubscribed', 'one-click'], ['b@example.test', 'pending', null]]);
   await assert.rejects(keepANewsletterSignup({ ...given({ action: 'unsubscribe' }), secret: 'short' }, execute, clock), /not held/);
+});
+
+// The writer login of a site's act holds only the column rights read-data/writer-rights.json names (role recipe
+// may-write-named-columns-under-a-use grants exactly those). Every action runs here as such a login.
+test('every action runs with only the column rights writer-rights.json names', async () => {
+  const { db, clock } = await fresh();
+  const rights = JSON.parse(readFileSync(new URL('../read-data/writer-rights.json', import.meta.url), 'utf8')).writes;
+  await db.exec('create role newsletter_writer nologin');
+  for (const write of rights) {
+    for (const right of ['select', 'insert', 'update'] as const) {
+      if (write[right]) await db.exec(`grant ${right} (${write[right].join(', ')}) on table ${write.table} to newsletter_writer`);
+    }
+  }
+  await db.exec('set role newsletter_writer');
+  const execute = async (sql: string, params: unknown[] = []) => (await db.query(sql, params)).rows as Record<string, unknown>[];
+  const asked = await keepANewsletterSignup(given({ email: 'kim@example.test', ip: '203.0.113.7', source: '/articles/b', tags: ['letter'] }), execute, clock);
+  assert.equal(asked.outcome, 'send_confirmation');
+  assert.equal((await keepANewsletterSignup(given({ action: 'send_failed', id: asked.attempt!.id, digest: asked.attempt!.digest }), execute, clock)).outcome, 'send_failed');
+  const again = await keepANewsletterSignup(given({ email: 'kim@example.test', ip: '203.0.113.7', source: '/articles/b' }), execute, clock);
+  assert.equal(again.outcome, 'send_confirmation', 'a pending signup is renewed');
+  const { s, t } = linkParts(again.mail!.link);
+  assert.equal((await keepANewsletterSignup(given({ action: 'confirm', s, t }), execute, clock)).outcome, 'subscribed');
+  assert.equal((await keepANewsletterSignup(given({ email: 'kim@example.test', ip: '203.0.113.7', source: '/articles/b' }), execute, clock)).outcome, 'check_inbox', 'a confirmed one only gains tags');
+  const unsubscribe = createHmac('sha256', SECRET).update(`unsubscribe\n${s}`).digest('base64url');
+  assert.equal((await keepANewsletterSignup(given({ action: 'unsubscribe', s, t: unsubscribe, method: 'POST' }), execute, clock)).outcome, 'unsubscribed');
+  await db.exec('reset role');
+  assert.equal(((await db.query('select status, ended_reason from subscribers')).rows[0] as any).ended_reason, 'one-click');
+  // A column the file does not name is refused to the login.
+  await db.exec('set role newsletter_writer');
+  await assert.rejects(db.query('select consent_text from subscribers'), /permission denied/);
+  await db.exec('reset role');
 });
