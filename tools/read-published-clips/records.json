@@ -191,7 +191,7 @@
             {
               "secret_name_from_input": "database",
               "held_suffix": "-connection",
-              "fd": 3,
+              "fd": 4,
               "only_when": {
                 "input": "database",
                 "present": true

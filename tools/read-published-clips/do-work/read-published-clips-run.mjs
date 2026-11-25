@@ -9,7 +9,7 @@
 import { readFileSync } from 'node:fs';
 import { CLIPS_SQL, clipsOf, clipsParams, clipsRequest } from '../read-data/clips-query.mjs';
 
-const CONNECTION_DESCRIPTOR = 3;
+const CONNECTION_DESCRIPTOR = 4;
 const TICKET_DESCRIPTOR = 5;
 // Each link is short: a page load asks again after this, and no link lasts past it.
 export const LINK_SECONDS = 900;
