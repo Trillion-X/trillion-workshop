@@ -8,7 +8,8 @@
 # Signing: the Developer ID identity in the person's Keychain, with the export options the app's data names (else Xcode's
 # automatic signing); the export signs every program the app carries, and the disk image is signed by the same identity.
 # Notarization: the named notarytool keychain profile. Build number: the UTC minute, so each release is newer than the
-# last. Update stamp: Sparkle's sign_update, which reads its key from the named Keychain account.
+# last. Update stamp: Sparkle's sign_update, which reads its key from the named Keychain account. `publish` (below) puts the
+# release into the app's Sparkle feed.
 require "json"
 
 default_platform(:mac)
@@ -56,5 +57,86 @@ platform :mac do
 
     sh(o[:sign_update] || "sign_update", "--account", o.fetch(:sparkle_account), dmg)
     UI.success("Notarized, stapled and Sparkle-signed: #{dmg}")
+  end
+
+  # Publish the disk image `release` made. Sparkle's generate_appcast adds it to the published appcast, with deltas from the
+  # newest builds the appcast lists, and signs the appcast. Then <Name>-<build>.dmg, the new deltas, <Name>.dmg and the appcast
+  # (last, so it names only files already there) are put into the store with the Workshop's tool:put-an-object-in-an-s3-store,
+  # which takes the store's keys from the person's vault on its own pipes (no key reaches this lane), and read back.
+  #
+  #   fastlane mac publish app:<app repo> feed:<public address the archives and appcast.xml are under, ending in /> \
+  #     store:<vault store name> computer:<the computer whose vault holds the store> cli:<the person's engine command> \
+  #     sparkle_account:<Keychain account> \
+  #     [deltas:<builds to make deltas from, 3>] [generate_appcast:<path>] [sign_update:<path>]
+  lane :publish do |o|
+    require "digest"
+    require "fileutils"
+    require "open3"
+    require "rexml/document"
+
+    out = File.join(File.expand_path(o.fetch(:app)), ".build/release")
+    app = Dir[File.join(out, "*.app")].first
+    UI.user_error!("No app in #{out}; run the release lane first. Nothing was published.") unless app
+    name = File.basename(app, ".app")
+    dmg = File.join(out, "#{name}.dmg")
+    UI.user_error!("No #{dmg}; run the release lane first. Nothing was published.") unless File.file?(dmg)
+    build = sh("/usr/libexec/PlistBuddy", "-c", "Print :CFBundleVersion", File.join(app, "Contents/Info.plist"), log: false).strip
+    prefix = o.fetch(:feed)
+    UI.user_error!("feed must be an https address ending in /: #{prefix}") unless prefix.start_with?("https://") && prefix.end_with?("/")
+    account = o.fetch(:sparkle_account)
+    sign_update = o[:sign_update] || "sign_update"
+    deltas = (o[:deltas] || 3).to_i
+
+    # The folder generate_appcast reads and writes: the published appcast, the newest builds it lists, and this build.
+    feed = File.join(out, "feed")
+    FileUtils.rm_rf(feed)
+    FileUtils.mkdir_p(feed)
+    sh("curl", "-fsS", "-H", "Cache-Control: no-cache", "-o", File.join(feed, "appcast.xml"), "#{prefix}appcast.xml")
+    listed = REXML::Document.new(File.read(File.join(feed, "appcast.xml"))).get_elements("//item").map do |item|
+      [item.get_text("sparkle:version").to_s.to_i, item.elements["enclosure"].attributes["url"]]
+    end
+    listed.sort.reverse.first(deltas).each do |_, url|
+      UI.user_error!("The appcast names #{url}, outside #{prefix}. Nothing was published.") unless url.start_with?(prefix)
+      sh("curl", "-fsS", "-o", File.join(feed, File.basename(url)), url)
+    end
+    versioned = "#{name}-#{build}.dmg"
+    FileUtils.cp(dmg, File.join(feed, versioned))
+    before = Dir[File.join(feed, "*.delta")]
+    sh(o[:generate_appcast] || "generate_appcast", "--account", account, "--download-url-prefix", prefix,
+       "--maximum-deltas", deltas.to_s, feed)
+    sh(sign_update, "--account", account, "--verify", File.join(feed, "appcast.xml"))
+    unless File.read(File.join(feed, "appcast.xml")).include?("<sparkle:version>#{build}</sparkle:version>")
+      UI.user_error!("generate_appcast did not add build #{build} to the appcast. Nothing was published.")
+    end
+    FileUtils.cp(dmg, File.join(feed, "#{name}.dmg"))
+
+    put = lambda do |file, content_type, cache_control|
+      request = { tool: "tool:put-an-object-in-an-s3-store",
+                  input: { store: o.fetch(:store), file: file, key: file, content_type: content_type, cache_control: cache_control,
+                           computer: { "read-a-folder" => { folder: feed } } } }
+      said, status = Open3.capture2e(o.fetch(:cli), "op", "tools:run", "-", "--pin", o.fetch(:computer), "--timeout", "900",
+                                     stdin_data: JSON.generate(request))
+      answer = (JSON.parse(said[said.index("{")..]) rescue {})
+      placed = answer["result"] || answer
+      unless status.success? && placed["sha256"] == Digest::SHA256.file(File.join(feed, file)).hexdigest
+        UI.user_error!("#{file} was not put into #{o.fetch(:store)}: #{said.strip[-600..] || said.strip}")
+      end
+      UI.message("Put #{file}: #{placed["size"]} bytes, sha256 #{placed["sha256"]}")
+    end
+    put.call(versioned, "application/octet-stream", "max-age=31536000, immutable")
+    (Dir[File.join(feed, "*.delta")] - before).each do |delta|
+      put.call(File.basename(delta), "application/octet-stream", "max-age=31536000, immutable")
+    end
+    put.call("#{name}.dmg", "application/octet-stream", "max-age=300")
+    put.call("appcast.xml", "application/xml", "max-age=60")
+
+    # Read back what an installed app reads.
+    published = File.join(out, "appcast.published.xml")
+    sh("curl", "-fsS", "-H", "Cache-Control: no-cache", "-o", published, "#{prefix}appcast.xml")
+    UI.user_error!("The published appcast differs from the one put.") unless FileUtils.compare_file(published, File.join(feed, "appcast.xml"))
+    sh(sign_update, "--account", account, "--verify", published)
+    length = sh("curl", "-fsSI", "#{prefix}#{versioned}", log: false)[/^content-length:\s*(\d+)/i, 1].to_i
+    UI.user_error!("#{prefix}#{versioned} answers #{length} bytes, not #{File.size(dmg)}.") unless length == File.size(dmg)
+    UI.success("Published build #{build}: #{prefix}appcast.xml")
   end
 end
