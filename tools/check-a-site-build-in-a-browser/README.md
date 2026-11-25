@@ -13,17 +13,17 @@ Why it exists: on Nov 24 2026 two site builds went live with every server check 
 ## Invocation
 
 ```
-node tools/check-a-site-build-in-a-browser/do-work/check-site-build.mjs --pages BUILT_PAGES_DIR --live https://LIVE_HOST --out PICTURES_DIR [--app BUILT_APP_DIR --live-app https://LIVE_APP_HOST] [--settings FILE] [--browser EXECUTABLE]
+node tools/check-a-site-build-in-a-browser/do-work/check-site-build.mjs --pages BUILT_PAGES_DIR --live https://LIVE_HOST --out PICTURES_DIR [--app BUILT_APP_DIR --live-app https://LIVE_APP_HOST] [--server-rendered /PREFIX,/PREFIX] [--settings FILE] [--browser EXECUTABLE]
 ```
 
-Standard output is one JSON line `{"result": {"refused": N, "pages": [{kind, url, live_url, height_px, live_height_px, height_to_live, new_page_errors, reading_font, live_reading_font, serif_where_live_is_not, visible_text_chars, screenshots: {local, live}, refused, why}]}}`; progress goes to standard error. Exit 1 when any page is refused, 0 when none is, 2 when it could not run (bad arguments).
+Standard output is one JSON line `{"result": {"refused": N, "not_checked_here": M, "pages": [{kind, url, live_url, height_px, live_height_px, height_to_live, new_page_errors, reading_font, live_reading_font, serif_where_live_is_not, visible_text_chars, screenshots: {local, live}, refused, checked_here, why}]}}`; progress goes to standard error. Exit 1 when any page is refused, 0 when none is, 2 when it could not run (bad arguments).
 
 ## The rules
 
 1. Page kinds come from the build's own lists (`do-work/page-kinds.mjs`): the locs of `sitemap.xml` grouped by path shape (one segment is its own kind; two or more segments are the kind of the parent folder, `/courses/*`), plus the top-level `.html` pages the sitemap leaves out, plus the app folder's. One page per kind: the first the sitemap lists.
 2. Each is opened from the build (served on 127.0.0.1: path, folder `index.html`, `path.html`; data calls under `/target/` and files the build lacks go to the live site, data calls with no query added and with Referer and Origin naming the live host) and from the live site. Page views carry `utm_content=check`.
 3. Measured after the load event (never network idle) plus `settle_ms`: scroll height, page errors, computed font-family of the first `#root p`, visible text length.
-4. Refused: built height under `min_height_to_live` of live; a page error the live page did not throw; a serif reading font where live's is not. A kind the live site answers 404 for (any other live status of 400 or more refuses the page as unreadable): refused for any page error or no visible text. A page the build has no file for, or that does not load, is refused.
+4. Refused: built height under `min_height_to_live` of live; a page error the live page did not throw; a serif reading font where live's is not. A kind the live site answers 404 for (any other live status of 400 or more refuses the page as unreadable): refused for any page error or no visible text. A page the build has no file for, or that does not load, is refused. The one exception is named by the caller: a kind under a `--server-rendered` prefix (whole path segments: `/articles` covers `/articles` and `/articles/x`, not `/articlesx`) is drawn by the commit's server code from its data, which a built folder cannot show; its row says `checked_here: false` and `words.server_rendered`, it is neither refused nor passed, and `not_checked_here` counts it. The deploy checks those kinds on the running commit after its apply.
 
 A blank page is only as tall as the window (`scrollHeight` is never under the viewport), so a blank page measures 900 px against a live page of thousands.
 

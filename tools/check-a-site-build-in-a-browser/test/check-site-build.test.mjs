@@ -108,6 +108,22 @@ test('a sitemap path with no file in the build is refused, never skipped', async
   assert.equal(byKind(result, '/courses/*').why[0], settings.words.no_file);
 });
 
+test('a kind under a named server-rendered prefix is not checked here and not refused; a prefix matches whole segments only', async () => {
+  const built = { 'sitemap.xml': sitemap(['/about', '/articles', '/articles/first', '/articlesx']), 'about.html': tall(1200) };
+  const result = await run(built, { serverRendered: ['/articles'] });
+  assert.equal(byKind(result, '/articles').checked_here, false);
+  assert.equal(byKind(result, '/articles/*').checked_here, false);
+  assert.equal(byKind(result, '/articles/*').refused, false);
+  assert.equal(byKind(result, '/articles/*').why[0], settings.words.server_rendered);
+  assert.equal(byKind(result, '/about').checked_here, true);
+  assert.equal(byKind(result, '/articlesx').refused, true);
+  assert.equal(result.not_checked_here, 2);
+  assert.equal(result.refused, 1);
+  const unnamed = await run(built);
+  assert.equal(byKind(unnamed, '/articles').refused, true);
+  assert.equal(unnamed.not_checked_here, 0);
+});
+
 test('the height rule compares the exact ratio: 4,998 of 10,000 px is refused although it rounds to 0.5', async () => {
   const { judge } = await import('../do-work/judge.mjs');
   const measured = height => ({ height, font: 'Arial', text: 5, errors: [] });
