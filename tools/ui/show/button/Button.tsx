@@ -134,6 +134,11 @@ const buttonVariants = cva(
         true: 'h-auto max-w-full whitespace-normal py-2 text-center',
         false: '',
       },
+      /** The strong action of a section (a call to action): its label weighs what the look's --cta-font-weight says, and
+       *  where the look names none, what --button-font-weight says. Any Button, in any container, takes it from its row. */
+      emphasis: {
+        cta: 'font-[number:var(--cta-font-weight,var(--button-font-weight,600))]',
+      },
     },
     defaultVariants: {
       variant: 'secondary',
@@ -195,6 +200,8 @@ interface ButtonProps
   loading?: boolean;
   /** Let a long label wrap inside the button (see the `wrap` face above). */
   wrap?: boolean;
+  /** `cta`: the label's weight is the look's --cta-font-weight (else --button-font-weight), see the `emphasis` face above. */
+  emphasis?: 'cta' | null;
   /** The work this button runs elsewhere, said in the button; a press that returns a promise needs none. `null`: the
    *  button draws its own work, so a promise its press returns is not said again. */
   work?: ButtonWork | null;
@@ -248,7 +255,7 @@ function variantForSolidColor(color: ButtonProps['color']) {
  * ```
  */
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant: givenVariant, size: givenSize, radius, fullWidth, wrap, loading, work: givenWork, pendingLabel, doneLabel, errorLabel, disabled, active, tone, color, targetRole = 'action', children, onClick, href, render, ...props }, ref) => {
+  ({ className, variant: givenVariant, size: givenSize, radius, fullWidth, wrap, emphasis, loading, work: givenWork, pendingLabel, doneLabel, errorLabel, disabled, active, tone, color, targetRole = 'action', children, onClick, href, render, ...props }, ref) => {
     const insideTooltip = React.useContext(InsideTooltipContext);
     const named = ownVariant(givenVariant);
     const variant: OwnVariant = named === 'solid' ? variantForSolidColor(color) : named ?? (tone ? variantForTone(tone) : 'secondary');
@@ -266,7 +273,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       ref,
       props: mergeProps<'button'>({
         className: cn(
-          buttonVariants({ variant, size, radius, fullWidth, wrap }),
+          buttonVariants({ variant, size, radius, fullWidth, wrap, emphasis }),
           controlTargetClass(targetRole),
           active && ACTIVE_CLASS,
           className,

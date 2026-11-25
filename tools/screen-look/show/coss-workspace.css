@@ -100,9 +100,12 @@
 :where(.coss-ui) *, :where(.coss-ui) *::before, :where(.coss-ui) *::after {box-sizing:border-box;border-color:var(--color-input)}
 :where(.coss-ui) [data-slot] {border-style:solid;border-width:0}
 :where(.coss-ui) :is([data-slot=dialog-popup],[data-slot=input-control],[data-slot=textarea-control],[data-slot=checkbox],[data-slot=radio],[data-slot=button]) {border-width:1px}
-.coss-ui [data-slot=input] {background:transparent;color:inherit;font:inherit;border:0;transition:none}
+:where(.coss-ui [data-slot=input]) {font:inherit}
+.coss-ui [data-slot=input] {background:transparent;color:inherit;border:0;transition:none}
 .coss-ui [data-slot=input-control]>[data-slot=input] {width:100%;max-width:none;min-width:0;flex:1;background:transparent}
-.coss-ui [data-slot=button] {font:inherit}
+/* A button inherits the words around it only where nothing else names its type: at zero specificity (as the border rules above), so a
+   Button's own size and weight classes, a page's face sheet and a part's own rule all out-rank it. */
+:where(.coss-ui [data-slot=button]) {font:inherit}
 .coss-account-profile{max-width:760px;padding:32px 28px;min-width:0}.coss-account-header{display:flex;align-items:center;gap:16px;padding-bottom:28px;border-bottom:1px solid var(--color-input)}.coss-account-header h2{margin:0;font-size:24px;line-height:1.2;font-weight:650;letter-spacing:-.02em}.coss-account-header p{margin:4px 0 0;color:var(--color-muted-foreground)}.coss-account-fields{display:grid}.coss-account-field{display:grid;grid-template-columns:minmax(140px,200px) minmax(0,1fr);gap:16px;align-items:start;padding:20px 0;border-bottom:1px solid var(--color-input)}.coss-account-field>span{color:var(--color-muted-foreground)}.coss-account-field>strong{min-width:0;overflow-wrap:anywhere;font-weight:500;white-space:pre-wrap}@media(max-width:600px){.coss-account-profile{padding:24px 16px}.coss-account-field{grid-template-columns:1fr;gap:4px;padding:16px 0}}
 .coss-account-field [data-slot=input-control],.coss-account-field [data-slot=textarea-control]{width:100%}.coss-account-field small{display:block;margin-top:4px;color:var(--color-muted-foreground);font-size:12px;font-weight:400}.coss-account-save{display:flex;align-items:center;gap:12px;padding-top:24px}.coss-account-save>[role=status]{color:var(--color-muted-foreground)}
 .coss-publication-workspace{display:grid;gap:16px;min-width:0;padding:20px;border:1px solid var(--color-input);border-radius:var(--radius-2xl);background:var(--color-card)}
@@ -155,7 +158,8 @@
 
 .coss-native-value {position:absolute!important;inline-size:1px!important;block-size:1px!important;clip-path:inset(50%)!important;overflow:hidden!important;white-space:nowrap!important;padding:0!important;border:0!important}
 .coss-select-host {display:block;min-width:0;width:100%}
-.coss-ui [data-slot=select-trigger] {border-width:1px;font:inherit;min-width:0;width:100%;cursor:pointer}
+:where(.coss-ui [data-slot=select-trigger]) {font:inherit}
+.coss-ui [data-slot=select-trigger] {border-width:1px;min-width:0;width:100%;cursor:pointer}
 .coss-ui [data-slot=select-positioner],.coss-ui [data-slot=menu-positioner] {z-index:10000}
 .coss-ui [data-slot=select-popup],.coss-ui [data-slot=menu-popup] {font-size:14px}
 .coss-ui [data-slot=select-popup] {max-width:min(420px,calc(100vw - 24px))}

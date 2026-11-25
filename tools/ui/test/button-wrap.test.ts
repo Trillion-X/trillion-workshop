@@ -14,3 +14,12 @@ test('a button never wraps its label unless it is given wrap', async () => {
   assert.match(wrapped, /whitespace-normal/);
   assert.doesNotMatch(wrapped, /wrap="/);
 });
+
+// A call to action weighs what the look's --cta-font-weight says (else --button-font-weight), and a plain button's weight
+// is not the call to action's: the face comes from the Button's own emphasis, in any container.
+test('a button with emphasis cta takes its weight from the look\'s cta weight', async () => {
+  const cta = await renderAView(entry, { children: 'See pricing', variant: 'primary', emphasis: 'cta' });
+  assert.match(cta, /var\(--cta-font-weight,var\(--button-font-weight,600\)\)/);
+  const plain = await renderAView(entry, { children: 'See pricing', variant: 'primary' });
+  assert.doesNotMatch(plain, /--cta-font-weight/);
+});
