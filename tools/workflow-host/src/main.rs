@@ -615,6 +615,8 @@ impl OneRule {
 // out: SQL literals, e-mail addresses, long numbers and connection strings never reach the row.
 fn record(run: &str) -> Result<Value, String> {
     let name = run.rsplit('/').next().unwrap_or(run).to_string();
+    // A chat may name the run by its leading number alone (run_of takes it), so that is what is looked for.
+    let short = name.split('-').next().unwrap_or(&name).to_string();
     // A chat worked the run when a wf call of it ran and wf's own answer to the call names the run.
     let started = read(&format!("{run}/started_at.json")).as_str().unwrap_or_default().to_string();
     // Transcripts written since the run started: minutes since then, read from the start's own UTC time.
