@@ -260,7 +260,7 @@
           }
         },
         "offers_runs": {
-          "_what": "What a run of another tool may be granted of these calls (trillion-rust src/account_rights/run_capability/call-rights.json): a row asks for it in its stored list as {files: <folder>, operations: [<call>]}, \"/\" for every name or a folder such as \"/sites/\", and gets exactly those calls, each touching only the names under that folder. Each rule says which argument of a call names a name (`id`, each of them for a move or a copy) or a folder (`id_prefix`); a call by a file's identity, or one that names no name (`{}`), is covered only by \"/\". A call not listed here is never granted to a run. share_file is granted so a run may hand out a time-bound link to a name under its folder (tool:read-published-clips links the clips under /published-clips/), never a name outside it.",
+          "_what": "What a run of another tool may be granted of these calls (trillion-rust src/account_rights/run_capability/call-rights.json): a row asks for it in its stored list as {files: <folder>, operations: [<call>]}, \"/\" for every name or a folder such as \"/sites/\", and gets exactly those calls, each touching only the names under that folder. Each rule says which argument of a call names a name (`id`, each of them for a move or a copy) or a folder (`id_prefix`); a call by a file's identity, or one that names no name (`{}`), is covered only by \"/\". A call not listed here is never granted to a run.",
           "right": "files",
           "operations": {
             "list_files": {
@@ -276,9 +276,6 @@
               "id": "name_or_identity"
             },
             "read_file_span": {
-              "id": "name_or_identity"
-            },
-            "share_file": {
               "id": "name_or_identity"
             },
             "write_file": {
