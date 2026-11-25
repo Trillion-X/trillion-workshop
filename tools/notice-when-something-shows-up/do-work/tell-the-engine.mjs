@@ -84,6 +84,8 @@ export function keptFolderOf(argv = process.argv.slice(2)) {
 /** One door operation `method` with `input` on the run's door (`door`: {url, resource, capability}): {response, result}. A
  *  JSON-RPC error carries no result: it is a refusal, never an empty success. Shared by the carrier and the signed-call
  *  receiver (do-work/signed-webhook-receiver.mjs), so both reach the engine one way.
+ *  A door that names `pins` (computer ids, as `{cli} op --pin` sends them) sends them as the call's route, so a door that carries
+ *  calls to several computers (a meeting point) meets the call at that computer; a door without pins is called as before.
  *  A call, its answer read whole, that takes longer than `timeoutMs` (DATA door-call.json timeout_ms) is given up and
  *  answered as refused `door_timeout`, which a teller tells again (`tellAgain`): fetch has no time limit of its own, so a
  *  door that never answered held the waiter's pass for ever (wake-engine, Nov 22 2026, 3:2x AM CST). */
@@ -91,7 +93,7 @@ export async function operateOverDoor(door, method, input, requestKey, { fetchIm
   const body = JSON.stringify({ jsonrpc: '2.0', id, method: 'tools/call', params: { name: 'do_one_thing_in_my_account',
     // A fact's own key (a due time's occurrence key names its schedule, its zone and four times) can be longer than the
     // door takes; content-identity gives a longer one a fixed-length name of its own, so the same fact keeps one key.
-    arguments: { address: door.resource ?? '@own-records', method, request_key: requestKeyForEngine(requestKey), input } } });
+    arguments: { address: door.resource ?? '@own-records', method, request_key: requestKeyForEngine(requestKey), input, ...(door.pins?.length ? { pins: door.pins } : {}) } } });
   const signal = AbortSignal.timeout(timeoutMs);
   let response;
   let raw;

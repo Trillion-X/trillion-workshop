@@ -34,6 +34,9 @@
 //   health_path?               a GET-only readiness address (absent: path + /health); it exposes no credential or event body
 //   url?                       the public address the service signed the call at, when its rule needs it
 //   door                       the engine's door address the facts are told at (http or https)
+//   pins?                      the computer ids the door meets each call at (a meeting point's door that carries calls to
+//                              several computers, a meeting point's own /mcp): 1 to 64 ids, each 1 to 128 letters,
+//                              digits, dashes or underscores (trillion-rust src/tool_runs/reach.rs). Absent: the door's own engine.
 //   subscribe?                 { mode, verify_credential }: answers the service's subscribe handshake, a GET whose hub.mode is
 //                              mode and whose hub.verify_token is the credential's value, with hub.challenge as plain text.
 //                              Any other GET on the path is refused with 403. Absent: every GET is answered 405.
@@ -55,6 +58,9 @@ export const DEFAULT_BODY_CEILING = 1048576;
 /** How many event keys this process remembers as told, so a service's repeat is not sent to the engine twice. */
 const TOLD_LIMIT = 10000;
 const NAME = /^[A-Za-z0-9._-]{1,128}$/;
+/** A computer id a call may be pinned to, and how many (the engine's Route::parse, trillion-rust src/tool_runs/reach.rs). */
+const PIN = /^[A-Za-z0-9_-]{1,128}$/;
+const MOST_PINS = 64;
 /** The credential the unit is given the engine's account key under (CREDENTIALS_DIRECTORY/account-key). */
 export const ACCOUNT_KEY_CREDENTIAL = 'account-key';
 
@@ -80,6 +86,8 @@ export function receiverConfigOf(raw) {
   if (!['http:', 'https:'].includes(door.protocol) || door.username || door.password || door.hash) refuse('bad-door-address');
   const healthPath = raw.health_path ?? `${raw.path}/health`;
   if (typeof healthPath !== 'string' || !healthPath.startsWith('/') || healthPath === raw.path || /[?#]/.test(healthPath)) refuse('bad-health-path');
+  const pins = raw.pins ?? null;
+  if (pins !== null && (!Array.isArray(pins) || pins.length === 0 || pins.length > MOST_PINS || !pins.every((pin) => typeof pin === 'string' && PIN.test(pin)))) refuse('bad-pins');
   const subscribe = raw.subscribe ?? null;
   if (subscribe !== null && (typeof subscribe !== 'object' || typeof subscribe.mode !== 'string' || !subscribe.mode || typeof subscribe.verify_credential !== 'string' || !NAME.test(subscribe.verify_credential))) refuse('bad-subscribe');
   return {
@@ -94,6 +102,7 @@ export function receiverConfigOf(raw) {
     body_byte_ceiling: ceiling,
     url: typeof raw.url === 'string' && raw.url ? raw.url : null,
     door: door.href,
+    pins,
     health_path: healthPath,
     subscribe: subscribe === null ? null : { mode: subscribe.mode, verify_credential: subscribe.verify_credential },
   };
@@ -210,7 +219,7 @@ export async function startReceiver({ configPath, env = process.env, fetchImpl =
   // Only the credential's name is ever said; its value is not in any message, log line or refusal.
   const secret = readCredential(folder, config.secret_credential, 'the signing secret');
   const accountKey = readCredential(folder, ACCOUNT_KEY_CREDENTIAL, 'the engine account key');
-  const door = { url: config.door, capability: accountKey };
+  const door = { url: config.door, capability: accountKey, ...(config.pins ? { pins: config.pins } : {}) };
   const subscribe = config.subscribe ? { mode: config.subscribe.mode, token: readCredential(folder, config.subscribe.verify_credential, 'the subscribe verification value') } : null;
   const privateValues = [secret, accountKey, subscribe?.token].filter(Boolean);
   const safeMessage = (error) => privateValues.reduce((message, value) => message.replaceAll(value, '[redacted]'), String(error?.message ?? error));

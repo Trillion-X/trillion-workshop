@@ -179,6 +179,9 @@ test('a config that names no real rule, port, secret or door is refused by the f
   assert.throws(() => receiverConfigOf({ ...base, door: 'http://name:secret@example.test' }), { reason: 'bad-door-address' });
   assert.throws(() => receiverConfigOf({ ...base, replay_window_seconds: 0 }), { reason: 'bad-replay-window' });
   assert.throws(() => receiverConfigOf({ ...base, health_path: base.path }), { reason: 'bad-health-path' });
+  assert.throws(() => receiverConfigOf({ ...base, pins: [] }), { reason: 'bad-pins' });
+  assert.throws(() => receiverConfigOf({ ...base, pins: ['has space'] }), { reason: 'bad-pins' });
+  assert.throws(() => receiverConfigOf({ ...base, pins: 'one-computer' }), { reason: 'bad-pins' });
 });
 
 /** A stand-in engine door: it records each door call's bearer and method, and answers the call as taken. */
@@ -189,7 +192,7 @@ async function standInDoor() {
     req.on('data', (chunk) => { text += chunk; });
     req.on('end', () => {
       const call = JSON.parse(text);
-      calls.push({ auth: req.headers.authorization, method: call.params.arguments.method, input: call.params.arguments.input });
+      calls.push({ auth: req.headers.authorization, method: call.params.arguments.method, input: call.params.arguments.input, pins: call.params.arguments.pins });
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ jsonrpc: '2.0', id: call.id, result: { structuredContent: {} } }));
     });
@@ -225,6 +228,7 @@ test('the unit reads its secret and its account key from its credential folder, 
     assert.equal(door.calls[0].method, 'wake:arrive');
     assert.equal(door.calls[0].input.kind, 'sample-event');
     assert.equal(door.calls[0].input.payload.key, 'th_1');
+    assert.equal(door.calls[0].pins, undefined, 'a config without pins sends no route');
     assert.ok(says.every((line) => !line.includes(ACCOUNT_KEY) && !line.includes(SECRET)), 'no log line carries a key or the secret');
   } finally {
     await new Promise((resolve) => server.close(resolve));
@@ -329,6 +333,25 @@ test('an upstream error cannot leak either credential in the reply or the unit l
     }
   } finally {
     await new Promise((resolve) => server.close(resolve));
+    rmSync(unit.fixture, { recursive: true, force: true });
+  }
+});
+
+test('a config that names pins sends them as the route of every door call, so a meeting point meets the fact at that computer', async () => {
+  const door = await standInDoor();
+  const unit = unitFixture();
+  writeFileSync(unit.configPath, JSON.stringify({ ...CONFIG, listen_port: 0, door: door.url, pins: ['one-computer'] }));
+  const server = await startReceiver({ configPath: unit.configPath, env: { CREDENTIALS_DIRECTORY: unit.credentials }, say: () => {} });
+  try {
+    const body = event();
+    const answer = await post(server.address().port, '/webhooks/sample', signed(body, { ts: Math.floor(Date.now() / 1000) }), body);
+    assert.equal(answer.status, 200);
+    assert.equal(door.calls.length, 1);
+    assert.deepEqual(door.calls[0].pins, ['one-computer']);
+    assert.equal(door.calls[0].method, 'wake:arrive');
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+    await door.close();
     rmSync(unit.fixture, { recursive: true, force: true });
   }
 });
