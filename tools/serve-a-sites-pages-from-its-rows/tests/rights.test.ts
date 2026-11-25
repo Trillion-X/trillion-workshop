@@ -106,6 +106,21 @@ test('a call a share cannot make as written is refused with why, and nothing is 
   assert.deepEqual(grant.held_inputs_by_tool, { [RUN_SQL]: { database: ['site_records'] } }, 'only the names the rows give as written, under a use');
 });
 
+test('a plain key a mount marks share_by_listing is listed by its very name; one the row fills from the request is refused', () => {
+  const plain = (tool: string) => (tool === 'tool:start-a-checkout' ? [{ path: 'secret_name', use_from_input: null, share_by_listing: true as const }] : heldOf(tool));
+  const site = (input: Record<string, unknown>) => ({ settings, pages: [], actions: [action({ path: '/checkout', tool: 'tool:start-a-checkout', input, answer: { redirect_from: 'redirectUrl' } })] });
+  const listed = derivedGrantOf(site({ secret_name: 'a-sellers-stripe-key' }), plain);
+  assert.deepEqual(listed.refused, []);
+  assert.deepEqual(listed.grant.held_inputs_by_tool['tool:start-a-checkout'], { secret_name: ['a-sellers-stripe-key'] });
+  assert.match(derivedGrantOf(site({ secret_name: { $: 'body', key: 'k' } }), plain).refused[0]?.why ?? '', /filled from the request/);
+  // Without the mark, the same name binds no use and a share never opens it.
+  const unmarked = (tool: string) => (tool === 'tool:start-a-checkout' ? [{ path: 'secret_name', use_from_input: null }] : heldOf(tool));
+  assert.match(derivedGrantOf(site({ secret_name: 'a-sellers-stripe-key' }), unmarked).refused[0]?.why ?? '', /binds no use/);
+  // The real checkout row marks its secret_name mount.
+  const real = heldInputsOfTools(join(import.meta.dirname, '..', '..'))('tool:start-a-stripe-checkout');
+  assert.deepEqual(real?.find(item => item.path === 'secret_name'), { path: 'secret_name', use_from_input: null, share_by_listing: true });
+});
+
 test('the held inputs of every tool are read from the tools folder\'s rows', () => {
   const heldIn = heldInputsOfTools(join(import.meta.dirname, '..', '..'));
   assert.deepEqual(heldIn(RUN_SQL)?.find(item => item.path === 'database'), { path: 'database', use_from_input: 'use' });

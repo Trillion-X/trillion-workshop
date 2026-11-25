@@ -22,7 +22,9 @@
 //     refused  [{ where, tool, why }]: each call the grant cannot let the site make as its rows say it, and why; the grant is
 //              usable for the site only when this is empty. A call is refused when it
 //                - gives a held name filled from the request (a path, query, body or other source), which no grant can list;
-//                - gives a held name to a tool whose held value binds no use, which a share never opens by name;
+//                - gives a held name to a tool whose held value binds no use, which a share never opens by name, unless the
+//                  mount marks it a plain key (`share_by_listing: true`, a Stripe key named by its vault name): then the grant
+//                  lists that very name, as it lists a database;
 //                - gives a held name with no use, where the tool's held value binds one (the site's rows declare their uses);
 //                - runs SQL that is not a read through run-sql, which under a share opens the reader login and cannot write
 //                  (a write is the declared write tool the row names).
@@ -58,6 +60,11 @@ const RUN_SQL = 'tool:run-sql-in-my-database';
 export interface Held {
   path: string;
   use_from_input: string | null;
+  /**
+   * The held value is a plain key, not a database login (its mount says `share_by_listing: true`): a share's run opens it,
+   * with no use, only when the grant lists that very name at this path (trillion-rust tools.rs held_name).
+   */
+  share_by_listing?: true;
 }
 
 type Fields = Record<string, unknown>;
@@ -177,12 +184,13 @@ export function derivedGrantOf(site: SiteRows, heldOf: (tool: string) => Held[] 
     const items = heldOf(tool);
     if (items === null) { refused.push({ where, tool, why: 'this tools folder holds no row for the tool' }); continue; }
     tools.add(tool);
-    for (const { path, use_from_input } of items) {
+    for (const { path, use_from_input, share_by_listing } of items) {
       const given = at(input, path);
       if (given === undefined || given === null) continue;
       const why = fromRequest(given) ? `its held input ${path} is filled from the request, and a grant lists only names written in the row`
         : typeof given !== 'string' || !given ? `its held input ${path} is not a name`
-        : use_from_input === null ? `it names a held value at ${path}, which binds no use, so a share never opens it by name`
+        : use_from_input === null && !share_by_listing ? `it names a held value at ${path}, which binds no use, so a share never opens it by name`
+        : use_from_input === null ? null
         : at(input, use_from_input) === undefined ? `it names ${given} at ${path} with no ${use_from_input}: the row declares no use, and a share opens a database only under one`
         : null;
       if (why) { refused.push({ where, tool, why }); continue; }
@@ -215,14 +223,16 @@ export function heldInputsOfTools(toolsFolder: string): (tool: string) => Held[]
         if (!object(value)) return;
         if (typeof value.secret_name_from_input === 'string') {
           const use = object(value.under_use) && typeof value.under_use.use_from_input === 'string' ? value.under_use.use_from_input : null;
-          items.push({ path: value.secret_name_from_input, use_from_input: use });
+          items.push({ path: value.secret_name_from_input, use_from_input: use, ...(use === null && value.share_by_listing === true ? { share_by_listing: true as const } : {}) });
         }
         Object.values(value).forEach(walk);
       };
       walk(payload.invoke);
-      // A path some mount opens with no use is one a share never opens by name, whatever another mount binds.
+      // A path some mount opens with no use, and does not mark as a plain key a grant may list, is one a share never opens by
+      // name, whatever another mount binds.
       const paths = [...new Set(items.map(item => item.path))];
-      byTool.set(payload.id, paths.map(path => items.find(item => item.path === path && item.use_from_input === null) ?? items.find(item => item.path === path)));
+      byTool.set(payload.id, paths.map(path => items.find(item => item.path === path && item.use_from_input === null && !item.share_by_listing)
+        ?? items.find(item => item.path === path && item.use_from_input === null) ?? items.find(item => item.path === path)));
     }
   }
   return tool => byTool.get(tool) ?? null;
