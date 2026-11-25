@@ -727,8 +727,8 @@ fn record(run: &str) -> Result<Value, String> {
             for (id, text, failed) in results {
                 let Some((tool, input, why, at)) = open.remove(&id) else { continue };
                 let input_text = input.to_string();
-                let is_wf = names_wf(&input_text);
-                if is_wf && (input_text.contains(&short) || (input_text.contains("wf start") && text.contains(&short))) { worked_until = Some(at.clone()); }
+                let is_wf = names_wf(&input_text, "start|answer|show|cancel");
+                if names_wf(&input_text, "start|answer|cancel") && (input_text.contains(&short) || (input_text.contains("wf start") && text.contains(&short))) { worked_until = Some(at.clone()); }
                 if is_wf {
                     if let Some(c) = re(r#""step":\s*"([^"]+)""#).captures_iter(&text).last() { waits_on = c[1].to_string(); }
                 }
@@ -923,11 +923,12 @@ fn is_like(pattern: &str, text: &str) -> bool { re(pattern).is_match(text) }
 // A call is wf's own when it runs `wf start|answer|show|cancel` by name or path, or through a variable the same command sets
 // to a path ending in /wf (`W=/path/bin/wf; $W answer R step`, `${W} show R`): helper agents write it that way, and the
 // ai-command-center turn-run guard (making-a-deliverable-needs-a-wf-run.py WF_VARIABLE) counts the same form.
-fn names_wf(call: &str) -> bool {
-    const VERBS: &str = "start|answer|show|cancel";
-    if is_like(&format!(r"\bwf ({VERBS})\b"), call) { return true; }
+// `verbs` is the alternation of wf verbs that count: record reads `show` for the step a run waits on, but only start, answer
+// and cancel mean the chat worked the run (a chat that only showed it never changed it).
+fn names_wf(call: &str, verbs: &str) -> bool {
+    if is_like(&format!(r"\bwf ({verbs})\b"), call) { return true; }
     re(r#"\b([A-Za-z_][A-Za-z0-9_]*)=\\?["']?[^\s"';|&\\]*/wf(?:[^\w-]|$)"#).captures_iter(call)
-        .any(|c| is_like(&format!(r#"\$(?:\{{{v}\}}|{v}\b)\\?"?\s+({VERBS})\b"#, v = &c[1]), call))
+        .any(|c| is_like(&format!(r#"\$(?:\{{{v}\}}|{v}\b)\\?"?\s+({verbs})\b"#, v = &c[1]), call))
 }
 // A pattern is compiled once per process: record walks every call of every chat that names the run, and compiling its
 // patterns per call made a long chat take minutes (a 187 MB transcript held wf record past 60 s, Nov 21 4:3x AM CST).
@@ -1743,7 +1744,18 @@ mod names_wf_tests {
     use super::names_wf;
     use serde_json::json;
 
-    fn counts(command: &str) -> bool { names_wf(&json!({ "command": command }).to_string()) }
+    fn counts(command: &str) -> bool { names_wf(&json!({ "command": command }).to_string(), "start|answer|show|cancel") }
+    fn works_a_run(command: &str) -> bool { names_wf(&json!({ "command": command }).to_string(), "start|answer|cancel") }
+
+    #[test]
+    fn a_chat_that_only_shows_a_run_did_not_work_it() {
+        assert!(!works_a_run("wf show R"));
+        assert!(!works_a_run("W=/opt/otfh/bin/wf; $W show R"));
+        assert!(counts("wf show R"));
+        assert!(works_a_run("wf answer R step '{}'"));
+        assert!(works_a_run("W=/opt/otfh/bin/wf; ${W} cancel R"));
+        assert!(works_a_run("wf start workflow:x '{}'"));
+    }
 
     #[test]
     fn wf_by_name_or_path_counts() {
