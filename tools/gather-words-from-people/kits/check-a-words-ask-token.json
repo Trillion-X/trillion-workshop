@@ -1,0 +1,41 @@
+{
+  "start_here": "Say to your AI: \"Check my words link.\" It runs tool:check-a-words-ask-token, which checks the token of a words ask and keeps the words given.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it works on the form_rows the pursuit database you name already holds, and a sitting is one row there.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-words-ask-token"
+  ],
+  "instructions": [
+    "1. Name the pursuit database that holds the form rows, such as example_for_who_runs_it; the computer opens it with the login its vault holds.",
+    "2. Say what you want in plain words; your AI calls tools:run with tool tool:check-a-words-ask-token and the input.",
+    "3. Read the answer and show it with the page's screen; the tool reads and changes one sitting."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check a words ask token",
+      "ask": "Check my words link.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-words-ask-token",
+            "input": {
+              "database": "example_for_who_runs_it",
+              "asks_database": "example_for_who_runs_it",
+              "token": "ttttttttttttttttttttttttttttttttttttttttttt",
+              "site": "example",
+              "words_table": "example_words"
+            }
+          }
+        }
+      },
+      "given": "The database holds the page and form rows the step reads (made-up values).",
+      "hands_back": "{\"status\":200,\"state\":\"form\"}"
+    }
+  ],
+  "drafted_from": "tool row in tools/gather-words-from-people/tool-rows.json and routes/check-a-words-ask.ts"
+}
