@@ -8,6 +8,7 @@
 // - Sizes are the bytes esbuild wrote, never estimates.
 // - A screen is a file the page's first load fetches with import() (src/workspace/screen-mounts.ts); nothing here lists screens.
 import { existsSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 // The output files a file loads before it runs: itself and everything it imports statically, transitively.
 const closureIn = outputs => function closure(file, seen = new Set()) {
@@ -19,8 +20,8 @@ const closureIn = outputs => function closure(file, seen = new Set()) {
 
 /** The source files (paths relative to the build's root, as the metafile names them) whose code the first load
  *  carries, read from a build's metafile. A virtual module (`namespace:path`) is left out, unless its path is a file
- *  on disk (a file a plugin hands the page part of, scripts/json-fields.mjs): then it is that file, by its full path. */
-export function firstLoadInputs(metafile, entryPoint = 'src/workspace/main.tsx') {
+ *  on disk (a file a plugin hands the page part of, scripts/json-fields.mjs, named from `root` by ./ or ../): then it is that file. */
+export function firstLoadInputs(metafile, entryPoint = 'src/workspace/main.tsx', root = '/') {
   const { outputs } = metafile;
   const entry = Object.keys(outputs).find(file => outputs[file].entryPoint === entryPoint);
   const inputs = new Set();
@@ -28,7 +29,7 @@ export function firstLoadInputs(metafile, entryPoint = 'src/workspace/main.tsx')
     const named = input.replace(/ with \{[^{}]*\}$/, '');
     const virtual = /^[a-z][a-z0-9-]*:(.*)$/i.exec(named);
     if (!virtual) inputs.add(named);
-    else if (virtual[1].startsWith('/') && existsSync(virtual[1])) inputs.add(virtual[1]);
+    else if (/^(\/|\.\.?\/)/.test(virtual[1]) && existsSync(resolve(root, virtual[1]))) inputs.add(virtual[1]);
   }
   return [...inputs];
 }

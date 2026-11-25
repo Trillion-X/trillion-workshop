@@ -29,7 +29,7 @@ It judges the bundler's own report (an esbuild-shaped metafile), so what is judg
 | `checkBundlePackageBoundaries` | `({ metafile, bundleRoot, packagesRoot, declaration }) -> { findings, edges_checked, packages_reached }` | Judge one bundle's real import graph |
 | `publicPathsOf` | `(parsed, declaration) -> string[]` | Read validated public paths through the same declared lenses, with no I/O or implicit file export |
 | `describeFinding` | `(finding, declaration) -> string` | One plain line a person can act on |
-| `filePathOfBundleInput` | `(inputPath, bundleRoot) -> string \| null` | Resolve a metafile path (plain relative, or `namespace:/absolute`) to a file |
+| `filePathOfBundleInput` | `(inputPath, bundleRoot) -> string \| null` | Resolve a metafile path (plain relative, `namespace:/absolute`, or `namespace:./from-the-bundle-root`) to a file |
 | Finding rules | `package-private-source-reached`, `package-boundary-unreadable` | An edge to an undeclared file; a package whose declaration cannot be read |
 
 ## Dependencies

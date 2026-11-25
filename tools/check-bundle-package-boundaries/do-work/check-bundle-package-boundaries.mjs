@@ -16,10 +16,11 @@ import { existsSync, readFileSync } from 'node:fs';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
 
 // Metafile paths are either plain (relative to the bundle root) or `namespace:<path>`. A namespaced path names a
-// file only when what follows the namespace is absolute; anything else is a virtual module and owns no file.
+// file only when what follows the namespace is absolute or starts ./ or ../ (from the bundle root, so the build's own
+// folder is not in it); anything else is a virtual module and owns no file.
 export function filePathOfBundleInput(inputPath, bundleRoot) {
   const match = /^[a-z][a-z0-9-]+:(.*)$/i.exec(inputPath);
-  if (match) return isAbsolute(match[1]) ? match[1] : null;
+  if (match) return isAbsolute(match[1]) ? match[1] : /^\.\.?\//.test(match[1]) ? resolve(bundleRoot, match[1]) : null;
   return resolve(bundleRoot, inputPath);
 }
 

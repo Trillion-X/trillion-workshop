@@ -140,7 +140,7 @@ const pageBuild = (extraEntries = {}, extraPlugins = [], write = true) => build(
 // page holds, reached through the page's import map instead, so a screen shares the page's React, parts and helpers.
 const probe = await pageBuild({}, [], false);
 // Only Trillion's own files name icons by name; an installed package's files (Lucide's own index names every icon) do not.
-firstLoadSources.files = firstLoadInputs(probe.metafile).filter(file => !file.split('/').includes('node_modules')).map(file => resolve(root, file)).filter(file => existsSync(file));
+firstLoadSources.files = firstLoadInputs(probe.metafile, undefined, root).filter(file => !file.split('/').includes('node_modules')).map(file => resolve(root, file)).filter(file => existsSync(file));
 const folders = toolFolders(undefined, root, modules, { 'trillion-workshop': workshop });
 const toolScreens = await buildScreenModules({
   root, specs: screenModuleSpecs(folders.rowFiles, offeredRows(workshop).filter(row => { try { return folders.packageDir(row.screen?.module?.package ?? ''); } catch { return false; } })), packageDir: folders.packageDir,

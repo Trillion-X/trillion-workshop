@@ -172,9 +172,11 @@ function localResolver(root) {
 }
 
 // The file the build's other plugins answer an import with, or null; asked once, so this plugin is not asked again.
-async function resolvedByTheBuild(builder, args) {
+// A namespaced file named from the build's root (./ or ../, scripts/json-fields.mjs) is answered by its full path.
+async function resolvedByTheBuild(builder, args, root) {
   const answer = await builder.resolve(args.path, { importer: args.importer, resolveDir: args.resolveDir, kind: args.kind, namespace: args.namespace, pluginData: { askedByShared: true } });
-  return answer.errors.length || answer.external ? null : answer.path;
+  if (answer.errors.length || answer.external) return null;
+  return /^\.\.?\//.test(answer.path) ? resolve(root, answer.path) : answer.path;
 }
 
 // The plugin that leaves every file the page holds out of a bundle, reached by its shared name instead (invariant 2).
@@ -201,7 +203,7 @@ function sharedWithThePage({ root, pageFiles, asked, edges }) {
         // holds is shared with the page, never carried in the bundle a second time.
         const installed = args.importer.split(sep).includes('node_modules') || !args.importer.startsWith(root + sep);
         const path = installed
-          ? await resolvedByTheBuild(builder, args)
+          ? await resolvedByTheBuild(builder, args, root)
           : local(args.path, args.resolveDir);
         if (!path || !pageFiles.has(path) || !JS_OR_JSON.test(path)) return undefined;
         // The edge the bundle leaves out is still an edge of its code, judged like any other (part boundaries).

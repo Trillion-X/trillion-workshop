@@ -97,6 +97,9 @@ export function jsonFieldsPlugin(root, home = file => join(root, file)) {
     specs.set(spec.file, readers);
   }
   const fromRoot = path => relative(root, path).split(sep).join('/');
+  // A file's name from the build's root, starting ./ or ../, the form a namespaced metafile path names a file by
+  // (check-bundle-package-boundaries filePathOfBundleInput).
+  const fromBuild = path => (fromRoot(path).startsWith('../') ? fromRoot(path) : `./${fromRoot(path)}`);
   return {
     name: 'json-fields',
     setup(builder) {
@@ -105,12 +108,15 @@ export function jsonFieldsPlugin(root, home = file => join(root, file)) {
         const file = fromRoot(resolve(args.resolveDir, args.path));
         const spec = specs.get(file)?.find(one => one.read_by.includes(fromRoot(args.importer)));
         if (!spec) return undefined;
-        return { path: home(file), namespace: namespaceOf(spec), pluginData: spec };
+        // The module is named by its path from the build's root, never its full path: esbuild mixes a namespaced module's
+        // path into the content names of the bundles that hold it, so a full path named the folder the pages were built in.
+        const at = home(file);
+        return { path: fromBuild(at), namespace: namespaceOf(spec), pluginData: { spec, at } };
       });
       for (const namespace of new Set(declared.map(namespaceOf))) builder.onLoad({ filter: /.*/, namespace }, args => ({
-        contents: JSON.stringify(projectJson(args.pluginData, JSON.parse(readFileSync(args.path, 'utf8')))),
+        contents: JSON.stringify(projectJson(args.pluginData.spec, JSON.parse(readFileSync(args.pluginData.at, 'utf8')))),
         loader: 'json',
-        watchFiles: [args.path],
+        watchFiles: [args.pluginData.at],
       }));
     },
   };

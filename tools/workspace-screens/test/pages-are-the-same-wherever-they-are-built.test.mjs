@@ -5,7 +5,9 @@
 // Nov 25 2026: an apply links the Workshop's node_modules into the tree it unpacks; the icon plugin found lucide-react by
 // require.resolve (the link's target) and esbuild followed links to their targets, so the builder's own folders went into the
 // bundles and their content names, and every apply renamed every page bundle of the gateway (754 new names, 754 strays,
-// 99 changed pages for an engine-only change).
+// 99 changed pages for an engine-only change). With those fixed, two applies still named 600 bundles apart: the JSON
+// plugin named each projected file by its full path in its own namespace, and esbuild mixes a namespaced module's path
+// into the content names, so the folder the apply unpacked into went into them; it names the file from the build's root.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -15,6 +17,8 @@ import { join } from 'node:path';
 import { build } from 'esbuild';
 import { workspacePages } from '../web/scripts/workspace-pages.mjs';
 import { installedFolder } from '../../send-to-trillion-from-my-browser/scripts/named-icons.mjs';
+import { jsonFieldsPlugin } from '../web/scripts/json-fields.mjs';
+import { filePathOfBundleInput } from '../../check-bundle-package-boundaries/scripts/check-bundle-part-boundaries.mjs';
 
 const fingerprint = pages => new Map(pages.map(({ page, bytes }) => [page, createHash('sha256').update(bytes).digest('hex')]));
 
@@ -67,5 +71,28 @@ test('with preserveSymlinks, two trees whose node_modules link to different fold
   const built = async root => (await build({ absWorkingDir: root, preserveSymlinks: true, entryPoints: ['a.js'], bundle: true, splitting: true, format: 'esm',
     write: false, outdir: '/out', entryNames: '[name]-[hash]', chunkNames: '[name]-[hash]', logLevel: 'silent' }))
     .outputFiles.map(file => `${file.path} ${createHash('sha256').update(file.contents).digest('hex')}`).sort();
+  assert.deepEqual(await built(tree('one')), await built(tree('two')));
+});
+
+test('a JSON file the page carries part of names the same bundles from two folders, and still names its file', async () => {
+  const place = realpathSync(mkdtempSync(join(tmpdir(), 'json-field-trees-')));
+  const tree = name => {
+    const root = join(place, name, 'deeper');
+    mkdirSync(join(root, 'scripts'), { recursive: true });
+    writeFileSync(join(root, 'scripts', 'browser-json-fields.json'), JSON.stringify({ files: [{ file: 'data.json', read_by: ['a.js'], omit: ['_what'] }] }));
+    writeFileSync(join(root, 'data.json'), JSON.stringify({ _what: 'not carried', words: 'carried' }));
+    // The made-up tree's files, written as words so no import of this test's own names a file beside it.
+    writeFileSync(join(root, 'a.js'), `${['im', `port data from ${JSON.stringify('./data.json')};`].join('')} console.log(data.words); ${['im', 'port(', JSON.stringify('./b.js'), ');'].join('')}\n`);
+    writeFileSync(join(root, 'b.js'), 'console.log(2);\n');
+    return root;
+  };
+  const built = async root => {
+    const result = await build({ absWorkingDir: root, preserveSymlinks: true, entryPoints: ['a.js'], bundle: true, splitting: true, format: 'esm',
+      write: false, metafile: true, outdir: '/out', entryNames: '[name]-[hash]', chunkNames: '[name]-[hash]', logLevel: 'silent', plugins: [jsonFieldsPlugin(root)] });
+    const json = Object.keys(result.metafile.inputs).find(input => input.includes('data.json'));
+    assert.equal(filePathOfBundleInput(json, root), join(root, 'data.json'), 'the projected module still names its file');
+    assert.ok(!result.outputFiles.some(file => Buffer.from(file.contents).includes('not carried')), 'only the declared part is carried');
+    return result.outputFiles.map(file => `${file.path} ${createHash('sha256').update(file.contents).digest('hex')}`).sort();
+  };
   assert.deepEqual(await built(tree('one')), await built(tree('two')));
 });
