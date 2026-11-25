@@ -68,8 +68,8 @@ the last good set stays served.
 | `access` | `public` or `members` |
 | `layout` | jsonb: the page's tree of parts, or null when the page is only its tool's screen |
 | `tool` | the tool whose screen is the page's main part, or null |
-| `input` | jsonb: that tool's input; a string `":slug"` takes the path's value |
-| `collection` | the table whose `slug` column lists a template page's addresses (the sitemap) |
+| `input` | jsonb: that tool's input; a string `":slug"` takes the path's value (so does one in any layout node's `props` or a layout tool node's `input`) |
+| `collection` | the table whose `slug` column lists a template page's addresses: the sitemap lists them, and any other value of the page's `:name` is 404 (its tool is never asked) |
 | `updated_at` | when the row changed (the sitemap's lastmod) |
 | `host` | the one host the page answers on, or null for every host; a host's own row wins over a row for every host |
 

@@ -81,3 +81,14 @@ test('a tool node may name another screen file, drawn with that tool\'s answer a
   const { drawn } = await drawnTreeOf(treeOf(page, {}), new Map(), async () => ({ pairs: [1, 2] }));
   assert.deepEqual(drawn, { nodes: [{ module: 'pairs/show/Showcase.tsx#View', props: { label: 'All pairs', pairs: [1, 2] } }] });
 });
+
+test('a ":name" in a node\'s props, or in a layout tool node\'s input, takes the path\'s value', () => {
+  const page = pageOf({
+    path: '/c/:slug', title: 'C', access: 'public', tool: 'tool:read-c', input: { id: ':slug' }, collection: null, updated_at: null,
+    layout: { part: TEXT, export: 'Text', props: { current: ':slug', word: ':other' }, children: [{ main: true, props: { here: ':slug' } }, { tool: 'tool:read-list', input: { except: ':slug' } }] },
+  });
+  assert.deepEqual(treeOf(page, { slug: 'x' }), {
+    part: TEXT, export: 'Text', props: { current: 'x', word: ':other' },
+    children: [{ tool: 'tool:read-c', input: { id: 'x' }, props: { here: 'x' } }, { tool: 'tool:read-list', input: { except: 'x' } }],
+  });
+});

@@ -159,6 +159,10 @@ test('a template page takes its slug, keeps its public answer, and the sitemap l
     assert.match(map, /<loc>https:\/\/site.example.test\/notes\/first<\/loc>/);
     assert.match(map, /<loc>https:\/\/site.example.test\/notes\/second%20one<\/loc>/);
     assert.doesNotMatch(map, /members/, 'a members page is never listed');
+    const calls = d.calls.length;
+    assert.equal((await site.answer('GET', '/notes/no-such-note', undefined)).status, 404, 'a slug its collection does not hold is not a page');
+    assert.equal(d.calls.length, calls, 'and its tool is never asked');
+    assert.equal((await site.answer('GET', '/notes/second%20one', undefined)).status, 200, 'a held slug, sent encoded, is a page');
   } finally { d.server.close(); }
 });
 

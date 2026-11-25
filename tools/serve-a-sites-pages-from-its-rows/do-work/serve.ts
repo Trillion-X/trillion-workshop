@@ -202,6 +202,8 @@ export class Site {
   #pages: PageRow[] = [];
   #refused: Refused[] = [];
   #actions: ActionRow[] = [];
+  // Each template page's collection: its slugs, read with the rows; the sitemap lists them and an address outside them is 404.
+  #slugs = new Map<string, Set<string>>();
   #refusedActions: Refused[] = [];
   #look = '';
   #head: SiteHeadMarkup | null = null;
@@ -234,7 +236,11 @@ export class Site {
     for (const { path, why } of refusedActions) if (!this.#refusedActions.some(r => r.path === path && r.why === why)) this.#log(`action row set aside: ${why}`);
     const { pages: good, refused } = pagesOf(pages);
     for (const { path, why } of refused) if (!this.#refused.some(r => r.path === path && r.why === why)) this.#log(`page row set aside: ${why}`);
+    const collections = [...new Set(good.filter(page => page.collection && paramsOf(page.path).length === 1).map(page => page.collection!))];
+    const slugs = new Map(await Promise.all(collections.map(async collection => [collection,
+      new Set((await this.#sql(slugsSql(collection))).map(row => row.slug).filter((slug): slug is string => typeof slug === 'string' && slug !== ''))] as const)));
     this.#pages = good;
+    this.#slugs = slugs;
     this.#actions = actions;
     this.#refusedActions = refusedActions;
     this.#refused = refused;
@@ -334,9 +340,7 @@ export class Site {
       const names = paramsOf(page.path);
       if (!names.length) { entries.push({ loc: `${origin}${page.path}`, lastmod: page.updated_at }); continue; }
       if (names.length !== 1 || !page.collection) continue;
-      for (const row of await this.#sql(slugsSql(page.collection))) {
-        if (typeof row.slug === 'string' && row.slug) entries.push({ loc: `${origin}${pathWith(page.path, { [names[0]]: row.slug })}`, lastmod: page.updated_at });
-      }
+      for (const slug of this.#slugs.get(page.collection) ?? []) entries.push({ loc: `${origin}${pathWith(page.path, { [names[0]]: slug })}`, lastmod: page.updated_at });
     }
     const urls = entries.map(({ loc, lastmod }) => `<url><loc>${xml(loc)}</loc>${lastmod ? `<lastmod>${xml(lastmod.slice(0, 10))}</lastmod>` : ''}</url>`).join('\n');
     const body = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
@@ -424,6 +428,9 @@ export class Site {
       }
       if (!matched || matched.page.path === NOT_FOUND) return await this.#notFound(pages, host, pathname);
       const { page, params } = matched;
+      // A template page answers only the slugs its collection holds; any other address is not a page (404), never a 502.
+      const names = paramsOf(page.path);
+      if (page.collection && names.length === 1 && !this.#slugs.get(page.collection)?.has(params[names[0]])) return await this.#notFound(pages, host, pathname);
       if (page.access === 'public') return await this.#drawn(page, params, host, pathname, call => this.#publicRun(call), 200, 'public, max-age=0, must-revalidate');
       const member = await this.#parts.passes.memberOfCookie(cookie);
       if (member) return await this.#drawn(page, params, host, pathname, call => this.#parts.run(member.pass, call), 200, 'private, no-store');

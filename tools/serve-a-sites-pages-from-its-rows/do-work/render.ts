@@ -94,12 +94,15 @@ export function screensOfTools(tools: string): Map<string, Screen> {
 export function treeOf(page: PageRow, params: Record<string, string>): LayoutNode {
   const main: LayoutNode | null = page.tool ? { tool: page.tool, input: filledInput(page.input, params) } : null;
   if (!page.layout) return main!;
+  // A ":name" string in a node's props, or in a tool node's input, takes the path's value, as the page row's own input does
+  // (the course a page is about, left out of a list of the other courses).
+  const props = (given: Record<string, unknown> | undefined) => (given ? { props: filledInput(given, params) as Record<string, unknown> } : {});
   const swap = (node: LayoutNode): LayoutNode => {
-    if ('main' in node) return node.props ? { ...main!, props: node.props } as LayoutNode : main!;
-    if ('go_to' in node) return node;
+    if ('main' in node) return node.props ? { ...main!, ...props(node.props) } as LayoutNode : main!;
+    if ('go_to' in node || 'text' in node) return node;
     if ('nodes' in node) return { nodes: node.nodes.map(swap) };
-    if ('children' in node && node.children) return { ...node, children: node.children.map(swap) };
-    return node;
+    if ('tool' in node) return { ...node, input: filledInput(node.input ?? {}, params), ...props(node.props) };
+    return { ...node, ...props(node.props), ...(node.children ? { children: node.children.map(swap) } : {}) };
   };
   return swap(page.layout);
 }
