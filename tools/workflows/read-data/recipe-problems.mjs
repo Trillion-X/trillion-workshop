@@ -193,6 +193,26 @@ function actorPolicyProblems(policy, { name, step_id, asks, prior }) {
   return problems;
 }
 
+// The scopes a `{ "$kind": "binding", "values": [root, ...] }` binding reads (workflow-core src/executor/context.rs
+// values_in_run): "this", "input" and "steps". Any other root reads nothing in every run, so a do-while condition or input
+// that names one never changes (Nov 25 2026: values ["loop", "last_output", "transcript"] read nothing, each pass started
+// from an empty transcript, and the loop ran to max_iterations 40 asking the same request). A loop's last pass, `vars` and
+// the rest are read with the select form, { "select": { "from": "loop", "path": "last_output.transcript" } }.
+const VALUES_ROOTS = ['this', 'input', 'steps'];
+function valuesRootProblems(definition) {
+  const problems = [];
+  const visit = (value, path) => {
+    if (Array.isArray(value)) return value.forEach((item, index) => visit(item, `${path}[${index}]`));
+    if (!object(value)) return;
+    if (value.$kind === 'binding' && Array.isArray(value.values) && !VALUES_ROOTS.includes(value.values[0])) {
+      problems.push(`${path} is a values binding from ${JSON.stringify(value.values[0])}, which a values binding never reads (it reads ${VALUES_ROOTS.join(', ')}): use { "select": { "from": ${JSON.stringify(value.values[0])}, "path": ${JSON.stringify(value.values.slice(1).join('.'))} } }.`);
+    }
+    for (const [key, item] of Object.entries(value)) visit(item, `${path}.${key}`);
+  };
+  visit(definition, 'definition');
+  return problems;
+}
+
 // What is wrong with a recipe row, every problem at once. A recipe that passes can be run by any account. Given `blocks`
 // (sharedBlocks of the person's workflow rows), a hand step that writes out a block again is refused, naming the block.
 export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY, { stepAnatomy = false, blocks } = {}) {
@@ -211,7 +231,7 @@ export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY, { stepAnat
     if (stepAnatomy) for (const [index, step] of (Array.isArray(recipe.definition?.steps) ? recipe.definition.steps : []).entries()) {
       if (step?.kind === 'ask') problems.push(...stepAnatomyProblems(step.config?.input, { name: `definition.steps[${index}].config.input`, judged: !toolNamed(step.config?.name) }));
     }
-    return [...problems, ...definitionProblems(recipe.definition, vocabulary)];
+    return [...problems, ...definitionProblems(recipe.definition, vocabulary), ...valuesRootProblems(recipe.definition)];
   }
   if (!Array.isArray(recipe.steps) || recipe.steps.length === 0) return [...problems, 'steps (or definition) must list at least one step.'];
   const seen = new Set();

@@ -91,6 +91,20 @@ test('raw engine definitions cannot bypass strict anatomy for asks', () => {
   assert.ok(recipeProblems(raw, CHECK_VOCABULARY, { stepAnatomy: true }).some(problem => problem.includes('config.input.when')));
 });
 
+test('a values binding from a scope it never reads is refused, wherever it sits in the definition; the select form and the read roots pass', () => {
+  const bound = transcript => ({ ...recipe([]), definition: { id: 'workflow:fixture', steps: [{ id: 'cut', kind: 'loop', config: { definition_id: 'workflow:fixture#pass', item_var: 'pass', max_iterations: 4,
+    condition: { $kind: 'binding', select: { from: 'loop', path: 'last_output.more' } } } }], edges: [],
+    uses: [{ id: 'workflow:fixture#pass', kind: 'action', steps: [{ id: 'decide', kind: 'ask', config: { name: 'tool:made-up', input: { transcript } } }], edges: [] }] } });
+  // Nov 25 2026: this binding read nothing on every pass, and the loop ran to max_iterations asking the same request.
+  const never = recipeProblems(bound({ $kind: 'binding', values: ['loop', 'last_output', 'transcript'], omit_if_missing: true }));
+  assert.equal(never.length, 1);
+  assert.match(never[0], /definition\.uses\[0\]\.steps\[0\]\.config\.input\.transcript is a values binding from "loop"/);
+  assert.match(never[0], /"select": \{ "from": "loop", "path": "last_output\.transcript" \}/, 'the refusal names the form that reads it');
+  for (const root of ['vars', 'context', 'start']) assert.equal(recipeProblems(bound({ $kind: 'binding', values: [root, 'x'] })).length, 1, root);
+  assert.deepEqual(recipeProblems(bound({ $kind: 'binding', select: { from: 'loop', path: 'last_output.transcript' } })), []);
+  for (const root of ['this', 'input', 'steps']) assert.deepEqual(recipeProblems(bound({ $kind: 'binding', values: [root, 'x'] })), [], root);
+});
+
 test('measurement reports anatomy gaps and never claims semantic proof or an empty zero-percent win', () => {
   const report = measureStepExplicitness([explicitStep(), step('vague')]);
   assert.equal(report.total, 2); assert.equal(report.incomplete, 1); assert.equal(report.vague_share, 0.5);
