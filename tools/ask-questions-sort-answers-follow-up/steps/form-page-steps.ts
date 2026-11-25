@@ -23,7 +23,7 @@ import { nextStepOf } from '../../take-a-booking-one-step-at-a-time/read-data/bo
 import { answerFactId, ANSWER_FACT_KIND } from '../do-work/answer-fact-writes.ts';
 import { questionSequenceId } from '../do-work/save-question-sequence.ts';
 import { submitFormAnswers } from '../do-work/form-tools.mjs';
-import { SITTING_KIND, anySittingOf, answerQuestion, formOf, progressOf, questionsOf, sittingId, stepView, type Page, type Refusals, type Sitting } from './sitting.ts';
+import { SITTING_KIND, anySittingOf, answerQuestions, definitionOf, formOf, progressOf, questionsOf, sittingId, stepView, type Page, type Refusals, type Sitting } from './sitting.ts';
 import type { Store, Write } from './store.ts';
 
 export const FORM_PAGE_KIND = 'form-page';
@@ -68,14 +68,20 @@ export async function startSitting(store: Store, { slug, email = null }: { slug:
   const sitting = { kind: SITTING_KIND, formId: page.formId, respondentId: email ?? `${VISITOR}${id}`, submissionId: id, page: slug, page_kind: FORM_PAGE_KIND, status: 'started', lastStep: null, startedAt: now(), steps: {} };
   await store.apply([{ kind: 'insert', id: sittingId(id), type: SITTING_KIND, value: sitting }]);
   const fresh = { answers: {} };
-  return { attemptId: id, next: stepView(page, nextStepOf(page, fresh), fresh) };
+  return { attemptId: id, next: stepView(page, nextStepOf(page, fresh), fresh), form: definitionOf(page) };
 }
 
-// One answer, kept as a booking keeps it (sitting.ts answerQuestion), with this page's words.
-export async function answerFormQuestion(store: Store, { attemptId, value }: { attemptId: string; value: unknown }, clock: Clock = {}) {
+// One answer, kept as a booking keeps it (sitting.ts answerQuestion), with this page's words. `questionId` names the question the
+// answer is for, so an answer sent twice is kept once and one sent out of order is refused. `answers` is a list of { questionId,
+// value } kept one after the other (sitting.ts answerQuestions).
+export async function answerFormQuestion(
+  store: Store,
+  { attemptId, value, questionId, answers }: { attemptId: string; value?: unknown; questionId?: string; answers?: { questionId?: string; value: unknown }[] },
+  clock: Clock = {},
+) {
   const sitting = await anySittingOf(store, attemptId, FORM_PAGE_REFUSALS);
   const page = await pageOfSitting(store, sitting);
-  return answerQuestion(store, { attemptId, value, now: clock.now }, { pageOf: async () => page, refusals: page.refusals });
+  return answerQuestions(store, { attemptId, value, questionId, answers, now: clock.now }, { pageOf: async () => page, refusals: page.refusals });
 }
 
 // The sitting's answers by question id, and the rows its decision is made from.
@@ -145,5 +151,5 @@ export async function sittingNext(store: Store, { attemptId }: { attemptId: stri
   const page = await pageOfSitting(store, sitting);
   if (sitting.status !== 'started') return { kept: true, next: { key: 'result', kind: 'result' } };
   const progress = await progressOf(store, page, sitting);
-  return { kept: false, next: stepView(page, nextStepOf(page, progress), progress) };
+  return { kept: false, next: stepView(page, nextStepOf(page, progress), progress), form: definitionOf(page) };
 }

@@ -3,7 +3,11 @@
 // PURPOSE
 //   The screen of tool:read-a-booking-page: a booking made one step at a time. It asks for the email, then each question of the
 //   page, then offers the open times from the page's calendar, asks the person to confirm one, and shows the booking. The site's
-//   booking routes say what comes next; this screen draws the step it is given and sends each answer as it is made.
+//   booking routes say what comes next; this screen draws the step it is given. It does not wait on the network between questions:
+//   the booking's start hands over the page's questions with how each answer is checked, and the answers are checked here, the next
+//   question drawn at once and the answers sent in the background, in order (../../ask-questions-sort-answers-follow-up/show/
+//   use-optimistic-form.ts). Only a step that needs the server's fact waits, inside its button: the first step (the email opens the
+//   booking), the times read from the calendar after the last question, the time chosen (it may have been taken) and the booking.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Rendering is pure: nothing is fetched and no window is read while it renders (the server draws the first step). After it is
@@ -11,7 +15,8 @@
 //      every call to `<api_base>/book.start|answer|slots|slot|confirm` is made from an effect or a press.
 //   2. Props are plain JSON: `page` (the page's name), `title`, `timezone`, `duration_minutes`, `questions`
 //      ([{position, prompt, required}]), `words` (any of the words below, replacing the plain defaults) and `api_base`.
-//   3. A refusal the routes make on purpose carries its own words as `error`, and when the step tool refused in its own words
+//   3. A time that is refused (taken since the times were read) takes the visitor back to the times, without it, with the tool's
+//      words. A refusal the routes make on purpose carries its own words as `error`, and when the step tool refused in its own words
 //      `why` too: the error line shows `why` when it is there and `error` when it is not; any other failure shows `words.failed`.
 //   4. A question is a form question: its type picks its control through ./FormSteps (shared with the form page), and the server
 //      checks the answer the same way. Times are drawn in the page's time zone.
@@ -29,7 +34,10 @@ import { Button } from '../../ui/show/coss/ui/button.tsx';
 import { TimeSlotPicker } from '../../ui/show/coss/time-slot-picker.tsx';
 import { SectionShell, TextColumn } from '../../ui/show/marketing-page/MarketingPagePrimitives.tsx';
 import { AnswerControl, Labelled, answered, type Answer, type Next as AskedNext } from '../../ask-questions-sort-answers-follow-up/show/FormSteps.tsx';
-import { refusalWords } from '../../ask-questions-sort-answers-follow-up/show/refusal-words.ts';
+import { callStep as call } from '../../ask-questions-sort-answers-follow-up/show/call-step.ts';
+import type { Definition } from '../../ask-questions-sort-answers-follow-up/show/optimistic-run.ts';
+import { useOptimisticForm } from '../../ask-questions-sort-answers-follow-up/show/use-optimistic-form.ts';
+import { holdSlot, withoutSlot, type Slot } from './hold-slot.ts';
 
 export type BookingWords = Record<string, string>;
 export type BookingPageProps = {
@@ -52,7 +60,6 @@ const WORDS: BookingWords = {
 };
 
 type Next = AskedNext & { kind: 'email' | 'question' | 'slot' | 'confirm' };
-type Slot = { startIso: string; endIso: string };
 type Screen =
   | { kind: 'email' }
   | { kind: 'question'; next: Next }
@@ -70,13 +77,6 @@ const zoneWords = (timezone: string) => formatter(timezone, { timeZoneName: 'lon
 function calendarLinkOf(title: string, details: string, slot: Slot, timezone: string) {
   const stamp = (iso: string) => iso.replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${stamp(slot.startIso)}/${stamp(slot.endIso)}&ctz=${encodeURIComponent(timezone)}&details=${encodeURIComponent(details)}`;
-}
-
-async function call<T>(base: string, step: string, failed: string, body: unknown): Promise<T> {
-  const response = await fetch(`${base}/${step}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  const answer = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(refusalWords(answer, failed));
-  return answer as T;
 }
 
 function Step({ at, count, progress, title, lead, children }: { at: number; count: number; progress?: string; title: string; lead?: string; children?: React.ReactNode }) {
@@ -111,6 +111,7 @@ export function View({ page, title, timezone, duration_minutes, questions, words
   const [answer, setAnswer] = useState<Answer>(null);
   const [error, setError] = useState('');
   const [sending, setSending] = useState(false);
+  const [holding, setHolding] = useState(false);
   const attempt = useRef('');
   const count = 1 + questions.length + 2;
 
@@ -124,16 +125,24 @@ export function View({ page, title, timezone, duration_minutes, questions, words
     setSlots(found.slots);
     setScreen({ kind: 'time' });
   };
-  const afterAnswer = async (next: Next) => {
-    setValue('');
-    setAnswer(null);
-    if (next.kind === 'question' && next.question) setScreen({ kind: 'question', next });
-    else if (next.kind === 'slot') await loadDays();
-  };
+  // The questions are asked without waiting on the network; the times are read once the last answer is kept.
+  const asking = useOptimisticForm({
+    api_base,
+    answerStep: 'book.answer',
+    failed: words.failed,
+    attempt,
+    ui: {
+      show: (next, held) => { setValue(''); setAnswer(held); setScreen({ kind: 'question', next: next as Next }); },
+      setError,
+      setSending,
+      after: async next => { if (next?.kind === 'slot') await loadDays(); },
+    },
+  });
   const startWith = async (email: string) => {
-    const started = await call<{ attemptId: string; next: Next }>(api_base, 'book.start', words.failed, { page, email });
+    const started = await call<{ attemptId: string; next: Next; form: Definition }>(api_base, 'book.start', words.failed, { page, email });
     attempt.current = started.attemptId;
-    await afterAnswer(started.next);
+    asking.begin(started.form);
+    await asking.goTo(started.next);
   };
 
   // An email the visitor already gave starts the booking at its first question; a refused one is filled in with the refusal beside it.
@@ -147,10 +156,22 @@ export function View({ page, title, timezone, duration_minutes, questions, words
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const sendAnswer = (next: Answer) => void run(async () => {
-    const sent = await call<{ next: Next }>(api_base, 'book.answer', words.failed, { attemptId: attempt.current, value: next ?? '' });
-    await afterAnswer(sent.next);
-  });
+  const sendAnswer = (given: Answer) => {
+    if (!sending && screen.kind === 'question') asking.send(screen.next.question, given);
+  };
+  // The time chosen is shown at once with the booking button pending while the step tool holds it; a time taken since the times
+  // were read takes the visitor back to the times (without it) with the tool's words.
+  const choose = async (slot: Slot) => {
+    setError('');
+    setHolding(true);
+    setScreen({ kind: 'confirm', slot });
+    const held = await holdSlot(() => call(api_base, 'book.slot', words.failed, { attemptId: attempt.current, value: slot.startIso }), words.failed);
+    setHolding(false);
+    if (held.held) return;
+    setSlots(open => withoutSlot(open, slot));
+    setScreen({ kind: 'time' });
+    setError(held.message);
+  };
   const alert = error ? <Text as="p" role="alert" variant="body" className="text-destructive-foreground">{error}</Text> : null;
 
   let body: React.ReactNode = null;
@@ -161,7 +182,7 @@ export function View({ page, title, timezone, duration_minutes, questions, words
           <Labelled label={words.email_label} help={words.email_help} error={error || undefined}>
             <Input name="email" type="email" autoComplete="email" placeholder={words.email_placeholder} required size="lg" className="bg-[var(--bg-primary)]" value={value} onChange={event => setValue(event.target.value)} />
           </Labelled>
-          <Button type="submit" size="lg" disabled={sending}>{words.continue}</Button>
+          <Button type="submit" size="lg" loading={sending} disabled={sending}>{words.continue}</Button>
         </Form>
       </Step>
     );
@@ -179,7 +200,7 @@ export function View({ page, title, timezone, duration_minutes, questions, words
             <AnswerControl id={`book-answer-${next.position}`} label={next.prompt ?? ''} asked={asked} required={required} value={answer} onChange={setAnswer} />
           </Labelled>
           <Container layout="horizontal" gap="sm" className="flex-wrap">
-            <Button type="submit" size="lg" disabled={sending || (required && !answered(answer))}>{words.next}</Button>
+            <Button type="submit" size="lg" loading={sending} disabled={sending || (required && !answered(answer))}>{words.next}</Button>
             {required ? null : <Button type="button" size="lg" variant="outline" disabled={sending} onClick={() => sendAnswer('')}>{words.skip}</Button>}
           </Container>
         </Form>
@@ -194,7 +215,7 @@ export function View({ page, title, timezone, duration_minutes, questions, words
         {days.length === 0 ? <Text as="p" color="muted">{words.nothing_open}</Text> : (
           <TimeSlotPicker label={words.open_times} days={days} value={null} onChange={startIso => {
             const slot = slots.find(item => item.startIso === startIso);
-            if (slot) void run(async () => { await call(api_base, 'book.slot', words.failed, { attemptId: attempt.current, value: slot.startIso }); setScreen({ kind: 'confirm', slot }); });
+            if (slot) void choose(slot);
           }} />
         )}
         {alert}
@@ -206,11 +227,11 @@ export function View({ page, title, timezone, duration_minutes, questions, words
       <Step at={count - 1} count={count} title={words.confirm_title} lead={fill(words.confirm_lead, { title, minutes: duration_minutes })}>
         <When slot={slot} timezone={timezone} to={words.to} />
         <Container layout="horizontal" gap="sm" className="flex-wrap">
-          <Button type="button" size="lg" disabled={sending} onClick={() => void run(async () => {
+          <Button type="button" size="lg" loading={holding || sending} disabled={holding || sending} onClick={() => void run(async () => {
             const booked = await call<{ meetingLink: string | null }>(api_base, 'book.confirm', words.failed, { attemptId: attempt.current });
             setScreen({ kind: 'booked', meetingLink: booked.meetingLink, slot });
           })}>{words.book}</Button>
-          <Button type="button" size="lg" variant="outline" disabled={sending} onClick={() => setScreen({ kind: 'time' })}>{words.another}</Button>
+          <Button type="button" size="lg" variant="outline" disabled={sending || holding} onClick={() => setScreen({ kind: 'time' })}>{words.another}</Button>
         </Container>
         {alert}
       </Step>

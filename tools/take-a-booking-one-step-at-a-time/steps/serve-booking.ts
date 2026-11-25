@@ -19,7 +19,7 @@ const text = (value: unknown) => (typeof value === 'string' ? value : '');
 
 export const BOOKING_STEPS: Record<string, Step> = {
   start: (store, input) => startBooking(store, { slug: text(input.page), email: input.email }),
-  answer: (store, input) => answerBookingQuestion(store, { attemptId: text(input.attemptId), value: input.value }),
+  answer: (store, input) => answerBookingQuestion(store, { attemptId: text(input.attemptId), value: input.value, questionId: text(input.questionId) || undefined, answers: Array.isArray(input.answers) ? input.answers : undefined }),
   times: (store, input) => readOpenTimes(store, { attemptId: text(input.attemptId), busy_read: input.busy_read }),
   choose: (store, input) => chooseSlot(store, { attemptId: text(input.attemptId), value: input.value, busy_read: input.busy_read }),
   ready: (store, input) => checkBookingReady(store, { attemptId: text(input.attemptId), busy_read: input.busy_read }),

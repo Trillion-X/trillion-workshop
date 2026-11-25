@@ -16,6 +16,8 @@ The one-question-at-a-time path of a page that asks a form: the steps the page n
 |------|---------|
 | `read-data/booking-steps.mjs` | `stepsOf`, `nextStepOf`, `askedStep`, `lastStepReachedOf`, `checkAnswer`. Pure; no I/O. |
 | `test/booking-steps.test.mjs` | Step order, the next and drop-off steps, each answer's accept and refuse cases. |
+| `show/hold-slot.ts` | `holdSlot`, `withoutSlot`: the time chosen is the step that waits for the server's fact; says it is held, or not and in the tool's words, and the times still open. |
+| `test/optimistic-booking.test.ts` | The form handed over when the email opens a booking, answers that name their question (in order, once, refused out of order), and the time taken since the times were read. |
 
 ## Key Types / Functions
 
@@ -26,6 +28,8 @@ The one-question-at-a-time path of a page that asks a form: the steps the page n
 | `askedStep(page, step, progress)` | -> step with `prompt` filled and `about` | The question as it is asked now. |
 | `lastStepReachedOf(page, progress)` | same -> step key or null | The drop-off step. |
 | `checkAnswer(step, value)` | -> `{ ok: true, value, text? }` or `{ ok: false, reason }` | Checks an email, a question's answer (a written answer trimmed, picks as `{ picked, other? }`, with `text` in words) or a slot (returned as a UTC ISO instant). |
+| `checkSpecOf(step)` | question step -> `{ coerce, rules, options, multiple, other }` | What a question's answer is checked against, as plain data a page can hold: the page checks an answer by it before it moves on, and `checkAnswer` is this same spec, so a page that passes an answer is not refused by the rules it was given. |
+| `checkAgainst(question, spec, value)` | -> `{ ok: true, value, text }` or `{ ok: false, reason }` | One answer to a question, checked against its spec. |
 
 ## Dependencies
 

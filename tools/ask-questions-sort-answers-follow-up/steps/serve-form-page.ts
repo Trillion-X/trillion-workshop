@@ -20,7 +20,7 @@ const personOf = (input: { person?: unknown }) => (typeof input.person === 'stri
 
 export const FORM_PAGE_STEPS: Record<string, Step> = {
   start: (store, input) => startSitting(store, { slug: text(input.page), email: personOf(input) }),
-  answer: (store, input) => answerFormQuestion(store, { attemptId: text(input.attemptId), value: input.value }),
+  answer: (store, input) => answerFormQuestion(store, { attemptId: text(input.attemptId), value: input.value, questionId: text(input.questionId) || undefined, answers: Array.isArray(input.answers) ? input.answers : undefined }),
   next: (store, input) => sittingNext(store, { attemptId: text(input.attemptId) }),
   result: (store, input) => formResult(store, { attemptId: text(input.attemptId) }),
   keep: (store, input) => keepSitting(store, { attemptId: text(input.attemptId), email: personOf(input) }),

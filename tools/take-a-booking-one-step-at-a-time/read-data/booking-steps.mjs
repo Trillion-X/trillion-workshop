@@ -140,15 +140,33 @@ export function checkAnswer(step, value) {
     return { ok: true, value: new Date(start).toISOString() };
   }
   if (step.kind === 'question') {
-    const type = registry.get(step.question.questionTypeId);
-    if (type.coerce === 'string' && typeof value !== 'string') return { ok: false, reason: 'An answer is written as text.' };
-    const given = typeof value === 'string' ? value.trim() : value;
-    const rules = mergeRules(type.validate?.rules, { ...(step.required ? { required: true } : {}), ...(step.question.validation ?? {}) });
-    const verdict = validateAnswer(given, type.coerce, rules, { options: step.question.options, multiple: step.question.multiple, other: step.question.other });
-    if (!verdict.ok) return { ok: false, reason: `${verdict.message}.` };
-    const coerced = coerceAnswer(given, type.coerce).value;
-    const kept = coerced === undefined ? '' : coerced;
-    return { ok: true, value: kept, text: answerText(step.question, kept) };
+    const spec = checkSpecOf(step);
+    return checkAgainst(step.question, spec, value);
   }
   throw new Error(`A ${step.kind} step takes no answer here.`);
+}
+
+// What a question's answer is checked against, as plain data a browser can hold: how the answer is read (`coerce`), the rules
+// (the type's own, the question's bounds and `required`) and the choices it may pick from. The server's check and the page's
+// check are this one thing, so a page that passes an answer is not refused by the rules it was given.
+export function checkSpecOf(step) {
+  const type = registry.get(step.question.questionTypeId);
+  return {
+    coerce: type.coerce,
+    rules: mergeRules(type.validate?.rules, { ...(step.required ? { required: true } : {}), ...(step.question.validation ?? {}) }),
+    options: step.question.options,
+    multiple: step.question.multiple,
+    other: step.question.other,
+  };
+}
+
+// An answer to a question, checked against its spec: the words the page shows and the value that is kept.
+export function checkAgainst(question, spec, value) {
+  if (spec.coerce === 'string' && typeof value !== 'string') return { ok: false, reason: 'An answer is written as text.' };
+  const given = typeof value === 'string' ? value.trim() : value;
+  const verdict = validateAnswer(given, spec.coerce, spec.rules, { options: spec.options, multiple: spec.multiple, other: spec.other });
+  if (!verdict.ok) return { ok: false, reason: `${verdict.message}.` };
+  const coerced = coerceAnswer(given, spec.coerce).value;
+  const kept = coerced === undefined ? '' : coerced;
+  return { ok: true, value: kept, text: answerText(question, kept) };
 }

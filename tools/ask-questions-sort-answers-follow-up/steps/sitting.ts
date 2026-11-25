@@ -15,7 +15,7 @@
 //   4. No form, question, page or word is named here: they are rows.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
-import { nextStepOf, askedStep, checkAnswer } from '../../take-a-booking-one-step-at-a-time/read-data/booking-steps.mjs';
+import { nextStepOf, askedStep, checkAnswer, checkSpecOf, stepsOf } from '../../take-a-booking-one-step-at-a-time/read-data/booking-steps.mjs';
 import { answerFactId, ANSWER_FACT_KIND } from '../do-work/answer-fact-writes.ts';
 import { questionSequenceId } from '../do-work/save-question-sequence.ts';
 import type { Store } from './store.ts';
@@ -81,17 +81,61 @@ export function stepView(page: Page, step: any, progress: Progress) {
   return { key: step.key, kind: step.kind, position: step.position, prompt: asked.prompt, required: step.required, about: asked.about, question: { questionId, questionTypeId, options, multiple, other, placeholder, help, min: validation?.min, max: validation?.max } };
 }
 
+// The most answers one call may carry: a page closed with answers still unsent sends them in one call, in order.
+export const MOST_ANSWERS_IN_ONE_CALL = 200;
+
+// One answer, or `answers` (a list of { questionId, value }) kept one after the other: the first refused ends the call and the
+// ones before it stay kept. Answers a call carries are checked one by one by the same rules as one answer.
+export async function answerQuestions(
+  store: Store,
+  { attemptId, value, questionId, answers, now }: { attemptId: string; value?: unknown; questionId?: string; answers?: { questionId?: string; value: unknown }[]; now?: () => string },
+  deps: { pageOf: (sitting: Sitting) => Promise<Page>; refusals?: Refusals },
+) {
+  if (answers === undefined) return answerQuestion(store, { attemptId, value, questionId, now }, deps);
+  if (!Array.isArray(answers) || answers.length === 0 || answers.length > MOST_ANSWERS_IN_ONE_CALL) throw new Error((deps.refusals ?? SITTING_REFUSALS).not_answering);
+  let last: Awaited<ReturnType<typeof answerQuestion>> | null = null;
+  for (const item of answers) last = await answerQuestion(store, { attemptId, value: item.value, questionId: item.questionId, now }, deps);
+  return last!;
+}
+
+// The whole form as plain data the page holds, so it can check each answer and move to the next question without asking the
+// server: each question as it is first drawn, how its answer is checked (the server's own spec, so a page that passes an answer is
+// never refused by the rules it was given), and `conditional` when the question is asked only if earlier answers say so or is
+// worded from one (those rules run on the server, so the page waits for the server before it moves to such a question).
+export function definitionOf(page: Page) {
+  const empty: Progress = { answers: {} };
+  return {
+    questions: stepsOf(page).filter((step: any) => step.kind === 'question').map((step: any) => ({
+      next: stepView(page, step, empty),
+      check: checkSpecOf(step),
+      conditional: Boolean(step.question.showWhen || step.question.hideWhen || step.question.about),
+    })),
+  };
+}
+
+// An answer sent for a question the sitting is no longer waiting at: it is the same answer sent again (a retry after a lost
+// reply), which changes nothing, or it is refused; it is never kept as the answer to another question.
+function sentAgain(page: Page, progress: Progress, questionId: string, value: unknown, refusals: Refusals) {
+  const asked = stepsOf(page).find((step: any) => step.kind === 'question' && step.question.questionId === questionId);
+  const checked = asked ? checkAnswer(asked, value) : null;
+  const kept = asked ? progress.answers[asked.position] : undefined;
+  if (!checked?.ok || kept === undefined || JSON.stringify(kept) !== JSON.stringify(checked.value)) throw new Error(refusals.out_of_order ?? 'That answer came out of order.');
+  return { answered: questionId, next: stepView(page, nextStepOf(page, progress), progress) };
+}
+
 // One question: the answer is for the step the sitting is waiting at, checked, and kept as its own answer fact before the next
-// step is named. `pageOf` reads the page a sitting was started on and `refusals` are the sitting's words.
+// step is named. `questionId`, when the page names it (as `named`), must be that step's question (see sentAgain). `pageOf` reads the page a
+// sitting was started on and `refusals` are the sitting's words.
 export async function answerQuestion(
   store: Store,
-  { attemptId, value, now = () => new Date().toISOString() }: { attemptId: string; value: unknown; now?: () => string },
+  { attemptId, value, questionId: named, now = () => new Date().toISOString() }: { attemptId: string; value: unknown; questionId?: string; now?: () => string },
   { pageOf, refusals = SITTING_REFUSALS }: { pageOf: (sitting: Sitting) => Promise<Page>; refusals?: Refusals },
 ) {
   const sitting = await sittingOf(store, attemptId, refusals);
   const page = await pageOf(sitting);
   const progress = await progressOf(store, page, sitting);
   const step = nextStepOf(page, progress);
+  if (named && (step?.kind !== 'question' || step.question.questionId !== named)) return sentAgain(page, progress, named, value, refusals);
   if (step?.kind !== 'question') throw new Error(refusals.not_answering);
   const checked = checkAnswer(step, value);
   if (!checked.ok) throw new Error(checked.reason);
@@ -106,5 +150,5 @@ export async function answerQuestion(
     { kind: 'merge', id: sittingId(sitting.submissionId), changes: { lastStep: step.key } },
   ]);
   const later = { ...progress, answers: { ...progress.answers, [step.position]: checked.value } };
-  return { next: stepView(page, nextStepOf(page, later), later) };
+  return { answered: questionId, next: stepView(page, nextStepOf(page, later), later) };
 }

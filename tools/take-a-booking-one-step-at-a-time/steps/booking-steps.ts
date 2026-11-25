@@ -21,7 +21,7 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { stepsOf, nextStepOf, checkAnswer, EMAIL_STEP, SLOT_STEP, CONFIRM_STEP } from '../read-data/booking-steps.mjs';
 import { deriveOpenSlots } from '../../book-time/read-data/derive-open-slots.ts';
-import { SITTING_KIND, answerQuestion, formOf, progressOf, questionsOf, sittingId, sittingOf, stepView, type Page } from '../../ask-questions-sort-answers-follow-up/steps/sitting.ts';
+import { SITTING_KIND, answerQuestions, definitionOf, formOf, progressOf, questionsOf, sittingId, sittingOf, stepView, type Page } from '../../ask-questions-sort-answers-follow-up/steps/sitting.ts';
 import type { Store } from '../../ask-questions-sort-answers-follow-up/steps/store.ts';
 
 const DAY_MS = 86400000;
@@ -66,12 +66,17 @@ export async function startBooking(store: Store, { slug, email }: { slug: string
   const sitting = { kind: SITTING_KIND, formId: page.formId, respondentId: checked.value, submissionId: id, page: slug, status: 'started', lastStep: EMAIL_STEP, startedAt: new Date(nowMs()).toISOString(), steps: {} };
   await store.apply([{ kind: 'insert', id: sittingId(id), type: SITTING_KIND, value: sitting }]);
   const fresh = { email: checked.value, answers: {}, slot: null };
-  return { attemptId: id, next: stepView(page, nextStepOf(page, fresh), fresh) };
+  return { attemptId: id, next: stepView(page, nextStepOf(page, fresh), fresh), form: definitionOf(page) };
 }
 
-// One question, kept as its own answer; the same question answered again replaces its answer.
-export async function answerBookingQuestion(store: Store, { attemptId, value }: { attemptId: string; value: unknown }, { nowMs = () => Date.now() }: Clock = {}) {
-  return answerQuestion(store, { attemptId, value, now: () => new Date(nowMs()).toISOString() }, { pageOf: sitting => loadLivePage(store, sitting.page) });
+// One question, kept as its own answer; the same question answered again replaces its answer. `questionId` names the question the
+// answer is for and `answers` is a list of them kept in order (sitting.ts answerQuestions).
+export async function answerBookingQuestion(
+  store: Store,
+  { attemptId, value, questionId, answers }: { attemptId: string; value?: unknown; questionId?: string; answers?: { questionId?: string; value: unknown }[] },
+  { nowMs = () => Date.now() }: Clock = {},
+) {
+  return answerQuestions(store, { attemptId, value, questionId, answers, now: () => new Date(nowMs()).toISOString() }, { pageOf: sitting => loadLivePage(store, sitting.page) });
 }
 
 const localDateISO = (timezone: string, ms: number) => {

@@ -59,7 +59,9 @@ test('a visitor answers first as the sitting itself; a question asked only when 
   const done = await answerFormQuestion(store, { attemptId: started.attemptId, value: { picked: ['yes'] } });
   assert.equal(done.next?.key, 'result');
   assert.equal((await rowsOf(db, 'answer-fact', `visitor:${started.attemptId}`)).length, 2);
-  assert.deepEqual(await sittingNext(store, { attemptId: started.attemptId }), { kept: false, next: { key: 'result', kind: 'result' } });
+  const where = await sittingNext(store, { attemptId: started.attemptId });
+  assert.deepEqual({ kept: where.kept, next: where.next }, { kept: false, next: { key: 'result', kind: 'result' } });
+  assert.equal(where.form?.questions.length, 3);
 });
 
 test('the same question answered again replaces its answer; a refused answer keeps nothing and does not repeat the value', async () => {

@@ -107,7 +107,7 @@ function Body({ screen, info, answer = null, email = '', error = '', sending = f
             <AnswerControl id={`form-answer-${next.position}`} label={next.prompt ?? ''} asked={asked} required={required} value={answer} onChange={value => onChange?.(value)} textPlaceholder={words.answer_placeholder} />
           </Labelled>
           <Container layout="horizontal" gap="sm" className="flex-wrap">
-            <Button type="submit" size="lg" disabled={sending || (required && !answered(answer))}>{words.next}</Button>
+            <Button type="submit" size="lg" loading={sending} disabled={sending || (required && !answered(answer))}>{words.next}</Button>
             {required ? null : <Button type="button" size="lg" variant="outline" disabled={sending} onClick={() => onSend?.('')}>{words.skip}</Button>}
           </Container>
         </Form>
