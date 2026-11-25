@@ -30,7 +30,7 @@
             },
             "out": {
               "type": "string",
-              "description": "Optional: a folder for the pictures (one local and one live picture per page kind); by default a folder under the system temporary folder named for the commit."
+              "description": "Optional: a folder for the pictures (one local and one live picture per page kind); by default the person's own data folder ($XDG_DATA_HOME, else ~/.local/share)/site-build-checks/<commit, or the time> (settings.json pictures_folder), so the evidence outlives the run."
             },
             "app": {
               "type": "string",
@@ -56,7 +56,7 @@
         },
         "output_schema": {
           "type": "object",
-          "description": "The last line printed: {\"result\": {\"refused\": number of refused pages, \"not_checked_here\": number of kinds under a server_rendered prefix, \"pages\": [{kind, url, live_url, height_px, live_height_px, height_to_live, new_page_errors, reading_font, live_reading_font, serif_where_live_is_not, visible_text_chars, screenshots: {local, live}, refused, checked_here, why: [sentence]}]}}. The build may go live when refused is 0."
+          "description": "The last line printed: {\"result\": {\"refused\": number of refused pages, \"not_checked_here\": number of kinds under a server_rendered prefix, \"pages\": [{kind, url, live_url, height_px, live_height_px, height_to_live, new_page_errors, reading_font, live_reading_font, serif_where_live_is_not, visible_text_chars, screenshots: {local, live}, refused, checked_here, why: [sentence]}]}}. The build may go live when refused is 0. Standard error ends with the refusal summary: one short line per refused kind (REFUSED <kind>: <reasons>), then '<N> page kind(s) refused: <kinds>', so the last few hundred characters name every refusal."
         },
         "invoke": {
           "kind": "on-your-computer",

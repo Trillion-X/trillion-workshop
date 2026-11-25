@@ -1,15 +1,23 @@
 {
-  "_what": "What tool:check-a-site-build-in-a-browser measures and when it refuses a page. viewport is the browser window every page is opened in. navigation_timeout_ms is how long a page may take to fire its load event (waitUntil load, never network idle: streaming media keeps the network busy for ever). settle_ms is how long scripts are given to draw after load. min_height_to_live is the share of the live page's height below which a built page is refused (a blank page). reading_selector names the element whose computed font-family is the reading font (the first match on the page; body is not used: some sites compute a serif body even when the page draws correctly). serif_pattern is a regular expression a font-family list matches when its first family is a serif default. check_query is the query a page view carries so the live site can tell this traffic apart; data calls (paths under data_call_prefix) are passed to the live site with no query added and with their Referer and Origin rewritten to the live host. words.server_rendered is said for a kind under a --server-rendered prefix. max_screenshot_px caps the height of a kept picture. words holds the sentences a refusal says, each with its {fields}. Each value is a row a person changes, never code.",
-  "viewport": { "width": 1440, "height": 900 },
+  "_what": "What tool:check-a-site-build-in-a-browser measures and when it refuses a page. viewport is the browser window every page is opened in. navigation_timeout_ms is how long a page may take to fire its load event (waitUntil load, never network idle: streaming media keeps the network busy for ever). settle_ms is how long scripts are given to draw after load. min_height_to_live is the share of the live page's height below which a built page is refused (a blank page). reading_selector names the element whose computed font-family is the reading font (the first match on the page; body is not used: some sites compute a serif body even when the page draws correctly). serif_pattern is a regular expression a font-family list matches when its first family is a serif default. check_query is the query a page view carries so the live site can tell this traffic apart; data calls (paths under data_call_prefix) are passed to the live site with no query added and with their Referer and Origin rewritten to the live host. words.server_rendered is said for a kind under a --server-rendered prefix. max_screenshot_px caps the height of a kept picture. pictures_folder is where the pictures go when the caller names no folder: the folder named by the environment variable `under` when it is set, else `else` ('~' is the home folder), then `folder`; a folder per commit is made inside it, so a gate's evidence outlives the run. summary_line_chars caps each line of the refusal summary that ends the output, so the last few hundred characters a workflow keeps name every refused kind. words holds the sentences a refusal says, each with its {fields}. Each value is a row a person changes, never code.",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
   "navigation_timeout_ms": 60000,
   "settle_ms": 4000,
   "min_height_to_live": 0.5,
   "reading_selector": "#root p",
   "serif_pattern": "^\\s*[\"']?(Times New Roman|Times|serif)[\"']?\\s*(,|$)",
-  "check_query": { "name": "utm_content", "value": "check" },
+  "check_query": {
+    "name": "utm_content",
+    "value": "check"
+  },
   "data_call_prefix": "/target/",
   "sitemap_path": "/sitemap.xml",
   "max_screenshot_px": 16000,
+  "pictures_folder": { "under": "XDG_DATA_HOME", "else": "~/.local/share", "folder": "site-build-checks" },
+  "summary_line_chars": 110,
   "words": {
     "short": "the built page is {height_px} px tall, {height_to_live} of the live page's {live_height_px} px (refused under {min_height_to_live})",
     "errors": "the built page threw {count} error(s) the live page did not: {errors}",
@@ -19,6 +27,12 @@
     "no_file": "the build holds no file for this path",
     "did_not_load": "the {where} page did not load: {error}",
     "live_unreadable": "the live page could not be read: {error}",
-    "server_rendered": "the caller named this kind as drawn by the commit's server code, which a built folder cannot show; it is not checked here and must be checked on the running commit"
+    "server_rendered": "the caller named this kind as drawn by the commit's server code, which a built folder cannot show; it is not checked here and must be checked on the running commit",
+    "summary_line": "REFUSED {kind}: {reasons}",
+    "summary_short": "{height_to_live} of the live height",
+    "summary_errors": "new page error {error}",
+    "summary_serif": "serif {font} where live is {live_font}",
+    "summary_last": "{count} page kind(s) refused: {kinds}",
+    "pictures_in": "pictures in {out}"
   }
 }

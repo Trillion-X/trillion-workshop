@@ -4,12 +4,12 @@
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import { promisify } from 'node:util';
 import { chromiumExecutable } from '../../../test-helpers/chromium.mjs';
-import { argumentsOfRequest, checkSiteBuild, defaultSettings, pictureName } from '../do-work/check-site-build.mjs';
+import { argumentsOfRequest, checkSiteBuild, defaultOut, defaultSettings, pictureName, refusalSummary } from '../do-work/check-site-build.mjs';
 import { pageKinds } from '../do-work/page-kinds.mjs';
 import { serveBuild } from '../do-work/serve-build.mjs';
 
@@ -113,12 +113,41 @@ test('each kind keeps its own pictures: /courses and /courses/* never share a fi
 test('a request file gives the same arguments as the flags; empty values are none; a folder not named for the commit is refused', () => {
   const commit = 'b6ff62aeeb61ea3628240821e57b5c5a8b6e1063';
   const args = argumentsOfRequest({ commit, pages: `/built/site-${commit}/public`, live: 'https://live.example', app: '', live_app: '', server_rendered: '/articles,/feeds' });
-  assert.deepEqual({ ...args, out: undefined }, { pages: `/built/site-${commit}/public`, live: 'https://live.example', 'server-rendered': '/articles,/feeds', out: undefined });
-  assert.match(args.out, new RegExp(`check-a-site-build/${commit}$`));
+  assert.deepEqual(args, { pages: `/built/site-${commit}/public`, live: 'https://live.example', 'server-rendered': '/articles,/feeds', commit });
+  assert.equal(defaultOut({ pictures_folder: { under: 'KEPT_HOME', else: '~/kept', folder: 'checks' } }, commit, {}), join(homedir(), 'kept', 'checks', commit));
+  assert.equal(defaultOut(settings, commit, {}), join(homedir(), '.local', 'share', 'site-build-checks', commit));
+  assert.equal(defaultOut(settings, commit, { XDG_DATA_HOME: '/data/home' }), join('/data/home', 'site-build-checks', commit));
   assert.equal(argumentsOfRequest({ pages: 'p', live: 'l', server_rendered: ['/a', '/b'] })['server-rendered'], '/a,/b');
   assert.throws(() => argumentsOfRequest({ commit, pages: '/built/site-f6a44b6247f96fba32676213783905459d3dabb4/public', live: 'l' }), /not named for commit/);
   assert.throws(() => argumentsOfRequest({ commit, pages: `/built/site-${commit}/public`, app: '/built/older/app', live: 'l', live_app: 'l' }), /app folder/);
   assert.throws(() => argumentsOfRequest({ commit: 'b6ff62aee', pages: 'b6ff62aee', live: 'l' }), /full 40-character/);
+});
+
+test('three refused kinds are each named in the last 600 characters a workflow keeps of the failed command', async () => {
+  const live = await serveBuild({ root: folder(liveFiles), settings });
+  try {
+    const built = folder({ 'sitemap.xml': sitemap(['/', '/courses/yoga', '/about']), 'index.html': tall(3490, TIMES), 'courses/yoga.html': throwsToUpper });
+    const ran = await promisify(execFile)(process.execPath, [new URL('../do-work/check-site-build.mjs', import.meta.url).pathname,
+      '--pages', built, '--live', live.origin, '--out', mkdtempSync(join(tmpdir(), 'site-build-out-'))], { env: { ...process.env, BROWSER_EXECUTABLE: browser } }).then(done => ({ code: 0, ...done }), failed => failed);
+    assert.equal(ran.code, 1);
+    // The workflow host keeps the last 600 characters of standard output followed by standard error.
+    const tail = `${ran.stdout}${ran.stderr}`.slice(-600);
+    assert.match(tail, /REFUSED \/: serif [^\n]*Times[^\n]* where live is Arial/);
+    assert.match(tail, /REFUSED \/courses\/\*: 0\.\d+ of the live height; new page error TypeError/);
+    assert.match(tail, /REFUSED \/about: the build holds no file for this path/);
+    assert.match(tail, /3 page kind\(s\) refused: \/, \/courses\/\*, \/about\n$/);
+  } finally {
+    await live.close();
+  }
+});
+
+test('the refusal summary keeps each line short and ends with the count, also when nothing is refused', () => {
+  const row = (kind, more) => ({ kind, refused: true, height_px: 900, live_height_px: 3000, height_to_live: 0.3, new_page_errors: ['TypeError: ' + 'x'.repeat(400)], serif_where_live_is_not: false, reading_font: null, live_reading_font: null, why: [], ...more });
+  const lines = refusalSummary([row('/a'), row('/b'), row('/c'), { kind: '/d', refused: false }], settings);
+  assert.equal(lines.length, 4);
+  for (const line of lines.slice(0, 3)) assert.ok(line.length <= settings.summary_line_chars, line);
+  assert.equal(lines[3], '3 page kind(s) refused: /a, /b, /c');
+  assert.deepEqual(refusalSummary([], settings), ['0 page kind(s) refused: none']);
 });
 
 test('a sitemap path with no file in the build is refused, never skipped', async () => {
@@ -178,7 +207,7 @@ test('the command prints one JSON line and exits 1 when a page is refused, 0 whe
     const passed = await command(folder({ 'sitemap.xml': sitemap(['/about']), 'about.html': tall(1200) }), mkdtempSync(join(tmpdir(), 'site-build-out-')));
     assert.equal(passed.code, 0, passed.stderr);
     const request = join(mkdtempSync(join(tmpdir(), 'site-build-request-')), 'step.request.json');
-    writeFileSync(request, JSON.stringify({ pages: folder({ 'sitemap.xml': sitemap(['/courses/yoga']), 'courses/yoga.html': throwsToUpper }), live: live.origin, app: '', live_app: '', server_rendered: '' }));
+    writeFileSync(request, JSON.stringify({ pages: folder({ 'sitemap.xml': sitemap(['/courses/yoga']), 'courses/yoga.html': throwsToUpper }), live: live.origin, out: mkdtempSync(join(tmpdir(), 'site-build-out-')), app: '', live_app: '', server_rendered: '' }));
     const byRequest = await promisify(execFile)(process.execPath, [new URL('../do-work/check-site-build.mjs', import.meta.url).pathname, '--request', request],
       { env: { ...process.env, BROWSER_EXECUTABLE: browser } }).then(done => ({ code: 0, ...done }), failed => failed);
     assert.equal(byRequest.code, 1);

@@ -13,12 +13,12 @@ Why it exists: on Nov 24 2026 two site builds went live with every server check 
 ## Invocation
 
 ```
-node tools/check-a-site-build-in-a-browser/do-work/check-site-build.mjs --pages BUILT_PAGES_DIR --live https://LIVE_HOST --out PICTURES_DIR [--app BUILT_APP_DIR --live-app https://LIVE_APP_HOST] [--server-rendered /PREFIX,/PREFIX] [--settings FILE] [--browser EXECUTABLE]
+node tools/check-a-site-build-in-a-browser/do-work/check-site-build.mjs --pages BUILT_PAGES_DIR --live https://LIVE_HOST [--out PICTURES_DIR] [--app BUILT_APP_DIR --live-app https://LIVE_APP_HOST] [--server-rendered /PREFIX,/PREFIX] [--settings FILE] [--browser EXECUTABLE]
 ```
 
-A workflow step runs it the way the host runs every on-your-computer tool: the step's input is written to a request file and the row's `run` is `--request {request}`. The file holds `{pages, live, out?, app?, live_app?, server_rendered?, commit?}` (`''` is no value). `out` defaults to `check-a-site-build/<commit>` under the system temporary folder. With `commit`, each built folder's path must hold that full id, or nothing is checked (exit 2), so an older build cannot stand in.
+A workflow step runs it the way the host runs every on-your-computer tool: the step's input is written to a request file and the row's `run` is `--request {request}`. The file holds `{pages, live, out?, app?, live_app?, server_rendered?, commit?}` (`''` is no value). Without `out` (or `--out`) the pictures go to `settings.json` `pictures_folder` (`$XDG_DATA_HOME`, else `~/.local/share`, then `site-build-checks`) `/<commit or the time>`, so a gate's evidence outlives its run. With `commit`, each built folder's path must hold that full id, or nothing is checked (exit 2), so an older build cannot stand in.
 
-Standard output is one JSON line `{"result": {"refused": N, "not_checked_here": M, "pages": [{kind, url, live_url, height_px, live_height_px, height_to_live, new_page_errors, reading_font, live_reading_font, serif_where_live_is_not, visible_text_chars, screenshots: {local, live}, refused, checked_here, why}]}}`; progress goes to standard error. Exit 1 when any page is refused, 0 when none is, 2 when it could not run (bad arguments).
+Standard output is one JSON line `{"result": {"refused": N, "not_checked_here": M, "pages": [{kind, url, live_url, height_px, live_height_px, height_to_live, new_page_errors, reading_font, live_reading_font, serif_where_live_is_not, visible_text_chars, screenshots: {local, live}, refused, checked_here, why}]}}`; progress goes to standard error, which ends with the refusal summary: one line per refused kind (`REFUSED <kind>: <reasons>`, at most `summary_line_chars`), then `<N> page kind(s) refused: <kinds>`. A workflow keeps only the last 600 characters of a failed step, and they always name every refusal. Exit 1 when any page is refused, 0 when none is, 2 when it could not run (bad arguments).
 
 ## The rules
 

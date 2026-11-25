@@ -8,10 +8,13 @@
 //   node check-site-build.mjs --pages <built pages folder> --live <live origin> [--app <built app folder> --live-app <live app origin>]
 //     --out <folder for pictures> [--server-rendered </prefix,/prefix>] [--settings <file>] [--browser <chromium executable, or BROWSER_EXECUTABLE>]
 //   node check-site-build.mjs --request <file>   (what a workflow step runs: the file holds the step's input,
-//     {pages, live, out?, app?, live_app?, server_rendered?, commit?}; '' is no value; out defaults to a folder under the
-//     system temporary folder; with commit, each built folder's path must hold that full id, or nothing is checked: exit 2)
-//   Prints one JSON line { result: { refused, pages: [...] } } on standard output (progress goes to standard error); exits 1 when any
-//   page is refused, 0 when none is, 2 when it could not run at all.
+//     {pages, live, out?, app?, live_app?, server_rendered?, commit?}; '' is no value; with commit, each built folder's path
+//     must hold that full id, or nothing is checked: exit 2). Without --out / out the pictures go to settings.pictures_folder
+//     (under the person's home) /<commit or the time>, so a gate's evidence outlives its run.
+//   Prints one JSON line { result: { refused, pages: [...] } } on standard output; progress goes to standard error and ends with
+//   the refusal summary (one short line per refused kind, then the count and every refused kind), so the last few hundred
+//   characters a workflow keeps of a failed step always name every refusal. Exits 1 when any page is refused, 0 when none is,
+//   2 when it could not run at all.
 //
 // Non-negotiable invariants
 //   1. The kinds come from the site's own sitemap and folder (page-kinds.mjs); there is no hand list.
@@ -21,7 +24,7 @@
 //      built folder cannot show, so its row says checked_here false and why, is not refused, and is counted in not_checked_here.
 //   4. The build is only read; nothing is written but the pictures.
 import { mkdirSync, readFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pageKinds } from './page-kinds.mjs';
@@ -117,21 +120,52 @@ export function argumentsOfRequest(request) {
     if (!/^[0-9a-f]{40}$/.test(given.commit)) throw new Error(`commit must be a full 40-character commit id, not ${given.commit}`);
     for (const field of ['pages', 'app']) if (args[field] && !args[field].includes(given.commit)) throw new Error(`the ${field} folder ${args[field]} is not named for commit ${given.commit}`);
   }
-  args.out = given.out ?? join(tmpdir(), 'check-a-site-build', given.commit ?? new Date().toISOString().replace(/\W/g, ''));
+  args.out = given.out;
+  args.commit = given.commit;
   return Object.fromEntries(Object.entries(args).filter(([, value]) => value !== undefined));
+}
+
+/** The folder settings.pictures_folder names: $under when it is set, else `else` ('~' is the home folder), then `folder`. */
+export const picturesFolder = ({ under, else: otherwise, folder }, env = process.env) => join(env[under] || otherwise.replace(/^~(?=\/|$)/, homedir()), folder);
+
+/** Where the pictures go when the caller names no folder: the pictures folder / the commit or the time. */
+export const defaultOut = (settings, commit, env = process.env) => join(picturesFolder(settings.pictures_folder, env), commit ?? new Date().toISOString().replace(/\W/g, ''));
+
+const cut = (text, chars) => (text.length > chars ? `${text.slice(0, chars - 1)}…` : text);
+
+/** The lines that end the command's output: one short line per refused kind, then the count and every refused kind. */
+export function refusalSummary(rows, settings) {
+  const words = settings.words;
+  const refused = rows.filter(row => row.refused);
+  const lines = refused.map(row => {
+    const parts = [];
+    if (row.height_px === null) parts.push(row.why[0]);
+    else {
+      if (row.live_height_px !== null && row.height_px / row.live_height_px < settings.min_height_to_live) parts.push(fill(words.summary_short, { height_to_live: row.height_to_live }));
+      if (row.new_page_errors.length) parts.push(fill(words.summary_errors, { error: row.new_page_errors[0] }));
+      if (row.serif_where_live_is_not) parts.push(fill(words.summary_serif, { font: row.reading_font, live_font: row.live_reading_font ?? 'none' }));
+      if (row.live_height_px === null) parts.push(...row.why);
+    }
+    return cut(fill(words.summary_line, { kind: row.kind, reasons: parts.join('; ') }), settings.summary_line_chars);
+  });
+  return [...lines, fill(words.summary_last, { count: refused.length, kinds: refused.map(row => row.kind).join(', ') || 'none' })];
 }
 
 async function main() {
   const flags = argumentsOf(process.argv.slice(2));
   const args = flags.request ? argumentsOfRequest(JSON.parse(readFileSync(flags.request, 'utf8'))) : flags;
-  if (!args.pages || !args.live || !args.out) {
-    process.stderr.write('usage: node check-site-build.mjs --pages DIR --live ORIGIN [--app DIR --live-app ORIGIN] --out DIR [--server-rendered /PREFIX,/PREFIX] [--settings FILE] [--browser EXECUTABLE]\n');
+  if (!args.pages || !args.live) {
+    process.stderr.write('usage: node check-site-build.mjs --pages DIR --live ORIGIN [--app DIR --live-app ORIGIN] [--out DIR] [--server-rendered /PREFIX,/PREFIX] [--settings FILE] [--browser EXECUTABLE]\n');
     process.exit(2);
   }
   const settings = args.settings ? JSON.parse(readFileSync(args.settings, 'utf8')) : defaultSettings();
-  const result = await checkSiteBuild({ pages: args.pages, app: args.app ?? null, live: args.live, liveApp: args['live-app'] ?? null, out: args.out, settings, browser: args.browser ?? null,
+  const out = args.out ?? defaultOut(settings, args.commit);
+  const result = await checkSiteBuild({ pages: args.pages, app: args.app ?? null, live: args.live, liveApp: args['live-app'] ?? null, out, settings, browser: args.browser ?? null,
     serverRendered: (args['server-rendered'] ?? '').split(',').map(prefix => prefix.trim()).filter(Boolean) });
-  for (const row of result.pages) process.stderr.write(`${row.refused ? 'REFUSED' : row.checked_here ? 'PASS' : 'NOT CHECKED HERE'} ${row.kind}${row.why.length ? ` -- ${row.why.join('; ')}` : ''}\n`);
+  const report = result.pages.map(row => `${row.refused ? 'REFUSED' : row.checked_here ? 'PASS' : 'NOT CHECKED HERE'} ${row.kind}${row.why.length ? ` -- ${row.why.join('; ')}` : ''}`);
+  const summary = [fill(settings.words.pictures_in, { out }), ...refusalSummary(result.pages, settings)];
+  // Standard error to a pipe is written asynchronously on macOS: the exit waits for both streams to drain.
+  await new Promise(done => process.stderr.write(`${[...report, ...summary].join('\n')}\n`, done));
   process.stdout.write(`${JSON.stringify({ result })}\n`, () => process.exit(result.refused ? 1 : 0));
 }
 
