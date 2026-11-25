@@ -10,6 +10,8 @@
 //       "key_prefix": "site-app-files/", "cache_seconds": 300 }
 //   A path in `paths` (a folder ending in "/" or one whole path) is the key key_prefix + the path without its leading slash; a
 //   path in `named` is key_prefix + the name given (a host's "/" is its index.html). The first rule that names a path answers it.
+//   With "rest": "not_found" a rule's hosts answer nothing else: every other path on them is 404, ahead of pass_on and the
+//   page rows (a retired name that keeps only its moved-to page).
 //
 //   The program reads each object with a presigned GET of its own (member-video.ts presignedGet, the store's read key) and keeps
 //   it in memory, at most MOST_KEPT_BYTES in all, the least recently asked dropped first; after cache_seconds it asks the store
@@ -35,6 +37,8 @@ export interface ServedFiles {
   named?: Record<string, string>;
   key_prefix: string;
   cache_seconds: number;
+  /** "not_found": the rule's hosts answer only what it names; every other path on them is 404. */
+  rest?: 'not_found';
 }
 
 /** The most bytes kept in memory across every rule. */
@@ -52,7 +56,7 @@ export const TYPES: Record<string, string> = {
 const PATH = /^\/([A-Za-z0-9._~@+-]+\/)*[A-Za-z0-9._~@+-]*$/;
 const KEY = /^[A-Za-z0-9._~@+-]+(\/[A-Za-z0-9._~@+-]+)*$/;
 const HOST = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
-const WORDS = 'served_files lists { hosts?, paths, named?, key_prefix, cache_seconds }: lower-case host names; site folders ending in "/" or whole paths; { "<site path>": "<key name>" }; "" or key folders ending in "/"; a whole number of seconds, 1 to 86400.';
+const WORDS = 'served_files lists { hosts?, paths, named?, key_prefix, cache_seconds, rest? }: lower-case host names; site folders ending in "/" or whole paths; { "<site path>": "<key name>" }; "" or key folders ending in "/"; a whole number of seconds, 1 to 86400; rest "not_found" only with hosts.';
 
 /** Checks the settings' served_files; a wrong one throws naming what each field should be. */
 export function servedFilesOf(value: unknown): ServedFiles[] {
@@ -65,7 +69,8 @@ export function servedFilesOf(value: unknown): ServedFiles[] {
       || !named || typeof named !== 'object' || Array.isArray(named) || Object.entries(named).some(([path, key]) => !PATH.test(path) || typeof key !== 'string' || !KEY.test(key) || key.split('/').some(part => part === '.' || part === '..'))
       || (rule.paths.length === 0 && Object.keys(named).length === 0)
       || typeof rule.key_prefix !== 'string' || !/^([A-Za-z0-9._-]+\/)*$/.test(rule.key_prefix)
-      || !Number.isInteger(rule.cache_seconds) || rule.cache_seconds! < 1 || rule.cache_seconds! > 86400) throw new Error(WORDS);
+      || !Number.isInteger(rule.cache_seconds) || rule.cache_seconds! < 1 || rule.cache_seconds! > 86400
+      || (rule.rest !== undefined && (rule.rest !== 'not_found' || !rule.hosts?.length))) throw new Error(WORDS);
   }
   return value as ServedFiles[];
 }
@@ -83,6 +88,11 @@ export function servedKeyOf(rules: ServedFiles[], host: string, pathname: string
     return { rule, key: `${rule.key_prefix}${key}` };
   }
   return null;
+}
+
+/** True when a host's path is closed: a rule with rest "not_found" holds the host, and no rule names the path. */
+export function closedOnHost(rules: ServedFiles[], host: string, pathname: string): boolean {
+  return rules.some(rule => rule.rest === 'not_found' && rule.hosts!.includes(host)) && servedKeyOf(rules, host, pathname) === null;
 }
 
 interface Kept {

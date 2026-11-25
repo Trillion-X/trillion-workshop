@@ -200,7 +200,8 @@ Example, a page's visit beacon (a visitor id only with consent, set as a cookie 
   `named` is `key_prefix` + the name given (`{ "/": "index.html" }` for a host's home). The type comes from the file's name;
   one `bytes=a-b` range is answered 206. Each object is kept in memory (128 MB in all, the least recently asked dropped
   first) and asked of the store again, with its ETag, after `cache_seconds`. A served file answers before page rows, but
-  after `pass_on`. Example: `{ "hosts": ["app.example.com"], "paths": ["/workspace/", "/app.js"], "named": { "/": "index.html" }, "key_prefix": "site-app-files/", "cache_seconds": 300 }`.
+  after `pass_on`. A rule with `"rest": "not_found"` (and `hosts`) closes its hosts: every path it does not name is 404,
+  ahead of `pass_on` and the page rows (a retired name that keeps only its moved-to page). Example: `{ "hosts": ["app.example.com"], "paths": ["/workspace/", "/app.js"], "named": { "/": "index.html" }, "key_prefix": "site-app-files/", "cache_seconds": 300 }`.
 - `address_cookies`: `[{ "query", "cookie", "pattern", "upper_case", "max_age_days", "domain", "http_only" }]`. A value the
   visitor's arrival address carries (`?ref=CODE`) is kept as a cookie by any GET, on the site's own pages and on passed-on
   ones, when it is the whole of `pattern` (after `upper_case`) and only cookie-safe characters; `Path=/; SameSite=Lax;

@@ -3,8 +3,11 @@
 // asked again only after cache_seconds, with its ETag; a missing key is 404 and a failing store 502. A made-up store only.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { servedFilesOf, servedKeyOf, StoreFiles } from '../do-work/served-files.ts';
-import { settingsOf } from '../do-work/serve.ts';
+import http from 'node:http';
+import type { AddressInfo } from 'node:net';
+import { closedOnHost, servedFilesOf, servedKeyOf, StoreFiles } from '../do-work/served-files.ts';
+import { handlerOf, settingsOf } from '../do-work/serve.ts';
+import type { Site } from '../do-work/serve.ts';
 
 const RULE = { hosts: ['app.example.com'], paths: ['/workspace/', '/app.js', '/engine.wasm'], named: { '/': 'index.html' }, key_prefix: 'site-app-files/', cache_seconds: 60 };
 const STORE = { endpoint: 'https://store.example.test', region: 'r1', bucket: 'site-files', style: 'path' as const };
@@ -74,4 +77,32 @@ test('served_files are checked with the settings and need a files store', () => 
   assert.throws(() => settingsOf({ ...base, served_files: [RULE] }), /need files_store/);
   assert.deepEqual(settingsOf({ ...base, files_store: { ...STORE, credential: 'store-read' }, served_files: [RULE] }).served_files, [RULE]);
   assert.deepEqual(settingsOf(base).served_files, []);
+});
+
+test('a host a rule closes (rest not_found) answers only what the rule names: every other path is 404, before pass_on and rows', async () => {
+  const rules = servedFilesOf([RULE, { hosts: ['old.example.com'], paths: [], named: { '/': 'index.html' }, key_prefix: 'site-old-files/', cache_seconds: 300, rest: 'not_found' }]);
+  assert.equal(closedOnHost(rules, 'old.example.com', '/'), false, 'its named page answers');
+  assert.equal(closedOnHost(rules, 'old.example.com', '/courses'), true);
+  assert.equal(closedOnHost(rules, 'example.com', '/courses'), false, 'other hosts are not closed');
+  assert.equal(closedOnHost(rules, 'app.example.com', '/nothing'), false, 'a rule without rest leaves its host open');
+  assert.throws(() => servedFilesOf([{ ...RULE, hosts: undefined, rest: 'not_found' }]), /served_files/, 'rest needs hosts');
+  assert.throws(() => servedFilesOf([{ ...RULE, rest: 'gone' }]), /served_files/);
+  const passedOn: string[] = [];
+  const other = http.createServer((request, response) => { passedOn.push(String(request.url)); response.end('other'); });
+  await new Promise<void>(resolve => other.listen(0, '127.0.0.1', resolve));
+  const site = {
+    hostOf: (forwarded: string | undefined) => forwarded ?? 'example.com', closed: (host: string, path: string) => closedOnHost(rules, host, path),
+    acts: () => false, pageFor: () => null, siteHead: null,
+    answer: async () => ({ status: 200, headers: { 'content-type': 'text/plain' }, body: 'the site' }),
+  } as unknown as Site;
+  const server = http.createServer(handlerOf(site, [{ name: 'sign-in', address: `http://127.0.0.1:${(other.address() as AddressInfo).port}`, paths: ['/sign-in'] }]));
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const at = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    const ask = (host: string, path: string) => fetch(`${at}${path}`, { headers: { 'x-forwarded-host': host } });
+    assert.equal(await (await ask('old.example.com', '/')).text(), 'the site', 'the named page is the site\'s answer');
+    for (const path of ['/courses', '/sign-in', '/members/x']) assert.equal((await ask('old.example.com', path)).status, 404, path);
+    assert.deepEqual(passedOn, [], 'nothing on a closed host is passed on');
+    assert.equal(await (await ask('example.com', '/sign-in')).text(), 'other', 'other hosts pass on as before');
+  } finally { server.close(); other.close(); }
 });

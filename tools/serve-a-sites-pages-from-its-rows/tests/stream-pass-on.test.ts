@@ -33,7 +33,7 @@ test('an MCP door is streamed: headers unchanged, the first event before the str
   await new Promise<void>(resolve => door.listen(0, '127.0.0.1', resolve));
   const settings = settingsOf({ ...base, pass_on: [{ name: 'the engine door (MCP)', address: `http://127.0.0.1:${(door.address() as AddressInfo).port}`, exact: ['/mcp'], hosts: ['app.example.com'], stream: true }] });
   // A stand-in site with an action row at /mcp, so the exact entry must win over it, and no page rows.
-  const site = { hostOf: (forwarded: string | undefined) => forwarded ?? 'example.com', acts: () => true, pageFor: () => null, siteHead: null } as unknown as Site;
+  const site = { hostOf: (forwarded: string | undefined) => forwarded ?? 'example.com', closed: () => false, acts: () => true, pageFor: () => null, siteHead: null } as unknown as Site;
   const server = http.createServer(handlerOf(site, settings.pass_on));
   await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
   try {

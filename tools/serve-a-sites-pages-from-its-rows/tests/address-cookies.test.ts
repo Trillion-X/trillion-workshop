@@ -47,7 +47,7 @@ test('over node:http the cookie rides on the site\'s own page and on a passed-on
   await new Promise<void>(resolve => other.listen(0, '127.0.0.1', resolve));
   // A stand-in site: no action rows, no page rows under the passed-on path, and one plain answer of its own.
   const site = {
-    hostOf: () => 'example.com', acts: () => false, pageFor: () => null, siteHead: null,
+    hostOf: () => 'example.com', closed: () => false, acts: () => false, pageFor: () => null, siteHead: null,
     answer: async () => ({ status: 200, headers: { 'content-type': 'text/plain' }, body: 'ours' }),
   } as unknown as Site;
   const server = http.createServer(handlerOf(site, [{ name: 'other', address: `http://127.0.0.1:${(other.address() as AddressInfo).port}`, paths: ['/old'] }], addressCookiesOf([REF])));

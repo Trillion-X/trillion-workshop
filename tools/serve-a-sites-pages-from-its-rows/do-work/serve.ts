@@ -89,7 +89,7 @@ import { MemberPasses } from './member-pass.ts';
 import type { Member, SignIn } from './member-pass.ts';
 import { filesStoreOf, isPublicPath, memberFileAnswer, memberFilesOf, objectKeyOf, presignedGet, publicFileAnswer, publicFilesOf, publicKeyOf, storeKeyOf } from './member-video.ts';
 import type { FilesStore, MemberFiles, PublicFiles, StoreKey } from './member-video.ts';
-import { servedFilesOf, servedKeyOf, StoreFiles } from './served-files.ts';
+import { closedOnHost, servedFilesOf, servedKeyOf, StoreFiles } from './served-files.ts';
 import type { ServedFiles } from './served-files.ts';
 import { filledInput, matchPage, pagesOf, pagesOn, pathWith, PAGES_SQL, paramsOf, slugsSql } from './pages.ts';
 import type { PageRow, Refused } from './pages.ts';
@@ -411,6 +411,11 @@ export class Site {
     return this.#head;
   }
 
+  /** True when a served_files rule closes this host to every path it does not name (rest "not_found"). */
+  closed(host: string, pathname: string): boolean {
+    return closedOnHost(this.#parts.settings.served_files, host, pathname);
+  }
+
   /** True when an action row answers this method at this host and path. Asking keeps the rows fresh, as every request does. */
   acts(method: string, host: string, pathname: string): boolean {
     this.#fresh();
@@ -727,6 +732,12 @@ export function handlerOf(site: Site, passOn: PassOn[] = [], addressCookies: Add
     // A request the site's own action rows name is the site's, even under a path another program answers, unless that path is
     // passed on ahead of the site's rows (exact, or under an entry marked first).
     const method = request.method ?? 'GET';
+    // A host a served_files rule closes answers only the files it names: anything else is 404, before pass_on and rows.
+    if (site.closed(host, pathname)) {
+      response.writeHead(404, { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=300', 'x-content-type-options': 'nosniff' });
+      response.end(method === 'HEAD' ? undefined : 'Not found\n');
+      return;
+    }
     const acting = site.acts(method, host, pathname);
     const on = passOnFor(passOn, host, pathname, method === 'GET' || method === 'HEAD' ? (h, p) => site.pageFor(h, p) : undefined, acting);
     if (on?.stream) {
