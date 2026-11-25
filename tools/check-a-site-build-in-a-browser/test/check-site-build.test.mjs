@@ -108,6 +108,28 @@ test('a sitemap path with no file in the build is refused, never skipped', async
   assert.equal(byKind(result, '/courses/*').why[0], settings.words.no_file);
 });
 
+test('the height rule compares the exact ratio: 4,998 of 10,000 px is refused although it rounds to 0.5', async () => {
+  const { judge } = await import('../do-work/judge.mjs');
+  const measured = height => ({ height, font: 'Arial', text: 5, errors: [] });
+  const row = height => judge({ kind: '/', url: 'a', liveUrl: 'b', built: measured(height), live: measured(10000), shots: {}, settings });
+  assert.equal(row(4998).refused, true);
+  assert.equal(row(5000).refused, false);
+});
+
+test('a live page that answers 500 refuses the page as unreadable instead of switching to the absolute check', async () => {
+  const http = await import('node:http');
+  const broken = http.createServer((_, res) => { res.writeHead(500); res.end('x'); });
+  await new Promise(done => broken.listen(0, '127.0.0.1', done));
+  try {
+    const result = await checkSiteBuild({ pages: folder({ 'sitemap.xml': sitemap(['/about']), 'about.html': tall(1200) }), live: `http://127.0.0.1:${broken.address().port}`, out: mkdtempSync(join(tmpdir(), 'site-build-out-')), settings, browser });
+    assert.equal(result.pages[0].refused, true);
+    assert.match(result.pages[0].why[0], /answered 500/);
+  } finally {
+    broken.closeAllConnections();
+    await new Promise(done => broken.close(done));
+  }
+});
+
 test('the command prints one JSON line and exits 1 when a page is refused, 0 when none is', async () => {
   const live = await serveBuild({ root: folder(liveFiles), settings });
   const command = (built, out) => promisify(execFile)(process.execPath, [new URL('../do-work/check-site-build.mjs', import.meta.url).pathname,

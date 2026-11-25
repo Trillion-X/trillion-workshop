@@ -1,5 +1,7 @@
 # check-a-site-build-in-a-browser
 
+## Purpose
+
 A program a site deploy runs on the computer that holds the built site, before it applies a commit. It opens each kind of page of the build in a headless Chromium beside the same page on the live site and refuses the build (exit 1) when a page is blank, throws a page error the live page does not, or shows its reading text in a serif default where the live page does not. It is the deterministic gate for what no server-side check sees: a page whose script throws, a stylesheet that did not load.
 
 Why it exists: on Nov 24 2026 two site builds went live with every server check green. At 8:57 PM the home page's reading text fell back to Times and the testimonials and video library lost their styles; until 9:42 PM every `/courses/<slug>` page drew blank (a `toUpperCase` page error).
@@ -21,7 +23,7 @@ Standard output is one JSON line `{"result": {"refused": N, "pages": [{kind, url
 1. Page kinds come from the build's own lists (`do-work/page-kinds.mjs`): the locs of `sitemap.xml` grouped by path shape (one segment is its own kind; two or more segments are the kind of the parent folder, `/courses/*`), plus the top-level `.html` pages the sitemap leaves out, plus the app folder's. One page per kind: the first the sitemap lists.
 2. Each is opened from the build (served on 127.0.0.1: path, folder `index.html`, `path.html`; data calls under `/target/` and files the build lacks go to the live site, data calls with no query added and with Referer and Origin naming the live host) and from the live site. Page views carry `utm_content=check`.
 3. Measured after the load event (never network idle) plus `settle_ms`: scroll height, page errors, computed font-family of the first `#root p`, visible text length.
-4. Refused: built height under `min_height_to_live` of live; a page error the live page did not throw; a serif reading font where live's is not. A kind the live site answers 404 for: refused for any page error or no visible text. A page the build has no file for, or that does not load, is refused.
+4. Refused: built height under `min_height_to_live` of live; a page error the live page did not throw; a serif reading font where live's is not. A kind the live site answers 404 for (any other live status of 400 or more refuses the page as unreadable): refused for any page error or no visible text. A page the build has no file for, or that does not load, is refused.
 
 A blank page is only as tall as the window (`scrollHeight` is never under the viewport), so a blank page measures 900 px against a live page of thousands.
 
@@ -38,6 +40,16 @@ A blank page is only as tall as the window (`scrollHeight` is never under the vi
 | `tool-rows.json`, `kits/check-a-site-build-in-a-browser.json` | The row `tool:check-a-site-build-in-a-browser` and its kit. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/check-site-build.test.mjs` | Made-up built and "live" sites on two local servers: a blank course with a `toUpperCase` error, a serif home, a matching page, a new kind with and without errors, a missing file, the command's exit codes and the pass-through headers. |
+
+## Key Types / Functions
+
+| Name | Signature | Role |
+|------|-----------|------|
+| `checkSiteBuild` | `({ pages, app?, live, liveApp?, out, settings?, browser? }) => Promise<{ refused, pages }>` | The whole gate. |
+| `pageKinds` | `(root, settings) => [{ kind, path }]` | One page per kind from the sitemap and folder. |
+| `serveBuild` | `({ root, live, settings }) => Promise<{ origin, close }>` | The local front door with pass-through. |
+| `measurePage` | `({ url, shot, settings, browser }) => Promise<{ height, font, text, errors }>` | One page in Chromium. |
+| `judge` | `({ kind, url, liveUrl, built, live, shots, settings }) => row` | The refusing comparisons. |
 
 ## Dependencies
 

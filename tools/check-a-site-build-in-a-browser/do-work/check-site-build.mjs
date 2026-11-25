@@ -33,8 +33,8 @@ const withCheck = (base, path, settings) => {
 };
 
 /** The status the live address answers a page view, or the problem asking it. */
-async function liveStatus(url) {
-  try { return { status: (await fetch(url, { redirect: 'follow' })).status }; } catch (error) { return { error: String(error.cause?.message ?? error.message) }; }
+async function liveStatus(url, timeoutMs) {
+  try { return { status: (await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(timeoutMs) })).status }; } catch (error) { return { error: String(error.cause?.message ?? error.message) }; }
 }
 
 async function checkOne({ kind, path, root, live, out, name, settings, browser, localOrigin }) {
@@ -42,13 +42,13 @@ async function checkOne({ kind, path, root, live, out, name, settings, browser, 
   const url = withCheck(localOrigin, path, settings);
   const liveUrl = withCheck(live, path, settings);
   if (!fileFor(root, new URL(path, 'http://local').pathname)) return refusedUnmeasured({ kind, url, liveUrl, shots: { local: null, live: null }, reason: settings.words.no_file });
-  const answered = await liveStatus(liveUrl);
-  if (answered.error) return refusedUnmeasured({ kind, url, liveUrl, shots, reason: fill(settings.words.live_unreadable, { error: answered.error }) });
+  const answered = await liveStatus(liveUrl, settings.navigation_timeout_ms);
+  if (answered.error || answered.status !== 404 && answered.status >= 400) return refusedUnmeasured({ kind, url, liveUrl, shots, reason: fill(settings.words.live_unreadable, { error: answered.error ?? `it answered ${answered.status}` }) });
   let built;
   try { built = await measurePage({ url, shot: shots.local, settings, browser }); } catch (error) {
     return refusedUnmeasured({ kind, url, liveUrl, shots, reason: fill(settings.words.did_not_load, { where: 'built', error: error.message }) });
   }
-  if (answered.status >= 400) return judge({ kind, url, liveUrl: null, built, live: null, shots: { local: shots.local, live: null }, settings });
+  if (answered.status === 404) return judge({ kind, url, liveUrl: null, built, live: null, shots: { local: shots.local, live: null }, settings });
   let seen;
   try { seen = await measurePage({ url: liveUrl, shot: shots.live, settings, browser }); } catch (error) {
     return refusedUnmeasured({ kind, url, liveUrl, shots, reason: fill(settings.words.did_not_load, { where: 'live', error: error.message }) });
@@ -81,7 +81,8 @@ function argumentsOf(argv) {
   const found = {};
   for (let at = 0; at < argv.length; at += 2) {
     if (!argv[at].startsWith('--') || argv[at + 1] === undefined) throw new Error(`Unreadable argument ${argv[at]}`);
-    found[argv[at].slice(2)] = argv[at + 1];
+    // An optional value the caller left unfilled ('' or the row's own {name}) is no value.
+    if (argv[at + 1] !== '' && !/^\{\w+\}$/.test(argv[at + 1])) found[argv[at].slice(2)] = argv[at + 1];
   }
   return found;
 }

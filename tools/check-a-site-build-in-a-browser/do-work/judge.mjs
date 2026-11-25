@@ -8,18 +8,19 @@
 //   1. With a live page: refused when the built height is under min_height_to_live of the live height, when it threw an error
 //      the live page did not, or when its reading font is a serif default and the live one is not.
 //   2. With no live page (the live address answers 404): refused when the built page threw any error or shows no text.
-//   3. height_to_live is rounded to three places and is 1 when there is no live page.
+//   3. The height rule compares the exact ratio; height_to_live is that ratio rounded to three places for display, and is 1 when there is no live page.
 const fill = (text, fields) => text.replace(/\{(\w+)\}/g, (_, name) => String(fields[name]));
 
 /** The page's result row from the built and live measurements (live is null when no live page exists). */
 export function judge({ kind, url, liveUrl, built, live, shots, settings }) {
   const serif = font => Boolean(font) && new RegExp(settings.serif_pattern, 'i').test(font);
   const newErrors = built.errors.filter(error => !(live ? live.errors : []).includes(error));
-  const ratio = live && live.height > 0 ? Math.round((built.height / live.height) * 1000) / 1000 : 1;
+  const exact = live && live.height > 0 ? built.height / live.height : 1;
+  const ratio = Math.round(exact * 1000) / 1000;
   const serifWhereLiveIsNot = Boolean(live) && serif(built.font) && !serif(live.font);
   const why = [];
   if (live) {
-    if (ratio < settings.min_height_to_live) why.push(fill(settings.words.short, { height_px: built.height, height_to_live: ratio, live_height_px: live.height, min_height_to_live: settings.min_height_to_live }));
+    if (exact < settings.min_height_to_live) why.push(fill(settings.words.short, { height_px: built.height, height_to_live: ratio, live_height_px: live.height, min_height_to_live: settings.min_height_to_live }));
     if (newErrors.length) why.push(fill(settings.words.errors, { count: newErrors.length, errors: JSON.stringify(newErrors) }));
     if (serifWhereLiveIsNot) why.push(fill(settings.words.serif, { font: built.font, live_font: live.font ?? 'none' }));
   } else {
