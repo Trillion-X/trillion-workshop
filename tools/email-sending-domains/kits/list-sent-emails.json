@@ -1,0 +1,37 @@
+{
+  "drafted_from": "tool:list-sent-emails's own row (tools/email-sending-domains/tool-rows.json: its words, input schema and sample run) and test/list-sent-emails.test.mjs",
+  "start_here": "Say to your AI: \"Which emails did my Resend account send in the last 5 days, and was each delivered?\", naming the held key, {\"key_name\": \"resend-api-key-of-my-shop\", \"days\": 5}. It runs tool:list-sent-emails and answers {\"emails\":[{\"id\":\"00000000-0000-4000-8000-000000000041\",\"to\":[\"delivered@example.org\"],\"subject\":\"Hello\",\"created_at\":\"2026-11-25 14:45:46.162+00\",\"last_event\":\"delivered\"}],\"count\":1,\"complete\":true}",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it reads the emails your email-sending account sent and writes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:list-sent-emails"
+  ],
+  "instructions": [
+    "1. Connect your Resend account once, so its key is held in your vault under a name of yours (a key with full access: a sending-only key cannot read emails). The key is never typed into the request.",
+    "2. Say to your AI: \"List the emails my Resend account sent in the last <days> days\" (1 to 30), and give the held key's name. It calls tools:run with tool tool:list-sent-emails and {\"key_name\": \"<that name>\", \"days\": <days>}.",
+    "3. Read each email's id, addressees, subject, when it was sent and last_event (sent, delivered, bounced, opened, clicked or complained). complete false means the read stopped at its page limit before the window's start. Bodies and the key are never shown."
+  ],
+  "worked_examples": [
+    {
+      "title": "Two emails in the last five days, one bounced",
+      "ask": "Which emails did my Resend account send in the last 5 days?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-sent-emails",
+            "input": {
+              "key_name": "resend-api-key-of-my-shop",
+              "days": 5
+            }
+          }
+        }
+      },
+      "given": "The row's sample run: GET https://api.resend.com/emails?limit=100 answering two made-up emails. Ids and addresses are synthetic.",
+      "hands_back": "{\"emails\":[{\"id\":\"00000000-0000-4000-8000-000000000041\",\"to\":[\"delivered@example.org\"],\"subject\":\"Hello\",\"created_at\":\"2026-11-25 14:45:46.162+00\",\"last_event\":\"delivered\"},{\"id\":\"00000000-0000-4000-8000-000000000042\",\"to\":[\"bounced@example.org\"],\"subject\":\"Hello again\",\"created_at\":\"2026-11-23 09:00:00.000+00\",\"last_event\":\"bounced\"}],\"count\":2,\"complete\":true}"
+    }
+  ]
+}

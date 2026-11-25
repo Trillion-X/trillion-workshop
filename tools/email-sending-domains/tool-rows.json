@@ -611,6 +611,180 @@
           }
         ]
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-sent-emails",
+        "label": "List sent emails",
+        "job": "See which emails my email-sending account sent in the last few days, and whether each was delivered, bounced, opened or clicked",
+        "description": "Reads the emails the person's connected email-sending account (Resend) sent in the last 1 to 30 days, newest first, with the key they connected, and answers each one's id, addressees, subject, when it was sent and the last thing that happened to it, and how many there are. It never shows the key or a body, and changes nothing.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "key_name",
+            "days"
+          ],
+          "properties": {
+            "key_name": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+            },
+            "days": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "emails",
+            "count",
+            "complete"
+          ],
+          "properties": {
+            "emails": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "to",
+                  "subject",
+                  "created_at",
+                  "last_event"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "to": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "subject": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "string"
+                  },
+                  "last_event": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "count": {
+              "type": "integer"
+            },
+            "complete": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/email-sending-domains",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/email-sending-domains/do-work/list-sent-emails.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": {
+              "package": "email-sending-domains",
+              "paths": [
+                "do-work"
+              ],
+              "at": "/opt/email-sending-domains"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name_from_input": "key_name",
+              "fd": 3
+            }
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "provider": "Resend",
+          "api": "https://resend.com/docs/api-reference/emails/list-emails"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "days": 5
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.resend.com/emails?limit=100"
+                },
+                "status": 200,
+                "body": {
+                  "object": "list",
+                  "has_more": false,
+                  "data": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000041",
+                      "to": [
+                        "delivered@example.org"
+                      ],
+                      "from": "Sender <sender@example.com>",
+                      "created_at": "2026-11-25 14:45:46.162+00",
+                      "subject": "Hello",
+                      "bcc": null,
+                      "cc": null,
+                      "reply_to": null,
+                      "last_event": "delivered",
+                      "scheduled_at": null
+                    },
+                    {
+                      "id": "00000000-0000-4000-8000-000000000042",
+                      "to": [
+                        "bounced@example.org"
+                      ],
+                      "from": "Sender <sender@example.com>",
+                      "created_at": "2026-11-23 09:00:00.000+00",
+                      "subject": "Hello again",
+                      "bcc": null,
+                      "cc": null,
+                      "reply_to": null,
+                      "last_event": "bounced",
+                      "scheduled_at": null
+                    }
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-25"
+          }
+        ]
+      }
     }
   ]
 }

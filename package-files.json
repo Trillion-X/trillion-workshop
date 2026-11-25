@@ -69368,5 +69368,14 @@
    ],
    "at": "/opt/email-sending-domains"
   }
+ ],
+ "tool:list-sent-emails": [
+  {
+   "package": "email-sending-domains",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/email-sending-domains"
+  }
  ]
 }
