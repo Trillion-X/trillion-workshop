@@ -18,12 +18,11 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import React from 'react';
-import { Container } from '../container/index.ts';
 import { Input } from '../coss/ui/input.tsx';
 import { Button } from '../button/Button.tsx';
 import { Form } from '../form/Form.tsx';
 import { Text } from '../text/Text.tsx';
-import { CARD_FOOT, CARD_FRAME, CARD_LABEL, CARD_NAME, CARD_NOTE } from './card-type.ts';
+import { CARD_FIELD, CARD_FIELD_BOX, CARD_FIELD_TEXT, CARD_FOOT, CARD_FRAME, CARD_HEAD, CARD_LABEL, CARD_NAME, CARD_NOTE } from './card-type.ts';
 import { Labelled } from '../../../ask-questions-sort-answers-follow-up/show/FormSteps.tsx';
 
 export type ContactField = { name: string; label: string; type?: 'text' | 'email'; required?: boolean; value?: string };
@@ -57,16 +56,16 @@ export function View({ framed, buttonVariant = 'primary', title, lead, fields, b
   };
   return (
     <Text as="article" className="coss-ui grid gap-4" style={framed ? CARD_FRAME : undefined} data-contact-card>
-      <Text as="h3" style={CARD_NAME}>{title}</Text>
+      <Text as="div" className={CARD_HEAD}><Text as="h3" style={CARD_NAME}>{title}</Text></Text>
       {lead ? <Text as="p" style={CARD_NOTE}>{lead}</Text> : null}
-      <Form {...(action === undefined ? { onSubmit: submit } : { method: 'post', action, hiddenFields })} className="flex flex-col gap-4">
+      <Form {...(action === undefined ? { onSubmit: submit } : { method: 'post', action, hiddenFields })} className="mt-2 grid gap-3">
         {fields.map(field => (
-          <Labelled key={field.name} label={field.label} labelStyle={CARD_LABEL}>
-            <Input name={field.name} type={field.type ?? 'text'} required={field.required} size="lg" {...(action === undefined ? { value: field.value ?? '', onChange: (event: React.ChangeEvent<HTMLInputElement>) => onChange?.(field.name, event.target.value) } : { defaultValue: field.value ?? '' })} />
+          <Labelled key={field.name} label={field.label} labelStyle={CARD_LABEL} fieldStyle={CARD_FIELD}>
+            <Input name={field.name} type={field.type ?? 'text'} required={field.required} size="lg" className={CARD_FIELD_BOX} style={CARD_FIELD_TEXT} {...(action === undefined ? { value: field.value ?? '', onChange: (event: React.ChangeEvent<HTMLInputElement>) => onChange?.(field.name, event.target.value) } : { defaultValue: field.value ?? '' })} />
           </Labelled>
         ))}
         {error === '' ? null : <Text as="p" role="alert" color="error">{error}</Text>}
-        <Container layout="horizontal"><Button type="submit" variant={buttonVariant} size="lg" disabled={sending}>{button}</Button></Container>
+        <Button type="submit" variant={buttonVariant} size={buttonVariant === 'primary' ? 'lg' : 'md'} fullWidth disabled={sending}>{button}</Button>
       </Form>
       {note ? <Text as="p" style={CARD_FOOT}>{note}</Text> : null}
     </Text>

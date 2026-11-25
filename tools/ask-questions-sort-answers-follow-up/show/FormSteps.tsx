@@ -27,9 +27,9 @@ export type Next = { key: string; kind: string; position?: number; prompt?: stri
 export type Answer = string | ChoiceRowsValue | null;
 
 // One labelled field: the label above, the control, then its refusal or its help line.
-export function Labelled({ label, help, error, labelStyle, children }: { label: string; help?: string; error?: string; /** The label's own type, when the page that draws it sets one. */ labelStyle?: React.CSSProperties; children: React.ReactNode }) {
+export function Labelled({ label, help, error, labelStyle, fieldStyle, children }: { label: string; help?: string; error?: string; /** The label's own type, when the page that draws it sets one. */ labelStyle?: React.CSSProperties; /** The field's own spacing (the room between its label and its box), when the page that draws it sets one. */ fieldStyle?: React.CSSProperties; children: React.ReactNode }) {
   return (
-    <FieldPrimitive.Root className="flex w-full flex-col items-start gap-2" invalid={Boolean(error)}>
+    <FieldPrimitive.Root className="flex w-full flex-col items-start gap-2" invalid={Boolean(error)} style={fieldStyle}>
       <FieldPrimitive.Label className="font-medium text-base text-foreground sm:text-sm" style={labelStyle}>{label}</FieldPrimitive.Label>
       {children}
       {error ? <Text as="p" role="alert" variant="caption" className="text-destructive-foreground text-xs">{error}</Text> : help ? <FieldPrimitive.Description className="text-muted-foreground text-xs">{help}</FieldPrimitive.Description> : null}

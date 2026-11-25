@@ -27,7 +27,7 @@ import { Input } from '../coss/ui/input.tsx';
 import { Container } from '../container/index.ts';
 import { Form } from '../form/Form.tsx';
 import { ShowcaseStrip, Text } from '../marketing-page/MarketingPagePrimitives.tsx';
-import { CARD_CADENCE, CARD_FEATURE, CARD_FRAME, CARD_NAME, CARD_NOTE, CARD_PRICE, centsOf } from './card-type.ts';
+import { CARD_CADENCE, CARD_FEATURE, CARD_FIELD_BOX, CARD_FIELD_TEXT, CARD_FRAME, CARD_HEAD, CARD_LINE, CARD_NAME, CARD_NOTE, CARD_PRICE, centsOf } from './card-type.ts';
 
 export type PricingFeature = {
   id: string;
@@ -126,7 +126,7 @@ export function View(props: PricingCardProps) {
   };
   const body = (
     <>
-      <Container layout="vertical" gap="sm" width="full">
+      <Text as="div" className={CARD_HEAD}>
         <Text as="h3" style={CARD_NAME}>{name}</Text>
         {price ? (
           <Text as="p" style={CARD_PRICE}>
@@ -134,46 +134,48 @@ export function View(props: PricingCardProps) {
             {cadence ? <Text as="span" style={CARD_CADENCE}>{cadence}</Text> : null}
           </Text>
         ) : null}
-      </Container>
+      </Text>
       {note ? <Text as="p" style={CARD_NOTE}>{note}</Text> : null}
       {amounts ?? null}
-      {more ? (
-        <Container layout="vertical" gap="sm" width="full" data-pricing-more>
-          {more.line ? <Text as="p" color="muted">{more.line}</Text> : null}
-          <Button type="button" variant="quiet" size="md" aria-expanded={open} onClick={() => setOpen(value => !value)}>{open ? more.hide ?? more.toggle : more.toggle}</Button>
-          {open ? (
-            <Container layout="vertical" gap="sm" width="full" role="group" aria-label={more.legend}>
-              {more.legend ? <Text as="p" weight="medium" color="strong">{more.legend}</Text> : null}
-              <Container layout="horizontal" gap="sm" className="flex-wrap">
-                {more.options.map(option => (
-                  <Button key={option.cents} type="button" variant="outline" size="md" aria-pressed={picked?.cents === option.cents} onClick={() => { setTyped(null); setPicked(option); }}>
-                    {`${typed === null && picked?.cents === option.cents ? '✓ ' : ''}${option.label}`}
-                  </Button>
-                ))}
-              </Container>
-              {more.custom ? (
-                <Container layout="vertical" gap="xs" width="full">
-                  <Text as="label" weight="medium" color="strong">{more.custom.label}</Text>
-                  <Input type="text" inputMode="decimal" autoComplete="off" size="lg" aria-label={more.custom.label} aria-invalid={tooLow} value={typed ?? ''} placeholder={moneyOf(more.custom.min_cents, more.custom.currency)}
-                    onChange={event => {
-                      const text = event.target.value;
-                      setTyped(text);
-                      const cents = centsOf(text);
-                      setPicked(cents !== null && cents >= (more.custom?.min_cents ?? 0) ? { cents, label: moneyOf(cents, more.custom?.currency) } : null);
-                    }} />
-                  {tooLow ? <Text as="p" role="alert" color="error">{(more.custom.too_low ?? '').replace('{min}', moneyOf(more.custom.min_cents, more.custom.currency))}</Text> : null}
+      <Text as="div" className="grid gap-3" data-pricing-buy>
+        {more ? (
+          <>
+            {more.line ? <Text as="p" style={CARD_LINE} data-pricing-more>{more.line}</Text> : null}
+            <Button type="button" variant="quiet" size="md" className="justify-self-center" aria-expanded={open} onClick={() => setOpen(value => !value)}>{open ? more.hide ?? more.toggle : more.toggle}</Button>
+            {open ? (
+              <Container layout="vertical" gap="sm" width="full" role="group" aria-label={more.legend}>
+                {more.legend ? <Text as="p" weight="medium" color="strong">{more.legend}</Text> : null}
+                <Container layout="horizontal" gap="sm" className="flex-wrap">
+                  {more.options.map(option => (
+                    <Button key={option.cents} type="button" variant="outline" size="md" aria-pressed={picked?.cents === option.cents} onClick={() => { setTyped(null); setPicked(option); }}>
+                      {`${typed === null && picked?.cents === option.cents ? '✓ ' : ''}${option.label}`}
+                    </Button>
+                  ))}
                 </Container>
-              ) : null}
-            </Container>
-          ) : null}
-        </Container>
-      ) : null}
-      <Cta cta={cta} onCheckout={onCheckout} pending={pending || blocked} posts={posts} variant={ctaVariant} />
+                {more.custom ? (
+                  <Container layout="vertical" gap="xs" width="full">
+                    <Text as="label" weight="medium" color="strong">{more.custom.label}</Text>
+                    <Input type="text" inputMode="decimal" autoComplete="off" size="lg" className={CARD_FIELD_BOX} style={CARD_FIELD_TEXT} aria-label={more.custom.label} aria-invalid={tooLow} value={typed ?? ''} placeholder={moneyOf(more.custom.min_cents, more.custom.currency)}
+                      onChange={event => {
+                        const text = event.target.value;
+                        setTyped(text);
+                        const cents = centsOf(text);
+                        setPicked(cents !== null && cents >= (more.custom?.min_cents ?? 0) ? { cents, label: moneyOf(cents, more.custom?.currency) } : null);
+                      }} />
+                    {tooLow ? <Text as="p" role="alert" color="error">{(more.custom.too_low ?? '').replace('{min}', moneyOf(more.custom.min_cents, more.custom.currency))}</Text> : null}
+                  </Container>
+                ) : null}
+              </Container>
+            ) : null}
+          </>
+        ) : null}
+        <Cta cta={cta} onCheckout={onCheckout} pending={pending || blocked} posts={posts} variant={ctaVariant} />
+      </Text>
       {error ? <Text as="p" role="alert" color="error">{error}</Text> : null}
       {features.length === 0 ? null : (
-        <Text as="ul" className="m-0 grid list-none gap-4 p-0" aria-label={`${name} includes`}>
+        <Text as="ul" className="m-0 grid list-none gap-0 p-0" aria-label={`${name} includes`}>
           {features.map(feature => (
-            <Text as="li" key={feature.id} className="grid gap-2" data-feature={feature.id}>
+            <Text as="li" key={feature.id} className="grid gap-[14px] border-t border-[rgba(15,23,42,.09)] py-[18px] first:border-t-0 first:pt-1" data-feature={feature.id}>
               <Text as="p" style={CARD_FEATURE} className="flex items-start gap-3"><Text as="span" aria-hidden="true" className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[#0f172a] text-white"><Check size={14} strokeWidth={3} /></Text>{feature.label}</Text>
               {feature.showcase?.length ? <ShowcaseStrip ariaLabel={`${feature.label} showcase`} items={feature.showcase} /> : null}
             </Text>
