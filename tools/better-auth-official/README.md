@@ -34,7 +34,7 @@ test-fixtures/embedded-store.mjs), with no install and no sudo.
 
 ## settings.json
 
-`port`, `base_url`, `base_path`, `issuer`, `audience`, `store` (`credential`, `env`, and the driver Better Auth is handed as its database: `module`, its `export`, the constructor's `arguments` with `{connection}` for the connection string, `close`, the method that ends it, and `migration_lock`, the store's own `take` and `give` statements held around a migration, or null; another store is a settings change), `session_cookie_name`, `api_key` (`prefix`, `rate_limit` in the plugin's own `rateLimit` shape, `default_permissions`: the scope names a new key reaches, `{"<resource>": [names]}`, none by default; `scoped_create`: `path` and `allowed_patterns`, the keys a program on the computer may make, see below), `internal` (`host`, `port`, `verify_path`), `passkey` (`rp_id`, `rp_name`),
+`port`, `base_url`, `base_path`, `issuer`, `audience`, `store` (`credential`, `env`, and the driver Better Auth is handed as its database: `module`, its `export`, the constructor's `arguments` with `{connection}` for the connection string, `close`, the method that ends it, and `migration_lock`, the store's own `take` and `give` statements held around a migration, or null; another store is a settings change), `session_cookie_name`, `api_key` (`prefix`, `rate_limit` in the plugin's own `rateLimit` shape, `default_permissions`: the scope names a new key reaches, `{"<resource>": [names]}`, none by default; `scoped_create`: `path` and `allowed_patterns`, the keys a program on the computer may make, and `by_pass` (`create_path`, `revoke_path`, `most_seconds`, `mark`), the same asked by a person's own engine with its caller's pass, see below), `internal` (`host`, `port`, `verify_path`), `passkey` (`rp_id`, `rp_name`),
 `trusted_origins`, `attached_origins` (`ask_url`, `cache_ms`, `related_url`), `two_factor_issuer`, `mcp` (`login_page`, `consent_page`, `resource`, `scopes`: what a client may ask for, `resource_scopes`: what the MCP resource allows), `disabled_paths`, `device` (`verification_uri`), `admin` (`user_ids`: the users the admin plugin treats as admins, its `adminUserIds`; none by default), `delete_user` (`enabled`: Better Auth's `user.deleteUser`, so a signed-in person may delete their own user; false by default) and
 `email` (`from`: the address mail comes from; `sender`: a description of an email provider's request, the published one at
 email-providers/resend.json or the person's own, named in their computer's layout row: `name`, `vault_key` (the name of the credential its auth header carries, read at each
@@ -149,6 +149,35 @@ listener: `POST /api-key/create-scoped` (`api_key.scoped_create.path`) with
 
 test/scoped-key.test.mjs proves the wake:arrive key, the refusals with no key row made, the loopback and proxy refusals and the
 untouched default.
+
+### Asked by a person's own engine, with its caller's pass
+
+A person's engine makes such a key straight into that person's own vault (`secrets:put` with `make {scoped_key}`), so no program,
+file or chat ever holds it. It asks on the public listener, under `base_path`, with the pass its caller presented there as
+`Authorization: Bearer <pass>` (`api_key.scoped_create.by_pass`, scoped-key.mjs and pass-caller.mjs):
+
+    POST /api/auth/scoped-key/create   {"name": "<key name>", "permissions": {"<resource>": ["wake:arrive"]}, "expires_in": <seconds>}
+    POST /api/auth/scoped-key/revoke   {"key_id": "<key id>"}
+
+- **Who asks is the pass's.** The pass is checked by Better Auth's own `verifyJWT` against this sign-in's keys and `issuer`, for
+  the audience of its kind: the session pass (`audience`, holding every method), a key's pass (`internal.pass_audience`, the
+  key's scopes) or an AI's access token (typ `at+jwt`, for `mcp.resource` or a person's own engine, the scopes granted). Its
+  credential, named as `credential_standing.kinds` names it, must still stand. The user is the pass's subject; a body naming a
+  `user_id` is 400 `unknown_field`. No pass is 401 `pass_required`, a pass of no kind here or one that does not verify 401
+  `pass_not_accepted`, a credential that no longer stands 401 `credential_not_standing`.
+- **No wider than the caller.** Each pattern must be in `allowed_patterns` (else 400 `pattern_not_allowed`) and held by the
+  caller's own credential (`*`, a prefix ending in `*`, or the method itself; else 403 `pattern_not_held_by_caller`).
+- **It ends.** `expires_in` is required (`expires_in_required`) and at most `by_pass.most_seconds`, 90 days
+  (`expires_in_too_long`), and the key may not end after the caller's credential does (`expires_after_credential`, with
+  `credential_ends_at`): a key ends at its own `expiresAt`, an AI's access at its newest unrevoked token's end
+  (credential-standing.mjs `credentialEnd`), the person's own session never.
+- The answer is 200 `{"key", "id", "expires_at"}`, and the key row's metadata is `{"made_by": by_pass.mark, "credential"}`.
+  Revoke deletes the key only when its user is the pass's and its metadata names `by_pass.mark`, answering
+  `{"key_id", "revoked": true}`; any other id, this user's own other keys included, is 404 `key_not_found`. A revoked key no
+  longer verifies, so the gateway's key check refuses it and no new pass is made for it.
+
+test/scoped-key-by-pass.test.mjs proves each rule with the sign-in's own passes: a session pass and a key's pass signed by its
+jwt plugin, and an AI's access token from the OAuth flow.
 
 ## Whether a credential still stands
 

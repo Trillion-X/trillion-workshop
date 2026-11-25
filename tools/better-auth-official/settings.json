@@ -29,7 +29,14 @@
     "scoped_create": {
       "path": "/api-key/create-scoped",
       "allowed_patterns": ["wake:arrive"],
-      "_why": "A program on this computer (the internal listener, loopback callers only) makes a key for a user with exactly these permission patterns, each written as listed here, so an internet-facing receiver holds a key that reaches only wake:arrive. The plugin lets only the server set a key's permissions; default_permissions stays null, so a key a person makes reaches nothing."
+      "_why": "A program on this computer (the internal listener, loopback callers only) makes a key for a user with exactly these permission patterns, each written as listed here, so an internet-facing receiver holds a key that reaches only wake:arrive. The plugin lets only the server set a key's permissions; default_permissions stays null, so a key a person makes reaches nothing.",
+      "by_pass": {
+        "create_path": "/scoped-key/create",
+        "revoke_path": "/scoped-key/revoke",
+        "most_seconds": 7776000,
+        "mark": "scoped-key-by-pass",
+        "_why": "A person's own engine asks for a key with its caller's pass (secrets:put make {scoped_key}), on these paths under base_path, so the key goes straight into that person's vault and no program, file or chat holds it. The user is the pass's, never the body's; the patterns are within allowed_patterns and within the caller's own credential; the key ends no later than that credential and within most_seconds (90 days: a key no one rotates stops by itself within a quarter, and its expiry row says when to make the next). mark is written in the key's metadata, so revoke_path deletes only keys made this way, by their own user."
+      }
     }
   },
   "internal": {

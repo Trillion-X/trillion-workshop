@@ -24,6 +24,8 @@ import { teamIdsOf, teamClaim } from './teams-claim.mjs';
 import { callBeforeDelete } from './before-delete-url.mjs';
 import { safeNext } from './pages/safe-next.mjs';
 import { CHECKOUT_API_PATH, sellPlugins, stripCheckoutVisitor } from './sell.mjs';
+import { mintScopedKeyByPass, revokeScopedKeyByPass } from './scoped-key.mjs';
+import { bearerOf, passCaller } from './pass-caller.mjs';
 import { randomBytes } from 'node:crypto';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
@@ -277,6 +279,25 @@ const webLink = () => ({
   },
 });
 
+// A key made or revoked by a person's own engine with its caller's pass (scoped-key.mjs, pass-caller.mjs): POST by_pass.create_path
+// {name, permissions, expires_in} and by_pass.revoke_path {key_id}, `Authorization: Bearer <pass>`. A pass that names no caller is
+// 401 with its reason; every other answer is the one scoped-key.mjs gives.
+const scopedKeysByPass = scoped => {
+  const byPass = endpoint => async ctx => {
+    const caller = await passCaller(auth, settings, jwtOptions, bearerOf(ctx.headers));
+    const [status, body] = caller.refused ? [401, { error: caller.refused }] : await endpoint(auth, scoped, caller, ctx.body);
+    ctx.setStatus(status);
+    return ctx.json(body);
+  };
+  return {
+    id: 'scoped-keys-by-pass',
+    endpoints: {
+      createScopedKeyByPass: createAuthEndpoint(scoped.by_pass.create_path, { method: 'POST' }, byPass(mintScopedKeyByPass)),
+      revokeScopedKeyByPass: createAuthEndpoint(scoped.by_pass.revoke_path, { method: 'POST' }, byPass(revokeScopedKeyByPass)),
+    },
+  };
+};
+
 // Whether a client document address is one of the product's own programs (settings.mcp.first_party_clients, set where the tool is run): the
 // consent page answers for those itself, so a person's own program goes from sign-in straight back with no screen.
 const firstPartyIds = () => settings.mcp.first_party_clients ?? [];
@@ -290,6 +311,13 @@ const firstParty = () => ({
 // The ids of the teams a person belongs to (the organization plugin's teamMember rows), read when a pass is signed, so a pass says
 // who is in which team and no engine keeps a list of members. settings.teams names the claim and how many it carries.
 const teamIds = userId => teamIdsOf(settings.teams, async () => (await auth.$context).adapter, userId);
+
+// The jwt plugin's options: the session pass it signs, and what a pass is verified against when a route reads one (pass-caller.mjs).
+const jwtOptions = {
+  disableSettingJwtHeader: settings.disabled_paths.includes('/token'),
+  jwks: { keyPairConfig: { alg: 'EdDSA', crv: 'Ed25519' } },
+  jwt: { issuer: settings.issuer, audience: settings.audience, ...(settings.teams ? { definePayload: async ({ user }) => ({ ...user, ...(await teamClaim(settings.teams, teamIds, user.id)) }) } : {}) },
+};
 
 export const auth = betterAuth({
   baseURL: settings.base_url,
@@ -364,11 +392,7 @@ export const auth = betterAuth({
       // so a key nobody granted reaches nothing.
       ...(settings.api_key?.default_permissions ? { permissions: { defaultPermissions: settings.api_key.default_permissions } } : {}),
     }),
-    jwt({
-      disableSettingJwtHeader: settings.disabled_paths.includes('/token'),
-      jwks: { keyPairConfig: { alg: 'EdDSA', crv: 'Ed25519' } },
-      jwt: { issuer: settings.issuer, audience: settings.audience, ...(settings.teams ? { definePayload: async ({ user }) => ({ ...user, ...(await teamClaim(settings.teams, teamIds, user.id)) }) } : {}) },
-    }),
+    jwt(jwtOptions),
     mcp({
       loginPage: settings.mcp.login_page,
       consentPage: settings.mcp.consent_page,
@@ -408,6 +432,7 @@ export const auth = betterAuth({
     // After the provider: its limit column joins the provider's consent table, which must exist first.
     connected(),
     webLink(),
+    ...(settings.api_key?.scoped_create?.by_pass ? [scopedKeysByPass(settings.api_key.scoped_create)] : []),
     // A plan on the account, sold through Stripe, while settings.sell is on (sell.mjs).
     ...sellPlugins(settings.sell),
   ],
