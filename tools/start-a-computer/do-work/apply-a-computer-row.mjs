@@ -31,6 +31,7 @@
 import { spawn, execFile } from 'node:child_process';
 import { resolve4 } from 'node:dns/promises';
 import { closeSync, createReadStream, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, readlinkSync, readSync, realpathSync, renameSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { isIP } from 'node:net';
 import { homedir, tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { StringDecoder } from 'node:string_decoder';
@@ -209,7 +210,8 @@ export function setLinks(folder, set) {
   return put;
 }
 
-/** The host names a row says it answers (`host_name`, `host`, `hosts`, `accepts_hosts` anywhere in it), in the order found. */
+/** The host names a row says it answers (`host_name`, `host`, `hosts`, `accepts_hosts` anywhere in it), in the order found. An IP
+ *  address or a .localhost name is never one (Nov 24 2026: a unit's internal host 127.0.0.1 became a probe URL and the apply refused). */
 export function hostsOf(row) {
   const found = [];
   const walk = value => {
@@ -222,7 +224,7 @@ export function hostsOf(row) {
     }
   };
   walk(row);
-  return [...new Set(found.filter(host => /^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(host)))];
+  return [...new Set(found.filter(host => /^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(host) && !isIP(host) && !host.endsWith('.localhost')))];
 }
 
 

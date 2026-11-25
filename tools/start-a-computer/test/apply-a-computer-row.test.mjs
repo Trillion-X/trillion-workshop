@@ -75,6 +75,11 @@ test('the hosts and the held names a row says are read from the row', () => {
   assert.deepEqual(heldNamesOf(row()), ['example-key', 'example-secret', 'example-dns']);
 });
 
+test('an IP address or a .localhost name is never a host a row answers, so it is never a probe URL', () => {
+  const units = [{ settings: { internal: { host: '127.0.0.1' }, doors: [{ accepts_hosts: ['app.example.com', '10.0.0.5', 'db.localhost'] }] } }, { host: '::1' }];
+  assert.deepEqual(hostsOf({ runs: { names: [{ host_name: 'one.example.com' }], units } }), ['one.example.com', 'app.example.com']);
+});
+
 const applyReceipt = exit => {
   const candidate = 'two.example-b.service', incumbent = 'two.example-a.service';
   const proof = { row_apply_protocol: ROW_APPLY_RESULT_PROTOCOL };
