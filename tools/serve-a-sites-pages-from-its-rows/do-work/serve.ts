@@ -134,8 +134,9 @@ export function settingsOf(value: unknown): Settings {
   const sitePath = (path: unknown) => typeof path === 'string' && /^\/[A-Za-z0-9._~\/-]*$/.test(path);
   if (!Array.isArray(s.pass_on) || s.pass_on.some(on => !on || typeof on.name !== 'string' || typeof on.address !== 'string'
     || !(Array.isArray(on.paths ?? []) && (on.paths ?? []).every(sitePath)) || !(Array.isArray(on.exact ?? []) && (on.exact ?? []).every(sitePath))
-    || !(Array.isArray(on.hosts ?? []) && (on.hosts ?? []).every(host => typeof host === 'string' && HOST_NAME.test(host))))) {
-    throw new Error('pass_on lists { name, address, paths (a path and what is under it), exact (that path only), hosts (only these hosts; every host when left out) }.');
+    || !(Array.isArray(on.hosts ?? []) && (on.hosts ?? []).every(host => typeof host === 'string' && HOST_NAME.test(host)))
+    || (on.site_head !== undefined && typeof on.site_head !== 'boolean'))) {
+    throw new Error('pass_on lists { name, address, paths (a path and what is under it), exact (that path only), hosts (only these hosts; every host when left out), site_head (true: its pages carry the site head too) }.');
   }
   if (s.site_head !== undefined && (!s.site_head || typeof s.site_head.tool !== 'string' || !s.site_head.tool.startsWith('tool:')
     || !s.site_head.input || typeof s.site_head.input !== 'object' || Array.isArray(s.site_head.input))) {
@@ -336,6 +337,11 @@ export class Site {
     return { status: 200, headers: { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=300' }, body };
   }
 
+  /** The site head's markup as last read, or null when the site has none. */
+  get siteHead(): SiteHeadMarkup | null {
+    return this.#head;
+  }
+
   /** True when an action row answers a POST to this host and path. */
   acts(host: string, pathname: string): boolean {
     return matchAction(this.#actions, host, pathname) !== null;
@@ -445,7 +451,13 @@ export interface PassOn {
   paths?: string[];
   exact?: string[];
   hosts?: string[];
+  /** Its HTML pages carry the site head (the consent default and bar, the site's tags) as the site's own pages do. */
+  site_head?: boolean;
 }
+
+// The other program is asked for its answer as it is (no compression), so it is passed back byte for byte with headers
+// that describe it, and an HTML page can carry the site head.
+const NOT_ASKED = new Set([...HOP, 'accept-encoding']);
 
 /** The program a request is passed on to, or null: a path is the path itself or one under it; exact is that path only. */
 export function passOnFor(passOn: PassOn[], host: string, pathname: string): PassOn | null {
@@ -454,19 +466,23 @@ export function passOnFor(passOn: PassOn[], host: string, pathname: string): Pas
 }
 
 /** One request passed whole to another program, and its answer passed back whole (its cookies too). */
-async function passOnTo(address: string, host: string, request: http.IncomingMessage, response: http.ServerResponse): Promise<void> {
+async function passOnTo(address: string, host: string, request: http.IncomingMessage, response: http.ServerResponse, head: SiteHeadMarkup | null): Promise<void> {
   const chunks: Buffer[] = [];
   for await (const chunk of request) chunks.push(chunk as Buffer);
   const headers: Record<string, string | string[]> = {};
-  for (const [name, value] of Object.entries(request.headers)) if (value !== undefined && !HOP.has(name)) headers[name] = value;
+  for (const [name, value] of Object.entries(request.headers)) if (value !== undefined && !NOT_ASKED.has(name)) headers[name] = value;
   headers['x-forwarded-host'] = host;
   headers['x-forwarded-proto'] = 'https';
   if (!address.startsWith('unix:')) headers.host = new URL(address).host;
   const answer = await ask(address, request.url ?? '/', { method: request.method ?? 'GET', headers, ...(chunks.length ? { body: Buffer.concat(chunks) } : {}) });
   const back: Record<string, string | string[]> = {};
-  for (const [name, value] of Object.entries(answer.headers)) if (value !== undefined && !HOP.has(name) && name !== 'content-encoding') back[name] = value;
+  for (const [name, value] of Object.entries(answer.headers)) if (value !== undefined && !HOP.has(name)) back[name] = value;
+  // A whole HTML document (one with a head and a body) carries the site head; a fragment or any other answer is passed as it is.
+  const text = head !== null && String(answer.headers['content-type'] ?? '').startsWith('text/html') && !answer.headers['content-encoding'] ? answer.body.toString('utf8') : null;
+  const whole = text !== null && text.includes(`${String.fromCharCode(60)}head>`) && new RegExp(`${String.fromCharCode(60)}body[^>]*>`).test(text);
+  const body = whole ? Buffer.from(withSiteHead(text, head!)) : answer.body;
   response.writeHead(answer.status, back);
-  response.end(request.method === 'HEAD' ? undefined : answer.body);
+  response.end(request.method === 'HEAD' ? undefined : body);
 }
 
 /** A request's body, or null once it holds more than an action may. */
@@ -490,7 +506,7 @@ export function handlerOf(site: Site, passOn: PassOn[] = []): http.RequestListen
     // A POST the site's own action rows name is the site's, even under a path another program answers.
     const on = request.method === 'POST' && site.acts(host, pathname) ? null : passOnFor(passOn, host, pathname);
     if (on) {
-      passOnTo(on.address, host, request, response).catch(error => {
+      passOnTo(on.address, host, request, response, on.site_head ? site.siteHead : null).catch(error => {
         console.error(`${request.method} ${request.url}: ${on.name} did not answer: ${(error as Error).message}`);
         if (!response.headersSent) response.writeHead(502, { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' });
         response.end('This is not answering. Try again in a minute.\n');

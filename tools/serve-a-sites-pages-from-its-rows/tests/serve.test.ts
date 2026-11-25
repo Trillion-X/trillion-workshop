@@ -415,3 +415,29 @@ test('over node:http, a POST an action row names is the site\'s even under a pas
     assert.deepEqual(seen, ['POST /target/other'], 'only the POST no action row names went to the other program');
   } finally { server.close(); other.close(); d.server.close(); }
 });
+
+test('a passed-on program is asked for its answer uncompressed, and its whole HTML pages carry the site head when its entry says so', async () => {
+  const asked: (string | undefined)[] = [];
+  const page = `${String.fromCharCode(60)}!doctype html>${String.fromCharCode(60)}html>${String.fromCharCode(60)}head>${String.fromCharCode(60)}/head>${String.fromCharCode(60)}body>Sign in${String.fromCharCode(60)}/body>${String.fromCharCode(60)}/html>`;
+  const other = http.createServer((request, response) => {
+    asked.push(request.headers['accept-encoding'] as string | undefined);
+    if (request.url === '/fragment') { response.writeHead(200, { 'content-type': 'text/html' }); return response.end('just words'); }
+    response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+    response.end(page);
+  });
+  await new Promise<void>(resolve => other.listen(0, '127.0.0.1', resolve));
+  const d = await door();
+  const address = `http://127.0.0.1:${(other.address() as AddressInfo).port}`;
+  const site = await siteOn(d.address, { site_head: { tool: 'tool:read-the-site-head', input: {} } });
+  const server = http.createServer(handlerOf(site, [{ name: 'sign-in', address, paths: ['/sign-in', '/fragment'], site_head: true }, { name: 'plain', address, paths: ['/plain'] }]));
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const at = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    const signIn = await fetch(`${at}/sign-in`, { headers: { 'accept-encoding': 'gzip, br' } });
+    assert.match(await signIn.text(), /window\.consentFirst=1/, 'the passed-on page carries the site head');
+    assert.equal(asked[0], undefined, 'the browser\'s accept-encoding is not passed on');
+    assert.equal(await (await fetch(`${at}/fragment`)).text(), 'just words', 'a fragment is passed as it is');
+    assert.doesNotMatch(await (await fetch(`${at}/plain`)).text(), /consentFirst/, 'an entry without site_head passes its page as it is');
+    assert.throws(() => settingsOf({ ...settings(d.address), pass_on: [{ name: 'x', address, paths: ['/x'], site_head: 'yes' }] }), /site_head/);
+  } finally { server.close(); other.close(); d.server.close(); }
+});

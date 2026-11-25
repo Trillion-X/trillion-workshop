@@ -147,7 +147,9 @@ Example, a checkout button's form:
 
 - `door.pass_credential`: the site's own pass, used for public pages and every row read.
 - `pages.answer_seconds`: how long a public page's tool answer is kept (0 keeps none). A members page's answers are never kept.
-- `pass_on`: `[{ "name", "address", "paths", "exact", "hosts" }]`. A request under one of `paths` (a path and what is under it),
+- `pass_on`: `[{ "name", "address", "paths", "exact", "hosts", "site_head" }]`. The program is asked for its answer
+  uncompressed and it is passed back byte for byte; with `"site_head": true` its whole HTML pages carry the site head (the
+  consent bar on the sign-in tool's pages too). A request under one of `paths` (a path and what is under it),
   or at one of `exact` (that path only), on one of `hosts` (every host when left out), is passed to `address` whole; the first
   entry that takes it wins. Example: `{ "name": "the sign-in tool", "address": "unix:/run/sign-in/sign-in.sock", "paths": ["/sign-in", "/api/auth"] }`.
 - `site_head`: `{ "tool", "input" }`, the tool whose answer `{ head, body_start }` every page, members pages too, carries at
