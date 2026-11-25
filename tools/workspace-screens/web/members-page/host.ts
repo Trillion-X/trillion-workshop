@@ -33,6 +33,10 @@ export type HostConfig = {
   /** The records label the host answers the signed-in person's own tours under (walkthrough-definition records, a list); the
    *  page runs them with the Workshop's tour host (tools/guided-overlay). Without one, the page runs no tours. */
   tours?: string;
+  /** The sidebar rows (by id, first available wins) an empty pane opens on, so the page never shows a blank panel: the
+   *  screen arrangement's `empty_container_surface_ids` (screen-arrangement/show/empty-container-sources.ts). Without
+   *  one, an empty pane shows its launcher, or nothing when the person's show rules hide it. */
+  start?: string[];
 };
 type Json = Record<string, unknown>;
 

@@ -21,7 +21,8 @@ page; the site holds only its rows and its server routes. The page holds no site
    `placement` (the sidebar list is `placeable-surface-list::<placement>`), `subject` (the signed-in person: a JSON answer,
    and 401 when nobody is signed in), `records` (the records source's reads and writes), `door_record`, `door_list`,
    `door_write` (the records door), optionally `tours` (the records label the host answers the signed-in person's own
-   walkthrough-definition records under; the page runs them with `tools/guided-overlay` and says `first-use-ready` once), and optionally `sign_in`, the host's own sign-in page, which a signed-out visitor is sent to with `next` set to where they were (without it, the workspace's sign-in address).
+   walkthrough-definition records under; the page runs them with `tools/guided-overlay` and says `first-use-ready` once), and optionally `sign_in`, the host's own sign-in page, which a signed-out visitor is sent to with `next` set to where they were (without it, the workspace's sign-in address). Optionally `start`: the sidebar rows (by id, first available wins) an empty pane opens on, the
+   arrangement's `empty_container_surface_ids`, so the first screen a member sees is the site's home rather than a blank panel.
 2. Sidebar rows: placeable-surface records in the records source at the placement's list. Each row's `package_entry` names its
    screen: `package_name` is the Workshop package that holds the screen module, `entry_name` the module's file name without
    `.tsx` (for example `billing-screen-mount`). The page's key for it is `package_name/entry_name`.

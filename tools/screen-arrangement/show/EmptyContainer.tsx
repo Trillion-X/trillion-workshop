@@ -287,6 +287,17 @@ export function EmptyContainer({
     </Container>
   );
 
+  // The start screen, mounted as a pane mounts a screen; framed only when the search or "Browse everything" sit above it.
+  const startFramed = showSearch || showEverything;
+  const startScreen = startSurface && startEntry ? (
+    <ComponentMaterialSurface
+      packageEntry={startEntry}
+      target={startSurface.target ?? null}
+      materialTarget={startSurface.materialTarget}
+      surfaceInput={startSurface.surfaceInput}
+    />
+  ) : null;
+
   const launcher = (
     <Container layout="vertical" gap="xl" padding="none" width="full">
       {readFailed ? (
@@ -402,15 +413,34 @@ export function EmptyContainer({
       overflow="hidden"
     >
       {startSurface && startEntry && showStart ? (
-        <Container layout="vertical" gap="md" padding="md" width="full" height="full" minHeight="0">
-          <Container layout="horizontal" gap="sm" padding="none" alignItems="center" width="full">
-            {search}
-            {showEverything ? (
-              <Button type="button" variant="secondary" onClick={() => setBrowsing(true)}>
-                Browse everything
-              </Button>
-            ) : null}
+        // With nothing to search or browse above it, the start screen is the pane's whole content, drawn as an open
+        // screen is (no frame, no inset); with them, it sits framed beneath them.
+        startFramed ? (
+          <Container layout="vertical" gap="md" padding="md" width="full" height="full" minHeight="0">
+            <Container layout="horizontal" gap="sm" padding="none" alignItems="center" width="full">
+              {search}
+              {showEverything ? (
+                <Button type="button" variant="secondary" onClick={() => setBrowsing(true)}>
+                  Browse everything
+                </Button>
+              ) : null}
+            </Container>
+            <Container
+              data-testid="empty-container-start-surface"
+              data-placeable-surface-id={startSurface.id}
+              layout="vertical"
+              flex={1}
+              padding="none"
+              width="full"
+              minHeight="0"
+              overflow="hidden"
+              border="all"
+              rounded="lg"
+            >
+              {startScreen}
+            </Container>
           </Container>
+        ) : (
           <Container
             data-testid="empty-container-start-surface"
             data-placeable-surface-id={startSurface.id}
@@ -418,19 +448,13 @@ export function EmptyContainer({
             flex={1}
             padding="none"
             width="full"
+            height="full"
             minHeight="0"
             overflow="hidden"
-            border="all"
-            rounded="lg"
           >
-            <ComponentMaterialSurface
-              packageEntry={startEntry}
-              target={startSurface.target ?? null}
-              materialTarget={startSurface.materialTarget}
-              surfaceInput={startSurface.surfaceInput}
-            />
+            {startScreen}
           </Container>
-        </Container>
+        )
       ) : (
         <Container
           data-testid="empty-container-content"

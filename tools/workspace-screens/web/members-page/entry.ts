@@ -65,7 +65,9 @@ const LIST = `placeable-surface-list::${host.placement}`;
 const screens: Record<string, WarmMount> = Object.fromEntries(
   Object.entries(SCREEN_MODULES as Record<string, ScreenModule>).map(([key, module]) => [key, (element, props) => {
     const input = screenInputOf(props.surfaceInput as Record<string, unknown> | undefined, hostValues);
-    return module.mount(element, { ...input, surfaceInput: input });
+    // The frame the pane gives its screen (PlaceableSurfaceHost's floating_frame: inline, or fill) passes through: without it a
+    // screen drawn in FloatingMaterialFrame takes the fixed, floating frame and shrinks to its content.
+    return module.mount(element, { ...input, surfaceInput: input, floating_frame: props.floating_frame });
   }]),
 );
 
@@ -109,6 +111,8 @@ mountArrangement({ el: document.getElementById('arrangement')!, props: {
   surface_intent_destination_ref: `destination:${host.placement}`,
   // A screen opened from another screen (a lesson from the course list) is not one of the sidebar's entries: its tab is kept.
   tabsOutsideCatalog: 'keep',
+  // What an empty pane opens on: the rows the host names (its home), never a blank panel.
+  empty_container_surface_ids: host.start ?? [],
 } });
 
 // The person's own tours: the walkthrough-definition records the host answers under its `tours` label, run over this page by the
