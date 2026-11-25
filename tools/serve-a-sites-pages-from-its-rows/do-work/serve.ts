@@ -22,9 +22,12 @@
 //                    and the rows for every host (pages.ts host); an unknown host is answered as origin's
 //     lang           the pages' language, such as "en"
 //     door           { address, pass_credential, pins }: the engine door, and the name of the site's pass in the unit's
-//                    credentials; or, for a local run on a person's own computer, address "cli:<command>" (that computer's
-//                    own signed-in command runs each read, with the pins given, and no pass is held). A members page is
-//                    never drawn through a command: it needs the member's own pass on the door.
+//                    credentials; or address "cli:<command>": that computer's own command runs each read (door-op, with
+//                    the pins given), as the computer's owner, and no pass is held. On a computer with no Mac app door
+//                    (a Linux server) give it origin (its engine, such as http://127.0.0.1:7190) and key_credential (the
+//                    name of the owner's key in the unit's credentials, handed to the command in its {CLI}_KEY). A members
+//                    page is never drawn through a command: it needs the member's own pass on the door, so a pass_on path
+//                    over it (the program that still draws members pages) answers it instead.
 //     pages          { database, use: { purpose, surface }, refresh_seconds, answer_seconds }: the database holding the
 //                    `pages` and `site_look` tables, the declared use its reads run under (the reader login; left out, the
 //                    caller's own login, which only a local run through a command should do), how often the rows
@@ -63,7 +66,7 @@ import http from 'node:http';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { ask, commandOf, DoorError, runTool, runToolAsCommand } from './door.ts';
-import type { Door, ToolRun } from './door.ts';
+import type { CommandDoor, Door, ToolRun } from './door.ts';
 import { MemberPasses } from './member-pass.ts';
 import type { Member, SignIn } from './member-pass.ts';
 import { filesStoreOf, isPublicPath, memberFileAnswer, memberFilesOf, objectKeyOf, presignedGet, publicFileAnswer, publicFilesOf, publicKeyOf, storeKeyOf } from './member-video.ts';
@@ -87,7 +90,7 @@ export interface Settings {
   origin: string;
   hosts: string[];
   lang: string;
-  door: { address: string; pass_credential?: string; pins?: string[] };
+  door: { address: string; pass_credential?: string; pins?: string[]; origin?: string; key_credential?: string };
   pages: { database: string; use?: { purpose: string; surface: string }; refresh_seconds: number; answer_seconds: number };
   sign_in: SignIn & { page: string; signed_out: 'redirect' | 'draw' };
   pass_on: PassOn[];
@@ -124,8 +127,11 @@ export function settingsOf(value: unknown): Settings {
   if (typeof s.lang !== 'string' || !/^[a-z]{2,3}(-[A-Za-z0-9]+)*$/.test(s.lang)) throw new Error('lang is a language tag, such as "en".');
   const byCommand = s.door && typeof s.door.address === 'string' && commandOf(s.door.address) !== null;
   if (!s.door || typeof s.door.address !== 'string' || (!byCommand && typeof s.door.pass_credential !== 'string')
-    || (s.door.pins !== undefined && (!Array.isArray(s.door.pins) || s.door.pins.some(pin => typeof pin !== 'string')))) {
-    throw new Error('door is { address, pass_credential } (or { address: "cli:<command>", pins } for a local run).');
+    || (s.door.pins !== undefined && (!Array.isArray(s.door.pins) || s.door.pins.some(pin => typeof pin !== 'string')))
+    || (!byCommand && (s.door.origin !== undefined || s.door.key_credential !== undefined))
+    || (s.door.origin !== undefined && (typeof s.door.origin !== 'string' || !/^https?:\/\/[^/?#\s]+$/.test(s.door.origin)))
+    || (s.door.key_credential !== undefined && typeof s.door.key_credential !== 'string')) {
+    throw new Error('door is { address, pass_credential } (or { address: "cli:<command>", pins, origin?, key_credential? } to run each read as the computer\'s own command).');
   }
   const p = s.pages;
   if (!p || typeof p.database !== 'string' || (p.use !== undefined && (!p.use || typeof p.use.purpose !== 'string' || typeof p.use.surface !== 'string'))
@@ -358,10 +364,14 @@ export class Site {
     return matchAction(this.#actions, method, host, pathname) !== null;
   }
 
-  /** The path pattern of the page row that answers this host and path (a template page only for a slug it holds), or null. */
+  /**
+   * The path pattern of the page row that answers this host and path (a template page only for a slug it holds), or null. A
+   * members page is null when the site reads through a command (it cannot be drawn there), so a pass_on over it answers.
+   */
   pageFor(host: string, pathname: string): string | null {
     const matched = matchPage(pagesOn(this.#pages, host), pathname);
     if (!matched || matched.page.path === NOT_FOUND) return null;
+    if (matched.page.access === 'members' && commandOf(this.#parts.settings.door.address) !== null) return null;
     const names = paramsOf(matched.page.path);
     if (matched.page.collection && names.length === 1 && !this.#slugs.get(matched.page.collection)?.has(matched.params[names[0]])) return null;
     return matched.page.path;
@@ -628,12 +638,18 @@ export async function start(settingsFile: string): Promise<http.Server[]> {
   const door: Door = { address: settings.door.address };
   const command = commandOf(door.address);
   const doorOp = join(tools, 'use-your-tools-from-a-shell', 'do-work', 'door-op.mjs');
+  const byCommand: CommandDoor | null = command ? {
+    command,
+    pins: settings.door.pins ?? [],
+    ...(settings.door.origin ? { origin: settings.door.origin } : {}),
+    ...(settings.door.key_credential ? { key: credential(settings.door.key_credential) } : {}),
+  } : null;
   const files = new ScreenFiles();
   const styles = await pageStyles(tools, files);
   const storeKey = settings.files_store ? storeKeyOf(credential(settings.files_store.credential)) : null;
   // Through a command the site's own reads carry the computer owner's rights; a member's pass is refused, never swapped for them.
   const run = command
-    ? (pass: string, call: ToolRun) => pass === COMMAND_PASS ? runToolAsCommand(doorOp, command, settings.door.pins ?? [], call) : Promise.reject(new DoorError('A members page needs the engine door, not a command.', 403))
+    ? (pass: string, call: ToolRun) => pass === COMMAND_PASS ? runToolAsCommand(doorOp, byCommand!, call) : Promise.reject(new DoorError('A members page needs the engine door, not a command.', 403))
     : (pass: string, call: ToolRun) => runTool(door, pass, call);
   // The start's first reads (the rows through run-sql, the site head) are real tool runs with the site's own pass: a tool this
   // computer lacks, or a pass the door refuses, stops the start there with the door's own words. Nothing else is asked of the

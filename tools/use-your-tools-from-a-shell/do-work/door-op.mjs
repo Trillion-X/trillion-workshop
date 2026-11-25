@@ -7,6 +7,8 @@
 //   {"cli":"NAME","kind":"op","method":"tools:run","input":{"tool":"tool:x","input":{}},"pins":["ID"],"request_key":"k"}
 //   {"cli":"NAME","kind":"call","tool":"tool:x","input":{}}     the same as `{cli} call TOOL JSON`
 //   "upload":"/full/path" (either kind) sends that file's bytes as the call's raw body, as `--upload` does
+//   "origin":"http://127.0.0.1:7190" (either kind) is the engine the call goes to, as `--origin` does: a computer with no
+//   Mac app door (a Linux server, its key given in {CLI}_KEY) names its own engine this way
 //
 // `cli` is the command the person installed (its site file, written by `{cli} login`, names the door and the key this
 // computer keeps for it). It is the same door, credential, retry and whole-answer path as `op` and `call` (command.mjs), run
@@ -31,6 +33,7 @@ export function requestOf(text) {
   if (request.kind !== 'op' && request.kind !== 'call') throw new CommandError('The request kind is "op" or "call".', { status: 2 });
   if (request.kind === 'op' && (typeof request.method !== 'string' || !request.method)) throw new CommandError('An "op" request names its method.', { status: 2 });
   if (request.kind === 'call' && (typeof request.tool !== 'string' || !request.tool)) throw new CommandError('A "call" request names its tool.', { status: 2 });
+  if (request.origin !== undefined && (typeof request.origin !== 'string' || !/^https?:\/\/[^/?#\s]+$/.test(request.origin))) throw new CommandError('An "origin" is an engine\'s address: http(s)://host[:port], nothing after it.', { status: 2 });
   return request;
 }
 
@@ -39,7 +42,7 @@ export async function doorAnswer(request, { fetchImpl = fetch } = {}) {
   speakFor(siteOf({ invoked: request.cli }));
   const credential = await credentialFor({ fetchImpl });
   if (!credential) throw new CommandError('No sign-in or key is kept on this computer for this command: run its login first.', { status: 3 });
-  const door = doorFor({ credential });
+  const door = doorFor({ asked: request.origin ?? null, credential });
   const client = engineClient({ door, credential, fetchImpl });
   const requestKey = request.request_key ?? randomUUID();
   const upload = uploadOf(request.upload);

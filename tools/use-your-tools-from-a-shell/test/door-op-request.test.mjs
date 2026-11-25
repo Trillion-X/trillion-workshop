@@ -30,3 +30,10 @@ test('an op names its method and a call names its tool', () => {
   assert.throws(() => requestOf('{"cli":"example","kind":"op"}'), /names its method/);
   assert.throws(() => requestOf('{"cli":"example","kind":"call"}'), /names its tool/);
 });
+
+test('a request names its engine with origin, an address with nothing after it', () => {
+  assert.equal(requestOf('{"cli":"example","kind":"op","method":"tools:run","origin":"http://127.0.0.1:7190"}').origin, 'http://127.0.0.1:7190');
+  for (const origin of ['127.0.0.1:7190', 'http://127.0.0.1:7190/mcp', 'ftp://host', '', 5]) {
+    assert.throws(() => requestOf(JSON.stringify({ cli: 'example', kind: 'op', method: 'tools:run', origin })), /engine's address/);
+  }
+});

@@ -359,6 +359,28 @@ test('the paths another program answers (the sign-in tool\'s) are passed to it w
   } finally { server.close(); signIn.close(); d.server.close(); }
 });
 
+test('through a command door a members page row never takes a passed-on path, and the door\'s origin and key are checked', async () => {
+  const d = await door();
+  try {
+    const overDoor = await siteOn(d.address);
+    assert.equal(overDoor.pageFor('site.example.test', '/members'), '/members', 'over the engine door the members page answers');
+    const command = { address: 'cli:example-site', pins: [], origin: 'http://127.0.0.1:7190', key_credential: 'owner-key' };
+    const byCommand = await siteOn(d.address, { door: command });
+    assert.equal(byCommand.pageFor('site.example.test', '/members'), null, 'through a command it cannot be drawn, so it is no page here');
+    assert.equal(byCommand.pageFor('site.example.test', '/'), '/', 'a public page still answers');
+    const on = [{ name: 'the old program', address: 'http://old', paths: ['/'] }];
+    assert.equal(passOnFor(on, 'site.example.test', '/members', (h, p) => overDoor.pageFor(h, p)), null, 'over the door the page row takes its path');
+    assert.equal(passOnFor(on, 'site.example.test', '/members', (h, p) => byCommand.pageFor(h, p))?.name, 'the old program', 'through a command the old program answers it');
+    for (const bad of [
+      { address: 'cli:example-site', origin: '127.0.0.1:7190' },
+      { address: 'cli:example-site', origin: 'http://127.0.0.1:7190/mcp' },
+      { address: 'cli:example-site', key_credential: 5 },
+      { address: d.address, pass_credential: 'site-door-pass', origin: 'http://127.0.0.1:7190' },
+      { address: d.address, pass_credential: 'site-door-pass', key_credential: 'owner-key' },
+    ]) assert.throws(() => settings(d.address, { door: bad }), /door is/);
+  } finally { d.server.close(); }
+});
+
 test('a part\'s own CSS module comes with the page: its local class is on the markup and its rule in the page\'s stylesheet', async () => {
   const bundle = await new PageBundles(tools, styles, files).bundleFor(['serve-a-sites-pages-from-its-rows/tests/show/Styled.tsx#View']);
   const html = bundle.html({ lang: 'en', title: 'T', canonical: 'https://site.example.test/', look: '' }, { module: 'serve-a-sites-pages-from-its-rows/tests/show/Styled.tsx#View', props: { words: 'Styled words' } });

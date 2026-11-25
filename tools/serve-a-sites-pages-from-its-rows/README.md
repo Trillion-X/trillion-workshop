@@ -17,7 +17,12 @@ key is never in a file or an argument.
 
 For a local run on a person's own computer with no door pass, set `"door": {"address": "cli:<command>", "pins": ["<computer pin>"]}`:
 each read is run by that computer's own signed-in command (the Workshop's `use-your-tools-from-a-shell` door-op), and no pass is
-held. Members pages are then refused (403): they need the member's own pass on the engine door.
+held. On a computer with no Mac app door (a Linux server) add `"origin": "http://127.0.0.1:<engine port>"` and
+`"key_credential": "<name>"`: the command calls that engine with the owner's key, read from the unit's credentials and handed
+to it only in its `{CLI}_KEY` environment name (the command's name in capitals, then `_KEY`). Members pages cannot be drawn through a
+command (they need the member's own pass on the engine door): a members page row never takes a `pass_on` path, so a
+`pass_on` entry over them (such as `/members` to the program that still draws them) answers them, and with none they are
+refused (403).
 
 `listen` is one socket or port, or a list (one socket per host name when the front web server routes each name to its
 own socket). With no `listen` in the settings it listens on `127.0.0.1:18440` (a local run); then

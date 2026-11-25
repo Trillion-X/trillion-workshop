@@ -17,6 +17,8 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import http from 'node:http';
 import https from 'node:https';
 
@@ -156,12 +158,35 @@ export function commandOf(address: string): string | null {
 }
 
 /**
- * One operation as this computer's own signed-in command (door-op.mjs of the Workshop this program runs from), with the pins
- * given, and its answer. It carries the computer owner's rights, so the site uses it only for its own reads.
+ * A door that is this computer's own command: its name, the pins its reads run with, and, on a computer with no Mac app door
+ * (a Linux server), the engine it calls (`origin`) and the owner's key (`key`, read from the unit's credentials).
  */
-function callAsCommand(doorOp: string, command: string, pins: string[], method: string, input: unknown, what = method, timeoutMs = 120_000): Promise<unknown> {
+export interface CommandDoor {
+  command: string;
+  pins: string[];
+  origin?: string;
+  key?: string;
+}
+
+/**
+ * The environment name a command reads its key from on a computer with no Keychain or key file: command.json's env.key of
+ * use-your-tools-from-a-shell, {CLI} being the command in capitals (its - as _), as that command spells it.
+ */
+export function keyNameOf(doorOp: string, command: string): string {
+  const rules = JSON.parse(readFileSync(join(dirname(doorOp), 'command.json'), 'utf8')) as { env: { key: string } };
+  return rules.env.key.replaceAll('{CLI}', command.toUpperCase().replace(/-/g, '_'));
+}
+
+/**
+ * One operation as this computer's own command (door-op.mjs of the Workshop this program runs from), with the pins given, and
+ * its answer. It carries the computer owner's rights, so the site uses it only for its own reads. A key given is handed to the
+ * command only in its environment, never in an argument, the request or a log.
+ */
+function callAsCommand(doorOp: string, door: CommandDoor, method: string, input: unknown, what = method, timeoutMs = 120_000): Promise<unknown> {
+  const { command, pins } = door;
   return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [doorOp], { stdio: ['pipe', 'pipe', 'pipe'] });
+    const env = door.key === undefined ? process.env : { ...process.env, [keyNameOf(doorOp, command)]: door.key };
+    const child = spawn(process.execPath, [doorOp], { stdio: ['pipe', 'pipe', 'pipe'], env });
     const out: Buffer[] = [];
     const err: Buffer[] = [];
     const timer = setTimeout(() => child.kill('SIGTERM'), timeoutMs);
@@ -173,11 +198,11 @@ function callAsCommand(doorOp: string, command: string, pins: string[], method: 
       if (status !== 0) return reject(new DoorError(`${command} ran ${what} and stopped (${status}): ${quoted(Buffer.concat(err).toString('utf8'))}`));
       try { resolve(JSON.parse(Buffer.concat(out).toString('utf8'))); } catch { reject(new DoorError(`${command} answered ${what} with something that is not JSON.`)); }
     });
-    child.stdin.end(JSON.stringify({ cli: command, kind: 'op', method, input, ...(pins.length ? { pins } : {}), request_key: randomUUID() }));
+    child.stdin.end(JSON.stringify({ cli: command, kind: 'op', method, input, ...(pins.length ? { pins } : {}), ...(door.origin ? { origin: door.origin } : {}), request_key: randomUUID() }));
   });
 }
 
-/** Runs one tool as this computer's own signed-in command, and answers the tool's own answer. */
-export async function runToolAsCommand(doorOp: string, command: string, pins: string[], run: ToolRun, timeoutMs = 120_000): Promise<unknown> {
-  return toolAnswerOf(await callAsCommand(doorOp, command, pins, 'tools:run', run, run.tool, timeoutMs));
+/** Runs one tool as this computer's own command, and answers the tool's own answer. */
+export async function runToolAsCommand(doorOp: string, door: CommandDoor, run: ToolRun, timeoutMs = 120_000): Promise<unknown> {
+  return toolAnswerOf(await callAsCommand(doorOp, door, 'tools:run', run, run.tool, timeoutMs));
 }
