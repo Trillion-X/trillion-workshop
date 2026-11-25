@@ -74,11 +74,14 @@ export function stepOf(mapping, row) {
     return visit && { ...visit, ref: text(row.f_ref) || null };
   }
   const source = Object.fromEntries(Object.keys(mapping.source ?? {}).map(name => [name, row[`s_${name}`] ?? null]).filter(([, value]) => value !== null));
+  // A step joins by its visitor when it has one (joined_by_visitor), else by the touch it followed (joined_by_touch).
+  const touch = text(row.f_touch_id) || null;
   return {
     visitor,
+    touch_id: touch,
     step: mapping.step,
     ref: text(row.f_ref) || null,
-    joined_by: visitor && mapping.joined_by_visitor ? mapping.joined_by_visitor : mapping.joined_by,
+    joined_by: visitor && mapping.joined_by_visitor ? mapping.joined_by_visitor : touch && mapping.joined_by_touch ? mapping.joined_by_touch : mapping.joined_by,
     email_key: emailKey(row.f_email),
     offer_id: text(row.f_offer_id) || null,
     value_cents: row.f_value_cents ?? null,

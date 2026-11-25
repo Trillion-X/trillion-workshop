@@ -94,6 +94,25 @@
       "joined_by": null,
       "cutoff_column": "recorded_at",
       "requires_columns": ["key", "place", "meaning", "after", "at", "recorded_at"]
+    },
+    {
+      "id": "site-checkouts-from-statements",
+      "_what": "A checkout a site's own checkout action started (serve-a-sites-pages-from-its-rows actions, its then step once the payment tool answered): one statements row, place site-checkout, meaning checkout, its key the checkout attempt id, after holding attempt, offer_id, visitor (only with analytics consent) and touch_id (the t of the page the checkout started from). The journey's checkout step, its ref the attempt id, joined by the cookie when the visitor is known, else by the touch.",
+      "table": "statements",
+      "step": "checkout",
+      "where": "place = 'site-checkout' AND meaning = 'checkout'",
+      "fields": {
+        "ref": "after->>'attempt'",
+        "at": "at",
+        "visitor": "after->>'visitor'",
+        "offer_id": "after->>'offer_id'",
+        "touch_id": "after->>'touch_id'"
+      },
+      "joined_by": null,
+      "joined_by_visitor": "cookie",
+      "joined_by_touch": "touch",
+      "cutoff_column": "recorded_at",
+      "requires_columns": ["key", "place", "meaning", "after", "at", "recorded_at"]
     }
   ]
 }
