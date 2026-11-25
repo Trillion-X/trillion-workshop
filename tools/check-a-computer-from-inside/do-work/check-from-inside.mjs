@@ -165,11 +165,13 @@ export function parseWakePage(stdout) {
   const json = text.startsWith('{') ? text : text.split('\n').filter(line => line.startsWith('data:')).map(line => line.slice(5).trim()).join('');
   let answer;
   try { answer = JSON.parse(json); } catch { return { why: `the agent socket's answer was not JSON: ${text.slice(0, 120)}` }; }
-  if (answer?.error) return { why: `the door refused: ${answer.error.message ?? answer.error.code ?? 'no reason given'}` };
+  const said = value => JSON.stringify(value).slice(0, SETTINGS.wakes.most_refusal_chars);
+  if (answer?.error) return { why: `the door refused: ${answer.error.message ?? answer.error.code ?? said(answer.error)}` };
   const result = answer?.result;
   let content = result?.structuredContent;
   if (!content && typeof result?.content?.[0]?.text === 'string') { try { content = JSON.parse(result.content[0].text); } catch { content = null; } }
-  if (result?.isError) return { why: `the door refused: ${content?.detail ?? content?.code ?? 'no reason given'}` };
+  // A refusal that names no detail or code is told as the door gave it (bounded), so its cause is read, never guessed.
+  if (result?.isError) return { why: `the door refused: ${content?.detail ?? content?.code ?? said(result)}` };
   if (!Array.isArray(content?.wakes)) return { why: 'the door answered no list of wakes' };
   return { wakes: content.wakes, next: typeof content.next === 'string' && content.next !== '' ? content.next : null };
 }

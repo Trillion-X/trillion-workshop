@@ -285,6 +285,7 @@ test('a page is read from plain JSON or an event stream, and a refusal or a non-
   assert.match(parseWakePage(JSON.stringify({ error: { message: 'no caller' } })).why, /refused: no caller/);
   assert.match(parseWakePage(JSON.stringify({ result: { isError: true, structuredContent: { code: 'scope_refused' } } })).why, /scope_refused/);
   assert.match(parseWakePage(JSON.stringify({ result: { structuredContent: { computer: 'x' } } })).why, /no list of wakes/);
+  assert.match(parseWakePage(JSON.stringify({ result: { isError: true, content: [{ type: 'text', text: 'The engine did not do that.' }] } })).why, /refused: .*The engine did not do that\./, 'a refusal with no detail or code is told as the door gave it');
 });
 
 test('a due-time wake and a teller are only those switched on that stand; a copy of the teller counts and a one-source teller does not', () => {
