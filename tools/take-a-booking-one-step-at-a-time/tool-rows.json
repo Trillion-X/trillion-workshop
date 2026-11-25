@@ -100,7 +100,7 @@
      "stdout": "json",
      "argv": [
       "node",
-      "/opt/take-a-booking-one-step-at-a-time/do-work/read-a-booking-page.ts",
+      "/opt/take-a-booking-one-step-at-a-time/reads/read-a-booking-page.ts",
       "readBookingPage"
      ],
      "stdin": {

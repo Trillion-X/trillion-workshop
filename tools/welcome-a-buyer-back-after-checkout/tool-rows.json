@@ -85,7 +85,7 @@
      "stdout": "json",
      "argv": [
       "node",
-      "/opt/welcome-a-buyer-back-after-checkout/do-work/read-the-welcome-page.ts",
+      "/opt/welcome-a-buyer-back-after-checkout/reads/read-the-welcome-page.ts",
       "readWelcomePage"
      ],
      "stdin": {
