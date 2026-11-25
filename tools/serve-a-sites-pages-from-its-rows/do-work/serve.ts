@@ -14,7 +14,8 @@
 //   engine's door (door.ts) as a caller: the site's own pass for public pages, the member's own pass for members pages.
 //
 //   Settings (one JSON file, made by the computer row; nothing secret in it):
-//     listen         "unix:/run/<unit>/site.sock" or "127.0.0.1:<port>"; 127.0.0.1:18440 when left out (a local run)
+//     listen         "unix:/run/<unit>/site.sock" or "127.0.0.1:<port>", or a list of them (one socket per host name when the
+//                    front web server routes each name to its own socket); 127.0.0.1:18440 when left out (a local run)
 //     origin         the site's address, such as https://example.com (canonical addresses, the sitemap)
 //     hosts          (optional) the other host names one unit answers, such as ["app.example.com"]: a request's host is its
 //                    X-Forwarded-Host when the front web server sets it, else its Host; its pages are the rows for that host
@@ -82,7 +83,7 @@ import { kindOf, ScreenFiles } from './screen-files.ts';
 import type { Answer } from './screen-files.ts';
 
 export interface Settings {
-  listen: string;
+  listen: string[];
   origin: string;
   hosts: string[];
   lang: string;
@@ -111,8 +112,11 @@ const HOST_NAME = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])
 /** Checks a settings file's value; a wrong one throws with what it should be. */
 export function settingsOf(value: unknown): Settings {
   const given = value as Partial<Settings> | null;
-  const s = given ? { ...given, listen: given.listen ?? LOCAL_LISTEN, hosts: given.hosts ?? [], pass_on: given.pass_on ?? [], sign_in: given.sign_in ? { ...given.sign_in, signed_out: given.sign_in.signed_out ?? 'redirect' } : given.sign_in } : null;
-  if (!s || typeof s.listen !== 'string' || !/^(unix:\/.+|[0-9.]+:\d+|\[[0-9a-f:]+\]:\d+)$/i.test(s.listen)) throw new Error('listen is "unix:/path/to.sock" or "host:port".');
+  const listen = (given as { listen?: unknown } | null)?.listen ?? LOCAL_LISTEN;
+  const s = given ? { ...given, listen: typeof listen === 'string' ? [listen] : listen, hosts: given.hosts ?? [], pass_on: given.pass_on ?? [], sign_in: given.sign_in ? { ...given.sign_in, signed_out: given.sign_in.signed_out ?? 'redirect' } : given.sign_in } : null;
+  if (!s || !Array.isArray(s.listen) || s.listen.length === 0 || s.listen.some(at => typeof at !== 'string' || !/^(unix:\/.+|[0-9.]+:\d+|\[[0-9a-f:]+\]:\d+)$/i.test(at))) {
+    throw new Error('listen is "unix:/path/to.sock" or "host:port", or a list of them.');
+  }
   if (typeof s.origin !== 'string' || !/^https?:\/\/[^/]+$/.test(s.origin)) throw new Error('origin is the site\'s address, such as https://example.com.');
   if (!Array.isArray(s.hosts) || s.hosts.some(host => typeof host !== 'string' || !HOST_NAME.test(host))) throw new Error('hosts lists lower-case host names, such as ["app.example.com"].');
   if (typeof s.lang !== 'string' || !/^[a-z]{2,3}(-[A-Za-z0-9]+)*$/.test(s.lang)) throw new Error('lang is a language tag, such as "en".');
@@ -531,8 +535,26 @@ export function handlerOf(site: Site, passOn: PassOn[] = []): http.RequestListen
   };
 }
 
-/** Starts the site from its settings file: reads its rows once, then listens. */
-export async function start(settingsFile: string): Promise<http.Server> {
+/** Listens on one socket or port: a socket left by the unit's last run is replaced; any other file there stops the start. */
+function listenOn(server: http.Server, at: string): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    server.once('error', reject);
+    if (at.startsWith('unix:')) {
+      const socket = at.slice('unix:'.length);
+      if (existsSync(socket)) {
+        if (!statSync(socket).isSocket()) return reject(new Error(`${socket} is not a socket, so it is left as it is.`));
+        unlinkSync(socket);
+      }
+      server.listen(socket, () => { chmodSync(socket, 0o660); resolve(); });
+    } else {
+      const colon = at.lastIndexOf(':');
+      server.listen(Number(at.slice(colon + 1)), at.slice(0, colon).replace(/^\[|\]$/g, ''), () => resolve());
+    }
+  });
+}
+
+/** Starts the site from its settings file: reads its rows once, then listens on each address of listen. */
+export async function start(settingsFile: string): Promise<http.Server[]> {
   const settings = settingsOf(JSON.parse(readFileSync(settingsFile, 'utf8')));
   const tools = join(import.meta.dirname, '..', '..');
   const door: Door = { address: settings.door.address };
@@ -565,24 +587,11 @@ export async function start(settingsFile: string): Promise<http.Server> {
     screens: screensOfTools(tools),
   });
   await site.read();
-  const server = http.createServer(handlerOf(site, settings.pass_on));
-  await new Promise<void>((resolve, reject) => {
-    server.once('error', reject);
-    if (settings.listen.startsWith('unix:')) {
-      const socket = settings.listen.slice('unix:'.length);
-      // A socket left by the unit's last run is replaced; any other file there stops the start.
-      if (existsSync(socket)) {
-        if (!statSync(socket).isSocket()) throw new Error(`${socket} is not a socket, so it is left as it is.`);
-        unlinkSync(socket);
-      }
-      server.listen(socket, () => { chmodSync(socket, 0o660); resolve(); });
-    } else {
-      const at = settings.listen.lastIndexOf(':');
-      server.listen(Number(settings.listen.slice(at + 1)), settings.listen.slice(0, at).replace(/^\[|\]$/g, ''), () => resolve());
-    }
-  });
-  console.error(`serving ${site.pages.length} pages (${site.refused.length} rows set aside) of ${settings.origin} on ${settings.listen}`);
-  return server;
+  const handler = handlerOf(site, settings.pass_on);
+  const servers = settings.listen.map(() => http.createServer(handler));
+  await Promise.all(servers.map((server, i) => listenOn(server, settings.listen[i])));
+  console.error(`serving ${site.pages.length} pages (${site.refused.length} rows set aside) of ${settings.origin} on ${settings.listen.join(', ')}`);
+  return servers;
 }
 
 const started = (() => { try { return pathToFileURL(realpathSync(process.argv[1] ?? '')).href === import.meta.url; } catch { return false; } })();

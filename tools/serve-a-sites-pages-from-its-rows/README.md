@@ -19,7 +19,8 @@ For a local run on a person's own computer with no door pass, set `"door": {"add
 each read is run by that computer's own signed-in command (the Workshop's `use-your-tools-from-a-shell` door-op), and no pass is
 held. Members pages are then refused (403): they need the member's own pass on the engine door.
 
-With no `listen` in the settings it listens on `127.0.0.1:18440` (a local run); then
+`listen` is one socket or port, or a list (one socket per host name when the front web server routes each name to its
+own socket). With no `listen` in the settings it listens on `127.0.0.1:18440` (a local run); then
 `curl -H 'X-Forwarded-Host: example.com' http://127.0.0.1:18440/sitemap.xml` reads it as the front web server would.
 
 On a computer it is a unit its computer row starts (`tool:start-a-computer`), behind the computer's front web server; the unit's
@@ -130,7 +131,7 @@ Example, a checkout button's form:
 
 ```json
 {
-  "listen": "unix:/run/site/site.sock",
+  "listen": ["unix:/run/sites/example.com/http.sock", "unix:/run/sites/app.example.com/http.sock"],
   "origin": "https://example.com",
   "hosts": ["app.example.com"],
   "lang": "en",
@@ -169,7 +170,7 @@ Example, a checkout button's form:
 | File | What |
 |---|---|
 | `tool-rows.json` | the card: a program on your computer, `node do-work/serve.ts {settings}` |
-| `do-work/serve.ts` | settings, the request order above, kept rows and answers, listening on the socket or port |
+| `do-work/serve.ts` | settings, the request order above, kept rows and answers, listening on each socket or port |
 | `do-work/actions.ts` | action rows checked, a request's values filled into a tool's input, the address a visitor is sent to |
 | `do-work/pages.ts` | page rows checked, path matching, `:name` values, the sitemap's slugs |
 | `do-work/render.ts` | a page's tree filled with tool answers, bundled once per set of modules, drawn as a whole document |

@@ -258,8 +258,10 @@ test('with signed_out "draw", a members address draws the sign-in page row in pl
 
 test('a local run with no listen setting listens on 127.0.0.1:18440', () => {
   const { listen, ...rest } = settings('http://127.0.0.1:1');
-  assert.equal(listen, '127.0.0.1:0');
-  assert.equal(settingsOf(rest).listen, '127.0.0.1:18440');
+  assert.deepEqual(listen, ['127.0.0.1:0']);
+  assert.deepEqual(settingsOf(rest).listen, ['127.0.0.1:18440']);
+  assert.deepEqual(settingsOf({ ...rest, listen: ['unix:/run/a/http.sock', 'unix:/run/b/http.sock'] }).listen, ['unix:/run/a/http.sock', 'unix:/run/b/http.sock'], 'one socket per host name');
+  assert.throws(() => settingsOf({ ...rest, listen: [] }), /listen/);
   assert.throws(() => settingsOf({ ...rest, hosts: ['Not A Host'] }), /hosts/);
   assert.throws(() => settingsOf({ ...rest, sign_in: { ...rest.sign_in, signed_out: 'maybe' } }), /signed_out/);
 });
