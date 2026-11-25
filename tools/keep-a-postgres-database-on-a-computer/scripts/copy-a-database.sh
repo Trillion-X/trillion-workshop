@@ -19,7 +19,9 @@
 # and puts the dump in the store under NAME, writing no database; FROM_STORE=NAME, on the new database's server, takes that
 # dump from the store and writes it into TO_DATABASE as TO_ROLE over the socket, with the same refusal and one transaction.
 # In those two the sealed credential $SECRET_NAME is the store's settings and key (NAME=value lines, WAL-G's own), not a
-# connection string, and nothing on either server opens a port to the other.
+# connection string, and nothing on either server opens a port to the other. The dump is encrypted before it leaves the old
+# server whenever WAL-G has a key (WALG_LIBSODIUM_KEY, handed to both units from one held name), and the store's copy is
+# removed by remove-from-the-store.sh once the new database compares equal.
 set -eu
 if [ -n "${TO_STORE:-}${FROM_STORE:-}" ]; then
   set -a; . "$CREDENTIALS_DIRECTORY/$SECRET_NAME"; set +a
@@ -68,13 +70,13 @@ for table in ${TABLES_ONLY:-}; do set -- "$@" --table="public.\"$table\""; done
 for table in ${TABLES_LEFT_OUT:-}; do set -- "$@" --exclude-table="public.\"$table\""; done
 dump=$(mktemp)
 if [ -n "${FROM_STORE:-}" ]; then
-  wal-g st get --no-decompress --no-decrypt "$FROM_STORE" "$dump" >/dev/null
+  wal-g st get --no-decompress "$FROM_STORE" "$dump" >/dev/null
 else
   pg_dump --dbname="$from" --no-owner --no-privileges --no-publications --no-subscriptions "$@" > "$dump"
 fi
 if [ -n "${TO_STORE:-}" ]; then
-  wal-g st put --no-compress --no-encrypt "$dump" "$TO_STORE" >/dev/null
-  echo "put $FROM_DATABASE in the store as $TO_STORE: $(wc -c < "$dump") bytes, BLAKE3 $(b3sum --no-names "$dump" 2>/dev/null || echo unknown)"
+  wal-g st put --no-compress "$dump" "$TO_STORE" >/dev/null
+  echo "put $FROM_DATABASE in the store as $TO_STORE: $(wc -c < "$dump") bytes, BLAKE3 $(b3sum --no-names "$dump" 2>/dev/null || echo unknown), encrypted: $([ -n "${WALG_LIBSODIUM_KEY:-}" ] && echo yes || echo no)"
   exit 0
 fi
 # An extension's comment belongs to the extension's owner, the server's own superuser, never to the new database's login.
