@@ -54,6 +54,18 @@ const ACTIONS = [
   { path: '/chain-undo', host: null, access: 'public', tool: 'tool:fails', failed: 'Not booked.', answer: { json: ['x'] },
     input: { event: { $: 'tool', tool: 'tool:echo', input: { id: 'ev-1' }, key: 'echo' } }, undo: { tool: 'tool:echo', input: { cancel: { $: 'input', key: 'event.id' } } } },
   { path: '/bad-undo', host: null, access: 'public', tool: 'tool:x', failed: 'x', input: {}, answer: { json: ['x'] }, undo: { tool: 'not a tool' } },
+  { path: '/go/:code', host: null, method: 'GET', access: 'public', tool: 'tool:echo', failed: 'That link is not open.', input: {
+    status: { $: 'pick', of: { $: 'path', name: 'code' }, from: { open: 302, gone: 404, busy: 503, odd: 99, wild: 302, evil: 302 }, else: 400 },
+    location: { $: 'pick', of: { $: 'path', name: 'code' }, from: { open: 'https://elsewhere.example.test/x', wild: 'javascript:alert(1)' } },
+    set_cookie: { $: 'pick', of: { $: 'path', name: 'code' }, from: { open: 'go=1; Path=/', evil: 'go=1\r\nx: 1' } },
+    retry_after: { $: 'pick', of: { $: 'path', name: 'code' }, from: { busy: 30 } },
+  }, answer: { reply: { status: { $: 'answer', key: 'echo.status' }, headers: { location: { $: 'answer', key: 'echo.location' }, 'set-cookie': { $: 'answer', key: 'echo.set_cookie' }, 'retry-after': { $: 'answer', key: 'echo.retry_after' } } } } },
+  { path: '/newsletter', host: null, access: 'public', tool: 'tool:echo', failed: 'The mail could not be sent.', input: { outcome: { $: 'body', key: 'outcome' }, attempt: 'a-1' },
+    next: [{ when: { $: 'pick', of: { $: 'answer', key: 'echo.outcome' }, from: { send_confirmation: true }, else: false }, tool: 'tool:fails', input: { mail: { $: 'answer', key: 'echo.attempt' } },
+      failed: { tool: 'tool:echo', input: { action: 'send_failed', attempt: { $: 'answer', key: 'echo.attempt' } } } }],
+    answer: { reply: { status: { $: 'pick', of: { $: 'answer', key: 'echo.outcome' }, from: { invalid_email: 400, too_many: 429 }, else: 200 }, json: ['echo'] } } },
+  { path: '/bad-reply', host: null, access: 'public', tool: 'tool:echo', failed: 'x', input: {}, answer: { reply: { status: 200, headers: { 'x-forwarded-for': 'a' } } } },
+  { path: '/bad-next', host: null, access: 'public', tool: 'tool:echo', failed: 'x', input: {}, answer: { json: ['echo'] }, next: [{ tool: 'tool:echo', input: {}, also: 1 }] },
   { path: '/refuses-tells', host: null, access: 'public', tool: 'tool:refuses', failed: 'That answer was not kept.', input: {}, answer: { json: ['next'] }, says_why: true },
   { path: '/refuses-quiet', host: null, access: 'public', tool: 'tool:refuses', failed: 'That answer was not kept.', input: {}, answer: { json: ['next'] } },
   { path: '/refuses-nested', host: null, access: 'public', tool: 'tool:keep-a-lead', failed: 'Not kept.', input: { a: { $: 'tool', tool: 'tool:refuses', input: {} } }, answer: { json: ['kept'] }, says_why: true },
@@ -410,6 +422,43 @@ test('a command door\'s origin and key are checked', () => {
     { address: 'http://127.0.0.1:1', pass_credential: 'site-door-pass', key_credential: 'owner-key' },
   ]) assert.throws(() => settings('http://127.0.0.1:1', { door: bad }), /door is/);
   assert.equal(settings('http://127.0.0.1:1', { door: { address: 'cli:example-site', pins: [], origin: 'http://127.0.0.1:7190', key_credential: 'owner-key' } }).door.origin, 'http://127.0.0.1:7190');
+});
+
+test('a reply answers as the tool says (status, location, set-cookie, retry-after or none), and a next step that fails runs its failed step and fails the request', async () => {
+  const d = await door();
+  try {
+    const site = await siteOn(d.address, { actions: 'site_actions' });
+    const host = 'site.example.test';
+    const get = (path: string) => site.act(path, undefined, host, { method: 'GET', bytes: Buffer.alloc(0) });
+    const open = await get('/go/open');
+    assert.equal(open.status, 302);
+    assert.equal(open.headers.location, 'https://elsewhere.example.test/x');
+    assert.deepEqual((open.headers as Record<string, unknown>)['set-cookie'], ['go=1; Path=/']);
+    assert.equal(open.body, '', 'no json named, no body');
+    const gone = await get('/go/gone');
+    assert.equal(gone.status, 404, 'the tool\'s 404 is the visitor\'s, not a 502');
+    assert.equal(gone.headers.location, undefined, 'a header whose value gives nothing is left out');
+    const busy = await get('/go/busy');
+    assert.equal(busy.status, 503);
+    assert.equal(busy.headers['retry-after'], '30');
+    for (const code of ['odd', 'wild', 'evil']) assert.equal((await get(`/go/${code}`)).status, 502, `${code}: a status out of range, a location no visitor may be sent to, or a header with a line break fails the row`);
+    const json = (fields: Record<string, string>) => ({ contentType: 'application/json', bytes: Buffer.from(JSON.stringify(fields)) });
+    d.calls.length = 0;
+    const done = await site.act('/newsletter', undefined, host, json({ outcome: 'subscribed' }));
+    assert.equal(done.status, 200);
+    assert.deepEqual(JSON.parse(String(done.body)).echo.outcome, 'subscribed');
+    assert.deepEqual(d.calls.map(call => call.run.tool), ['tool:echo'], 'a next step whose when is not true does not run');
+    assert.equal((await site.act('/newsletter', undefined, host, json({ outcome: 'too_many' }))).status, 429, 'pick maps the outcome to its status');
+    d.calls.length = 0;
+    const unsent = await site.act('/newsletter', undefined, host, json({ outcome: 'send_confirmation' }));
+    assert.equal(unsent.status, 502, 'the send failed, so the visitor gets the row\'s failure');
+    assert.deepEqual(JSON.parse(String(unsent.body)), { error: 'The mail could not be sent.' });
+    assert.deepEqual(d.calls.map(call => [call.run.tool, call.run.input]), [
+      ['tool:echo', { outcome: 'send_confirmation', attempt: 'a-1' }], ['tool:fails', { mail: 'a-1' }], ['tool:echo', { action: 'send_failed', attempt: 'a-1' }],
+    ], 'the failed step runs with what the row\'s tool answered');
+    assert.equal((await site.act('/bad-reply', undefined, host, json({}))).status, 404, 'a reply naming a header outside the list is set aside');
+    assert.equal((await site.act('/bad-next', undefined, host, json({}))).status, 404, 'a next step with an unknown key is set aside');
+  } finally { d.server.close(); }
 });
 
 test('a part\'s own CSS module comes with the page: its local class is on the markup and its rule in the page\'s stylesheet', async () => {

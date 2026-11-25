@@ -64,6 +64,21 @@ test('an action\'s inner tool and rows sources, and its undo, are calls the site
   assert.deepEqual(grant.held_inputs_by_tool[RUN_SQL], { database: ['site_pages'] }, 'a rows source runs on the pages database under the declared use');
 });
 
+test('an action\'s then, its next steps with their failed steps, and the sources in their when and the answer, are calls too', () => {
+  const site = {
+    settings,
+    pages: [],
+    actions: [action({
+      tool: 'tool:keep-a-signup',
+      then: { tool: 'tool:keep-a-journey-step', input: {} },
+      next: [{ when: { $: 'pick', of: { $: 'answer', key: 'outcome' }, from: { send: true }, else: false }, tool: 'tool:send-a-mail', input: { mail: { $: 'answer', key: 'mail' } }, failed: { tool: 'tool:keep-a-signup', input: { action: 'send_failed' } } }],
+      answer: { reply: { status: { $: 'tool', tool: 'tool:read-a-status', input: {}, key: 'status' } } },
+    })],
+  };
+  const { calls } = siteCallsOf(site);
+  assert.deepEqual(calls.map(call => call.tool), [RUN_SQL, 'tool:read-the-site-head', 'tool:keep-a-signup', 'tool:keep-a-journey-step', 'tool:send-a-mail', 'tool:keep-a-signup', 'tool:read-a-status']);
+});
+
 test('a call a share cannot make as written is refused with why, and nothing is widened to fit it', () => {
   const site = {
     settings: { pages: { database: 'site_pages' } },

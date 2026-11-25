@@ -19,6 +19,13 @@
 //     answer    jsonb: { "redirect_from": "<key of the tool's answer>" }  the visitor is sent to that address
 //                      { "redirect_to": <value> }                         the visitor is sent to that address
 //                      { "json": ["<key>", ...] }                        those keys of the tool's answer, as JSON
+//                      { "reply": { "status": <value>, "headers": { "<name>": <value> }, "json": ["<key>", ...] } }
+//                                       the answer as the tool says it: the HTTP status its value gives (a whole number from
+//                                       100 to 599, else the row fails), each header whose value gives something (location,
+//                                       set-cookie, retry-after or cache-control; a location is an address a visitor may be
+//                                       sent to, every value printable words with no line break), and those keys of the
+//                                       tool's answer as JSON, or no body when json is left out (a short link's 302 or 404,
+//                                       a one-click unsubscribe's empty 200)
 //               and beside it, optionally, "cookie": { "name": "v", "value": <value>, "max_age_days": 395, "http_only": true }:
 //               once the tool has answered, that cookie is set (Path=/, SameSite=Lax, Secure) when its value gives words of
 //               letters, digits and ._- and the request does not already carry that value (a visitor id kept only with consent)
@@ -29,6 +36,11 @@
 //     then      jsonb or null: { "tool": "tool:<id>", "input": <value> }, run once the row's own tool has answered (a journey step
 //               kept only for a checkout that started); its input may read { "$": "input" } and { "$": "answer" }. Its failure is
 //               logged and never changes what the visitor gets.
+//     next      jsonb or null: [{ "when": <value>, "tool": "tool:<id>", "input": <value>, "failed": { "tool", "input" } }, ...]:
+//               steps run in order once the row's own tool has answered, each only when its `when` gives true (left out:
+//               always); their input may read { "$": "input" } and { "$": "answer" } (the row's own tool's). A step that fails
+//               runs its `failed` step (a newsletter's "send_failed", so the signup is not left waiting) and the visitor gets
+//               the row's failure, as when the row's own tool fails; a `failed` step's own failure is only logged.
 //     undo      jsonb or null: { "tool": "tool:<id>", "input": <value> }, run when the row's own tool was started and failed, to
 //               put back what the tools its input ran had done (a calendar event put before the booking could be kept); its
 //               input may read { "$": "input" } (what the failed tool was given). The visitor still gets the failure.
@@ -65,6 +77,9 @@
 //     { "$": "new_id" }                             a new random id
 //     { "$": "first", "of": [<value>, ...] }        the first value that gives something (the page's attempt id, else a new one)
 //     { "$": "boolean", "of": <value> }             true for true, "true", "on", "yes" or "1"; false for their opposites
+//     { "$": "pick", "of": <value>, "from": { "<word>": <value> }, "else": <value> }
+//                                                   the value `from` holds for the words `of` gives (an outcome's status);
+//                                                   `else` (or nothing) for any other
 //   A source that gives nothing leaves its key out of an object (null in a list), and an object all of whose values gave
 //   nothing is itself nothing, so a tool's optional input stays absent (a signed-out buyer sends no customer) and its
 //   required input is refused by the tool's own schema, never guessed. A body key is read whole first ("consent.billing"
@@ -90,7 +105,17 @@ export interface ActionCookie {
   http_only: boolean;
 }
 
-export type ActionAnswer = ({ redirect_from: string } | { redirect_to: unknown } | { json: string[] }) & { cookie?: ActionCookie };
+/** An answer as the tool says it: its status, its headers and, when json names keys, those keys as the body. */
+export interface ActionReply {
+  status: unknown;
+  headers: Record<string, unknown>;
+  json: string[] | null;
+}
+
+export type ActionAnswer = ({ redirect_from: string } | { redirect_to: unknown } | { json: string[] } | { reply: ActionReply }) & { cookie?: ActionCookie };
+
+/** The headers a reply may set. */
+export const REPLY_HEADERS = ['location', 'set-cookie', 'retry-after', 'cache-control'];
 
 export type ActionMethod = 'GET' | 'POST';
 
@@ -98,6 +123,12 @@ export type ActionMethod = 'GET' | 'POST';
 export interface ActionStep {
   tool: string;
   input: unknown;
+}
+
+/** A step run in order after the row's own tool answered, when `when` gives true; its failure fails the request. */
+export interface NextStep extends ActionStep {
+  when: unknown;
+  failed: ActionStep | null;
 }
 
 export interface ActionRow {
@@ -112,6 +143,7 @@ export interface ActionRow {
   says_why: boolean;
   then: ActionStep | null;
   undo: ActionStep | null;
+  next: NextStep[];
 }
 
 /** What one request carries, for filling an action's input. */
@@ -182,6 +214,12 @@ const SOURCES: Record<string, (value: Record<string, unknown>, where: string) =>
     if (v.key !== undefined && (v.part !== 'query' || typeof v.key !== 'string' || !v.key)) throw new PageRowError(`${where}.key names one query value, with part query.`);
   },
   referer: () => {},
+  pick: (v, where) => {
+    checkValue(v.of, `${where}.of`);
+    if (!v.from || typeof v.from !== 'object' || Array.isArray(v.from) || Object.keys(v.from).length === 0) throw new PageRowError(`${where}.from is { "<word>": <value> }.`);
+    for (const [word, item] of Object.entries(v.from as Record<string, unknown>)) checkValue(item, `${where}.from.${word}`);
+    if (v.else !== undefined) checkValue(v.else, `${where}.else`);
+  },
   answer: (v, where) => words(v.key, `${where}.key`),
   input: (v, where) => words(v.key, `${where}.key`),
   now: () => {},
@@ -225,8 +263,23 @@ export function actionOf(row: Record<string, unknown>): ActionRow {
   checkValue(row.input ?? {}, `${where} input`);
   const answer = row.answer as Record<string, unknown> | null;
   const kinds = answer && typeof answer === 'object' ? Object.keys(answer).filter(key => key !== 'cookie') : [];
-  if (kinds.length !== 1 || !['redirect_from', 'redirect_to', 'json'].includes(kinds[0])) {
-    throw new PageRowError(`${where}: answer is { "redirect_from": key }, { "redirect_to": value } or { "json": [keys] }, with an optional "cookie".`);
+  if (kinds.length !== 1 || !['redirect_from', 'redirect_to', 'json', 'reply'].includes(kinds[0])) {
+    throw new PageRowError(`${where}: answer is { "redirect_from": key }, { "redirect_to": value }, { "json": [keys] } or { "reply": { status, headers, json } }, with an optional "cookie".`);
+  }
+  if ('reply' in answer!) {
+    const reply = answer.reply as Record<string, unknown> | null;
+    if (!reply || typeof reply !== 'object' || Array.isArray(reply) || Object.keys(reply).some(key => !['status', 'headers', 'json'].includes(key)) || reply.status === undefined) {
+      throw new PageRowError(`${where}: answer.reply is { status, headers?, json? }.`);
+    }
+    checkValue(reply.status, `${where} answer.reply.status`);
+    const headers = (reply.headers ?? {}) as Record<string, unknown>;
+    if (!headers || typeof headers !== 'object' || Array.isArray(headers)) throw new PageRowError(`${where}: answer.reply.headers is { "<name>": value }.`);
+    for (const [name, value] of Object.entries(headers)) {
+      if (!REPLY_HEADERS.includes(name)) throw new PageRowError(`${where}: answer.reply.headers names only ${REPLY_HEADERS.join(', ')}.`);
+      checkValue(value, `${where} answer.reply.headers.${name}`);
+    }
+    if (reply.json !== undefined && (!Array.isArray(reply.json) || reply.json.some(key => typeof key !== 'string' || !key))) throw new PageRowError(`${where}: answer.reply.json lists the answer's keys to send.`);
+    answer.reply = { status: reply.status, headers, json: (reply.json as string[] | undefined) ?? null };
   }
   if ('cookie' in answer!) {
     const cookie = answer.cookie as Record<string, unknown> | null;
@@ -254,9 +307,24 @@ export function actionOf(row: Record<string, unknown>): ActionRow {
     checkValue(given.input ?? {}, `${where} ${name}.input`);
     return { tool: given.tool, input: given.input ?? {} };
   };
+  const nextGiven = row.next ?? null;
+  if (nextGiven !== null && !Array.isArray(nextGiven)) throw new PageRowError(`${where}: next is a list of { when?, tool, input, failed? } or null.`);
+  const next = ((nextGiven ?? []) as Record<string, unknown>[]).map((given, i): NextStep => {
+    const at = `${where} next[${i}]`;
+    if (!given || typeof given !== 'object' || Array.isArray(given) || Object.keys(given).some(key => !['when', 'tool', 'input', 'failed'].includes(key))) throw new PageRowError(`${at} is { when?, tool, input, failed? }.`);
+    if (typeof given.tool !== 'string' || !TOOL_ID.test(given.tool)) throw new PageRowError(`${at}.tool is a tool id.`);
+    checkValue(given.input ?? {}, `${at}.input`);
+    if (given.when !== undefined) checkValue(given.when, `${at}.when`);
+    const failed = (given.failed ?? null) as Record<string, unknown> | null;
+    if (failed !== null && (typeof failed !== 'object' || Array.isArray(failed) || Object.keys(failed).some(key => key !== 'tool' && key !== 'input') || typeof failed.tool !== 'string' || !TOOL_ID.test(failed.tool))) {
+      throw new PageRowError(`${at}.failed is { tool, input } or null.`);
+    }
+    if (failed) checkValue(failed.input ?? {}, `${at}.failed.input`);
+    return { tool: given.tool, input: given.input ?? {}, when: given.when ?? true, failed: failed ? { tool: failed.tool as string, input: failed.input ?? {} } : null };
+  });
   return {
     path, host: host as string | null, method, access: row.access, tool: row.tool, input: row.input ?? {}, answer: answer as ActionAnswer, failed: row.failed as string, says_why: row.says_why === true,
-    then: step('then'), undo: step('undo'),
+    then: step('then'), undo: step('undo'), next,
   };
 }
 
@@ -280,7 +348,7 @@ export function actionsOf(rows: Record<string, unknown>[]): { actions: ActionRow
 /** The sql that reads a site's action rows from its table. */
 export function actionsSql(table: string): string {
   if (!TABLE.test(table)) throw new PageRowError(`actions ${JSON.stringify(table)} is not a table name.`);
-  return `SELECT a.path, a.access, a.tool, a.input, a.answer, a.failed, to_jsonb(a)->>'host' AS host, to_jsonb(a)->>'method' AS method, to_jsonb(a)->'undo' AS undo, to_jsonb(a)->'then' AS then, (to_jsonb(a)->'says_why') AS says_why FROM "${table}" a ORDER BY 1, 7 NULLS LAST, 8`;
+  return `SELECT a.path, a.access, a.tool, a.input, a.answer, a.failed, to_jsonb(a)->>'host' AS host, to_jsonb(a)->>'method' AS method, to_jsonb(a)->'undo' AS undo, to_jsonb(a)->'then' AS then, to_jsonb(a)->'next' AS next, (to_jsonb(a)->'says_why') AS says_why FROM "${table}" a ORDER BY 1, 7 NULLS LAST, 8`;
 }
 
 /** The action a request's method, host and path are (HEAD asks a GET row); a host's own row wins over a row for every host. */
@@ -395,6 +463,12 @@ export async function filled(value: unknown, asked: Asked): Promise<unknown> {
         if (value.key !== undefined) return address.searchParams.get(value.key as string) ?? undefined;
         const query = Object.fromEntries(address.searchParams);
         return Object.keys(query).length ? query : undefined;
+      }
+      case 'pick': {
+        const got = await filled(value.of, asked);
+        const from = value.from as Record<string, unknown>;
+        if ((typeof got === 'string' || typeof got === 'number' || typeof got === 'boolean') && Object.hasOwn(from, String(got))) return filled(from[String(got)], asked);
+        return value.else === undefined ? undefined : filled(value.else, asked);
       }
       case 'answer': return asked.answer ? dotted(asked.answer, value.key as string) : undefined;
       case 'input': return asked.input !== null && asked.input !== undefined ? dotted(asked.input, value.key as string) : undefined;

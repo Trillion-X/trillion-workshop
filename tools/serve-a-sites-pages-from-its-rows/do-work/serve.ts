@@ -87,7 +87,7 @@ import type { FilesStore, MemberFiles, PublicFiles, StoreKey } from './member-vi
 import { filledInput, matchPage, pagesOf, pagesOn, pathWith, PAGES_SQL, paramsOf, slugsSql } from './pages.ts';
 import type { PageRow, Refused } from './pages.ts';
 import { actionsOf, actionsSql, bodyOf, cookiesOf, filled, matchAction, sendableAddress, setCookieOf } from './actions.ts';
-import type { ActionRow, Asked } from './actions.ts';
+import type { ActionReply, ActionRow, Asked } from './actions.ts';
 import { pageStyles } from './page-styles.ts';
 import { withSiteHead } from '../../site-head-from-its-rows/do-work/site-head.ts';
 import type { SiteHeadMarkup } from '../../site-head-from-its-rows/do-work/site-head.ts';
@@ -476,6 +476,20 @@ export class Site {
         throw error;
       }
       const answered: Asked = { ...asked, answer, input };
+      // The row's next steps, in order, each when its `when` gives true: one that fails runs its failed step and fails the request.
+      for (const step of action.next) {
+        if ((await filled(step.when, answered)) !== true) continue;
+        try {
+          await this.#parts.run(pass, { tool: step.tool, input: (await filled(step.input, answered)) ?? {} });
+        } catch (error) {
+          if (step.failed) {
+            const after = step.failed;
+            await this.#parts.run(pass, { tool: after.tool, input: (await filled(after.input, answered)) ?? {} })
+              .catch(also => this.#log(`${method} ${pathname}: ${after.tool} did not finish after ${step.tool} failed: ${(also as Error).message}`));
+          }
+          throw error;
+        }
+      }
       // What the row keeps once its own tool answered (a journey step for a checkout that started): its failure is only logged.
       if (action.then) {
         const then = action.then;
@@ -485,6 +499,7 @@ export class Site {
       const setCookie = action.answer.cookie ? setCookieOf(action.answer.cookie, await filled(action.answer.cookie.value, answered), asked.cookies) : null;
       const withCookie = (sent: Answer): Answer => (setCookie ? { ...sent, headers: { ...sent.headers, 'set-cookie': setCookie } } : sent);
       if ('json' in action.answer) return withCookie(json(200, Object.fromEntries(action.answer.json.map(key => [key, answer?.[key] ?? null]))));
+      if ('reply' in action.answer) return withCookie(await replyOf(action.answer.reply, answer, answered));
       const to = sendableAddress('redirect_from' in action.answer ? answer?.[action.answer.redirect_from] : await filled(action.answer.redirect_to, answered));
       if (!to) throw new Error(`${action.tool} answered no address to send the visitor to.`);
       return withCookie(posted.form ? { status: 303, headers: { location: to, 'cache-control': 'no-store' }, body: '' } : json(200, { redirect: to }));
@@ -620,6 +635,30 @@ async function bytesOf(request: http.IncomingMessage): Promise<Buffer | null> {
     chunks.push(chunk as Buffer);
   }
   return Buffer.concat(chunks);
+}
+
+/**
+ * An answer as the tool says it (an action row's reply): the status its value gives, each header whose value gives something,
+ * and the answer's json keys as the body, or none. A status that is not a whole number from 100 to 599, a location that is not
+ * an address a visitor may be sent to, or a header value with a line break or other control character fails the row.
+ */
+async function replyOf(reply: ActionReply, answer: Record<string, unknown> | null, answered: Asked): Promise<Answer> {
+  const status = await filled(reply.status, answered);
+  if (typeof status !== 'number' || !Number.isInteger(status) || status < 100 || status > 599) throw new Error(`The reply's status gave ${JSON.stringify(status)}, not an HTTP status.`);
+  const headers: Record<string, string | string[]> = { 'cache-control': 'no-store' };
+  for (const [name, value] of Object.entries(reply.headers)) {
+    const got = await filled(value, answered);
+    if (got === undefined || got === null || got === '') continue;
+    const values = (Array.isArray(got) ? got : [got]).map(item => (typeof item === 'number' ? String(item) : item));
+    if (values.some(item => typeof item !== 'string' || !/^[\x20-\x7e]+$/.test(item))) throw new Error(`The reply's ${name} is not printable words on one line.`);
+    if (name === 'location') {
+      const to = sendableAddress(values[0]);
+      if (!to || values.length !== 1) throw new Error('The reply\'s location is not one address a visitor may be sent to.');
+      headers.location = to;
+    } else headers[name] = name === 'set-cookie' ? values as string[] : (values as string[]).join(', ');
+  }
+  if (reply.json === null) return { status, headers: headers as Answer['headers'], body: '' };
+  return { status, headers: { ...headers, 'content-type': 'application/json; charset=utf-8' } as Answer['headers'], body: JSON.stringify(Object.fromEntries(reply.json.map(key => [key, answer?.[key] ?? null]))) };
 }
 
 /** The program's node:http handler over a site. */

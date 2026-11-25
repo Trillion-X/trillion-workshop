@@ -10,7 +10,8 @@
 //     - run-sql on settings.pages.database, under settings.pages.use: its pages, look and action rows and each collection's slugs
 //     - settings.site_head, when it names one
 //     - each public page's own tool and every tool node of its layout (render.ts treeOf and runsOf)
-//     - each public action row's tool, its undo, and every { "$": "tool" } and { "$": "rows" } source inside them (actions.ts),
+//     - each public action row's tool, its undo, its then, each of its next steps and their failed steps, and every
+//       { "$": "tool" } and { "$": "rows" } source inside them and inside its answer (actions.ts),
 //       for a visitor who is not signed in (a member's own pass runs it for a member)
 //   A members page or a members action runs only with the member's own pass, so it adds nothing here.
 //
@@ -151,7 +152,15 @@ export function siteCallsOf({ settings, pages, actions }: SiteRows, { actions: a
       continue;
     }
     calls.push({ where, tool: action.tool, input: action.input }, ...sourceCallsOf(action.input, `${where} input`, database, use));
-    if (action.undo) calls.push({ where: `${where} undo`, tool: action.undo.tool, input: action.undo.input }, ...sourceCallsOf(action.undo.input, `${where} undo.input`, database, use));
+    // Every step the row runs beside its own tool is a call the site makes: its undo, its then, each next step and its failed
+    // step, and the tool and rows sources inside them and inside the answer (a reply's status or headers, a redirect_to).
+    const steps: [string, { tool: string; input: unknown } | null][] = [
+      ['undo', action.undo], ['then', action.then],
+      ...action.next.flatMap((step, i): [string, { tool: string; input: unknown } | null][] => [[`next[${i}]`, step], [`next[${i}].failed`, step.failed]]),
+    ];
+    for (const [name, step] of steps) if (step) calls.push({ where: `${where} ${name}`, tool: step.tool, input: step.input }, ...sourceCallsOf(step.input, `${where} ${name}.input`, database, use));
+    action.next.forEach((step, i) => calls.push(...sourceCallsOf(step.when, `${where} next[${i}].when`, database, use)));
+    calls.push(...sourceCallsOf(action.answer, `${where} answer`, database, use));
   }
   // The site gives the pages' use to every call that names a database and no use (serve.ts withPagesUse).
   const given = calls.map(call => (use !== undefined && object(call.input) && typeof call.input.database === 'string' && call.input.use === undefined
