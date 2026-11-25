@@ -150,15 +150,15 @@ async function courseRow(rows: Rows, tables: Tables, course: string) {
     requirements: listOf(found[0].requirements), preview_video_id: String(found[0].preview ?? '') };
 }
 
-export type CourseCard = { slug: string; title: string; short_description: string; category: string; image: string };
+export type CourseCard = { slug: string; title: string; short_description: string; category: string; image: string; lesson_count: number };
 export type CatalogueAnswer = { courses: CourseCard[] };
 
 // Every course the pursuit offers, in its own order: what a catalogue page draws as one card each.
 export const readCourses: Reader<{ database: string; tables?: Partial<Tables> }, CatalogueAnswer> = async (input, rows) => {
   const tables = tablesOf(input.tables);
   const { courses } = SOURCE;
-  const found = await rows(`select ${quote(courses.slug)} as slug, ${quote(courses.title)} as title, coalesce(${quote(courses.short_description)}, '') as short_description, coalesce(${quote(courses.category)}, '') as category, coalesce(${quote(courses.image)}, '') as image from ${quote(tables.courses)} order by ${quote(courses.order)}, ${quote(courses.slug)}`);
-  return { courses: found.map(row => ({ slug: String(row.slug), title: String(row.title), short_description: String(row.short_description), category: String(row.category), image: String(row.image) })) };
+  const found = await rows(`select ${quote(courses.slug)} as slug, ${quote(courses.title)} as title, coalesce(${quote(courses.short_description)}, '') as short_description, coalesce(${quote(courses.category)}, '') as category, coalesce(${quote(courses.image)}, '') as image, (select count(*) from ${quote(tables.lessons)} where ${quote(SOURCE.lessons.course)} = ${quote(tables.courses)}.${quote(courses.slug)}) as lesson_count from ${quote(tables.courses)} order by ${quote(courses.order)}, ${quote(courses.slug)}`);
+  return { courses: found.map(row => ({ slug: String(row.slug), title: String(row.title), short_description: String(row.short_description), category: String(row.category), image: String(row.image), lesson_count: number(row.lesson_count ?? 0) })) };
 };
 
 export const readCourse: Reader<Given, CourseAnswer> = async (input, rows) => {

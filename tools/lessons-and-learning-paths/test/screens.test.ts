@@ -125,3 +125,25 @@ test('a course page draws its eyebrow, its three cards from the course row lists
   assert.match(html, /youtube-nocookie\.com\/embed\/Gaz2qA4t3Fs/);
   assert.doesNotMatch(await renderAView(at('Course.tsx'), { course: { slug: 'c', title: 'Bare', description: '' }, lessons, doneCount: 0 }), /youtube|data-course-eyebrow/);
 });
+
+test('a title with a page: id is plain text, not a link, and a real lesson still links', async () => {
+  const html = await renderAView(at('Course.tsx'), {
+    course: { slug: 'c', title: 'The Course', description: '' },
+    lessons: [{ id: 'l1', position: 1, title: 'Real', href: '/c/l1', done: false }, { id: 'page:c:2', position: 2, title: 'Only named', href: '/c/page:c:2', done: false }],
+    doneCount: 0,
+  });
+  assert.match(html, /href="\/c\/l1"/);
+  assert.doesNotMatch(html, /page:c:2"[^>]*>\s*<a|href="\/c\/page/);
+  assert.match(html, /Only named/);
+});
+
+test('the other courses draw as links with their lesson counts, leave out the current course, and draw nothing when none are left', async () => {
+  const courses = [{ slug: 'a', title: 'A course', short_description: '', category: '', image: '', lesson_count: 26 }, { slug: 'b', title: 'B course', short_description: '', category: '', image: '', lesson_count: 1 }];
+  const html = await renderAView(at('CourseLinks.tsx'), { courses, heading: 'The other courses', base_path: '/courses', current: 'b' });
+  assert.match(html, /The other courses/);
+  assert.match(html, /href="\/courses\/a"/);
+  assert.match(html, /26 lessons/);
+  assert.doesNotMatch(html, /B course/);
+  assert.doesNotMatch(await renderAView(at('CourseLinks.tsx'), { courses: [courses[1]], current: 'b' }), /data-course-links/);
+  assert.match(await renderAView(at('CourseLinks.tsx'), { courses: [courses[1]], current: 'x' }), /1 lesson</);
+});

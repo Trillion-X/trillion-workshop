@@ -10,6 +10,8 @@
 //   2. A lesson's address is the one the read gave (href); the screen makes none.
 //   3. The course's picture is drawn only when the answer gives one, at the address image_template makes of it; nothing is
 //      guessed here.
+//   3a. A title whose id starts with "page:" is one the course page names but no lesson holds: it is drawn as text, never as a
+//      link, because its address would land on a lesson page that refuses it.
 //   3b. A done mark is drawn only for a lesson the answer marks done, and the count is the answer's own doneCount.
 //   4. Everything drawn is a shared part (Text, Button, ProgressBar); no raw HTML and no inline styling. A host that wants a
 //      button of its own (a membership, a checkout) passes it as `action`; nothing about payment is known here.
@@ -77,11 +79,20 @@ export function View({ course, lessons, doneCount, action, image_template = '{im
       <Text as="ol" className="m-0 grid list-none gap-2 p-0">
         {lessons.map(lesson => (
           <Text as="li" key={lesson.id} data-lesson={lesson.id} data-done={lesson.done ? 'true' : 'false'}>
-            <Button variant="ghost" href={lesson.href} className="h-auto w-full justify-start gap-3 py-2 text-start">
-              <Text as="span" color="muted">{lesson.position}</Text>
-              <Text as="span">{lesson.title}</Text>
-              {lesson.done ? <Text as="span" variant="label" color="success">{doneLabel}</Text> : null}
-            </Button>
+            {lesson.id.startsWith('page:')
+              ? (
+                <Text as="span" className="flex w-full items-center justify-start gap-3 px-3 py-2" data-lesson-text-only>
+                  <Text as="span" color="muted">{lesson.position}</Text>
+                  <Text as="span">{lesson.title}</Text>
+                </Text>
+              )
+              : (
+                <Button variant="ghost" href={lesson.href} className="h-auto w-full justify-start gap-3 py-2 text-start">
+                  <Text as="span" color="muted">{lesson.position}</Text>
+                  <Text as="span">{lesson.title}</Text>
+                  {lesson.done ? <Text as="span" variant="label" color="success">{doneLabel}</Text> : null}
+                </Button>
+              )}
           </Text>
         ))}
       </Text>
