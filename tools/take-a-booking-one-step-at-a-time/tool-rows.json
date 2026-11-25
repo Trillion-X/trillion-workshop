@@ -1255,7 +1255,7 @@
     "id": "tool:read-a-bookings-open-times",
     "label": "Read a booking's open times",
     "job": "List the times a booking can be made at, from the page's windows and the calendar's busy times",
-    "description": "Answers the open start times of the booking's page over its horizon: its weekly windows, less the busy times given, less the minimum notice. Needs busy (the answer of tool:check-when-i-am-busy); without it nothing is answered, so an unread calendar is never taken for a free one. Changes nothing.",
+    "description": "Answers the open start times of the booking's page over its horizon: its weekly windows, less the busy times given, less the minimum notice. Needs busy_read (the whole answer of tool:check-when-i-am-busy) and works only when its status is read; without it nothing is answered, so an unread calendar is never taken for a free one. Changes nothing.",
     "status": "active",
     "read_only": true,
     "result_selector": "$",
@@ -1264,7 +1264,7 @@
      "required": [
       "database",
       "attemptId",
-      "busy"
+      "busy_read"
      ],
      "additionalProperties": false,
      "properties": {
@@ -1278,11 +1278,22 @@
        "minLength": 1,
        "description": "The sitting's id, as the start step answered it."
       },
-      "busy": {
-       "type": "array",
-       "description": "The times the person's calendar is busy: the busy list of the answer of tool:check-when-i-am-busy, each { start, end } as instants. It may be empty for a calendar that was read and is free; without it nothing is worked out.",
-       "items": {
-        "type": "object"
+      "busy_read": {
+       "type": "object",
+       "description": "The whole answer of tool:check-when-i-am-busy: { status, busy }. Works only when status is read (busy is then the list of { start, end } instants, empty for a free calendar); any other answer is refused, so a calendar that was not read is never taken for a free one.",
+       "required": [
+        "status"
+       ],
+       "properties": {
+        "status": {
+         "type": "string"
+        },
+        "busy": {
+         "type": "array",
+         "items": {
+          "type": "object"
+         }
+        }
        }
       }
      }
@@ -1674,7 +1685,7 @@
       "database",
       "attemptId",
       "value",
-      "busy"
+      "busy_read"
      ],
      "additionalProperties": false,
      "properties": {
@@ -1693,11 +1704,22 @@
        "minLength": 1,
        "description": "The chosen start, as an instant such as 2026-11-23T16:00:00.000Z."
       },
-      "busy": {
-       "type": "array",
-       "description": "The times the person's calendar is busy: the busy list of the answer of tool:check-when-i-am-busy, each { start, end } as instants. It may be empty for a calendar that was read and is free; without it nothing is worked out.",
-       "items": {
-        "type": "object"
+      "busy_read": {
+       "type": "object",
+       "description": "The whole answer of tool:check-when-i-am-busy: { status, busy }. Works only when status is read (busy is then the list of { start, end } instants, empty for a free calendar); any other answer is refused, so a calendar that was not read is never taken for a free one.",
+       "required": [
+        "status"
+       ],
+       "properties": {
+        "status": {
+         "type": "string"
+        },
+        "busy": {
+         "type": "array",
+         "items": {
+          "type": "object"
+         }
+        }
        }
       }
      }
@@ -2086,7 +2108,7 @@
     "id": "tool:check-a-booking-is-ready",
     "label": "Check a booking is ready",
     "job": "Say the calendar event a booking is ready to make, once its time is still open",
-    "description": "Checks the booking is at its confirm step and its chosen time is still open (from the busy times given), then answers the input of tool:put-a-booking-on-my-calendar: the title, the start and end in the page's own clock, the zone, the booker as attendee and a video call request. Makes no event and writes nothing; tool:keep-a-made-booking keeps the booking once the event is made.",
+    "description": "Checks the booking is at its confirm step and its chosen time is still open (from the calendar read given), then answers the input of tool:put-a-booking-on-my-calendar: the title, the start and end in the page's own clock, the zone, the booker as attendee and a video call request. Makes no event and writes nothing; tool:keep-a-made-booking keeps the booking once the event is made.",
     "status": "active",
     "read_only": true,
     "result_selector": "$",
@@ -2095,7 +2117,7 @@
      "required": [
       "database",
       "attemptId",
-      "busy"
+      "busy_read"
      ],
      "additionalProperties": false,
      "properties": {
@@ -2109,11 +2131,22 @@
        "minLength": 1,
        "description": "The sitting's id, as the start step answered it."
       },
-      "busy": {
-       "type": "array",
-       "description": "The times the person's calendar is busy: the busy list of the answer of tool:check-when-i-am-busy, each { start, end } as instants. It may be empty for a calendar that was read and is free; without it nothing is worked out.",
-       "items": {
-        "type": "object"
+      "busy_read": {
+       "type": "object",
+       "description": "The whole answer of tool:check-when-i-am-busy: { status, busy }. Works only when status is read (busy is then the list of { start, end } instants, empty for a free calendar); any other answer is refused, so a calendar that was not read is never taken for a free one.",
+       "required": [
+        "status"
+       ],
+       "properties": {
+        "status": {
+         "type": "string"
+        },
+        "busy": {
+         "type": "array",
+         "items": {
+          "type": "object"
+         }
+        }
        }
       }
      }

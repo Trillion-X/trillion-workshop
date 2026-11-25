@@ -16,6 +16,8 @@ const DDL = `
     booker_email text not null, booker_name text, booker_timezone text, status text not null, cancelled_at timestamptz, meeting_link text, calendar_event_ref text, came_from text,
     made_at timestamptz not null, updated_at timestamptz not null default now(), replaces text, form_sitting_id text);
 `;
+// The calendar tool's whole answer, as a read that succeeded.
+const read = (busy: unknown[]) => ({ status: 'read', busy });
 const SLUG = 'call';
 const EMAIL = 'invented.booker@example.test';
 // Monday to Friday, 09:00 to 12:00 in the page's zone. The test clock is a Monday 2026-11-23 06:00 Chicago time (12:00 UTC).
@@ -77,26 +79,26 @@ test('the email opens the sitting and the first question follows; a bad email is
   assert.equal((await answerBookingQuestion(store, { attemptId: started.attemptId, value: '' }, clock)).next?.key, 'slot');
 });
 
-test('the open times are the windows minus the busy times given; no list of busy times is refused, never taken for a free calendar', async () => {
+test('the open times are the windows minus the busy times given; a missing read is refused, never taken for a free calendar', async () => {
   const { store, clock } = await freshDb();
   const attemptId = await toTheSlotStep(store, clock);
-  await assert.rejects(readOpenTimes(store, { attemptId, busy: undefined }, clock), /Give busy/);
-  await assert.rejects(readOpenTimes(store, { attemptId, busy: [{ start: 'later', end: 'soon' }] }, clock), /not understood/);
-  const free = (await readOpenTimes(store, { attemptId, busy: [] }, clock)).slots;
+  await assert.rejects(readOpenTimes(store, { attemptId, busy_read: undefined }, clock), /Give busy_read/);
+  await assert.rejects(readOpenTimes(store, { attemptId, busy_read: read([{ start: 'later', end: 'soon' }]) }, clock), /not understood/);
+  const free = (await readOpenTimes(store, { attemptId, busy_read: read([]) }, clock)).slots;
   assert.ok(free.some(slot => slot.startIso === TEN_AM));
   const busy = [{ start: '2026-11-23T16:00:00Z', end: '2026-11-23T16:30:00Z' }];
-  const taken = (await readOpenTimes(store, { attemptId, busy }, clock)).slots;
+  const taken = (await readOpenTimes(store, { attemptId, busy_read: read(busy) }, clock)).slots;
   assert.ok(!taken.some(slot => slot.startIso === TEN_AM));
-  assert.equal(busyOf(busy)[0].startMs, Date.parse('2026-11-23T16:00:00Z'));
+  assert.equal(busyOf(read(busy))[0].startMs, Date.parse('2026-11-23T16:00:00Z'));
 });
 
 test('a time is chosen only from the open starts; a made-up or taken time is refused and nothing is kept', async () => {
   const { db, store, clock } = await freshDb();
   const attemptId = await toTheSlotStep(store, clock);
-  await assert.rejects(chooseSlot(store, { attemptId, value: '2026-11-23T16:07:00.000Z', busy: [] }, clock), /not open/);
-  await assert.rejects(chooseSlot(store, { attemptId, value: TEN_AM, busy: [{ start: TEN_AM, end: '2026-11-23T16:30:00Z' }] }, clock), /not open/);
+  await assert.rejects(chooseSlot(store, { attemptId, value: '2026-11-23T16:07:00.000Z', busy_read: read([]) }, clock), /not open/);
+  await assert.rejects(chooseSlot(store, { attemptId, value: TEN_AM, busy_read: read([{ start: TEN_AM, end: '2026-11-23T16:30:00Z' }]) }, clock), /not open/);
   assert.equal((await sittingValue(db, attemptId)).steps.slot, undefined);
-  const chosen = await chooseSlot(store, { attemptId, value: TEN_AM, busy: [] }, clock);
+  const chosen = await chooseSlot(store, { attemptId, value: TEN_AM, busy_read: read([]) }, clock);
   assert.deepEqual([chosen.next?.key, chosen.slot.startIso, chosen.slot.endIso], ['confirm', TEN_AM, '2026-11-23T16:30:00.000Z']);
   assert.equal((await sittingValue(db, attemptId)).steps.slot, TEN_AM);
 });
@@ -104,19 +106,19 @@ test('a time is chosen only from the open starts; a made-up or taken time is ref
 test('ready answers the event to make, in the zone\'s own clock, and writes nothing; a time taken since is refused', async () => {
   const { db, store, clock } = await freshDb();
   const attemptId = await toTheSlotStep(store, clock);
-  await assert.rejects(checkBookingReady(store, { attemptId, busy: [] }, clock), /not ready/);
-  await chooseSlot(store, { attemptId, value: TEN_AM, busy: [] }, clock);
-  const ready = await checkBookingReady(store, { attemptId, busy: [] }, clock);
+  await assert.rejects(checkBookingReady(store, { attemptId, busy_read: read([]) }, clock), /not ready/);
+  await chooseSlot(store, { attemptId, value: TEN_AM, busy_read: read([]) }, clock);
+  const ready = await checkBookingReady(store, { attemptId, busy_read: read([]) }, clock);
   assert.deepEqual(ready.event, { title: 'A call', start_local: '2026-11-23T10:00:00', end_local: '2026-11-23T10:30:00', timezone: 'America/Chicago', attendees: [EMAIL], video_call_request_id: ready.event.video_call_request_id });
   assert.ok(ready.event.video_call_request_id);
-  await assert.rejects(checkBookingReady(store, { attemptId, busy: [{ start: TEN_AM, end: '2026-11-23T16:30:00Z' }] }, clock), /was taken/);
+  await assert.rejects(checkBookingReady(store, { attemptId, busy_read: read([{ start: TEN_AM, end: '2026-11-23T16:30:00Z' }]) }, clock), /was taken/);
   assert.equal(((await db.query('SELECT count(*)::int n FROM bookings')).rows[0] as { n: number }).n, 0);
 });
 
 test('keeping writes the booking row naming its sitting and ends the sitting together, once; the event must be named', async () => {
   const { db, store, clock } = await freshDb();
   const attemptId = await toTheSlotStep(store, clock);
-  await chooseSlot(store, { attemptId, value: TEN_AM, busy: [] }, clock);
+  await chooseSlot(store, { attemptId, value: TEN_AM, busy_read: read([]) }, clock);
   await assert.rejects(keepBooking(store, { attemptId, event: null }, clock), /external_event_id/);
   await assert.rejects(keepBooking(store, { attemptId, event: { external_event_id: 'e1' }, source: ' ' }, clock), /says where it came from/);
   const kept = await keepBooking(store, { attemptId, event: { external_event_id: 'event-1', video_link: 'https://meet.example.test/x' } }, clock);
@@ -135,5 +137,15 @@ test('keeping before the time is chosen is refused and writes nothing', async ()
   const attemptId = await toTheSlotStep(store, clock);
   await assert.rejects(keepBooking(store, { attemptId, event: { external_event_id: 'event-1' } }, clock), /not ready/);
   assert.equal(((await db.query('SELECT count(*)::int n FROM bookings')).rows[0] as { n: number }).n, 0);
-  await assert.rejects(readOpenTimes(store, { attemptId: 'nothing', busy: [] }, clock), /not known/);
+  await assert.rejects(readOpenTimes(store, { attemptId: 'nothing', busy_read: read([]) }, clock), /not known/);
+});
+
+test('a calendar that was not read is never a free one: unknown, missing or malformed answers are refused by all three steps', async () => {
+  const { store, clock } = await freshDb();
+  const attemptId = await toTheSlotStep(store, clock);
+  for (const unread of [{ status: 'unknown', busy: [] }, { status: 'unknown' }, { busy: [] }, { status: 'read' }, { status: 'read', busy: 'none' }, null, [], 'read']) {
+    await assert.rejects(readOpenTimes(store, { attemptId, busy_read: unread }, clock), /could not be read|not understood|Give busy_read/);
+    await assert.rejects(chooseSlot(store, { attemptId, value: TEN_AM, busy_read: unread }, clock), /could not be read|not understood|Give busy_read/);
+    await assert.rejects(checkBookingReady(store, { attemptId, busy_read: unread }, clock), /could not be read|not understood|Give busy_read|not ready/);
+  }
 });

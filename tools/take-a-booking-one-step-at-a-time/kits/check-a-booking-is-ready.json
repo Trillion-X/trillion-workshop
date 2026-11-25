@@ -29,7 +29,10 @@
             "input": {
               "database": "example_for_who_runs_it",
               "attemptId": "b1",
-              "busy": []
+              "busy_read": {
+                "status": "read",
+                "busy": []
+              }
             }
           }
         }

@@ -28,7 +28,10 @@
               "database": "example_for_who_runs_it",
               "attemptId": "b1",
               "value": "2026-11-23T16:00:00.000Z",
-              "busy": []
+              "busy_read": {
+                "status": "read",
+                "busy": []
+              }
             }
           }
         }

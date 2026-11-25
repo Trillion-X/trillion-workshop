@@ -9,8 +9,9 @@
 //   event is made by tool:put-a-booking-on-my-calendar between `checkBookingReady` and `keepBooking`, so no step holds a calendar key.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. A step that needs the person's busy times is given them (`busy`, a list); without the list it is refused, so a calendar that
-//      was not read is never taken for a free one.
+//   1. A step that needs the person's busy times is given the calendar tool's whole answer (`busy_read`: { status, busy }) and works
+//      only when its status is `read`; an answer that says unknown, or none, is refused, so a calendar that was not read is never
+//      taken for a free one (an empty busy list of a calendar that was read is a free one).
 //   2. A time is booked only if it is one of the open starts worked out now from the page's windows and the busy times given: a
 //      time the client made up, or one that was taken, is refused. The check is made again when the booking is made ready.
 //   3. `keepBooking` writes the booking row and ends the sitting together, once: a sitting already ended is refused, so the event
@@ -40,11 +41,15 @@ export async function loadLivePage(store: Store, slug: string): Promise<LivePage
   return { ...page, formId: form.formId, questions: questionsOf(form) } as LivePage;
 }
 
-// The person's busy times as the calendar tool answers them ([{ start, end }], instants as text). A list that is not one, or a block
-// that is not a pair of instants, is refused: the calendar was not read.
+// The person's busy times from the whole answer of tool:check-when-i-am-busy ({ status, busy: [{ start, end }] }, instants as text).
+// An answer whose status is not `read`, a busy that is not a list, or a block that is not a pair of instants is refused: the calendar
+// was not read.
 export function busyOf(given: unknown): Busy[] {
-  if (!Array.isArray(given)) throw new Error('Give busy: the list of times the calendar is busy (it may be empty).');
-  return given.map(block => {
+  const answer = given as { status?: unknown; busy?: unknown } | null;
+  if (answer === null || typeof answer !== 'object' || Array.isArray(answer)) throw new Error('Give busy_read: the whole answer of the calendar read.');
+  if (answer.status !== 'read') throw new Error('The calendar could not be read right now. Try again.');
+  if (!Array.isArray(answer.busy)) throw new Error('The calendar answer was not understood.');
+  return answer.busy.map(block => {
     const startMs = Date.parse(String((block as { start?: unknown })?.start));
     const endMs = Date.parse(String((block as { end?: unknown })?.end));
     if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs < startMs) throw new Error('The calendar answer was not understood.');
@@ -100,20 +105,20 @@ async function pageOfStarted(store: Store, attemptId: string) {
 }
 
 // The open times for a sitting, from the busy times given.
-export async function readOpenTimes(store: Store, { attemptId, busy }: { attemptId: string; busy: unknown }, { nowMs = () => Date.now() }: Clock = {}) {
+export async function readOpenTimes(store: Store, { attemptId, busy_read }: { attemptId: string; busy_read: unknown }, { nowMs = () => Date.now() }: Clock = {}) {
   const { page } = await pageOfStarted(store, attemptId);
-  const slots = openSlots(page, { busy: busyOf(busy), nowMs: nowMs() });
+  const slots = openSlots(page, { busy: busyOf(busy_read), nowMs: nowMs() });
   return { slots: slots.map(slot => ({ startIso: new Date(slot.startMs).toISOString(), endIso: new Date(slot.endMs).toISOString() })) };
 }
 
 // The slot step: the start must be one of the open starts worked out now, so a time the client made up or one that was taken is refused.
-export async function chooseSlot(store: Store, { attemptId, value, busy }: { attemptId: string; value: unknown; busy: unknown }, { nowMs = () => Date.now() }: Clock = {}) {
+export async function chooseSlot(store: Store, { attemptId, value, busy_read }: { attemptId: string; value: unknown; busy_read: unknown }, { nowMs = () => Date.now() }: Clock = {}) {
   const { sitting, page } = await pageOfStarted(store, attemptId);
   const progress = await progressOf(store, page, sitting);
   if (nextStepOf(page, progress)?.key !== SLOT_STEP) throw new Error('The booking is not waiting for a time.');
   const checked = checkAnswer({ kind: 'slot' }, value);
   if (!checked.ok) throw new Error(checked.reason);
-  const slot = openSlots(page, { busy: busyOf(busy), nowMs: nowMs() }).find(open => new Date(open.startMs).toISOString() === checked.value);
+  const slot = openSlots(page, { busy: busyOf(busy_read), nowMs: nowMs() }).find(open => new Date(open.startMs).toISOString() === checked.value);
   if (!slot) throw new Error('That time is not open.');
   await store.apply([{ kind: 'merge', id: sittingId(sitting.submissionId), changes: { lastStep: SLOT_STEP, steps: { ...sitting.steps, slot: checked.value } } }]);
   const later = { ...progress, slot: checked.value };
@@ -122,13 +127,13 @@ export async function chooseSlot(store: Store, { attemptId, value, busy }: { att
 
 // The confirm step, first half: the sitting is at its confirm step and the chosen time is still open, so the event can be made. Answers
 // the input of tool:put-a-booking-on-my-calendar; nothing is written and nothing is made.
-export async function checkBookingReady(store: Store, { attemptId, busy }: { attemptId: string; busy: unknown }, { nowMs = () => Date.now(), newId = () => crypto.randomUUID() }: Clock = {}) {
+export async function checkBookingReady(store: Store, { attemptId, busy_read }: { attemptId: string; busy_read: unknown }, { nowMs = () => Date.now(), newId = () => crypto.randomUUID() }: Clock = {}) {
   const { sitting, page } = await pageOfStarted(store, attemptId);
   const progress = await progressOf(store, page, sitting);
   if (nextStepOf(page, progress)?.key !== CONFIRM_STEP) throw new Error('The booking is not ready to confirm.');
   const startMs = Date.parse(progress.slot as string);
   const endMs = startMs + page.duration_minutes * 60000;
-  if (!openSlots(page, { busy: busyOf(busy), nowMs: nowMs() }).some(open => open.startMs === startMs)) throw new Error('That time was taken. Choose another time.');
+  if (!openSlots(page, { busy: busyOf(busy_read), nowMs: nowMs() }).some(open => open.startMs === startMs)) throw new Error('That time was taken. Choose another time.');
   const startIso = new Date(startMs).toISOString();
   const endIso = new Date(endMs).toISOString();
   return {
