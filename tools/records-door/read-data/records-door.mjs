@@ -269,9 +269,30 @@ export function openBearerCall({ url, resource, capability, fetchImpl = fetch,
 
 const OWN_RECORDS = '@own-records';
 
+// What a run is told when its door's descriptor holds no door: the engine mounts one only for a row's invoke.records or the
+// rights of its top-level stored list (trillion-rust container.rs records_of), so a row that names neither, or keeps its stored
+// list under invoke, gets nothing there and a bare read answered "EINVAL: invalid argument, read" (tool:read-published-clips,
+// Nov 24-25 2026).
+const NO_DOOR = descriptor => `No run door is on descriptor ${descriptor}: the engine hands one only for the row's invoke.records or the rights of its top-level stored list, and this row's run was given neither.`;
+
+/** The door descriptor's JSON line, or the NO_DOOR refusal when nothing readable is there. */
+function doorLine(descriptor) {
+  let text;
+  try {
+    text = readFileSync(descriptor, 'utf8');
+  } catch (error) {
+    throw new Error(`${NO_DOOR(descriptor)} (${error.code ?? error.message})`);
+  }
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`${NO_DOOR(descriptor)} (it holds no door line)`);
+  }
+}
+
 export function openBearerDoor({ descriptor = 3, ...options } = {}) {
   const { url, resource = OWN_RECORDS, capability, files_resource: filesResource, tools_resource: toolsResource,
-    computer_actions: computerActions, protected_actions: protectedActions } = JSON.parse(readFileSync(descriptor, 'utf8'));
+    computer_actions: computerActions, protected_actions: protectedActions } = doorLine(descriptor);
   return { ...openBearerCall({ ...options, url, resource, capability }),
     url, capability, filesResource, resource, toolsResource, computerActions, protectedActions };
 }

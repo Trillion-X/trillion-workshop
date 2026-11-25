@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:http';
-import { openBearerCall, openRecordsDoor, recordsDoorFromCall, RecordsDoorError } from '../read-data/records-door.mjs';
+import { openBearerCall, openBearerDoor, openRecordsDoor, recordsDoorFromCall, RecordsDoorError } from '../read-data/records-door.mjs';
 import { requestKeyForEngine } from '../../content-identity/read-data/identity.mjs';
 import { wholeAnswer } from '../read-data/byte-pages.mjs';
 import { startFakeDoor } from './fake-door.mjs';
@@ -641,6 +641,21 @@ test('run-an-export answers the door from the rows given in `stored`, and hands 
   assert.deepEqual(runExport('countNotes', { prefix: 'note:a', stored }), { status: 0, answer: { result: { count: 2 } } });
   assert.deepEqual(runExport('keepANote', { id: 'note:c1', n: 4, stored }), { status: 0, answer: { result: { kept: 'note:c1', seen: 4, keep: [{ id: 'note:c1', type: 'note', value: { n: 4 } }] } } });
   assert.deepEqual(runExport('countNotes', { prefix: 'note:' }), { status: 0, answer: { result: { count: 0 } } }, 'nothing given is nothing read');
+});
+
+// Nov 24-25 2026: tool:read-published-clips kept its stored list under invoke, so the engine mounted no door on descriptor 3 and its
+// share-link step failed on a bare "EINVAL: invalid argument, read". A run with no door is told what the engine hands one for.
+test('a run whose descriptor holds no door is told so, by the descriptor and the reason', () => {
+  assert.throws(() => openBearerDoor({ descriptor: 987 }), error => /^No run door is on descriptor 987: the engine hands one only for the row's invoke\.records or the rights of its top-level stored list/.test(error.message) && /\(EBADF\)$/.test(error.message));
+  const empty = join(tempFolder(join(tmpdir(), 'no-door-')), 'empty');
+  writeFileSync(empty, '');
+  const descriptor = openSync(empty, 'r');
+  try {
+    assert.throws(() => openBearerDoor({ descriptor }), error => error.message.startsWith(`No run door is on descriptor ${descriptor}:`) && error.message.endsWith('(it holds no door line)'));
+  } finally { closeSync(descriptor); }
+  const { status, answer } = runExport('askAnother', { n: 21 });
+  assert.equal(status, 1);
+  assert.match(answer.error, /^No run door is on descriptor 3:/, 'the driver says it for a run handed nothing on 3');
 });
 
 test('run-an-export sends what the values do not answer to the run\'s own door', async () => {

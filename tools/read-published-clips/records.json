@@ -349,14 +349,6 @@
               }
             }
           },
-          "stored": [
-            {
-              "files": "/published-clips/",
-              "operations": [
-                "share_file"
-              ]
-            }
-          ],
           "files": {
             "package_files": [
               {
@@ -503,6 +495,14 @@
             ]
           }
         },
+        "stored": [
+          {
+            "files": "/published-clips/",
+            "operations": [
+              "share_file"
+            ]
+          }
+        ],
         "result_selector": "$.result",
         "read_only": true,
         "needs": {
