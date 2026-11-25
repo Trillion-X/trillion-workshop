@@ -9,6 +9,24 @@ Four scripts a person's AI runs on the person's own computer, one after another 
 
 Whole-frame motion against a reference video is a different job: `check-a-videos-motion-against-a-reference`. A cheap non-learned follower of the most-changing part of the picture is `media-composition`'s `track-moving-subject`.
 
+## The one route: workflow:make-matched-movement-clips
+
+Every movement comparison and swing clip is made by `workflow:make-matched-movement-clips` (a row of
+the pursuit's `workflow_recipes`), never by a hand-run script: its steps run `do-work/make_matched_clips.py`
+(prepare, perceive, match, render, check, keep) from Workshop origin/main, then index each kept clip in the named store's
+`recording_moment`. A guard in ai-command-center (`.claude/hooks/making-a-deliverable-needs-a-wf-run.py`, its `routes`
+data) refuses running these scripts, or ffmpeg on swing-library footage, outside an open run of that workflow. Why (Nov 25 2026):
+comparison clips had been made by hand scripts around this tool's matcher, contact finder and planner.
+
+| Stage | What it runs |
+|-------|--------------|
+| prepare | `files_road.fetch` of the perception models and every clip by Files identity |
+| perceive | `perception/run_perception.py` (pose, then `describe_clip` with the physical stroke rules on), as the index folder `select_partner` reads; a described clip is reused |
+| match | `match/select_partner.py` per target window; only admitted pairs (camera direction verified) are kept |
+| render | `author_comparison_edl.py` (stacked or side by side, crop on each person, centred on contact), rendered by media-composition `render-an-edit.mjs` |
+| check | `side_by_side.py check` (two sources, same stroke and direction, contact within one output frame) |
+| keep | `files_road.keep` (any size, in 32 MiB pieces) and one row per clip |
+
 ## Files
 
 | File | Purpose |
