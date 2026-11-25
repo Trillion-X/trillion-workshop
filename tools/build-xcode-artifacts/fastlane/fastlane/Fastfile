@@ -121,7 +121,7 @@ platform :mac do
       unless status.success? && placed["sha256"] == Digest::SHA256.file(File.join(feed, file)).hexdigest
         UI.user_error!("#{file} was not put into #{o.fetch(:store)}: #{said.strip[-600..] || said.strip}")
       end
-      UI.message("Put #{file}: #{placed["size"]} bytes, sha256 #{placed["sha256"]}")
+      UI.message("Put #{file}: #{placed["bytes"]} bytes, blake3 #{placed["blake3"]}")
     end
     put.call(versioned, "application/octet-stream", "max-age=31536000, immutable")
     (Dir[File.join(feed, "*.delta")] - before).each do |delta|

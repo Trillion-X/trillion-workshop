@@ -9,6 +9,8 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, mkdtempSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
 import { checkedKey, fileInFolder, putObject } from '../do-work/put-object.mjs';
 
 const STORE = {
@@ -45,12 +47,12 @@ test('one put sends the file to the bucket key, signed for the store region with
   );
   const sha256 = createHash('sha256').update(bytes).digest('hex');
   assert.deepEqual(answer, {
-    key: 'feeds/app cast.xml', size: bytes.length, sha256, etag: 'abc123',
-    address: 'https://s3.example-region-1.store.example.test/example-downloads/feeds/app%20cast.xml',
+    store: 'downloads-store', key: 'feeds/app cast.xml', bytes: bytes.length, blake3: bytesToHex(blake3(bytes)), sha256, etag: 'abc123',
   });
   assert.equal(kept.length, 1);
   const [{ url, init, body }] = kept;
-  assert.equal(url, answer.address);
+  assert.equal(url, 'https://s3.example-region-1.store.example.test/example-downloads/feeds/app%20cast.xml');
+  for (const held of Object.values(STORE)) assert.ok(!JSON.stringify(answer).includes(held), 'the answer holds no held value');
   assert.equal(init.method, 'PUT');
   assert.equal(init.redirect, 'error');
   assert.equal(init.headers['x-amz-content-sha256'], sha256);

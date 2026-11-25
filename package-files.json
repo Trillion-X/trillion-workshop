@@ -41942,6 +41942,22 @@
     "do-work/read-objects.mjs"
    ],
    "at": "/opt/read-objects-in-an-s3-store"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
   }
  ],
  "tool:put-records-into-my-account": [

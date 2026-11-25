@@ -65,24 +65,40 @@
         },
         "output_schema": {
           "type": "object",
+          "required": [
+            "store",
+            "key",
+            "bytes",
+            "blake3",
+            "sha256",
+            "etag"
+          ],
           "properties": {
+            "store": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
             "key": {
               "type": "string"
             },
-            "size": {
+            "bytes": {
               "type": "integer"
             },
+            "blake3": {
+              "type": "string",
+              "description": "The file's BLAKE3, its content identity"
+            },
             "sha256": {
-              "type": "string"
+              "type": "string",
+              "description": "The file's SHA-256, the payload hash the store signed and checked"
             },
             "etag": {
               "type": [
                 "string",
                 "null"
               ]
-            },
-            "address": {
-              "type": "string"
             }
           }
         },
@@ -113,6 +129,22 @@
                   "do-work/read-objects.mjs"
                 ],
                 "at": "/opt/read-objects-in-an-s3-store"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
               }
             ]
           },

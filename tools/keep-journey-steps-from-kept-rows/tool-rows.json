@@ -45,38 +45,76 @@
           }
         },
         "output_schema": {
-          "type": "object",
-          "required": [
-            "mappings"
-          ],
-          "properties": {
-            "mappings": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "required": [
-                  "id",
-                  "step",
-                  "read",
-                  "kept"
-                ],
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  },
-                  "step": {
-                    "type": "string"
-                  },
-                  "read": {
-                    "type": "integer"
-                  },
-                  "kept": {
-                    "type": "integer"
+          "anyOf": [
+            {
+              "type": "object",
+              "required": [
+                "schema",
+                "mappings"
+              ],
+              "properties": {
+                "schema": {
+                  "enum": [
+                    "current",
+                    "applied"
+                  ]
+                },
+                "mappings": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "step"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "table": {
+                        "type": "string"
+                      },
+                      "step": {
+                        "type": "string"
+                      },
+                      "read": {
+                        "type": "integer"
+                      },
+                      "kept": {
+                        "type": "integer"
+                      },
+                      "skipped": {
+                        "type": "string"
+                      },
+                      "columns": {
+                        "type": "array"
+                      }
+                    }
                   }
                 }
               }
+            },
+            {
+              "type": "object",
+              "required": [
+                "mode",
+                "declared",
+                "missing",
+                "version",
+                "applied"
+              ],
+              "properties": {
+                "mode": {
+                  "const": "check"
+                },
+                "declared": {
+                  "type": "integer"
+                },
+                "missing": {
+                  "type": "array"
+                }
+              }
             }
-          }
+          ]
         },
         "invoke": {
           "kind": "container",

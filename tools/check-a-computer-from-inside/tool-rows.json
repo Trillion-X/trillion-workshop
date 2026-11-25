@@ -138,109 +138,117 @@
         "output_schema": {
           "type": "object",
           "required": [
-            "name",
-            "address",
-            "checked",
-            "checked_at",
-            "disks",
-            "engines",
-            "findings"
+            "result"
           ],
           "properties": {
-            "name": {
-              "type": [
-                "string",
-                "null"
-              ]
-            },
-            "address": {
-              "type": [
-                "string",
-                "null"
-              ]
-            },
-            "checked": {
-              "type": "boolean"
-            },
-            "why": {
-              "type": "string"
-            },
-            "checked_at": {
-              "type": "string"
-            },
-            "disks": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "mount": {
-                    "type": "string"
-                  },
-                  "type": {
-                    "type": "string"
-                  },
-                  "size_bytes": {
-                    "type": "number"
-                  },
-                  "used_bytes": {
-                    "type": "number"
-                  },
-                  "available_bytes": {
-                    "type": "number"
-                  },
-                  "used_pct": {
-                    "type": "number"
+            "result": {
+              "type": "object",
+              "required": [
+                "name",
+                "address",
+                "checked",
+                "checked_at",
+                "disks",
+                "engines",
+                "findings"
+              ],
+              "properties": {
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "address": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "checked": {
+                  "type": "boolean"
+                },
+                "why": {
+                  "type": "string"
+                },
+                "checked_at": {
+                  "type": "string"
+                },
+                "disks": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "mount": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "size_bytes": {
+                        "type": "number"
+                      },
+                      "used_bytes": {
+                        "type": "number"
+                      },
+                      "available_bytes": {
+                        "type": "number"
+                      },
+                      "used_pct": {
+                        "type": "number"
+                      }
+                    }
                   }
-                }
-              }
-            },
-            "engines": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "unit": {
-                    "type": "string"
-                  },
-                  "user": {
-                    "type": "string"
-                  },
-                  "owners": {
-                    "type": "array"
-                  },
-                  "persons": {
-                    "type": [
-                      "integer",
-                      "null"
-                    ]
-                  },
-                  "listens": {
-                    "type": "array"
-                  },
-                  "held_again": {
-                    "type": "object"
-                  },
-                  "person_folders": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "person": {
-                          "type": "string"
-                        },
-                        "bytes": {
-                          "type": "number"
-                        },
-                        "largest": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "path": {
-                                "type": "string"
-                              },
-                              "bytes": {
-                                "type": "number"
+                },
+                "engines": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "unit": {
+                        "type": "string"
+                      },
+                      "user": {
+                        "type": "string"
+                      },
+                      "owners": {
+                        "type": "array"
+                      },
+                      "persons": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "listens": {
+                        "type": "array"
+                      },
+                      "held_again": {
+                        "type": "object"
+                      },
+                      "person_folders": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "person": {
+                              "type": "string"
+                            },
+                            "bytes": {
+                              "type": "number"
+                            },
+                            "largest": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "path": {
+                                    "type": "string"
+                                  },
+                                  "bytes": {
+                                    "type": "number"
+                                  }
+                                }
                               }
                             }
                           }
@@ -248,135 +256,135 @@
                       }
                     }
                   }
-                }
-              }
-            },
-            "findings": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "required": [
-                  "computer",
-                  "at",
-                  "kind",
-                  "level",
-                  "about",
-                  "said"
-                ],
-                "properties": {
-                  "computer": {
-                    "type": "string"
-                  },
-                  "at": {
-                    "type": "string"
-                  },
-                  "kind": {
-                    "type": "string"
-                  },
-                  "level": {
-                    "enum": [
-                      "warn",
-                      "alert"
-                    ]
-                  },
-                  "about": {
-                    "type": "string"
-                  },
-                  "said": {
-                    "type": "string"
-                  },
-                  "pretend": {
-                    "type": "boolean"
+                },
+                "findings": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "computer",
+                      "at",
+                      "kind",
+                      "level",
+                      "about",
+                      "said"
+                    ],
+                    "properties": {
+                      "computer": {
+                        "type": "string"
+                      },
+                      "at": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string"
+                      },
+                      "level": {
+                        "enum": [
+                          "warn",
+                          "alert"
+                        ]
+                      },
+                      "about": {
+                        "type": "string"
+                      },
+                      "said": {
+                        "type": "string"
+                      },
+                      "pretend": {
+                        "type": "boolean"
+                      }
+                    }
                   }
-                }
-              }
-            },
-            "units": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "unit": {
-                    "type": "string"
-                  },
-                  "load": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "active": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "result": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
+                },
+                "units": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "unit": {
+                        "type": "string"
+                      },
+                      "load": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "active": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "result": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
                   }
-                }
-              }
-            },
-            "row_read_at": {
-              "type": [
-                "string",
-                "null"
-              ]
-            },
-            "units_asked": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "description": "Every unit name the row's runs named and systemd was asked about."
-            },
-            "wake_books": {
-              "type": "array",
-              "description": "Each engine whose wake book was asked: whether it was read, and the standing due-time wakes and tellers in it (or why it was not read).",
-              "items": {
-                "type": "object",
-                "required": [
-                  "unit",
-                  "read"
-                ],
-                "properties": {
-                  "unit": {
+                },
+                "row_read_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "units_asked": {
+                  "type": "array",
+                  "items": {
                     "type": "string"
                   },
-                  "read": {
-                    "type": "boolean"
-                  },
-                  "why": {
-                    "type": "string"
-                  },
-                  "due_time_wakes": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "tellers": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "pretend": {
-                    "type": "boolean"
-                  },
-                  "not_told": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "not_judged": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
+                  "description": "Every unit name the row's runs named and systemd was asked about."
+                },
+                "wake_books": {
+                  "type": "array",
+                  "description": "Each engine whose wake book was asked: whether it was read, and the standing due-time wakes and tellers in it (or why it was not read).",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "unit",
+                      "read"
+                    ],
+                    "properties": {
+                      "unit": {
+                        "type": "string"
+                      },
+                      "read": {
+                        "type": "boolean"
+                      },
+                      "why": {
+                        "type": "string"
+                      },
+                      "due_time_wakes": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "tellers": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "pretend": {
+                        "type": "boolean"
+                      },
+                      "not_told": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "not_judged": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
                     }
                   }
                 }

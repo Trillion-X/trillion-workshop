@@ -18,7 +18,10 @@ owner.
    refuses bytes that differ from the ones hashed. Then it is read by stream again and sent as the body of one path-style
    `PUT /<bucket>/<key>` with its `Content-Length`, the given `Content-Type` and, when given, `Cache-Control`. One put takes up
    to 5 GiB. Memory holds one piece whatever the size.
-4. **The answer.** `{ key, size, sha256, etag, address }`. No key value, signature or raw store reply is answered or logged.
+4. **The answer.** `{ store, key, bytes, blake3, sha256, etag }`: the file's BLAKE3 is its content identity, its SHA-256
+   the payload hash the store signed. No key value, signature or raw store reply is answered or logged, and nor is the
+   store's address: it is made of the endpoint and bucket the vault holds, and the engine withholds a whole output that
+   holds a held value, so until Nov 25 2026 every put that named it reached its caller as null.
 
 Whether anyone may read the object is the bucket's own setting (a public bucket serves every key it holds); this tool never
 changes a bucket.

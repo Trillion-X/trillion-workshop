@@ -10,11 +10,15 @@ import { realpathSync } from 'node:fs';
 // name begins (`<store>-key-id`, `-secret`, `-endpoint`, `-bucket`, `-region`) on descriptors 3 to 7 of this one process
 // and never in its input. Each value reaches only the hosts the vault keeps for it, so the request can go to the store's
 // own endpoint and nowhere else. The file is read twice by stream, once for its SHA-256 (the signed payload hash the store
-// checks the bytes against) and once to send, so memory holds one piece whatever the file's size. The answer carries the
-// key, the size, the SHA-256 and the store's ETag, never a key value, a signature or the store's raw reply.
+// checks the bytes against) and BLAKE3 (its content identity) together, and once to send, so memory holds one piece
+// whatever the file's size. The answer is { store, key, bytes, blake3, sha256, etag }: never a key value, a signature, the
+// store's raw reply or its address. The address is made of the endpoint and bucket the vault holds, and the engine withholds
+// a whole output that holds a held value, so until Nov 25 2026 every put answered its caller null (150 puts in 7 days).
 //
 // Signing is the read tool's (tools/read-objects-in-an-s3-store/do-work/read-objects.mjs `signRequest`): one AWS
 // Signature Version 4 owner for every S3 call the Workshop makes.
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
 import { createHash } from 'node:crypto';
 import { createReadStream, readFileSync, statSync } from 'node:fs';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
@@ -54,10 +58,14 @@ export function checkedKey(key) {
   return key;
 }
 
-async function sha256OfFile(path) {
-  const hash = createHash('sha256');
-  for await (const piece of createReadStream(path)) hash.update(piece);
-  return hash.digest('hex');
+async function hashesOfFile(path) {
+  const sha256 = createHash('sha256');
+  const identity = blake3.create();
+  for await (const piece of createReadStream(path)) {
+    sha256.update(piece);
+    identity.update(piece);
+  }
+  return { sha256: sha256.digest('hex'), blake3: bytesToHex(identity.digest()) };
 }
 
 // Puts one file into one key. stdin = { input: { store, file, key, content_type, cache_control? }, folder } with the
@@ -81,7 +89,7 @@ export async function putObject({ input = {}, folder } = {}, { store, fetchImpl 
   if (size > MAX_OBJECT_BYTES) throw new Error(`${input.file} is ${size} bytes; one put takes at most ${MAX_OBJECT_BYTES} bytes.`);
   const origin = endpointOrigin(endpoint);
   const url = new URL(`/${encodeRfc3986(bucket)}/${encodePath(key)}`, origin);
-  const sha256 = await sha256OfFile(path);
+  const { sha256, blake3: identity } = await hashesOfFile(path);
   const signed = signRequest({ method: 'PUT', url: url.href, payloadHash: sha256, region, keyId, secret, now });
   const headers = { ...signed, 'content-type': input.content_type, 'content-length': String(size) };
   if (input.cache_control) headers['cache-control'] = input.cache_control;
@@ -92,7 +100,7 @@ export async function putObject({ input = {}, folder } = {}, { store, fetchImpl 
   if (response.status === 401 || response.status === 403) throw new Error(`The store refused the held key (${response.status}). Keep a current key for ${input.store ?? 'the store'} in the vault.`);
   if (response.status === 400) throw new Error('The store refused the bytes as sent (400): their SHA-256 or length did not match what was signed.');
   if (!response.ok) throw new Error(`The store answered ${response.status}. Try again later.`);
-  return { key, size, sha256, etag: (response.headers.get('etag') ?? '').replace(/"/g, '') || null, address: url.href };
+  return { store: input.store ?? null, key, bytes: size, blake3: identity, sha256, etag: (response.headers.get('etag') ?? '').replace(/"/g, '') || null };
 }
 
 if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {

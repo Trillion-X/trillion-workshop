@@ -286,8 +286,8 @@
                         "notification_id": {
                           "$kind": "binding",
                           "select": {
-                            "from": "input",
-                            "path": "start_at"
+                            "from": "literal",
+                            "value": null
                           },
                           "resolve_nested_bindings": true,
                           "transform": [

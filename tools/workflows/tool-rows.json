@@ -2124,8 +2124,7 @@
         "output_schema": {
           "type": "object",
           "required": [
-            "result",
-            "wake_effects"
+            "result"
           ],
           "properties": {
             "result": {
@@ -2134,9 +2133,13 @@
                 "status",
                 "workflow",
                 "run",
-                "steps",
-                "waiting"
-              ]
+                "steps"
+              ],
+              "properties": {
+                "waiting": {
+                  "type": "array"
+                }
+              }
             },
             "wake_effects": {
               "type": "array",

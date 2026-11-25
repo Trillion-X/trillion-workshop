@@ -366,8 +366,8 @@
                         {
                           "$kind": "binding",
                           "select": {
-                            "from": "input",
-                            "path": "start_at"
+                            "from": "literal",
+                            "value": null
                           },
                           "resolve_nested_bindings": true,
                           "transform": [
@@ -421,8 +421,8 @@
                         {
                           "$kind": "binding",
                           "select": {
-                            "from": "input",
-                            "path": "start_at"
+                            "from": "literal",
+                            "value": null
                           },
                           "resolve_nested_bindings": true,
                           "transform": [
@@ -475,8 +475,8 @@
                         {
                           "$kind": "binding",
                           "select": {
-                            "from": "input",
-                            "path": "start_at"
+                            "from": "literal",
+                            "value": null
                           },
                           "resolve_nested_bindings": true,
                           "transform": [
@@ -554,8 +554,8 @@
                       "text": {
                         "$kind": "binding",
                         "select": {
-                          "from": "input",
-                          "path": "start_at"
+                          "from": "literal",
+                          "value": null
                         },
                         "resolve_nested_bindings": true,
                         "transform": [
@@ -674,8 +674,8 @@
                           "content": {
                             "$kind": "binding",
                             "select": {
-                              "from": "input",
-                              "path": "start_at"
+                              "from": "literal",
+                              "value": null
                             },
                             "resolve_nested_bindings": true,
                             "transform": [
@@ -1053,8 +1053,8 @@
                         {
                           "$kind": "binding",
                           "select": {
-                            "from": "input",
-                            "path": "start_at"
+                            "from": "literal",
+                            "value": null
                           },
                           "resolve_nested_bindings": true,
                           "transform": [
@@ -1108,8 +1108,8 @@
                         {
                           "$kind": "binding",
                           "select": {
-                            "from": "input",
-                            "path": "start_at"
+                            "from": "literal",
+                            "value": null
                           },
                           "resolve_nested_bindings": true,
                           "transform": [
@@ -1219,8 +1219,8 @@
                         {
                           "$kind": "binding",
                           "select": {
-                            "from": "input",
-                            "path": "start_at"
+                            "from": "literal",
+                            "value": null
                           },
                           "resolve_nested_bindings": true,
                           "transform": [
@@ -1308,8 +1308,8 @@
                         {
                           "$kind": "binding",
                           "select": {
-                            "from": "input",
-                            "path": "start_at"
+                            "from": "literal",
+                            "value": null
                           },
                           "resolve_nested_bindings": true,
                           "transform": [
@@ -1363,8 +1363,8 @@
                         {
                           "$kind": "binding",
                           "select": {
-                            "from": "input",
-                            "path": "start_at"
+                            "from": "literal",
+                            "value": null
                           },
                           "resolve_nested_bindings": true,
                           "transform": [
@@ -1513,8 +1513,8 @@
                         {
                           "$kind": "binding",
                           "select": {
-                            "from": "input",
-                            "path": "start_at"
+                            "from": "literal",
+                            "value": null
                           },
                           "resolve_nested_bindings": true,
                           "transform": [
@@ -1602,8 +1602,8 @@
                         {
                           "$kind": "binding",
                           "select": {
-                            "from": "input",
-                            "path": "start_at"
+                            "from": "literal",
+                            "value": null
                           },
                           "resolve_nested_bindings": true,
                           "transform": [
@@ -1656,8 +1656,8 @@
                         {
                           "$kind": "binding",
                           "select": {
-                            "from": "input",
-                            "path": "start_at"
+                            "from": "literal",
+                            "value": null
                           },
                           "resolve_nested_bindings": true,
                           "transform": [
@@ -1692,8 +1692,8 @@
                         {
                           "$kind": "binding",
                           "select": {
-                            "from": "input",
-                            "path": "start_at"
+                            "from": "literal",
+                            "value": null
                           },
                           "resolve_nested_bindings": true,
                           "transform": [

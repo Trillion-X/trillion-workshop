@@ -256,6 +256,7 @@ test("6. a refused waiter row is recorded as a fact, and the good rows still sta
   const refusalFact = carrier.writes.find((write) => write.payload.observed_identity?.waiter_refused === true);
   assert.ok(refusalFact, "the refusal is a fact in the log");
   assert.equal(refusalFact.payload.condition, CONDITIONS.unreachable);
+  assert.equal(refusalFact.addressLabel, "something-showed-up::waiter:points-at-a-different-leaf", "a refusal is told at its own address, not the waiter's arrivals' address");
 });
 
 test("6b. a mechanism may not shadow an arrival field, and a leaf outside the folder is refused", async () => {

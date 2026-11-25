@@ -25,20 +25,20 @@
     "tools/workflows/ask-words.json",
     "tools/workflows/run-end.json"
   ],
-  "fingerprint": "76aef07a263b1d085e4c6eedaa33ed4a4a4804d3e3cc73bd9ff9585f268aafb5",
+  "fingerprint": "40156ce201b7bea634de3e3300f528cfc741978ac72046abd2468d9489ef01d8",
   "workspace_commits": {
-    "../../trillion-rust/crates": "00ed817c51a2b88c46c727ceb68de2a25eb63836"
+    "../../trillion-rust/crates": "b62b4009265d686e65ee5ec3d4a1670e978671d4"
   },
   "files": {
     "held-values/http_client.js": "b943aae9882afe502dc46d8c135ccddb649512a49e6af0849e3428b8184ecb83",
     "held-values/http_client_bg.wasm": "420e0eaa66323db4d541c2074f3b5d7b83a4fa795813bb0f84464dab31b71f6b",
-    "workflow-engine/workflow_engine.js": "1dbc5471e8050488afe6198d3433b0e802355efda12452c72476b8a18b53274d",
-    "workflow-engine/workflow_engine_bg.wasm": "a1662f277997f1759c4c48ad992113100b8bb53ee1af127420668c1762c6576b",
+    "workflow-engine/workflow_engine.js": "7b3ee353ca0e3a4ff1d636bfacc25e92bb0e2d69c16010b0e76a1affe5fe311b",
+    "workflow-engine/workflow_engine_bg.wasm": "78beb590ce5529e8770d309c934b75ffe04cdc12e5278e362b52e4e0dc231f4d",
     "screen-arrangement/screen_arrangement.js": "fdba8dd41246d911f133d038775ae1a564d22dac551e6ba54db757bdc3e1e573",
     "screen-arrangement/screen_arrangement_bg.wasm": "fe021c7de8ab0c6db1c8c9256b92e921f1cff8a9a7c261cdae6c0a6c09835ead",
     "composition-engine/composition_engine.wasm": "634e20f190f0e4680d7f0dd360e44427817471e14678bcb86b58c37a96018b91",
     "composition-engine/composition_engine.js": "e77c96be89e4b4c3286febf0c83952300200a89b103b953153c773ae41c462f4",
     "composition-engine/composition_engine_bg.wasm": "f11c4deaa1cf76b6092e92e6352ba05f3f91e7498278874a17919ef58aae0caa",
-    "workflow-component/workflow_component.wasm": "2fc979cdfc2ff153d82afbfa4c78a9120a29653cad6b8f08bf93c73abf2dbcf9"
+    "workflow-component/workflow_component.wasm": "62edede748cc53bc0798303245763093dd625825465cb81e28fd0effd8a5f99b"
   }
 }

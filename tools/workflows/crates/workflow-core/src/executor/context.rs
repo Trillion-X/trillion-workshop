@@ -611,6 +611,9 @@ impl BindingResolver {
         }
         match map.get("omit_if_missing") {
             None | Some(Value::Bool(false)) => Ok(false),
+            // On a select binding the flag says its path may find nothing, read as null (absence_expected); the member
+            // stays, as a select binding has always kept it.
+            Some(Value::Bool(true)) if map.contains_key("select") && !map.contains_key("values") => Ok(false),
             Some(Value::Bool(true)) => {
                 let path = map.get("values").and_then(Value::as_array)
                     .filter(|_| !map.contains_key("expr") && !map.contains_key("select"))
@@ -740,9 +743,7 @@ impl BindingResolver {
             _ => {
                 return Err(WorkflowError::TemplateResolutionFailed {
                     reason: format!("Unknown binding scope '{}' in $kind: binding AST", from),
-                    hint: "Valid binding scopes are: input, steps, context, start, loop, ambient. \
-                           'state' requires pre-resolution by the host."
-                        .to_string(),
+                    hint: format!("Valid binding scopes are: {}. 'state' requires pre-resolution by the host.", BINDING_SCOPES.join(", ")),
                 });
             }
         }
@@ -753,6 +754,16 @@ impl BindingResolver {
                 resolved = Self::evaluate_transform_chain(resolved, transforms, ctx)?;
             }
             return Ok(resolved);
+        }
+
+        // A path that finds nothing inside a completed step's answer, or inside a loop's item, is a typed error naming
+        // it (WorkflowError::BindingMissing), never a null the next step reads as nothing: unless the binding says that
+        // absence is expected (`omit_if_missing: true`, or a first transform that handles absence). A step's raw-bytes
+        // side channel (output.bytes, base64, text) is answered above and is never such a path.
+        if !Self::absence_expected(map)? {
+            if let Some(missing) = Self::missing_inside(ctx, from, key, path) {
+                return Err(missing);
+            }
         }
 
         let mut resolved = Self::resolve_select_binding(ctx, from, key, path)?;
@@ -832,7 +843,7 @@ impl BindingResolver {
             }
             other => Err(WorkflowError::TemplateResolutionFailed {
                 reason: format!("Unknown binding scope '{}' in $kind: binding AST", other),
-                hint: "Valid binding scopes are: input, steps, context, start, loop, ambient. 'state' requires pre-resolution by the host.".to_string(),
+                hint: format!("Valid binding scopes are: {}. 'state' requires pre-resolution by the host.", BINDING_SCOPES.join(", ")),
             }),
         }
     }
@@ -1007,6 +1018,113 @@ impl BindingResolver {
                 "os, arch",
             )),
         }
+    }
+
+    /// Whether a select binding expects its path may find nothing: it declares `omit_if_missing: true`, or its first
+    /// transform is one that reads absence (`op:core.if_null`, `op:core.coalesce`, `op:core.is_null`,
+    /// `op:core.is_not_null`). Any other `omit_if_missing` value is refused, as for a `values` binding.
+    fn absence_expected(map: &serde_json::Map<String, Value>) -> Result<bool, WorkflowError> {
+        match map.get("omit_if_missing") {
+            None | Some(Value::Bool(false)) => {}
+            Some(Value::Bool(true)) => return Ok(true),
+            Some(_) => {
+                return Err(WorkflowError::TemplateResolutionFailed {
+                    reason: "binding field omit_if_missing must be a boolean".to_string(),
+                    hint: "Use true when the path may find nothing and the step reads that as null.".to_string(),
+                })
+            }
+        }
+        Ok(map
+            .get("transform")
+            .and_then(Value::as_array)
+            .and_then(|transforms| transforms.first())
+            .and_then(|first| first.get("op"))
+            .and_then(Value::as_str)
+            .is_some_and(|op| READS_ABSENCE.contains(&op)))
+    }
+
+    /// `step` (one transform) with every select binding in its `args` marked `omit_if_missing: true`, when its operator
+    /// reads absence: a coalesce's candidates are each allowed to find nothing (that is what it chooses among), so a
+    /// path one of them misses reads as null there instead of failing the binding. Any other step is returned as is.
+    fn args_expecting_absence(step: &Value) -> std::borrow::Cow<'_, Value> {
+        fn mark(value: &mut Value) {
+            match value {
+                Value::Object(map) => {
+                    if map.get("$kind").and_then(Value::as_str) == Some("binding") && map.contains_key("select") {
+                        map.entry("omit_if_missing").or_insert(Value::Bool(true));
+                    }
+                    map.values_mut().for_each(mark);
+                }
+                Value::Array(items) => items.iter_mut().for_each(mark),
+                _ => {}
+            }
+        }
+        let reads_absence = step.get("op").and_then(Value::as_str).is_some_and(|op| READS_ABSENCE.contains(&op));
+        match step.get("args") {
+            Some(_) if reads_absence => {
+                let mut marked = step.clone();
+                if let Some(args) = marked.get_mut("args") { mark(args); }
+                std::borrow::Cow::Owned(marked)
+            }
+            _ => std::borrow::Cow::Borrowed(step),
+        }
+    }
+
+    /// The BindingMissing error for a `steps` path into a completed step's answer (`output...`) or a `loop` path into
+    /// the item or the last output, when that path finds nothing; None when it finds a value (null included), when the
+    /// step has not answered yet (a legitimate absence while the run goes on), or for any other scope.
+    fn missing_inside(ctx: &ExecutionContext, from: &str, key: &str, path: &str) -> Option<WorkflowError> {
+        let segments: Vec<&str> = if path.is_empty() { Vec::new() } else { path.split('.').collect() };
+        let (root, rest, binding) = match from {
+            "steps" => {
+                let (step_key, step_segments) = if key.is_empty() && !segments.is_empty() { (segments[0], &segments[1..]) } else { (key, segments.as_slice()) };
+                let step = ctx.step_output(step_key)?;
+                if step.status != crate::domain::types::ExecutionStatus::Completed || step_segments.first() != Some(&"output") {
+                    return None;
+                }
+                (&step.output, &step_segments[1..], format!("steps.{step_key}"))
+            }
+            "loop" => {
+                let loop_state = ctx.loop_state.as_ref()?;
+                match segments.first() {
+                    Some(&"last_output") => (&loop_state.last_output, &segments[1..], "loop.last_output".to_string()),
+                    Some(item) if *item == loop_state.item_var => (&loop_state.item, &segments[1..], format!("loop.{item}")),
+                    _ => return None,
+                }
+            }
+            _ => return None,
+        };
+        let found = Self::path_holds(ctx, root, rest);
+        (!found).then(|| WorkflowError::BindingMissing {
+            reason: format!("{binding} found nothing at {path}"),
+            hint: "The value this binding reads does not hold that path: read the field the answer has, or declare omit_if_missing: true when its absence is expected.".to_string(),
+            binding,
+            path: path.to_string(),
+        })
+    }
+
+    /// Whether `segments` reach a value in `root`, as `select_json_path` walks it (a JSON null reached is a value).
+    fn path_holds(ctx: &ExecutionContext, root: &Value, segments: &[&str]) -> bool {
+        let mut current = root;
+        for (index, segment) in segments.iter().enumerate() {
+            match current {
+                Value::Object(map) => {
+                    if let Some(next) = map.get(*segment) {
+                        current = next;
+                    } else if let Some(next) = Self::select_bytes_ref_field(ctx, map, segment) {
+                        return Self::path_holds(ctx, &next, &segments[index + 1..]);
+                    } else {
+                        return false;
+                    }
+                }
+                Value::Array(items) => match segment.parse::<usize>().ok().and_then(|index| items.get(index)) {
+                    Some(next) => current = next,
+                    None => return false,
+                },
+                _ => return false,
+            }
+        }
+        true
     }
 
     fn select_loop_path(
@@ -1332,7 +1450,7 @@ impl BindingResolver {
                 max_total_bytes: usize::MAX,
             };
             drop(ops_core::try_from_json_with_budget(&resolved, &depth_only).map_err(Self::json_conversion_error)?);
-            let step = Self::resolve_run_scoped(step, ctx)?;
+            let step = Self::resolve_run_scoped(&Self::args_expecting_absence(step), ctx)?;
             drop(Self::op_value(&step, ctx)?);
             let binding: Binding = serde_json::from_value(serde_json::json!({ "$kind": "binding", "transform": [step] }))
                 .map_err(|error| WorkflowError::TemplateResolutionFailed {
@@ -1469,6 +1587,34 @@ pub fn canonical_step_id(step: &crate::domain::types::Step, index: usize) -> Str
 // the authored model or raw JSON.
 // ============================================================================
 
+/// The transform operators that read absence: a binding whose first transform is one of them, and every select binding
+/// in such a transform's args, reads a path that finds nothing as null rather than failing as BindingMissing.
+const READS_ABSENCE: [&str; 4] = ["op:core.if_null", "op:core.coalesce", "op:core.is_null", "op:core.is_not_null"];
+
+/// The roots a `select` binding may read, each answered by `BindingResolver::resolve_binding_ast` (`state` is answered
+/// as the error that the host pre-resolves it). `compile_steps_and_edges` refuses a definition naming any other root.
+pub const BINDING_SCOPES: [&str; 9] = ["input", "ambient", "change", "context", "start", "loop", "steps", "literal", "state"];
+
+/// The first `select` binding in `value` whose `from` is not one of `BINDING_SCOPES` (a missing `from` included): its
+/// JSON pointer under `at` and the root it names.
+fn unknown_scope_in(value: &Value, at: String) -> Option<(String, String)> {
+    match value {
+        Value::Object(map) => {
+            if map.get("$kind").and_then(Value::as_str) == Some("binding") {
+                if let Some(select) = map.get("select").and_then(Value::as_object) {
+                    let from = select.get("from").and_then(Value::as_str).unwrap_or("");
+                    if !BINDING_SCOPES.contains(&from) {
+                        return Some((at, from.to_owned()));
+                    }
+                }
+            }
+            map.iter().find_map(|(name, inner)| unknown_scope_in(inner, format!("{at}/{}", name.replace('~', "~0").replace('/', "~1"))))
+        }
+        Value::Array(items) => items.iter().enumerate().find_map(|(index, inner)| unknown_scope_in(inner, format!("{at}/{index}"))),
+        _ => None,
+    }
+}
+
 /// Compile an authored Definition into a CompiledDefinition.
 ///
 /// Builds the DirectedGraph from steps (nodes) and edges (topology).
@@ -1481,6 +1627,18 @@ pub fn compile_steps_and_edges(
 ) -> Result<crate::domain::types::CompiledDefinition, WorkflowError> {
     use crate::domain::types::{CompiledDefinition, CompiledEdge};
     use std::collections::HashMap;
+
+    // A binding that reads a root no binding has is refused here, before any step runs, never at its step: Nov 25 2026,
+    // workflow:keep-the-use-case-catalog-current's read moved its sweep mark and its apply then failed on scope 'read',
+    // so every change it had read was dropped. The roots are BINDING_SCOPES, the same ones the resolver answers.
+    for (index, step) in steps.iter().enumerate() {
+        if let Some((pointer, from)) = unknown_scope_in(&step.config, String::from("/config")) {
+            return Err(WorkflowError::InvalidWorkflow {
+                reason: format!("binding-scope-unknown: step '{}' reads the scope '{from}' at {pointer}", canonical_step_id(step, index)),
+                hint: format!("A binding's select.from is one of: {}. A step's answer is read as {{\"from\": \"steps\", \"key\": \"<step id>\", \"path\": \"output.<field>\"}}.", BINDING_SCOPES.join(", ")),
+            });
+        }
+    }
 
     let mut dag = graph::DirectedGraph::new();
     let mut step_map = HashMap::with_capacity(steps.len());
@@ -3574,5 +3732,142 @@ mod tests {
 
         let resolved = BindingResolver::resolve_value(&params, &ctx).unwrap();
         assert_eq!(resolved["msg"], "Entity {{input.target_id}} created");
+    }
+
+    // ========================================================================
+    // binding-missing: a path that finds nothing inside a value that is there (Nov 25 2026 router case)
+    // ========================================================================
+
+    fn missing_of(result: Result<Value, WorkflowError>) -> (String, String) {
+        match result {
+            Err(WorkflowError::BindingMissing { binding, path, .. }) => (binding, path),
+            other => panic!("a binding-missing error, not {other:?}"),
+        }
+    }
+
+    #[test]
+    fn a_step_answer_path_that_finds_nothing_fails_naming_the_binding_and_path() {
+        let mut ctx = test_context();
+        ctx.steps.insert("choose".to_string(), StepOutput {
+            output: json!({"result": {"chosen": [{"workflow": "workflow:x"}]}}), status: ExecutionStatus::Completed, error: None, duration_ms: 1 });
+        let params = json!({"each": {"$kind": "binding", "select": {"from": "steps", "key": "choose", "path": "output.chosen"},
+            "transform": [{"op": "op:core.filter_where", "args": {"predicate": [{"op": "op:core.get_path", "args": {"path": "installed"}}]}}]}});
+        assert_eq!(missing_of(BindingResolver::resolve_value(&params, &ctx)), ("steps.choose".to_string(), "output.chosen".to_string()));
+        let err = BindingResolver::resolve_value(&params, &ctx).unwrap_err();
+        assert_eq!(err.code(), "BINDING_MISSING");
+        assert!(err.to_string().starts_with("binding-missing: steps.choose found nothing at output.chosen"), "{err}");
+    }
+
+    #[test]
+    fn a_held_null_a_step_not_answered_yet_and_an_expected_absence_read_as_null() {
+        let mut ctx = test_context();
+        ctx.steps.insert("read".to_string(), StepOutput { output: json!({"rows": [], "label": null}), status: ExecutionStatus::Completed, error: None, duration_ms: 1 });
+        let held_null = json!({"$kind": "binding", "select": {"from": "steps", "key": "read", "path": "output.label"}});
+        assert_eq!(BindingResolver::resolve_value(&held_null, &ctx).unwrap(), Value::Null, "a null that is there is a value");
+        let not_yet = json!({"$kind": "binding", "select": {"from": "steps", "key": "later", "path": "output.anything"}});
+        assert_eq!(BindingResolver::resolve_value(&not_yet, &ctx).unwrap(), Value::Null, "a step with no answer yet");
+        let omitted = json!({"$kind": "binding", "select": {"from": "steps", "key": "read", "path": "output.rows.0.label"}, "omit_if_missing": true});
+        assert_eq!(BindingResolver::resolve_value(&omitted, &ctx).unwrap(), Value::Null, "omit_if_missing on a select binding");
+        let fallback = json!({"$kind": "binding", "select": {"from": "steps", "key": "read", "path": "output.rows.0.label"},
+            "transform": [{"op": "op:core.if_null", "args": {"fallback": "none"}}]});
+        assert_eq!(BindingResolver::resolve_value(&fallback, &ctx).unwrap(), json!("none"), "a first transform that reads absence");
+        let refused = json!({"$kind": "binding", "select": {"from": "steps", "key": "read", "path": "output.rows.0.label"}, "omit_if_missing": "yes"});
+        assert!(BindingResolver::resolve_value(&refused, &ctx).is_err(), "omit_if_missing must be a boolean");
+        let after_step = json!({"$kind": "binding", "select": {"from": "steps", "key": "read", "path": "output.rows.0.label"}, "transform": [{"op": "op:core.not"}]});
+        assert_eq!(missing_of(BindingResolver::resolve_value(&after_step, &ctx)).1, "output.rows.0.label", "a later transform does not excuse it");
+    }
+
+    #[test]
+    fn a_loop_item_or_last_output_path_that_finds_nothing_fails() {
+        let ctx = test_context_with_loop();
+        let item = json!({"$kind": "binding", "select": {"from": "loop", "path": "item.owner"}});
+        assert_eq!(missing_of(BindingResolver::resolve_value(&item, &ctx)), ("loop.item".to_string(), "item.owner".to_string()));
+        let last = json!({"$kind": "binding", "select": {"from": "loop", "path": "last_output.nothing"}});
+        assert_eq!(missing_of(BindingResolver::resolve_value(&last, &ctx)).0, "loop.last_output");
+        let present = json!({"$kind": "binding", "select": {"from": "loop", "path": "item.name"}});
+        assert_eq!(BindingResolver::resolve_value(&present, &ctx).unwrap(), json!("Task A"));
+        let index = json!({"$kind": "binding", "select": {"from": "loop", "path": "index"}});
+        assert_eq!(BindingResolver::resolve_value(&index, &ctx).unwrap(), json!(2), "the loop's own members are not item paths");
+    }
+
+    #[test]
+    fn the_other_roots_keep_their_reading_of_absence() {
+        // input, ambient, change, start and context read a path that finds nothing as null, as before: a run's input and
+        // a fact's fields are open sets (a row change never carries kinds), so their absence is the input's own answer.
+        let ctx = test_context();
+        for (from, path) in [("input", "nothing.here"), ("ambient", "nothing"), ("change", "properties.nothing"), ("start", "input.nothing")] {
+            let binding = json!({"$kind": "binding", "select": {"from": from, "path": path}});
+            assert_eq!(BindingResolver::resolve_value(&binding, &ctx).unwrap(), Value::Null, "{from}.{path}");
+        }
+        let unknown_member = json!({"$kind": "binding", "select": {"from": "context", "path": "nothing"}});
+        assert!(BindingResolver::resolve_value(&unknown_member, &ctx).is_err(), "context's members are a fixed set, refused as before");
+    }
+
+    #[test]
+    fn a_coalesce_reads_each_candidate_that_finds_nothing_as_null() {
+        // The Nov 25 2026 bridge rows read a step's answer under either shape; each candidate may miss.
+        let source = json!({"$kind": "binding", "resolve_nested_bindings": true, "select": {"from": "steps", "key": "find", "path": "output.result.messages"},
+            "transform": [{"op": "op:core.coalesce", "args": {"values": [
+                {"$kind": "binding", "select": {"from": "steps", "key": "find", "path": "output.result.messages"}},
+                {"$kind": "binding", "select": {"from": "steps", "key": "find", "path": "output.messages"}}]}}]});
+        for (output, want) in [(json!({"messages": [1]}), json!([1])), (json!({"result": {"messages": [2]}}), json!([2]))] {
+            let mut ctx = test_context();
+            ctx.steps.insert("find".to_string(), StepOutput { output, status: ExecutionStatus::Completed, error: None, duration_ms: 1 });
+            assert_eq!(BindingResolver::resolve_value(&source, &ctx).unwrap(), want);
+        }
+        // Outside such an operator a candidate's miss still fails by name.
+        let mut ctx = test_context();
+        ctx.steps.insert("find".to_string(), StepOutput { output: json!({"messages": [1]}), status: ExecutionStatus::Completed, error: None, duration_ms: 1 });
+        let strict = json!({"$kind": "binding", "select": {"from": "steps", "key": "find", "path": "output.messages"},
+            "transform": [{"op": "op:core.concat", "args": {"values": [{"$kind": "binding", "select": {"from": "steps", "key": "find", "path": "output.result.messages"}}]}}]});
+        assert_eq!(missing_of(BindingResolver::resolve_value(&strict, &ctx)), ("steps.find".to_string(), "output.result.messages".to_string()));
+    }
+
+    #[test]
+    fn omit_if_missing_on_a_select_binding_inside_an_object_reads_null() {
+        let mut ctx = test_context();
+        ctx.steps.insert("read".to_string(), StepOutput { output: json!({"rows": []}), status: ExecutionStatus::Completed, error: None, duration_ms: 1 });
+        let object = json!({"label": {"$kind": "binding", "select": {"from": "steps", "key": "read", "path": "output.rows.0.label"}, "omit_if_missing": true}});
+        assert_eq!(BindingResolver::resolve_value(&object, &ctx).unwrap(), json!({"label": null}));
+    }
+
+    #[test]
+    fn a_literal_root_with_a_concat_builds_the_text_from_its_args() {
+        // The shape tell-the-owner-what-changed-for-each-person uses since Nov 25 2026, instead of selecting input.start_at
+        // (the engine's start marker, absent from most runs) only to throw it away.
+        let mut ctx = test_context();
+        ctx.steps.insert("read".to_string(), StepOutput { output: json!({"id": 44}), status: ExecutionStatus::Completed, error: None, duration_ms: 1 });
+        let built = json!({"$kind": "binding", "resolve_nested_bindings": true, "select": {"from": "literal", "value": null},
+            "transform": [{"op": "op:core.concat", "args": {"values": ["told:", {"$kind": "binding", "select": {"from": "steps", "key": "read", "path": "output.id"}, "transform": [{"op": "op:core.to_string"}]}]}}]});
+        assert_eq!(BindingResolver::resolve_value(&built, &ctx).unwrap(), json!("told:44"));
+    }
+
+    fn step_reading(select: Value) -> crate::domain::types::Step {
+        serde_json::from_value(json!({"id": "apply", "kind": "ask", "config": {"name": "tool:x", "input": {"params": [1, {"$kind": "binding", "select": select}]}}})).unwrap()
+    }
+
+    #[test]
+    fn a_definition_whose_binding_reads_an_unknown_scope_is_refused_before_any_step_runs() {
+        for select in [json!({"from": "read", "path": "delta"}), json!({"from": "step", "step": "read", "path": "output.rows"}), json!({"path": "output"})] {
+            let error = compile_steps_and_edges(&[step_reading(select.clone())], &[]).err().unwrap_or_else(|| panic!("{select} compiled"));
+            let said = error.to_string();
+            let from = select.get("from").and_then(Value::as_str).unwrap_or("");
+            assert!(said.contains(&format!("binding-scope-unknown: step 'apply' reads the scope '{from}' at /config/input/params/1")), "{said}");
+        }
+        assert!(compile_steps_and_edges(&[step_reading(json!({"from": "steps", "key": "read", "path": "output.rows.0.delta"}))], &[]).is_ok());
+    }
+
+    #[test]
+    fn every_scope_compile_admits_is_one_the_resolver_answers() {
+        // BINDING_SCOPES is the one list: each root in it resolves (or, for state, says the host pre-resolves it), so the
+        // compile check and the resolver cannot drift apart.
+        let ctx = test_context();
+        for from in BINDING_SCOPES {
+            assert!(compile_steps_and_edges(&[step_reading(json!({"from": from, "path": "x"}))], &[]).is_ok(), "{from}");
+            let binding = json!({"$kind": "binding", "select": {"from": from, "path": "x", "value": 1}});
+            if let Err(error) = BindingResolver::resolve_value(&binding, &ctx) {
+                assert!(!error.to_string().contains("Unknown binding scope"), "{from}: {error}");
+            }
+        }
     }
 }

@@ -40,8 +40,7 @@
           "type": "object",
           "required": [
             "checked",
-            "without_control",
-            "broken"
+            "without_control"
           ],
           "properties": {
             "checked": {
@@ -52,6 +51,21 @@
             },
             "broken": {
               "type": "array"
+            },
+            "database": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "served": {
+              "type": "boolean"
+            },
+            "examples": {
+              "type": "array"
+            },
+            "summary": {
+              "type": "string"
             }
           }
         },

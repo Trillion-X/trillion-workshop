@@ -424,7 +424,8 @@ export async function checkFromInside(input, options = {}) {
 async function readComputer(input, options = {}) {
   const nowMs = options.nowMs ?? Date.now();
   if (input?.here === true) return checkHere(input, { ...options, nowMs });
-  const name = input?.name ?? input?.address;
+  // null, not undefined, when neither is given: an undefined name leaves the answer without the `name` its row requires.
+  const name = input?.name ?? input?.address ?? null;
   const checkedAt = new Date(nowMs).toISOString();
   const named = findings => findings.map(finding => ({ computer: name, at: checkedAt, ...finding }));
   const base = { name, address: input?.address ?? null, checked_at: checkedAt };

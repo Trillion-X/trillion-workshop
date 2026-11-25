@@ -607,12 +607,11 @@ export async function runResidentEmitter({
 
 async function recordRefusal(carrier, row, error, nowMs) {
   const waiterRef = typeof row?.id === "string" ? row.id : "waiter:unreadable-row";
-  const addressLabel = typeof row?.emitted_record?.address_label === "string"
-    ? row.emitted_record.address_label
-    : `something-showed-up::${waiterRef}`;
-  const pathLabels = Array.isArray(row?.emitted_record?.path_labels) && row.emitted_record.path_labels.length > 0
-    ? row.emitted_record.path_labels
-    : ["current-item", "something-showed-up"];
+  // A refusal is told at its own address, never at the address the waiter tells its arrivals at: a row-change waiter's
+  // refusal told at where::something-changed took that address's event ids (sequence 0) and reached the row-change
+  // router as if a row had changed (761 of 800 route-each-row-change-from-rows runs in 7 days to Nov 25 2026).
+  const addressLabel = `something-showed-up::${waiterRef}`;
+  const pathLabels = ["current-item", "something-showed-up"];
   try {
     await carrier.writeRecord({
       addressLabel,

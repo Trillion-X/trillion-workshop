@@ -135,6 +135,16 @@ pub enum WorkflowError {
     #[serde(rename = "TEMPLATE_RESOLUTION_FAILED")]
     TemplateResolutionFailed { reason: String, hint: String },
 
+    /// A binding's path found nothing inside a value that is there: a completed step's answer, or a loop's item. The
+    /// step whose input it is fails, naming the binding and the path, instead of being handed a null that reads as
+    /// "nothing to do" (Nov 25 2026, 9:11 AM CST: workflow:route-each-row-change's loops read output.chosen from an
+    /// answer that had no such field, looped over none, and the run completed having chosen nothing). A binding that
+    /// declares `omit_if_missing: true`, or whose first transform handles absence (op:core.if_null, coalesce, is_null,
+    /// is_not_null), reads the absence as null instead: that absence is one its author expected.
+    #[error("binding-missing: {reason}. Hint: {hint}")]
+    #[serde(rename = "BINDING_MISSING")]
+    BindingMissing { reason: String, hint: String, binding: String, path: String },
+
     /// Branch condition evaluation failed during workflow execution.
     #[error("Branch condition evaluation failed: '{step_id}'. {reason}. Hint: {hint}")]
     #[serde(rename = "CONDITION_EVALUATION_FAILED")]
@@ -289,6 +299,7 @@ impl WorkflowError {
             Self::StepExecutionFailed { .. } => "STEP_EXECUTION_FAILED",
             Self::DefinitionExecutionFailed { .. } => "DEFINITION_EXECUTION_FAILED",
             Self::TemplateResolutionFailed { .. } => "TEMPLATE_RESOLUTION_FAILED",
+            Self::BindingMissing { .. } => "BINDING_MISSING",
             Self::ConditionEvaluationFailed { .. } => "CONDITION_EVALUATION_FAILED",
             Self::LoopExecutionFailed { .. } => "LOOP_EXECUTION_FAILED",
             Self::ExternalCallFailed { .. } => "EXTERNAL_CALL_FAILED",
@@ -331,6 +342,7 @@ impl WorkflowError {
             | Self::StepExecutionFailed { reason, .. }
             | Self::DefinitionExecutionFailed { reason, .. }
             | Self::TemplateResolutionFailed { reason, .. }
+            | Self::BindingMissing { reason, .. }
             | Self::ConditionEvaluationFailed { reason, .. }
             | Self::LoopExecutionFailed { reason, .. }
             | Self::ExternalCallFailed { reason, .. }
@@ -373,6 +385,7 @@ impl WorkflowError {
             | Self::StepExecutionFailed { hint, .. }
             | Self::DefinitionExecutionFailed { hint, .. }
             | Self::TemplateResolutionFailed { hint, .. }
+            | Self::BindingMissing { hint, .. }
             | Self::ConditionEvaluationFailed { hint, .. }
             | Self::LoopExecutionFailed { hint, .. }
             | Self::ExternalCallFailed { hint, .. }

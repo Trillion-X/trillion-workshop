@@ -150,6 +150,10 @@ test('a computer that does not answer is one alert, and one with no usable addre
   assert.deepEqual([given.checked, given.findings], [false, []]);
   const keyless = await checkFromInside(computer([engineUnit], { host_key: undefined }), { run: () => assert.fail('not asked') });
   assert.match(keyless.why, /host_key is missing/);
+  // Its row requires name and address: with neither given each is null, never left out (Nov 25 2026, 4:13 AM CST).
+  const nameless = await checkFromInside({}, { run: () => assert.fail('not asked') });
+  assert.deepEqual([nameless.checked, nameless.name, nameless.address], [false, null, null]);
+  assert.ok('name' in JSON.parse(JSON.stringify(nameless)));
 });
 
 test('every unit the row runs is asked of systemd: a failed run, a stopped timer and a missing unit are findings', async () => {

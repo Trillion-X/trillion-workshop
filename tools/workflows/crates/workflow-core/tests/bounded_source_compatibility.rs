@@ -45,6 +45,7 @@ fn legacy_exhaustive_context_and_error_consumers_still_compile() {
             WorkflowError::StepExecutionFailed { .. } => "StepExecutionFailed",
             WorkflowError::DefinitionExecutionFailed { .. } => "DefinitionExecutionFailed",
             WorkflowError::TemplateResolutionFailed { .. } => "TemplateResolutionFailed",
+            WorkflowError::BindingMissing { .. } => "BindingMissing",
             WorkflowError::ConditionEvaluationFailed { .. } => "ConditionEvaluationFailed",
             WorkflowError::LoopExecutionFailed { .. } => "LoopExecutionFailed",
             WorkflowError::ExternalCallFailed { .. } => "ExternalCallFailed",

@@ -1,5 +1,5 @@
 {
-  "about": "workflow:keep-the-use-case-catalog-current: keeps the use-case catalog naming every workflow. Two steps: read changed recipes, then apply them through one catalog function. Both store connections and both table names come from the wake input.",
+  "about": "workflow:keep-the-use-case-catalog-current: keeps the use-case catalog naming every workflow. Three steps: read changed recipes, apply them through one catalog function, then move the sweep mark past them (only after the apply answered, so a failed apply leaves them to the next sweep). Both store connections and both table names come from the wake input.",
   "records": [
     {
       "payload": {
@@ -164,11 +164,11 @@
           {
             "id": "read",
             "title": "Read the workflows changed since the last sweep",
-            "do": "Run the delta read in the workflows store and return the changed recipes as a compact list, moving the sweep mark to the newest change it read.",
+            "do": "Run the delta read in the workflows store: one row with the count of changed recipes, the changed recipes as JSON text (delta), and the newest kept_at they cover (through). It moves nothing.",
             "run_tool": {
               "tool_id": "tool:run-sql-in-my-database",
               "input": {
-                "sql": "WITH d AS (\n  SELECT r.recipe, r.title, r.job, (r.flags::text LIKE '%\"public\"%') AS is_public, r.kept_at\n  FROM workflow_recipes r\n  JOIN use_case_sweep_marks m ON m.name = 'use-case-catalog' AND r.kept_at > m.swept_through\n),\nmoved AS (\n  UPDATE use_case_sweep_marks SET swept_through = coalesce((SELECT max(kept_at) FROM d), swept_through)\n  WHERE name = 'use-case-catalog' AND EXISTS (SELECT 1 FROM d)\n  RETURNING swept_through\n)\nSELECT row_to_json(x)::text FROM (\n  SELECT (SELECT count(*) FROM d) AS changed,\n         coalesce((SELECT jsonb_agg(jsonb_build_object('recipe', d.recipe, 'title', d.title, 'job', d.job, 'is_public', d.is_public)) FROM d), '[]'::jsonb) AS delta\n) x;\n",
+                "sql": "WITH d AS (\n  SELECT r.recipe, r.title, r.job, (r.flags::text LIKE '%\"public\"%') AS is_public, r.kept_at\n  FROM workflow_recipes r\n  JOIN use_case_sweep_marks m ON m.name = 'use-case-catalog' AND r.kept_at > m.swept_through\n)\nSELECT (SELECT count(*) FROM d) AS changed,\n       coalesce((SELECT jsonb_agg(jsonb_build_object('recipe', d.recipe, 'title', d.title, 'job', d.job, 'is_public', d.is_public)) FROM d), '[]'::jsonb)::text AS delta,\n       (SELECT max(kept_at) FROM d)::text AS through;\n",
                 "credential_name": {
                   "$kind": "binding",
                   "select": {
@@ -181,15 +181,19 @@
             "submit": {
               "type": "object",
               "required": [
-                "changed",
-                "delta"
+                "rows"
               ],
               "properties": {
-                "changed": {
-                  "type": "integer"
-                },
-                "delta": {
-                  "type": "array"
+                "rows": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "changed",
+                      "delta",
+                      "through"
+                    ]
+                  }
                 }
               }
             }
@@ -220,8 +224,9 @@
                   {
                     "$kind": "binding",
                     "select": {
-                      "from": "read",
-                      "path": "delta"
+                      "from": "steps",
+                      "key": "read",
+                      "path": "output.rows.0.delta"
                     }
                   },
                   {
@@ -244,13 +249,42 @@
             "submit": {
               "type": "object",
               "required": [
-                "counts"
-              ],
-              "properties": {
-                "counts": {
-                  "type": "object"
+                "rows"
+              ]
+            }
+          },
+          {
+            "id": "mark",
+            "title": "Move the sweep mark past what was applied",
+            "do": "Move the sweep mark to the newest kept_at the read covered, only forward, and only now that the apply answered.",
+            "run_tool": {
+              "tool_id": "tool:run-sql-in-my-database",
+              "input": {
+                "sql": "UPDATE use_case_sweep_marks SET swept_through = $1::timestamptz WHERE name = 'use-case-catalog' AND $1::timestamptz > swept_through RETURNING swept_through::text",
+                "params": [
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "read",
+                      "path": "output.rows.0.through"
+                    }
+                  }
+                ],
+                "credential_name": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "runs_connection"
+                  }
                 }
               }
+            },
+            "submit": {
+              "type": "object",
+              "required": [
+                "rows"
+              ]
             }
           }
         ]
