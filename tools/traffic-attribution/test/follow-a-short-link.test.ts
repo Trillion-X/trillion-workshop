@@ -30,14 +30,28 @@ test('a known code answers the destination with its source fields and the touch 
 
 test('without consent no visitor is kept and no cookie is answered; with it the visitor and a cookie are', async () => {
   const { db, query } = await fresh();
-  const anonymous = await followAShortLink(given({ cookie_header: 'jv=visitor-one-1' }), query);
+  const anonymous = await followAShortLink(given({ visitor_cookie: 'visitor-one-1' }), query);
   assert.equal(anonymous.set_cookie, null);
   assert.equal(((await db.query('SELECT visitor FROM journey_steps')).rows[0] as { visitor: string | null }).visitor, null);
-  const granted = await followAShortLink(given({ cookie_header: `site_consent=${consent.granted}` }), query);
+  const granted = await followAShortLink(given({ consent: consent.granted }), query);
   assert.equal(granted.status, 302);
   assert.match(granted.set_cookie ?? '', /^jv=[A-Za-z0-9_-]{8,128};/);
   const visitors = (await db.query('SELECT visitor FROM journey_steps ORDER BY id')).rows as { visitor: string | null }[];
   assert.equal(visitors[1].visitor, (granted.set_cookie as string).split(';')[0].slice(3));
+});
+
+test('the visitor is kept under the id they sent, only with consent; a value that is not a cookie\'s own counts as absent', async () => {
+  const { db, query } = await fresh();
+  const kept = await followAShortLink(given({ visitor_cookie: 'visitor-two-22', consent: consent.granted }), query);
+  assert.equal(kept.set_cookie, null);
+  assert.equal(((await db.query('SELECT visitor FROM journey_steps')).rows[0] as { visitor: string | null }).visitor, 'visitor-two-22');
+  const declined = await followAShortLink(given({ visitor_cookie: 'visitor-two-22', consent: 'denied' }), query);
+  assert.equal(declined.set_cookie, null);
+  assert.equal(((await db.query('SELECT visitor FROM journey_steps ORDER BY id')).rows[1] as { visitor: string | null }).visitor, null);
+  // A smuggled second cookie in either value is not read as one.
+  const smuggled = await followAShortLink(given({ visitor_cookie: 'x; site_consent=' + consent.granted }), query);
+  assert.equal(smuggled.set_cookie, null);
+  assert.equal(((await db.query('SELECT visitor FROM journey_steps ORDER BY id')).rows[2] as { visitor: string | null }).visitor, null);
 });
 
 test('an unknown code is 404 with no location and keeps nothing; a missing code or consent cookie name is refused', async () => {

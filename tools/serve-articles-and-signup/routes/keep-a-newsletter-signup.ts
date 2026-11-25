@@ -20,8 +20,7 @@
 import { createHmac, randomBytes, randomUUID } from 'node:crypto';
 import { readFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { runSql, sayWithout } from '../../run-sql-in-my-database/do-work/run-sql.mjs';
-import { sharedConnection } from '../../ask-questions-sort-answers-follow-up/steps/serve-steps.ts';
+import { sayWithout, withSqlWrite } from '../../run-sql-in-my-database/do-work/run-sql.mjs';
 import type { Execute } from '../../ask-questions-sort-answers-follow-up/steps/store.ts';
 import { subscriberTags } from '../do-work/subscriber-audience.mjs';
 
@@ -114,19 +113,18 @@ export async function keepANewsletterSignup(input: Given, execute: Execute, { no
 
 if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   let connection = '';
-  let close = async () => {};
   try {
     const input = JSON.parse(readFileSync(0, 'utf8')) as Given;
     connection = readFileSync(3, 'utf8').trim();
     const secret = readFileSync(4, 'utf8').trim();
-    const shared = sharedConnection(connection);
-    close = shared.close;
-    const execute: Execute = async (sql, params = []) => (await runSql({ connection, input: { sql, params }, connect: shared.connect as never })).rows;
-    console.log(JSON.stringify(await keepANewsletterSignup({ ...input, secret }, execute)));
+    // One connection for the whole run (run-sql.mjs withSqlWrite), closed at the end.
+    const kept = await withSqlWrite({ connection }, (query: (sql: string, params?: unknown[]) => Promise<{ rows: Record<string, unknown>[] }>) => {
+      const execute: Execute = async (sql, params = []) => (await query(sql, params)).rows;
+      return keepANewsletterSignup({ ...input, secret }, execute);
+    });
+    console.log(JSON.stringify(kept));
   } catch (error) {
     console.error(sayWithout(error, connection));
     process.exitCode = 1;
-  } finally {
-    await close();
   }
 }

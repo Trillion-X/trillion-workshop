@@ -176,9 +176,13 @@
        "minLength": 1,
        "description": "The tracked link's id: the part of the address after /go/."
       },
-      "cookie_header": {
+      "visitor_cookie": {
        "type": "string",
-       "description": "The Cookie header the visitor sent, if any."
+       "description": "The value of the visitor's id cookie (jv), if they sent one. Never the whole Cookie header: it also carries the sign-in session."
+      },
+      "consent": {
+       "type": "string",
+       "description": "The value of the site's consent cookie (the one consent_cookie_name names), if they sent one."
       },
       "referer": {
        "type": "string",

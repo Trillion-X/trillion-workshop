@@ -20,8 +20,7 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { readFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { runSql, sayWithout } from '../../run-sql-in-my-database/do-work/run-sql.mjs';
-import { sharedConnection } from '../../ask-questions-sort-answers-follow-up/steps/serve-steps.ts';
+import { sayWithout, withSqlWrite } from '../../run-sql-in-my-database/do-work/run-sql.mjs';
 import type { Execute } from '../../ask-questions-sort-answers-follow-up/steps/store.ts';
 import { keepTheWordsAPersonGave } from '../do-work/gather-words.mjs';
 import { consentOf, readGathers } from '../read-data/gathered-words.mjs';
@@ -84,22 +83,18 @@ export async function checkAWordsAsk(input: Given, { content, asks }: { content:
 
 if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const held: string[] = [];
-  const closers: (() => Promise<void>)[] = [];
   try {
     const input = JSON.parse(readFileSync(0, 'utf8')) as Given;
     const contentConnection = readFileSync(3, 'utf8').trim();
     const asksConnection = readFileSync(4, 'utf8').trim();
     held.push(contentConnection, asksConnection);
-    const executeOn = (connection: string): Execute => {
-      const shared = sharedConnection(connection);
-      closers.push(shared.close);
-      return async (sql, params = []) => (await runSql({ connection, input: { sql, params }, connect: shared.connect as never })).rows;
-    };
-    console.log(JSON.stringify(await checkAWordsAsk(input, { content: executeOn(contentConnection), asks: executeOn(asksConnection) })));
+    // One connection to each database for the whole run (run-sql.mjs withSqlWrite), each closed at the end.
+    type Run = (sql: string, params?: unknown[]) => Promise<{ rows: Record<string, unknown>[] }>;
+    const executeOn = (query: Run): Execute => async (sql, params = []) => (await query(sql, params)).rows;
+    const answer = await withSqlWrite({ connection: contentConnection }, (content: Run) => withSqlWrite({ connection: asksConnection }, (asks: Run) => checkAWordsAsk(input, { content: executeOn(content), asks: executeOn(asks) })));
+    console.log(JSON.stringify(answer));
   } catch (error) {
     console.error(sayWithout(error, ...held));
     process.exitCode = 1;
-  } finally {
-    for (const close of closers) await close();
   }
 }
