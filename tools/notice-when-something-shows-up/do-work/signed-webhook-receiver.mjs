@@ -18,6 +18,11 @@
 //     and never returned, logged or placed in a fact.
 //   - The answer is sent only after every change in the call was accepted by the engine. A change the engine refused
 //     is answered 503, so the service sends the call again. A change already told (same event key) is not sent twice.
+//   - A change the engine refuses the same way every time (door-call.json never_again_codes: input it does not take) is
+//     settled once, never sent again: the call is answered 200 with `refused`, the refusal is kept as one line of the
+//     config's refused_file and counted in the health readback, and the event key is remembered as told. A service keeps
+//     resending a call it was not answered 2xx for, and switches the whole endpoint off after sustained failures, so a 503
+//     for a fact that can never be taken would stop every later one (Nov 25 2026, team-lead on the Resend receiver).
 //   - A call whose body the shape cannot read is answered 200 (the service must not resend it forever) and told as one
 //     refused fact with place "unread", so the person sees that the shape needs widening.
 //
@@ -42,6 +47,9 @@
 //                              no address, and the engine admits the caller by its OS user id (a vault_socket row that names this
 //                              unit's uid with the operation wake:arrive). `door` is then an http address whose host is not used.
 //                              With door_socket the unit is given no account key.
+//   refused_file?              the absolute path of a file each change the engine refuses for good is added to, one JSON line
+//                              {at, kind, event_id, why} (no body, no credential), so a refusal is read where it is kept; absent:
+//                              the refusal is only said on the unit's log and counted in the health readback
 //   subscribe?                 { mode, verify_credential }: answers the service's subscribe handshake, a GET whose hub.mode is
 //                              mode and whose hub.verify_token is the credential's value, with hub.challenge as plain text.
 //                              Any other GET on the path is refused with 403. Absent: every GET is answered 405.
@@ -52,7 +60,7 @@
 //
 // Usage
 //   node signed-webhook-receiver.mjs <config.json>     (CREDENTIALS_DIRECTORY must be set by the unit)
-import { readFileSync } from 'node:fs';
+import { appendFileSync, readFileSync } from 'node:fs';
 import { timingSafeEqual } from 'node:crypto';
 import { createServer, request as httpRequest } from 'node:http';
 import path from 'node:path';
@@ -96,6 +104,8 @@ export function receiverConfigOf(raw) {
   if (pins !== null && (!Array.isArray(pins) || pins.length === 0 || pins.length > MOST_PINS || !pins.every((pin) => typeof pin === 'string' && PIN.test(pin)))) refuse('bad-pins');
   const doorSocket = raw.door_socket ?? null;
   if (doorSocket !== null && (typeof doorSocket !== 'string' || !path.isAbsolute(doorSocket) || doorSocket.split('/').includes('..') || door.protocol !== 'http:')) refuse('bad-door-socket');
+  const refusedFile = raw.refused_file ?? null;
+  if (refusedFile !== null && (typeof refusedFile !== 'string' || !path.isAbsolute(refusedFile) || refusedFile.split('/').includes('..'))) refuse('bad-refused-file');
   const subscribe = raw.subscribe ?? null;
   if (subscribe !== null && (typeof subscribe !== 'object' || typeof subscribe.mode !== 'string' || !subscribe.mode || typeof subscribe.verify_credential !== 'string' || !NAME.test(subscribe.verify_credential))) refuse('bad-subscribe');
   return {
@@ -112,6 +122,7 @@ export function receiverConfigOf(raw) {
     door: door.href,
     pins,
     door_socket: doorSocket,
+    refused_file: refusedFile,
     health_path: healthPath,
     subscribe: subscribe === null ? null : { mode: subscribe.mode, verify_credential: subscribe.verify_credential },
   };
@@ -127,13 +138,16 @@ function factOfChange(kind, change) {
 /**
  * The HTTP server for one service. It is not listening yet: the caller listens on the config's host and port.
  * @param {{config: object, secret: string, arrive: (fact: object) => Promise<unknown>, now?: () => number}} args
- *   `arrive` tells one fact to the engine and rejects when the engine does not take it.
+ *   `arrive` tells one fact to the engine and rejects when the engine does not take it; a rejection that says `neverAgain`
+ *   (the engine refuses that fact every time) is settled once: `keepRefused(fact, why)` keeps it, and the call is answered 200.
  */
-export function createReceiver({ config, secret, arrive, now = () => Date.now(), subscribe = null }) {
+export function createReceiver({ config, secret, arrive, now = () => Date.now(), subscribe = null, keepRefused = async () => {} }) {
   const told = new Set();
   const pending = new Map();
   let accepted = 0;
   let lastAcceptedAt = null;
+  let refusedForGood = 0;
+  let lastRefusedAt = null;
   const remember = (eventId) => {
     told.add(eventId);
     if (told.size > TOLD_LIMIT) told.delete(told.values().next().value);
@@ -145,7 +159,7 @@ export function createReceiver({ config, secret, arrive, now = () => Date.now(),
   return createServer(async (request, response) => {
     const url = new URL(request.url ?? '/', 'http://receiver.invalid');
     if (url.pathname === config.health_path && request.method === 'GET') {
-      return answer(response, 200, { ready: true, accepted, last_accepted_at: lastAcceptedAt });
+      return answer(response, 200, { ready: true, accepted, last_accepted_at: lastAcceptedAt, refused_for_good: refusedForGood, last_refused_at: lastRefusedAt });
     }
     if (url.pathname !== config.path) return answer(response, 404, { recorded: false, reason: 'no-such-path' });
     if (request.method === 'GET' && subscribe) {
@@ -181,23 +195,36 @@ export function createReceiver({ config, secret, arrive, now = () => Date.now(),
       ? [{ event_key: `${config.where}:refused:${nowSeconds}:${received}`, detail: { where: config.where, place: 'unread', change: 'changed', at: new Date(nowSeconds * 1000).toISOString(), key: read.refused, before: null, after: carried(body) } }]
       : read.changes;
     let duplicates = 0;
+    let refused = 0;
     try {
       for (const change of changes) {
         const fact = factOfChange(config.kind, change);
         if (told.has(fact.event_id)) { duplicates += 1; continue; }
         if (pending.has(fact.event_id)) { await pending.get(fact.event_id); duplicates += 1; continue; }
+        // Answers 'told', or 'refused' for a fact the engine refuses every time (kept once, never told again).
         const delivery = Promise.resolve().then(async () => {
-          if (await arrive(fact) === false) throw new Error('the engine did not take the fact');
+          try {
+            if (await arrive(fact) === false) throw new Error('the engine did not take the fact');
+          } catch (error) {
+            if (!error?.neverAgain) throw error;
+            await keepRefused(fact, String(error.message ?? error));
+            remember(fact.event_id);
+            refusedForGood += 1;
+            lastRefusedAt = new Date(now()).toISOString();
+            return 'refused';
+          }
           remember(fact.event_id);
           accepted += 1;
           lastAcceptedAt = new Date(now()).toISOString();
+          return 'told';
         });
         pending.set(fact.event_id, delivery);
-        try { await delivery; } finally { pending.delete(fact.event_id); }
+        try { if (await delivery === 'refused') refused += 1; } finally { pending.delete(fact.event_id); }
       }
     } catch (error) {
       return answer(response, 503, { recorded: false, reason: String(error?.message ?? error) });
     }
+    if (refused) return answer(response, 200, { recorded: false, changes: changes.length, duplicates, refused });
     return answer(response, 200, { recorded: true, changes: changes.length, duplicates });
   });
 }
@@ -261,11 +288,16 @@ export async function startReceiver({ configPath, env = process.env, fetchImpl =
       say(JSON.stringify({ told: fact.kind, event_id: fact.event_id, ...(taken?.not_started ? { not_started: taken.not_started } : {}) }));
     } catch (error) {
       const why = safeMessage(error);
-      say(JSON.stringify({ refused: fact.kind, event_id: fact.event_id, why }));
-      throw new Error(why);
+      say(JSON.stringify({ refused: fact.kind, event_id: fact.event_id, why, ...(error?.neverAgain ? { for_good: true } : {}) }));
+      throw Object.assign(new Error(why), { neverAgain: Boolean(error?.neverAgain) });
     }
   };
-  const server = createReceiver({ config, secret, arrive, subscribe });
+  // One JSON line per fact refused for good, at the config's refused_file: when, the kind, the event key and the engine's
+  // words, never the call's body or a credential.
+  const keepRefused = async (fact, why) => {
+    if (config.refused_file) appendFileSync(config.refused_file, `${JSON.stringify({ at: new Date().toISOString(), kind: fact.kind, event_id: fact.event_id, why })}\n`);
+  };
+  const server = createReceiver({ config, secret, arrive, subscribe, keepRefused });
   await new Promise((resolve, reject) => {
     server.once('error', reject);
     server.listen(config.listen_port, config.listen_host, () => {

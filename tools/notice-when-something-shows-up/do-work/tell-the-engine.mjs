@@ -157,10 +157,11 @@ export const ROOM_FULL_CODE = 'owed_full';
  *  waits and tells it again instead of counting a broken fact (Nov 21 2026, 4:11 and 4:47 PM CST on the Mac: the row changes
  *  noticer counted ten full-owed refusals as failures and stopped). `tellAgain` when its code is one DATA names
  *  (door-call.json tell_again_codes: no room now, or a door that did not answer in time): the teller keeps its place and
- *  tells it again after a wait. */
+ *  tells it again after a wait. `neverAgain` when its code is one the engine gives every time the same fact is told
+ *  (door-call.json never_again_codes: input it does not take), so a teller settles it once instead of telling it again. */
 export function refusedFact(why, code) {
   return Object.assign(new Error(`the engine refused the fact: ${why}`), { code: code ?? null, roomFull: code === ROOM_FULL_CODE,
-    tellAgain: DOOR_CALL.tell_again_codes.includes(code) });
+    tellAgain: DOOR_CALL.tell_again_codes.includes(code), neverAgain: DOOR_CALL.never_again_codes.includes(code) });
 }
 
 /** Tells one fact to the engine at its door's `wake:arrive`. Resolves when the engine took it; throws with the engine's

@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
 import { request, createServer as createHttpServer } from 'node:http';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { createReceiver, receiverConfigOf, startReceiver } from '../do-work/signed-webhook-receiver.mjs';
@@ -308,10 +308,10 @@ test('health readback shows successful engine acceptance without event bodies or
       assert.equal(response.status, 200);
       return response.json();
     };
-    assert.deepEqual(await health(), { ready: true, accepted: 0, last_accepted_at: null });
+    assert.deepEqual(await health(), { ready: true, accepted: 0, last_accepted_at: null, refused_for_good: 0, last_refused_at: null });
     const body = event();
     await post(port, CONFIG.path, signed(body), body);
-    assert.deepEqual(await health(), { ready: true, accepted: 1, last_accepted_at: new Date(NOW).toISOString() });
+    assert.deepEqual(await health(), { ready: true, accepted: 1, last_accepted_at: new Date(NOW).toISOString(), refused_for_good: 0, last_refused_at: null });
   } finally {
     await close();
   }
@@ -388,7 +388,7 @@ async function standInSocketEngine(mode) {
   return { socketPath, calls, close: () => new Promise((resolve) => engine.close(resolve)) };
 }
 
-for (const [mode, status] of [['kept', 200], ['kept-off', 200], ['not-kept', 200], ['refused', 503], ['no-row', 503]]) {
+for (const [mode, status] of [['kept', 200], ['kept-off', 200], ['not-kept', 200], ['no-row', 503]]) {
   test(`a door on the engine's socket (${mode}) is called with no key and no address, and the receiver answers ${status}`, async () => {
     const engine = await standInSocketEngine(mode);
     const unit = unitFixture({ withAccountKey: false });
@@ -420,3 +420,49 @@ for (const [mode, status] of [['kept', 200], ['kept-off', 200], ['not-kept', 200
     }
   });
 }
+
+test('a fact the engine refuses every time (original_input_refused) is answered 200 once, kept in the refused file, counted in health, and never told again', async () => {
+  const engine = await standInSocketEngine('refused');
+  const unit = unitFixture({ withAccountKey: false });
+  const refusedFile = path.join(unit.fixture, 'refused.jsonl');
+  writeFileSync(unit.configPath, JSON.stringify({ ...CONFIG, listen_port: 0, door: 'http://localhost/mcp', door_socket: engine.socketPath, refused_file: refusedFile }));
+  const says = [];
+  const server = await startReceiver({ configPath: unit.configPath, env: { CREDENTIALS_DIRECTORY: unit.credentials }, say: (line) => says.push(line) });
+  try {
+    const body = event();
+    const headers = signed(body, { ts: Math.floor(Date.now() / 1000) });
+    const first = await post(server.address().port, '/webhooks/sample', headers, body);
+    assert.equal(first.status, 200, 'a refusal that can never change is not answered as a failure, so the service does not resend it');
+    assert.deepEqual(first.json, { recorded: false, changes: 1, duplicates: 0, refused: 1 });
+    const kept = readFileSync(refusedFile, 'utf8').trim().split('\n').map((line) => JSON.parse(line));
+    assert.equal(kept.length, 1);
+    assert.deepEqual(Object.keys(kept[0]).sort(), ['at', 'event_id', 'kind', 'why']);
+    assert.equal(kept[0].kind, 'sample-event');
+    assert.match(kept[0].why, /original_input_refused|too large/);
+    assert.ok(!JSON.stringify(kept).includes(SECRET), 'the refused file holds no secret');
+    assert.ok(says.some((line) => line.includes('"for_good":true')), 'the log says the refusal is for good');
+    // The service sends it again anyway: a duplicate, the engine is not asked again, nothing more is kept.
+    const again = await post(server.address().port, '/webhooks/sample', headers, body);
+    assert.equal(again.status, 200);
+    assert.deepEqual(again.json, { recorded: true, changes: 1, duplicates: 1 });
+    assert.equal(engine.calls.length, 1);
+    assert.equal(readFileSync(refusedFile, 'utf8').trim().split('\n').length, 1);
+    const health = await new Promise((resolve, reject) => {
+      request({ host: '127.0.0.1', port: server.address().port, path: '/webhooks/sample/health' }, (response) => {
+        let text = ''; response.on('data', (chunk) => { text += chunk; }); response.on('end', () => resolve(JSON.parse(text)));
+      }).on('error', reject).end();
+    });
+    assert.equal(health.refused_for_good, 1);
+    assert.equal(health.accepted, 0);
+    assert.equal(typeof health.last_refused_at, 'string');
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+    await engine.close();
+    rmSync(unit.fixture, { recursive: true, force: true });
+  }
+});
+
+test('a refused_file that is not an absolute plain path is refused by the config', () => {
+  assert.throws(() => receiverConfigOf({ ...CONFIG, refused_file: 'refused.jsonl' }), { reason: 'bad-refused-file' });
+  assert.throws(() => receiverConfigOf({ ...CONFIG, refused_file: '/var/lib/x/../y.jsonl' }), { reason: 'bad-refused-file' });
+});
