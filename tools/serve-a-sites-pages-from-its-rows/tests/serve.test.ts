@@ -185,7 +185,7 @@ test('settings that are not a site are refused with what they should be', () => 
   const good = settings('http://127.0.0.1:1');
   assert.throws(() => settingsOf({ ...good, listen: 'anywhere' }), /listen/);
   assert.throws(() => settingsOf({ ...good, origin: 'https://site.example.test/' }), /origin/);
-  assert.throws(() => settingsOf({ ...good, pages: { ...good.pages, use: undefined } }), /pages is/);
+  assert.throws(() => settingsOf({ ...good, pages: { ...good.pages, use: { purpose: 'x' } } }), /pages is/);
   assert.throws(() => settingsOf({ ...good, sign_in: { ...good.sign_in, page: 'sign-in' } }), /sign_in/);
   assert.equal(serverTiming([{ tool: 'tool:a"b', ms: 5 }]), 'run0;dur=5;desc="tool:ab"');
 });

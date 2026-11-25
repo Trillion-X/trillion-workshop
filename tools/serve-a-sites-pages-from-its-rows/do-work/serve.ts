@@ -23,7 +23,8 @@
 //                    own signed-in command runs each read, with the pins given, and no pass is held). A members page is
 //                    never drawn through a command: it needs the member's own pass on the door.
 //     pages          { database, use: { purpose, surface }, refresh_seconds, answer_seconds }: the database holding the
-//                    `pages` and `site_look` tables, the declared use its reads run under (the reader login), how often the rows
+//                    `pages` and `site_look` tables, the declared use its reads run under (the reader login; left out, the
+//                    caller's own login, which only a local run through a command should do), how often the rows
 //                    are read again, and how long a public page's tool answer is kept
 //     sign_in        { address, page, issuer, audience, team_claim, members_team }: the site's sign-in tool, the site path a
 //                    visitor is sent to for a members page, and how a member's pass is checked (member-pass.ts);
@@ -34,7 +35,8 @@
 //   Credentials are files of the unit's credentials folder ($CREDENTIALS_DIRECTORY), sealed there by the computer from the vault.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. It holds no database login: every row is read by the engine's run-sql tool, as the site's caller, under a declared use.
+//   1. It holds no database login: every row is read by the engine's run-sql tool, as the site's caller, under a declared use
+//      (pages.use) wherever the site is served.
 //   2. A members page is drawn only with the member's own pass; its answers are never kept, and it is sent private, no-store.
 //   3. When rows cannot be read again, the last good set stays served and the failure is logged; a first read that fails stops
 //      the start, so a site never starts with no pages.
@@ -68,7 +70,7 @@ export interface Settings {
   hosts: string[];
   lang: string;
   door: { address: string; pass_credential?: string; pins?: string[] };
-  pages: { database: string; use: { purpose: string; surface: string }; refresh_seconds: number; answer_seconds: number };
+  pages: { database: string; use?: { purpose: string; surface: string }; refresh_seconds: number; answer_seconds: number };
   sign_in: SignIn & { page: string; signed_out: 'redirect' | 'draw' };
   member_files?: MemberFiles & { credential: string };
 }
@@ -96,9 +98,9 @@ export function settingsOf(value: unknown): Settings {
     throw new Error('door is { address, pass_credential } (or { address: "cli:<command>", pins } for a local run).');
   }
   const p = s.pages;
-  if (!p || typeof p.database !== 'string' || !p.use || typeof p.use.purpose !== 'string' || typeof p.use.surface !== 'string'
+  if (!p || typeof p.database !== 'string' || (p.use !== undefined && (!p.use || typeof p.use.purpose !== 'string' || typeof p.use.surface !== 'string'))
     || !Number.isInteger(p.refresh_seconds) || p.refresh_seconds < 1 || !Number.isInteger(p.answer_seconds) || p.answer_seconds < 0) {
-    throw new Error('pages is { database, use: { purpose, surface }, refresh_seconds (1 or more), answer_seconds (0 or more) }.');
+    throw new Error('pages is { database, use?: { purpose, surface }, refresh_seconds (1 or more), answer_seconds (0 or more) }.');
   }
   const i = s.sign_in;
   if (!i || ['address', 'page', 'issuer', 'audience', 'team_claim', 'members_team'].some(key => typeof (i as unknown as Record<string, unknown>)[key] !== 'string') || !i.page.startsWith('/')) {
@@ -153,7 +155,7 @@ export class Site {
 
   #sql(sql: string, params: unknown[] = []): Promise<Record<string, unknown>[]> {
     const { database, use } = this.#parts.settings.pages;
-    return this.#parts.run(this.#parts.sitePass, { tool: RUN_SQL, input: { database, sql, params, use } })
+    return this.#parts.run(this.#parts.sitePass, { tool: RUN_SQL, input: { database, sql, params, ...(use ? { use } : {}) } })
       .then(answer => {
         const rows = (answer as { rows?: unknown } | null)?.rows;
         if (!Array.isArray(rows)) throw new DoorError(`${RUN_SQL} answered no rows.`);

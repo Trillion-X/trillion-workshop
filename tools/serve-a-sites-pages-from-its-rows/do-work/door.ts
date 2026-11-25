@@ -87,8 +87,12 @@ function replyOf(text: string): { result?: { structuredContent?: unknown; conten
 /** The tool's own answer out of the engine's envelope { tool, exit_code, result }; a run that did not finish throws. */
 export function toolAnswerOf(envelope: unknown): unknown {
   const run = envelope as { tool?: unknown; exit_code?: unknown; error?: unknown; result?: unknown } | null;
-  if (typeof run?.tool !== 'string' || !('result' in run)) throw new DoorError('The engine door answered something that is not a tool run.');
-  if (run.exit_code !== 0 || run.error) throw new DoorError(`The engine ran ${run.tool} and it did not finish.`);
+  if (typeof run?.tool !== 'string') throw new DoorError('The engine door answered something that is not a tool run.');
+  if (run.exit_code !== 0 || run.error) {
+    const words = typeof run.error === 'string' ? `: ${run.error.replace(/\s+/g, ' ').slice(0, 300)}` : '';
+    throw new DoorError(`The engine ran ${run.tool} and it did not finish${words}`);
+  }
+  if (!('result' in run)) throw new DoorError(`The engine ran ${run.tool} and it answered nothing.`);
   return run.result;
 }
 
