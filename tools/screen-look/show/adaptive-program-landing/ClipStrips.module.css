@@ -1,0 +1,12 @@
+/* The strips' own layout only: type, colour, width and section spacing come from the marketing parts they are built from. */
+.strips { display: grid; gap: 8px; }
+.strip { display: grid; gap: 16px; }
+.row { display: flex; flex-wrap: nowrap; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; }
+.card { flex: 0 0 auto; margin: 0; scroll-snap-align: start; }
+.cardPlay { display: block; height: auto; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; }
+.sides { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: min(86vw, 640px); }
+.side { margin: 0; display: grid; gap: 6px; min-width: 0; }
+.sideMedia { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 10px; background: #0f172a; }
+.sideLabel { font-size: 0.8rem; color: rgba(15, 23, 42, 0.62); }
+.cardReel .reelMedia { position: relative; display: block; width: auto; height: min(62vh, 420px); aspect-ratio: 9 / 16; overflow: hidden; border-radius: 10px; background: #0f172a; }
+.cardVideo { display: block; width: min(86vw, 640px); aspect-ratio: 16 / 9; border-radius: 10px; background: #0f172a; }
