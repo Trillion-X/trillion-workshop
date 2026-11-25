@@ -119,15 +119,15 @@ test('this computer is read through its own door, with no SSH: late wakes, a ref
   };
   const stale = wake('keep-steps/a', [everyFive], '2026-11-25T13:50:00.500Z');
   const fine = wake('keep-steps/b', [everyFive], '2026-11-25T14:00:00.500Z');
-  const seen = await checkHere({ name: 'ignored' }, { door, nowMs: now, fetchImpl: doorGiving([{ computer: 'the-mac', wakes: [fine], switch_history: [], next: 'a\u001fb' }, { computer: 'the-mac', wakes: [stale], next: null }]) });
+  const seen = await checkHere({ name: 'ignored' }, { door, nowMs: now, kinds: ['due-time'], fetchImpl: doorGiving([{ computer: 'the-mac', wakes: [fine], switch_history: [], next: 'a\u001fb' }, { computer: 'the-mac', wakes: [stale], next: null }]) });
   assert.equal(seen.checked, true);
   assert.equal(seen.name, 'the-mac', 'the door says which computer answered');
   assert.deepEqual(seen.findings.map(finding => [finding.computer, finding.kind, finding.about]), [['the-mac', 'due-time-not-told', 'this-computer']]);
   assert.deepEqual(seen.wake_books[0].not_told, ['keep-steps/a']);
   assert.deepEqual(asked.map(item => [item.method, item.address, item.input, item.authorization]), [['wake:list', '@own-records', { kind: 'due-time' }, 'Bearer a-capability'], ['wake:list', '@own-records', { kind: 'due-time', after: 'a\u001fb' }, 'Bearer a-capability']]);
-  const clean = await checkHere({}, { door, nowMs: now, fetchImpl: doorGiving([{ computer: 'the-mac', wakes: [fine], next: null }]) });
+  const clean = await checkHere({}, { door, nowMs: now, kinds: ['due-time'], fetchImpl: doorGiving([{ computer: 'the-mac', wakes: [fine], next: null }]) });
   assert.deepEqual([clean.findings, clean.wake_books[0].due_time_wakes, clean.wake_books[0].not_told], [[], ['keep-steps/b'], []]);
-  const refused = await checkHere({}, { door, nowMs: now, fetchImpl: doorGiving([{ isError: true, content: 'x' }, JSON.stringify({ result: { isError: true, structuredContent: { code: 'scope_refused' } } })].slice(1)) });
+  const refused = await checkHere({}, { door, nowMs: now, kinds: ['due-time'], fetchImpl: doorGiving([{ isError: true, content: 'x' }, JSON.stringify({ result: { isError: true, structuredContent: { code: 'scope_refused' } } })].slice(1)) });
   assert.deepEqual(refused.findings.map(finding => finding.kind), ['wake-book-not-read'], 'a door that refuses is its own finding, never a clean book');
   assert.match(refused.findings[0].said, /scope_refused/);
   assert.equal((await checkHere({}, { door: null, nowMs: now })).checked, false);

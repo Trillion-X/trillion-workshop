@@ -76,38 +76,79 @@ export function notToldFinding(about, late) {
     said: `${ids.length} due-time wake${ids.length === 1 ? ' was' : 's were'} not told when due on ${about}: ${shown.join(', ')}${more > 0 ? `, and ${more} more` : ''}. The first: ${late[0].said} A missing teller, or one that is on but stuck or broken, tells nothing.` };
 }
 
-/** One page of `wake:list` from the run's own door ({url, resource, capability}, the descriptor on fd 3): { computer, wakes,
- *  switch_history } over every page of the kind, or { why }. Only the kind the row's right names is asked. */
-export async function readOwnDueTimeWakes(door, { fetchImpl = fetch, timeoutMs = Number(SETTINGS.wakes.ask_seconds) * 1000 } = {}) {
+/** The wake books of the run's own door ({url, resource, capability}, the descriptor on fd 3), asked once for each fact kind in
+ *  `kinds` (settings.json wakes.read_kinds: the row's rights name them), every page of each: { computer, wakes,
+ *  switch_history } or { why }. A wake hears one kind, so no wake is listed twice. */
+export async function readOwnDueTimeWakes(door, { fetchImpl = fetch, timeoutMs = Number(SETTINGS.wakes.ask_seconds) * 1000, kinds = SETTINGS.wakes.read_kinds } = {}) {
   const wakes = [];
   let history = [];
   let computer = null;
-  let after = null;
-  const seen = new Set();
-  for (let page = 0; page < Number(SETTINGS.wakes.most_pages); page += 1) {
-    const body = JSON.stringify({ jsonrpc: '2.0', id: page + 1, method: 'tools/call', params: { name: 'do_one_thing_in_my_account',
-      arguments: { address: door.resource ?? '@own-records', method: 'wake:list', request_key: `due-times:${Date.now().toString(36)}:${page}`,
-        input: { kind: SETTINGS.wakes.kind, ...(after === null ? {} : { after }) } } } });
-    let raw;
-    try {
-      const response = await fetchImpl(door.url, { method: 'POST', body, signal: AbortSignal.timeout(timeoutMs),
-        headers: { authorization: `Bearer ${door.capability}`, 'content-type': 'application/json', accept: 'application/json, text/event-stream', 'mcp-protocol-version': '2025-06-18' } });
-      raw = await response.text();
-    } catch (error) { return { why: `the door did not answer wake:list: ${error?.message ?? error}` }; }
-    const json = raw.trim().startsWith('{') ? raw : raw.split('\n').filter(line => line.startsWith('data:')).map(line => line.slice(5).trim()).join('');
-    let answer;
-    try { answer = JSON.parse(json || '{}'); } catch { return { why: `the door's answer was not JSON: ${raw.slice(0, 120)}` }; }
-    const result = answer.result;
-    const content = result?.structuredContent;
-    if (answer.error || result?.isError) return { why: `the door refused wake:list: ${(content?.detail ?? content?.code ?? answer.error?.message ?? JSON.stringify(answer).slice(0, Number(SETTINGS.wakes.most_refusal_chars)))}` };
-    if (!Array.isArray(content?.wakes)) return { why: 'the door answered no list of wakes' };
-    wakes.push(...content.wakes);
-    if (page === 0) { history = Array.isArray(content.switch_history) ? content.switch_history : []; computer = typeof content.computer === 'string' ? content.computer : null; }
-    const next = typeof content.next === 'string' && content.next !== '' ? content.next : null;
-    if (next === null) return { computer, wakes, switch_history: history };
-    if (seen.has(next)) return { why: 'the wake list named the same next page twice' };
-    seen.add(next);
-    after = next;
+  for (const kind of kinds) {
+    let after = null;
+    const seen = new Set();
+    for (let page = 0; ; page += 1) {
+      if (page >= Number(SETTINGS.wakes.most_pages)) return { why: `the wake list has more than ${SETTINGS.wakes.most_pages} pages` };
+      const body = JSON.stringify({ jsonrpc: '2.0', id: page + 1, method: 'tools/call', params: { name: 'do_one_thing_in_my_account',
+        arguments: { address: door.resource ?? '@own-records', method: 'wake:list', request_key: `wakes:${kind}:${Date.now().toString(36)}:${page}`,
+          input: { kind, ...(after === null ? {} : { after }) } } } });
+      let raw;
+      try {
+        const response = await fetchImpl(door.url, { method: 'POST', body, signal: AbortSignal.timeout(timeoutMs),
+          headers: { authorization: `Bearer ${door.capability}`, 'content-type': 'application/json', accept: 'application/json, text/event-stream', 'mcp-protocol-version': '2025-06-18' } });
+        raw = await response.text();
+      } catch (error) { return { why: `the door did not answer wake:list: ${error?.message ?? error}` }; }
+      const json = raw.trim().startsWith('{') ? raw : raw.split('\n').filter(line => line.startsWith('data:')).map(line => line.slice(5).trim()).join('');
+      let answer;
+      try { answer = JSON.parse(json || '{}'); } catch { return { why: `the door's answer was not JSON: ${raw.slice(0, 120)}` }; }
+      const result = answer.result;
+      const content = result?.structuredContent;
+      if (answer.error || result?.isError) return { why: `the door refused wake:list: ${(content?.detail ?? content?.code ?? answer.error?.message ?? JSON.stringify(answer).slice(0, Number(SETTINGS.wakes.most_refusal_chars)))}` };
+      if (!Array.isArray(content?.wakes)) return { why: 'the door answered no list of wakes' };
+      wakes.push(...content.wakes);
+      if (computer === null && typeof content.computer === 'string') computer = content.computer;
+      if (history.length === 0 && Array.isArray(content.switch_history)) history = content.switch_history;
+      const next = typeof content.next === 'string' && content.next !== '' ? content.next : null;
+      if (next === null) break;
+      if (seen.has(next)) return { why: 'the wake list named the same next page twice' };
+      seen.add(next);
+      after = next;
+    }
   }
-  return { why: `the wake list has more than ${SETTINGS.wakes.most_pages} pages` };
+  return { computer, wakes, switch_history: history };
+}
+
+// The router that hears changes but tells nothing. A router (settings.json router_silence.router_tool, its wakes
+// router_ids and their copies `<id>/<name>`) ran, so it heard changes, but no workflow was chosen since: no switched-on,
+// standing wake of a chosen kind (router_silence.chosen_kinds) fired within window_minutes before the router's last fire
+// or after it. Told is the chosen wake's own `mark.fired_ms`, never `kind_last_told`: that is the last fact of the kind
+// told on the computer by anything (measured Nov 25 2026, 9:25 AM CST: the Mac's chosen kind was told 5 minutes before
+// by another teller while no chosen wake had fired since Nov 24). A router whose last fire is older than look_back_minutes
+// is not running (a stopped router is another finding, not this one). With no chosen wake on, nothing could be told, which
+// is the silence too.
+const SILENCE = SETTINGS.router_silence;
+const isRouter = wake => wake?.tool === SILENCE.router_tool && SILENCE.router_ids.some(id => wake.id === id || String(wake.id).startsWith(`${id}/`));
+const standing = wake => wake?.switched_on === true && wake?.switch_stands === true;
+
+/** { silent: [{wake, fired_ms}], chosen_newest_ms } for one wake book at `nowMs`; silent is empty when no router fired in look_back_minutes
+ *  or a chosen wake fired in the window around the newest router fire. */
+export function routerSilence(wakes, nowMs) {
+  const list = Array.isArray(wakes) ? wakes : [];
+  const routers = list.filter(wake => isRouter(wake) && standing(wake) && Number.isFinite(wake.mark?.fired_ms)
+    && nowMs - wake.mark.fired_ms <= Number(SILENCE.look_back_minutes) * 60000);
+  const fires = list.filter(wake => standing(wake) && SILENCE.chosen_kinds.includes(wake?.on?.fact?.kind) && Number.isFinite(wake.mark?.fired_ms)).map(wake => wake.mark.fired_ms);
+  const newest = fires.length ? Math.max(...fires) : null;
+  if (routers.length === 0) return { silent: [], chosen_newest_ms: newest };
+  const last = Math.max(...routers.map(wake => wake.mark.fired_ms));
+  const windowMs = Number(SILENCE.window_minutes) * 60000;
+  const told = newest !== null && newest >= last - windowMs;
+  return { silent: told ? [] : routers.map(wake => ({ wake: wake.id, fired_ms: wake.mark.fired_ms })), chosen_newest_ms: newest };
+}
+
+/** The finding for `silent` on `about` (null when none): the routers, their last fire and the newest chosen tell. */
+export function routerSilenceFinding(about, { silent, chosen_newest_ms: newest }) {
+  if (silent.length === 0) return null;
+  const iso = ms => new Date(ms).toISOString();
+  const last = Math.max(...silent.map(item => item.fired_ms));
+  return { kind: 'router-hears-but-tells-nothing', level: 'alert', about,
+    said: `The ${SILENCE.router_tool} wake${silent.length === 1 ? '' : 's'} ${silent.map(item => item.wake).join(', ')} on ${about} last fired at ${iso(last)}, but no workflow was chosen within ${SILENCE.window_minutes} minutes of it: ${newest === null ? 'no wake of a chosen kind has fired (or none is on)' : `the newest wake of a chosen kind fired at ${iso(newest)}`}.` };
 }

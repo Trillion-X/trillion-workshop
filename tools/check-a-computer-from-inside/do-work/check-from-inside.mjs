@@ -49,7 +49,7 @@ import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { text } from 'node:stream/consumers';
-import { dueTimesNotTold, notToldFinding, readOwnDueTimeWakes } from './due-times-told.mjs';
+import { dueTimesNotTold, notToldFinding, readOwnDueTimeWakes, routerSilence, routerSilenceFinding } from './due-times-told.mjs';
 import { administrationArguments, checkedHost, heldKeyFile, knownHostsLine } from '../../administer-a-rented-host/do-work/administration-arguments.mjs';
 
 const SETTINGS = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
@@ -320,6 +320,8 @@ export function wakeBookFindings(books, nowMs = Date.now()) {
       findings.push({ kind: 'wake-book-not-read', level: 'warn', about: book.unit, said: `The wakes of ${book.unit} could not be read: ${book.why}. So whether its due-time wakes have a teller is not known.`, ...pretend });
       continue;
     }
+    const silence = routerSilenceFinding(book.unit, routerSilence(book.wakes, nowMs));
+    if (silence) findings.push({ ...silence, ...pretend });
     const held = tellersIn(book.wakes);
     if (held.due_time_wakes.length === 0 || held.tellers.length > 0) {
       const symptom = notToldFinding(book.unit, dueTimesNotTold(book.wakes, book.switch_history, nowMs).late);
@@ -364,17 +366,18 @@ export async function checkHere(input, options = {}) {
   const pretended = input?.pretend?.wake_books;
   const read = pretended !== undefined && !Array.isArray(pretended) && typeof pretended === 'object' && 'here' in pretended
     ? (Array.isArray(pretended.here) ? { computer: input?.name ?? 'this-computer', wakes: pretended.here, switch_history: input.pretend.switch_history?.here ?? [] } : { why: String(pretended.here?.refused ?? 'pretended refusal') })
-    : await readOwnDueTimeWakes(door, { fetchImpl: options.fetchImpl });
+    : await readOwnDueTimeWakes(door, { fetchImpl: options.fetchImpl, ...(options.kinds ? { kinds: options.kinds } : {}) });
   const name = read.computer ?? input?.name ?? 'this-computer';
   const pretend = pretended?.here !== undefined ? { pretend: true } : {};
   const judged = read.why === undefined ? dueTimesNotTold(read.wakes, read.switch_history, nowMs) : null;
   const finding = read.why !== undefined
     ? { kind: 'wake-book-not-read', level: 'warn', about: 'this-computer', said: `The due-time wakes of this computer could not be read through its own door: ${read.why}.`, ...pretend }
     : notToldFinding('this-computer', judged.late);
+  const silence = read.why === undefined ? routerSilenceFinding('this-computer', routerSilence(read.wakes, nowMs)) : null;
   const book = read.why !== undefined ? { unit: 'this-computer', read: false, why: read.why }
     : { unit: 'this-computer', read: true, due_time_wakes: tellersIn(read.wakes).due_time_wakes, not_told: [...new Set(judged.late.map(item => item.wake))], not_judged: judged.not_judged };
   return { ...base, name, checked: true, disks: [], engines: [], units: [], wake_books: [{ ...book, ...pretend }],
-    findings: finding ? [{ computer: name, at: checkedAt, ...finding, ...pretend }] : [] };
+    findings: [finding, silence].filter(Boolean).map(item => ({ computer: name, at: checkedAt, ...item, ...pretend })) };
 }
 
 /** Read one computer from inside. `options.run` stands in for SSH (a test); `options.keyFile` is the administrator key. */
