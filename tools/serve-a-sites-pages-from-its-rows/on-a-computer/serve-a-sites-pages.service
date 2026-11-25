@@ -15,9 +15,12 @@ User={user}
 Group={group}
 # The Workshop copy at {workshop} stays between starts: the row's pinned commit {workshop_commit} is fetched into it (only what
 # the copy lacks) and checked out. npm ci runs at the Workshop's top only when that commit's package-lock.json is not the one
-# installed last time, whose git id is kept in the copy's .git/npm-lock-id.
+# installed last time, whose git id is kept in the copy's .git/npm-lock-id. A fetch stopped part way (a restart, a kill) leaves
+# git's own *.lock files behind, and every later fetch would refuse; so the fetch and checkout hold a kernel lock (flock, freed
+# when its holder ends, however it ends) on .git/unit-fetch.lock, and only while holding it clear git's leftover *.lock files:
+# no other fetch of this copy can be running then, so any such file is a leftover.
 ExecStartPre=/bin/sh -c 'test -d {workshop}/.git || git init -q {workshop}'
-ExecStartPre=/bin/sh -c 'git -C {workshop} fetch -q --depth 1 {repository} {workshop_commit} && git -C {workshop} checkout -q --detach {workshop_commit}'
+ExecStartPre=/bin/sh -c 'exec 9>>{workshop}/.git/unit-fetch.lock && flock 9 && find {workshop}/.git -type f -name "*.lock" ! -name unit-fetch.lock -delete && git -C {workshop} fetch -q --depth 1 {repository} {workshop_commit} && git -C {workshop} checkout -q --detach {workshop_commit}'
 ExecStartPre=/bin/sh -c 'lock=$$(git -C {workshop} rev-parse {workshop_commit}:package-lock.json) && if [ "$$(cat {workshop}/.git/npm-lock-id 2>/dev/null)" != "$$lock" ]; then cd {workshop} && npm ci --omit=dev --no-audit --no-fund && echo "$$lock" > {workshop}/.git/npm-lock-id; fi'
 # systemd enters the working folder before any ExecStartPre runs, so it is the unit's state folder, which the computer makes
 # when it sets the unit up; the Workshop copy may not exist until the fetch above has run, so the program is named by its

@@ -269,6 +269,22 @@ export function actionsSql(table: string): string {
   return `SELECT a.path, a.access, a.tool, a.input, a.answer, a.failed, to_jsonb(a)->>'host' AS host, to_jsonb(a)->>'method' AS method, to_jsonb(a)->'undo' AS undo, (to_jsonb(a)->'says_why') AS says_why FROM "${table}" a ORDER BY 1, 7 NULLS LAST, 8`;
 }
 
+/** Every tool a value's sources run (a tool source's tool, and the tools inside its input). */
+export function toolsInValue(value: unknown): string[] {
+  if (isSource(value)) {
+    const inner = Object.entries(value).filter(([key]) => key !== '$').flatMap(([, item]) => toolsInValue(item));
+    return value.$ === 'tool' && typeof value.tool === 'string' ? [value.tool, ...inner] : inner;
+  }
+  if (Array.isArray(value)) return value.flatMap(toolsInValue);
+  if (value && typeof value === 'object') return Object.values(value).flatMap(toolsInValue);
+  return [];
+}
+
+/** Every tool an action runs: its own, those its input and answer run, and its undo's. */
+export function toolsOfAction(action: ActionRow): string[] {
+  return [action.tool, ...toolsInValue(action.input), ...toolsInValue(action.answer), ...(action.undo ? [action.undo.tool, ...toolsInValue(action.undo.input)] : [])];
+}
+
 /** The action a request's method, host and path are (HEAD asks a GET row); a host's own row wins over a row for every host. */
 export function matchAction(actions: ActionRow[], method: string, host: string, pathname: string): Matched<ActionRow> | null {
   const asked = method === 'HEAD' ? 'GET' : method;

@@ -4,7 +4,10 @@
 // (each must exit 0), then ExecStart; the program must answer 200 on both of its sockets. The Workshop it fetches is a
 // throwaway repository holding the tool folders the program reads from this checkout (the folders its code imports, found
 // by bundling it, and the shared looks it reads by path), so the template and the program tested are the ones here.
-// npm is a stand-in that links this checkout's installed packages (the test is about the start order, not the registry).
+// npm is a stand-in that links this checkout's installed packages (the test is about the start order, not the registry), and
+// flock, which macOS lacks, is a stand-in with the same kernel lock (perl's flock on the descriptor the unit names).
+// Three starts: a new computer; a Workshop copy a killed fetch left with git's lock files; a door that lacks a tool a setting
+// names, which must stop the start with that tool's name and the door's own words.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
@@ -49,19 +52,28 @@ function argvOf(command: string): string[] {
   return quoted ? [quoted[1], '-c', quoted[2]] : command.split(/\s+/).filter(Boolean);
 }
 
-/** A loopback engine door that answers the site's row reads: one public page, no look rows. */
-async function door(): Promise<http.Server> {
+/** A loopback engine door that answers the site's row reads (one public page, no look rows) and tools:list; `lacks` are the
+ * tools it has not got, refused as the engine refuses them. */
+async function door(lacks: string[] = []): Promise<http.Server> {
   const server = http.createServer((request, response) => {
     let body = '';
     request.on('data', chunk => { body += chunk; });
     request.on('end', () => {
-      const run = JSON.parse(body).params.arguments.input as { tool: string; input: { sql?: string } };
-      const sql = String(run.input.sql ?? '');
+      const { method, input } = JSON.parse(body).params.arguments as { method: string; input: { tool: string; input: { sql?: string } } };
+      const reply = (result: unknown) => {
+        response.setHeader('content-type', 'text/event-stream');
+        response.end(`data: ${JSON.stringify({ jsonrpc: '2.0', id: 1, result })}\n\n`);
+      };
+      if (method === 'tools:list') {
+        if (lacks.includes(input.tool)) return reply({ isError: true, structuredContent: { code: 'tools_tool_unknown', detail: 'No tool has this id on this computer.' } });
+        return reply({ structuredContent: { id: input.tool, runs_here: true } });
+      }
+      const sql = String(input.input.sql ?? '');
       const rows = sql.includes('FROM pages')
         ? [{ path: '/', title: 'Started', access: 'public', tool: null, input: {}, collection: null, updated_at: null, layout: { part: TEXT, export: 'Text', props: { as: 'main' }, children: [{ text: 'Started' }] } }]
         : [];
-      response.setHeader('content-type', 'text/event-stream');
-      response.end(`data: ${JSON.stringify({ jsonrpc: '2.0', id: 1, result: { structuredContent: { tool: run.tool, exit_code: 0, result: { rows } } } })}\n\n`);
+      const result = input.tool === 'tool:read-the-site-head' ? { head: '', body_start: '' } : { rows };
+      reply({ structuredContent: { tool: input.tool, exit_code: 0, result } });
     });
   });
   await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
@@ -77,30 +89,43 @@ function statusAt(socketPath: string): Promise<number | null> {
   });
 }
 
-test('the rendered unit starts on a computer that has never run it, and answers 200 on both sockets', { timeout: 600_000 }, async () => {
-  const machine = mkdtempSync(join(tmpdir(), 'su-'));
-  const doorServer = await door();
+const holder = mkdtempSync(join(tmpdir(), 'su-'));
+let source = '';
+let commit = '';
+test.before(async () => {
+  // The Workshop the unit fetches: a throwaway repository of the folders the program reads and the package files, one commit.
+  source = join(holder, 'source.git');
+  const folders = [...new Set([...(await importedFolders()), ...READ_BY_PATH])].sort();
+  assert.ok(folders.includes(TOOL_FOLDER));
+  const git = (args: string[], env: Record<string, string> = {}) => execFileSync('git', args, { cwd: TOP, env: { ...process.env, ...env }, encoding: 'utf8', maxBuffer: 1 << 28 }).trim();
+  git(['init', '-q', '--bare', source]);
+  const into = { GIT_DIR: source, GIT_WORK_TREE: TOP };
+  git(['add', '-A', '--', ...folders, 'package.json', 'package-lock.json', ':(exclude,glob)**/node_modules/**'], into);
+  git(['-c', 'user.name=unit start', '-c', 'user.email=unit-start@example.test', 'commit', '-q', '-m', 'the Workshop as this checkout holds it'], into);
+  commit = git(['rev-parse', 'HEAD'], { GIT_DIR: source });
+});
+test.after(() => rmSync(holder, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }));
+
+/**
+ * Starts the rendered unit in systemd's order on a new machine folder (`before` may leave things in its Workshop copy first,
+ * as an earlier start would have) with a door that lacks `lacks`, and answers how it went: the program's exit code (null while
+ * it runs), what both sockets answered, what it said, and the Workshop copy's folder.
+ */
+async function startUnit({ before = () => {}, lacks = [] as string[], siteHead = false } = {}) {
+  const machine = mkdtempSync(join(holder, 'm-'));
+  const doorServer = await door(lacks);
   let program: ChildProcess | null = null;
   try {
-    // The Workshop the unit fetches: a throwaway repository of the folders the program reads and the package files, one commit.
-    const source = join(machine, 'source.git');
-    const folders = [...new Set([...(await importedFolders()), ...READ_BY_PATH])].sort();
-    assert.ok(folders.includes(TOOL_FOLDER));
-    const git = (args: string[], env: Record<string, string> = {}) => execFileSync('git', args, { cwd: TOP, env: { ...process.env, ...env }, encoding: 'utf8', maxBuffer: 1 << 28 }).trim();
-    git(['init', '-q', '--bare', source]);
-    const into = { GIT_DIR: source, GIT_WORK_TREE: TOP };
-    git(['add', '-A', '--', ...folders, 'package.json', 'package-lock.json', ':(exclude,glob)**/node_modules/**'], into);
-    git(['-c', 'user.name=unit start', '-c', 'user.email=unit-start@example.test', 'commit', '-q', '-m', 'the Workshop as this checkout holds it'], into);
-    const commit = git(['rev-parse', 'HEAD'], { GIT_DIR: source });
-
-    // What the computer made at set-up: the unit's state folder and its empty Workshop folder; a node; npm's stand-in.
+    // What the computer made at set-up: the unit's state folder and its Workshop folder; a node; npm's and flock's stand-ins.
     const state = join(machine, 'var', 'state');
     const workshop = join(machine, 'opt', 'workshop');
     const bin = join(machine, 'bin');
     for (const folder of [state, workshop, bin]) mkdirSync(folder, { recursive: true });
+    before(workshop);
     symlinkSync(process.execPath, join(bin, 'node'));
     writeFileSync(join(bin, 'npm'), `#!/bin/sh\n# npm ci, standing in: the packages this checkout installed, linked where npm ci would put them.\n[ "$1" = ci ] && ln -sfn '${join(TOP, 'node_modules')}' node_modules\n`);
-    chmodSync(join(bin, 'npm'), 0o755);
+    writeFileSync(join(bin, 'flock'), '#!/bin/sh\n# flock FD, standing in: an exclusive kernel lock on that open descriptor, held until every holder of it ends.\nexec perl -MFcntl=:flock -e \'open(my $fh, ">&=", $ARGV[0]) or die "flock: $!"; flock($fh, LOCK_EX) or die "flock: $!"\' "$1"\n');
+    for (const name of ['npm', 'flock']) chmodSync(join(bin, name), 0o755);
     const credentials = join(machine, 'credentials');
     mkdirSync(credentials);
     writeFileSync(join(credentials, 'site-door-pass'), 'a-door-pass-for-the-test');
@@ -113,6 +138,7 @@ test('the rendered unit starts on a computer that has never run it, and answers 
       door: { address: `http://127.0.0.1:${(doorServer.address() as AddressInfo).port}`, pass_credential: 'site-door-pass' },
       pages: { database: 'a_site_for_who_uses_it', refresh_seconds: 60, answer_seconds: 60 },
       sign_in: { address: 'http://127.0.0.1:1', page: '/sign-in', issuer: 'https://sign-in.example.test', audience: 'https://site.example.test', team_claim: 'team_ids', members_team: 'team-members' },
+      ...(siteHead ? { site_head: { tool: 'tool:read-the-site-head', input: {} } } : {}),
     }));
 
     const values: Record<string, string> = {
@@ -142,6 +168,7 @@ test('the rendered unit starts on a computer that has never run it, and answers 
     let said = '';
     program = spawn(file, args, { cwd, env, stdio: ['ignore', 'ignore', 'pipe'] });
     program.stderr!.on('data', chunk => { said += chunk; });
+    const ended = new Promise(resolve => program!.once('exit', resolve));
 
     const deadline = Date.now() + 120_000;
     let statuses: (number | null)[] = [];
@@ -150,8 +177,8 @@ test('the rendered unit starts on a computer that has never run it, and answers 
       if (statuses.every(status => status !== null)) break;
       await new Promise(resolve => setTimeout(resolve, 500));
     }
-    assert.equal(program.exitCode, null, `the program stopped (${program.exitCode}): ${said}`);
-    assert.deepEqual(statuses, [200, 200], `both sockets answer the page: ${said}`);
+    if (program.exitCode === null && statuses.some(status => status === null)) await Promise.race([ended, new Promise(resolve => setTimeout(resolve, 1000))]);
+    return { exitCode: program.exitCode, statuses, said, workshop };
   } finally {
     if (program && program.exitCode === null) {
       const stopped = new Promise(resolve => program!.once('exit', resolve));
@@ -159,6 +186,30 @@ test('the rendered unit starts on a computer that has never run it, and answers 
       await stopped;
     }
     doorServer.close();
-    rmSync(machine, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
   }
+}
+
+test('the rendered unit starts on a computer that has never run it, and answers 200 on both sockets', { timeout: 600_000 }, async () => {
+  const started = await startUnit();
+  assert.equal(started.exitCode, null, `the program stopped (${started.exitCode}): ${started.said}`);
+  assert.deepEqual(started.statuses, [200, 200], `both sockets answer the page: ${started.said}`);
+});
+
+test('a Workshop copy a killed fetch left with git\'s lock files starts all the same, and the leftovers are gone', { timeout: 600_000 }, async () => {
+  const started = await startUnit({
+    before: workshop => {
+      execFileSync('git', ['init', '-q', workshop]);
+      for (const leftover of ['shallow.lock', 'index.lock']) writeFileSync(join(workshop, '.git', leftover), '');
+    },
+  });
+  assert.equal(started.exitCode, null, `the program stopped (${started.exitCode}): ${started.said}`);
+  assert.deepEqual(started.statuses, [200, 200], `both sockets answer the page: ${started.said}`);
+  for (const leftover of ['shallow.lock', 'index.lock']) assert.equal(existsSync(join(started.workshop, '.git', leftover)), false, `${leftover} is cleared under the fetch lock`);
+});
+
+test('a door that lacks a tool the settings name stops the start with that tool\'s name and the door\'s own words', { timeout: 600_000 }, async () => {
+  const started = await startUnit({ siteHead: true, lacks: ['tool:read-the-site-head'] });
+  assert.notEqual(started.exitCode, null, 'the program does not keep running');
+  assert.match(started.said, /This computer cannot run 1 of the tools the site names: tool:read-the-site-head \(The engine door refused tools:list: tools_tool_unknown: No tool has this id on this computer\.\)/);
+  assert.deepEqual(started.statuses.filter(status => status !== null), [], 'no socket answers');
 });

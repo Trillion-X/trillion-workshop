@@ -31,8 +31,14 @@ name, whose `http.sock` the front web server's each-name-its-own-folder site sen
 answers), `settings_file` and `settings`, `credentials`, `stop_seconds`, `writable` and `state` (the unit's state folder, which
 the computer makes at set-up; the unit starts in it, because systemd enters the working folder before the Workshop copy is
 fetched, so a working folder inside the copy could never start on a new computer). A stop (SIGTERM) finishes the calls
-already taken, for up to 25 seconds. `tests/unit-start.test.ts` starts the rendered unit in the order systemd does (working
-folder, then each ExecStartPre, then ExecStart) on an empty Workshop folder, and requires 200 on both sockets. It needs Node 26.13 or newer
+already taken, for up to 25 seconds. The fetch and checkout hold a kernel lock (flock on `.git/unit-fetch.lock`) and clear
+git's leftover `*.lock` files only while holding it, so a fetch killed part way never blocks the next start. Before it reads a
+row, the program asks the door's tools:list for every tool its settings name (run-sql, the site head), and after reading
+the rows, for every tool a page or an action names; any it cannot run stop the start with one line naming them and the
+door's own words. A door refusal is always quoted (its status, code and words, at most 400 characters), never hidden.
+`tests/unit-start.test.ts` starts the rendered unit in the order systemd does (working folder, then each ExecStartPre, then
+ExecStart): on an empty Workshop folder, on a copy a killed fetch left with git's lock files (both must answer 200 on both
+sockets), and with a door that lacks a tool the settings name (the start must stop naming it). It needs Node 26.13 or newer
 (TypeScript runs as it is, with no build) and the Workshop's packages (`npm ci` at the Workshop's top folder).
 
 ## What it answers
@@ -193,6 +199,7 @@ Example, a page's visit beacon (a visitor id only with consent, set as a cookie 
 
 | File | What |
 |---|---|
+| `tests/door.test.ts` | the door's refusals quoted, and `missingTools` |
 | `on-a-computer/serve-a-sites-pages.service` | the unit template a computer row names to run it |
 | `tool-rows.json` | the card: a program on your computer, `node do-work/serve.ts {settings}` |
 | `do-work/serve.ts` | settings, the request order above, kept rows and answers, listening on each socket or port |

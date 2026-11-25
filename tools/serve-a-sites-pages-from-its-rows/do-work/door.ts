@@ -10,7 +10,8 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. A pass is only sent: it is never in an error, a log line or an answer.
 //   2. A transport failure, a status other than 2xx, a reply with no answer, an engine error or a tool that did not finish throws
-//      a DoorError; the caller decides what the person sees. Nothing is answered for a failed run.
+//      a DoorError that quotes what the door said (its status, code and words, at most 400 characters); the caller decides what
+//      the person sees. Nothing is answered for a failed run.
 //   3. Every call ends by its time limit.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
@@ -80,44 +81,72 @@ export interface ToolRun {
 }
 
 // The engine's /mcp answer: plain JSON, or one server-sent event per line. The reply with id 1 is this call's.
-function replyOf(text: string): { result?: { structuredContent?: unknown; content?: { text: string }[] }; error?: unknown } | undefined {
+function replyOf(text: string): { result?: { structuredContent?: unknown; content?: { text: string }[]; isError?: boolean }; error?: unknown } | undefined {
   const replies = (() => {
-    try { return [JSON.parse(text)]; } catch { return text.split('\n').filter(line => line.startsWith('data:')).map(line => JSON.parse(line.slice(5))); }
+    try { return [JSON.parse(text)]; } catch { return text.split('\n').filter(line => line.startsWith('data:')).map(line => { try { return JSON.parse(line.slice(5)); } catch { return null; } }); }
   })();
   return replies.find(reply => reply?.id === 1);
+}
+
+const MOST_QUOTED = 400;
+const quoted = (text: string): string => text.replace(/\s+/g, ' ').trim().slice(0, MOST_QUOTED);
+
+/**
+ * The door's own words for what it answered: its code, then its words (the engine's `detail`, an error's message, or the text),
+ * at most 400 characters. The door never echoes a pass, so its words may be logged.
+ */
+export function doorWordsOf(answer: unknown): string {
+  const said = answer as { code?: unknown; detail?: unknown; error?: { code?: unknown; message?: unknown } | unknown; text?: unknown; cause?: unknown } | null;
+  const error = said?.error && typeof said.error === 'object' ? said.error as { code?: unknown; message?: unknown } : null;
+  const code = typeof said?.code === 'string' ? said.code : typeof error?.code === 'string' ? error.code : null;
+  const detail = typeof said?.detail === 'string' ? said.detail : (said?.detail as { words?: unknown } | null)?.words;
+  const words = [detail, error?.message, typeof said?.error === 'string' ? said.error : null, said?.text].find(word => typeof word === 'string' && word.trim() !== '');
+  return quoted(`${code ? `${code}: ` : ''}${typeof words === 'string' ? words : JSON.stringify(answer)}`);
 }
 
 /** The tool's own answer out of the engine's envelope { tool, exit_code, result }; a run that did not finish throws. */
 export function toolAnswerOf(envelope: unknown): unknown {
   const run = envelope as { tool?: unknown; exit_code?: unknown; error?: unknown; result?: unknown } | null;
-  if (typeof run?.tool !== 'string') throw new DoorError('The engine door answered something that is not a tool run.');
+  if (typeof run?.tool !== 'string') throw new DoorError(`The engine door answered this instead of a tool run: ${doorWordsOf(envelope)}`);
   if (run.exit_code !== 0 || run.error) {
-    const words = typeof run.error === 'string' ? `: ${run.error.replace(/\s+/g, ' ').slice(0, 300)}` : '';
-    throw new DoorError(`The engine ran ${run.tool} and it did not finish${words}`, 502, words ? { tool: run.tool, words: words.slice(2) } : null);
+    const words = typeof run.error === 'string' ? quoted(run.error) : '';
+    throw new DoorError(`The engine ran ${run.tool} and it did not finish${words ? `: ${words}` : ''}`, 502, words ? { tool: run.tool, words } : null);
   }
   if (!('result' in run)) throw new DoorError(`The engine ran ${run.tool} and it answered nothing.`);
   return run.result;
 }
 
-/** Runs one tool on the door as the caller whose pass is `pass`, and answers the tool's own answer. */
-export async function runTool(door: Door, pass: string, run: ToolRun, timeoutMs = 60_000): Promise<unknown> {
+/**
+ * One operation on the door (`tools:run`, `tools:list`, ...) as the caller whose pass is `pass`, and its structured answer. A
+ * refusal throws with the door's own status, code and words, so the log says why. `what` names the call in those words.
+ */
+export async function callDoor(door: Door, pass: string, method: string, input: unknown, what = method, timeoutMs = 60_000): Promise<unknown> {
   const body = JSON.stringify({
     jsonrpc: '2.0', id: 1, method: 'tools/call',
-    params: { name: 'do_one_thing_in_my_account', arguments: { address: '@tools', method: 'tools:run', request_key: randomUUID(), input: run } },
+    params: { name: 'do_one_thing_in_my_account', arguments: { address: '@tools', method, request_key: randomUUID(), input } },
   });
   const answer = await ask(door.address, '/mcp', {
     method: 'POST', body, timeoutMs,
     headers: { authorization: `Bearer ${pass}`, 'content-type': 'application/json', accept: 'application/json, text/event-stream' },
   });
   const text = answer.body.toString('utf8');
-  // The status and the start of the door's own words go into the error, so the log says why; the door never echoes the pass.
   if (answer.status < 200 || answer.status > 299) {
-    throw new DoorError(`The engine door answered ${answer.status} for ${run.tool}: ${text.replace(/\s+/g, ' ').trim().slice(0, 300)}`, answer.status === 401 || answer.status === 403 ? 403 : 502);
+    throw new DoorError(`The engine door answered ${answer.status} for ${what}: ${quoted(text)}`, answer.status === 401 || answer.status === 403 ? 403 : 502);
   }
   const reply = replyOf(text);
-  if (!reply || reply.error || !reply.result) throw new DoorError(`The engine door gave no reply to ${run.tool}.`);
-  const content = reply.result.structuredContent ?? JSON.parse(reply.result.content?.[0]?.text ?? 'null');
-  return toolAnswerOf(content);
+  if (!reply) throw new DoorError(`The engine door gave no reply to ${what}: ${quoted(text)}`);
+  if (reply.error || !reply.result) throw new DoorError(`The engine door refused ${what}: ${doorWordsOf(reply.error ?? reply)}`);
+  const content = reply.result.structuredContent ?? (() => {
+    const said = (reply.result!.content ?? []).map(item => item?.text ?? '').join('\n');
+    try { return JSON.parse(said); } catch { return { text: said }; }
+  })();
+  if (reply.result.isError) throw new DoorError(`The engine door refused ${what}: ${doorWordsOf(content)}`);
+  return content;
+}
+
+/** Runs one tool on the door as the caller whose pass is `pass`, and answers the tool's own answer. */
+export async function runTool(door: Door, pass: string, run: ToolRun, timeoutMs = 60_000): Promise<unknown> {
+  return toolAnswerOf(await callDoor(door, pass, 'tools:run', run, run.tool, timeoutMs));
 }
 
 /** The command a `cli:<command>` door address names, or null for a door reached over HTTP. */
@@ -127,10 +156,10 @@ export function commandOf(address: string): string | null {
 }
 
 /**
- * Runs one tool as this computer's own signed-in command (door-op.mjs of the Workshop this program runs from), with the pins
- * given, and answers the tool's own answer. It carries the computer owner's rights, so the site uses it only for its own reads.
+ * One operation as this computer's own signed-in command (door-op.mjs of the Workshop this program runs from), with the pins
+ * given, and its answer. It carries the computer owner's rights, so the site uses it only for its own reads.
  */
-export function runToolAsCommand(doorOp: string, command: string, pins: string[], run: ToolRun, timeoutMs = 120_000): Promise<unknown> {
+export function callAsCommand(doorOp: string, command: string, pins: string[], method: string, input: unknown, what = method, timeoutMs = 120_000): Promise<unknown> {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [doorOp], { stdio: ['pipe', 'pipe', 'pipe'] });
     const out: Buffer[] = [];
@@ -141,9 +170,41 @@ export function runToolAsCommand(doorOp: string, command: string, pins: string[]
     child.on('error', error => { clearTimeout(timer); reject(new DoorError(`${command} could not be started: ${error.message}`)); });
     child.on('close', status => {
       clearTimeout(timer);
-      if (status !== 0) return reject(new DoorError(`${command} ran ${run.tool} and stopped (${status}): ${Buffer.concat(err).toString('utf8').replace(/\s+/g, ' ').trim().slice(0, 300)}`));
-      try { resolve(toolAnswerOf(JSON.parse(Buffer.concat(out).toString('utf8')))); } catch (error) { reject(error instanceof DoorError ? error : new DoorError(`${command} answered ${run.tool} with something that is not JSON.`)); }
+      if (status !== 0) return reject(new DoorError(`${command} ran ${what} and stopped (${status}): ${quoted(Buffer.concat(err).toString('utf8'))}`));
+      try { resolve(JSON.parse(Buffer.concat(out).toString('utf8'))); } catch { reject(new DoorError(`${command} answered ${what} with something that is not JSON.`)); }
     });
-    child.stdin.end(JSON.stringify({ cli: command, kind: 'op', method: 'tools:run', input: run, ...(pins.length ? { pins } : {}), request_key: randomUUID() }));
+    child.stdin.end(JSON.stringify({ cli: command, kind: 'op', method, input, ...(pins.length ? { pins } : {}), request_key: randomUUID() }));
   });
+}
+
+/** Runs one tool as this computer's own signed-in command, and answers the tool's own answer. */
+export async function runToolAsCommand(doorOp: string, command: string, pins: string[], run: ToolRun, timeoutMs = 120_000): Promise<unknown> {
+  return toolAnswerOf(await callAsCommand(doorOp, command, pins, 'tools:run', run, run.tool, timeoutMs));
+}
+
+/** How a program asks the door one operation: `tools:list`, say. */
+export type DoorCall = (method: string, input: unknown) => Promise<unknown>;
+
+/**
+ * The tools this computer cannot run, out of `ids`, as one line naming them and the door's words for each, or null when it runs
+ * every one: each is asked of tools:list { tool } (its details, with runs_here), at most eight at a time.
+ */
+export async function missingTools(ids: string[], call: DoorCall): Promise<string | null> {
+  const unique = [...new Set(ids)].sort();
+  const why = new Map<string, string[]>();
+  for (let at = 0; at < unique.length; at += 8) {
+    await Promise.all(unique.slice(at, at + 8).map(async id => {
+      const reason = await call('tools:list', { tool: id }).then(
+        answer => {
+          const found = answer as { id?: unknown; runs_here?: unknown } | null;
+          if (found?.id !== id) return `answered no such tool: ${doorWordsOf(answer)}`;
+          return found.runs_here === false ? 'it does not run on this computer' : null;
+        },
+        error => (error as Error).message,
+      );
+      if (reason !== null) why.set(reason, [...(why.get(reason) ?? []), id]);
+    }));
+  }
+  if (why.size === 0) return null;
+  return `This computer cannot run ${[...why.values()].flat().length} of the tools the site names: ${[...why].map(([reason, tools]) => `${tools.join(', ')} (${reason})`).join('; ')}`;
 }
