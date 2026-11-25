@@ -34,7 +34,7 @@ test-fixtures/embedded-store.mjs), with no install and no sudo.
 
 ## settings.json
 
-`port`, `base_url`, `base_path`, `issuer`, `audience`, `store` (`credential`, `env`, and the driver Better Auth is handed as its database: `module`, its `export`, the constructor's `arguments` with `{connection}` for the connection string, `close`, the method that ends it, and `migration_lock`, the store's own `take` and `give` statements held around a migration, or null; another store is a settings change), `session_cookie_name`, `api_key` (`prefix`, `rate_limit` in the plugin's own `rateLimit` shape, `default_permissions`: the scope names a new key reaches, `{"<resource>": [names]}`, none by default), `internal` (`host`, `port`, `verify_path`), `passkey` (`rp_id`, `rp_name`),
+`port`, `base_url`, `base_path`, `issuer`, `audience`, `store` (`credential`, `env`, and the driver Better Auth is handed as its database: `module`, its `export`, the constructor's `arguments` with `{connection}` for the connection string, `close`, the method that ends it, and `migration_lock`, the store's own `take` and `give` statements held around a migration, or null; another store is a settings change), `session_cookie_name`, `api_key` (`prefix`, `rate_limit` in the plugin's own `rateLimit` shape, `default_permissions`: the scope names a new key reaches, `{"<resource>": [names]}`, none by default; `scoped_create`: `path` and `allowed_patterns`, the keys a program on the computer may make, see below), `internal` (`host`, `port`, `verify_path`), `passkey` (`rp_id`, `rp_name`),
 `trusted_origins`, `attached_origins` (`ask_url`, `cache_ms`, `related_url`), `two_factor_issuer`, `mcp` (`login_page`, `consent_page`, `resource`, `scopes`: what a client may ask for, `resource_scopes`: what the MCP resource allows), `disabled_paths`, `device` (`verification_uri`), `admin` (`user_ids`: the users the admin plugin treats as admins, its `adminUserIds`; none by default), `delete_user` (`enabled`: Better Auth's `user.deleteUser`, so a signed-in person may delete their own user; false by default) and
 `email` (`from`: the address mail comes from; `sender`: a description of an email provider's request, the published one at
 email-providers/resend.json or the person's own, named in their computer's layout row: `name`, `vault_key` (the name of the credential its auth header carries, read at each
@@ -121,6 +121,34 @@ computer's own listener, `internal` (`127.0.0.1:8793`, which Caddy never routes 
 `{"valid": true, "key": {"id", "userId", "permissions": {"<resource>": [scope names]}}}` or `{"valid": false, "key": null}`, and 400
 for a body with no key. `api_key.rate_limit` is `{"enabled": false}`: the plugin's default (10 checks a key a day) would
 make a key invalid after the engine's tenth request.
+
+## A key that reaches only what is allowed
+
+An internet-facing receiver needs a key that reaches one door method and nothing else (`wake:arrive`). Only the server may
+set a key's `permissions` (the client's `/api-key/create` refuses them), so a program on this computer asks the `internal`
+listener: `POST /api-key/create-scoped` (`api_key.scoped_create.path`) with
+
+    {"user_id": "<user id>", "name": "<key name>", "permissions": {"<resource>": ["wake:arrive"]}, "expires_in": <seconds>}
+
+`expires_in` may be left out (the plugin's own default: no end). The listener (scoped-key.mjs) calls Better Auth's `auth.api.createApiKey` with
+`userId`, `name`, `permissions` and `expiresIn`; the key gets `api_key.prefix` (`tr_`) like every other key. It answers 200
+`{"key": "tr_...", "id": "<key id>"}`; the engine reads the permissions as method patterns (`Object.values(permissions).flat()`).
+
+- **Loopback only.** A caller whose address is not 127.0.0.0/8 or `::1`, or a request carrying `Forwarded`, `X-Forwarded-For`
+  or `X-Real-IP` (a proxy carried it from elsewhere), is answered 403 `{"error": "loopback_only"}` before its body is read.
+  The public listener answers the path 404.
+- **The allow list.** Every pattern must be one `api_key.scoped_create.allowed_patterns` names, written the same; it ships as
+  exactly `["wake:arrive"]`. Anything else (`tools:*`, `*`, `secrets:put`, `wake:*`) is 400 `{"error": "pattern_not_allowed",
+  "pattern"}`. Also 400, each with its `error`: a body that is not an object (`body_not_an_object`), a field other than the four
+  above (`unknown_field`), no `user_id` or `name`, an empty `permissions` object or pattern list (`permissions_required`), an
+  `expires_in` that is not a whole number above 0, or one the plugin refuses (its own code). An unknown user is 404
+  `{"error": "unknown_user"}`, a banned one 403 `{"error": "user_banned"}`. A refused request makes no key.
+- **The answer is the secret.** The key appears once, in that body: it is never logged or written anywhere, and it cannot be
+  read again. Pipe the answer straight to `secrets:put` on stdin; never put it in a file, an argument or a log.
+- `api_key.default_permissions` is not changed by this: a key a person makes still reaches nothing.
+
+test/scoped-key.test.mjs proves the wake:arrive key, the refusals with no key row made, the loopback and proxy refusals and the
+untouched default.
 
 ## Whether a credential still stands
 

@@ -51,7 +51,7 @@ const server = createServer(async (request, response) => {
 
 // The computer's own side: the engine's API key check (internal-verify.mjs), on a listener Caddy never reaches.
 const internal = settings.internal
-  ? serveInternal(auth, settings.internal, settings.credential_standing).on('listening', () => console.log(`better-auth internal on ${settings.internal.host}:${settings.internal.port}`))
+  ? serveInternal(auth, settings.internal, settings.credential_standing, settings.api_key?.scoped_create).on('listening', () => console.log(`better-auth internal on ${settings.internal.host}:${settings.internal.port}`))
   : null;
 
 // A deploy starts the next release beside this one; this one finishes what it holds before it ends.

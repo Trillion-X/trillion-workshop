@@ -25,7 +25,12 @@
     "rate_limit": {
       "enabled": false
     },
-    "default_permissions": null
+    "default_permissions": null,
+    "scoped_create": {
+      "path": "/api-key/create-scoped",
+      "allowed_patterns": ["wake:arrive"],
+      "_why": "A program on this computer (the internal listener, loopback callers only) makes a key for a user with exactly these permission patterns, each written as listed here, so an internet-facing receiver holds a key that reaches only wake:arrive. The plugin lets only the server set a key's permissions; default_permissions stays null, so a key a person makes reaches nothing."
+    }
   },
   "internal": {
     "host": "127.0.0.1",

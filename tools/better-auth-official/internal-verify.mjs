@@ -3,10 +3,12 @@
 // auth.api.verifyApiKey (server-only, so no public address answers it) and answers {valid, key: {id, userId, permissions}},
 // or {valid: false, key: null}: the key's user is the person. The same listener answers settings.credential_standing.path
 // {credential} with {valid}: whether a credential the engine names by its id still stands (credential-standing.mjs).
-// `/readyz` says whether this process still takes work (stop-without-dropping.mjs). Anything else is 404.
+// `/readyz` says whether this process still takes work (stop-without-dropping.mjs). With settings.api_key.scoped_create, its path
+// makes a key with exactly the allow-listed permissions a loopback caller asks for (scoped-key.mjs). Anything else is 404.
 import { createServer } from 'node:http';
 import { credentialStands } from './credential-standing.mjs';
 import { readiness } from './stop-without-dropping.mjs';
+import { callerRefusal, mintScopedKey } from './scoped-key.mjs';
 
 const json = (response, status, body) => response.writeHead(status, { 'content-type': 'application/json' }).end(JSON.stringify(body));
 
@@ -37,7 +39,7 @@ async function passFor(auth, key, { seconds, audience }) {
   return { pass: token, expires_in: seconds };
 }
 
-export function serveInternal(auth, { host, port, verify_path: path, pass_path: passPath, pass_seconds: passSeconds, pass_audience: passAudience }, standing = null) {
+export function serveInternal(auth, { host, port, verify_path: path, pass_path: passPath, pass_seconds: passSeconds, pass_audience: passAudience }, standing = null, scopedCreate = null) {
   return createServer(async (request, response) => {
     // A carried call made with a key goes on to a person's own computer with a pass in its place (the gateway asks here), so the
     // key never leaves the computer that checked it and every computer checks what it is handed by signature alone.
@@ -48,6 +50,12 @@ export function serveInternal(auth, { host, port, verify_path: path, pass_path: 
       return made ? json(response, 200, made) : json(response, 200, { valid: false });
     }
     if (readiness(request, response)) return;
+    if (scopedCreate && request.method === 'POST' && request.url === scopedCreate.path) {
+      const refused = callerRefusal(request);
+      if (refused) return json(response, 403, { error: refused });
+      const [status, body] = await mintScopedKey(auth, scopedCreate, await bodyOf(request, 4096));
+      return json(response, status, body);
+    }
     if (standing && request.method === 'POST' && request.url === standing.path) {
       const { credential } = (await bodyOf(request, 4096)) ?? {};
       return json(response, 200, { valid: await credentialStands(auth, standing, credential).catch(() => false) });
