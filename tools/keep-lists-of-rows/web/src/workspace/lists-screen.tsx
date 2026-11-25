@@ -317,11 +317,14 @@ export function mountListScreen(element: HTMLElement, props: { surfaceInput?: Re
     }
     const fields: FieldDescriptor[] = list.fields.map((field, index) => {
       const kind = kindOf.get(field.kind);
+      // The part a field plays in a designed view (who wrote a post, when), as the list's own field row names it.
+      const role = typeof field.role === 'string' && field.role ? { role: field.role } : {};
       if (computed(field)) {
         const drawn = drawnComputed.get(field.id)!;
-        return { ...drawn, icon: kind?.icon, kind: kind?.kind ?? 'text', ruleKind: kind?.ruleKind ?? 'text', filterable: true, sortable: true, width: 180, editable: false };
+        return { ...drawn, ...role, icon: kind?.icon, kind: kind?.kind ?? 'text', ruleKind: kind?.ruleKind ?? 'text', filterable: true, sortable: true, width: 180, editable: false };
       }
       return {
+        ...role,
         id: field.id, label: field.label, icon: kind?.icon, kind: kind?.kind ?? 'text', ruleKind: kind?.ruleKind ?? 'text',
         filterable: true, sortable: true, groupable: kind?.kind === 'tag', width: index === 0 ? 260 : 180,
         read: (row: Row) => (field.links_to ? (row.links[field.id] ?? []).map(link => link.title)
