@@ -691,10 +691,14 @@ fn record(run: &str) -> Result<Value, String> {
                 else if o["type"] == "response_item" && o["payload"]["type"] == "message" && o["payload"]["role"] == "user" {
                     o["payload"]["content"].as_array().into_iter().flatten().filter_map(|x| x["text"].as_str()).collect::<Vec<_>>().join(" ") }
                 else { String::new() };
+            // A brief or message that arrives wrapped in system reminders still carries its words: they are the ask.
+            let asked_text = re(r"(?s)<system-reminder>.*?</system-reminder>").replace_all(&asked_text, "");
             let asked_text = asked_text.trim();
             if !asked_text.is_empty() && !asked_text.starts_with("<system-reminder>") && !asked_text.starts_with("<task-notification") && at.as_str() <= started.as_str() {
                 file_steps.clear();
                 open.clear();
+                said = format!("asked: {}", asked_text.chars().take(300).collect::<String>());
+            } else if said.is_empty() && !asked_text.is_empty() && !asked_text.starts_with("<task-notification") {
                 said = format!("asked: {}", asked_text.chars().take(300).collect::<String>());
             }
             // Claude Code: assistant tool_use, then a user tool_result. Codex: response_item function_call, then function_call_output.
@@ -727,8 +731,9 @@ fn record(run: &str) -> Result<Value, String> {
             for (id, text, failed) in results {
                 let Some((tool, input, why, at)) = open.remove(&id) else { continue };
                 let input_text = input.to_string();
-                let is_wf = names_wf(&input_text, "start|answer|show|cancel");
-                if names_wf(&input_text, "start|answer|cancel") && (acts_on_run(&input_text, &short) || (names_wf(&input_text, "start") && text.contains(&short))) { worked_until = Some(at.clone()); }
+                let command = input["command"].as_str().or(input["cmd"].as_str()).unwrap_or(&input_text);
+                let is_wf = names_wf(command, "start|answer|show|cancel");
+                if names_wf(command, "start|answer|cancel") && (acts_on_run(command, &short) || (names_wf(command, "start") && text.contains(&short))) { worked_until = Some(at.clone()); }
                 if is_wf {
                     if let Some(c) = re(r#""step":\s*"([^"]+)""#).captures_iter(&text).last() { waits_on = c[1].to_string(); }
                 }
@@ -920,24 +925,25 @@ fn record(run: &str) -> Result<Value, String> {
     Ok(cut_names(&path, &person))
 }
 fn is_like(pattern: &str, text: &str) -> bool { re(pattern).is_match(text) }
-// A call is wf's own when it runs `wf start|answer|show|cancel` by name or path, or through a variable the same command sets
-// to a path ending in /wf (`W=/path/bin/wf; $W answer R step`, `${W} show R`): helper agents write it that way, and the
-// ai-command-center turn-run guard (making-a-deliverable-needs-a-wf-run.py WF_VARIABLE) counts the same form.
+// A call is wf's own when a command of it runs `wf VERB` by name or path, or through a variable the same command sets to a
+// path ending in /wf (`W=/path/bin/wf; $W answer R step`, `${W} show R`): helper agents write it that way, and the
+// ai-command-center turn-run guard (making-a-deliverable-needs-a-wf-run.py WF_VARIABLE) counts the same form. The verb must
+// start a command (line start, `;`, `&`, `|`, `(`), so a note or script that only holds the words "wf answer" is not a call.
 // `verbs` is the alternation of wf verbs that count: record reads `show` for the step a run waits on, but only start, answer
 // and cancel mean the chat worked the run (a chat that only showed it never changed it).
-fn names_wf(call: &str, verbs: &str) -> bool {
-    if is_like(&format!(r"\bwf ({verbs})\b"), call) { return true; }
-    re(r#"\b([A-Za-z_][A-Za-z0-9_]*)=\\?["']?[^\s"';|&\\]*/wf(?:[^\w-]|$)"#).captures_iter(call)
-        .any(|c| is_like(&format!(r#"\$(?:\{{{v}\}}|{v}\b)\\?"?\s+({verbs})\b"#, v = &c[1]), call))
+fn names_wf(command: &str, verbs: &str) -> bool {
+    const START: &str = r"(?m)(?:^|[;&|(])\s*(?:[A-Za-z_]\w*=\S*\s+)*";
+    if is_like(&format!(r"{START}(?:\S*/wf|wf)\s+({verbs})\b"), command) { return true; }
+    re(r#"\b([A-Za-z_][A-Za-z0-9_]*)=["']?[^\s"';|&]*/wf(?:[^\w-]|$)"#).captures_iter(command)
+        .any(|c| is_like(&format!(r#"{START}"?\$(?:\{{{v}\}}|{v}\b)"?\s+({verbs})\b"#, v = &c[1]), command))
 }
 // A wf start, answer or cancel call acts on the run when the run's id follows the verb, or follows it as a variable the same
-// command sets to the id (`R=1795...-run; $W answer $R step`). A note or message that only mentions the id beside the words
-// "wf answer" is not a call on it.
-fn acts_on_run(call: &str, short: &str) -> bool {
+// command sets to the id (`R=1795...-run; $W answer $R step`). A call that names the run only elsewhere is not one on it.
+fn acts_on_run(command: &str, short: &str) -> bool {
     const VERBS: &str = "start|answer|cancel";
-    is_like(&format!(r#"\b({VERBS})\s+\\?["']?\S*{short}"#), call)
-        || re(&format!(r#"\b([A-Za-z_][A-Za-z0-9_]*)=\\?["']?[^\s"';|&\\]*{short}"#)).captures_iter(call)
-            .any(|c| is_like(&format!(r#"\b({VERBS})\s+\\?"?\$(?:\{{{v}\}}|{v}\b)"#, v = &c[1]), call))
+    is_like(&format!(r#"\b({VERBS})\s+["']?\S*{short}"#), command)
+        || re(&format!(r#"\b([A-Za-z_][A-Za-z0-9_]*)=["']?[^\s"';|&]*{short}"#)).captures_iter(command)
+            .any(|c| is_like(&format!(r#"\b({VERBS})\s+"?\$(?:\{{{v}\}}|{v}\b)"#, v = &c[1]), command))
 }
 // A pattern is compiled once per process: record walks every call of every chat that names the run, and compiling its
 // patterns per call made a long chat take minutes (a 187 MB transcript held wf record past 60 s, Nov 21 4:3x AM CST).
@@ -1750,52 +1756,55 @@ mod json_arg_tests {
 
 #[cfg(test)]
 mod names_wf_tests {
-    use super::names_wf;
-    use serde_json::json;
+    use super::{acts_on_run, names_wf};
 
-    fn counts(command: &str) -> bool { names_wf(&json!({ "command": command }).to_string(), "start|answer|show|cancel") }
-    fn works_a_run(command: &str) -> bool { names_wf(&json!({ "command": command }).to_string(), "start|answer|cancel") }
-
-    #[test]
-    fn a_call_acts_on_a_run_only_when_its_id_follows_the_verb() {
-        use super::acts_on_run;
-        let call = |c: &str| acts_on_run(&json!({ "command": c }).to_string(), "1795563437");
-        assert!(call("wf answer 1795563437-7391-workflow_x step '{}'"));
-        assert!(call("R=1795563437-7391-workflow_x; $W answer $R step '{}'"));
-        assert!(call("R=\"1795563437-x\"; ${W} cancel \"$R\""));
-        assert!(!call("cat > note.md <<EOF\nRun 1795563437-x, a call like wf answer R step\nEOF"));
-        assert!(!call("R=1795563437-x; wf record $R"));
-        assert!(!call("R=1795563437-x; $W answer $Q step"));
-    }
-
-    #[test]
-    fn a_chat_that_only_shows_a_run_did_not_work_it() {
-        assert!(!works_a_run("wf show R"));
-        assert!(!works_a_run("W=/opt/otfh/bin/wf; $W show R"));
-        assert!(counts("wf show R"));
-        assert!(works_a_run("wf answer R step '{}'"));
-        assert!(works_a_run("W=/opt/otfh/bin/wf; ${W} cancel R"));
-        assert!(works_a_run("wf start workflow:x '{}'"));
-    }
+    const ANY: &str = "start|answer|show|cancel";
+    const WORKS: &str = "start|answer|cancel";
 
     #[test]
     fn wf_by_name_or_path_counts() {
-        assert!(counts("wf answer R step '{}'"));
-        assert!(counts("/opt/otfh/bin/wf answer R step '{}'"));
+        assert!(names_wf("wf answer R step '{}'", ANY));
+        assert!(names_wf("/opt/otfh/bin/wf answer R step '{}'", ANY));
+        assert!(names_wf("cd /w && /opt/otfh/bin/wf start id '{}' 2>&1 | head", ANY));
     }
 
     #[test]
     fn wf_through_a_variable_set_to_its_path_counts() {
-        assert!(counts("W=/opt/otfh/bin/wf; R=1795-run; $W answer $R step '{}'"));
-        assert!(counts("W=\"/opt/otfh/bin/wf\"; ${W} show R"));
-        assert!(counts("W=/opt/otfh/bin/wf\n\"$W\" start id"));
+        assert!(names_wf("W=/opt/otfh/bin/wf; R=1795-run; $W answer $R step '{}'", ANY));
+        assert!(names_wf("W=\"/opt/otfh/bin/wf\"; ${W} show R", ANY));
+        assert!(names_wf("W=/opt/otfh/bin/wf\n\"$W\" start id", ANY));
     }
 
     #[test]
     fn a_variable_not_set_to_wf_does_not_count() {
-        assert!(!counts("X=/usr/bin/other; $X answer R step"));
-        assert!(!counts("$X answer R step"));
-        assert!(!counts("W=/opt/otfh/bin/wf; $V answer R step"));
-        assert!(!counts("W=/opt/otfh/bin/wf-other; $W answer R step"));
+        assert!(!names_wf("X=/usr/bin/other; $X answer R step", ANY));
+        assert!(!names_wf("$X answer R step", ANY));
+        assert!(!names_wf("W=/opt/otfh/bin/wf; $V answer R step", ANY));
+        assert!(!names_wf("W=/opt/otfh/bin/wf-other; $W answer R step", ANY));
+    }
+
+    #[test]
+    fn words_in_a_note_or_script_are_not_a_call() {
+        assert!(!names_wf("cat > note.md <<EOF\nthe form is a call like wf answer R step\nEOF", ANY));
+        assert!(!names_wf("assert!(call(\"wf answer R step\"))", ANY));
+    }
+
+    #[test]
+    fn a_chat_that_only_shows_a_run_did_not_work_it() {
+        assert!(!names_wf("wf show R", WORKS));
+        assert!(!names_wf("W=/opt/otfh/bin/wf; $W show R", WORKS));
+        assert!(names_wf("wf show R", ANY));
+        assert!(names_wf("wf answer R step '{}'", WORKS));
+        assert!(names_wf("W=/opt/otfh/bin/wf; ${W} cancel R", WORKS));
+        assert!(names_wf("wf start workflow:x '{}'", WORKS));
+    }
+
+    #[test]
+    fn a_call_acts_on_a_run_only_when_its_id_follows_the_verb() {
+        assert!(acts_on_run("wf answer 1795563437-7391-workflow_x step '{}'", "1795563437"));
+        assert!(acts_on_run("R=1795563437-7391-workflow_x; $W answer $R step '{}'", "1795563437"));
+        assert!(acts_on_run("R=\"1795563437-x\"; ${W} cancel \"$R\"", "1795563437"));
+        assert!(!acts_on_run("R=1795563437-x; wf record $R", "1795563437"));
+        assert!(!acts_on_run("R=1795563437-x; $W answer $Q step", "1795563437"));
     }
 }
