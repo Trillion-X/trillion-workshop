@@ -1,6 +1,6 @@
 {
   "title": "Settings",
-  "_what": "Settings as DATA (src/workspace/settings-screen.tsx): the rail's groups and pages in the order a person steps through them with the Previous and Next cards. A page names what it draws by one of `address` (a screen of the page, kept in place), `panel` (a panel settings-pages.tsx draws) or `tool` (a tool's own screen); an item with an `action` is not a page: `navigate` goes to its `href`, such as the sign-in tool's own pages for the account and for signing out. `words` are the shell's own words: the close button's name, and the Previous and Next cards'.",
+  "_what": "Settings as DATA (src/workspace/settings-screen.tsx): the rail's groups and pages in the order a person steps through them with the Previous and Next cards. A page names what it draws by one of `address` (a screen of the page, kept in place), `panel` (a panel settings-pages.tsx draws) or `tool` (a tool's own screen); an item with an `action` is not a page: `navigate` goes to its `href`, and only an item that ends the session (Log out) does that, because the window leaves Settings with no way back; every other item is a page drawn in the pane beside the rail. `words` are the shell's own words: the close button's name, and the Previous and Next cards'.",
   "words": {
     "close": "Close settings",
     "previous": "Previous",
@@ -16,8 +16,7 @@
           "id": "account",
           "label": "Account & security",
           "icon": "UserRound",
-          "action": "navigate",
-          "href": "/account"
+          "tool": "tool:screen-account"
         },
         {
           "id": "workspace",

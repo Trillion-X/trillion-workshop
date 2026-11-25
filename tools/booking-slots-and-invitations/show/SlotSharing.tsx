@@ -67,7 +67,7 @@ export function ShareLinksMenu({ listLinks, mutate, onShare, onCreate, subscribe
 
   return <Popover open={open} onOpenChange={setOpen}>
     <PopoverTrigger render={<Button ref={trigger} size="xs" variant="ghost" aria-label={words.shareButton} title={words.shareButton} data-share-links-trigger />}>
-      <NamedIcon name={words.shareIcon} size={14} />
+      <NamedIcon name={words.shareIcon} size="sm" />
     </PopoverTrigger>
     <PopoverPopup align="end" className="w-72" portalProps={{ className: 'coss-ui', keepMounted: false }}>
       <Container layout="vertical" gap="sm" data-share-links>

@@ -124,7 +124,7 @@ export function CollectionManagerRow({
             className="sidebar-add-list-trigger"
             aria-label="Add a list"
           >
-            <NamedIcon name="ListPlus" size={16} />
+            <NamedIcon name="ListPlus" size="md" />
             <Text variant="body-xs" color="secondary">Add a list</Text>
           </Button>
         }
@@ -142,7 +142,7 @@ export function CollectionManagerRow({
                 aria-label={`Showing ${viewLabel}. Switch view`}
                 title="Switch which lists show"
               >
-                <NamedIcon name="Eye" size={14} />
+                <NamedIcon name="Eye" size="sm" />
                 <Text variant="body-xs" color="secondary">{viewLabel}</Text>
               </Button>
             ) : null}
@@ -158,7 +158,7 @@ export function CollectionManagerRow({
               aria-label="New list name"
             />
             <Button variant="ghost" size="sm" onClick={createList} disabled={busy} aria-label="Create list">
-              <NamedIcon name="Plus" size={14} />
+              <NamedIcon name="Plus" size="sm" />
             </Button>
           </Container>
 

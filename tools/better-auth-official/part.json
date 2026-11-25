@@ -1,0 +1,25 @@
+{
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-account",
+      "listed_on": "2026-11-25T20:00:00Z",
+      "label": "Account & security",
+      "job": "Your name and email, every way you sign in, your passkeys and where you are signed in.",
+      "description": "Your name and email, every way you sign in, your passkeys and where you are signed in.",
+      "status": "active",
+      "maker": "maker:better-auth",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "module",
+        "module": {
+          "package": "better-auth-official",
+          "entry": "web/account-screen-mount.tsx"
+        },
+        "icon": "UserRound",
+        "label": "Account & security",
+        "about": "Your name and email, every way you sign in, your passkeys and where you are signed in."
+      }
+    }
+  ]
+}

@@ -58,13 +58,13 @@ export function SectionedPanels({ groups, value, onValueChange, renderPanel, lab
         {group.items.map(item => <Button key={item.id} size="sm" variant="ghost"
           className="sectioned-panels-link" aria-current={value === item.id ? 'page' : undefined}
           onClick={() => press(item)}>
-          {item.icon ? <NamedIcon name={item.icon} size={16} /> : null}{item.label}
+          {item.icon ? <NamedIcon name={item.icon} size="md" /> : null}{item.label}
         </Button>)}
       </div>)}
     </nav>
     <div className="sectioned-panels-main">
       {onClose && words ? <div className="sectioned-panels-close">
-        <Button size="sm" variant="ghost" aria-label={words.close} onClick={onClose}><NamedIcon name="X" size={16} /><Kbd>Esc</Kbd></Button>
+        <Button size="sm" variant="ghost" aria-label={words.close} onClick={onClose}><NamedIcon name="X" size="md" /><Kbd>Esc</Kbd></Button>
       </div> : null}
       <div className="sectioned-panels-pages">
         {pages.filter(item => visited.has(item.id) || item.id === value).map(item =>
