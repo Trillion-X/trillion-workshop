@@ -397,7 +397,11 @@ export class Site {
     const member = await this.#parts.passes.memberOfCookie(cookie);
     if (action.access === 'members' && !member) return json(403, { error: 'Sign in as a member first.' });
     const pass = member ? member.pass : this.#parts.sitePass;
-    const failed = async (status: number): Promise<Answer> => (posted.form ? this.#words(status, 'That did not go through', action.failed, host, pathname) : json(status, { error: action.failed }));
+    // The row's own tool's words for why, when the row says to tell them; never a nested tool's, never a transport failure's.
+    const why = (error: unknown): string | null => (action.says_why && error instanceof DoorError && error.refusal?.tool === action.tool ? error.refusal.words : null);
+    const failed = async (status: number, said: string | null): Promise<Answer> => (posted.form
+      ? this.#words(status, 'That did not go through', said ? `${action.failed} ${said}` : action.failed, host, pathname)
+      : json(status, { error: action.failed, ...(said ? { why: said } : {}) }));
     try {
       const asked: Asked = {
         body: posted.body, params, query: url.searchParams, cookies: cookiesOf(cookie), claims: member?.claims ?? null, origin: this.#originOf(host),
@@ -426,7 +430,8 @@ export class Site {
       return withCookie(posted.form ? { status: 303, headers: { location: to, 'cache-control': 'no-store' }, body: '' } : json(200, { redirect: to }));
     } catch (error) {
       this.#log(`${method} ${pathname}: ${(error as Error).message}`);
-      return failed(error instanceof DoorError && error.status === 403 ? 403 : 502);
+      const said = why(error);
+      return failed(said ? 422 : error instanceof DoorError && error.status === 403 ? 403 : 502, said);
     }
   }
 

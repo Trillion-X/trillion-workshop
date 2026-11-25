@@ -54,6 +54,9 @@ const ACTIONS = [
   { path: '/chain-undo', host: null, access: 'public', tool: 'tool:fails', failed: 'Not booked.', answer: { json: ['x'] },
     input: { event: { $: 'tool', tool: 'tool:echo', input: { id: 'ev-1' }, key: 'echo' } }, undo: { tool: 'tool:echo', input: { cancel: { $: 'input', key: 'event.id' } } } },
   { path: '/bad-undo', host: null, access: 'public', tool: 'tool:x', failed: 'x', input: {}, answer: { json: ['x'] }, undo: { tool: 'not a tool' } },
+  { path: '/refuses-tells', host: null, access: 'public', tool: 'tool:refuses', failed: 'That answer was not kept.', input: {}, answer: { json: ['next'] }, says_why: true },
+  { path: '/refuses-quiet', host: null, access: 'public', tool: 'tool:refuses', failed: 'That answer was not kept.', input: {}, answer: { json: ['next'] } },
+  { path: '/refuses-nested', host: null, access: 'public', tool: 'tool:keep-a-lead', failed: 'Not kept.', input: { a: { $: 'tool', tool: 'tool:refuses', input: {} } }, answer: { json: ['kept'] }, says_why: true },
   { path: '/bad-cookie', host: null, access: 'public', tool: 'tool:x', failed: 'x', input: {}, answer: { json: ['x'], cookie: { name: 'a b', value: 'x', max_age_days: 1 } } },
   { path: '/target/state', host: null, method: 'PUT', access: 'public', tool: 'tool:x', failed: 'x', input: {}, answer: { json: ['x'] } },
 ];
@@ -76,6 +79,8 @@ async function door() {
         result = { rows: sql.includes('FROM "site_actions"') ? ACTIONS : sql.includes('FROM offers') ? [{ id: 'offer:one', params: run.input.params }] : sql.includes('FROM pages') ? PAGES : sql.includes('FROM site_look') ? [{ name: 'theme', value: 'paper' }, { name: 'font-face.body-400', value: 'Body Sans|400|normal|/assets/fonts/body.woff2' }, { name: 'brand-ink', value: '#123456' }] : [{ slug: 'first' }, { slug: 'second one' }] };
       } else if (run.tool === 'tool:start-a-checkout') {
         result = { redirectUrl: 'https://pay.example.test/session/1', sessionId: 's1' };
+      } else if (run.tool === 'tool:refuses') {
+        return response.end(JSON.stringify({ jsonrpc: '2.0', id: 1, result: { structuredContent: { tool: run.tool, exit_code: 1, error: 'An answer is written as text.', result: null } } }));
       } else if (run.tool === 'tool:echo') {
         result = { echo: run.input };
       } else if (run.tool === 'tool:keep-a-lead') {
@@ -460,6 +465,15 @@ test('a posted form or JSON body runs its action row\'s tool with the input made
     assert.deepEqual(d.calls.map(call => [call.run.tool, call.run.input]), [['tool:echo', { id: 'ev-1' }], ['tool:fails', { event: { id: 'ev-1' } }], ['tool:echo', { cancel: 'ev-1' }]],
       'when the row\'s own tool fails, its undo runs with what that tool was given');
     assert.equal((await site.act('/bad-undo', undefined, host, form({}))).status, 404, 'a row whose undo breaks a rule is set aside');
+    const asJsonPost = { contentType: 'application/json', bytes: Buffer.from('{}') };
+    const told = await site.act('/refuses-tells', undefined, host, asJsonPost);
+    assert.equal(told.status, 422);
+    assert.deepEqual(JSON.parse(String(told.body)), { error: 'That answer was not kept.', why: 'An answer is written as text.' }, 'a row that says why passes its tool\'s own words');
+    assert.match(String((await site.act('/refuses-tells', undefined, host, form({}))).body), /That answer was not kept\. An answer is written as text\./, 'a form post gets them on its page');
+    const quiet = await site.act('/refuses-quiet', undefined, host, asJsonPost);
+    assert.deepEqual([quiet.status, JSON.parse(String(quiet.body))], [502, { error: 'That answer was not kept.' }], 'a row that does not say why passes only its own words');
+    const nested = await site.act('/refuses-nested', undefined, host, asJsonPost);
+    assert.deepEqual([nested.status, JSON.parse(String(nested.body))], [502, { error: 'Not kept.' }], 'a nested tool\'s words are never passed');
     const listed = await site.act('/observe/listed', undefined, host, form({}));
     assert.equal(listed.headers['set-cookie'], `n=${(d.calls.at(-1)!.run.input as { params: string[] }).params[0]}; Max-Age=86400; Path=/; SameSite=Lax; Secure`, 'a dotted key reads a place in a list');
   } finally { d.server.close(); }

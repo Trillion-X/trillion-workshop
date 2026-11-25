@@ -34,10 +34,13 @@ export interface AskOptions {
 
 export class DoorError extends Error {
   status: number;
-  constructor(message: string, status = 502) {
+  /** The tool that refused, and its own words for why (a run that did not finish and said why); null for any other failure. */
+  refusal: { tool: string; words: string } | null;
+  constructor(message: string, status = 502, refusal: { tool: string; words: string } | null = null) {
     super(message);
     this.name = 'DoorError';
     this.status = status;
+    this.refusal = refusal;
   }
 }
 
@@ -90,7 +93,7 @@ export function toolAnswerOf(envelope: unknown): unknown {
   if (typeof run?.tool !== 'string') throw new DoorError('The engine door answered something that is not a tool run.');
   if (run.exit_code !== 0 || run.error) {
     const words = typeof run.error === 'string' ? `: ${run.error.replace(/\s+/g, ' ').slice(0, 300)}` : '';
-    throw new DoorError(`The engine ran ${run.tool} and it did not finish${words}`);
+    throw new DoorError(`The engine ran ${run.tool} and it did not finish${words}`, 502, words ? { tool: run.tool, words: words.slice(2) } : null);
   }
   if (!('result' in run)) throw new DoorError(`The engine ran ${run.tool} and it answered nothing.`);
   return run.result;

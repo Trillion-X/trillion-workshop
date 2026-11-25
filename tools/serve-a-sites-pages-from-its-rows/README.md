@@ -115,6 +115,7 @@ gives it, or reads it; it holds no callback.
 | `input` | jsonb: the tool's input; a value `{ "$": "<source>", ... }` is filled from the request |
 | `answer` | jsonb: `{ "redirect_from": "<answer key>" }`, `{ "redirect_to": <value> }` or `{ "json": ["<answer key>", ...] }`, and optionally beside it `"cookie": { "name", "value": <value>, "max_age_days", "http_only" (default true) }`: once the tool has answered, that cookie is set (Path=/, SameSite=Lax, Secure) when its value is words of letters, digits and `._-` the request does not already carry |
 | `failed` | the words a visitor gets when the tool fails |
+| `says_why` | true: when the row's own tool refuses, the visitor gets the tool's own words for why beside `failed` (JSON `{ error, why }` with 422; a form post's page carries both), for a tool whose refusals name a rule and never a value (a form step). Left out or null: never. A nested tool's words, and any failure other than a refusal, are never passed |
 | `undo` | jsonb or null: `{ "tool", "input" }`, run when the row's own tool was started and failed, to put back what the tools its input ran had done (a calendar event put before a booking could be kept); its input may read `{ "$": "input" }`, what the failed tool was given. The visitor still gets the failure |
 
 Sources: `body` (`key`, dotted into JSON), `path` (`name`), `query` (`key`: the address's query value), `cookie` (`name`, and `when: { cookie, is }` for a consent),

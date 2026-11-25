@@ -23,6 +23,9 @@
 //               once the tool has answered, that cookie is set (Path=/, SameSite=Lax, Secure) when its value gives words of
 //               letters, digits and ._- and the request does not already carry that value (a visitor id kept only with consent)
 //     failed    the words a visitor gets when the tool fails
+//     says_why  true: when the row's own tool refuses, the visitor gets the tool's own words for why beside `failed` (a form
+//               step's "An answer is written as text"), for a tool whose refusals name a rule and never a value; left out or
+//               null, never
 //     undo      jsonb or null: { "tool": "tool:<id>", "input": <value> }, run when the row's own tool was started and failed, to
 //               put back what the tools its input ran had done (a calendar event put before the booking could be kept); its
 //               input may read { "$": "input" } (what the failed tool was given). The visitor still gets the failure.
@@ -99,6 +102,7 @@ export interface ActionRow {
   input: unknown;
   answer: ActionAnswer;
   failed: string;
+  says_why: boolean;
   undo: ActionUndo | null;
 }
 
@@ -229,6 +233,7 @@ export function actionOf(row: Record<string, unknown>): ActionRow {
     throw new PageRowError(`${where}: answer.json lists the answer's keys to send.`);
   }
   words(row.failed, `${where}: failed`);
+  if (row.says_why !== undefined && row.says_why !== null && typeof row.says_why !== 'boolean') throw new PageRowError(`${where}: says_why is true, false or null.`);
   const undo = (row.undo ?? null) as Record<string, unknown> | null;
   if (undo !== null) {
     if (typeof undo !== 'object' || Array.isArray(undo) || Object.keys(undo).some(key => key !== 'tool' && key !== 'input')) throw new PageRowError(`${where}: undo is { tool, input } or null.`);
@@ -236,7 +241,7 @@ export function actionOf(row: Record<string, unknown>): ActionRow {
     checkValue(undo.input ?? {}, `${where} undo.input`);
   }
   return {
-    path, host: host as string | null, method, access: row.access, tool: row.tool, input: row.input ?? {}, answer: answer as ActionAnswer, failed: row.failed as string,
+    path, host: host as string | null, method, access: row.access, tool: row.tool, input: row.input ?? {}, answer: answer as ActionAnswer, failed: row.failed as string, says_why: row.says_why === true,
     undo: undo === null ? null : { tool: undo.tool as string, input: undo.input ?? {} },
   };
 }
@@ -261,7 +266,7 @@ export function actionsOf(rows: Record<string, unknown>[]): { actions: ActionRow
 /** The sql that reads a site's action rows from its table. */
 export function actionsSql(table: string): string {
   if (!TABLE.test(table)) throw new PageRowError(`actions ${JSON.stringify(table)} is not a table name.`);
-  return `SELECT a.path, a.access, a.tool, a.input, a.answer, a.failed, to_jsonb(a)->>'host' AS host, to_jsonb(a)->>'method' AS method, to_jsonb(a)->'undo' AS undo FROM "${table}" a ORDER BY 1, 7 NULLS LAST, 8`;
+  return `SELECT a.path, a.access, a.tool, a.input, a.answer, a.failed, to_jsonb(a)->>'host' AS host, to_jsonb(a)->>'method' AS method, to_jsonb(a)->'undo' AS undo, (to_jsonb(a)->'says_why') AS says_why FROM "${table}" a ORDER BY 1, 7 NULLS LAST, 8`;
 }
 
 /** The action a request's method, host and path are (HEAD asks a GET row); a host's own row wins over a row for every host. */
