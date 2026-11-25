@@ -239,3 +239,107 @@ test('data calls pass to the live site with no query added, Referer and Origin n
     await new Promise(done => stand.close(done));
   }
 });
+
+// Candidate mode: a new unit with no built folder, checked at its side address (or unix socket) against live.
+const { checkCandidate, checkWhatIsChecked } = await import('../do-work/check-site-build.mjs');
+
+/** A stand-in site: path -> { status, location, body }; on a free loopback port, or on a unix socket when `socket` is given. */
+async function stand(routes, socket = null) {
+  const http = await import('node:http');
+  const seen = [];
+  const server = http.createServer((req, res) => {
+    const path = new URL(req.url, 'http://local').pathname;
+    seen.push({ path, host: req.headers.host });
+    const route = routes[path] ?? { status: 404, body: 'not here' };
+    res.writeHead(route.status ?? 200, { 'content-type': 'text/html; charset=utf-8', ...(route.location ? { location: route.location } : {}) });
+    res.end(route.body ?? '');
+  });
+  await new Promise(done => (socket ? server.listen(socket, done) : server.listen(0, '127.0.0.1', done)));
+  return { origin: socket ? `unix:${socket}` : `http://127.0.0.1:${server.address().port}`, seen,
+    close: () => new Promise(done => { server.closeAllConnections(); server.close(done); }) };
+}
+
+const liveRoutes = { '/': { body: tall(3490) }, '/courses/yoga': { body: tall(3490) }, '/members': { status: 302, location: '/sign-in' }, '/sign-in': { body: tall(1200) } };
+const candidateRun = async (candidateRoutes, more = {}) => {
+  const live = await stand(liveRoutes);
+  const candidate = candidateRoutes === 'live' ? live : await stand(candidateRoutes, more.socket);
+  try {
+    return { result: await checkCandidate({ candidate: candidate.origin, live: live.origin, paths: ['/', '/courses/yoga', '/members'], out: mkdtempSync(join(tmpdir(), 'site-build-out-')), settings, browser, ...more.options }), candidate, live };
+  } finally {
+    await live.close();
+    if (candidate !== live) await candidate.close();
+  }
+};
+
+test('a candidate that is the live site itself passes every kind, the signed-out redirect included', async () => {
+  const { result } = await candidateRun('live');
+  assert.equal(result.refused, 0, JSON.stringify(result.pages.map(row => [row.kind, row.why])));
+  assert.deepEqual(result.pages.map(row => row.kind), ['/', '/courses/*', '/members']);
+  assert.equal(byKind(result, '/members').height_px > 0, true);
+});
+
+test('a candidate that serves a blank page is refused for that kind', async () => {
+  const { result } = await candidateRun({ ...liveRoutes, '/courses/yoga': { body: page({}) } });
+  assert.equal(byKind(result, '/courses/*').refused, true);
+  assert.match(byKind(result, '/courses/*').why.join(' '), /refused under 0.5/);
+  assert.equal(byKind(result, '/').refused, false);
+});
+
+test('a candidate whose page throws is refused for the new page error', async () => {
+  const { result } = await candidateRun({ ...liveRoutes, '/': { body: page({ body: '<div style="height:3490px"><p>text</p></div>', script: 'const course = {}; course.name.toUpperCase();' }) } });
+  assert.equal(byKind(result, '/').refused, true);
+  assert.match(byKind(result, '/').why.join(' '), /toUpperCase/);
+});
+
+test('a signed-out page must answer what live answers: a page where live redirects is refused, the same redirect passes', async () => {
+  const drawn = await candidateRun({ ...liveRoutes, '/members': { body: tall(1200) } });
+  const row = byKind(drawn.result, '/members');
+  assert.equal(row.refused, true);
+  assert.match(row.why.join(' '), /first answers 200 here and 302 to \/sign-in on the live site/);
+  assert.match(row.why.join(' '), /the browser ends at \/members here and at \/sign-in on the live site/);
+  const elsewhere = await candidateRun({ ...liveRoutes, '/members': { status: 302, location: '/log-in' }, '/log-in': { body: tall(1200) } });
+  assert.match(byKind(elsewhere.result, '/members').why.join(' '), /302 to \/log-in here and 302 to \/sign-in/);
+});
+
+test('the candidate is asked as the live host, also through a unix socket; an unreachable candidate is refused, never read as a page', async () => {
+  const socket = join(mkdtempSync(join(tmpdir(), 'site-build-sock-')), 'unit.sock');
+  const { result, candidate, live } = await candidateRun(liveRoutes, { socket });
+  assert.equal(result.refused, 0, JSON.stringify(result.pages.map(row => [row.kind, row.why])));
+  assert.ok(candidate.seen.length > 0);
+  for (const asked of candidate.seen) assert.equal(asked.host, new URL(live.origin).host);
+  const gone = await stand(liveRoutes);
+  try {
+    const missing = await checkCandidate({ candidate: `unix:${join(tmpdir(), 'no-such-unit.sock')}`, live: gone.origin, paths: ['/'], out: mkdtempSync(join(tmpdir(), 'site-build-out-')), settings, browser });
+    assert.equal(missing.refused, 1);
+    assert.match(missing.pages[0].why[0], /the candidate could not be read/);
+  } finally {
+    await gone.close();
+  }
+});
+
+test('a whole address on the live app host goes to the candidate app, as that host', async () => {
+  const live = await stand(liveRoutes);
+  const liveApp = await stand({ '/sign-in': { body: tall(900) } });
+  const candidate = await stand(liveRoutes);
+  const candidateApp = await stand({ '/sign-in': { body: tall(900) } });
+  try {
+    const result = await checkCandidate({ candidate: candidate.origin, candidateApp: candidateApp.origin, live: live.origin, liveApp: liveApp.origin,
+      paths: ['/', `${liveApp.origin}/sign-in`], out: mkdtempSync(join(tmpdir(), 'site-build-out-')), settings, browser });
+    assert.equal(result.refused, 0, JSON.stringify(result.pages.map(row => [row.kind, row.why])));
+    assert.ok(result.pages.some(row => row.kind === `${new URL(liveApp.origin).host} /sign-in`));
+    assert.ok(candidateApp.seen.some(asked => asked.path === '/sign-in' && asked.host === new URL(liveApp.origin).host));
+  } finally {
+    for (const one of [live, liveApp, candidate, candidateApp]) await one.close();
+  }
+});
+
+test('exactly one of a built folder and a candidate is checked; a candidate is an address', () => {
+  assert.throws(() => checkWhatIsChecked({ live: 'https://live.example' }), /never neither or both/);
+  assert.throws(() => checkWhatIsChecked({ live: 'https://live.example', pages: '/built', candidate: 'http://127.0.0.1:9' }), /never neither or both/);
+  assert.throws(() => checkWhatIsChecked({ live: 'https://live.example', candidate: '/a/folder' }), /http\(s\) origin or unix/);
+  assert.throws(() => checkWhatIsChecked({ live: 'https://live.example', candidate: 'http://127.0.0.1:9', 'server-rendered': '/articles' }), /checked whole/);
+  checkWhatIsChecked({ live: 'https://live.example', candidate: 'unix:/run/unit.sock' });
+  checkWhatIsChecked({ live: 'https://live.example', pages: '/built' });
+  assert.deepEqual(argumentsOfRequest({ candidate: 'http://10.0.0.5:8081', live: 'https://live.example', paths: ['/', '/members'], pages: '' }),
+    { candidate: 'http://10.0.0.5:8081', live: 'https://live.example', paths: '/,/members' });
+});

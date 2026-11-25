@@ -12,6 +12,15 @@ Why it exists: on Nov 24 2026 two site builds went live with every server check 
 
 ## Invocation
 
+Two ways to name what is checked, exactly one each time (else exit 2):
+
+- **A built folder** (`--pages`, with `--app`): the commit's built pages, served on 127.0.0.1 by `serve-build.mjs`.
+- **A candidate** (`--candidate`, with `--candidate-app`): a new unit with no built folder (a site drawn from rows), placed beside the live unit at a side address (`http(s)://host:port`) or a unix socket (`unix:/path`). `serve-candidate.mjs` is a loopback door that asks the candidate everything (data calls too) as the live host (Host, Referer, Origin, X-Forwarded-Host/Proto) and turns redirects to the live origin back to itself. The kinds are the `--paths` given (paths on live, or whole addresses on another live host such as the app's sign-in) plus the candidate's own sitemap. Besides the three refusals, a candidate page is refused when its first answer (status; a redirect's target) or the path the browser ends on differs from live's, so a members page is held to live's signed-out answer without signing in.
+
+```
+node tools/check-a-site-build-in-a-browser/do-work/check-site-build.mjs --candidate https://SIDE_HOST:PORT --live https://LIVE_HOST [--candidate-app unix:/run/app.sock --live-app https://LIVE_APP_HOST] [--paths /,/members,https://LIVE_APP_HOST/sign-in] [--out PICTURES_DIR]
+```
+
 ```
 node tools/check-a-site-build-in-a-browser/do-work/check-site-build.mjs --pages BUILT_PAGES_DIR --live https://LIVE_HOST [--out PICTURES_DIR] [--app BUILT_APP_DIR --live-app https://LIVE_APP_HOST] [--server-rendered /PREFIX,/PREFIX] [--settings FILE] [--browser EXECUTABLE]
 ```
@@ -36,6 +45,7 @@ A blank page is only as tall as the window (`scrollHeight` is never under the vi
 | `settings.json` | DATA: window size, wait times, `min_height_to_live` (0.5), the reading selector, the serif pattern, the check query, the data-call prefix and every sentence a refusal says. |
 | `do-work/check-site-build.mjs` | The command and `checkSiteBuild({ pages, app, live, liveApp, out, settings, browser })`. |
 | `do-work/page-kinds.mjs` | `pageKinds(root, settings)`: the kinds from the sitemap and the folder. |
+| `do-work/serve-candidate.mjs` | `serveCandidate({ candidate, live, settings })`: the loopback door to a candidate, asked as the live host. |
 | `do-work/serve-build.mjs` | `serveBuild({ root, live, settings })` and `fileFor`: the local front door with pass-through. |
 | `do-work/measure-page.mjs` | `measurePage({ url, shot, settings, browser })`: one page in Chromium. |
 | `do-work/judge.mjs` | The refusing comparisons. |

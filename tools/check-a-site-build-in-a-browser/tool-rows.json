@@ -16,13 +16,13 @@
         "label": "Check every page kind of a site build in a browser against the live site (runs on your computer)",
         "status": "active",
         "job": "Before I put a new build of my site live, open each kind of page in a real browser beside the live site and refuse the build if a page is blank, throws an error the live page does not, or shows its text in a serif font where the live page does not",
-        "description": "Reads a built site folder (its pages folder, and its app folder when it has one) and the live origins. It serves the built pages on 127.0.0.1 the way the front door does (a path is its file, its folder's index.html or its .html file) and passes data calls (paths under /target/) to the live site with no query added and with Referer and Origin naming the live host. The page kinds are read from the site's own lists: the locs of its sitemap.xml grouped by path shape (a path of one segment is its own kind; /courses/yoga and /courses/tennis are kind /courses/*), plus the top-level .html pages of the folder the sitemap leaves out, plus the app folder's. One page stands for each kind. Each is opened from the build and from the live site in a headless Chromium (1440 wide, after its load event and a few seconds for scripts to draw) and measured: full height, every page error, the computed font-family of the first #root p, and the visible text length. A page is refused when its height is under half the live page's, when it threw an error the live page did not, or when its reading font is a serif default (Times, Times New Roman, serif) where the live page's is not. A page kind the live site does not have (it answers 404) must throw no error and show text. A page the build has no file for, or that does not load, is refused, unless the caller named its path prefix as drawn by the commit's server code (server_rendered): such a kind is listed with checked_here false, is neither refused nor passed, and is counted in not_checked_here. Every number and sentence is the tool's settings.json. It only reads the build and writes pictures of each page into the folder you name; the answer's refused count is 0 when the build may go live. Exit code 1 when any page is refused, 0 when none is, 2 when it could not run.",
+        "description": "Reads a built site folder (its pages folder, and its app folder when it has one) and the live origins. It serves the built pages on 127.0.0.1 the way the front door does (a path is its file, its folder's index.html or its .html file) and passes data calls (paths under /target/) to the live site with no query added and with Referer and Origin naming the live host. The page kinds are read from the site's own lists: the locs of its sitemap.xml grouped by path shape (a path of one segment is its own kind; /courses/yoga and /courses/tennis are kind /courses/*), plus the top-level .html pages of the folder the sitemap leaves out, plus the app folder's. One page stands for each kind. Each is opened from the build and from the live site in a headless Chromium (1440 wide, after its load event and a few seconds for scripts to draw) and measured: full height, every page error, the computed font-family of the first #root p, and the visible text length. A page is refused when its height is under half the live page's, when it threw an error the live page did not, or when its reading font is a serif default (Times, Times New Roman, serif) where the live page's is not. A page kind the live site does not have (it answers 404) must throw no error and show text. A page the build has no file for, or that does not load, is refused, unless the caller named its path prefix as drawn by the commit's server code (server_rendered): such a kind is listed with checked_here false, is neither refused nor passed, and is counted in not_checked_here. Every number and sentence is the tool's settings.json. It only reads the build and writes pictures of each page into the folder you name; the answer's refused count is 0 when the build may go live. Exit code 1 when any page is refused, 0 when none is, 2 when it could not run. A new unit with no built folder is checked as a candidate instead (candidate: its side address or unix socket): the paths given and the candidate's own sitemap are opened through a loopback door that asks the candidate as the live host, beside the live site, with the same refusals, and also refused when the first answer (status, redirect target) or the page the browser ends on differs from live's. Exactly one of pages and candidate is given.",
         "input_schema": {
           "type": "object",
           "properties": {
             "pages": {
               "type": "string",
-              "description": "The built pages folder (the folder the site serves at /)."
+              "description": "The built pages folder (the folder the site serves at /). Give this or candidate, never both or neither."
             },
             "live": {
               "type": "string",
@@ -47,10 +47,21 @@
             "commit": {
               "type": "string",
               "description": "Optional: the full 40-character commit id the build was made from. When given, the pages folder (and the app folder) must have it in their paths, or nothing is checked and the tool exits 2: an older build cannot stand in."
+            },
+            "candidate": {
+              "type": "string",
+              "description": "Instead of pages, for a new unit with no built folder (it draws its pages from rows): its side address (an http(s) origin) or unix socket (unix:/path) where it is placed beside the live unit. Every request is asked of it as the live host. Give this or pages, never both or neither."
+            },
+            "candidate_app": {
+              "type": "string",
+              "description": "Optional, with candidate: the side address or unix socket of the new app unit, asked as live_app's host; by default the candidate answers that host too."
+            },
+            "paths": {
+              "type": "string",
+              "description": "Optional, with candidate: comma-separated paths on live (/courses/first-principles) or whole addresses on another live host (https://app.example/sign-in) to check besides the candidate's own sitemap, such as a sign-in or a members page the sitemap leaves out. A signed-out page is held to live's signed-out answer: the same first status and redirect target, and the same path the browser ends on."
             }
           },
           "required": [
-            "pages",
             "live"
           ]
         },
