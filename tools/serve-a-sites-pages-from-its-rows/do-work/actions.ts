@@ -6,7 +6,8 @@
 //   part posts a plain form (or JSON) to the address; it holds no callback, and no program is written for one site's action.
 //
 //   An action row (the table named by settings.actions):
-//     path      the address pattern, as a page's: "/checkout", "/book/:offer"
+//     path      the address pattern, as a page's: "/checkout", "/book/:offer", "/book/offer:one" (a literal part may
+//               hold a ':' after its first character)
 //     host      the one host it answers on, or null for every host; a host's own row wins
 //     access    "public" (anyone; run as the site, or as the member when one is signed in) or "members" (members only, run as
 //               the member)

@@ -76,3 +76,11 @@ test('a collection lists its slugs by a quoted table name, and a path is rebuilt
   assert.throws(() => slugsSql('x"; drop table pages; --'), /not a table name/);
   assert.equal(pathWith('/courses/:slug', { slug: 'a b/c' }), '/courses/a%20b%2Fc');
 });
+
+test('a literal path part may hold a colon after its first character, and matches whether the address sends it as is or encoded', () => {
+  const pages = [pageOf(row({ path: '/before-booking/offer:one' })), pageOf(row({ path: '/before-booking/:offer' }))];
+  assert.equal(matchPage(pages, '/before-booking/offer:one')?.page.path, '/before-booking/offer:one');
+  assert.equal(matchPage(pages, '/before-booking/offer%3Aone')?.page.path, '/before-booking/offer:one');
+  assert.deepEqual(matchPage(pages, '/before-booking/offer:two')?.params, { offer: 'offer:two' });
+  assert.throws(() => pageOf(row({ path: '/:offer:one' })), /path is/);
+});

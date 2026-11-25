@@ -71,7 +71,9 @@ export class PageRowError extends Error {}
 const PART_FILE = /^[a-z0-9][a-z0-9-]*(\/[A-Za-z0-9_][A-Za-z0-9_.-]*)*\/show(\/[A-Za-z0-9_][A-Za-z0-9_.-]*)*\/[A-Za-z0-9_-]+\.tsx?$/;
 const EXPORT_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
 export const TOOL_ID = /^tool:[a-z0-9][a-z0-9-]*$/;
-const PATH_PART = /^(?::[a-z_][a-z0-9_]*|[A-Za-z0-9._~-]+)$/;
+// A part is a ":name", or a literal of unreserved characters that may hold a ':' after its first character (an id such as
+// offer:one is one literal part).
+const PATH_PART = /^(?::[a-z_][a-z0-9_]*|[A-Za-z0-9._~-][A-Za-z0-9._~:-]*)$/;
 export const TABLE = /^[a-z_][a-z0-9_]*$/;
 export const HOST = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
 
@@ -222,6 +224,8 @@ export function pagesOn(pages: PageRow[], host: string): PageRow[] {
   return [...own, ...pages.filter(page => page.host === null && !taken.has(page.path))];
 }
 
+const safeDecode = (part: string): string | null => { try { return decodeURIComponent(part); } catch { return null; } };
+
 /** A path pattern: "/" or "/" parts each a literal or a ":name". */
 export function isPathPattern(path: unknown): path is string {
   return typeof path === 'string' && path.startsWith('/') && (path === '/' || path.slice(1).split('/').every(part => PATH_PART.test(part)));
@@ -244,7 +248,7 @@ export function matchPage<T extends { path: string }>(pages: T[], pathname: stri
         if (!value) { fits = false; break; }
         params[parts[i].slice(1)] = value;
         literals.push(0);
-      } else if (parts[i] === asked[i]) {
+      } else if (parts[i] === asked[i] || parts[i] === safeDecode(asked[i])) {
         literals.push(1);
       } else {
         fits = false;
