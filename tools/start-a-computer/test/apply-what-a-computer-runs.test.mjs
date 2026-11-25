@@ -288,6 +288,56 @@ test('a unit with a check_command is booted when the command passes, and the app
   await assert.rejects(applyWhatItRuns(machine, withCheck, never, {}, { wait: async () => {} }), /example-place\.service's check_command did not pass after the restart: no response/);
 });
 
+test('a unit whose files a container reads restarts that container after it, with what joined its network, and waits for it', async () => {
+  const inBox = { ...runs, units: [{ ...runs.units[0], check_command: 'key-is-there', ready_in_container: { compose_project: 'the-engine', service: 'engine' } }] };
+  const live = Object.fromEntries(renderWhatItRuns(inBox).map(({ path, text }) => [path, text]));
+  live['/etc/example-place/computer.json'] = '{"listen":"127.0.0.1:7199","older":true}\n';
+  const base = computer(live);
+  const answer = await applyWhatItRuns(machine, inBox, base.run, {}, { wait: async () => {} });
+  const commands = base.commands.map(({ command }) => command);
+  const unitRestart = commands.indexOf("systemctl restart 'example-place.service'");
+  const boxRestart = commands.findIndex(command => command.includes('docker restart "$c"'));
+  assert.ok(unitRestart >= 0 && boxRestart > unitRestart, 'the container restarts once its unit is back (its credentials are there again)');
+  assert.match(commands[boxRestart], /--filter 'label=com\.docker\.compose\.project=the-engine' --filter 'label=com\.docker\.compose\.service=engine'/);
+  assert.match(commands[boxRestart], /\{\{\.State\.Running\}\}.*\|\| exit 0/, 'a stopped container stays stopped');
+  assert.match(commands[boxRestart], /\{\{\.HostConfig\.NetworkMode\}\}' "\$d"\)" = "container:\$id" \]; then docker restart "\$d"/, 'a container that joined its network restarts after it');
+  const check = commands.indexOf('key-is-there');
+  const ready = commands.findIndex(command => command.includes('.State.Health.Status'));
+  assert.ok(check > boxRestart && ready > check, 'the boot check asks the unit, then waits for its container');
+  assert.deepEqual(answer.containers_restarted, ['example-place.service']);
+  assert.deepEqual(answer.booted, ['example-place.service']);
+});
+
+test('a container that never answers healthy fails the apply, and the rollback restarts it on the files put back', async () => {
+  const inBox = { ...runs, units: [{ ...runs.units[0], check_command: 'key-is-there', ready_in_container: 'the-engine-1' }] };
+  const live = Object.fromEntries(renderWhatItRuns(inBox).map(({ path, text }) => [path, text]));
+  live['/etc/example-place/computer.json'] = '{"listen":"127.0.0.1:7199","older":true}\n';
+  const base = computer(live);
+  const run = async (m, command, input) => command.includes('.State.Health.Status') ? (base.commands.push({ command }), Promise.reject(Object.assign(new Error('starting'), { code: 3 }))) : base.run(m, command, input);
+  const failure = await applyWhatItRuns(machine, inBox, run, {}, { wait: async () => {} }).then(() => null, error => error);
+  assert.ok(failure, 'the apply fails');
+  assert.match(failure.message, /example-place\.service's container did not pass after the restart: starting/);
+  assert.equal(base.commands.filter(({ command }) => command.includes('.State.Health.Status')).length, 36, 'asked for its whole stop and start');
+  const commands = base.commands.map(({ command }) => command);
+  const back = commands.findIndex(command => command.startsWith('mv -f ') && command.endsWith(" '/etc/example-place/computer.json'"));
+  assert.ok(back >= 0, 'the older config is put back');
+  const after = commands.slice(back + 1);
+  const unitAgain = after.indexOf("systemctl restart 'example-place.service'");
+  assert.ok(unitAgain >= 0 && after.findIndex(command => command.startsWith("c='the-engine-1'; ") && command.includes('docker restart')) > unitAgain, 'its container restarts on the config put back');
+});
+
+test('a ready_in_container outside its shape restarts no container', async () => {
+  for (const given of ["x'; reboot", { compose_project: "p'x", service: 'engine' }, { compose_project: 'p' }, 7]) {
+    const inBox = { ...runs, units: [{ ...runs.units[0], check_command: 'key-is-there', ready_in_container: given }] };
+    const live = Object.fromEntries(renderWhatItRuns(inBox).map(({ path, text }) => [path, text]));
+    live['/etc/example-place/computer.json'] = '{"older":true}\n';
+    const base = computer(live);
+    const answer = await applyWhatItRuns(machine, inBox, base.run, {}, { wait: async () => {} });
+    assert.ok(!base.commands.some(({ command }) => command.includes('docker')), `no docker command for ${JSON.stringify(given)}`);
+    assert.equal(answer.containers_restarted, undefined);
+  }
+});
+
 test('a computer missing a package or program its row names is set up, and one that has them all is not', async () => {
   const data = { ...runs, machine: { packages: ['jq'], downloads: [{ path: '/usr/local/bin/example-tool' }] } };
   const live = Object.fromEntries(renderWhatItRuns(data).map(({ path, text }) => [path, text]));

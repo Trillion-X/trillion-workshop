@@ -42,6 +42,31 @@ const CAP_JOURNAL = fileURLToPath(new URL('./cap-the-journal.sh', import.meta.ur
 const BUILD = readFileSync(new URL('./build-from-source.sh', import.meta.url), 'utf8');
 const SETTINGS = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
 const q = text => `'${String(text).replace(/'/g, `'\\''`)}'`;
+
+const CONTAINER = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$/;
+/** The container whose program reads a unit's files, when the unit names one (`ready_in_container`: the container's name, or
+ * {compose_project, service} to find it by its compose labels, which outlive a recreated container): the shell words that
+ * restart it (a stopped one stays stopped, as systemd's try-restart) and that pass once it answers healthy (running, for one
+ * with no health check). null for a unit with none, or one outside its shape (never written into a command). The program
+ * reads its config only at start, so a config the apply rewrote is read only once its container restarts (Nov 25 2026: an
+ * engine in an Elestio pipeline container did not read two apply-written reader lists, uid 1101's names at 6:5x AM CST and
+ * uid 1104's at 8:04 AM, until someone restarted its pipeline by hand). */
+export function containerOfUnit(unit) {
+  const given = unit?.ready_in_container;
+  const found = typeof given === 'string' && CONTAINER.test(given) ? q(given)
+    : given && typeof given === 'object' && CONTAINER.test(given.compose_project ?? '') && CONTAINER.test(given.service ?? '')
+      ? `"$(docker ps -q --filter ${q(`label=com.docker.compose.project=${given.compose_project}`)} --filter ${q(`label=com.docker.compose.service=${given.service}`)} | head -1)"`
+      : null;
+  if (!found) return null;
+  // Its own stop (docker restart waits the container's own StopTimeout, compose's stop_grace_period). A container that joined
+  // its network (network_mode service:/container:) is restarted after it: it would stay in the old namespace with only its
+  // loopback (tried on the computer on Nov 25 2026: the joined container kept net:[...982] while the restarted one had a new one).
+  return {
+    restart: `c=${found}; [ -n "$c" ] || exit 0; [ "$(docker inspect -f '{{.State.Running}}' "$c")" = true ] || exit 0; id=$(docker inspect -f '{{.Id}}' "$c"); docker restart "$c" >/dev/null; for d in $(docker ps -q --no-trunc); do if [ "$(docker inspect -f '{{.HostConfig.NetworkMode}}' "$d")" = "container:$id" ]; then docker restart "$d" >/dev/null; fi; done`,
+    ready: `c=${found}; [ -n "$c" ] && case "$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$c")" in healthy|running) ;; *) exit 3 ;; esac`,
+    tries: 36,
+  };
+}
 const absolute = (path, what) => {
   if (typeof path !== 'string' || !isAbsolute(path)) throw Object.assign(new Error(`${what} must be an absolute path.`), { exit: 2 });
   return path;
@@ -590,7 +615,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   // their files and the units that read them restart on them (Nov 25 2026: 21 copies no row named had piled up under /etc on
   // one computer, and one inside a config folder would be read by whatever binds that folder).
   const backups = [];
-  let switched, booted, linked, checked, computer, units;
+  let switched, booted, linked, checked, computer, units, containersRestarted = [];
   try {
     for (const { path, text, binary, check } of writes.filter(({ path, check }) => !inOwned(path) || check)) {
       if (live[path] !== undefined && !inOwned(path)) {
@@ -626,7 +651,12 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
     const bootCheck = async unit => {
       const row = runs.units.find(given => given.unit === unit) ?? {};
       // A unit that is not an HTTP server names the command that tells it is well (`check_command`, run on the computer, exit 0).
-      if (row.check_command) return commandPasses(machine, row.check_command, { run, wait: deps.wait ?? pause, tries: 12 }, `${unit}'s check_command`);
+      const container = containerOfUnit(row);
+      if (row.check_command) {
+        await commandPasses(machine, row.check_command, { run, wait: deps.wait ?? pause, tries: 12 }, `${unit}'s check_command`);
+        if (container) await commandPasses(machine, container.ready, { run, wait: deps.wait ?? pause, tries: container.tries }, `${unit}'s container`);
+        return;
+      }
       const health = healthOf(row.health ?? runs.health);
       const listen = row.health_listen ?? runs.health_listen;
       if (!listen) throw refused(`${unit} restarted, and neither it nor its computer's row names health_listen: the address its boot check asks.`);
@@ -646,7 +676,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
     // over it, against the computer's MemAvailable. Too little is refused before anything stops, so the slot that
     // runs keeps serving (Nov 21 2026, 9:47 PM CST: the kernel's global out-of-memory killer ended a new slot that had reached 1.32 GB
     // beside an old one holding 1.26 GB on a 4 GB computer, and every site on the box timed out).
-    switched = []; booted = []; linked = [];
+    switched = []; booted = []; linked = []; containersRestarted = [];
     for (const { group, target } of switching) {
       const answer = await overlapSlot(machine, group, target, run, {
         ready: async () => {
@@ -679,6 +709,8 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
     }
     for (const unit of units) {
       await run(machine, running.has(unit) ? `systemctl restart ${q(unit)}` : `systemctl enable --now ${q(unit)} >/dev/null 2>&1`);
+      const container = containerOfUnit(runs.units.find(given => given.unit === unit));
+      if (container) { await run(machine, container.restart); containersRestarted.push(unit); }
     }
     // A file that names commands to run once it changed (`then`: a server's reload of its site file, the meeting point's user
     // and its ssh server's reload) runs them, each once, in order, once every unit it may send to has started.
@@ -696,21 +728,22 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
       booted.push(unit);
     }
   } catch (error) {
-    error.rolled_back = await putBackTheFiles(machine, run, backups, { unitsOf, slotted, writes });
+    error.rolled_back = await putBackTheFiles(machine, run, backups, { unitsOf, slotted, writes, containerOf: unit => containerOfUnit(runs.units.find(given => given.unit === unit)) });
     throw error;
   }
   const backupsLeft = await dropTheBackups(machine, run, backups);
   const plainKeysRemoved = await removeThePlainKeys(machine, keys, booted, run);
-  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(plainKeysRemoved.length ? { plain_keys_removed: plainKeysRemoved } : {}), ...(switched.length ? { switched } : {}), ...(linked.length ? { linked } : {}), ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}), ...(built.length ? { built } : {}), ...(surplus.length ? { builds_removed: surplus.flatMap(({ builds, commits }) => commits.map(commit => `${builds}/${commit}`)) } : {}), ...removed, ...(checked.length ? { apply_checked: checked } : {}), ...(backupsLeft.length ? { backups_left: backupsLeft } : {}) };
+  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(containersRestarted.length ? { containers_restarted: containersRestarted } : {}), ...(plainKeysRemoved.length ? { plain_keys_removed: plainKeysRemoved } : {}), ...(switched.length ? { switched } : {}), ...(linked.length ? { linked } : {}), ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}), ...(built.length ? { built } : {}), ...(surplus.length ? { builds_removed: surplus.flatMap(({ builds, commits }) => commits.map(commit => `${builds}/${commit}`)) } : {}), ...removed, ...(checked.length ? { apply_checked: checked } : {}), ...(backupsLeft.length ? { backups_left: backupsLeft } : {}) };
 }
 
 /** Puts back the files an apply replaced, from the copies it kept beside them, once the apply failed after it began writing:
  * each copy is moved over its file (so the copy is gone too), systemd reloads when a unit file or drop-in came back, each unit
- * that reads a restored file restarts on it (a slotted unit is left to its own switch, which keeps the slot that ran), and a
+ * that reads a restored file restarts on it, with the container that reads that unit's files (`containerOf`), (a slotted
+ * unit is left to its own switch, which keeps the slot that ran), and a
  * restored file's `then` commands run once more. A file the apply made new has no previous bytes and stays; what the apply
  * removed, sealed or built is not undone here. Returns the paths put back, and each one that could not be with why (its copy
  * is kept, and named, for whoever looks next). */
-export async function putBackTheFiles(machine, run, backups, { unitsOf, slotted, writes }) {
+export async function putBackTheFiles(machine, run, backups, { unitsOf, slotted, writes, containerOf = () => null }) {
   const restored = [], failed = [];
   for (const { path, backup } of backups) {
     try { await run(machine, `mv -f ${q(backup)} ${q(path)}`); restored.push(path); }
@@ -720,7 +753,7 @@ export async function putBackTheFiles(machine, run, backups, { unitsOf, slotted,
   const thens = [...new Map(writes.filter(({ path }) => restored.includes(path)).flatMap(({ then }) => then ?? []).map(argv => [JSON.stringify(argv), argv])).values()];
   const steps = [
     ...(restored.some(path => path.startsWith('/etc/systemd/system/')) ? ['systemctl daemon-reload'] : []),
-    ...restart.map(unit => `systemctl restart ${q(unit)}`),
+    ...restart.flatMap(unit => [`systemctl restart ${q(unit)}`, ...(containerOf(unit) ? [containerOf(unit).restart] : [])]),
     ...thens.map(argv => argv.map(q).join(' ')),
   ];
   for (const command of steps) {
