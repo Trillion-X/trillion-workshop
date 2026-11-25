@@ -167,7 +167,7 @@ export function Text({ as: Tag = 'p', children, className = '', color, style, ..
 // the site's look paints it (its size, corner and the room around it come from --radius-cta and --cta-block-space), its label at the look's call-to-action weight (the Button's `emphasis`). Its arrow is the Button's own trailing mark.
 export function CtaBlock({ href, id, label, note }: { href: string; id?: string; label: string; note?: string }) {
   return (
-    <Container className="bitfield-cta-block py-[var(--cta-block-space,0px)]" data-cta-block={id ?? 'cta'} data-testid="landing-cta-block" id={id}>
+    <Container layout="vertical" alignItems="center" width="full" className="bitfield-cta-block py-[var(--cta-block-space,0px)]" data-cta-block={id ?? 'cta'} data-testid="landing-cta-block" id={id}>
       <Button data-testid="landing-cta-button" href={href} size="cta" radius="cta" variant="primary" emphasis="cta" arrow>{label}</Button>
       {note ? <Text className="bitfield-cta-block__note">{note}</Text> : null}
     </Container>

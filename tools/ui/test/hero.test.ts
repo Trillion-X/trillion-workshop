@@ -66,5 +66,6 @@ test('the call to action block draws its size, corner, arrow and room from the l
   assert.match(html, /py-\[15px\]/);
   assert.match(html, /--radius-cta/);
   assert.match(html, /--cta-block-space/);
+  assert.match(html, /items-center/);
   assert.match(html, /<svg/);
 });
