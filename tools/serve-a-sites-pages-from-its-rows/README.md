@@ -105,8 +105,11 @@ A part is a `show/` file under the tools folder; nothing else can be placed. A t
 `site_look`: one row per CSS variable (`name`, `value`), written on every page as `--name: value` after the shared looks, so the
 site's rows win. Name them by the role tokens the shared parts read (`button-primary-bg`, `accent-primary`, `thread`, `ink`,
 `text-primary`, `font-primary`, `radius-card`, ...); a dotted name becomes dashes. A value holding `; { } < >` or a backslash
-refuses the set. Two names are not variables:
+refuses the set. Three kinds of name are not variables:
 - `theme`: the Screen Look theme the page starts from (its palette is written first);
+- `words.form-failed`: the site's own words at a browser form whose post did not go through, when no action row's `failed`
+  says them (a passed-on program's failure). Left out: the tool's own, "Nothing was sent. Check what you typed and try again in
+  a minute.";
 - `font-face.<anything>`: `"<family>|<weight>|<normal or italic>|<path or https address of a font file>"`, an `@font-face`
   rule whose file is read once (a public file from the files store) and served from this site by identity, so no
   cross-origin font rule is needed. Example: `font-face.body-400` = `Body Sans|400|normal|/assets/fonts/body-regular.woff2`.
@@ -208,10 +211,15 @@ Example, a page's visit beacon (a visitor id only with consent, set as a cookie 
   Secure`, `HttpOnly` unless `http_only` is false, and `Domain=<domain>` when the request's host is that domain or under it.
   An action reads it back with `{ "$": "cookie", "name": "<cookie>" }` (a checkout's referral code). Example:
   `{ "query": "ref", "cookie": "site_ref", "pattern": "[A-Z0-9][A-Z0-9-]{3,31}", "upper_case": true, "max_age_days": 30, "domain": "example.com" }`.
-- A browser's form post (a form body, `Accept` naming `text/html`) never gets raw JSON back: when a passed-on program answers
-  JSON (it was made for its own page script), a 2xx naming an address (`redirect`, `redirectUrl` or `url`) becomes a 303 there,
-  and anything else, or no answer at all, is the site's own "That did not go through" page with the program's error words and
-  a Back link to the form's page (the Referer's path). A site's own action that fails a form post answers the same page.
+- A browser's form post (a form body, `Accept` naming `text/html`) never gets raw JSON back. When it does not go through,
+  whichever program it went to (its action row's tool fails, a right is refused, a member's action is posted signed out, or a
+  passed-on program answers JSON 4xx or 5xx, or does not answer), the answer is the page it was posted from (the Referer's
+  path, drawn as this site's page) drawn again with the failure's status and `no-store`: at the form that posted to that
+  address, the shared FormAlert ("That did not go through") with the action row's `failed` words, else the site's
+  `words.form-failed` look row, else the tool's own; and what the visitor typed is put back in the form's fields
+  (`show/FormOutcome.tsx`), never a password, card, secret or one-time code, which are not sent back at all. A Referer that is
+  no page of this site gets the site's page of the same words with a Back link. A passed-on program's JSON 2xx naming an address
+  (`redirect`, `redirectUrl` or `url`) becomes a 303 there. A page script asking for JSON gets JSON as before.
 - An old address of a page, `<path>.html` or `<path>/index.html` (a bookmark, a link from an old site), answers 301 to the page
   at `<path>` with its query kept, unless a page row has that exact address; with no page at `<path>` it stays 404.
 - `pass_on` entries with `"stream": true` are piped both ways as they come: every request header passes unchanged (Host,
@@ -271,6 +279,7 @@ functions these writes need), and the write's one transaction claims the use fir
 | `read-data/site-writes.json` | the named writes: each one fixed statement and the values it takes, in parameter order |
 | `kits/keep-a-site-write.json` | start here and a worked example |
 | `show/PageDocument.tsx` | the page's document around the drawn tree, its mount the shared Container |
+| `show/FormOutcome.tsx` | a page drawn again after its form's post did not go through: the shared FormAlert at that form, the typed values put back |
 | `tests/*.test.ts` | `node --test`: rows, drawing, a loopback door and sign-in, the published signature example |
 
 ## Check it

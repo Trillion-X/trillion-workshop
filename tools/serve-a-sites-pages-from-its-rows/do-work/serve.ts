@@ -98,12 +98,13 @@ import type { ActionReply, ActionRow, Asked } from './actions.ts';
 import { pageStyles } from './page-styles.ts';
 import { withSiteHead } from '../../site-head-from-its-rows/do-work/site-head.ts';
 import type { SiteHeadMarkup } from '../../site-head-from-its-rows/do-work/site-head.ts';
-import { drawnTreeOf, fontFaceCss, fontFacesOf, lookCss, PageBundles, screensOfTools, THEME_ROW, treeOf, wordsTree } from './render.ts';
+import { drawnTreeOf, fontFaceCss, fontFacesOf, FORM_OUTCOME_PART, lookCss, PageBundles, screensOfTools, THEME_ROW, treeOf, WORDS, wordsTree } from './render.ts';
 import type { Screen, Timed } from './render.ts';
 import { modulesOf } from './render-layout.ts';
 import type { DrawnNode } from './render-layout.ts';
 import { kindOf, ScreenFiles } from './screen-files.ts';
 import type { Answer } from './screen-files.ts';
+import type { FormOutcomeProps } from '../show/FormOutcome.tsx';
 
 export interface Settings {
   listen: string[];
@@ -126,6 +127,33 @@ export interface Settings {
 
 const RUN_SQL = 'tool:run-sql-in-my-database';
 const LOOK_SQL = 'SELECT name, value FROM site_look ORDER BY name';
+/** The site's look row with its own words for a form post that did not go through, when no action row's `failed` says them. */
+export const FORM_FAILED_ROW = `${WORDS}form-failed`;
+export const FORM_FAILED_TITLE = 'That did not go through';
+export const FORM_FAILED_WORDS = 'Nothing was sent. Check what you typed and try again in a minute.';
+// Typed values are put back only from fields a page may show again: never a password, card, secret or one-time code.
+const NOT_PUT_BACK = /pass|card|cvc|cvv|secret|token|otp|one[-_.]?time/i;
+const MOST_PUT_BACK_LENGTH = 4000;
+
+/** A browser's form post that did not go through: where it posted, the row's words if any, the page it came from, what was typed. */
+export interface FailedPost {
+  action: string;
+  words: string | null;
+  referer: string | undefined;
+  cookie: string | undefined;
+  values: Record<string, string>;
+}
+
+/** What a visitor typed in a form, by field name, that the page may put back: text values only, never a secret's. */
+export function typedValuesOf(body: Record<string, unknown>): Record<string, string> {
+  return Object.fromEntries(Object.entries(body).filter((pair): pair is [string, string] => typeof pair[1] === 'string' && pair[1].length <= MOST_PUT_BACK_LENGTH && !NOT_PUT_BACK.test(pair[0])));
+}
+
+/** The typed values of a form body passed on to another program: a URL-encoded form's, else none. */
+export function formValuesOf(contentType: string | undefined, bytes: Buffer): Record<string, string> {
+  const type = String(contentType ?? '').split(';')[0].trim().toLowerCase();
+  return type === 'application/x-www-form-urlencoded' ? typedValuesOf(Object.fromEntries(new URLSearchParams(bytes.toString('utf8')))) : {};
+}
 const MOST_KEPT_ANSWERS = 1000;
 /** The most bytes an action's posted body may hold. */
 export const MOST_ACTION_BYTES = 65536;
@@ -265,6 +293,8 @@ export class Site {
   #slugs = new Map<string, Set<string>>();
   #refusedActions: Refused[] = [];
   #look = '';
+  // The site's own words for a form post that did not go through (its look row words.form-failed), or null for the tool's own.
+  #formFailed: string | null = null;
   #head: SiteHeadMarkup | null = null;
   #readAt = 0;
   #reading: Promise<void> | null = null;
@@ -306,6 +336,8 @@ export class Site {
     const theme = look.find(row => row.name === THEME_ROW)?.value;
     const faces = await Promise.all(fontFacesOf(look).map(async face => ({ ...face, address: await this.#parts.keepFont(face.src) })));
     this.#look = `${fontFaceCss(faces)}${this.#parts.palette(typeof theme === 'string' ? theme : null)}${lookCss(look)}`;
+    const formFailed = look.find(row => row.name === FORM_FAILED_ROW)?.value;
+    this.#formFailed = typeof formFailed === 'string' && formFailed.trim() ? formFailed.trim() : null;
     this.#head = head;
     this.#readAt = Date.now();
   }
@@ -367,7 +399,7 @@ export class Site {
     return this.#head ? withSiteHead(html, this.#head) : html;
   }
 
-  async #drawn(page: PageRow, params: Record<string, string>, host: string, pathname: string, run: (call: ToolRun) => Promise<unknown>, status: number, cache: string, query = new URLSearchParams()): Promise<Answer> {
+  async #drawn(page: PageRow, params: Record<string, string>, host: string, pathname: string, run: (call: ToolRun) => Promise<unknown>, status: number, cache: string, query = new URLSearchParams(), outcome?: FormOutcomeProps): Promise<Answer> {
     if (page.layout && 'go_to' in page.layout) {
       const goTo = pathWith(page.layout.go_to, params);
       const body = await this.#document(page.title ?? goTo, host, pathname, wordsTree(page.title ?? '', goTo), goTo);
@@ -377,7 +409,7 @@ export class Site {
     const answered = page.tool ? answerOf({ tool: page.tool, input: filledInput(page.input, params, query) })?.title : undefined;
     const title = page.title ?? (typeof answered === 'string' && answered.trim() ? answered : null);
     if (title === null) throw new Error(`page ${page.path}: its row has no title and ${page.tool} answered none.`);
-    const body = await this.#document(title, host, pathname, drawn);
+    const body = await this.#document(title, host, pathname, outcome ? { module: FORM_OUTCOME_PART, props: { ...outcome }, children: [drawn] } : drawn);
     return { status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': cache, 'server-timing': serverTiming(timed) }, body };
   }
 
@@ -387,11 +419,19 @@ export class Site {
   }
 
   /**
-   * The site's own page for a browser form post that did not go through (its own action's, or another program's that answered
-   * JSON): the heading, the words, and a link back to the form it came from (the Referer's path, on this site), never raw JSON.
+   * What a browser's form post that did not go through gets, whichever program it went to, never raw JSON: the page it was
+   * posted from (the Referer's path, drawn as this site's page for this host) drawn again with the failure's status, the shared
+   * FormAlert at the form that posted to `post.action` and what the visitor typed put back (show/FormOutcome.tsx). When the
+   * Referer is no page of this site, the site's page of the same words with a way back. The words are `post.words` (an action
+   * row's own `failed`) when given, else the site's look row words.form-failed, else the tool's own FORM_FAILED_WORDS.
    */
-  failedFormPage(status: number, words: string, host: string, pathname: string, referer: string | undefined): Promise<Answer> {
-    return this.#words(status, 'That did not go through', words, host, pathname, { href: backTo(referer), label: 'Back' });
+  async failedForm(status: number, host: string, post: FailedPost): Promise<Answer> {
+    const message = post.words ?? this.#formFailed ?? FORM_FAILED_WORDS;
+    const back = backTo(post.referer);
+    const outcome: FormOutcomeProps = { action: post.action, title: FORM_FAILED_TITLE, message, values: post.values };
+    const again = await this.answer('GET', back, post.cookie, host, undefined, outcome).catch(() => null);
+    if (again && again.status === 200 && again.headers['content-type']?.startsWith('text/html')) return { ...again, status, headers: { ...again.headers, 'cache-control': 'no-store' } };
+    return this.#words(status, FORM_FAILED_TITLE, message, host, post.action, { href: back, label: 'Back' });
   }
 
   async #notFound(pages: PageRow[], host: string, pathname: string): Promise<Answer> {
@@ -466,14 +506,15 @@ export class Site {
     // A GET carries no body; one that sends the visitor on is a link followed in the browser, so its failure is a page.
     if (action.method === 'GET') posted = { body: {}, form: !('json' in action.answer) };
     else try { posted = bodyOf(request.contentType, request.bytes); } catch (error) { return json(400, { error: (error as Error).message }); }
+    // A browser's form gets its own page again with the row's words at the form; a page script gets JSON.
+    const failed = async (status: number, said: string | null): Promise<Answer> => (posted.form
+      ? this.failedForm(status, host, { action: pathname, words: said ? `${action.failed} ${said}` : action.failed, referer: request.referer, cookie, values: typedValuesOf(posted.body) })
+      : json(status, { error: action.failed, ...(said ? { why: said } : {}) }));
     const member = await this.#parts.passes.memberOfCookie(cookie);
-    if (action.access === 'members' && !member) return json(403, { error: 'Sign in as a member first.' });
+    if (action.access === 'members' && !member) return posted.form ? failed(403, 'Sign in as a member first.') : json(403, { error: 'Sign in as a member first.' });
     const pass = member ? member.pass : this.#parts.sitePass;
     // The row's own tool's words for why, when the row says to tell them; never a nested tool's, never a transport failure's.
     const why = (error: unknown): string | null => (action.says_why && error instanceof DoorError && error.refusal?.tool === action.tool ? error.refusal.words : null);
-    const failed = async (status: number, said: string | null): Promise<Answer> => (posted.form
-      ? this.failedFormPage(status, said ? `${action.failed} ${said}` : action.failed, host, pathname, request.referer)
-      : json(status, { error: action.failed, ...(said ? { why: said } : {}) }));
     try {
       // A tool source that names one tool with one input is one run in this request, however many keys of its answer are read.
       const ran = new Map<string, Promise<unknown>>();
@@ -538,7 +579,7 @@ export class Site {
   }
 
   /** The answer for one request: its method, its address (path and query), its cookie and its host (hostOf). */
-  async answer(method: string, address: string, cookie: string | undefined, host = this.hostOf(undefined, undefined), range?: string): Promise<Answer> {
+  async answer(method: string, address: string, cookie: string | undefined, host = this.hostOf(undefined, undefined), range?: string, outcome?: FormOutcomeProps): Promise<Answer> {
     const url = new URL(address, 'http://site.invalid');
     const pathname = url.pathname;
     if (method !== 'GET' && method !== 'HEAD') return { status: 405, headers: { allow: 'GET, HEAD, POST', 'content-type': 'text/plain; charset=utf-8' }, body: 'This address answers GET and HEAD, and POST where the site does something.\n' };
@@ -577,9 +618,9 @@ export class Site {
       // A template page answers only the slugs its collection holds; any other address is not a page (404), never a 502.
       const names = paramsOf(page.path);
       if (page.collection && names.length === 1 && !this.#slugs.get(page.collection)?.has(params[names[0]])) return await this.#notFound(pages, host, pathname);
-      if (page.access === 'public') return await this.#drawn(page, params, host, pathname, call => this.#publicRun(call), 200, 'public, max-age=0, must-revalidate', url.searchParams);
+      if (page.access === 'public') return await this.#drawn(page, params, host, pathname, call => this.#publicRun(call), 200, 'public, max-age=0, must-revalidate', url.searchParams, outcome);
       const member = await this.#parts.passes.memberOfCookie(cookie);
-      if (member) return await this.#drawn(page, params, host, pathname, call => this.#parts.run(member.pass, call), 200, 'private, no-store', url.searchParams);
+      if (member) return await this.#drawn(page, params, host, pathname, call => this.#parts.run(member.pass, call), 200, 'private, no-store', url.searchParams, outcome);
       const signIn = this.#parts.settings.sign_in;
       const drawnSignIn = signIn.signed_out === 'draw' ? matchPage(pages, signIn.page) : null;
       if (drawnSignIn && drawnSignIn.page.access === 'public') {
@@ -646,7 +687,6 @@ export function passOnFor(passOn: PassOn[], host: string, pathname: string, page
   return longer ? null : on;
 }
 
-/** One request passed whole to another program, and its answer passed back whole (its cookies too). */
 /** A same-site path to send a visitor back to: the Referer's path and query, or the home page. */
 export function backTo(referer: string | undefined): string {
   try {
@@ -665,40 +705,50 @@ export function isBrowserFormPost(request: http.IncomingMessage): boolean {
 
 /**
  * What a browser's form post gets when the other program answered JSON (it was made for its own page script): a 2xx naming
- * an address (redirect, redirectUrl or url) is a 303 there; anything else is the site's own failed-form page with the
- * program's error words, never the raw JSON. Null when the answer is not JSON, so it passes as it is.
+ * an address (redirect, redirectUrl or url) is a 303 there; a 2xx naming none is passed as it is; a failure (4xx, 5xx) is the
+ * page it came from drawn again with the site's words at the form, never the raw JSON. Null when it passes as it is.
  */
-export async function formAnswerOf(answer: { status: number; headers: http.IncomingHttpHeaders; body: Buffer }, failedPage: (status: number, words: string) => Promise<Answer>): Promise<Answer | null> {
+export async function formAnswerOf(answer: { status: number; headers: http.IncomingHttpHeaders; body: Buffer }, failedForm: (status: number) => Promise<Answer>): Promise<Answer | null> {
   if (!String(answer.headers['content-type'] ?? '').toLowerCase().startsWith('application/json')) return null;
+  if (answer.status >= 400) return failedForm(answer.status);
   let value: Record<string, unknown> | null = null;
   try { value = JSON.parse(answer.body.toString('utf8')) as Record<string, unknown>; } catch { value = null; }
-  if (answer.status >= 200 && answer.status < 300 && value && typeof value === 'object') {
-    const to = sendableAddress(value.redirect ?? value.redirectUrl ?? value.url);
-    if (to) return { status: 303, headers: { location: to, 'cache-control': 'no-store' }, body: '' };
-  }
-  const said = value && typeof value.error === 'string' && /^[^\p{C}]{1,300}$/u.test(value.error) ? value.error : 'That did not go through. Try again in a minute.';
-  return failedPage(answer.status >= 400 ? answer.status : 502, said);
+  const to = value && typeof value === 'object' ? sendableAddress(value.redirect ?? value.redirectUrl ?? value.url) : null;
+  return to ? { status: 303, headers: { location: to, 'cache-control': 'no-store' }, body: '' } : failedForm(502);
 }
 
-async function passOnTo(address: string, host: string, request: http.IncomingMessage, response: http.ServerResponse, head: SiteHeadMarkup | null, cookies: string[] = [], failedPage?: (status: number, words: string) => Promise<Answer>): Promise<void> {
+/**
+ * One request passed whole to another program, and its answer passed back whole (its cookies too). A browser's form post is
+ * never given raw JSON or a bare failure: when the program answers JSON, or does not answer, `failedForm` draws the answer
+ * from the posted bytes.
+ */
+async function passOnTo(address: string, host: string, request: http.IncomingMessage, response: http.ServerResponse, head: SiteHeadMarkup | null, cookies: string[] = [], failedForm?: (status: number, bytes: Buffer) => Promise<Answer>): Promise<void> {
   const chunks: Buffer[] = [];
   for await (const chunk of request) chunks.push(chunk as Buffer);
+  const bytes = Buffer.concat(chunks);
   const headers: Record<string, string | string[]> = {};
   for (const [name, value] of Object.entries(request.headers)) if (value !== undefined && !NOT_ASKED.has(name)) headers[name] = value;
   headers['x-forwarded-host'] = host;
   headers['x-forwarded-proto'] = 'https';
   if (!address.startsWith('unix:')) headers.host = new URL(address).host;
-  const answer = await ask(address, request.url ?? '/', { method: request.method ?? 'GET', headers, ...(chunks.length ? { body: Buffer.concat(chunks) } : {}) });
+  const asked = failedForm && isBrowserFormPost(request) ? (status: number) => failedForm(status, bytes) : null;
+  const sendForm = (page: Answer, kept?: string | string[]): void => {
+    response.writeHead(page.status, withCookies({ 'x-content-type-options': 'nosniff', ...page.headers, ...(kept ? { 'set-cookie': kept } : {}) }, cookies));
+    response.end(page.body);
+  };
+  let answer: Awaited<ReturnType<typeof ask>>;
+  try {
+    answer = await ask(address, request.url ?? '/', { method: request.method ?? 'GET', headers, ...(chunks.length ? { body: bytes } : {}) });
+  } catch (error) {
+    if (!asked) throw error;
+    console.error(`${request.method} ${request.url}: ${address} did not answer: ${(error as Error).message}`);
+    return sendForm(await asked(502));
+  }
   const back: Record<string, string | string[]> = {};
   for (const [name, value] of Object.entries(answer.headers)) if (value !== undefined && !HOP.has(name)) back[name] = value;
-  // A browser's form post never gets raw JSON: a JSON answer becomes a 303 or the site's own failed-form page.
-  const asForm = failedPage && isBrowserFormPost(request) ? await formAnswerOf(answer, failedPage) : null;
-  if (asForm) {
-    const kept = back['set-cookie'];
-    response.writeHead(asForm.status, withCookies({ 'x-content-type-options': 'nosniff', ...asForm.headers, ...(kept ? { 'set-cookie': kept } : {}) }, cookies));
-    response.end(asForm.body);
-    return;
-  }
+  // A browser's form post never gets raw JSON: a JSON answer becomes a 303 or the page it came from, drawn again.
+  const asForm = asked ? await formAnswerOf(answer, asked) : null;
+  if (asForm) return sendForm(asForm, back['set-cookie']);
   // A whole HTML document (one with a head and a body) carries the site head; a fragment or any other answer is passed as it is.
   const text = head !== null && String(answer.headers['content-type'] ?? '').startsWith('text/html') && !answer.headers['content-encoding'] ? answer.body.toString('utf8') : null;
   const whole = text !== null && text.includes(`${String.fromCharCode(60)}head>`) && new RegExp(`${String.fromCharCode(60)}body[^>]*>`).test(text);
@@ -805,16 +855,10 @@ export function handlerOf(site: Site, passOn: PassOn[] = [], addressCookies: Add
       return;
     }
     if (on) {
-      const failedPage = (status: number, words: string) => site.failedFormPage(status, words, host, pathname, request.headers.referer);
-      passOnTo(on.address, host, request, response, on.site_head ? site.siteHead : null, cookies, failedPage).catch(async error => {
+      const failedForm = (status: number, bytes: Buffer) => site.failedForm(status, host, { action: pathname, words: null, referer: request.headers.referer, cookie: request.headers.cookie, values: formValuesOf(request.headers['content-type'], bytes) });
+      passOnTo(on.address, host, request, response, on.site_head ? site.siteHead : null, cookies, failedForm).catch(error => {
         console.error(`${request.method} ${request.url}: ${on.name} did not answer: ${(error as Error).message}`);
         if (response.headersSent) return void response.end();
-        // A browser's form post gets the site's own page even when the other program does not answer at all.
-        const page = isBrowserFormPost(request) ? await failedPage(502, 'That did not go through. Try again in a minute.').catch(() => null) : null;
-        if (page) {
-          response.writeHead(page.status, { 'x-content-type-options': 'nosniff', ...page.headers });
-          return void response.end(page.body);
-        }
         response.writeHead(502, { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' });
         response.end('This is not answering. Try again in a minute.\n');
       });

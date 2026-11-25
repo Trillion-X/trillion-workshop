@@ -65,6 +65,7 @@ const ACTIONS = [
       failed: { tool: 'tool:echo', input: { action: 'send_failed', attempt: { $: 'answer', key: 'echo.attempt' } } } }],
     answer: { reply: { status: { $: 'pick', of: { $: 'answer', key: 'echo.outcome' }, from: { invalid_email: 400, too_many: 429 }, else: 200 }, json: ['echo'] } } },
   { path: '/busy', host: null, access: 'public', tool: 'tool:busy', failed: 'Not now.', input: {}, answer: { json: ['x'] } },
+  { path: '/not-yours', host: null, access: 'public', tool: 'tool:not-yours', failed: 'This was not kept for you.', input: {}, answer: { json: ['x'] } },
   { path: '/bad-reply', host: null, access: 'public', tool: 'tool:echo', failed: 'x', input: {}, answer: { reply: { status: 200, headers: { 'x-forwarded-for': 'a' } } } },
   { path: '/bad-next', host: null, access: 'public', tool: 'tool:echo', failed: 'x', input: {}, answer: { json: ['echo'] }, next: [{ tool: 'tool:echo', input: {}, also: 1 }] },
   { path: '/refuses-tells', host: null, access: 'public', tool: 'tool:refuses', failed: 'That answer was not kept.', input: {}, answer: { json: ['next'] }, says_why: true },
@@ -83,9 +84,12 @@ const ACTIONS = [
   { path: '/target/state', host: null, method: 'PUT', access: 'public', tool: 'tool:x', failed: 'x', input: {}, answer: { json: ['x'] } },
 ];
 
+const LOOK = [{ name: 'theme', value: 'paper' }, { name: 'font-face.body-400', value: 'Body Sans|400|normal|/assets/fonts/body.woff2' }, { name: 'brand-ink', value: '#123456' },
+  { name: 'words.form-failed', value: 'The site could not take that. Try again soon.' }];
+
 // An engine door on loopback: tools:run of run-sql answers the rows, read-a-greeting answers a Text screen's props, and every
 // call's pass and tool are written down.
-async function door() {
+async function door(look = LOOK) {
   const calls: { pass: string; run: ToolRun }[] = [];
   const server = http.createServer((request, response) => {
     let body = '';
@@ -98,11 +102,14 @@ async function door() {
       if (run.tool === 'tool:run-sql-in-my-database') {
         assert.deepEqual(run.input.use, { purpose: 'serve the site', surface: 'site pages' }, 'every read runs under the declared use');
         const sql = run.input.sql!;
-        result = { rows: sql.includes('FROM "site_actions"') ? ACTIONS : sql.includes('FROM offers') ? [{ id: 'offer:one', params: run.input.params }] : sql.includes('FROM pages') ? PAGES : sql.includes('FROM site_look') ? [{ name: 'theme', value: 'paper' }, { name: 'font-face.body-400', value: 'Body Sans|400|normal|/assets/fonts/body.woff2' }, { name: 'brand-ink', value: '#123456' }] : [{ slug: 'first' }, { slug: 'second one' }] };
+        result = { rows: sql.includes('FROM "site_actions"') ? ACTIONS : sql.includes('FROM offers') ? [{ id: 'offer:one', params: run.input.params }] : sql.includes('FROM pages') ? PAGES : sql.includes('FROM site_look') ? look : [{ slug: 'first' }, { slug: 'second one' }] };
       } else if (run.tool === 'tool:start-a-checkout') {
         result = { redirectUrl: 'https://pay.example.test/session/1', sessionId: 's1' };
       } else if (run.tool === 'tool:refuses') {
         return response.end(JSON.stringify({ jsonrpc: '2.0', id: 1, result: { structuredContent: { tool: run.tool, exit_code: 1, error: 'An answer is written as text.', result: null } } }));
+      } else if (run.tool === 'tool:not-yours') {
+        response.writeHead(403, { 'content-type': 'text/plain' });
+        return response.end('This pass may not run that.');
       } else if (run.tool === 'tool:busy') {
         response.writeHead(503, { 'content-type': 'text/plain' });
         return response.end('Not ready.');
@@ -466,7 +473,20 @@ test('a reply answers as the tool says (status, location, set-cookie, retry-afte
   } finally { d.server.close(); }
 });
 
-test('a browser form post never gets raw JSON: another program\'s JSON error is the site\'s own page with a way back, its JSON address a 303', async () => {
+// The FormOutcome part a redrawn page's tree carries (the tree JSON the browser draws again), or null.
+function outcomeOf(page: string): Record<string, unknown> | null {
+  const json = /<script[^>]*id="root-tree"[^>]*>([\s\S]*?)<\/script>/.exec(page)?.[1];
+  const find = (node: unknown): Record<string, unknown> | null => {
+    if (!node || typeof node !== 'object') return null;
+    const at = node as { module?: string; props?: Record<string, unknown>; children?: unknown[]; nodes?: unknown[] };
+    if (at.module?.endsWith('show/FormOutcome.tsx#FormOutcome')) return at.props ?? null;
+    for (const child of [...(at.children ?? []), ...(at.nodes ?? [])]) { const found = find(child); if (found) return found; }
+    return null;
+  };
+  return json ? find(JSON.parse(json)) : null;
+}
+
+test('a browser form post that fails, by its action\'s tool, a refused right or another program, gets the page it came from again with the words at its form and what was typed', async () => {
   const old = http.createServer((request, response) => {
     if (request.url === '/target/pay') { response.writeHead(200, { 'content-type': 'application/json', 'set-cookie': 'kept=1; Path=/' }); return response.end('{"redirect":"https://pay.example.test/s/1"}'); }
     response.writeHead(500, { 'content-type': 'application/json' });
@@ -483,28 +503,52 @@ test('a browser form post never gets raw JSON: another program\'s JSON error is 
   await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
   try {
     const at = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
-    const formPost = (path: string, accept = 'text/html,application/xhtml+xml') => fetch(`${at}${path}`, { method: 'POST', redirect: 'manual', body: 'consent.billing=true&offerId=offer:one',
-      headers: { 'content-type': 'application/x-www-form-urlencoded', accept, referer: 'https://site.example.test/pricing?plan=a', 'x-forwarded-host': 'site.example.test' } });
-    const broken = await formPost('/target/broken');
-    assert.equal(broken.status, 500, 'the program\'s status is kept');
-    assert.match(broken.headers.get('content-type') ?? '', /^text\/html/);
-    const page = await broken.text();
-    assert.match(page, /That did not go through/);
-    assert.match(page, /Something went wrong\. Please try again\./, 'the program\'s own words');
-    assert.match(page, /href="\/pricing\?plan=a"/, 'a way back to the form it came from, on this site');
-    assert.equal(page.includes('{"error"'), false, 'never the raw JSON');
+    const typed = 'name=Ana+Lee&email=ana%40example.test&password=hunter2&card_number=4242&offerId=offer%3Aone';
+    const formPost = (path: string, { accept = 'text/html,application/xhtml+xml', referer = 'https://site.example.test/?plan=a' } = {}) => fetch(`${at}${path}`, { method: 'POST', redirect: 'manual', body: typed,
+      headers: { 'content-type': 'application/x-www-form-urlencoded', accept, referer, 'x-forwarded-host': 'site.example.test' } });
+    const kept = { name: 'Ana Lee', email: 'ana@example.test', offerId: 'offer:one' };
+    const redrawn = async (answer: Response, status: number, message: string, action: string) => {
+      assert.equal(answer.status, status, `${action}: the failure's status is kept`);
+      assert.match(answer.headers.get('content-type') ?? '', /^text\/html/);
+      assert.equal(answer.headers.get('cache-control'), 'no-store', `${action}: a redrawn page is never kept`);
+      const page = await answer.text();
+      assert.match(page, /<title>Home<\/title>/, `${action}: the page it was posted from, drawn again`);
+      assert.match(page, /Hello, everyone/, `${action}: with its own tool answers`);
+      assert.deepEqual(outcomeOf(page), { action, title: 'That did not go through', message, values: kept }, `${action}: the words at its form and what was typed, never a password or card`);
+      assert.equal(page.includes('{"error"') || page.includes('hunter2') || page.includes('4242'), false, `${action}: never raw JSON, never a secret typed`);
+    };
+    // 1. The action row's own tool fails: its row's `failed` words.
+    await redrawn(await formPost('/fails'), 502, 'That did not work.', '/fails');
+    // 2. A refused right (the door's 403): the row's words, status 403.
+    await redrawn(await formPost('/not-yours'), 403, 'This was not kept for you.', '/not-yours');
+    // 3. Another program answers a JSON 500: the site's own words row, never the program's words.
+    await redrawn(await formPost('/target/broken'), 500, 'The site could not take that. Try again soon.', '/target/broken');
+    // A program that does not answer at all is the same page, 502.
+    await redrawn(await formPost('/target/down'), 502, 'The site could not take that. Try again soon.', '/target/down');
+    // A Referer that is no page of this site: the site's page of the same words, with a way back.
+    const lost = await formPost('/target/broken', { referer: 'https://elsewhere.example.test/nowhere?x=1' });
+    assert.equal(lost.status, 500);
+    const words = await lost.text();
+    assert.match(words, /That did not go through/);
+    assert.match(words, /The site could not take that\. Try again soon\./);
+    assert.match(words, /href="\/nowhere\?x=1"/, 'a way back to the path it came from');
+    assert.equal(outcomeOf(words), null);
     const pay = await formPost('/target/pay');
-    assert.equal(pay.status, 303);
+    assert.equal(pay.status, 303, 'a JSON answer naming an address sends the browser there');
     assert.equal(pay.headers.get('location'), 'https://pay.example.test/s/1');
     assert.deepEqual(pay.headers.getSetCookie(), ['kept=1; Path=/'], 'the program\'s cookies are kept');
-    const down = await formPost('/target/down');
-    assert.equal(down.status, 502);
-    assert.match(await down.text(), /That did not go through/, 'a program that does not answer is the same page');
-    const script = await formPost('/target/broken', 'application/json');
+    const script = await formPost('/target/broken', { accept: 'application/json' });
     assert.deepEqual(await script.json(), { error: 'Something went wrong. Please try again.' }, 'a page script asking for JSON gets the JSON as it is');
-    const own = await site.act('/fails', undefined, 'site.example.test', { contentType: 'application/x-www-form-urlencoded', referer: 'https://site.example.test/book?x=1', bytes: Buffer.from('a=1') });
-    assert.match(String(own.body), /href="\/book\?x=1"/, 'the site\'s own failed action has the same way back');
+    const ownScript = await site.act('/fails', undefined, 'site.example.test', { contentType: 'application/json', bytes: Buffer.from('{}') });
+    assert.deepEqual(JSON.parse(String(ownScript.body)), { error: 'That did not work.' }, 'a JSON post to an action row gets JSON');
   } finally { server.close(); old.close(); d.server.close(); }
+  // A site with no words row: the tool's own words.
+  const plain = await door(LOOK.filter(row => !row.name.startsWith('words.')));
+  try {
+    const site = await siteOn(plain.address, { actions: 'site_actions' });
+    const failed = await site.failedForm(502, 'site.example.test', { action: '/somewhere', words: null, referer: 'https://site.example.test/', cookie: undefined, values: {} });
+    assert.equal(outcomeOf(String(failed.body))?.message, 'Nothing was sent. Check what you typed and try again in a minute.');
+  } finally { plain.server.close(); }
 });
 
 test('an old ".html" address of a page is 301 to the page, query kept; one with no page stays 404', async () => {

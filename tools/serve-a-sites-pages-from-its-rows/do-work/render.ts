@@ -72,6 +72,8 @@ export const MOUNT = 'root';
 /** Words drawn with the shared Text part, for a page of plain words (not found, refused, not reachable). */
 export const TEXT_PART = 'ui/show/text/Text.tsx#Text';
 export const BUTTON_PART = 'ui/show/button/Button.tsx#Button';
+/** A page drawn again around a form whose post did not go through: the message at that form and the typed values put back. */
+export const FORM_OUTCOME_PART = 'serve-a-sites-pages-from-its-rows/show/FormOutcome.tsx#FormOutcome';
 
 /** Every tool's module screen, read once from the cards of the Workshop folder this program runs from. */
 export function screensOfTools(tools: string): Map<string, Screen> {
@@ -260,10 +262,12 @@ export class PageBundles {
 const LOOK_NAME = /^[a-z][a-z0-9-]*(\.[a-z0-9][a-z0-9-]*)*$/;
 const LOOK_VALUE = /^[^;{}<>\\\n\r]+$/;
 
-/** The look row that names the site's Screen Look theme; every other row is a CSS variable, except font faces. */
+/** The look row that names the site's Screen Look theme; every other row is a CSS variable, except font faces and words. */
 export const THEME_ROW = 'theme';
 /** Look rows named `font-face.<anything>` are the site's own font files: "<family>|<weight>|<style>|<file path or https address>". */
 export const FONT_FACE = 'font-face.';
+/** Look rows named `words.<name>` are the site's own words for what the tool says (words.form-failed), never CSS variables. */
+export const WORDS = 'words.';
 const FACE = /^([A-Za-z0-9 _-]{1,60})\|([1-9]00)\|(normal|italic)\|(\/[A-Za-z0-9._~\/-]+|https:\/\/[A-Za-z0-9._~\/:-]+)$/;
 
 export interface FontFace {
@@ -293,7 +297,7 @@ export function fontFaceCss(faces: (FontFace & { address: string })[]): string {
 
 /** The site's look rows ({name, value}) as CSS variables on :root; a row that could end a declaration refuses the set. */
 export function lookCss(rows: Record<string, unknown>[]): string {
-  const pairs = rows.filter(row => row.name !== THEME_ROW && !String(row.name).startsWith(FONT_FACE)).map(row => {
+  const pairs = rows.filter(row => row.name !== THEME_ROW && !String(row.name).startsWith(FONT_FACE) && !String(row.name).startsWith(WORDS)).map(row => {
     if (typeof row.name !== 'string' || !LOOK_NAME.test(row.name)) throw new Error(`look ${JSON.stringify(row.name)}: a name is lower-case words with dashes, grouped by dots.`);
     if (typeof row.value !== 'string' || !LOOK_VALUE.test(row.value)) throw new Error(`look ${row.name}: a value is one CSS value, with no ; { } < > or backslash.`);
     return `--${row.name.replaceAll('.', '-')}:${row.value};`;
