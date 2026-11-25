@@ -111,3 +111,17 @@ test('a course draws its picture at the address the template makes of its pictur
   assert.match(drawn, /https:\/\/i\.ytimg\.com\/vi\/abcdefghijk\/hqdefault\.jpg/);
   assert.doesNotMatch(await renderAView(at('Course.tsx'), { course: { slug: 'c', title: 'The Course', description: '', image: '' }, lessons, doneCount: 0, image_template: 'https://i.ytimg.com/vi/{image}/hqdefault.jpg' }), /ytimg/);
 });
+
+test('a course page draws its eyebrow, its three cards from the course row lists, a heading over the lessons, and the preview frame when there is no picture', async () => {
+  const lessons = [{ id: 'l1', position: 1, title: 'One', href: '/c/l1', done: false }];
+  const course = { slug: 'c', title: 'The Course', description: 'About', category: 'Masterclass', short_description: 'A short line.', features: ['Deep Dive'], learning_objectives: ['Understand the swing', 'See the principles'], requirements: [], preview_video_id: 'Gaz2qA4t3Fs', image: '' };
+  const html = await renderAView(at('Course.tsx'), { course, lessons, doneCount: 0 });
+  assert.match(html, /data-course-eyebrow[^>]*>Masterclass course · 1 lesson</);
+  assert.match(html, /What you will learn/);
+  assert.match(html, /Understand the swing/);
+  assert.match(html, /What is in it/);
+  assert.doesNotMatch(html, /Before you start/, 'an empty list draws no card');
+  assert.match(html, /data-course-lessons-heading[^>]*>A short line\./);
+  assert.match(html, /youtube-nocookie\.com\/embed\/Gaz2qA4t3Fs/);
+  assert.doesNotMatch(await renderAView(at('Course.tsx'), { course: { slug: 'c', title: 'Bare', description: '' }, lessons, doneCount: 0 }), /youtube|data-course-eyebrow/);
+});

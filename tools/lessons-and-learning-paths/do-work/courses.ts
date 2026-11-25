@@ -30,7 +30,7 @@ export const SOURCE = {
     links: 'lesson_video_links',
     done: 'lesson_done',
   },
-  courses: { slug: 'slug', title: 'title', description: 'description', short_description: 'short_description', order: 'sort_order', category: 'category', image: 'first_lesson_image_id' },
+  courses: { slug: 'slug', title: 'title', description: 'description', short_description: 'short_description', order: 'sort_order', category: 'category', image: 'first_lesson_image_id', features: 'features', objectives: 'learning_objectives', requirements: 'requirements', preview: 'preview_video_id' },
   lessons: { course: 'course_id', id: 'lesson_id', position: 'position', title: 'title', video: 'video_id' },
   words: { video: 'video_id', n: 'n', word: 'word', start: 'start_s', end: 'end_s' },
   links: { lesson: 'lesson_id', url: 'video_url' },
@@ -44,8 +44,13 @@ export type Tables = Record<keyof typeof SOURCE.tables, string>;
 export type Timed = { word: string; start: number; end: number };
 export type Passage = { id: string; start: number; end: number; speaker?: string; text: string; words: Timed[] };
 export type LessonLink = { id: string; position: number; title: string; href: string; done: boolean };
+// What a course page says of the course itself: the lists are the course row's own (a list column may be empty or missing).
+export type CourseHead = {
+  slug: string; title: string; description: string; image?: string;
+  category?: string; short_description?: string; features?: string[]; learning_objectives?: string[]; requirements?: string[]; preview_video_id?: string;
+};
 export type CourseAnswer = {
-  course: { slug: string; title: string; description: string; image?: string };
+  course: CourseHead;
   lessons: LessonLink[];
   doneCount: number;
 };
@@ -134,11 +139,15 @@ async function lessonRows(rows: Rows, tables: Tables, course: string) {
   return rows(`select ${quote(lessons.id)} as id, ${quote(lessons.position)} as position, ${quote(lessons.title)} as title, ${quote(lessons.video)} as video from ${quote(tables.lessons)} where ${quote(lessons.course)} = $1 order by ${quote(lessons.position)}`, [course]);
 }
 
+const listOf = (value: unknown): string[] => (Array.isArray(value) ? value.map(String) : []);
+
 async function courseRow(rows: Rows, tables: Tables, course: string) {
   const { courses } = SOURCE;
-  const found = await rows(`select ${quote(courses.slug)} as slug, ${quote(courses.title)} as title, coalesce(${quote(courses.description)}, ${quote(courses.short_description)}, '') as description, coalesce(${quote(courses.image)}, '') as image from ${quote(tables.courses)} where ${quote(courses.slug)} = $1`, [course]);
+  const found = await rows(`select ${quote(courses.slug)} as slug, ${quote(courses.title)} as title, coalesce(${quote(courses.description)}, ${quote(courses.short_description)}, '') as description, coalesce(${quote(courses.image)}, '') as image, coalesce(${quote(courses.category)}, '') as category, coalesce(${quote(courses.short_description)}, '') as short_description, ${quote(courses.features)} as features, ${quote(courses.objectives)} as objectives, ${quote(courses.requirements)} as requirements, coalesce(${quote(courses.preview)}, '') as preview from ${quote(tables.courses)} where ${quote(courses.slug)} = $1`, [course]);
   if (!found[0]) throw new Error(`There is no course ${course}.`);
-  return { slug: String(found[0].slug), title: String(found[0].title), description: String(found[0].description), image: found[0].image == null ? '' : String(found[0].image) };
+  return { slug: String(found[0].slug), title: String(found[0].title), description: String(found[0].description), image: found[0].image == null ? '' : String(found[0].image),
+    category: String(found[0].category ?? ''), short_description: String(found[0].short_description ?? ''), features: listOf(found[0].features), learning_objectives: listOf(found[0].objectives),
+    requirements: listOf(found[0].requirements), preview_video_id: String(found[0].preview ?? '') };
 }
 
 export type CourseCard = { slug: string; title: string; short_description: string; category: string; image: string };

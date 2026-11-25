@@ -10,7 +10,7 @@ function fake(answer: (sql: string, params: unknown[]) => Record<string, unknown
   return { calls, rows };
 }
 const courseRows = (sql: string) => {
-  if (sql.includes('from "courses"')) return [{ slug: 'c', title: 'The Course', description: 'About', image: 'abcdefghijk' }];
+  if (sql.includes('from "courses"')) return [{ slug: 'c', title: 'The Course', description: 'About', image: 'abcdefghijk', category: 'Masterclass', short_description: 'Short.', features: ['A', 'B'], objectives: ['C'], requirements: null, preview: 'Gaz2qA4t3Fs' }];
   if (sql.includes('from "lessons"')) return [{ id: 'l1', position: 1, title: 'One', video: 'v1' }, { id: 'l2', position: 2, title: 'Two', video: null }];
   return [];
 };
@@ -57,6 +57,7 @@ test('the course read answers its lessons in order with done marks, and no done 
   assert.deepEqual(answer.lessons.map(lesson => [lesson.id, lesson.done, lesson.href]), [['l1', true, '/c/l1'], ['l2', false, '/c/l2']]);
   assert.equal(answer.doneCount, 1);
   assert.equal(answer.course.image, 'abcdefghijk');
+  assert.deepEqual([answer.course.category, answer.course.features, answer.course.learning_objectives, answer.course.requirements, answer.course.preview_video_id], ['Masterclass', ['A', 'B'], ['C'], [], 'Gaz2qA4t3Fs']);
   const none = fake(sql => sql.includes('to_regclass') ? [{ present: false }] : courseRows(sql));
   assert.equal((await readCourse({ database: 'd', course: 'c', person: 'p' }, none.rows)).doneCount, 0);
   const anonymous = fake(courseRows);
