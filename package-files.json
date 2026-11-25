@@ -7446,6 +7446,14 @@
     "do-work"
    ],
    "at": "/opt/administer-a-rented-host"
+  },
+  {
+   "package": "run-work-later-or-on-a-repeat",
+   "paths": [
+    "do-work",
+    "built-stored-bytes/timed-action"
+   ],
+   "at": "/opt/run-work-later-or-on-a-repeat"
   }
  ],
  "tool:check-a-computer-from-outside": [

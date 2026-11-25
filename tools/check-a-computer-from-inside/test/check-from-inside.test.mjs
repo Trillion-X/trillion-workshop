@@ -279,9 +279,9 @@ test('the wake list is asked on the engine\'s agent socket, a page at a time, an
 });
 
 test('a page is read from plain JSON or an event stream, and a refusal or a non-list is a reason', () => {
-  const page = { wakes: [wake('w')], next: 'w' };
+  const page = { wakes: [wake('w')], switch_history: [], next: 'w' };
   assert.deepEqual(parseWakePage(JSON.stringify({ result: { structuredContent: page } })), page);
-  assert.deepEqual(parseWakePage(`event: message\ndata: ${JSON.stringify({ result: { content: [{ type: 'text', text: JSON.stringify({ wakes: [], next: null }) }] } })}\n`), { wakes: [], next: null });
+  assert.deepEqual(parseWakePage(`event: message\ndata: ${JSON.stringify({ result: { content: [{ type: 'text', text: JSON.stringify({ wakes: [], next: null }) }] } })}\n`), { wakes: [], switch_history: [], next: null });
   assert.match(parseWakePage('').why, /no answer/);
   assert.match(parseWakePage('not json').why, /not JSON/);
   assert.match(parseWakePage(JSON.stringify({ error: { message: 'no caller' } })).why, /refused: no caller/);

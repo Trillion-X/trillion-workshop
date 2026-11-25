@@ -49,6 +49,7 @@ import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { text } from 'node:stream/consumers';
+import { dueTimesNotTold, notToldFinding, readOwnDueTimeWakes } from './due-times-told.mjs';
 import { administrationArguments, checkedHost, heldKeyFile, knownHostsLine } from '../../administer-a-rented-host/do-work/administration-arguments.mjs';
 
 const SETTINGS = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
@@ -176,13 +177,14 @@ export function parseWakePage(stdout) {
   // A refusal that names no detail or code is told as the door gave it (bounded), so its cause is read, never guessed.
   if (result?.isError) return { why: `the door refused: ${content?.detail ?? content?.code ?? said(result)}` };
   if (!Array.isArray(content?.wakes)) return { why: 'the door answered no list of wakes' };
-  return { wakes: content.wakes, next: typeof content.next === 'string' && content.next !== '' ? content.next : null };
+  return { wakes: content.wakes, switch_history: Array.isArray(content.switch_history) ? content.switch_history : [], next: typeof content.next === 'string' && content.next !== '' ? content.next : null };
 }
 
 /** The whole wake book of one engine, every page: { wakes } or { why } when any page was not read. `now` makes the request keys. */
 export function readWakeBook(engine, run, now = Date.now()) {
   const wakes = [];
   const seen = new Set();
+  let history = [];
   let after = null;
   for (let page = 0; page < Number(SETTINGS.wakes.most_pages); page += 1) {
     let asked;
@@ -191,7 +193,8 @@ export function readWakeBook(engine, run, now = Date.now()) {
     const read = parseWakePage(asked.stdout);
     if (read.why) return { why: read.why };
     wakes.push(...read.wakes);
-    if (read.next === null) return { wakes };
+    if (page === 0) history = read.switch_history;
+    if (read.next === null) return { wakes, switch_history: history };
     if (seen.has(read.next)) return { why: 'the wake list named the same next page twice' };
     seen.add(read.next);
     after = read.next;
@@ -306,8 +309,10 @@ export function findingsOf({ disks, engines, units = [] }, { warn, alert, preten
   return findings;
 }
 
-/** The findings of the wake books read: [{kind, level, about, said, pretend?}]. `books` are [{unit, wakes?|why?, pretend?}]. */
-export function wakeBookFindings(books) {
+/** The findings of the wake books read: [{kind, level, about, said, pretend?}]. `books` are [{unit, wakes?|why?, switch_history?, pretend?}]; `nowMs`
+ *  is when they were read. An engine with no teller is told as that; one whose due-time wakes were not told when due (a teller on but
+ *  stuck or broken, or none) is `due-time-not-told` (due-times-told.mjs), unless the missing teller already says why. */
+export function wakeBookFindings(books, nowMs = Date.now()) {
   const findings = [];
   for (const book of books) {
     const pretend = book.pretend ? { pretend: true } : {};
@@ -316,7 +321,11 @@ export function wakeBookFindings(books) {
       continue;
     }
     const held = tellersIn(book.wakes);
-    if (held.due_time_wakes.length === 0 || held.tellers.length > 0) continue;
+    if (held.due_time_wakes.length === 0 || held.tellers.length > 0) {
+      const symptom = notToldFinding(book.unit, dueTimesNotTold(book.wakes, book.switch_history, nowMs).late);
+      if (symptom) findings.push({ ...symptom, ...pretend });
+      continue;
+    }
     const shown = held.due_time_wakes.slice(0, SETTINGS.wakes.most_named);
     const more = held.due_time_wakes.length - shown.length;
     findings.push({ kind: 'due-time-wakes-without-a-teller', level: 'alert', about: book.unit,
@@ -339,10 +348,41 @@ function sshRunner(host, keyFile) {
   };
 }
 
+/** The computer this run is on, read through the run's own door (no SSH): each due-time wake told when it was due. The strict check of a
+ *  teller cannot be made here (a run's right lists only the wakes that hear a kind of fact, never the tellers, which hear nothing), so the
+ *  symptom is the check: `due-time-not-told`. `options.door` stands in for the descriptor on fd 3 and `options.fetchImpl` for fetch (tests). */
+export async function checkHere(input, options = {}) {
+  const nowMs = options.nowMs ?? Date.now();
+  const checkedAt = new Date(nowMs).toISOString();
+  const base = { name: input?.name ?? null, address: null, checked_at: checkedAt };
+  const notChecked = why => ({ ...base, checked: false, why, disks: [], engines: [], units: [], wake_books: [], findings: [] });
+  let door = options.door;
+  if (!door) {
+    try { door = JSON.parse(readFileSync(3, 'utf8')); } catch (error) { return notChecked(`this run was handed no door on fd 3: ${error.message}`); }
+  }
+  if (typeof door?.url !== 'string' || typeof door?.capability !== 'string') return notChecked('this run was handed no door on fd 3.');
+  const pretended = input?.pretend?.wake_books;
+  const read = pretended !== undefined && !Array.isArray(pretended) && typeof pretended === 'object' && 'here' in pretended
+    ? (Array.isArray(pretended.here) ? { computer: input?.name ?? 'this-computer', wakes: pretended.here, switch_history: input.pretend.switch_history?.here ?? [] } : { why: String(pretended.here?.refused ?? 'pretended refusal') })
+    : await readOwnDueTimeWakes(door, { fetchImpl: options.fetchImpl });
+  const name = read.computer ?? input?.name ?? 'this-computer';
+  const pretend = pretended?.here !== undefined ? { pretend: true } : {};
+  const judged = read.why === undefined ? dueTimesNotTold(read.wakes, read.switch_history, nowMs) : null;
+  const finding = read.why !== undefined
+    ? { kind: 'wake-book-not-read', level: 'warn', about: 'this-computer', said: `The due-time wakes of this computer could not be read through its own door: ${read.why}.`, ...pretend }
+    : notToldFinding('this-computer', judged.late);
+  const book = read.why !== undefined ? { unit: 'this-computer', read: false, why: read.why }
+    : { unit: 'this-computer', read: true, due_time_wakes: tellersIn(read.wakes).due_time_wakes, not_told: [...new Set(judged.late.map(item => item.wake))], not_judged: judged.not_judged };
+  return { ...base, name, checked: true, disks: [], engines: [], units: [], wake_books: [{ ...book, ...pretend }],
+    findings: finding ? [{ computer: name, at: checkedAt, ...finding, ...pretend }] : [] };
+}
+
 /** Read one computer from inside. `options.run` stands in for SSH (a test); `options.keyFile` is the administrator key. */
 export async function checkFromInside(input, options = {}) {
+  const nowMs = options.nowMs ?? Date.now();
+  if (input?.here === true) return checkHere(input, { ...options, nowMs });
   const name = input?.name ?? input?.address;
-  const checkedAt = new Date().toISOString();
+  const checkedAt = new Date(nowMs).toISOString();
   const named = findings => findings.map(finding => ({ computer: name, at: checkedAt, ...finding }));
   const base = { name, address: input?.address ?? null, checked_at: checkedAt };
   let host;
@@ -414,15 +454,15 @@ export async function checkFromInside(input, options = {}) {
     for (const engine of engines.filter(item => item.owners.length > 0)) {
       const pretended = pretend.wake_books?.[engine.unit];
       if (pretended !== undefined) {
-        books.push(Array.isArray(pretended) ? { unit: engine.unit, wakes: pretended, pretend: true } : { unit: engine.unit, why: String(pretended?.refused ?? 'pretended refusal'), pretend: true });
+        books.push(Array.isArray(pretended) ? { unit: engine.unit, wakes: pretended, switch_history: pretend.switch_history?.[engine.unit] ?? [], pretend: true } : { unit: engine.unit, why: String(pretended?.refused ?? 'pretended refusal'), pretend: true });
         continue;
       }
-      books.push({ unit: engine.unit, ...readWakeBook(engine, run) });
+      books.push({ unit: engine.unit, ...readWakeBook(engine, run, nowMs) });
     }
   }
   const wakeBooks = books.map(book => ({ unit: book.unit, read: book.why === undefined, ...(book.why === undefined ? tellersIn(book.wakes) : { why: book.why }), ...(book.pretend ? { pretend: true } : {}) }));
   return { ...base, checked: true, disks, engines: asRead, units, wake_books: wakeBooks,
-    findings: named([...findingsOf({ disks, engines: asRead, units }, { warn, alert, pretended }), ...wakeBookFindings(books)]) };
+    findings: named([...findingsOf({ disks, engines: asRead, units }, { warn, alert, pretended }), ...wakeBookFindings(books, nowMs)]) };
 }
 
 const startedAsProgram = (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]));
