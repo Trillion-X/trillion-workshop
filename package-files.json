@@ -13027,6 +13027,22 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:keep-an-elestio-update-schedule": [
+  {
+   "package": "keep-an-elestio-update-schedule",
+   "paths": [
+    "do-work/keep-an-elestio-update-schedule.mjs"
+   ],
+   "at": "/opt/keep-an-elestio-update-schedule"
+  },
+  {
+   "package": "keep-an-elestio-firewall",
+   "paths": [
+    "do-work/keep-an-elestio-firewall.mjs"
+   ],
+   "at": "/opt/keep-an-elestio-firewall"
+  }
+ ],
  "tool:reboot-a-computer-when-it-asks": [
   {
    "package": "reboot-a-computer-when-it-asks",

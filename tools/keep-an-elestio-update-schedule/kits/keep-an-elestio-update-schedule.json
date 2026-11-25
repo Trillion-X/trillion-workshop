@@ -1,0 +1,54 @@
+{
+  "start_here": "Say to your AI: \"Keep my Elestio server's update times as its row says: security updates Sunday 05:00 UTC, software updates Sunday 01:00 UTC.\" It runs tool:keep-an-elestio-update-schedule and tells you what it changed.",
+  "lists": [],
+  "no_lists_because": "It keeps nothing: the schedules are the computer row's, and it makes Elestio equal them and answers what it read before and after.",
+  "workflows": [
+    "workflow:keep-each-computers-update-schedule"
+  ],
+  "tools": [
+    "tool:keep-an-elestio-update-schedule"
+  ],
+  "instructions": [
+    "1. Read the computer's row: its Elestio account email, project and service (vm_id), and the update schedules it keeps.",
+    "2. Call tools:run with tool tool:keep-an-elestio-update-schedule and input {email, project_id, vm_id, system, app}; apply false first to see the difference. The key is the held value elestio-api-key.",
+    "3. Read sent, before and after. ok false says what still differs."
+  ],
+  "worked_examples": [
+    {
+      "title": "Schedules already equal to the row",
+      "ask": "Is my Elestio server's update schedule what its row says?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-an-elestio-update-schedule",
+            "input": {
+              "email": "owner@example.test",
+              "project_id": "90000",
+              "vm_id": "170000000",
+              "apply": false,
+              "system": {
+                "enabled": true,
+                "security_only": true,
+                "day": 0,
+                "hour": 5,
+                "minute": 0
+              },
+              "app": {
+                "enabled": true,
+                "day": 0,
+                "hour": 1,
+                "minute": 0
+              }
+            }
+          }
+        }
+      },
+      "given": "Read on Nov 25 2026 against one real Elestio service (shown with made-up ids) whose panel kept OS updates on Sunday 05:00 UTC, security only, and software updates on Sunday 01:00 UTC.",
+      "hands_back": "{\"ok\":true,\"sent\":[],\"before\":{\"system\":{\"enabled\":true,\"security_only\":true,\"day\":0,\"hour\":5,\"minute\":0},\"app\":{\"enabled\":true,\"day\":0,\"hour\":1,\"minute\":0}}}"
+    }
+  ],
+  "drafted_from": "tools/keep-an-elestio-update-schedule/tool-rows.json and Elestio's API documentation (DoActionOnServer), read Nov 25 2026"
+}
