@@ -352,9 +352,19 @@ export class Site {
     return this.#head;
   }
 
-  /** True when an action row answers this method at this host and path. */
+  /** True when an action row answers this method at this host and path. Asking keeps the rows fresh, as every request does. */
   acts(method: string, host: string, pathname: string): boolean {
+    this.#fresh();
     return matchAction(this.#actions, method, host, pathname) !== null;
+  }
+
+  /** The path pattern of the page row that answers this host and path (a template page only for a slug it holds), or null. */
+  pageFor(host: string, pathname: string): string | null {
+    const matched = matchPage(pagesOn(this.#pages, host), pathname);
+    if (!matched || matched.page.path === NOT_FOUND) return null;
+    const names = paramsOf(matched.page.path);
+    if (matched.page.collection && names.length === 1 && !this.#slugs.get(matched.page.collection)?.has(matched.params[names[0]])) return null;
+    return matched.page.path;
   }
 
   /**
@@ -479,10 +489,19 @@ export interface PassOn {
 // that describe it, and an HTML page can carry the site head.
 const NOT_ASKED = new Set([...HOP, 'accept-encoding']);
 
-/** The program a request is passed on to, or null: a path is the path itself or one under it; exact is that path only. */
-export function passOnFor(passOn: PassOn[], host: string, pathname: string): PassOn | null {
-  return passOn.find(on => (!on.hosts?.length || on.hosts.includes(host))
-    && ((on.exact ?? []).includes(pathname) || (on.paths ?? []).some(path => pathname === path || pathname.startsWith(path.endsWith('/') ? path : `${path}/`)))) ?? null;
+const under = (pathname: string, path: string): boolean => pathname === path || pathname.startsWith(path.endsWith('/') ? path : `${path}/`);
+
+/**
+ * The program a request is passed on to, or null: a path is the path itself or one under it; exact is that path only. With
+ * `pageFor` (the site's page row for the path), a page row under a passed-on path answers instead (its row names the longer
+ * path), so a site takes an address over from another program one page row at a time; an exact path is always passed on.
+ */
+export function passOnFor(passOn: PassOn[], host: string, pathname: string, pageFor: (host: string, pathname: string) => string | null = () => null): PassOn | null {
+  const on = passOn.find(entry => (!entry.hosts?.length || entry.hosts.includes(host)) && ((entry.exact ?? []).includes(pathname) || (entry.paths ?? []).some(path => under(pathname, path)))) ?? null;
+  if (!on || (on.exact ?? []).includes(pathname)) return on;
+  const page = pageFor(host, pathname);
+  const longer = page !== null && (on.paths ?? []).some(path => under(pathname, path) && page.length > path.replace(/\/$/, '').length && under(page, path));
+  return longer ? null : on;
 }
 
 /** One request passed whole to another program, and its answer passed back whole (its cookies too). */
@@ -526,7 +545,7 @@ export function handlerOf(site: Site, passOn: PassOn[] = []): http.RequestListen
     // A request the site's own action rows name is the site's, even under a path another program answers.
     const method = request.method ?? 'GET';
     const acting = site.acts(method, host, pathname);
-    const on = acting ? null : passOnFor(passOn, host, pathname);
+    const on = acting ? null : passOnFor(passOn, host, pathname, method === 'GET' || method === 'HEAD' ? (h, p) => site.pageFor(h, p) : undefined);
     if (on) {
       passOnTo(on.address, host, request, response, on.site_head ? site.siteHead : null).catch(error => {
         console.error(`${request.method} ${request.url}: ${on.name} did not answer: ${(error as Error).message}`);

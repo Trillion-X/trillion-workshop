@@ -328,6 +328,11 @@ test('the paths another program answers (the sign-in tool\'s) are passed to it w
     assert.equal(passOnFor(on, 'app.site.example.test', '/')?.name, 'members', 'exact paths on named hosts only');
     assert.equal(passOnFor(on, 'site.example.test', '/'), null);
     assert.equal(passOnFor(on, 'app.site.example.test', '/x'), null);
+    const pageAt = (_host: string, pathname: string) => (pathname === '/sign-in/kept' ? '/sign-in/kept' : pathname === '/' ? '/' : null);
+    assert.equal(passOnFor(on, 'site.example.test', '/sign-in/kept', pageAt), null, 'a page row under a passed-on path answers instead');
+    assert.equal(passOnFor(on, 'site.example.test', '/sign-in/done', pageAt)?.name, 'sign-in', 'a path with no page row of its own is still passed on');
+    assert.equal(passOnFor(on, 'app.site.example.test', '/', pageAt)?.name, 'members', 'an exact path is always passed on, whatever page row matches');
+    assert.equal(passOnFor([{ name: 'all', address: 'http://c', paths: ['/target'] }], 'site.example.test', '/target', () => '/target')?.name, 'all', 'a page row no longer than the passed-on path does not take it');
   } finally { server.close(); signIn.close(); d.server.close(); }
 });
 
@@ -440,12 +445,12 @@ test('a posted form or JSON body runs its action row\'s tool with the input made
   } finally { d.server.close(); }
 });
 
-test('over node:http, a POST an action row names is the site\'s even under a passed-on path; other POSTs there are passed on', async () => {
+test('over node:http, an action row\'s request and a page row under a passed-on path are the site\'s; the rest is passed on', async () => {
   const seen: string[] = [];
   const other = http.createServer((request, response) => { seen.push(`${request.method} ${request.url}`); response.end('{"other":true}'); });
   await new Promise<void>(resolve => other.listen(0, '127.0.0.1', resolve));
   const d = await door();
-  const server = http.createServer(handlerOf(await siteOn(d.address, { actions: 'site_actions' }), [{ name: 'the old program', address: `http://127.0.0.1:${(other.address() as AddressInfo).port}`, paths: ['/checkout', '/target'] }]));
+  const server = http.createServer(handlerOf(await siteOn(d.address, { actions: 'site_actions' }), [{ name: 'the old program', address: `http://127.0.0.1:${(other.address() as AddressInfo).port}`, paths: ['/checkout', '/target', '/notes'] }]));
   await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
   try {
     const at = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
@@ -455,7 +460,10 @@ test('over node:http, a POST an action row names is the site\'s even under a pas
     assert.equal((await fetch(`${at}/target/other`, { method: 'POST', body: '{}' })).status, 200);
     const state = await fetch(`${at}/target/state?checkout=cs_1`, { headers: { 'x-forwarded-host': 'site.example.test' } });
     assert.deepEqual(await state.json(), { kept: 1 }, 'a GET an action row names is the site\'s even under a passed-on path');
-    assert.deepEqual(seen, ['POST /target/other'], 'only the POST no action row names went to the other program');
+    assert.match(await (await fetch(`${at}/notes/first`, { headers: { 'x-forwarded-host': 'site.example.test' } })).text(), /Hello, first/, 'a page row under a passed-on path is the site\'s');
+    await (await fetch(`${at}/notes/unheld`, { headers: { 'x-forwarded-host': 'site.example.test' } })).text();
+    await (await fetch(`${at}/notes`, { headers: { 'x-forwarded-host': 'site.example.test' } })).text();
+    assert.deepEqual(seen, ['POST /target/other', 'GET /notes/unheld', 'GET /notes'], 'only what no row of the site answers went to the other program');
   } finally { server.close(); other.close(); d.server.close(); }
 });
 
