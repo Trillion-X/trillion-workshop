@@ -41,7 +41,7 @@ const CLASS_NAMES = {
 
 function itemOf(pair: Pair, filesBase: string | undefined, videoLabel: string): LandingMediaItem {
   const side = pair.video ?? pair.left!;
-  return { id: pair.id, kind: 'video', src: videoAddress(side.video, filesBase), alt: videoLabel.replace('{title}', pair.title) };
+  return { id: pair.id, kind: 'video', src: videoAddress(side.video, filesBase, side.start_s), alt: videoLabel.replace('{title}', pair.title) };
 }
 
 export function View({ pairs, filesBase, carouselLabel = '', videoLabel = '{title}', featuredId }: PairShowcaseProps) {

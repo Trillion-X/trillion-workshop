@@ -13,7 +13,7 @@
 //      Playing a pair sets the video inside each box to that box's data-start-s, then plays both.
 //   2. A pair with one video that already holds both movements draws that one box (whole). Each video is muted and shows no controls of its own: the one play button is the pair's control.
 //   3. A video's address is the row's value as given when it is a full address or starts with "/", else filesBase + value
-//      (a storage key). No address is made here.
+//      (a storage key), then #t=<start mark> so the first frame paints before play. No other address is made here.
 //   4. Everything drawn is a shared part (Text, Card, MediaFrame, Button); no raw HTML and no inline styling.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
@@ -37,7 +37,7 @@ function Side({ pair, which, filesBase }: { pair: Pair; which: 'left' | 'right' 
   const side = (which === 'whole' ? pair.video : pair[which])!;
   return (
     <Text as="figure" className="m-0 grid min-w-0 gap-2" data-side-by-side-video={which} data-start-s={side.start_s}>
-      <MediaFrame url={videoAddress(side.video, filesBase)} mediaType="video/mp4" label={side.label || pair.title} muted playsInline />
+      <MediaFrame url={videoAddress(side.video, filesBase, side.start_s)} mediaType="video/mp4" label={side.label || pair.title} muted playsInline />
       {side.label === '' ? null : <Text as="figcaption" variant="caption" color="muted">{side.label}</Text>}
     </Text>
   );

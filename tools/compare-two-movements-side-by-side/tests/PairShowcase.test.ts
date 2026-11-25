@@ -10,7 +10,7 @@ test('the featured pair is large and every other pair is in the carousel: all fi
   const html = await renderAView(entry, { pairs: five, filesBase: '/files/', carouselLabel: 'More pairs' });
   for (const id of ['a', 'b', 'c', 'd', 'e']) assert.equal((html.match(new RegExp(`data-landing-media-card="${id}"`, 'g')) ?? []).length, 1, id);
   assert.match(html, /data-landing-media-card="c"[^>]*>|data-featured="true"[^>]*data-landing-media-card="c"/);
-  assert.match(html, /src="\/files\/c\.mp4"/);
+  assert.match(html, /src="\/files\/c\.mp4#t=0\.1"/);
 });
 
 test('the carousel has its arrows and dots', async () => {
@@ -29,5 +29,5 @@ test('with no marked pair the first is featured; with one pair there is no carou
 
 test('a pair of two clips plays its left clip here', async () => {
   const pair = { id: 'p', place: 0, title: 'Pair', caption: '', featured: false, left: { label: 'A', video: 'l.mp4', start_s: 0 }, right: { label: 'B', video: 'r.mp4', start_s: 0 } };
-  assert.match(await renderAView(entry, { pairs: [pair], filesBase: '/f/' }), /src="\/f\/l\.mp4"/);
+  assert.match(await renderAView(entry, { pairs: [pair], filesBase: '/f/' }), /src="\/f\/l\.mp4#t=0\.1"/);
 });

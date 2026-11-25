@@ -15,9 +15,9 @@ test('each pair draws two videos with their start marks and one play button', as
   assert.equal((html.match(/data-side-by-side-video=/g) ?? []).length, 4);
   assert.equal((html.match(/data-side-by-side-play=/g) ?? []).length, 2);
   assert.match(html, /data-start-s="1.5"/);
-  assert.match(html, /src="\/files\/a\.mp4"/);
-  assert.match(html, /src="https:\/\/files\.example\/b\.mp4"/);
-  assert.match(html, /src="\/d\.mp4"/);
+  assert.match(html, /src="\/files\/a\.mp4#t=1\.5"/);
+  assert.match(html, /src="https:\/\/files\.example\/b\.mp4#t=0\.1"/);
+  assert.match(html, /src="\/d\.mp4#t=2"/);
   assert.match(html, /First pair/);
   assert.match(html, /Watch the turn\./);
 });
@@ -32,7 +32,7 @@ test('a pair that is one video draws one box and one play button', async () => {
   assert.equal((html.match(/data-side-by-side-video="whole"/g) ?? []).length, 1);
   assert.equal((html.match(/data-side-by-side-video="(left|right)"/g) ?? []).length, 0);
   assert.equal((html.match(/data-side-by-side-play=/g) ?? []).length, 1);
-  assert.match(html, /src="\/files\/both\.mp4"/);
+  assert.match(html, /src="\/files\/both\.mp4#t=0\.1"/);
 });
 
 test('no pairs draws an empty list, not an error', async () => {
@@ -40,7 +40,13 @@ test('no pairs draws an empty list, not an error', async () => {
 });
 
 test('a storage key gets the files base, a full address or rooted path does not', () => {
-  assert.equal(videoAddress('k.mp4', '/f/'), '/f/k.mp4');
-  assert.equal(videoAddress('/k.mp4', '/f/'), '/k.mp4');
-  assert.equal(videoAddress('https://x/k.mp4', '/f/'), 'https://x/k.mp4');
+  assert.equal(videoAddress('k.mp4', '/f/'), '/f/k.mp4#t=0.1');
+  assert.equal(videoAddress('/k.mp4', '/f/'), '/k.mp4#t=0.1');
+  assert.equal(videoAddress('https://x/k.mp4', '/f/'), 'https://x/k.mp4#t=0.1');
+});
+
+test('the first frame is the start mark, at least 0.1 s; an address with a fragment keeps it', () => {
+  assert.equal(videoAddress('k.mp4', '/f/', 3.5), '/f/k.mp4#t=3.5');
+  assert.equal(videoAddress('k.mp4', '/f/', 0.02), '/f/k.mp4#t=0.1');
+  assert.equal(videoAddress('/k.mp4#t=9', '/f/', 3), '/k.mp4#t=9');
 });
