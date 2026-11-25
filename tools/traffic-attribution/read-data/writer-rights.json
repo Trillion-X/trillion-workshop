@@ -1,0 +1,51 @@
+{
+  "_what": "The column rights tool:follow-a-short-link needs from a pursuit's writer login (run-sql-in-my-database role recipe may-write-named-columns-under-a-use, recipe.writes): the touch it follows, the click it keeps (do-work/journey.mjs keepStep, whose ON CONFLICT fills a kept step's missing fields), and the refs never to keep. test/follow-a-short-link.test.ts runs the tool as a login holding exactly these.",
+  "writes": [
+    {
+      "table": "public.journey_touches",
+      "select": [
+        "id",
+        "destination",
+        "source"
+      ]
+    },
+    {
+      "table": "public.journey_excluded_refs",
+      "select": [
+        "ref"
+      ]
+    },
+    {
+      "table": "public.journey_steps",
+      "select": [
+        "visitor",
+        "touch_id",
+        "step",
+        "source",
+        "ref",
+        "email_key",
+        "offer_id",
+        "is_proof"
+      ],
+      "insert": [
+        "visitor",
+        "touch_id",
+        "step",
+        "source",
+        "ref",
+        "joined_by",
+        "email_key",
+        "offer_id",
+        "value_cents",
+        "is_proof"
+      ],
+      "update": [
+        "visitor",
+        "touch_id",
+        "email_key",
+        "offer_id",
+        "source"
+      ]
+    }
+  ]
+}

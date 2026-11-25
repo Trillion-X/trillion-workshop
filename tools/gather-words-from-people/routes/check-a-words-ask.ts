@@ -15,7 +15,8 @@
 //   3. Sending the same words with the same consent again changes nothing; a withdrawn row takes no more words (409).
 //   4. The write is one statement that names the row as it was read: a row that moved since is refused (409), never overwritten.
 //   5. Nothing but the page's own words is answered as a refusal; no database text reaches the person.
-//   6. Reading asks and writing words are two logins of two databases: the asks login only ever reads.
+//   6. Reading asks and writing words are two logins of two databases: the asks login only ever reads. Under a use (a site's act)
+//      they are the words database's writer login and the asks database's reader login, each run's transaction claiming the use.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { readFileSync, realpathSync } from 'node:fs';
@@ -28,7 +29,7 @@ import { consentOf, readGathers } from '../read-data/gathered-words.mjs';
 export const TOKEN_SHAPE = /^[A-Za-z0-9_-]{32,64}$/;
 const WORDS_MOST = 1500;
 
-export type Given = { database: string; asks_database: string; token: string; words?: unknown; consent?: unknown; site: string; words_table: string };
+export type Given = { database: string; use?: { purpose: string; surface: string } | null; asks_database: string; token: string; words?: unknown; consent?: unknown; site: string; words_table: string };
 export type Answer = { status: number; state?: 'form' | 'thanks' | 'not_found'; error?: string };
 
 // A row as the tools read it: every list field, the table's columns and words_state together; and split back again.
@@ -88,10 +89,16 @@ if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpath
     const contentConnection = readFileSync(3, 'utf8').trim();
     const asksConnection = readFileSync(4, 'utf8').trim();
     held.push(contentConnection, asksConnection);
+    // Under a use (a site's act) the engine mounts one ticket per database: descriptor 5 for the words, 6 for the asks.
+    const used = input.use !== undefined && input.use !== null;
+    const contentTicket = used && typeof input.database === 'string' ? readFileSync(5, 'utf8').trim() : '';
+    const asksTicket = used && typeof input.asks_database === 'string' ? readFileSync(6, 'utf8').trim() : '';
+    held.push(contentTicket, asksTicket);
+    const use = input.use ?? undefined;
     // One connection to each database for the whole run (run-sql.mjs withSqlWrite), each closed at the end.
     type Run = (sql: string, params?: unknown[]) => Promise<{ rows: Record<string, unknown>[] }>;
     const executeOn = (query: Run): Execute => async (sql, params = []) => (await query(sql, params)).rows;
-    const answer = await withSqlWrite({ connection: contentConnection }, (content: Run) => withSqlWrite({ connection: asksConnection }, (asks: Run) => checkAWordsAsk(input, { content: executeOn(content), asks: executeOn(asks) })));
+    const answer = await withSqlWrite({ connection: contentConnection, ticket: contentTicket, use }, (content: Run) => withSqlWrite({ connection: asksConnection, ticket: asksTicket, use }, (asks: Run) => checkAWordsAsk(input, { content: executeOn(content), asks: executeOn(asks) })));
     console.log(JSON.stringify(answer));
   } catch (error) {
     console.error(sayWithout(error, ...held));

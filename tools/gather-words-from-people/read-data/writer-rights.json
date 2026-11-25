@@ -1,0 +1,44 @@
+{
+  "_what": "The column rights tool:check-a-words-ask-token needs from the words database's writer login (run-sql-in-my-database role recipe may-write-named-columns-under-a-use, recipe.writes). The words table is the one the site's row names as words_table: give its entry with that table's own name in place of <words_table>. The asks database is read with its reader login, which only reads. test/check-a-words-ask.test.ts runs the tool as logins holding exactly these.",
+  "writes": [
+    {
+      "table": "public.words_gathering",
+      "select": [
+        "site",
+        "ask_days",
+        "page_url",
+        "case",
+        "came_from",
+        "list",
+        "page"
+      ]
+    },
+    {
+      "table": "public.<words_table>",
+      "select": [
+        "id",
+        "text",
+        "author",
+        "consent_basis",
+        "words_state"
+      ],
+      "insert": [
+        "id",
+        "author",
+        "text",
+        "consent_basis",
+        "words_state",
+        "came_from",
+        "created",
+        "changed_at"
+      ],
+      "update": [
+        "author",
+        "text",
+        "consent_basis",
+        "words_state",
+        "changed_at"
+      ]
+    }
+  ]
+}

@@ -22,7 +22,7 @@ import { sayWithout, withSqlWrite } from '../../run-sql-in-my-database/do-work/r
 import { goRedirect } from '../do-work/journey.mjs';
 import settings from '../read-data/journey.json' with { type: 'json' };
 
-export type Given = { database: string; code: string; visitor_cookie?: string; consent?: string; referer?: string; consent_cookie_name: string };
+export type Given = { database: string; use?: { purpose: string; surface: string } | null; code: string; visitor_cookie?: string; consent?: string; referer?: string; consent_cookie_name: string };
 export type Followed = { status: number; location: string | null; set_cookie: string | null; retry_after?: number };
 type Query = (sql: string, params?: unknown[]) => Promise<{ rows: Record<string, unknown>[]; rowCount?: number }>;
 
@@ -42,13 +42,15 @@ export async function followAShortLink(input: Given, query: Query): Promise<Foll
 }
 
 if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
-  let connection = '';
+  let connection = '', ticket = '';
   let input: Given | null = null;
   try {
     input = JSON.parse(readFileSync(0, 'utf8')) as Given;
     connection = readFileSync(3, 'utf8').trim();
-    // One connection for the whole run (run-sql.mjs withSqlWrite), closed at the end.
-    const followed = await withSqlWrite({ connection }, async (run: (sql: string, params?: unknown[]) => Promise<{ rows: Record<string, unknown>[]; row_count?: number }>) => {
+    // Under a use (a site's act) the engine mounts the use's ticket on descriptor 5; an unmounted descriptor is never read.
+    if (input.use !== undefined && input.use !== null && typeof input.database === 'string') ticket = readFileSync(5, 'utf8').trim();
+    // One connection for the whole run (run-sql.mjs withSqlWrite), its transaction claiming the use first, closed at the end.
+    const followed = await withSqlWrite({ connection, ticket, use: input.use ?? undefined }, async (run: (sql: string, params?: unknown[]) => Promise<{ rows: Record<string, unknown>[]; row_count?: number }>) => {
       const query: Query = async (sql, params = []) => {
         const answer = await run(sql, params);
         return { rows: answer.rows, rowCount: answer.row_count };
@@ -57,7 +59,7 @@ if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpath
     });
     console.log(JSON.stringify(followed));
   } catch (error) {
-    console.error(sayWithout(error, connection));
+    console.error(sayWithout(error, connection, ticket));
     // A database that cannot be opened is an unreadable link (503 with when to retry), as when a statement fails; never a bare failure.
     if (input && connection) console.log(JSON.stringify(await followAShortLink(input, async () => { throw error; })));
     else process.exitCode = 1;

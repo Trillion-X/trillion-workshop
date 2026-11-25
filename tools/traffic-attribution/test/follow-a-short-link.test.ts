@@ -70,3 +70,22 @@ test('an unreadable link answers 503 with when to retry, and a click that cannot
   const failingWrite = async (sql: string, params?: unknown[]) => { if (/INSERT INTO journey_steps/.test(sql)) throw new Error('write refused'); return query(sql, params); };
   assert.equal((await followAShortLink(given(), failingWrite)).status, 302);
 });
+
+// A site's act runs the tool as the database's writer login, which holds only the column rights read-data/writer-rights.json names.
+test('a short link is followed and its click kept by a login holding only the column rights writer-rights.json names', async () => {
+  const { db, query } = await fresh();
+  const rights = JSON.parse(readFileSync(new URL('../read-data/writer-rights.json', import.meta.url), 'utf8')).writes;
+  await db.exec('create role short_link_writer nologin');
+  for (const write of rights) {
+    for (const right of ['select', 'insert', 'update'] as const) {
+      if (write[right]) await db.exec(`grant ${right} (${write[right].map((column: string) => `"${column}"`).join(', ')}) on table ${write.table} to short_link_writer`);
+    }
+  }
+  await db.exec('grant usage on all sequences in schema public to short_link_writer');
+  await db.exec('set role short_link_writer');
+  const went = await followAShortLink(given({ consent: consent.granted, referer: 'https://www.instagram.com/p/x' }), query);
+  assert.equal(went.status, 302);
+  assert.equal((await followAShortLink(given({ code: 'nope' }), query)).status, 404);
+  await db.exec('reset role');
+  assert.deepEqual((await db.query("SELECT step, touch_id FROM journey_steps")).rows, [{ step: 'click', touch_id: 'abc123' }], 'the click is kept as the writer');
+});

@@ -1823,7 +1823,17 @@
       "database": {
        "type": "string",
        "minLength": 1,
-       "description": "The name of the pursuit database to use, bound by the trusted caller. The engine opens it with the login its vault holds as that name and -connection; no caller supplies a login."
+       "description": "The name of the pursuit database to use, bound by the trusted caller. The engine opens it with the login its vault holds as that name and -writer-connection under a use (-connection without one); no caller supplies a login."
+      },
+      "use": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": ["purpose", "surface"],
+       "description": "The use this run is for: the site's declared use, such as purpose publish and surface site/example.com. Given with the database, the computer opens it with its writer login (only the column rights read-data/writer-rights.json names) under this use and hands the run a ticket of it, which the run's transaction claims first. A share's run (a site's act) must give it.",
+       "properties": {
+        "purpose": { "type": "string", "minLength": 1 },
+        "surface": { "type": "string" }
+       }
       },
       "words_table": {
        "type": "string",
@@ -1833,7 +1843,7 @@
       "asks_database": {
        "type": "string",
        "minLength": 1,
-       "description": "The name of the database that holds the words_asks rows; its login only reads."
+       "description": "The name of the database that holds the words_asks rows; its login only reads (its reader login under a use, -connection without one)."
       },
       "token": {
        "type": "string",
@@ -1893,6 +1903,12 @@
        "only_when": {
         "input": "database",
         "present": true
+       },
+       "under_use": {
+        "use_from_input": "use",
+        "ticket_fd": 5,
+        "held_suffix": "-writer-connection",
+        "key_suffix": "-use-key"
        }
       },
       {
@@ -1902,6 +1918,12 @@
        "only_when": {
         "input": "asks_database",
         "present": true
+       },
+       "under_use": {
+        "use_from_input": "use",
+        "ticket_fd": 6,
+        "held_suffix": "-reader-connection",
+        "key_suffix": "-use-key"
        }
       }
      ],
