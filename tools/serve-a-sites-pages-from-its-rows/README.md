@@ -28,8 +28,11 @@ credentials folder is where the computer seals the site's door pass and the file
 `on-a-computer/serve-a-sites-pages.service`: the row gives `tool_folder`, `repository`, `workshop`, `workshop_commit`,
 `node_bin`, `user`, `group` (the web server's, so it can reach the sockets), `runtime_directory` (`sites/<name>` for each host
 name, whose `http.sock` the front web server's each-name-its-own-folder site sends that name's requests to when no page file
-answers), `settings_file` and `settings`, `credentials`, `stop_seconds` and `writable`. A stop (SIGTERM) finishes the calls
-already taken, for up to 25 seconds. It needs Node 26.13 or newer
+answers), `settings_file` and `settings`, `credentials`, `stop_seconds`, `writable` and `state` (the unit's state folder, which
+the computer makes at set-up; the unit starts in it, because systemd enters the working folder before the Workshop copy is
+fetched, so a working folder inside the copy could never start on a new computer). A stop (SIGTERM) finishes the calls
+already taken, for up to 25 seconds. `tests/unit-start.test.ts` starts the rendered unit in the order systemd does (working
+folder, then each ExecStartPre, then ExecStart) on an empty Workshop folder, and requires 200 on both sockets. It needs Node 26.13 or newer
 (TypeScript runs as it is, with no build) and the Workshop's packages (`npm ci` at the Workshop's top folder).
 
 ## What it answers

@@ -19,8 +19,11 @@ Group={group}
 ExecStartPre=/bin/sh -c 'test -d {workshop}/.git || git init -q {workshop}'
 ExecStartPre=/bin/sh -c 'git -C {workshop} fetch -q --depth 1 {repository} {workshop_commit} && git -C {workshop} checkout -q --detach {workshop_commit}'
 ExecStartPre=/bin/sh -c 'lock=$$(git -C {workshop} rev-parse {workshop_commit}:package-lock.json) && if [ "$$(cat {workshop}/.git/npm-lock-id 2>/dev/null)" != "$$lock" ]; then cd {workshop} && npm ci --omit=dev --no-audit --no-fund && echo "$$lock" > {workshop}/.git/npm-lock-id; fi'
-WorkingDirectory={workshop}/{tool_folder}
-ExecStart={node_bin}/node do-work/serve.ts {settings_file}
+# systemd enters the working folder before any ExecStartPre runs, so it is the unit's state folder, which the computer makes
+# when it sets the unit up; the Workshop copy may not exist until the fetch above has run, so the program is named by its
+# whole path into the copy, never by a working folder inside it.
+WorkingDirectory={state}
+ExecStart={node_bin}/node {workshop}/{tool_folder}/do-work/serve.ts {settings_file}
 # Its own folders under /run are {runtime_directory} (one per host name the front web server sends to it, the socket
 # <folder>/http.sock in each), owned by {user} and readable by the group {group}, the web server's. A restart keeps them, so
 # the web server waits for the new program on the same sockets instead of finding no folder.
