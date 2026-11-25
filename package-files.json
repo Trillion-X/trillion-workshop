@@ -50567,6 +50567,15 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:run-a-typescript-program-with-no-build": [
+  {
+   "package": "run-a-typescript-program-with-no-build",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/run-a-typescript-program-with-no-build"
+  }
+ ],
  "tool:run-a-workflow": [
   {
    "package": "build-engine-modules-for-web-hosts",

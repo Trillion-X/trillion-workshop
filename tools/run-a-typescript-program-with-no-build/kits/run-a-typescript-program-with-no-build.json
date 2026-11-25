@@ -1,0 +1,36 @@
+{
+  "drafted_from": "tool:run-a-typescript-program-with-no-build's own row (its words, input schema, sample run) and the do-work/echo.ts program it runs",
+  "start_here": "Say to your AI: \"Show me a TypeScript tool program runs with no build.\" The AI runs tool:run-a-typescript-program-with-no-build with {\"words\": \"typed and run\"}, and it answers {\"words\": \"typed and run\", \"node\": \"v26.13.0\", \"types_stripped\": true}.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes words, answers them with the Node version that ran it, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:run-a-typescript-program-with-no-build"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:run-a-typescript-program-with-no-build\" and give it words, for example \"typed and run\".",
+    "2. Read node in the answer: it is the version of the engine's own Node that started do-work/echo.ts, for example v26.13.0.",
+    "3. Read types_stripped: true means that Node strips TypeScript types itself, so any tool's program may be a .ts file with nothing built."
+  ],
+  "worked_examples": [
+    {
+      "title": "A TypeScript program answers on the engine's Node",
+      "ask": "Check that a TypeScript tool runs on this computer with no build.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-a-typescript-program-with-no-build",
+            "input": {
+              "words": "typed and run"
+            }
+          }
+        }
+      },
+      "given": "words \"typed and run\"",
+      "hands_back": "{\"words\": \"typed and run\", \"node\": \"v26.13.0\", \"types_stripped\": true}"
+    }
+  ]
+}
