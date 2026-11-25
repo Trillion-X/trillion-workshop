@@ -147,15 +147,16 @@ export function holdAgainScript(engine, person) {
 
 const CURSOR = /^[A-Za-z0-9:_./#@+=-]{1,512}$/;
 
-/** The script that asks one page of an engine's wake book (wake:list) on its agent socket: the request, then its status
- *  code after a mark line. `after` is the cursor the last page named (null for the first page). */
+/** The script that asks one page of an engine's wake book (wake:list) on its agent socket. The door answers a call only at a
+ *  Host it admits (a loopback name, settings.json wakes.host; any other is refused `host_not_admitted`, read live Nov 25 2026, 7:35 AM CST
+ *  when this asked as `engine`). `after` is the cursor the last page named (null for the first page). */
 export function wakeListScript(engine, after, requestKey) {
   if (!SOCKET.test(engine.socket ?? '')) throw new Error(`The engine ${engine.unit} cannot be asked for its wakes: its row names no usable agent socket.`);
   if (after !== null && !CURSOR.test(after)) throw new Error('A wake list cursor was refused.');
   if (!/^[A-Za-z0-9:_.-]{1,64}$/.test(requestKey)) throw new Error('A request key was refused.');
   const body = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'do_one_thing_in_my_account',
     arguments: { method: 'wake:list', request_key: requestKey, input: after === null ? {} : { after } } } });
-  return `curl -s -m ${Number(SETTINGS.wakes.ask_seconds)} --unix-socket ${engine.socket} -X POST -H 'content-type: application/json' -H 'accept: application/json, text/event-stream' -H 'mcp-protocol-version: 2025-06-18' --data '${body}' http://engine${SETTINGS.wakes.mcp_path}; echo\n`;
+  return `curl -s -m ${Number(SETTINGS.wakes.ask_seconds)} --unix-socket ${engine.socket} -X POST -H 'content-type: application/json' -H 'accept: application/json, text/event-stream' -H 'mcp-protocol-version: 2025-06-18' --data '${body}' http://${SETTINGS.wakes.host}${SETTINGS.wakes.mcp_path}; echo\n`;
 }
 
 /** One wake list page as the door answered it (plain JSON or an event stream): { wakes, next } or { why }. */

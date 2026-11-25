@@ -269,6 +269,7 @@ test('the wake list is asked on the engine\'s agent socket, a page at a time, an
   const [engine] = enginesOf({ units: [engineUnit] });
   const first = wakeListScript(engine, null, 'wakes:a:0');
   assert.match(first, /--unix-socket \/var\/lib\/engine-for-someone\/agent\.sock -X POST/);
+  assert.match(first, /http:\/\/localhost\/mcp; echo/, 'asked at a Host the door admits');
   assert.match(first, /"method":"wake:list","request_key":"wakes:a:0","input":\{\}/);
   assert.match(wakeListScript(engine, 'chosen--a:b', 'wakes:a:1'), /"input":\{"after":"chosen--a:b"\}/);
   assert.throws(() => wakeListScript(engine, "x'; reboot", 'k'), /cursor was refused/);
