@@ -21,7 +21,9 @@ JOB.json (DATA; nothing about a person, a sport or a folder is in this file):
   "models": "/a/folder/models",                          MATCH_VENDOR_ROOT for perception
   "salience": {"lost_body_frac": 0.4, "max_body_heights_per_frame": 1.0, "cap_percentile": 0.99},
   "targets":    [{"path": "...", "identity": "1f:...", "name": "...", "date": "2026-09-10", "people": ["..."]}],
-  "references": [{"path": "...", "identity": "1f:...", "name": "...", "year": "2019", "people": ["..."]}],
+  "references": [{"path": "...", "identity": "1f:...", "name": "...", "year": "2019", "people": ["..."], "class": "forehand"}],
+  "movement": "forehand", "class_margin": 0.05, "class_admit": 0.6,   when references carry a class (a human label, e.g.
+                                                          from their folder), match uses select_partner's labelled mode
   "layout": "v", "padding_s": 2.5, "size": [1080, 1920], "call": ["<engine command>", "op"], "keep_folder": "/Recordings/..."
 }
 """
@@ -46,25 +48,39 @@ def key(clip):
 
 
 def perceive(job, side):
-    """Describe each clip of job[side] into work/<side>-index, skipping clips already described."""
+    """Describe each clip of job[side] into work/<side>-index, skipping clips already described with the job's
+    salience rules. A descriptor made under other rules is described again; pose keeps its own cache, so only the
+    describe step runs again."""
     index = os.path.join(job["work"], f"{side}-index")
     os.makedirs(os.path.join(index, "_work"), exist_ok=True)
     env = {**os.environ, "MATCH_VENDOR_ROOT": job["models"], "MATCH_PERCEPTION_BACKEND": job.get("backend", "onnx")}
     made, kept, failed = [], [], []
+    rules = json.dumps(job.get("salience") or {})
+    fp = salience_fingerprint(rules)
     for clip in job[side]:
         k = key(clip)
         desc = os.path.join(index, f"{k}.desc.json")
-        if os.path.exists(desc):
+        if os.path.exists(desc) and read(desc).get("salience_fp") == fp:
             kept.append(k)
             continue
         cmd = [sys.executable, os.path.join(PERCEPTION, "run_perception.py"), "--clip", clip["path"], "--out", desc,
-               "--kp", os.path.join(index, "_work", f"{k}.kp.json"), "--salience-config", json.dumps(job.get("salience") or {})]
+               "--kp", os.path.join(index, "_work", f"{k}.kp.json"), "--salience-config", rules]
         r = subprocess.run(cmd, capture_output=True, text=True, env=env)
         if r.returncode or not os.path.exists(desc):
             failed.append({"clip": clip["path"], "why": (r.stderr.strip().splitlines() or ["no output"])[-1][:300]})
             continue
         made.append(k)
     return {"index": index, "made": made, "already": kept, "failed": failed}
+
+
+def salience_fingerprint(rules):
+    """describe_clip's own fingerprint of the salience rules a descriptor was made with."""
+    sys.path.insert(0, PERCEPTION)
+    try:
+        import describe_clip
+    finally:
+        sys.path.remove(PERCEPTION)
+    return describe_clip.salience_fingerprint(rules)
 
 
 def read(path):
@@ -93,6 +109,19 @@ def match(job):
     refs_by_src = {os.path.realpath(c["path"]): c for c in job["references"]}
     env = {**os.environ, "MATCH_VENDOR_ROOT": job["models"], "MATCH_PERCEPTION_BACKEND": job.get("backend", "onnx")}
     pairs, refused = [], []
+    labelled = []
+    classes = {key(r): r["class"] for r in job["references"] if r.get("class")}
+    if classes:
+        if len(classes) != len(job["references"]):
+            raise ValueError("every reference needs a class when any has one")
+        for need in ("movement", "class_margin", "class_admit"):
+            if job.get(need) is None:
+                raise ValueError(f"labelled references need job.{need}")
+        labels = os.path.join(job["work"], "labels.json")
+        with open(labels, "w") as f:
+            json.dump(classes, f, indent=1)
+        labelled = ["--labels", labels, "--want", job["movement"], "--class-margin", str(job["class_margin"]),
+                    "--class-admit", str(job["class_admit"])]
     for k, clip in by_key(job, "targets").items():
         desc_path = os.path.join(t_index, f"{k}.desc.json")
         if not os.path.exists(desc_path):
@@ -100,9 +129,10 @@ def match(job):
         desc = read(desc_path)
         for w, window in enumerate(desc.get("windows", [])):
             got = run_json([sys.executable, os.path.join(MATCH, "select_partner.py"), "--target-desc", f"{desc_path}:{w}",
-                            "--target-kp", os.path.join(t_index, "_work", f"{k}.kp.json"), "--index", r_index], env)
+                            "--target-kp", os.path.join(t_index, "_work", f"{k}.kp.json"), "--index", r_index] + labelled, env)
             if got.get("no_match", True) or not got.get("partner_clip"):
-                refused.append({"target": k, "window": w, "reason": got.get("reason") or got.get("error")})
+                refused.append({"target": k, "window": w, "reason": got.get("reason") or got.get("error"),
+                                "class_check": got.get("class_check")})
                 continue
             ref = refs_by_src.get(os.path.realpath(got["partner_clip"]))
             pdesc = read(os.path.join(r_index, f"{key(ref)}.desc.json")) if ref else None
@@ -113,7 +143,8 @@ def match(job):
             pairs.append({"target": k, "target_window": w, "target_peak": window["peak_t"], "target_t": got["target_t"],
                           "reference": key(ref), "reference_window": got["partner_window"], "reference_peak": pw["peak_t"],
                           "reference_t": got["partner_t"], "parity": got.get("parity"), "dist": got.get("dist"),
-                          "heading_dist": got.get("heading_dist"), "scorecard": got.get("scorecard")})
+                          "heading_dist": got.get("heading_dist"), "scorecard": got.get("scorecard"),
+                          "motion_dist": got.get("motion_dist"), "class_check": got.get("class_check")})
     out = os.path.join(job["work"], "pairs.json")
     with open(out, "w") as f:
         json.dump({"pairs": pairs, "refused": refused}, f, indent=1)
@@ -263,6 +294,8 @@ def prepare(spec):
             path = os.path.join(media, side + "-" + row["identity"][3:19] + ext)
             files_road.fetch(call, row["identity"], path)
             clip = {"path": path, "identity": row["identity"], "name": row["name"], "people": people}
+            if row.get("class"):
+                clip["class"] = row["class"]                  # a human label (e.g. from the clip's folder)
             d = DATE.search(os.path.basename(row["name"]))
             if d:
                 clip["date"] = f"20{d.group(1)}-{d.group(2)}-{d.group(3)}"

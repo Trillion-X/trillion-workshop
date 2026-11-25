@@ -129,9 +129,17 @@ class SalienceConfig:
     lost_pad_frames: int = 6                             # frames each side of a lost frame that are zeroed with it
     max_body_heights_per_frame: float = 0.0              # faster than this (body heights a frame) is a tracker jump, not a body: set to 0
     cap_percentile: float = 0.0                          # cap the signal at this percentile so one freak moment cannot set the bar
+    # A TIGHTLY CUT CLIP (a library of one-swing clips, Nov 25 2026): the player never reaches a sustained rest inside
+    # it, so the window runs to the cut and reads as truncated even when the whole stroke is there. A clamped edge
+    # still holds the whole stroke when the salience there is quiet AND contact sits far enough inside the clip. A
+    # stroke cut mid-swing has its edge at 0.85-1.0 x the peak; the load-dip before contact is quiet too, which is why
+    # the time to contact is required as well. 0 = off: a clamped edge is always a cut stroke (byte-identical).
+    quiet_edge_frac: float = 0.0                         # a clamped edge at most this x the peak salience is quiet, not mid-stroke
+    min_lead_s: float = 0.0                              # contact at least this long after a quiet clamped start
+    min_follow_s: float = 0.0                            # contact at least this long before a quiet clamped end
 
 DEFAULT_SALIENCE_CONFIG = SalienceConfig()
-_AT_MOST_ONE = {"lost_body_frac", "cap_percentile"}
+_AT_MOST_ONE = {"lost_body_frac", "cap_percentile", "quiet_edge_frac"}
 
 def salience_fingerprint(salience_json: str = None) -> str:
     """A stable fingerprint of the salience config that produced a descriptor. None/empty → 'default' (the tennis
@@ -477,6 +485,22 @@ def _state(person, lo, hi, hand, fps, salience_keypoints=None):
     except Exception as e:
         log(f"state unavailable ({type(e).__name__}: {str(e)[:80]})"); return None
 
+def whole_stroke(sm, lo, hi, peak_t, clip_t0, clip_t1, t0, t1, cfg):
+    """FULL SWING: did the [takeback..follow-through] bracket fit inside the clip? An edge not clamped at the clip
+    boundary is whole. A clamped edge is whole only under cfg.quiet_edge_frac (0 = off): the salience there is at
+    most quiet_edge_frac x the clip's peak and contact is at least min_lead_s / min_follow_s inside the clip."""
+    top = max(sm) if sm else 0.0
+
+    def edge(clamped, i, inside_s, need_s):
+        if not clamped:
+            return True
+        if not cfg.quiet_edge_frac or not top or peak_t is None:
+            return False
+        return sm[min(max(i, 0), len(sm) - 1)] <= cfg.quiet_edge_frac * top and inside_s >= need_s
+
+    return bool(edge(not t0 > clip_t0 + 0.05, lo, (peak_t or 0) - clip_t0, cfg.min_lead_s)
+                and edge(not t1 < clip_t1 - 0.05, hi, clip_t1 - (peak_t or 0), cfg.min_follow_s))
+
 def describe(kp, source, salience_cfg=DEFAULT_SALIENCE_CONFIG):
     person=main_track(kp)
     if not person: return None
@@ -485,12 +509,14 @@ def describe(kp, source, salience_cfg=DEFAULT_SALIENCE_CONFIG):
     clip_t0=round(frames[0]["t"],3); clip_t1=round(frames[-1]["t"],3)   # clip time bounds (truncation test)
     wins=detect_windows(person,fps,salience_cfg)   # salience (which joints = the motion event) is DATA (None default = wrists, byte-identical; iter46)
     sk=salience_cfg.salience_keypoints             # the effector pair the whole feature pack tracks (iter47; default wrists = byte-identical)
+    sm=salience_series(person, salience_cfg) if wins else []   # the same signal detect_windows bracketed on (edge test)
     out_wins=[]
     for lo,hi in wins:
         hand=active_side(person,lo,hi,sk)        # per-window moving side of the EFFECTOR pair (motion fact), NOT identity/stroke
         vec,conf=viewpoint_vec(person,lo,hi)
         t0=round(person["frames"][lo]["t"],3)
         t1=round(person["frames"][min(hi,len(person["frames"])-1)]["t"],3)
+        pt=peak_time(person,lo,hi,hand,fps,sk)
         out_wins.append({
             "t0":t0,
             "t1":t1,
@@ -500,8 +526,8 @@ def describe(kp, source, salience_cfg=DEFAULT_SALIENCE_CONFIG):
             # Rendering a truncated swing shows only PART of the stroke (the "only the finish" bug). This is a
             # self-describing FACT (L090); the autonomy gate rejects truncated swings fail-closed so a partial
             # swing is NEVER rendered.
-            "full_swing": bool(t0 > clip_t0 + 0.05 and t1 < clip_t1 - 0.05),
-            "peak_t":peak_time(person,lo,hi,hand,fps,sk),
+            "full_swing": whole_stroke(sm, lo, hi, pt, clip_t0, clip_t1, t0, t1, salience_cfg),
+            "peak_t":pt,
             "viewpoint":{"vec":vec,"confidence":conf},
             "heading":_heading(source,t0,t1),             # camera-on-sphere AZIMUTH: body heading deg trajectory (JointBDOE)
             "elevation":_elevation(source,t0,t1),  # camera-on-sphere ELEVATION (birdseye) from pixels (orientation.py CLIP axis)

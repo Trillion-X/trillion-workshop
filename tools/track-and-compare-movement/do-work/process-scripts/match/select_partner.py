@@ -202,7 +202,17 @@ def select(target_desc_path, target_kp, win, index_dir, weights=None, max_dist=1
            salience_keypoints=None,    # which joints center the certified CROP (motion_certify._contact_clamp). DATA:
            # None = the tennis wrist pair (byte-identical); a domain (footwork=ankles) passes its own so query+candidate
            # crop on the SAME salient joints the segmenter used (iter46 — the salience seam reaches the live matcher).
-           comparison_spec=None):      # the CERTIFIED comparison representation (pose_schema.ComparisonSpec): which
+           comparison_spec=None,
+           labels=None, want=None, class_margin=None):
+           # LABELLED MODE (Nov 25 2026). labels = {reference key: class} from a human-labelled library (its folders),
+           # want = the class a partner must have, class_margin = how much closer the target must be to `want` than to
+           # any other labelled class. None = off: label-free, byte-identical. Why: the label-free gates are
+           # calibrated on ONE person's library; across people (a student against a pro) a correct pair sits at
+           # ~0.30-0.5 > cert_admit, and the label-free ambiguity gate fires on spread WITHIN one class (two pro
+           # forehands from different azimuths do not self-certify). With labels, "which motion is this?" is
+           # answered by the nearest labelled class with a margin; cert_admit (passed by the caller) only bounds
+           # "too different to be a useful comparison". Contrast windows count before the heading/elevation gates,
+           # so more contrast only ever refuses more.      # the CERTIFIED comparison representation (pose_schema.ComparisonSpec): which
            # body channels are compared + their mirror/observability/cert calibration. DATA: None = the default COCO
            # limb+trunk (byte-identical tennis); a domain passes its own so the live matcher compares its channels
            # WITHOUT editing this file (iter73 — the comparison seam reaches the live matcher; Codex capstone #1/D82).
@@ -252,6 +262,14 @@ def select(target_desc_path, target_kp, win, index_dir, weights=None, max_dist=1
     if isinstance(head_scale, bool) or not isinstance(head_scale, (int, float)) or not math.isfinite(head_scale) or head_scale <= 0:
         raise ValueError(f"select_partner.head_scale must be a FINITE number > 0 (it divides the camera-azimuth term), "
                          f"got {type(head_scale).__name__} {head_scale!r}.")
+    if labels is not None:
+        if not isinstance(want, str) or not want:
+            raise ValueError(f"select_partner.want must name the class a partner must have, got {want!r}")
+        for _ln, _lv in (("class_margin", class_margin), ("cert_admit", cert_admit)):
+            if isinstance(_lv, bool) or not isinstance(_lv, (int, float)) or not math.isfinite(_lv) or _lv < 0:
+                raise ValueError(f"select_partner.{_ln} must be a finite number >= 0 in labelled mode, got {_lv!r}")
+        if want not in set(labels.values()):
+            raise ValueError(f"select_partner.want {want!r} is not a class of any labelled reference")
     from match_clips import viewpoint_dist
     # #198.1 (Codex #8/#1): read the QUERY descriptor through the serialization waist — a cached/legacy/poisoned
     # `.desc.json` carrying a NaN/Inf token (which `nan<x` would silently sail through, defeating quality/heading/
@@ -300,6 +318,7 @@ def select(target_desc_path, target_kp, win, index_dir, weights=None, max_dist=1
     seen=vindex.total_windows                                     # diagnostics: total windows in the index
     gated_view=max(0, seen-len(cand))                             # windows outside the view family (the gate the index applied)
     pool=[]; gated_q=0; gated_heading=0; gated_elev=0; gated_trunc=0; gated_motion=0; gated_self=0
+    others=[]; gated_unlabelled=0                                 # labelled mode: contrast-class distances; unlabelled refs
     _reccache={}                                                  # load each candidate's desc/kp file ONCE
     for key,i,f in cand:
         if Path(f).resolve()==tgt: continue                      # exclude the query's own clip by PATH (leave-one-clip-out)
@@ -327,6 +346,14 @@ def select(target_desc_path, target_kp, win, index_dir, weights=None, max_dist=1
         vd=viewpoint_dist(qview, (w.get("viewpoint") or {}).get("vec"))               # EXACT view-family gate is the AUTHORITY
         if vd is None or vd>view_max: gated_view+=1; continue                         # (index is a fast sound retriever; re-check trims
         #                                                                              # any float-boundary false-add or stale-cache add — Codex)
+        if labels is not None:                                                        # LABELLED MODE: class from the human label
+            lab=labels.get(Path(f).stem.replace(".desc",""))
+            if lab is None: gated_unlabelled+=1; continue                             # an unlabelled reference is never a partner
+            if lab!=want:                                                             # CONTRAST: its distance only ever refuses
+                oc=MC.descriptor_at(str(kp), w.get("t0",0), w.get("t1",0), salience_keypoints=salience_keypoints, spec=comparison_spec)
+                od,_=MC.dist(qc, oc, mode="worst", spec=comparison_spec)
+                if od is not None: others.append((od, lab))
+                continue
         # CHEAP HARD GATES BEFORE THE EXPENSIVE CERTIFIED DTW (heading/elev depend only on precomputed vectors).
         if _heading_blocks(qheading, w.get("heading"), heading_tol, heading_min_conf, heading_min_frames):  # AZIMUTH (front/back reversal) gate,
             gated_heading+=1; continue                                                      # FAIL-CLOSED — heading needed (geom can't see front/back, ML048)
@@ -347,7 +374,20 @@ def select(target_desc_path, target_kp, win, index_dir, weights=None, max_dist=1
         b["state"]=w.get("state")                                                            # biomechanics+situation channels for the scorecard
         pool.append(b)
     diag={"pool_windows":len(pool),"seen":seen,"gated_view":gated_view,"gated_quality":gated_q,"gated_heading":gated_heading,"gated_elev":gated_elev,"gated_truncated":gated_trunc,"gated_motion":gated_motion,"gated_self":gated_self}
+    if labels is not None:
+        near=min(others) if others else None
+        diag["gated_unlabelled"]=gated_unlabelled
+        diag["class_check"]={"want":want,"same":(round(min(it["geom_dist"] for it in pool),4) if pool else None),
+                             "other":(round(near[0],4) if near else None),"other_class":(near[1] if near else None),
+                             "contrast_windows":len(others),"margin":class_margin,"admit":cert_admit}
     if not pool: return {"no_match":True,**diag,"reason":"no_admissible_motion_in_view_family"}
+    if labels is not None:
+        if near is None:                                          # no labelled contrast in this view family: the class
+            for p in pool: p.pop("_cdesc",None)                   # cannot be checked → fail closed
+            return {"no_match":True,**diag,"reason":"no_contrast_class_in_view_family"}
+        pool=[it for it in pool if near[0]-it["geom_dist"]>=class_margin]   # every partner, not only the best, clears the margin
+        if not pool:
+            return {"no_match":True,**diag,"reason":"not_clearly_the_wanted_class"}
 
     # AMBIGUITY GATE (D13, iter4) — DEFENSE-IN-DEPTH against a confident WRONG match (iter59/D65 corrected its role).
     # The PRIMARY zero-wrong guarantor is the certified admission gate (worst reliable channel ≤ cert_admit): the
@@ -360,7 +400,7 @@ def select(target_desc_path, target_kp, win, index_dir, weights=None, max_dist=1
     # are different iff they do NOT self-certify (MC.dist > cert_same). Recall is correctly sacrificed under genuine
     # ambiguity; we never lie (L083). (Kept despite a tiny recall cost — 1 sacrificed-correct, 0 wrong-prevented on
     # THIS corpus — because trading a structural safety layer for ~0.3% recall on a known-hard regime is wrong, L075.)
-    if cert_admit is not None and ambig_margin is not None:
+    if labels is None and cert_admit is not None and ambig_margin is not None:   # labelled mode: the class margin above replaces it
         best=min(pool, key=lambda it: it["geom_dist"]); bd=best["geom_dist"]
         for it in pool:
             if it is best or it["geom_dist"]-bd>ambig_margin: continue   # only candidates comparably close to best
@@ -448,6 +488,10 @@ def main()->int:
     # DOMAIN certified COMPARISON spec for the admission matcher (motion_certify) — DATA, the SAME seam the live drivers
     # pass (iter73/iter78). JSON dict {"channels":[...],"mirror":{...},"min_reliable":N,"epsilon":E}; omitted = default
     # COCO limb+trunk (None) → byte-identical. So the standalone select CLI serves ANY domain's channels (Codex iter77 #2).
+    ap.add_argument("--labels",default=None,help='LABELLED MODE: a JSON file {reference key: class} from a human-labelled library; needs --want, --class-margin and --class-admit')
+    ap.add_argument("--want",default=None,help="labelled mode: the class a partner must have")
+    ap.add_argument("--class-margin",type=float,default=None,help="labelled mode: the target must be at least this much closer to --want than to any other class")
+    ap.add_argument("--class-admit",type=float,default=None,help="labelled mode: the certified distance bound of a useful comparison (replaces cert_admit)")
     ap.add_argument("--comparison-spec",default=None,help='JSON dict of the domain certified comparison spec, e.g. \'{"channels":["l_ankle",...],"mirror":{...},"epsilon":0.3}\' (None=default COCO limb+trunk → byte-identical)')
     a=ap.parse_args()
     tp,_,wi=a.target_desc.partition(":"); wi=int(wi) if wi else 0
@@ -459,7 +503,10 @@ def main()->int:
         from pose_schema import ComparisonSpec
         cspec=ComparisonSpec.from_dict(json.loads(a.comparison_spec))   # iter82: ONE dict→spec parser; constructor
         #                              owns every default (incl. iter81 bars) — CSSOT, no duplicated default literals
-    r=select(tp,a.target_kp,wi,a.index,parse_weights(a.weights),a.max_dist,
+    labelled={}
+    if a.labels:
+        labelled={"labels":FJ.load_text(a.labels),"want":a.want,"class_margin":a.class_margin,"cert_admit":a.class_admit}
+    r=select(tp,a.target_kp,wi,a.index,parse_weights(a.weights),a.max_dist,**labelled,
              used=used,recency=recency,salience_keypoints=sk,comparison_spec=cspec,
              min_quality=a.min_quality,view_max=a.view_max,top=a.top,
              heading_tol=a.heading_tol,heading_met_tol=a.heading_met_tol,heading_min_conf=a.heading_min_conf,heading_min_frames=a.heading_min_frames,

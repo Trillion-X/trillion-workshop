@@ -16,6 +16,13 @@ for (const [file, what] of [
   ['test_track_selected_object.py', 'the tracker refuses a bad range, frame rate, point or output folder, and follows a made-up object when its model is cached'],
   ['test_author_comparison_edl.py', 'the side-by-side edit takes labels, layout, mirror and passes from the spec, keeps every crop inside the frame, and refuses a bad spec'],
   ['test_make_site_clip.py', 'a site clip is cut from its kept stretches, silent unless asked, kept by its identity, and wrong source bytes are refused'],
+  ['test_find_strokes.py', 'strokes are found by the physical salience rules, and a lost body or a tracker jump makes no stroke'],
+  ['test_files_road.py', 'a file is kept in pieces at offsets, retried, and checked by its identity'],
+  ['test_model_location.py', 'every model is found under the one model folder'],
+  ['test_make_matched_clips.py', 'a clip key follows its identity, dates come from names, a clip name carries both dates, a failed stage prints one error'],
+  ['test_whole_stroke.py', 'a window cut at a clip edge is whole only when the edge is quiet and contact is far enough inside, in both describe_clip copies'],
+  ['test_perceive_reuse.py', 'a kept descriptor is reused only when it was made with the same salience rules'],
+  ['test_labelled_match.py', 'with labelled references a partner must be its class by a margin over every other class, and no contrast class fails closed'],
 ]) {
   test(what, { skip: !ready && 'python3 with numpy is needed', timeout: 900000 }, () => {
     const done = spawnSync('python3', ['-B', join(here, file)], { encoding: 'utf8', timeout: 900000 });
