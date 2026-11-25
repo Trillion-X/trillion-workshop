@@ -20,11 +20,14 @@
 # dump from the store and writes it into TO_DATABASE as TO_ROLE over the socket, with the same refusal and one transaction.
 # In those two the sealed credential $SECRET_NAME is the store's settings and key (NAME=value lines, WAL-G's own), not a
 # connection string, and nothing on either server opens a port to the other. The dump is encrypted before it leaves the old
-# server whenever WAL-G has a key (WALG_LIBSODIUM_KEY, handed to both units from one held name), and the store's copy is
+# server whenever the unit names its key: STORE_KEY is the name of a credential the unit loads (LoadCredentialEncrypted, from one
+# held name both units seal), which WAL-G reads from the credentials folder (WALG_LIBSODIUM_KEY_PATH), so the key is never in
+# the unit's environment or /proc. The store's copy is
 # removed by remove-from-the-store.sh once the new database compares equal.
 set -eu
 if [ -n "${TO_STORE:-}${FROM_STORE:-}" ]; then
   set -a; . "$CREDENTIALS_DIRECTORY/$SECRET_NAME"; set +a
+  if [ -n "${STORE_KEY:-}" ]; then export WALG_LIBSODIUM_KEY_PATH="$CREDENTIALS_DIRECTORY/$STORE_KEY"; fi
   url=
 else
   url=$(cat "$CREDENTIALS_DIRECTORY/$SECRET_NAME")
@@ -76,7 +79,7 @@ else
 fi
 if [ -n "${TO_STORE:-}" ]; then
   wal-g st put --no-compress "$dump" "$TO_STORE" >/dev/null
-  echo "put $FROM_DATABASE in the store as $TO_STORE: $(wc -c < "$dump") bytes, BLAKE3 $(b3sum --no-names "$dump" 2>/dev/null || echo unknown), encrypted: $([ -n "${WALG_LIBSODIUM_KEY:-}" ] && echo yes || echo no)"
+  echo "put $FROM_DATABASE in the store as $TO_STORE: $(wc -c < "$dump") bytes, BLAKE3 $(b3sum --no-names "$dump" 2>/dev/null || echo unknown), encrypted: $([ -s "${WALG_LIBSODIUM_KEY_PATH:-}" ] && echo yes || echo no)"
   exit 0
 fi
 # An extension's comment belongs to the extension's owner, the server's own superuser, never to the new database's login.
