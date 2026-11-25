@@ -39,6 +39,28 @@
             "input": {
               "start_at": "plan"
             }
+          },
+          {
+            "id": "a-service-told-a-change",
+            "needs_input": ["kept_in.database"],
+            "on": {
+              "fact": {
+                "kind": "something-changed",
+                "from": [
+                  "sender"
+                ]
+              }
+            },
+            "budget": {
+              "steps": 40,
+              "wall_ms": 3600000
+            },
+            "replay": {
+              "within_ms": 86400000
+            },
+            "input": {
+              "start_at": "plan"
+            }
           }
         ],
         "definition": {

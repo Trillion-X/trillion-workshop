@@ -180,6 +180,7 @@ test('the read leaves out only what the formula engine would not keep: after fie
 });
 
 test('the router keeps no facts while it is switched off, so a computer whose router is off never fills its owed facts', () => {
-  assert.deepEqual(ROUTER.wakes.map(wake => [wake.id, wake.replay]), [['a-row-changed', { within_ms: 86400000 }]]);
+  assert.deepEqual(ROUTER.wakes.map(wake => wake.id), ['a-row-changed', 'a-service-told-a-change']);
+  for (const wake of ROUTER.wakes) assert.deepEqual(wake.replay, { within_ms: 86400000 }, `${wake.id} keeps no facts while it is off`);
 });
 
