@@ -357,6 +357,26 @@ test('a machine file the row adds to a computer already set up is a difference, 
   assert.throws(() => renderWhatItRuns({ ...runs, machine: { files: [{ path: 'relative', text: '' }] } }), /machine\.files takes \{ path, text \}/);
 });
 
+test('a JSON file that holds the same value in another key order is no difference and is not rewritten; a changed value is', async () => {
+  const two = { ...runs, units: [{ ...runs.units[0], settings: { listen: '127.0.0.1:7199', persons: '/var/lib/example-place/persons' } }] };
+  const rendered = renderWhatItRuns(two);
+  const settings = rendered.find(({ path }) => path === '/etc/example-place/computer.json');
+  const value = JSON.parse(settings.text);
+  const reordered = `${JSON.stringify(Object.fromEntries(Object.entries(value).reverse()), null, 1)}\n`;
+  assert.notEqual(reordered, settings.text, 'the live bytes differ');
+  assert.deepEqual(Object.keys(JSON.parse(reordered)), Object.keys(value).reverse(), 'only the key order differs');
+  const live = Object.fromEntries(rendered.map(({ path, text }) => [path, text]));
+  const sameValue = computer({ ...live, [settings.path]: reordered });
+  assert.deepEqual(await runsDifferences(machine, two, sameValue.run), []);
+  assert.deepEqual(await applyWhatItRuns(machine, two, sameValue.run), { written: [], restarted: [] });
+  const changed = computer({ ...live, [settings.path]: JSON.stringify({ ...value, listen: '127.0.0.1:7100' }) });
+  assert.deepEqual(await runsDifferences(machine, two, changed.run), [{ path: settings.path, reason: 'differs from the computer row' }]);
+  // A file that is not JSON is compared as bytes.
+  const unitFile = rendered.find(({ path }) => path === '/etc/systemd/system/example-place.service');
+  const spaced = computer({ ...live, [unitFile.path]: `${unitFile.text} ` });
+  assert.deepEqual(await runsDifferences(machine, two, spaced.run), [{ path: unitFile.path, reason: 'differs from the computer row' }]);
+});
+
 test('a computer missing a package or program its row names is set up, and one that has them all is not', async () => {
   const data = { ...runs, machine: { packages: ['jq'], downloads: [{ path: '/usr/local/bin/example-tool' }] } };
   const live = Object.fromEntries(renderWhatItRuns(data).map(({ path, text }) => [path, text]));

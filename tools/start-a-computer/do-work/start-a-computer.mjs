@@ -15,7 +15,7 @@
 // environment or the answer.
 //
 // usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | apply REQUEST_FILE | differences REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | remove LEASE_FILE
-import { differences, renderWhatItRuns, dropInName, withPrepared, withSlots, publishedFile } from './render-what-a-computer-runs.mjs';
+import { differences, isAsRendered, renderWhatItRuns, dropInName, withPrepared, withSlots, publishedFile } from './render-what-a-computer-runs.mjs';
 import { addressesOfName, declaredSetsOf, dnsClient, keepHealthyRecords, keepRecordSets, recordSetsOf } from '../../move-the-public-door/do-work/portable-dns-cutover.mjs';
 import { fill } from './fill-fields.mjs';
 import { keyState, keyDifferences, sealTheKeys, removeThePlainKeys } from './keep-the-key-sealed.mjs';
@@ -499,7 +499,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   const { runs, rendered, live, present, strays, usersPresent, portsClosed, builds, stale, switches, keys, surplus, linksOff } = await runsState(machine, given, run, deps);
   // A sealed key the computer lacks is made, and a plain key it still holds is removed once its unit runs from the sealed one: that unit restarts.
   const keysOwed = keys.filter(({ sealed, plain }) => !sealed || plain).map(({ unit }) => unit.unit);
-  const writes = rendered.filter(({ path, text }) => live[path] !== text);
+  const writes = rendered.filter(file => !isAsRendered(file, live[file.path]));
   // A file a unit reads (its settings, access file or script) changes that unit, and each unit that names it; a unit file or
   // drop-in changes its own unit. A file that names `then` is applied by those commands instead (a site file a reload reads,
   // a page nothing needs to read again), so it restarts nothing.

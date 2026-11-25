@@ -8,6 +8,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { isAbsolute, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { isDeepStrictEqual } from 'node:util';
 import { fill } from './fill-fields.mjs';
 import { WAYS, renderMeetingPoint } from '../../carry-a-computer-to-a-meeting-point/do-work/carry-a-computer.mjs';
 
@@ -180,8 +181,20 @@ export function renderWhatItRuns(given) {
 
 /** The files whose live text is not what the computer row renders: { path, reason }. Empty means the computer matches. */
 export function differences(rendered, live) {
-  return rendered.flatMap(({ path, text }) => {
-    if (live[path] === undefined) return [{ path, reason: 'missing on the computer' }];
-    return live[path] === text ? [] : [{ path, reason: 'differs from the computer row' }];
+  return rendered.flatMap(file => {
+    if (live[file.path] === undefined) return [{ path: file.path, reason: 'missing on the computer' }];
+    return isAsRendered(file, live[file.path]) ? [] : [{ path: file.path, reason: 'differs from the computer row' }];
   });
+}
+
+/** Whether the computer's text at a rendered file's path is that file: the same bytes, or for a `.json` file that is not binary,
+ * the same JSON value (objects compared whatever their key order, arrays in order). The reader of a JSON file reads its value,
+ * so a key order that came from a different road to the same row (a row read through another tool, whose answer orders keys
+ * its own way) is not a change, and an apply rewrites nothing for it (Nov 25 2026: differences named computer.json and
+ * receiver.json of a computer that held them content-equal). `differences` and an apply's writes both ask this. */
+export function isAsRendered({ path, text, binary }, liveText) {
+  if (liveText === undefined) return false;
+  if (liveText === text) return true;
+  if (binary || !path.endsWith('.json')) return false;
+  try { return isDeepStrictEqual(JSON.parse(liveText), JSON.parse(text)); } catch { return false; }
 }
