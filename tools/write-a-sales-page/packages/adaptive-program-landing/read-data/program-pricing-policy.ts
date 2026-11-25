@@ -103,3 +103,11 @@ export function beforeBookingHrefOf(template: unknown, offerId: string): string 
   if (typeof template !== 'string' || !template) return null;
   return template.replace('{offer_id}', encodeURIComponent(offerId));
 }
+
+// The cards a price section reads: the host's own answer when the page has it (window.__programOffersForThisPage__, set in a
+// browser), else the cards the page was drawn with (DATA `pricing.offers_now`, keyed by offer id the same way), else none. A page
+// drawn ahead of time and the browser's first draw read the same cards, so the drawn price is the price the browser hydrates.
+export function offerCardsOfThisPage(hostCards: Record<string, unknown> | undefined, drawnWith: unknown): Record<string, unknown> {
+  if (hostCards) return hostCards;
+  return drawnWith && typeof drawnWith === 'object' && !Array.isArray(drawnWith) ? drawnWith as Record<string, unknown> : {};
+}

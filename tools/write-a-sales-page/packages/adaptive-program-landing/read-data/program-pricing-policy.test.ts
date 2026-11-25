@@ -2,7 +2,7 @@
 // Anything the card does not prove (another offer's card, a bad address, an amount outside its own range) is no next step.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { beforeBookingHrefOf, readOfferNextStep, parsePatronAmount } from './program-pricing-policy.ts';
+import { beforeBookingHrefOf, offerCardsOfThisPage, readOfferNextStep, parsePatronAmount } from './program-pricing-policy.ts';
 
 const policy = { currency: 'usd', min_cents: 9900, max_cents: 99999999, allow_free: false, allow_custom: true, suggested_cents: [9900, 20000] };
 
@@ -48,4 +48,14 @@ test('a booking card with no before-booking template in DATA keeps its bare link
 
 test('a before-booking template takes the offer id, encoded, in place of {offer_id}', () => {
   assert.equal(beforeBookingHrefOf('/before-booking/{offer_id}', 'offer:call-booking'), '/before-booking/offer%3Acall-booking');
+});
+
+test('a price section reads the host cards when set, else the cards the page was drawn with, else none', () => {
+  const host = { 'offer:m': { offer_id: 'offer:m' } };
+  const drawn = { 'offer:m': { offer_id: 'offer:m', amount_cents: 9900 } };
+  assert.equal(offerCardsOfThisPage(host, drawn), host);
+  assert.equal(offerCardsOfThisPage(undefined, drawn), drawn);
+  assert.deepEqual(offerCardsOfThisPage(undefined, undefined), {});
+  assert.deepEqual(offerCardsOfThisPage(undefined, [1]), {});
+  assert.deepEqual(offerCardsOfThisPage(undefined, 'x'), {});
 });

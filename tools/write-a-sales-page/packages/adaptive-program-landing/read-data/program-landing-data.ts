@@ -86,6 +86,13 @@ export function assertProgramLandingData(value: unknown): asserts value is Progr
   if (pricing.before_booking_path !== undefined && !(typeof pricing.before_booking_path === 'string' && /^\/\S*\{offer_id\}\S*$/.test(pricing.before_booking_path))) {
     throw new Error('program landing DATA pricing.before_booking_path must be a path with {offer_id} in it');
   }
+  // `offers_now` is the cards the page was drawn with, keyed by offer id: the host's offers-for-this-page answer, one card per offer.
+  if (pricing.offers_now !== undefined) {
+    const drawn = pricing.offers_now;
+    if (!drawn || typeof drawn !== 'object' || Array.isArray(drawn) || !Object.values(drawn).every((card) => card && typeof card === 'object' && !Array.isArray(card))) {
+      throw new Error('program landing DATA pricing.offers_now must be an object of cards keyed by offer id');
+    }
+  }
   for (const key of ['heroLead', 'sections', 'testimonials', 'marqueeTestimonials', 'faq', 'comparisons', 'libraryNames', 'libraryPreviews', 'pageBlocks']) {
     if (!Array.isArray(data[key])) throw new Error(`program landing DATA is missing ${key}`);
   }

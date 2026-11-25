@@ -13,6 +13,7 @@ import { useProgramLandingData } from './ProgramLandingData';
 import { BeforeBookingForm } from './BeforeBookingForm';
 import {
   beforeBookingHrefOf,
+  offerCardsOfThisPage,
   parsePatronAmount,
   readOfferNextStep,
   type OfferNextStep,
@@ -93,7 +94,7 @@ export function ProgramPricingSection({ flatSurfaces, instanceId, embedded = fal
   const listed = offerIds ?? pricing.offers;
   const anchorId = instanceId ?? LANDING_PRICING_SECTION_ID;
   const idSuffix = instanceId ? `-${instanceId}` : '';
-  const pageOffers = typeof window === 'undefined' ? {} : window.__programOffersForThisPage__ ?? {};
+  const pageOffers = offerCardsOfThisPage(typeof window === 'undefined' ? undefined : window.__programOffersForThisPage__, pricing.offers_now);
   const listedKey = listed.join('|');
 
   // Someone who had the price on screen and did not buy is what moves a
