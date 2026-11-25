@@ -60,9 +60,10 @@
 //                    key in the unit's credentials (member-video.ts)
 //     member_files   (optional, needs files_store) { path, key_prefix, prefixes, link_seconds }: members' files
 //     public_files   (optional, needs files_store) { paths, key_prefix, link_seconds, cache_seconds }: the site's public files
-//     served_files   (optional, needs files_store) [{ hosts, paths, named, key_prefix, cache_seconds }]: files this program
-//                    answers with 200 from the store itself (a web app's shell page, module scripts, engines and fonts, which
-//                    a browser loads only from the page's own origin), kept in memory (served-files.ts)
+//     served_files   (optional, needs files_store) [{ hosts, paths, named, key_prefix, cache_seconds, rest?, only_listed_by? }]:
+//                    files this program answers with 200 from the store itself (a web app's shell page, module scripts, engines
+//                    and fonts, which a browser loads only from the page's own origin), kept in memory (served-files.ts); with
+//                    only_listed_by, only the paths a listing tool's latest answer names (a published clip still consented to)
 //   Credentials are files of the unit's credentials folder ($CREDENTIALS_DIRECTORY), sealed there by the computer from the vault.
 //   A local run with no credentials folder takes its one credential on standard input, piped from the vault's held-value read.
 //
@@ -89,7 +90,7 @@ import { MemberPasses } from './member-pass.ts';
 import type { Member, SignIn } from './member-pass.ts';
 import { filesStoreOf, isPublicPath, memberFileAnswer, memberFilesOf, objectKeyOf, presignedGet, publicFileAnswer, publicFilesOf, publicKeyOf, storeKeyOf } from './member-video.ts';
 import type { FilesStore, MemberFiles, PublicFiles, StoreKey } from './member-video.ts';
-import { closedOnHost, servedFilesOf, servedKeyOf, StoreFiles } from './served-files.ts';
+import { closedOnHost, ListedPaths, LISTING_UNREAD, NOT_LISTED, servedFilesOf, servedKeyOf, StoreFiles } from './served-files.ts';
 import type { ServedFiles } from './served-files.ts';
 import { filledInput, hasWordsPlace, matchPage, NOT_FOUND, pagesOf, pagesOn, pathWith, PAGES_SQL, paramsOf, slugsSql } from './pages.ts';
 import type { PageRow, Refused } from './pages.ts';
@@ -302,10 +303,13 @@ export class Site {
   #reading: Promise<void> | null = null;
   #answers = new Map<string, Kept>();
   #log: (line: string) => void;
+  // The paths each served_files rule's only_listed_by tool names, run with the site's own key.
+  #listed: ListedPaths;
 
   constructor(parts: SiteParts) {
     this.#parts = parts;
     this.#log = parts.log ?? (line => console.error(line));
+    this.#listed = new ListedPaths(call => parts.run(parts.sitePass, call));
   }
 
   #sql(sql: string, params: unknown[] = [], other?: string): Promise<Record<string, unknown>[]> {
@@ -604,7 +608,18 @@ export class Site {
     this.#fresh();
     const { files_store: store, member_files: memberFiles, public_files: publicFiles, served_files: servedFiles } = this.#parts.settings;
     const served = this.#parts.storeFiles ? servedKeyOf(servedFiles, host, pathname) : null;
-    if (served) return this.#parts.storeFiles!.answer(served.rule, served.key, range);
+    if (served) {
+      const listing = served.rule.only_listed_by;
+      if (listing) {
+        try {
+          if (!await this.#listed.names(listing, pathname)) return NOT_LISTED;
+        } catch (error) {
+          this.#log(`${pathname}: ${listing.tool} did not answer, so its listed files are not shown: ${(error as Error).message}`);
+          return LISTING_UNREAD;
+        }
+      }
+      return this.#parts.storeFiles!.answer(served.rule, served.key, range);
+    }
     if (store && memberFiles && pathname.startsWith(memberFiles.path)) {
       const key = objectKeyOf(memberFiles, pathname);
       if (!key || !this.#parts.storeKey) return { status: 404, headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'private, no-store' }, body: 'No such file.\n' };

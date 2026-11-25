@@ -9,6 +9,7 @@
 //   The site runs as itself (its own door key, serve.ts `sitePass`):
 //     - run-sql on settings.pages.database, under settings.pages.use: its pages, look and action rows and each collection's slugs
 //     - settings.site_head, when it names one
+//     - each settings.served_files rule's only_listed_by tool, with its input as written (served-files.ts)
 //     - each public page's own tool and every tool node of its layout (render.ts treeOf and runsOf)
 //     - each public action row's tool, its undo, its then, each of its next steps and their failed steps, and every
 //       { "$": "tool" } and { "$": "rows" } source inside them and inside its answer (actions.ts),
@@ -70,7 +71,7 @@ export interface Held {
 type Fields = Record<string, unknown>;
 
 export interface SiteRows {
-  settings: { pages: { database: string; use?: unknown }; site_head?: { tool: string; input: Fields } };
+  settings: { pages: { database: string; use?: unknown }; site_head?: { tool: string; input: Fields }; served_files?: { only_listed_by?: { tool: string; input: Fields } }[] };
   pages: Fields[];
   actions: Fields[];
 }
@@ -143,6 +144,9 @@ export function siteCallsOf({ settings, pages, actions }: SiteRows, { actions: a
   const passOnExact: { path: string; host: string | null; method: string }[] = [];
   const calls: Call[] = [{ where: 'settings.pages', tool: RUN_SQL, input: { database, sql: 'SELECT', ...(use === undefined ? {} : { use }) } }];
   if (settings.site_head) calls.push({ where: 'settings.site_head', tool: settings.site_head.tool, input: settings.site_head.input });
+  (settings.served_files ?? []).forEach((rule, i) => {
+    if (rule.only_listed_by) calls.push({ where: `settings.served_files[${i}].only_listed_by`, tool: rule.only_listed_by.tool, input: rule.only_listed_by.input });
+  });
   const read = pagesOf(pages);
   const done = actionsOf(actions);
   const refused: Refusal[] = [...read.refused, ...done.refused].map(({ path, why }) => ({ where: path, tool: '', why: `row set aside: ${why}` }));

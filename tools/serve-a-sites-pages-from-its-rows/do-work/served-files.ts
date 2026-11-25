@@ -13,6 +13,16 @@
 //   With "rest": "not_found" a rule's hosts answer nothing else: every other path on them is 404, ahead of pass_on and the
 //   page rows (a retired name that keeps only its moved-to page).
 //
+//   With "only_listed_by": { "tool", "input", "seconds" } a rule answers a path only while the latest answer of that listing tool
+//   names it: the program runs the tool as the site (its own key, the input as written), keeps the answer for `seconds`, and takes
+//   every text in it that is a site path ("/..." up to any "?" or "#") as the listed paths. Every other path the rule names is 404.
+//   It is for files whose showing someone may withdraw (a published clip whose person took back consent): the listing tool holds
+//   them to its rules at each read, so a withdrawn file stops answering within `seconds`, and a browser keeps one no longer than
+//   that (its max-age is the smaller of cache_seconds and seconds). A listing that fails is never stood in for by an older one:
+//   the paths answer 503 until the tool answers again.
+//     { "hosts": ["example.com"], "paths": ["/published-clips/"], "key_prefix": "site-files/", "cache_seconds": 86400,
+//       "only_listed_by": { "tool": "tool:read-the-clips-published-to-a-site", "input": { "database": "a_site", "limit": 100 }, "seconds": 60 } }
+//
 //   The program reads each object with a presigned GET of its own (member-video.ts presignedGet, the store's read key) and keeps
 //   it in memory, at most MOST_KEPT_BYTES in all, the least recently asked dropped first; after cache_seconds it asks the store
 //   again with the object's ETag, so a replaced object is served within cache_seconds and an unchanged one is not sent again.
@@ -25,11 +35,21 @@
 //      application/wasm wherever the object was put.
 //   4. One "bytes=a-b" range is answered 206 from the kept bytes; any other range is the whole file (200).
 //   5. The read key only signs: it is never in an answer, a header or a log.
+//   6. A rule with only_listed_by answers a path only when a listing no older than its seconds names it; one listing is asked
+//      at a time per tool and input, and a failed listing answers 503, never an older list.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { presignedGet } from './member-video.ts';
 import type { FilesStore, StoreKey } from './member-video.ts';
 import type { Answer } from './screen-files.ts';
+import type { ToolRun } from './door.ts';
+
+/** The tool whose answer lists the paths a rule may answer, its input as written, and how long one answer is used. */
+export interface ListedBy {
+  tool: string;
+  input: Record<string, unknown>;
+  seconds: number;
+}
 
 export interface ServedFiles {
   hosts?: string[];
@@ -39,6 +59,8 @@ export interface ServedFiles {
   cache_seconds: number;
   /** "not_found": the rule's hosts answer only what it names; every other path on them is 404. */
   rest?: 'not_found';
+  /** Answer a path only while this listing tool's latest answer names it; every other path the rule names is 404. */
+  only_listed_by?: ListedBy;
 }
 
 /** The most bytes kept in memory across every rule. */
@@ -56,7 +78,7 @@ export const TYPES: Record<string, string> = {
 const PATH = /^\/([A-Za-z0-9._~@+-]+\/)*[A-Za-z0-9._~@+-]*$/;
 const KEY = /^[A-Za-z0-9._~@+-]+(\/[A-Za-z0-9._~@+-]+)*$/;
 const HOST = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
-const WORDS = 'served_files lists { hosts?, paths, named?, key_prefix, cache_seconds, rest? }: lower-case host names; site folders ending in "/" or whole paths; { "<site path>": "<key name>" }; "" or key folders ending in "/"; a whole number of seconds, 1 to 86400; rest "not_found" only with hosts.';
+const WORDS = 'served_files lists { hosts?, paths, named?, key_prefix, cache_seconds, rest? }: lower-case host names; site folders ending in "/" or whole paths; { "<site path>": "<key name>" }; "" or key folders ending in "/"; a whole number of seconds, 1 to 86400; rest "not_found" only with hosts; only_listed_by { tool: "tool:<id>", input: { ... }, seconds: 1 to 3600 }.';
 
 /** Checks the settings' served_files; a wrong one throws naming what each field should be. */
 export function servedFilesOf(value: unknown): ServedFiles[] {
@@ -70,9 +92,18 @@ export function servedFilesOf(value: unknown): ServedFiles[] {
       || (rule.paths.length === 0 && Object.keys(named).length === 0)
       || typeof rule.key_prefix !== 'string' || !/^([A-Za-z0-9._-]+\/)*$/.test(rule.key_prefix)
       || !Number.isInteger(rule.cache_seconds) || rule.cache_seconds! < 1 || rule.cache_seconds! > 86400
-      || (rule.rest !== undefined && (rule.rest !== 'not_found' || !rule.hosts?.length))) throw new Error(WORDS);
+      || (rule.rest !== undefined && (rule.rest !== 'not_found' || !rule.hosts?.length))
+      || (rule.only_listed_by !== undefined && !listedByIsGood(rule.only_listed_by))) throw new Error(WORDS);
   }
   return value as ServedFiles[];
+}
+
+function listedByIsGood(by: unknown): boolean {
+  const given = by as Partial<ListedBy> | null;
+  return Boolean(given) && typeof given === 'object' && !Array.isArray(given) && Object.keys(given!).every(key => ['tool', 'input', 'seconds'].includes(key))
+    && typeof given!.tool === 'string' && /^tool:[a-z0-9]+(-[a-z0-9]+)*$/.test(given!.tool)
+    && Boolean(given!.input) && typeof given!.input === 'object' && !Array.isArray(given!.input)
+    && Number.isInteger(given!.seconds) && given!.seconds! >= 1 && given!.seconds! <= 3600;
 }
 
 /** The rule and store key a host's path is, or null when no rule names it. */
@@ -130,7 +161,8 @@ export class StoreFiles {
       return { status: 502, headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' }, body: 'This file could not be read. Try again in a minute.\n' };
     }
     if (!kept) return { status: 404, headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' }, body: 'No such file.\n' };
-    const headers: Record<string, string> = { 'content-type': type, 'cache-control': `public, max-age=${rule.cache_seconds}`, 'accept-ranges': 'bytes', ...(kept.etag ? { etag: kept.etag } : {}) };
+    const maxAge = rule.only_listed_by ? Math.min(rule.cache_seconds, rule.only_listed_by.seconds) : rule.cache_seconds;
+    const headers: Record<string, string> = { 'content-type': type, 'cache-control': `public, max-age=${maxAge}`, 'accept-ranges': 'bytes', ...(kept.etag ? { etag: kept.etag } : {}) };
     const asked = /^bytes=(\d*)-(\d*)$/.exec(range ?? '');
     if (asked && (asked[1] !== '' || asked[2] !== '')) {
       const size = kept.bytes.length;
@@ -195,5 +227,56 @@ export class StoreFiles {
     if (!old) return;
     this.#kept.delete(key);
     this.#bytes -= old.bytes.length;
+  }
+}
+
+/** Every site path ("/...", up to any "?" or "#") a listing tool's answer holds, anywhere in it. */
+export function listedPathsOf(answer: unknown): Set<string> {
+  const paths = new Set<string>();
+  const walk = (value: unknown): void => {
+    if (typeof value === 'string') {
+      const path = value.split(/[?#]/, 1)[0];
+      if (path.startsWith('/') && !path.startsWith('//')) paths.add(path);
+    } else if (Array.isArray(value)) value.forEach(walk);
+    else if (value && typeof value === 'object') Object.values(value).forEach(walk);
+  };
+  walk(answer);
+  return paths;
+}
+
+/** 404 for a path no listing names, 503 while the listing cannot be read: both never kept by a browser. */
+export const NOT_LISTED: Answer = { status: 404, headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' }, body: 'No such file.\n' };
+export const LISTING_UNREAD: Answer = { status: 503, headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store', 'retry-after': '60' }, body: 'This file cannot be shown right now. Try again in a minute.\n' };
+
+/** The paths each only_listed_by tool names, asked of the tool again after its seconds; one ask at a time per tool and input. */
+export class ListedPaths {
+  #lists = new Map<string, { paths: Set<string>; at: number }>();
+  #asking = new Map<string, Promise<Set<string>>>();
+  readonly #run: (call: ToolRun) => Promise<unknown>;
+  readonly #now: () => number;
+
+  constructor(run: (call: ToolRun) => Promise<unknown>, { now = Date.now }: { now?: () => number } = {}) {
+    this.#run = run;
+    this.#now = now;
+  }
+
+  /** True when the listing's latest answer, no older than its seconds, names the path; throws when the listing cannot be read. */
+  async names(by: ListedBy, pathname: string): Promise<boolean> {
+    const key = JSON.stringify([by.tool, by.input]);
+    const kept = this.#lists.get(key);
+    if (kept && this.#now() - kept.at < by.seconds * 1000) return kept.paths.has(pathname);
+    if (!this.#asking.has(key)) {
+      this.#asking.set(key, this.#run({ tool: by.tool, input: by.input })
+        .then(answer => {
+          const paths = listedPathsOf(answer);
+          this.#lists.set(key, { paths, at: this.#now() });
+          return paths;
+        }, error => {
+          this.#lists.delete(key);
+          throw error;
+        })
+        .finally(() => this.#asking.delete(key)));
+    }
+    return (await this.#asking.get(key)!).has(pathname);
   }
 }

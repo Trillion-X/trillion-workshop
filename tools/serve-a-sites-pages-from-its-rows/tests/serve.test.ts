@@ -12,7 +12,8 @@ import { pageStyles } from '../do-work/page-styles.ts';
 import { PageBundles } from '../do-work/render.ts';
 import { ScreenFiles } from '../do-work/screen-files.ts';
 import { handlerOf, MOST_ACTION_BYTES, passOnFor, serverTiming, settingsOf, Site } from '../do-work/serve.ts';
-import type { Settings } from '../do-work/serve.ts';
+import type { Settings, SiteParts } from '../do-work/serve.ts';
+import { StoreFiles } from '../do-work/served-files.ts';
 
 const tools = join(import.meta.dirname, '..', '..');
 const TEXT = 'ui/show/text/Text.tsx';
@@ -88,6 +89,9 @@ const ACTIONS = [
 const LOOK = [{ name: 'theme', value: 'paper' }, { name: 'font-face.body-400', value: 'Body Sans|400|normal|/assets/fonts/body.woff2' }, { name: 'brand-ink', value: '#123456' },
   { name: 'words.form-failed', value: 'The site could not take that. Try again soon.' }];
 
+// The clips tool:read-the-listed-files lists (each as its .mp4 and .jpg); a test changes it to withdraw one.
+let listedClips: string[] = [];
+
 // An engine door on loopback: tools:run of run-sql answers the rows, read-a-greeting answers a Text screen's props, and every
 // call's pass and tool are written down.
 async function door(look = LOOK, pages = PAGES) {
@@ -120,6 +124,8 @@ async function door(look = LOOK, pages = PAGES) {
         result = { kept: 1 };
       } else if (run.tool === 'tool:read-the-site-head') {
         result = { head: '<script>window.consentFirst=1</script>', body_start: '<noscript>tags off</noscript>' };
+      } else if (run.tool === 'tool:read-the-listed-files') {
+        result = { clips: listedClips.map(name => ({ cut_url: `/published-clips/${name}.mp4`, picture_url: `/published-clips/${name}.jpg` })) };
       } else if (run.tool === 'tool:read-a-greeting') {
         result = { as: 'p', children: `Hello, ${run.input.who}` };
       } else {
@@ -146,7 +152,7 @@ const files = new ScreenFiles();
 let styles: Awaited<ReturnType<typeof pageStyles>>;
 test.before(async () => { styles = await pageStyles(tools, files); });
 
-async function siteOn(address: string, more: Record<string, unknown> = {}) {
+async function siteOn(address: string, more: Record<string, unknown> = {}, parts: Partial<SiteParts> = {}) {
   const site = new Site({
     settings: settings(address, more), tools,
     run: (pass, call) => runTool({ address }, pass, call),
@@ -159,6 +165,7 @@ async function siteOn(address: string, more: Record<string, unknown> = {}) {
     files,
     screens: new Map([['tool:read-a-greeting', { file: TEXT, export: 'Text' }], ['tool:fails', { file: TEXT, export: 'Text' }]]),
     log: () => {},
+    ...parts,
   });
   await site.read();
   return site;
@@ -847,4 +854,42 @@ test('a passed-on program is asked for its answer uncompressed, and its whole HT
     assert.doesNotMatch(await (await fetch(`${at}/plain`)).text(), /consentFirst/, 'an entry without site_head passes its page as it is');
     assert.throws(() => settingsOf({ ...settings(d.address), pass_on: [{ name: 'x', address, paths: ['/x'], site_head: 'yes' }] }), /site_head/);
   } finally { server.close(); other.close(); d.server.close(); }
+});
+
+test('a served_files rule with only_listed_by answers a file only while its listing tool lists it: a withdrawn one is 404 within seconds, a failed listing 503', async () => {
+  const d = await door();
+  const store = { endpoint: 'https://store.example.test', region: 'r1', bucket: 'site-files', style: 'path' as const };
+  const asked: string[] = [];
+  const storeFiles = new StoreFiles(store, { id: 'key-id', secret: 'key-secret' }, {
+    fetchImpl: (async (url: string) => { asked.push(new URL(String(url)).pathname); return new Response('clip bytes', { status: 200 }); }) as typeof fetch,
+  });
+  const listing = { tool: 'tool:read-the-listed-files', input: { database: 'a_site_for_who_uses_it', limit: 100 }, seconds: 1 };
+  listedClips = ['aa', 'bb'];
+  try {
+    const site = await siteOn(d.address, {
+      files_store: { ...store, credential: 'store-read' },
+      served_files: [
+        { paths: ['/published-clips/'], key_prefix: 'site-files/', cache_seconds: 86400, only_listed_by: listing },
+        { paths: ['/held-clips/'], key_prefix: 'site-files/', cache_seconds: 300, only_listed_by: { ...listing, tool: 'tool:busy' } },
+      ],
+    }, { storeFiles, storeKey: { id: 'key-id', secret: 'key-secret' } });
+    const before = d.calls.length;
+    const [mp4, jpg, other] = await Promise.all(['/published-clips/aa.mp4', '/published-clips/bb.jpg', '/published-clips/cc.mp4'].map(path => site.answer('GET', path, undefined)));
+    assert.deepEqual([mp4.status, jpg.status, other.status], [200, 200, 404]);
+    assert.equal(mp4.headers['cache-control'], 'public, max-age=1', 'a browser keeps a listed file no longer than the listing\'s seconds');
+    assert.equal(other.headers['cache-control'], 'no-store');
+    assert.deepEqual(asked, ['/site-files/site-files/published-clips/aa.mp4', '/site-files/site-files/published-clips/bb.jpg'], 'an unlisted file is never asked of the store');
+    const listed = d.calls.slice(before).filter(call => call.run.tool === 'tool:read-the-listed-files');
+    assert.equal(listed.length, 1, 'three files at once ask the listing once');
+    assert.equal(listed[0].pass, 'the-site-pass', 'the listing runs with the site\'s own key');
+    assert.deepEqual(listed[0].run.input, { database: 'a_site_for_who_uses_it', limit: 100 }, 'its input as written');
+    listedClips = ['aa'];
+    assert.equal((await site.answer('GET', '/published-clips/bb.jpg', undefined)).status, 200, 'within seconds the kept listing answers');
+    await new Promise(resolve => setTimeout(resolve, 1_100));
+    assert.equal((await site.answer('GET', '/published-clips/bb.jpg', undefined)).status, 404, 'a withdrawn file is 404 once the listing is asked again');
+    assert.equal((await site.answer('GET', '/published-clips/aa.mp4', undefined, undefined, 'bytes=0-3')).status, 206, 'a listed file still answers its range');
+    const held = await site.answer('GET', '/held-clips/aa.mp4', undefined);
+    assert.equal(held.status, 503, 'a listing that does not answer shows nothing it would list');
+    assert.equal(held.headers['cache-control'], 'no-store');
+  } finally { d.server.close(); listedClips = []; }
 });

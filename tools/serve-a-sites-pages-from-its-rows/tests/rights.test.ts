@@ -121,6 +121,19 @@ test('a plain key a mount marks share_by_listing is listed by its very name; one
   assert.deepEqual(real?.find(item => item.path === 'secret_name'), { path: 'secret_name', use_from_input: null, share_by_listing: true });
 });
 
+test('a served_files rule\'s only_listed_by tool is a call the site makes, its database listed under that tool with the pages\' use', () => {
+  const site = {
+    settings: { ...settings, served_files: [{ paths: ['/app.js'] }, { paths: ['/published-clips/'], only_listed_by: { tool: 'tool:read-a-lesson', input: { database: 'site_clips', limit: 100 }, seconds: 60 } }] },
+    pages: [],
+    actions: [],
+  };
+  const { grant, refused } = derivedGrantOf(site, heldOf);
+  assert.deepEqual(refused, []);
+  assert.ok(grant.tools.includes('tool:read-a-lesson'));
+  assert.deepEqual(grant.held_inputs_by_tool['tool:read-a-lesson'], { database: ['site_clips'] });
+  assert.deepEqual(siteCallsOf(site).calls.find(call => call.where === 'settings.served_files[1].only_listed_by')?.input, { database: 'site_clips', limit: 100, use: USE });
+});
+
 test('the held inputs of every tool are read from the tools folder\'s rows', () => {
   const heldIn = heldInputsOfTools(join(import.meta.dirname, '..', '..'));
   assert.deepEqual(heldIn(RUN_SQL)?.find(item => item.path === 'database'), { path: 'database', use_from_input: 'use' });

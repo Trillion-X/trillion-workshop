@@ -211,6 +211,14 @@ Example, a page's visit beacon (a visitor id only with consent, set as a cookie 
   first) and asked of the store again, with its ETag, after `cache_seconds`. A served file answers before page rows, but
   after `pass_on`. A rule with `"rest": "not_found"` (and `hosts`) closes its hosts: every path it does not name is 404,
   ahead of `pass_on` and the page rows (a retired name that keeps only its moved-to page). Example: `{ "hosts": ["app.example.com"], "paths": ["/workspace/", "/app.js"], "named": { "/": "index.html" }, "key_prefix": "site-app-files/", "cache_seconds": 300 }`.
+  A rule with `"only_listed_by": { "tool", "input", "seconds" }` answers a path only while that listing tool's latest answer
+  names it, for files whose showing someone may take back (a published clip whose person withdrew consent). The program runs
+  the tool with the site's own key and the input as written (given the pages' `use` when it names a database and no use, as
+  every site call; `rights.ts` grants it), keeps the answer `seconds` (1 to 3600), and takes every text in it that is a site
+  path (`/...`, up to any `?` or `#`) as the listed paths. A path it does not list is 404 and is never asked of the store; a
+  listing that fails answers 503 until the tool answers again, never from an older list. A listed file's `max-age` is the
+  smaller of `cache_seconds` and `seconds`, so a browser stops showing a withdrawn file within `seconds` too. Example:
+  `{ "hosts": ["example.com"], "paths": ["/published-clips/"], "key_prefix": "site-files/", "cache_seconds": 86400, "only_listed_by": { "tool": "tool:read-the-clips-published-to-a-site", "input": { "database": "a_site_for_who_runs_it", "use": { "purpose": "publish", "surface": "site" }, "limit": 100 }, "seconds": 60 } }`.
 - `address_cookies`: `[{ "query", "cookie", "pattern", "upper_case", "max_age_days", "domain", "http_only" }]`. A value the
   visitor's arrival address carries (`?ref=CODE`) is kept as a cookie by any GET, on the site's own pages and on passed-on
   ones, when it is the whole of `pattern` (after `upper_case`) and only cookie-safe characters; `Path=/; SameSite=Lax;

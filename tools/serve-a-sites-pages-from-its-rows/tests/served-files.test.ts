@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { closedOnHost, servedFilesOf, servedKeyOf, StoreFiles } from '../do-work/served-files.ts';
+import { closedOnHost, ListedPaths, listedPathsOf, servedFilesOf, servedKeyOf, StoreFiles } from '../do-work/served-files.ts';
 import { handlerOf, settingsOf } from '../do-work/serve.ts';
 import type { Site } from '../do-work/serve.ts';
 
@@ -77,6 +77,60 @@ test('served_files are checked with the settings and need a files store', () => 
   assert.throws(() => settingsOf({ ...base, served_files: [RULE] }), /need files_store/);
   assert.deepEqual(settingsOf({ ...base, files_store: { ...STORE, credential: 'store-read' }, served_files: [RULE] }).served_files, [RULE]);
   assert.deepEqual(settingsOf(base).served_files, []);
+});
+
+test('only_listed_by names a tool, an input object and seconds from 1 to 3600, and caps a browser\'s max-age at its seconds', async () => {
+  const by = { tool: 'tool:read-the-listed-files', input: { database: 'a_site', limit: 100 }, seconds: 60 };
+  assert.deepEqual(servedFilesOf([{ ...RULE, only_listed_by: by }])[0].only_listed_by, by);
+  for (const bad of [{ ...by, tool: 'read-the-listed-files' }, { ...by, tool: 'tool:Read' }, { ...by, input: [] }, { ...by, input: null }, { ...by, seconds: 0 },
+    { ...by, seconds: 3601 }, { ...by, seconds: 1.5 }, { ...by, extra: 1 }, 'tool:read-the-listed-files', null]) {
+    assert.throws(() => servedFilesOf([{ ...RULE, only_listed_by: bad }]), /only_listed_by/, JSON.stringify(bad));
+  }
+  const files = new StoreFiles(STORE, KEY, { fetchImpl: (async () => new Response('clip', { status: 200 })) as typeof fetch });
+  assert.equal((await files.answer({ ...RULE, cache_seconds: 86400, only_listed_by: by }, 'site-app-files/a.mp4', undefined)).headers['cache-control'], 'public, max-age=60');
+  assert.equal((await files.answer({ ...RULE, cache_seconds: 30, only_listed_by: by }, 'site-app-files/b.mp4', undefined)).headers['cache-control'], 'public, max-age=30');
+});
+
+test('a listing\'s paths are every site path anywhere in its answer, without query or fragment; links to other places are not paths', () => {
+  const answer = { clips: [{ cut_url: '/published-clips/a.mp4', picture_url: '/published-clips/a.jpg?v=2', pair: { left: { picture_url: '/published-clips/b-left.jpg#x' } } }],
+    note: 'not a path', other: '//elsewhere.example/x.mp4', link: 'https://elsewhere.example/y.mp4', count: 3, none: null };
+  assert.deepEqual([...listedPathsOf(answer)].sort(), ['/published-clips/a.jpg', '/published-clips/a.mp4', '/published-clips/b-left.jpg']);
+});
+
+test('ListedPaths asks the listing once per seconds, one ask at a time, drops a withdrawn path on the next ask, and never stands in an old list for a failed one', async () => {
+  let now = 1_000_000;
+  let listed = ['/published-clips/a.mp4', '/published-clips/b.mp4'];
+  let fail = false;
+  const calls: unknown[] = [];
+  let release: () => void = () => {};
+  let gate: Promise<void> = Promise.resolve();
+  const listing = new ListedPaths(async call => {
+    calls.push(call);
+    await gate;
+    if (fail) throw new Error('the door is down');
+    return { clips: listed.map(cut_url => ({ cut_url })) };
+  }, { now: () => now });
+  const by = { tool: 'tool:read-the-listed-files', input: { database: 'a_site' }, seconds: 60 };
+  gate = new Promise(resolve => { release = resolve; });
+  const asked = [listing.names(by, '/published-clips/a.mp4'), listing.names(by, '/published-clips/c.mp4'), listing.names(by, '/published-clips/b.mp4')];
+  release();
+  assert.deepEqual(await Promise.all(asked), [true, false, true]);
+  assert.deepEqual(calls, [{ tool: 'tool:read-the-listed-files', input: { database: 'a_site' } }], 'three paths at once ask the listing once, with its input as written');
+  now += 59_000;
+  listed = ['/published-clips/a.mp4'];
+  assert.equal(await listing.names(by, '/published-clips/b.mp4'), true, 'within seconds the kept list answers');
+  assert.equal(calls.length, 1);
+  now += 2_000;
+  assert.equal(await listing.names(by, '/published-clips/b.mp4'), false, 'after seconds a withdrawn path is no longer listed');
+  assert.equal(calls.length, 2);
+  now += 61_000;
+  fail = true;
+  await assert.rejects(listing.names(by, '/published-clips/a.mp4'), /the door is down/, 'a failed listing is never answered from the old list');
+  await assert.rejects(listing.names(by, '/published-clips/a.mp4'), /the door is down/, 'and is asked again on the next request');
+  fail = false;
+  assert.equal(await listing.names(by, '/published-clips/a.mp4'), true, 'once the tool answers again its paths answer');
+  assert.equal(await listing.names({ ...by, input: { database: 'another_site' } }, '/published-clips/a.mp4'), true);
+  assert.equal(calls.length, 6, 'another input is its own listing');
 });
 
 test('a host a rule closes (rest not_found) answers only what the rule names: every other path is 404, before pass_on and rows', async () => {
