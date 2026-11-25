@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Read the computer's row from wherever you keep it: its name, address, runs and SSH host key.",
-    "2. Call tools:run with tool tool:check-a-computer-from-inside and input {name, address, runs, engine_program, host_key}. The administrator key is the held value server-administration-ssh-key; it reaches only the hosts its vault entry names.",
+    "2. Call tools:run with tool tool:check-a-computer-from-inside and input {name, address, runs, host_key}. The administrator key is the held value server-administration-ssh-key; it reaches only the hosts its vault entry names.",
     "3. Read findings: disk-filling (warn) and disk-nearly-full (alert), engine-held-no-person (warn when it was held again and holds them now, alert when not), engine-not-answering and unreachable (alert).",
     "4. To see a finding without making it, give pretend: {disks: {\"/\": 93}}, {engines: {\"<unit>\": 0}} or {unreachable: true}; a pretended engine is never asked to hold anyone.",
     "5. To check every computer every fifteen minutes and tell each finding, run workflow:check-every-computer-from-inside."
@@ -33,7 +33,6 @@
               "runs": {
                 "units": []
               },
-              "engine_program": "the-engine",
               "hold_again": false
             }
           }

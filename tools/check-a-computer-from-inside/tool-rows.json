@@ -6,14 +6,13 @@
         "id": "tool:check-a-computer-from-inside",
         "label": "Check a computer from inside",
         "job": "read how full each disk of one of my computers is and whether each engine it runs holds its person, from another computer, and hold the person again when an engine lost them",
-        "description": "Give the computer's row (its name, address and runs), the program its engines run (engine_program) and its pinned SSH host key. It signs in as the computer's administrator with the held key server-administration-ssh-key, reads every disk (df) and asks each engine the row runs for the persons it holds (its ready check on the loopback). A disk at or past warn_used_pct (85 unless given) is a warning and at or past alert_used_pct (92) an alert. An engine that holds no person while its row names one (settings.local_agents) is held again through the engine's own road, POST /persons/add on its agent socket as its own user, read again, and told: a warning when it holds the person again, an alert when it still holds none. Each person folder in the engine's settings.persons folder is measured (du) with its five largest files, as a reading for the caller to keep and compare run by run. A computer that does not answer is an alert; one with no usable address or host key is not checked. pretend replaces what was read ({disks: {mount: percent}, engines: {unit: persons}, unreachable: true}) to see those findings without making them; a pretended engine is never asked. It changes nothing else.",
+        "description": "Give the computer's row (its name, address and runs) and its pinned SSH host key. An engine is any unit of the row that declares a ready check: a loopback listen address and a persons folder (settings.persons); one that runs in a container names ready_in_container and is asked inside that container's network. It signs in as the computer's administrator with the held key server-administration-ssh-key, reads every disk (df) and asks each engine the row runs for the persons it holds (its ready check on the loopback). A disk at or past warn_used_pct (85 unless given) is a warning and at or past alert_used_pct (92) an alert. An engine that holds no person while its row names one (settings.local_agents) is held again through the engine's own road, POST /persons/add on its agent socket as its own user, read again, and told: a warning when it holds the person again, an alert when it still holds none. Each person folder in the engine's settings.persons folder is measured (du) with its five largest files, as a reading for the caller to keep and compare run by run. A computer that does not answer is an alert; one with no usable address or host key is not checked. pretend replaces what was read ({disks: {mount: percent}, engines: {unit: persons}, unreachable: true}) to see those findings without making them; a pretended engine is never asked. It changes nothing else.",
         "status": "active",
         "input_schema": {
           "type": "object",
           "required": [
             "address",
             "runs",
-            "engine_program",
             "host_key"
           ],
           "additionalProperties": false,
@@ -29,12 +28,12 @@
             },
             "runs": {
               "type": "object",
-              "description": "The row's runs: its units that run engine_program are its engines, read for their listen addresses, agent socket and owner persons."
+              "description": "The row's runs: each unit that declares a loopback listen address (slots' health_listen, health_listen or settings.listen) and settings.persons is an engine, read for its ready check, agent socket, owner persons (settings.local_agents) and persons folder; ready_in_container names the container whose network it answers on."
             },
             "engine_program": {
               "type": "string",
               "minLength": 1,
-              "description": "The program a unit of the row runs when it is an engine (its runs.units[].program); the caller's own word."
+              "description": "No longer read: engines are found by their ready check, whatever program they run. Kept so older callers still match this schema."
             },
             "host_key": {
               "type": "string",

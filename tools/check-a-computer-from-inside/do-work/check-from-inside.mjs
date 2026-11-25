@@ -4,14 +4,17 @@ import { realpathSync } from 'node:fs';
 //
 // tool:check-a-computer-from-inside: how full each disk of one computer is, and whether each engine its row runs holds a
 // person, read over SSH as the computer's administrator from another computer. Input { name, address, runs,
-// engine_program, host_key, admin_user?, ssh_port?, warn_used_pct?, alert_used_pct?, hold_again?, pretend? }; answer { name, address,
+// engine_program?, host_key, admin_user?, ssh_port?, warn_used_pct?, alert_used_pct?, hold_again?, pretend? }; answer { name, address,
 // checked, checked_at, disks: [{mount, type, size_bytes, used_bytes, available_bytes, used_pct}], engines: [{unit, user, owners, persons,
 // listens: [{listen, answered, persons, draining}], held_again?, person_folders: [{person, bytes, largest: [{path, bytes}]}]}],
 // findings: [{computer, at, kind, level, about, said,
 // pretend?}] }.
 //
-// The engines are read from the computer's own row (`runs.units`): a unit whose `program` is the input's engine_program
-// is an engine, its slots' (or its own) health_listen are where it answers engine.ready_path, and the persons its
+// The engines are read from the computer's own row (`runs.units`): a unit is an engine when it declares an engine's ready
+// check, a loopback listen address (its slots' health_listen, its own health_listen or settings.listen) and a persons
+// folder (settings.persons), whatever program it runs. An engine that runs inside a container answers only on that
+// container's own network: its unit names `ready_in_container`, and its ready check is asked inside that container's
+// network namespace (nsenter -n with the container's process), with the computer's own curl. The persons its
 // settings.local_agents name are the persons it must hold. An engine that answers 0 persons while its row names one is
 // held again (unless hold_again is false): engine.add_person_path with {"person": ...} on the engine's own agent socket,
 // as the engine's own user, the one road the engine takes a person on; then it is read again. Each person folder in the
@@ -44,13 +47,15 @@ const UNIT = /^[A-Za-z0-9@._-]{1,128}$/;
 const USER = /^[a-z_][a-z0-9_-]{0,31}$/;
 const SOCKET = /^\/[A-Za-z0-9._/-]{1,200}$/;
 const PERSON = /^[A-Za-z0-9_-]{1,128}$/;
+const CONTAINER = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$/;
 
 const unique = values => [...new Set(values)];
 
-/** The engines a computer row's `runs` names, each a unit running `program`: [{unit, user, listens, socket, owners}]. */
-export function enginesOf(runs, program) {
+/** The engines a computer row's `runs` names, each a unit that declares a ready check (a loopback listen address and a
+ *  persons folder): [{unit, user, listens, persons_folder, container, socket, owners}]. */
+export function enginesOf(runs) {
   const units = Array.isArray(runs?.units) ? runs.units : [];
-  return units.filter(unit => unit && typeof program === 'string' && program && unit.program === program).map(unit => {
+  return units.filter(unit => unit && typeof unit.settings?.persons === 'string').map(unit => {
     const slots = unit.slots && typeof unit.slots === 'object' ? Object.values(unit.slots) : [];
     const listens = slots.length
       ? slots.map(slot => slot?.health_listen ?? slot?.['settings.listen'])
@@ -61,10 +66,11 @@ export function enginesOf(runs, program) {
       user: unit.user,
       listens: unique(listens.filter(listen => typeof listen === 'string' && LISTEN.test(listen))),
       persons_folder: typeof unit.settings?.persons === 'string' && SOCKET.test(unit.settings.persons) ? unit.settings.persons.replace(/\/+$/, '') : null,
+      container: typeof unit.ready_in_container === 'string' && CONTAINER.test(unit.ready_in_container) ? unit.ready_in_container : null,
       socket: typeof unit.settings?.agent_socket === 'string' && SOCKET.test(unit.settings.agent_socket) ? unit.settings.agent_socket : null,
       owners: unique(agents.map(agent => agent?.person).filter(person => typeof person === 'string' && PERSON.test(person))),
     };
-  }).filter(engine => typeof engine.unit === 'string' && UNIT.test(engine.unit));
+  }).filter(engine => typeof engine.unit === 'string' && UNIT.test(engine.unit) && engine.persons_folder && engine.listens.length);
 }
 
 /** The units of a computer row systemd is asked about: every unit name the row runs, except one run in slots (each slot
@@ -82,7 +88,10 @@ export function readScript(engines, units = []) {
   const lines = [`echo '${MARK}df'`, 'df -P -T -B1 2>/dev/null'];
   engines.forEach((engine, index) => engine.listens.forEach(listen => {
     if (!LISTEN.test(listen)) throw new Error(`An engine's listen address was refused: ${listen}.`);
-    lines.push(`echo '${MARK}ready ${index} ${listen}'`, `curl -s -m ${seconds} http://${listen}${SETTINGS.engine.ready_path}; echo`);
+    // An engine in a container is asked on that container's network: enter it by the container's process, keep this curl.
+    const inside = engine.container ? `nsenter -t "$(docker inspect -f '{{.State.Pid}}' '${engine.container}' 2>/dev/null)" -n ` : '';
+    if (engine.container && !CONTAINER.test(engine.container)) throw new Error(`An engine's container name was refused: ${engine.container}.`);
+    lines.push(`echo '${MARK}ready ${index} ${listen}'`, `${inside}curl -s -m ${seconds} http://${listen}${SETTINGS.engine.ready_path}; echo`);
   }));
   const largest = Number(SETTINGS.persons.largest_files);
   engines.forEach((engine, index) => {
@@ -235,7 +244,7 @@ export async function checkFromInside(input, options = {}) {
   if (!(warn > 0 && alert >= warn && alert <= 100)) throw new Error('warn_used_pct and alert_used_pct were refused: give 0 < warn <= alert <= 100.');
   const run = options.run ?? sshRunner(host, options.keyFile);
   const pretend = input.pretend && typeof input.pretend === 'object' ? input.pretend : {};
-  const engines = enginesOf(input.runs, input.engine_program);
+  const engines = enginesOf(input.runs);
   const read = pretend.unreachable ? { status: 255, stdout: '', stderr: 'pretended: no answer' } : run(readScript(engines, unitsOf(input.runs)));
   if (read.status !== 0 || !read.stdout.includes(`${MARK}end`)) {
     const said = `${name} could not be read over SSH: ${(read.stderr || `exit ${read.status}`).trim().split('\n').at(-1)}.`;

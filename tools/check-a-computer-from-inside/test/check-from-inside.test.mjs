@@ -10,8 +10,11 @@ const HOST_KEY = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMadeUpMadeUpMadeUpMadeUpM
 const OWNER = 'made-up-person_0001';
 const engineUnit = { unit: 'engine-for-someone.service', user: 'engine-for-someone', program: 'the-engine',
   slots: { a: { health_listen: '127.0.0.1:7199' }, b: { health_listen: '127.0.0.1:7198' } },
-  settings: { agent_socket: '/var/lib/engine-for-someone/agent.sock', local_agents: [{ id: 'root', uid: 0, person: OWNER }] } };
-const gatewayUnit = { unit: 'passes-requests.service', user: 'passes-requests', program: 'the-engine', health_listen: '127.0.0.1:7299', settings: { listen: '127.0.0.1:7299' } };
+  settings: { agent_socket: '/var/lib/engine-for-someone/agent.sock', persons: '/var/lib/engine-for-someone/persons', local_agents: [{ id: 'root', uid: 0, person: OWNER }] } };
+const gatewayUnit = { unit: 'passes-requests.service', user: 'passes-requests', program: 'the-engine', health_listen: '127.0.0.1:7299', settings: { listen: '127.0.0.1:7299', persons: '/var/lib/passes-requests/persons' } };
+// An engine run as a container: no program of its own in the row, its settings on the unit that hands it its key.
+const containerUnit = { unit: 'engine-key.service', user: 'engine-in-a-box', command: '/bin/sleep infinity', ready_in_container: 'the-engine-1',
+  settings: { listen: '127.0.0.1:7199', persons: '/var/lib/engine-in-a-box/persons', agent_socket: '/var/lib/engine-in-a-box/agent.sock', local_agents: [{ id: 'root', uid: 0, person: OWNER }] } };
 const siteUnit = { unit: 'a-site.service', user: 'a-site', program: 'serve.mjs' };
 const computer = (units, more = {}) => ({ name: 'made-up', address: '192.0.2.10', host_key: HOST_KEY, engine_program: 'the-engine', runs: { units }, ...more });
 
@@ -51,12 +54,13 @@ function computerAnswering(answers, { addStatus = '200', afterAdd = {}, folders 
 }
 
 test('an engine is read from its row: its slots, its agent socket and the persons it must hold', () => {
-  const [engine, gateway] = enginesOf({ units: [engineUnit, gatewayUnit, siteUnit] }, 'the-engine');
-  assert.deepEqual(engine, { unit: 'engine-for-someone.service', user: 'engine-for-someone', listens: ['127.0.0.1:7199', '127.0.0.1:7198'], persons_folder: null, socket: '/var/lib/engine-for-someone/agent.sock', owners: [OWNER] });
+  const [engine, gateway] = enginesOf({ units: [engineUnit, gatewayUnit, siteUnit] });
+  assert.deepEqual(engine, { unit: 'engine-for-someone.service', user: 'engine-for-someone', listens: ['127.0.0.1:7199', '127.0.0.1:7198'], persons_folder: '/var/lib/engine-for-someone/persons', container: null, socket: '/var/lib/engine-for-someone/agent.sock', owners: [OWNER] });
   assert.deepEqual(gateway.owners, [], 'an engine whose row names no local agent must hold no one');
-  assert.equal(enginesOf({ units: [siteUnit] }, 'the-engine').length, 0);
-  assert.equal(enginesOf({ units: [engineUnit] }).length, 0, 'with no engine program named, no unit is an engine');
-  assert.deepEqual(enginesOf({ units: [{ ...gatewayUnit, health_listen: '0.0.0.0:7299', settings: {} }] }, 'the-engine')[0].listens, [], 'only a loopback address is asked');
+  assert.equal(enginesOf({ units: [siteUnit] }).length, 0, 'a unit with no ready check is no engine');
+  assert.equal(enginesOf({ units: [{ ...engineUnit, program: 'anything-else' }] }).length, 1, 'an engine is found by its ready check, whatever program it runs');
+  assert.equal(enginesOf({ units: [{ ...engineUnit, settings: { ...engineUnit.settings, persons: undefined } }] }).length, 0, 'a listen address with no persons folder is no engine');
+  assert.equal(enginesOf({ units: [{ ...gatewayUnit, health_listen: '0.0.0.0:7299', settings: { listen: '0.0.0.0:7299', persons: '/p' } }] }).length, 0, 'only a loopback address is asked');
 });
 
 test('a disk under its warning line and an engine that holds its person are no finding', async () => {
@@ -193,5 +197,16 @@ test('each person folder of an engine is measured with its largest files, and no
   ]);
   assert.deepEqual(seen.findings, [], 'a folder size is a reading, not a finding');
   assert.equal(seen.engines.length, 1);
-  assert.equal((await checkFromInside(computer([engineUnit]), { run })).engines[0].person_folders, undefined, 'an engine whose row names no persons folder is not measured');
+  assert.equal((await checkFromInside(computer([engineUnit]), { run })).engines[0].person_folders.length, 2, 'a persons folder named with no trailing slash is measured the same');
+});
+
+test('an engine in a container is found by its ready check and asked inside that container\'s network', async () => {
+  const [engine] = enginesOf({ units: [containerUnit, siteUnit] });
+  assert.equal(engine.container, 'the-engine-1');
+  const { run, scripts } = computerAnswering({ '127.0.0.1:7199': ready(1) });
+  const seen = await checkFromInside(computer([containerUnit], { engine_program: undefined }), { run });
+  assert.match(scripts[0], /nsenter -t "\$\(docker inspect -f '\{\{\.State\.Pid\}\}' 'the-engine-1' 2>\/dev\/null\)" -n curl -s -m 5 http:\/\/127\.0\.0\.1:7199\/readyz/);
+  assert.deepEqual([seen.engines[0].unit, seen.engines[0].persons], ['engine-key.service', 1]);
+  assert.deepEqual(seen.findings, []);
+  assert.equal(enginesOf({ units: [{ ...containerUnit, ready_in_container: "x'; reboot" }] })[0].container, null, 'a container name outside its shape is never written into a command');
 });
