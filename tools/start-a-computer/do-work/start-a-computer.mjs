@@ -784,11 +784,16 @@ export function healthOf(given = {}) {
   return health;
 }
 
-/** A command run on the computer until it exits 0, tried `tries` times; the last failure is the error. */
+/**
+ * A command run on the computer until it exits 0, tried `tries` times; the last failure is the error. A command that exits
+ * settings `check_command.stop_trying_exit` says trying again cannot pass (a door that refused the unit's rights, say), so it
+ * is the error at once: the apply fails in seconds and puts back what it changed, instead of asking for another minute.
+ */
 async function commandPasses(machine, command, { run, wait, tries }, what) {
   for (let i = 1; ; i++) {
     try { await run(machine, command); return; }
     catch (error) {
+      if (error.code === SETTINGS.check_command.stop_trying_exit) throw Object.assign(new Error(`${what} said trying again cannot pass (exit ${error.code}): ${error.message}`), { code: error.code });
       if (i >= tries) throw Object.assign(new Error(`${what} did not pass after the restart: ${error.message}`), { code: error.code });
       await wait(5000);
     }

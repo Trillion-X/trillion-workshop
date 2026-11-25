@@ -288,6 +288,29 @@ test('a unit with a check_command is booted when the command passes, and the app
   await assert.rejects(applyWhatItRuns(machine, withCheck, never, {}, { wait: async () => {} }), /example-place\.service's check_command did not pass after the restart: no response/);
 });
 
+// A check that knows trying again cannot pass (the door refused the unit's rights) exits the stop-trying code: one try, no wait.
+test('a check_command that exits the stop-trying code fails the apply at once, without its other tries', async () => {
+  const withCheck = { ...runs, units: [{ ...runs.units[0], check_command: 'door-call' }] };
+  let tries = 0;
+  let waits = 0;
+  const refused = async (m, command, input) => {
+    if (command === 'door-call') { tries += 1; throw Object.assign(new Error('the door refused: current_workspace_rights_refused'), { code: 77 }); }
+    return computer({}).run(m, command, input);
+  };
+  await assert.rejects(applyWhatItRuns(machine, withCheck, refused, {}, { wait: async () => { waits += 1; } }),
+    /example-place\.service's check_command said trying again cannot pass \(exit 77\): the door refused: current_workspace_rights_refused/);
+  assert.equal(tries, 1, 'asked once');
+  assert.equal(waits, 0, 'no wait between tries');
+  // Any other failing exit is still tried again, all 12 times.
+  let others = 0;
+  const failing = async (m, command, input) => {
+    if (command === 'door-call') { others += 1; throw Object.assign(new Error('not yet'), { code: 1 }); }
+    return computer({}).run(m, command, input);
+  };
+  await assert.rejects(applyWhatItRuns(machine, withCheck, failing, {}, { wait: async () => {} }), /did not pass after the restart: not yet/);
+  assert.equal(others, 12);
+});
+
 test('a unit whose files a container reads restarts that container after it, with what joined its network, and waits for it', async () => {
   const inBox = { ...runs, units: [{ ...runs.units[0], check_command: 'key-is-there', ready_in_container: { compose_project: 'the-engine', service: 'engine' } }] };
   const live = Object.fromEntries(renderWhatItRuns(inBox).map(({ path, text }) => [path, text]));

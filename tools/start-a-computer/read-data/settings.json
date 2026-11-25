@@ -12,6 +12,10 @@
     "status": 200,
     "where": "public"
   },
+  "check_command": {
+    "_what": "A unit's check_command (and a container's ready command, and switch_check_command) is tried every 5 seconds until it exits 0. One that exits `stop_trying_exit` says trying again cannot pass, such as a door that refused the unit's rights, so the apply fails at once instead of asking again (Nov 25 2026: a site unit whose door key lacked its tools failed only after 12 tries, a minute each time). 77 is sysexits' EX_NOPERM.",
+    "stop_trying_exit": 77
+  },
   "ssh_reuse_path": "/tmp/start-a-computer-%C",
   "ssh_reuse_seconds": 60,
   "unit_restarts": {
@@ -40,13 +44,22 @@
     "_what": "What a unit's template reads when its row gives none: the build link in its builds folder it runs (`current`; a slot runs `current-<slot>`), and the seconds systemd waits for its stop before it ends the unit (`stop_seconds`; a unit that finishes long calls on a stop names more, longer than its own drain), and when systemd keeps its folder under /run (`runtime_preserve`: `restart` keeps it only across a restart; units that share one folder, such as two slots of one program, say `yes`, so the slot that stops never removes the folder the other one serves from).",
     "current": "current",
     "stop_seconds": 30,
-  "runtime_preserve": "restart"
+    "runtime_preserve": "restart"
   },
   "prebuilt_store": "~/.cache/start-a-computer/built",
   "build_limits": {
     "_what": "What a source build on the computer may use, by the kind of build (its argv's program name; `default` for any other): `memory_max`, the memory at which the kernel ends the build alone, and `seconds`, how long it may run before it is ended and the apply fails with build_over_time. The build runs in a systemd scope with MemoryMax and MemorySwapMax=0 and no MemoryHigh: a MemoryHigh below the max only slows a build that outgrows it, for ever (Nov 21 2026, 8:07-8:21 PM CST: a build held at 150M of a 200M cap crawled at 93% memory pressure, never ended, and held the apply), so a build past its memory is ended at once and a build past its time is ended whole (Nov 21 2026, 6:12:04-6:12:29 PM CST: a site's npm ci with no cap on the 3.8 GB always-on, which has no swap, stalled every site it served for 25 s). Sized for an 8 GB computer that also runs an engine (about 1.4 GB), a database and its sites. A unit's `source.limits` ({ memory_max, seconds }, either) replaces its kind's value.",
-    "default": { "memory_max": "1G", "seconds": 900 },
-    "npm": { "memory_max": "2G", "seconds": 900 },
-    "cargo": { "memory_max": "3G", "seconds": 3600 }
+    "default": {
+      "memory_max": "1G",
+      "seconds": 900
+    },
+    "npm": {
+      "memory_max": "2G",
+      "seconds": 900
+    },
+    "cargo": {
+      "memory_max": "3G",
+      "seconds": 3600
+    }
   }
 }
