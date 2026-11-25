@@ -16,7 +16,7 @@ const gatewayUnit = { unit: 'passes-requests.service', user: 'passes-requests', 
 const containerUnit = { unit: 'engine-key.service', user: 'engine-in-a-box', command: '/bin/sleep infinity', ready_in_container: 'the-engine-1',
   settings: { listen: '127.0.0.1:7199', persons: '/var/lib/engine-in-a-box/persons', agent_socket: '/var/lib/engine-in-a-box/agent.sock', local_agents: [{ id: 'root', uid: 0, person: OWNER }] } };
 const siteUnit = { unit: 'a-site.service', user: 'a-site', program: 'serve.mjs' };
-const computer = (units, more = {}) => ({ name: 'made-up', address: '192.0.2.10', host_key: HOST_KEY, engine_program: 'the-engine', runs: { units }, ...more });
+const computer = (units, more = {}) => ({ name: 'made-up', address: '192.0.2.10', host_key: HOST_KEY, engine_program: 'the-engine', runs: { units }, row_read_at: new Date().toISOString(), ...more });
 
 const DF = [
   'Filesystem     Type     1024-blocks        Used   Available Capacity Mounted on',
@@ -181,6 +181,8 @@ test('only the row\'s runs as read now are checked: no units list, or a row read
   assert.match(later.why, /is after this check began/);
   const garbled = await checkFromInside(computer([siteUnit], { row_read_at: 'this morning' }), notAsked);
   assert.match(garbled.why, /row_read_at was refused/);
+  const untold = await checkFromInside(computer([siteUnit], { row_read_at: undefined }), notAsked);
+  assert.match(untold.why, /row_read_at was not given/);
 });
 
 test('a row read just now is checked unit by unit, and the units asked are answered with it', async () => {
@@ -192,7 +194,7 @@ test('a row read just now is checked unit by unit, and the units asked are answe
   assert.deepEqual(seen.units_asked, ['a-site.service', 'a-dropped.service']);
   assert.deepEqual(seen.findings.map(finding => [finding.kind, finding.about]), [['unit-missing', 'a-dropped.service']]);
   const none = await checkFromInside(computer([]), { run: computerAnswering({}).run });
-  assert.deepEqual([none.checked, none.units_asked, none.row_read_at], [true, [], null], 'a computer that runs no unit is checked for its disks');
+  assert.deepEqual([none.checked, none.units_asked], [true, []], 'a computer that runs no unit is checked for its disks');
 });
 
 test('nothing outside its shape is written into a command', () => {

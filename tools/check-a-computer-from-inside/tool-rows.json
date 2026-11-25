@@ -13,6 +13,7 @@
           "required": [
             "address",
             "runs",
+            "row_read_at",
             "host_key"
           ],
           "additionalProperties": false,
@@ -99,7 +100,7 @@
             },
             "row_read_at": {
               "type": "string",
-              "description": "When the caller read the computer row these runs came from (an ISO time). A row read more than settings.json row.max_age_seconds (300) before the check is answered checked: false, so a unit the row has since dropped or added is never misread."
+              "description": "When the caller read the computer row these runs came from (an ISO time), read in the same statement as the runs. A row read more than settings.json row.max_age_seconds (300) before the check, or a call without it, is answered checked: false, so a unit the row has since dropped or added is never misread."
             }
           }
         },
