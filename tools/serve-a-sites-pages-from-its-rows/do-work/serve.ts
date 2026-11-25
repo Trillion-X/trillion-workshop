@@ -91,7 +91,7 @@ import { filesStoreOf, isPublicPath, memberFileAnswer, memberFilesOf, objectKeyO
 import type { FilesStore, MemberFiles, PublicFiles, StoreKey } from './member-video.ts';
 import { closedOnHost, servedFilesOf, servedKeyOf, StoreFiles } from './served-files.ts';
 import type { ServedFiles } from './served-files.ts';
-import { filledInput, matchPage, pagesOf, pagesOn, pathWith, PAGES_SQL, paramsOf, slugsSql } from './pages.ts';
+import { filledInput, hasWordsPlace, matchPage, NOT_FOUND, pagesOf, pagesOn, pathWith, PAGES_SQL, paramsOf, slugsSql } from './pages.ts';
 import type { PageRow, Refused } from './pages.ts';
 import { actionsOf, actionsSql, bodyOf, cookiesOf, filled, matchAction, sendableAddress, setCookieOf } from './actions.ts';
 import type { ActionReply, ActionRow, Asked } from './actions.ts';
@@ -159,7 +159,6 @@ const MOST_KEPT_ANSWERS = 1000;
 export const MOST_ACTION_BYTES = 65536;
 /** The longest a stop waits for the calls already taken, inside a unit's 30 s stop time. */
 const STOP_MS = 25_000;
-const NOT_FOUND = '/404';
 export const LOCAL_LISTEN = '127.0.0.1:18440';
 // Stands for the site's own caller when reads go through a command: no pass is held then.
 const COMMAND_PASS = 'the computer\'s own command';
@@ -399,13 +398,13 @@ export class Site {
     return this.#head ? withSiteHead(html, this.#head) : html;
   }
 
-  async #drawn(page: PageRow, params: Record<string, string>, host: string, pathname: string, run: (call: ToolRun) => Promise<unknown>, status: number, cache: string, query = new URLSearchParams(), outcome?: FormOutcomeProps): Promise<Answer> {
+  async #drawn(page: PageRow, params: Record<string, string>, host: string, pathname: string, run: (call: ToolRun) => Promise<unknown>, status: number, cache: string, query = new URLSearchParams(), outcome?: FormOutcomeProps, words?: DrawnNode): Promise<Answer> {
     if (page.layout && 'go_to' in page.layout) {
       const goTo = pathWith(page.layout.go_to, params);
       const body = await this.#document(page.title ?? goTo, host, pathname, wordsTree(page.title ?? '', goTo), goTo);
       return { status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': cache }, body };
     }
-    const { drawn, timed, answerOf } = await drawnTreeOf(treeOf(page, params, query), this.#parts.screens, run);
+    const { drawn, timed, answerOf } = await drawnTreeOf(treeOf(page, params, query), this.#parts.screens, run, words);
     const answered = page.tool ? answerOf({ tool: page.tool, input: filledInput(page.input, params, query) })?.title : undefined;
     const title = page.title ?? (typeof answered === 'string' && answered.trim() ? answered : null);
     if (title === null) throw new Error(`page ${page.path}: its row has no title and ${page.tool} answered none.`);
@@ -413,8 +412,22 @@ export class Site {
     return { status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': cache, 'server-timing': serverTiming(timed) }, body };
   }
 
+  /**
+   * A page of words: the shared card (render.ts wordsTree) at the { "words": true } place of the host's public not-found row,
+   * so it wears the site's frame, or alone when the site has no such row or its frame cannot be drawn now.
+   */
   async #words(status: number, heading: string, words: string, host: string, pathname: string, back?: { href: string; label: string }): Promise<Answer> {
-    const body = await this.#document(heading, host, pathname, wordsTree(heading, words, back));
+    const card = wordsTree(heading, words, back);
+    const frame = pagesOn(this.#pages, host).find(row => row.path === NOT_FOUND && row.access === 'public' && hasWordsPlace(row.layout));
+    if (frame) {
+      try {
+        const framed = await this.#drawn({ ...frame, title: heading }, {}, host, pathname, call => this.#publicRun(call), status, 'no-store', undefined, undefined, card);
+        return { ...framed, headers: { ...framed.headers, 'cache-control': 'no-store' } };
+      } catch (error) {
+        this.#log(`${pathname}: the site's words page could not be drawn, so its words are drawn alone: ${(error as Error).message}`);
+      }
+    }
+    const body = await this.#document(heading, host, pathname, card);
     return { status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }, body };
   }
 
@@ -436,7 +449,7 @@ export class Site {
 
   async #notFound(pages: PageRow[], host: string, pathname: string): Promise<Answer> {
     const page = pages.find(row => row.path === NOT_FOUND && row.access === 'public');
-    if (page) return this.#drawn(page, {}, host, pathname, call => this.#publicRun(call), 404, 'no-store');
+    if (page && !hasWordsPlace(page.layout)) return this.#drawn(page, {}, host, pathname, call => this.#publicRun(call), 404, 'no-store');
     return this.#words(404, 'Not found', 'There is no page at this address.', host, pathname);
   }
 

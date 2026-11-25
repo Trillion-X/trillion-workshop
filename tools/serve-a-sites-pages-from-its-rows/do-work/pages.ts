@@ -27,6 +27,11 @@
 //   A screen's props are its tool's answer; a tool or main node's `props` are the page's own words the screen also takes
 //   (a heading, a lede), under the answer, so a row never changes what the tool answered.
 //     { "text": "..." }                         words
+//     { "words": true }                         only in the not-found row (path NOT_FOUND, "/404"): where the tool places the
+//                                               words of every page it draws without a page row (not found, not open to you,
+//                                               could not be drawn, a form post that did not go through), so those pages
+//                                               wear the site's own frame (its nav, its shell); the not-found row is then the
+//                                               site's words page, and "There is no page at this address." fills it for a 404
 //     { "go_to": "<address>" }                  the whole layout of a page that has moved: it answers 200 and the browser goes on
 //                                               to that address (an http(s) address, or a path of this site); a
 //                                               ":name" part in it takes the path's value, as in /articles/:slug
@@ -47,8 +52,20 @@ export type LayoutNode =
   | { tool: string; input?: unknown; part?: string; export?: string; props?: Record<string, unknown> }
   | { main: true; props?: Record<string, unknown> }
   | { text: string }
+  | { words: true }
   | { nodes: LayoutNode[] }
   | { go_to: string };
+
+/** The not-found row's path: drawn for an address no row answers, and, with a { "words": true } node, every words page. */
+export const NOT_FOUND = '/404';
+
+/** Whether a layout holds the { "words": true } place. */
+export function hasWordsPlace(node: LayoutNode | null): boolean {
+  if (!node) return false;
+  if ('words' in node) return true;
+  if ('nodes' in node) return node.nodes.some(hasWordsPlace);
+  return 'children' in node && (node.children ?? []).some(hasWordsPlace);
+}
 
 export interface PageRow {
   path: string;
@@ -101,8 +118,8 @@ function exportOf(name: unknown, where: string): string {
   return given;
 }
 
-function checkNode(node: unknown, where: string, hasTool: boolean): LayoutNode {
-  if (Array.isArray(node)) return { nodes: node.map((child, i) => checkNode(child, `${where}[${i}]`, hasTool)) };
+function checkNode(node: unknown, where: string, hasTool: boolean, wordsPage: boolean): LayoutNode {
+  if (Array.isArray(node)) return { nodes: node.map((child, i) => checkNode(child, `${where}[${i}]`, hasTool, wordsPage)) };
   const n = node as Record<string, unknown> | null;
   if (!n || typeof n !== 'object') throw new PageRowError(`${where}: a layout node is an object or a list of them.`);
   if ('go_to' in n) {
@@ -113,6 +130,10 @@ function checkNode(node: unknown, where: string, hasTool: boolean): LayoutNode {
   if ('text' in n) {
     if (typeof n.text !== 'string') throw new PageRowError(`${where}: text is words.`);
     return { text: n.text };
+  }
+  if ('words' in n) {
+    if (n.words !== true || !wordsPage || Object.keys(n).length !== 1) throw new PageRowError(`${where}: {"words": true} stands alone, only in the ${NOT_FOUND} row.`);
+    return { words: true };
   }
   if ('main' in n) {
     if (n.main !== true || !hasTool) throw new PageRowError(`${where}: {"main": true} stands only in a page whose row names a tool.`);
@@ -130,7 +151,7 @@ function checkNode(node: unknown, where: string, hasTool: boolean): LayoutNode {
   const part = partOf(n.part, where);
   if (n.props !== undefined && (typeof n.props !== 'object' || n.props === null || Array.isArray(n.props))) throw new PageRowError(`${where}: props is an object.`);
   if (n.children !== undefined && !Array.isArray(n.children)) throw new PageRowError(`${where}: children is a list of nodes.`);
-  const children = (n.children as unknown[] | undefined)?.map((child, i) => checkNode(child, `${where}.children[${i}]`, hasTool));
+  const children = (n.children as unknown[] | undefined)?.map((child, i) => checkNode(child, `${where}.children[${i}]`, hasTool, wordsPage));
   return { part, export: name, ...(n.props ? { props: n.props as Record<string, unknown> } : {}), ...(children ? { children } : {}) };
 }
 
@@ -162,7 +183,7 @@ export function pageOf(row: Record<string, unknown>): PageRow {
     path,
     title: title as string | null,
     access: row.access,
-    layout: layout === null ? null : checkNode(layout, `${where} layout`, tool !== null),
+    layout: layout === null ? null : checkNode(layout, `${where} layout`, tool !== null, path === NOT_FOUND),
     tool: tool as string | null,
     input: row.input ?? {},
     collection: collection as string | null,

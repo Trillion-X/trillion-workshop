@@ -32,6 +32,8 @@ test('a row that breaks a rule is refused with its path and why', () => {
     [row({ path: '/a', title: ' ' }), /title/],
     [row({ path: '/a', layout: [{ part: 'Screen' }] }), /layout\[0\]: part/],
     [row({ path: '/a', layout: [{ go_to: '/b' }] }), /go_to is a whole layout/],
+    [row({ path: '/a', layout: [{ words: true }] }), /only in the \/404 row/],
+    [row({ path: '/404', layout: [{ words: true, props: {} }] }), /stands alone/],
     [row({ path: '/a', layout: { go_to: 'javascript:alert(1)' } }), /go_to is an http/],
     [row({ path: '/a', access: 'everyone' }), /access/],
     [row({ path: '/a', tool: 'read-a-thing' }), /tool is/],

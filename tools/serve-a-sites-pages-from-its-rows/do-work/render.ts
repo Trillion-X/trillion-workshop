@@ -72,6 +72,8 @@ export const MOUNT = 'root';
 /** Words drawn with the shared Text part, for a page of plain words (not found, refused, not reachable). */
 export const TEXT_PART = 'ui/show/text/Text.tsx#Text';
 export const BUTTON_PART = 'ui/show/button/Button.tsx#Button';
+export const CARD_PART = 'ui/show/card/Card.tsx#Card';
+export const CONTAINER_PART = 'ui/show/container/container.tsx#Container';
 /** A page drawn again around a form whose post did not go through: the message at that form and the typed values put back. */
 export const FORM_OUTCOME_PART = 'serve-a-sites-pages-from-its-rows/show/FormOutcome.tsx#FormOutcome';
 
@@ -102,7 +104,7 @@ export function treeOf(page: PageRow, params: Record<string, string>, query: URL
   const props = (given: Record<string, unknown> | undefined) => (given ? { props: filledInput(given, params, query) as Record<string, unknown> } : {});
   const swap = (node: LayoutNode): LayoutNode => {
     if ('main' in node) return node.props ? { ...main!, ...props(node.props) } as LayoutNode : main!;
-    if ('go_to' in node || 'text' in node) return node;
+    if ('go_to' in node || 'text' in node || 'words' in node) return node;
     if ('nodes' in node) return { nodes: node.nodes.map(swap) };
     if ('tool' in node) return { ...node, input: filledInput(node.input ?? {}, params, query), ...props(node.props) };
     return { ...node, ...props(node.props), ...(node.children ? { children: node.children.map(swap) } : {}) };
@@ -132,8 +134,11 @@ function toolNodesOf(node: LayoutNode): Extract<LayoutNode, { tool: string }>[] 
   return [];
 }
 
-/** The tree with every tool node drawn by its screen with its answer, ready for render-layout.ts. */
-export async function drawnTreeOf(tree: LayoutNode, screens: Map<string, Screen>, run: (call: ToolRun) => Promise<unknown>): Promise<{ drawn: DrawnNode; timed: Timed[]; answerOf: (call: ToolRun) => Record<string, unknown> | undefined }> {
+/**
+ * The tree with every tool node drawn by its screen with its answer, ready for render-layout.ts; a { "words": true } place
+ * holds `words` (a words page's card), and a tree with that place and no words given is not drawn.
+ */
+export async function drawnTreeOf(tree: LayoutNode, screens: Map<string, Screen>, run: (call: ToolRun) => Promise<unknown>, words?: DrawnNode): Promise<{ drawn: DrawnNode; timed: Timed[]; answerOf: (call: ToolRun) => Record<string, unknown> | undefined }> {
   const runs = runsOf(tree);
   const unscreened = toolNodesOf(tree).find(node => node.part === undefined && !screens.has(node.tool));
   if (unscreened) throw new Error(`${unscreened.tool} has no module screen in its card, so no page can draw it.`);
@@ -148,6 +153,10 @@ export async function drawnTreeOf(tree: LayoutNode, screens: Map<string, Screen>
   const drawn = (node: LayoutNode): DrawnNode => {
     if ('text' in node) return { text: node.text };
     if ('go_to' in node) return { text: node.go_to };
+    if ('words' in node) {
+      if (!words) throw new Error('A words place was left in a page that is not a words page.');
+      return words;
+    }
     if ('nodes' in node) return { nodes: node.nodes.map(drawn) };
     if ('tool' in node) {
       const screen = node.part === undefined ? screens.get(node.tool)! : { file: node.part, export: node.export ?? 'View' };
@@ -159,14 +168,22 @@ export async function drawnTreeOf(tree: LayoutNode, screens: Map<string, Screen>
   return { drawn: drawn(tree), timed, answerOf: call => answers.get(runKey(call.tool, call.input)) };
 }
 
-/** A page of plain words: a heading and a line, each the shared Text part. */
+/**
+ * A page's plain words (not found, not open to you, could not be drawn, a form post that did not go through): a card centred
+ * in its place, a heading and a line, each the shared Container, Card and Text parts, and a way back as the shared Button.
+ * Drawn in the site's not-found row at its { "words": true } place when it has one, else alone on the page.
+ */
 export function wordsTree(heading: string, words: string, back?: { href: string; label: string }): DrawnNode {
   return {
-    module: TEXT_PART, props: { as: 'section', variant: 'body' }, children: [
-      { module: TEXT_PART, props: { variant: 'heading-xl' }, children: [{ text: heading }] },
-      { module: TEXT_PART, props: { variant: 'body' }, children: [{ text: words }] },
-      // A failed form's way back to the form it came from: the shared Button, drawn as a link.
-      ...(back ? [{ module: BUTTON_PART, props: { href: back.href, variant: 'outline' }, children: [{ text: back.label }] }] : []),
+    module: CONTAINER_PART, props: { as: 'section', layout: 'vertical', alignItems: 'center', justifyContent: 'center', padding: 'xl', width: 'full', minHeight: '60vh' }, children: [
+      { module: CARD_PART, props: { variant: 'surface', padding: 'lg' }, children: [
+        { module: CONTAINER_PART, props: { as: 'section', layout: 'vertical', gap: 'lg', maxWidth: 'md' }, children: [
+          { module: TEXT_PART, props: { as: 'h1', variant: 'heading-xl' }, children: [{ text: heading }] },
+          { module: TEXT_PART, props: { variant: 'body' }, children: [{ text: words }] },
+          // A failed form's way back to the form it came from: the shared Button, drawn as a link.
+          ...(back ? [{ module: BUTTON_PART, props: { href: back.href, variant: 'outline' }, children: [{ text: back.label }] }] : []),
+        ] },
+      ] },
     ],
   };
 }

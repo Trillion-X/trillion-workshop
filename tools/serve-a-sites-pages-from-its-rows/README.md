@@ -59,14 +59,17 @@ the door's words). It needs Node 26.13 or newer
 | `/sitemap.xml` | every public page address; a template page lists one address per `slug` of its collection |
 | a page row's address | the page, drawn on the server; a members page only for a member, sent `private, no-store` |
 | a members address, signed out | `sign_in.signed_out: "redirect"`: 302 to `sign_in.page?next=<address>`; `"draw"`: the page row at `sign_in.page`, drawn at that address, 200 |
-| anything else | the page row `/404`, or plain words, with status 404 |
+| anything else | the page row `/404` (with its words place: "There is no page at this address." there), or the words alone, with status 404 |
 
 One unit answers every host in `origin` and `hosts`: a request's host is its `X-Forwarded-Host` when the front web server sets
 it, else its `Host`; any other host is answered as `origin`'s. Canonical addresses and the sitemap use the request's host. The
 page's mount is `#root`.
 
-A tool that fails draws a 502 page of plain words; the door refusing a member draws 403. Each page's tool runs are timed in its
-`Server-Timing` header.
+A tool that fails draws a 502 words page; the door refusing a member draws 403. A words page (not found, not open to you, could
+not be drawn, not ready, a failed form post with no page to go back to) is its heading and line in a centred card (the shared
+Container, Card, Text and Button parts), drawn at the `{ "words": true }` place of the host's public `/404` row so it wears the
+site's own frame (its nav, its shell), or alone when the site has no such row or its frame cannot be drawn just then. Each
+page's tool runs are timed in its `Server-Timing` header.
 
 ## The rows
 
@@ -97,6 +100,7 @@ A layout node is one of:
                                                                 another screen file, drawn with that tool's answer
 { "main": true }                                                the page's own tool screen
 { "text": "words" }
+{ "words": true }                                               only in the /404 row: where every words page's card goes
 ```
 
 A part is a `show/` file under the tools folder; nothing else can be placed. A tool's screen is its card's

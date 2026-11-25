@@ -89,7 +89,7 @@ const LOOK = [{ name: 'theme', value: 'paper' }, { name: 'font-face.body-400', v
 
 // An engine door on loopback: tools:run of run-sql answers the rows, read-a-greeting answers a Text screen's props, and every
 // call's pass and tool are written down.
-async function door(look = LOOK) {
+async function door(look = LOOK, pages = PAGES) {
   const calls: { pass: string; run: ToolRun }[] = [];
   const server = http.createServer((request, response) => {
     let body = '';
@@ -102,7 +102,7 @@ async function door(look = LOOK) {
       if (run.tool === 'tool:run-sql-in-my-database') {
         assert.deepEqual(run.input.use, { purpose: 'serve the site', surface: 'site pages' }, 'every read runs under the declared use');
         const sql = run.input.sql!;
-        result = { rows: sql.includes('FROM "site_actions"') ? ACTIONS : sql.includes('FROM offers') ? [{ id: 'offer:one', params: run.input.params }] : sql.includes('FROM pages') ? PAGES : sql.includes('FROM site_look') ? look : [{ slug: 'first' }, { slug: 'second one' }] };
+        result = { rows: sql.includes('FROM "site_actions"') ? ACTIONS : sql.includes('FROM offers') ? [{ id: 'offer:one', params: run.input.params }] : sql.includes('FROM pages') ? pages : sql.includes('FROM site_look') ? look : [{ slug: 'first' }, { slug: 'second one' }] };
       } else if (run.tool === 'tool:start-a-checkout') {
         result = { redirectUrl: 'https://pay.example.test/session/1', sessionId: 's1' };
       } else if (run.tool === 'tool:refuses') {
@@ -549,6 +549,26 @@ test('a browser form post that fails, by its action\'s tool, a refused right or 
     const failed = await site.failedForm(502, 'site.example.test', { action: '/somewhere', words: null, referer: 'https://site.example.test/', cookie: undefined, values: {} });
     assert.equal(outcomeOf(String(failed.body))?.message, 'Nothing was sent. Check what you typed and try again in a minute.');
   } finally { plain.server.close(); }
+});
+
+test('every words page (not found, a failed form with no page to go back to) wears the not-found row\'s frame at its words place, as a centred card', async () => {
+  const frame = { path: '/404', title: 'Not found', access: 'public', tool: null, input: {}, collection: null, updated_at: null,
+    layout: [{ part: TEXT, export: 'Text', props: { as: 'nav' }, children: [{ text: 'The site nav' }] }, { words: true }] };
+  const d = await door(LOOK, [...PAGES, frame]);
+  try {
+    const site = await siteOn(d.address, { actions: 'site_actions' });
+    const missing = await site.answer('GET', '/nowhere', undefined, 'site.example.test');
+    assert.equal(missing.status, 404);
+    const page = String(missing.body);
+    assert.match(page, /The site nav/, 'the site\'s frame');
+    assert.match(page, /There is no page at this address\./, 'the words, in the frame\'s place');
+    assert.match(page, /ui\/show\/card\/Card\.tsx#Card/, 'a card, the shared Card part');
+    const failed = await site.failedForm(502, 'site.example.test', { action: '/target/x', words: null, referer: 'https://elsewhere.example.test/away', cookie: undefined, values: {} });
+    assert.equal(failed.status, 502);
+    assert.equal(failed.headers['cache-control'], 'no-store');
+    assert.match(String(failed.body), /The site nav[\s\S]*The site could not take that\. Try again soon\.[\s\S]*href="\/away"/, 'a failed form with no page to go back to: the frame, the words, a way back');
+    assert.equal((await site.answer('GET', '/404', undefined, 'site.example.test')).status, 404, 'the frame row is never a page of its own');
+  } finally { d.server.close(); }
 });
 
 test('an old ".html" address of a page is 301 to the page, query kept; one with no page stays 404', async () => {

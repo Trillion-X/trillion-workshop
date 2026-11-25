@@ -75,7 +75,8 @@ export function FormOutcome({ action, title, message, values, children }: FormOu
       form.before(placedHost);
       putBack(form, values);
       setHost(placedHost);
-      form.scrollIntoView({ block: 'center' });
+      // The message is what the visitor must see first: it comes into view, its form under it.
+      placedHost.scrollIntoView({ block: 'center' });
       return true;
     };
     if (place()) return () => placedHost?.remove();
