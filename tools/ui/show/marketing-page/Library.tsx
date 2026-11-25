@@ -60,7 +60,7 @@ export function View({ intro, introHighlight, tabs, entries, selectedTab, select
   const chosen = shelf.find(entry => entry.id === selectedId) ?? shelf[0];
   return (
     <Text as="section" className={styles.libraryBlock} data-library>
-      {intro ? <Text as="div" className={styles.libraryIntro}><Text as="h3">{introHighlight && intro.includes(introHighlight) ? intro.split(introHighlight).flatMap((part, index, all) => (index < all.length - 1 ? [part, <Text as="span" key={index} style={{ color: '#008652' }}>{introHighlight}</Text>] : [part])) : intro}</Text></Text> : null}
+      {intro ? <Text as="div" className={styles.libraryIntro}><Text as="h3">{introHighlight && intro.includes(introHighlight) ? intro.split(introHighlight).flatMap((part, index, all) => (index < all.length - 1 ? [part, <Text as="span" key={index} style={{ color: '#008652', font: 'inherit' }}>{introHighlight}</Text>] : [part])) : intro}</Text></Text> : null}
       <Text as="div" role="group" aria-label={tabsLabel} className={styles.librarySelector}>
         {tabs.map(item => (
           <Button key={item.id} variant="ghost" className={styles.librarySelectorButton} aria-pressed={item.id === tab?.id} data-active={item.id === tab?.id ? 'true' : 'false'} data-library-selector={item.id} onClick={() => onSelectTab?.(item.id)}>

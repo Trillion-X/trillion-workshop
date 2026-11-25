@@ -73,7 +73,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: 'border-transparent font-semibold bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:bg-[var(--button-primary-bg-hover)] bg-[image:var(--button-sheen)] shadow-[var(--button-highlight),var(--button-shadow)] active:shadow-[var(--button-pressed-highlight)]',
+        primary: 'border-transparent font-[number:var(--button-font-weight,600)] bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:bg-[var(--button-primary-bg-hover)] bg-[image:var(--button-sheen)] shadow-[var(--button-highlight),var(--button-shadow)] active:shadow-[var(--button-pressed-highlight)]',
         secondary: 'border-transparent bg-[var(--glass-bg-subtle)] text-[var(--text-primary)] hover:bg-[var(--glass-bg-hover)]',
         ghost: 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--glass-bg-hover)]',
         plain: 'border-transparent bg-transparent text-[var(--text-secondary)] hover:bg-transparent hover:text-[var(--text-primary)]',

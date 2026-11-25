@@ -24,3 +24,8 @@ test('the nav folds under 1400px unless the page names a width: a short nav stay
   assert.match(short, /\(max-width:760px\)/);
   assert.doesNotMatch(short, /\(max-width:1400px\)/);
 });
+
+test('the nav\'s bar and actions read the site\'s tokens, and without them draw as they always did', async () => {
+  const html = await renderAView(entry, { nav: { ...nav, actions: [{ label: 'Log in', href: '/in' }, { label: 'Go', href: '#p', primary: true }] }, icons: {} });
+  for (const token of ['--site-nav-bar-bg', '--site-nav-bar-border', '--site-nav-bar-radius', '--site-nav-bar-padding', '--site-nav-padding', '--site-nav-action-border', '--site-nav-action-radius', '--site-nav-action-height', '--site-nav-action-padding', '--site-nav-action-size', '--site-nav-action-weight', '--site-nav-primary-radius', '--site-nav-primary-weight']) assert.ok(html.includes(`var(${token},`), token);
+});
