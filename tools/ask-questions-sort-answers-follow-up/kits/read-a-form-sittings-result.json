@@ -1,0 +1,38 @@
+{
+  "start_here": "Say to your AI: \"Show my assessment result.\" It runs tool:read-a-form-sittings-result, which reads the result of the answers so far and changes nothing.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it works on the form_rows the pursuit database you name already holds, and a sitting is one row there.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-form-sittings-result"
+  ],
+  "instructions": [
+    "1. Name the pursuit database that holds the form rows, such as example_for_who_runs_it; the computer opens it with the login its vault holds.",
+    "2. Say what you want in plain words; your AI calls tools:run with tool tool:read-a-form-sittings-result and the input.",
+    "3. Read the answer and show it with the page's screen; the tool reads one sitting."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read a form sitting's result",
+      "ask": "Show my assessment result.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-form-sittings-result",
+            "input": {
+              "database": "example_for_who_runs_it",
+              "attemptId": "s1"
+            }
+          }
+        }
+      },
+      "given": "The database holds the page and form rows the step reads (made-up values).",
+      "hands_back": "{\"segment\":{\"id\":\"a\",\"title\":\"A\",\"meaning\":\"Ready now.\",\"next_step\":null},\"follow_up\":[{\"id\":\"call\",\"label\":\"Book a call\"}],\"kept\":false,\"keep_at\":null}"
+    }
+  ],
+  "drafted_from": "tool row in tools/ask-questions-sort-answers-follow-up/tool-rows.json and steps/serve-form-page.ts"
+}

@@ -1,0 +1,38 @@
+{
+  "start_here": "Say to your AI: \"Where is my assessment?\" It runs tool:read-where-a-form-sitting-is, which reads the step the sitting waits at and changes nothing.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it works on the form_rows the pursuit database you name already holds, and a sitting is one row there.",
+  "workflows": [],
+  "tools": [
+    "tool:read-where-a-form-sitting-is"
+  ],
+  "instructions": [
+    "1. Name the pursuit database that holds the form rows, such as example_for_who_runs_it; the computer opens it with the login its vault holds.",
+    "2. Say what you want in plain words; your AI calls tools:run with tool tool:read-where-a-form-sitting-is and the input.",
+    "3. Read the answer and show it with the page's screen; the tool reads one sitting."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read where a form sitting is",
+      "ask": "Where is my assessment?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-where-a-form-sitting-is",
+            "input": {
+              "database": "example_for_who_runs_it",
+              "attemptId": "s1"
+            }
+          }
+        }
+      },
+      "given": "The database holds the page and form rows the step reads (made-up values).",
+      "hands_back": "{\"kept\":false,\"next\":{\"key\":\"result\",\"kind\":\"result\"}}"
+    }
+  ],
+  "drafted_from": "tool row in tools/ask-questions-sort-answers-follow-up/tool-rows.json and steps/serve-form-page.ts"
+}

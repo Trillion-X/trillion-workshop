@@ -1,0 +1,38 @@
+{
+  "start_here": "Say to your AI: \"Start my assessment.\" It runs tool:start-a-form-sitting, which starts one sitting of the form page and answers the first question to ask.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it works on the form_rows the pursuit database you name already holds, and a sitting is one row there.",
+  "workflows": [],
+  "tools": [
+    "tool:start-a-form-sitting"
+  ],
+  "instructions": [
+    "1. Name the pursuit database that holds the form rows, such as example_for_who_runs_it; the computer opens it with the login its vault holds.",
+    "2. Say what you want in plain words; your AI calls tools:run with tool tool:start-a-form-sitting and the input.",
+    "3. Read the answer and show it with the page's screen; the tool reads and changes one sitting."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start a form sitting",
+      "ask": "Start my assessment.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-form-sitting",
+            "input": {
+              "database": "example_for_who_runs_it",
+              "page": "assessment"
+            }
+          }
+        }
+      },
+      "given": "The database holds the page and form rows the step reads (made-up values).",
+      "hands_back": "{\"attemptId\":\"s1\",\"next\":{\"key\":\"question:0\",\"kind\":\"question\",\"position\":0,\"prompt\":\"Hours a week\"}}"
+    }
+  ],
+  "drafted_from": "tool row in tools/ask-questions-sort-answers-follow-up/tool-rows.json and steps/serve-form-page.ts"
+}
