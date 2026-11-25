@@ -13027,6 +13027,23 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:reboot-a-computer-when-it-asks": [
+  {
+   "package": "reboot-a-computer-when-it-asks",
+   "paths": [
+    "do-work",
+    "settings.json"
+   ],
+   "at": "/opt/reboot-a-computer-when-it-asks"
+  },
+  {
+   "package": "administer-a-rented-host",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/administer-a-rented-host"
+  }
+ ],
  "tool:step-a-hostname-cut-over-through-the-engine": [
   {
    "package": "move-the-public-door",

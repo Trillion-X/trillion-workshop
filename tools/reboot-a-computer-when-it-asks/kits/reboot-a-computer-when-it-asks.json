@@ -1,0 +1,43 @@
+{
+  "start_here": "Say to your AI: \"Does my computer at 203.0.113.20 need a reboot after its updates? If it does and nothing is busy, reboot it and tell me it came back.\" It runs tool:reboot-a-computer-when-it-asks, first with mode read, then with mode reboot, and tells you what asked, whether it rebooted and anything that did not come back.",
+  "lists": [],
+  "no_lists_because": "It keeps nothing: it reads one computer, reboots it when it asks, and answers what it read before and after. The workflow that runs it at a quiet hour tells the people who share the computer first.",
+  "workflows": [
+    "workflow:reboot-a-computer-after-its-updates"
+  ],
+  "tools": [
+    "tool:reboot-a-computer-when-it-asks",
+    "tool:check-a-computer-from-inside"
+  ],
+  "instructions": [
+    "1. Read the computer's row from wherever you keep it: its name, address and SSH host key.",
+    "2. Call tools:run with tool tool:reboot-a-computer-when-it-asks and input {name, address, host_key} (mode read is the default). The administrator key is the held value server-administration-ssh-key; it reaches only the hosts its vault entry names.",
+    "3. Read before.asks and before.packages: whether the computer's updates ask for a reboot. before.busy says what would make a reboot unsafe now.",
+    "4. To reboot, first tell whoever shares the computer and make sure no apply holds its row. Then call it again with mode reboot. It refuses a computer that does not ask (unless even_if_not_asked is true) or is busy, and says why.",
+    "5. Read rebooted, back_after_seconds and findings: still-asks-for-a-reboot, degraded-after-reboot, container-not-back, not-back-after-reboot. Then run tool:check-a-computer-from-inside to see each engine holds its person again."
+  ],
+  "worked_examples": [
+    {
+      "title": "A computer that does not ask for a reboot",
+      "ask": "Does my site computer need a reboot after its updates?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:reboot-a-computer-when-it-asks",
+            "input": {
+              "name": "sites",
+              "address": "203.0.113.20",
+              "host_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMadeUpMadeUpMadeUpMadeUpMadeUpMadeUpMadeUp"
+            }
+          }
+        }
+      },
+      "given": "Read on Nov 25 2026 against one real computer (shown here as the documentation address 203.0.113.20, its containers renamed) that ran nine containers and had a failed transient unit left from earlier that night.",
+      "hands_back": "{\"mode\":\"read\",\"read\":true,\"rebooted\":false,\"before\":{\"asks\":false,\"packages\":[],\"uptime_seconds\":59478,\"system\":\"degraded\",\"failed\":[\"run-example.service\"],\"containers\":[\"front-door\",\"engine-1\",\"site-1\"],\"busy\":[]}}"
+    }
+  ],
+  "drafted_from": "tools/reboot-a-computer-when-it-asks/tool-rows.json and its read script run on two computers on Nov 25 2026"
+}

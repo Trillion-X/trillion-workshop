@@ -1,0 +1,27 @@
+{
+  "_what": "What tool:reboot-a-computer-when-it-asks reads and how long it waits. busy: each test is a shell condition run on the computer; while one is true the computer is not rebooted (id names it, said says it). reboot.after_seconds is how long after the SSH session systemd reboots, first_wait_seconds how long it waits before the first read after that, poll_seconds between reads, wait_seconds how long it waits for the computer to answer with a new boot (a caller may give its own wait_seconds). ssh holds the administrator login (the held key server-administration-ssh-key).",
+  "busy": [
+    {
+      "id": "package-manager",
+      "test": "pgrep -x 'apt|apt-get|dpkg|aptitude' >/dev/null 2>&1 || pgrep -f '^/usr/bin/python3 /usr/bin/unattended-upgrade( |$)' >/dev/null 2>&1",
+      "said": "a package manager is at work (apt, dpkg or unattended-upgrade)"
+    },
+    {
+      "id": "container-change",
+      "test": "ps -eo args= | grep -Eq '^(/usr/(local/)?bin/)?docker(-compose| compose)( [^ ]+)* (up|build|pull|create|restart|down)( |$)|^(/usr/(local/)?bin/)?docker (build|buildx|image pull|pull)( |$)'",
+      "said": "a container build or a compose run that changes containers is running (a pipeline deploy)"
+    }
+  ],
+  "reboot": {
+    "after_seconds": 5,
+    "first_wait_seconds": 30,
+    "poll_seconds": 10,
+    "wait_seconds": 600
+  },
+  "ssh": {
+    "admin_user": "root",
+    "port": 22,
+    "run_seconds": 45,
+    "connect_seconds": 10
+  }
+}
