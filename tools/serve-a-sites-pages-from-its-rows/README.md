@@ -36,11 +36,11 @@ already taken, for up to 25 seconds. It needs Node 26.13 or newer
 
 | Address | Answer |
 |---|---|
-| a path a `pass_on` entry names (a POST an action row names stays the site's) | passed whole to that program (the sign-in tool's pages and `/api/auth`; a program's actions that have no tool yet), its answer passed back whole |
+| a path a `pass_on` entry names (a request an action row names stays the site's) | passed whole to that program (the sign-in tool's pages and `/api/auth`; a program's actions that have no tool yet), its answer passed back whole |
 | `/screen-files/<identity>.<kind>` | a page's mount script, its stylesheet, or a font the shared looks name, by BLAKE3 identity, kept for good |
 | `<member_files.path><key>` | for a member: 302 to a presigned GET of `key_prefix` + key; for anyone else: 403; always `private, no-store` |
 | a path under `public_files.paths` | 302 to a presigned GET of `key_prefix` + the path without its leading slash, `public, max-age=cache_seconds` |
-| a POST to an action row's address | that row's tool, its input made from the posted form or JSON, the cookies, the member's pass and the site's rows; a form is sent on (303), JSON gets JSON |
+| a POST (or a GET) to an action row's address | that row's tool, its input made from the posted form or JSON, the cookies, the member's pass and the site's rows; a form is sent on (303), JSON gets JSON |
 | `/sitemap.xml` | every public page address; a template page lists one address per `slug` of its collection |
 | a page row's address | the page, drawn on the server; a members page only for a member, sent `private, no-store` |
 | a members address, signed out | `sign_in.signed_out: "redirect"`: 302 to `sign_in.page?next=<address>`; `"draw"`: the page row at `sign_in.page`, drawn at that address, 200 |
@@ -68,7 +68,7 @@ the last good set stays served.
 | `access` | `public` or `members` |
 | `layout` | jsonb: the page's tree of parts, or null when the page is only its tool's screen |
 | `tool` | the tool whose screen is the page's main part, or null |
-| `input` | jsonb: that tool's input; a string `":slug"` takes the path's value (so does one in any layout node's `props` or a layout tool node's `input`) |
+| `input` | jsonb: that tool's input; a string `":slug"` takes the path's value, and a string `":query.token"` the address's query value for `token` (left out when the address has none); so does one in any layout node's `props` or a layout tool node's `input` |
 | `collection` | the table whose `slug` column lists a template page's addresses: the sitemap lists them, and any other value of the page's `:name` is 404 (its tool is never asked) |
 | `updated_at` | when the row changed (the sitemap's lastmod) |
 | `host` | the one host the page answers on, or null for every host; a host's own row wins over a row for every host |
@@ -98,25 +98,27 @@ refuses the set. Two names are not variables:
 
 ## Actions
 
-A form or a script on a page posts to an address; the site's action row for it (table `settings.actions`) names the tool that
-does the job. A screen part posts a plain form, or JSON, to the address the page row gives it; it holds no callback.
+A form or a script on a page posts to an address, or a script reads one; the site's action row for it (table
+`settings.actions`) names the tool that does the job. A screen part posts a plain form, or JSON, to the address the page row
+gives it, or reads it; it holds no callback.
 
 | Column | Holds |
 |---|---|
 | `path` | the address pattern, as a page's (`/checkout`, `/book/:offer`) |
 | `host` | the one host it answers on, or null for every host |
+| `method` | `POST` (the column left out, or null, is POST) or `GET` (a read: a checkout's state, the offers a buyer may see; it answers HEAD too) |
 | `access` | `public` (run as the site, or as the member when one is signed in) or `members` (members only) |
 | `tool` | the tool that does the job |
 | `input` | jsonb: the tool's input; a value `{ "$": "<source>", ... }` is filled from the request |
 | `answer` | jsonb: `{ "redirect_from": "<answer key>" }`, `{ "redirect_to": <value> }` or `{ "json": ["<answer key>", ...] }` |
 | `failed` | the words a visitor gets when the tool fails |
 
-Sources: `body` (`key`, dotted into JSON), `path` (`name`), `cookie` (`name`, and `when: { cookie, is }` for a consent),
+Sources: `body` (`key`, dotted into JSON), `path` (`name`), `query` (`key`: the address's query value), `cookie` (`name`, and `when: { cookie, is }` for a consent),
 `member` (`claim` of the member's pass), `origin` (`then`), `rows` (`sql`, `params`, `database`: a statement run as the site),
 `url` (`base`, `query`), `number` (`of`), `first` (`of`: values tried in order, the first that gives something), `boolean` (`of`: true, "true", "on", "yes", "1" and their opposites), `answer` (`key`, in `redirect_to` only), `now`, `new_id`. A source that gives nothing
 leaves its key out, and an object all of whose values gave nothing is left out too (a signed-out buyer sends no
 `customer`), so the tool's own schema refuses a missing required value. A form post is answered 303 to the address; a
-JSON post gets `{ "redirect": address }` or the listed keys; a failure is 502 with the row's `failed` words. A post whose
+JSON post gets `{ "redirect": address }` or the listed keys; a GET gets the listed keys, or is sent on (303); a failure is 502 with the row's `failed` words. A post whose
 `Origin` is neither one of the site's hosts nor the address the post was sent to is refused (403); a body over 64 KB is refused (413).
 
 Example, a checkout button's form:

@@ -9,7 +9,7 @@
 //     a path under public_files.paths     a public file: 302 to a presigned link, cached (member-video.ts)
 //     /sitemap.xml                        every public page address, template pages listed from their collection
 //     a page row's address                the page (pages.ts, render.ts); a members page only for a member
-//     a POST to an action row's address   that action's tool, its input made from the request, and its answer (actions.ts)
+//     a POST (or a GET) to an action row's address   that action's tool, its input made from the request, and its answer (actions.ts)
 //   and the page row "/404" (or plain words) for any other address. Its pages, look and tool answers are read through the
 //   engine's door (door.ts) as a caller: the site's own pass for public pages, the member's own pass for members pages.
 //
@@ -308,14 +308,14 @@ export class Site {
     return this.#head ? withSiteHead(html, this.#head) : html;
   }
 
-  async #drawn(page: PageRow, params: Record<string, string>, host: string, pathname: string, run: (call: ToolRun) => Promise<unknown>, status: number, cache: string): Promise<Answer> {
+  async #drawn(page: PageRow, params: Record<string, string>, host: string, pathname: string, run: (call: ToolRun) => Promise<unknown>, status: number, cache: string, query = new URLSearchParams()): Promise<Answer> {
     if (page.layout && 'go_to' in page.layout) {
       const goTo = pathWith(page.layout.go_to, params);
       const body = await this.#document(page.title ?? goTo, host, pathname, wordsTree(page.title ?? '', goTo), goTo);
       return { status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': cache }, body };
     }
-    const { drawn, timed, answerOf } = await drawnTreeOf(treeOf(page, params), this.#parts.screens, run);
-    const answered = page.tool ? answerOf({ tool: page.tool, input: filledInput(page.input, params) })?.title : undefined;
+    const { drawn, timed, answerOf } = await drawnTreeOf(treeOf(page, params, query), this.#parts.screens, run);
+    const answered = page.tool ? answerOf({ tool: page.tool, input: filledInput(page.input, params, query) })?.title : undefined;
     const title = page.title ?? (typeof answered === 'string' && answered.trim() ? answered : null);
     if (title === null) throw new Error(`page ${page.path}: its row has no title and ${page.tool} answered none.`);
     const body = await this.#document(title, host, pathname, drawn);
@@ -352,21 +352,23 @@ export class Site {
     return this.#head;
   }
 
-  /** True when an action row answers a POST to this host and path. */
-  acts(host: string, pathname: string): boolean {
-    return matchAction(this.#actions, host, pathname) !== null;
+  /** True when an action row answers this method at this host and path. */
+  acts(method: string, host: string, pathname: string): boolean {
+    return matchAction(this.#actions, method, host, pathname) !== null;
   }
 
   /**
-   * The answer for one posted action: the action row for the host and path, its tool run with the input made from the request
-   * (as the member when one is signed in, else as the site), and the row's answer. A form post is sent on with 303; a JSON
-   * post gets JSON ({ "redirect": address } for a redirect).
+   * The answer for one action: the action row for the method, host and path, its tool run with the input made from the
+   * request (as the member when one is signed in, else as the site), and the row's answer. A form post is sent on with 303;
+   * a JSON post gets JSON ({ "redirect": address } for a redirect). A GET (no body) gets the JSON keys, or is sent on with 303.
    */
-  async act(address: string, cookie: string | undefined, host: string, request: { contentType?: string; origin?: string; hostHeader?: string; bytes: Buffer }): Promise<Answer> {
-    const pathname = new URL(address, 'http://site.invalid').pathname;
+  async act(address: string, cookie: string | undefined, host: string, request: { method?: string; contentType?: string; origin?: string; hostHeader?: string; bytes: Buffer }): Promise<Answer> {
+    const url = new URL(address, 'http://site.invalid');
+    const pathname = url.pathname;
+    const method = request.method ?? 'POST';
     const json = (status: number, value: unknown): Answer => ({ status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }, body: JSON.stringify(value) });
     this.#fresh();
-    const matched = matchAction(this.#actions, host, pathname);
+    const matched = matchAction(this.#actions, method, host, pathname);
     if (!matched) return json(404, { error: 'Nothing is done at this address.' });
     // A browser names the page a post came from (Origin): it must be one of the site's hosts, or the very address this
     // request was sent to (the page and the post on one origin, as a local run is).
@@ -377,15 +379,17 @@ export class Site {
       if (!own) return json(403, { error: 'This is done only from this site\'s own pages.' });
     }
     if (request.bytes.length > MOST_ACTION_BYTES) return json(413, { error: 'Too large.' });
-    let posted: { body: Record<string, unknown>; form: boolean };
-    try { posted = bodyOf(request.contentType, request.bytes); } catch (error) { return json(400, { error: (error as Error).message }); }
     const { page: action, params } = matched;
+    let posted: { body: Record<string, unknown>; form: boolean };
+    // A GET carries no body; one that sends the visitor on is a link followed in the browser, so its failure is a page.
+    if (action.method === 'GET') posted = { body: {}, form: !('json' in action.answer) };
+    else try { posted = bodyOf(request.contentType, request.bytes); } catch (error) { return json(400, { error: (error as Error).message }); }
     const member = await this.#parts.passes.memberOfCookie(cookie);
     if (action.access === 'members' && !member) return json(403, { error: 'Sign in as a member first.' });
     const failed = async (status: number): Promise<Answer> => (posted.form ? this.#words(status, 'That did not go through', action.failed, host, pathname) : json(status, { error: action.failed }));
     try {
       const asked: Asked = {
-        body: posted.body, params, cookies: cookiesOf(cookie), claims: member?.claims ?? null, origin: this.#originOf(host),
+        body: posted.body, params, query: url.searchParams, cookies: cookiesOf(cookie), claims: member?.claims ?? null, origin: this.#originOf(host),
         rows: (sql, values, database) => this.#sql(sql, values, database), answer: null,
       };
       const input = await filled(action.input, asked);
@@ -395,7 +399,7 @@ export class Site {
       if (!to) throw new Error(`${action.tool} answered no address to send the visitor to.`);
       return posted.form ? { status: 303, headers: { location: to, 'cache-control': 'no-store' }, body: '' } : json(200, { redirect: to });
     } catch (error) {
-      this.#log(`POST ${pathname}: ${(error as Error).message}`);
+      this.#log(`${method} ${pathname}: ${(error as Error).message}`);
       return failed(error instanceof DoorError && error.status === 403 ? 403 : 502);
     }
   }
@@ -431,9 +435,9 @@ export class Site {
       // A template page answers only the slugs its collection holds; any other address is not a page (404), never a 502.
       const names = paramsOf(page.path);
       if (page.collection && names.length === 1 && !this.#slugs.get(page.collection)?.has(params[names[0]])) return await this.#notFound(pages, host, pathname);
-      if (page.access === 'public') return await this.#drawn(page, params, host, pathname, call => this.#publicRun(call), 200, 'public, max-age=0, must-revalidate');
+      if (page.access === 'public') return await this.#drawn(page, params, host, pathname, call => this.#publicRun(call), 200, 'public, max-age=0, must-revalidate', url.searchParams);
       const member = await this.#parts.passes.memberOfCookie(cookie);
-      if (member) return await this.#drawn(page, params, host, pathname, call => this.#parts.run(member.pass, call), 200, 'private, no-store');
+      if (member) return await this.#drawn(page, params, host, pathname, call => this.#parts.run(member.pass, call), 200, 'private, no-store', url.searchParams);
       const signIn = this.#parts.settings.sign_in;
       const drawnSignIn = signIn.signed_out === 'draw' ? matchPage(pages, signIn.page) : null;
       if (drawnSignIn && drawnSignIn.page.access === 'public') {
@@ -516,8 +520,10 @@ export function handlerOf(site: Site, passOn: PassOn[] = []): http.RequestListen
     const forwarded = request.headers['x-forwarded-host'];
     const host = site.hostOf(Array.isArray(forwarded) ? forwarded[0] : forwarded, request.headers.host);
     const pathname = new URL(request.url ?? '/', 'http://site.invalid').pathname;
-    // A POST the site's own action rows name is the site's, even under a path another program answers.
-    const on = request.method === 'POST' && site.acts(host, pathname) ? null : passOnFor(passOn, host, pathname);
+    // A request the site's own action rows name is the site's, even under a path another program answers.
+    const method = request.method ?? 'GET';
+    const acting = site.acts(method, host, pathname);
+    const on = acting ? null : passOnFor(passOn, host, pathname);
     if (on) {
       passOnTo(on.address, host, request, response, on.site_head ? site.siteHead : null).catch(error => {
         console.error(`${request.method} ${request.url}: ${on.name} did not answer: ${(error as Error).message}`);
@@ -526,11 +532,11 @@ export function handlerOf(site: Site, passOn: PassOn[] = []): http.RequestListen
       });
       return;
     }
-    const answering = request.method === 'POST'
+    const answering = acting || method === 'POST'
       ? bytesOf(request).then(bytes => bytes === null
         ? { status: 413, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }, body: JSON.stringify({ error: 'Too large.' }) }
-        : site.act(request.url ?? '/', request.headers.cookie, host, { contentType: request.headers['content-type'], origin: request.headers.origin, hostHeader: request.headers.host, bytes }))
-      : site.answer(request.method ?? 'GET', request.url ?? '/', request.headers.cookie, host);
+        : site.act(request.url ?? '/', request.headers.cookie, host, { method, contentType: request.headers['content-type'], origin: request.headers.origin, hostHeader: request.headers.host, bytes }))
+      : site.answer(method, request.url ?? '/', request.headers.cookie, host);
     answering
       .then(answer => {
         response.writeHead(answer.status, { 'x-content-type-options': 'nosniff', ...answer.headers });

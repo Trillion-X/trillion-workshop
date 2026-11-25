@@ -11,7 +11,8 @@
 //     access      "public" or "members"
 //     layout      the page's tree of parts (LayoutNode below), or null when the page is only its tool's screen
 //     tool        the tool whose screen is the page's main screen (a template page), or null
-//     input       that tool's input; a string value ":name" takes the path's value for :name
+//     input       that tool's input; a string value ":name" takes the path's value for :name; a string ":query.key" takes the address's
+//                 query value for key (left out when the address has none), so a page reads ?token= into a hidden field
 //     collection  for a template page: the table of the same database whose `slug` column lists its addresses (the sitemap)
 //     updated_at  when the row last changed (the sitemap's lastmod)
 //     host        the one host name the page answers on, or null for every host the site answers
@@ -209,11 +210,25 @@ function placeholdersIn(value: unknown): string[] {
   return [];
 }
 
-/** The input with each ":name" string replaced by the path's value for name. */
-export function filledInput(input: unknown, params: Record<string, string>): unknown {
-  if (typeof input === 'string') return /^:[a-z_][a-z0-9_]*$/.test(input) && input.slice(1) in params ? params[input.slice(1)] : input;
-  if (Array.isArray(input)) return input.map(item => filledInput(item, params));
-  if (input && typeof input === 'object') return Object.fromEntries(Object.entries(input).map(([key, value]) => [key, filledInput(value, params)]));
+const QUERY_VALUE = /^:query\.([A-Za-z0-9_.~-]+)$/;
+
+/**
+ * The input with each ":name" string replaced by the path's value for name, and each ":query.key" string by the address's
+ * query value for key (a key the address does not carry leaves its object key out, and is null in a list).
+ */
+export function filledInput(input: unknown, params: Record<string, string>, query: URLSearchParams = new URLSearchParams()): unknown {
+  if (typeof input === 'string') {
+    const key = QUERY_VALUE.exec(input)?.[1];
+    if (key !== undefined) return query.get(key) ?? undefined;
+    return /^:[a-z_][a-z0-9_]*$/.test(input) && input.slice(1) in params ? params[input.slice(1)] : input;
+  }
+  if (Array.isArray(input)) return input.map(item => filledInput(item, params, query) ?? null);
+  if (input && typeof input === 'object') {
+    return Object.fromEntries(Object.entries(input).flatMap(([key, value]) => {
+      const got = filledInput(value, params, query);
+      return got === undefined ? [] : [[key, got]];
+    }));
+  }
   return input;
 }
 

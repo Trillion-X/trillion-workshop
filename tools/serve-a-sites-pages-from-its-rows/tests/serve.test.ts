@@ -40,6 +40,8 @@ const ACTIONS = [
   { path: '/members-only', host: null, access: 'members', tool: 'tool:keep-a-lead', failed: 'No.', input: {}, answer: { json: ['kept'] } },
   { path: '/fails', host: null, access: 'public', tool: 'tool:fails', failed: 'That did not work.', input: {}, answer: { json: ['x'] } },
   { path: '/bad', host: null, access: 'public', tool: 'tool:x', failed: 'x', input: { a: { $: 'shell', run: 'rm' } }, answer: { json: ['x'] } },
+  { path: '/target/state', host: null, method: 'GET', access: 'public', tool: 'tool:keep-a-lead', failed: 'No state.', input: { checkout: { $: 'query', key: 'checkout' } }, answer: { json: ['kept'] } },
+  { path: '/target/state', host: null, method: 'PUT', access: 'public', tool: 'tool:x', failed: 'x', input: {}, answer: { json: ['x'] } },
 ];
 
 // An engine door on loopback: tools:run of run-sql answers the rows, read-a-greeting answers a Text screen's props, and every
@@ -402,6 +404,16 @@ test('a posted form or JSON body runs its action row\'s tool with the input made
     assert.equal((await site.act('/checkout', undefined, host, { contentType: 'text/plain', bytes: Buffer.from('x') })).status, 400);
     assert.equal((await site.act('/checkout', undefined, host, { contentType: 'application/json', bytes: Buffer.alloc(MOST_ACTION_BYTES + 1, 32) })).status, 413);
     assert.throws(() => settingsOf({ ...settings(d.address), actions: 'site actions' }), /actions/);
+    d.calls.length = 0;
+    const state = await site.act('/target/state?checkout=cs_1', undefined, host, { method: 'GET', bytes: Buffer.alloc(0) });
+    assert.equal(state.status, 200);
+    assert.deepEqual(JSON.parse(String(state.body)), { kept: 1 }, 'a GET row answers its JSON keys');
+    assert.deepEqual(d.calls.at(-1)!.run.input, { checkout: 'cs_1' }, 'a query source reads the address\'s query value');
+    assert.equal((await site.act('/target/state', undefined, host, { method: 'GET', bytes: Buffer.alloc(0) })).status, 200, 'a query value the address does not carry is left out');
+    assert.equal(d.calls.at(-1)!.run.input, undefined, 'so the input, all of whose values gave nothing, is nothing');
+    assert.equal((await site.act('/target/state', undefined, host, { method: 'HEAD', bytes: Buffer.alloc(0) })).status, 200, 'a GET row answers HEAD');
+    assert.equal((await site.act('/target/state', undefined, host, form({}))).status, 404, 'a POST to an address only a GET row names does nothing');
+    assert.equal((await site.act('/checkout', undefined, host, { method: 'GET', bytes: Buffer.alloc(0) })).status, 404, 'a GET to an address only a POST row names does nothing');
   } finally { d.server.close(); }
 });
 
@@ -418,6 +430,8 @@ test('over node:http, a POST an action row names is the site\'s even under a pas
     assert.equal(sent.status, 303);
     assert.equal(sent.headers.get('location'), 'https://pay.example.test/session/1');
     assert.equal((await fetch(`${at}/target/other`, { method: 'POST', body: '{}' })).status, 200);
+    const state = await fetch(`${at}/target/state?checkout=cs_1`, { headers: { 'x-forwarded-host': 'site.example.test' } });
+    assert.deepEqual(await state.json(), { kept: 1 }, 'a GET an action row names is the site\'s even under a passed-on path');
     assert.deepEqual(seen, ['POST /target/other'], 'only the POST no action row names went to the other program');
   } finally { server.close(); other.close(); d.server.close(); }
 });

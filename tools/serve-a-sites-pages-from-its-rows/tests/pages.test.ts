@@ -15,6 +15,9 @@ test('a template page fills ":slug" from its path, and a literal part beats a ":
   assert.equal(course.page.path, '/courses/:slug');
   assert.deepEqual(course.params, { slug: 'forehand basics' });
   assert.deepEqual(filledInput(course.page.input, course.params), { course: 'forehand basics', show: 'all' });
+  const query = new URLSearchParams({ token: 't-1' });
+  assert.deepEqual(filledInput({ token: ':query.token', other: ':query.other', list: [':query.token', ':query.other'], slug: ':slug' }, { slug: 's' }, query),
+    { token: 't-1', list: ['t-1', null], slug: 's' }, 'a ":query.key" string takes the query value; one the address lacks is left out');
   assert.equal(matchPage(pages, '/courses/new')!.page.path, '/courses/new');
   assert.equal(matchPage(pages, '/')!.page.path, '/');
   assert.equal(matchPage(pages, '/courses/')!, null, 'an empty value is no slug');

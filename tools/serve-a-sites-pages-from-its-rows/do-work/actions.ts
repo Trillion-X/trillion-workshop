@@ -1,14 +1,17 @@
 // tools/serve-a-sites-pages-from-its-rows/do-work/actions.ts
 //
 // PURPOSE
-//   A site's actions as rows: a form or a script on a page posts to an address, and the row for that address names the tool
-//   that does the job, how the tool's input is made from what the request carries, and what the visitor gets back. A screen
-//   part posts a plain form (or JSON) to the address; it holds no callback, and no program is written for one site's action.
+//   A site's actions as rows: a form or a script on a page posts to an address (or a script reads one), and the row for that
+//   address names the tool that does the job, how the tool's input is made from what the request carries, and what the
+//   visitor gets back. A screen part posts a plain form (or JSON) to the address, or reads it; it holds no callback, and no
+//   program is written for one site's action.
 //
 //   An action row (the table named by settings.actions):
 //     path      the address pattern, as a page's: "/checkout", "/book/:offer", "/book/offer:one" (a literal part may
 //               hold a ':' after its first character)
 //     host      the one host it answers on, or null for every host; a host's own row wins
+//     method    "POST" (a form or a script sends something; the column left out or null is POST) or "GET" (a script or a
+//               link reads something: a checkout's state, the offers a buyer may see); a GET row answers HEAD too
 //     access    "public" (anyone; run as the site, or as the member when one is signed in) or "members" (members only, run as
 //               the member)
 //     tool      the tool that does the job
@@ -21,6 +24,7 @@
 //   A value's sources:
 //     { "$": "body", "key": "a.b" }                 a field of the posted form or JSON body (a dotted key reads into JSON)
 //     { "$": "path", "name": "offer" }              the value of the address's ":offer" part
+//     { "$": "query", "key": "checkout" }           the address's query value for key (?checkout=...)
 //     { "$": "cookie", "name": "n", "when": { "cookie": "c", "is": "v" } }
 //                                                   a cookie's value; with `when`, only while cookie c holds v (a consent)
 //     { "$": "member", "claim": "email" }           a claim of the signed-in member's pass; nothing when signed out
@@ -55,9 +59,12 @@ import type { Matched, Refused } from './pages.ts';
 
 export type ActionAnswer = { redirect_from: string } | { redirect_to: unknown } | { json: string[] };
 
+export type ActionMethod = 'GET' | 'POST';
+
 export interface ActionRow {
   path: string;
   host: string | null;
+  method: ActionMethod;
   access: 'public' | 'members';
   tool: string;
   input: unknown;
@@ -69,6 +76,7 @@ export interface ActionRow {
 export interface Asked {
   body: Record<string, unknown>;
   params: Record<string, string>;
+  query: URLSearchParams;
   cookies: Record<string, string>;
   claims: Record<string, unknown> | null;
   origin: string;
@@ -80,6 +88,7 @@ export interface Asked {
 const SOURCES: Record<string, (value: Record<string, unknown>, where: string) => void> = {
   body: (v, where) => words(v.key, `${where}.key`),
   path: (v, where) => words(v.name, `${where}.name`),
+  query: (v, where) => words(v.key, `${where}.key`),
   cookie: (v, where) => {
     words(v.name, `${where}.name`);
     if (v.when !== undefined) {
@@ -139,6 +148,8 @@ export function actionOf(row: Record<string, unknown>): ActionRow {
   const where = `action ${path}`;
   const host = row.host ?? null;
   if (host !== null && (typeof host !== 'string' || !HOST.test(host))) throw new PageRowError(`${where}: host is a lower-case host name or null.`);
+  const method = row.method ?? 'POST';
+  if (method !== 'GET' && method !== 'POST') throw new PageRowError(`${where}: method is "GET" or "POST".`);
   if (row.access !== 'public' && row.access !== 'members') throw new PageRowError(`${where}: access is "public" or "members".`);
   if (typeof row.tool !== 'string' || !TOOL_ID.test(row.tool)) throw new PageRowError(`${where}: tool is a tool id such as tool:start-a-checkout.`);
   checkValue(row.input ?? {}, `${where} input`);
@@ -153,17 +164,17 @@ export function actionOf(row: Record<string, unknown>): ActionRow {
     throw new PageRowError(`${where}: answer.json lists the answer's keys to send.`);
   }
   words(row.failed, `${where}: failed`);
-  return { path, host: host as string | null, access: row.access, tool: row.tool, input: row.input ?? {}, answer: answer as ActionAnswer, failed: row.failed as string };
+  return { path, host: host as string | null, method, access: row.access, tool: row.tool, input: row.input ?? {}, answer: answer as ActionAnswer, failed: row.failed as string };
 }
 
-/** The checked rows, and the rows set aside with why; a second row for one address and host is set aside. */
+/** The checked rows, and the rows set aside with why; a second row for one address, host and method is set aside. */
 export function actionsOf(rows: Record<string, unknown>[]): { actions: ActionRow[]; refused: Refused[] } {
   const actions: ActionRow[] = [];
   const refused: Refused[] = [];
   for (const row of rows) {
     try {
       const action = actionOf(row);
-      if (actions.some(a => a.path === action.path && a.host === action.host)) throw new PageRowError(`action ${action.path}: a second row for the same address and host.`);
+      if (actions.some(a => a.path === action.path && a.host === action.host && a.method === action.method)) throw new PageRowError(`action ${action.method} ${action.path}: a second row for the same address, host and method.`);
       actions.push(action);
     } catch (error) {
       if (!(error instanceof PageRowError)) throw error;
@@ -176,14 +187,16 @@ export function actionsOf(rows: Record<string, unknown>[]): { actions: ActionRow
 /** The sql that reads a site's action rows from its table. */
 export function actionsSql(table: string): string {
   if (!TABLE.test(table)) throw new PageRowError(`actions ${JSON.stringify(table)} is not a table name.`);
-  return `SELECT a.path, a.access, a.tool, a.input, a.answer, a.failed, to_jsonb(a)->>'host' AS host FROM "${table}" a ORDER BY 1, 7 NULLS LAST`;
+  return `SELECT a.path, a.access, a.tool, a.input, a.answer, a.failed, to_jsonb(a)->>'host' AS host, to_jsonb(a)->>'method' AS method FROM "${table}" a ORDER BY 1, 7 NULLS LAST, 8`;
 }
 
-/** The action a request's host and path are; a host's own row wins over a row for every host. */
-export function matchAction(actions: ActionRow[], host: string, pathname: string): Matched<ActionRow> | null {
-  const own = actions.filter(action => action.host === host);
+/** The action a request's method, host and path are (HEAD asks a GET row); a host's own row wins over a row for every host. */
+export function matchAction(actions: ActionRow[], method: string, host: string, pathname: string): Matched<ActionRow> | null {
+  const asked = method === 'HEAD' ? 'GET' : method;
+  const rows = actions.filter(action => action.method === asked);
+  const own = rows.filter(action => action.host === host);
   const taken = new Set(own.map(action => action.path));
-  return matchPage([...own, ...actions.filter(action => action.host === null && !taken.has(action.path))], pathname);
+  return matchPage([...own, ...rows.filter(action => action.host === null && !taken.has(action.path))], pathname);
 }
 
 /** A request's cookies by name (the first of a name wins). */
@@ -227,6 +240,7 @@ export async function filled(value: unknown, asked: Asked): Promise<unknown> {
     switch (value.$) {
       case 'body': return dotted(asked.body, value.key as string);
       case 'path': return asked.params[value.name as string];
+      case 'query': return asked.query.get(value.key as string) ?? undefined;
       case 'cookie': {
         const when = value.when as { cookie: string; is: string } | undefined;
         if (when && asked.cookies[when.cookie] !== when.is) return undefined;
