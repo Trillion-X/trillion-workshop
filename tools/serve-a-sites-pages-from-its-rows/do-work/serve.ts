@@ -500,7 +500,7 @@ export class Site {
    * request (as the member when one is signed in, else as the site), and the row's answer. A form post is sent on with 303;
    * a JSON post gets JSON ({ "redirect": address } for a redirect). A GET (no body) gets the JSON keys, or is sent on with 303.
    */
-  async act(address: string, cookie: string | undefined, host: string, request: { method?: string; contentType?: string; origin?: string; hostHeader?: string; referer?: string; bytes: Buffer }): Promise<Answer> {
+  async act(address: string, cookie: string | undefined, host: string, request: { method?: string; contentType?: string; origin?: string; hostHeader?: string; referer?: string; network?: string | null; bytes: Buffer }): Promise<Answer> {
     const url = new URL(address, 'http://site.invalid');
     const pathname = url.pathname;
     const method = request.method ?? 'POST';
@@ -536,7 +536,7 @@ export class Site {
       const ran = new Map<string, Promise<unknown>>();
       const asked: Asked = {
         body: posted.body, params, query: url.searchParams, cookies: cookiesOf(cookie), claims: member?.claims ?? null, origin: this.#originOf(host),
-        referer: request.referer ?? null,
+        referer: request.referer ?? null, network: request.network ?? null,
         rows: (sql, values, database) => this.#sql(sql, values, database), answer: null, input: null,
         tool: (tool, input) => {
           const key = JSON.stringify([tool, input]);
@@ -708,6 +708,17 @@ export function passOnFor(passOn: PassOn[], host: string, pathname: string, page
   const page = pageFor(host, pathname);
   const longer = page !== null && (on.paths ?? []).some(path => under(pathname, path) && page.length > path.replace(/\/$/, '').length && under(page, path));
   return longer ? null : on;
+}
+
+/**
+ * The network address a request came from: the last X-Forwarded-For entry, the one the site's own front web server added (a
+ * visitor can write any earlier entry), else the connection's own address; null when neither is an address.
+ */
+export function networkOf(request: http.IncomingMessage): string | null {
+  const forwarded = request.headers['x-forwarded-for'];
+  const last = (Array.isArray(forwarded) ? forwarded.join(',') : forwarded ?? '').split(',').map(entry => entry.trim()).filter(Boolean).at(-1);
+  const address = last ?? request.socket.remoteAddress ?? '';
+  return /^[0-9A-Fa-f:.]{2,45}$/.test(address) ? address : null;
 }
 
 /** A same-site path to send a visitor back to: the Referer's path and query, or the home page. */
@@ -929,7 +940,7 @@ export function handlerOf(site: Site, passOn: PassOn[] = [], addressCookies: Add
     const answering = acting || method === 'POST'
       ? bytesOf(request).then(bytes => bytes === null
         ? { status: 413, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }, body: JSON.stringify({ error: 'Too large.' }) }
-        : site.act(request.url ?? '/', request.headers.cookie, host, { method, contentType: request.headers['content-type'], origin: request.headers.origin, hostHeader: request.headers.host, referer: request.headers.referer, bytes }))
+        : site.act(request.url ?? '/', request.headers.cookie, host, { method, contentType: request.headers['content-type'], origin: request.headers.origin, hostHeader: request.headers.host, referer: request.headers.referer, network: networkOf(request), bytes }))
       : site.answer(method, request.url ?? '/', request.headers.cookie, host, request.headers.range);
     answering
       .then(answer => {

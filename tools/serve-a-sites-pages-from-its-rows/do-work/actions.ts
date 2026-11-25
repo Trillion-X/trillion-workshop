@@ -68,6 +68,9 @@
 //     { "$": "when", "cookie": "c", "is": "v", "then": <value> }
 //                                                   the value, only while cookie c holds v (a consent); else nothing
 //     { "$": "referer" }                            the address of the page the request came from (its Referer header)
+//     { "$": "network" }                            the network address the visitor's request came from: the last X-Forwarded-For
+//                                                   entry (the one the site's own front web server added), else the connection's
+//                                                   own address; for a limit per network (signups an hour), never shown or kept as is
 //     { "$": "address", "of": <value>, "part": "origin" | "host" | "path" | "query", "key": "t" }
 //                                                   a part of an absolute address (query: its values as an object; with key,
 //                                                   that query value)
@@ -156,6 +159,8 @@ export interface Asked {
   origin: string;
   /** The Referer header's address, or null. */
   referer: string | null;
+  /** The network address the request came from (serve.ts networkOf), or null. */
+  network: string | null;
   rows: (sql: string, params: unknown[], database?: string) => Promise<Record<string, unknown>[]>;
   /** Runs a tool as the action runs, for a tool source. */
   tool: (tool: string, input: unknown) => Promise<unknown>;
@@ -214,6 +219,7 @@ const SOURCES: Record<string, (value: Record<string, unknown>, where: string) =>
     if (v.key !== undefined && (v.part !== 'query' || typeof v.key !== 'string' || !v.key)) throw new PageRowError(`${where}.key names one query value, with part query.`);
   },
   referer: () => {},
+  network: () => {},
   pick: (v, where) => {
     checkValue(v.of, `${where}.of`);
     if (!v.from || typeof v.from !== 'object' || Array.isArray(v.from) || Object.keys(v.from).length === 0) throw new PageRowError(`${where}.from is { "<word>": <value> }.`);
@@ -413,6 +419,7 @@ export async function filled(value: unknown, asked: Asked): Promise<unknown> {
       }
       case 'member': return asked.claims ? asked.claims[value.claim as string] : undefined;
       case 'referer': return asked.referer ?? undefined;
+      case 'network': return asked.network ?? undefined;
       case 'origin': return `${asked.origin}${(value.then as string | undefined) ?? ''}`;
       case 'rows': {
         const params = await Promise.all(((value.params ?? []) as unknown[]).map(async param => (await filled(param, asked)) ?? null));

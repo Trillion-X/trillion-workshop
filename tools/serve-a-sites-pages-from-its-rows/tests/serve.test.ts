@@ -65,6 +65,7 @@ const ACTIONS = [
       failed: { tool: 'tool:echo', input: { action: 'send_failed', attempt: { $: 'answer', key: 'echo.attempt' } } } }],
     answer: { reply: { status: { $: 'pick', of: { $: 'answer', key: 'echo.outcome' }, from: { invalid_email: 400, too_many: 429 }, else: 200 }, json: ['echo'] } } },
   { path: '/busy', host: null, access: 'public', tool: 'tool:busy', failed: 'Not now.', input: {}, answer: { json: ['x'] } },
+  { path: '/from-where', host: null, access: 'public', tool: 'tool:echo', failed: 'x', input: { network: { $: 'network' } }, answer: { json: ['echo'] } },
   { path: '/not-yours', host: null, access: 'public', tool: 'tool:not-yours', failed: 'This was not kept for you.', input: {}, answer: { json: ['x'] } },
   { path: '/bad-reply', host: null, access: 'public', tool: 'tool:echo', failed: 'x', input: {}, answer: { reply: { status: 200, headers: { 'x-forwarded-for': 'a' } } } },
   { path: '/bad-next', host: null, access: 'public', tool: 'tool:echo', failed: 'x', input: {}, answer: { json: ['echo'] }, next: [{ tool: 'tool:echo', input: {}, also: 1 }] },
@@ -607,6 +608,20 @@ test('a form that cannot be JSON (a file, clashing names) is passed as it came',
   withFile.append('picture', new Blob(['bytes']), 'a.jpg');
   const encoded = new Response(withFile);
   assert.equal(await formJsonOf(encoded.headers.get('content-type') ?? '', Buffer.from(await encoded.arrayBuffer())), null);
+});
+
+test('the network source is the address the site\'s own front web server saw: the last X-Forwarded-For entry, else the connection', async () => {
+  const d = await door();
+  const site = await siteOn(d.address, { actions: 'site_actions' });
+  const server = http.createServer(handlerOf(site));
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const at = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    const ask = async (headers: Record<string, string>) => (await (await fetch(`${at}/from-where`, { method: 'POST', body: '{}', headers: { 'content-type': 'application/json', 'x-forwarded-host': 'site.example.test', ...headers } })).json()).echo?.network;
+    assert.equal(await ask({ 'x-forwarded-for': '198.51.100.1, 203.0.113.9' }), '203.0.113.9', 'a visitor writes the first entries; the last is the front server\'s');
+    assert.equal(await ask({}), '127.0.0.1', 'no front server: the connection\'s own address');
+    assert.equal(await ask({ 'x-forwarded-for': 'not an address' }), undefined, 'something that is not an address gives nothing');
+  } finally { server.close(); d.server.close(); }
 });
 
 test('every words page (not found, a failed form with no page to go back to) wears the not-found row\'s frame at its words place, as a centred card', async () => {
