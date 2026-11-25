@@ -1,0 +1,44 @@
+{
+  "drafted_from": "tool:keep-an-elestio-firewall's own row (its words, input schema and invoke) and do-work/keep-an-elestio-firewall.mjs",
+  "start_here": "Say to your AI: \"Make the Elestio firewall of my CI/CD target equal the rules in its computer row and tell me what you opened and closed.\" It switches the firewall on if it is off, sends exactly those rules and reads them back.",
+  "lists": [],
+  "no_lists_because": "It keeps no row: the rules are the caller's DATA (each computer's row), and the caller records the outcome where its job keeps them.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-an-elestio-firewall"
+  ],
+  "instructions": [
+    "1. Hold an Elestio API token in the vault as elestio-api-key, bound only to api.elest.io.",
+    "2. Keep the computer's rules as DATA: every port that must answer, each with its targets; 22/tcp and 4242/udp open to 0.0.0.0/0 and ::/0 are required (Elestio reaches the computer on them).",
+    "3. Call this tool once with apply false and read what it would open and close.",
+    "4. Call it again without apply false. ok true means the firewall is on and holds exactly the rules.",
+    "5. From another computer, check that each kept port answers and a closed port does not; this tool reads only Elestio's own record."
+  ],
+  "worked_examples": [
+    {
+      "title": "Switch on a CI/CD target's firewall for a web server",
+      "ask": "Switch on the firewall of my CI/CD target with only SSH, Nebula, 80 and 443 open.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-an-elestio-firewall",
+            "input": {
+              "email": "owner@example.test", "project_id": "90000", "vm_id": "170000000",
+              "rules": [
+                { "type": "INPUT", "port": "22", "protocol": "tcp", "targets": ["0.0.0.0/0", "::/0"] },
+                { "type": "INPUT", "port": "4242", "protocol": "udp", "targets": ["0.0.0.0/0", "::/0"] },
+                { "type": "INPUT", "port": "80", "protocol": "tcp", "targets": ["0.0.0.0/0", "::/0"] },
+                { "type": "INPUT", "port": "443", "protocol": "tcp", "targets": ["0.0.0.0/0", "::/0"] }
+              ]
+            }
+          }
+        }
+      },
+      "given": "An Elestio service whose firewall is off, and elestio-api-key in the vault.",
+      "hands_back": "{\"ok\":true,\"vm_id\":\"170000000\",\"action\":\"enableFirewall\",\"before\":{\"on\":false,\"rules\":[]},\"after\":{\"on\":true,\"rules\":[...4 rules]},\"opened\":[...4 rules],\"closed\":[],\"seconds\":12,\"reads\":3}"
+    }
+  ]
+}

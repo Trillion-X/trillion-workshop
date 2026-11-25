@@ -22715,6 +22715,15 @@
    "at": "/opt/run-sql-in-my-database"
   }
  ],
+ "tool:keep-an-elestio-firewall": [
+  {
+   "package": "keep-an-elestio-firewall",
+   "paths": [
+    "do-work/keep-an-elestio-firewall.mjs"
+   ],
+   "at": "/opt/keep-an-elestio-firewall"
+  }
+ ],
  "tool:keep-channels-latest-videos-and-captions": [
   {
    "package": "research-a-creator-or-topic",
