@@ -326,9 +326,13 @@ const ANSWERS_KEY: &str = "answers_kept";
 struct Keeping { run: Option<String>, keep: Vec<(String, String)>, held: BTreeSet<String>, told: BTreeMap<String, Value> }
 static KEEPING: Mutex<Keeping> = Mutex::new(Keeping { run: None, keep: Vec::new(), held: BTreeSet::new(), told: BTreeMap::new() });
 
-/// The text a key stands for, handed on this pass's input (`kept`), read when it is the key's.
+/// The text a key stands for, handed on this pass's input (`kept`), read when it is the key's. The engine adds `kept` to
+/// the run's input (trillion-rust wake.rs `with_kept`), and the tool row's stdin carries that input as `input`
+/// (tool-rows.json `tool:run-a-workflow` invoke.stdin), so it is read at `input.kept`. Nov 24 2026, 8:54 to 9:08 PM CST on
+/// the Mac: this read `kept` at the top of stdin, where nothing puts it, so 28 runs whose answers the engine held ended
+/// "its answers kept by the engine under <key> were not handed back" while the engine held every one of those keys.
 fn kept_text(given: &Value, key: &str) -> Option<Value> {
-    let text = given["kept"][key].as_str()?;
+    let text = given["input"]["kept"][key].as_str()?;
     (blake3::hash(text.as_bytes()).to_hex().as_str() == key).then(|| serde_json::from_str(text).ok()).flatten()
 }
 
@@ -1754,13 +1758,13 @@ mod tests {
         let key = blake3::hash(text.as_bytes()).to_hex().to_string();
         let run = || json!({ "recipe": "workflow:x", "read_definition": reader(), "run": "r", "input": {}, KEY: key }).as_object().unwrap().clone();
         let mut handed = run();
-        take_kept(&mut handed, &json!({ "kept": { key.clone(): text } }));
+        take_kept(&mut handed, &json!({ "input": { "kept": { key.clone(): text } } }));
         assert!(carries_definition(&handed), "walked from the kept bytes, no reader ask");
         let mut missing = run();
         take_kept(&mut missing, &json!({}));
         assert!(!carries_definition(&missing) && missing.get(KEY).is_none(), "not handed: read again");
         let mut changed = run();
-        take_kept(&mut changed, &json!({ "kept": { key.clone(): json!([one_step("workflow:x", "tool:b")]).to_string() } }));
+        take_kept(&mut changed, &json!({ "input": { "kept": { key.clone(): json!([one_step("workflow:x", "tool:b")]).to_string() } } }));
         assert!(!carries_definition(&changed), "bytes that are not the key's: read again");
     }
 
@@ -1770,6 +1774,36 @@ mod tests {
         let one = ONE.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
         *KEEPING.lock().unwrap() = Keeping::default();
         one
+    }
+
+    // The pass a reply naming kept keys starts reads what the engine handed it where the engine puts it: the engine adds
+    // `kept` {key: text} to the run's input (trillion-rust wake.rs `with_kept`), and this component's row hands that input
+    // on stdin as `input`. Nov 24 2026, 8:54 to 9:08 PM CST on the Mac: 28 runs ended "its answers kept by the engine under
+    // <key> were not handed back" while the engine's kept_values held every one of those keys, because this read `kept`
+    // at the top of stdin.
+    #[test]
+    fn a_pass_takes_the_kept_answers_the_engine_hands_on_its_input() {
+        let _one = keeping_alone();
+        let rows: Value = serde_json::from_str(include_str!("../../../tool-rows.json")).unwrap();
+        let row = rows["records"].as_array().unwrap().iter().map(|record| &record["payload"])
+            .find(|row| row["id"] == "tool:run-a-workflow").expect("the row that runs this component");
+        assert_eq!(row["invoke"]["stdin"]["input"], json!({ "fill": { "from": "input" } }), "the run's input (with `kept`) is stdin's `input`");
+        let held = json!({ "read-own": { "rows": [{ "words": "x".repeat(MOST_ANSWER_BYTES) }] } });
+        let text = held.to_string();
+        let key = blake3::hash(text.as_bytes()).to_hex().to_string();
+        let envelope = json!({ "recipe": "workflow:x", "run": "r", "input": {}, "answers": { "plan": 1 }, ANSWERS_KEY: key });
+        // As the engine hands it: the wake's own input with `kept` added, the cause whose fact told the step's answer.
+        let given = json!({ "input": { "start_at": "plan", "kept": { key.clone(): text } }, "cause": { "key": "c", "detail": { "kind": ANSWERED,
+            "payload": { "workflow": "workflow:x", "run": envelope, "step": "choose", "for": "tool:a", "result": { "chosen": [] }, "kept": [key] } } },
+            "context": {} });
+        let (mut run, refused) = the_run(&given);
+        assert!(refused.is_empty(), "{refused:?}");
+        take_kept(&mut run, &given);
+        assert_eq!(run["answers"]["read-own"], held["read-own"], "the held answer is back in its step's place");
+        assert_eq!((&run["answers"]["plan"], &run["answers"]["choose"]), (&json!(1), &json!({ "chosen": [] })));
+        assert_eq!(run[ANSWERS_KEY], json!(key), "still held under the same key");
+        assert!(KEEPING.lock().unwrap().keep.is_empty(), "nothing new to keep");
+        assert_eq!(kept_text(&json!({ "kept": { key.clone(): text } }), &key), None, "nothing is read from the top of stdin");
     }
 
     // A step's answer too large to carry is kept by the engine with the run's other held answers under one key, and the
@@ -1801,7 +1835,7 @@ mod tests {
         // The next pass is handed the key's text and walks with the answer.
         *KEEPING.lock().unwrap() = Keeping::default();
         let mut next = carried.as_object().unwrap().clone();
-        take_kept(&mut next, &json!({ "kept": { key.clone(): text } }));
+        take_kept(&mut next, &json!({ "input": { "kept": { key.clone(): text } } }));
         assert_eq!(next["answers"]["choose"], big);
         assert!(KEEPING.lock().unwrap().keep.is_empty(), "nothing new to keep");
     }
