@@ -68,3 +68,13 @@ test('the screen is pure: it draws no script', async () => {
   const html = await renderAView(entry, { screen: question(), info });
   assert.doesNotMatch(html, /<script/);
 });
+
+test('the self-driving screen draws the intro of the page it is given from plain JSON props, and fetches nothing while it renders', async () => {
+  const screen = new URL('../show/FormPageScreen.tsx', import.meta.url).pathname;
+  const props = JSON.parse(JSON.stringify({ page: 'assessment', title: 'Assessment', words, questions: 3, keep_on: 'https://members.example' }));
+  const html = await renderAView(screen, props);
+  assert.match(html, /Find your level/);
+  assert.match(html, /3 short questions\./);
+  assert.match(html, />Begin</);
+  assert.doesNotMatch(html, /Go on/);
+});

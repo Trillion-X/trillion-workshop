@@ -1,0 +1,38 @@
+{
+  "start_here": "Say to your AI: \"Open my form page assessment.\" It runs tool:read-a-form-page and shows the form one question at a time.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it reads one form page row and its form from the pursuit database you name and changes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-form-page"
+  ],
+  "instructions": [
+    "1. Name the pursuit database that holds the rows, such as example_for_who_uses_it; the computer opens it with the read login its vault holds.",
+    "2. Say what you want in plain words; your AI calls tools:run with tool tool:read-a-form-page and the input.",
+    "3. Read the answer: the page words, the question count and where answers are kept. Show it with the screen the tool names."
+  ],
+  "worked_examples": [
+    {
+      "title": "Open a form page",
+      "ask": "Open my form page assessment.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-form-page",
+            "input": {
+              "database": "example_for_who_runs_it",
+              "page": "assessment"
+            }
+          }
+        }
+      },
+      "given": "The database holds the rows the read names (made-up values).",
+      "hands_back": "{\"page\":\"assessment\",\"title\":\"Assessment\",\"words\":{\"start\":\"Begin\"},\"questions\":3,\"keep_on\":null}"
+    }
+  ],
+  "drafted_from": "tool row in tools/ask-questions-sort-answers-follow-up/tool-rows.json and reads/read-a-form-page.ts"
+}
