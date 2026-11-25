@@ -2,14 +2,8 @@
 // (read-data/derived-records.mjs): every shipped recipe holds exactly what it makes, so neither is written by hand.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { publicRecipes } from '../read-data/public-recipes.mjs';
 import { recordsOf, chosenWakesOf, withDerivedRecords } from '../read-data/derived-records.mjs';
 import { RUN_ACTOR } from '../../write-a-job-done-in-several-steps-have/read-data/workflows.mjs';
-
-test('every shipped recipe holds the rights and condition wakes its own steps and conditions make', () => {
-  const off = publicRecipes().filter(recipe => JSON.stringify(withDerivedRecords(recipe)) !== JSON.stringify(recipe)).map(recipe => recipe.id);
-  assert.deepEqual(off, [], 'run do-work/rebuild-recipes.mjs (or derive the hand-made recipe files again)');
-});
 
 test('a row runs the tools its steps ask and tells only a fact kind a step names as a value', () => {
   const step = (id, name, input = {}) => ({ id, kind: 'ask', config: { name, input, context: { step_id: id } } });

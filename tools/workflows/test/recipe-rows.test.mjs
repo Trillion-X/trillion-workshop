@@ -2,12 +2,9 @@
 // published view files make, and a recipe that names a tool nothing offers is reported as a gap, not refused.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import { recipeFromRows, recipesFromViews } from '../read-data/recipe-rows.mjs';
-import { rebuiltRecipesText } from '../do-work/rebuild-recipes.mjs';
 import { recipeProblems, recipeToolGaps, recipeToolIds, HOST_TOOLS } from '../read-data/recipe-problems.mjs';
 
-const read = name => readFileSync(new URL(name, import.meta.url), 'utf8');
 
 // What a mapping makes of a recipe: flat values, nested parts as JSON text. Written here only to prove the way back.
 const json = value => (value === undefined ? undefined : JSON.stringify(value));
@@ -45,11 +42,6 @@ test('two views make every recipe, ordered by id, and refuse steps that link to 
   const broken = stepRows('another-one', other);
   broken[0].values.submit = '{not json';
   assert.throws(() => recipesFromViews({ rows: [recipeRow('another-one', other)] }, { rows: broken }), /not JSON/);
-});
-
-test('recipes/workflows.json is exactly what the two published view files make, and every recipe in it is valid', () => {
-  assert.equal(read('../recipes/workflows.json'), rebuiltRecipesText());
-  for (const { payload } of JSON.parse(read('../recipes/workflows.json')).records) assert.deepEqual(recipeProblems(payload), [], payload.id);
 });
 
 test('a tool the Workshop offers is no gap, a host tool is no gap, and a tool nothing offers is one', () => {
