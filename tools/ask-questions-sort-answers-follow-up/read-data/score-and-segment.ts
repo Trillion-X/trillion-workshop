@@ -53,24 +53,34 @@ function asString(v: unknown): string {
   return v === null || v === undefined ? '' : String(v);
 }
 
+/** The values an answer stands for: a picks answer ({ picked, other? }, validate-answer.ts) is each value picked; any other
+ *  answer is itself. So a rule matches a pick the way it matches a written value, one pick or several. */
+function valuesOf(value: unknown): unknown[] {
+  const picked = value && typeof value === 'object' ? (value as { picked?: unknown }).picked : undefined;
+  return Array.isArray(picked) ? picked : [value];
+}
+
 /** Evaluate one rule against one answer value -> points contributed (0 if no match). */
 export function evaluateRule(value: unknown, rule: ScoreRule): number {
   const m = rule.match;
-  // value_map takes precedence: a direct value->points lookup.
+  const values = valuesOf(value);
+  // value_map takes precedence: a direct value->points lookup, added up over every value picked.
   if (m.value_map) {
-    const hit = m.value_map[asString(value)];
-    return typeof hit === 'number' ? hit : 0;
+    return values.reduce<number>((sum, one) => {
+      const hit = m.value_map![asString(one)];
+      return sum + (typeof hit === 'number' ? hit : 0);
+    }, 0);
   }
   const award = rule.points ?? 0;
   if (m.has_value !== undefined) {
-    const present = value !== null && value !== undefined && value !== '';
+    const present = values.some((one) => one !== null && one !== undefined && one !== '');
     return present === m.has_value ? award : 0;
   }
-  if (m.equals !== undefined) return value === m.equals ? award : 0;
+  if (m.equals !== undefined) return values.some((one) => one === m.equals) ? award : 0;
   if (m.gte !== undefined) return Number(value) >= m.gte ? award : 0;
   if (m.lte !== undefined) return Number(value) <= m.lte ? award : 0;
   if (m.min_length !== undefined) return asString(value).length >= m.min_length ? award : 0;
-  if (m.contains !== undefined) return m.contains.some((c) => c === value) ? award : 0;
+  if (m.contains !== undefined) return m.contains.some((c) => values.includes(c)) ? award : 0;
   return 0;
 }
 

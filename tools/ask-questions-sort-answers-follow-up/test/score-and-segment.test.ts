@@ -26,6 +26,19 @@ describe('evaluateRule — DATA matchers', () => {
   });
 });
 
+describe('evaluateRule — picks answers', () => {
+  const r = (match: ScoreRule['match'], points?: number): ScoreRule => ({ readKey: 'k', match, points });
+  it('a picks answer matches by each value picked: value_map adds up the picks, equals and contains match any pick', () => {
+    expect(evaluateRule({ picked: ['ready'] }, r({ value_map: { ready: 3, later: 1 } }))).toBe(3);
+    expect(evaluateRule({ picked: ['ready', 'later'] }, r({ value_map: { ready: 3, later: 1 } }))).toBe(4);
+    expect(evaluateRule({ picked: ['other'], other: 'my words' }, r({ value_map: { ready: 3 } }))).toBe(0);
+    expect(evaluateRule({ picked: ['b', 'c'] }, r({ equals: 'c' }, 2))).toBe(2);
+    expect(evaluateRule({ picked: ['z'] }, r({ contains: ['a', 'z'] }, 4))).toBe(4);
+    expect(evaluateRule({ picked: [] }, r({ has_value: true }, 1))).toBe(0);
+    expect(evaluateRule({ picked: ['a'] }, r({ has_value: true }, 1))).toBe(1);
+  });
+});
+
 describe('scoreAnswers', () => {
   const rules: ScoreRule[] = [
     { readKey: 'experience', match: { value_map: { beginner: 1, advanced: 5 } }, scoreLabel: 'skill' },

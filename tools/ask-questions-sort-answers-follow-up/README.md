@@ -18,7 +18,7 @@ Marked: **copied** from the package unchanged but for its import paths, **change
 | `read-data/fill-screen-model.ts` | `buildFillScreenModel`: every question's type rules with its own laid over them, each answer's verdict, all valid, first invalid. Given the engine's `holds`, a question not asked now has no row and is not checked. | copied |
 | `read-data/read-forms-data.ts` | Decodes question-type rows and form (`question-sequence`) records, defensively. | copied |
 | `read-data/builder-model.ts` | Immutable edits of a draft form: add, remove, update, move a question, set the title. | copied |
-| `read-data/score-and-segment.ts` | `evaluateRule`, `scoreAnswers`, `assignSegment`, `decide`: points and segments from rule rows. | copied |
+| `read-data/score-and-segment.ts` | `evaluateRule`, `scoreAnswers`, `assignSegment`, `decide`: points and segments from rule rows. A picks answer is matched by each value picked (`value_map` adds the picks up; `equals`, `contains` and `has_value` match any pick). | changed: picks |
 | `read-data/follow-up-sequences.ts` | `selectFollowUpSequence`, `readFollowUpSequences`: each segment's follow-up steps. | copied |
 | `read-data/read-decide-config.ts` | Decodes score rules, segment rules and follow-up sequences, scoped to one form when asked. | copied |
 | `read-data/fold-answer-facts.ts` | Folds answer facts back into one session per (form, respondent, submission), latest answer wins. | copied |
