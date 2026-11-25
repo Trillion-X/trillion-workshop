@@ -25,6 +25,10 @@
 //      name and the closed courses are host values the row names (`first_name`, `closed_courses`); without them they are
 //      not drawn.
 //   4. Every word is read-data/learner-home-words.json, each replaceable by the row's `words`. Nothing here writes a row.
+//   5. `sections` names the parts this screen draws (heading, resume, up_next, courses). A home whose row is an
+//      arrangement of its parts (src/workspace/screen-own-arrangement.ts, `surface_input.arrangement`) has one row per
+//      part, so each part is a piece the person, or their AI, can move, size, give its own words or leave out, kept per
+//      person at screen-arrangement-of::<screen>. The pieces of one home share one read of the rows.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
@@ -47,6 +51,10 @@ type HomeInput = {
   open_lesson?: string;
   open_plans?: string;
   words?: Partial<Words>;
+  /** Which parts of the home this screen draws, in order (`heading`, `resume`, `up_next`, `courses`); without it, all.
+   *  A home whose row is an arrangement of its parts (screen-own-arrangement.ts) gives each piece its own part, so each
+   *  piece can be moved, sized or left out, per person. */
+  sections?: string[];
   first_name?: string;
   closed_courses?: unknown;
   floating_frame?: unknown;
@@ -59,6 +67,10 @@ const COURSE_ROW_TYPE = 'record:course';
 const LESSON_ROW_TYPE = 'record:lesson';
 const LESSON_SCREEN_ENTRY = 'course-lesson-screen-mount';
 const PROGRESS_COLOUR = 'var(--button-primary-bg)';
+const SECTIONS = ['heading', 'resume', 'up_next', 'courses'] as const;
+type SectionId = typeof SECTIONS[number];
+// How long one read of the rows serves every piece of the home that asks for it (the pieces of one home open together).
+const SHARED_READ_MS = 3000;
 
 const text = (value: unknown): string | undefined => (typeof value === 'string' && value ? value : undefined);
 
@@ -93,13 +105,51 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function Loading({ words }: { words: Words }) {
-  return (
-    <Container layout="vertical" width="full" className="gap-10" aria-busy="true" aria-label={words.loading}>
+/** The rows the home is made from, read once for every piece that opens within SHARED_READ_MS of the first. */
+type Rows = { courseRows: StoredRecord[]; lessonRows: StoredRecord[]; doneRows: StoredRecord[] };
+let sharedRead: { at: number; rows: Promise<Rows> } | null = null;
+// Try again in one piece reads again for every piece of the home: each hears it and asks for rows read after it.
+let triedAgainAt = 0;
+const triedAgain = new Set<() => void>();
+function tryAgainEverywhere(): void {
+  triedAgainAt = Date.now();
+  for (const listener of triedAgain) listener();
+}
+function readRows(): Promise<Rows> {
+  if (sharedRead && sharedRead.at >= triedAgainAt && Date.now() - sharedRead.at < SHARED_READ_MS) return sharedRead.rows;
+  const rows = Promise.all([
+    listRecords({ type: COURSE_ROW_TYPE }),
+    listRecords({ type: LESSON_ROW_TYPE }),
+    listRecords({ type: LESSON_DONE_TYPE }),
+  ]).then(([courseRows, lessonRows, doneRows]) => ({ courseRows, lessonRows, doneRows }));
+  sharedRead = { at: Date.now(), rows };
+  rows.catch(() => { if (sharedRead?.rows === rows) sharedRead = null; });
+  return rows;
+}
+
+/** The shape of each part while the rows are on their way: never a blank panel. */
+function Loading({ words, sections }: { words: Words; sections: SectionId[] }) {
+  const rows = (count: number) => (
+    <Container layout="vertical" gap="sm" width="full">
+      {Array.from({ length: count }, (_, row) => (
+        <Container key={row} layout="horizontal" gap="md" alignItems="center" width="full">
+          <Skeleton className="aspect-video w-20 sm:w-28" />
+          <Container layout="vertical" gap="xs" flex={1}>
+            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-3 w-1/4" />
+          </Container>
+        </Container>
+      ))}
+    </Container>
+  );
+  const shapes: Record<SectionId, React.ReactNode> = {
+    heading: (
       <Container layout="vertical" gap="sm" width="full">
         <Skeleton className="h-4 w-40" />
         <Skeleton className="h-8 w-72" />
       </Container>
+    ),
+    resume: (
       <Container layout="responsive-split" gap="xl" width="full">
         <Skeleton className="aspect-video w-full sm:w-1/2 rounded-[var(--radius-card,0.75rem)]" />
         <Container layout="vertical" gap="md" flex={1} justifyContent="center">
@@ -109,17 +159,13 @@ function Loading({ words }: { words: Words }) {
           <Skeleton className="h-10 w-32" />
         </Container>
       </Container>
-      <Container layout="vertical" gap="sm" width="full">
-        {[0, 1, 2].map(row => (
-          <Container key={row} layout="horizontal" gap="md" alignItems="center" width="full">
-            <Skeleton className="aspect-video w-20 sm:w-28" />
-            <Container layout="vertical" gap="xs" flex={1}>
-              <Skeleton className="h-4 w-2/3" />
-              <Skeleton className="h-3 w-1/4" />
-            </Container>
-          </Container>
-        ))}
-      </Container>
+    ),
+    up_next: rows(3),
+    courses: rows(2),
+  };
+  return (
+    <Container layout="vertical" width="full" className="gap-10" aria-busy="true" aria-label={words.loading}>
+      {sections.map(section => <React.Fragment key={section}>{shapes[section]}</React.Fragment>)}
     </Container>
   );
 }
@@ -162,6 +208,12 @@ function Hero({ home, words, open }: { home: Home; words: Words; open: (lesson: 
 
 function LearnerHome({ input }: { input: HomeInput }) {
   const words = React.useMemo(() => ({ ...WORDS, ...(input.words ?? {}) }) as Words, [input.words]);
+  const sections = React.useMemo(() => {
+    const asked = Array.isArray(input.sections) ? input.sections.filter((one): one is SectionId => (SECTIONS as readonly string[]).includes(one)) : [];
+    return asked.length ? asked : [...SECTIONS];
+  }, [input.sections]);
+  // The whole home fills its pane and scrolls in it; one piece of an arranged home is as tall as what it holds.
+  const whole = !Array.isArray(input.sections);
   const [home, setHome] = React.useState<Home | null>(null);
   const [failed, setFailed] = React.useState(false);
   const [attempt, setAttempt] = React.useState(0);
@@ -171,11 +223,7 @@ function LearnerHome({ input }: { input: HomeInput }) {
     setFailed(false);
     void (async () => {
       try {
-        const [courseRows, lessonRows, doneRows] = await Promise.all([
-          listRecords({ type: COURSE_ROW_TYPE }),
-          listRecords({ type: LESSON_ROW_TYPE }),
-          listRecords({ type: LESSON_DONE_TYPE }),
-        ]);
+        const { courseRows, lessonRows, doneRows } = await readRows();
         const lessons = new Map(lessonRows.map(record => [record.id, (record.value ?? {}) as Record<string, unknown>]));
         const courses = showTheCoursesALearnerIsOn({ courses: coursesOf(courseRows, lessons), done: finishedLessonsOf(doneRows) });
         const shown = learnerHomeOf({
@@ -194,98 +242,121 @@ function LearnerHome({ input }: { input: HomeInput }) {
     return () => { gone = true; };
   }, [attempt, closed, lengthField, videoField]);
 
+  React.useEffect(() => {
+    const again = () => setAttempt(count => count + 1);
+    triedAgain.add(again);
+    return () => { triedAgain.delete(again); };
+  }, []);
+  // A failure, or no course at all, is said once: by the piece where the lesson to resume would be (the whole home holds
+  // it too); the other pieces draw nothing.
+  const says = sections.includes('resume');
+
   const open = React.useCallback((lesson: Pick<HomeLesson, 'course_id' | 'lesson_id' | 'title'>) => openLesson(lesson, openEntry, videoField), [openEntry, videoField]);
   const name = text(input.first_name);
   const started = Boolean(home?.started);
 
-  let body: React.ReactNode;
-  if (failed) {
-    body = <EmptyState tone="error" icon={<NamedIcon name="CloudOff" size="lg" />} title={words.failed} description={words.failed_why} action={words.retry} onAction={() => setAttempt(count => count + 1)} />;
-  } else if (!home) {
-    body = <Loading words={words} />;
-  } else if (!home.courses.length) {
-    body = (
-      <Container layout="vertical" width="full" className="gap-10">
-        <EmptyState icon={<NamedIcon name="GraduationCap" size="lg" />} title={words.none} description={words.none_why} action={plansEntry ? words.closed_action : undefined} onAction={plansEntry ? () => emitPlaceableSurfaceIntent({ id: plansEntry }) : undefined} />
-      </Container>
-    );
-  } else {
-    body = (
-      <Container layout="vertical" width="full" className="gap-10">
+  const part = (section: SectionId, loaded: Home): React.ReactNode => {
+    if (section === 'heading') {
+      return (
         <Container layout="vertical" gap="xs" width="full">
           {name ? <Text variant="body" color="secondary">{fillWords(started ? words.greeting : words.greeting_new, { name })}</Text> : null}
           <Text as="h1" variant="title" color="strong" className="text-balance">{started ? words.title : words.title_new}</Text>
         </Container>
-        {home.resume ? <Hero home={home} words={words} open={open} /> : <Text variant="body" color="secondary">{words.all_done}</Text>}
-        {home.up_next.length ? (
-          <Section title={words.up_next}>
-            <Container as="ul" layout="vertical" gap="xs" width="full" className="list-none">
-              {home.up_next.map(lesson => (
-                <Container as="li" key={`${lesson.course_id}/${lesson.lesson_id}`} layout="vertical" gap="none" width="full">
-                  <MediaItem title={lesson.title} description={fillWords(words.lesson_of, lesson)} still={lesson.still} length={lesson.length} onPress={() => open(lesson)} />
-                </Container>
-              ))}
-            </Container>
-          </Section>
-        ) : null}
-        <Section title={words.my_courses}>
+      );
+    }
+    if (section === 'resume') return loaded.resume ? <Hero home={loaded} words={words} open={open} /> : <Text variant="body" color="secondary">{words.all_done}</Text>;
+    if (section === 'up_next') {
+      return loaded.up_next.length ? (
+        <Section title={words.up_next}>
           <Container as="ul" layout="vertical" gap="xs" width="full" className="list-none">
-            {home.courses.map(course => (
-              <Container as="li" key={course.course_id} layout="vertical" gap="none" width="full">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="option-row"
-                  fullWidth
-                  disabled={!course.opens}
-                  aria-label={fillWords(words.open_course, course)}
-                  onClick={() => { if (course.opens) open(course.opens); }}
-                  className="items-center gap-4"
-                >
-                  <Container layout="vertical" gap="sm" flex={1} className="min-w-0">
-                    <Text as="span" variant="body" weight="medium" color="strong" truncate>{course.title}</Text>
-                    <Container layout="horizontal" gap="md" alignItems="center" width="full">
-                      <ProgressBar percentage={course.percent} color={PROGRESS_COLOUR} height="0.25rem" className="flex-1" />
-                      <Text as="span" variant="label" color="secondary" tabular wrap="nowrap">{fillWords(words.course_done, course)}</Text>
-                    </Container>
-                  </Container>
-                  <NamedIcon name="ChevronRight" size="sm" aria-hidden="true" />
-                </Button>
+            {loaded.up_next.map(lesson => (
+              <Container as="li" key={`${lesson.course_id}/${lesson.lesson_id}`} layout="vertical" gap="none" width="full">
+                <MediaItem title={lesson.title} description={fillWords(words.lesson_of, lesson)} still={lesson.still} length={lesson.length} onPress={() => open(lesson)} />
               </Container>
             ))}
           </Container>
-          {home.closed.length ? (
-            <Container layout="vertical" gap="sm" width="full" className="pt-4">
-              <Text as="h3" variant="label" color="secondary" weight="medium">{words.closed_heading}</Text>
-              <Container as="ul" layout="vertical" gap="xs" width="full" className="list-none">
-                {home.closed.map(course => (
-                  <Container as="li" key={course.title} layout="horizontal" gap="sm" alignItems="center" width="full" className="px-3 py-1.5">
-                    <NamedIcon name="Lock" size="sm" color="faint" aria-hidden="true" />
-                    <Text as="span" variant="body" color="faint" truncate>{course.title}</Text>
-                  </Container>
-                ))}
-              </Container>
-              {plansEntry ? (
-                <Container layout="horizontal" gap="sm" className="px-3">
-                  <Button type="button" variant="outline" size="sm" onClick={() => emitPlaceableSurfaceIntent({ id: plansEntry })}>{words.closed_action}</Button>
-                </Container>
-              ) : null}
-            </Container>
-          ) : null}
         </Section>
+      ) : null;
+    }
+    return (
+      <Section title={words.my_courses}>
+        <Container as="ul" layout="vertical" gap="xs" width="full" className="list-none">
+          {loaded.courses.map(course => (
+            <Container as="li" key={course.course_id} layout="vertical" gap="none" width="full">
+              <Button
+                type="button"
+                variant="ghost"
+                size="option-row"
+                fullWidth
+                disabled={!course.opens}
+                aria-label={fillWords(words.open_course, course)}
+                onClick={() => { if (course.opens) open(course.opens); }}
+                className="items-center gap-4"
+              >
+                <Container layout="vertical" gap="sm" flex={1} className="min-w-0">
+                  <Text as="span" variant="body" weight="medium" color="strong" truncate>{course.title}</Text>
+                  <Container layout="horizontal" gap="md" alignItems="center" width="full">
+                    <ProgressBar percentage={course.percent} color={PROGRESS_COLOUR} height="0.25rem" className="flex-1" />
+                    <Text as="span" variant="label" color="secondary" tabular wrap="nowrap">{fillWords(words.course_done, course)}</Text>
+                  </Container>
+                </Container>
+                <NamedIcon name="ChevronRight" size="sm" aria-hidden="true" />
+              </Button>
+            </Container>
+          ))}
+        </Container>
+        {loaded.closed.length ? (
+          <Container layout="vertical" gap="sm" width="full" className="pt-4">
+            <Text as="h3" variant="label" color="secondary" weight="medium">{words.closed_heading}</Text>
+            <Container as="ul" layout="vertical" gap="xs" width="full" className="list-none">
+              {loaded.closed.map(course => (
+                <Container as="li" key={course.title} layout="horizontal" gap="sm" alignItems="center" width="full" className="px-3 py-1.5">
+                  <NamedIcon name="Lock" size="sm" color="faint" aria-hidden="true" />
+                  <Text as="span" variant="body" color="faint" truncate>{course.title}</Text>
+                </Container>
+              ))}
+            </Container>
+            {plansEntry ? (
+              <Container layout="horizontal" gap="sm" className="px-3">
+                <Button type="button" variant="outline" size="sm" onClick={() => emitPlaceableSurfaceIntent({ id: plansEntry })}>{words.closed_action}</Button>
+              </Container>
+            ) : null}
+          </Container>
+        ) : null}
+      </Section>
+    );
+  };
+
+  let body: React.ReactNode;
+  if (failed) {
+    body = says ? <EmptyState tone="error" icon={<NamedIcon name="CloudOff" size="lg" />} title={words.failed} description={words.failed_why} action={words.retry} onAction={tryAgainEverywhere} /> : null;
+  } else if (!home) {
+    body = <Loading words={words} sections={sections} />;
+  } else if (!home.courses.length) {
+    body = says
+      ? <EmptyState icon={<NamedIcon name="GraduationCap" size="lg" />} title={words.none} description={words.none_why} action={plansEntry ? words.closed_action : undefined} onAction={plansEntry ? () => emitPlaceableSurfaceIntent({ id: plansEntry }) : undefined} />
+      : null;
+  } else {
+    body = (
+      <Container layout="vertical" width="full" className="gap-10">
+        {sections.map(section => <React.Fragment key={section}>{part(section, home)}</React.Fragment>)}
       </Container>
     );
   }
 
+  // A piece marks itself as drawing at its own height (`data-fits-content`), so the arrangement fits its pane to it.
+  const column = (
+    <Container layout="vertical" gap="none" width="full" {...(whole ? {} : { 'data-fits-content': '' })} className={whole ? 'mx-auto max-w-[880px] px-4 py-8 sm:px-8 sm:py-10' : 'mx-auto max-w-[880px] px-4 py-4 sm:px-8 sm:py-5'}>
+      {body}
+    </Container>
+  );
+  // A piece is as tall as what it holds, so the arrangement it sits in can fit its pane to it; it takes no frame.
+  if (!whole) return <ErrorBoundary zoneName="learner home">{column}</ErrorBoundary>;
   return (
     <FloatingMaterialFrame frame={input.floating_frame}>
       <ErrorBoundary zoneName="learner home">
-        {/* Flat in the pane: the column scrolls inside it with no frame of its own (no card inside the pane's card). */}
-        <Container layout="vertical" gap="none" width="full" height="full" overflow="y-auto">
-          <Container layout="vertical" gap="none" width="full" className="mx-auto max-w-[880px] px-4 py-8 sm:px-8 sm:py-10">
-            {body}
-          </Container>
-        </Container>
+        {/* Flat in the pane: the whole home scrolls inside it with no frame of its own (no card inside the pane's card). */}
+        <Container layout="vertical" gap="none" width="full" height="full" overflow="y-auto">{column}</Container>
       </ErrorBoundary>
     </FloatingMaterialFrame>
   );

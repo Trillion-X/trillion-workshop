@@ -28,7 +28,13 @@ page; the site holds only its rows and its server routes. The page holds no site
    `.tsx` (for example `billing-screen-mount`). The page's key for it is `package_name/entry_name`.
 3. The row's `surface_input` is the screen's input. `host_input` in it names the host values the screen takes (for example
    `["subject_email", "subscription_id"]`); nothing else from the host reaches a screen.
-4. `packages`: the Workshop packages whose screen modules the page carries. Every `*-screen-mount.tsx` file under a package's
+4. A screen made of screens: a row whose `surface_input.arrangement` (the starter shape of
+   `tools/arrange-screens-in-panes/read-data/starter-layouts.ts`) names other rows opens as that arrangement, each piece one of
+   the page's rows (`src/workspace/screen-own-arrangement.ts`; the page names its list with `offerScreensFrom`). Each person's
+   own arrangement of it is their record `screen-arrangement-of::<row id>`, which wins over the row's; the owner's show rules
+   decide the rest, and an `arrangement` rule can limit the window alone (`kept_at` is empty there) and leave the arrangements
+   inside screens free. `surface_input.arrangement_chrome.arranged` names which chrome a looked-at arrangement hides.
+5. `packages`: the Workshop packages whose screen modules the page carries. Every `*-screen-mount.tsx` file under a package's
    `web/` folder is a screen module; two with one key are refused at build time.
 
 A screen module exports `mount(element, props)`. The page gives it its row's input both flat (`props.<name>`) and as

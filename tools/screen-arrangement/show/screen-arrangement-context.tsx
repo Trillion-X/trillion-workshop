@@ -231,9 +231,13 @@ export function LayoutOwnerProviderView({
   hostChrome,
 }: LayoutOwnerProviderViewProps) {
   useShowChange()
-  const arrangementChange = showChanged('arrangement', { constraints: UNRESTRICTED_ARRANGEMENT_CONSTRAINTS })
+  // The arrangement a rule is asked about: its limits, and `kept_at`, the record it is kept at (a screen's own nested
+  // arrangement, screen-arrangement-of::<screen>; empty for the window's). A rule can so limit the window alone, or one
+  // screen's own arrangement, and leave the arrangements inside screens free.
+  const ruleThing = { constraints: UNRESTRICTED_ARRANGEMENT_CONSTRAINTS, kept_at: persistence && 'valueAddressLabel' in persistence ? persistence.valueAddressLabel : '' }
+  const arrangementChange = showChanged('arrangement', ruleThing)
   // The rule in force that sets the limits keys the limited view's own saved copy (keyedLayoutStatePersistence).
-  const limitKey = showOf('arrangement', { constraints: UNRESTRICTED_ARRANGEMENT_CONSTRAINTS }).changes
+  const limitKey = showOf('arrangement', ruleThing).changes
     ?.filter(change => change.path[0] === 'constraints').at(-1)?.rule ?? null
   const constraintsValue = React.useMemo(
     () => {

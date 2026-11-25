@@ -22,8 +22,16 @@ export type OfferedScreen = {
   [field: string]: unknown;
 };
 
-const SCREEN_LIST = { input: 'placeable-surface-list-by-address-label', params: { addressLabel: surfaces.address_label } };
-const offeredFrom = (rows: unknown) => (Array.isArray(rows) && rows.length ? rows : surfaces.surfaces) as OfferedScreen[];
+let SCREEN_LIST = { input: 'placeable-surface-list-by-address-label', params: { addressLabel: surfaces.address_label } };
+/** A page whose screens are another list's rows (a site's members page: `placeable-surface-list::<placement>`) names it
+ *  here once, before anything opens, so a screen made of screens finds its pieces among that page's own rows. */
+export function offerScreensFrom(addressLabel: string): void {
+  SCREEN_LIST = { input: 'placeable-surface-list-by-address-label', params: { addressLabel } };
+}
+// A list's rows arrive as the rows themselves or as catalog entries ({ record, payload }); either is the same screen.
+const offeredFrom = (rows: unknown) => (Array.isArray(rows) && rows.length
+  ? rows.map(row => (row && typeof row === 'object' && !('id' in row) && 'payload' in row ? (row as { payload: unknown }).payload : row))
+  : surfaces.surfaces) as OfferedScreen[];
 
 /** The screens this person is offered (the app's rows and every tool's own screen row), as the sidebar holds them; the
  *  app's rows alone before the workspace has started. */
@@ -33,7 +41,7 @@ export const offeredScreens = (): OfferedScreen[] => offeredFrom(readInputValue<
 export const useOfferedScreens = (): OfferedScreen[] => offeredFrom(useBitfieldData<unknown[]>(SCREEN_LIST));
 const offered = offeredScreens;
 
-type Surface = { id: string; package_entry?: { entry_name?: string }; surface_input?: Record<string, unknown> };
+type Surface = { id: string; package_entry?: { package_name?: string; entry_name?: string }; surface_input?: Record<string, unknown> };
 /** The screen a pane holds: the offered screen with its entry whose own input the pane's input matches. */
 export function surfaceOf(offered: Surface[], entry: string, input: Record<string, unknown>): string | null {
   // A screen's input values may be objects (an arrangement), handed over as copies, so they compare by what they hold;
@@ -42,7 +50,10 @@ export function surfaceOf(offered: Surface[], entry: string, input: Record<strin
     : value && typeof value === 'object' ? Object.fromEntries(Object.keys(value).sort().map(key => [key, held((value as Record<string, unknown>)[key])]))
     : value);
   const same = (left: unknown, right: unknown) => left === right || JSON.stringify(held(left)) === JSON.stringify(held(right));
-  const matches = offered.filter(surface => surface.package_entry?.entry_name === entry
+  // A page whose screens come from several packages keys a screen by `<package>/<entry>` (a site's members page); one
+  // app's own screens by the entry alone.
+  const entryOf = (surface: Surface) => [surface.package_entry?.entry_name, `${surface.package_entry?.package_name}/${surface.package_entry?.entry_name}`];
+  const matches = offered.filter(surface => entryOf(surface).includes(entry)
     && Object.entries(surface.surface_input ?? {}).every(([key, value]) => same(input[key], value)));
   const size = (surface: Surface) => Object.keys(surface.surface_input ?? {}).length;
   return matches.reduce<Surface | null>((best, surface) => (!best || size(surface) > size(best) ? surface : best), null)?.id ?? null;

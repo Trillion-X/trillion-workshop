@@ -34,6 +34,8 @@ import { keepRecordViewPreferencesOnThisPage } from '../../../ui/show/record-vie
 import { readSavedLabels } from '../src/workspace/records';
 import { keepShowRules } from '../src/workspace/show-rules-live';
 import { applyChosenScreenLook } from '../../../screen-look/show/apply-chosen-screen-look';
+import { offerScreensFrom } from '../src/workspace/open-screen';
+import { useWindowArrangement } from '../src/workspace/screen-own-arrangement';
 import { applyScreenLookValues } from '../../../screen-look/show/ApplyCurrentScreenLook';
 import looks from '../src/workspace/looks.json';
 import mountWalkthroughHost from '../../../guided-overlay/show/mount-walkthrough-host';
@@ -104,7 +106,10 @@ mountSidebar({ el: document.getElementById('sidebar')!, props: { surfaceInput: {
   placeable_surface_list_address_label: LIST,
   surface_collections_graph: lists,
 } } });
-mountArrangement({ el: document.getElementById('arrangement')!, props: {
+// The arrangement's own props, given to every screen's own arrangement too (src/workspace/screen-own-arrangement.ts), so a
+// screen made of screens (a home whose row holds `surface_input.arrangement`) opens its pieces from this page's rows and
+// each piece can be arranged in turn, kept per person at screen-arrangement-of::<screen>.
+const arrangementProps = {
   placeableSurfaceListAddressLabel: LIST,
   surface_collections_scope: host.placement,
   persist_collection_edits: true,
@@ -113,7 +118,11 @@ mountArrangement({ el: document.getElementById('arrangement')!, props: {
   tabsOutsideCatalog: 'keep',
   // What an empty pane opens on: the rows the host names (its home), never a blank panel.
   empty_container_surface_ids: host.start ?? [],
-} });
+};
+offerScreensFrom(LIST);
+// A screen's own arrangement opens no home in its empty pieces: the home is the window's start, not every pane's.
+useWindowArrangement({ ...arrangementProps, empty_container_surface_ids: [] });
+mountArrangement({ el: document.getElementById('arrangement')!, props: arrangementProps });
 
 // The person's own tours: the walkthrough-definition records the host answers under its `tours` label, run over this page by the
 // Workshop's tour host (tools/guided-overlay), which draws nothing until one starts. The page says it opened (first-use-ready), so a
