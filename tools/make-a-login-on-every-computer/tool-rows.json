@@ -63,6 +63,10 @@
             "make_role": {
               "type": "boolean",
               "description": "true (default) makes the role; false only puts and reads back."
+            },
+            "held_name": {
+              "type": "string",
+              "description": "Optional vault name to hold the login under instead of <login>-connection, when its reader asks for a set name (the writer login the engine opens under a use: <database>-writer-connection). Ends in -connection."
             }
           }
         },

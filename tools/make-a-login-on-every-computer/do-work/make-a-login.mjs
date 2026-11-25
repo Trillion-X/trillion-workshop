@@ -12,8 +12,10 @@ import { realpathSync } from 'node:fs';
 // - The password is generated here and nowhere else; the vault stores it as the connection string the door is given.
 // - Every error message is scrubbed of the password before it leaves this process.
 //
-// Input (JSON on stdin): { login, database, host, computer, operator, grants?, make_role? }
+// Input (JSON on stdin): { login, database, host, computer, operator, held_name?, grants?, make_role? }
 //   login      the login's base name (letters, digits, underscores), e.g. ethos_for_who_runs_it_post_writer; the held name is <login>-connection
+//   held_name  optional: the vault name to hold the login under, when its reader asks for a set name and not <login>-connection, such as
+//              the writer login the engine opens for a tool's use (<database>-writer-connection); a vault name that ends in -connection
 //   database   the database the login connects to and its grants apply in
 //   host       the address the connection string names and the vault may send the value to
 //   computer   this computer's short name, carried in the role name: <login>_<computer>
@@ -33,6 +35,7 @@ const say = (message, status) => new CommandError(message, { status });
 
 const NAME = /^[a-z_][a-z0-9_]{0,62}$/;
 const SHORT = /^[a-z0-9][a-z0-9-]{0,30}$/;
+const HELD_NAME = /^[a-z0-9][a-z0-9_-]{0,100}-connection$/;
 
 /** A password of 32 random bytes, base64url: the same shape the login recipes accept as a standing password. */
 export const passwordOf = () => randomBytes(32).toString('base64url');
@@ -42,8 +45,9 @@ export const connectionOf = ({ role, password, database, host }) => `postgresql:
 
 /** Checks the input before anything is put anywhere; answers the run's own names. */
 export function inputOf(given) {
-  const { login, database, host, computer, operator, grants, make_role: makeRole = true } = given ?? {};
+  const { login, database, host, computer, operator, grants, make_role: makeRole = true, held_name: heldNameGiven } = given ?? {};
   if (typeof login !== 'string' || !NAME.test(login)) throw say('login must be a name: letters, digits and underscores.', 2);
+  if (heldNameGiven !== undefined && (typeof heldNameGiven !== 'string' || !HELD_NAME.test(heldNameGiven))) throw say('held_name must be a vault name of lowercase letters, digits, underscores and hyphens that ends in -connection.', 2);
   if (typeof database !== 'string' || !NAME.test(database)) throw say('database must be a database name: letters, digits and underscores.', 2);
   if (typeof host !== 'string' || host === '') throw say('host must be the database address.', 2);
   if (typeof computer !== 'string' || !SHORT.test(computer)) throw say('computer must be this computer\'s short name: lowercase letters, digits and hyphens.', 2);
@@ -52,7 +56,7 @@ export function inputOf(given) {
   if (grants !== undefined && (grants === null || typeof grants !== 'object' || typeof grants.recipe !== 'string' || grants.recipe === '')) throw say('grants must be { recipe } naming the grants recipe to run.', 2);
   const role = `${login}_${computer.replaceAll('-', '_')}`;
   if (!NAME.test(role)) throw say('the role name (login and computer) is too long or not a name.', 2);
-  return { login, database, host, computer, operator, grants: grants ?? null, makeRole, role };
+  return { login, database, host, computer, operator, grants: grants ?? null, makeRole, role, heldName: heldNameGiven ?? `${login}-connection` };
 }
 
 /** Runs one tool on this computer's own door and answers its whole answer. */
@@ -76,8 +80,7 @@ async function readBack(client, heldName, why) {
  * `password` is for the test only: a run makes its own.
  */
 export async function makeLogin({ input, client, password = passwordOf() }) {
-  const { login, database, host, computer, operator, grants, makeRole, role } = inputOf(input);
-  const heldName = `${login}-connection`;
+  const { login, database, host, computer, operator, grants, makeRole, role, heldName } = inputOf(input);
   const value = connectionOf({ role, password, database, host });
   const scrub = text => String(text).split(password).join('<redacted>');
   try {

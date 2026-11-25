@@ -5,12 +5,12 @@ Makes this computer's own database login for one pursuit, held in this computer'
 | File | Purpose |
 |------|---------|
 | `do-work/make-a-login.mjs` | The run: reads the input JSON on stdin, checks this computer's held value (or puts it), reads the name back, makes this computer's role with the `a-login` recipe, and gives its grants. |
-| `test/make-a-login.test.mjs` | 8 tests against a stub door: the order of calls, no call names another computer, the password absent from the answer and from every tool run, a refused put and a missing read-back each stop before any role is made, a re-run resumes at the grants when the role exists, `make_role` false makes no role, and bad input is refused before any put. |
+| `test/make-a-login.test.mjs` | 9 tests against a stub door: the order of calls, no call names another computer, the password absent from the answer and from every tool run, a refused put and a missing read-back each stop before any role is made, a re-run resumes at the grants when the role exists, `make_role` false makes no role, a `held_name` is used exactly in place of the default name, and bad input is refused before any put. |
 | `tool-rows.json` | The Workshop row (`tool:make-a-login-on-every-computer`), with the `secrets:put` rights block for the three pursuits' connection names (pattern rights; owner connections fall outside them). |
 
 ## Input
 
-`login`, `database`, `host`, `computer` (this computer's short name, carried in the role name `<login>_<computer>`), `operator` (required when `make_role` is true), `grants` (optional `{recipe}`), `make_role` (default true).
+`login`, `database`, `host`, `computer` (this computer's short name, carried in the role name `<login>_<computer>`), `operator` (required when `make_role` is true), `grants` (optional `{recipe}`), `make_role` (default true), `held_name` (optional: the vault name to hold it under in place of `<login>-connection`, for a reader that asks for a set name, such as the engine's `<database>-writer-connection` writer login; it ends in `-connection`).
 
 ## Order
 

@@ -99,6 +99,31 @@ test('with make_role false the value is put and read back on this computer, and 
   assert.deepEqual(methods(bodies), ['secrets:put', 'secrets:names']);
 });
 
+test('a held_name is the exact vault name: put, read back, handed to a-login and answered under it, never <login>-connection', async () => {
+  const held = 'synthetic_pursuit-writer-connection';
+  const bodies = [];
+  const fetchImpl = async (url, { body }) => {
+    const parsed = JSON.parse(body);
+    bodies.push(parsed);
+    const call = parsed.params.arguments;
+    const answer = call.method === 'secrets:put' ? { accepted: true }
+      : call.method === 'secrets:names' ? { names: [held] }
+      : call.input?.input?.sql ? { exit_code: 0, result: { rows: [{ n: 0 }] } } : { exit_code: 0, result: { rows: [] } };
+    return new Response(JSON.stringify({ jsonrpc: '2.0', id: parsed.id, result: { structuredContent: answer, isError: false } }),
+      { status: 200, headers: { 'content-type': 'application/json' } });
+  };
+  const client = engineClient({ door: { name: 'test door', mcp: 'https://door.test/mcp' }, credential: { kind: 'key', bearer: 'nm_synthetic' }, fetchImpl });
+  const made = await makeLogin({ input: { ...INPUT, held_name: held }, client, password: PASSWORD });
+  assert.equal(bodies[1].params.arguments.input.name, held);
+  assert.equal(bodies[3].params.arguments.input.input.role_credential_name, held);
+  assert.equal(made.held_name, held);
+  assert.equal(made.role, ROLE, 'the role name still comes from login and computer');
+  assert.ok(bodies.every(body => !JSON.stringify(body).includes(HELD)), 'the default name is never used');
+  assert.equal(inputOf(INPUT).heldName, HELD, 'with no held_name the default stays <login>-connection');
+  assert.throws(() => inputOf({ ...INPUT, held_name: 'Not A Name' }), /held_name must be/);
+  assert.throws(() => inputOf({ ...INPUT, held_name: 'synthetic_pursuit-writer' }), /held_name must be/);
+});
+
 test('the input is checked before anything is put: the computer is a short name, names are plain, the operator is needed to make a role', () => {
   assert.throws(() => inputOf({ ...INPUT, computer: 'Bad Name' }), /computer must be this computer's short name/);
   assert.throws(() => inputOf({ ...INPUT, computer: undefined }), /computer must be/);
