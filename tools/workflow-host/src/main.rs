@@ -243,6 +243,14 @@ async fn fill_store(given: &mut Value) -> Fill {
     }
     Fill::ReadFailed(format!("the store read failed after {} tries: {failure}", waits.len() + 1))
 }
+// Every step of the given definitions whose context.step_id is not its own id, as "workflow: step says other".
+fn step_id_mismatches(definitions: &[Value]) -> Vec<String> {
+    definitions.iter().flat_map(|def| def["steps"].as_array().into_iter().flatten().filter_map(move |step| {
+        let own = step["id"].as_str()?;
+        let said = step["config"]["context"]["step_id"].as_str().filter(|said| *said != own)?;
+        Some(format!("{}: {own} says {said}", def["id"].as_str().unwrap_or_default()))
+    })).collect()
+}
 // The signed-in account (`{cli} whoami --json` account_id), empty when none is signed in.
 fn signed_in_account() -> String {
     Command::new(setting("cli")).args(["whoami", "--json"]).stderr(Stdio::null()).output().ok()
@@ -1614,6 +1622,10 @@ async fn main() {
                     }
                 }
             }
+            // A step's kept answer is found by its context.step_id, so a step whose step_id names another step would be
+            // answered by that step's answer, never asked (Nov 24 2026: two ask steps copied from "prove-the-commit-is-what-runs").
+            let crossed = step_id_mismatches(&workflow_engine::uses::with_uses(def.clone()).unwrap_or_default());
+            if !crossed.is_empty() { eprintln!("{id} has steps whose context.step_id is not their own id: {}", crossed.join("; ")); std::process::exit(1); }
             let input = a.get(3).map(|given| json_arg(given)).unwrap_or_else(|| "{}".into());
             if serde_json::from_str::<Value>(&input).map(|v| !v.is_object()).unwrap_or(true) { eprintln!("the input is a JSON object, for example '{{\"request\":\"the job in one line\"}}'"); std::process::exit(1); }
             // The input is kept exactly as given before anything is filled, and a fill only ever adds to it. A start whose fill
@@ -1792,6 +1804,25 @@ mod piece_round_tests {
         assert_eq!(newest["clip:a"], "1f:second");
         assert_eq!(newest["clip:b"], "1f:only");
         assert_eq!(newest.len(), 2);
+    }
+}
+
+#[cfg(test)]
+mod step_id_tests {
+    use super::step_id_mismatches;
+    use serde_json::json;
+
+    fn step(id: &str, said: &str) -> serde_json::Value { json!({ "id": id, "kind": "ask", "config": { "context": { "step_id": said } } }) }
+
+    #[test]
+    fn a_step_naming_another_steps_id_is_found_and_matching_ones_are_not() {
+        let def = json!({ "id": "workflow:put-live", "steps": [
+            step("prove", "prove"),
+            step("picture-before", "prove"),
+            step("compare", "prove"),
+            json!({ "id": "prove#lessons", "kind": "action", "config": { "called_from": "prove" } }) ] });
+        assert_eq!(step_id_mismatches(&[def]), vec!["workflow:put-live: picture-before says prove", "workflow:put-live: compare says prove"]);
+        assert!(step_id_mismatches(&[json!({ "id": "w", "steps": [step("a", "a")] })]).is_empty());
     }
 }
 
