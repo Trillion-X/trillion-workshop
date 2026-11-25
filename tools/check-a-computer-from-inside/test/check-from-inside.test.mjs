@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { checkFromInside, enginesOf, holdAgainScript, parseWakePage, readScript, readWakeBook, tellersIn, unitsOf, wakeListScript } from '../do-work/check-from-inside.mjs';
+import { boundedAnswer, checkFromInside, enginesOf, holdAgainScript, parseWakePage, readScript, readWakeBook, tellersIn, unitsOf, wakeListScript } from '../do-work/check-from-inside.mjs';
 
 const HOST_KEY = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMadeUpMadeUpMadeUpMadeUpMadeUpMadeUpMadeUp';
 const OWNER = 'made-up-person_0001';
@@ -357,4 +357,23 @@ test('a pretended wake book makes the same findings without asking the engine, e
 test('a computer that does not answer is told as unreachable, and its book is not asked', async () => {
   const seen = await checkFromInside(computer([engineUnit], { pretend: { unreachable: true } }), { run: () => { throw new Error('asked'); } });
   assert.deepEqual(kindsOf(seen), [['unreachable', 'alert', '192.0.2.10']]);
+});
+
+test('an answer past what a run carries drops its bulk detail and is told as answer-too-large, naming the computer; findings stay', async () => {
+  const many = Array.from({ length: 300 }, (_, index) => ({ unit: `a-unit-with-a-long-enough-name-to-fill-the-answer-number-${index}.service`, user: 'x', program: 'serve.mjs' }));
+  const { run } = computerAnswering({ '127.0.0.1:7198': ready(1) });
+  const seen = await checkFromInside(computer([engineUnit, ...many]), { run });
+  assert.ok(Buffer.byteLength(JSON.stringify(seen)) <= 24000 + 600, 'the answer fits what a run carries');
+  assert.equal(seen.units, undefined);
+  assert.ok(seen.units_asked.length > 0, 'what is not needed to fit is kept: dropped in order, largest first, and no more than needed');
+  const told = seen.findings.filter(finding => finding.kind === 'answer-too-large');
+  assert.deepEqual(told.map(finding => [finding.level, finding.about, finding.computer]), [['warn', 'made-up', 'made-up']]);
+  assert.match(told[0].said, /made-up's answer was \d+ bytes, over the 24000 a run carries on; dropped units to \d+ bytes\./);
+  assert.deepEqual(seen.findings.map(finding => finding.kind), ['answer-too-large'], 'the findings it had are kept; this one is added');
+  assert.equal(seen.disks.length, 2, 'disks are kept');
+});
+
+test('a small answer is returned as it is', () => {
+  const small = { name: 'x', checked_at: 't', findings: [], units: [{ unit: 'a' }] };
+  assert.equal(boundedAnswer(small), small);
 });

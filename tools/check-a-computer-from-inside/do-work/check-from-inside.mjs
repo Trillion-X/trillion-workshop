@@ -381,7 +381,40 @@ export async function checkHere(input, options = {}) {
 }
 
 /** Read one computer from inside. `options.run` stands in for SSH (a test); `options.keyFile` is the administrator key. */
+/** The answer kept within settings.json answer.most_bytes: the run that carries it to the next step can carry only so much (32768
+ *  bytes, read live Nov 25 2026, 8:00 AM CST: a tick lost its tell step to 32816 bytes). The detail nothing else reads (every unit's
+ *  state, the units asked, the largest files of each person folder, each engine's listens) is dropped, largest first, until it
+ *  fits, and what was dropped is told as `answer-too-large` (warn), naming the computer, so a big answer is a finding and never a
+ *  silent gap. Findings, disks and engines' persons are never dropped. */
+export function boundedAnswer(result) {
+  const most = Number(SETTINGS.answer.most_bytes);
+  const size = value => Buffer.byteLength(JSON.stringify(value));
+  const first = size(result);
+  if (first <= most) return result;
+  const trimmed = { ...result };
+  const dropped = [];
+  const steps = [
+    ['units', answer => { delete answer.units; }],
+    ['units_asked', answer => { delete answer.units_asked; }],
+    ['person_folders', answer => { answer.engines = (answer.engines ?? []).map(({ person_folders, ...engine }) => engine); }],
+    ['engine listens', answer => { answer.engines = (answer.engines ?? []).map(({ listens, ...engine }) => engine); }],
+    ['wake_books', answer => { answer.wake_books = (answer.wake_books ?? []).map(({ unit, read }) => ({ unit, read })); }],
+  ];
+  for (const [name, drop] of steps) {
+    if (size(trimmed) <= most) break;
+    drop(trimmed);
+    dropped.push(name);
+  }
+  const said = `${result.name}'s answer was ${first} bytes, over the ${most} a run carries on; dropped ${dropped.join(', ')} to ${size(trimmed)} bytes.`;
+  trimmed.findings = [...(trimmed.findings ?? []), { computer: result.name, at: result.checked_at, kind: 'answer-too-large', level: 'warn', about: result.name, said }];
+  return trimmed;
+}
+
 export async function checkFromInside(input, options = {}) {
+  return boundedAnswer(await readComputer(input, options));
+}
+
+async function readComputer(input, options = {}) {
   const nowMs = options.nowMs ?? Date.now();
   if (input?.here === true) return checkHere(input, { ...options, nowMs });
   const name = input?.name ?? input?.address;
