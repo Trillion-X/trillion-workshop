@@ -26,11 +26,15 @@
 //                    the pins given), as the computer's owner, and no pass is held. On a computer with no Mac app door
 //                    (a Linux server) give it origin (its engine, such as http://127.0.0.1:7190) and key_credential (the
 //                    name of the owner's key in the unit's credentials, handed to the command in its {CLI}_KEY). A members
-//                    page is never drawn through a command: it needs the member's own pass on the door.
+//                    page is never drawn through a command: it needs the member's own pass on the door. Or { address: "unix:<the
+//                    engine's vault socket>", peer: true }: the engine knows the caller by its OS user (the computer row's
+//                    vault_readers row for this uid, whose act names the tools it may run), so no pass is held; a members page
+//                    is never drawn through it either.
 //     pages          { database, use: { purpose, surface }, refresh_seconds, answer_seconds }: the database holding the
 //                    `pages` and `site_look` tables, the declared use its reads run under (the reader login; left out, the
 //                    caller's own login, which only a local run through a command should do), how often the rows
-//                    are read again, and how long a public page's tool answer is kept
+//                    are read again, and how long a public page's tool answer is kept. The use is also given to every tool
+//                    run whose input names a database and no use (withPagesUse), so a row's tool opens its database under it
 //     sign_in        { address, page, issuer, audience, team_claim, members_team }: the site's sign-in tool, the site path a
 //                    visitor is sent to for a members page, and how a member's pass is checked (member-pass.ts);
 //                    signed_out "redirect" (302 to page?next=<address>, when left out) or "draw" (the page row at `page` is
@@ -94,7 +98,7 @@ export interface Settings {
   origin: string;
   hosts: string[];
   lang: string;
-  door: { address: string; pass_credential?: string; pins?: string[]; origin?: string; key_credential?: string };
+  door: { address: string; pass_credential?: string; pins?: string[]; origin?: string; key_credential?: string; peer?: boolean };
   pages: { database: string; use?: { purpose: string; surface: string }; refresh_seconds: number; answer_seconds: number };
   sign_in: SignIn & { page: string; signed_out: 'redirect' | 'draw' };
   pass_on: PassOn[];
@@ -117,6 +121,15 @@ const NOT_FOUND = '/404';
 export const LOCAL_LISTEN = '127.0.0.1:18440';
 // Stands for the site's own caller when reads go through a command: no pass is held then.
 const COMMAND_PASS = 'the computer\'s own command';
+// Stands for the site's own caller on the engine's vault socket: the engine knows it by its OS user, so no pass is held.
+const PEER_PASS = 'the site\'s own OS user';
+
+/** The call with the pages' declared use given to it when its input names a database and no use; any other call as it is. */
+export function withPagesUse(use: Settings['pages']['use'], call: ToolRun): ToolRun {
+  const input = call.input as Record<string, unknown> | null;
+  if (!use || !input || typeof input !== 'object' || Array.isArray(input) || typeof input.database !== 'string' || input.use !== undefined) return call;
+  return { ...call, input: { ...input, use } };
+}
 const HOST_NAME = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
 
 /** Checks a settings file's value; a wrong one throws with what it should be. */
@@ -131,7 +144,12 @@ export function settingsOf(value: unknown): Settings {
   if (!Array.isArray(s.hosts) || s.hosts.some(host => typeof host !== 'string' || !HOST_NAME.test(host))) throw new Error('hosts lists lower-case host names, such as ["app.example.com"].');
   if (typeof s.lang !== 'string' || !/^[a-z]{2,3}(-[A-Za-z0-9]+)*$/.test(s.lang)) throw new Error('lang is a language tag, such as "en".');
   const byCommand = s.door && typeof s.door.address === 'string' && commandOf(s.door.address) !== null;
-  if (!s.door || typeof s.door.address !== 'string' || (!byCommand && typeof s.door.pass_credential !== 'string')
+  const byPeer = s.door && s.door.peer !== undefined;
+  if (byPeer && (s.door!.peer !== true || typeof s.door!.address !== 'string' || !s.door!.address.startsWith('unix:/') || s.door!.pass_credential !== undefined
+    || s.door!.pins !== undefined || s.door!.origin !== undefined || s.door!.key_credential !== undefined)) {
+    throw new Error('door { address: "unix:<the engine\'s vault socket>", peer: true } names nothing else: the engine knows the site by its OS user.');
+  }
+  if (!s.door || typeof s.door.address !== 'string' || (!byCommand && !byPeer && typeof s.door.pass_credential !== 'string')
     || (s.door.pins !== undefined && (!Array.isArray(s.door.pins) || s.door.pins.some(pin => typeof pin !== 'string')))
     || (!byCommand && (s.door.origin !== undefined || s.door.key_credential !== undefined))
     || (s.door.origin !== undefined && (typeof s.door.origin !== 'string' || !/^https?:\/\/[^/?#\s]+$/.test(s.door.origin)))
@@ -669,13 +687,18 @@ export async function start(settingsFile: string): Promise<http.Server[]> {
   const styles = await pageStyles(tools, files);
   const storeKey = settings.files_store ? storeKeyOf(credential(settings.files_store.credential)) : null;
   // Through a command the site's own reads carry the computer owner's rights; a member's pass is refused, never swapped for them.
-  const run = command
+  // As its OS user on the vault socket the same holds: the engine admits the site's uid, never a member's pass in its place.
+  const peer = settings.door.peer === true;
+  const runAs = command
     ? (pass: string, call: ToolRun) => pass === COMMAND_PASS ? runToolAsCommand(doorOp, byCommand!, call) : Promise.reject(new DoorError('A members page needs the engine door, not a command.', 403))
-    : (pass: string, call: ToolRun) => runTool(door, pass, call);
+    : peer
+      ? (pass: string, call: ToolRun) => pass === PEER_PASS ? runTool(door, '', call) : Promise.reject(new DoorError('A members page needs the engine door with the member\'s own pass, not the site\'s vault socket.', 403))
+      : (pass: string, call: ToolRun) => runTool(door, pass, call);
+  const run = (pass: string, call: ToolRun) => runAs(pass, withPagesUse(settings.pages.use, call));
   // The start's first reads (the rows through run-sql, the site head) are real tool runs with the site's own pass: a tool this
   // computer lacks, or a pass the door refuses, stops the start there with the door's own words. Nothing else is asked of the
   // door, so the pass needs no right beyond running the site's tools.
-  const sitePass = command ? COMMAND_PASS : credential(settings.door.pass_credential!);
+  const sitePass = command ? COMMAND_PASS : peer ? PEER_PASS : credential(settings.door.pass_credential!);
   const site = new Site({
     settings,
     tools,

@@ -129,7 +129,8 @@ async function callDoor(door: Door, pass: string, method: string, input: unknown
   });
   const answer = await ask(door.address, '/mcp', {
     method: 'POST', body, timeoutMs,
-    headers: { authorization: `Bearer ${pass}`, 'content-type': 'application/json', accept: 'application/json, text/event-stream' },
+    // An empty pass is the site's own OS user on the engine's vault socket: the engine knows it by the socket, so none is sent.
+    headers: { ...(pass ? { authorization: `Bearer ${pass}` } : {}), 'content-type': 'application/json', accept: 'application/json, text/event-stream' },
   });
   const text = answer.body.toString('utf8');
   if (answer.status < 200 || answer.status > 299) {
