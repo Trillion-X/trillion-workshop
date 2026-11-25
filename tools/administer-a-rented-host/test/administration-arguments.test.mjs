@@ -56,3 +56,10 @@ test('a held key file gets back the last newline ssh needs, once, in place', t =
   heldKeyFile(file);
   assert.equal(readFileSync(file, 'utf8'), 'synthetic key\n');
 });
+
+test('a known-hosts path with a space is one quoted ssh value, so the pinned key is read', () => {
+  const args = administrationArguments({ address: '192.0.2.10', ssh_port: 22, admin_user: 'root', adminKeyFile: '/k', knownHostsFile: '/opt/a run folder/known_hosts' });
+  assert.ok(args.includes('UserKnownHostsFile="/opt/a run folder/known_hosts"'));
+  assert.ok(administrationArguments({ address: '192.0.2.10', ssh_port: 22, admin_user: 'root', adminKeyFile: '/k', knownHostsFile: '/tmp/x/known_hosts' }).includes('UserKnownHostsFile=/tmp/x/known_hosts'), 'a path with no space is given as it is');
+  assert.throws(() => administrationArguments({ address: '192.0.2.10', ssh_port: 22, admin_user: 'root', adminKeyFile: '/k', knownHostsFile: '/tmp/a"b/known_hosts' }), /double quote/);
+});

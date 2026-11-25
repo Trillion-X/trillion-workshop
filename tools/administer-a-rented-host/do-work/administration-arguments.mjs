@@ -28,6 +28,14 @@ export function knownHostsLine(host) {
   return `${host.ssh_port === 22 ? host.address : `[${host.address}]:${host.ssh_port}`} ${host.host_key}\n`;
 }
 
+// A file path as one ssh -o value: ssh splits UserKnownHostsFile on whitespace (it takes a list of files), so a path with a
+// space (a run folder under "Application Support") named two files and every host key read as unknown. Such a path is
+// given in double quotes, which ssh reads as one word; a path holding a double quote is refused.
+export function optionPath(file) {
+  if (file.includes('"')) throw new Error('The known-hosts file path holds a double quote, which ssh cannot read as one path.');
+  return /\s/.test(file) ? `"${file}"` : file;
+}
+
 function checked(c) {
   checkedHost(c);
   if (typeof c.knownHostsFile !== 'string' || !c.knownHostsFile) throw new Error('The known-hosts file is missing: write knownHostsLine(host) to a private file and name it as knownHostsFile.');
@@ -59,6 +67,6 @@ export function administrationArguments(c) {
   checked(c);
   if (!c.adminKeyFile) throw new Error('The host administration identity was refused.');
   return [...(c.proxy === undefined ? [] : proxied(c.proxy)), '-T', '-p', String(c.ssh_port), '-i', c.adminKeyFile, '-o', 'IdentitiesOnly=yes', '-o', 'IdentityAgent=none', '-o', 'BatchMode=yes',
-    '-o', 'StrictHostKeyChecking=yes', '-o', `UserKnownHostsFile=${c.knownHostsFile}`, '-o', 'GlobalKnownHostsFile=/dev/null',
+    '-o', 'StrictHostKeyChecking=yes', '-o', `UserKnownHostsFile=${optionPath(c.knownHostsFile)}`, '-o', 'GlobalKnownHostsFile=/dev/null',
     '-o', 'ConnectTimeout=10', `${c.admin_user}@${c.address}`];
 }
