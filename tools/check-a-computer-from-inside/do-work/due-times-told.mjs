@@ -123,7 +123,8 @@ export async function readOwnDueTimeWakes(door, { fetchImpl = fetch, timeoutMs =
 // or after it. Told is the chosen wake's own `mark.fired_ms`, never `kind_last_told`: that is the last fact of the kind
 // told on the computer by anything (measured Nov 25 2026, 9:25 AM CST: the Mac's chosen kind was told 5 minutes before
 // by another teller while no chosen wake had fired since Nov 24). A router whose last fire is older than look_back_minutes
-// is not running (a stopped router is another finding, not this one). With no chosen wake on, nothing could be told, which
+// is not running (a stopped router is another finding, not this one): a router fires only when it hears a row change told
+// to the computer, so an hour of no told changes has no router fire and passes, never an alert for a quiet database. With no chosen wake on, nothing could be told, which
 // is the silence too.
 const SILENCE = SETTINGS.router_silence;
 const isRouter = wake => wake?.tool === SILENCE.router_tool && SILENCE.router_ids.some(id => wake.id === id || String(wake.id).startsWith(`${id}/`));

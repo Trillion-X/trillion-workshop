@@ -66,3 +66,9 @@ test('this computer is read through its own door, asking each kind, and tells th
   books['workflow-chosen'] = [chosen('chosen--x', minutesAgo(2))];
   assert.deepEqual((await checkHere({}, { door, nowMs: NOW, fetchImpl })).findings, []);
 });
+
+test('an hour with no told row changes passes: a router fires only when it hears a told change, so a quiet one is no silence', () => {
+  const quiet = router('a-row-changed', minutesAgo(75), { kind_last_told: { at_ms: minutesAgo(75), heard_by_this: true } });
+  assert.deepEqual(silent([quiet, chosen('chosen--x', minutesAgo(600))]), [], 'its last change was told 75 minutes ago and the last chosen tell is older: nothing was heard since');
+  assert.deepEqual(silent([router('a-row-changed', null, { kind_last_told: { at_ms: minutesAgo(600) } }), chosen('chosen--x', null)]), [], 'a router that never heard a change');
+});
