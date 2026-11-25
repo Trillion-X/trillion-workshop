@@ -98,6 +98,9 @@
 }
 
 .libraryBlock {
+  --swing-accent: #315c49;
+  --swing-ink: #0f172a;
+  --swing-muted: #64748b;
   display: grid;
   gap: clamp(22px, 3vw, 34px);
   /* Bridge-scale breathing room above the library header (Alex: the video
@@ -253,6 +256,11 @@
 }
 
 .libraryItem {
+  /* A title that wraps makes its row taller: the shared button's fixed height and shrinking must not squeeze rows into each other. */
+  flex: 0 0 auto;
+  height: auto;
+  min-height: 0;
+  white-space: normal;
   align-items: center;
   appearance: none;
   background: transparent;

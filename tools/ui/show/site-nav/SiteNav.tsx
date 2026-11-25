@@ -35,6 +35,9 @@ export interface SiteNavProps {
   /** Draws the primary action in the page's own look; the plain filled link when left out. */
   readonly renderPrimary?: (action: { label: string; href: string }) => ReactNode;
   readonly toggleLabel?: string;
+  /** The width (px) under which the nav folds behind the Menu button: 1400 when left out, as every server-sent page folds. A
+   *  page whose nav is short (a few links and two actions) names a smaller width so they stay on the bar. */
+  readonly foldBelow?: number;
 }
 
 const ICON_SHAPES = new Set(['path', 'circle', 'rect', 'line', 'polyline', 'polygon', 'ellipse']);
@@ -223,7 +226,8 @@ function useSectionLinks() {
   }, []);
 }
 
-export function SiteNav({ nav, icons, brand, brand_image, renderPrimary, toggleLabel = 'Menu' }: SiteNavProps) {
+export function SiteNav({ nav, icons, brand, brand_image, renderPrimary, toggleLabel = 'Menu', foldBelow }: SiteNavProps) {
+  const fold = Number.isInteger(foldBelow) && (foldBelow as number) > 0 ? (foldBelow as number) : 1400;
   const entries = siteNavEntries(nav) as { label: string; items: ({ label: string; href: string } | MenuEntry)[]; actions: { label: string; href: string; primary: boolean }[] };
   const rootRef = useRef<HTMLElement>(null);
   const [openMenu, setOpenMenu] = useState<{ id: string; soft: boolean } | null>(null);
@@ -244,7 +248,7 @@ export function SiteNav({ nav, icons, brand, brand_image, renderPrimary, toggleL
   const hasPanel = entries.items.length > 0 || entries.actions.length > 0;
   return (
     <header className="site-nav" data-site-nav="" data-nav-ready="" ref={rootRef}>
-      <style>{SITE_NAV_CSS}</style>
+      <style>{fold === 1400 ? SITE_NAV_CSS : SITE_NAV_CSS.replaceAll('(max-width:1400px)', `(max-width:${fold}px)`)}</style>
       <div className="site-nav__bar">
         <a className="site-nav__brand" href="/">
           {brand_image ? <img className="site-nav__brand-image" src={brand_image.src} alt={brand_image.alt} width={brand_image.width} height={brand_image.height} /> : brand}

@@ -22,3 +22,11 @@ test('no action is drawn unless both its words and its address are given', async
 test('the hero is pure: no script', async () => {
   assert.doesNotMatch(await renderAView(entry, { heading: 'Two words' }), /<script/);
 });
+
+test('the heading is the page\'s one h1, and the words `highlight` names are the ones drawn solid', async () => {
+  const html = await renderAView(entry, { heading: 'Master tennis as fast as humanly possible.', highlight: 'as fast as humanly possible' });
+  assert.equal((html.match(/<h1/g) ?? []).length, 1);
+  assert.match(html, /<h1[^>]*>.*Master tennis.*<\/h1>/s);
+  // The solid part holds the whole phrase and the sentence's full stop stays outside it as plain words.
+  assert.match(html, /as fast as humanly possible<[^>]*>[^<]*<\/[^>]*>\s*<[^>]*>?\.?/s);
+});

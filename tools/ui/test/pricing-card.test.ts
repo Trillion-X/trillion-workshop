@@ -73,3 +73,12 @@ test('the contact card given an action posts its named fields as a plain form, w
   assert.match(html, /value="a@example\.com"/);
   assert.match(html, /<button[^>]*type="submit"/);
 });
+
+test('a card whose buyer may pay more draws its line and a button that opens the amounts; closed, no amount is drawn', async () => {
+  const more = { line: 'Starts at $99/month. You can pay more if you like.', toggle: 'Want to contribute more?', field: 'customerSelectedAmountCents', options: [{ cents: 9900, label: '$99' }, { cents: 19900, label: '$199' }] };
+  const html = await renderAView(card, { ...offer, more, action: '/buy', hiddenFields: { customerSelectedAmountCents: '9900' } });
+  assert.match(html, /Starts at \$99\/month\. You can pay more if you like\./);
+  assert.match(html, /Want to contribute more\?/);
+  assert.doesNotMatch(html, /\$199/);
+  assert.match(html, /name="customerSelectedAmountCents"[^>]*value="9900"|value="9900"[^>]*name="customerSelectedAmountCents"/);
+});

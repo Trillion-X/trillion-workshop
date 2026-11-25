@@ -13,11 +13,14 @@
 //      A page row that has no callbacks gives `action` instead: the card is then one plain form (method post) and the
 //      Checkout button submits it with `hiddenFields` (name -> value, such as which plan) and whatever fields `amounts`
 //      draws. The page that receives the post is the host's.
+//      A plan whose buyer may pay more than its price gives `more` (plain words and amounts, below): the card says what the
+//      price starts at, and a button opens the amounts to pick from; the one picked replaces the price shown, the `{price}` in
+//      the button's words and the form's `field` (the amount the post carries), and the post carries nothing else new.
 //   3. A feature's pictures are the shared ShowcaseStrip's; a feature with none draws its line alone.
 //   4. Built from shared parts (Text, Container, Button, ShowcaseStrip); no raw HTML, no inline styling.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '../button/Button.tsx';
 import { Container } from '../container/index.ts';
 import { Form } from '../form/Form.tsx';
@@ -30,7 +33,21 @@ export type PricingFeature = {
   showcase?: readonly { id: string; src?: string; kind?: 'image' | 'video'; label?: string; detail?: string }[];
 };
 
+/** What a buyer who may pay more sees: a line, a button that opens the amounts, and the amounts (cents) to pick from. */
+export type PricingMore = {
+  /** The line above the button, e.g. what the price starts at. */
+  line?: string;
+  toggle: string;
+  hide?: string;
+  legend?: string;
+  /** The form field the amount in cents is posted in (it replaces the same name in `hiddenFields`). */
+  field: string;
+  options: readonly { cents: number; label: string }[];
+};
+
 export type PricingCardProps = {
+  /** The amounts a buyer may pay instead of the price shown (see invariant 1). */
+  more?: PricingMore;
   id: string;
   name: string;
   /** The price as written, such as "$99"; none draws no price (a card that books a call). */
@@ -66,8 +83,13 @@ function Cta({ cta, onCheckout, pending, posts }: Pick<PricingCardProps, 'cta' |
 }
 
 export function View(props: PricingCardProps) {
-  const { id, name, price, cadence, note, amounts, features = [], cta, onCheckout, action, hiddenFields, pending, error, footnote, repeatCta = features.length > 2 } = props;
+  const { id, name, price: given, cadence, note, amounts, features = [], cta: ctaGiven, onCheckout, action, hiddenFields: fields, pending, error, footnote, more, repeatCta = features.length > 2 } = props;
+  const [open, setOpen] = useState(false);
+  const [picked, setPicked] = useState<{ cents: number; label: string } | null>(null);
   const posts = action !== undefined;
+  const price = picked?.label ?? given;
+  const cta = { ...ctaGiven, label: ctaGiven.label.replace('{price}', picked?.label ?? given ?? '') };
+  const hiddenFields = more && picked ? { ...fields, [more.field]: String(picked.cents) } : fields;
   const body = (
     <>
       <Container layout="horizontal" justifyContent="between" alignItems="baseline" width="full">
@@ -81,6 +103,24 @@ export function View(props: PricingCardProps) {
       </Container>
       {note ? <Text as="p" color="muted">{note}</Text> : null}
       {amounts ?? null}
+      {more ? (
+        <Container layout="vertical" gap="sm" width="full" data-pricing-more>
+          {more.line ? <Text as="p" color="muted">{more.line}</Text> : null}
+          <Button type="button" variant="ghost" size="md" aria-expanded={open} onClick={() => setOpen(value => !value)}>{open ? more.hide ?? more.toggle : more.toggle}</Button>
+          {open ? (
+            <Container layout="vertical" gap="sm" width="full" role="group" aria-label={more.legend}>
+              {more.legend ? <Text as="p" weight="medium" color="strong">{more.legend}</Text> : null}
+              <Container layout="horizontal" gap="sm" className="flex-wrap">
+                {more.options.map(option => (
+                  <Button key={option.cents} type="button" variant="outline" size="md" aria-pressed={picked?.cents === option.cents} onClick={() => setPicked(option)}>
+                    {`${picked?.cents === option.cents ? '✓ ' : ''}${option.label}`}
+                  </Button>
+                ))}
+              </Container>
+            </Container>
+          ) : null}
+        </Container>
+      ) : null}
       <Cta cta={cta} onCheckout={onCheckout} pending={pending} posts={posts} />
       {error ? <Text as="p" role="alert" color="error">{error}</Text> : null}
       {features.length === 0 ? null : (

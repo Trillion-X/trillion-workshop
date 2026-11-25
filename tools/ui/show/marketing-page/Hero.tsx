@@ -1,7 +1,7 @@
 // tools/ui/show/marketing-page/Hero.tsx
 //
 // PURPOSE
-//   The top of a marketing page: a heading whose last word is drawn solid, a lead line under it, and one call to action with
+//   The top of a marketing page: the page's one h1, whose last word (or the phrase `highlight` names) is drawn solid, a lead line under it, and one call to action with
 //   an optional note. A page row's layout names it by file and export (`ui/show/marketing-page/Hero.tsx#Hero`) and gives it
 //   these props, so a page and an AI app's screen draw the same hero.
 //
@@ -16,8 +16,10 @@ import React from 'react';
 import { CtaBlock, SectionShell, StatementText, Text, TextColumn } from './MarketingPagePrimitives.tsx';
 
 export type HeroProps = {
-  /** The heading; its last word is drawn solid. */
+  /** The heading; its last word is drawn solid, or `highlight` when that is given. */
   heading: string;
+  /** The words of the heading drawn solid (the last occurrence in it); left out, the last word. */
+  highlight?: string;
   /** The line under the heading. */
   lead?: string;
   /** The one action: its words and where it goes. */
@@ -26,12 +28,14 @@ export type HeroProps = {
   note?: string;
 };
 
-export function Hero({ heading, lead, cta, note }: HeroProps) {
-  const at = heading.lastIndexOf(' ') + 1;
+export function Hero({ heading, highlight, lead, cta, note }: HeroProps) {
+  const found = highlight ? heading.lastIndexOf(highlight) : -1;
+  const at = found >= 0 ? found : heading.lastIndexOf(' ') + 1;
+  const end = found >= 0 ? found + (highlight as string).length : heading.length;
   return (
     <SectionShell paddingY="hero" size="narrow">
       <TextColumn align="center">
-        <StatementText align="center" lines={[[{ text: heading.slice(0, at) }, { text: heading.slice(at), solid: true }]]} />
+        <Text as="h1"><StatementText align="center" lines={[[{ text: heading.slice(0, at) }, { text: heading.slice(at, end), solid: true }, { text: heading.slice(end) }].filter(part => part.text !== '')]} /></Text>
         {lead ? <Text color="muted">{lead}</Text> : null}
         {cta && cta.label !== '' && cta.href !== '' ? <CtaBlock id="hero-cta" href={cta.href} label={cta.label} note={note} /> : null}
       </TextColumn>

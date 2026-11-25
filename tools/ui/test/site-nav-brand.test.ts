@@ -16,3 +16,11 @@ test('without a brand image the brand the caller gives is drawn', async () => {
   assert.match(html, /<a class="site-nav__brand" href="\/"><\/a>/);
   assert.doesNotMatch(html, /site-nav__brand-image"/);
 });
+
+test('the nav folds under 1400px unless the page names a width: a short nav stays on the bar at a smaller one', async () => {
+  const withActions = { ...nav, actions: [{ label: 'Log in', href: '/in' }, { label: 'Pricing', href: '#pricing', primary: true }] };
+  assert.match(await renderAView(entry, { nav: withActions, icons: {} }), /\(max-width:1400px\)/);
+  const short = await renderAView(entry, { nav: withActions, icons: {}, foldBelow: 760 });
+  assert.match(short, /\(max-width:760px\)/);
+  assert.doesNotMatch(short, /\(max-width:1400px\)/);
+});
