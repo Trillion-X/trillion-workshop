@@ -55,12 +55,14 @@ export async function releaseAHost(input, { env = process.env, fetchImpl = fetch
   return releaseMachine({ request, store, provider });
 }
 
-export async function cutAHostnameOver(input, { env = process.env, fetchImpl = fetch } = {}) {
+export async function cutAHostnameOver(input, { env = process.env, fetchImpl = fetch, call } = {}) {
   const receipts = keptReceipts(input.receipt ? { [CUTOVER]: input.receipt } : {}), c = { hostname: input.hostname, address: input.address };
   const answer = receipt => ({ state: receipt.state, hostname: receipt.hostname, address: receipt.address, mode: receipt.mode,
-    original: receipt.before.records.find(x => at(x, input.dns.record.id_at ?? 'id') === receipt.targetId) ?? null, current: receipt.afterTarget ?? null, guarded_lists_preserved: receipt.before.guards.length, receipt });
+    original: receipt.original ?? receipt.before.records.find(x => at(x, input.dns.record.id_at ?? 'id') === receipt.targetId) ?? null, current: receipt.afterTarget ?? null, guarded_lists_preserved: receipt.before.guards.length, receipt });
   if (input.action === 'status') return answer(await readCutover(receipts, CUTOVER));
-  const provider = input.dns, request = dnsClient(heldFrom(DNS_KEY, env), { fetchImpl, provider });
+  // A description reached through the engine (transport "engine") holds no key: its requests go through `call`, which only a
+  // runner outside the container hands in (cut-over-through-this-computers-engine.mjs); in a container dnsClient refuses it.
+  const provider = input.dns, request = dnsClient(provider?.transport === 'engine' ? null : heldFrom(DNS_KEY, env), { fetchImpl, provider, call });
   if (input.action === 'keep-healthy') {
     const probe = candidate => probeHealthy({ hostname: input.hostname, address: candidate.address, path: candidate.health_path ?? input.health_path ?? '/' });
     return keepHealthyRecords({ hostname: input.hostname, candidates: input.candidates, check: input.check ?? probe, request, provider, adopt: input.adopt === true });

@@ -151,7 +151,10 @@ export async function prepareCutover(c, { request, provider, receipts, file }) {
   // A name with no address record and no binding is placed new: activate makes its one record, rollback removes that record.
   const placed = targets.length === 0 && !binding;
   if (!placed && (targets.length !== 1 || (!managed && !p.editable_types.includes(typeOf(provider, targets[0]))))) throw Error('Cutover requires no address record at the name, one editable address record, or its exact managed binding; no records were changed.');
-  const receipt = { schema: 'portable-dns-cutover/2', hostname: c.hostname, address: c.address, state: 'prepared', mode: placed ? 'new-record' : managed ? 'managed-binding' : 'record', originalBinding: managed ? binding : undefined, before, targetId: placed ? null : idOf(p, targets[0]), desired: fill(p.desired, { host_name: c.hostname, address: c.address, lease_label_key: provider.lease_label_key }) };
+  // A provider that keeps no record ids (record.id_is_fields) moves the name's one record by its body: the receipt keeps the
+  // record itself, since it has no id to find it by.
+  const byBody = !placed && !managed && Boolean(p.id_is_fields);
+  const receipt = { schema: 'portable-dns-cutover/2', hostname: c.hostname, address: c.address, state: 'prepared', mode: placed ? 'new-record' : managed ? 'managed-binding' : byBody ? 'record-by-body' : 'record', originalBinding: managed ? binding : undefined, original: byBody ? targets[0] : undefined, before, targetId: placed || byBody ? null : idOf(p, targets[0]), desired: fill(p.desired, { host_name: c.hostname, address: c.address, lease_label_key: provider.lease_label_key }) };
   return receipts.save(file, receipt);
 }
 export async function changeCutover(c, { request, provider, receipts, file, rollback = false }) {
@@ -160,6 +163,7 @@ export async function changeCutover(c, { request, provider, receipts, file, roll
   if (receipt.hostname !== c.hostname || receipt.address !== c.address) throw Error('Saved cutover belongs to another placement.');
   if (receipt.mode === 'managed-binding') return changeManagedBinding(c, { request, provider, save, receipt, rollback });
   if (receipt.mode === 'new-record') return changeNewRecord(c, { request, provider, save, receipt, rollback });
+  if (receipt.mode === 'record-by-body') return changeByBody(c, { request, provider, save, receipt, rollback });
   const current = await snapshot(c, request, provider, receipt.before.zone, receipt.before.account), original = receipt.before.records.find(x => idOf(p, x) === receipt.targetId), row = current.records.find(x => idOf(p, x) === receipt.targetId);
   const expected = rollback ? receipt.afterTarget : original;
   const keysOf = Object.keys(receipt.desired), pick = value => Object.fromEntries(keysOf.map(key => [key, value[key]]));
@@ -207,6 +211,43 @@ async function changeNewRecord(c, { request, provider, save, receipt, rollback }
   const now = addressRows(provider, after, c.hostname);
   if (rollback ? now.length : (now.length !== 1 || !has(now[0], receipt.desired))) throw Error('DNS placement needs readback reconciliation; the receipt is kept.');
   if (!rollback) receipt.afterTarget = now[0];
+  receipt.state = rollback ? 'rolled-back' : 'active'; return save();
+}
+
+/** The name's one record at a provider that keeps no record ids (record.id_is_fields): activate adds the record at the new
+ * address, reads it back, then removes the original by its body, so the name never answers with no address; rollback adds the
+ * original address back and then removes the placed record. Each step is found again by readback before it is sent, so a lost
+ * answer is never made twice. Every record but this name's address records, and the guarded lists, must stay as they were,
+ * and the name may hold only the original and the placed record while it moves: anything else refuses with no mutation. A
+ * record added back takes the TTL the provider's create writes, not the original's. */
+async function changeByBody(c, { request, provider, save, receipt, rollback }) {
+  const before = receipt.before, p = provider.record, original = receipt.original;
+  const preserved = state => {
+    const other = state.records.filter(x => nameOf(provider, x) !== c.hostname || !p.address_types.includes(typeOf(provider, x)));
+    const old = before.records.filter(x => nameOf(provider, x) !== c.hostname || !p.address_types.includes(typeOf(provider, x)));
+    if (stable(other, x => shape(provider, x)) !== stable(old, x => shape(provider, x)) || JSON.stringify(state.guards) !== JSON.stringify(before.guards)) throw Error('Unrelated DNS records or guarded lists changed; preserve the current state and investigate.');
+  };
+  const from = typeOf(provider, original), was = contentOf(provider, original);
+  const isOriginal = row => typeOf(provider, row) === from && contentOf(provider, row) === was;
+  const isPlaced = row => typeOf(provider, row) === 'A' && contentOf(provider, row) === c.address;
+  const [keep, drop, keepAddress] = rollback ? [isOriginal, isPlaced, was] : [isPlaced, isOriginal, c.address];
+  const read = async () => { const state = await snapshot(c, request, provider, before.zone, before.account); preserved(state); return addressRows(provider, state, c.hostname); };
+  let here = await read();
+  if (here.some(row => !isOriginal(row) && !isPlaced(row))) throw Error('The name holds an address record this cutover did not place; no mutation was made.');
+  if (!here.some(keep)) {
+    if (rollback && from !== 'A') throw Error(`The original ${from} record cannot be made again by this provider's create; rollback refused.`);
+    receipt.state = rollback ? 'rollback-adding-address' : 'adding-address'; await save();
+    await ask(request, provider, p, 'create', { zone_id: before.zone, host_name: c.hostname, host_label: labelOf(provider, before.zone, c.hostname), type: 'A', address: keepAddress, lease_label_key: provider.lease_label_key, name: c.hostname });
+    here = await read();
+    if (!here.some(keep)) throw Error('DNS placement needs readback reconciliation; the receipt is kept.');
+  }
+  for (const row of here.filter(drop)) {
+    receipt.state = rollback ? 'rollback-removing-address' : 'removing-address'; await save();
+    await removeRow(request, provider, before.zone, row);
+  }
+  here = await read();
+  if (here.length !== 1 || !keep(here[0])) throw Error('DNS placement needs readback reconciliation; the receipt is kept.');
+  if (!rollback) receipt.afterTarget = here[0];
   receipt.state = rollback ? 'rolled-back' : 'active'; return save();
 }
 
