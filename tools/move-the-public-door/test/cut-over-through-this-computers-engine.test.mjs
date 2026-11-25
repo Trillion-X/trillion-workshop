@@ -121,3 +121,22 @@ test('a step whose kept answers were for another request refuses, and a keyed de
   await assert.rejects(stepACutover({ action: 'step', hostname: host, address: ROW, dns: provider, transcript: [] }), /names the cut-over/);
   assert.deepEqual(w.state.calls, [], 'a step reaches nothing itself');
 });
+
+test('stepped the way the workflow passes it on (each answer joined through add, the answer\'s transcript handed on as it is), the cut-over ends the same', async () => {
+  const records = () => [aRecord('files', OLD), txt('@', 'v=spf1 -all')];
+  const once = world(records()), steps = world(records());
+  const p1 = await run(once, 'prepare'); await run(once, 'activate', p1.receipt);
+  const go = async (cutover, receipt) => {
+    let turn = await stepACutover({ action: 'step', cutover, hostname: host, address: ROW, dns: provider, receipt });
+    for (let pass = 0; turn.more && pass < 60; pass += 1) {
+      assert.equal(turn.done, false);
+      const answer = await steps.call({ address: provider.base, tool: `mcp.namecheap.com/${turn.next.name}`, input: turn.next.arguments });
+      turn = await stepACutover({ action: 'step', cutover, hostname: host, address: ROW, dns: provider, receipt, transcript: turn.transcript, add: { request: turn.next, answer } });
+    }
+    assert.equal(turn.done, true);
+    return turn.answer;
+  };
+  const prepared = await go('prepare'); const active = await go('activate', prepared.receipt);
+  assert.equal(active.state, 'active');
+  assert.deepEqual([steps.state.calls, steps.state.records], [once.state.calls, once.state.records]);
+});

@@ -1322,7 +1322,7 @@
         "id": "tool:step-a-hostname-cut-over-through-the-engine",
         "label": "Step a hostname cut-over through the engine",
         "job": "Work out the next DNS request that pointing one of my hostnames at a new address needs, at a DNS provider my engine reaches for me, so a workflow sends it",
-        "description": "For a DNS provider description reached through the engine (`transport: \"engine\"`, which holds no key): replays the cut-over named in `cutover` (prepare, activate, rollback or status, exactly as tool:cut-a-hostname-over-to-a-new-address does them) against the answers a workflow kept so far, `transcript` ([{ request: { name, arguments }, answer }] in the order asked, each answer as the engine's tools:run gave it), and answers `{ done: false, next: { name, arguments } }`, the next of the description's declared tools to ask with its arguments, or `{ done: true, answer }`, the cut-over's own answer with its receipt. It reaches nothing itself: every request goes out through the workflow's own ask step, which names its tool, so that step is the fence. Kept answers whose request is not the one the replay asks at that place refuse the step: they belong to another cut-over, and the run starts again.",
+        "description": "For a DNS provider description reached through the engine (`transport: \"engine\"`, which holds no key): replays the cut-over named in `cutover` (prepare, activate, rollback or status, exactly as tool:cut-a-hostname-over-to-a-new-address does them) against the answers a workflow kept so far, `transcript` ([{ request: { name, arguments }, answer }] in the order asked, each answer as the engine's tools:run gave it), and answers `{ done: false, more: true, next: { name, arguments }, transcript }`, the next of the description's declared tools to ask with its arguments, or `{ done: true, more: false, answer, transcript }`, the cut-over's own answer with its receipt. `add` ({ request, answer }, the answer the workflow's ask step just got) joins `transcript` first, so a workflow hands the answer's `transcript` on to its next step as it is. It reaches nothing itself: every request goes out through the workflow's own ask step, which names its tool, so that step is the fence. Kept answers whose request is not the one the replay asks at that place refuse the step: they belong to another cut-over, and the run starts again.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -1330,8 +1330,7 @@
           "required": [
             "cutover",
             "dns",
-            "hostname",
-            "transcript"
+            "hostname"
           ],
           "properties": {
             "cutover": {
@@ -1367,6 +1366,14 @@
                 ]
               },
               "description": "Every request this cut-over asked so far with the engine's answer, in order; [] for the first step."
+            },
+            "add": {
+              "type": "object",
+              "required": [
+                "request",
+                "answer"
+              ],
+              "description": "The request the last step named with the answer the workflow's ask step got for it: joined to transcript before the replay."
             }
           }
         },
@@ -1396,6 +1403,12 @@
             },
             "asked": {
               "type": "integer"
+            },
+            "more": {
+              "type": "boolean"
+            },
+            "transcript": {
+              "type": "array"
             }
           }
         },

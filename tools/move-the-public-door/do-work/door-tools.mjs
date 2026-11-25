@@ -84,7 +84,9 @@ const NEEDS_ANSWER = request => Object.assign(new Error(`The workflow is to ask 
 export async function stepACutover(input) {
   if (input.dns?.transport !== 'engine') throw new Error('Only a DNS description reached through the engine (transport "engine") is stepped; a keyed one runs as one call.');
   if (!['prepare', 'activate', 'rollback', 'status'].includes(input.cutover)) throw new Error('A step names the cut-over it replays: cutover is prepare, activate, rollback or status.');
-  const transcript = Array.isArray(input.transcript) ? input.transcript : [];
+  // `add` is the answer the workflow's ask step just got for the request this step named last: it joins the transcript here, so
+  // a workflow keeps the whole transcript as one value and never has to join lists itself.
+  const transcript = [...(Array.isArray(input.transcript) ? input.transcript : []), ...(input.add ? [input.add] : [])];
   let used = 0;
   const call = async run => {
     const request = { name: run.tool.slice(run.tool.indexOf('/') + 1), arguments: run.input };
@@ -94,11 +96,12 @@ export async function stepACutover(input) {
     used += 1;
     return kept.answer;
   };
-  const { transcript: _kept, cutover, ...rest } = input;
+  const { transcript: _kept, add: _added, cutover, ...rest } = input;
+  // `more` is `!done`, for a workflow loop that runs while it is true; `transcript` is what the next step is handed.
   try {
-    return { done: true, answer: await cutAHostnameOver({ ...rest, action: cutover }, { call }), asked: used };
+    return { done: true, more: false, answer: await cutAHostnameOver({ ...rest, action: cutover }, { call }), asked: used, transcript };
   } catch (error) {
-    if (error?.needs_answer) return { done: false, next: error.request, asked: used };
+    if (error?.needs_answer) return { done: false, more: true, next: error.request, asked: used, transcript };
     throw error;
   }
 }
