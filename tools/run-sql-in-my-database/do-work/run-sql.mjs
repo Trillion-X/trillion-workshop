@@ -305,11 +305,16 @@ const runRecipe = async (client, shape, connection, roleConnection, heldValue) =
   return { columns: Object.keys(row), rows: [row], row_count: 1 };
 };
 
+const connectionOf = connection => {
+  if (typeof connection !== 'string' || connection === '') throw new Error('No database connection was handed to this run. Hold the connection string under the name credential_name gives.');
+  return connection;
+};
+
 // Runs the request as the connection's login. `connect` makes a connected client (a test hands its own); the client is
 // always closed. A server error is the server's own text; the connection string is removed from any text first. `ticket` is
 // the engine's use ticket (descriptor 5) and `heldValue` a recipe's held value (descriptor 6).
 export async function runSql({ connection, roleConnection = '', ticket = '', heldValue = '', input, usedMs, connect = connectTo }) {
-  if (typeof connection !== 'string' || connection === '') throw new Error('No database connection was handed to this run. Hold the connection string under the name credential_name gives.');
+  connectionOf(connection);
   const shape = shapeOf(input);
   if (shape.kind === 'sql' && shape.fence !== undefined && !shape.use) throw new Error('fence is answered under a use: give use with it, so the claim the fence reports is the run\'s own.');
   if (shape.kind !== 'recipe' && shape.use && !ticket) throw new Error("A use is bound only by the engine's ticket: give database, so the computer opens it with the database's reader login and hands this run the ticket of its use.");
@@ -321,6 +326,40 @@ export async function runSql({ connection, roleConnection = '', ticket = '', hel
     return await runRecipe(client, shape, connection, roleConnection, heldValue);
   } finally {
     await client.end().catch(() => {});
+  }
+}
+
+// A computed read may need several bounded statements, but its use ticket is claimed once, in the transaction all of
+// them read. The query callback holds no login or client. Without a declared use the transaction is read-only; with one,
+// claim_use must write its claim, and the existing database reader login and row rules still own every statement's rights.
+export async function withSqlRead({ connection, ticket = '', use, statement_timeout_ms: timeout, usedMs, ceilingMs, connect = connectTo }, read) {
+  connectionOf(connection);
+  const used = usedOf(use);
+  if (used && !ticket) throw new Error("A use is bound only by the engine's ticket: give database, so the computer opens it with the database's reader login and hands this run the ticket of its use.");
+  if (typeof read !== 'function') throw new Error('A computed read needs its statement function.');
+  const bound = timeLimitOf(timeout, usedMs, { ceilingMs }), client = await connect(connection, bound);
+  let timer, closing;
+  const close = () => closing ??= client.end().catch(() => {});
+  const work = async () => {
+    await runOne(client, used ? 'BEGIN' : 'BEGIN READ ONLY');
+    try {
+      if (used) await runOne(client, 'SELECT * FROM use_binding.claim_use($1)', [ticket]);
+      const result = await read((sql, params = []) => runOne(client, sql, params));
+      await runOne(client, 'COMMIT');
+      return result;
+    } catch (error) {
+      await runOne(client, 'ROLLBACK').catch(() => {});
+      throw error;
+    }
+  };
+  try {
+    const expired = new Promise((_, reject) => {
+      timer = setTimeout(() => { void close(); reject(new Error('The computed read exceeded its transaction time bound.')); }, bound);
+    });
+    return await Promise.race([work(), expired]);
+  } finally {
+    clearTimeout(timer);
+    await close();
   }
 }
 
