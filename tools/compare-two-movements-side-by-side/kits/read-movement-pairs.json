@@ -1,0 +1,37 @@
+{
+  "start_here": "Say to your AI: \"Show my movements side by side.\" It runs tool:read-movement-pairs on my pursuit database and shows each pair with one play button.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it reads the comparisons table of the pursuit database you name and changes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:read-movement-pairs"
+  ],
+  "instructions": [
+    "1. Name the pursuit database that holds the rows, such as example_for_who_uses_it; the computer opens it with the read login its vault holds.",
+    "2. Say what you want in plain words; your AI calls tools:run with tool tool:read-movement-pairs and the input.",
+    "3. Read the answer: the pairs in place order. Show it with the screen the tool names."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the pairs",
+      "ask": "Show my movements side by side.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-movement-pairs",
+            "input": {
+              "database": "example_for_who_uses_it"
+            }
+          }
+        }
+      },
+      "given": "The database holds the rows the read names (made-up values).",
+      "hands_back": "{\"pairs\":[{\"id\":\"a\",\"place\":0,\"title\":\"Turn\",\"caption\":\"\",\"featured\":false,\"video\":{\"label\":\"\",\"video\":\"a-both.mp4\",\"start_s\":0}}]}"
+    }
+  ],
+  "drafted_from": "tool row in tools/compare-two-movements-side-by-side/tool-rows.json and tools/compare-two-movements-side-by-side/do-work/pair.ts"
+}
