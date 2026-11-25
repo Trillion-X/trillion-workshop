@@ -2,14 +2,15 @@
 // tools/resync-an-elestio-pipeline/do-work/resync-an-elestio-pipeline.mjs
 //
 // PURPOSE: tool:resync-an-elestio-pipeline, run in the tool container. Reads the request on stdin ({ email, project_id, vm_id,
-// pipeline_id, commit, wait_seconds?, poll_seconds? }) and redeploys one Elestio CI/CD pipeline from its branch:
+// pipeline_id, commit, run_id?, wait_seconds?, poll_seconds? }) and redeploys one Elestio CI/CD pipeline from its branch:
 // 1. trades the vault's Elestio API token (descriptor 4, elestio-api-key) for a session (auth/checkAPIToken);
 // 2. reads the pipeline's run history (cicd/doActionOnPipeline, action getHistory: one row per run, each with its own id) and
 //    the commit it serves (cicd/getPipelineDetails);
 // 3. asks for a resync (cicd/doActionOnPipeline, action reSyncPipeline): Elestio queues a run that fetches the branch and
 //    builds it again; when a Resync run has not ended yet, it follows that run instead of asking another;
 // 4. reads the history every poll_seconds until the first Resync run with an id above every id read in 2 has ended: Success
-//    on `commit` is ok; Failed, Canceled, or Success on another commit is not. Queue, Stuck and the running words wait.
+//    on `commit` is ok; Failed, Canceled, or Success on another commit is not. Queue, Stuck and the running words wait, for
+//    at most 100 s a call; a run still going then answers still_running and its id, and the caller calls again.
 // Done is that run's own record, never a clock: Elestio stamps the pipeline's lastUpdate both when a resync is asked and
 // when it has run, minutes apart (school, 2:28:24 and 2:31:25 AM CST Nov 25 2026), so a time says nothing about which.
 // The answer is ok, the run (id, status, times, seconds), the commits before and after and the seconds waited. No answer
@@ -22,6 +23,7 @@ const API = 'https://api.elest.io/api';
 const HELD_DESCRIPTOR = 4;
 // The run statuses that end a run; every other word (Queue, Stuck, a running step) means wait.
 const ENDED = new Set(['Success', 'Failed', 'Canceled']);
+const WAIT_MOST_S = 100;
 
 // The fields of a pipeline's details passed on; everything else stays here.
 const pick = details => ({
@@ -80,7 +82,9 @@ export async function resyncAnElestioPipeline(request, {
   const { email, project_id: projectID, vm_id: vmID, pipeline_id: pipelineID } = request;
   const commit = String(request.commit ?? '').trim().toLowerCase();
   if (!/^[0-9a-f]{7,40}$/.test(commit)) throw new Error('commit must be the pushed commit: 7 to 40 hex characters');
-  const waitMs = (request.wait_seconds ?? 900) * 1000;
+  // One call waits at most WAIT_MOST_S: a caller's gateway cuts a call it holds longer (120 s, Nov 25 2026), and a cut call
+  // is asked again. A run still going answers still_running with its id; the next call follows that same run to its end.
+  const waitMs = Math.min(request.wait_seconds ?? WAIT_MOST_S, WAIT_MOST_S) * 1000;
   const pollMs = (request.poll_seconds ?? 5) * 1000;
 
   const token = read().trim();
@@ -100,14 +104,18 @@ export async function resyncAnElestioPipeline(request, {
   // A resync is not idempotent: each ask downs the site once more. When a Resync run has not ended yet (this same call
   // started again by its runner: one call made runs 323099 and 323100, 2 min apart, Nov 25 2026), it is followed, not
   // asked again.
-  const inFlight = earlier.filter(row => row.action === 'Resync' && !ENDED.has(row.status)).sort((a, b) => a.id - b.id)[0];
+  // run_id (from a still_running answer) names the run to follow: it is followed whether it has ended or not, and nothing is
+  // asked, so calling again after the run ended never starts another.
+  const given = Number.isInteger(request.run_id) ? earlier.find(row => row.id === request.run_id) : null;
+  if (Number.isInteger(request.run_id) && !given) throw new Error(`run ${request.run_id} is not in this pipeline's history`);
+  const inFlight = given ?? earlier.filter(row => row.action === 'Resync' && !ENDED.has(row.status)).sort((a, b) => a.id - b.id)[0];
   const known = inFlight ? inFlight.id - 1 : Math.max(0, ...earlier.map(run => run.id));
   const askedAt = now();
   if (!inFlight) await post('reSyncPipeline', 'cicd/doActionOnPipeline', { ...ids, action: 'reSyncPipeline' });
 
   let run = null, reads = 0;
   for (;;) {
-    const ours = (await history()).filter(row => row.id > known && row.action === 'Resync').sort((a, b) => a.id - b.id)[0];
+    const ours = (await history()).filter(row => (given ? row.id === given.id : row.id > known && row.action === 'Resync')).sort((a, b) => a.id - b.id)[0];
     reads += 1;
     if (ours) run = runOf(ours);
     const ended = run && ENDED.has(run.status);
@@ -128,6 +136,7 @@ export async function resyncAnElestioPipeline(request, {
         after,
         asked_at: new Date(askedAt).toISOString(),
         followed: Boolean(inFlight),
+        still_running: Boolean(run && !ended),
         seconds: Math.round((now() - askedAt) / 1000),
         reads,
         ...(reason ? { reason } : {}),

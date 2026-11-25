@@ -103,6 +103,39 @@ test('a run that ended, or an UpdateBuild still running, does not stop a new ask
   assert.equal(asked.filter(call => call.body.action === 'reSyncPipeline').length, 1);
 });
 
+test('one call waits at most 100 s, then answers still_running with the run id', async () => {
+  // A gateway cuts a call held past 120 s and asks it again (Nov 25 2026), so no call may wait longer.
+  const { answer } = await run([[earlier], [ours({ status: 'Building' }), earlier]], { wait_seconds: 900 });
+  assert.equal(answer.ok, false);
+  assert.equal(answer.still_running, true);
+  assert.equal(answer.run.id, 323072);
+  assert.equal(answer.seconds, 100);
+  assert.equal(answer.reason, 'run 323072 is still Building after 100 s');
+});
+
+test('a call that lands mid-run with run_id follows that run to its end and asks nothing', async () => {
+  const building = ours({ status: 'Building', startTime: '2026-11-25T08:31:16.000Z' });
+  const { answer, asked } = await run([
+    [building, earlier],
+    [building, earlier],
+    [ours({ status: 'Success', commitID: COMMIT, startTime: '2026-11-25T08:31:16.000Z', endTime: '2026-11-25T08:31:25.000Z', duration: 9 }), earlier],
+  ], { run_id: 323072 });
+  assert.equal(answer.ok, true);
+  assert.equal(answer.followed, true);
+  assert.equal(answer.still_running, false);
+  assert.equal(answer.run.ended, '2026-11-25T08:31:25.000Z');
+  assert.equal(asked.filter(call => call.body.action === 'reSyncPipeline').length, 0);
+});
+
+test('run_id for a run that already ended answers its end and never starts another', async () => {
+  const done = ours({ status: 'Success', commitID: COMMIT, endTime: '2026-11-25T08:31:25.000Z' });
+  const { answer, asked } = await run([[done, earlier]], { run_id: 323072 });
+  assert.equal(answer.ok, true);
+  assert.equal(answer.reads, 1);
+  assert.equal(asked.filter(call => call.body.action === 'reSyncPipeline').length, 0);
+  await assert.rejects(run([[earlier]], { run_id: 999 }), /run 999 is not in this pipeline's history/);
+});
+
 test('a failed or canceled run ends at once with its words', async () => {
   const failed = await run([[earlier], [ours({ status: 'Failed', errorMessage: 'build exited 1' }), earlier]]);
   assert.equal(failed.answer.ok, false);

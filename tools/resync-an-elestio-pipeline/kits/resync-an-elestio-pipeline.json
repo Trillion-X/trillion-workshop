@@ -14,7 +14,8 @@
     "2. Push the change to the branch the pipeline builds; a push alone does not redeploy it.",
     "3. Call this tool with the account email, the project id, the CI/CD target's vmID, the pipeline id and the pushed commit.",
     "4. Read ok: true means the Resync run the call made (a new row in the pipeline's history) ended Success on that commit; otherwise reason says what it saw (the run failed or was canceled, deployed another commit, or did not end within wait_seconds).",
-    "5. For the site's downtime, probe its address once a second while this runs; this tool reads only Elestio's own record."
+    "5. A call waits at most 100 s. When it answers still_running, call it again with run_id set to the run it named: it follows that run and asks nothing new, until the run ends.",
+    "6. For the site's downtime, probe its address once a second while this runs; this tool reads only Elestio's own record."
   ],
   "worked_examples": [
     {
