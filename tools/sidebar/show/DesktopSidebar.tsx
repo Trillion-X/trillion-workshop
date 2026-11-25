@@ -71,6 +71,7 @@ import { clampSidebarWidth, DEFAULT_SIDEBAR_PLACEMENT_STATE, SIDEBAR_DEFAULT_W, 
 import sidebarWords from '../read-data/sidebar-words.json';
 import bar from '../read-data/sidebar-bar.json';
 import { SidebarBar, SidebarMoveGrip } from './SidebarBar';
+import { windowEdgeInset } from './window-edge-inset';
 import { usePlaceDrag, type PlaceTarget } from './place-drag';
 import { claimSeam, useSeamSlot } from '../../ui/show/seam-slots';
 
@@ -115,19 +116,6 @@ const DOCKED_FRAME_INSET = 8;
 // A docked frame keeps the same gap from the window's edges on every side, and rounds its corners as the panes beside
 // it do (their glass surface's card radius), so it reads as one of the window's pieces.
 const DOCKED_FRAME_RADIUS = 'var(--radius-card, 1rem)';
-
-// A window-level frame is portalled into document.body, outside the workspace's safe box, so it keeps its gap from
-// the window's edge PLUS that edge's safe area (status bar, notch, home indicator; 0 everywhere else). The top and
-// bottom also follow the visible area (bind-visible-viewport), as the workspace does: while a keyboard is up the bottom
-// sits above the keyboard and its typing bar, and the home indicator's safe area under the keyboard no longer counts.
-type WindowEdge = 'top' | 'bottom' | 'left' | 'right';
-function windowEdgeInset(edge: WindowEdge, gap: number): string {
-  if (edge === 'top') return `calc(var(--visible-viewport-top, 0px) + env(safe-area-inset-top) + ${gap}px)`;
-  if (edge === 'bottom') {
-    return `calc(var(--visible-viewport-bottom, 0px) + env(safe-area-inset-bottom) * (1 - var(--visible-viewport-keyboard, 0)) + ${gap}px)`;
-  }
-  return `calc(env(safe-area-inset-${edge}) + ${gap}px)`;
-}
 
 function clampSidebarSize(value: number): number {
   return clampSidebarWidth(value);
