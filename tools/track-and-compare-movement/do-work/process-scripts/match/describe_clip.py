@@ -124,8 +124,14 @@ class SalienceConfig:
     back_cap_s: float = 2.2                             # max lead-in bracketed before a peak
     fwd_cap_s: float = 1.4                              # max follow-through bracketed after a peak
     ready_pad_s: float = 0.25                           # extra lead-in shown before motion resumes
+    # PHYSICAL RULES (Nov 20 2026, real Aug 28 / Sep 10 footage). 0 = off, so the defaults stay byte-identical.
+    lost_body_frac: float = 0.0                          # a frame whose body height is under this x the median is lost; it and lost_pad_frames around it move nothing
+    lost_pad_frames: int = 6                             # frames each side of a lost frame that are zeroed with it
+    max_body_heights_per_frame: float = 0.0              # faster than this (body heights a frame) is a tracker jump, not a body: set to 0
+    cap_percentile: float = 0.0                          # cap the signal at this percentile so one freak moment cannot set the bar
 
 DEFAULT_SALIENCE_CONFIG = SalienceConfig()
+_AT_MOST_ONE = {"lost_body_frac", "cap_percentile"}
 
 def salience_fingerprint(salience_json: str = None) -> str:
     """A stable fingerprint of the salience config that produced a descriptor. None/empty → 'default' (the tennis
@@ -185,6 +191,8 @@ def salience_config_from_dict(d):
                 raise ValueError(f"SalienceConfig.{k} must be finite, got {v!r} (NaN/inf silently disables/crashes the consumer)")
             if v < 0:
                 raise ValueError(f"SalienceConfig.{k} must be >= 0, got {v!r} (a salience window/fraction/seconds/multiplier is non-negative; a negative smooth_w div-by-zeros _smooth)")
+            if k in _AT_MOST_ONE and v > 1:
+                raise ValueError(f"SalienceConfig.{k} must be <= 1, got {v!r} (it is a fraction)")
             if isinstance(default, int) and not isinstance(v, int):
                 raise ValueError(f"SalienceConfig.{k} must be an int (it indexes/slices the signal), got {type(v).__name__} {v!r} (a float window crashes _smooth's // and slicing)")
             coerced[k] = v
@@ -201,7 +209,23 @@ def salience_series(person, cfg=DEFAULT_SALIENCE_CONFIG):
     raw = [reduce([s[k] for s in series]) for k in range(n)]
     if cfg.normalize_by_body_height:
         raw = [raw[k] / max(body_h_at(fr[k]["kp"]), 1.0) for k in range(n)]
-    return _smooth(raw, cfg.smooth_w)
+    return _physical(_smooth(raw, cfg.smooth_w), fr, cfg)
+
+def _physical(sm, fr, cfg):
+    """The physical rules on the smoothed signal: lost-body frames, impossible speed, and a percentile cap.
+    Each rule is off at 0, so the default config returns sm unchanged."""
+    if cfg.lost_body_frac > 0 and sm:
+        h = [body_h_at(f["kp"]) for f in fr]
+        med = statistics.median(h)
+        lost = [x < cfg.lost_body_frac * med for x in h]
+        p = cfg.lost_pad_frames
+        sm = [0.0 if any(lost[max(0, k - p):k + p + 1]) else v for k, v in enumerate(sm)]
+    if cfg.max_body_heights_per_frame > 0:
+        sm = [0.0 if v > cfg.max_body_heights_per_frame else v for v in sm]
+    if cfg.cap_percentile > 0 and sm:
+        cap = sorted(sm)[int(cfg.cap_percentile * (len(sm) - 1))]
+        sm = [min(v, cap) for v in sm]
+    return sm
 
 def detect_windows(person, fps, cfg=DEFAULT_SALIENCE_CONFIG):
     """Segment into INDIVIDUAL salient EVENTS (a tennis SWING, by default). Each event = a local PEAK in the
