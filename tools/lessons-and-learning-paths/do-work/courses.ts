@@ -45,7 +45,7 @@ export type Timed = { word: string; start: number; end: number };
 export type Passage = { id: string; start: number; end: number; speaker?: string; text: string; words: Timed[] };
 export type LessonLink = { id: string; position: number; title: string; href: string; done: boolean };
 export type CourseAnswer = {
-  course: { slug: string; title: string; description: string };
+  course: { slug: string; title: string; description: string; image?: string };
   lessons: LessonLink[];
   doneCount: number;
 };
@@ -136,9 +136,9 @@ async function lessonRows(rows: Rows, tables: Tables, course: string) {
 
 async function courseRow(rows: Rows, tables: Tables, course: string) {
   const { courses } = SOURCE;
-  const found = await rows(`select ${quote(courses.slug)} as slug, ${quote(courses.title)} as title, coalesce(${quote(courses.description)}, ${quote(courses.short_description)}, '') as description from ${quote(tables.courses)} where ${quote(courses.slug)} = $1`, [course]);
+  const found = await rows(`select ${quote(courses.slug)} as slug, ${quote(courses.title)} as title, coalesce(${quote(courses.description)}, ${quote(courses.short_description)}, '') as description, coalesce(${quote(courses.image)}, '') as image from ${quote(tables.courses)} where ${quote(courses.slug)} = $1`, [course]);
   if (!found[0]) throw new Error(`There is no course ${course}.`);
-  return { slug: String(found[0].slug), title: String(found[0].title), description: String(found[0].description) };
+  return { slug: String(found[0].slug), title: String(found[0].title), description: String(found[0].description), image: found[0].image == null ? '' : String(found[0].image) };
 }
 
 export type CourseCard = { slug: string; title: string; short_description: string; category: string; image: string };

@@ -104,3 +104,10 @@ test('the catalogue draws a linked card per course, a picture only when it has o
   assert.match(html, /src="https:\/\/img\.example\/abc\.jpg"/);
   assert.match(await renderAView(at('CourseList.tsx'), { courses: [], heading: 'Courses' }), /Courses/);
 });
+
+test('a course draws its picture at the address the template makes of its picture id, and none without one', async () => {
+  const lessons = [{ id: 'l1', position: 1, title: 'One', href: '/c/l1', done: false }];
+  const drawn = await renderAView(at('Course.tsx'), { course: { slug: 'c', title: 'The Course', description: '', image: 'abcdefghijk' }, lessons, doneCount: 0, image_template: 'https://i.ytimg.com/vi/{image}/hqdefault.jpg' });
+  assert.match(drawn, /https:\/\/i\.ytimg\.com\/vi\/abcdefghijk\/hqdefault\.jpg/);
+  assert.doesNotMatch(await renderAView(at('Course.tsx'), { course: { slug: 'c', title: 'The Course', description: '', image: '' }, lessons, doneCount: 0, image_template: 'https://i.ytimg.com/vi/{image}/hqdefault.jpg' }), /ytimg/);
+});
