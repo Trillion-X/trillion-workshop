@@ -1,0 +1,37 @@
+{
+  "drafted_from": "tool:list-resend-webhooks's own row (tools/email-sending-domains/tool-rows.json: its words, input schema and sample run) and test/list-resend-webhooks.test.mjs",
+  "start_here": "Say to your AI: \"Which addresses does my Resend account send its email events to, and is each one on?\", naming the held key, {\"key_name\": \"resend-api-key-of-my-shop\"}. It runs tool:list-resend-webhooks and answers {\"webhooks\":[{\"id\":\"00000000-0000-4000-8000-000000000011\",\"url\":\"https://example.com/webhooks/mail\",\"status\":\"enabled\",\"events\":[\"email.delivered\",\"email.bounced\",\"email.complained\"]}],\"count\":1}",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it reads the webhooks your email-sending account has and writes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:list-resend-webhooks"
+  ],
+  "instructions": [
+    "1. Connect your Resend account once, so its key is held in your vault under a name of yours (a key with full access: a sending-only key cannot read webhooks). The key is never typed into the request.",
+    "2. Say to your AI: \"List my Resend webhooks\", and give the held key's name. It calls tools:run with tool tool:list-resend-webhooks and {\"key_name\": \"<that name>\"}.",
+    "3. Read what comes back: each webhook's id, its address (url), its state (enabled or disabled) and the events it sends, and how many there are. A webhook's signing secret and the key are never shown.",
+    "4. A webhook that reads disabled has stopped sending: its address failed for too long. Fix what answers at its address first, then switch it on again at the provider."
+  ],
+  "worked_examples": [
+    {
+      "title": "Two webhooks, one switched off",
+      "ask": "List my Resend webhooks and say which are on.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-resend-webhooks",
+            "input": {
+              "key_name": "resend-api-key-of-my-shop"
+            }
+          }
+        }
+      },
+      "given": "The row's sample run: GET https://api.resend.com/webhooks answering two made-up webhooks. Ids and addresses are synthetic.",
+      "hands_back": "{\"webhooks\":[{\"id\":\"00000000-0000-4000-8000-000000000011\",\"url\":\"https://example.com/webhooks/mail\",\"status\":\"enabled\",\"events\":[\"email.delivered\",\"email.bounced\",\"email.complained\"]},{\"id\":\"00000000-0000-4000-8000-000000000012\",\"url\":\"https://mail.example.test/hooks\",\"status\":\"disabled\",\"events\":[\"email.opened\",\"email.clicked\"]}],\"count\":2}"
+    }
+  ]
+}

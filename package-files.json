@@ -67005,5 +67005,14 @@
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:write-with-a-persons-writing-adapter": [],
  "tool:your-files": [],
- "tool:your-files-names": []
+ "tool:your-files-names": [],
+ "tool:list-resend-webhooks": [
+  {
+   "package": "email-sending-domains",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/email-sending-domains"
+  }
+ ]
 }

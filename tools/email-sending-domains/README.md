@@ -7,15 +7,18 @@ Which domains a person's email-sending account (Resend) may send from, how each 
 | File | Purpose |
 |------|---------|
 | `do-work/list-email-sending-domains.mjs` | `tool:list-email-sending-domains`: reads the key from descriptor 3, asks the provider once and answers `{ domains: [{ name, status }], count }`. |
+| `do-work/list-resend-webhooks.mjs` | `tool:list-resend-webhooks`: reads the key from descriptor 3, asks the provider's webhook list once (GET /webhooks) and answers `{ webhooks: [{ id, url, status, events }], count }`: never the key, a webhook's signing secret (the list gives none, and this tool never reads one webhook) or the raw reply. It changes no webhook. |
 | `tool-rows.json` | The Workshop rows Trillion reads for this folder: `tool:list-email-sending-domains`, with `credential_mounts: [{ secret_name: "resend-api-key", fd: 3 }]`; and `tool:make-a-sending-key`, an `http` row that asks Resend for a `sending_access` key with the held key placed in its Authorization header, and keeps the reply's `token` in the vault under the input's `keep_as` (`reply_holds_values`), the held word in its place. A `keep_as` already held is never replaced, and then nothing is sent (the engine's src/runtime/workshop/http.rs). `tool:add-an-email-sending-domain` (POST /domains), `tool:read-an-email-sending-domain` (GET /domains/{domain_id}) and `tool:check-an-email-sending-domain` (POST /domains/{domain_id}/verify) are `http` rows with the same held key in the Authorization header, as are `tool:list-sending-keys` (GET /api-keys: ids, names and dates, never a key) and `tool:remove-a-sending-key` (DELETE /api-keys/{api_key_id}). |
 | `part.json` | Nothing here is imported by other code. |
 | `test/list-email-sending-domains.test.mjs` | Tests for this folder, run by `npm test` at the top of the repository. |
+| `test/list-resend-webhooks.test.mjs` | Tests for `tool:list-resend-webhooks`: its row's private pipe and sample read, the answer's fields with the key and a signing secret left out, an empty account, and its refusals. |
 
 ## Key Types / Functions
 
 | Name | Signature / Shape | Role |
 |------|-------------------|------|
 | `listDomains` | `({ key, fetchImpl? }) => Promise<{ domains: { name, status }[], count }>` | One provider read with the handed key; refusals say how to fix the connection and never include the key. |
+| `listWebhooks` | `({ key, fetchImpl? }) => Promise<{ webhooks: { id, url, status, events }[], count }>` | One read of the account's webhooks with the handed key; the same refusals. |
 
 ## Dependencies
 
