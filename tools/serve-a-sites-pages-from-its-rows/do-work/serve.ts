@@ -372,7 +372,7 @@ export class Site {
    * request (as the member when one is signed in, else as the site), and the row's answer. A form post is sent on with 303;
    * a JSON post gets JSON ({ "redirect": address } for a redirect). A GET (no body) gets the JSON keys, or is sent on with 303.
    */
-  async act(address: string, cookie: string | undefined, host: string, request: { method?: string; contentType?: string; origin?: string; hostHeader?: string; bytes: Buffer }): Promise<Answer> {
+  async act(address: string, cookie: string | undefined, host: string, request: { method?: string; contentType?: string; origin?: string; hostHeader?: string; referer?: string; bytes: Buffer }): Promise<Answer> {
     const url = new URL(address, 'http://site.invalid');
     const pathname = url.pathname;
     const method = request.method ?? 'POST';
@@ -403,10 +403,17 @@ export class Site {
       ? this.#words(status, 'That did not go through', said ? `${action.failed} ${said}` : action.failed, host, pathname)
       : json(status, { error: action.failed, ...(said ? { why: said } : {}) }));
     try {
+      // A tool source that names one tool with one input is one run in this request, however many keys of its answer are read.
+      const ran = new Map<string, Promise<unknown>>();
       const asked: Asked = {
         body: posted.body, params, query: url.searchParams, cookies: cookiesOf(cookie), claims: member?.claims ?? null, origin: this.#originOf(host),
+        referer: request.referer ?? null,
         rows: (sql, values, database) => this.#sql(sql, values, database), answer: null, input: null,
-        tool: (tool, input) => this.#parts.run(pass, { tool, input }),
+        tool: (tool, input) => {
+          const key = JSON.stringify([tool, input]);
+          if (!ran.has(key)) ran.set(key, this.#parts.run(pass, { tool, input }));
+          return ran.get(key)!;
+        },
       };
       const input = await filled(action.input, asked);
       let answer: Record<string, unknown> | null;
@@ -422,6 +429,12 @@ export class Site {
         throw error;
       }
       const answered: Asked = { ...asked, answer, input };
+      // What the row keeps once its own tool answered (a journey step for a checkout that started): its failure is only logged.
+      if (action.then) {
+        const then = action.then;
+        await this.#parts.run(pass, { tool: then.tool, input: (await filled(then.input, answered)) ?? {} })
+          .catch(error => this.#log(`${method} ${pathname}: ${then.tool} did not finish after ${action.tool}: ${(error as Error).message}`));
+      }
       const setCookie = action.answer.cookie ? setCookieOf(action.answer.cookie, await filled(action.answer.cookie.value, answered), asked.cookies) : null;
       const withCookie = (sent: Answer): Answer => (setCookie ? { ...sent, headers: { ...sent.headers, 'set-cookie': setCookie } } : sent);
       if ('json' in action.answer) return withCookie(json(200, Object.fromEntries(action.answer.json.map(key => [key, answer?.[key] ?? null]))));
@@ -575,7 +588,7 @@ export function handlerOf(site: Site, passOn: PassOn[] = []): http.RequestListen
     const answering = acting || method === 'POST'
       ? bytesOf(request).then(bytes => bytes === null
         ? { status: 413, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }, body: JSON.stringify({ error: 'Too large.' }) }
-        : site.act(request.url ?? '/', request.headers.cookie, host, { method, contentType: request.headers['content-type'], origin: request.headers.origin, hostHeader: request.headers.host, bytes }))
+        : site.act(request.url ?? '/', request.headers.cookie, host, { method, contentType: request.headers['content-type'], origin: request.headers.origin, hostHeader: request.headers.host, referer: request.headers.referer, bytes }))
       : site.answer(method, request.url ?? '/', request.headers.cookie, host);
     answering
       .then(answer => {

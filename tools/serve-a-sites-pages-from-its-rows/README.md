@@ -124,12 +124,13 @@ gives it, or reads it; it holds no callback.
 | `answer` | jsonb: `{ "redirect_from": "<answer key>" }`, `{ "redirect_to": <value> }` or `{ "json": ["<answer key>", ...] }`, and optionally beside it `"cookie": { "name", "value": <value>, "max_age_days", "http_only" (default true) }`: once the tool has answered, that cookie is set (Path=/, SameSite=Lax, Secure) when its value is words of letters, digits and `._-` the request does not already carry |
 | `failed` | the words a visitor gets when the tool fails |
 | `says_why` | true: when the row's own tool refuses, the visitor gets the tool's own words for why beside `failed` (JSON `{ error, why }` with 422; a form post's page carries both), for a tool whose refusals name a rule and never a value (a form step). Left out or null: never. A nested tool's words, and any failure other than a refusal, are never passed |
+| `then` | jsonb or null: `{ "tool", "input" }`, run once the row's own tool has answered (a journey step kept only for a checkout that started); its input may read `{ "$": "answer" }` and `{ "$": "input" }`. Its failure is logged and never changes what the visitor gets |
 | `undo` | jsonb or null: `{ "tool", "input" }`, run when the row's own tool was started and failed, to put back what the tools its input ran had done (a calendar event put before a booking could be kept); its input may read `{ "$": "input" }`, what the failed tool was given. The visitor still gets the failure |
 
 Sources: `body` (`key`, dotted into JSON), `path` (`name`), `query` (`key`: the address's query value), `cookie` (`name`, and `when: { cookie, is }` for a consent),
 `member` (`claim` of the member's pass), `origin` (`then`), `rows` (`sql`, `params`, `database`, `key`: a statement run as the site, or that place in its rows),
-`tool` (`tool`, `input`, `key`: another tool's answer, run first as the action runs; tools that feed each other nest, each run once),
-`url` (`base`, `query`), `number` (`of`), `first` (`of`: values tried in order, the first that gives something), `boolean` (`of`: true, "true", "on", "yes", "1" and their opposites), `when` (`cookie`, `is`, `then`: the value only while that cookie holds that word, a consent), `address` (`of`, `part`: `origin`, `host`, `path` or `query`, the query as an object), `answer` (`key`) and `input` (`key`: the input the tool was given), in the answer only, `now`, `new_id`. A source that gives nothing
+`tool` (`tool`, `input`, `key`: another tool's answer, run first as the action runs; tools that feed each other nest, each run once, and two sources naming one tool with one input are one run),
+`url` (`base`, `query`), `number` (`of`), `first` (`of`: values tried in order, the first that gives something), `boolean` (`of`: true, "true", "on", "yes", "1" and their opposites), `when` (`cookie`, `is`, `then`: the value only while that cookie holds that word, a consent), `address` (`of`, `part`: `origin`, `host`, `path` or `query`, the query as an object, or with `key` one query value), `referer` (the address of the page the request came from), `answer` (`key`) and `input` (`key`: the input the tool was given), in the answer only, `now`, `new_id`. A source that gives nothing
 leaves its key out, and an object all of whose values gave nothing is left out too (a signed-out buyer sends no
 `customer`), so the tool's own schema refuses a missing required value. A page's beacon may send its JSON as `text/plain`. A form post is answered 303 to the address; a
 JSON post gets `{ "redirect": address }` or the listed keys; a GET gets the listed keys, or is sent on (303); a failure is 502 with the row's `failed` words. A post whose
@@ -197,18 +198,6 @@ Example, a page's visit beacon (a visitor id only with consent, set as a cookie 
 - `public_files`: a page row names a public file by its site path; the file sits in the store at `key_prefix` + that path, so
   moving the site's files into the store changes no row. `cache_seconds` is at most half of `link_seconds`.
 
-## The site key's rights
-
-The site's own door key needs exactly what its rows run as the site, and `do-work/rights.ts` makes that grant from them, never
-by hand: the run-sql of its rows on `pages.database` (under `pages.use`), the site head, each public page's tool and layout tools,
-and each public action's tool, undo and inner `tool` and `rows` sources. Members pages and actions run with the member's own
-pass and add nothing. For each tool, the grant lists only the names its rows give where that tool opens a held value (the
-database whose login it opens), as `held_inputs_by_tool`, so one tool's database is never a name another may give. A call a
-share cannot make as written is listed in `refused` with why: a held name filled from the request, a held value that binds no
-use or a row that declares none, or SQL through run-sql that is not a read (under a share it opens the reader login; a write is a
-declared write tool). Read the rows with `PAGES_SQL` and `actionsSql` and run
-`node do-work/rights.ts SETTINGS_FILE PAGES_FILE ACTIONS_FILE` to print `{ grant, refused }`.
-
 ## Files
 
 | File | What |
@@ -226,7 +215,6 @@ declared write tool). Read the rows with `PAGES_SQL` and `actionsSql` and run
 | `do-work/member-pass.ts` | who a request is: the sign-in tool's pass, checked |
 | `do-work/member-video.ts` | a member's file: the right check and the presigned GET (signature version 4) |
 | `do-work/door.ts` | one request to a URL or unix socket; one tool run on the engine's door |
-| `do-work/rights.ts` | the site key's grant made from its public rows, per tool, and every call a share cannot make as written |
 | `show/PageDocument.tsx` | the page's document around the drawn tree, its mount the shared Container |
 | `tests/*.test.ts` | `node --test`: rows, drawing, a loopback door and sign-in, the published signature example |
 

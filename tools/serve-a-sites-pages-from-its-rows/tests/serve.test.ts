@@ -57,6 +57,15 @@ const ACTIONS = [
   { path: '/refuses-tells', host: null, access: 'public', tool: 'tool:refuses', failed: 'That answer was not kept.', input: {}, answer: { json: ['next'] }, says_why: true },
   { path: '/refuses-quiet', host: null, access: 'public', tool: 'tool:refuses', failed: 'That answer was not kept.', input: {}, answer: { json: ['next'] } },
   { path: '/refuses-nested', host: null, access: 'public', tool: 'tool:keep-a-lead', failed: 'Not kept.', input: { a: { $: 'tool', tool: 'tool:refuses', input: {} } }, answer: { json: ['kept'] }, says_why: true },
+  { path: '/with-then', host: null, access: 'public', tool: 'tool:start-a-checkout', failed: 'x', answer: { json: ['sessionId'] },
+    input: {
+      code: { $: 'tool', tool: 'tool:echo', input: { code: 'C1' }, key: 'echo.code' }, again: { $: 'tool', tool: 'tool:echo', input: { code: 'C1' }, key: 'echo' },
+      touch: { $: 'address', of: { $: 'referer' }, part: 'query', key: 't' },
+    },
+    then: { tool: 'tool:keep-a-lead', input: { session: { $: 'answer', key: 'sessionId' }, touch: { $: 'input', key: 'touch' } } } },
+  { path: '/then-after-fail', host: null, access: 'public', tool: 'tool:fails', failed: 'x', answer: { json: ['x'] }, input: {}, then: { tool: 'tool:keep-a-lead', input: {} } },
+  { path: '/then-fails', host: null, access: 'public', tool: 'tool:keep-a-lead', failed: 'x', answer: { json: ['kept'] }, input: {}, then: { tool: 'tool:fails', input: {} } },
+  { path: '/bad-key', host: null, access: 'public', tool: 'tool:x', failed: 'x', answer: { json: ['x'] }, input: { a: { $: 'address', of: 'https://a.example.test/', part: 'path', key: 't' } } },
   { path: '/bad-cookie', host: null, access: 'public', tool: 'tool:x', failed: 'x', input: {}, answer: { json: ['x'], cookie: { name: 'a b', value: 'x', max_age_days: 1 } } },
   { path: '/target/state', host: null, method: 'PUT', access: 'public', tool: 'tool:x', failed: 'x', input: {}, answer: { json: ['x'] } },
 ];
@@ -465,6 +474,19 @@ test('a posted form or JSON body runs its action row\'s tool with the input made
     assert.deepEqual(d.calls.map(call => [call.run.tool, call.run.input]), [['tool:echo', { id: 'ev-1' }], ['tool:fails', { event: { id: 'ev-1' } }], ['tool:echo', { cancel: 'ev-1' }]],
       'when the row\'s own tool fails, its undo runs with what that tool was given');
     assert.equal((await site.act('/bad-undo', undefined, host, form({}))).status, 404, 'a row whose undo breaks a rule is set aside');
+    d.calls.length = 0;
+    const started = await site.act('/with-then', undefined, host, { contentType: 'application/json', referer: 'https://site.example.test/?utm_source=post&t=touch-9', bytes: Buffer.from('{}') });
+    assert.deepEqual(JSON.parse(String(started.body)), { sessionId: 's1' });
+    assert.deepEqual(d.calls.map(call => [call.run.tool, call.run.input]), [
+      ['tool:echo', { code: 'C1' }],
+      ['tool:start-a-checkout', { code: 'C1', again: { code: 'C1' }, touch: 'touch-9' }],
+      ['tool:keep-a-lead', { session: 's1', touch: 'touch-9' }],
+    ], 'one tool with one input is one run however many keys are read; the referer\'s query value is read by key; then runs after, reading the answer and the input');
+    d.calls.length = 0;
+    assert.equal((await site.act('/then-after-fail', undefined, host, { contentType: 'application/json', bytes: Buffer.from('{}') })).status, 502);
+    assert.deepEqual(d.calls.map(call => call.run.tool), ['tool:fails'], 'then does not run when the row\'s own tool fails');
+    assert.deepEqual(JSON.parse(String((await site.act('/then-fails', undefined, host, { contentType: 'application/json', bytes: Buffer.from('{}') })).body)), { kept: 1 }, 'a then that fails does not change what the visitor gets');
+    assert.equal((await site.act('/bad-key', undefined, host, form({}))).status, 404, 'an address key names a query value only');
     const asJsonPost = { contentType: 'application/json', bytes: Buffer.from('{}') };
     const told = await site.act('/refuses-tells', undefined, host, asJsonPost);
     assert.equal(told.status, 422);
