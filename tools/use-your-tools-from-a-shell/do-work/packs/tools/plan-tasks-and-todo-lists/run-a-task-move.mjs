@@ -73,7 +73,8 @@ export async function readFor(resource, read = {}, { rules = RULES } = {}) {
 // addressed transport runTaskMove reads and writes through: records:list, records:read and records:write over the tables
 // `rows_in_tables` names, by one SQL statement each through `runSql(sql, params) -> rows`; any other operation goes to
 // `rest` (the caller's own transport, for tools:run). A record's value is its row's named columns and the fields of
-// its `rest` column. A write is one statement conditioned on the row as it was read (a new record only where none has its
+// its `rest` column. A list may also name `matching`: alternatives, a record fitting any one of them is listed, so the
+// store hands over only the records a caller may act on (see `reach` below). A write is one statement conditioned on the row as it was read (a new record only where none has its
 // id), so of two writers of one row only the first changes it; a refused write is the conflict runTaskMove reads again on.
 const NAME = /^[a-z_][a-z0-9_]*$/;
 const named = name => { if (!NAME.test(name)) throw new Error(`"${name}" is not a plain table or column name.`); return name; };
@@ -102,8 +103,50 @@ export function recordsInTables(runSql, { rest, rules = RULES } = {}) {
   const keptObject = table => `jsonb_build_object(${[...table.columns, table.rest].map(column => `'${column}', ${column === table.rest ? `coalesce(${column}, '{}'::jsonb)` : column}`).join(', ')})`;
   const tableOf = type => { const table = tables.get(type); if (!table) throw new Error(`No table keeps records of type ${type} (task-moves.json rows_in_tables).`); return table; };
 
-  async function list({ type, where = {}, limit = 100, after = null, order = null, present = [], fields = null }) {
+  // `matching` is a list of alternatives; an alternative is { <field path>: <test> }, every test of it holding for the
+  // record to fit it (an empty alternative fits every record, an empty list fits none). A field path is a field of the
+  // record's value as the caller reads it: a column, or a field of the rest column, dotted into JSON ('told_as.source').
+  // A test is exactly one of { in: [values] } (the field's text is one of them), { contains: value } (the JSON field
+  // contains that JSON: an array holding it) and { holds: true | false } (the field holds something: it is not absent, null,
+  // empty text, [] or {}). Names are checked as plain names, so no SQL text of a caller's reaches the statement.
+  const NOTHING = ["'null'::jsonb", `'""'::jsonb`, "'[]'::jsonb", "'{}'::jsonb"].join(', ');
+  const fieldOf = (table, path) => {
+    const [head, ...more] = String(path).split('.').map(named);
+    const column = table.columns.includes(head) ? head : table.rest;
+    const steps = column === head ? more : [head, ...more];
+    const json = column === table.rest || table.json.includes(column);
+    if (!json && steps.length) throw new Error(`${path} goes into ${column}, which holds text.`);
+    return { json, steps: steps.length ? `'{${steps.join(',')}}'` : null, column };
+  };
+  const testOf = (table, path, test, params) => {
+    const field = fieldOf(table, path);
+    const kinds = Object.keys(test ?? {});
+    if (kinds.length !== 1 || !['in', 'contains', 'holds'].includes(kinds[0])) throw new Error(`matching: ${path} needs exactly one of in, contains or holds.`);
+    const jsonb = field.steps ? `${field.column} #> ${field.steps}` : field.column;
+    const text = field.json ? `${field.steps ? `${field.column} #>> ${field.steps}` : `${field.column} #>> '{}'`}` : field.column;
+    if (kinds[0] === 'in') {
+      if (!Array.isArray(test.in)) throw new Error(`matching: ${path} in must be a list.`);
+      params.push(JSON.stringify(test.in.map(String)));
+      return `${text} = any (select jsonb_array_elements_text($${params.length}::jsonb))`;
+    }
+    if (kinds[0] === 'contains') {
+      if (!field.json) throw new Error(`matching: ${path} holds text, which contains nothing.`);
+      params.push(JSON.stringify(test.contains));
+      return `${jsonb} @> $${params.length}::jsonb`;
+    }
+    if (typeof test.holds !== 'boolean') throw new Error(`matching: ${path} holds must be true or false.`);
+    const holds = field.json ? `(${jsonb} is not null and ${jsonb} not in (${NOTHING}))` : `(${field.column} is not null and ${field.column} <> '')`;
+    return test.holds ? holds : `not ${holds}`;
+  };
+  const matchingSql = (table, matching, params) => `(${matching.map(alternative => {
+    const tests = Object.entries(alternative ?? {}).map(([path, test]) => testOf(table, path, test, params));
+    return tests.length ? `(${tests.join(' and ')})` : 'true';
+  }).join(' or ')})`;
+
+  async function list({ type, where = {}, limit = 100, after = null, order = null, present = [], fields = null, matching = null }) {
     const table = tableOf(type);
+    if (matching !== null && !Array.isArray(matching)) throw new Error('matching must be a list of alternatives.');
+    if (matching?.length === 0) return { records: [], next: null };
     // Only the named fields that are columns (a field kept in the rest column is not read when fields are named).
     const kept = fields ? { ...table, columns: table.columns.filter(column => fields.includes(column)), rest: null } : table;
     for (const field of present) if (!table.columns.includes(named(field))) throw new Error(`${field} is not a column of ${table.table}.`);
@@ -113,6 +156,7 @@ export function recordsInTables(runSql, { rest, rules = RULES } = {}) {
     const params = [];
     const conditions = Object.entries(where).map(([column, want]) => { params.push(cell(table, named(column), want)); return `${column} = ${cast(table, column, params.length)}`; });
     for (const field of present) conditions.push(`${field} is not null`);
+    if (matching) conditions.push(matchingSql(table, matching, params));
     if (after) { params.push(after); conditions.push(`id > $${params.length}::text`); }
     params.push(order ? limit : limit + 1);
     const rows = await runSql(`select ${['id', ...kept.columns, ...(kept.rest ? [kept.rest] : [])].join(', ')} from ${table.table}${conditions.length ? ` where ${conditions.join(' and ')}` : ''} order by ${sorted} limit $${params.length}`, params);

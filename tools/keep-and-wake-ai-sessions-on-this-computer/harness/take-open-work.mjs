@@ -40,6 +40,12 @@
 //      that needs it, the AI's taker card line says "<program> is not installed where Trillion looks (<folders tried>)"
 //      (words.program_missing_trouble), and the next of the person's AIs whose program is installed runs instead. A chat
 //      whose AI's program is missing waits (its work is left, not claimed). The card clears when the program is found.
+//   8. A pass over a store that keeps the tasks as rows reads only the tasks this worker may act on, filtered by the store
+//      (tasksThisWorkerMayTake, the one statement of who plan() takes work for): the tasks that name its id as an assignee,
+//      the ones it holds (taken_by, or a continuation it owns), the turns that name nobody, and the tasks that name nobody
+//      and fit a shape of tasks.take_unassigned_when. A pass costs reads in proportion to those tasks, never to the
+//      thousands handed to other agents or to nobody, and plan() still decides each one it is given. The shapes name
+//      stored fields of a task, since the store filters on what it keeps.
 //
 import { randomUUID } from 'node:crypto';
 import { execFileSync, spawn } from 'node:child_process';
@@ -79,6 +85,30 @@ export function takesUnassigned(item, shapes = []) {
     const value = valueAt(item, path);
     return Array.isArray(wanted) ? wanted.includes(value) : wanted === holdsSomething(value);
   }));
+}
+/**
+ * The tasks this worker may act on, as the alternatives a store filters a task list by (run-a-task-move.mjs recordsInTables
+ * `matching`): a task is read when it fits any one. They are every way plan() and runPass can act on a task: it names one of
+ * the worker's ids as an assignee, the worker holds it (taken_by) or owns its continuation (a parked or waiting task the
+ * worker resumes), it is a turn that names nobody, or it names nobody and fits a shape of tasks.take_unassigned_when
+ * (takesUnassigned: a shape's list of values is `in`, true and false are `holds`). `ids` are the ids the worker is known by.
+ * With no turns and no shapes, a worker reads only its own tasks. Pure.
+ */
+export function tasksThisWorkerMayTake(settings, ids) {
+  const shapes = settings.tasks?.take_unassigned_when ?? [];
+  if (!Array.isArray(shapes)) throw new Error('tasks.take_unassigned_when must be a list of task shapes.');
+  const own = [...new Set(ids)];
+  const nobody = { assignees: { holds: false } };
+  return [
+    ...own.map(id => ({ assignees: { contains: [id] } })),
+    ...own.map(id => ({ taken_by: { in: [id] } })),
+    ...own.map(id => ({ 'continuation.owner': { in: [id] } })),
+    ...(settings.turns ? [{ ...nobody, 'source.kind': { in: [settings.turns.source_kind] }, 'source.ref': { holds: true } }] : []),
+    ...shapes.map(shape => ({ ...nobody, ...Object.fromEntries(Object.entries(shape ?? {}).map(([path, wanted]) => {
+      if (!Array.isArray(wanted) && typeof wanted !== 'boolean') throw new Error(`tasks.take_unassigned_when: ${path} must be a list of values, true or false.`);
+      return [path, Array.isArray(wanted) ? { in: wanted } : { holds: wanted }];
+    })) })),
+  ];
 }
 // Why this computer could not finish a step task however its AI answers, or null: the step names checks, which this
 // computer does not evaluate, or its submit names a keyword answer-shape.mjs does not check. The one rule plan() (before
@@ -1226,6 +1256,9 @@ export function taskCaller(call, settings, { now = () => new Date(), computer = 
   // (`tasks_store`), else the account's records door keeps them. In tables, this worker's own record is a `user` row.
   const store = settings.tasks_store ? { credential_name: settings.tasks_store } : null;
   const operation = tasksIn((address, method, input, key = randomUUID()) => call.resource(address, method, input, key), store);
+  // What a pass reads of the store (invariant 8): the ids are the one runPass plans by ('ai:') and the one the shared
+  // moves are made as. An account's records door does not filter, so there the whole list is read and plan() decides.
+  const matching = store ? tasksThisWorkerMayTake(settings, [`ai:${takerCard(settings, computer).agent_id}`, workerId]) : null;
   const aiKind = store ? rules.store_ai_kind : rules.ai_kind;
   const kindOf = id => String(id).split(':')[0];
   // The records a task tool names: the task itself, its continuation owner, its assignees, and the consumer a finish checks.
@@ -1260,7 +1293,7 @@ export function taskCaller(call, settings, { now = () => new Date(), computer = 
     if (path === '/handoffs/open-page') {
       const cursor = body.after ? JSON.parse(body.after) : { state: 0, after: null };
       if (!Number.isInteger(cursor.state) || cursor.state < 0 || cursor.state >= openStates.length) throw new Error('The open-task cursor names no declared state.');
-      const page = await operation('@own-records', 'records:list', { type: rules.kind, where: { status: openStates[cursor.state] }, limit: 100, ...(cursor.after ? { after: cursor.after } : {}) });
+      const page = await operation('@own-records', 'records:list', { type: rules.kind, where: { status: openStates[cursor.state] }, limit: 100, ...(matching ? { matching } : {}), ...(cursor.after ? { after: cursor.after } : {}) });
       if (!Array.isArray(page?.records)) throw new Error('The account did not return its task records.');
       const work = [];
       for (const row of page.records) work.push(shown(await resumeDue({ id: row.id, ...row.value })));

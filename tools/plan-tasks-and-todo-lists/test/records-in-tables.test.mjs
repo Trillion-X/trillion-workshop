@@ -92,3 +92,22 @@ test('tasksIn runs each statement as one run of the SQL tool with the held conne
   assert.equal(row.description, 'Through the tool');
   assert.ok(asked.length > 0 && asked.every(name => name === 'tasks-db-connection'));
 });
+
+test('a list names `matching` alternatives and the store hands over only the records fitting one; bad names and shapes are refused', async () => {
+  const { db, resource } = await database();
+  await db.query(`insert into calendar_tasks (id, status, assignees, taken_by, details) values
+    ('a', 'To do', '["ai:north"]', null, '{}'), ('b', 'To do', '[]', null, '{"told_as": {"source": "step"}}'),
+    ('c', 'To do', '[]', null, '{"told_as": {"source": ""}}'), ('d', 'To do', '["ai:south"]', 'ai:north', '{}'), ('e', 'To do', null, null, '{}')`);
+  const ids = async matching => (await resource('@own-records', 'records:list', { type: 'calendar-task', matching })).records.map(row => row.id);
+  assert.deepEqual(await ids([{ assignees: { contains: ['ai:north'] } }]), ['a']);
+  assert.deepEqual(await ids([{ assignees: { contains: ['ai:north'] } }, { taken_by: { in: ['ai:north'] } }]), ['a', 'd']);
+  assert.deepEqual(await ids([{ assignees: { holds: false }, 'told_as.source': { holds: true } }]), ['b']);
+  assert.deepEqual(await ids([{ assignees: { holds: false }, 'told_as.source': { holds: false } }]), ['c', 'e']);
+  assert.deepEqual(await ids([{ 'told_as.source': { in: ['step'] } }]), ['b']);
+  assert.deepEqual(await ids([{}]), ['a', 'b', 'c', 'd', 'e'], 'an empty alternative fits every record');
+  assert.deepEqual(await ids([]), [], 'no alternative fits none, and the store is not asked');
+  await assert.rejects(ids([{ 'assignees; drop table calendar_tasks': { holds: true } }]), /not a plain table or column name/);
+  await assert.rejects(ids([{ taken_by: { contains: ['x'] } }]), /holds text, which contains nothing/);
+  await assert.rejects(ids([{ 'taken_by.deeper': { holds: true } }]), /goes into taken_by, which holds text/);
+  await assert.rejects(ids([{ assignees: { holds: true, in: [] } }]), /exactly one of in, contains or holds/);
+});
