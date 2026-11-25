@@ -1,0 +1,42 @@
+{
+  "start_here": "Say to your AI: \"Give me the RSS feed of my articles.\" It runs tool:read-the-articles-feed and answers the feed text.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it reads the published articles and writes the feed text, changing nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:read-the-articles-feed"
+  ],
+  "instructions": [
+    "1. Name the pursuit database that holds the rows, such as example_for_who_uses_it; the computer opens it with the read login its vault holds.",
+    "2. Say what you want in plain words; your AI calls tools:run with tool tool:read-the-articles-feed and the input.",
+    "3. Read the answer: the feed as xml text. Show it with the screen the tool names."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the feed",
+      "ask": "Give me the RSS feed of my articles.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-the-articles-feed",
+            "input": {
+              "database": "example_for_who_uses_it",
+              "channel": {
+                "title": "Notes",
+                "description": "Our notes",
+                "origin": "https://example.com"
+              }
+            }
+          }
+        }
+      },
+      "given": "The database holds the rows the read names (made-up values).",
+      "hands_back": "{\"xml\":\"<?xml version=\\\"1.0\\\"?><rss version=\\\"2.0\\\">\"}"
+    }
+  ],
+  "drafted_from": "tool row in tools/publish-articles/tool-rows.json and tools/publish-articles/do-work/rss.ts"
+}

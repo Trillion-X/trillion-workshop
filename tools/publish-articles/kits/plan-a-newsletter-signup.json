@@ -1,0 +1,47 @@
+{
+  "start_here": "Say to your AI: \"Plan a signup for sam@example.com.\" It runs tool:plan-a-newsletter-signup and answers the statements to run and the confirmation message to send; nothing is sent.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it plans writes to the subscribers table and a message, and writes and sends nothing itself.",
+  "workflows": [],
+  "tools": [
+    "tool:plan-a-newsletter-signup",
+    "tool:run-sql-in-my-database",
+    "tool:send-an-email"
+  ],
+  "instructions": [
+    "1. Name the pursuit database that holds the rows, such as example_for_who_uses_it; the computer opens it with the read login its vault holds.",
+    "2. Say what you want in plain words; your AI calls tools:run with tool tool:plan-a-newsletter-signup and the input.",
+    "3. Read the answer: the plan: action, statements to run and the message to send. Show it with the screen the tool names."
+  ],
+  "worked_examples": [
+    {
+      "title": "Plan a signup",
+      "ask": "Plan a signup for sam@example.com.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:plan-a-newsletter-signup",
+            "input": {
+              "database": "example_for_who_uses_it",
+              "email": "sam@example.com",
+              "source_path": "/articles",
+              "consent_text": "Send me the newsletter",
+              "confirm_origin": "https://example.com",
+              "confirm": {
+                "subject": "Confirm your signup",
+                "body": "Open the link to confirm."
+              }
+            }
+          }
+        }
+      },
+      "given": "The database holds the rows the read names (made-up values).",
+      "hands_back": "{\"action\":\"send_confirmation\",\"statements\":[],\"message\":{\"to\":\"sam@example.com\",\"subject\":\"Confirm your signup\",\"text\":\"Open the link to confirm.\"}}"
+    }
+  ],
+  "drafted_from": "tool row in tools/publish-articles/tool-rows.json and tools/publish-articles/do-work/signup.ts"
+}

@@ -1,0 +1,37 @@
+{
+  "start_here": "Say to your AI: \"List my published articles.\" It runs tool:read-published-articles and shows each with its category and date.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it reads the published rows of the articles table of the pursuit database you name and changes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:read-published-articles"
+  ],
+  "instructions": [
+    "1. Name the pursuit database that holds the rows, such as example_for_who_uses_it; the computer opens it with the read login its vault holds.",
+    "2. Say what you want in plain words; your AI calls tools:run with tool tool:read-published-articles and the input.",
+    "3. Read the answer: the published articles, newest first. Show it with the screen the tool names."
+  ],
+  "worked_examples": [
+    {
+      "title": "List the articles",
+      "ask": "List my published articles.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-published-articles",
+            "input": {
+              "database": "example_for_who_uses_it"
+            }
+          }
+        }
+      },
+      "given": "The database holds the rows the read names (made-up values).",
+      "hands_back": "{\"articles\":[{\"slug\":\"first\",\"title\":\"First\",\"description\":\"About it\",\"category\":\"Basics\",\"published_at\":\"2026-11-01\"}]}"
+    }
+  ],
+  "drafted_from": "tool row in tools/publish-articles/tool-rows.json and tools/publish-articles/do-work/articles.ts"
+}
