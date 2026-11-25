@@ -19,8 +19,8 @@ type BillingScreenInput = {
   subscription_id?: string;
   subject_email?: string;
   seller_connection?: string;
-  plan: HeldPlan;
-  other_plans: OtherPlan[];
+  plan?: HeldPlan;
+  other_plans?: OtherPlan[];
   /** The host's own checkout address (POST, the program page's checkout request; answers { redirectUrl }). */
   checkout_address?: string;
   [key: string]: unknown;
@@ -51,8 +51,11 @@ function checkoutThrough(address: string): StartCheckout {
 
 // subject_email is the signed-in buyer's verified email, given by the host that mounts the screen; the purchase must be theirs.
 // plan and other_plans are the host's own answer (the member's offers and held access), so a person with no purchase still sees their plan.
+// A host row that leaves either out (a billing row whose host_input omits them) draws a free plan with no other plans, not a blank screen.
+const NO_PLAN: HeldPlan = { id: 'none', label: null, paid: false, price_text: null };
+
 export function mount(element: HTMLElement, props: BillingScreenInput) {
-  const { subscription_id: subscriptionId = '', subject_email: subjectEmail = '', seller_connection: sellerConnection, plan, other_plans: otherPlans, checkout_address: checkoutAddress } = props;
+  const { subscription_id: subscriptionId = '', subject_email: subjectEmail = '', seller_connection: sellerConnection, plan = NO_PLAN, other_plans: otherPlans = [], checkout_address: checkoutAddress } = props;
   return mountReactSurface(element, (
     <BillingScreen
       hasPurchase={subscriptionId !== ''}
