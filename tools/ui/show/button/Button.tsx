@@ -100,6 +100,8 @@ const buttonVariants = cva(
         sm: 'h-7 px-2 text-[length:var(--font-size-label)]',
         md: 'h-9 px-4 text-[length:var(--font-size-body)]',
         lg: 'h-11 px-6 text-[length:var(--font-size-body-lg)]',
+        /** The page's call to action: 54px tall on one line (it grows when its label wraps) with 26px beside its label, the program pages' size. */
+        cta: 'h-auto max-w-full whitespace-normal text-center px-[26px] py-[15px] leading-6 text-[length:var(--font-size-body-lg)]',
         icon: 'h-7 w-7 p-0',
         /** Square micro icon button matched to row checkboxes/rings (18px)
          *  — inline row affordances (expand chevrons) that must not
@@ -123,6 +125,8 @@ const buttonVariants = cva(
          *  hero cards (Calm "Start Practicing", Headspace "Play", Open "Begin →",
          *  Hers "Get started"): a large, high-contrast, fully-rounded CTA. */
         full: 'rounded-full',
+        /** A call to action's corner: the look's --radius-cta, else the control corner. */
+        cta: 'rounded-[var(--radius-cta,var(--radius-control))]',
         inherit: 'rounded-[inherit]',
       },
       /** Block button — spans its container. The reference primary action on a

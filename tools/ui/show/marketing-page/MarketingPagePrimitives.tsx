@@ -164,11 +164,11 @@ export function Text({ as: Tag = 'p', children, className = '', color, style, ..
 }
 
 // The page's one call to action is the shared Button's strong face going to an address (`href`): the page places it,
-// the site's look paints it, its label at the look's call-to-action weight (the Button's `emphasis`). Its arrow is the Button's own trailing mark.
+// the site's look paints it (its size, corner and the room around it come from --radius-cta and --cta-block-space), its label at the look's call-to-action weight (the Button's `emphasis`). Its arrow is the Button's own trailing mark.
 export function CtaBlock({ href, id, label, note }: { href: string; id?: string; label: string; note?: string }) {
   return (
-    <Container className="bitfield-cta-block" data-cta-block={id ?? 'cta'} data-testid="landing-cta-block" id={id}>
-      <Button data-testid="landing-cta-button" href={href} size="lg" variant="primary" emphasis="cta" arrow>{label}</Button>
+    <Container className="bitfield-cta-block py-[var(--cta-block-space,0px)]" data-cta-block={id ?? 'cta'} data-testid="landing-cta-block" id={id}>
+      <Button data-testid="landing-cta-button" href={href} size="cta" radius="cta" variant="primary" emphasis="cta" arrow>{label}</Button>
       {note ? <Text className="bitfield-cta-block__note">{note}</Text> : null}
     </Container>
   );
