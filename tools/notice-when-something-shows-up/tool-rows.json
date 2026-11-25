@@ -1778,6 +1778,268 @@
         "result_selector": "$",
         "verify": []
       }
+    },
+    {
+      "id": "package::notice-when-something-shows-up::tool::send-signed-test-calls",
+      "address": "package::notice-when-something-shows-up::tool::send-signed-test-calls",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:send-signed-test-calls",
+        "label": "Send signed test calls to a webhook receiver",
+        "job": "Prove my webhook address the way the service that calls it would: a signed made-up event, a wrong signature, none, a stale one, one too large and the same call twice",
+        "description": "Sends made-up events to the person's own webhook receiver, signed with their held signing secret the way the service signs (Resend and every Standard Webhooks sender: an id, a timestamp and an HMAC of the body), and answers each call's status and the receiver's reply. Each call may carry a good, a wrong or no signature, a timestamp from the past, a padded body, or be the very same signed call again. The secret reaches only its process on a private pipe and is used only for the HMAC: the answer never carries it, a digest of it, or a signature.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "secret_name",
+            "url",
+            "sign",
+            "headers",
+            "calls"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+            },
+            "url": {
+              "type": "string",
+              "pattern": "^https://"
+            },
+            "sign": {
+              "type": "object",
+              "required": [
+                "signed",
+                "hash",
+                "encoding"
+              ],
+              "properties": {
+                "signed": {
+                  "type": "string"
+                },
+                "hash": {
+                  "enum": [
+                    "sha256",
+                    "sha1",
+                    "sha512"
+                  ]
+                },
+                "encoding": {
+                  "enum": [
+                    "base64",
+                    "hex"
+                  ]
+                },
+                "secret_prefix": {
+                  "type": "string"
+                },
+                "secret_encoding": {
+                  "enum": [
+                    "base64",
+                    "text"
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "calls": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 20,
+              "items": {
+                "type": "object",
+                "required": [
+                  "label"
+                ],
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "body": {},
+                  "signature": {
+                    "enum": [
+                      "good",
+                      "bad",
+                      "none"
+                    ]
+                  },
+                  "age_seconds": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "pad_bytes": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 4194304
+                  },
+                  "same_as": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "calls"
+          ],
+          "properties": {
+            "calls": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "label",
+                  "sent_at",
+                  "status",
+                  "reply"
+                ],
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "sent_at": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "integer"
+                  },
+                  "reply": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/notice-when-something-shows-up",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/notice-when-something-shows-up/do-work/send-signed-test-calls.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "notice-when-something-shows-up",
+                "paths": [
+                  "do-work/send-signed-test-calls.mjs"
+                ],
+                "at": "/opt/notice-when-something-shows-up"
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name_from_input": "secret_name",
+              "fd": 3
+            }
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "secret_name": "sample-signing-secret",
+              "url": "https://receiver.example.test/webhooks/sample",
+              "sign": {
+                "signed": "{id}.{ts}.{body}",
+                "hash": "sha256",
+                "encoding": "base64",
+                "secret_prefix": "whsec_",
+                "secret_encoding": "base64"
+              },
+              "headers": {
+                "svix-id": "{id}",
+                "svix-timestamp": "{ts}",
+                "svix-signature": "v1,{sig}"
+              },
+              "calls": [
+                {
+                  "label": "signed",
+                  "body": {
+                    "type": "email.delivered",
+                    "created_at": "2026-11-25T12:00:00.000Z",
+                    "data": {
+                      "email_id": "00000000-0000-4000-8000-000000000021"
+                    }
+                  }
+                },
+                {
+                  "label": "bad-signature",
+                  "body": {
+                    "type": "email.delivered",
+                    "created_at": "2026-11-25T12:00:00.000Z",
+                    "data": {
+                      "email_id": "00000000-0000-4000-8000-000000000021"
+                    }
+                  },
+                  "signature": "bad"
+                }
+              ]
+            },
+            "held": {
+              "sample-signing-secret": "whsec_bWFkZS11cC1zYW1wbGUtc2VjcmV0"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://receiver.example.test/webhooks/sample"
+                },
+                "status": 200,
+                "body": {
+                  "recorded": true,
+                  "changes": 1,
+                  "duplicates": 0
+                }
+              },
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://receiver.example.test/webhooks/sample"
+                },
+                "status": 401,
+                "body": {
+                  "recorded": false,
+                  "reason": "signature-mismatch"
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-25"
+          }
+        ]
+      }
     }
   ]
 }

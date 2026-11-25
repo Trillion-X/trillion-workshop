@@ -67014,5 +67014,14 @@
    ],
    "at": "/opt/email-sending-domains"
   }
+ ],
+ "tool:send-signed-test-calls": [
+  {
+   "package": "notice-when-something-shows-up",
+   "paths": [
+    "do-work/send-signed-test-calls.mjs"
+   ],
+   "at": "/opt/notice-when-something-shows-up"
+  }
  ]
 }

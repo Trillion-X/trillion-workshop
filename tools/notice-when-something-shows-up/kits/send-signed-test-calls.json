@@ -1,0 +1,44 @@
+{
+  "drafted_from": "tool:send-signed-test-calls's own row (tools/notice-when-something-shows-up/tool-rows.json: its words, input schema and sample run) and tests/send-signed-test-calls.test.mjs",
+  "start_here": "Say to your AI: \"Prove my webhook address https://shop.example.test/webhooks/mail with my held signing secret mail-webhook-signing-secret: one good call, a wrong signature, none, a stale one, one too large and the good one again.\" It runs tool:send-signed-test-calls and answers each call's status and reply, such as {\"calls\":[{\"label\":\"signed\",\"sent_at\":\"2026-11-25T12:00:00.000Z\",\"status\":200,\"reply\":\"{\\\"recorded\\\":true,\\\"changes\\\":1,\\\"duplicates\\\":0}\"},{\"label\":\"bad-signature\",\"sent_at\":\"2026-11-25T12:00:00.000Z\",\"status\":401,\"reply\":\"{\\\"recorded\\\":false,\\\"reason\\\":\\\"signature-mismatch\\\"}\"}]}",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it sends made-up calls to your own address and answers what came back.",
+  "workflows": [],
+  "tools": [
+    "tool:send-signed-test-calls"
+  ],
+  "instructions": [
+    "1. Keep the service's signing secret in your vault under a name of yours (the value the service showed when the webhook was made), bound to your receiver's host only. It is never typed into the request.",
+    "2. Say how the service signs (most senders: signed \"{id}.{ts}.{body}\", sha256, base64, secret_prefix \"whsec_\", secret_encoding base64) and which headers carry the id, the timestamp and the signature (Resend: svix-id, svix-timestamp, svix-signature \"v1,{sig}\").",
+    "3. List the calls in order, each with a label: a made-up body, and signature good, bad or none, age_seconds for a stale timestamp, pad_bytes to go over the receiver's size cap, or same_as to send an earlier call again exactly.",
+    "4. Read what comes back: each call's status and the receiver's reply. A good call answers 2xx, a wrong, missing or stale signature 401, too large 413, and the same call again 2xx as a duplicate. The secret and the signatures are never shown."
+  ],
+  "worked_examples": [
+    {
+      "title": "A good call and a wrong signature",
+      "ask": "Send my receiver a signed made-up delivered event and the same event with a wrong signature.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:send-signed-test-calls",
+            "input": {
+              "secret_name": "sample-signing-secret",
+              "url": "https://receiver.example.test/webhooks/sample",
+              "sign": { "signed": "{id}.{ts}.{body}", "hash": "sha256", "encoding": "base64", "secret_prefix": "whsec_", "secret_encoding": "base64" },
+              "headers": { "svix-id": "{id}", "svix-timestamp": "{ts}", "svix-signature": "v1,{sig}" },
+              "calls": [
+                { "label": "signed", "body": { "type": "email.delivered", "created_at": "2026-11-25T12:00:00.000Z", "data": { "email_id": "00000000-0000-4000-8000-000000000021" } } },
+                { "label": "bad-signature", "body": { "type": "email.delivered", "created_at": "2026-11-25T12:00:00.000Z", "data": { "email_id": "00000000-0000-4000-8000-000000000021" } }, "signature": "bad" }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The row's sample run: a made-up held secret and a receiver answering 200 then 401. Addresses and ids are synthetic.",
+      "hands_back": "{\"calls\":[{\"label\":\"signed\",\"status\":200,\"reply\":\"{\\\"recorded\\\":true,\\\"changes\\\":1,\\\"duplicates\\\":0}\"},{\"label\":\"bad-signature\",\"status\":401,\"reply\":\"{\\\"recorded\\\":false,\\\"reason\\\":\\\"signature-mismatch\\\"}\"}]} (each with its sent_at)"
+    }
+  ]
+}
