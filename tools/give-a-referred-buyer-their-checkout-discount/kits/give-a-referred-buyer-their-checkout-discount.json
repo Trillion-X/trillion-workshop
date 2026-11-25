@@ -1,0 +1,40 @@
+{
+  "start_here": "Say to your AI: \"Give this buyer their friend discount at checkout.\" It runs tool:give-a-referred-buyer-their-checkout-discount, which reads the code they came with against your referral rows.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it reads the referral_codes, referral_reward_rules and referral_code_target rows the pursuit database you name already holds.",
+  "workflows": [],
+  "tools": [
+    "tool:give-a-referred-buyer-their-checkout-discount"
+  ],
+  "instructions": [
+    "1. Name the pursuit database that holds the referral rows, such as example_for_who_runs_it; the computer opens it with the login its vault holds.",
+    "2. Give the code the buyer came with, their email when they are signed in, and the target row name.",
+    "3. Pass the answer's checkoutCode, adjustments and metadata to the checkout; an empty answer is a normal checkout."
+  ],
+  "worked_examples": [
+    {
+      "title": "A friend's discount",
+      "ask": "Give this buyer their friend discount at checkout.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:give-a-referred-buyer-their-checkout-discount",
+            "input": {
+              "database": "example_for_who_runs_it",
+              "code": "SITE-AB12CD",
+              "buyer_email": "sam@example.com",
+              "target": "site"
+            }
+          }
+        }
+      },
+      "given": "The database holds a member's code SITE-AB12CD and a friend discount rule (made-up values).",
+      "hands_back": "{\"checkoutCode\":\"SITE-AB12CD\",\"adjustments\":[{\"kind\":\"checkout-code-adjustment\",\"id\":\"checkout-code-adjustment:referral:r1:SITE-AB12CD\",\"label\":\"Friend\",\"code\":\"SITE-AB12CD\",\"adjustment\":{\"kind\":\"amount_cents\",\"amount_cents\":2500,\"currency\":\"usd\"},\"duration\":\"once\",\"applies_to\":{\"offer_ids\":[\"offer:membership\"]},\"sort_order\":0,\"state\":\"active\"}],\"metadata\":{\"referral_code\":\"SITE-AB12CD\"}}"
+    }
+  ],
+  "drafted_from": "tool row in tools/give-a-referred-buyer-their-checkout-discount/tool-rows.json and reads/referral-checkout.ts"
+}
