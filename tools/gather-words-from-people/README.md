@@ -31,6 +31,8 @@ Every value is the person's: a field id from the list's `fields`, a consent id a
 | `tool-rows.json` | The four tool rows. Each is granted the list (read) and the list's own row type, which it names in its input (`type`, `record:<row_type>`), so a row type is never guessed. |
 | `part.json` | No public files: only the tools run this code. |
 | `test/gather-words.test.mjs` | The four tools over a made-up list handed in as input, with a small in-memory store applying each answer's `keep`: asking once, consent, approval pinned to the exact words, withdrawal, the held-back reasons, and a keep refused when the row moved. Every name and line is invented. |
+| `show/Words.tsx` | The page a person opens from the ask for their words: the heading and lines of the gathering's own row, a field, a radio choice of consents, a button that waits for words and a consent, then thanks or not-found. Pure `View(props)`: the host owns the typed words, the chosen consent, the error and the send. |
+| `test/words-page.test.ts` | The screen drawn to markup in each state. |
 
 ## Key Types / Functions
 
