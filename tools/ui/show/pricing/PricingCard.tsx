@@ -140,7 +140,7 @@ export function View(props: PricingCardProps) {
       {more ? (
         <Container layout="vertical" gap="sm" width="full" data-pricing-more>
           {more.line ? <Text as="p" color="muted">{more.line}</Text> : null}
-          <Button type="button" variant="quiet" size="md" radius="full" aria-expanded={open} onClick={() => setOpen(value => !value)}>{open ? more.hide ?? more.toggle : more.toggle}</Button>
+          <Button type="button" variant="quiet" size="md" aria-expanded={open} onClick={() => setOpen(value => !value)}>{open ? more.hide ?? more.toggle : more.toggle}</Button>
           {open ? (
             <Container layout="vertical" gap="sm" width="full" role="group" aria-label={more.legend}>
               {more.legend ? <Text as="p" weight="medium" color="strong">{more.legend}</Text> : null}

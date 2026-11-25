@@ -74,7 +74,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: 'border-transparent font-[number:var(--button-font-weight,600)] bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:bg-[var(--button-primary-bg-hover)] bg-[image:var(--button-sheen)] shadow-[var(--button-highlight),var(--button-shadow)] active:shadow-[var(--button-pressed-highlight)]',
+        primary: 'border-[color:var(--button-primary-border-color,transparent)] border-[length:var(--button-primary-border-width,0px)] font-[number:var(--button-font-weight,600)] bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:bg-[var(--button-primary-bg-hover)] bg-[image:var(--button-sheen)] shadow-[var(--button-highlight),var(--button-shadow)] active:shadow-[var(--button-pressed-highlight)]',
         secondary: 'border-transparent bg-[var(--glass-bg-subtle)] text-[var(--text-primary)] hover:bg-[var(--glass-bg-hover)]',
         ghost: 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--glass-bg-hover)]',
         plain: 'border-transparent bg-transparent text-[var(--text-secondary)] hover:bg-transparent hover:text-[var(--text-primary)]',
@@ -83,7 +83,7 @@ const buttonVariants = cva(
         /** Quiet: the second choice beside the strong action, the face a site's sign-in page gives "Sign in with a
          *  passkey": the page's card colour, the look's firmer line and its words, no sheen and no drop. */
         /** Strong: the look's strongest ink as the fill (a checkout beside softer choices), the page's ground as its words. */
-        strong: 'border-transparent bg-[var(--button-strong-bg,var(--text-primary))] text-[var(--button-strong-text,var(--bg-primary))] hover:opacity-90',
+        strong: 'border-[color:var(--button-strong-border-color,transparent)] border-[length:var(--button-strong-border-width,0px)] bg-[var(--button-strong-bg,var(--text-primary))] bg-[image:var(--button-strong-sheen,none)] text-[var(--button-strong-text,var(--bg-primary))] shadow-[var(--button-strong-shadow,0_0_0_0_transparent)] hover:opacity-90',
         quiet: 'border border-[var(--border-secondary)] bg-[var(--bg-surface)] text-[var(--text-primary)] font-[number:var(--button-font-weight,600)] hover:bg-[var(--glass-bg-hover)]',
         /** Destructive: the look's danger colour in the words and edge on a neutral face, never a fill, so it can never
          *  be mistaken for the strong action, which wears the look's accent (one-look-rules `destructive-is-never-a-fill`). */
@@ -98,10 +98,10 @@ const buttonVariants = cva(
       size: {
         xs: 'h-6 px-2 text-[length:var(--font-size-caption)]',
         sm: 'h-7 px-2 text-[length:var(--font-size-label)]',
-        md: 'h-9 px-4 text-[length:var(--font-size-body)]',
-        lg: 'h-11 px-6 text-[length:var(--font-size-body-lg)]',
-        /** The page's call to action: 54px tall on one line (it grows when its label wraps) with 26px beside its label, the program pages' size. */
-        cta: 'h-auto max-w-full whitespace-normal text-center px-[26px] py-[15px] leading-6 text-[length:var(--font-size-body-lg)]',
+        md: 'h-[var(--button-height-md,2.25rem)] px-4 text-[length:var(--font-size-body)]',
+        lg: 'h-[var(--button-height-lg,2.75rem)] px-6 text-[length:var(--font-size-body-lg)]',
+        /** The page's call to action: --button-height-cta (54px) tall on one line, border included (it grows when its label wraps) with 26px beside its label, the program pages' size. */
+        cta: 'h-auto max-w-full whitespace-normal text-center px-[26px] py-[calc((var(--button-height-cta,54px)_-_24px_-_2*var(--button-primary-border-width,0px))/2)] leading-6 text-[length:var(--font-size-cta,var(--font-size-body-lg))]',
         icon: 'h-7 w-7 p-0',
         /** Square micro icon button matched to row checkboxes/rings (18px)
          *  — inline row affordances (expand chevrons) that must not

@@ -63,7 +63,7 @@ test('the heading takes its line filling from the look and balances by default',
 // The call to action is one part that owns its size, corner, arrow, weight and the room around it, each from the look.
 test('the call to action block draws its size, corner, arrow and room from the look', async () => {
   const html = await renderAView(entry, { heading: 'A headline here', cta: { label: 'See pricing', href: '/pricing' } });
-  assert.match(html, /py-\[15px\]/);
+  assert.match(html, /button-height-cta/);
   assert.match(html, /--radius-cta/);
   assert.match(html, /--cta-block-space/);
   assert.match(html, /items-center/);
