@@ -233,11 +233,17 @@ test('each person folder of an engine is measured with its largest files, and no
 
 test('an engine in a container is found by its ready check and asked inside that container\'s network', async () => {
   const [engine] = enginesOf({ units: [containerUnit, siteUnit] });
-  assert.equal(engine.container, 'the-engine-1');
+  assert.deepEqual(engine.container, { name: 'the-engine-1' });
   const { run, scripts } = computerAnswering({ '127.0.0.1:7199': ready(1) });
   const seen = await checkFromInside(computer([containerUnit], { engine_program: undefined }), { run });
   assert.match(scripts[0], /nsenter -t "\$\(docker inspect -f '\{\{\.State\.Pid\}\}' 'the-engine-1' 2>\/dev\/null\)" -n curl -s -m 5 http:\/\/127\.0\.0\.1:7199\/readyz/);
   assert.deepEqual([seen.engines[0].unit, seen.engines[0].persons], ['engine-key.service', 1]);
   assert.deepEqual(seen.findings, []);
   assert.equal(enginesOf({ units: [{ ...containerUnit, ready_in_container: "x'; reboot" }] })[0].container, null, 'a container name outside its shape is never written into a command');
+  const byLabels = { ...containerUnit, ready_in_container: { compose_project: 'the-engine', service: 'engine' } };
+  const labelled = computerAnswering({ '127.0.0.1:7199': ready(1) });
+  const found = await checkFromInside(computer([byLabels], { engine_program: undefined }), { run: labelled.run });
+  assert.ok(labelled.scripts[0].includes(`nsenter -t "$(docker inspect -f '{{.State.Pid}}' "$(docker ps -q --filter 'label=com.docker.compose.project=the-engine' --filter 'label=com.docker.compose.service=engine' | head -1)" 2>/dev/null)" -n curl`), 'a compose project and service find the container by its labels');
+  assert.equal(found.engines[0].persons, 1);
+  assert.equal(enginesOf({ units: [{ ...containerUnit, ready_in_container: { compose_project: "p'x", service: 'engine' } }] })[0].container, null, 'a label outside its shape is never written into a command');
 });

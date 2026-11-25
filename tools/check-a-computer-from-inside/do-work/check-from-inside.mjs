@@ -13,7 +13,8 @@ import { realpathSync } from 'node:fs';
 // The engines are read from the computer's own row (`runs.units`): a unit is an engine when it declares an engine's ready
 // check, a loopback listen address (its slots' health_listen, its own health_listen or settings.listen) and a persons
 // folder (settings.persons), whatever program it runs. An engine that runs inside a container answers only on that
-// container's own network: its unit names `ready_in_container`, and its ready check is asked inside that container's
+// container's own network: its unit names `ready_in_container` (the container's name, or {compose_project, service} to
+// find it by its compose labels, which outlive a recreated or renamed container), and its ready check is asked inside that container's
 // network namespace (nsenter -n with the container's process), with the computer's own curl. The persons its
 // settings.local_agents name are the persons it must hold. An engine that answers 0 persons while its row names one is
 // held again (unless hold_again is false): engine.add_person_path with {"person": ...} on the engine's own agent socket,
@@ -53,6 +54,21 @@ const SOCKET = /^\/[A-Za-z0-9._/-]{1,200}$/;
 const PERSON = /^[A-Za-z0-9_-]{1,128}$/;
 const CONTAINER = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$/;
 
+/** A unit's `ready_in_container`: a container's name, or the compose project and service whose container it is
+ *  ({compose_project, service}); null for none, or for one outside its shape (never written into a command). */
+export function containerOf(given) {
+  if (typeof given === 'string') return CONTAINER.test(given) ? { name: given } : null;
+  if (given && typeof given === 'object' && CONTAINER.test(given.compose_project ?? '') && CONTAINER.test(given.service ?? '')) return { compose_project: given.compose_project, service: given.service };
+  return null;
+}
+
+/** The shell words that print the process id of an engine's container, for nsenter. */
+function containerPid(container) {
+  const found = container.name ? `'${container.name}'`
+    : `"$(docker ps -q --filter 'label=com.docker.compose.project=${container.compose_project}' --filter 'label=com.docker.compose.service=${container.service}' | head -1)"`;
+  return `"$(docker inspect -f '{{.State.Pid}}' ${found} 2>/dev/null)"`;
+}
+
 const unique = values => [...new Set(values)];
 
 /** The engines a computer row's `runs` names, each a unit that declares a ready check (a loopback listen address and a
@@ -70,7 +86,7 @@ export function enginesOf(runs) {
       user: unit.user,
       listens: unique(listens.filter(listen => typeof listen === 'string' && LISTEN.test(listen))),
       persons_folder: typeof unit.settings?.persons === 'string' && SOCKET.test(unit.settings.persons) ? unit.settings.persons.replace(/\/+$/, '') : null,
-      container: typeof unit.ready_in_container === 'string' && CONTAINER.test(unit.ready_in_container) ? unit.ready_in_container : null,
+      container: containerOf(unit.ready_in_container),
       socket: typeof unit.settings?.agent_socket === 'string' && SOCKET.test(unit.settings.agent_socket) ? unit.settings.agent_socket : null,
       owners: unique(agents.map(agent => agent?.person).filter(person => typeof person === 'string' && PERSON.test(person))),
     };
@@ -93,8 +109,8 @@ export function readScript(engines, units = []) {
   engines.forEach((engine, index) => engine.listens.forEach(listen => {
     if (!LISTEN.test(listen)) throw new Error(`An engine's listen address was refused: ${listen}.`);
     // An engine in a container is asked on that container's network: enter it by the container's process, keep this curl.
-    const inside = engine.container ? `nsenter -t "$(docker inspect -f '{{.State.Pid}}' '${engine.container}' 2>/dev/null)" -n ` : '';
-    if (engine.container && !CONTAINER.test(engine.container)) throw new Error(`An engine's container name was refused: ${engine.container}.`);
+    if (engine.container && containerOf(engine.container.name ?? engine.container) === null) throw new Error('An engine\'s container was refused.');
+    const inside = engine.container ? `nsenter -t ${containerPid(engine.container)} -n ` : '';
     lines.push(`echo '${MARK}ready ${index} ${listen}'`, `${inside}curl -s -m ${seconds} http://${listen}${SETTINGS.engine.ready_path}; echo`);
   }));
   const largest = Number(SETTINGS.persons.largest_files);
