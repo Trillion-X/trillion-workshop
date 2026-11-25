@@ -33480,7 +33480,6 @@
    "package": "notice-when-something-shows-up",
    "paths": [
     "do-work/tell-the-engine.mjs",
-    "do-work/door-call.json",
     "do-work/emit-arrival-fact.mjs",
     "do-work/mechanisms/imessage-chat-database.mjs"
    ],
@@ -33499,6 +33498,23 @@
     "computer/connections/imessage.mjs"
    ],
    "at": "/opt/bring-in-new-items-from-this-computer"
+  },
+  {
+   "package": "notice-when-something-shows-up",
+   "paths": [
+    "do-work/door-call.json",
+    "do-work/kept-places.mjs",
+    "do-work/mechanisms/given-credential.mjs",
+    "do-work/mechanisms/postgres-connection.mjs"
+   ],
+   "at": "/opt/notice-when-something-shows-up"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
   },
   {
    "packages": [

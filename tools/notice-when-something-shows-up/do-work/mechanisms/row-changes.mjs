@@ -37,7 +37,11 @@
  *     so telling it again is one fact to the engine.
  *   - It names no table of the person's: the change table and channel are
  *     settings (row_changes by default), and each change says its own table.
- *   - It never writes to the database. Its login needs to read the change table.
+ *   - It never writes to the database. Its login needs to read the change table. Its kept place is not part of the
+ *     database it watches: the carrier keeps it (do-work/tell-the-engine.mjs), in the computer's kept folder, or, when the
+ *     run names places_in, in that database's kept_waiter_places table (do-work/kept-places.mjs). places_in may name the
+ *     database this waiter watches: that table has no tell_row_change trigger (a table with one is refused), so keeping a
+ *     place is never itself a change this waiter tells.
  *   - Who made each change is told as by: the change table's changed_by (a column the database fills with the login
  *     that made the change, `changed_by text DEFAULT current_user`), null for a table that keeps none.
  *   - A change carries itself: before and after as JSON text when each fits a fact
@@ -90,6 +94,11 @@
  *                       ends itself is never told)
  */
 import { readGivenCredential } from "./given-credential.mjs";
+import { clientOptions, connectWithPg } from "./postgres-connection.mjs";
+
+// How a connection is opened through the run's proxy is postgres-connection.mjs's; clientOptions is said on here too, where
+// due-time.mjs and source-rows.mjs have always read it.
+export { clientOptions };
 
 export const MECHANISM_REF = "package::notice-when-something-shows-up::mechanism::row-changes";
 const NAME = /^[a-z_][a-z0-9_]*$/;
@@ -232,8 +241,6 @@ export const readSql = (table) => `SELECT position::text AS position, txid::text
   WHERE txid < ${horizonSql} AND ($1::xid8 IS NULL OR (txid, position) > ($1::xid8, $2::bigint))
   ORDER BY txid, position LIMIT $3`;
 
-// A run the engine sandboxes reaches the database only through the run's own proxy, which the engine names in HTTPS_PROXY:
-// a direct connect is refused (EPERM). The tunnel is run-sql-in-my-database's, laid beside this tool by the row.
 /** A connection that is refused, or a read that fails while the waiter watches, is a crash, not the end of the waiter: the
  *  caller exits non-zero so the supervisor restarts it with backoff. A clean return from watchForTransitions means only
  *  that the waiter is done (its signal ended). Nov 20 2026, 4:24:35 PM CST: a proxy answering 502 made the one waiter that
@@ -243,19 +250,6 @@ export function crashed(error, why) {
   failure.crash = true;
   failure.reason = "connection-failed";
   return failure;
-}
-
-export async function clientOptions(connection, proxy = process.env.HTTPS_PROXY) {
-  if (!proxy) return { connectionString: connection };
-  const { throughProxy } = await import("../../../run-sql-in-my-database/do-work/through-the-run-proxy.mjs");
-  return { connectionString: connection, stream: throughProxy(proxy) };
-}
-
-async function connectWithPg(connection) {
-  const { default: pg } = await import("pg");
-  const client = new pg.Client(await clientOptions(connection));
-  await client.connect();
-  return client;
 }
 
 /** One look at whether changes wait behind a running transaction; told once per horizon after held_back_ms. A look that

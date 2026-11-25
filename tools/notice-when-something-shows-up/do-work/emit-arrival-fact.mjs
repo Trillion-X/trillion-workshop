@@ -575,6 +575,15 @@ export async function runResidentEmitter({
         }
       },
     }).catch(async (error) => {
+      // A waiter whose place another run took (its wake on another computer too, tell-the-engine.mjs places_in) ends,
+      // whatever its mechanism made of the refusal: started again it would claim the place back, and the two runs would
+      // take it from each other in turn. Its fact says which run holds the place.
+      const taken = carrier.placeTaken?.(resolved.declared.waiter_ref) ?? null;
+      if (taken) {
+        await recordRefusal(carrier, row, taken, nowMs);
+        onRefusal?.(taken);
+        return;
+      }
       // A mechanism that could not wait (a place this process may not read or
       // watch, a port it may not bind) is a waiter that is not reachable. That is
       // the same fact as a refused row, and it must never take the other waiters
@@ -648,7 +657,10 @@ async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, c
     // waiter emits at where::something-changed), and one's state read as the other's made a restarted waiter take the
     // other's list as all it had seen, so every change made while it was down was never told (Nov 19 2026).
     current = await carrier.readCurrent(emitted.address_label, declared.waiter_ref);
-  } catch {
+  } catch (error) {
+    // A place store that could not be read (places_in's database, do-work/kept-places.mjs) is no empty place: starting
+    // from now would pass over what changed while it could not be read, so the waiter crashes and is started again.
+    if (error?.crash) throw error;
     // Nothing has ever been written at this address. Starting at the beginning
     // is the correct answer, not a failure.
     current = null;
@@ -747,6 +759,8 @@ async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, c
           `notice-when-something-shows-up: could not append the fact for ${declared.waiter_ref}:`,
           error?.message ?? error,
         );
+        // Another run holds this waiter's place (places_in): the mechanism is stopped at once, never asked to tell it again.
+        if (error?.placeTaken) throw error;
         // No room at the door now (owed_full): the fact is fine. It is not a failed append; the waiter waits, longer each
         // time up to ROOM_FULL_MOST_WAIT_MS, and tells it again (its mechanism keeps its place until a fact is taken). A door
         // that did not answer in time is the same (`tellAgain`, tell-the-engine.mjs door-call.json tell_again_codes).

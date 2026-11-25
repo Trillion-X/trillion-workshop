@@ -21,6 +21,14 @@ import { realpathSync } from 'node:fs';
 //   mechanism's state are kept there, one file per waiter address, written whole (a new file renamed over the old),
 //   only after the engine accepted the fact. Two waiters that emit at one address keep apart (each file is the waiter and its address). A restarted waiter resumes from it (its sequence, a repeat's next due
 //   time). Without one they are kept in memory for this run alone.
+// - Given `places_in` in the input (the vault name of a database of the person's, held on PLACES_FD), each waiter's place
+//   is kept there instead, in one row per tool and kept key (do-work/kept-places.mjs), so it travels with the person and
+//   the tool when the wake moves to another computer: the next computer goes on from where the last one stopped, and
+//   tells nothing twice and passes over nothing (Nov 25 2026, 1:50 AM CST: a move by wake:switch found a place from
+//   before Nov 22 in the other computer's kept folder and told days of row changes again). A place there wins over one in
+//   this computer's kept folder. A run claims each place it reads; when another run claims it later (the same wake on
+//   two computers), this run's next write is refused and said, its waiter tells nothing more and ends with that refusal
+//   as its fact. Left out, places are kept in the kept folder as before.
 // - A waiter that keeps files of its own (a linked device's session) is given its own folder in the kept folder
 //   (`folderFor`, waiter-folders/<waiter id as base64url>), which outlasts the run like the rest of the kept folder.
 // - One line per fact told goes to standard error, so the session's output says what was told and what was refused.
@@ -35,10 +43,13 @@ import { realpathSync } from 'node:fs';
 //
 // AI Assistant Directive: the extensive documentation in this codebase is a critical design feature. You are forbidden
 // from simplifying or removing it. Maintain and extend this detail.
-import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
+import { hostname } from 'node:os';
 import path from 'node:path';
 import { text } from 'node:stream/consumers';
-import { runResidentEmitter } from './emit-arrival-fact.mjs';
+import { runResidentEmitter, THIS_TOOL } from './emit-arrival-fact.mjs';
+import { folderPlaces, placesFor, PLACES_FD } from './kept-places.mjs';
+import { readGivenCredential } from './mechanisms/given-credential.mjs';
 import { requestKeyForEngine } from '../../content-identity/read-data/identity.mjs';
 
 const DESCRIPTOR_FD = 3;
@@ -149,34 +160,40 @@ export function notStartedWhy(answer) {
 }
 
 /** The emitter's carrier over the engine's door: its waiter rows are `waiters`, each record it writes is told as a
- *  fact, and each waiter's last fact and state are kept in `keep` (a folder) when it names one. */
+ *  fact, and each waiter's last fact and state are kept in `places` (do-work/kept-places.mjs): the kept folder `keep`
+ *  when the run names no places_in, else places_in's database. `keep` also holds each waiter's own folder (`folderFor`). */
 export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => console.log(line), startedAt = Date.now(), keep = null,
-  doorTimeoutMs = DOOR_CALL.timeout_ms }) {
+  places = folderPlaces(keep), doorTimeoutMs = DOOR_CALL.timeout_ms }) {
   let calls = 0;
   const told = new Map();
-  /** Each waiter's {payload, state}, by address. */
+  /** Each waiter's {payload, state}, by kept key, as this run last read or kept it. */
   const current = new Map();
-  const fileOf = addressLabel => path.join(keep, `${Buffer.from(addressLabel).toString('base64url')}.json`);
+  /** Each waiter whose place another run took, as the refusal its writes got. */
+  const takenFrom = new Map();
   /** What one waiter's last fact and state are kept under: its address, and its waiter when it names one, so two waiters
    *  that emit at one address keep apart. */
   const keptAs = (addressLabel, waiterRef) => (typeof waiterRef === 'string' && waiterRef !== '' ? `${waiterRef}@${addressLabel}` : addressLabel);
-  function kept(addressLabel) {
-    if (current.has(addressLabel) || keep === null) return current.get(addressLabel) ?? null;
-    try {
-      const read = JSON.parse(readFileSync(fileOf(addressLabel), 'utf8'));
-      current.set(addressLabel, read);
-      return read;
-    } catch {
-      return null;
-    }
+  /** The place kept under `as`, read from the store once (a database store claims it for this run as it reads it). */
+  async function kept(as) {
+    if (current.has(as)) return current.get(as);
+    const read = await places.read(as);
+    current.set(as, read);
+    return read;
   }
-  function remember(addressLabel, value) {
-    current.set(addressLabel, value);
-    if (keep === null) return;
-    mkdirSync(keep, { recursive: true });
-    const file = fileOf(addressLabel);
-    writeFileSync(`${file}.new`, JSON.stringify(value));
-    renameSync(`${file}.new`, file);
+  /** Keeps `value` under `as`: in memory only once the store kept it, so a refused write leaves the place where it was. A
+   *  place another run holds is said once, and its waiter tells nothing more (`writeRecord`). */
+  async function remember(as, value, waiterRef) {
+    try {
+      await places.write(as, value);
+    } catch (error) {
+      if (error?.placeTaken && !takenFrom.has(waiterRef ?? as)) {
+        takenFrom.set(waiterRef ?? as, error);
+        say(JSON.stringify({ place_refused: as, held_by: error.holder?.kept_by_run ?? null, kept_on: error.holder?.kept_on ?? null,
+          kept_at: error.holder?.kept_at ? new Date(error.holder.kept_at).toISOString() : null }));
+      }
+      throw error;
+    }
+    current.set(as, value);
   }
   const answer = { told: [], refused: [], not_started: [] };
   /** One door operation `method` with `input`: the response and the call's result. */
@@ -217,13 +234,17 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
     async scanUnderPath() { return { entries: waiters }; },
     async readCurrent(addressLabel, waiterRef) { return kept(keptAs(addressLabel, waiterRef)); },
     async writeRecord(record) {
+      const as = keptAs(record.addressLabel, record.waiterRef);
+      // The place is claimed before anything is told, and a place another run took is told nothing more.
+      const before = await kept(as);
+      const taken = places.taken(as);
+      if (taken) throw taken;
       const count = told.get(record.addressLabel) ?? 0;
       told.set(record.addressLabel, count + 1);
       const eventId = record.eventKey == null ? `${record.addressLabel}#${startedAt}#${count}` : `${record.addressLabel}@${record.eventKey}`;
       await arrive(factOf(record, eventId));
-      const as = keptAs(record.addressLabel, record.waiterRef);
-      const state = record.state === undefined ? kept(as)?.state ?? null : record.state;
-      remember(as, { payload: record.payload, state });
+      const state = record.state === undefined ? before?.state ?? null : record.state;
+      await remember(as, { payload: record.payload, state }, record.waiterRef);
     },
     hearing,
     /** The switched-on wakes that hear facts of `kind` (wake:list), each as the engine lists it. */
@@ -239,9 +260,23 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
     },
     async keepState(addressLabel, state, waiterRef) {
       const as = keptAs(addressLabel, waiterRef);
-      remember(as, { payload: kept(as)?.payload ?? null, state });
+      await remember(as, { payload: (await kept(as))?.payload ?? null, state }, waiterRef);
     },
+    /** The refusal that took this waiter's place from this run (another run claimed it later), or null. */
+    placeTaken(waiterRef) { return takenFrom.get(waiterRef) ?? null; },
+    /** Ends the run's hold on its place store (a database store's connection). */
+    async close() { await places.close(); },
   };
+}
+
+/** The connection places_in names, from the descriptor the row mounts it on (PLACES_FD), or an error that says so: a row
+ *  or an engine that did not mount it leaves that descriptor unread or open on something else. */
+export function placesConnection(placesIn, fd = PLACES_FD) {
+  try {
+    return readGivenCredential({ credentialFd: fd }, fd);
+  } catch (error) {
+    throw new Error(`places_in names ${placesIn}, but this run holds no connection on descriptor ${fd}: ${error?.message ?? error}`, { cause: error });
+  }
 }
 
 /** The first descriptor a waiter's own credential is held on: the row mounts each waiter's credential_name on this plus the
@@ -266,14 +301,21 @@ if (startedAsProgram) {
     process.on('SIGTERM', () => controller.abort());
     const seconds = Number(input.for_seconds);
     if (Number.isFinite(seconds) && seconds > 0) setTimeout(() => controller.abort(), seconds * 1000);
+    // Where each waiter's place is kept: the kept folder, or the database the input's places_in names (held on PLACES_FD).
+    const startedAt = Date.now();
+    const keep = keptFolderOf();
+    const placesIn = typeof input.places_in === 'string' && input.places_in ? input.places_in : null;
+    const places = await placesFor({ placesIn, keep, tool: THIS_TOOL, keptOn: hostname(), run: `${hostname()}:${process.pid}:${startedAt}`,
+      connection: placesIn === null ? null : placesConnection(placesIn) });
     // Its own lines are each fact told; with for_seconds the last line is the whole answer.
-    const carrier = engineCarrier({ door: readDoor(), waiters, keep: keptFolderOf(), say: line => process.stderr.write(`${line}\n`) });
+    const carrier = engineCarrier({ door: readDoor(), waiters, keep, places, startedAt, say: line => process.stderr.write(`${line}\n`) });
     // The vault name the run reads its watched thing with; a fact may name it so a reader fetches what the fact cannot hold.
     const connection = typeof input.credential_name === 'string' && input.credential_name ? input.credential_name : null;
     // The vault name of the database whose workflow rows hold the conditions the router judges (the switch's own input): a
     // row-changes waiter that reads that database tells only the changes some wake or condition could take.
     const conditionsFrom = typeof input.conditions_from === 'string' && input.conditions_from ? input.conditions_from : null;
     await runResidentEmitter({ carrier, signal: controller.signal, connection, conditionsFrom });
+    await carrier.close();
     console.log(JSON.stringify({ result: carrier.answer }));
   } catch (error) {
     console.log(JSON.stringify({ error: error.message }));

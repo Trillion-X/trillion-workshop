@@ -207,7 +207,7 @@
         "listed_on": "2026-11-18T06:30:00Z",
         "label": "Notice when something shows up, and tell the engine",
         "job": "Keep watching for things outside (a stretch of time passing, a drive attached or removed, files someone finished putting in a place, a delivery over the network) and tell the person's engine one fact each time, so any tool whose wake hears that kind of fact starts",
-        "description": "Give waiters: the standing orders the noticer keeps (notice-when-something-shows-up.waiter-descriptor rows, each naming one mechanism in do-work/mechanisms, its settings and the kind of fact it emits). It runs as a kept-open program: while its wake is on, each waiter waits, and each time something shows up or goes away it tells the engine one fact at wake:arrive, of the waiter's kind, with the change's fields as text. A tool hears it by declaring a wake {fact: {kind, from: [\"run\"], match}}. This row may tell only the kinds its rights name. Each fact told or refused is one line of the program's output. Given for_seconds, it watches that long and answers {told, refused}. A second wake, keep-noticing-row-changes, watches one database's changes (the row-changes leaf) over the connection the person keeps under own-rows-postgres-connection; it is off until the person switches it on, and only then does the run hold that connection and reach its host. A third wake, keep-noticing-one-source, names no waiter and no credential: the person switches it on with their own input (wake:switch input {credential_name, waiters}), so a source of theirs (a booking service's list, their sent mail) is watched from their own DATA and never from a shared row; one source per switch, because a run reaches only the hosts every value it holds may go to.",
+        "description": "Give waiters: the standing orders the noticer keeps (notice-when-something-shows-up.waiter-descriptor rows, each naming one mechanism in do-work/mechanisms, its settings and the kind of fact it emits). It runs as a kept-open program: while its wake is on, each waiter waits, and each time something shows up or goes away it tells the engine one fact at wake:arrive, of the waiter's kind, with the change's fields as text. A tool hears it by declaring a wake {fact: {kind, from: [\"run\"], match}}. This row may tell only the kinds its rights name. Each fact told or refused is one line of the program's output. Given for_seconds, it watches that long and answers {told, refused}. A second wake, keep-noticing-row-changes, watches one database's changes (the row-changes leaf) over the connection the person keeps under own-rows-postgres-connection; it is off until the person switches it on, and only then does the run hold that connection and reach its host. A third wake, keep-noticing-one-source, names no waiter and no credential: the person switches it on with their own input (wake:switch input {credential_name, waiters}), so a source of theirs (a booking service's list, their sent mail) is watched from their own DATA and never from a shared row; one source per switch, because a run reaches only the hosts every value it holds may go to. Any switch may add places_in, the vault name of a database of the person's, so each waiter's place is kept there instead of in one computer's kept folder and moves with the wake when it is switched on another computer.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -239,6 +239,10 @@
             "conditions_from": {
               "type": "string",
               "description": "The vault name of the database whose workflow_recipes rows hold the conditions workflow:route-each-row-change judges (its switch's own.credential_name). A row-changes waiter that reads that database tells a change only when some wake that hears its kind has a match the change meets, or some workflow's fires_when condition (that database's rows, or an installed recipe's) could keep it, judged by tool:choose-the-workflows-that-fire; a change no one could take passes without a fact and stays in the change table for a replay. A condition that cannot be judged keeps every change told and is named. Left out, or naming another database, every change is told."
+            },
+            "places_in": {
+              "type": "string",
+              "description": "The vault name of a database of the person's where each waiter's place is kept (its last fact and its mechanism's state: a row-changes waiter's last told change, a service-lists waiter's fingerprints of what it has seen), handed to the run on descriptor 63: one row per tool and waiter in its kept_waiter_places table, made by the first run that finds it missing. The place then belongs to the person and the tool, not to a computer, so a wake moved to another computer goes on from where the last one stopped and tells nothing twice and passes over nothing; a place there wins over one in that computer's kept folder, which is read only for a waiter the database holds no place for yet. A run claims each place it reads; when the same wake runs on two computers at once, the run that started last holds it and the other's waiter ends with a refusal fact naming the run, the computer and the time that hold it. The run reaches only the hosts every key it holds may go to, so this names a database whose key may go where the waiters' own keys go. Left out, each place is kept in the computer's kept folder, as before."
             }
           },
           "required": [
@@ -622,6 +626,14 @@
             {
               "secret_name_from_input": "waiters[].credential_name",
               "fd": 5
+            },
+            {
+              "secret_name_from_input": "places_in",
+              "fd": 63,
+              "only_when": {
+                "input": "places_in",
+                "present": true
+              }
             }
           ]
         },
