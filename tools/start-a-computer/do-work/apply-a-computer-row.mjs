@@ -216,14 +216,18 @@ export function setLinks(folder, set) {
 }
 
 /** The host names a row says it answers (`host_name`, `host`, `hosts`, `accepts_hosts` anywhere in it), in the order found. An IP
- *  address or a .localhost name is never one (Nov 24 2026: a unit's internal host 127.0.0.1 became a probe URL and the apply refused). */
+ *  address or a .localhost name is never one (Nov 24 2026: a unit's internal host 127.0.0.1 became a probe URL and the apply refused),
+ *  and neither is a `host` named beside a `port` that is not 80 or 443: that is a target the row reaches (a database), not a page it
+ *  serves (Nov 25 2026, 10:55 AM CST: an engine's report.private_targets {host, port: 5432} became a probe URL; the name answered
+ *  Elestio's self-signed default once another pipeline was made, and the apply refused before writing anything). */
 export function hostsOf(row) {
   const found = [];
   const walk = value => {
     if (Array.isArray(value)) { value.forEach(walk); return; }
     if (!isObject(value)) return;
+    const reached = value.port !== undefined && ![80, 443, '80', '443'].includes(value.port);
     for (const [key, inner] of Object.entries(value)) {
-      if (['host_name', 'host'].includes(key) && typeof inner === 'string') found.push(inner);
+      if (['host_name', 'host'].includes(key) && typeof inner === 'string') { if (!reached) found.push(inner); }
       else if (['hosts', 'accepts_hosts'].includes(key) && Array.isArray(inner)) found.push(...inner.filter(host => typeof host === 'string'));
       else walk(inner);
     }

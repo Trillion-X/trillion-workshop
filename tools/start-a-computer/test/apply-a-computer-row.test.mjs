@@ -80,6 +80,12 @@ test('an IP address or a .localhost name is never a host a row answers, so it is
   assert.deepEqual(hostsOf({ runs: { names: [{ host_name: 'one.example.com' }], units } }), ['one.example.com', 'app.example.com']);
 });
 
+test('a host named beside a port that is not 80 or 443 is a target the row reaches, never a probe URL', () => {
+  const units = [{ settings: { doors: [{ accepts_hosts: ['app.example.com'] }], report: { private_targets: [{ host: 'db.example.com', port: 5432 }] } } },
+    { settings: { site: { host: 'www.example.com', port: 443 } } }, { settings: { site: { host: 'plain.example.com', port: '80' } } }];
+  assert.deepEqual(hostsOf({ runs: { units } }), ['app.example.com', 'www.example.com', 'plain.example.com']);
+});
+
 const applyReceipt = exit => {
   const candidate = 'two.example-b.service', incumbent = 'two.example-a.service';
   const proof = { row_apply_protocol: ROW_APPLY_RESULT_PROTOCOL };
