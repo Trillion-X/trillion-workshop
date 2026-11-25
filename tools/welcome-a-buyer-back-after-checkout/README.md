@@ -16,3 +16,7 @@ The caller supplies the payment/content owners. This library reaches no store, a
 or a page renderer. The welcome output remains section DATA for the shared shell.
 
 Run `node --test tools/welcome-a-buyer-back-after-checkout/test/checkout-return.test.mjs`.
+
+## The welcome page as a screen
+
+`tool:read-the-welcome-page` (`reads/read-the-welcome-page.ts`) answers the page's title and addresses and, per checkout state, its heading, body and actions from the pursuit's `welcome_page` and `welcome_states` rows. `show/Welcome.tsx` is its screen: plain JSON props (`states`, `status_path`), it draws the state `none` on the server and, once mounted, asks `<status_path>?checkout=<id>` for the buyer's state. Test: `node --test tools/welcome-a-buyer-back-after-checkout/test/welcome-page.test.ts`.

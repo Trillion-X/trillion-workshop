@@ -1,0 +1,37 @@
+{
+  "start_here": "Say to your AI: \"Show my welcome page.\" It runs tool:read-the-welcome-page and shows the words a buyer sees after checkout.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it reads the welcome page and welcome states tables of the pursuit database you name and changes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:read-the-welcome-page"
+  ],
+  "instructions": [
+    "1. Name the pursuit database that holds the rows, such as example_for_who_uses_it; the computer opens it with the read login its vault holds.",
+    "2. Say what you want in plain words; your AI calls tools:run with tool tool:read-the-welcome-page and the input.",
+    "3. Read the answer: the page title and, for each checkout state, its heading, body and actions. Show it with the screen the tool names."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the welcome page",
+      "ask": "Show my welcome page.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-the-welcome-page",
+            "input": {
+              "database": "example_for_who_uses_it"
+            }
+          }
+        }
+      },
+      "given": "The database holds the rows the read names (made-up values).",
+      "hands_back": "{\"name\":\"main\",\"title\":\"Welcome\",\"address\":\"/welcome\",\"tours_address\":\"/tour\",\"keep_seconds\":3600,\"states\":{\"none\":{\"heading\":\"Welcome\",\"body\":\"Sign in.\",\"actions\":[]}}}"
+    }
+  ],
+  "drafted_from": "tool row in tools/welcome-a-buyer-back-after-checkout/tool-rows.json and reads/read-the-welcome-page.ts"
+}
