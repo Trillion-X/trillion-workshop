@@ -10,7 +10,8 @@ import {
   type TranscriptWord,
 } from '../read-data/read-transcript-records';
 import { Dropdown } from '../../ui/show/dropdown';
-import { Button, Container, Input, NamedIcon } from '../../ui';
+import { Button, Container, Input, NamedIcon, SegmentedControl, Text, Textarea } from '../../ui';
+import { clock } from '../read-data/edit-transcript';
 import words from './transcript-tools.json' with { type: 'json' };
 import languages from './transcript-languages.json' with { type: 'json' };
 
@@ -33,6 +34,8 @@ export type TranscriptTools = {
   onCopyMoment?: (seconds: number) => void | Promise<void>;
   /** Split the passage into two just before its word number `wordIndex`. */
   onSplit?: (segment: TranscriptSegment, wordIndex: number) => void | Promise<void>;
+  /** Write the passage's words as `text` (double-click a passage, or its edit button). */
+  onReword?: (segment: TranscriptSegment, text: string) => void | Promise<void>;
   onCopy?: () => void | Promise<void>;
   onExportPdf?: () => void | Promise<void>;
   /** Hear the recording again in this language (ISO code and the name shown). */
@@ -54,9 +57,75 @@ function AddName({ onAdd }: { onAdd: (name: string) => void }) {
   );
 }
 
+/** One chapter of the recording, in its own seconds: a title, and a summary when the row holds one. */
+export type TranscriptChapter = { start: number; end: number; title: string; summary?: string };
+
+/** The passage editor: its words in a text box; Ctrl/Cmd+Enter or leaving the box saves, Esc puts the words back. */
+function RewordPassage({ segment, onSave, onCancel }: { segment: TranscriptSegment; onSave: (text: string) => void; onCancel: () => void }) {
+  const [text, setText] = React.useState(segment.text);
+  const settled = React.useRef(false);
+  const settle = (save: boolean) => {
+    if (settled.current) return;
+    settled.current = true;
+    if (save && text.trim() && text.trim() !== segment.text.trim()) onSave(text);
+    else onCancel();
+  };
+  return (
+    <Container layout="vertical" gap="xs" width="full" onClick={stopTranscriptEvent} onPointerDown={stopTranscriptEvent}>
+      <Textarea autoFocus autoGrow aria-label={words.edit.label} value={text}
+        onChange={(event) => setText(event.currentTarget.value)}
+        onBlur={() => settle(true)}
+        onKeyDown={(event) => {
+          event.stopPropagation();
+          if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) { event.preventDefault(); settle(true); }
+          else if (event.key === 'Escape') { event.preventDefault(); settle(false); }
+        }} />
+      <Container layout="horizontal" gap="xs" alignItems="center">
+        <Button size="xs" variant="secondary" onPointerDown={(event) => event.preventDefault()} onClick={() => settle(true)}>{words.edit.save}</Button>
+        <Button size="xs" variant="ghost" onPointerDown={(event) => event.preventDefault()} onClick={() => settle(false)}>{words.edit.cancel}</Button>
+        <Text variant="caption">{words.edit.keys}</Text>
+      </Container>
+    </Container>
+  );
+}
+
+const NO_CHAPTERS: readonly TranscriptChapter[] = [];
+
+/** The chapters list: each chapter's span, title and summary; the one playing now is marked, and a press plays it from its start. */
+function TranscriptChapters({ chapters, currentTimeSeconds, onSelect }: {
+  chapters: readonly TranscriptChapter[];
+  currentTimeSeconds?: number;
+  onSelect?: (chapter: TranscriptChapter) => void;
+}) {
+  const now = currentTimeSeconds ?? -1;
+  return (
+    <Container layout="vertical" gap="xs" padding="sm" className="screen-edge-fade min-h-0 flex-1 overflow-y-auto" data-testid="transcript-chapters">
+      {chapters.map((chapter) => {
+        const playing = now >= chapter.start && now < chapter.end;
+        const span = `${clock(chapter.start)} – ${clock(chapter.end)}`;
+        return (
+          <Button key={`${chapter.start}:${chapter.title}`} variant="ghost" size="option-row" disabled={!onSelect}
+            aria-current={playing ? 'true' : undefined}
+            aria-label={said(words.views.play, { title: chapter.title, time: clock(chapter.start) })}
+            data-transcript-chapter={chapter.start}
+            className={['flex-col gap-0.5 whitespace-normal', playing ? 'bg-[var(--glass-bg-hover)]' : ''].join(' ')}
+            onClick={(event) => { event.stopPropagation(); onSelect?.(chapter); }}>
+            <Text variant="caption" mono>{span}</Text>
+            <Text variant="body" weight="medium" color={playing ? 'strong' : 'primary'}>{chapter.title}</Text>
+            {chapter.summary ? <Text variant="body-xs" color="secondary">{chapter.summary}</Text> : null}
+          </Button>
+        );
+      })}
+    </Container>
+  );
+}
+
 export type TranscriptReaderSurfaceProps = {
-  /** Note tools: rename a speaker, copy a moment's link, split a passage, copy, export, reprocess. */
+  /** Note tools: rename a speaker, copy a moment's link, split a passage, edit a passage's words, copy, export, reprocess.
+   *  Give them only to a viewer who may change the words; without them the reader only reads, follows and seeks. */
   tools?: TranscriptTools;
+  /** The recording's chapters. When there are any, the reader offers Transcript and Chapters, and a chapter seeks to its start. */
+  chapters?: readonly TranscriptChapter[];
   /** Whether the reader draws its own bordered card. A host that already sits in a pane with its own card turns it off. */
   framed?: boolean;
   currentTimeSeconds?: number;
@@ -143,8 +212,12 @@ export function TranscriptReaderSurface({
   selectedRange,
   onSelectRange,
   tools,
+  chapters = NO_CHAPTERS,
   framed = true,
 }: TranscriptReaderSurfaceProps) {
+  const [view, setView] = React.useState<'transcript' | 'chapters'>('transcript');
+  // The passage whose words are open for editing (only with the reword tool).
+  const [editing, setEditing] = React.useState<string | null>(null);
   // The word the person last chose is the caret a split falls before.
   const [caret, setCaret] = React.useState<{ segment: string; word: number } | null>(null);
   const splitAtCaret = React.useCallback(() => {
@@ -190,11 +263,27 @@ export function TranscriptReaderSurface({
     [searchQuery, segments, selectedSpeaker, semanticMatches],
   );
 
+  // A double-click on a passage opens its words for editing, for a viewer given the reword tool.
+  const onReword = tools?.onReword;
   React.useEffect(() => {
-    if (searchQuery || autoFollowPausedRef.current) return;
+    const list = scrollRef.current;
+    if (!list || !onReword) return undefined;
+    const open = (event: MouseEvent) => {
+      const passage = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-transcript-segment]') : null;
+      if (!passage?.dataset.transcriptSegment) return;
+      event.preventDefault();
+      autoFollowPausedRef.current = true;
+      setEditing(passage.dataset.transcriptSegment);
+    };
+    list.addEventListener('dblclick', open);
+    return () => list.removeEventListener('dblclick', open);
+  }, [onReword, view, segments.length]);
+
+  React.useEffect(() => {
+    if (searchQuery || editing || autoFollowPausedRef.current) return;
     const active = scrollRef.current?.querySelector('[data-transcript-word-active="true"], [data-active-segment="true"]') as HTMLElement | null;
     active?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-  }, [activeSegmentIndex, currentTimeSeconds, searchQuery]);
+  }, [activeSegmentIndex, currentTimeSeconds, searchQuery, editing]);
 
   function pauseAutoFollow() {
     autoFollowPausedRef.current = true;
@@ -266,6 +355,17 @@ export function TranscriptReaderSurface({
     >
       <header className="flex shrink-0 flex-wrap items-center gap-2 border-b border-[var(--border-primary)] px-3 py-2">
         <h2 className="m-0 shrink-0 text-sm font-medium text-[var(--text-primary)]">{entry?.label ?? title}</h2>
+        {chapters.length ? (
+          <SegmentedControl
+            ariaLabel={words.views.aria}
+            items={[
+              { id: 'transcript', label: words.views.transcript },
+              { id: 'chapters', label: said(words.views.chapters, { count: String(chapters.length) }) },
+            ]}
+            value={view}
+            onValueChange={(value) => setView(value === 'chapters' ? 'chapters' : 'transcript')}
+          />
+        ) : null}
         {speakers.length > 1 ? (
           <Dropdown
             aria-label="Filter transcript by speaker"
@@ -329,7 +429,13 @@ export function TranscriptReaderSurface({
           />
         ) : null}
       </header>
-      {segments.length > 0 ? (
+      {view === 'chapters' && chapters.length ? (
+        <TranscriptChapters chapters={chapters} currentTimeSeconds={currentTimeSeconds}
+          onSelect={onSelectTime ? (chapter) => {
+            const at = segments.find((segment) => (segment.end_ms ?? 0) / 1000 > chapter.start) ?? segments[0];
+            if (at) selectTime(chapter.start, at);
+          } : undefined} />
+      ) : segments.length > 0 ? (
         <ol
           className="screen-edge-fade m-0 min-h-0 flex-1 list-none overflow-y-auto px-2 py-2"
           data-testid="transcript-segments"
@@ -390,7 +496,17 @@ export function TranscriptReaderSurface({
                     }}
                   />
                 ) : <strong className="mr-1 font-medium text-[var(--text-primary)]">{segment.speaker}:</strong>) : null}
-                {renderWords(segment)}
+                {editing === segment.id && tools?.onReword ? (
+                  <RewordPassage segment={segment}
+                    onCancel={() => setEditing(null)}
+                    onSave={(text) => { setEditing(null); void tools.onReword?.(segment, text); }} />
+                ) : renderWords(segment)}
+                {tools?.onReword && editing !== segment.id ? (
+                  <Button size="xs" variant="ghost" aria-label={said(words.edit.aria, { time: offset || '0:00' })} title={words.edit.hint}
+                    onClick={(event) => { event.stopPropagation(); setEditing(segment.id); }}>
+                    <NamedIcon name="Pencil" size="sm" aria-hidden="true" />
+                  </Button>
+                ) : null}
                 {tools?.onCopyMoment ? (
                   <Button size="xs" variant="ghost" aria-label={said(words.moment.copy, { time: offset || '0:00' })}
                     onClick={() => { void tools.onCopyMoment?.(segmentStartSeconds(segment)); }}>

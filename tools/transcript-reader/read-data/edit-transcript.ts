@@ -10,6 +10,7 @@
 //      name back restores it exactly. Words, times and order never change.
 //   3. A split keeps every word and every second: the two halves together say exactly what the passage said, the
 //      first ends where the second begins, and the split falls between two words, never inside one.
+//   4. Rewording a passage keeps its start and end; its new words share that span, and no other passage changes.
 
 export type EditWord = { word: string; start: number; end: number };
 export type EditPassage = { start: number; end: number; text: string; speaker?: string; speaker_was?: string; words?: EditWord[] };
@@ -49,6 +50,27 @@ export function splitPassage<P extends EditPassage>(passages: readonly P[], inde
   const head = { ...passage, text: say(before), end: after[0].start, words: before };
   const tail = { ...passage, text: say(after), start: after[0].start, words: after };
   return [...passages.slice(0, index), head, tail, ...passages.slice(index + 1)];
+}
+
+/**
+ * The passage at `index` with its words written as `text`. The passage keeps its own start and end. When the new words are
+ * as many as the old, each keeps the seconds of the word it replaces (a spelling fix moves no word); otherwise the passage's
+ * span is shared evenly among the new words, so every word still has a second the reader can follow and seek to.
+ */
+export function rewordPassage<P extends EditPassage>(passages: readonly P[], index: number, text: string): P[] {
+  const passage = passages[index];
+  if (!passage) throw new Error('That passage is no longer in the transcript.');
+  const said = text.replace(/\s+/g, ' ').trim();
+  if (!said) throw new Error('A passage needs words. Split or keep it instead of emptying it.');
+  const next = said.split(' ');
+  const old = passage.words ?? [];
+  if (!old.length) return passages.map((row, at) => (at === index ? { ...row, text: said } : row));
+  const start = old[0].start, end = old[old.length - 1].end;
+  const step = (end - start) / next.length;
+  const words = next.length === old.length
+    ? old.map((word, at) => ({ ...word, word: next[at] }))
+    : next.map((word, at) => ({ word, start: start + at * step, end: at === next.length - 1 ? end : start + (at + 1) * step }));
+  return passages.map((row, at) => (at === index ? { ...row, text: said, words } : row));
 }
 
 /** 0:05 or 1:02:03 for a second in the recording. */

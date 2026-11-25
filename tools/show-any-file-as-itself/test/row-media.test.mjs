@@ -1,7 +1,7 @@
 // Tests for a row's media source (web/row-media.mjs). The rows are made up.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { bodyOf, filesOf, mediaOf, sourceOf } from '../web/row-media.mjs';
+import { bodyOf, chaptersOf, filesOf, mediaOf, sourceOf } from '../web/row-media.mjs';
 
 test('a YouTube address with no type is the player\'s embed, and its address is the one the field holds', () => {
   const source = sourceOf({ playback_url: 'https://www.youtube-nocookie.com/embed/abc123' }, 'row:video');
@@ -50,4 +50,20 @@ test('the body is the text of the field it names, and empty when none is held', 
   assert.equal(bodyOf({ notes: 'Read first.' }, 'notes'), 'Read first.');
   assert.equal(bodyOf({ notes: 3 }, 'notes'), '');
   assert.equal(bodyOf({ notes: 'x' }, undefined), '');
+});
+
+test('a row\'s chapters are its titled spans in time order, and an item with no title or no real span is left out', () => {
+  const row = { chapters: [
+    { start: '90', end: '120', title: 'Second' },
+    { start: 0, end: 90, title: 'First', summary: 'Where it starts' },
+    { start: 10, end: 5, title: 'Backwards' },
+    { start: 5, end: 9 },
+    { start: 'x', end: 9, title: 'No start' },
+  ] };
+  assert.deepEqual(chaptersOf(row, 'chapters'), [
+    { start: 0, end: 90, title: 'First', summary: 'Where it starts' },
+    { start: 90, end: 120, title: 'Second' },
+  ]);
+  assert.deepEqual(chaptersOf(row, 'missing'), []);
+  assert.deepEqual(chaptersOf(row, undefined), []);
 });

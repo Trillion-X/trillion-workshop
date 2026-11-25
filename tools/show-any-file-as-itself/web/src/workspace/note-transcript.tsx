@@ -4,14 +4,15 @@
 //   A recording's transcript on its note: the shared transcript reader (tools/transcript-reader) over the recording's
 //   kept words, following the player, with the note's tools: click a speaker to rename them or take the name back,
 //   copy a link that opens the recording at a passage, hear the recording again in another language, Copy transcript,
-//   Export PDF, and split a passage before a chosen word. A recording whose words are not kept as timed passages shows
+//   Export PDF, split a passage before a chosen word, and edit a passage's words (double-click it). A recording whose words are not kept as timed passages shows
 //   what the caller gives it instead (the saved transcript file).
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. The words are the recording's own kept `transcript` result (the transcription tool's, read by any identity of
 //      the file); an edit writes that same result again, and only after reading it once more and finding it as this
 //      screen showed it. A transcript changed meanwhile is refused with words, never overwritten.
-//   2. A rename or split changes labels and passage boundaries only: no word and no second is added, lost or moved.
+//   2. A rename or split changes labels and passage boundaries only: no word and no second is added, lost or moved. An edit
+//      of a passage's words changes that passage only and keeps its start and end (edit-transcript.ts rewordPassage).
 //   3. Every outcome is said in words (tools/transcript-reader/show/transcript-tools.json); a copy says "copied" only
 //      when the clipboard write happened (note-actions.ts).
 //   4. Hearing it again in a language is the account's transcription tool asked with that language; the old words stay
@@ -20,7 +21,7 @@
 import React from 'react';
 import { TranscriptReaderSurface } from '../../../../transcript-reader/show/TranscriptReaderSurface';
 import type { TranscriptSegment } from '../../../../transcript-reader/read-data/read-transcript-records';
-import { nameSpeaker, namedSpeakers, splitPassage, takeNameBack, transcriptAsText, type EditPassage } from '../../../../transcript-reader/read-data/edit-transcript';
+import { nameSpeaker, namedSpeakers, rewordPassage, splitPassage, takeNameBack, transcriptAsText, type EditPassage } from '../../../../transcript-reader/read-data/edit-transcript';
 import words from '../../../../transcript-reader/show/transcript-tools.json' with { type: 'json' };
 import { linkTo } from '../../../../ui/show/clipboard/answer-copy.mjs';
 import { copyTextToClipboard } from '../../../../ui/show/clipboard/copy-text.ts';
@@ -101,6 +102,8 @@ export function NoteTranscript({ identity, title, clock, onSeek, children }: {
     },
     onSplit: (segment: TranscriptSegment, wordIndex: number) => attempt(
       () => keep(current => splitPassage(current, segments.findIndex(row => row.id === segment.id), wordIndex)), words.split.done, words.split.failed),
+    onReword: (segment: TranscriptSegment, text: string) => attempt(
+      () => keep(current => rewordPassage(current, segments.findIndex(row => row.id === segment.id), text)), words.edit.done, words.edit.failed),
     onCopy: () => { void copyNoteText(transcriptAsText(everyone), words.copy); },
     onExportPdf: () => { saveNotePdf(title, [{ text: transcriptAsText(everyone) }], words.pdf); },
     onReprocess: (language: { code: string; label: string }) => attempt(async () => {

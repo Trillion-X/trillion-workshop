@@ -2,8 +2,11 @@
 //
 // PURPOSE
 //   One row's media as a screen module: the row named by the screen's input is read through the records door, and the media
-//   field it names is shown. A sound or video plays in the shared player with its captions, and the transcript reader beside
-//   it follows the playback word by word and seeks on a word click, when the row holds timed text in the field the input names.
+//   field it names is shown. A sound or video plays in the shared player with its captions, and the transcript reader follows
+//   the playback word by word and seeks on a word click, when the row holds timed text in the field the input names. The
+//   reader shows from the start (the player's transcript button closes and opens it): beside the picture in a pane at least
+//   56rem wide, and directly under the picture in a narrower one, before the row's body. The row's chapters, when the input
+//   names a field holding them, are the reader's Chapters list.
 //   Anything else (a PDF, a text file, any other file) opens in the shared file preview. The row's body field shows beneath, read as markdown by the shared MarkdownWords.
 //   A file the input gives directly is shown the same way, with no row read. The single export, `mount(element, props)`, is
 //   the contract of the module kind (web/src/workspace/tool-screen.tsx). The fields are the input's, never a fixed name here.
@@ -12,7 +15,8 @@
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. The row is read by the id and type the input names, through the records door; nothing here holds row text.
-//   2. Every field name (media, timed text, files, body, title) comes from the input; none is assumed here.
+//   2. Every field name (media, timed text, chapters, files, body, title) comes from the input; none is assumed here.
+//   6. The reader is given no editing tools here: a row read through this screen is read, followed and sought, never changed.
 //   3. Nothing here writes a row. A row the door does not answer shows the words for it, and never a guess.
 //   4. The timed text is the shared converter's (media-playback/read-data/kept-timed-text.ts): the same words the note's
 //      transcript shows, with the same seconds.
@@ -29,7 +33,7 @@ import { TranscriptReaderSurface } from '../../transcript-reader/show/Transcript
 import { Spinner } from '../../ui/show/spinner';
 import { MarkdownWords } from '../../ui/show/markdown-block/MarkdownWords';
 import { readRecord } from '#workspace/records-door';
-import { bodyOf, filesOf, mediaOf, sourceOf } from './row-media.mjs';
+import { bodyOf, chaptersOf, filesOf, mediaOf, sourceOf } from './row-media.mjs';
 
 type RowMediaInput = {
   /** The row to read: its id and type, through the records door. */
@@ -39,6 +43,8 @@ type RowMediaInput = {
   media_field?: string;
   /** The row's field holding timed text: passages of { text, start, end } in seconds, with words when the row has them. */
   timed_text_field?: string;
+  /** The row's field holding the recording's chapters: { start, end, title, summary? } in seconds. */
+  chapters_field?: string;
   /** The row's field holding a list of files (resources), each opened in the file viewer beneath the media. */
   files_field?: string;
   /** The row's field holding text shown beneath the media. */
@@ -51,12 +57,34 @@ type RowMediaInput = {
 
 type RowValue = Record<string, unknown> | null;
 
+// The pane width (in rem) from which the transcript sits beside the picture rather than under it.
+const BESIDE_FROM_REM = 56;
+
+/** Whether the element is at least `rem` wide, followed as it resizes (the pane's own width, not the window's). */
+function useAtLeastRem(rem: number): [React.RefCallback<HTMLElement>, boolean] {
+  const [element, setElement] = React.useState<HTMLElement | null>(null);
+  const [wide, setWide] = React.useState(false);
+  React.useLayoutEffect(() => {
+    if (!element) return undefined;
+    const measure = () => {
+      const root = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      setWide(element.getBoundingClientRect().width >= rem * root);
+    };
+    measure();
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
+    observer?.observe(element);
+    return () => observer?.disconnect();
+  }, [element, rem]);
+  return [setElement, wide];
+}
+
 function RowMedia({ input }: { input: RowMediaInput }) {
   const [value, setValue] = React.useState<RowValue | undefined>(undefined);
   const [failed, setFailed] = React.useState(false);
   const [now, setNow] = React.useState(0);
   const [seek, setSeek] = React.useState<MediaPlaybackSeekRequest | null>(null);
   const [transcriptChoice, setTranscriptChoice] = React.useState<boolean | null>(null);
+  const [paneRef, beside] = useAtLeastRem(BESIDE_FROM_REM);
   const rowId = input.record_id ?? '';
   const rowType = input.record_type ?? '';
   React.useEffect(() => {
@@ -76,20 +104,30 @@ function RowMedia({ input }: { input: RowMediaInput }) {
     () => timedTextOf(identity, value?.[input.timed_text_field ?? '']).map(segment => ({ ...segment, transcript_ref: identity, words: segment.words && [...segment.words] })),
     [identity, value, input.timed_text_field],
   );
+  const chapters = React.useMemo(() => chaptersOf(value, input.chapters_field), [value, input.chapters_field]);
   const body = value ? bodyOf(value, input.body_field) : '';
   const files = value ? filesOf(value, input.files_field) : [];
   const title = value && input.title_field ? value[input.title_field] : undefined;
   const loading = !input.file && value === undefined && !failed && Boolean(rowId);
   const withTranscript = source?.kind === 'media' && timed.length > 0;
-  // The transcript is the viewer's to open and close with the player's transcript button. A sound opens with its words shown,
-  // a video with its transcript closed, until the viewer chooses.
-  const soundSource = source?.kind === 'media' && source.media.source_kind === 'audio';
-  const transcriptOpen = transcriptChoice ?? soundSource;
+  // The transcript shows from the start, for a sound and a video alike; the viewer closes and opens it with the player's
+  // transcript button.
+  const transcriptOpen = transcriptChoice ?? true;
+  const reader = withTranscript && transcriptOpen ? (
+    <TranscriptReaderSurface
+      framed={false}
+      title="Transcript"
+      segments={timed}
+      chapters={chapters}
+      currentTimeSeconds={now}
+      onSelectTime={seconds => setSeek(prev => ({ requestId: (prev?.requestId ?? 0) + 1, seconds }))}
+    />
+  ) : null;
   return (
     <ErrorBoundary zoneName="row media">
-      {/* A pane at least 56rem wide holds the transcript beside the picture; a narrower one puts it below, so the picture
-          keeps the width (the pane's own width, by a container query, not the window's). */}
-      <Container layout="vertical" gap="none" width="full" className="@container h-full min-h-0 w-full overflow-y-auto">
+      {/* A pane at least 56rem wide holds the transcript beside the picture; a narrower one puts it directly under the
+          picture, so the picture keeps the width (the pane's own width, measured, not the window's). */}
+      <Container layout="vertical" gap="none" width="full" className="@container h-full min-h-0 w-full overflow-y-auto" ref={paneRef}>
         <Container layout="vertical" gap="none" width="full" alignItems="stretch" className="min-h-full @[56rem]:h-full @[56rem]:flex-row">
           <Container layout="vertical" gap="lg" minWidth="0" className="min-w-0 flex-1 p-4 @[56rem]:min-h-0 @[56rem]:overflow-y-auto">
             {typeof title === 'string' && title ? <Text variant="heading-xl" color="strong">{title}</Text> : null}
@@ -114,6 +152,7 @@ function RowMedia({ input }: { input: RowMediaInput }) {
                 seekRequest={seek}
               />
             ) : null}
+            {reader && !beside ? <Container layout="vertical" minWidth="0" className="h-[28rem] w-full shrink-0">{reader}</Container> : null}
             {source?.kind === 'file' ? (
               <Container className="h-[min(78vh,60rem)] min-h-[36rem] overflow-hidden">
                 <FilePreview url={source.file.url} contentType={source.file.contentType} label={source.file.label} autoPlay={false} />
@@ -136,16 +175,8 @@ function RowMedia({ input }: { input: RowMediaInput }) {
             {body ? <Container maxWidth="prose"><MarkdownWords words={body} /></Container> : null}
             {!loading && !failed && !source && !files.length && !body ? <Text variant="body" color="secondary">Nothing to show yet.</Text> : null}
           </Container>
-          {withTranscript && transcriptOpen ? (
-            <Container layout="vertical" minWidth="0" className="h-[28rem] w-full shrink-0 px-4 pb-4 @[56rem]:h-full @[56rem]:min-h-0 @[56rem]:w-[22rem] @[56rem]:p-4 @[56rem]:pl-0">
-              <TranscriptReaderSurface
-                framed={false}
-                title="Transcript"
-                segments={timed}
-                currentTimeSeconds={now}
-                onSelectTime={seconds => setSeek(prev => ({ requestId: (prev?.requestId ?? 0) + 1, seconds }))}
-              />
-            </Container>
+          {reader && beside ? (
+            <Container layout="vertical" minWidth="0" className="h-full min-h-0 w-[22rem] shrink-0 p-4 pl-0">{reader}</Container>
           ) : null}
         </Container>
       </Container>

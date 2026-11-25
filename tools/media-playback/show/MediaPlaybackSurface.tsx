@@ -989,7 +989,8 @@ export function TimedTextCaptionOverlay({
             />
           </div>
           <div
-            className={docked ? captionReaderLook.dockToolbar : captionToolbarClass(showBackground, textColor)}
+            className={docked ? captionReaderLook.dockToolbar : captionToolbarClass(showBackground, textColor, controlsVisible)}
+            data-caption-toolbar-shown={docked || controlsVisible ? 'true' : 'false'}
             ref={toolbarRef}
             data-caption-control
             onClick={stopMediaEvent}

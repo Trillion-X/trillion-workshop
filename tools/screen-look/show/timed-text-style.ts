@@ -24,7 +24,7 @@ export const captionReaderLook = {
   readableLines: 2,
   shell: 'relative isolate flex h-full flex-col rounded-lg',
   scroll: 'screen-edge-fade min-h-0 flex-1 overflow-y-auto px-3 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-  toolbar: 'relative z-30 flex shrink-0 items-center justify-center gap-1 py-1 pointer-events-auto',
+  toolbar: 'relative z-30 flex shrink-0 items-center justify-center gap-1 py-1',
   fade: 'linear-gradient(to bottom, transparent 0, black min(8px, 15%), black calc(100% - min(8px, 15%)), transparent 100%)',
 } as const;
 
@@ -62,9 +62,16 @@ const CAPTION_CONTROL_COLOURS = {
   black: '[--text-muted:rgba(0,0,0,0.7)] [--text-primary:#000] [--glass-bg-hover:rgba(0,0,0,0.2)] [--glass-bg-active:rgba(0,0,0,0.1)]',
 } as const;
 
-export function captionToolbarClass(background: boolean, color: 'white' | 'black') {
+/** The caption reader's controls over the picture hide with the player's own controls: while the picture plays and the
+ *  pointer is away they fade out in place (no line moves) and take no presses, and they come back when the pointer returns,
+ *  on a tap, or when one of them takes keyboard focus. */
+const CAPTION_TOOLBAR_SHOWN = 'pointer-events-auto opacity-100 transition-opacity duration-200 motion-reduce:transition-none';
+const CAPTION_TOOLBAR_AWAY = 'opacity-0 pointer-events-none transition-opacity duration-200 motion-reduce:transition-none focus-within:opacity-100 focus-within:pointer-events-auto';
+
+export function captionToolbarClass(background: boolean, color: 'white' | 'black', shown = true) {
   return [
     captionReaderLook.toolbar,
+    shown ? CAPTION_TOOLBAR_SHOWN : CAPTION_TOOLBAR_AWAY,
     background ? CAPTION_CONTROL_COLOURS[color] : CAPTION_CONTROL_COLOURS.white,
     background ? color === 'white' ? 'border-t border-white/10' : 'border-t border-black/10' : '[&_button]:bg-black/30 [&_button:hover]:bg-black/50',
   ].join(' ');

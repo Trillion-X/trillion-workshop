@@ -1,5 +1,5 @@
 {
-  "_what": "Words the transcript reader's note tools say (tools/transcript-reader/show/TranscriptReaderSurface.tsx, src/workspace/note-transcript.tsx): the speaker picker, the moment link, Reprocess in, Copy transcript, Export PDF and Split.",
+  "_what": "Words the transcript reader's note tools say (tools/transcript-reader/show/TranscriptReaderSurface.tsx, src/workspace/note-transcript.tsx): the speaker picker, the moment link, Reprocess in, Copy transcript, Export PDF, Split, Edit words and Chapters.",
   "speaker": {
     "open": "Rename {speaker}",
     "heading": "Speakers in this recording",
@@ -11,7 +11,12 @@
     "taken_back": "{name} is back to its original label.",
     "failed": "The speaker could not be renamed."
   },
-  "moment": { "copy": "Copy link to {time}", "done": "Link to {time} copied", "failed": "The link could not be copied", "detail": "This browser did not let Trillion copy it." },
+  "moment": {
+    "copy": "Copy link to {time}",
+    "done": "Link to {time} copied",
+    "failed": "The link could not be copied",
+    "detail": "This browser did not let Trillion copy it."
+  },
   "reprocess": {
     "label": "Reprocess in",
     "search": "Search languages",
@@ -32,7 +37,30 @@
     "failed": "The transcript could not be saved as a PDF",
     "detail": "There are no words to save yet."
   },
-  "split": { "label": "Split", "hint": "Enter", "aria": "Split this passage at the caret", "done": "Passage split.", "failed": "The passage could not be split." },
+  "split": {
+    "label": "Split",
+    "hint": "Enter",
+    "aria": "Split this passage at the caret",
+    "done": "Passage split.",
+    "failed": "The passage could not be split."
+  },
   "tools_label": "Transcript tools",
-  "more": "More transcript actions"
+  "more": "More transcript actions",
+  "edit": {
+    "label": "Edit words",
+    "hint": "Double-click a passage to edit it",
+    "save": "Save",
+    "cancel": "Cancel",
+    "keys": "Ctrl+Enter saves, Esc cancels",
+    "aria": "Edit the words of the passage at {time}",
+    "done": "Passage saved.",
+    "failed": "The passage could not be saved."
+  },
+  "views": {
+    "aria": "Show the transcript or its chapters",
+    "transcript": "Transcript",
+    "chapters": "Chapters ({count})",
+    "none": "No chapters yet.",
+    "play": "Play the chapter {title} from {time}"
+  }
 }

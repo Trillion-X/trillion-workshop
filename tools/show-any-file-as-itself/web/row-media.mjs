@@ -63,3 +63,16 @@ export function mediaOf(value, field, id) {
 export function bodyOf(value, field) {
   return field && value ? text(value[field]) ?? '' : '';
 }
+
+/** The chapters a row's field holds: each { start, end, title, summary? } in seconds, in time order. An item without a title
+ *  or with a start or end that is not a number, or an end not after its start, is left out; nothing is made up. */
+export function chaptersOf(value, field) {
+  const held = field && value ? value[field] : undefined;
+  if (!Array.isArray(held)) return [];
+  return held.flatMap(item => {
+    const start = Number(item?.start), end = Number(item?.end), title = text(item?.title);
+    if (!title || !Number.isFinite(start) || !Number.isFinite(end) || end <= start) return [];
+    const summary = text(item.summary);
+    return [{ start, end, title, ...(summary ? { summary } : {}) }];
+  }).sort((a, b) => a.start - b.start);
+}
