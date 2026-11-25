@@ -1,0 +1,189 @@
+// tools/serve-a-sites-pages-from-its-rows/do-work/served-files.ts
+//
+// PURPOSE
+//   Files a site answers itself, from its files store, with 200 at its own address: a web app's shell page, its module
+//   scripts, its WebAssembly engines and its fonts. A browser loads those only from the page's own origin (a module script, a
+//   font and a fetched engine are CORS requests, and the store sends no CORS headers), so a 302 to a presigned link, as
+//   public_files answers, breaks them. Each rule (settings `served_files`) names the paths it answers, on which hosts, and the
+//   store keys they are:
+//     { "hosts": ["app.example.com"], "paths": ["/workspace/", "/app.js"], "named": { "/": "index.html" },
+//       "key_prefix": "site-app-files/", "cache_seconds": 300 }
+//   A path in `paths` (a folder ending in "/" or one whole path) is the key key_prefix + the path without its leading slash; a
+//   path in `named` is key_prefix + the name given (a host's "/" is its index.html). The first rule that names a path answers it.
+//
+//   The program reads each object with a presigned GET of its own (member-video.ts presignedGet, the store's read key) and keeps
+//   it in memory, at most MOST_KEPT_BYTES in all, the least recently asked dropped first; after cache_seconds it asks the store
+//   again with the object's ETag, so a replaced object is served within cache_seconds and an unchanged one is not sent again.
+//
+// NON-NEGOTIABLE INVARIANTS
+//   1. Only keys a rule names are read, with no empty, "." or ".." part.
+//   2. A key the store does not hold answers 404; a store that does not answer answers 502, and a kept copy is never served
+//      past twice its cache_seconds when the store cannot be asked.
+//   3. The answer's type comes from the file's name (TYPES below), never from the store, so a page is text/html and an engine
+//      application/wasm wherever the object was put.
+//   4. One "bytes=a-b" range is answered 206 from the kept bytes; any other range is the whole file (200).
+//   5. The read key only signs: it is never in an answer, a header or a log.
+//
+// AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
+import { presignedGet } from './member-video.ts';
+import type { FilesStore, StoreKey } from './member-video.ts';
+import type { Answer } from './screen-files.ts';
+
+export interface ServedFiles {
+  hosts?: string[];
+  paths: string[];
+  named?: Record<string, string>;
+  key_prefix: string;
+  cache_seconds: number;
+}
+
+/** The most bytes kept in memory across every rule. */
+export const MOST_KEPT_BYTES = 128 * 1024 * 1024;
+const LINK_SECONDS = 300;
+
+export const TYPES: Record<string, string> = {
+  html: 'text/html; charset=utf-8', js: 'text/javascript; charset=utf-8', mjs: 'text/javascript; charset=utf-8', css: 'text/css; charset=utf-8',
+  json: 'application/json', map: 'application/json', wasm: 'application/wasm', svg: 'image/svg+xml', png: 'image/png', jpg: 'image/jpeg',
+  jpeg: 'image/jpeg', webp: 'image/webp', avif: 'image/avif', gif: 'image/gif', ico: 'image/x-icon', woff2: 'font/woff2', woff: 'font/woff',
+  ttf: 'font/ttf', otf: 'font/otf', txt: 'text/plain; charset=utf-8', xml: 'application/xml', pdf: 'application/pdf', mp4: 'video/mp4',
+  webm: 'video/webm', mp3: 'audio/mpeg', bcmap: 'application/octet-stream', data: 'application/octet-stream', md: 'text/markdown; charset=utf-8',
+};
+
+const PATH = /^\/([A-Za-z0-9._~@+-]+\/)*[A-Za-z0-9._~@+-]*$/;
+const KEY = /^[A-Za-z0-9._~@+-]+(\/[A-Za-z0-9._~@+-]+)*$/;
+const HOST = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
+const WORDS = 'served_files lists { hosts?, paths, named?, key_prefix, cache_seconds }: lower-case host names; site folders ending in "/" or whole paths; { "<site path>": "<key name>" }; "" or key folders ending in "/"; a whole number of seconds, 1 to 86400.';
+
+/** Checks the settings' served_files; a wrong one throws naming what each field should be. */
+export function servedFilesOf(value: unknown): ServedFiles[] {
+  if (value === undefined) return [];
+  if (!Array.isArray(value)) throw new Error(WORDS);
+  for (const rule of value as Partial<ServedFiles>[]) {
+    const named = rule?.named ?? {};
+    if (!rule || typeof rule !== 'object' || !Array.isArray(rule.paths) || rule.paths.some(path => typeof path !== 'string' || !PATH.test(path) || path === '/')
+      || (rule.hosts !== undefined && (!Array.isArray(rule.hosts) || rule.hosts.some(host => typeof host !== 'string' || !HOST.test(host))))
+      || !named || typeof named !== 'object' || Array.isArray(named) || Object.entries(named).some(([path, key]) => !PATH.test(path) || typeof key !== 'string' || !KEY.test(key) || key.split('/').some(part => part === '.' || part === '..'))
+      || (rule.paths.length === 0 && Object.keys(named).length === 0)
+      || typeof rule.key_prefix !== 'string' || !/^([A-Za-z0-9._-]+\/)*$/.test(rule.key_prefix)
+      || !Number.isInteger(rule.cache_seconds) || rule.cache_seconds! < 1 || rule.cache_seconds! > 86400) throw new Error(WORDS);
+  }
+  return value as ServedFiles[];
+}
+
+/** The rule and store key a host's path is, or null when no rule names it. */
+export function servedKeyOf(rules: ServedFiles[], host: string, pathname: string): { rule: ServedFiles; key: string } | null {
+  for (const rule of rules) {
+    if (rule.hosts?.length && !rule.hosts.includes(host)) continue;
+    const name = rule.named && Object.hasOwn(rule.named, pathname) ? rule.named[pathname]
+      : rule.paths.some(path => (path.endsWith('/') ? pathname.startsWith(path) && pathname.length > path.length : pathname === path)) ? pathname.slice(1) : null;
+    if (name === null) continue;
+    let key: string;
+    try { key = decodeURIComponent(name); } catch { return null; }
+    if (!KEY.test(key) || key.split('/').some(part => part === '.' || part === '..')) return null;
+    return { rule, key: `${rule.key_prefix}${key}` };
+  }
+  return null;
+}
+
+interface Kept {
+  bytes: Buffer;
+  etag: string | null;
+  checkedAt: number;
+}
+
+/** Reads served files from the store and keeps them, bounded, revalidated after cache_seconds. */
+export class StoreFiles {
+  #kept = new Map<string, Kept>();
+  #bytes = 0;
+  #asking = new Map<string, Promise<Kept | null>>();
+  readonly #store: FilesStore;
+  readonly #key: StoreKey;
+  readonly #fetch: typeof fetch;
+  readonly #now: () => number;
+
+  constructor(store: FilesStore, key: StoreKey, { fetchImpl = fetch, now = Date.now }: { fetchImpl?: typeof fetch; now?: () => number } = {}) {
+    this.#store = store;
+    this.#key = key;
+    this.#fetch = fetchImpl;
+    this.#now = now;
+  }
+
+  /** The answer for one served file: 200 (or 206 for one range), 404 when the store holds no such key, 502 when it fails. */
+  async answer(rule: ServedFiles, key: string, range: string | undefined): Promise<Answer> {
+    const name = key.slice(key.lastIndexOf('/') + 1);
+    const type = TYPES[name.includes('.') ? name.slice(name.lastIndexOf('.') + 1).toLowerCase() : ''] ?? 'application/octet-stream';
+    let kept: Kept | null;
+    try {
+      kept = await this.#read(rule, key);
+    } catch (error) {
+      console.error(`served file ${key}: ${(error as Error).message}`);
+      return { status: 502, headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' }, body: 'This file could not be read. Try again in a minute.\n' };
+    }
+    if (!kept) return { status: 404, headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' }, body: 'No such file.\n' };
+    const headers: Record<string, string> = { 'content-type': type, 'cache-control': `public, max-age=${rule.cache_seconds}`, 'accept-ranges': 'bytes', ...(kept.etag ? { etag: kept.etag } : {}) };
+    const asked = /^bytes=(\d*)-(\d*)$/.exec(range ?? '');
+    if (asked && (asked[1] !== '' || asked[2] !== '')) {
+      const size = kept.bytes.length;
+      const start = asked[1] === '' ? Math.max(0, size - Number(asked[2])) : Number(asked[1]);
+      const end = asked[1] === '' || asked[2] === '' ? size - 1 : Math.min(Number(asked[2]), size - 1);
+      if (start > end || start >= size) return { status: 416, headers: { 'content-range': `bytes */${size}`, 'cache-control': 'no-store' }, body: '' };
+      return { status: 206, headers: { ...headers, 'content-range': `bytes ${start}-${end}/${size}` }, body: kept.bytes.subarray(start, end + 1) };
+    }
+    return { status: 200, headers, body: kept.bytes };
+  }
+
+  /** The kept copy, asked of the store again when it is older than cache_seconds; one store read at a time per key. */
+  async #read(rule: ServedFiles, key: string): Promise<Kept | null> {
+    const kept = this.#kept.get(key);
+    const now = this.#now();
+    if (kept && now - kept.checkedAt < rule.cache_seconds * 1000) return this.#touch(key, kept);
+    if (!this.#asking.has(key)) {
+      this.#asking.set(key, this.#ask(key, kept ?? null).finally(() => this.#asking.delete(key)));
+    }
+    try {
+      return await this.#asking.get(key)!;
+    } catch (error) {
+      if (kept && now - kept.checkedAt < rule.cache_seconds * 2000) return kept;
+      throw error;
+    }
+  }
+
+  async #ask(key: string, kept: Kept | null): Promise<Kept | null> {
+    const link = presignedGet(this.#store, this.#key, key, LINK_SECONDS, new Date(this.#now()));
+    const answer = await this.#fetch(link, { headers: kept?.etag ? { 'if-none-match': kept.etag } : {}, signal: AbortSignal.timeout(30_000) });
+    if (answer.status === 304 && kept) return this.#keep(key, { ...kept, checkedAt: this.#now() });
+    if (answer.status === 404 || answer.status === 403) {
+      await answer.arrayBuffer().catch(() => undefined);
+      this.#drop(key);
+      return null;
+    }
+    if (!answer.ok) throw new Error(`the store answered ${answer.status}`);
+    return this.#keep(key, { bytes: Buffer.from(await answer.arrayBuffer()), etag: answer.headers.get('etag'), checkedAt: this.#now() });
+  }
+
+  #keep(key: string, kept: Kept): Kept {
+    this.#drop(key);
+    if (kept.bytes.length > MOST_KEPT_BYTES) return kept;
+    this.#kept.set(key, kept);
+    this.#bytes += kept.bytes.length;
+    for (const [oldest, copy] of this.#kept) {
+      if (this.#bytes <= MOST_KEPT_BYTES) break;
+      this.#kept.delete(oldest);
+      this.#bytes -= copy.bytes.length;
+    }
+    return kept;
+  }
+
+  #touch(key: string, kept: Kept): Kept {
+    this.#kept.delete(key);
+    this.#kept.set(key, kept);
+    return kept;
+  }
+
+  #drop(key: string): void {
+    const old = this.#kept.get(key);
+    if (!old) return;
+    this.#kept.delete(key);
+    this.#bytes -= old.bytes.length;
+  }
+}

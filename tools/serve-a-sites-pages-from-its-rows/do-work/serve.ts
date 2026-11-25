@@ -60,6 +60,9 @@
 //                    key in the unit's credentials (member-video.ts)
 //     member_files   (optional, needs files_store) { path, key_prefix, prefixes, link_seconds }: members' files
 //     public_files   (optional, needs files_store) { paths, key_prefix, link_seconds, cache_seconds }: the site's public files
+//     served_files   (optional, needs files_store) [{ hosts, paths, named, key_prefix, cache_seconds }]: files this program
+//                    answers with 200 from the store itself (a web app's shell page, module scripts, engines and fonts, which
+//                    a browser loads only from the page's own origin), kept in memory (served-files.ts)
 //   Credentials are files of the unit's credentials folder ($CREDENTIALS_DIRECTORY), sealed there by the computer from the vault.
 //   A local run with no credentials folder takes its one credential on standard input, piped from the vault's held-value read.
 //
@@ -86,6 +89,8 @@ import { MemberPasses } from './member-pass.ts';
 import type { Member, SignIn } from './member-pass.ts';
 import { filesStoreOf, isPublicPath, memberFileAnswer, memberFilesOf, objectKeyOf, presignedGet, publicFileAnswer, publicFilesOf, publicKeyOf, storeKeyOf } from './member-video.ts';
 import type { FilesStore, MemberFiles, PublicFiles, StoreKey } from './member-video.ts';
+import { servedFilesOf, servedKeyOf, StoreFiles } from './served-files.ts';
+import type { ServedFiles } from './served-files.ts';
 import { filledInput, matchPage, pagesOf, pagesOn, pathWith, PAGES_SQL, paramsOf, slugsSql } from './pages.ts';
 import type { PageRow, Refused } from './pages.ts';
 import { actionsOf, actionsSql, bodyOf, cookiesOf, filled, matchAction, sendableAddress, setCookieOf } from './actions.ts';
@@ -116,6 +121,7 @@ export interface Settings {
   files_store?: FilesStore & { credential: string };
   member_files?: MemberFiles;
   public_files?: PublicFiles;
+  served_files: ServedFiles[];
 }
 
 const RUN_SQL = 'tool:run-sql-in-my-database';
@@ -203,7 +209,8 @@ export function settingsOf(value: unknown): Settings {
     filesStoreOf(s.files_store);
     if (typeof s.files_store.credential !== 'string') throw new Error('files_store.credential names the store\'s read key in the unit\'s credentials.');
   }
-  if ((s.member_files !== undefined || s.public_files !== undefined) && s.files_store === undefined) throw new Error('member_files and public_files need files_store.');
+  s.served_files = servedFilesOf((given as { served_files?: unknown }).served_files);
+  if ((s.member_files !== undefined || s.public_files !== undefined || s.served_files.length > 0) && s.files_store === undefined) throw new Error('member_files, public_files and served_files need files_store.');
   return {
     ...s,
     ...(s.member_files !== undefined ? { member_files: memberFilesOf(s.member_files) } : {}),
@@ -233,6 +240,8 @@ export interface SiteParts {
   sitePass: string;
   passes: { memberOfCookie(cookie: string | undefined): Promise<Member | null> };
   storeKey: StoreKey | null;
+  /** The served files' reader and its kept copies (served-files.ts), or null when the site serves none. */
+  storeFiles?: StoreFiles | null;
   bundles: PageBundles;
   /** Reads a font file a look row names (a public file path or an https address), keeps it by identity, answers its address. */
   keepFont: (src: string) => Promise<string>;
@@ -516,14 +525,16 @@ export class Site {
   }
 
   /** The answer for one request: its method, its address (path and query), its cookie and its host (hostOf). */
-  async answer(method: string, address: string, cookie: string | undefined, host = this.hostOf(undefined, undefined)): Promise<Answer> {
+  async answer(method: string, address: string, cookie: string | undefined, host = this.hostOf(undefined, undefined), range?: string): Promise<Answer> {
     const url = new URL(address, 'http://site.invalid');
     const pathname = url.pathname;
     if (method !== 'GET' && method !== 'HEAD') return { status: 405, headers: { allow: 'GET, HEAD, POST', 'content-type': 'text/plain; charset=utf-8' }, body: 'This address answers GET and HEAD, and POST where the site does something.\n' };
     const file = this.#parts.files.answer(pathname);
     if (file) return file;
     this.#fresh();
-    const { files_store: store, member_files: memberFiles, public_files: publicFiles } = this.#parts.settings;
+    const { files_store: store, member_files: memberFiles, public_files: publicFiles, served_files: servedFiles } = this.#parts.settings;
+    const served = this.#parts.storeFiles ? servedKeyOf(servedFiles, host, pathname) : null;
+    if (served) return this.#parts.storeFiles!.answer(served.rule, served.key, range);
     if (store && memberFiles && pathname.startsWith(memberFiles.path)) {
       const key = objectKeyOf(memberFiles, pathname);
       if (!key || !this.#parts.storeKey) return { status: 404, headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'private, no-store' }, body: 'No such file.\n' };
@@ -738,7 +749,7 @@ export function handlerOf(site: Site, passOn: PassOn[] = [], addressCookies: Add
       ? bytesOf(request).then(bytes => bytes === null
         ? { status: 413, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }, body: JSON.stringify({ error: 'Too large.' }) }
         : site.act(request.url ?? '/', request.headers.cookie, host, { method, contentType: request.headers['content-type'], origin: request.headers.origin, hostHeader: request.headers.host, referer: request.headers.referer, bytes }))
-      : site.answer(method, request.url ?? '/', request.headers.cookie, host);
+      : site.answer(method, request.url ?? '/', request.headers.cookie, host, request.headers.range);
     answering
       .then(answer => {
         response.writeHead(answer.status, withCookies({ 'x-content-type-options': 'nosniff', ...answer.headers }, cookies));
@@ -806,6 +817,7 @@ export async function start(settingsFile: string): Promise<http.Server[]> {
     sitePass,
     passes: new MemberPasses(settings.sign_in),
     storeKey,
+    storeFiles: settings.served_files.length > 0 && settings.files_store && storeKey ? new StoreFiles(settings.files_store, storeKey) : null,
     bundles: new PageBundles(tools, styles, files),
     palette: theme => styles.palette(theme),
     keepFont: async src => {

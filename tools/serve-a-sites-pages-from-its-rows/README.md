@@ -193,6 +193,14 @@ Example, a page's visit beacon (a visitor id only with consent, set as a cookie 
   entry that takes it wins. An `exact` path, and a path under an entry with `"first": true`, is passed on ahead of the site's
   own action and page rows, so a site can hold rows for addresses another program still answers (each write path listed
   exactly while the site's grant reads only). Example: `{ "name": "the sign-in tool", "address": "unix:/run/sign-in/sign-in.sock", "paths": ["/sign-in", "/api/auth"] }`.
+- `served_files`: `[{ "hosts", "paths", "named", "key_prefix", "cache_seconds" }]`. Files this program answers itself with
+  200 from the files store: a web app's shell page, its module scripts, WebAssembly engines and fonts, which a browser loads
+  only from the page's own origin (a 302 to the store, as `public_files` answers, breaks them: the store sends no CORS
+  headers). A path in `paths` (a folder ending in `/`, or one whole path) is the key `key_prefix` + the path; a path in
+  `named` is `key_prefix` + the name given (`{ "/": "index.html" }` for a host's home). The type comes from the file's name;
+  one `bytes=a-b` range is answered 206. Each object is kept in memory (128 MB in all, the least recently asked dropped
+  first) and asked of the store again, with its ETag, after `cache_seconds`. A served file answers before page rows, but
+  after `pass_on`. Example: `{ "hosts": ["app.example.com"], "paths": ["/workspace/", "/app.js"], "named": { "/": "index.html" }, "key_prefix": "site-app-files/", "cache_seconds": 300 }`.
 - `address_cookies`: `[{ "query", "cookie", "pattern", "upper_case", "max_age_days", "domain", "http_only" }]`. A value the
   visitor's arrival address carries (`?ref=CODE`) is kept as a cookie by any GET, on the site's own pages and on passed-on
   ones, when it is the whole of `pattern` (after `upper_case`) and only cookie-safe characters; `Path=/; SameSite=Lax;
