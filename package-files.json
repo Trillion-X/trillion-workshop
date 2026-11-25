@@ -69268,5 +69268,14 @@
    ],
    "at": "/opt/notice-when-something-shows-up"
   }
+ ],
+ "tool:read-a-sent-email": [
+  {
+   "package": "email-sending-domains",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/email-sending-domains"
+  }
  ]
 }

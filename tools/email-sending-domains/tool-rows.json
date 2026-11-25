@@ -474,6 +474,143 @@
           }
         ]
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-sent-email",
+        "label": "Read a sent email",
+        "job": "See whether one email my email-sending account sent was delivered, bounced, opened or clicked",
+        "description": "Reads one email the person's connected email-sending account (Resend) sent, by its id, with the key they connected, and answers its id, sender, addressees, subject, when it was sent and the last thing that happened to it (sent, delivered, bounced, opened, clicked or complained). It never shows the key or the email's body, and changes nothing.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "key_name",
+            "email_id"
+          ],
+          "properties": {
+            "key_name": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+            },
+            "email_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9-]{1,64}$"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "id",
+            "from",
+            "to",
+            "subject",
+            "created_at",
+            "last_event"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "from": {
+              "type": "string"
+            },
+            "to": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "subject": {
+              "type": "string"
+            },
+            "created_at": {
+              "type": "string"
+            },
+            "last_event": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/email-sending-domains",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/email-sending-domains/do-work/read-a-sent-email.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": {
+              "package": "email-sending-domains",
+              "paths": [
+                "do-work"
+              ],
+              "at": "/opt/email-sending-domains"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name_from_input": "key_name",
+              "fd": 3
+            }
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "provider": "Resend",
+          "api": "https://resend.com/docs/api-reference/emails/retrieve-email"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "email_id": "00000000-0000-4000-8000-000000000031"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.resend.com/emails/00000000-0000-4000-8000-000000000031"
+                },
+                "status": 200,
+                "body": {
+                  "object": "email",
+                  "id": "00000000-0000-4000-8000-000000000031",
+                  "from": "Sender <sender@example.com>",
+                  "to": [
+                    "delivered@example.org"
+                  ],
+                  "subject": "Hello",
+                  "created_at": "2026-11-25 14:45:46.162+00",
+                  "last_event": "delivered",
+                  "html": "<p>Hello</p>",
+                  "text": "Hello"
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-25"
+          }
+        ]
+      }
     }
   ]
 }
