@@ -25,6 +25,7 @@ import { Button } from '../button/Button.tsx';
 import { Container } from '../container/index.ts';
 import { Form } from '../form/Form.tsx';
 import { ShowcaseStrip, Text } from '../marketing-page/MarketingPagePrimitives.tsx';
+import { CARD_CADENCE, CARD_NAME, CARD_NOTE, CARD_PRICE } from './card-type.ts';
 
 export type PricingFeature = {
   id: string;
@@ -92,16 +93,16 @@ export function View(props: PricingCardProps) {
   const hiddenFields = more && picked ? { ...fields, [more.field]: String(picked.cents) } : fields;
   const body = (
     <>
-      <Container layout="horizontal" justifyContent="between" alignItems="baseline" width="full">
-        <Text as="h3" variant="heading-lg" color="strong">{name}</Text>
+      <Container layout="vertical" gap="sm" width="full">
+        <Text as="h3" style={CARD_NAME}>{name}</Text>
         {price ? (
-          <Text as="p" variant="heading-xl" color="strong">
+          <Text as="p" style={CARD_PRICE}>
             {price}
-            {cadence ? <Text as="span" variant="label" color="muted">{cadence}</Text> : null}
+            {cadence ? <Text as="span" style={CARD_CADENCE}>{cadence}</Text> : null}
           </Text>
         ) : null}
       </Container>
-      {note ? <Text as="p" color="muted">{note}</Text> : null}
+      {note ? <Text as="p" style={CARD_NOTE}>{note}</Text> : null}
       {amounts ?? null}
       {more ? (
         <Container layout="vertical" gap="sm" width="full" data-pricing-more>

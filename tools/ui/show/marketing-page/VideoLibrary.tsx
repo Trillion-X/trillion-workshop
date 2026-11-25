@@ -22,11 +22,13 @@ import { View as Library, type LibraryEntry, type LibraryTab } from './Library.t
 export type VideoLibraryProps = {
   intro?: string;
   title?: string;
+  /** The words of `intro` drawn in the accent colour. */
+  intro_highlight?: string;
   count_words?: string;
   libraries: readonly { name: string; entries: readonly { id: string; title: string; duration?: string; image?: string; image_large?: string }[] }[];
 };
 
-export function VideoLibrary({ intro, title, count_words = '{count}', libraries }: VideoLibraryProps) {
+export function VideoLibrary({ intro, intro_highlight, title, count_words = '{count}', libraries }: VideoLibraryProps) {
   const [tab, setTab] = useState<string | undefined>(undefined);
   const [entry, setEntry] = useState<string | undefined>(undefined);
   const tabs: LibraryTab[] = libraries.map(library => ({ id: library.name, label: library.name }));
@@ -42,6 +44,7 @@ export function VideoLibrary({ intro, title, count_words = '{count}', libraries 
   return (
     <Library
       intro={intro}
+      introHighlight={intro_highlight}
       tabs={tabs}
       entries={entries}
       selectedTab={tab}

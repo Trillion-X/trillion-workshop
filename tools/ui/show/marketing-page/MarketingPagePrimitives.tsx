@@ -183,8 +183,10 @@ export function highlightInkColor(tone: StatementTone) { return HIGHLIGHT_INK[to
 export function StatementHighlight({ children, tone = 'green' }: { children: React.ReactNode; tone?: StatementTone }) { return <span style={{ color: HIGHLIGHT_INK[tone], filter: ENGRAVED_HEADING_FILTER }}>{children}</span>; }
 
 export function StatementText({ align = 'left', className = '', lines, size = 'section', solidColor = LANDING_SOLID_HIGHLIGHT_COLOR, style }: any) {
-  const fontSize = size === 'footer' ? 'clamp(2rem,5vw,4.4rem)' : 'clamp(2.35rem,6vw,5.65rem)';
-  return <div className={className} style={{ color: '#0f172a', fontFamily: 'var(--font-display, Georgia, serif)', fontSize, fontWeight: 700, letterSpacing: '-.045em', lineHeight: .98, textAlign: align, textWrap: 'balance', ...style }}>{lines.map((line: any[], lineIndex: number) => <div key={lineIndex}>{line.map((segment: any, index: number) => segment.solid ? <span key={index} style={{ color: solidColor }}>{segment.text}</span> : segment.tone ? <StatementHighlight key={index} tone={segment.tone}>{segment.text}</StatementHighlight> : <React.Fragment key={index}>{segment.text}</React.Fragment>)}</div>)}</div>;
+  // `page` is a page's own headings (the hero, a section's heading): the size, tightness and family the program's pages always had.
+  const page = size === 'page';
+  const fontSize = page ? 'clamp(2.1rem,5vw,4rem)' : size === 'footer' ? 'clamp(2rem,5vw,4.4rem)' : 'clamp(2.35rem,6vw,5.65rem)';
+  return <div className={className} style={{ color: '#0f172a', fontFamily: page ? 'inherit' : 'var(--font-display, Georgia, serif)', fontSize, fontWeight: 700, letterSpacing: page ? '-.02em' : '-.045em', lineHeight: page ? 1.05 : .98, textAlign: align, textWrap: 'balance', ...style }}>{lines.map((line: any[], lineIndex: number) => <div key={lineIndex}>{line.map((segment: any, index: number) => segment.solid ? <span key={index} style={{ color: solidColor }}>{segment.text}</span> : segment.tone ? <StatementHighlight key={index} tone={segment.tone}>{segment.text}</StatementHighlight> : <React.Fragment key={index}>{segment.text}</React.Fragment>)}</div>)}</div>;
 }
 
 export function SectionDivider() { return <div aria-hidden="true" style={{ background: 'linear-gradient(90deg,transparent,rgba(15,23,42,.16),transparent)', height: 1, margin: '0 auto', maxWidth: 1120 }} />; }

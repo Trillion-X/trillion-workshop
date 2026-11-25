@@ -30,3 +30,11 @@ test('the heading is the page\'s one h1, and the words `highlight` names are the
   // The solid part holds the whole phrase and the sentence's full stop stays outside it as plain words.
   assert.match(html, /as fast as humanly possible<[^>]*>[^<]*<\/[^>]*>\s*<[^>]*>?\.?/s);
 });
+
+test('the lead can draw named words solid, and a section Heading is an h2 with its highlight', async () => {
+  const html = await renderAView(entry, { heading: 'Two words', lead: 'Better, fastest. You do it.', lead_highlight: 'fastest' });
+  assert.match(html, /Better, <span[^>]*>fastest<\/span>\. You do it\./);
+  const heading = await renderAView(new URL('./heading-as-view.tsx', import.meta.url).pathname, { text: 'Train with us.', highlight: 'us.' });
+  assert.match(heading, /<h2[^>]*>.*Train with .*<span[^>]*>us\.<\/span>/s);
+  assert.doesNotMatch(heading, /<h1/);
+});

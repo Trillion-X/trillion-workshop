@@ -21,6 +21,7 @@ import { Input } from '../coss/ui/input.tsx';
 import { Button } from '../coss/ui/button.tsx';
 import { Form } from '../form/Form.tsx';
 import { Text } from '../text/Text.tsx';
+import { CARD_NAME, CARD_NOTE } from './card-type.ts';
 import { Labelled } from '../../../ask-questions-sort-answers-follow-up/show/FormSteps.tsx';
 
 export type ContactField = { name: string; label: string; type?: 'text' | 'email'; required?: boolean; value?: string };
@@ -50,8 +51,8 @@ export function View({ title, lead, fields, button, note, error = '', sending = 
   };
   return (
     <Text as="article" className="coss-ui grid gap-4" data-contact-card>
-      <Text as="h3" variant="heading-lg" color="strong">{title}</Text>
-      {lead ? <Text as="p" color="muted">{lead}</Text> : null}
+      <Text as="h3" style={CARD_NAME}>{title}</Text>
+      {lead ? <Text as="p" style={CARD_NOTE}>{lead}</Text> : null}
       <Form {...(action === undefined ? { onSubmit: submit } : { method: 'post', action, hiddenFields })} className="flex flex-col gap-4">
         {fields.map(field => (
           <Labelled key={field.name} label={field.label}>

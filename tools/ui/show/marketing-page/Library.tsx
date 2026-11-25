@@ -39,6 +39,8 @@ export type LibraryEntry = {
 
 export type LibraryProps = {
   intro?: string;
+  /** The words of the intro drawn in the accent colour. */
+  introHighlight?: string;
   tabs: readonly LibraryTab[];
   entries: readonly LibraryEntry[];
   selectedTab?: string;
@@ -52,13 +54,13 @@ export type LibraryProps = {
   onSelectEntry?: (id: string) => void;
 };
 
-export function View({ intro, tabs, entries, selectedTab, selectedId, browserTitle, countLabel = '{count}', tabsLabel, listLabel, onSelectTab, onSelectEntry }: LibraryProps) {
+export function View({ intro, introHighlight, tabs, entries, selectedTab, selectedId, browserTitle, countLabel = '{count}', tabsLabel, listLabel, onSelectTab, onSelectEntry }: LibraryProps) {
   const tab = tabs.find(item => item.id === selectedTab) ?? tabs[0];
   const shelf = tab ? entries.filter(entry => entry.tab === tab.id) : [];
   const chosen = shelf.find(entry => entry.id === selectedId) ?? shelf[0];
   return (
     <Text as="section" className={styles.libraryBlock} data-library>
-      {intro ? <Text as="div" className={styles.libraryIntro}><Text as="h3">{intro}</Text></Text> : null}
+      {intro ? <Text as="div" className={styles.libraryIntro}><Text as="h3">{introHighlight && intro.includes(introHighlight) ? intro.split(introHighlight).flatMap((part, index, all) => (index < all.length - 1 ? [part, <Text as="span" key={index} style={{ color: '#008652' }}>{introHighlight}</Text>] : [part])) : intro}</Text></Text> : null}
       <Text as="div" role="group" aria-label={tabsLabel} className={styles.librarySelector}>
         {tabs.map(item => (
           <Button key={item.id} variant="ghost" className={styles.librarySelectorButton} aria-pressed={item.id === tab?.id} data-active={item.id === tab?.id ? 'true' : 'false'} data-library-selector={item.id} onClick={() => onSelectTab?.(item.id)}>
