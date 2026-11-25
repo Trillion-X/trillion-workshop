@@ -893,3 +893,28 @@ test('a served_files rule with only_listed_by answers a file only while its list
     assert.equal(held.headers['cache-control'], 'no-store');
   } finally { d.server.close(); listedClips = []; }
 });
+
+test('a row naming a part export the running commit lacks draws that node as nothing, logs it, and the page still answers 200', async () => {
+  const ahead = { path: '/ahead', title: 'Ahead', access: 'public', tool: null, input: {}, collection: null, updated_at: null, layout: { part: TEXT, export: 'Text', props: { as: 'main' }, children: [
+    { part: TEXT, export: 'Section', children: [{ text: 'Inside the missing section' }] },
+    { part: 'ui/show/not-in-this-commit/NotHere.tsx', children: [{ text: 'Inside the missing file' }] },
+    { text: 'Still drawn' },
+    { tool: 'tool:read-a-greeting', input: { who: 'the rest' } },
+  ] } };
+  const d = await door(LOOK, [...PAGES, ahead]);
+  const told: string[] = [];
+  try {
+    const site = await siteOn(d.address, {}, { log: line => told.push(line) });
+    const page = await site.answer('GET', '/ahead', undefined);
+    assert.equal(page.status, 200);
+    const html = String(page.body);
+    assert.match(html, /Still drawn/);
+    assert.match(html, /Hello, the rest/);
+    assert.doesNotMatch(html, /Inside the missing/);
+    assert.deepEqual(told.filter(line => line.startsWith('/ahead')), [
+      '/ahead: ui/show/not-in-this-commit/NotHere.tsx is not in the tools folder, so that part of the page is left out.',
+      `/ahead: ${TEXT} has no export Section, so that part of the page is left out.`,
+    ]);
+    assert.equal((await site.answer('GET', '/ahead', undefined)).status, 200, 'and again, from the kept reads');
+  } finally { d.server.close(); }
+});

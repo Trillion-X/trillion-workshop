@@ -12,8 +12,10 @@
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. A page and an AI app get the same answer and the same screen: the props of a tool's screen are exactly its answer.
-//   2. A tool named by a page that has no module screen, or an answer that is not an object, refuses the page; a page is never
-//      drawn with a screen left out.
+//   2. One node never takes the page down: a tool that fails or answers something that is not an object, a tool with no module
+//      screen, and a part or export this program's tools lack (rows ahead of the running commit) each draw nothing, the log
+//      names it, and the rest is drawn. Only a required node (the page row's own tool) refuses the page. A part that is drawn
+//      is drawn whole; nothing is drawn half.
 //   3. The browser draws fresh over the server's markup (createRoot), so a part whose look the browser alone computes is drawn
 //      with it (a hydrated page kept the server's browserless look on Nov 24 2026).
 //   4. The tree's JSON is written so it cannot close its script element; a look row is written only when its value cannot end
@@ -143,11 +145,18 @@ function toolNodesOf(node: LayoutNode): Extract<LayoutNode, { tool: string }>[] 
  * own tool always is) fails the page, with that tool's own error.
  */
 export async function drawnTreeOf(tree: LayoutNode, screens: Map<string, Screen>, run: (call: ToolRun) => Promise<unknown>, words?: DrawnNode, log: (line: string) => void = () => {}): Promise<{ drawn: DrawnNode; timed: Timed[]; answerOf: (call: ToolRun) => Record<string, unknown> | undefined }> {
-  const runs = runsOf(tree);
   const nodes = toolNodesOf(tree);
-  const unscreened = nodes.find(node => node.part === undefined && !screens.has(node.tool));
-  if (unscreened) throw new Error(`${unscreened.tool} has no module screen in its card, so no page can draw it.`);
   const required = new Set(nodes.filter(node => node.required).map(node => runKey(node.tool, node.input)));
+  // A tool with no module screen (one this Workshop commit does not hold yet) is left out like a tool that fails; only a
+  // required one refuses the page.
+  const unscreened = new Set<string>();
+  for (const node of nodes.filter(node => node.part === undefined && !screens.has(node.tool))) {
+    if (node.required) throw new Error(`${node.tool} has no module screen in its card, so no page can draw it.`);
+    if (!unscreened.has(node.tool)) log(`${node.tool} has no module screen in this program's tools, so its part of the page is left out.`);
+    unscreened.add(node.tool);
+  }
+  const drawable = new Set(nodes.filter(node => node.part !== undefined || screens.has(node.tool)).map(node => runKey(node.tool, node.input)));
+  const runs = runsOf(tree).filter(call => drawable.has(runKey(call.tool, call.input)));
   const timed: Timed[] = [];
   const settled = await Promise.allSettled(runs.map(async call => {
     const started = performance.now();
@@ -175,7 +184,7 @@ export async function drawnTreeOf(tree: LayoutNode, screens: Map<string, Screen>
     }
     if ('nodes' in node) return { nodes: node.nodes.map(drawn) };
     if ('tool' in node) {
-      if (!answers.has(runKey(node.tool, node.input))) return { nodes: [] };
+      if (!answers.has(runKey(node.tool, node.input)) || (node.part === undefined && !screens.has(node.tool))) return { nodes: [] };
       const screen = node.part === undefined ? screens.get(node.tool)! : { file: node.part, export: node.export ?? 'View' };
       return { module: moduleKey(screen.file, screen.export), props: { ...(node.props ?? {}), ...answers.get(runKey(node.tool, node.input)) } };
     }
@@ -236,17 +245,74 @@ const ASSETS = '/screen-files-assets-to-keep/';
 
 type ServerHtml = (shell: Shell, tree: DrawnNode, files: { script: string; sheet: string }, json: string) => string;
 
+/** A module key a tools folder cannot give, and why: no such file, a file that does not build, or no such export in it. */
+export interface MissingPart {
+  key: string;
+  why: string;
+}
+
+const PART_FILE = /^[A-Za-z0-9._-]+(\/[A-Za-z0-9._@-]+)+\.(tsx|ts|jsx|js|mjs)$/;
+
+/** The names one part file exports (its `export *` followed), or why it gives none: read by esbuild as a page bundle reads it. */
+export async function partExportsOf(tools: string, file: string): Promise<{ names: Set<string> } | { why: string }> {
+  if (!PART_FILE.test(file) || file.split('/').some(part => part === '.' || part === '..')) return { why: `${file} is not a part file's name under the tools folder` };
+  const path = join(tools, file);
+  if (!existsSync(path)) return { why: `${file} is not in the tools folder` };
+  try {
+    const made = await build({
+      entryPoints: [path], bundle: true, write: false, metafile: true, format: 'esm', platform: 'neutral', packages: 'external', jsx: 'automatic',
+      logLevel: 'silent', loader: LOADERS, outdir: join(HERE, 'part-exports'), entryNames: 'part', assetNames: '[name]-[hash]',
+    });
+    const output = Object.values(made.metafile.outputs).find(out => out.entryPoint !== undefined);
+    return { names: new Set(output?.exports ?? []) };
+  } catch (error) {
+    const first = (error as { errors?: { text: string }[] }).errors?.[0]?.text ?? (error as Error).message;
+    return { why: `${file} does not build: ${first}` };
+  }
+}
+
+/** Each module key of `keys` that the tools folder cannot give, read with `exportsOf` (one read per file). */
+export async function missingPartsOf(keys: string[], exportsOf: (file: string) => Promise<{ names: Set<string> } | { why: string }>): Promise<MissingPart[]> {
+  const missing: MissingPart[] = [];
+  for (const key of keys) {
+    const at = key.lastIndexOf('#');
+    const [file, name] = [key.slice(0, at), key.slice(at + 1)];
+    const read = await exportsOf(file);
+    if ('why' in read) missing.push({ key, why: read.why });
+    else if (!read.names.has(name)) missing.push({ key, why: `${file} has no export ${name}` });
+  }
+  return missing;
+}
+
+/** The tree with every node whose module is one of `keys` drawing nothing, its children with it. */
+export function withoutModules(tree: DrawnNode, keys: Set<string>): DrawnNode {
+  if ('text' in tree) return tree;
+  if ('nodes' in tree) return { nodes: tree.nodes.map(node => withoutModules(node, keys)) };
+  if (keys.has(tree.module)) return { nodes: [] };
+  return tree.children ? { ...tree, children: tree.children.map(node => withoutModules(node, keys)) } : tree;
+}
+
 /** Bundles are made once per set of modules and kept for the program's life. */
 export class PageBundles {
   #tools: string;
   #styles: PageStyles;
   #files: ScreenFiles;
   #made = new Map<string, Promise<PageBundle>>();
+  #exports = new Map<string, Promise<{ names: Set<string> } | { why: string }>>();
 
   constructor(tools: string, styles: PageStyles, files: ScreenFiles) {
     this.#tools = tools;
     this.#styles = styles;
     this.#files = files;
+  }
+
+  /** The module keys this program's tools cannot give (each part file read once for the program's life). */
+  missingOf(keys: string[]): Promise<MissingPart[]> {
+    return missingPartsOf(keys, file => {
+      let read = this.#exports.get(file);
+      if (!read) this.#exports.set(file, read = partExportsOf(this.#tools, file));
+      return read;
+    });
   }
 
   bundleFor(keys: string[]): Promise<PageBundle> {

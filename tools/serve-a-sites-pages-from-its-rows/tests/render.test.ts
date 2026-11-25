@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { pageOf } from '../do-work/pages.ts';
-import { drawnTreeOf, fontFacesOf, lookCss, runsOf, screensOfTools, treeOf } from '../do-work/render.ts';
+import { drawnTreeOf, fontFacesOf, lookCss, missingPartsOf, partExportsOf, runsOf, screensOfTools, treeOf, withoutModules } from '../do-work/render.ts';
 import { layoutElement, modulesOf } from '../do-work/render-layout.ts';
 
 const tools = join(import.meta.dirname, '..', '..');
@@ -27,7 +27,7 @@ test('the main node becomes the page\'s own tool with its slug, and each run is 
   assert.deepEqual(modulesOf(drawn), ['c/show/C.tsx#View', `${TEXT}#Text`]);
 });
 
-test('a tool with no module screen refuses the page; a required tool that fails, or answers no object, refuses it too', async () => {
+test('a required tool with no module screen refuses the page; a required tool that fails, or answers no object, refuses it too', async () => {
   const tree = { tool: 'tool:read-c', input: {}, required: true as const };
   await assert.rejects(drawnTreeOf(tree, new Map(), async () => ({})), /no module screen/);
   const screens = new Map([['tool:read-c', { file: 'c/show/C.tsx', export: 'View' }]]);
@@ -53,6 +53,26 @@ test('one failing tool among good ones leaves only its own nodes out, says why, 
   // The same node marked required fails the page.
   const strict = { ...tree, children: [tree.children[0], { ...tree.children[1], required: true as const }] };
   await assert.rejects(drawnTreeOf(strict, screens, async call => { if (call.tool === 'tool:read-clips') throw new Error('refused'); return {}; }), /refused/);
+});
+
+test('a tool node whose tool has no module screen here draws nothing and is not run; the rest of the page is drawn', async () => {
+  const tree = { part: TEXT, export: 'Text', children: [{ tool: 'tool:read-c', input: {} }, { tool: 'tool:newer-than-this-commit', input: {} }] };
+  const told: string[] = [];
+  const asked: string[] = [];
+  const { drawn } = await drawnTreeOf(tree, new Map([['tool:read-c', { file: 'c/show/C.tsx', export: 'View' }]]), async call => { asked.push(call.tool); return { title: 'c' }; }, undefined, line => told.push(line));
+  assert.deepEqual(drawn, { module: `${TEXT}#Text`, children: [{ module: 'c/show/C.tsx#View', props: { title: 'c' } }, { nodes: [] }] });
+  assert.deepEqual(asked, ['tool:read-c']);
+  assert.deepEqual(told, ['tool:newer-than-this-commit has no module screen in this program\'s tools, so its part of the page is left out.']);
+});
+
+test('a part file this commit lacks, or one without the export a row names, is found as the page bundle reads it, and only its nodes are taken out', async () => {
+  const missing = await missingPartsOf([`${TEXT}#Text`, `${TEXT}#Section`, 'ui/show/no-such-part/NoSuchPart.tsx#View', '../outside.tsx#View'], file => partExportsOf(tools, file));
+  assert.deepEqual(missing.map(part => part.key), [`${TEXT}#Section`, 'ui/show/no-such-part/NoSuchPart.tsx#View', '../outside.tsx#View']);
+  assert.equal(missing[0].why, `${TEXT} has no export Section`);
+  assert.equal(missing[1].why, 'ui/show/no-such-part/NoSuchPart.tsx is not in the tools folder');
+  assert.match(missing[2].why, /not a part file's name/);
+  const tree = { module: `${TEXT}#Text`, children: [{ module: `${TEXT}#Section`, children: [{ text: 'gone with its part' }] }, { nodes: [{ text: 'kept' }] }] };
+  assert.deepEqual(withoutModules(tree, new Set([`${TEXT}#Section`])), { module: `${TEXT}#Text`, children: [{ nodes: [] }, { nodes: [{ text: 'kept' }] }] });
 });
 
 test('a drawn tree whose module the bundle lacks is never drawn with it left out', () => {

@@ -99,7 +99,7 @@ import type { ActionReply, ActionRow, Asked } from './actions.ts';
 import { pageStyles } from './page-styles.ts';
 import { withSiteHead } from '../../site-head-from-its-rows/do-work/site-head.ts';
 import type { SiteHeadMarkup } from '../../site-head-from-its-rows/do-work/site-head.ts';
-import { drawnTreeOf, fontFaceCss, fontFacesOf, FORM_OUTCOME_PART, lookCss, PageBundles, screensOfTools, THEME_ROW, treeOf, WORDS, wordsTree } from './render.ts';
+import { drawnTreeOf, fontFaceCss, fontFacesOf, FORM_OUTCOME_PART, lookCss, PageBundles, screensOfTools, THEME_ROW, treeOf, withoutModules, WORDS, wordsTree } from './render.ts';
 import type { Screen, Timed } from './render.ts';
 import { modulesOf } from './render-layout.ts';
 import type { DrawnNode } from './render-layout.ts';
@@ -399,7 +399,12 @@ export class Site {
     return `${new URL(this.#parts.settings.origin).protocol}//${host}`;
   }
 
-  async #document(title: string, host: string, pathname: string, tree: DrawnNode, goTo?: string): Promise<string> {
+  async #document(title: string, host: string, pathname: string, given: DrawnNode, goTo?: string): Promise<string> {
+    // A part or export the rows name that this program's tools lack (rows ahead of the running commit) draws nothing, and the
+    // rest of the page is drawn; the log names each one (rows-need-parts.ts lists them before a move).
+    const missing = await this.#parts.bundles.missingOf(modulesOf(given));
+    for (const { why } of missing) this.#log(`${pathname}: ${why}, so that part of the page is left out.`);
+    const tree = missing.length ? withoutModules(given, new Set(missing.map(part => part.key))) : given;
     const bundle = await this.#parts.bundles.bundleFor(modulesOf(tree));
     const html = bundle.html({ lang: this.#parts.settings.lang, title, canonical: `${this.#originOf(host)}${pathname}`, look: this.#look, ...(goTo ? { goTo } : {}) }, tree);
     return this.#head ? withSiteHead(html, this.#head) : html;
