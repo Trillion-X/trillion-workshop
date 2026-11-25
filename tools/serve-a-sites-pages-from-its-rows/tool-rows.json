@@ -1,0 +1,67 @@
+{
+  "kind": "tool-rows",
+  "record_set": "serve-a-sites-pages-from-its-rows-tool-rows",
+  "what_this_is": "The Workshop row for the serve-a-sites-pages-from-its-rows folder: one kept-running program that serves a whole site from the site's own page and look rows, drawing each page from the screens of the tools that own its jobs, with their answers read through the engine's door.",
+  "records": [
+    {
+      "id": "package::serve-a-sites-pages-from-its-rows::tool::serve-a-sites-pages-from-its-rows",
+      "address": "package::serve-a-sites-pages-from-its-rows::tool::serve-a-sites-pages-from-its-rows",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:serve-a-sites-pages-from-its-rows",
+        "label": "Serve a site's pages from its rows (runs on your computer)",
+        "status": "active",
+        "job": "Serve a whole site from its page rows: each page drawn on the server from the screens of the tools that own its jobs, filled with their answers",
+        "description": "Starts one kept-running program (node do-work/serve.ts <settings.json>) that answers a site's requests behind the computer's front web server. A page is one row of the site's `pages` table (address pattern, title, public or members, a layout tree of shared parts and tool screens, the page's own tool and input); the site's colours and fonts are rows of its `site_look` table. Every row and every tool answer is read through the engine's door (tools:run) as a caller: the site's own pass for public pages, the member's own pass for members pages, so it holds no database login. Each page is drawn on the server with renderToStaticMarkup of the tools' own screens (the card's module screen) and drawn again in the browser by one generic mount script, kept with the page's stylesheet by BLAKE3 identity. It also answers /sitemap.xml from the public rows, and a member's file address with a 302 to a presigned link for members only.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "settings"
+          ],
+          "properties": {
+            "settings": {
+              "type": "string",
+              "description": "The path of the site's settings file, put where {settings} is in the command: listen, origin, lang, door, pages, sign_in and member_files, as README.md shows."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "serving": {
+              "type": "string",
+              "description": "The program's first line on standard error: how many pages of which site it serves, and where it listens."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "npm ci at the top folder of the Workshop copy the computer installed (its tool source's pinned commit)"
+          ],
+          "run": "cd tools/serve-a-sites-pages-from-its-rows && node do-work/serve.ts {settings}",
+          "needs": [
+            "node 26.13 or newer (it runs TypeScript as it is, with no build)",
+            "the Workshop's packages installed (npm ci): react, react-dom, esbuild, @tailwindcss/node, @noble/hashes",
+            "the site's pass for the engine door in the unit's credentials folder, under the name settings door.pass_credential gives",
+            "for member files: the files store's read key (two lines, AWS_ACCESS_KEY_ID=... and AWS_SECRET_ACCESS_KEY=...) in the unit's credentials folder, under member_files.credential"
+          ],
+          "say": "This runs on the computer that serves the site, as a unit its computer row starts (tool:start-a-computer), behind that computer's front web server, which passes the site's requests to the socket or port settings.listen names. The settings file holds no secret: the door's pass and the store's read key are credentials the computer seals for the unit from the vault. Pages, look and answers come from rows, so changing a page is changing its row; the program reads the rows again every pages.refresh_seconds. Check it with GET /sitemap.xml and a page address."
+        },
+        "maker": "maker:serve-a-sites-pages-from-its-rows",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "new: one shared program that serves any site from its page rows and the screens of the tools that own each job (Nov 25 2026); its ideas came from tools/serve-articles-and-signup (handle a request from rows) and tools/serve-and-publish-a-package-sets-public-app (renderToStaticMarkup of a tool's view), with no file copied"
+        }
+      }
+    }
+  ]
+}

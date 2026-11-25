@@ -55803,6 +55803,7 @@
   }
  ],
  "tool:send-to-a-webhook": [],
+ "tool:serve-a-sites-pages-from-its-rows": [],
  "tool:serve-the-task-pages": [
   {
    "package": "see-what-is-being-worked-on",
