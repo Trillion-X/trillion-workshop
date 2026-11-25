@@ -20,9 +20,8 @@ each read is run by that computer's own signed-in command (the Workshop's `use-y
 held. On a computer with no Mac app door (a Linux server) add `"origin": "http://127.0.0.1:<engine port>"` and
 `"key_credential": "<name>"`: the command calls that engine with the owner's key, read from the unit's credentials and handed
 to it only in its `{CLI}_KEY` environment name (the command's name in capitals, then `_KEY`). Members pages cannot be drawn through a
-command (they need the member's own pass on the engine door): a members page row never takes a `pass_on` path, so a
-`pass_on` entry over them (such as `/members` to the program that still draws them) answers them, and with none they are
-refused (403).
+command (they need the member's own pass on the engine door): pass them on with a `pass_on` entry marked `"first": true`
+(such as `/members` to the program that still draws them); with none they are refused (403).
 
 `listen` is one socket or port, or a list (one socket per host name when the front web server routes each name to its
 own socket). With no `listen` in the settings it listens on `127.0.0.1:18440` (a local run); then
@@ -52,7 +51,7 @@ the door's words). It needs Node 26.13 or newer
 
 | Address | Answer |
 |---|---|
-| a path a `pass_on` entry names (a request an action row names stays the site's, and so does a page row whose path is longer than the entry's and under it, so a site takes another program's addresses over one row at a time; an `exact` path is always passed on) | passed whole to that program (the sign-in tool's pages and `/api/auth`; a program's actions that have no tool yet), its answer passed back whole |
+| a path a `pass_on` entry names (a request an action row names stays the site's, and so does a page row whose path is longer than the entry's and under it, so a site takes another program's addresses over one row at a time; an `exact` path, or one under the `paths` of an entry marked `"first": true`, is always passed on, ahead of the site's own action and page rows) | passed whole to that program (the sign-in tool's pages and `/api/auth`; a program's actions that have no tool yet), its answer passed back whole |
 | `/screen-files/<identity>.<kind>` | a page's mount script, its stylesheet, or a font the shared looks name, by BLAKE3 identity, kept for good |
 | `<member_files.path><key>` | for a member: 302 to a presigned GET of `key_prefix` + key; for anyone else: 403; always `private, no-store` |
 | a path under `public_files.paths` | 302 to a presigned GET of `key_prefix` + the path without its leading slash, `public, max-age=cache_seconds` |
@@ -186,11 +185,15 @@ Example, a page's visit beacon (a visitor id only with consent, set as a cookie 
 
 - `door.pass_credential`: the site's own pass, used for public pages and every row read.
 - `pages.answer_seconds`: how long a public page's tool answer is kept (0 keeps none). A members page's answers are never kept.
-- `pass_on`: `[{ "name", "address", "paths", "exact", "hosts", "site_head" }]`. The program is asked for its answer
+- `pass_on`: `[{ "name", "address", "paths", "exact", "hosts", "first", "site_head" }]`. The program is asked for its answer
   uncompressed and it is passed back byte for byte; with `"site_head": true` its whole HTML pages carry the site head (the
   consent bar on the sign-in tool's pages too). A request under one of `paths` (a path and what is under it),
   or at one of `exact` (that path only), on one of `hosts` (every host when left out), is passed to `address` whole; the first
-  entry that takes it wins. Example: `{ "name": "the sign-in tool", "address": "unix:/run/sign-in/sign-in.sock", "paths": ["/sign-in", "/api/auth"] }`.
+  entry that takes it wins. An `exact` path, and a path under an entry with `"first": true`, is passed on ahead of the site's
+  own action and page rows, so a site can hold rows for addresses another program still answers (each write path listed
+  exactly while the site's grant reads only). Example: `{ "name": "the sign-in tool", "address": "unix:/run/sign-in/sign-in.sock", "paths": ["/sign-in", "/api/auth"] }`.
+- `addresses`: `{ "<name>": address }`. A `pass_on` address `"named:<name>"` is the one named here, so a computer's setup
+  fills one place in for every entry that goes to the same program.
 - `site_head`: `{ "tool", "input" }`, the tool whose answer `{ head, body_start }` every page, members pages too, carries at
   the top of its `<head>` and the start of its `<body>`: the consent default first, the Accept and Decline bar, then the site's
   declared tags (`tool:read-the-site-head {database, site}`, placed by that tool's own `withSiteHead`). It is read with the

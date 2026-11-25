@@ -26,8 +26,7 @@
 //                    the pins given), as the computer's owner, and no pass is held. On a computer with no Mac app door
 //                    (a Linux server) give it origin (its engine, such as http://127.0.0.1:7190) and key_credential (the
 //                    name of the owner's key in the unit's credentials, handed to the command in its {CLI}_KEY). A members
-//                    page is never drawn through a command: it needs the member's own pass on the door, so a pass_on path
-//                    over it (the program that still draws members pages) answers it instead.
+//                    page is never drawn through a command: it needs the member's own pass on the door.
 //     pages          { database, use: { purpose, surface }, refresh_seconds, answer_seconds }: the database holding the
 //                    `pages` and `site_look` tables, the declared use its reads run under (the reader login; left out, the
 //                    caller's own login, which only a local run through a command should do), how often the rows
@@ -36,10 +35,15 @@
 //                    visitor is sent to for a members page, and how a member's pass is checked (member-pass.ts);
 //                    signed_out "redirect" (302 to page?next=<address>, when left out) or "draw" (the page row at `page` is
 //                    drawn at the members address itself, 200, private, no-store)
-//     pass_on        [{ name, address, paths, exact, hosts }]: other programs that answer some of the site's addresses
+//     pass_on        [{ name, address, paths, exact, hosts, first }]: other programs that answer some of the site's addresses
 //                    themselves (the sign-in tool's pages and /api/auth; a program's actions that have no tool yet): a request
 //                    under one of `paths`, or at one of `exact`, on one of `hosts` (every host when left out), is passed to
-//                    `address` whole, its answer passed back whole; the first entry that takes it wins
+//                    `address` whole, its answer passed back whole; the first entry that takes it wins. A path at one of
+//                    `exact`, or under the `paths` of an entry with first: true, is passed on before any action or page row
+//                    of the site's own (so a site can keep rows it does not answer yet); under other `paths` the site's own
+//                    action rows and its longer page rows answer instead. `address` "named:<name>" is the one `addresses`
+//                    names, so the computer's own setup fills one place in
+//     addresses      (optional) { <name>: address }: addresses pass_on entries name as "named:<name>"
 //     actions        (optional) the table of the site's action rows (actions.ts), read with the pages
 //     site_head      (optional) { tool, input }: the tool whose answer { head, body_start } every page carries at the top of its
 //                    <head> and the start of its <body> (the consent default and bar, then the site's declared tags; the
@@ -94,6 +98,7 @@ export interface Settings {
   pages: { database: string; use?: { purpose: string; surface: string }; refresh_seconds: number; answer_seconds: number };
   sign_in: SignIn & { page: string; signed_out: 'redirect' | 'draw' };
   pass_on: PassOn[];
+  addresses?: Record<string, string>;
   site_head?: { tool: string; input: Record<string, unknown> };
   actions?: string;
   files_store?: FilesStore & { credential: string };
@@ -143,12 +148,23 @@ export function settingsOf(value: unknown): Settings {
     throw new Error('sign_in is { address, page (a site path), issuer, audience, team_claim, members_team }.');
   }
   if (i.signed_out !== 'redirect' && i.signed_out !== 'draw') throw new Error('sign_in.signed_out is "redirect" or "draw".');
-  const sitePath = (path: unknown) => typeof path === 'string' && /^\/[A-Za-z0-9._~\/-]*$/.test(path);
+  const sitePath = (path: unknown) => typeof path === 'string' && /^\/[A-Za-z0-9._~\/:@-]*$/.test(path);
+  const addresses = (given as { addresses?: unknown }).addresses ?? {};
+  if (!addresses || typeof addresses !== 'object' || Array.isArray(addresses) || Object.values(addresses).some(at => typeof at !== 'string' || at.startsWith('named:'))) {
+    throw new Error('addresses is { <name>: address }, each address a URL or unix:/path, never another name.');
+  }
   if (!Array.isArray(s.pass_on) || s.pass_on.some(on => !on || typeof on.name !== 'string' || typeof on.address !== 'string'
     || !(Array.isArray(on.paths ?? []) && (on.paths ?? []).every(sitePath)) || !(Array.isArray(on.exact ?? []) && (on.exact ?? []).every(sitePath))
     || !(Array.isArray(on.hosts ?? []) && (on.hosts ?? []).every(host => typeof host === 'string' && HOST_NAME.test(host)))
-    || (on.site_head !== undefined && typeof on.site_head !== 'boolean'))) {
-    throw new Error('pass_on lists { name, address, paths (a path and what is under it), exact (that path only), hosts (only these hosts; every host when left out), site_head (true: its pages carry the site head too) }.');
+    || (on.site_head !== undefined && typeof on.site_head !== 'boolean') || (on.first !== undefined && typeof on.first !== 'boolean'))) {
+    throw new Error('pass_on lists { name, address, paths (a path and what is under it), exact (that path only, before the site\'s own rows), hosts (only these hosts; every host when left out), first (true: its paths too come before the site\'s own rows), site_head (true: its pages carry the site head too) }.');
+  }
+  const named = addresses as Record<string, string>;
+  for (const on of s.pass_on) {
+    const name = /^named:(.+)$/.exec(on.address)?.[1];
+    if (name === undefined) continue;
+    if (!Object.hasOwn(named, name)) throw new Error(`pass_on ${on.name} names the address ${name}, which addresses does not hold.`);
+    on.address = named[name];
   }
   if (s.site_head !== undefined && (!s.site_head || typeof s.site_head.tool !== 'string' || !s.site_head.tool.startsWith('tool:')
     || !s.site_head.input || typeof s.site_head.input !== 'object' || Array.isArray(s.site_head.input))) {
@@ -364,14 +380,10 @@ export class Site {
     return matchAction(this.#actions, method, host, pathname) !== null;
   }
 
-  /**
-   * The path pattern of the page row that answers this host and path (a template page only for a slug it holds), or null. A
-   * members page is null when the site reads through a command (it cannot be drawn there), so a pass_on over it answers.
-   */
+  /** The path pattern of the page row that answers this host and path (a template page only for a slug it holds), or null. */
   pageFor(host: string, pathname: string): string | null {
     const matched = matchPage(pagesOn(this.#pages, host), pathname);
     if (!matched || matched.page.path === NOT_FOUND) return null;
-    if (matched.page.access === 'members' && commandOf(this.#parts.settings.door.address) !== null) return null;
     const names = paramsOf(matched.page.path);
     if (matched.page.collection && names.length === 1 && !this.#slugs.get(matched.page.collection)?.has(matched.params[names[0]])) return null;
     return matched.page.path;
@@ -524,6 +536,8 @@ export interface PassOn {
   hosts?: string[];
   /** Its HTML pages carry the site head (the consent default and bar, the site's tags) as the site's own pages do. */
   site_head?: boolean;
+  /** Its paths are passed on before the site's own action and page rows, as exact paths always are. */
+  first?: boolean;
 }
 
 // The other program is asked for its answer as it is (no compression), so it is passed back byte for byte with headers
@@ -533,13 +547,19 @@ const NOT_ASKED = new Set([...HOP, 'accept-encoding']);
 const under = (pathname: string, path: string): boolean => pathname === path || pathname.startsWith(path.endsWith('/') ? path : `${path}/`);
 
 /**
- * The program a request is passed on to, or null: a path is the path itself or one under it; exact is that path only. With
- * `pageFor` (the site's page row for the path), a page row under a passed-on path answers instead (its row names the longer
- * path), so a site takes an address over from another program one page row at a time; an exact path is always passed on.
+ * The program a request is passed on to, or null: a path is the path itself or one under it; exact is that path only. An exact
+ * path, or a path under an entry marked first, is passed on whatever the site's own rows say. Otherwise a request the site's
+ * own action rows answer (`acting`) is the site's, and with `pageFor` (the site's page row for the path) a page row under a
+ * passed-on path answers instead (its row names the longer path), so a site takes an address over from another program one
+ * row at a time.
  */
-export function passOnFor(passOn: PassOn[], host: string, pathname: string, pageFor: (host: string, pathname: string) => string | null = () => null): PassOn | null {
-  const on = passOn.find(entry => (!entry.hosts?.length || entry.hosts.includes(host)) && ((entry.exact ?? []).includes(pathname) || (entry.paths ?? []).some(path => under(pathname, path)))) ?? null;
-  if (!on || (on.exact ?? []).includes(pathname)) return on;
+export function passOnFor(passOn: PassOn[], host: string, pathname: string, pageFor: (host: string, pathname: string) => string | null = () => null, acting = false): PassOn | null {
+  const onHost = passOn.filter(entry => !entry.hosts?.length || entry.hosts.includes(host));
+  const ahead = onHost.find(entry => (entry.exact ?? []).includes(pathname) || (entry.first === true && (entry.paths ?? []).some(path => under(pathname, path))));
+  if (ahead) return ahead;
+  if (acting) return null;
+  const on = onHost.find(entry => (entry.paths ?? []).some(path => under(pathname, path))) ?? null;
+  if (!on) return null;
   const page = pageFor(host, pathname);
   const longer = page !== null && (on.paths ?? []).some(path => under(pathname, path) && page.length > path.replace(/\/$/, '').length && under(page, path));
   return longer ? null : on;
@@ -583,10 +603,11 @@ export function handlerOf(site: Site, passOn: PassOn[] = []): http.RequestListen
     const forwarded = request.headers['x-forwarded-host'];
     const host = site.hostOf(Array.isArray(forwarded) ? forwarded[0] : forwarded, request.headers.host);
     const pathname = new URL(request.url ?? '/', 'http://site.invalid').pathname;
-    // A request the site's own action rows name is the site's, even under a path another program answers.
+    // A request the site's own action rows name is the site's, even under a path another program answers, unless that path is
+    // passed on ahead of the site's rows (exact, or under an entry marked first).
     const method = request.method ?? 'GET';
     const acting = site.acts(method, host, pathname);
-    const on = acting ? null : passOnFor(passOn, host, pathname, method === 'GET' || method === 'HEAD' ? (h, p) => site.pageFor(h, p) : undefined);
+    const on = passOnFor(passOn, host, pathname, method === 'GET' || method === 'HEAD' ? (h, p) => site.pageFor(h, p) : undefined, acting);
     if (on) {
       passOnTo(on.address, host, request, response, on.site_head ? site.siteHead : null).catch(error => {
         console.error(`${request.method} ${request.url}: ${on.name} did not answer: ${(error as Error).message}`);

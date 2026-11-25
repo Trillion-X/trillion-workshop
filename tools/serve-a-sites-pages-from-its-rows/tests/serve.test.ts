@@ -359,26 +359,57 @@ test('the paths another program answers (the sign-in tool\'s) are passed to it w
   } finally { server.close(); signIn.close(); d.server.close(); }
 });
 
-test('through a command door a members page row never takes a passed-on path, and the door\'s origin and key are checked', async () => {
+test('exact pass_on paths, and the paths of an entry marked first, reach the other program ahead of the site\'s own action and page rows', async () => {
+  const seen: { method?: string; url?: string; body: string }[] = [];
+  const old = http.createServer((request, response) => {
+    let body = '';
+    request.on('data', c => { body += c; });
+    request.on('end', () => { seen.push({ method: request.method, url: request.url, body }); response.writeHead(200, { 'content-type': 'application/json' }); response.end('{"old":true}'); });
+  });
+  await new Promise<void>(resolve => old.listen(0, '127.0.0.1', resolve));
   const d = await door();
+  const oldAt = `http://127.0.0.1:${(old.address() as AddressInfo).port}`;
+  // Every write path of the fixture's action rows, passed on exactly, and the members pages ahead of their page rows; the
+  // address is named once in addresses, as a computer's setup fills it.
+  const writes = ['/book/call', '/observe/visit', '/target/state', '/chain', '/with-then', '/before-booking/offer:a-call'];
+  const s = settings(d.address, { addresses: { 'old-program': oldAt }, pass_on: [
+    { name: 'the old program (writes)', address: 'named:old-program', exact: writes },
+    { name: 'the old program (members)', address: 'named:old-program', paths: ['/members'], first: true },
+    { name: 'the old program (the rest under /target)', address: 'named:old-program', paths: ['/target'] },
+  ] });
+  assert.deepEqual(s.pass_on.map(on => on.address), [oldAt, oldAt, oldAt], 'a named address is filled from addresses');
+  const site = await siteOn(d.address, { actions: 'site_actions' });
+  const server = http.createServer(handlerOf(site, s.pass_on));
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
   try {
-    const overDoor = await siteOn(d.address);
-    assert.equal(overDoor.pageFor('site.example.test', '/members'), '/members', 'over the engine door the members page answers');
-    const command = { address: 'cli:example-site', pins: [], origin: 'http://127.0.0.1:7190', key_credential: 'owner-key' };
-    const byCommand = await siteOn(d.address, { door: command });
-    assert.equal(byCommand.pageFor('site.example.test', '/members'), null, 'through a command it cannot be drawn, so it is no page here');
-    assert.equal(byCommand.pageFor('site.example.test', '/'), '/', 'a public page still answers');
-    const on = [{ name: 'the old program', address: 'http://old', paths: ['/'] }];
-    assert.equal(passOnFor(on, 'site.example.test', '/members', (h, p) => overDoor.pageFor(h, p)), null, 'over the door the page row takes its path');
-    assert.equal(passOnFor(on, 'site.example.test', '/members', (h, p) => byCommand.pageFor(h, p))?.name, 'the old program', 'through a command the old program answers it');
-    for (const bad of [
-      { address: 'cli:example-site', origin: '127.0.0.1:7190' },
-      { address: 'cli:example-site', origin: 'http://127.0.0.1:7190/mcp' },
-      { address: 'cli:example-site', key_credential: 5 },
-      { address: d.address, pass_credential: 'site-door-pass', origin: 'http://127.0.0.1:7190' },
-      { address: d.address, pass_credential: 'site-door-pass', key_credential: 'owner-key' },
-    ]) assert.throws(() => settings(d.address, { door: bad }), /door is/);
-  } finally { d.server.close(); }
+    const at = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    for (const path of ['/book/call', '/observe/visit', '/chain', '/with-then']) {
+      assert.equal(site.acts('POST', 'site.example.test', path), true, `${path} has an action row`);
+      const answer = await fetch(`${at}${path}`, { method: 'POST', body: '{"email":"a@example.test"}', headers: { 'content-type': 'application/json' } });
+      assert.deepEqual(await answer.json(), { old: true }, `a POST to ${path} reaches the other program`);
+    }
+    assert.deepEqual(await (await fetch(`${at}/target/state?checkout=x`)).json(), { old: true }, 'a GET action row\'s exact path is passed on too');
+    assert.deepEqual(await (await fetch(`${at}/before-booking/offer:a-call`, { method: 'POST', body: 'x' })).json(), { old: true }, 'an exact path may hold a colon');
+    assert.equal(site.pageFor('site.example.test', '/members'), '/members', 'the members page row is there');
+    assert.deepEqual(await (await fetch(`${at}/members`)).json(), { old: true }, 'under an entry marked first, the page row does not take the path');
+    assert.deepEqual(seen.map(({ method, url }) => `${method} ${url}`), ['POST /book/call', 'POST /observe/visit', 'POST /chain', 'POST /with-then', 'GET /target/state?checkout=x', 'POST /before-booking/offer:a-call', 'GET /members']);
+    assert.equal(seen[0].body, '{"email":"a@example.test"}', 'the body goes on whole');
+    assert.equal(passOnFor(s.pass_on, 'site.example.test', '/target/kept', () => null, true), null, 'under a plain path, an action row is the site\'s');
+    assert.throws(() => settings(d.address, { pass_on: [{ name: 'x', address: 'named:nowhere', exact: ['/a'] }] }), /names the address nowhere, which addresses does not hold/);
+    assert.throws(() => settings(d.address, { addresses: { a: 'named:b' } }), /never another name/);
+    assert.throws(() => settings(d.address, { pass_on: [{ name: 'x', address: oldAt, paths: ['/a'], first: 'yes' }] }), /pass_on lists/);
+  } finally { server.close(); old.close(); d.server.close(); }
+});
+
+test('a command door\'s origin and key are checked', () => {
+  for (const bad of [
+    { address: 'cli:example-site', origin: '127.0.0.1:7190' },
+    { address: 'cli:example-site', origin: 'http://127.0.0.1:7190/mcp' },
+    { address: 'cli:example-site', key_credential: 5 },
+    { address: 'http://127.0.0.1:1', pass_credential: 'site-door-pass', origin: 'http://127.0.0.1:7190' },
+    { address: 'http://127.0.0.1:1', pass_credential: 'site-door-pass', key_credential: 'owner-key' },
+  ]) assert.throws(() => settings('http://127.0.0.1:1', { door: bad }), /door is/);
+  assert.equal(settings('http://127.0.0.1:1', { door: { address: 'cli:example-site', pins: [], origin: 'http://127.0.0.1:7190', key_credential: 'owner-key' } }).door.origin, 'http://127.0.0.1:7190');
 });
 
 test('a part\'s own CSS module comes with the page: its local class is on the markup and its rule in the page\'s stylesheet', async () => {
