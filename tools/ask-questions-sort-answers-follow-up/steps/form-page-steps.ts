@@ -55,8 +55,11 @@ export async function loadFormPage(store: Store, slug: string): Promise<Page & {
   return { slug, formId: form.formId, title: form.title ?? null, around: row.around, words: row.words ?? {}, keep_on: row.keep_on ?? null, keep_at: row.keep_at ?? null, refusals, questions: questionsOf(form) };
 }
 
-// The page a sitting was started on.
-const pageOfSitting = (store: Store, sitting: Sitting) => loadFormPage(store, sitting.page);
+// The page a sitting was started on; its row and its form are read together, once.
+const pageOfSitting = async (store: Store, sitting: Sitting) => {
+  await store.preload([formPageId(sitting.page), questionSequenceId(sitting.formId)]);
+  return loadFormPage(store, sitting.page);
+};
 
 // Starts a sitting: as the signed-in member when there is one (`email`, proven by the caller), else as the sitting itself.
 export async function startSitting(store: Store, { slug, email = null }: { slug: string; email?: string | null }, { now = () => new Date().toISOString(), newId = () => crypto.randomUUID() }: Clock = {}) {

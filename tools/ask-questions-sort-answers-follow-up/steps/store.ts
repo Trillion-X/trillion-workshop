@@ -5,11 +5,13 @@
 //   through five small questions (a row by id, the answer facts of a sitting, the rows a decision is made from, a booking page,
 //   the bookings' own insert) and writes as one list of writes that is kept together or not at all. `sqlStore` answers them with
 //   statements through the engine's mounted login; a test hands a store of its own.
+//   A step's reads are few (a row read is kept for the rest of the run, `preload` reads several rows in one) and its writes are ONE
+//   statement (data-modifying CTEs): one round trip, atomic, and a refused part keeps nothing of the step.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. The table and column names are the one block below; every value is a statement parameter, never put into the text.
-//   2. `apply` sends every write of one step as one transaction: all kept or none.
-//   3. This file holds no login: `execute` and `commit` are handed in by the tool's main, which got the connection from the engine.
+//   2. `apply` sends every write of one step as one statement: all kept or none, in one round trip.
+//   3. This file holds no login: `execute` is handed in by the tool's main, which got the connection from the engine.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { ANSWER_FACT_KIND } from '../do-work/answer-fact-writes.ts';
@@ -33,12 +35,13 @@ export interface Store {
   decisionRows(formId: string, sequenceId: string, kinds: readonly string[]): Promise<Row[]>;
   /** One live booking page by its slug, or null. */
   bookingPage(slug: string): Promise<Record<string, any> | null>;
-  /** All these writes, kept together or not at all. */
+  /** Reads these rows by id in one statement, so later `value` reads of them cost nothing. */
+  preload(ids: string[]): Promise<void>;
+  /** All these writes, kept together or not at all, in one statement. */
   apply(writes: Write[]): Promise<void>;
 }
 
 export type Execute = (sql: string, params?: unknown[]) => Promise<Record<string, unknown>[]>;
-export type Commit = (statements: { sql: string; params: unknown[] }[]) => Promise<void>;
 
 // The one place the tables and columns are named.
 const FORM_ROWS = 'form_rows';
@@ -57,13 +60,37 @@ export function statementOf(write: Write): { sql: string; params: unknown[] } {
   }
 }
 
-export function sqlStore({ execute, commit }: { execute: Execute; commit: Commit }): Store {
+// The writes as one statement: each is a data-modifying CTE (its own parameters renumbered after the ones before), and the
+// statement answers how many parts ran. A part the database refuses fails the whole statement, so nothing of the step is kept.
+export function oneStatementOf(writes: Write[]): { sql: string; params: unknown[] } {
+  const params: unknown[] = [];
+  const parts = writes.map((write, index) => {
+    const part = statementOf(write);
+    const offset = params.length;
+    params.push(...part.params);
+    return `w${index} AS (${part.sql.replace(/\$(\d+)/g, (_, n) => `$${Number(n) + offset}`)} RETURNING 1 AS ok)`;
+  });
+  return { sql: `WITH ${parts.join(', ')} SELECT ${writes.map((_, index) => `(SELECT count(*) FROM w${index})`).join(' + ')} AS written`, params };
+}
+
+export function sqlStore({ execute }: { execute: Execute }): Store {
+  // Rows read in this run, by id; a write forgets them.
+  const known = new Map<string, { type: string; value: any } | null>();
   return {
+    async preload(ids) {
+      const wanted = ids.filter(id => !known.has(id));
+      if (wanted.length === 0) return;
+      const found = await execute(`SELECT id, type, value FROM ${FORM_ROWS} WHERE id = ANY($1::text[])`, [wanted]);
+      for (const id of wanted) known.set(id, null);
+      for (const row of found) known.set(String(row.id), { type: String(row.type), value: row.value });
+    },
     async value(id, type) {
-      const found = type === undefined
-        ? await execute(`SELECT value FROM ${FORM_ROWS} WHERE id = $1`, [id])
-        : await execute(`SELECT value FROM ${FORM_ROWS} WHERE id = $1 AND type = $2`, [id, type]);
-      return found[0]?.value ?? null;
+      if (!known.has(id)) {
+        const found = await execute(`SELECT id, type, value FROM ${FORM_ROWS} WHERE id = $1`, [id]);
+        known.set(id, found[0] ? { type: String(found[0].type), value: found[0].value } : null);
+      }
+      const row = known.get(id) ?? null;
+      return row && (type === undefined || row.type === type) ? row.value : null;
     },
     async factsOf(submissionId) {
       const found = await execute(`SELECT value FROM ${FORM_ROWS} WHERE type = $1 AND value ->> 'submissionId' = $2`, [ANSWER_FACT_KIND, submissionId]);
@@ -78,7 +105,10 @@ export function sqlStore({ execute, commit }: { execute: Execute; commit: Commit
       return found[0] ?? null;
     },
     async apply(writes) {
-      if (writes.length > 0) await commit(writes.map(statementOf));
+      if (writes.length === 0) return;
+      known.clear();
+      const { sql, params } = oneStatementOf(writes);
+      try { await execute(sql, params); } catch { throw new Error('Something went wrong. Try again.'); }
     },
   };
 }

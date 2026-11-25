@@ -5,7 +5,6 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { PGlite } from '@electric-sql/pglite';
 import { answerBookingQuestion, busyOf, checkBookingReady, chooseSlot, keepBooking, loadLivePage, readOpenTimes, startBooking } from '../steps/booking-steps.ts';
-import { committer } from '../../ask-questions-sort-answers-follow-up/steps/serve-steps.ts';
 import { sqlStore, type Store } from '../../ask-questions-sort-answers-follow-up/steps/store.ts';
 
 const DDL = `
@@ -35,17 +34,7 @@ async function freshDb({ live = true }: { live?: boolean } = {}): Promise<{ db: 
   await db.query('INSERT INTO form_rows (id, type, value) VALUES ($1, $2, $3)', ['question-sequence:call-form', 'question-sequence', JSON.stringify(FORM)]);
   await db.query('INSERT INTO booking_pages (slug, title, duration_minutes, timezone, calendar_account, windows, horizon_days, min_notice_minutes, live, form_id) VALUES ($1, $2, 30, $3, $4, $5, 3, 10, $6, $7)',
     [SLUG, 'A call', 'America/Chicago', 'someone', JSON.stringify(WINDOWS), live, 'call-form']);
-  const run = (async ({ input }: { input: { statements: { sql: string; params: unknown[] }[]; then: string } }) => {
-    await db.query('BEGIN');
-    let refused = 0;
-    for (const { sql, params } of input.statements) {
-      await db.query('SAVEPOINT each_statement');
-      try { await db.query(sql, params); await db.query('RELEASE SAVEPOINT each_statement'); } catch { refused += 1; await db.query('ROLLBACK TO SAVEPOINT each_statement'); }
-    }
-    await db.query(input.then === 'commit' ? 'COMMIT' : 'ROLLBACK');
-    return { refused };
-  }) as never;
-  const store = sqlStore({ execute: async (sql, params = []) => (await db.query(sql, params)).rows as Record<string, unknown>[], commit: committer('unused', run) });
+  const store = sqlStore({ execute: async (sql, params = []) => (await db.query(sql, params)).rows as Record<string, unknown>[] });
   let n = 0;
   return { db, store, clock: { nowMs: () => NOW, newId: () => `id-${(n += 1)}` } };
 }

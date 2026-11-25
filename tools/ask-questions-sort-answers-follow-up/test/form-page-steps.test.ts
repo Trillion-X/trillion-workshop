@@ -6,7 +6,6 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { PGlite } from '@electric-sql/pglite';
 import { answerFormQuestion, formResult, keepSitting, loadFormPage, sittingNext, startSitting } from '../steps/form-page-steps.ts';
-import { committer } from '../steps/serve-steps.ts';
 import { sqlStore, type Store } from '../steps/store.ts';
 
 const FORM_ROWS = `create table form_rows (id text primary key, type text not null, value jsonb not null, kept_at timestamptz not null default now())`;
@@ -32,23 +31,12 @@ const ROWS: [string, string, unknown][] = [
   ['follow-up-sequence:check-form:a', 'follow-up-sequence', { kind: 'follow-up-sequence', formId: 'check-form', segmentId: 'a', steps: [{ stepId: 'call', label: 'Book a call' }] }],
 ];
 
-// The store's statements against PGlite; the committer's dry run and real run are both honoured as the batch runner does
-// (each statement under a savepoint, `refused` counting those the database refused).
+// The tool's own sqlStore over PGlite, so the statements are the ones the tool sends.
 async function freshDb(): Promise<{ db: PGlite; store: Store; ids: () => string }> {
   const db = new PGlite();
   await db.exec(FORM_ROWS);
   for (const [id, type, value] of ROWS) await db.query('INSERT INTO form_rows (id, type, value) VALUES ($1, $2, $3)', [id, type, JSON.stringify(value)]);
-  const run = (async ({ input }: { input: { statements: { sql: string; params: unknown[] }[]; then: string } }) => {
-    await db.query('BEGIN');
-    let refused = 0;
-    for (const { sql, params } of input.statements) {
-      await db.query('SAVEPOINT each_statement');
-      try { await db.query(sql, params); await db.query('RELEASE SAVEPOINT each_statement'); } catch { refused += 1; await db.query('ROLLBACK TO SAVEPOINT each_statement'); }
-    }
-    await db.query(input.then === 'commit' ? 'COMMIT' : 'ROLLBACK');
-    return { refused };
-  }) as never;
-  const store = sqlStore({ execute: async (sql, params = []) => (await db.query(sql, params)).rows as Record<string, unknown>[], commit: committer('unused', run) });
+  const store = sqlStore({ execute: async (sql, params = []) => (await db.query(sql, params)).rows as Record<string, unknown>[] });
   let n = 0;
   return { db, store, ids: () => `s${(n += 1)}` };
 }
@@ -134,7 +122,7 @@ test('a signed-in member answers as themselves; two sittings are two submissions
   assert.equal((await rowsOf(db, 'answer-fact', EMAIL)).length, 4);
 });
 
-test('a write the database refuses keeps nothing of the step: the dry run catches it before anything is committed', async () => {
+test('a write the database refuses keeps nothing of the step: the writes are one statement', async () => {
   const { db, store, ids } = await freshDb();
   const { attemptId } = await startSitting(store, { slug: 'check' }, clock(ids));
   await assert.rejects(store.apply([{ kind: 'insert', id: `form-sitting:${attemptId}`, type: 'form-sitting', value: {} }, { kind: 'upsert', id: 'later', type: 'x', value: {} }]), /Something went wrong/);
