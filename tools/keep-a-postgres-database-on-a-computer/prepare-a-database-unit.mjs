@@ -34,7 +34,10 @@ export function prepare(given) {
     unit: {
       ...unit,
       settings_lines: [...(unit.settings_lines ?? []), `listen_addresses = '${listen.join(',')}'`, `hba_file = '${hba_file}'`],
-      files: [...(unit.files ?? []), { path: hba_file, text: lines.map(line => `${line}\n`).join('') }],
+      // A changed access file is read by a reload (SIGHUP), so the server keeps its connections: written as a plain file it made
+      // every apply that added an hba line restart PostgreSQL, and each restart dropped a site's connections (6 s of 502 on
+      // Nov 25 2026 at 11:23 and 11:33 AM CST). try-: a server that is not running yet reads the file when it starts.
+      files: [...(unit.files ?? []), { path: hba_file, text: lines.map(line => `${line}\n`).join(''), then: [['systemctl', 'try-reload-or-restart', unit.unit]] }],
     },
     firewall_allow: reach.flatMap(entry => entry.firewall_allow ?? []),
   };

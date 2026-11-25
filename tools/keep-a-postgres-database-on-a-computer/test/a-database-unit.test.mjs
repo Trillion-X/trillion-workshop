@@ -88,6 +88,9 @@ test('reach renders the listen line and an access file holding only what its ent
   const text = path => files.find(file => file.path === path)?.text;
   assert.equal(text('/etc/example-database/postgresql.conf'), "unix_socket_directories = '/run/postgresql'\nlisten_addresses = '127.0.0.1'\nhba_file = '/etc/example-database/pg_hba.conf'\n");
   assert.equal(text('/etc/example-database/pg_hba.conf'), 'local all all peer\nhost p_example all 127.0.0.1/32 scram-sha-256\n');
+  // The access file is applied by a reload, never a restart: it names its own `then` (start-a-computer restarts nothing for it).
+  const hbaFile = (await withPrepared(prepared({ ...reachRow, units: [{ ...reachServer, reach, hba_file: '/etc/example-database/pg_hba.conf' }] }))).units[0].files.find(file => file.path === '/etc/example-database/pg_hba.conf');
+  assert.deepEqual(hbaFile.then, [['systemctl', 'try-reload-or-restart', reachServer.unit]]);
   const none = renderWhatItRuns(await withPrepared(prepared({ ...reachRow, units: [{ ...reachServer, reach: [], hba_file: '/etc/example-database/pg_hba.conf' }] })));
   assert.equal(none.find(file => file.path === '/etc/example-database/pg_hba.conf').text, '', 'no entry, nobody connects');
   assert.match(none.find(file => file.path === '/etc/example-database/postgresql.conf').text, /^listen_addresses = ''$/m, 'no entry listens, no network listener');

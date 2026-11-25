@@ -457,7 +457,7 @@ test('the node release is the computer row\'s own data: a computer that names no
 
 // A database server with reach, and two role jobs that run one script. A changed access file restarts the server that reads
 // it; a changed script runs again every job that names it, and is written once.
-test('a changed access file restarts its server, and a changed script reruns each job naming it', async () => {
+test('a changed access file reloads its server without a restart, and a changed script reruns each job naming it', async () => {
   const server = { unit: 'example-database.service', template: 'tools/keep-a-postgres-database-on-a-computer/serve-postgres.service', prepare: 'tools/keep-a-postgres-database-on-a-computer/prepare-a-database-unit.mjs', description: 'Example database', user: 'postgres', state: '/var/lib/postgresql',
     data_dir: '/var/lib/postgresql/18/example', program_bin: '/usr/lib/postgresql/18/bin', settings_file: '/etc/example-database/postgresql.conf',
     settings_lines: [], environment: ['PGDATA=/var/lib/postgresql/18/example'], writable: '/var/lib/postgresql', check_command: 'pg_isready -q',
@@ -475,8 +475,10 @@ test('a changed access file restarts its server, and a changed script reruns eac
   const { run, commands } = computer(live);
   const answer = await applyWhatItRuns(machine, row, async (m, command, input) => (command.startsWith('test -s ') ? '' : run(m, command, input)), {}, { wait: async () => {} });
   assert.deepEqual(answer.written, ['/etc/example-database/pg_hba.conf', '/usr/local/lib/example-database/set-up-postgres-role.sh']);
-  assert.deepEqual(answer.restarted, ['example-database.service', 'example-owner.service', 'example-share.service']);
-  assert.ok(commands.some(({ command }) => command === "systemctl restart 'example-database.service'"), 'the server that reads the access file restarts');
+  // Nov 25 2026: a restart for an hba line dropped every connection (6 s of 502 for a live site); a reload keeps them.
+  assert.deepEqual(answer.restarted, ['example-owner.service', 'example-share.service']);
+  assert.ok(!commands.some(({ command }) => command === "systemctl restart 'example-database.service'"), 'the server that reads the access file is not restarted');
+  assert.ok(commands.some(({ command }) => command.includes('try-reload-or-restart') && command.includes('example-database.service')), 'the server reloads the access file');
 });
 
 // A path unit the row names is started when it is not active, like a timer, though nothing it renders changed.
