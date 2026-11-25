@@ -1,0 +1,24 @@
+{
+  "_what": "How tool:forward-a-fact-to-my-computer tells a heard fact to another of the person's own computers (do-work/forward-a-fact.mjs). The run calls the door of the person's gateway, the one place a call names a computer to run on (`pins`); the meeting point there passes the call to that computer, whose own door checks the key again (the engine's src/native_entry/meeting.rs). The gateway's door address is the person's own, given in each wake's input (`door`) with the computer to tell (`to`), so this shared tool names no product. `key_name` is the held value the row mounts on descriptor 3: a key the sign-in tool made for wake:arrive alone (api_key.scoped_create with allowed_patterns [\"wake:arrive\"]), kept in the vault with the gateway's host as its only host, so this run can tell a fact and do nothing else, and only there: the engine fences a run that holds a key to that key's hosts, so a `door` elsewhere is never reached with it. It is never the carrier's key, which can do everything the person can. The request key is `request_key_prefix` and the fact's event id, so the same fact told again is the same call; one longer than the door takes is named by its identity (tools/content-identity `requestKeyForEngine`, the one owner of that bound). The far computer admits a sender's fact once per account, teller and event id (the engine's src/wake.rs), so a retry is safe whatever its request key. `computer_refused_codes` are the meeting point's words for a `to` it carries no computer of the person's by: such a run fails naming them, and so does every retry until the person fixes the wake's input. `timeout_ms` bounds one call, and `answer_most_bytes` the answer read. `not_forwarded_when` lists facts that are answered without a call, each a kind and the payload fields it must hold: this tool's own failures (`wake-failed` naming this tool, the engine's src/wake/wake.json `failed_fact`), so a gateway that is down cannot feed a forward that failed back into another forward of its failure, without end. Every fact told carries the wake input's `forwarded_from` in its payload under `tag_field`, so the far computer's wake hears only forwarded facts by matching that field (`on.fact.match`, exact equality, beside from [\"sender\"]); a fact that already holds the field, or that would hold more than `payload_most_fields` (the engine's src/wake/host-events.json max_fields) with it, is refused, never changed. Before a fact is told, the run reads its own computer's wakes of that kind (wake:list through the run's door on descriptor 4, one right per kind the row's wakes hear): a wake of another tool that is switched on here and hears the same kind from the same teller would run the fact's work here while the far computer runs it too, so the run is refused, naming it, until it is switched off here (`consumer_words`).",
+  "key_name": "forward-facts-to-my-computer-key",
+  "request_key_prefix": "fact:",
+  "computer_refused_codes": [
+    "tools_pin_names_the_computer"
+  ],
+  "timeout_ms": 30000,
+  "answer_most_bytes": 65536,
+  "protocol_version": "2025-06-18",
+  "not_forwarded_when": [
+    {
+      "kind": "wake-failed",
+      "payload": {
+        "tool": "tool:forward-a-fact-to-my-computer"
+      }
+    }
+  ],
+  "tag_field": "forwarded_from",
+  "payload_most_fields": 8,
+  "door_descriptor": 4,
+  "consumer_words": "is still on here and hears this kind from the same teller: switch it off here when you switch this forward on, or the work would run on both computers",
+  "door_timeout_ms": 10000
+}

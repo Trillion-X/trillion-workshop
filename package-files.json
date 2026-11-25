@@ -13027,6 +13027,77 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:forward-a-fact-to-my-computer": [
+  {
+   "package": "forward-a-fact-to-my-computer",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/forward-a-fact-tree/tools/forward-a-fact-to-my-computer"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/identity.mjs",
+    "read-data/blake3.mjs"
+   ],
+   "at": "/opt/forward-a-fact-tree/tools/content-identity"
+  },
+  {
+   "package": "http-client",
+   "paths": [
+    "do-work/node-public-fetch.mjs",
+    "do-work/resolved-address.mjs",
+    "do-work/resolved-address.json",
+    "do-work/same-origin.mjs"
+   ],
+   "at": "/opt/forward-a-fact-tree/tools/http-client"
+  },
+  {
+   "package": "refuse-requests-to-private-addresses",
+   "paths": [
+    "public-address.mjs",
+    "public-address.json"
+   ],
+   "at": "/opt/forward-a-fact-tree/tools/refuse-requests-to-private-addresses"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/forward-a-fact-tree/tools/run-sql-in-my-database"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "packages": [
+    "node_modules/tldts"
+   ],
+   "at": "/opt/node_modules/tldts"
+  },
+  {
+   "packages": [
+    "node_modules/tldts-core"
+   ],
+   "at": "/opt/node_modules/tldts-core"
+  }
+ ],
  "tool:keep-an-elestio-update-schedule": [
   {
    "package": "keep-an-elestio-update-schedule",

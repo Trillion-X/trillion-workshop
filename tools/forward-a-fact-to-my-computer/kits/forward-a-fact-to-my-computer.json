@@ -1,0 +1,32 @@
+{
+  "drafted_from": "tool:forward-a-fact-to-my-computer's own row (its words, input schema, wakes and invoke), do-work/forward-a-fact.mjs and read-data/forward.json",
+  "start_here": "Say to your AI: \"Forward this Mac's message facts to my always-on computer\", with {\"to\":\"my-always-on\",\"door\":\"https://gateway.example/mcp\",\"forwarded_from\":\"mac\"}. It switches on this tool's wake for that kind with that input, and from then on each fact of that kind this computer hears is told to my-always-on as a sender's fact, once per event id.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: each run tells one fact to one computer and answers what that computer said, and the facts stay in the far computer's own wake book.",
+  "workflows": [],
+  "tools": [
+    "tool:forward-a-fact-to-my-computer"
+  ],
+  "instructions": [
+    "1. Keep a key made for wake:arrive alone (your sign-in tool's scoped key) in this computer's vault as forward-facts-to-my-computer-key, with your gateway's host as its only host.",
+    "2. When the work of one kind moves to the other computer, switch off its wake here and switch on this tool's wake of that kind (wake:switch {tool: \"tool:forward-a-fact-to-my-computer\", id: \"forward-<kind>\", on: true, input: {to, door, forwarded_from}}). While a wake of another tool here still hears that kind, the forward refuses each fact, naming it.",
+    "3. Read each run's answer in wake:list: kept and heard_by say the far computer took the fact; not_heard says no wake there hears that kind yet; a failed wake names why (a refused key, a computer the gateway does not carry, a gateway that did not answer).",
+    "4. On the far computer, the wakes that run from those facts hear them from [\"sender\"] with match {\"forwarded_from\": \"mac\"}, so they hear forwarded facts only."
+  ],
+  "worked_examples": [
+    {
+      "title": "Noticed things heard on a Mac are handled on the always-on computer",
+      "ask": "Forward this Mac's message facts to my always-on computer.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "wake:switch",
+          "input": { "tool": "tool:forward-a-fact-to-my-computer", "id": "forward-something-showed-up", "on": true, "input": { "to": "my-always-on", "door": "https://gateway.example/mcp", "forwarded_from": "mac" } }
+        }
+      },
+      "given": "The wake forward-something-showed-up and the input {\"to\":\"my-always-on\",\"door\":\"https://gateway.example/mcp\",\"forwarded_from\":\"mac\"}, with the noticer's own consumer switched off here; then a something-showed-up fact with event id m-1 is heard on this computer.",
+      "hands_back": "The switch answers {tool, id: \"forward-something-showed-up\", on: true}. The run the fact starts answers {\"to\":\"my-always-on\",\"computer\":\"my-always-on\",\"kind\":\"something-showed-up\",\"event_id\":\"m-1\",\"request_key\":\"fact:m-1\",\"kept\":true,\"heard_by\":1,\"starts\":\"now\"}."
+    }
+  ]
+}
