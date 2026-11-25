@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 import { promisify } from 'node:util';
 import { chromiumExecutable } from '../../../test-helpers/chromium.mjs';
-import { checkSiteBuild, defaultSettings, pictureName } from '../do-work/check-site-build.mjs';
+import { argumentsOfRequest, checkSiteBuild, defaultSettings, pictureName } from '../do-work/check-site-build.mjs';
 import { pageKinds } from '../do-work/page-kinds.mjs';
 import { serveBuild } from '../do-work/serve-build.mjs';
 
@@ -110,6 +110,17 @@ test('each kind keeps its own pictures: /courses and /courses/* never share a fi
   assert.equal(pictureName('app /courses/*'), 'app-courses-each');
 });
 
+test('a request file gives the same arguments as the flags; empty values are none; a folder not named for the commit is refused', () => {
+  const commit = 'b6ff62aeeb61ea3628240821e57b5c5a8b6e1063';
+  const args = argumentsOfRequest({ commit, pages: `/built/site-${commit}/public`, live: 'https://live.example', app: '', live_app: '', server_rendered: '/articles,/feeds' });
+  assert.deepEqual({ ...args, out: undefined }, { pages: `/built/site-${commit}/public`, live: 'https://live.example', 'server-rendered': '/articles,/feeds', out: undefined });
+  assert.match(args.out, new RegExp(`check-a-site-build/${commit}$`));
+  assert.equal(argumentsOfRequest({ pages: 'p', live: 'l', server_rendered: ['/a', '/b'] })['server-rendered'], '/a,/b');
+  assert.throws(() => argumentsOfRequest({ commit, pages: '/built/site-f6a44b6247f96fba32676213783905459d3dabb4/public', live: 'l' }), /not named for commit/);
+  assert.throws(() => argumentsOfRequest({ commit, pages: `/built/site-${commit}/public`, app: '/built/older/app', live: 'l', live_app: 'l' }), /app folder/);
+  assert.throws(() => argumentsOfRequest({ commit: 'b6ff62aee', pages: 'b6ff62aee', live: 'l' }), /full 40-character/);
+});
+
 test('a sitemap path with no file in the build is refused, never skipped', async () => {
   const result = await run({ 'sitemap.xml': sitemap(['/courses/yoga']) });
   assert.equal(byKind(result, '/courses/*').refused, true);
@@ -166,6 +177,16 @@ test('the command prints one JSON line and exits 1 when a page is refused, 0 whe
     assert.equal(refused.stdout.trim().split('\n').length, 1);
     const passed = await command(folder({ 'sitemap.xml': sitemap(['/about']), 'about.html': tall(1200) }), mkdtempSync(join(tmpdir(), 'site-build-out-')));
     assert.equal(passed.code, 0, passed.stderr);
+    const request = join(mkdtempSync(join(tmpdir(), 'site-build-request-')), 'step.request.json');
+    writeFileSync(request, JSON.stringify({ pages: folder({ 'sitemap.xml': sitemap(['/courses/yoga']), 'courses/yoga.html': throwsToUpper }), live: live.origin, app: '', live_app: '', server_rendered: '' }));
+    const byRequest = await promisify(execFile)(process.execPath, [new URL('../do-work/check-site-build.mjs', import.meta.url).pathname, '--request', request],
+      { env: { ...process.env, BROWSER_EXECUTABLE: browser } }).then(done => ({ code: 0, ...done }), failed => failed);
+    assert.equal(byRequest.code, 1);
+    assert.equal(JSON.parse(byRequest.stdout.trim()).result.refused, 1);
+    writeFileSync(request, JSON.stringify({ commit: 'b6ff62aeeb61ea3628240821e57b5c5a8b6e1063', pages: '/somewhere/else', live: live.origin }));
+    const wrongFolder = await promisify(execFile)(process.execPath, [new URL('../do-work/check-site-build.mjs', import.meta.url).pathname, '--request', request]).then(done => ({ code: 0, ...done }), failed => failed);
+    assert.equal(wrongFolder.code, 2);
+    assert.match(wrongFolder.stderr, /not named for commit/);
   } finally {
     await live.close();
   }

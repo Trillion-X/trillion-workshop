@@ -22,33 +22,36 @@
           "properties": {
             "pages": {
               "type": "string",
-              "description": "The built pages folder (the folder the site serves at /), put where {pages} is."
+              "description": "The built pages folder (the folder the site serves at /)."
             },
             "live": {
               "type": "string",
-              "description": "The live site's origin, such as https://school.example, put where {live} is."
+              "description": "The live site's origin, such as https://school.example."
             },
             "out": {
               "type": "string",
-              "description": "A folder for the pictures (one local and one live picture per page kind), put where {out} is."
+              "description": "Optional: a folder for the pictures (one local and one live picture per page kind); by default a folder under the system temporary folder named for the commit."
             },
             "app": {
               "type": "string",
-              "description": "Optional: the built app folder when the site has a members app on its own host, put where {app} is; leave `--app {app} --live-app {live_app}` out for none."
+              "description": "Optional: the built app folder when the site has a members app on its own host, or '' for none."
             },
             "live_app": {
               "type": "string",
-              "description": "The live origin of that app, put where {live_app} is."
+              "description": "The live origin of that app, or '' for none."
             },
             "server_rendered": {
               "type": "string",
-              "description": "Optional: comma-separated path prefixes (such as /articles) whose pages the commit's server code draws from its data, so the built folder holds no file for them, put where {server_rendered} is. Each such kind is listed with checked_here false and is neither refused nor passed; check it on the running commit after the apply. Leave it empty for none."
+              "description": "Optional: comma-separated path prefixes (such as /articles) whose pages the commit's server code draws from its data, so the built folder holds no file for them. Each such kind is listed with checked_here false and is neither refused nor passed; check it on the running commit after the apply. '' for none."
+            },
+            "commit": {
+              "type": "string",
+              "description": "Optional: the full 40-character commit id the build was made from. When given, the pages folder (and the app folder) must have it in their paths, or nothing is checked and the tool exits 2: an older build cannot stand in."
             }
           },
           "required": [
             "pages",
-            "live",
-            "out"
+            "live"
           ]
         },
         "output_schema": {
@@ -61,14 +64,14 @@
             "clone the Workshop repository (package.json repository.url)",
             "install Node 24 and a Chromium-family browser (Chrome, Chromium, Edge or Brave; tools/headless-browser/browser-places.json lists where it is looked for), or name one in BROWSER_EXECUTABLE"
           ],
-          "run": "node tools/check-a-site-build-in-a-browser/do-work/check-site-build.mjs --pages {pages} --live {live} --out {out} --app {app} --live-app {live_app} --server-rendered {server_rendered}",
+          "run": "node tools/check-a-site-build-in-a-browser/do-work/check-site-build.mjs --request {request}",
           "needs": [
             "node",
             "a Chromium-family browser",
             "the built site folder on this computer",
             "internet to the live site"
           ],
-          "say": "This runs on the computer that holds the built site, from the root of the Workshop checkout, before the build is applied. Read the last line it prints. Tell the person each refused page: its kind, the sentences in why, and the two pictures (screenshots.local and screenshots.live). A refused count above 0 means the build must not go live; do not apply it. Name each kind with checked_here false as still to be checked on the running commit. Change nothing in the build yourself."
+          "say": "This runs on the computer that holds the built site, from the root of the Workshop checkout, before the build is applied. Write the input as JSON to a file and put its path where {request} is (a workflow step does this itself). Read the last line it prints. Tell the person each refused page: its kind, the sentences in why, and the two pictures (screenshots.local and screenshots.live). A refused count above 0 means the build must not go live; do not apply it. Name each kind with checked_here false as still to be checked on the running commit. Change nothing in the build yourself."
         },
         "result_selector": "$.result",
         "licence_class": "licence:maker-own",

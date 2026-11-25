@@ -7,6 +7,9 @@
 //
 //   node check-site-build.mjs --pages <built pages folder> --live <live origin> [--app <built app folder> --live-app <live app origin>]
 //     --out <folder for pictures> [--server-rendered </prefix,/prefix>] [--settings <file>] [--browser <chromium executable, or BROWSER_EXECUTABLE>]
+//   node check-site-build.mjs --request <file>   (what a workflow step runs: the file holds the step's input,
+//     {pages, live, out?, app?, live_app?, server_rendered?, commit?}; '' is no value; out defaults to a folder under the
+//     system temporary folder; with commit, each built folder's path must hold that full id, or nothing is checked: exit 2)
 //   Prints one JSON line { result: { refused, pages: [...] } } on standard output (progress goes to standard error); exits 1 when any
 //   page is refused, 0 when none is, 2 when it could not run at all.
 //
@@ -18,6 +21,7 @@
 //      built folder cannot show, so its row says checked_here false and why, is not refused, and is counted in not_checked_here.
 //   4. The build is only read; nothing is written but the pictures.
 import { mkdirSync, readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pageKinds } from './page-kinds.mjs';
@@ -104,8 +108,22 @@ function argumentsOf(argv) {
   return found;
 }
 
+/** The command's arguments from a workflow step's request file: the same names as the flags, '' meaning none. */
+export function argumentsOfRequest(request) {
+  const given = Object.fromEntries(Object.entries(request ?? {}).filter(([, value]) => value !== '' && value !== null && value !== undefined));
+  const prefixes = Array.isArray(given.server_rendered) ? given.server_rendered.join(',') : given.server_rendered;
+  const args = { pages: given.pages, live: given.live, app: given.app, 'live-app': given.live_app, 'server-rendered': prefixes, settings: given.settings, browser: given.browser };
+  if (given.commit !== undefined) {
+    if (!/^[0-9a-f]{40}$/.test(given.commit)) throw new Error(`commit must be a full 40-character commit id, not ${given.commit}`);
+    for (const field of ['pages', 'app']) if (args[field] && !args[field].includes(given.commit)) throw new Error(`the ${field} folder ${args[field]} is not named for commit ${given.commit}`);
+  }
+  args.out = given.out ?? join(tmpdir(), 'check-a-site-build', given.commit ?? new Date().toISOString().replace(/\W/g, ''));
+  return Object.fromEntries(Object.entries(args).filter(([, value]) => value !== undefined));
+}
+
 async function main() {
-  const args = argumentsOf(process.argv.slice(2));
+  const flags = argumentsOf(process.argv.slice(2));
+  const args = flags.request ? argumentsOfRequest(JSON.parse(readFileSync(flags.request, 'utf8'))) : flags;
   if (!args.pages || !args.live || !args.out) {
     process.stderr.write('usage: node check-site-build.mjs --pages DIR --live ORIGIN [--app DIR --live-app ORIGIN] --out DIR [--server-rendered /PREFIX,/PREFIX] [--settings FILE] [--browser EXECUTABLE]\n');
     process.exit(2);
