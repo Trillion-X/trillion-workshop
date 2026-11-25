@@ -12,15 +12,20 @@
 //   engine's door (door.ts) as a caller: the site's own pass for public pages, the member's own pass for members pages.
 //
 //   Settings (one JSON file, made by the computer row; nothing secret in it):
-//     listen         "unix:/run/<unit>/site.sock" or "127.0.0.1:<port>"
+//     listen         "unix:/run/<unit>/site.sock" or "127.0.0.1:<port>"; 127.0.0.1:18440 when left out (a local run)
 //     origin         the site's address, such as https://example.com (canonical addresses, the sitemap)
+//     hosts          (optional) the other host names one unit answers, such as ["app.example.com"]: a request's host is its
+//                    X-Forwarded-Host when the front web server sets it, else its Host; its pages are the rows for that host
+//                    and the rows for every host (pages.ts host); an unknown host is answered as origin's
 //     lang           the pages' language, such as "en"
 //     door           { address, pass_credential }: the engine door, and the name of the site's pass in the unit's credentials
 //     pages          { database, use: { purpose, surface }, refresh_seconds, answer_seconds }: the database holding the
 //                    `pages` and `site_look` tables, the declared use its reads run under (the reader login), how often the rows
 //                    are read again, and how long a public page's tool answer is kept
 //     sign_in        { address, page, issuer, audience, team_claim, members_team }: the site's sign-in tool, the site path a
-//                    visitor is sent to for a members page, and how a member's pass is checked (member-pass.ts)
+//                    visitor is sent to for a members page, and how a member's pass is checked (member-pass.ts);
+//                    signed_out "redirect" (302 to page?next=<address>, when left out) or "draw" (the page row at `page` is
+//                    drawn at the members address itself, 200, private, no-store)
 //     member_files   (optional) member-video.ts's settings, plus `credential`: the name of the store's read key in the unit's
 //                    credentials
 //   Credentials are files of the unit's credentials folder ($CREDENTIALS_DIRECTORY), sealed there by the computer from the vault.
@@ -44,7 +49,7 @@ import { MemberPasses } from './member-pass.ts';
 import type { Member, SignIn } from './member-pass.ts';
 import { memberFileAnswer, memberFilesOf, objectKeyOf, storeKeyOf } from './member-video.ts';
 import type { MemberFiles, StoreKey } from './member-video.ts';
-import { matchPage, pagesOf, pathWith, PAGES_SQL, paramsOf, slugsSql } from './pages.ts';
+import { matchPage, pagesOf, pagesOn, pathWith, PAGES_SQL, paramsOf, slugsSql } from './pages.ts';
 import type { PageRow } from './pages.ts';
 import { pageStyles } from './page-styles.ts';
 import { drawnTreeOf, lookCss, PageBundles, screensOfTools, treeOf, wordsTree } from './render.ts';
@@ -57,10 +62,11 @@ import type { Answer } from './screen-files.ts';
 export interface Settings {
   listen: string;
   origin: string;
+  hosts: string[];
   lang: string;
   door: { address: string; pass_credential: string };
   pages: { database: string; use: { purpose: string; surface: string }; refresh_seconds: number; answer_seconds: number };
-  sign_in: SignIn & { page: string };
+  sign_in: SignIn & { page: string; signed_out: 'redirect' | 'draw' };
   member_files?: MemberFiles & { credential: string };
 }
 
@@ -68,12 +74,16 @@ const RUN_SQL = 'tool:run-sql-in-my-database';
 const LOOK_SQL = 'SELECT name, value FROM site_look ORDER BY name';
 const MOST_KEPT_ANSWERS = 1000;
 const NOT_FOUND = '/404';
+export const LOCAL_LISTEN = '127.0.0.1:18440';
+const HOST_NAME = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
 
 /** Checks a settings file's value; a wrong one throws with what it should be. */
 export function settingsOf(value: unknown): Settings {
-  const s = value as Partial<Settings> | null;
+  const given = value as Partial<Settings> | null;
+  const s = given ? { ...given, listen: given.listen ?? LOCAL_LISTEN, hosts: given.hosts ?? [], sign_in: given.sign_in ? { ...given.sign_in, signed_out: given.sign_in.signed_out ?? 'redirect' } : given.sign_in } : null;
   if (!s || typeof s.listen !== 'string' || !/^(unix:\/.+|[0-9.]+:\d+|\[[0-9a-f:]+\]:\d+)$/i.test(s.listen)) throw new Error('listen is "unix:/path/to.sock" or "host:port".');
   if (typeof s.origin !== 'string' || !/^https?:\/\/[^/]+$/.test(s.origin)) throw new Error('origin is the site\'s address, such as https://example.com.');
+  if (!Array.isArray(s.hosts) || s.hosts.some(host => typeof host !== 'string' || !HOST_NAME.test(host))) throw new Error('hosts lists lower-case host names, such as ["app.example.com"].');
   if (typeof s.lang !== 'string' || !/^[a-z]{2,3}(-[A-Za-z0-9]+)*$/.test(s.lang)) throw new Error('lang is a language tag, such as "en".');
   if (!s.door || typeof s.door.address !== 'string' || typeof s.door.pass_credential !== 'string') throw new Error('door is { address, pass_credential }.');
   const p = s.pages;
@@ -85,6 +95,7 @@ export function settingsOf(value: unknown): Settings {
   if (!i || ['address', 'page', 'issuer', 'audience', 'team_claim', 'members_team'].some(key => typeof (i as unknown as Record<string, unknown>)[key] !== 'string') || !i.page.startsWith('/')) {
     throw new Error('sign_in is { address, page (a site path), issuer, audience, team_claim, members_team }.');
   }
+  if (i.signed_out !== 'redirect' && i.signed_out !== 'draw') throw new Error('sign_in.signed_out is "redirect" or "draw".');
   if (s.member_files !== undefined) {
     memberFilesOf(s.member_files);
     if (typeof s.member_files.credential !== 'string') throw new Error('member_files.credential names the store\'s read key in the unit\'s credentials.');
@@ -175,30 +186,44 @@ export class Site {
     return answer;
   }
 
-  async #document(title: string, pathname: string, tree: DrawnNode): Promise<string> {
-    const bundle = await this.#parts.bundles.bundleFor(modulesOf(tree));
-    const { lang, origin } = this.#parts.settings;
-    return bundle.html({ lang, title, canonical: `${origin}${pathname}`, look: this.#look }, tree);
+  /** The host a request is for: one the site answers, else origin's. */
+  hostOf(forwarded: string | undefined, host: string | undefined): string {
+    const { origin, hosts } = this.#parts.settings;
+    const asked = (forwarded ?? host ?? '').split(',')[0].trim().toLowerCase().replace(/:\d+$/, '');
+    const own = new URL(origin).hostname;
+    return asked === own || hosts.includes(asked) ? asked : own;
   }
 
-  async #words(status: number, heading: string, words: string, pathname: string): Promise<Answer> {
-    const body = await this.#document(heading, pathname, wordsTree(heading, words));
+  #originOf(host: string): string {
+    return `${new URL(this.#parts.settings.origin).protocol}//${host}`;
+  }
+
+  async #document(title: string, host: string, pathname: string, tree: DrawnNode): Promise<string> {
+    const bundle = await this.#parts.bundles.bundleFor(modulesOf(tree));
+    return bundle.html({ lang: this.#parts.settings.lang, title, canonical: `${this.#originOf(host)}${pathname}`, look: this.#look }, tree);
+  }
+
+  async #drawn(page: PageRow, params: Record<string, string>, host: string, pathname: string, run: (call: ToolRun) => Promise<unknown>, status: number, cache: string): Promise<Answer> {
+    const { drawn, timed } = await drawnTreeOf(treeOf(page, params), this.#parts.screens, run);
+    const body = await this.#document(page.title, host, pathname, drawn);
+    return { status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': cache, 'server-timing': serverTiming(timed) }, body };
+  }
+
+  async #words(status: number, heading: string, words: string, host: string, pathname: string): Promise<Answer> {
+    const body = await this.#document(heading, host, pathname, wordsTree(heading, words));
     return { status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }, body };
   }
 
-  async #notFound(pathname: string): Promise<Answer> {
-    const page = this.#pages.find(row => row.path === NOT_FOUND && row.access === 'public');
-    if (page) {
-      const drawn = await drawnTreeOf(treeOf(page, {}), this.#parts.screens, call => this.#publicRun(call));
-      return { status: 404, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }, body: await this.#document(page.title, pathname, drawn.drawn) };
-    }
-    return this.#words(404, 'Not found', 'There is no page at this address.', pathname);
+  async #notFound(pages: PageRow[], host: string, pathname: string): Promise<Answer> {
+    const page = pages.find(row => row.path === NOT_FOUND && row.access === 'public');
+    if (page) return this.#drawn(page, {}, host, pathname, call => this.#publicRun(call), 404, 'no-store');
+    return this.#words(404, 'Not found', 'There is no page at this address.', host, pathname);
   }
 
-  async #sitemap(): Promise<Answer> {
-    const { origin } = this.#parts.settings;
+  async #sitemap(pages: PageRow[], host: string): Promise<Answer> {
+    const origin = this.#originOf(host);
     const entries: { loc: string; lastmod: string | null }[] = [];
-    for (const page of this.#pages.filter(row => row.access === 'public' && row.path !== NOT_FOUND)) {
+    for (const page of pages.filter(row => row.access === 'public' && row.path !== NOT_FOUND)) {
       const names = paramsOf(page.path);
       if (!names.length) { entries.push({ loc: `${origin}${page.path}`, lastmod: page.updated_at }); continue; }
       if (names.length !== 1 || !page.collection) continue;
@@ -211,8 +236,8 @@ export class Site {
     return { status: 200, headers: { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=300' }, body };
   }
 
-  /** The answer for one request: its method, its address (path and query) and its cookie. */
-  async answer(method: string, address: string, cookie: string | undefined): Promise<Answer> {
+  /** The answer for one request: its method, its address (path and query), its cookie and its host (hostOf). */
+  async answer(method: string, address: string, cookie: string | undefined, host = this.hostOf(undefined, undefined)): Promise<Answer> {
     const url = new URL(address, 'http://site.invalid');
     const pathname = url.pathname;
     if (method !== 'GET' && method !== 'HEAD') return { status: 405, headers: { allow: 'GET, HEAD', 'content-type': 'text/plain; charset=utf-8' }, body: 'This address answers GET and HEAD.\n' };
@@ -225,31 +250,28 @@ export class Site {
       if (!key || !this.#parts.storeKey) return { status: 404, headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'private, no-store' }, body: 'No such file.\n' };
       return memberFileAnswer(memberFiles, this.#parts.storeKey, key, await this.#parts.passes.memberOfCookie(cookie));
     }
+    const pages = pagesOn(this.#pages, host);
     try {
-      if (pathname === '/sitemap.xml') return await this.#sitemap();
-      const matched = matchPage(this.#pages, pathname);
-      if (!matched || matched.page.path === NOT_FOUND) return await this.#notFound(pathname);
+      if (pathname === '/sitemap.xml') return await this.#sitemap(pages, host);
+      const matched = matchPage(pages, pathname);
+      if (!matched || matched.page.path === NOT_FOUND) return await this.#notFound(pages, host, pathname);
       const { page, params } = matched;
-      let run = (call: ToolRun) => this.#publicRun(call);
-      let cache = 'public, max-age=0, must-revalidate';
-      if (page.access === 'members') {
-        const member = await this.#parts.passes.memberOfCookie(cookie);
-        if (!member) {
-          const next = `${url.pathname}${url.search}`;
-          return { status: 302, headers: { location: `${this.#parts.settings.sign_in.page}?${new URLSearchParams({ next })}`, 'cache-control': 'private, no-store' }, body: '' };
-        }
-        run = call => this.#parts.run(member.pass, call);
-        cache = 'private, no-store';
+      if (page.access === 'public') return await this.#drawn(page, params, host, pathname, call => this.#publicRun(call), 200, 'public, max-age=0, must-revalidate');
+      const member = await this.#parts.passes.memberOfCookie(cookie);
+      if (member) return await this.#drawn(page, params, host, pathname, call => this.#parts.run(member.pass, call), 200, 'private, no-store');
+      const signIn = this.#parts.settings.sign_in;
+      const drawnSignIn = signIn.signed_out === 'draw' ? matchPage(pages, signIn.page) : null;
+      if (drawnSignIn && drawnSignIn.page.access === 'public') {
+        return await this.#drawn(drawnSignIn.page, drawnSignIn.params, host, pathname, call => this.#publicRun(call), 200, 'private, no-store');
       }
-      const { drawn, timed } = await drawnTreeOf(treeOf(page, params), this.#parts.screens, run);
-      const body = await this.#document(page.title, pathname, drawn);
-      return { status: 200, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': cache, 'server-timing': serverTiming(timed) }, body };
+      const next = `${url.pathname}${url.search}`;
+      return { status: 302, headers: { location: `${signIn.page}?${new URLSearchParams({ next })}`, 'cache-control': 'private, no-store' }, body: '' };
     } catch (error) {
       const status = error instanceof DoorError && error.status === 403 ? 403 : 502;
       this.#log(`${method} ${pathname}: ${(error as Error).message}`);
       return status === 403
-        ? this.#words(403, 'Not open to you', 'This page is not open to the account you are signed in with.', pathname)
-        : this.#words(502, 'This page could not be drawn', 'Something this page reads did not answer. Try again in a minute.', pathname);
+        ? this.#words(403, 'Not open to you', 'This page is not open to the account you are signed in with.', host, pathname)
+        : this.#words(502, 'This page could not be drawn', 'Something this page reads did not answer. Try again in a minute.', host, pathname);
     }
   }
 }
@@ -262,7 +284,8 @@ export function serverTiming(timed: Timed[]): string {
 /** The program's node:http handler over a site. */
 export function handlerOf(site: Site): http.RequestListener {
   return (request, response) => {
-    site.answer(request.method ?? 'GET', request.url ?? '/', request.headers.cookie)
+    const forwarded = request.headers['x-forwarded-host'];
+    site.answer(request.method ?? 'GET', request.url ?? '/', request.headers.cookie, site.hostOf(Array.isArray(forwarded) ? forwarded[0] : forwarded, request.headers.host))
       .then(answer => {
         response.writeHead(answer.status, { 'x-content-type-options': 'nosniff', ...answer.headers });
         response.end(request.method === 'HEAD' ? undefined : answer.body);

@@ -40,6 +40,8 @@ test('a row that breaks a rule is refused with its path and why', () => {
   ];
   for (const [bad, why] of cases) assert.throws(() => pageOf(bad), why, JSON.stringify(bad));
   assert.throws(() => pagesOf([row({ path: '/c/:a' }), row({ path: '/c/:b' })]), /same address pattern/);
+  assert.equal(pagesOf([row({ path: '/c' }), row({ path: '/c', host: 'app.example.test' })]).length, 2, 'one address may have a row per host');
+  assert.throws(() => pageOf(row({ path: '/c', host: 'App Example' })), /host is/);
 });
 
 test('a layout keeps its parts, tool screens, main node and words as given', () => {

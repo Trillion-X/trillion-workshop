@@ -14,6 +14,7 @@
 //     input       that tool's input; a string value ":name" takes the path's value for :name
 //     collection  for a template page: the table of the same database whose `slug` column lists its addresses (the sitemap)
 //     updated_at  when the row last changed (the sitemap's lastmod)
+//     host        the one host name the page answers on, or null for every host the site answers
 //
 //   A layout node is one of:
 //     { "part": "<folder under tools>/show/.../<File>.tsx", "export": "<Name>", "props": {...}, "children": [node...] }
@@ -47,6 +48,7 @@ export interface PageRow {
   input: unknown;
   collection: string | null;
   updated_at: string | null;
+  host: string | null;
 }
 
 export interface Matched {
@@ -61,9 +63,10 @@ const EXPORT_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const TOOL_ID = /^tool:[a-z0-9][a-z0-9-]*$/;
 const PATH_PART = /^(?::[a-z_][a-z0-9_]*|[A-Za-z0-9._~-]+)$/;
 const TABLE = /^[a-z_][a-z0-9_]*$/;
+const HOST = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
 
 /** The SQL that reads every page row, with the columns this file reads, in one statement. */
-export const PAGES_SQL = 'SELECT path, title, access, layout, tool, input, collection, updated_at::text AS updated_at FROM pages ORDER BY path';
+export const PAGES_SQL = 'SELECT path, title, access, layout, tool, input, collection, updated_at::text AS updated_at, host FROM pages ORDER BY path, host NULLS LAST';
 
 function checkNode(node: unknown, where: string, hasTool: boolean): LayoutNode {
   const n = node as Record<string, unknown> | null;
@@ -105,6 +108,8 @@ export function pageOf(row: Record<string, unknown>): PageRow {
   if (tool === null && (row.layout === null || row.layout === undefined)) throw new PageRowError(`${where}: a page has a layout, a tool, or both.`);
   const collection = row.collection ?? null;
   if (collection !== null && (typeof collection !== 'string' || !TABLE.test(collection))) throw new PageRowError(`${where}: collection is a table name or null.`);
+  const host = row.host ?? null;
+  if (host !== null && (typeof host !== 'string' || !HOST.test(host))) throw new PageRowError(`${where}: host is a lower-case host name or null.`);
   const params = paramsOf(path);
   for (const name of placeholdersIn(row.input)) {
     if (!params.includes(name)) throw new PageRowError(`${where}: input names ":${name}", which the path does not hold.`);
@@ -118,6 +123,7 @@ export function pageOf(row: Record<string, unknown>): PageRow {
     input: row.input ?? {},
     collection: collection as string | null,
     updated_at: typeof row.updated_at === 'string' ? row.updated_at : null,
+    host: host as string | null,
   };
 }
 
@@ -126,8 +132,8 @@ export function pagesOf(rows: Record<string, unknown>[]): PageRow[] {
   const pages = rows.map(pageOf);
   const seen = new Set<string>();
   for (const page of pages) {
-    const shape = page.path.replace(/:[a-z_][a-z0-9_]*/g, ':');
-    if (seen.has(shape)) throw new PageRowError(`page ${page.path}: another row has the same address pattern.`);
+    const shape = `${page.host ?? '*'} ${page.path.replace(/:[a-z_][a-z0-9_]*/g, ':')}`;
+    if (seen.has(shape)) throw new PageRowError(`page ${page.path}: another row has the same address pattern on the same host.`);
     seen.add(shape);
   }
   return pages;
@@ -150,6 +156,13 @@ export function filledInput(input: unknown, params: Record<string, string>): unk
   if (Array.isArray(input)) return input.map(item => filledInput(item, params));
   if (input && typeof input === 'object') return Object.fromEntries(Object.entries(input).map(([key, value]) => [key, filledInput(value, params)]));
   return input;
+}
+
+/** The pages one host answers: its own rows, and the rows for every host whose address it has no own row for. */
+export function pagesOn(pages: PageRow[], host: string): PageRow[] {
+  const own = pages.filter(page => page.host === host);
+  const taken = new Set(own.map(page => page.path));
+  return [...own, ...pages.filter(page => page.host === null && !taken.has(page.path))];
 }
 
 /** The page a path is, and the values of its ":name" parts; a literal part beats a ":name" part. */

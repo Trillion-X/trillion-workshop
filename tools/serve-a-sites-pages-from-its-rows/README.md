@@ -11,6 +11,9 @@ cd tools/serve-a-sites-pages-from-its-rows
 CREDENTIALS_DIRECTORY=/path/to/the/units/credentials node do-work/serve.ts /path/to/settings.json
 ```
 
+With no `listen` in the settings it listens on `127.0.0.1:18440` (a local run); then
+`curl -H 'X-Forwarded-Host: example.com' http://127.0.0.1:18440/sitemap.xml` reads it as the front web server would.
+
 On a computer it is a unit its computer row starts (`tool:start-a-computer`), behind the computer's front web server; the unit's
 credentials folder is where the computer seals the site's door pass and the files store's read key. It needs Node 26.13 or newer
 (TypeScript runs as it is, with no build) and the Workshop's packages (`npm ci` at the Workshop's top folder).
@@ -23,7 +26,12 @@ credentials folder is where the computer seals the site's door pass and the file
 | `<member_files.path><key>` | for a member: 302 to a presigned GET of that key; for anyone else: 403; always `private, no-store` |
 | `/sitemap.xml` | every public page address; a template page lists one address per `slug` of its collection |
 | a page row's address | the page, drawn on the server; a members page only for a member, sent `private, no-store` |
+| a members address, signed out | `sign_in.signed_out: "redirect"`: 302 to `sign_in.page?next=<address>`; `"draw"`: the page row at `sign_in.page`, drawn at that address, 200 |
 | anything else | the page row `/404`, or plain words, with status 404 |
+
+One unit answers every host in `origin` and `hosts`: a request's host is its `X-Forwarded-Host` when the front web server sets
+it, else its `Host`; any other host is answered as `origin`'s. Canonical addresses and the sitemap use the request's host. The
+page's mount is `#root`.
 
 A tool that fails draws a 502 page of plain words; the door refusing a member draws 403. Each page's tool runs are timed in its
 `Server-Timing` header.
@@ -46,6 +54,7 @@ the last good set stays served.
 | `input` | jsonb: that tool's input; a string `":slug"` takes the path's value |
 | `collection` | the table whose `slug` column lists a template page's addresses (the sitemap) |
 | `updated_at` | when the row changed (the sitemap's lastmod) |
+| `host` | the one host the page answers on, or null for every host; a host's own row wins over a row for every host |
 
 A layout node is one of:
 
@@ -68,10 +77,11 @@ site's rows win. A value holding `; { } < >` or a backslash refuses the set.
 {
   "listen": "unix:/run/site/site.sock",
   "origin": "https://example.com",
+  "hosts": ["app.example.com"],
   "lang": "en",
   "door": { "address": "unix:/run/engine/door.sock", "pass_credential": "site-door-pass" },
   "pages": { "database": "a_site_for_who_uses_it", "use": { "purpose": "serve the site", "surface": "site pages" }, "refresh_seconds": 60, "answer_seconds": 60 },
-  "sign_in": { "address": "unix:/run/sign-in/sign-in.sock", "page": "/sign-in", "issuer": "https://example.com", "audience": "https://example.com", "team_claim": "team_ids", "members_team": "<team id>" },
+  "sign_in": { "address": "unix:/run/sign-in/sign-in.sock", "page": "/sign-in", "issuer": "https://example.com", "audience": "https://example.com", "team_claim": "team_ids", "members_team": "<team id>", "signed_out": "redirect" },
   "member_files": { "path": "/member-files/", "endpoint": "https://s3.us-west-004.backblazeb2.com", "region": "us-west-004", "bucket": "<bucket>", "style": "path", "prefixes": ["lessons/"], "link_seconds": 21600, "credential": "member-files-read-key" }
 }
 ```

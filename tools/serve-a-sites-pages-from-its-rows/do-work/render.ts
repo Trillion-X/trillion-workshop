@@ -62,7 +62,9 @@ export interface PageBundle {
 const HERE = import.meta.dirname;
 const LAYOUT = join(HERE, 'render-layout.ts');
 const DOCUMENT = join(HERE, '..', 'show', 'PageDocument.tsx');
-export const MOUNT = 'page';
+// The mount's id: `root`, the id the shared page shell gives its mount (ui/show/server-rendered-page), so a site's checks that
+// read `#root` read the same element on every page.
+export const MOUNT = 'root';
 
 /** Words drawn with the shared Text part, for a page of plain words (not found, refused, not reachable). */
 export const TEXT_PART = 'ui/show/text/Text.tsx#Text';

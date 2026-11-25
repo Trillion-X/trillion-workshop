@@ -21,6 +21,8 @@ const PAGES = [
   { path: '/', title: 'Home', access: 'public', tool: null, input: {}, collection: null, updated_at: '2026-11-20 10:00:00+00', layout: { part: TEXT, export: 'Text', props: { as: 'main' }, children: [{ text: 'Welcome' }, { tool: 'tool:read-a-greeting', input: { who: 'everyone' } }] } },
   { path: '/notes/:slug', title: 'A note', access: 'public', tool: 'tool:read-a-greeting', input: { who: ':slug' }, collection: 'notes', updated_at: '2026-11-21 10:00:00+00', layout: null },
   { path: '/members', title: 'Members', access: 'members', tool: 'tool:read-a-greeting', input: { who: 'member' }, collection: null, updated_at: null, layout: null },
+  { path: '/', title: 'App home', access: 'public', tool: 'tool:read-a-greeting', input: { who: 'the app' }, collection: null, updated_at: null, layout: null, host: 'app.site.example.test' },
+  { path: '/sign-in', title: 'Sign in', access: 'public', tool: 'tool:read-a-greeting', input: { who: 'a visitor, please sign in' }, collection: null, updated_at: null, layout: null },
   { path: '/broken', title: 'Broken', access: 'public', tool: 'tool:fails', input: {}, collection: null, updated_at: null, layout: null },
 ];
 
@@ -53,11 +55,12 @@ async function door() {
   return { server, calls, address: `http://127.0.0.1:${(server.address() as AddressInfo).port}` };
 }
 
-const settings = (address: string): Settings => settingsOf({
-  listen: '127.0.0.1:0', origin: 'https://site.example.test', lang: 'en',
+const settings = (address: string, more: Record<string, unknown> = {}): Settings => settingsOf({
+  listen: '127.0.0.1:0', hosts: ['app.site.example.test'], origin: 'https://site.example.test', lang: 'en',
   door: { address, pass_credential: 'site-door-pass' },
   pages: { database: 'a_site_for_who_uses_it', use: { purpose: 'serve the site', surface: 'site pages' }, refresh_seconds: 60, answer_seconds: 60 },
   sign_in: { address: 'http://127.0.0.1:1', page: '/sign-in', issuer: 'https://sign-in.example.test', audience: 'https://site.example.test', team_claim: 'team_ids', members_team: 'team-members' },
+  ...more,
 });
 
 // One kept set of screen files, as one program keeps: the looks' fonts are kept once when the styles are read.
@@ -65,9 +68,9 @@ const files = new ScreenFiles();
 let styles: Awaited<ReturnType<typeof pageStyles>>;
 test.before(async () => { styles = await pageStyles(tools, files); });
 
-async function siteOn(address: string) {
+async function siteOn(address: string, more: Record<string, unknown> = {}) {
   const site = new Site({
-    settings: settings(address), tools,
+    settings: settings(address, more), tools,
     run: (pass, call) => runTool({ address }, pass, call),
     sitePass: 'the-site-pass',
     passes: { memberOfCookie: async cookie => cookie === 'session=member' ? { pass: 'the-member-pass', subject: 'user-1', teams: ['team-members'] } : null },
@@ -185,4 +188,45 @@ test('settings that are not a site are refused with what they should be', () => 
   assert.throws(() => settingsOf({ ...good, pages: { ...good.pages, use: undefined } }), /pages is/);
   assert.throws(() => settingsOf({ ...good, sign_in: { ...good.sign_in, page: 'sign-in' } }), /sign_in/);
   assert.equal(serverTiming([{ tool: 'tool:a"b', ms: 5 }]), 'run0;dur=5;desc="tool:ab"');
+});
+
+test('one unit answers each of its hosts by X-Forwarded-Host, else Host; a host\'s own row wins, an unknown host is origin\'s', async () => {
+  const d = await door();
+  const site = await siteOn(d.address);
+  const server = http.createServer(handlerOf(site));
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const at = `http://127.0.0.1:${(server.address() as AddressInfo).port}/`;
+    const app = await (await fetch(at, { headers: { 'x-forwarded-host': 'app.site.example.test' } })).text();
+    assert.match(app, /Hello, the app/);
+    assert.match(app, /<link rel="canonical" href="https:\/\/app.site.example.test\/"\/>/);
+    assert.match(app, /id="root"/, 'the mount is #root');
+    const main = await (await fetch(at, { headers: { 'x-forwarded-host': 'site.example.test' } })).text();
+    assert.match(main, /Hello, everyone/);
+    assert.equal(site.hostOf(undefined, 'APP.site.example.test:443'), 'app.site.example.test');
+    assert.equal(site.hostOf(undefined, 'elsewhere.example.test'), 'site.example.test');
+    assert.match(String((await site.answer('GET', '/notes/first', undefined, 'app.site.example.test')).body), /Hello, first/, 'a row for every host answers on each');
+    assert.match(String((await site.answer('GET', '/sitemap.xml', undefined, 'app.site.example.test')).body), /<loc>https:\/\/app.site.example.test\/<\/loc>/);
+  } finally { server.close(); d.server.close(); }
+});
+
+test('with signed_out "draw", a members address draws the sign-in page row in place, 200, private, no-store', async () => {
+  const d = await door();
+  try {
+    const site = await siteOn(d.address, { sign_in: { ...settings('x').sign_in, signed_out: 'draw' } });
+    const page = await site.answer('GET', '/members', undefined);
+    assert.equal(page.status, 200);
+    assert.equal(page.headers['cache-control'], 'private, no-store');
+    assert.match(String(page.body), /Hello, a visitor, please sign in/);
+    assert.match(String(page.body), /<link rel="canonical" href="https:\/\/site.example.test\/members"\/>/);
+    assert.match(String((await site.answer('GET', '/members', 'session=member')).body), /Hello, member/);
+  } finally { d.server.close(); }
+});
+
+test('a local run with no listen setting listens on 127.0.0.1:18440', () => {
+  const { listen, ...rest } = settings('http://127.0.0.1:1');
+  assert.equal(listen, '127.0.0.1:0');
+  assert.equal(settingsOf(rest).listen, '127.0.0.1:18440');
+  assert.throws(() => settingsOf({ ...rest, hosts: ['Not A Host'] }), /hosts/);
+  assert.throws(() => settingsOf({ ...rest, sign_in: { ...rest.sign_in, signed_out: 'maybe' } }), /signed_out/);
 });
