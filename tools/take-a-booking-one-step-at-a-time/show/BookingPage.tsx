@@ -139,7 +139,7 @@ export function View({ page, title, timezone, duration_minutes, questions, words
     },
   });
   const startWith = async (email: string) => {
-    const started = await call<{ attemptId: string; next: Next; form: Definition }>(api_base, 'book.start', words.failed, { page, email });
+    const started = await call<{ attemptId: string; next: Next; form?: Definition }>(api_base, 'book.start', words.failed, { page, email });
     attempt.current = started.attemptId;
     asking.begin(started.form);
     await asking.goTo(started.next);

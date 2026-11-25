@@ -108,14 +108,14 @@ export function View({ page, title = null, words, questions, keep_on = null, sig
   }, [api_base, sittingKey, failed]);
 
   const start = () => run(async () => {
-    const started = await call<{ attemptId: string; next: Next; form: Definition }>(api_base, 'form.start', failed, { page });
+    const started = await call<{ attemptId: string; next: Next; form?: Definition }>(api_base, 'form.start', failed, { page });
     attempt.current = started.attemptId;
     localStorage.setItem(sittingKey, started.attemptId);
     asking.begin(started.form);
     await asking.goTo(started.next);
   });
   const resume = () => run(async () => {
-    const where = await call<{ next: Next | null; form: Definition }>(api_base, 'form.next', failed, { attemptId: attempt.current });
+    const where = await call<{ next: Next | null; form?: Definition }>(api_base, 'form.next', failed, { attemptId: attempt.current });
     asking.begin(where.form);
     await asking.goTo(where.next);
   });

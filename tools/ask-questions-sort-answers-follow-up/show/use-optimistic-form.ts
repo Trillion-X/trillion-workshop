@@ -11,7 +11,9 @@
 //   1. Nothing is fetched while rendering: the calls are made from a press, and the page-closing listeners are added in an effect.
 //   2. The route that takes an answer is the screen's own (`answerStep`, e.g. `form.answer`); it takes one answer with the question
 //      it is for, and the list of answers (`answers`) a closing page still holds.
-//   3. A refusal never repeats a question's wording from memory: the question is drawn as it was last drawn (the server may have
+//   3. A site whose step routes answer no `form` (the program behind it is an older one) is asked one answer at a time: the
+//      screen waits for each answer's reply and draws the question it names, as it always did; nothing here assumes `form`.
+//   4. A refusal never repeats a question's wording from memory: the question is drawn as it was last drawn (the server may have
 //      worded it from an earlier answer), else as the form first drew it.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
@@ -50,10 +52,16 @@ export function useOptimisticForm({ api_base, answerStep, failed, attempt, ui }:
     live.current.setError(refused.message);
     live.current.setSending(false);
   };
-  /** Holds the form the step tool handed over; call it when a sitting starts or is taken up again. */
-  const begin = (form: Definition) => {
-    definition.current = form;
+  /** Holds the form the step tool handed over; call it when a sitting starts or is taken up again. Without a form (the routes
+   *  answer only the next step) the questions are asked one answer at a time. */
+  const begin = (form?: Definition | null) => {
     shown.current.clear();
+    if (!form || !Array.isArray(form.questions)) {
+      definition.current = null;
+      optimistic.current = null;
+      return;
+    }
+    definition.current = form;
     optimistic.current = createRun({
       definition: form,
       onRefused: goBack,
@@ -75,8 +83,17 @@ export function useOptimisticForm({ api_base, answerStep, failed, attempt, ui }:
   /** The visitor's answer to the question drawn now. */
   const send = (current: Asked | undefined, given: Answer) => {
     const asked = optimistic.current;
-    if (!current || !asked) return;
+    if (!current) return;
     live.current.setError('');
+    if (!asked) {
+      // No form was handed over: one answer, wait for its reply, draw the step it names.
+      live.current.setSending(true);
+      void callStep<Sent>(api_base, answerStep, failed, { attemptId: attempt.current, value: given ?? '' })
+        .then(sent => goTo(sent.next))
+        .catch(caught => live.current.setError(caught instanceof Error && caught.message ? caught.message : failed))
+        .finally(() => live.current.setSending(false));
+      return;
+    }
     const answered = asked.answer(asked.placeOf(current.questionId), given ?? '');
     if (answered.kind === 'invalid') live.current.setError(answered.message);
     else if (answered.kind === 'advance') show(answered.next);
