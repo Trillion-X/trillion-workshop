@@ -12,6 +12,7 @@ import { hostingProviders, currentDoor } from '../read-data/public-door-rows.mjs
 import { keptReceipts, receiptStore } from '../read-data/door-receipts.mjs';
 import { at, providerClient, rentMachine, releaseMachine } from '../../start-a-computer/do-work/rent-a-machine.mjs';
 import { dnsClient, prepareCutover, changeCutover, readCutover, keepHealthyRecords, probeHealthy } from './portable-dns-cutover.mjs';
+import { isDeepStrictEqual } from 'node:util';
 
 /** The variables the rows mount the provider's key under: one for a host's hosting row, one for a name's DNS row. */
 export const HOSTING_KEY = 'HOSTING_API_TOKEN', DNS_KEY = 'DNS_API_TOKEN';
@@ -92,7 +93,8 @@ export async function stepACutover(input) {
     const request = { name: run.tool.slice(run.tool.indexOf('/') + 1), arguments: run.input };
     if (used === transcript.length) throw NEEDS_ANSWER(request);
     const kept = transcript[used];
-    if (JSON.stringify(kept?.request) !== JSON.stringify(request)) throw Object.assign(new Error(`Kept answer ${used + 1} was for another request; these answers belong to another cut-over, so start the run again.`), { from_a_step: true });
+    // Compared as values, not as text: a workflow engine hands a kept object back with its keys in its own order.
+    if (!isDeepStrictEqual(kept?.request, request)) throw Object.assign(new Error(`Kept answer ${used + 1} was for another request; these answers belong to another cut-over, so start the run again.`), { from_a_step: true });
     used += 1;
     return kept.answer;
   };

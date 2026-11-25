@@ -131,7 +131,9 @@ test('stepped the way the workflow passes it on (each answer joined through add,
     for (let pass = 0; turn.more && pass < 60; pass += 1) {
       assert.equal(turn.done, false);
       const answer = await steps.call({ address: provider.base, tool: `mcp.namecheap.com/${turn.next.name}`, input: turn.next.arguments });
-      turn = await stepACutover({ action: 'step', cutover, hostname: host, address: ROW, dns: provider, receipt, transcript: turn.transcript, add: { request: turn.next, answer } });
+      // A workflow engine hands objects back with their keys sorted, so the kept request comes back reordered.
+      const sorted = value => (Array.isArray(value) ? value.map(sorted) : value && typeof value === 'object' ? Object.fromEntries(Object.keys(value).sort().map(key => [key, sorted(value[key])])) : value);
+      turn = await stepACutover({ action: 'step', cutover, hostname: host, address: ROW, dns: provider, receipt, transcript: sorted(turn.transcript), add: sorted({ request: turn.next, answer }) });
     }
     assert.equal(turn.done, true);
     return turn.answer;
