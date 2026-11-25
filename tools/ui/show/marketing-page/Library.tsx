@@ -31,6 +31,8 @@ export type LibraryEntry = {
   duration?: string;
   /** A picture of the entry. */
   still?: string;
+  /** A larger picture for the large preview; the still when absent. */
+  large?: string;
   /** A video of the entry; the large preview plays it. */
   video?: string;
 };
@@ -77,7 +79,7 @@ export function View({ intro, tabs, entries, selectedTab, selectedId, browserTit
         <Text as="div" className={styles.browserBody}>
           <Text as="div" className={styles.mainPreview} data-library-preview={chosen?.id}>
             {chosen?.video ? <MediaFrame url={chosen.video} mediaType="video/mp4" label={chosen.title} className={styles.previewMedia} fill autoPlay muted loop playsInline poster={chosen.still} />
-              : chosen?.still ? <MediaFrame url={chosen.still} mediaType="image/jpeg" label={chosen.title} className={styles.previewMedia} fill /> : null}
+              : chosen?.still ? <MediaFrame url={chosen.large ?? chosen.still} mediaType="image/jpeg" label={chosen.title} className={styles.previewMedia} fill /> : null}
             {chosen ? (
               <Text as="div" className={styles.previewCopy}>
                 <Text as="strong">{chosen.title}</Text>
