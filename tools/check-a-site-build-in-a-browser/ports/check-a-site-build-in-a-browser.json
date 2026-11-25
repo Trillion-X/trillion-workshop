@@ -1,0 +1,57 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHECK-A-SITE-BUILD-IN-A-BROWSER",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "team lead brief to the site deploy builder, Nov 24 2026 (two broken site builds went live with every server-side check green)",
+  "quote": "Build a Workshop tool that checks every page kind of a site build in Chromium against the live site and refuses (non-zero) on regressions"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "open each page kind of a built site in a browser beside the live site and refuse the build when a page is blank, throws a new page error or reads in a serif font where the live page does not",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/check-a-site-build-in-a-browser/do-work/check-site-build.mjs"
+  },
+  {
+   "path": "tools/check-a-site-build-in-a-browser/do-work/judge.mjs"
+  },
+  {
+   "path": "tools/check-a-site-build-in-a-browser/do-work/measure-page.mjs"
+  },
+  {
+   "path": "tools/check-a-site-build-in-a-browser/do-work/page-kinds.mjs"
+  },
+  {
+   "path": "tools/check-a-site-build-in-a-browser/do-work/serve-build.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "proof": {
+  "search": {
+   "phrasings": [
+    "check every page kind of a site build in a browser against the live site",
+    "refuse a site build whose page is blank or throws a page error",
+    "serve a built site folder locally and pass data calls to the live site"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "pageKinds",
+    "serveBuild",
+    "serif_where_live_is_not"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "8325a07fc44b9986ba00a5494cd18f72b956fed2"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/check-a-site-build-in-a-browser/test/check-site-build.test.mjs"
+  ]
+ }
+}

@@ -1,0 +1,39 @@
+{
+  "start_here": "Say to your AI: \"Before you apply this site build, check every kind of page in a browser against the live site.\" It runs tool:check-a-site-build-in-a-browser on the built folder and tells you each page it refuses, with the reason and the two pictures.",
+  "lists": [],
+  "no_lists_because": "It keeps nothing: it reads a built folder and the live site and answers what it measured, with pictures in the folder you name.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-site-build-in-a-browser"
+  ],
+  "instructions": [
+    "1. Find the built pages folder (and the app folder when the site has a members app) and the live origins.",
+    "2. Run the row's command from the Workshop checkout on the computer that holds the build, with --pages, --live and --out (and --app and --live-app).",
+    "3. Read the last line: refused is the number of pages not to go live. Exit code 1 means a page is refused, 0 means none is, 2 means it could not run.",
+    "4. For each refused page tell the person its kind, the sentences in why and the pictures; do not apply the build."
+  ],
+  "worked_examples": [
+    {
+      "title": "A course page that draws blank",
+      "ask": "Check this build before it goes live.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-site-build-in-a-browser",
+            "input": {
+              "pages": "/Users/example/build/public",
+              "live": "https://live.example",
+              "out": "/Users/example/build/gate-pictures"
+            }
+          }
+        }
+      },
+      "given": "A built folder whose /courses/<slug> page throws a toUpperCase page error and draws nothing, against a live course page 3,490 px tall.",
+      "hands_back": "{\"result\":{\"refused\":1,\"pages\":[{\"kind\":\"/courses/*\",\"refused\":true,\"why\":[\"the built page is 900 px tall, 0.258 of the live page's 3490 px (refused under 0.5)\",\"the built page threw 1 error(s) the live page did not: [\\\"TypeError: Cannot read properties of undefined (reading 'toUpperCase')\\\"]\"]}]}}"
+    }
+  ],
+  "drafted_from": "tools/check-a-site-build-in-a-browser/tool-rows.json and its tests"
+}

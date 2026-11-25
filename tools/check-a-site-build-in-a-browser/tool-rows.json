@@ -1,0 +1,81 @@
+{
+  "kind": "tool-rows",
+  "record_set": "check-a-site-build-in-a-browser-tool-rows",
+  "what_this_is": "The Workshop row for the check-a-site-build-in-a-browser folder: a program a site deploy runs on the computer that holds the built site, before it applies a commit.",
+  "records": [
+    {
+      "id": "package::check-a-site-build-in-a-browser::tool::check-a-site-build-in-a-browser",
+      "address": "package::check-a-site-build-in-a-browser::tool::check-a-site-build-in-a-browser",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-a-site-build-in-a-browser",
+        "label": "Check every page kind of a site build in a browser against the live site (runs on your computer)",
+        "status": "active",
+        "job": "Before I put a new build of my site live, open each kind of page in a real browser beside the live site and refuse the build if a page is blank, throws an error the live page does not, or shows its text in a serif font where the live page does not",
+        "description": "Reads a built site folder (its pages folder, and its app folder when it has one) and the live origins. It serves the built pages on 127.0.0.1 the way the front door does (a path is its file, its folder's index.html or its .html file) and passes data calls (paths under /target/) to the live site with no query added and with Referer and Origin naming the live host. The page kinds are read from the site's own lists: the locs of its sitemap.xml grouped by path shape (a path of one segment is its own kind; /courses/yoga and /courses/tennis are kind /courses/*), plus the top-level .html pages of the folder the sitemap leaves out, plus the app folder's. One page stands for each kind. Each is opened from the build and from the live site in a headless Chromium (1440 wide, after its load event and a few seconds for scripts to draw) and measured: full height, every page error, the computed font-family of the first #root p, and the visible text length. A page is refused when its height is under half the live page's, when it threw an error the live page did not, or when its reading font is a serif default (Times, Times New Roman, serif) where the live page's is not. A page kind the live site does not have (it answers 404) must throw no error and show text. A page the build has no file for, or that does not load, is refused. Every number and sentence is the tool's settings.json. It only reads the build and writes pictures of each page into the folder you name; the answer's refused count is 0 when the build may go live. Exit code 1 when any page is refused, 0 when none is, 2 when it could not run.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "pages": {
+              "type": "string",
+              "description": "The built pages folder (the folder the site serves at /), put where {pages} is."
+            },
+            "live": {
+              "type": "string",
+              "description": "The live site's origin, such as https://school.example, put where {live} is."
+            },
+            "out": {
+              "type": "string",
+              "description": "A folder for the pictures (one local and one live picture per page kind), put where {out} is."
+            },
+            "app": {
+              "type": "string",
+              "description": "Optional: the built app folder when the site has a members app on its own host, put where {app} is; leave `--app {app} --live-app {live_app}` out for none."
+            },
+            "live_app": {
+              "type": "string",
+              "description": "The live origin of that app, put where {live_app} is."
+            }
+          },
+          "required": [
+            "pages",
+            "live",
+            "out"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line printed: {\"result\": {\"refused\": number of refused pages, \"pages\": [{kind, url, live_url, height_px, live_height_px, height_to_live, new_page_errors, reading_font, live_reading_font, serif_where_live_is_not, visible_text_chars, screenshots: {local, live}, refused, why: [sentence]}]}}. The build may go live when refused is 0."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "install Node 24 and a Chromium-family browser (Chrome, Chromium, Edge or Brave; tools/headless-browser/browser-places.json lists where it is looked for), or name one in BROWSER_EXECUTABLE"
+          ],
+          "run": "node tools/check-a-site-build-in-a-browser/do-work/check-site-build.mjs --pages {pages} --live {live} --out {out} --app {app} --live-app {live_app}",
+          "needs": [
+            "node",
+            "a Chromium-family browser",
+            "the built site folder on this computer",
+            "internet to the live site"
+          ],
+          "say": "This runs on the computer that holds the built site, from the root of the Workshop checkout, before the build is applied. Read the last line it prints. Tell the person each refused page: its kind, the sentences in why, and the two pictures (screenshots.local and screenshots.live). A refused count above 0 means the build must not go live; do not apply it. Change nothing in the build yourself."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:check-a-site-build-in-a-browser",
+        "provenance": {
+          "source": "Nov 24 2026: two site builds went live with every server check green: the home page's reading text fell back to Times and every course page drew blank with a toUpperCase page error. A browser look before the apply catches both."
+        }
+      }
+    }
+  ]
+}
