@@ -99,8 +99,12 @@ writeFileSync(join(named, toursName), tours);
 
 // The page's own build, as one set of options: built once to learn which files the page holds, then again with the
 // files the tools' own screens share with it (scripts/screen-modules.mjs).
+// Every build here keeps a linked folder's own path (`preserveSymlinks`): an apply links the Workshop's node_modules into the
+// tree it unpacks, and esbuild otherwise names each package by the link's target, a folder of the computer that ran the apply,
+// so its path went into the bundles' bytes and their content names, and every apply renamed every bundle (Nov 25 2026: the
+// gateway's differences listed 754 new names, 754 stray ones and 99 changed pages for an engine-only change).
 const pageBuild = (extraEntries = {}, extraPlugins = [], write = true) => build({
-  absWorkingDir: root,
+  absWorkingDir: root, preserveSymlinks: true,
   // The screen view an AI app draws (src/workspace/screen-view.tsx) is an entry of the same build, so it mounts the very
   // screens the page does, from the same files.
   // The signed-in workspace as files any computer serves (src/workspace/account-workspace.ts) is an entry of the same
@@ -154,7 +158,7 @@ const bundled = keepBundleNames(await pageBuild(shared.entryPoints, [shared.plug
 // The view an AI app draws when show_file names it (src/workspace/file-view.tsx): the shared file preview and player,
 // in the same look, served beside the workspace as file-view.js (its classes are the workspace's, so it shares workspace.css).
 const fileView = await build({
-  absWorkingDir: root,
+  absWorkingDir: root, preserveSymlinks: true,
   entryPoints: ['src/workspace/file-view.tsx'],
   bundle: true, format: 'iife', platform: 'browser', target: 'es2022', minify: true, jsx: 'automatic',
   outfile: join(out, 'file-view.js'), metafile: true, logLevel: 'warning', legalComments: 'none',
@@ -163,7 +167,7 @@ const fileView = await build({
 });
 // Public share pages mount the same media player, without loading the signed-in workspace program.
 const shareView = await build({
-  absWorkingDir: root,
+  absWorkingDir: root, preserveSymlinks: true,
   entryPoints: ['src/workspace/share-view.tsx'],
   bundle: true, format: 'iife', platform: 'browser', target: 'es2022', minify: true, jsx: 'automatic',
   outfile: join(out, 'share-view.js'), metafile: true, logLevel: 'warning', legalComments: 'none',
@@ -174,7 +178,7 @@ const shareView = await build({
 // bytes as a content-named file beside it; device-copy-worker.js is a one-line fixed address importing this build's.
 const deviceCopyEntry = relative(root, join(parts, 'device-copy/do-work/device-copy-worker.mjs'));
 const deviceCopyWorker = keepBundleNames(await build({
-  absWorkingDir: root,
+  absWorkingDir: root, preserveSymlinks: true,
   entryPoints: { 'device-copy-worker': deviceCopyEntry },
   bundle: true, format: 'esm', platform: 'browser', target: 'es2022', minify: true,
   outdir: named, entryNames: '[name]-[hash]', assetNames: '[name]-[hash]', publicPath: PUBLIC_NAMED,

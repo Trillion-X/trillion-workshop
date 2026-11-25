@@ -22,7 +22,7 @@ export function writeHarnessSetupAssets({ root, out }) {
     const source = servedFrom(root, file);
     if (file.endsWith('.mjs')) {
       // The downloaded installer has no adjacent node_modules. Bundle its existing content-identity owner.
-      const built = buildSync({ absWorkingDir: root, entryPoints: [source], outfile: join(destination, file), bundle: true, platform: 'node', target: 'node22', format: 'esm', metafile: true });
+      const built = buildSync({ absWorkingDir: root, preserveSymlinks: true, entryPoints: [source], outfile: join(destination, file), bundle: true, platform: 'node', target: 'node22', format: 'esm', metafile: true });
       inputs.push(...Object.keys(built.metafile.inputs));
     } else {
       copyFileSync(source, join(destination, file)); inputs.push(relative(root, source));
