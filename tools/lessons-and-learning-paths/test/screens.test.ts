@@ -93,3 +93,14 @@ test('a file recording is handed to the shared player, which draws after it arri
   assert.doesNotMatch(html, /<iframe/);
   assert.match(html, /Second lesson/);
 });
+
+test('the catalogue draws a linked card per course, a picture only when it has one, and the heading', async () => {
+  const courses = [{ slug: 'first-principles', title: 'First principles', short_description: 'How it works.', category: 'Technique', image: 'abc' }, { slug: 'the greats', title: 'The greats', short_description: '', category: '', image: '' }];
+  const html = await renderAView(at('CourseList.tsx'), { courses, heading: 'Courses', base_path: '/courses/', image_template: 'https://img.example/{image}.jpg' });
+  assert.match(html, /Courses/);
+  assert.match(html, /href="\/courses\/first-principles"/);
+  assert.match(html, /href="\/courses\/the%20greats"/);
+  assert.equal((html.match(/<img/g) ?? []).length, 1);
+  assert.match(html, /src="https:\/\/img\.example\/abc\.jpg"/);
+  assert.match(await renderAView(at('CourseList.tsx'), { courses: [], heading: 'Courses' }), /Courses/);
+});

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { embedUrlOf, lessonHref, passagesFromWords, readCourse, readLesson, tablesOf, videoOf } from '../do-work/courses.ts';
+import { readCourses, embedUrlOf, lessonHref, passagesFromWords, readCourse, readLesson, tablesOf, videoOf } from '../do-work/courses.ts';
 import { readDone, saveDone } from '../do-work/progress.ts';
 
 type Call = { sql: string; params: unknown[] };
@@ -96,4 +96,12 @@ test('done marks: read needs a person; saving twice adds one row; a lesson of an
   const insert = fake(() => []);
   await assert.rejects(saveDone({ database: 'd', person: 'p', course: 'c', lesson: 'zz' }, insert.rows), /nothing was saved/);
   assert.equal(insert.calls.length, 1, 'no insert is sent for a lesson the course does not hold');
+});
+
+test('the catalogue read answers every course in sort order (the statement turns a missing column into empty words), and renames only plain tables', async () => {
+  const asked: string[] = [];
+  const answer = await readCourses({ database: 'd', tables: { courses: 'ethos_courses' } }, async sql => { asked.push(sql); return [{ slug: 'a', title: 'A', short_description: 'About A', category: 'Technique', image: 'img1' }, { slug: 'b', title: 'B', short_description: '', category: '', image: '' }]; });
+  assert.match(asked[0], /from "ethos_courses" order by "sort_order", "slug"$/);
+  assert.deepEqual(answer.courses.map(course => [course.slug, course.short_description, course.image]), [['a', 'About A', 'img1'], ['b', '', '']]);
+  await assert.rejects(readCourses({ database: 'd', tables: { courses: 'x; drop' } }, async () => []), /plain table name/);
 });

@@ -1,0 +1,37 @@
+{
+  "start_here": "Say to your AI: \"Show every course I offer.\" It runs tool:read-the-courses and shows one card per course.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it reads the courses table of the pursuit database you name and changes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:read-the-courses"
+  ],
+  "instructions": [
+    "1. Name the pursuit database that holds the rows, such as example_for_who_uses_it; the computer opens it with the read login its vault holds.",
+    "2. Say what you want in plain words; your AI calls tools:run with tool tool:read-the-courses and the input.",
+    "3. Read the answer: every course with its title, category, short description and picture. Show it with the screen the tool names."
+  ],
+  "worked_examples": [
+    {
+      "title": "List the courses",
+      "ask": "Show every course I offer.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-the-courses",
+            "input": {
+              "database": "example_for_who_uses_it"
+            }
+          }
+        }
+      },
+      "given": "The database holds the rows the read names (made-up values).",
+      "hands_back": "{\"courses\":[{\"slug\":\"first-principles\",\"title\":\"First principles\",\"short_description\":\"How the stroke works.\",\"category\":\"Technique\",\"image\":\"abc123\"}]}"
+    }
+  ],
+  "drafted_from": "tool row in tools/lessons-and-learning-paths/tool-rows.json and do-work/courses.ts"
+}

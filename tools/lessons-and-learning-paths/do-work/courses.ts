@@ -30,7 +30,7 @@ export const SOURCE = {
     links: 'lesson_video_links',
     done: 'lesson_done',
   },
-  courses: { slug: 'slug', title: 'title', description: 'description', short_description: 'short_description', order: 'sort_order' },
+  courses: { slug: 'slug', title: 'title', description: 'description', short_description: 'short_description', order: 'sort_order', category: 'category', image: 'first_lesson_image_id' },
   lessons: { course: 'course_id', id: 'lesson_id', position: 'position', title: 'title', video: 'video_id' },
   words: { video: 'video_id', n: 'n', word: 'word', start: 'start_s', end: 'end_s' },
   links: { lesson: 'lesson_id', url: 'video_url' },
@@ -141,6 +141,17 @@ async function courseRow(rows: Rows, tables: Tables, course: string) {
   return { slug: String(found[0].slug), title: String(found[0].title), description: String(found[0].description) };
 }
 
+export type CourseCard = { slug: string; title: string; short_description: string; category: string; image: string };
+export type CatalogueAnswer = { courses: CourseCard[] };
+
+// Every course the pursuit offers, in its own order: what a catalogue page draws as one card each.
+export const readCourses: Reader<{ database: string; tables?: Partial<Tables> }, CatalogueAnswer> = async (input, rows) => {
+  const tables = tablesOf(input.tables);
+  const { courses } = SOURCE;
+  const found = await rows(`select ${quote(courses.slug)} as slug, ${quote(courses.title)} as title, coalesce(${quote(courses.short_description)}, '') as short_description, coalesce(${quote(courses.category)}, '') as category, coalesce(${quote(courses.image)}, '') as image from ${quote(tables.courses)} order by ${quote(courses.order)}, ${quote(courses.slug)}`);
+  return { courses: found.map(row => ({ slug: String(row.slug), title: String(row.title), short_description: String(row.short_description), category: String(row.category), image: String(row.image) })) };
+};
+
 export const readCourse: Reader<Given, CourseAnswer> = async (input, rows) => {
   const tables = tablesOf(input.tables);
   const course = await courseRow(rows, tables, input.course);
@@ -176,5 +187,5 @@ export const readLesson: Reader<Given & { lesson: string; files_base_url?: strin
 
 if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   const { serveARead } = await import('../../run-sql-in-my-database/do-work/serve-a-read.ts');
-  await serveARead({ readCourse, readLesson });
+  await serveARead({ readCourse, readLesson, readCourses });
 }
